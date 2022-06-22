@@ -1,0 +1,35 @@
+{
+  "name": "@viem/core",
+  "description": "JavaScript Interface for Ethereum",
+  "license": "WAGMIT",
+  "version": "0.0.0",
+  "repository": "jxom/viem",
+  "author": "moxey.eth",
+  "ethereum": "moxey.eth",
+  "sideEffects": false,
+  "main": "dist/viem-core.cjs.js",
+  "module": "dist/viem-core.esm.js",
+  "types": "dist/viem-core.cjs.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "module": "./dist/viem-core.esm.js",
+      "default": "./dist/viem-core.cjs.js"
+    }
+  },
+  "files": [
+    "/dist"
+  ],
+  "preconstruct": {
+    "entrypoints": [
+      "index.ts"
+    ]
+  },
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3"
+  ]
+}

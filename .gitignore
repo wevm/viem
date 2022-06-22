@@ -1,0 +1,17 @@
+*.local
+.DS_Store
+.eslintcache
+.next
+.pnpm-debug.log*
+cache
+dist
+node_modules
+tsconfig.tsbuildinfo
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.envrc

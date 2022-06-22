@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "lib": ["es2019", "es2017"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "es2021",
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "**/dist/**"],
+  "include": ["packages/**/*"]
+}
