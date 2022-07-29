@@ -1,0 +1,4 @@
+{
+  "main": "dist/viem-window.cjs.js",
+  "module": "dist/viem-window.esm.js"
+}
