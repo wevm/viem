@@ -112,11 +112,14 @@ importers:
 
   packages/viem:
     specifiers:
+      '@types/node': ^17.0.45
       '@walletconnect/ethereum-provider': ^1.7.8
       '@walletconnect/types': ^1.7.8
     dependencies:
       '@walletconnect/ethereum-provider': 1.7.8
       '@walletconnect/types': 1.7.8
+    devDependencies:
+      '@types/node': 17.0.45
 
 packages:
 

@@ -11,6 +11,7 @@ import {
   RequestError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
+  RpcError,
   TransactionRejectedRpcError,
 } from './errors'
 
@@ -47,7 +48,9 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         throw new JsonRpcVersionUnsupportedError(<RequestError>err)
       if ((<RequestError>err).code === -32602)
         throw new InvalidParamsRpcError(<RequestError>err)
-      throw err
+      throw new RpcError(<RequestError>err, {
+        humanMessage: 'An unknown error occurred.',
+      })
     }
   }) as TRequest
 }

@@ -11,6 +11,7 @@
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "strict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["node"]
   }
 }
