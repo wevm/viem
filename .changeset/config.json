@@ -9,6 +9,7 @@
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
   "ignore": [
+    "docs",
     "dev-example"
   ]
 }

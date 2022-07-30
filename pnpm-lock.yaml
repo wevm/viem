@@ -56,6 +56,33 @@ importers:
       typescript: 4.7.4
       vitest: 0.15.2_jcfjdqfldivpyjgll3wfgmwbia
 
+  docs:
+    specifiers:
+      '@preconstruct/next': ^4.0.0
+      '@types/node': ^17.0.45
+      '@types/react': 18.0.15
+      '@types/react-dom': 18.0.6
+      '@types/styled-jsx': ^3.4.4
+      eslint: ^8.19.0
+      eslint-config-next: 12.2.2
+      next: 12.2.2
+      react: 18.2.0
+      react-dom: 18.2.0
+      typescript: ^4.7.4
+    dependencies:
+      next: 12.2.2_biqbaboplfbrettd7655fr4n2y
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      '@preconstruct/next': 4.0.0
+      '@types/node': 17.0.45
+      '@types/react': 18.0.15
+      '@types/react-dom': 18.0.6
+      '@types/styled-jsx': 3.4.4_react@18.2.0
+      eslint: 8.20.0
+      eslint-config-next: 12.2.2_he2ccbldppg44uulnyq4rwocfa
+      typescript: 4.7.4
+
   examples/_dev:
     specifiers:
       '@preconstruct/next': ^4.0.0
@@ -2007,6 +2034,17 @@ packages:
 
   /@types/semver/6.2.3:
     resolution: {integrity: sha512-KQf+QAMWKMrtBMsB8/24w53tEsxllMj6TuA80TT/5igJalLI/zm0L3oXRbIAl4Ohfc85gyHX/jhMwsVkmhLU4A==}
+    dev: true
+
+  /@types/styled-jsx/3.4.4_react@18.2.0:
+    resolution: {integrity: sha512-PRRa7gU7ske4Vs7sKWrqfKnuIIS6E/Yj5oKyxuM11AwOKhH9HlbQ7cKGLluXkOXzpEoDJE+6kQMj3AE34/JooQ==}
+    deprecated: This is a stub types definition. styled-jsx provides its own type definitions, so you do not need this installed.
+    dependencies:
+      styled-jsx: 5.0.2_react@18.2.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+      - react
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.30.7_6wltbjakwuqm7awqswigmiuhd4:
@@ -5313,7 +5351,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /read-pkg-up/7.0.1:
     resolution: {integrity: sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==}
@@ -5813,7 +5850,6 @@ packages:
         optional: true
     dependencies:
       react: 18.2.0
-    dev: false
 
   /supports-color/5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
