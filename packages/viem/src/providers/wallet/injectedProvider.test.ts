@@ -22,18 +22,11 @@ test('creates', async () => {
     },
   })
 
-  const provider = injectedProvider({
-    chains: [mainnet, polygon],
-  })
-
-  expect(await provider?.connect()).toMatchInlineSnapshot(`
-    {
-      "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
-      "request": [Function],
-    }
-  `)
-
-  expect(provider).toMatchInlineSnapshot(`
+  expect(
+    injectedProvider({
+      chains: [mainnet, polygon],
+    }),
+  ).toMatchInlineSnapshot(`
     {
       "chains": [
         {
@@ -101,6 +94,31 @@ test('creates', async () => {
       "connect": [Function],
       "on": [Function],
       "removeListener": [Function],
+      "request": [Function],
+    }
+  `)
+})
+
+test('connects', async () => {
+  vi.stubGlobal('window', {
+    ethereum: {
+      on: () => null,
+      removeListener: () => null,
+      request: vi.fn(({ method }) => {
+        if (method === 'eth_requestAccounts') {
+          return ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']
+        }
+      }),
+    },
+  })
+
+  const provider = injectedProvider({
+    chains: [mainnet, polygon],
+  })
+
+  expect(await provider?.connect()).toMatchInlineSnapshot(`
+    {
+      "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
       "request": [Function],
     }
   `)

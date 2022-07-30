@@ -5,7 +5,7 @@ import { walletConnectProvider } from './walletConnectProvider'
 
 vi.mock('@walletconnect/ethereum-provider', async () => {
   return {
-    default: class WC {
+    default: class WalletConnect {
       enable = vi.fn(() =>
         Promise.resolve(['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']),
       )
@@ -21,30 +21,11 @@ vi.mock('@walletconnect/ethereum-provider', async () => {
 })
 
 test('creates', async () => {
-  vi.stubGlobal('window', {
-    ethereum: {
-      on: () => null,
-      removeListener: () => null,
-      request: vi.fn(({ method }) => {
-        if (method === 'eth_requestAccounts') {
-          return ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']
-        }
-      }),
-    },
-  })
-
-  const provider = walletConnectProvider({
-    chains: [mainnet, polygon],
-  })
-
-  expect(await provider?.connect()).toMatchInlineSnapshot(`
-    {
-      "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
-      "request": [Function],
-    }
-  `)
-
-  expect(provider).toMatchInlineSnapshot(`
+  expect(
+    walletConnectProvider({
+      chains: [mainnet, polygon],
+    }),
+  ).toMatchInlineSnapshot(`
     {
       "chains": [
         {
@@ -112,6 +93,19 @@ test('creates', async () => {
       "connect": [Function],
       "on": [Function],
       "removeListener": [Function],
+      "request": [Function],
+    }
+  `)
+})
+
+test('connect', async () => {
+  const provider = walletConnectProvider({
+    chains: [mainnet, polygon],
+  })
+
+  expect(await provider?.connect()).toMatchInlineSnapshot(`
+    {
+      "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
       "request": [Function],
     }
   `)
