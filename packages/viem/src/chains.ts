@@ -319,28 +319,10 @@ export const arbitrumRinkeby = createChain({
   testnet: true,
 } as const)
 
-export const localhost = createChain({
+export const local = createChain({
   id: 1337,
   name: 'Localhost',
   network: 'localhost',
-  rpcUrls: {
-    public: 'http://127.0.0.1:8545',
-  },
-} as const)
-
-export const hardhat = createChain({
-  id: 31337,
-  name: 'Hardhat',
-  network: 'hardhat',
-  rpcUrls: {
-    public: 'http://127.0.0.1:8545',
-  },
-} as const)
-
-export const foundry = createChain({
-  id: 31337,
-  name: 'Foundry',
-  network: 'foundry',
   rpcUrls: {
     public: 'http://127.0.0.1:8545',
   },

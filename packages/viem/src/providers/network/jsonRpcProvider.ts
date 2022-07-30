@@ -1,5 +1,5 @@
 import { Chain } from '../../types'
-import { jsonRpc } from '../../utils/request'
+import { rpc } from '../../utils/rpc'
 import { NetworkProvider, createNetworkProvider } from './createNetworkProvider'
 
 export type JsonRpcProvider<TChain extends Chain> = NetworkProvider<TChain>
@@ -16,7 +16,7 @@ export function jsonRpcProvider<TChain extends Chain = Chain>({
   return createNetworkProvider({
     chains,
     async request({ method, params }: any) {
-      const { result } = await jsonRpc(url, {
+      const { result } = await rpc.http(url, {
         body: {
           method,
           params,

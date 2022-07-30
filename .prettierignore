@@ -3,3 +3,5 @@ dist
 generated
 CHANGELOG.md
 pnpm-lock.yaml
+coverage
+.next

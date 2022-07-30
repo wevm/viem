@@ -2,6 +2,7 @@
   "name": "@viem/root",
   "private": true,
   "scripts": {
+    "anvil": "source .env && anvil --fork-url $ANVIL_FORK_URL --fork-block-number 15132000",
     "build": "preconstruct build",
     "dev": "preconstruct dev && pnpm --filter dev-example dev",
     "format": "prettier . --write",
@@ -10,7 +11,9 @@
     "postinstall": "husky install .config/husky && preconstruct dev",
     "preinstall": "npx only-allow pnpm",
     "size": "bundlewatch --config .config/bundlewatch.config.js",
-    "test": "vitest",
+    "test": "vitest dev --coverage",
+    "test:ci": "vitest",
+    "test:ui": "vitest dev --ui",
     "typecheck": "tsc --noEmit"
   },
   "preconstruct": {
@@ -30,7 +33,9 @@
     "@types/prettier": "^2.6.3",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
+    "@vitest/ui": "^0.19.1",
     "bundlewatch": "^0.3.3",
+    "c8": "^7.12.0",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^2.7.1",
@@ -44,9 +49,6 @@
     "vitest": "^0.15.2"
   },
   "lint-staged": {
-    "packages/**/*.{ts,tsx}": [
-      "pnpm typecheck"
-    ],
     "*.{js,ts,tsx}": [
       "pnpm format",
       "pnpm lint:fix"

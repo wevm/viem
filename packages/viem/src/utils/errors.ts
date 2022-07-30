@@ -1,7 +1,3 @@
-/**
- * Error subclass implementing Ethereum Provider errors per EIP-1193.
- * @see https://eips.ethereum.org/EIPS/eip-1193
- */
 export class ProviderRpcError extends Error {
   code: number
 
@@ -16,10 +12,6 @@ export class ProviderRpcError extends Error {
   }
 }
 
-/**
- * Error subclass implementing JSON RPC 2.0 errors and Ethereum RPC errors per EIP-1474.
- * @see https://eips.ethereum.org/EIPS/eip-1474
- */
 export class RpcError extends Error {
   code: number
 
@@ -30,6 +22,17 @@ export class RpcError extends Error {
     humanMessage: string,
   ) {
     super([humanMessage, '', 'Details: ' + message].join('\n'))
+    this.code = code
+  }
+}
+
+export class RequestError extends Error {
+  code: number
+
+  name = 'RequestError'
+
+  constructor({ code, message }: { code: number; message: string }) {
+    super(message)
     this.code = code
   }
 }
@@ -99,7 +102,7 @@ export class InvalidInputRpcError extends RpcError {
       [
         'Missing or invalid parameters.',
         'Double check you have provided the correct parameters.',
-        ...(docsLink ? ['', 'Docs: https://sad.com/'] : []),
+        ...(docsLink ? ['', `Docs: ${docsLink}`] : []),
       ].join('\n'),
     )
   }
