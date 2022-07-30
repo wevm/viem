@@ -10,6 +10,7 @@ export async function watchSigner(
   const handleAccountsChanged = async (addresses: string[]) =>
     listener({
       signer: createSigner(provider, {
+        // TODO: checksum addresses
         address: addresses[0],
       }),
     })

@@ -50,6 +50,7 @@ export function walletConnectProvider({
 
     async connect() {
       const addresses = await provider.enable()
+      // TODO: checksum addresses
       return { address: addresses[0] }
     },
   })

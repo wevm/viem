@@ -16,6 +16,7 @@ export function createSigner(
   { address }: CreateSignerConfig,
 ): Signer {
   return {
+    // TODO: checksum address
     address,
     request: buildRequest(<any>provider.request),
   }

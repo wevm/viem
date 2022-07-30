@@ -26,6 +26,7 @@ export function injectedProvider({
 
     async connect() {
       const addresses = await requestAccounts(this)
+      // TODO: checksum addresses
       return {
         address: addresses[0],
       }
