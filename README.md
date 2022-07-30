@@ -1,3 +1,3 @@
-# viem
-
-TypeScript (& JavaScript) Interface for Ethereum
+<p align="center">
+  TypeScript (& JavaScript) Interface for Ethereum
+<p>
