@@ -6,5 +6,5 @@
 </p>
 
 <p align="center">
-  TypeScript (& JavaScript) Interface for Ethereum
+  TypeScript Interface for Ethereum
 <p>
