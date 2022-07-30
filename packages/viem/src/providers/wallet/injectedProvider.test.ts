@@ -119,7 +119,6 @@ test('connects', async () => {
   expect(await provider?.connect()).toMatchInlineSnapshot(`
     {
       "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
-      "request": [Function],
     }
   `)
 })

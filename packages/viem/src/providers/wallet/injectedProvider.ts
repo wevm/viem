@@ -1,4 +1,3 @@
-import { createProviderSigner } from '../../signers/createProviderSigner'
 import { requestAccounts } from '../../actions'
 import { Chain, InjectedRequests, PublicRequests } from '../../types'
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
@@ -21,16 +20,15 @@ export function injectedProvider({
 
   return createWalletProvider<InjectedProviderRequestFn>({
     chains,
-    on: window.ethereum!.on,
-    removeListener: window.ethereum!.removeListener,
-    request: window.ethereum!.request,
+    on: window.ethereum!.on.bind(window.ethereum!),
+    removeListener: window.ethereum!.removeListener.bind(window.ethereum!),
+    request: window.ethereum!.request.bind(window.ethereum!),
 
     async connect() {
       const addresses = await requestAccounts(this)
-      return createProviderSigner({
+      return {
         address: addresses[0],
-        request: window.ethereum!.request,
-      })
+      }
     },
   })
 }

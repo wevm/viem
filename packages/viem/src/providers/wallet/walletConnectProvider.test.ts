@@ -9,6 +9,7 @@ vi.mock('@walletconnect/ethereum-provider', async () => {
       enable = vi.fn(() =>
         Promise.resolve(['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']),
       )
+      disconnect = vi.fn(() => null)
       on = vi.fn(() => null)
       removeListener = vi.fn(() => null)
       request = vi.fn(({ method }) => {
@@ -91,6 +92,7 @@ test('creates', async () => {
         },
       ],
       "connect": [Function],
+      "disconnect": [Function],
       "on": [Function],
       "removeListener": [Function],
       "request": [Function],
@@ -106,7 +108,6 @@ test('connect', async () => {
   expect(await provider?.connect()).toMatchInlineSnapshot(`
     {
       "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
-      "request": [Function],
     }
   `)
 })

@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest'
 
 import { mainnet, polygon } from '../../chains'
-import { createProviderSigner } from '../../signers/createProviderSigner'
 import { createWalletProvider } from './createWalletProvider'
 
 test('creates', () => {
@@ -9,11 +8,9 @@ test('creates', () => {
 
   const provider = createWalletProvider({
     chains,
-    connect: async () =>
-      createProviderSigner({
-        address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-        request: <any>(async () => null),
-      }),
+    connect: async () => ({
+      address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    }),
     on: <any>(async () => null),
     removeListener: <any>(async () => null),
     request: <any>(async () => null),

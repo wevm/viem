@@ -7,6 +7,7 @@
     "/chains",
     "/dist",
     "/providers",
+    "/signers",
     "/types",
     "/window"
   ],
@@ -28,6 +29,10 @@
       "module": "./providers/wallet/dist/viem-providers-wallet.esm.js",
       "default": "./providers/wallet/dist/viem-providers-wallet.cjs.js"
     },
+    "./signers": {
+      "module": "./signers/dist/viem-signers.esm.js",
+      "default": "./signers/dist/viem-signers.cjs.js"
+    },
     "./window": {
       "module": "./window/dist/viem-window.esm.js",
       "default": "./window/dist/viem-window.cjs.js"
@@ -39,6 +44,7 @@
       "chains.ts",
       "providers/network/index.ts",
       "providers/wallet/index.ts",
+      "signers/index.ts",
       "window.ts"
     ]
   },

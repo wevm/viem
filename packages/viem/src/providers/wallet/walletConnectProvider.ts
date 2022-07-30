@@ -1,7 +1,6 @@
 import WalletConnect from '@walletconnect/ethereum-provider'
 import { IWCRpcConnectionOptions } from '@walletconnect/types'
 
-import { createProviderSigner } from '../../signers/createProviderSigner'
 import { Chain } from '../../types'
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
 
@@ -10,7 +9,9 @@ export type WalletConnectProviderConfig = IWCRpcConnectionOptions & {
   rpcUrl?: (chain: Chain) => string
 }
 
-export type WalletConnectProvider = WalletProvider
+export type WalletConnectProvider = WalletProvider & {
+  disconnect: () => Promise<void>
+}
 
 export function walletConnectProvider({
   bridge,
@@ -41,7 +42,7 @@ export function walletConnectProvider({
     storageId,
   })
 
-  return createWalletProvider({
+  const walletProvider = createWalletProvider({
     chains,
     on: provider.on.bind(provider),
     removeListener: provider.removeListener.bind(provider),
@@ -49,10 +50,12 @@ export function walletConnectProvider({
 
     async connect() {
       const addresses = await provider.enable()
-      return createProviderSigner({
-        address: addresses[0],
-        request: provider.request.bind(provider),
-      })
+      return { address: addresses[0] }
     },
   })
+
+  return {
+    ...walletProvider,
+    disconnect: provider.disconnect.bind(provider),
+  }
 }

@@ -1,25 +1,25 @@
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { local } from '../chains'
-import { injectedProvider } from '../providers/wallet/injectedProvider'
+import { createWalletProvider } from '../providers/wallet/createWalletProvider'
 
 import { requestAccounts } from './requestAccounts'
 
-vi.stubGlobal('window', {
-  ethereum: {
-    on: () => null,
-    removeListener: () => null,
-    request: vi.fn(({ method }) => {
-      if (method === 'eth_requestAccounts') {
-        return ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']
-      }
-    }),
-  },
+// TODO: create test wallet provider
+const provider = createWalletProvider({
+  chains: [local],
+  connect: <any>(async () => null),
+  on: <any>(async () => null),
+  removeListener: <any>(async () => null),
+  request: <any>(async ({ method }) => {
+    if (method === 'eth_requestAccounts') {
+      return ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']
+    }
+  }),
 })
 
 test('fetches block number', async () => {
-  const provider = injectedProvider({ chains: [local] })
-  expect(await requestAccounts(provider!)).toMatchInlineSnapshot(`
+  expect(await requestAccounts(provider)).toMatchInlineSnapshot(`
     [
       "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
     ]
