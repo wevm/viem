@@ -1,15 +1,15 @@
 import { ConnectedRequests } from '../types/ethereum-provider'
 import { buildRequest } from '../utils/buildRequest'
 
-export type ProviderAccount = {
+export type ProviderSigner = {
   address: string
   request: ConnectedRequests['request']
 }
 
-export function createProviderAccount({
+export function createProviderSigner({
   address,
   request,
-}: ProviderAccount): ProviderAccount {
+}: ProviderSigner): ProviderSigner {
   return {
     address,
     request: buildRequest(request),

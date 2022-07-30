@@ -1,4 +1,4 @@
-import { createProviderAccount } from '../../accounts/createProviderAccount'
+import { createProviderSigner } from '../../signers/createProviderSigner'
 import { requestAccounts } from '../../actions'
 import { Chain, InjectedRequests, PublicRequests } from '../../types'
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
@@ -27,7 +27,7 @@ export function injectedProvider({
 
     async connect() {
       const addresses = await requestAccounts(this)
-      return createProviderAccount({
+      return createProviderSigner({
         address: addresses[0],
         request: window.ethereum!.request,
       })

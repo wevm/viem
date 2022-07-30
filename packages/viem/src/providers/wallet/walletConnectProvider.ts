@@ -1,6 +1,6 @@
 import WalletConnect from '@walletconnect/ethereum-provider'
 
-import { createProviderAccount } from '../../accounts/createProviderAccount'
+import { createProviderSigner } from '../../signers/createProviderSigner'
 import { Chain } from '../../types'
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
 
@@ -30,7 +30,7 @@ export function walletConnectProvider({
 
     async connect() {
       const addresses = await provider.enable()
-      return createProviderAccount({
+      return createProviderSigner({
         address: addresses[0],
         request: provider.request.bind(provider),
       })

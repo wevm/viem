@@ -1,11 +1,11 @@
-import { ProviderAccount } from '../accounts/createProviderAccount'
+import { ProviderSigner } from '../signers/createProviderSigner'
 import { TransactionRequest } from '../types/ethereum-provider'
 
 export async function sendTransaction(
-  provider: ProviderAccount,
+  signer: ProviderSigner,
   request: TransactionRequest,
 ) {
-  return await provider.request({
+  return await signer.request({
     method: 'eth_sendTransaction',
     params: [request],
   })

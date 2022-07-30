@@ -1,4 +1,4 @@
-import { ProviderAccount } from '../../accounts/createProviderAccount'
+import { ProviderSigner } from '../../signers/createProviderSigner'
 import { Chain, Events } from '../../types'
 import {
   BaseProvider,
@@ -9,7 +9,7 @@ import {
 export type WalletProvider<
   TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
 > = BaseProvider<Chain, TRequestFn> & {
-  connect: () => Promise<ProviderAccount>
+  connect: () => Promise<ProviderSigner>
   on: Events['on']
   removeListener: Events['removeListener']
 }
