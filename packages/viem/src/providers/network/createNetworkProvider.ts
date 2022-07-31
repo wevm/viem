@@ -1,14 +1,18 @@
-import { Chain } from '../../types'
 import { BaseProvider, createBaseProvider } from '../createBaseProvider'
 
-export type NetworkProvider<TChain extends Chain> = BaseProvider<TChain>
+export type NetworkProviderConfig = BaseProvider
 
-export function createNetworkProvider<TChain extends Chain>({
-  chains,
+export type NetworkProvider = BaseProvider & {
+  type: 'networkProvider'
+}
+
+export function createNetworkProvider({
   request,
-}: NetworkProvider<TChain>): NetworkProvider<TChain> {
-  return createBaseProvider({
-    chains,
-    request,
-  })
+}: NetworkProviderConfig): NetworkProvider {
+  return {
+    ...createBaseProvider({
+      request,
+    }),
+    type: 'networkProvider',
+  }
 }

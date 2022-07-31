@@ -5,8 +5,8 @@ import * as signers from './index'
 test('exports signers', () => {
   expect(signers).toMatchInlineSnapshot(`
     {
-      "createSigner": [Function],
-      "watchSigner": [Function],
+      "getProviderAccount": [Function],
+      "watchProviderAccount": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

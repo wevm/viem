@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "fetchBlockNumber": [Function],
       "requestAccounts": [Function],
+      "sendTransaction": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

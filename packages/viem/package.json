@@ -2,12 +2,13 @@
   "name": "viem",
   "description": "TypeScript (& JavaScript) Interface for Ethereum",
   "version": "0.0.0",
+  "dependencies": {},
   "files": [
+    "/accounts",
     "/actions",
     "/chains",
     "/dist",
     "/providers",
-    "/signers",
     "/types",
     "/window"
   ],
@@ -21,6 +22,10 @@
       "module": "./chains/dist/viem-chains.esm.js",
       "default": "./chains/dist/viem-chains.cjs.js"
     },
+    "./accounts": {
+      "module": "./accounts/dist/viem-accounts.esm.js",
+      "default": "./accounts/dist/viem-accounts.cjs.js"
+    },
     "./providers/network": {
       "module": "./providers/network/dist/viem-providers-network.esm.js",
       "default": "./providers/network/dist/viem-providers-network.cjs.js"
@@ -28,10 +33,6 @@
     "./providers/wallet": {
       "module": "./providers/wallet/dist/viem-providers-wallet.esm.js",
       "default": "./providers/wallet/dist/viem-providers-wallet.cjs.js"
-    },
-    "./signers": {
-      "module": "./signers/dist/viem-signers.esm.js",
-      "default": "./signers/dist/viem-signers.cjs.js"
     },
     "./window": {
       "module": "./window/dist/viem-window.esm.js",
@@ -42,9 +43,9 @@
     "entrypoints": [
       "actions/index.ts",
       "chains.ts",
+      "accounts/index.ts",
       "providers/network/index.ts",
       "providers/wallet/index.ts",
-      "signers/index.ts",
       "window.ts"
     ]
   },
@@ -61,9 +62,5 @@
     "dapps",
     "wallet",
     "web3"
-  ],
-  "dependencies": {
-    "@walletconnect/ethereum-provider": "^1.7.8",
-    "@walletconnect/types": "^1.7.8"
-  }
+  ]
 }

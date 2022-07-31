@@ -1,33 +1,35 @@
-import { Chain, Events } from '../../types'
+import { Events } from '../../types'
 import {
   BaseProvider,
   BaseProviderRequestFn,
   createBaseProvider,
 } from '../createBaseProvider'
 
-export type WalletProvider<
+export type WalletProviderConfig<
   TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
-> = BaseProvider<Chain, TRequestFn> & {
-  connect: () => Promise<{ address: string }>
+> = BaseProvider<TRequestFn> & {
   on: Events['on']
   removeListener: Events['removeListener']
 }
 
+export type WalletProvider<
+  TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
+> = WalletProviderConfig<TRequestFn> & {
+  type: 'walletProvider'
+}
+
 export function createWalletProvider<TRequestFn extends BaseProviderRequestFn>({
-  chains,
-  connect,
   on,
   removeListener,
   request,
-}: WalletProvider<TRequestFn>): WalletProvider<TRequestFn> {
+}: WalletProviderConfig<TRequestFn>): WalletProvider<TRequestFn> {
   const baseProvider = createBaseProvider({
-    chains,
     request,
   })
   return {
     ...baseProvider,
-    connect,
     on,
     removeListener,
+    type: 'walletProvider',
   }
 }

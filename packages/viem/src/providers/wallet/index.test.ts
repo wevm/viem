@@ -5,8 +5,8 @@ import * as providers from './index'
 test('exports providers', () => {
   expect(providers).toMatchInlineSnapshot(`
     {
+      "externalProvider": [Function],
       "injectedProvider": [Function],
-      "walletConnectProvider": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

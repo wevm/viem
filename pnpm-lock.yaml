@@ -30,6 +30,7 @@ importers:
       lint-staged: ^13.0.3
       prettier: ^2.7.1
       typescript: ^4.7.4
+      vite: ^3.0.4
       vitest: ^0.15.2
     devDependencies:
       '@babel/core': 7.18.9
@@ -58,6 +59,7 @@ importers:
       lint-staged: 13.0.3
       prettier: 2.7.1
       typescript: 4.7.4
+      vite: 3.0.4
       vitest: 0.15.2_glj36jpv5olhbx7pjbhjddzshm
 
   docs:
@@ -93,6 +95,7 @@ importers:
       '@types/node': ^17.0.45
       '@types/react': 18.0.15
       '@types/react-dom': 18.0.6
+      '@walletconnect/ethereum-provider': ^1.7.8
       eslint: ^8.19.0
       eslint-config-next: 12.2.2
       next: 12.2.2
@@ -101,6 +104,7 @@ importers:
       typescript: ^4.7.4
       viem: workspace:*
     dependencies:
+      '@walletconnect/ethereum-provider': 1.7.8
       next: 12.2.2_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -115,12 +119,7 @@ importers:
       typescript: 4.7.4
 
   packages/viem:
-    specifiers:
-      '@walletconnect/ethereum-provider': ^1.7.8
-      '@walletconnect/types': ^1.7.8
-    dependencies:
-      '@walletconnect/ethereum-provider': 1.7.8
-      '@walletconnect/types': 1.7.8
+    specifiers: {}
 
 packages:
 
@@ -6561,6 +6560,33 @@ packages:
       sass:
         optional: true
       stylus:
+        optional: true
+    dependencies:
+      esbuild: 0.14.49
+      postcss: 8.4.14
+      resolve: 1.22.1
+      rollup: 2.77.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite/3.0.4:
+    resolution: {integrity: sha512-NU304nqnBeOx2MkQnskBQxVsa0pRAH5FphokTGmyy8M3oxbvw7qAXts2GORxs+h/2vKsD+osMhZ7An6yK6F1dA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
         optional: true
     dependencies:
       esbuild: 0.14.49

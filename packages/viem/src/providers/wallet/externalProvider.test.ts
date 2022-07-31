@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest'
 
-import { createWalletProvider } from './createWalletProvider'
+import { externalProvider } from './externalProvider'
 
 test('creates', () => {
-  const provider = createWalletProvider({
-    on: <any>(async () => null),
-    removeListener: <any>(async () => null),
-    request: <any>(async () => null),
-  })
-
+  const fooProvider = {
+    on: () => null,
+    removeListener: () => null,
+    request: <any>(() => null),
+  }
+  const provider = externalProvider(fooProvider)
   expect(provider).toMatchInlineSnapshot(`
     {
       "on": [Function],

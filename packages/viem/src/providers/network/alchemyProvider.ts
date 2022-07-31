@@ -3,10 +3,10 @@ import { JsonRpcProvider, jsonRpcProvider } from './jsonRpcProvider'
 
 export type AlchemyProviderConfig = {
   apiKey?: string
-  chains: AlchemyChain[]
+  chain: AlchemyChain
 }
 
-export type AlchemyProvider = JsonRpcProvider<AlchemyChain>
+export type AlchemyProvider = JsonRpcProvider
 
 export type AlchemyProviderReturnValue = ((
   chain: AlchemyChain,
@@ -17,12 +17,11 @@ const defaultAlchemyApiKey = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC'
 
 export function alchemyProvider({
   apiKey = defaultAlchemyApiKey,
-  chains,
+  chain,
 }: AlchemyProviderConfig): AlchemyProviderReturnValue {
   const provider = (chain: AlchemyChain): AlchemyProvider =>
     jsonRpcProvider({
-      chains,
       url: `${chain.rpcUrls.alchemy}/${apiKey}`,
     })
-  return Object.assign(provider, provider(chains[0]))
+  return Object.assign(provider, provider(chain))
 }

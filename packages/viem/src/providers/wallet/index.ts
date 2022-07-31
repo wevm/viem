@@ -1,2 +1,2 @@
 export { injectedProvider } from './injectedProvider'
-export { walletConnectProvider } from './walletConnectProvider'
+export { externalProvider } from './externalProvider'
