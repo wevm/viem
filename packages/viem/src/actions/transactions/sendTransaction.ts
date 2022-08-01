@@ -1,7 +1,7 @@
-import { AccountProvider } from '../providers/wallet/account/accountProvider'
-import { TransactionRequest } from '../types/ethereum-provider'
+import { AccountProvider } from '../../providers/wallet/account/accountProvider'
+import { TransactionRequest } from '../../types/ethereum-provider'
 
-type SendTransactionArgs = { request: TransactionRequest }
+export type SendTransactionArgs = { request: TransactionRequest }
 
 export async function sendTransaction(
   provider: AccountProvider,

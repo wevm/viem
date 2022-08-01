@@ -8,10 +8,3 @@ export type {
   PublicChain,
   PublicChains,
 } from './chains'
-
-export type {
-  InjectedFlags,
-  InjectedRequests,
-  Events,
-  PublicRequests,
-} from './ethereum-provider'

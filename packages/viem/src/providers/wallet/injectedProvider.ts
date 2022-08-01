@@ -1,4 +1,4 @@
-import { InjectedRequests, PublicRequests } from '../../types'
+import { InjectedRequests, PublicRequests } from '../../types/ethereum-provider'
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
 
 export type InjectedProviderRequestFn = (PublicRequests &

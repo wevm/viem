@@ -1,4 +1,4 @@
-import { Events } from '../../types'
+import { Events } from '../../types/ethereum-provider'
 import {
   BaseProvider,
   BaseProviderRequestFn,

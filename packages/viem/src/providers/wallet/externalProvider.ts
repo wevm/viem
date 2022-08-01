@@ -1,6 +1,6 @@
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
 
-type ExternalProvider = {
+export type ExternalProvider = {
   on: WalletProvider['on']
   removeListener: WalletProvider['removeListener']
   request: WalletProvider['request']

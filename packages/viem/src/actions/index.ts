@@ -1,3 +1,8 @@
-export { fetchBlockNumber } from './fetchBlockNumber'
-export { requestAccountAddresses } from './requestAccountAddresses'
-export { sendTransaction } from './sendTransaction'
+export { requestAccountAddresses } from './accounts/requestAccountAddresses'
+
+export { fetchBlockNumber } from './blocks/fetchBlockNumber'
+
+export {
+  sendTransaction,
+  type SendTransactionArgs,
+} from './transactions/sendTransaction'

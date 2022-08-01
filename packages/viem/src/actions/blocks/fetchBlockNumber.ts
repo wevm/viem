@@ -1,4 +1,4 @@
-import { BaseProvider } from '../providers/createBaseProvider'
+import { BaseProvider } from '../../providers/createBaseProvider'
 
 export async function fetchBlockNumber<TProvider extends BaseProvider>(
   provider: TProvider,

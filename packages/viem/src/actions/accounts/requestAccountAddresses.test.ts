@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { walletProvider } from '../../test/utils'
-import { injectedProvider } from '../providers/wallet/injectedProvider'
+import { walletProvider } from '../../../test/utils'
+import { injectedProvider } from '../../providers/wallet/injectedProvider'
 
 import { requestAccountAddresses } from './requestAccountAddresses'
 

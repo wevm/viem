@@ -1,2 +1,12 @@
-export { alchemyProvider } from './alchemyProvider'
-export { jsonRpcProvider } from './jsonRpcProvider'
+export {
+  alchemyProvider,
+  type AlchemyProvider,
+  type AlchemyProviderConfig,
+  type AlchemyProviderReturnValue,
+} from './alchemyProvider'
+
+export {
+  jsonRpcProvider,
+  type JsonRpcProvider,
+  type JsonRpcProviderConfig,
+} from './jsonRpcProvider'

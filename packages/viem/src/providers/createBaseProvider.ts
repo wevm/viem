@@ -1,4 +1,4 @@
-import { PublicRequests } from '../types'
+import { PublicRequests } from '../types/ethereum-provider'
 import { buildRequest } from '../utils/buildRequest'
 
 export type BaseProviderRequestFn = PublicRequests['request']
