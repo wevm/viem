@@ -1,16 +1,19 @@
 import 'viem/window'
 import { useEffect } from 'react'
-import WalletConnectProvider from '@walletconnect/ethereum-provider'
+// import WalletConnectProvider from '@walletconnect/ethereum-provider'
 
-import { getProviderAccount } from 'viem/accounts'
 import {
   fetchBlockNumber,
-  requestAccounts,
+  requestAccountAddresses,
   sendTransaction,
 } from 'viem/actions'
-import { alchemyProvider } from 'viem/providers/network'
-import { externalProvider, injectedProvider } from 'viem/providers/wallet'
-import { mainnet, polygon } from 'viem/chains'
+// import { alchemyProvider } from 'viem/providers/network'
+import {
+  accountProvider,
+  // externalProvider,
+  injectedProvider,
+} from 'viem/providers/wallet'
+// import { mainnet, polygon } from 'viem/chains'
 
 ////////////////////////////////////////////////////////
 
@@ -42,14 +45,15 @@ export default function Index() {
     <button
       onClick={async () => {
         // injected
-        const addresses = await requestAccounts(provider!)
+        const [address] = await requestAccountAddresses(provider!)
 
         // wallet connect
-        // const addresses = await provider.enable()
+        // const [address] = await provider.enable()
 
-        const providerAccount = getProviderAccount(provider!, {
-          address: addresses[0],
+        const providerAccount = accountProvider(provider!, {
+          address,
         })
+
         const txn = await sendTransaction(providerAccount, {
           request: {
             from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',

@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { walletProvider } from '../../../test/utils'
+import { walletProvider } from '../../../../test/utils'
 
-import { getProviderAccount } from './getProviderAccount'
+import { accountProvider } from './accountProvider'
 
 test('creates signer', async () => {
   expect(
-    getProviderAccount(walletProvider!, {
+    accountProvider(walletProvider!, {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     }),
   ).toMatchInlineSnapshot(`

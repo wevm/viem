@@ -6,7 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "fetchBlockNumber": [Function],
-      "requestAccounts": [Function],
+      "requestAccountAddresses": [Function],
       "sendTransaction": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }

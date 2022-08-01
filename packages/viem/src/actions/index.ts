@@ -1,3 +1,3 @@
 export { fetchBlockNumber } from './fetchBlockNumber'
-export { requestAccounts } from './requestAccounts'
+export { requestAccountAddresses } from './requestAccountAddresses'
 export { sendTransaction } from './sendTransaction'

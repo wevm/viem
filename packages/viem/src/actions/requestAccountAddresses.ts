@@ -1,6 +1,6 @@
 import { InjectedProvider } from '../providers/wallet/injectedProvider'
 
-export async function requestAccounts(provider: InjectedProvider) {
+export async function requestAccountAddresses(provider: InjectedProvider) {
   if (provider.type !== 'walletProvider') throw new Error('TODO')
 
   // TODO: return checksumed addresses

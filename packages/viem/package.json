@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "dependencies": {},
   "files": [
-    "/accounts",
     "/actions",
     "/chains",
     "/dist",
@@ -21,10 +20,6 @@
     "./chains": {
       "module": "./chains/dist/viem-chains.esm.js",
       "default": "./chains/dist/viem-chains.cjs.js"
-    },
-    "./accounts": {
-      "module": "./accounts/dist/viem-accounts.esm.js",
-      "default": "./accounts/dist/viem-accounts.cjs.js"
     },
     "./providers/network": {
       "module": "./providers/network/dist/viem-providers-network.esm.js",
@@ -43,7 +38,6 @@
     "entrypoints": [
       "actions/index.ts",
       "chains.ts",
-      "accounts/index.ts",
       "providers/network/index.ts",
       "providers/wallet/index.ts",
       "window.ts"

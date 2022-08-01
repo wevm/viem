@@ -3,10 +3,10 @@ import { expect, test } from 'vitest'
 import { walletProvider } from '../../test/utils'
 import { injectedProvider } from '../providers/wallet/injectedProvider'
 
-import { requestAccounts } from './requestAccounts'
+import { requestAccountAddresses } from './requestAccountAddresses'
 
 test('fetches block number', async () => {
-  expect(await requestAccounts(walletProvider!)).toMatchInlineSnapshot(`
+  expect(await requestAccountAddresses(walletProvider!)).toMatchInlineSnapshot(`
     [
       "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
     ]
@@ -16,7 +16,7 @@ test('fetches block number', async () => {
 test('errors if provider is not a wallet provider', async () => {
   try {
     // @ts-expect-error – JS consumers
-    await requestAccounts(injectedProvider)
+    await requestAccountAddresses(injectedProvider)
   } catch (err) {
     expect(err).toMatchInlineSnapshot('[Error: TODO]')
   }
