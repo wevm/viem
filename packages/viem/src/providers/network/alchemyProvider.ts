@@ -1,4 +1,4 @@
-import { AlchemyChain } from '../../types'
+import { AlchemyChain } from '../../chains'
 import { JsonRpcProvider, jsonRpcProvider } from './jsonRpcProvider'
 
 export type AlchemyProviderConfig = {
