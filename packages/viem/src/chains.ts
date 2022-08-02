@@ -42,48 +42,39 @@ export type Chain = {
 
 export type AlchemyChains =
   | 'mainnet'
-  | 'ropsten'
-  | 'rinkeby'
   | 'goerli'
-  | 'kovan'
   | 'optimism'
-  | 'optimismKovan'
+  | 'optimismGoerli'
   | 'polygon'
   | 'polygonMumbai'
   | 'arbitrum'
-  | 'arbitrumRinkeby'
+  | 'arbitrumGoerli'
 export type AlchemyChain = Omit<Chain, 'network'> & {
   network: AlchemyChains
 }
 
 export type InfuraChains =
   | 'mainnet'
-  | 'ropsten'
-  | 'rinkeby'
   | 'goerli'
-  | 'kovan'
   | 'optimism'
-  | 'optimismKovan'
+  | 'optimismGoerli'
   | 'polygon'
   | 'polygonMumbai'
   | 'arbitrum'
-  | 'arbitrumRinkeby'
+  | 'arbitrumGoerli'
 export type InfuraChain = Omit<Chain, 'network'> & {
   network: InfuraChains
 }
 
 export type PublicChains =
   | 'mainnet'
-  | 'ropsten'
-  | 'rinkeby'
   | 'goerli'
-  | 'kovan'
   | 'optimism'
-  | 'optimismKovan'
+  | 'optimismGoerli'
   | 'polygon'
   | 'polygonMumbai'
   | 'arbitrum'
-  | 'arbitrumRinkeby'
+  | 'arbitrumGoerli'
 export type PublicChain = Omit<Chain, 'network'> & {
   network: PublicChains
 }
@@ -123,66 +114,6 @@ export const mainnet = createChain({
   },
 } as const)
 
-export const ropsten = createChain({
-  id: 3,
-  name: 'Ropsten',
-  network: 'ropsten',
-  nativeCurrency: { name: 'Ropsten Ether', symbol: 'ROP', decimals: 18 },
-  rpcUrls: {
-    alchemy: 'https://eth-ropsten.alchemyapi.io/v2',
-    infura: 'https://ropsten.infura.io/v3',
-    public: 'https://eth-ropsten.alchemyapi.io/v2/' + defaultAlchemyApiKey,
-  },
-  blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://ropsten.etherscan.io',
-    },
-    default: {
-      name: 'Etherscan',
-      url: 'https://ropsten.etherscan.io',
-    },
-  },
-  ens: {
-    address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
-  },
-  multicall: {
-    address: '0xca11bde05977b3631167028862be2a173976ca11',
-    blockCreated: 12063863,
-  },
-  testnet: true,
-} as const)
-
-export const rinkeby = createChain({
-  id: 4,
-  name: 'Rinkeby',
-  network: 'rinkeby',
-  nativeCurrency: { name: 'Rinkeby Ether', symbol: 'RIN', decimals: 18 },
-  rpcUrls: {
-    alchemy: 'https://eth-rinkeby.alchemyapi.io/v2',
-    infura: 'https://rinkeby.infura.io/v3',
-    public: 'https://eth-rinkeby.alchemyapi.io/v2/' + defaultAlchemyApiKey,
-  },
-  blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://rinkeby.etherscan.io',
-    },
-    default: {
-      name: 'Etherscan',
-      url: 'https://rinkeby.etherscan.io',
-    },
-  },
-  ens: {
-    address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
-  },
-  multicall: {
-    address: '0xca11bde05977b3631167028862be2a173976ca11',
-    blockCreated: 10299530,
-  },
-  testnet: true,
-} as const)
-
 export const goerli = createChain({
   id: 5,
   name: 'Goerli',
@@ -213,33 +144,6 @@ export const goerli = createChain({
   testnet: true,
 } as const)
 
-export const kovan = createChain({
-  id: 42,
-  name: 'Kovan',
-  network: 'kovan',
-  nativeCurrency: { name: 'Kovan Ether', symbol: 'KOV', decimals: 18 },
-  rpcUrls: {
-    alchemy: 'https://eth-kovan.alchemyapi.io/v2',
-    infura: 'https://kovan.infura.io/v3',
-    public: 'https://eth-kovan.alchemyapi.io/v2/' + defaultAlchemyApiKey,
-  },
-  blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://kovan.etherscan.io',
-    },
-    default: {
-      name: 'Etherscan',
-      url: 'https://kovan.etherscan.io',
-    },
-  },
-  multicall: {
-    address: '0xca11bde05977b3631167028862be2a173976ca11',
-    blockCreated: 30285908,
-  },
-  testnet: true,
-} as const)
-
 export const optimism = createChain({
   id: 10,
   name: 'Optimism',
@@ -266,33 +170,33 @@ export const optimism = createChain({
   },
 } as const)
 
-export const optimismKovan = createChain({
-  id: 69,
-  name: 'Optimism Kovan',
-  network: 'optimismKovan',
+export const optimismGoerli = createChain({
+  id: 420,
+  name: 'Optimism Goerli',
+  network: 'optimismGoerli',
   nativeCurrency: {
-    name: 'Kovan Ether',
-    symbol: 'KOR',
+    name: 'Goerli Ether',
+    symbol: 'GOR',
     decimals: 18,
   },
   rpcUrls: {
-    alchemy: 'https://opt-kovan.g.alchemy.com/v2',
-    infura: 'https://optimism-kovan.infura.io/v3',
-    public: 'https://opt-kovan.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    alchemy: 'https://opt-goerli.g.alchemy.com/v2',
+    infura: 'https://optimism-goerli.infura.io/v3',
+    public: 'https://opt-goerli.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://kovan-optimistic.etherscan.io',
+    blockscout: {
+      name: 'Blockscout',
+      url: 'https://blockscout.com/optimism/goerli',
     },
     default: {
-      name: 'Etherscan',
-      url: 'https://kovan-optimistic.etherscan.io',
+      name: 'Blockscout',
+      url: 'https://blockscout.com/optimism/goerli',
     },
   },
   multicall: {
     address: '0xca11bde05977b3631167028862be2a173976ca11',
-    blockCreated: 1418387,
+    blockCreated: 49461,
   },
   testnet: true,
 } as const)
@@ -378,31 +282,27 @@ export const arbitrum = createChain({
   },
 } as const)
 
-export const arbitrumRinkeby = createChain({
-  id: 421611,
-  name: 'Arbitrum Rinkeby',
-  network: 'arbitrumRinkeby',
+export const arbitrumGoerli = createChain({
+  id: 421613,
+  name: 'Arbitrum Goerli',
+  network: 'arbitrumGoerli',
   nativeCurrency: {
-    name: 'Arbitrum Rinkeby Ether',
+    name: 'Arbitrum Goerli Ether',
     symbol: 'ARETH',
     decimals: 18,
   },
   rpcUrls: {
-    alchemy: 'https://arb-rinkeby.g.alchemy.com/v2',
-    infura: 'https://arbitrum-rinkeby.infura.io/v3',
-    public: 'https://arb-rinkeby.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    alchemy: 'https://arb-goerli.g.alchemy.com/v2',
+    infura: 'https://arbitrum-goerli.infura.io/v3',
+    public: 'https://arb-goerli.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     arbitrum: {
       name: 'Arbitrum Explorer',
-      url: 'https://rinkeby-explorer.arbitrum.io',
+      url: 'https://goerli-rollup-explorer.arbitrum.io',
     },
     etherscan: { name: 'Arbiscan', url: 'https://testnet.arbiscan.io' },
     default: { name: 'Arbiscan', url: 'https://testnet.arbiscan.io' },
-  },
-  multicall: {
-    address: '0xca11bde05977b3631167028862be2a173976ca11',
-    blockCreated: 10228837,
   },
   testnet: true,
 } as const)

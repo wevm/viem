@@ -22,7 +22,7 @@ vi.stubGlobal('window', {
 })
 
 export const networkProvider = jsonRpcProvider({
-  url: local.rpcUrls.public,
+  chain: local,
 })
 
-export const walletProvider = injectedProvider()
+export const walletProvider = injectedProvider({ chains: [local] })

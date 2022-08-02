@@ -1,19 +1,22 @@
 import 'viem/window'
 import { useEffect } from 'react'
-// import WalletConnectProvider from '@walletconnect/ethereum-provider'
+import WalletConnectProvider from '@walletconnect/ethereum-provider'
 
 import {
   fetchBlockNumber,
   requestAccountAddresses,
   sendTransaction,
 } from 'viem/actions'
-// import { alchemyProvider } from 'viem/providers/network'
+import { alchemyProvider } from 'viem/providers/network'
 import {
   accountProvider,
-  // externalProvider,
+  externalProvider,
   injectedProvider,
 } from 'viem/providers/wallet'
-// import { mainnet, polygon } from 'viem/chains'
+import {
+  mainnet,
+  // polygon
+} from 'viem/chains'
 
 ////////////////////////////////////////////////////////
 
@@ -26,11 +29,11 @@ import {
 //     [mainnet.id]: mainnet.rpcUrls.public,
 //   },
 // })
-// const provider = externalProvider(walletConnectProvider)
+// const provider = externalProvider(walletConnectProvider, { chains: [mainnet] })
 
 ////////////////////////////////////////////////////////
 
-const provider = injectedProvider()
+const provider = injectedProvider({ chains: [mainnet] })
 
 ////////////////////////////////////////////////////////
 
@@ -48,7 +51,7 @@ export default function Index() {
         const [address] = await requestAccountAddresses(provider!)
 
         // wallet connect
-        // const [address] = await provider.enable()
+        // const [address] = await walletConnectProvider.enable()
 
         const providerAccount = accountProvider(provider!, {
           address,
