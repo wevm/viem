@@ -11,6 +11,24 @@ export class BaseError extends Error {
   }
 }
 
+export class InvalidProviderError extends BaseError {
+  name = 'InvalidProviderError'
+  constructor({
+    givenProvider,
+    expectedProvider,
+  }: {
+    givenProvider: string
+    expectedProvider: string
+  }) {
+    super(
+      [
+        `Invalid provider of type "${givenProvider}" provided`,
+        `Expected: "${expectedProvider}"`,
+      ].join('\n'),
+    )
+  }
+}
+
 export class ProviderRpcError extends BaseError {
   code: number
 

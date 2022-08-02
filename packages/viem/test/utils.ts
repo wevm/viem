@@ -2,21 +2,34 @@ import { vi } from 'vitest'
 
 import { local } from '../src/chains'
 import { jsonRpcProvider } from '../src/providers/network'
-import { injectedProvider } from '../src/providers/wallet/injectedProvider'
+import {
+  accountProvider as accountProvider_,
+  injectedProvider,
+} from '../src/providers/wallet'
+import { rpc } from '../src/utils/rpc'
+
+export const accountAddress = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 vi.stubGlobal('window', {
   ethereum: {
     on: vi.fn((message, listener) => {
       if (message === 'accountsChanged') {
-        listener(['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'])
+        listener([accountAddress])
       }
     }),
     removeListener: vi.fn(() => null),
     request: vi.fn(async ({ method, params }: any) => {
       if (method === 'eth_requestAccounts') {
-        return ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']
+        return [accountAddress]
       }
-      return networkProvider.request({ method, params })
+
+      const { result } = await rpc.http(local.rpcUrls.public, {
+        body: {
+          method,
+          params,
+        },
+      })
+      return result
     }),
   },
 })
@@ -26,3 +39,7 @@ export const networkProvider = jsonRpcProvider({
 })
 
 export const walletProvider = injectedProvider({ chains: [local] })
+
+export const accountProvider = accountProvider_(walletProvider!, {
+  address: accountAddress,
+})

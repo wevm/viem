@@ -6,6 +6,7 @@ test('exports errors', () => {
   expect(Object.keys(errors)).toMatchInlineSnapshot(`
     [
       "BaseError",
+      "InvalidProviderError",
       "ProviderRpcError",
       "RpcError",
       "RequestError",
@@ -30,6 +31,19 @@ test('BaseError', () => {
       [Error: test
       Version: viem@1.0.2]
     `)
+})
+
+test('InvalidProviderError', () => {
+  expect(
+    new errors.InvalidProviderError({
+      expectedProvider: 'accountProvider',
+      givenProvider: 'walletProvider',
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidProviderError: Invalid provider of type "walletProvider" provided
+    Expected: "accountProvider"
+    Version: viem@1.0.2]
+  `)
 })
 
 test('RequestError', () => {

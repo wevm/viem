@@ -8,7 +8,7 @@ import { requestAccountAddresses } from './requestAccountAddresses'
 test('fetches block number', async () => {
   expect(await requestAccountAddresses(walletProvider!)).toMatchInlineSnapshot(`
     [
-      "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
+      "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
     ]
   `)
 })

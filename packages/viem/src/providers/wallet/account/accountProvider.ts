@@ -1,6 +1,6 @@
 import { WalletProvider } from '../createWalletProvider'
 import { ConnectedRequests } from '../../../types/ethereum-provider'
-import { BaseProvider, createBaseProvider } from '../../createBaseProvider'
+import { BaseProvider } from '../../createBaseProvider'
 import { Chain } from '../../../chains'
 
 export type AccountProviderRequestFn = ConnectedRequests['request']
@@ -35,19 +35,10 @@ export function accountProvider(
     name = `Account ${address}`,
   }: AccountProviderConfig,
 ): AccountProvider {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { chains, ...baseProvider } = createBaseProvider<
-    Chain,
-    AccountProviderRequestFn
-  >({
-    chains: provider.chains,
+  return {
+    address,
     id,
     name,
-    request: <any>provider.request,
-  })
-  return {
-    ...baseProvider,
-    address,
     request: <any>provider.request,
     type: 'accountProvider',
   }
