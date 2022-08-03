@@ -1,18 +1,18 @@
 import 'viem/window'
 import { useEffect } from 'react'
-import WalletConnectProvider from '@walletconnect/ethereum-provider'
+// import WalletConnectProvider from '@walletconnect/ethereum-provider'
 
-import {
-  fetchBlockNumber,
-  requestAccountAddresses,
-  sendTransaction,
-} from 'viem/actions'
-import { alchemyProvider } from 'viem/providers/network'
-import {
-  accountProvider,
-  externalProvider,
-  injectedProvider,
-} from 'viem/providers/wallet'
+import { fetchBlockNumber } from 'viem/actions'
+
+import { sendTransaction } from 'viem/actions/account'
+import { accountProvider } from 'viem/providers/account'
+
+// import { alchemyProvider } from 'viem/providers/network'
+// import { fetchBlockNumber } from 'viem/actions/network'
+
+import { injectedProvider } from 'viem/providers/wallet'
+import { requestAccountAddresses } from 'viem/actions/wallet'
+
 import {
   mainnet,
   // polygon

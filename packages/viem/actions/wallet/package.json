@@ -1,0 +1,4 @@
+{
+  "main": "dist/viem-actions-wallet.cjs.js",
+  "module": "dist/viem-actions-wallet.esm.js"
+}

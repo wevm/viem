@@ -2,7 +2,6 @@ export {
   alchemyProvider,
   type AlchemyProvider,
   type AlchemyProviderConfig,
-  type AlchemyProviderReturnValue,
 } from './alchemyProvider'
 
 export {

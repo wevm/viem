@@ -1,11 +1,9 @@
 import { vi } from 'vitest'
 
 import { local } from '../src/chains'
+import { accountProvider as accountProvider_ } from '../src/providers/account'
 import { jsonRpcProvider } from '../src/providers/network'
-import {
-  accountProvider as accountProvider_,
-  injectedProvider,
-} from '../src/providers/wallet'
+import { injectedProvider } from '../src/providers/wallet'
 import { rpc } from '../src/utils/rpc'
 
 export const accountAddress = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'

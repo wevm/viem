@@ -1,4 +1,4 @@
-import { AccountProvider } from '../../providers/wallet/account/accountProvider'
+import { AccountProvider } from '../../providers/account/accountProvider'
 import { TransactionRequest } from '../../types/ethereum-provider'
 import { InvalidProviderError } from '../../utils/errors'
 

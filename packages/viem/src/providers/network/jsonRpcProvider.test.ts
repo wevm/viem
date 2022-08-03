@@ -1,3 +1,4 @@
+/* eslint-disable import/namespace */
 import { expect, test } from 'vitest'
 
 import * as chains from '../../chains'
@@ -39,7 +40,7 @@ test('creates', async () => {
 Object.keys(chains).forEach((key) => {
   if (key === 'local') return
 
-  // eslint-disable-next-line import/namespace
+  // @ts-expect-error – testing
   const chain = chains[key]
   test(`request (${key})`, async () => {
     const provider = jsonRpcProvider({
@@ -60,3 +61,4 @@ test('request (local)', async () => {
 
   expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
 })
+/* eslint-enable import/namespace */

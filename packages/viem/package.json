@@ -17,6 +17,14 @@
       "module": "./actions/dist/viem-actions.esm.js",
       "default": "./actions/dist/viem-actions.cjs.js"
     },
+    "./actions/account": {
+      "module": "./actions/account/dist/viem-account-actions.esm.js",
+      "default": "./actions/account/dist/viem-account-actions.cjs.js"
+    },
+    "./actions/wallet": {
+      "module": "./actions/wallet/dist/viem-wallet-actions.esm.js",
+      "default": "./actions/wallet/dist/viem-wallet-actions.cjs.js"
+    },
     "./chains": {
       "module": "./chains/dist/viem-chains.esm.js",
       "default": "./chains/dist/viem-chains.cjs.js"
@@ -37,7 +45,10 @@
   "preconstruct": {
     "entrypoints": [
       "actions/index.ts",
+      "actions/account/index.ts",
+      "actions/wallet/index.ts",
       "chains.ts",
+      "providers/account/index.ts",
       "providers/network/index.ts",
       "providers/wallet/index.ts",
       "window.ts"

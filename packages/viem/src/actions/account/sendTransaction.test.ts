@@ -19,7 +19,6 @@ test('sends transaction', async () => {
   ).toBeDefined()
 })
 // eslint-disable-next-line prettier/prettier
-
 ;[walletProvider, networkProvider].forEach((provider) => {
   test(`errors when not an accountProvider (${provider!.id})`, async () => {
     await expect(
