@@ -8,7 +8,6 @@ import { sendTransaction } from 'viem/actions/account'
 import { accountProvider } from 'viem/providers/account'
 
 // import { alchemyProvider } from 'viem/providers/network'
-// import { fetchBlockNumber } from 'viem/actions/network'
 
 import { injectedProvider } from 'viem/providers/wallet'
 import { requestAccountAddresses } from 'viem/actions/wallet'
