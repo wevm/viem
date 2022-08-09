@@ -16,7 +16,8 @@ test('creates', async () => {
         "name": "Localhost",
         "network": "localhost",
         "rpcUrls": {
-          "public": "http://127.0.0.1:8545",
+          "default": "http://127.0.0.1:8545",
+          "local": "http://127.0.0.1:8545",
         },
       },
       "chains": [
@@ -25,7 +26,8 @@ test('creates', async () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "public": "http://127.0.0.1:8545",
+            "default": "http://127.0.0.1:8545",
+            "local": "http://127.0.0.1:8545",
           },
         },
       ],
@@ -45,7 +47,7 @@ Object.keys(chains).forEach((key) => {
   test(`request (${key})`, async () => {
     const provider = jsonRpcProvider({
       chain,
-      url: chain.rpcUrls.public,
+      url: chain.rpcUrls.default,
     })
 
     expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()

@@ -1,4 +1,4 @@
-import { BaseProvider } from '../providers/createBaseProvider'
+import { BaseProvider } from '../../providers'
 
 export async function fetchBlockNumber<TProvider extends BaseProvider>(
   provider: TProvider,
@@ -6,5 +6,5 @@ export async function fetchBlockNumber<TProvider extends BaseProvider>(
   const blockNumber = await provider.request({
     method: 'eth_blockNumber',
   })
-  return BigInt(blockNumber)
+  return Number(BigInt(blockNumber))
 }

@@ -1,5 +1,6 @@
-export {
-  accountProvider,
-  type AccountProvider,
-  type AccountProviderConfig,
+export { accountProvider } from './accountProvider'
+export type {
+  AccountProvider,
+  AccountProviderConfig,
+  AccountProviderRequestFn,
 } from './accountProvider'

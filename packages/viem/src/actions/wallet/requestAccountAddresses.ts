@@ -1,4 +1,4 @@
-import { InjectedProvider } from '../../providers/wallet/injectedProvider'
+import { InjectedProvider } from '../../providers'
 
 export async function requestAccountAddresses(provider: InjectedProvider) {
   if (provider.type !== 'walletProvider') throw new Error('TODO')

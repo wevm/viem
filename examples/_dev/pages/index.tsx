@@ -2,14 +2,17 @@ import 'viem/window'
 import { useEffect } from 'react'
 // import WalletConnectProvider from '@walletconnect/ethereum-provider'
 
-import { fetchBlockNumber } from 'viem/actions'
+import { fetchBalance, fetchBlockNumber } from 'viem/actions/public'
 
 import { sendTransaction } from 'viem/actions/account'
 import { accountProvider } from 'viem/providers/account'
 
 // import { alchemyProvider } from 'viem/providers/network'
 
-import { injectedProvider } from 'viem/providers/wallet'
+import {
+  injectedProvider,
+  // externalProvider
+} from 'viem/providers/wallet'
 import { requestAccountAddresses } from 'viem/actions/wallet'
 
 import {
@@ -25,7 +28,7 @@ import {
 
 // const walletConnectProvider = new WalletConnectProvider({
 //   rpc: {
-//     [mainnet.id]: mainnet.rpcUrls.public,
+//     [mainnet.id]: mainnet.rpcUrls.default,
 //   },
 // })
 // const provider = externalProvider(walletConnectProvider, { chains: [mainnet] })
@@ -40,7 +43,10 @@ export default function Index() {
   useEffect(() => {
     ;(async () => {
       const blockNumber = await fetchBlockNumber(provider!)
-      console.log(blockNumber)
+      const balance = await fetchBalance(provider!, {
+        address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      })
+      console.log(balance, blockNumber)
     })()
   }, [])
   return (

@@ -1,4 +1,5 @@
 import { Chain } from '../chains'
+import { PublicRequests } from '../types/ethereum-provider'
 import { buildRequest } from '../utils/buildRequest'
 
 export type BaseProviderRequestFn = <TMethod extends string>({
@@ -11,7 +12,7 @@ export type BaseProviderRequestFn = <TMethod extends string>({
 
 export type BaseProvider<
   TChain extends Chain = Chain,
-  TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
+  TRequestFn extends BaseProviderRequestFn = PublicRequests['request'],
 > = {
   /** The chains that are configured with the provider. */
   chains: TChain[]

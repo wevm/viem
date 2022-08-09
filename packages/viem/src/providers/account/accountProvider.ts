@@ -1,7 +1,7 @@
-import { WalletProvider } from '../wallet/createWalletProvider'
-import { ConnectedRequests } from '../../types/ethereum-provider'
-import { BaseProvider } from '../createBaseProvider'
 import { Chain } from '../../../chains'
+import { ConnectedRequests } from '../../types'
+import { BaseProvider } from '../createBaseProvider'
+import { WalletProvider } from '../wallet/createWalletProvider'
 
 export type AccountProviderRequestFn = ConnectedRequests['request']
 

@@ -49,6 +49,8 @@ export type Events = {
 
 // Provider Requests
 
+export type Address = `0x${string}`
+
 export type Block = {
   /** Difficulty for this block */
   difficulty: Quantity
@@ -861,6 +863,184 @@ export type PublicRequests = {
       Quantity,
     ]
   }): Promise<boolean>
+}
+
+export type TestRequests<Name extends string = 'anvil'> = {
+  request(args: {
+    /**
+     * @description Add information about compiled contracts
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
+     */
+    method: `${Name}_addCompilationResult`
+    params: any[]
+  }): Promise<any>
+  request(args: {
+    /**
+     * @description Remove a transaction from the mempool
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_droptransaction
+     */
+    method: `${Name}_dropTransaction`
+    params: [Data]
+  }): Promise<any>
+  request(args: {
+    /**
+     * @description Impersonate an account or contract address.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_impersonateaccount
+     */
+    method: `${Name}_impersonateAccount`
+    params: [Address]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Returns true if automatic mining is enabled, and false otherwise. See [Mining Modes](https://hardhat.org/hardhat-network/explanation/mining-modes) to learn more.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_getautomine
+     */
+    method: `${Name}_getAutomine`
+  }): Promise<boolean>
+  request(args: {
+    /**
+     * @description Advance the block number of the network by a certain number of blocks
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_mine
+     */
+    method: `${Name}_mine`
+    params: [
+      /** Number of blocks to mine. */
+      Data,
+      /** Interval between each block in seconds. Defaults to 1. */
+      Data | undefined,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Resets the fork.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_reset
+     */
+    method: `${Name}_reset`
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Modifies the balance of an account.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setbalance
+     */
+    method: `${Name}_setBalance`
+    params: [
+      /** The address of the target account. */
+      Address,
+      /** Amount to send in wei. */
+      Quantity,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Modifies the balance of an account.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setbalance
+     */
+    method: `${Name}_setBalance`
+    params: [
+      /** The address of the target account. */
+      Address,
+      /** Amount to send in wei. */
+      Quantity,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Modifies the bytecode stored at an account's address.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcode
+     */
+    method: `${Name}_setCode`
+    params: [
+      /** The address of the contract. */
+      Address,
+      /** Data bytecode. */
+      Data,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Sets the coinbase address to be used in new blocks.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcoinbase
+     */
+    method: `${Name}_setCoinbase`
+    params: [
+      /** The address to set as the coinbase address. */
+      Address,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Enable or disable logging on the test node network.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcoinbase
+     */
+    method: `${Name}_setLoggingEnabled`
+    params: [boolean]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Change the minimum gas price accepted by the network (in wei).
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setmingasprice
+     */
+    method: `${Name}_setMinGasPrice`
+    params: [Quantity]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Sets the base fee of the next block.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setnextblockbasefeepergas
+     */
+    method: `${Name}_setNextBlockBaseFeePerGas`
+    params: [Quantity]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Modifies an account's nonce by overwriting it.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setnonce
+     */
+    method: `${Name}_setNonce`
+    params: [
+      /** The account address. */
+      Address,
+      /** The new nonce. */
+      Quantity,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Writes a single position of an account's storage.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setstorageat
+     */
+    method: `${Name}_setStorageAt`
+    params: [
+      /** The account address. */
+      Address,
+      /** The storage position index. */
+      Quantity,
+      /** The storage value. */
+      Quantity,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Use this method to stop impersonating an account after having previously used impersonateAccount.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_stopimpersonatingaccount
+     */
+    method: `${Name}_stopImpersonatingAccount`
+    params: [
+      /** The address to stop impersonating. */
+      Address,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Use this method to stop impersonating an account after having previously used impersonateAccount.
+     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_stopimpersonatingaccount
+     */
+    method: `${Name}_stopImpersonatingAccount`
+    params: [
+      /** The address to stop impersonating. */
+      Address,
+    ]
+  }): Promise<void>
 }
 
 //////////////////////////////////////////////////

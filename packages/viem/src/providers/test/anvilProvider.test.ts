@@ -1,15 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { local } from '../../chains'
+import * as chains from '../../chains'
+import { anvilProvider } from './anvilProvider'
 
-import { createNetworkProvider } from './createNetworkProvider'
-
-test('creates', () => {
-  const provider = createNetworkProvider({
-    chain: local,
-    id: 'network',
-    name: 'Network',
-    request: <any>(async () => null),
+test('creates', async () => {
+  const provider = anvilProvider({
+    chain: chains.local,
   })
 
   expect(provider).toMatchInlineSnapshot(`
@@ -34,10 +30,18 @@ test('creates', () => {
           },
         },
       ],
-      "id": "network",
-      "name": "Network",
+      "id": "anvil",
+      "name": "Anvil",
       "request": [Function],
-      "type": "networkProvider",
+      "type": "testProvider",
     }
   `)
+})
+
+test('request', async () => {
+  const provider = anvilProvider({
+    chain: chains.local,
+  })
+
+  expect(await provider.request({ method: 'anvil_getAutomine' })).toBeDefined()
 })

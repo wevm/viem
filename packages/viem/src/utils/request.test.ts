@@ -6,7 +6,7 @@ import { request } from './request'
 
 test('valid request', async () => {
   expect(
-    await request(local.rpcUrls.public, {
+    await request(local.rpcUrls.default, {
       method: 'POST',
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -26,7 +26,7 @@ test('valid request', async () => {
 
 test('invalid request', async () => {
   try {
-    await request(local.rpcUrls.public, {
+    await request(local.rpcUrls.default, {
       method: 'POST',
       body: JSON.stringify({
         jsonrpc: '2.0',

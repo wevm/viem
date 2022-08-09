@@ -1,6 +1,6 @@
-import { AccountProvider } from '../../providers/account/accountProvider'
-import { TransactionRequest } from '../../types/ethereum-provider'
-import { InvalidProviderError } from '../../utils/errors'
+import { AccountProvider } from '../../providers'
+import { TransactionRequest } from '../../types'
+import { InvalidProviderError } from '../../utils'
 
 export type SendTransactionArgs = { request: TransactionRequest }
 

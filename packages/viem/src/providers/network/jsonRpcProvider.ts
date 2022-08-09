@@ -23,7 +23,7 @@ export function jsonRpcProvider<TChain extends Chain = Chain>({
   chain,
   id = 'jsonRpc',
   name = 'JSON-RPC',
-  url = chain.rpcUrls.public,
+  url = chain.rpcUrls.default,
 }: JsonRpcProviderConfig<TChain>): JsonRpcProvider<TChain> {
   return createNetworkProvider({
     chain,

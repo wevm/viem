@@ -1,15 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { local } from '../../chains'
+import * as chains from '../../chains'
+import { hardhatProvider } from './hardhatProvider'
 
-import { createNetworkProvider } from './createNetworkProvider'
-
-test('creates', () => {
-  const provider = createNetworkProvider({
-    chain: local,
-    id: 'network',
-    name: 'Network',
-    request: <any>(async () => null),
+test('creates', async () => {
+  const provider = hardhatProvider({
+    chain: chains.local,
   })
 
   expect(provider).toMatchInlineSnapshot(`
@@ -34,10 +30,10 @@ test('creates', () => {
           },
         },
       ],
-      "id": "network",
-      "name": "Network",
+      "id": "hardhat",
+      "name": "Hardhat",
       "request": [Function],
-      "type": "networkProvider",
+      "type": "testProvider",
     }
   `)
 })

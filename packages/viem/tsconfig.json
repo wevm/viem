@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "module": "ESNext",
-    "target": "ES2020",
+    "target": "ESNext",
     "declaration": true,
     "declarationDir": "dist",
     "outDir": "dist",

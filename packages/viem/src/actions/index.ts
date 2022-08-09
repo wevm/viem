@@ -1,1 +1,0 @@
-export { fetchBlockNumber } from './fetchBlockNumber'

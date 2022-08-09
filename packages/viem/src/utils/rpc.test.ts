@@ -6,7 +6,7 @@ import { rpc } from './rpc'
 
 test('valid request', async () => {
   expect(
-    await rpc.http(local.rpcUrls.public, {
+    await rpc.http(local.rpcUrls.default, {
       body: { method: 'web3_clientVersion' },
     }),
   ).toMatchInlineSnapshot(`
@@ -20,7 +20,7 @@ test('valid request', async () => {
 
 test('valid request w/ incremented id', async () => {
   expect(
-    await rpc.http(local.rpcUrls.public, {
+    await rpc.http(local.rpcUrls.default, {
       body: { method: 'web3_clientVersion' },
     }),
   ).toMatchInlineSnapshot(`
@@ -34,7 +34,7 @@ test('valid request w/ incremented id', async () => {
 
 test('invalid request', async () => {
   expect(
-    rpc.http(local.rpcUrls.public, {
+    rpc.http(local.rpcUrls.default, {
       body: { method: 'eth_wagmi' },
     }),
   ).rejects.toThrowError()

@@ -55,8 +55,8 @@ test('creates', async () => {
             "network": "mainnet",
             "rpcUrls": {
               "alchemy": "https://eth-mainnet.alchemyapi.io/v2",
+              "default": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
               "infura": "https://mainnet.infura.io/v3",
-              "public": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
             },
           },
           {
@@ -84,8 +84,8 @@ test('creates', async () => {
             "network": "polygon",
             "rpcUrls": {
               "alchemy": "https://polygon-mainnet.g.alchemy.com/v2",
+              "default": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
               "infura": "https://polygon-mainnet.infura.io/v3",
-              "public": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
             },
           },
         ],

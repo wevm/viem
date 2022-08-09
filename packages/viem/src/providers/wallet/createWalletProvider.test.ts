@@ -22,7 +22,8 @@ test('creates', () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "public": "http://127.0.0.1:8545",
+            "default": "http://127.0.0.1:8545",
+            "local": "http://127.0.0.1:8545",
           },
         },
       ],

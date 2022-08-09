@@ -34,8 +34,8 @@ test('exports chains', () => {
         "network": "arbitrum",
         "rpcUrls": {
           "alchemy": "https://arb-mainnet.g.alchemy.com/v2",
+          "default": "https://arb-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://arbitrum-mainnet.infura.io/v3",
-          "public": "https://arb-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
       },
       "arbitrumGoerli": {
@@ -63,8 +63,8 @@ test('exports chains', () => {
         "network": "arbitrumGoerli",
         "rpcUrls": {
           "alchemy": "https://arb-goerli.g.alchemy.com/v2",
+          "default": "https://arb-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://arbitrum-goerli.infura.io/v3",
-          "public": "https://arb-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
         "testnet": true,
       },
@@ -96,8 +96,8 @@ test('exports chains', () => {
         "network": "goerli",
         "rpcUrls": {
           "alchemy": "https://eth-goerli.alchemyapi.io/v2",
+          "default": "https://eth-goerli.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://goerli.infura.io/v3",
-          "public": "https://eth-goerli.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
         "testnet": true,
       },
@@ -106,7 +106,8 @@ test('exports chains', () => {
         "name": "Localhost",
         "network": "localhost",
         "rpcUrls": {
-          "public": "http://127.0.0.1:8545",
+          "default": "http://127.0.0.1:8545",
+          "local": "http://127.0.0.1:8545",
         },
       },
       "mainnet": {
@@ -137,8 +138,8 @@ test('exports chains', () => {
         "network": "mainnet",
         "rpcUrls": {
           "alchemy": "https://eth-mainnet.alchemyapi.io/v2",
+          "default": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://mainnet.infura.io/v3",
-          "public": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
       },
       "optimism": {
@@ -166,8 +167,8 @@ test('exports chains', () => {
         "network": "optimism",
         "rpcUrls": {
           "alchemy": "https://opt-mainnet.g.alchemy.com/v2",
+          "default": "https://opt-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://optimism-mainnet.infura.io/v3",
-          "public": "https://opt-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
       },
       "optimismGoerli": {
@@ -195,8 +196,8 @@ test('exports chains', () => {
         "network": "optimismGoerli",
         "rpcUrls": {
           "alchemy": "https://opt-goerli.g.alchemy.com/v2",
+          "default": "https://opt-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://optimism-goerli.infura.io/v3",
-          "public": "https://opt-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
         "testnet": true,
       },
@@ -225,8 +226,8 @@ test('exports chains', () => {
         "network": "polygon",
         "rpcUrls": {
           "alchemy": "https://polygon-mainnet.g.alchemy.com/v2",
+          "default": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://polygon-mainnet.infura.io/v3",
-          "public": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
       },
       "polygonMumbai": {
@@ -254,8 +255,8 @@ test('exports chains', () => {
         "network": "polygonMumbai",
         "rpcUrls": {
           "alchemy": "https://polygon-mumbai.g.alchemy.com/v2",
+          "default": "https://polygon-mumbai.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           "infura": "https://polygon-mumbai.infura.io/v3",
-          "public": "https://polygon-mumbai.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
         },
         "testnet": true,
       },

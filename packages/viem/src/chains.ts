@@ -18,9 +18,9 @@ export type Chain = {
     decimals: number
   }
   /** Collection of RPC endpoints */
-  rpcUrls: { [key in 'alchemy' | 'public' | 'infura']?: string } & {
+  rpcUrls: { [key in 'alchemy' | 'public' | 'infura' | 'local']?: string } & {
     [key: string]: string
-    public: string
+    default: string
   }
   /** Collection of block explorers */
   blockExplorers?: {
@@ -92,7 +92,7 @@ export const mainnet = createChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     alchemy: 'https://eth-mainnet.alchemyapi.io/v2',
-    public: 'https://eth-mainnet.alchemyapi.io/v2/' + defaultAlchemyApiKey,
+    default: 'https://eth-mainnet.alchemyapi.io/v2/' + defaultAlchemyApiKey,
     infura: 'https://mainnet.infura.io/v3',
   },
   blockExplorers: {
@@ -122,7 +122,7 @@ export const goerli = createChain({
   rpcUrls: {
     alchemy: 'https://eth-goerli.alchemyapi.io/v2',
     infura: 'https://goerli.infura.io/v3',
-    public: 'https://eth-goerli.alchemyapi.io/v2/' + defaultAlchemyApiKey,
+    default: 'https://eth-goerli.alchemyapi.io/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     etherscan: {
@@ -152,7 +152,7 @@ export const optimism = createChain({
   rpcUrls: {
     alchemy: 'https://opt-mainnet.g.alchemy.com/v2',
     infura: 'https://optimism-mainnet.infura.io/v3',
-    public: 'https://opt-mainnet.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    default: 'https://opt-mainnet.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     etherscan: {
@@ -182,7 +182,7 @@ export const optimismGoerli = createChain({
   rpcUrls: {
     alchemy: 'https://opt-goerli.g.alchemy.com/v2',
     infura: 'https://optimism-goerli.infura.io/v3',
-    public: 'https://opt-goerli.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    default: 'https://opt-goerli.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     blockscout: {
@@ -209,7 +209,7 @@ export const polygon = createChain({
   rpcUrls: {
     alchemy: 'https://polygon-mainnet.g.alchemy.com/v2',
     infura: 'https://polygon-mainnet.infura.io/v3',
-    public: 'https://polygon-mainnet.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    default: 'https://polygon-mainnet.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     etherscan: {
@@ -239,7 +239,7 @@ export const polygonMumbai = createChain({
   rpcUrls: {
     alchemy: 'https://polygon-mumbai.g.alchemy.com/v2',
     infura: 'https://polygon-mumbai.infura.io/v3',
-    public: 'https://polygon-mumbai.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    default: 'https://polygon-mumbai.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     etherscan: {
@@ -266,7 +266,7 @@ export const arbitrum = createChain({
   rpcUrls: {
     alchemy: 'https://arb-mainnet.g.alchemy.com/v2',
     infura: 'https://arbitrum-mainnet.infura.io/v3',
-    public: 'https://arb-mainnet.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    default: 'https://arb-mainnet.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     arbitrum: {
@@ -294,7 +294,7 @@ export const arbitrumGoerli = createChain({
   rpcUrls: {
     alchemy: 'https://arb-goerli.g.alchemy.com/v2',
     infura: 'https://arbitrum-goerli.infura.io/v3',
-    public: 'https://arb-goerli.g.alchemy.com/v2/' + defaultAlchemyApiKey,
+    default: 'https://arb-goerli.g.alchemy.com/v2/' + defaultAlchemyApiKey,
   },
   blockExplorers: {
     arbitrum: {
@@ -312,6 +312,7 @@ export const local = createChain({
   name: 'Localhost',
   network: 'localhost',
   rpcUrls: {
-    public: 'http://127.0.0.1:8545',
+    local: 'http://127.0.0.1:8545',
+    default: 'http://127.0.0.1:8545',
   },
 } as const)
