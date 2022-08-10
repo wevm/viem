@@ -49,6 +49,8 @@ export type Events = {
 
 // Provider Requests
 
+export type AccessList = Array<{ address: string; storageKeys: Array<string> }>
+
 export type Address = `0x${string}`
 
 export type Block = {
@@ -116,15 +118,42 @@ export type EstimateGasParameters = {
   data?: Data
   /** Gas provided for transaction execution */
   gas?: Quantity
-  /** Price in wei of each gas used */
-  gasPrice?: Quantity
   /** Transaction sender */
   from?: Data
   /** Transaction recipient */
   to?: Data
   /** Value in wei sent with this transaction */
   value?: Quantity
+} & FeeValues
+
+export type FeeHistory = {
+  /**
+   * An array of block base fees per gas. This includes the next block after
+   * the newest of the returned range, because this value can be derived from the newest block.
+   * Zeroes are returned for pre-EIP-1559 blocks. */
+  baseFeePerGas: Quantity[]
+  /** An array of block gas used ratios. These are calculated as the ratio of gasUsed and gasLimit. */
+  gasUsedRatio: number[]
+  /** Lowest number block of the returned range. */
+  oldestBlock: Quantity
+  /** An array of effective priority fees per gas data points from a single block. All zeroes are returned if the block is empty. */
+  reward?: Quantity[][]
 }
+
+export type FeeValues =
+  | {
+      /** Base fee per gas. */
+      gasPrice?: Quantity
+      maxFeePerGas?: never
+      maxPriorityFeePerGas?: never
+    }
+  | {
+      gasPrice?: never
+      /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
+      maxFeePerGas?: Quantity
+      /** Max priority fee per gas (in wei). */
+      maxPriorityFeePerGas?: Quantity
+    }
 
 export type Log = {
   /** The address from which this log originated */
@@ -183,6 +212,8 @@ export type TransactionReceipt = {
   contractAddress: Data | null
   /** Gas used by this and all preceding transactions in this block */
   cumulativeGasUsed: Quantity
+  /** Pre-London, it is equal to the transaction's gasPrice. Post-London, it is equal to the actual gas price paid for inclusion. */
+  effectiveGasPrice: Quantity
   /** Transaction sender */
   from: Data
   /** Gas used by this transaction */
@@ -201,6 +232,7 @@ export type TransactionReceipt = {
   transactionIndex: Quantity
 }
 export type TransactionResult = {
+  accessList: AccessList
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: Data | null
   /** Number of block containing this transaction or `null` if pending */
@@ -215,6 +247,10 @@ export type TransactionResult = {
   hash: Data
   /** Contract code or a hashed method call */
   input: Data
+  /** Max fee per gas. */
+  maxFeePerGas?: Quantity
+  /** Max priority fee per gas. */
+  maxPriorityFeePerGas?: Quantity
   /** Unique number identifying this transaction */
   nonce: Quantity
   /** ECDSA signature r */
@@ -231,21 +267,20 @@ export type TransactionResult = {
   value: Quantity
 }
 export type TransactionRequest = {
+  accessList?: AccessList
   /** Contract code or a hashed method call with encoded args */
   data?: Data
   /** Transaction sender */
   from: Data
   /** Gas provided for transaction execution */
   gas?: Quantity
-  /** Price in wei of each gas used */
-  gasPrice?: Quantity
   /** Unique number identifying this transaction */
   nonce?: Quantity
   /** Transaction recipient */
   to?: Data
   /** Value in wei sent with this transaction */
   value?: Quantity
-}
+} & FeeValues
 
 export type Uncle = Block
 
@@ -287,7 +322,7 @@ export type ConnectedRequests = {
      * // => '0x...'
      * */
     method: 'eth_sendTransaction'
-    params: [TransactionRequest]
+    params: [request: TransactionRequest]
   }): Promise<Data>
   request(args: {
     /**
@@ -300,9 +335,9 @@ export type ConnectedRequests = {
     method: 'eth_sign'
     params: [
       /** Address to use for signing */
-      Data,
+      address: Data,
       /** Data to sign */
-      Data,
+      data: Data,
     ]
   }): Promise<Data>
   request(args: {
@@ -314,24 +349,7 @@ export type ConnectedRequests = {
      * // => '0x...'
      * */
     method: 'eth_signTransaction'
-    params: [
-      {
-        /** Contract code or a hashed method call with encoded args */
-        data?: Data
-        /** Transaction sender */
-        from: Data
-        /** Gas provided for transaction execution */
-        gas?: Quantity
-        /** Price in wei of each gas used */
-        gasPrice?: Quantity
-        /** Unique number identifying this transaction */
-        nonce?: Quantity
-        /** Transaction recipient */
-        to?: Data
-        /** Value in wei sent with this transaction */
-        value?: Quantity
-      },
-    ]
+    params: [request: TransactionRequest]
   }): Promise<Data>
   request(args: {
     /**
@@ -344,9 +362,9 @@ export type ConnectedRequests = {
     method: 'eth_signTypedData'
     params: [
       /** Address to use for signing */
-      Data,
+      address: Data,
       /** Message to sign containing type information, a domain separator, and data */
-      Data,
+      message: Data,
     ]
   }): Promise<Data>
   request(args: {
@@ -368,7 +386,7 @@ export type ConnectedRequests = {
      * // => { ... }
      * */
     method: 'wallet_requestPermissions'
-    params: [{ eth_accounts: Record<string, any> }]
+    params: [permissions: { eth_accounts: Record<string, any> }]
   }): Promise<WalletPermission[]>
   request(args: {
     /**
@@ -400,7 +418,7 @@ export type ConnectedRequests = {
      * // => { ... }
      * */
     method: 'wallet_switchEthereumChain'
-    params: [{ chainId: string }]
+    params: [chain: { chainId: string }]
   }): Promise<null>
 }
 
@@ -448,7 +466,7 @@ export type PublicRequests = {
      * // => '0xc94770007dda54cF92009BFF0dE90c06F603a09f'
      */
     method: 'web3_sha3'
-    params: [Data]
+    params: [data: Data]
   }): Promise<string>
   request(args: {
     /**
@@ -510,21 +528,8 @@ export type PublicRequests = {
      */
     method: 'eth_call'
     params: [
-      {
-        /** Transaction sender */
-        from?: Data
-        /** Transaction recipient or `null` if deploying a contract */
-        to: Data | null
-        /** Gas provided for transaction execution */
-        gas?: Quantity
-        /** Price in wei of each gas used */
-        gasPrice?: Quantity
-        /** Value in wei sent with this transaction */
-        value?: Quantity
-        /** Contract code or a hashed method call with encoded args */
-        data?: Data
-      },
-      BlockNumber | BlockTime | BlockIdentifier,
+      request: TransactionRequest,
+      block: BlockNumber | BlockTime | BlockIdentifier,
     ]
   }): Promise<Data>
   request(args: {
@@ -549,8 +554,34 @@ export type PublicRequests = {
      * // => '0x5208'
      * */
     method: 'eth_estimateGas'
-    params: [EstimateGasParameters, BlockNumber | BlockTime]
+    params: [parameters: EstimateGasParameters, block: BlockNumber | BlockTime]
   }): Promise<Quantity>
+  request(args: {
+    /**
+     * @description Returns a collection of historical gas information
+     * @link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md
+     * @example
+     * provider.request({
+     *  method: 'eth_feeHistory',
+     *  params: ['4', 'latest', ['25', '75']]
+     * })
+     * // => {
+     * //   oldestBlock: '0x1',
+     * //   baseFeePerGas: ['0x1', '0x2', '0x3', '0x4'],
+     * //   gasUsedRatio: ['0x1', '0x2', '0x3', '0x4'],
+     * //   reward: [['0x1', '0x2'], ['0x3', '0x4'], ['0x5', '0x6'], ['0x7', '0x8']]
+     * // }
+     * */
+    method: 'eth_feeHistory'
+    params: [
+      /** Number of blocks in the requested range. Between 1 and 1024 blocks can be requested in a single query. Less than requested may be returned if not all blocks are available. */
+      blockCount: Quantity,
+      /** Highest number block of the requested range. */
+      newestBlock: BlockNumber | BlockTime,
+      /** A monotonically increasing list of percentile values to sample from each block's effective priority fees per gas in ascending order, weighted by gas used. */
+      rewardPercentiles: string[] | undefined,
+    ]
+  }): Promise<FeeHistory>
   request(args: {
     /**
      * @description Returns the current price of gas expressed in wei
@@ -570,7 +601,7 @@ export type PublicRequests = {
      * // => '0x12a05...'
      * */
     method: 'eth_getBalance'
-    params: [Data, BlockNumber | BlockTime | BlockIdentifier]
+    params: [address: Address, block: BlockNumber | BlockTime | BlockIdentifier]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -588,9 +619,9 @@ export type PublicRequests = {
     method: 'eth_getBlockByHash'
     params: [
       /** hash of a block */
-      Data,
+      hash: Data,
       /** true will pull full transaction objects, false will pull transaction hashes */
-      boolean,
+      includeTransactionObjects: boolean,
     ]
   }): Promise<Block | null>
   request(args: {
@@ -609,9 +640,9 @@ export type PublicRequests = {
     method: 'eth_getBlockByNumber'
     params: [
       /** block number, or one of "latest", "earliest" or "pending" */
-      BlockNumber | BlockTime,
+      block: BlockNumber | BlockTime,
       /** true will pull full transaction objects, false will pull transaction hashes */
-      boolean,
+      includeTransactionObjects: boolean,
     ]
   }): Promise<Block | null>
   request(args: {
@@ -623,7 +654,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getBlockTransactionCountByHash'
-    params: [Data]
+    params: [hash: Data]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -634,7 +665,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getBlockTransactionCountByNumber'
-    params: [BlockNumber | BlockTime]
+    params: [block: BlockNumber | BlockTime]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -645,7 +676,7 @@ export type PublicRequests = {
      * // => '0x...'
      * */
     method: 'eth_getCode'
-    params: [Data, BlockNumber | BlockTime | BlockIdentifier]
+    params: [address: Address, block: BlockNumber | BlockTime | BlockIdentifier]
   }): Promise<Data>
   request(args: {
     /**
@@ -656,7 +687,7 @@ export type PublicRequests = {
      * // => [{ ... }, { ... }]
      * */
     method: 'eth_getFilterChanges'
-    params: [Quantity]
+    params: [filterId: Quantity]
   }): Promise<Log[]>
   request(args: {
     /**
@@ -667,7 +698,7 @@ export type PublicRequests = {
      * // => [{ ... }, { ... }]
      * */
     method: 'eth_getFilterLogs'
-    params: [Quantity]
+    params: [filterId: Quantity]
   }): Promise<Log[]>
   request(args: {
     /**
@@ -679,7 +710,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getLogs'
     params: [
-      {
+      filter: {
         address?: Data | Data[]
         topics?: Data[]
       } & (
@@ -702,7 +733,11 @@ export type PublicRequests = {
      * // => '0x...'
      * */
     method: 'eth_getStorageAt'
-    params: [Data, Quantity, BlockNumber | BlockTime | BlockIdentifier]
+    params: [
+      address: Address,
+      index: Quantity,
+      block: BlockNumber | BlockTime | BlockIdentifier,
+    ]
   }): Promise<Log[]>
   request(args: {
     /**
@@ -713,7 +748,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionByBlockHashAndIndex'
-    params: [Data, Quantity]
+    params: [hash: Data, index: Quantity]
   }): Promise<TransactionResult | null>
   request(args: {
     /**
@@ -724,7 +759,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionByBlockNumberAndIndex'
-    params: [BlockNumber | BlockTime, Quantity]
+    params: [block: BlockNumber | BlockTime, index: Quantity]
   }): Promise<TransactionResult | null>
   request(args: {
     /**
@@ -735,7 +770,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionByHash'
-    params: [Data]
+    params: [hash: Data]
   }): Promise<TransactionResult | null>
   request(args: {
     /**
@@ -746,7 +781,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getTransactionCount'
-    params: [Data, BlockNumber | BlockTime | BlockIdentifier]
+    params: [address: Address, block: BlockNumber | BlockTime | BlockIdentifier]
   }): Promise<Quantity | null>
   request(args: {
     /**
@@ -757,7 +792,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionReceipt'
-    params: [Data]
+    params: [hash: Data]
   }): Promise<TransactionReceipt | null>
   request(args: {
     /**
@@ -768,7 +803,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getUncleByBlockHashAndIndex'
-    params: [Data, Quantity]
+    params: [hash: Data, index: Quantity]
   }): Promise<Uncle | null>
   request(args: {
     /**
@@ -779,7 +814,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getUncleByBlockNumberAndIndex'
-    params: [BlockNumber | BlockTime, Quantity]
+    params: [block: BlockNumber | BlockTime, index: Quantity]
   }): Promise<Uncle | null>
   request(args: {
     /**
@@ -790,7 +825,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getUncleCountByBlockHash'
-    params: [Data]
+    params: [hash: Data]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -801,7 +836,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getUncleCountByBlockNumber'
-    params: [BlockNumber | BlockTime]
+    params: [block: BlockNumber | BlockTime]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -823,7 +858,7 @@ export type PublicRequests = {
      * */
     method: 'eth_newFilter'
     params: [
-      {
+      filter: {
         fromBlock?: BlockNumber | BlockTime
         toBlock?: BlockNumber | BlockTime
         address?: Data | Data[]
@@ -872,7 +907,7 @@ export type PublicRequests = {
     method: 'eth_uninstallFilter'
     params: [
       /** ID of the filter to destroy */
-      Quantity,
+      filterId: Quantity,
     ]
   }): Promise<boolean>
 }
@@ -892,7 +927,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_droptransaction
      */
     method: `${Name}_dropTransaction`
-    params: [Data]
+    params: [data: Data]
   }): Promise<any>
   request(args: {
     /**
@@ -900,7 +935,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_impersonateaccount
      */
     method: `${Name}_impersonateAccount`
-    params: [Address]
+    params: [address: Address]
   }): Promise<void>
   request(args: {
     /**
@@ -917,9 +952,9 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_mine`
     params: [
       /** Number of blocks to mine. */
-      Data,
+      count: Data,
       /** Interval between each block in seconds. Defaults to 1. */
-      Data | undefined,
+      interval: Data | undefined,
     ]
   }): Promise<void>
   request(args: {
@@ -937,22 +972,9 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_setBalance`
     params: [
       /** The address of the target account. */
-      Address,
+      address: Address,
       /** Amount to send in wei. */
-      Quantity,
-    ]
-  }): Promise<void>
-  request(args: {
-    /**
-     * @description Modifies the balance of an account.
-     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setbalance
-     */
-    method: `${Name}_setBalance`
-    params: [
-      /** The address of the target account. */
-      Address,
-      /** Amount to send in wei. */
-      Quantity,
+      value: Quantity,
     ]
   }): Promise<void>
   request(args: {
@@ -963,9 +985,9 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_setCode`
     params: [
       /** The address of the contract. */
-      Address,
+      address: Address,
       /** Data bytecode. */
-      Data,
+      data: Data,
     ]
   }): Promise<void>
   request(args: {
@@ -976,7 +998,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_setCoinbase`
     params: [
       /** The address to set as the coinbase address. */
-      Address,
+      address: Address,
     ]
   }): Promise<void>
   request(args: {
@@ -985,7 +1007,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setcoinbase
      */
     method: `${Name}_setLoggingEnabled`
-    params: [boolean]
+    params: [enabled: boolean]
   }): Promise<void>
   request(args: {
     /**
@@ -993,7 +1015,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setmingasprice
      */
     method: `${Name}_setMinGasPrice`
-    params: [Quantity]
+    params: [gasPrice: Quantity]
   }): Promise<void>
   request(args: {
     /**
@@ -1001,7 +1023,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setnextblockbasefeepergas
      */
     method: `${Name}_setNextBlockBaseFeePerGas`
-    params: [Quantity]
+    params: [baseFeePerGas: Quantity]
   }): Promise<void>
   request(args: {
     /**
@@ -1011,9 +1033,9 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_setNonce`
     params: [
       /** The account address. */
-      Address,
+      address: Address,
       /** The new nonce. */
-      Quantity,
+      nonce: Quantity,
     ]
   }): Promise<void>
   request(args: {
@@ -1024,11 +1046,11 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_setStorageAt`
     params: [
       /** The account address. */
-      Address,
+      address: Address,
       /** The storage position index. */
-      Quantity,
+      index: Quantity,
       /** The storage value. */
-      Quantity,
+      value: Quantity,
     ]
   }): Promise<void>
   request(args: {
@@ -1039,18 +1061,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
     method: `${Name}_stopImpersonatingAccount`
     params: [
       /** The address to stop impersonating. */
-      Address,
-    ]
-  }): Promise<void>
-  request(args: {
-    /**
-     * @description Use this method to stop impersonating an account after having previously used impersonateAccount.
-     * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_stopimpersonatingaccount
-     */
-    method: `${Name}_stopImpersonatingAccount`
-    params: [
-      /** The address to stop impersonating. */
-      Address,
+      address: Address,
     ]
   }): Promise<void>
 }

@@ -1,6 +1,12 @@
 export { buildRequest } from './buildRequest'
 
-export { etherToWei, weiPerEther } from './conversion'
+export {
+  etherToWei,
+  gweiPerEther,
+  gweiToWei,
+  weiPerEther,
+  weiPerGwei,
+} from './conversion'
 
 export {
   BaseError,

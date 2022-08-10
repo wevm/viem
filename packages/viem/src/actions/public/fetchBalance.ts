@@ -19,13 +19,13 @@ export type FetchBalanceResponse = bigint
 
 export async function fetchBalance<TProvider extends BaseProvider>(
   provider: TProvider,
-  { address, blockNumber, blockTime }: FetchBalanceArgs,
+  { address, blockNumber, blockTime = 'latest' }: FetchBalanceArgs,
 ): Promise<FetchBalanceResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
   const balance = await provider.request({
     method: 'eth_getBalance',
-    params: [address, blockTime || blockNumberHex || 'latest'],
+    params: [address, blockNumberHex || blockTime],
   })
   return BigInt(balance)
 }

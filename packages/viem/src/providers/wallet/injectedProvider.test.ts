@@ -1,22 +1,10 @@
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { mainnet, polygon } from '../../chains'
 
 import { injectedProvider } from './injectedProvider'
 
 test('creates', async () => {
-  vi.stubGlobal('window', {
-    ethereum: {
-      on: () => null,
-      removeListener: () => null,
-      request: vi.fn(({ method }) => {
-        if (method === 'eth_requestAccounts') {
-          return ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac']
-        }
-      }),
-    },
-  })
-
   expect(injectedProvider({ chains: [mainnet, polygon] }))
     .toMatchInlineSnapshot(`
       {

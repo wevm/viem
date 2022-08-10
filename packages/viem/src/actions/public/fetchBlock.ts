@@ -29,7 +29,7 @@ export async function fetchBlock<TProvider extends BaseProvider>(
   {
     blockHash,
     blockNumber,
-    blockTime,
+    blockTime = 'latest',
     includeTransactions = false,
   }: FetchBlockArgs = {},
 ): Promise<FetchBlockResponse> {
@@ -45,7 +45,7 @@ export async function fetchBlock<TProvider extends BaseProvider>(
   } else {
     block = await provider.request({
       method: 'eth_getBlockByNumber',
-      params: [blockTime || blockNumberHex || 'latest', includeTransactions],
+      params: [blockNumberHex || blockTime, includeTransactions],
     })
   }
 

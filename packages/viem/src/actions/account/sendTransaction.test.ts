@@ -7,7 +7,7 @@ import {
   testProvider,
   walletProvider,
 } from '../../../test/utils'
-import { numberToHex } from '../../utils'
+import { etherToWei, gweiToWei, numberToHex } from '../../utils'
 import { fetchBalance } from '../public/fetchBalance'
 import { fetchBlock } from '../public/fetchBlock'
 
@@ -36,14 +36,14 @@ test('sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: 1000000000000000n,
+          value: etherToWei(1),
         },
       })
     ).hash,
   ).toBeDefined()
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
-  ).toMatchInlineSnapshot('10000001000000000000000n')
+  ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
@@ -79,7 +79,7 @@ test('gas: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: 1000000000000000n,
+          value: etherToWei(1),
           gas: 1000000n,
         },
       })
@@ -87,7 +87,7 @@ test('gas: sends transaction', async () => {
   ).toBeDefined()
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
-  ).toMatchInlineSnapshot('10000001000000000000000n')
+  ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
@@ -102,7 +102,7 @@ test('gas: sends transaction with too little gas', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: 1000000000000000n,
+          value: etherToWei(1),
           gas: 100n,
         },
       })
@@ -129,7 +129,7 @@ test('gasPrice: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: 1000000000000000n,
+          value: etherToWei(1),
           gasPrice: BigInt(block.baseFeePerGas),
         },
       })
@@ -137,7 +137,7 @@ test('gasPrice: sends transaction', async () => {
   ).toBeDefined()
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
-  ).toMatchInlineSnapshot('10000001000000000000000n')
+  ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
@@ -146,6 +146,90 @@ test('gasPrice: sends transaction', async () => {
 test.todo('gasPrice: errors when gas price is less than block base fee')
 
 test.todo('gasPrice: errors when account has insufficient funds')
+
+test('maxFeePerGas: sends transaction', async () => {
+  await setup()
+
+  const block = await fetchBlock(networkProvider)
+
+  expect(
+    (
+      await sendTransaction(accountProvider, {
+        request: {
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: etherToWei(1),
+          maxFeePerGas: BigInt(block.baseFeePerGas),
+        },
+      })
+    ).hash,
+  ).toBeDefined()
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10001000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toBeLessThan(sourceAccount.balance)
+})
+
+test.todo('maxFeePerGas: errors when gas price is less than block base fee')
+
+test.todo('maxFeePerGas: errors when account has insufficient funds')
+
+test('maxPriorityFeePerGas: sends transaction', async () => {
+  await setup()
+
+  expect(
+    (
+      await sendTransaction(accountProvider, {
+        request: {
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: etherToWei(1),
+          maxPriorityFeePerGas: gweiToWei(1),
+        },
+      })
+    ).hash,
+  ).toBeDefined()
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10001000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toBeLessThan(sourceAccount.balance)
+})
+
+test.todo('maxPriorityFeePerGas: errors when account has insufficient funds')
+
+test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
+  await setup()
+
+  const block = await fetchBlock(networkProvider)
+
+  expect(
+    (
+      await sendTransaction(accountProvider, {
+        request: {
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: etherToWei(1),
+          maxPriorityFeePerGas: gweiToWei(10),
+          maxFeePerGas: BigInt(block.baseFeePerGas) + gweiToWei(10),
+        },
+      })
+    ).hash,
+  ).toBeDefined()
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10001000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toBeLessThan(sourceAccount.balance)
+})
+
+test.todo(
+  'maxPriorityFeePerGas + maxFeePerGas: maxFeePerGas below baseFeePerGas + maxPriorityFeePerGas',
+)
 
 test('nonce: sends transaction', async () => {
   await setup()
@@ -161,7 +245,7 @@ test('nonce: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: 1000000000000000n,
+          value: etherToWei(1),
           nonce: BigInt(transactionCount),
         },
       })
@@ -169,7 +253,7 @@ test('nonce: sends transaction', async () => {
   ).toBeDefined()
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
-  ).toMatchInlineSnapshot('10000001000000000000000n')
+  ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
@@ -185,7 +269,7 @@ test('insufficient funds: errors when user is out of funds', async () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: 10000000000000000000000000000000n,
+        value: etherToWei(100000),
       },
     }),
   ).rejects.toThrow('Insufficient funds for gas * price + value')
@@ -204,7 +288,7 @@ test('insufficient funds: errors when user is out of funds', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: 1000000000000000n,
+          value: etherToWei(1),
         },
       }),
     ).rejects.toThrow(`Invalid provider of type "${provider?.type}" provided`)

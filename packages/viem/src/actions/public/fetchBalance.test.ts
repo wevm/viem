@@ -50,6 +50,15 @@ test('fetches balance', async () => {
   ).toMatchInlineSnapshot('10000600000000000000000n')
 })
 
+test('fetches balance at latest', async () => {
+  expect(
+    await fetchBalance(networkProvider, {
+      address: targetAccount.address,
+      blockTime: 'latest',
+    }),
+  ).toMatchInlineSnapshot('10000600000000000000000n')
+})
+
 test('fetches balance at block number', async () => {
   const currentBlockNumber = await fetchBlockNumber(networkProvider)
   expect(
