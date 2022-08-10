@@ -1,7 +1,10 @@
 export { buildRequest } from './buildRequest'
 
+export { etherToWei, weiPerEther } from './conversion'
+
 export {
   BaseError,
+  BlockNotFoundError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -20,7 +23,7 @@ export {
   TransactionRejectedRpcError,
 } from './errors'
 
-export { numberToHex } from './numberToHex'
+export { numberToHex } from './number'
 
 export { request } from './request'
 

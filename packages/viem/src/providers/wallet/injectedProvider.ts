@@ -28,7 +28,9 @@ export function injectedProvider({
   id = 'injected',
   name = 'Injected',
 }: InjectedProviderConfig): InjectedProviderReturnValue {
+  /* c8 ignore next */
   if (typeof window === 'undefined') return null
+  /* c8 ignore next */
 
   return createWalletProvider({
     chains,

@@ -1,5 +1,5 @@
 import { BaseProvider } from '../../providers'
-import { Address, BlockTime } from '../../types'
+import { Address, BlockTime } from '../../types/ethereum-provider'
 import { numberToHex } from '../../utils'
 
 export type FetchBalanceArgs = {
@@ -15,10 +15,12 @@ export type FetchBalanceArgs = {
     }
 )
 
+export type FetchBalanceResponse = bigint
+
 export async function fetchBalance<TProvider extends BaseProvider>(
   provider: TProvider,
   { address, blockNumber, blockTime }: FetchBalanceArgs,
-) {
+): Promise<FetchBalanceResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
   const balance = await provider.request({

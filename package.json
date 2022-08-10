@@ -16,7 +16,7 @@
     "postinstall": "husky install .config/husky && preconstruct dev",
     "preinstall": "npx only-allow pnpm",
     "size": "bundlewatch --config .config/bundlewatch.config.js",
-    "test": "vitest dev --coverage",
+    "test": "vitest dev --coverage --no-threads",
     "test:ci": "vitest",
     "test:ui": "vitest dev --ui",
     "typecheck": "tsc --noEmit"

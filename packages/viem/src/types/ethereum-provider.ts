@@ -52,6 +52,8 @@ export type Events = {
 export type Address = `0x${string}`
 
 export type Block = {
+  /** Base fee per gas */
+  baseFeePerGas: Quantity
   /** Difficulty for this block */
   difficulty: Quantity
   /** "Extra data" field of this block */
@@ -85,7 +87,7 @@ export type Block = {
   /** Total difficulty of the chain until this block */
   totalDifficulty: Quantity
   /** List of transaction objects or hashes */
-  transactions: Data[]
+  transactions: (Data | TransactionResult)[]
   /** Root of this block’s transaction trie */
   transactionsRoot: Data
   /** List of uncle hashes */
@@ -584,7 +586,12 @@ export type PublicRequests = {
      * // }
      * */
     method: 'eth_getBlockByHash'
-    params: [Data, boolean]
+    params: [
+      /** hash of a block */
+      Data,
+      /** true will pull full transaction objects, false will pull transaction hashes */
+      boolean,
+    ]
   }): Promise<Block | null>
   request(args: {
     /**
@@ -600,7 +607,12 @@ export type PublicRequests = {
      * // }
      * */
     method: 'eth_getBlockByNumber'
-    params: [BlockNumber | BlockTime, boolean]
+    params: [
+      /** block number, or one of "latest", "earliest" or "pending" */
+      BlockNumber | BlockTime,
+      /** true will pull full transaction objects, false will pull transaction hashes */
+      boolean,
+    ]
   }): Promise<Block | null>
   request(args: {
     /**
@@ -735,7 +747,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getTransactionCount'
     params: [Data, BlockNumber | BlockTime | BlockIdentifier]
-  }): Promise<TransactionResult | null>
+  }): Promise<Quantity | null>
   request(args: {
     /**
      * @description Returns the receipt of a transaction specified by hash

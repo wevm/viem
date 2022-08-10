@@ -1,5 +1,5 @@
 import { Chain } from '../../../chains'
-import { ConnectedRequests } from '../../types'
+import { ConnectedRequests } from '../../types/ethereum-provider'
 import { BaseProvider } from '../createBaseProvider'
 import { WalletProvider } from '../wallet/createWalletProvider'
 

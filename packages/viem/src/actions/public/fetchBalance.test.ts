@@ -25,21 +25,21 @@ beforeAll(async () => {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: numberToHex(100000000000000000n),
+      value: 100000000000000000n,
     },
   })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: numberToHex(200000000000000000n),
+      value: 200000000000000000n,
     },
   })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: numberToHex(300000000000000000n),
+      value: 300000000000000000n,
     },
   })
 })

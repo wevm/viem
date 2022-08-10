@@ -66,7 +66,7 @@ export default function Index() {
           request: {
             from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
             to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-            value: '0x0',
+            value: 0n,
           },
         })
         console.log(txn)

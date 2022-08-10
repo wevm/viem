@@ -1,0 +1,1 @@
+export { numberToHex } from './numberToHex'

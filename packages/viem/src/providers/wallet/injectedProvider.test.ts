@@ -4,12 +4,6 @@ import { mainnet, polygon } from '../../chains'
 
 import { injectedProvider } from './injectedProvider'
 
-test('undefined window', () => {
-  vi.stubGlobal('window', undefined)
-
-  expect(injectedProvider({ chains: [mainnet, polygon] })).toEqual(null)
-})
-
 test('creates', async () => {
   vi.stubGlobal('window', {
     ethereum: {

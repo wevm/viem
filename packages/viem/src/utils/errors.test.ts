@@ -6,6 +6,7 @@ test('exports errors', () => {
   expect(Object.keys(errors)).toMatchInlineSnapshot(`
     [
       "BaseError",
+      "BlockNotFoundError",
       "InvalidProviderError",
       "ProviderRpcError",
       "RpcError",
@@ -31,6 +32,23 @@ test('BaseError', () => {
       [Error: test
       Version: viem@1.0.2]
     `)
+})
+
+test('BlockNotFoundError', () => {
+  expect(new errors.BlockNotFoundError({ blockNumber: 69420 }))
+    .toMatchInlineSnapshot(`
+    [BlockNotFoundError: Block at number "69420" could not be found.
+    Version: viem@1.0.2]
+  `)
+  expect(new errors.BlockNotFoundError({ blockHash: '0x69420' }))
+    .toMatchInlineSnapshot(`
+    [BlockNotFoundError: Block at hash "0x69420" could not be found.
+    Version: viem@1.0.2]
+  `)
+  expect(new errors.BlockNotFoundError({})).toMatchInlineSnapshot(`
+    [BlockNotFoundError: Block could not be found.
+    Version: viem@1.0.2]
+  `)
 })
 
 test('InvalidProviderError', () => {

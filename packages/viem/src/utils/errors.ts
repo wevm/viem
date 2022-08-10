@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import pkg from '../../package.json'
+import { Data } from '../types/ethereum-provider'
 
 /* c8 ignore next */
 const version = <any>process.env.TEST ? '1.0.2' : pkg.version
@@ -8,6 +9,22 @@ const version = <any>process.env.TEST ? '1.0.2' : pkg.version
 export class BaseError extends Error {
   constructor(message: string) {
     super([message, 'Version: viem@' + version].join('\n'))
+  }
+}
+
+export class BlockNotFoundError extends BaseError {
+  name = 'BlockNotFoundError'
+  constructor({
+    blockHash,
+    blockNumber,
+  }: {
+    blockHash?: Data
+    blockNumber?: number
+  }) {
+    let identifier = 'Block'
+    if (blockHash) identifier = `Block at hash "${blockHash}"`
+    if (blockNumber) identifier = `Block at number "${blockNumber}"`
+    super(`${identifier} could not be found.`)
   }
 }
 

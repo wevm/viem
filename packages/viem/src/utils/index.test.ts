@@ -6,6 +6,7 @@ test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "BaseError": [Function],
+      "BlockNotFoundError": [Function],
       "InternalRpcError": [Function],
       "InvalidInputRpcError": [Function],
       "InvalidParamsRpcError": [Function],
@@ -23,11 +24,13 @@ test('exports utils', () => {
       "RpcError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
+      "etherToWei": [Function],
       "numberToHex": [Function],
       "request": [Function],
       "rpc": {
         "http": [Function],
       },
+      "weiPerEther": 1000000000000000000,
       Symbol(Symbol.toStringTag): "Module",
     }
   `)
