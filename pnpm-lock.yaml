@@ -91,7 +91,15 @@ importers:
       eslint-config-next: 12.2.2_he2ccbldppg44uulnyq4rwocfa
       typescript: 4.7.4
 
-  examples/_dev:
+  examples/bun:
+    specifiers:
+      bun-types: ^0.1.0
+      viem: workspace:*
+    devDependencies:
+      bun-types: 0.1.8
+      viem: link:../../packages/viem
+
+  examples/next:
     specifiers:
       '@preconstruct/next': ^4.0.0
       '@types/node': ^17.0.45
@@ -106,7 +114,7 @@ importers:
       typescript: ^4.7.4
       viem: workspace:*
     dependencies:
-      '@walletconnect/ethereum-provider': 1.7.8
+      '@walletconnect/ethereum-provider': 1.8.0
       next: 12.2.2_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -2237,34 +2245,34 @@ packages:
       sirv: 2.0.2
     dev: true
 
-  /@walletconnect/browser-utils/1.7.8:
-    resolution: {integrity: sha512-iCL0XCWOZaABIc0lqA79Vyaybr3z26nt8mxiwvfrG8oaKUf5Y21Of4dj+wIXQ4Hhblre6SgDlU0Ffb39+1THOw==}
+  /@walletconnect/browser-utils/1.8.0:
+    resolution: {integrity: sha512-Wcqqx+wjxIo9fv6eBUFHPsW1y/bGWWRboni5dfD8PtOmrihrEpOCmvRJe4rfl7xgJW8Ea9UqKEaq0bIRLHlK4A==}
     dependencies:
       '@walletconnect/safe-json': 1.0.0
-      '@walletconnect/types': 1.7.8
+      '@walletconnect/types': 1.8.0
       '@walletconnect/window-getters': 1.0.0
       '@walletconnect/window-metadata': 1.0.0
       detect-browser: 5.2.0
     dev: false
 
-  /@walletconnect/client/1.7.8:
-    resolution: {integrity: sha512-pBroM6jZAaUM0SoXJZg5U7aPTiU3ljQAw3Xh/i2pxFDeN/oPKao7husZ5rdxS5xuGSV6YpqqRb0RxW1IeoR2Pg==}
+  /@walletconnect/client/1.8.0:
+    resolution: {integrity: sha512-svyBQ14NHx6Cs2j4TpkQaBI/2AF4+LXz64FojTjMtV4VMMhl81jSO1vNeg+yYhQzvjcGH/GpSwixjyCW0xFBOQ==}
     dependencies:
-      '@walletconnect/core': 1.7.8
-      '@walletconnect/iso-crypto': 1.7.8
-      '@walletconnect/types': 1.7.8
-      '@walletconnect/utils': 1.7.8
+      '@walletconnect/core': 1.8.0
+      '@walletconnect/iso-crypto': 1.8.0
+      '@walletconnect/types': 1.8.0
+      '@walletconnect/utils': 1.8.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
     dev: false
 
-  /@walletconnect/core/1.7.8:
-    resolution: {integrity: sha512-9xcQ0YNf9JUFb0YOX1Mpy4Yojt+6w2yQz/0aIEyj2X/s9D71NW0fTYsMcdhkLOI7mn2cqVbx2t1lRvdgqsbrSQ==}
+  /@walletconnect/core/1.8.0:
+    resolution: {integrity: sha512-aFTHvEEbXcZ8XdWBw6rpQDte41Rxwnuk3SgTD8/iKGSRTni50gI9S3YEzMj05jozSiOBxQci4pJDMVhIUMtarw==}
     dependencies:
-      '@walletconnect/socket-transport': 1.7.8
-      '@walletconnect/types': 1.7.8
-      '@walletconnect/utils': 1.7.8
+      '@walletconnect/socket-transport': 1.8.0
+      '@walletconnect/types': 1.8.0
+      '@walletconnect/utils': 1.8.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2291,15 +2299,15 @@ packages:
     resolution: {integrity: sha512-4BwqyWy6KpSvkocSaV7WR3BlZfrxLbJSLkg+j7Gl6pTDE+U55lLhJvQaMuDVazXYxcjBsG09k7UlH7cGiUI5vQ==}
     dev: false
 
-  /@walletconnect/ethereum-provider/1.7.8:
-    resolution: {integrity: sha512-dnl560zFMdK/LD4MD2XwHbWj7RXOaeXWPc9jzDaosLQLAXfA5mKe4XbCFFUPbVMYuyBdRI9NZv3Ci/qDb5wncQ==}
+  /@walletconnect/ethereum-provider/1.8.0:
+    resolution: {integrity: sha512-Nq9m+oo5P0F+njsROHw9KMWdoc/8iGHYzQdkjJN/1C7DtsqFRg5k5a3hd9rzCLpbPsOC1q8Z5lRs6JQgDvPm6Q==}
     dependencies:
-      '@walletconnect/client': 1.7.8
-      '@walletconnect/jsonrpc-http-connection': 1.0.2
+      '@walletconnect/client': 1.8.0
+      '@walletconnect/jsonrpc-http-connection': 1.0.3
       '@walletconnect/jsonrpc-provider': 1.0.5
-      '@walletconnect/signer-connection': 1.7.8
-      '@walletconnect/types': 1.7.8
-      '@walletconnect/utils': 1.7.8
+      '@walletconnect/signer-connection': 1.8.0
+      '@walletconnect/types': 1.8.0
+      '@walletconnect/utils': 1.8.0
       eip1193-provider: 1.0.1
       eventemitter3: 4.0.7
     transitivePeerDependencies:
@@ -2309,16 +2317,16 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@walletconnect/iso-crypto/1.7.8:
-    resolution: {integrity: sha512-Qo6qDcMG0Ac+9fpWE0h/oE55NHLk6eM2vlXpWlQDN/me7RZGrkvk+LXsAkQ3UiYPEiPfq4eswcyRWC9AcrAscg==}
+  /@walletconnect/iso-crypto/1.8.0:
+    resolution: {integrity: sha512-pWy19KCyitpfXb70hA73r9FcvklS+FvO9QUIttp3c2mfW8frxgYeRXfxLRCIQTkaYueRKvdqPjbyhPLam508XQ==}
     dependencies:
       '@walletconnect/crypto': 1.0.2
-      '@walletconnect/types': 1.7.8
-      '@walletconnect/utils': 1.7.8
+      '@walletconnect/types': 1.8.0
+      '@walletconnect/utils': 1.8.0
     dev: false
 
-  /@walletconnect/jsonrpc-http-connection/1.0.2:
-    resolution: {integrity: sha512-QBewWf38vHLLnZndxHkmO2dfJr78KR0d7KHdKt8SkKlqTML423fU8zkKM5gAnVviyn8J5ytyus6nyECK84i+Qg==}
+  /@walletconnect/jsonrpc-http-connection/1.0.3:
+    resolution: {integrity: sha512-npPvDG2JxyxoqOphDiyjp5pPeASRBrlfQS39wHESPHlFIjBuvNt9lV9teh53MK9Ncbyxh4y2qEKMfPgcUulTRg==}
     dependencies:
       '@walletconnect/jsonrpc-utils': 1.0.3
       '@walletconnect/safe-json': 1.0.0
@@ -2352,13 +2360,13 @@ packages:
     deprecated: 'Deprecated in favor of dynamic registry available from: https://github.com/walletconnect/walletconnect-registry'
     dev: false
 
-  /@walletconnect/qrcode-modal/1.7.8:
-    resolution: {integrity: sha512-LqNJMLWO+ljvoRSdq8tcEslW0imKrrb+ugs3bw4w/jEI1FSJzVeinEsgVpyaMv8wsUcyTcSCXSkXpT1SXHtcpw==}
+  /@walletconnect/qrcode-modal/1.8.0:
+    resolution: {integrity: sha512-BueaFefaAi8mawE45eUtztg3ZFbsAH4DDXh1UNwdUlsvFMjqcYzLUG0xZvDd6z2eOpbgDg2N3bl6gF0KONj1dg==}
     dependencies:
-      '@walletconnect/browser-utils': 1.7.8
+      '@walletconnect/browser-utils': 1.8.0
       '@walletconnect/mobile-registry': 1.4.0
-      '@walletconnect/types': 1.7.8
-      copy-to-clipboard: 3.3.1
+      '@walletconnect/types': 1.8.0
+      copy-to-clipboard: 3.3.2
       preact: 10.4.1
       qrcode: 1.4.4
     dev: false
@@ -2375,42 +2383,42 @@ packages:
     resolution: {integrity: sha512-QJzp/S/86sUAgWY6eh5MKYmSfZaRpIlmCJdi5uG4DJlKkZrHEF7ye7gA+VtbVzvTtpM/gRwO2plQuiooIeXjfg==}
     dev: false
 
-  /@walletconnect/signer-connection/1.7.8:
-    resolution: {integrity: sha512-H+kps4XqabiOQzG/FEgXSjEUlZLQ7Iz9pnNLtuC1Vr+9fvjq9sEkCPBH89N7QL+MDh6q8dU2sADEZzyqNEY6dg==}
+  /@walletconnect/signer-connection/1.8.0:
+    resolution: {integrity: sha512-+YAaTAP52MWZJ2wWnqKClKCPlPHBo6reURFe0cWidLADh9mi/kPWGALZ5AENK22zpem1bbKV466rF5Rzvu0ehA==}
     dependencies:
-      '@walletconnect/client': 1.7.8
+      '@walletconnect/client': 1.8.0
       '@walletconnect/jsonrpc-types': 1.0.1
       '@walletconnect/jsonrpc-utils': 1.0.3
-      '@walletconnect/qrcode-modal': 1.7.8
-      '@walletconnect/types': 1.7.8
+      '@walletconnect/qrcode-modal': 1.8.0
+      '@walletconnect/types': 1.8.0
       eventemitter3: 4.0.7
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
     dev: false
 
-  /@walletconnect/socket-transport/1.7.8:
-    resolution: {integrity: sha512-bqEjLxfSzG79v2OT7XVOZoyUkg6g3yng0fURrdLusWs42fYHWnrSrIZDejFn8N5PiZk5R2edrggkQ7w0VUUAfw==}
+  /@walletconnect/socket-transport/1.8.0:
+    resolution: {integrity: sha512-5DyIyWrzHXTcVp0Vd93zJ5XMW61iDM6bcWT4p8DTRfFsOtW46JquruMhxOLeCOieM4D73kcr3U7WtyR4JUsGuQ==}
     dependencies:
-      '@walletconnect/types': 1.7.8
-      '@walletconnect/utils': 1.7.8
+      '@walletconnect/types': 1.8.0
+      '@walletconnect/utils': 1.8.0
       ws: 7.5.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
     dev: false
 
-  /@walletconnect/types/1.7.8:
-    resolution: {integrity: sha512-0oSZhKIrtXRJVP1jQ0EDTRtotQY6kggGjDcmm/LLQBKnOZXdPeo0sPkV/7DjT5plT3O7Cjc6JvuXt9WOY0hlCA==}
+  /@walletconnect/types/1.8.0:
+    resolution: {integrity: sha512-Cn+3I0V0vT9ghMuzh1KzZvCkiAxTq+1TR2eSqw5E5AVWfmCtECFkVZBP6uUJZ8YjwLqXheI+rnjqPy7sVM4Fyg==}
     dev: false
 
-  /@walletconnect/utils/1.7.8:
-    resolution: {integrity: sha512-DSpfH6Do0TQmdrgzu+SyjVhupVjN0WEMvNWGK9K4VlSmLFpCWfme7qxzrvuxBZ47gDqs1kGWvjyJmviWqvOnAg==}
+  /@walletconnect/utils/1.8.0:
+    resolution: {integrity: sha512-zExzp8Mj1YiAIBfKNm5u622oNw44WOESzo6hj+Q3apSMIb0Jph9X3GDIdbZmvVZsNPxWDL7uodKgZcCInZv2vA==}
     dependencies:
-      '@walletconnect/browser-utils': 1.7.8
+      '@walletconnect/browser-utils': 1.8.0
       '@walletconnect/encoding': 1.0.1
       '@walletconnect/jsonrpc-utils': 1.0.3
-      '@walletconnect/types': 1.7.8
+      '@walletconnect/types': 1.8.0
       bn.js: 4.11.8
       js-sha3: 0.8.0
       query-string: 6.13.5
@@ -2790,6 +2798,10 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
+  /bun-types/0.1.8:
+    resolution: {integrity: sha512-gIcflj8Urhq38QsIeZBeFsJyrJ0k2MUsxYJ4nNW2mkPLmvfvT+wyqdvXRpZVVEFtFZeGYXmihZW3AymWEXdbEA==}
+    dev: true
+
   /bundlewatch/0.3.3:
     resolution: {integrity: sha512-qzSVWrZyyWXa546JpAPRPTFmnXms9YNVnfzB05DRJKmN6wRRa7SkxE4OgKQmbAY74Z6CM2mKAc6vwvd2R+1lUQ==}
     engines: {node: '>=10'}
@@ -3039,8 +3051,8 @@ packages:
       safe-buffer: 5.1.2
     dev: true
 
-  /copy-to-clipboard/3.3.1:
-    resolution: {integrity: sha512-i13qo6kIHTTpCm8/Wup+0b1mVWETvu2kIMzKoK8FpkLkFxlt0znUAHcMzox+T8sPlqtZXq3CulEjQHsYiGFJUw==}
+  /copy-to-clipboard/3.3.2:
+    resolution: {integrity: sha512-Vme1Z6RUDzrb6xAI7EZlVZ5uvOk2F//GaxKUxajDqm9LhOVM1inxNAD2vy+UZDYsd0uyA9s7b3/FVZPSxqrCfg==}
     dependencies:
       toggle-selection: 1.0.6
     dev: false

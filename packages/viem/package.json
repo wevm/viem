@@ -29,6 +29,10 @@
       "module": "./chains/dist/viem-chains.esm.js",
       "default": "./chains/dist/viem-chains.cjs.js"
     },
+    "./providers": {
+      "module": "./providers/dist/viem-providers.esm.js",
+      "default": "./providers/dist/viem-providers.cjs.js"
+    },
     "./providers/account": {
       "module": "./providers/account/dist/viem-providers-account.esm.js",
       "default": "./providers/account/dist/viem-providers-account.cjs.js"
@@ -57,6 +61,7 @@
       "actions/wallet/index.ts",
       "chains.ts",
       "index.ts",
+      "providers/index.ts",
       "providers/account/index.ts",
       "providers/network/index.ts",
       "providers/test/index.ts",
