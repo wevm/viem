@@ -20,9 +20,9 @@ export type TestProviderConfig<
 }
 
 export type TestProvider<
-  TChain extends Chain,
-  TId extends TestProviderId,
-> = BaseProvider<TChain, TestRequests<TId>['request']> & {
+  TChain extends Chain = Chain,
+  TId extends TestProviderId = TestProviderId,
+> = BaseProvider<TChain, TestRequests<TId>['request'], TId> & {
   chain: TChain
   type: 'testProvider'
 }

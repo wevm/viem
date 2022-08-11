@@ -7,8 +7,9 @@ import {
   networkProvider,
   testProvider,
 } from '../../../test/utils'
-import { numberToHex } from '../../utils'
+import { etherToWei } from '../../utils'
 import { sendTransaction } from '../account/sendTransaction'
+import { setBalance } from '../test/setBalance'
 
 import { fetchBalance } from './fetchBalance'
 import { fetchBlockNumber } from './fetchBlockNumber'
@@ -17,29 +18,30 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 beforeAll(async () => {
-  await testProvider.request({
-    method: 'anvil_setBalance',
-    params: [targetAccount.address, numberToHex(targetAccount.balance)],
+  await setBalance(testProvider, {
+    address: targetAccount.address,
+    value: targetAccount.balance,
   })
+
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: 100000000000000000n,
+      value: etherToWei(1),
     },
   })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: 200000000000000000n,
+      value: etherToWei(2),
     },
   })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: 300000000000000000n,
+      value: etherToWei(3),
     },
   })
 })
@@ -47,7 +49,7 @@ beforeAll(async () => {
 test('fetches balance', async () => {
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
-  ).toMatchInlineSnapshot('10000600000000000000000n')
+  ).toMatchInlineSnapshot('10006000000000000000000n')
 })
 
 test('fetches balance at latest', async () => {
@@ -56,7 +58,7 @@ test('fetches balance at latest', async () => {
       address: targetAccount.address,
       blockTime: 'latest',
     }),
-  ).toMatchInlineSnapshot('10000600000000000000000n')
+  ).toMatchInlineSnapshot('10006000000000000000000n')
 })
 
 test('fetches balance at block number', async () => {
@@ -66,19 +68,19 @@ test('fetches balance at block number', async () => {
       address: targetAccount.address,
       blockNumber: currentBlockNumber,
     }),
-  ).toMatchInlineSnapshot('10000600000000000000000n')
+  ).toMatchInlineSnapshot('10006000000000000000000n')
   expect(
     await fetchBalance(networkProvider, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 1,
     }),
-  ).toMatchInlineSnapshot('10000300000000000000000n')
+  ).toMatchInlineSnapshot('10003000000000000000000n')
   expect(
     await fetchBalance(networkProvider, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 2,
     }),
-  ).toMatchInlineSnapshot('10000100000000000000000n')
+  ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
     await fetchBalance(networkProvider, {
       address: targetAccount.address,

@@ -13,11 +13,12 @@ export type BaseProviderRequestFn = <TMethod extends string>({
 export type BaseProvider<
   TChain extends Chain = Chain,
   TRequestFn extends BaseProviderRequestFn = PublicRequests['request'],
+  TId extends string = string,
 > = {
   /** The chains that are configured with the provider. */
   chains: TChain[]
   /** A identifier for the provider. */
-  id: string
+  id: TId
   /** A name for the provider. */
   name: string
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
@@ -36,12 +37,17 @@ export type BaseProvider<
 export function createBaseProvider<
   TChain extends Chain,
   TRequestFn extends BaseProviderRequestFn,
+  TId extends string = string,
 >({
   chains,
   id,
   name,
   request,
-}: BaseProvider<TChain, TRequestFn>): BaseProvider<TChain, TRequestFn> {
+}: BaseProvider<TChain, TRequestFn, TId>): BaseProvider<
+  TChain,
+  TRequestFn,
+  TId
+> {
   return {
     chains,
     id,

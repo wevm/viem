@@ -7,9 +7,10 @@ import {
   testProvider,
   walletProvider,
 } from '../../../test/utils'
-import { etherToWei, gweiToWei, numberToHex } from '../../utils'
+import { etherToWei, gweiToWei } from '../../utils'
 import { fetchBalance } from '../public/fetchBalance'
 import { fetchBlock } from '../public/fetchBlock'
+import { setBalance } from '../test/setBalance'
 
 import { sendTransaction } from './sendTransaction'
 
@@ -17,13 +18,13 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await testProvider.request({
-    method: 'anvil_setBalance',
-    params: [targetAccount.address, numberToHex(targetAccount.balance)],
+  await setBalance(testProvider, {
+    address: sourceAccount.address,
+    value: sourceAccount.balance,
   })
-  await testProvider.request({
-    method: 'anvil_setBalance',
-    params: [sourceAccount.address, numberToHex(sourceAccount.balance)],
+  await setBalance(testProvider, {
+    address: targetAccount.address,
+    value: targetAccount.balance,
   })
 }
 
