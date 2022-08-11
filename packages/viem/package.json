@@ -9,6 +9,7 @@
     "/dist",
     "/providers",
     "/types",
+    "/utils",
     "/window"
   ],
   "exports": {
@@ -49,6 +50,10 @@
       "module": "./providers/wallet/dist/viem-providers-wallet.esm.js",
       "default": "./providers/wallet/dist/viem-providers-wallet.cjs.js"
     },
+    "./utils": {
+      "module": "./utils/dist/viem-utils.esm.js",
+      "default": "./utils/dist/viem-utils.cjs.js"
+    },
     "./window": {
       "module": "./window/dist/viem-window.esm.js",
       "default": "./window/dist/viem-window.cjs.js"
@@ -66,6 +71,7 @@
       "providers/network/index.ts",
       "providers/test/index.ts",
       "providers/wallet/index.ts",
+      "utils/index.ts",
       "window.ts"
     ]
   },

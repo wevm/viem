@@ -13,5 +13,5 @@ export function FetchBalance({ provider }: { provider: BaseProvider }) {
       )
     })()
   }, [provider])
-  return <div>Balance: {balance?.toString()}</div>
+  return <div>Balance: {balance?.toString()} wei</div>
 }

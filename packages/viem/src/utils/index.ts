@@ -2,8 +2,10 @@ export { buildRequest } from './buildRequest'
 
 export {
   etherToWei,
+  etherValue,
   gweiPerEther,
   gweiToWei,
+  gweiValue,
   weiPerEther,
   weiPerGwei,
 } from './conversion'

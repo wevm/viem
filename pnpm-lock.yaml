@@ -101,6 +101,7 @@ importers:
 
   examples/next:
     specifiers:
+      '@next/bundle-analyzer': ^12.2.4
       '@preconstruct/next': ^4.0.0
       '@types/node': ^17.0.45
       '@types/react': 18.0.15
@@ -120,6 +121,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       viem: link:../../packages/viem
     devDependencies:
+      '@next/bundle-analyzer': 12.2.4
       '@preconstruct/next': 4.0.0
       '@types/node': 17.0.45
       '@types/react': 18.0.15
