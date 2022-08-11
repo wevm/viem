@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 import { injectedProvider } from 'viem/providers/wallet'
 
@@ -11,12 +12,22 @@ const provider = injectedProvider({
 })
 
 export function InjectedWallet() {
+  const [addresses, setAddresses] = useState<`0x${string}`[]>([])
   if (!provider) return null
   return (
     <div>
       <hr />
+      <h3>requestAccountAddresses</h3>
+      <RequestAccountAddresses
+        onAddresses={(addresses) => setAddresses(addresses)}
+        provider={provider}
+      />
+      <br />
+      <hr />
       <h3>fetchBalance</h3>
-      <FetchBalance provider={provider} />
+      {addresses.length > 0 && (
+        <FetchBalance address={addresses[0]} provider={provider} />
+      )}
       <br />
       <hr />
       <h3>fetchBlock</h3>
@@ -25,10 +36,6 @@ export function InjectedWallet() {
       <hr />
       <h3>fetchBlockNumber</h3>
       <FetchBlockNumber provider={provider} />
-      <br />
-      <hr />
-      <h3>requestAccountAddresses</h3>
-      <RequestAccountAddresses provider={provider} />
     </div>
   )
 }

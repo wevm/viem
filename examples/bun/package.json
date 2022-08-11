@@ -1,5 +1,6 @@
 {
   "name": "example-bun",
+  "private": true,
   "module": "index.ts",
   "type": "module",
   "devDependencies": {

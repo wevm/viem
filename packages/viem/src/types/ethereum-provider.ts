@@ -37,7 +37,7 @@ export type Events = {
   ): void
   removeListener(
     event: 'accountsChanged',
-    listener: (accounts: string[]) => void,
+    listener: (accounts: Address[]) => void,
   ): void
   removeListener(
     event: 'message',
@@ -432,7 +432,7 @@ export type InjectedRequests = {
      * // => ['0x...', '0x...']
      * */
     method: 'eth_requestAccounts'
-  }): Promise<string[]>
+  }): Promise<Address[]>
   /**
    * @description Requests that the user tracks the token in the browser extension. Returns a boolean indicating if the token was successfully added.
    * @link https://eips.ethereum.org/EIPS/eip-747
@@ -1088,7 +1088,7 @@ export type InjectedFlags = {
   }
   /** Only exists in MetaMask as of 2022/04/03 */
   _state?: {
-    accounts?: string[]
+    accounts?: Address[]
     initialized?: boolean
     isConnected?: boolean
     isPermanentlyDisconnected?: boolean
