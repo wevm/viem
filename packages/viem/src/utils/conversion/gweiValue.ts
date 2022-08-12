@@ -1,3 +1,6 @@
-import { gweiToWei } from './gweiToWei'
+import { gweiUnits } from './constants'
+import { toUnit } from './toUnit'
 
-export const gweiValue = gweiToWei
+export function gweiValue(ether: string, unit: 'wei' = 'wei') {
+  return toUnit(ether, gweiUnits[unit])
+}

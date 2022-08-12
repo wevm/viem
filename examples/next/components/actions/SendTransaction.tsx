@@ -11,7 +11,7 @@ export function SendTransaction({ provider }: { provider: AccountProvider }) {
             request: {
               from: provider.address as `0x${string}`,
               to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-              value: etherValue(0.0001),
+              value: etherValue('0.0001'),
             },
           })
         }

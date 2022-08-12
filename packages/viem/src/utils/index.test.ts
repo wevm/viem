@@ -24,16 +24,14 @@ test('exports utils', () => {
       "RpcError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
-      "etherToWei": [Function],
-      "gweiPerEther": 1000000000,
-      "gweiToWei": [Function],
+      "etherValue": [Function],
+      "gweiValue": [Function],
       "numberToHex": [Function],
       "request": [Function],
       "rpc": {
         "http": [Function],
       },
-      "weiPerEther": 1000000000000000000,
-      "weiPerGwei": 1000000000,
+      "toUnit": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

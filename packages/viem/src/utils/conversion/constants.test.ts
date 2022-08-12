@@ -5,9 +5,18 @@ import * as constants from './constants'
 test('exports constants', () => {
   expect(constants).toMatchInlineSnapshot(`
     {
-      "gweiPerEther": 1000000000,
-      "weiPerEther": 1000000000000000000,
-      "weiPerGwei": 1000000000,
+      "etherUnits": {
+        "gwei": 9,
+        "wei": 18,
+      },
+      "gweiUnits": {
+        "ether": -9,
+        "wei": 9,
+      },
+      "weiUnits": {
+        "ether": -18,
+        "gwei": -9,
+      },
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

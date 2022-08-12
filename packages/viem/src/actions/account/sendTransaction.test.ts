@@ -7,7 +7,7 @@ import {
   testProvider,
   walletProvider,
 } from '../../../test/utils'
-import { etherToWei, gweiToWei } from '../../utils'
+import { etherValue, gweiValue } from '../../utils'
 import { fetchBalance } from '../public/fetchBalance'
 import { fetchBlock } from '../public/fetchBlock'
 import { setBalance } from '../test/setBalance'
@@ -37,7 +37,7 @@ test('sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
         },
       })
     ).hash,
@@ -80,7 +80,7 @@ test('gas: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
           gas: 1000000n,
         },
       })
@@ -103,7 +103,7 @@ test('gas: sends transaction with too little gas', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
           gas: 100n,
         },
       })
@@ -130,7 +130,7 @@ test('gasPrice: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
           gasPrice: BigInt(block.baseFeePerGas),
         },
       })
@@ -159,7 +159,7 @@ test('maxFeePerGas: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
           maxFeePerGas: BigInt(block.baseFeePerGas),
         },
       })
@@ -186,8 +186,8 @@ test('maxPriorityFeePerGas: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
-          maxPriorityFeePerGas: gweiToWei(1),
+          value: etherValue('1'),
+          maxPriorityFeePerGas: gweiValue('1'),
         },
       })
     ).hash,
@@ -213,9 +213,9 @@ test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
-          maxPriorityFeePerGas: gweiToWei(10),
-          maxFeePerGas: BigInt(block.baseFeePerGas) + gweiToWei(10),
+          value: etherValue('1'),
+          maxPriorityFeePerGas: gweiValue('10'),
+          maxFeePerGas: BigInt(block.baseFeePerGas) + gweiValue('10'),
         },
       })
     ).hash,
@@ -246,7 +246,7 @@ test('nonce: sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
           nonce: BigInt(transactionCount),
         },
       })
@@ -270,7 +270,7 @@ test('insufficient funds: errors when user is out of funds', async () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToWei(100000),
+        value: etherValue('100000'),
       },
     }),
   ).rejects.toThrow('Insufficient funds for gas * price + value')
@@ -289,7 +289,7 @@ test('insufficient funds: errors when user is out of funds', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToWei(1),
+          value: etherValue('1'),
         },
       }),
     ).rejects.toThrow(`Invalid provider of type "${provider?.type}" provided`)
