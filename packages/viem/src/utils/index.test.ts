@@ -28,7 +28,7 @@ test('exports utils', () => {
       "rpc": {
         "http": [Function],
       },
-      "toUnit": [Function],
+      "toValue": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

@@ -18,10 +18,10 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
-export { etherValue, gweiValue, toUnit } from './conversion'
-
 export { numberToHex } from './number'
 
 export { request } from './request'
 
 export { rpc } from './rpc'
+
+export { etherValue, gweiValue, toValue } from './value'

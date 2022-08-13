@@ -1,6 +1,6 @@
 import { etherUnits } from './constants'
-import { toUnit } from './toUnit'
+import { toValue } from './toValue'
 
 export function etherValue(ether: `${number}`, unit: 'wei' | 'gwei' = 'wei') {
-  return toUnit(ether, etherUnits[unit])
+  return toValue(ether, etherUnits[unit])
 }

@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest'
 
-import * as conversion from './index'
+import * as value from './index'
 
-test('exports conversion', () => {
-  expect(conversion).toMatchInlineSnapshot(`
+test('exports value utils', () => {
+  expect(value).toMatchInlineSnapshot(`
     {
       "etherValue": [Function],
       "gweiValue": [Function],
-      "toUnit": [Function],
+      "toValue": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

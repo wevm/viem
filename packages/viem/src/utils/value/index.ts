@@ -1,3 +1,3 @@
 export { etherValue } from './etherValue'
 export { gweiValue } from './gweiValue'
-export { toUnit } from './toUnit'
+export { toValue } from './toValue'

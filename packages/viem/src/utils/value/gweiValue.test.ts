@@ -36,7 +36,7 @@ test('converts gwei to wei', () => {
   expect(gweiValue('-0.000000001')).toMatchInlineSnapshot('-1n')
 })
 
-test('converts to rounded gwei', () => {
+test('converts to rounded wei', () => {
   expect(gweiValue('0.0000000001')).toMatchInlineSnapshot('0n')
   expect(gweiValue('0.00000000059')).toMatchInlineSnapshot('1n')
   expect(gweiValue('1.00000000059')).toMatchInlineSnapshot('1000000001n')
@@ -48,30 +48,3 @@ test('converts to rounded gwei', () => {
   expect(gweiValue('-69.59000000059')).toMatchInlineSnapshot('-69590000001n')
   expect(gweiValue('-1.2345678912345222')).toMatchInlineSnapshot('-1234567891n')
 })
-
-// test('error: throws if gwei cannot be created', () => {
-//   expect(() => gweiValue('0.0000000001')).toThrowErrorMatchingInlineSnapshot(
-//     `
-//     "Cannot create a gwei value from 0.0000000001. This value is too small.
-
-//     Details: cannot create an integer by shifting 0.0000000001 by 9 decimals.
-//     Version: viem@1.0.2"
-//   `,
-//   )
-//   expect(() => gweiValue('1.2345678912345222')).toThrowErrorMatchingInlineSnapshot(
-//     `
-//     "Cannot create a gwei value from 0.0000000001. This value is too small.
-
-//     Details: cannot create an integer by shifting 0.0000000001 by 9 decimals.
-//     Version: viem@1.0.2"
-//   `,
-//   )
-//   expect(() => gweiValue('-0.0000000001')).toThrowErrorMatchingInlineSnapshot(
-//     `
-//     "Cannot create a gwei value from -0.0000000001. This value is too small.
-
-//     Details: cannot create an integer by shifting -0.0000000001 by 9 decimals.
-//     Version: viem@1.0.2"
-//   `,
-//   )
-// })
