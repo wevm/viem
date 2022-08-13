@@ -7,7 +7,7 @@ import {
   networkProvider,
   testProvider,
 } from '../../../test/utils'
-import { etherValue } from '../../utils'
+import { etherToValue } from '../../utils'
 import { sendTransaction } from '../account/sendTransaction'
 import { setBalance } from '../test/setBalance'
 
@@ -27,21 +27,21 @@ beforeAll(async () => {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherValue('1'),
+      value: etherToValue('1'),
     },
   })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherValue('2'),
+      value: etherToValue('2'),
     },
   })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherValue('3'),
+      value: etherToValue('3'),
     },
   })
 })

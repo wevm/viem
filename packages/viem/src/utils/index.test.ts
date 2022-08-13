@@ -21,14 +21,29 @@ test('exports utils', () => {
       "RpcError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
-      "etherValue": [Function],
-      "gweiValue": [Function],
+      "displayToValue": [Function],
+      "etherToValue": [Function],
+      "etherUnits": {
+        "gwei": 9,
+        "wei": 18,
+      },
+      "gweiToValue": [Function],
+      "gweiUnits": {
+        "ether": -9,
+        "wei": 9,
+      },
       "numberToHex": [Function],
       "request": [Function],
       "rpc": {
         "http": [Function],
       },
-      "toValue": [Function],
+      "valueAsEther": [Function],
+      "valueAsGwei": [Function],
+      "valueToDisplay": [Function],
+      "weiUnits": {
+        "ether": -18,
+        "gwei": -9,
+      },
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

@@ -24,4 +24,14 @@ export { request } from './request'
 
 export { rpc } from './rpc'
 
-export { etherValue, gweiValue, toValue } from './value'
+export {
+  displayToValue,
+  etherToValue,
+  etherUnits,
+  gweiToValue,
+  gweiUnits,
+  valueAsEther,
+  valueAsGwei,
+  valueToDisplay,
+  weiUnits,
+} from './unit'

@@ -43,6 +43,7 @@
         "newlines-between": "always-and-inside-groups"
       }
     ],
+    "prefer-const": "off",
     "sort-imports": [
       "warn",
       {
