@@ -81,7 +81,7 @@ test('gas: sends transaction', async () => {
           from: sourceAccount.address,
           to: targetAccount.address,
           value: etherToValue('1'),
-          gas: 1000000n,
+          gas: 1_000_000n,
         },
       })
     ).hash,
@@ -117,7 +117,20 @@ test('gas: sends transaction with too little gas', async () => {
   ).toMatchInlineSnapshot('10000000000000000000000n')
 })
 
-test.todo('gas: sends transaction with too much gas')
+test('gas: sends transaction with too much gas', async () => {
+  await setup()
+
+  await expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        gas: 100_000_000n,
+      },
+    }),
+  ).rejects.toThrowError(`intrinsic gas too high`)
+})
 
 test('gasPrice: sends transaction', async () => {
   await setup()
@@ -144,9 +157,37 @@ test('gasPrice: sends transaction', async () => {
   ).toBeLessThan(sourceAccount.balance)
 })
 
-test.todo('gasPrice: errors when gas price is less than block base fee')
+test('gasPrice: errors when gas price is less than block base fee', async () => {
+  await setup()
 
-test.todo('gasPrice: errors when account has insufficient funds')
+  await expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        gasPrice: 1n,
+      },
+    }),
+  ).rejects.toThrowError(`max fee per gas less than block base fee`)
+})
+
+test('gasPrice: errors when account has insufficient funds', async () => {
+  await setup()
+
+  const block = await fetchBlock(networkProvider)
+
+  await expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        gasPrice: BigInt(block.baseFeePerGas) + etherToValue('10000'),
+      },
+    }),
+  ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
+})
 
 test('maxFeePerGas: sends transaction', async () => {
   await setup()
@@ -173,9 +214,37 @@ test('maxFeePerGas: sends transaction', async () => {
   ).toBeLessThan(sourceAccount.balance)
 })
 
-test.todo('maxFeePerGas: errors when gas price is less than block base fee')
+test('maxFeePerGas: errors when gas price is less than block base fee', async () => {
+  await setup()
 
-test.todo('maxFeePerGas: errors when account has insufficient funds')
+  await expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        maxFeePerGas: 1n,
+      },
+    }),
+  ).rejects.toThrowError(`max fee per gas less than block base fee`)
+})
+
+test('maxFeePerGas: errors when account has insufficient funds', async () => {
+  await setup()
+
+  const block = await fetchBlock(networkProvider)
+
+  await expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        maxFeePerGas: BigInt(block.baseFeePerGas) + etherToValue('10000'),
+      },
+    }),
+  ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
+})
 
 test('maxPriorityFeePerGas: sends transaction', async () => {
   await setup()
@@ -199,8 +268,6 @@ test('maxPriorityFeePerGas: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
-
-test.todo('maxPriorityFeePerGas: errors when account has insufficient funds')
 
 test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
   await setup()
@@ -228,9 +295,21 @@ test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
   ).toBeLessThan(sourceAccount.balance)
 })
 
-test.todo(
-  'maxPriorityFeePerGas + maxFeePerGas: maxFeePerGas below baseFeePerGas + maxPriorityFeePerGas',
-)
+test('maxPriorityFeePerGas + maxFeePerGas: maxFeePerGas below baseFeePerGas + maxPriorityFeePerGas', () => {
+  expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        maxPriorityFeePerGas: gweiToValue('11'),
+        maxFeePerGas: gweiToValue('10'),
+      },
+    }),
+  ).rejects.toThrowError(
+    `maxFeePerGas cannot be less than maxPriorityFeePerGas`,
+  )
+})
 
 test('nonce: sends transaction', async () => {
   await setup()
@@ -260,7 +339,18 @@ test('nonce: sends transaction', async () => {
   ).toBeLessThan(sourceAccount.balance)
 })
 
-test.todo('nonce: errors when incorrect nonce provided')
+test('nonce: errors when incorrect nonce provided', () => {
+  expect(() =>
+    sendTransaction(accountProvider, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        nonce: 1n,
+      },
+    }),
+  ).rejects.toThrowError(`nonce too low`)
+})
 
 test('insufficient funds: errors when user is out of funds', async () => {
   await setup()

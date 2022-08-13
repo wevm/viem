@@ -1,6 +1,6 @@
 import { AccountProvider } from '../../providers'
 import { TransactionRequest as TransactionRequestRpc } from '../../types/ethereum-provider'
-import { numberToHex } from '../../utils'
+import { BaseError, numberToHex } from '../../utils'
 import { InvalidProviderError } from '../errors'
 
 export type TransactionRequest = {
@@ -46,6 +46,16 @@ export async function sendTransaction(
     throw new InvalidProviderError({
       givenProvider: provider.type,
       expectedProvider: 'accountProvider',
+    })
+
+  if (
+    request.maxFeePerGas !== undefined &&
+    request.maxPriorityFeePerGas !== undefined &&
+    request.maxFeePerGas < request.maxPriorityFeePerGas
+  )
+    throw new BaseError({
+      humanMessage: 'Gas values provided are invalid.',
+      details: 'maxFeePerGas cannot be less than maxPriorityFeePerGas',
     })
 
   const rpcRequest = parseTransactionRequest(request)
