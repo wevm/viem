@@ -3,7 +3,6 @@ import { beforeAll, expect, test } from 'vitest'
 import {
   accountProvider,
   accounts,
-  initialBlockNumber,
   networkProvider,
   testProvider,
 } from '../../../test/utils'
@@ -84,7 +83,7 @@ test('fetches balance at block number', async () => {
   expect(
     await fetchBalance(networkProvider, {
       address: targetAccount.address,
-      blockNumber: initialBlockNumber,
+      blockNumber: currentBlockNumber - 3,
     }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 })
