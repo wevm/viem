@@ -9,7 +9,7 @@ export default function Index() {
   const [provider, setProvider] = useState('alchemy-network')
   return (
     <div>
-      <h1>viem alpha</h1>
+      <h1>𝐯𝐢𝐞𝐦 alpha</h1>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 16 }}>
         <div>
           <input
