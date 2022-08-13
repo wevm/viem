@@ -1,6 +1,8 @@
 export { accountProvider } from './account'
 export type { AccountProvider, AccountProviderConfig } from './account'
 
+export { ProviderRpcError } from './errors'
+
 export { alchemyProvider, jsonRpcProvider } from './network'
 export type {
   AlchemyProvider,

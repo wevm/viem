@@ -1,4 +1,4 @@
-import { ProviderRpcError } from '../utils/errors'
+import { ProviderRpcError } from '../providers/errors'
 
 //////////////////////////////////////////////////
 

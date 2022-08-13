@@ -1,6 +1,6 @@
 import { BaseProvider } from '../../providers'
 import { Block, BlockTime, Data } from '../../types/ethereum-provider'
-import { BlockNotFoundError, numberToHex } from '../../utils'
+import { BaseError, numberToHex } from '../../utils'
 
 export type FetchBlockArgs = {
   includeTransactions?: boolean
@@ -52,4 +52,25 @@ export async function fetchBlock<TProvider extends BaseProvider>(
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
   // TODO: prettify response
   return block
+}
+
+///////////////////////////////////////////////////////
+
+export class BlockNotFoundError extends BaseError {
+  name = 'BlockNotFoundError'
+  constructor({
+    blockHash,
+    blockNumber,
+  }: {
+    blockHash?: Data
+    blockNumber?: number
+  }) {
+    let identifier = 'Block'
+    if (blockHash) identifier = `Block at hash "${blockHash}"`
+    if (blockNumber) identifier = `Block at number "${blockNumber}"`
+    super({
+      humanMessage: `${identifier} could not be found.`,
+      details: 'block not found at given hash or number',
+    })
+  }
 }

@@ -75,23 +75,52 @@ test('converts ether to gwei', () => {
   expect(etherValue('-0.000000001', 'gwei')).toMatchInlineSnapshot('-1n')
 })
 
-test('error: throws if wei cannot be created', () => {
-  expect(() => etherValue('0.00000000000000000001')).toThrowError(
-    'cannot create a whole number from 0.00000000000000000001 by shifting 18 decimals',
+test('converts to rounded gwei', () => {
+  expect(etherValue('0.0000000001', 'gwei')).toMatchInlineSnapshot('0n')
+  expect(etherValue('0.00000000059', 'gwei')).toMatchInlineSnapshot('1n')
+  expect(etherValue('1.00000000059', 'gwei')).toMatchInlineSnapshot(
+    '1000000001n',
   )
-  expect(() => etherValue('0.000000000000000000001')).toThrowError(
-    'cannot create a whole number from 0.000000000000000000001 by shifting 18 decimals',
+  expect(etherValue('69.59000000059', 'gwei')).toMatchInlineSnapshot(
+    '69590000001n',
   )
-  expect(() => etherValue('-0.00000000000000000001')).toThrowError(
-    'cannot create a whole number from -0.00000000000000000001 by shifting 18 decimals',
+  expect(etherValue('1.2345678912345222', 'gwei')).toMatchInlineSnapshot(
+    '1234567891n',
+  )
+  expect(etherValue('-0.0000000001', 'gwei')).toMatchInlineSnapshot('0n')
+  expect(etherValue('-0.00000000059', 'gwei')).toMatchInlineSnapshot('-1n')
+  expect(etherValue('-1.00000000059', 'gwei')).toMatchInlineSnapshot(
+    '-1000000001n',
+  )
+  expect(etherValue('-69.59000000059', 'gwei')).toMatchInlineSnapshot(
+    '-69590000001n',
+  )
+  expect(etherValue('-1.2345678912345222', 'gwei')).toMatchInlineSnapshot(
+    '-1234567891n',
   )
 })
 
-test('error: throws if gwei cannot be created', () => {
-  expect(() => etherValue('0.0000000001', 'gwei')).toThrowError(
-    'cannot create a whole number from 0.0000000001 by shifting 9 decimals',
+test('converts to rounded wei', () => {
+  expect(etherValue('0.0000000000000000001')).toMatchInlineSnapshot('0n')
+  expect(etherValue('0.00000000000000000059')).toMatchInlineSnapshot('1n')
+  expect(etherValue('1.00000000000000000059')).toMatchInlineSnapshot(
+    '1000000000000000001n',
   )
-  expect(() => etherValue('-0.0000000001', 'gwei')).toThrowError(
-    'cannot create a whole number from -0.0000000001 by shifting 9 decimals',
+  expect(etherValue('69.59000000000000000059')).toMatchInlineSnapshot(
+    '69590000000000000000n',
+  )
+  expect(etherValue('1.2345678000000000912345222')).toMatchInlineSnapshot(
+    '1234567800000000100n',
+  )
+  expect(etherValue('-0.0000000000000000001')).toMatchInlineSnapshot('0n')
+  expect(etherValue('-0.00000000000000000059')).toMatchInlineSnapshot('-1n')
+  expect(etherValue('-1.00000000000000000059')).toMatchInlineSnapshot(
+    '-1000000000000000001n',
+  )
+  expect(etherValue('-69.59000000000000000059')).toMatchInlineSnapshot(
+    '-69590000000000000000n',
+  )
+  expect(etherValue('-1.2345678000000000912345222')).toMatchInlineSnapshot(
+    '-1234567800000000100n',
   )
 })

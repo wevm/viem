@@ -1,6 +1,7 @@
 import { AccountProvider } from '../../providers'
 import { TransactionRequest as TransactionRequestRpc } from '../../types/ethereum-provider'
-import { InvalidProviderError, numberToHex } from '../../utils'
+import { numberToHex } from '../../utils'
+import { InvalidProviderError } from '../errors'
 
 export type TransactionRequest = {
   /** Contract code or a hashed method call with encoded args */

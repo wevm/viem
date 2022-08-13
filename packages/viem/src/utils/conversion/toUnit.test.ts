@@ -30,17 +30,25 @@ test('converts number to unit of a given length', () => {
   )
 })
 
-test('error: throws if whole number cannot be created from shifting decimal', () => {
-  expect(() => toUnit('1.123', 2)).toThrowError(
-    'cannot create a whole number from 1.123 by shifting 2 decimals',
+test('decimals === 0', () => {
+  expect(toUnit('69.2352112312312451512412341231', 0)).toMatchInlineSnapshot(
+    '69n',
   )
-  expect(() => toUnit('1.69420', 2)).toThrowError(
-    'cannot create a whole number from 1.69420 by shifting 2 decimals',
+  expect(toUnit('69.5952141234124125231523412312', 0)).toMatchInlineSnapshot(
+    '70n',
   )
-  expect(() => toUnit('69420', -1)).toThrowError(
-    'cannot create a whole number from 69420 by shifting -1 decimals',
-  )
-  expect(() => toUnit('69.420', -2)).toThrowError(
-    'cannot create a whole number from 69.420 by shifting -2 decimals',
-  )
+})
+
+test('decimals < fraction length', () => {
+  expect(toUnit('69.23521', 1)).toMatchInlineSnapshot('692n')
+  expect(toUnit('69.23521', 2)).toMatchInlineSnapshot('6924n')
+  expect(toUnit('69.23221', 2)).toMatchInlineSnapshot('6923n')
+  expect(toUnit('69.23261', 3)).toMatchInlineSnapshot('69233n')
+  expect(toUnit('69.23221', 3)).toMatchInlineSnapshot('69232n')
+  expect(toUnit('0.00000000059', 9)).toMatchInlineSnapshot('1n')
+  expect(toUnit('0.0000000003', 9)).toMatchInlineSnapshot('0n')
+  expect(toUnit('69.00000000000', 9)).toMatchInlineSnapshot('69000000000n')
+  expect(toUnit('69.00000000019', 9)).toMatchInlineSnapshot('69000000000n')
+  expect(toUnit('69.00000000059', 9)).toMatchInlineSnapshot('69000000001n')
+  expect(toUnit('69.59000000059', 9)).toMatchInlineSnapshot('69590000001n')
 })

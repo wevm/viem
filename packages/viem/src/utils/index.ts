@@ -1,27 +1,24 @@
-export { buildRequest } from './buildRequest'
-
-export { etherValue, gweiValue, toUnit } from './conversion'
+export { BaseError } from './BaseError'
 
 export {
-  BaseError,
-  BlockNotFoundError,
+  buildRequest,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
-  InvalidProviderError,
   InvalidRequestRpcError,
   JsonRpcVersionUnsupportedError,
   LimitExceededRpcError,
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
-  ProviderRpcError,
   RequestError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   RpcError,
   TransactionRejectedRpcError,
-} from './errors'
+} from './buildRequest'
+
+export { etherValue, gweiValue, toUnit } from './conversion'
 
 export { numberToHex } from './number'
 
