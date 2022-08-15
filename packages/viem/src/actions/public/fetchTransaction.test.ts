@@ -80,12 +80,6 @@ test('hash: fetches transaction by hash', async () => {
     },
   })
 
-  await expect(() =>
-    fetchTransaction(networkProvider, {
-      hash,
-    }),
-  ).rejects.toThrowError('transaction not found')
-
   await testProvider.request({
     method: 'anvil_mine',
     params: [numberToHex(1), undefined],
