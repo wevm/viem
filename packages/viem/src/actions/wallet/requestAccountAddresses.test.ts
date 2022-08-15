@@ -1,12 +1,16 @@
 import { expect, test } from 'vitest'
 
 import { walletProvider } from '../../../test/utils'
-import { injectedProvider } from '../../providers/wallet/injectedProvider'
+import {
+  InjectedProvider,
+  injectedProvider,
+} from '../../providers/wallet/injectedProvider'
 
 import { requestAccountAddresses } from './requestAccountAddresses'
 
 test('fetches block number', async () => {
-  expect(await requestAccountAddresses(walletProvider!)).toMatchInlineSnapshot(`
+  expect(await requestAccountAddresses(walletProvider! as InjectedProvider))
+    .toMatchInlineSnapshot(`
     [
       "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
     ]
