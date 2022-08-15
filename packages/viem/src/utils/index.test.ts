@@ -21,6 +21,7 @@ test('exports utils', () => {
       "RpcError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
+      "checksumAddress": [Function],
       "displayToValue": [Function],
       "etherToValue": [Function],
       "etherUnits": {

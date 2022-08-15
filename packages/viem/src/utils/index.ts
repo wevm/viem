@@ -18,6 +18,9 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
+export { checksumAddress } from './address'
+export type { Address } from './address'
+
 export { numberToHex } from './number'
 
 export { request } from './request'

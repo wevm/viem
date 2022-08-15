@@ -2,7 +2,9 @@
   "name": "viem",
   "description": "TypeScript (& JavaScript) Interface for Ethereum",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "@noble/hashes": "^1.1.2"
+  },
   "files": [
     "/actions",
     "/chains",

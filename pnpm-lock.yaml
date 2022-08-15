@@ -131,7 +131,10 @@ importers:
       typescript: 4.7.4
 
   packages/viem:
-    specifiers: {}
+    specifiers:
+      '@noble/hashes': ^1.1.2
+    dependencies:
+      '@noble/hashes': 1.1.2
 
 packages:
 
@@ -1800,6 +1803,10 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@noble/hashes/1.1.2:
+    resolution: {integrity: sha512-KYRCASVTv6aeUi1tsF8/vpyR7zpfs3FUzy2Jqm+MU+LmUKhQ0y2FpfwqkCcxSg2ua4GALJd8k2R76WxwZGbQpA==}
+    dev: false
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}

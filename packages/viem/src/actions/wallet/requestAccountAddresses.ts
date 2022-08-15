@@ -1,4 +1,5 @@
 import { InjectedProvider } from '../../providers'
+import { checksumAddress } from '../../utils'
 import { InvalidProviderError } from '../errors'
 
 export async function requestAccountAddresses(provider: InjectedProvider) {
@@ -8,6 +9,6 @@ export async function requestAccountAddresses(provider: InjectedProvider) {
       givenProvider: provider.type,
     })
 
-  // TODO: return checksumed addresses
-  return await provider.request({ method: 'eth_requestAccounts' })
+  const addresses = await provider.request({ method: 'eth_requestAccounts' })
+  return addresses.map((address) => checksumAddress(address))
 }
