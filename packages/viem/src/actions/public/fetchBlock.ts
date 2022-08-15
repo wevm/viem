@@ -22,7 +22,7 @@ export type FetchBlockArgs = {
     }
 )
 
-export type FetchBlockResponse = Block
+export type FetchBlockResponse = Block<bigint>
 
 export async function fetchBlock<TProvider extends BaseProvider>(
   provider: TProvider,
@@ -50,11 +50,64 @@ export async function fetchBlock<TProvider extends BaseProvider>(
   }
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
-  // TODO: prettify response
-  return block
+  return deserializeBlock(block)
 }
 
 ///////////////////////////////////////////////////////
+
+// Serializers
+
+export function deserializeBlock({
+  baseFeePerGas,
+  difficulty,
+  extraData,
+  gasLimit,
+  gasUsed,
+  hash,
+  logsBloom,
+  miner,
+  mixHash,
+  nonce,
+  number,
+  parentHash,
+  receiptsRoot,
+  sha3Uncles,
+  size,
+  stateRoot,
+  timestamp,
+  totalDifficulty,
+  transactions,
+  transactionsRoot,
+  uncles,
+}: Block): Block<bigint> {
+  return {
+    baseFeePerGas: baseFeePerGas ? BigInt(baseFeePerGas) : null,
+    difficulty: BigInt(difficulty),
+    extraData,
+    gasLimit: BigInt(gasLimit),
+    gasUsed: BigInt(gasUsed),
+    hash,
+    logsBloom,
+    miner,
+    mixHash,
+    nonce,
+    number: number ? BigInt(number) : null,
+    parentHash,
+    receiptsRoot,
+    sha3Uncles,
+    size: BigInt(size),
+    stateRoot,
+    timestamp: BigInt(timestamp),
+    totalDifficulty: totalDifficulty ? BigInt(totalDifficulty) : null,
+    transactions,
+    transactionsRoot,
+    uncles,
+  }
+}
+
+///////////////////////////////////////////////////////
+
+// Errors
 
 export class BlockNotFoundError extends BaseError {
   name = 'BlockNotFoundError'

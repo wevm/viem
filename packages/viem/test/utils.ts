@@ -1,10 +1,8 @@
-import { vi } from 'vitest'
-
 import { local } from '../src/chains'
 import { accountProvider as accountProvider_ } from '../src/providers/account'
 import { jsonRpcProvider } from '../src/providers/network'
 import { anvilProvider } from '../src/providers/test'
-import { injectedProvider } from '../src/providers/wallet'
+import { externalProvider } from '../src/providers/wallet'
 import { rpc } from '../src/utils/rpc'
 
 export const accounts = [
@@ -50,15 +48,21 @@ export const accounts = [
   },
 ] as const
 
-vi.stubGlobal('window', {
-  ethereum: {
-    on: vi.fn((message, listener) => {
+export const initialBlockNumber = 15132000
+
+export const networkProvider = jsonRpcProvider({
+  chain: local,
+})
+
+export const walletProvider = externalProvider(
+  {
+    on: (message, listener) => {
       if (message === 'accountsChanged') {
-        listener([accounts[0].address])
+        listener([accounts[0].address] as any)
       }
-    }),
-    removeListener: vi.fn(() => null),
-    request: vi.fn(async ({ method, params }: any) => {
+    },
+    removeListener: () => null,
+    request: async ({ method, params }: any) => {
       if (method === 'eth_requestAccounts') {
         return [accounts[0].address]
       }
@@ -70,17 +74,10 @@ vi.stubGlobal('window', {
         },
       })
       return result
-    }),
+    },
   },
-})
-
-export const initialBlockNumber = 15132000
-
-export const networkProvider = jsonRpcProvider({
-  chain: local,
-})
-
-export const walletProvider = injectedProvider({ chains: [local] })
+  { chains: [local] },
+)
 
 export const accountProvider = accountProvider_(walletProvider!, {
   address: accounts[0].address,

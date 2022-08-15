@@ -53,27 +53,29 @@ export type AccessList = Array<{ address: string; storageKeys: Array<string> }>
 
 export type Address = `0x${string}`
 
-export type Block = {
+export type Block<TQuantity = Quantity> = {
   /** Base fee per gas */
-  baseFeePerGas: Quantity
+  baseFeePerGas: TQuantity | null
   /** Difficulty for this block */
-  difficulty: Quantity
+  difficulty: TQuantity
   /** "Extra data" field of this block */
   extraData: Data
   /** Maximum gas allowed in this block */
-  gasLimit: Quantity
+  gasLimit: TQuantity
   /** Total used gas by all transactions in this block */
-  gasUsed: Quantity
+  gasUsed: TQuantity
   /** Block hash or `null` if pending */
   hash: Data | null
   /** Logs bloom filter or `null` if pending */
   logsBloom: Data | null
   /** Address that received this block’s mining rewards */
   miner: Data
+  /** Unique identifier for the block. */
+  mixHash: Data
   /** Proof-of-work hash or `null` if pending */
   nonce: Data | null
   /** Block number or `null` if pending */
-  number: Quantity | null
+  number: TQuantity | null
   /** Parent block hash */
   parentHash: Data
   /** Root of the this block’s receipts trie */
@@ -81,13 +83,13 @@ export type Block = {
   /** SHA3 of the uncles data in this block */
   sha3Uncles: Data
   /** Size of this block in bytes */
-  size: Quantity
+  size: TQuantity
   /** Root of this block’s final state trie */
   stateRoot: Data
   /** Unix timestamp of when this block was collated */
-  timestamp: Quantity
+  timestamp: TQuantity
   /** Total difficulty of the chain until this block */
-  totalDifficulty: Quantity
+  totalDifficulty: TQuantity | null
   /** List of transaction objects or hashes */
   transactions: (Data | TransactionResult)[]
   /** Root of this block’s transaction trie */
@@ -140,19 +142,19 @@ export type FeeHistory = {
   reward?: Quantity[][]
 }
 
-export type FeeValues =
+export type FeeValues<TQuantity = Quantity> =
   | {
       /** Base fee per gas. */
-      gasPrice?: Quantity
+      gasPrice?: TQuantity
       maxFeePerGas?: never
       maxPriorityFeePerGas?: never
     }
   | {
       gasPrice?: never
       /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
-      maxFeePerGas?: Quantity
+      maxFeePerGas?: TQuantity
       /** Max priority fee per gas (in wei). */
-      maxPriorityFeePerGas?: Quantity
+      maxPriorityFeePerGas?: TQuantity
     }
 
 export type Log = {
@@ -231,28 +233,28 @@ export type TransactionReceipt = {
   /** Index of this transaction in the block */
   transactionIndex: Quantity
 }
-export type TransactionResult = {
+export type TransactionResult<TQuantity = Quantity> = {
   accessList: AccessList
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: Data | null
   /** Number of block containing this transaction or `null` if pending */
-  blockNumber: Quantity
+  blockNumber: TQuantity
   /** Transaction sender */
   from: Data
   /** Gas provided for transaction execution */
-  gas: Quantity
+  gas: TQuantity
   /** Price in wei of each gas used */
-  gasPrice: Quantity
+  gasPrice: TQuantity
   /** Hash of this transaction */
   hash: Data
   /** Contract code or a hashed method call */
   input: Data
   /** Max fee per gas. */
-  maxFeePerGas?: Quantity
+  maxFeePerGas?: TQuantity
   /** Max priority fee per gas. */
-  maxPriorityFeePerGas?: Quantity
+  maxPriorityFeePerGas?: TQuantity
   /** Unique number identifying this transaction */
-  nonce: Quantity
+  nonce: TQuantity
   /** ECDSA signature r */
   r: Data
   /** ECDSA signature s */
@@ -260,27 +262,27 @@ export type TransactionResult = {
   /** Transaction recipient or `null` if deploying a contract */
   to: Data | null
   /** Index of this transaction in the block or `null` if pending */
-  transactionIndex: Quantity
+  transactionIndex: TQuantity
   /** ECDSA recovery ID */
-  v: Quantity
+  v: TQuantity
   /** Value in wei sent with this transaction */
-  value: Quantity
+  value: TQuantity
 }
-export type TransactionRequest = {
+export type TransactionRequest<TQuantity = Quantity> = {
   accessList?: AccessList
   /** Contract code or a hashed method call with encoded args */
   data?: Data
   /** Transaction sender */
   from: Data
   /** Gas provided for transaction execution */
-  gas?: Quantity
+  gas?: TQuantity
   /** Unique number identifying this transaction */
-  nonce?: Quantity
+  nonce?: TQuantity
   /** Transaction recipient */
   to?: Data
   /** Value in wei sent with this transaction */
-  value?: Quantity
-} & FeeValues
+  value?: TQuantity
+} & FeeValues<TQuantity>
 
 export type Uncle = Block
 
@@ -953,7 +955,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
     params: [
       /** Number of blocks to mine. */
       count: Data,
-      /** Interval between each block in seconds. Defaults to 1. */
+      /** Interval between each block in seconds. */
       interval: Data | undefined,
     ]
   }): Promise<void>
@@ -1064,6 +1066,53 @@ export type TestRequests<Name extends string = 'anvil'> = {
       address: Address,
     ]
   }): Promise<void>
+  request(args: {
+    /**
+     * @description Jump forward in time by the given amount of time, in seconds.
+     * @link https://github.com/trufflesuite/ganache/blob/ef1858d5d6f27e4baeb75cccd57fb3dc77a45ae8/src/chains/ethereum/ethereum/RPC-METHODS.md#evm_increasetime
+     */
+    method: 'evm_increaseTime'
+    params: [timestamp: Quantity]
+  }): Promise<Quantity>
+  request(args: {
+    /**
+     * @description Enables or disables, based on the single boolean argument, the automatic mining of new blocks with each new transaction submitted to the network.
+     * @link https://hardhat.org/hardhat-network/docs/reference#evm_setautomine
+     */
+    method: 'evm_setAutomine'
+    params: [boolean]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Sets the block's gas limit.
+     * @link https://hardhat.org/hardhat-network/docs/reference#evm_setblockgaslimit
+     */
+    method: 'evm_setBlockGasLimit'
+    params: [Quantity]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Enables (with a numeric argument greater than 0) or disables (with a numeric argument equal to 0), the automatic mining of blocks at a regular interval of milliseconds, each of which will include all pending transactions.
+     * @link https://hardhat.org/hardhat-network/docs/reference#evm_setintervalmining
+     */
+    method: 'evm_setIntervalMining'
+    params: [Quantity]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Set the timestamp of the next block.
+     * @link https://hardhat.org/hardhat-network/docs/reference#evm_setnextblocktimestamp
+     */
+    method: 'evm_setNextBlockTimestamp'
+    params: [Quantity]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Snapshot the state of the blockchain at the current block. Takes no parameters. Returns the id of the snapshot that was created.
+     * @link https://hardhat.org/hardhat-network/docs/reference#evm_snapshot
+     */
+    method: 'evm_snapshot'
+  }): Promise<Quantity>
 }
 
 //////////////////////////////////////////////////

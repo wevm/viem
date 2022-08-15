@@ -8,6 +8,7 @@ test('exports actions', () => {
       "fetchBalance": [Function],
       "fetchBlock": [Function],
       "fetchBlockNumber": [Function],
+      "fetchTransaction": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

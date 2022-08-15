@@ -6,7 +6,7 @@ import {
   networkProvider,
   testProvider,
 } from '../../../test/utils'
-import { etherToValue } from '../../utils'
+import { etherToValue, numberToHex } from '../../utils'
 import { sendTransaction } from '../account/sendTransaction'
 import { setBalance } from '../test/setBalance'
 
@@ -29,6 +29,10 @@ beforeAll(async () => {
       value: etherToValue('1'),
     },
   })
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
@@ -36,12 +40,20 @@ beforeAll(async () => {
       value: etherToValue('2'),
     },
   })
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
       value: etherToValue('3'),
     },
+  })
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
   })
 })
 

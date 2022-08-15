@@ -7,7 +7,7 @@ import {
   testProvider,
   walletProvider,
 } from '../../../test/utils'
-import { etherToValue, gweiToValue } from '../../utils'
+import { etherToValue, gweiToValue, numberToHex } from '../../utils'
 import { fetchBalance } from '../public/fetchBalance'
 import { fetchBlock } from '../public/fetchBlock'
 import { setBalance } from '../test/setBalance'
@@ -26,6 +26,10 @@ async function setup() {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
 }
 
 test('sends transaction', async () => {
@@ -42,6 +46,19 @@ test('sends transaction', async () => {
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
@@ -63,6 +80,19 @@ test('value: sends transaction w/ no value', async () => {
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
@@ -86,6 +116,19 @@ test('gas: sends transaction', async () => {
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
@@ -109,6 +152,19 @@ test('gas: sends transaction with too little gas', async () => {
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
@@ -144,11 +200,24 @@ test('gasPrice: sends transaction', async () => {
           from: sourceAccount.address,
           to: targetAccount.address,
           value: etherToValue('1'),
-          gasPrice: BigInt(block.baseFeePerGas),
+          gasPrice: BigInt(block.baseFeePerGas ?? 0),
         },
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
@@ -183,7 +252,7 @@ test('gasPrice: errors when account has insufficient funds', async () => {
         from: sourceAccount.address,
         to: targetAccount.address,
         value: etherToValue('1'),
-        gasPrice: BigInt(block.baseFeePerGas) + etherToValue('10000'),
+        gasPrice: BigInt(block.baseFeePerGas ?? 0) + etherToValue('10000'),
       },
     }),
   ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
@@ -201,11 +270,24 @@ test('maxFeePerGas: sends transaction', async () => {
           from: sourceAccount.address,
           to: targetAccount.address,
           value: etherToValue('1'),
-          maxFeePerGas: BigInt(block.baseFeePerGas),
+          maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
         },
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
@@ -240,7 +322,7 @@ test('maxFeePerGas: errors when account has insufficient funds', async () => {
         from: sourceAccount.address,
         to: targetAccount.address,
         value: etherToValue('1'),
-        maxFeePerGas: BigInt(block.baseFeePerGas) + etherToValue('10000'),
+        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + etherToValue('10000'),
       },
     }),
   ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
@@ -261,6 +343,19 @@ test('maxPriorityFeePerGas: sends transaction', async () => {
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
@@ -282,11 +377,24 @@ test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
           to: targetAccount.address,
           value: etherToValue('1'),
           maxPriorityFeePerGas: gweiToValue('10'),
-          maxFeePerGas: BigInt(block.baseFeePerGas) + gweiToValue('10'),
+          maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + gweiToValue('10'),
         },
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
@@ -331,6 +439,19 @@ test('nonce: sends transaction', async () => {
       })
     ).hash,
   ).toBeDefined()
+
+  expect(
+    await fetchBalance(networkProvider, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await testProvider.request({
+    method: 'anvil_mine',
+    params: [numberToHex(1), undefined],
+  })
+
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')

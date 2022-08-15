@@ -1,8 +1,35 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
-import { mainnet, polygon } from '../../chains'
+import { accounts } from '../../../test/utils'
+
+import { local, mainnet, polygon } from '../../chains'
+import { rpc } from '../../utils'
 
 import { injectedProvider } from './injectedProvider'
+
+vi.stubGlobal('window', {
+  ethereum: {
+    on: vi.fn((message, listener) => {
+      if (message === 'accountsChanged') {
+        listener([accounts[0].address])
+      }
+    }),
+    removeListener: vi.fn(() => null),
+    request: vi.fn(async ({ method, params }: any) => {
+      if (method === 'eth_requestAccounts') {
+        return [accounts[0].address]
+      }
+
+      const { result } = await rpc.http(local.rpcUrls.default, {
+        body: {
+          method,
+          params,
+        },
+      })
+      return result
+    }),
+  },
+})
 
 test('creates', async () => {
   expect(injectedProvider({ chains: [mainnet, polygon] }))

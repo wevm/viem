@@ -3,34 +3,7 @@ import { TransactionRequest as TransactionRequestRpc } from '../../types/ethereu
 import { BaseError, numberToHex } from '../../utils'
 import { InvalidProviderError } from '../errors'
 
-export type TransactionRequest = {
-  /** Contract code or a hashed method call with encoded args */
-  data?: TransactionRequestRpc['data']
-  /** Transaction sender */
-  from: TransactionRequestRpc['from']
-  /** Gas provided for transaction execution */
-  gas?: bigint
-  /** Unique number identifying this transaction */
-  nonce?: bigint
-  /** Transaction recipient */
-  to: TransactionRequestRpc['to']
-  /** Value sent with this transaction (in wei) */
-  value?: bigint
-} & (
-  | {
-      /** Base fee per gas. */
-      gasPrice?: bigint
-      maxFeePerGas?: never
-      maxPriorityFeePerGas?: never
-    }
-  | {
-      gasPrice?: never
-      /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
-      maxFeePerGas?: bigint
-      /** Max priority fee per gas (in wei). */
-      maxPriorityFeePerGas?: bigint
-    }
-)
+export type TransactionRequest = TransactionRequestRpc<bigint>
 
 export type SendTransactionArgs = {
   request: TransactionRequest
@@ -58,7 +31,7 @@ export async function sendTransaction(
       details: 'maxFeePerGas cannot be less than maxPriorityFeePerGas',
     })
 
-  const rpcRequest = parseTransactionRequest(request)
+  const rpcRequest = serializeTransactionRequest(request)
 
   const hash = await provider.request({
     method: 'eth_sendTransaction',
@@ -67,23 +40,35 @@ export async function sendTransaction(
   return { hash }
 }
 
-function parseTransactionRequest({
+///////////////////////////////////////////////////////
+
+// Serializers
+
+function serializeTransactionRequest({
+  accessList,
+  data,
+  from,
   gas,
   gasPrice,
   maxFeePerGas,
   maxPriorityFeePerGas,
   nonce,
+  to,
   value,
-  ...request
 }: TransactionRequest) {
-  const rpcRequest: TransactionRequestRpc = { ...request }
-  if (gas !== undefined) rpcRequest.gas = numberToHex(gas)
-  if (nonce !== undefined) rpcRequest.nonce = numberToHex(nonce)
-  if (value !== undefined) rpcRequest.value = numberToHex(value)
-  if (gasPrice !== undefined) rpcRequest.gasPrice = numberToHex(gasPrice)
+  let request: TransactionRequestRpc = {
+    accessList,
+    data,
+    from,
+    to,
+  }
+  if (gas !== undefined) request.gas = numberToHex(gas)
+  if (nonce !== undefined) request.nonce = numberToHex(nonce)
+  if (value !== undefined) request.value = numberToHex(value)
+  if (gasPrice !== undefined) request.gasPrice = numberToHex(gasPrice)
   if (maxFeePerGas !== undefined)
-    rpcRequest.maxFeePerGas = numberToHex(maxFeePerGas)
+    request.maxFeePerGas = numberToHex(maxFeePerGas)
   if (maxPriorityFeePerGas !== undefined)
-    rpcRequest.maxPriorityFeePerGas = numberToHex(maxPriorityFeePerGas)
-  return rpcRequest
+    request.maxPriorityFeePerGas = numberToHex(maxPriorityFeePerGas)
+  return request
 }

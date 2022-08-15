@@ -6,3 +6,9 @@ export type { FetchBlockArgs, FetchBlockResponse } from './fetchBlock'
 
 export { fetchBlockNumber } from './fetchBlockNumber'
 export type { FetchBlockNumberResponse } from './fetchBlockNumber'
+
+export { fetchTransaction } from './fetchTransaction'
+export type {
+  FetchTransactionArgs,
+  FetchTransactionResponse,
+} from './fetchTransaction'

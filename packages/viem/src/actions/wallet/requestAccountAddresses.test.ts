@@ -18,6 +18,12 @@ test('errors if provider is not a wallet provider', async () => {
     // @ts-expect-error – JS consumers
     await requestAccountAddresses(injectedProvider)
   } catch (err) {
-    expect(err).toMatchInlineSnapshot('[Error: TODO]')
+    expect(err).toMatchInlineSnapshot(`
+      [InvalidProviderError: Invalid provider of type "undefined" provided
+      Expected: "walletProvider"
+
+      Details: Invalid provider given.
+      Version: viem@1.0.2]
+    `)
   }
 })
