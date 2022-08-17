@@ -40,12 +40,15 @@ test('creates', async () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://eth-mainnet.alchemyapi.io/v2",
+            "webSocket": "wss://eth-mainnet.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://mainnet.infura.io/v3",
+            "webSocket": "wss://mainnet.infura.io/ws/v3",
           },
         },
       },
@@ -79,12 +82,15 @@ test('creates', async () => {
           "rpcUrls": {
             "alchemy": {
               "http": "https://eth-mainnet.alchemyapi.io/v2",
+              "webSocket": "wss://eth-mainnet.g.alchemy.com/v2",
             },
             "default": {
               "http": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+              "webSocket": "wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
             },
             "infura": {
               "http": "https://mainnet.infura.io/v3",
+              "webSocket": "wss://mainnet.infura.io/ws/v3",
             },
           },
         },

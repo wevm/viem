@@ -35,12 +35,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://arb-mainnet.g.alchemy.com/v2",
+            "webSocket": "wss://arb-mainnet.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://arb-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://arb-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://arbitrum-mainnet.infura.io/v3",
+            "webSocket": "wss://arbitrum-mainnet.infura.io/v3",
           },
         },
       },
@@ -70,12 +73,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://arb-goerli.g.alchemy.com/v2",
+            "webSocket": "wss://arb-goerli.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://arb-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://arb-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://arbitrum-goerli.infura.io/v3",
+            "webSocket": "wss://arbitrum-goerli.infura.io/v3",
           },
         },
         "testnet": true,
@@ -109,12 +115,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://eth-goerli.alchemyapi.io/v2",
+            "webSocket": "wss://eth-goerli.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://eth-goerli.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://eth-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://goerli.infura.io/v3",
+            "webSocket": "wss://goerli.infura.io/ws/v3",
           },
         },
         "testnet": true,
@@ -163,12 +172,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://eth-mainnet.alchemyapi.io/v2",
+            "webSocket": "wss://eth-mainnet.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://mainnet.infura.io/v3",
+            "webSocket": "wss://mainnet.infura.io/ws/v3",
           },
         },
       },
@@ -198,12 +210,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://opt-mainnet.g.alchemy.com/v2",
+            "webSocket": "wss://opt-mainnet.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://opt-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://opt-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://optimism-mainnet.infura.io/v3",
+            "webSocket": "wss://optimism-mainnet.infura.io/v3",
           },
         },
       },
@@ -233,12 +248,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://opt-goerli.g.alchemy.com/v2",
+            "webSocket": "wss://opt-goerli.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://opt-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://opt-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://optimism-goerli.infura.io/v3",
+            "webSocket": "wss://optimism-goerli.infura.io/v3",
           },
         },
         "testnet": true,
@@ -269,12 +287,15 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://polygon-mainnet.g.alchemy.com/v2",
+            "webSocket": "wss://polygon-mainnet.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://polygon-mainnet.infura.io/v3",
+            "webSocket": "wss://polygon-mainnet.infura.io/v3",
           },
         },
       },
@@ -304,12 +325,48 @@ test('exports chains', () => {
         "rpcUrls": {
           "alchemy": {
             "http": "https://polygon-mumbai.g.alchemy.com/v2",
+            "webSocket": "wss://polygon-mumbai.g.alchemy.com/v2",
           },
           "default": {
             "http": "https://polygon-mumbai.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "webSocket": "wss://polygon-mumbai.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
           },
           "infura": {
             "http": "https://polygon-mumbai.infura.io/v3",
+            "webSocket": "wss://polygon-mumbai.infura.io/v3",
+          },
+        },
+        "testnet": true,
+      },
+      "sepolia": {
+        "blockExplorers": {
+          "default": {
+            "name": "Etherscan",
+            "url": "https://goerli.etherscan.io",
+          },
+          "etherscan": {
+            "name": "Etherscan",
+            "url": "https://goerli.etherscan.io",
+          },
+        },
+        "ens": {
+          "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
+        },
+        "id": 11155111,
+        "multicall": {
+          "address": "0xca11bde05977b3631167028862be2a173976ca11",
+          "blockCreated": 6507670,
+        },
+        "name": "Sepolia",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Sepolia Ether",
+          "symbol": "SEP",
+        },
+        "network": "sepolia",
+        "rpcUrls": {
+          "default": {
+            "http": "https://rpc.sepolia.online",
           },
         },
         "testnet": true,
