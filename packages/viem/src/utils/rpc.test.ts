@@ -233,7 +233,7 @@ describe('webSocket', () => {
     `)
   })
 
-  test.only('invalid request', async () => {
+  test('invalid request', async () => {
     const socket = await createWebSocket(local.rpcUrls.default.webSocket)
     await expect(() =>
       rpc.webSocket(socket, {

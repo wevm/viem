@@ -128,6 +128,7 @@ jobs:
       matrix:
         node-version: [18]
         pnpm-version: [7]
+        provider-mode: ['http', 'webSocket']
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2.2.2
@@ -168,3 +169,4 @@ jobs:
         run: pnpm test:ci
         env:
           ALCHEMY_ID: ${{ secrets.ALCHEMY_ID }}
+          VITE_NETWORK_PROVIDER_MODE: ${{ matrix.provider-mode }}

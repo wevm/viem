@@ -1,9 +1,6 @@
 import { local } from '../src/chains'
 import { accountProvider as accountProvider_ } from '../src/providers/account'
-import {
-  httpProvider,
-  // webSocketProvider
-} from '../src/providers/network'
+import { httpProvider, webSocketProvider } from '../src/providers/network'
 import { anvilProvider } from '../src/providers/test'
 import { externalProvider } from '../src/providers/wallet'
 import { rpc } from '../src/utils/rpc'
@@ -53,13 +50,14 @@ export const accounts = [
 
 export const initialBlockNumber = 15132000
 
-export const networkProvider = httpProvider({
-  chain: local,
-})
-
-// export const networkProvider = webSocketProvider({
-//   chain: local,
-// })
+export const networkProvider =
+  process.env.VITE_NETWORK_PROVIDER_MODE === 'webSocket'
+    ? webSocketProvider({
+        chain: local,
+      })
+    : httpProvider({
+        chain: local,
+      })
 
 export const walletProvider = externalProvider(
   {

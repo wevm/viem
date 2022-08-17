@@ -25,7 +25,7 @@ export function webSocketProvider<TChain extends Chain = Chain>({
   name = 'WebSocket JSON-RPC',
   url = chain.rpcUrls.default.webSocket,
 }: WebSocketProviderConfig<TChain>): WebSocketProvider<TChain> {
-  if (!url) throw new Error('url cannot be undefined')
+  if (!url) throw new Error('url is required')
 
   let socket: WebSocket
   return createNetworkProvider({
