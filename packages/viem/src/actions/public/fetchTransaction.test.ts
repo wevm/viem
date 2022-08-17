@@ -169,7 +169,7 @@ describe('args: blockNumber', () => {
         index: 420,
       }),
     ).rejects.toThrowError(
-      'Transaction at block time "latest" at index "420" could not be found.',
+      'Transaction at block number "15131580" at index "420" could not be found.',
     )
   })
 })

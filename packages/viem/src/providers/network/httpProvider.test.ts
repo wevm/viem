@@ -76,5 +76,3 @@ test('request (local)', async () => {
   expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
 })
 /* eslint-enable import/namespace */
-
-test.todo('throws if ws url is provided')

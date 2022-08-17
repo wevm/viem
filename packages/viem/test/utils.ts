@@ -48,7 +48,7 @@ export const accounts = [
   },
 ] as const
 
-export const initialBlockNumber = 15132000
+export const initialBlockNumber = Number(process.env.VITE_ANVIL_BLOCK_NUMBER)
 
 export const networkProvider =
   process.env.VITE_NETWORK_PROVIDER_MODE === 'webSocket'

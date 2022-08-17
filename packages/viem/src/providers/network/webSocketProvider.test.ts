@@ -67,4 +67,10 @@ test('request (local)', async () => {
 })
 /* eslint-enable import/namespace */
 
-test.todo('throws if http url is provided')
+test('throws if no url is provided', () => {
+  expect(() =>
+    webSocketProvider({
+      chain: { ...chains.local, rpcUrls: { default: { http: '' } } },
+    }),
+  ).toThrow('url is required')
+})

@@ -148,10 +148,10 @@ export class TransactionNotFoundError extends BaseError {
     let identifier = 'Transaction'
     if (blockHash && index !== undefined)
       identifier = `Transaction at block hash "${blockHash}" at index "${index}"`
-    if (blockNumber && index !== undefined)
-      identifier = `Transaction at block number "${blockNumber}" at index "${index}"`
     if (blockTime && index !== undefined)
       identifier = `Transaction at block time "${blockTime}" at index "${index}"`
+    if (blockNumber && index !== undefined)
+      identifier = `Transaction at block number "${blockNumber}" at index "${index}"`
     if (hash) identifier = `Transaction with hash "${hash}"`
     super({
       humanMessage: `${identifier} could not be found.`,
