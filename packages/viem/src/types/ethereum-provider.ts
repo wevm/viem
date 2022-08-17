@@ -965,6 +965,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_reset
      */
     method: `${Name}_reset`
+    params: any[]
   }): Promise<void>
   request(args: {
     /**

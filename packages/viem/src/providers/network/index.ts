@@ -1,11 +1,12 @@
-export { alchemyProvider } from './alchemyProvider'
-export type { AlchemyProvider, AlchemyProviderConfig } from './alchemyProvider'
-
-export { httpProvider } from './httpProvider'
-export type { HttpProvider, HttpProviderConfig } from './httpProvider'
-
-export { webSocketProvider } from './webSocketProvider'
+export { alchemyHttpProvider, alchemyWebSocketProvider } from './alchemy'
 export type {
-  WebSocketProvider,
-  WebSocketProviderConfig,
-} from './webSocketProvider'
+  AlchemyHttpProvider,
+  AlchemyWebSocketProvider,
+  AlchemyProviderConfig,
+} from './alchemy'
+
+export { httpProvider } from './http'
+export type { HttpProvider, HttpProviderConfig } from './http'
+
+export { webSocketProvider } from './webSocket'
+export type { WebSocketProvider, WebSocketProviderConfig } from './webSocket'

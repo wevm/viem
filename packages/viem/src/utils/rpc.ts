@@ -36,14 +36,22 @@ async function http(
 ///////////////////////////////////////////////////
 // WebSocket
 
-export async function createWebSocket(url: string) {
-  const socket = new WebSocket(url)
-  await new Promise((resolve, reject) => {
-    if (socket) {
-      socket.onopen = resolve
-      socket.onerror = reject
-    }
-  })
+const sockets = new Map()
+
+export async function getSocket(url: string) {
+  let socket = sockets.get(url)
+  if (!socket) {
+    socket = new WebSocket(url)
+    sockets.set(url, socket)
+  }
+  if (socket.readyState === WebSocket.CONNECTING) {
+    await new Promise((resolve, reject) => {
+      if (socket) {
+        socket.onopen = resolve
+        socket.onerror = reject
+      }
+    })
+  }
   return socket
 }
 

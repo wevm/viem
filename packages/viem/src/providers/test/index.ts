@@ -1,5 +1,5 @@
-export { anvilProvider } from './anvilProvider'
-export type { AnvilProvider, AnvilProviderConfig } from './anvilProvider'
+export { anvilProvider } from './anvil'
+export type { AnvilProvider, AnvilProviderConfig } from './anvil'
 
-export { hardhatProvider } from './hardhatProvider'
-export type { HardhatProvider, HardhatProviderConfig } from './hardhatProvider'
+export { hardhatProvider } from './hardhat'
+export type { HardhatProvider, HardhatProviderConfig } from './hardhat'

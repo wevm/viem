@@ -5,7 +5,7 @@ import { initialBlockNumber } from '../../test/utils'
 import { local } from '../chains'
 import { numberToHex } from './number'
 
-import { createWebSocket, rpc } from './rpc'
+import { getSocket, rpc } from './rpc'
 
 describe('http', () => {
   test('valid request', async () => {
@@ -45,17 +45,27 @@ describe('http', () => {
   })
 })
 
-describe('createWebSocket', () => {
+describe('getSocket', () => {
   test('creates WebSocket instance', async () => {
-    const socket = await createWebSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(local.rpcUrls.default.webSocket)
     expect(socket).toBeDefined()
     expect(socket.readyState).toEqual(WebSocket.OPEN)
+  })
+
+  test('multiple invocations on a url only opens one socket', async () => {
+    const [socket, socket2] = await Promise.all([
+      getSocket(local.rpcUrls.default.webSocket),
+      getSocket(local.rpcUrls.default.webSocket),
+      getSocket(local.rpcUrls.default.webSocket),
+      getSocket(local.rpcUrls.default.webSocket),
+    ])
+    expect(socket).toBe(socket2)
   })
 })
 
 describe('webSocket', () => {
   test('valid request', async () => {
-    const socket = await createWebSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(local.rpcUrls.default.webSocket)
     const { id, ...version } = await rpc.webSocket(socket, {
       body: { method: 'web3_clientVersion' },
     })
@@ -69,7 +79,7 @@ describe('webSocket', () => {
   })
 
   test('valid request', async () => {
-    const socket = await createWebSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(local.rpcUrls.default.webSocket)
     const { id, ...block } = await rpc.webSocket(socket, {
       body: {
         method: 'eth_getBlockByNumber',
@@ -234,7 +244,7 @@ describe('webSocket', () => {
   })
 
   test('invalid request', async () => {
-    const socket = await createWebSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(local.rpcUrls.default.webSocket)
     await expect(() =>
       rpc.webSocket(socket, {
         body: {

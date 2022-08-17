@@ -4,7 +4,7 @@ import { walletProvider } from '../../../test/utils'
 import {
   InjectedProvider,
   injectedProvider,
-} from '../../providers/wallet/injectedProvider'
+} from '../../providers/wallet/injected'
 
 import { requestAccountAddresses } from './requestAccountAddresses'
 

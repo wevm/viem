@@ -1,16 +1,16 @@
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { alchemyProvider } from 'viem/providers/network'
+import { alchemyHttpProvider } from 'viem/providers/network'
 
 import { FetchBalance } from '../actions/FetchBalance'
 import { FetchBlock } from '../actions/FetchBlock'
 import { FetchBlockNumber } from '../actions/FetchBlockNumber'
 
 const providers = {
-  mainnet: alchemyProvider({ chain: mainnet }),
-  polygon: alchemyProvider({ chain: polygon }),
-  optimism: alchemyProvider({ chain: optimism }),
-  arbitrum: alchemyProvider({ chain: arbitrum }),
-  goerli: alchemyProvider({ chain: goerli }),
+  mainnet: alchemyHttpProvider({ chain: mainnet }),
+  polygon: alchemyHttpProvider({ chain: polygon }),
+  optimism: alchemyHttpProvider({ chain: optimism }),
+  arbitrum: alchemyHttpProvider({ chain: arbitrum }),
+  goerli: alchemyHttpProvider({ chain: goerli }),
 }
 
 export function AlchemyNetwork() {

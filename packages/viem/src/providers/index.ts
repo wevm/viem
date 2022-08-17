@@ -3,12 +3,20 @@ export type { AccountProvider, AccountProviderConfig } from './account'
 
 export { ProviderRpcError } from './errors'
 
-export { alchemyProvider, httpProvider } from './network'
+export {
+  alchemyHttpProvider,
+  alchemyWebSocketProvider,
+  httpProvider,
+  webSocketProvider,
+} from './network'
 export type {
-  AlchemyProvider,
+  AlchemyHttpProvider,
   AlchemyProviderConfig,
+  AlchemyWebSocketProvider,
   HttpProvider,
   HttpProviderConfig,
+  WebSocketProvider,
+  WebSocketProviderConfig,
 } from './network'
 
 export { anvilProvider, hardhatProvider } from './test'

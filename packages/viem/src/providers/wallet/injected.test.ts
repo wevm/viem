@@ -5,7 +5,7 @@ import { accounts } from '../../../test/utils'
 import { local, mainnet, polygon } from '../../chains'
 import { rpc } from '../../utils'
 
-import { injectedProvider } from './injectedProvider'
+import { injectedProvider } from './injected'
 
 vi.stubGlobal('window', {
   ethereum: {

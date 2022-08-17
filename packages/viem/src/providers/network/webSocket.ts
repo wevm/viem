@@ -1,9 +1,11 @@
 import { Chain } from '../../chains'
-import { createWebSocket, rpc } from '../../utils/rpc'
+import { getSocket, rpc } from '../../utils/rpc'
 import { NetworkProvider, createNetworkProvider } from './createNetworkProvider'
 
 export type WebSocketProvider<TChain extends Chain = Chain> =
-  NetworkProvider<TChain>
+  NetworkProvider<TChain> & {
+    getSocket(): Promise<WebSocket>
+  }
 
 export type WebSocketProviderConfig<TChain extends Chain = Chain> = {
   /** The chain that the provider should connect to. */
@@ -27,13 +29,12 @@ export function webSocketProvider<TChain extends Chain = Chain>({
 }: WebSocketProviderConfig<TChain>): WebSocketProvider<TChain> {
   if (!url) throw new Error('url is required')
 
-  let socket: WebSocket
-  return createNetworkProvider({
+  const provider = createNetworkProvider({
     chain,
     id,
     name,
     async request({ method, params }: any) {
-      socket = socket || (await createWebSocket(url))
+      const socket = await getSocket(url)
       const { result } = await rpc.webSocket(socket, {
         body: {
           method,
@@ -43,4 +44,9 @@ export function webSocketProvider<TChain extends Chain = Chain>({
       return result
     },
   })
+
+  return {
+    ...provider,
+    getSocket: () => getSocket(url),
+  }
 }

@@ -1,14 +1,14 @@
-export { injectedProvider } from './injectedProvider'
+export { injectedProvider } from './injected'
 export type {
   InjectedProvider,
   InjectedProviderConfig,
   InjectedProviderRequestFn,
   InjectedProviderReturnValue,
-} from './injectedProvider'
+} from './injected'
 
-export { externalProvider } from './externalProvider'
+export { externalProvider } from './external'
 export type {
   ExternalProvider,
   ExternalProviderArg,
   ExternalProviderConfig,
-} from './externalProvider'
+} from './external'

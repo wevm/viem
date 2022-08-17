@@ -2,10 +2,10 @@
 import { expect, test } from 'vitest'
 
 import * as chains from '../../chains'
-import { httpProvider } from './httpProvider'
+import { webSocketProvider } from './webSocket'
 
 test('creates', async () => {
-  const provider = httpProvider({
+  const provider = webSocketProvider({
     chain: chains.local,
   })
 
@@ -43,12 +43,22 @@ test('creates', async () => {
           },
         },
       ],
-      "id": "http",
-      "name": "HTTP JSON-RPC",
+      "getSocket": [Function],
+      "id": "webSocket",
+      "name": "WebSocket JSON-RPC",
       "request": [Function],
       "type": "networkProvider",
     }
   `)
+})
+
+test('getSocket', async () => {
+  const provider = webSocketProvider({
+    chain: chains.local,
+  })
+  const socket = await provider.getSocket()
+  expect(socket).toBeDefined()
+  expect(socket.readyState).toBe(WebSocket.OPEN)
 })
 
 Object.keys(chains).forEach((key) => {
@@ -56,10 +66,11 @@ Object.keys(chains).forEach((key) => {
 
   // @ts-expect-error – testing
   const chain = chains[key]
+  if (!chain.rpcUrls.default.webSocket) return
   test(`request (${key})`, async () => {
-    const provider = httpProvider({
+    const provider = webSocketProvider({
       chain,
-      url: chain.rpcUrls.default.http,
+      url: chain.rpcUrls.default.webSocket,
     })
 
     expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
@@ -67,7 +78,7 @@ Object.keys(chains).forEach((key) => {
 })
 
 test('request (local)', async () => {
-  const provider = httpProvider({
+  const provider = webSocketProvider({
     chain: chains.local,
     id: 'jsonRpc',
     name: 'JSON RPC',
@@ -76,3 +87,11 @@ test('request (local)', async () => {
   expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
 })
 /* eslint-enable import/namespace */
+
+test('throws if no url is provided', () => {
+  expect(() =>
+    webSocketProvider({
+      chain: { ...chains.local, rpcUrls: { default: { http: '' } } },
+    }),
+  ).toThrow('url is required')
+})

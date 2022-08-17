@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { mainnet, polygon } from '../../chains'
 
-import { externalProvider } from './externalProvider'
+import { externalProvider } from './external'
 
 test('creates', () => {
   const fooProvider = {

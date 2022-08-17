@@ -5,7 +5,8 @@ import * as providers from './index'
 test('exports providers', () => {
   expect(providers).toMatchInlineSnapshot(`
     {
-      "alchemyProvider": [Function],
+      "alchemyHttpProvider": [Function],
+      "alchemyWebSocketProvider": [Function],
       "httpProvider": [Function],
       "webSocketProvider": [Function],
       Symbol(Symbol.toStringTag): "Module",

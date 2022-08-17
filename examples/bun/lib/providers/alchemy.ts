@@ -1,10 +1,10 @@
 import { fetchBalance } from 'viem/actions/public'
 import { mainnet } from 'viem/chains'
-import { alchemyProvider } from 'viem/providers'
+import { alchemyHttpProvider } from 'viem/providers'
 
 ////////////////////////////////////////////////////////////
 
-const mainnetProvider = alchemyProvider({ chain: mainnet })
+const mainnetProvider = alchemyHttpProvider({ chain: mainnet })
 
 ////////////////////////////////////////////////////////////
 

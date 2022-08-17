@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
 import * as chains from '../../chains'
-import { anvilProvider } from './anvilProvider'
+import { hardhatProvider } from './hardhat'
 
 test('creates', async () => {
-  const provider = anvilProvider({
+  const provider = hardhatProvider({
     chain: chains.local,
   })
 
@@ -36,8 +36,8 @@ test('creates', async () => {
           },
         },
       ],
-      "id": "anvil",
-      "name": "Anvil",
+      "id": "hardhat",
+      "name": "Hardhat",
       "request": [Function],
       "type": "testProvider",
     }

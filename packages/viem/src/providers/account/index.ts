@@ -1,6 +1,6 @@
-export { accountProvider } from './accountProvider'
+export { accountProvider } from './account'
 export type {
   AccountProvider,
   AccountProviderConfig,
   AccountProviderRequestFn,
-} from './accountProvider'
+} from './account'

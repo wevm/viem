@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { walletProvider } from '../../../test/utils'
 
-import { accountProvider } from './accountProvider'
+import { accountProvider } from './account'
 
 test('creates signer', async () => {
   expect(
