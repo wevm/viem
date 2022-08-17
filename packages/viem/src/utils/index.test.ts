@@ -34,9 +34,9 @@ test('exports utils', () => {
         "wei": 9,
       },
       "numberToHex": [Function],
-      "request": [Function],
       "rpc": {
         "http": [Function],
+        "webSocket": [Function],
       },
       "valueAsEther": [Function],
       "valueAsGwei": [Function],

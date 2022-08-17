@@ -18,7 +18,10 @@ test('creates', () => {
         "name": "Localhost",
         "network": "localhost",
         "rpcUrls": {
-          "default": "http://127.0.0.1:8545",
+          "default": {
+            "http": "http://127.0.0.1:8545",
+            "webSocket": "ws://127.0.0.1:8545",
+          },
           "local": "http://127.0.0.1:8545",
         },
       },
@@ -28,7 +31,10 @@ test('creates', () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "default": "http://127.0.0.1:8545",
+            "default": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
             "local": "http://127.0.0.1:8545",
           },
         },
@@ -56,7 +62,10 @@ test('creates with custom url', () => {
         "name": "Localhost",
         "network": "localhost",
         "rpcUrls": {
-          "default": "http://127.0.0.1:8545",
+          "default": {
+            "http": "http://127.0.0.1:8545",
+            "webSocket": "ws://127.0.0.1:8545",
+          },
           "local": "http://localhost:1337",
         },
       },
@@ -66,7 +75,10 @@ test('creates with custom url', () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "default": "http://127.0.0.1:8545",
+            "default": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
             "local": "http://localhost:1337",
           },
         },
@@ -82,7 +94,7 @@ test('creates with custom url', () => {
 test('errors if no url found', () => {
   expect(() =>
     createTestProvider({
-      chain: { ...local, rpcUrls: { default: '' } },
+      chain: { ...local, rpcUrls: { default: { http: '' } } },
       id: 'anvil',
       name: 'Anvil',
     }),

@@ -6,8 +6,9 @@ import {
   networkProvider,
   testProvider,
 } from '../../../test/utils'
-import { etherToValue, numberToHex } from '../../utils'
+import { etherToValue } from '../../utils'
 import { sendTransaction } from '../account/sendTransaction'
+import { mine } from '../test'
 import { setBalance } from '../test/setBalance'
 
 import { fetchBalance } from './fetchBalance'
@@ -29,10 +30,7 @@ beforeAll(async () => {
       value: etherToValue('1'),
     },
   })
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
@@ -40,10 +38,7 @@ beforeAll(async () => {
       value: etherToValue('2'),
     },
   })
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
   await sendTransaction(accountProvider, {
     request: {
       from: sourceAccount.address,
@@ -51,10 +46,7 @@ beforeAll(async () => {
       value: etherToValue('3'),
     },
   })
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 })
 
 test('fetches balance', async () => {

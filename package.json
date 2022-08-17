@@ -2,7 +2,7 @@
   "name": "@viem/root",
   "private": true,
   "scripts": {
-    "anvil": "source .env && anvil --fork-url $ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME --block-base-fee-per-gas $VITE_ANVIL_BLOCK_BASE_FEE",
+    "anvil": "source .env && anvil --fork-url $ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "build": "preconstruct build",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",

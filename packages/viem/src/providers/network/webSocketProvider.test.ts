@@ -1,15 +1,12 @@
+/* eslint-disable import/namespace */
 import { expect, test } from 'vitest'
 
-import { local } from '../../chains'
+import * as chains from '../../chains'
+import { webSocketProvider } from './webSocketProvider'
 
-import { createNetworkProvider } from './createNetworkProvider'
-
-test('creates', () => {
-  const provider = createNetworkProvider({
-    chain: local,
-    id: 'network',
-    name: 'Network',
-    request: <any>(async () => null),
+test('creates', async () => {
+  const provider = webSocketProvider({
+    chain: chains.local,
   })
 
   expect(provider).toMatchInlineSnapshot(`
@@ -46,10 +43,28 @@ test('creates', () => {
           },
         },
       ],
-      "id": "network",
-      "name": "Network",
+      "id": "webSocket",
+      "name": "WebSocket JSON-RPC",
       "request": [Function],
       "type": "networkProvider",
     }
   `)
 })
+
+Object.keys(chains).forEach((key) => {
+  if (key === 'local') return
+  test.todo(`request (${key})`)
+})
+
+test('request (local)', async () => {
+  const provider = webSocketProvider({
+    chain: chains.local,
+    id: 'jsonRpc',
+    name: 'JSON RPC',
+  })
+
+  expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
+})
+/* eslint-enable import/namespace */
+
+test.todo('throws if http url is provided')

@@ -1,5 +1,11 @@
 export { alchemyProvider } from './alchemyProvider'
 export type { AlchemyProvider, AlchemyProviderConfig } from './alchemyProvider'
 
-export { jsonRpcProvider } from './jsonRpcProvider'
-export type { JsonRpcProvider, JsonRpcProviderConfig } from './jsonRpcProvider'
+export { httpProvider } from './httpProvider'
+export type { HttpProvider, HttpProviderConfig } from './httpProvider'
+
+export { webSocketProvider } from './webSocketProvider'
+export type {
+  WebSocketProvider,
+  WebSocketProviderConfig,
+} from './webSocketProvider'

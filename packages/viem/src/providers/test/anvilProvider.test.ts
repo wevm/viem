@@ -15,7 +15,10 @@ test('creates', async () => {
         "name": "Localhost",
         "network": "localhost",
         "rpcUrls": {
-          "default": "http://127.0.0.1:8545",
+          "default": {
+            "http": "http://127.0.0.1:8545",
+            "webSocket": "ws://127.0.0.1:8545",
+          },
           "local": "http://127.0.0.1:8545",
         },
       },
@@ -25,7 +28,10 @@ test('creates', async () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "default": "http://127.0.0.1:8545",
+            "default": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
             "local": "http://127.0.0.1:8545",
           },
         },
@@ -36,12 +42,4 @@ test('creates', async () => {
       "type": "testProvider",
     }
   `)
-})
-
-test('request', async () => {
-  const provider = anvilProvider({
-    chain: chains.local,
-  })
-
-  expect(await provider.request({ method: 'anvil_getAutomine' })).toBeDefined()
 })

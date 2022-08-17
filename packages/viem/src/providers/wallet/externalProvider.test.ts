@@ -41,9 +41,15 @@ test('creates', () => {
           },
           "network": "mainnet",
           "rpcUrls": {
-            "alchemy": "https://eth-mainnet.alchemyapi.io/v2",
-            "default": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "infura": "https://mainnet.infura.io/v3",
+            "alchemy": {
+              "http": "https://eth-mainnet.alchemyapi.io/v2",
+            },
+            "default": {
+              "http": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            },
+            "infura": {
+              "http": "https://mainnet.infura.io/v3",
+            },
           },
         },
         {
@@ -70,9 +76,15 @@ test('creates', () => {
           },
           "network": "polygon",
           "rpcUrls": {
-            "alchemy": "https://polygon-mainnet.g.alchemy.com/v2",
-            "default": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "infura": "https://polygon-mainnet.infura.io/v3",
+            "alchemy": {
+              "http": "https://polygon-mainnet.g.alchemy.com/v2",
+            },
+            "default": {
+              "http": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            },
+            "infura": {
+              "http": "https://polygon-mainnet.infura.io/v3",
+            },
           },
         },
       ],

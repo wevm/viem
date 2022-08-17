@@ -14,9 +14,6 @@ export async function mine(
 ) {
   return await provider.request({
     method: `${provider.id}_mine`,
-    params: [
-      numberToHex(blocks),
-      interval !== undefined ? numberToHex(interval) : undefined,
-    ],
+    params: [numberToHex(blocks), numberToHex(interval || 0)],
   })
 }

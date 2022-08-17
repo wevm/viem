@@ -22,8 +22,14 @@ test('creates', () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "default": "http://127.0.0.1:8545",
-            "local": "http://127.0.0.1:8545",
+            "default": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
+            "local": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
           },
         },
       ],

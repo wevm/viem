@@ -2,10 +2,10 @@
 import { expect, test } from 'vitest'
 
 import * as chains from '../../chains'
-import { jsonRpcProvider } from './jsonRpcProvider'
+import { httpProvider } from './httpProvider'
 
 test('creates', async () => {
-  const provider = jsonRpcProvider({
+  const provider = httpProvider({
     chain: chains.local,
   })
 
@@ -16,8 +16,14 @@ test('creates', async () => {
         "name": "Localhost",
         "network": "localhost",
         "rpcUrls": {
-          "default": "http://127.0.0.1:8545",
-          "local": "http://127.0.0.1:8545",
+          "default": {
+            "http": "http://127.0.0.1:8545",
+            "webSocket": "ws://127.0.0.1:8545",
+          },
+          "local": {
+            "http": "http://127.0.0.1:8545",
+            "webSocket": "ws://127.0.0.1:8545",
+          },
         },
       },
       "chains": [
@@ -26,13 +32,19 @@ test('creates', async () => {
           "name": "Localhost",
           "network": "localhost",
           "rpcUrls": {
-            "default": "http://127.0.0.1:8545",
-            "local": "http://127.0.0.1:8545",
+            "default": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
+            "local": {
+              "http": "http://127.0.0.1:8545",
+              "webSocket": "ws://127.0.0.1:8545",
+            },
           },
         },
       ],
-      "id": "jsonRpc",
-      "name": "JSON-RPC",
+      "id": "http",
+      "name": "HTTP JSON-RPC",
       "request": [Function],
       "type": "networkProvider",
     }
@@ -45,9 +57,9 @@ Object.keys(chains).forEach((key) => {
   // @ts-expect-error – testing
   const chain = chains[key]
   test(`request (${key})`, async () => {
-    const provider = jsonRpcProvider({
+    const provider = httpProvider({
       chain,
-      url: chain.rpcUrls.default,
+      url: chain.rpcUrls.default.http,
     })
 
     expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
@@ -55,7 +67,7 @@ Object.keys(chains).forEach((key) => {
 })
 
 test('request (local)', async () => {
-  const provider = jsonRpcProvider({
+  const provider = httpProvider({
     chain: chains.local,
     id: 'jsonRpc',
     name: 'JSON RPC',
@@ -64,3 +76,5 @@ test('request (local)', async () => {
   expect(await provider.request({ method: 'eth_blockNumber' })).toBeDefined()
 })
 /* eslint-enable import/namespace */
+
+test.todo('throws if ws url is provided')

@@ -39,7 +39,7 @@ export function createTestProvider<
   chain: chain_,
   id,
   name,
-  url = chain_.rpcUrls.local,
+  url = chain_.rpcUrls.local?.http,
 }: TestProviderConfig<TChain, TId>): TestProvider<TChain, TId> {
   if (!url) throw new Error('url is required')
   const chain: typeof chain_ = {

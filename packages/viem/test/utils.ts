@@ -1,6 +1,9 @@
 import { local } from '../src/chains'
 import { accountProvider as accountProvider_ } from '../src/providers/account'
-import { jsonRpcProvider } from '../src/providers/network'
+import {
+  httpProvider,
+  // webSocketProvider
+} from '../src/providers/network'
 import { anvilProvider } from '../src/providers/test'
 import { externalProvider } from '../src/providers/wallet'
 import { rpc } from '../src/utils/rpc'
@@ -50,9 +53,13 @@ export const accounts = [
 
 export const initialBlockNumber = 15132000
 
-export const networkProvider = jsonRpcProvider({
+export const networkProvider = httpProvider({
   chain: local,
 })
+
+// export const networkProvider = webSocketProvider({
+//   chain: local,
+// })
 
 export const walletProvider = externalProvider(
   {
@@ -67,7 +74,7 @@ export const walletProvider = externalProvider(
         return [accounts[0].address]
       }
 
-      const { result } = await rpc.http(local.rpcUrls.default, {
+      const { result } = await rpc.http(local.rpcUrls.default.http, {
         body: {
           method,
           params,

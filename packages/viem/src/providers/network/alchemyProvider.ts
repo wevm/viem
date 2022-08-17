@@ -1,5 +1,5 @@
 import { AlchemyChain } from '../../chains'
-import { JsonRpcProvider, jsonRpcProvider } from './jsonRpcProvider'
+import { HttpProvider, httpProvider } from './httpProvider'
 
 export type AlchemyProviderConfig = {
   /**
@@ -16,7 +16,7 @@ export type AlchemyProviderConfig = {
   chain: AlchemyChain
 }
 
-export type AlchemyProvider = JsonRpcProvider<AlchemyChain>
+export type AlchemyProvider = HttpProvider<AlchemyChain>
 
 const defaultAlchemyApiKey = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC'
 
@@ -25,10 +25,10 @@ export function alchemyProvider({
   apiKey = defaultAlchemyApiKey,
   chain,
 }: AlchemyProviderConfig): AlchemyProvider {
-  return jsonRpcProvider({
+  return httpProvider({
     chain,
     id: 'alchemy',
     name: 'Alchemy',
-    url: `${chain.rpcUrls.alchemy}/${apiKey}`,
+    url: `${chain.rpcUrls.alchemy?.http}/${apiKey}`,
   })
 }

@@ -6,7 +6,8 @@ test('exports providers', () => {
   expect(providers).toMatchInlineSnapshot(`
     {
       "alchemyProvider": [Function],
-      "jsonRpcProvider": [Function],
+      "httpProvider": [Function],
+      "webSocketProvider": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

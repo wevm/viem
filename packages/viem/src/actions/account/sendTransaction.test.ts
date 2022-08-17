@@ -10,6 +10,7 @@ import {
 import { etherToValue, gweiToValue, numberToHex } from '../../utils'
 import { fetchBalance } from '../public/fetchBalance'
 import { fetchBlock } from '../public/fetchBlock'
+import { mine } from '../test'
 import { setBalance } from '../test/setBalance'
 
 import { sendTransaction } from './sendTransaction'
@@ -26,10 +27,7 @@ async function setup() {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 }
 
 test('sends transaction', async () => {
@@ -54,10 +52,7 @@ test('sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -88,10 +83,7 @@ test('value: sends transaction w/ no value', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -124,10 +116,7 @@ test('gas: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -160,10 +149,7 @@ test('gas: sends transaction with too little gas', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -213,10 +199,7 @@ test('gasPrice: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -228,6 +211,12 @@ test('gasPrice: sends transaction', async () => {
 
 test('gasPrice: errors when gas price is less than block base fee', async () => {
   await setup()
+
+  await testProvider.request({
+    method: 'anvil_setNextBlockBaseFeePerGas',
+    params: [numberToHex(69n)],
+  })
+  await mine(testProvider, { blocks: 1 })
 
   await expect(() =>
     sendTransaction(accountProvider, {
@@ -283,10 +272,7 @@ test('maxFeePerGas: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -351,10 +337,7 @@ test('maxPriorityFeePerGas: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -390,10 +373,7 @@ test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
@@ -447,10 +427,7 @@ test('nonce: sends transaction', async () => {
     await fetchBalance(networkProvider, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),

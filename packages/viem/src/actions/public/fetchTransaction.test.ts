@@ -7,8 +7,9 @@ import {
   networkProvider,
   testProvider,
 } from '../../../test/utils'
-import { etherToValue, numberToHex } from '../../utils'
+import { etherToValue } from '../../utils'
 import { sendTransaction } from '../account/sendTransaction'
+import { mine } from '../test'
 import { setBalance } from '../test/setBalance'
 import { fetchBlock } from './fetchBlock'
 import { fetchTransaction } from './fetchTransaction'
@@ -30,10 +31,7 @@ test('fetches transaction', async () => {
     },
   })
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   const transaction = await fetchTransaction(networkProvider, {
     blockTime: 'latest',
@@ -80,10 +78,7 @@ test('hash: fetches transaction by hash', async () => {
     },
   })
 
-  await testProvider.request({
-    method: 'anvil_mine',
-    params: [numberToHex(1), undefined],
-  })
+  await mine(testProvider, { blocks: 1 })
 
   const transaction = await fetchTransaction(networkProvider, {
     hash,

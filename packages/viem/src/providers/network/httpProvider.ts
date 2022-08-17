@@ -2,29 +2,28 @@ import { Chain } from '../../chains'
 import { rpc } from '../../utils/rpc'
 import { NetworkProvider, createNetworkProvider } from './createNetworkProvider'
 
-export type JsonRpcProvider<TChain extends Chain = Chain> =
-  NetworkProvider<TChain>
+export type HttpProvider<TChain extends Chain = Chain> = NetworkProvider<TChain>
 
-export type JsonRpcProviderConfig<TChain extends Chain = Chain> = {
+export type HttpProviderConfig<TChain extends Chain = Chain> = {
   /** The chain that the provider should connect to. */
   chain: TChain
-  /** A identifier for the provider. Defaults to "jsonRpc" */
+  /** A identifier for the provider. Defaults to "http" */
   id?: string
-  /** A name for the provider. Defaults to "JSON-RPC" */
+  /** A name for the provider. Defaults to "HTTP JSON-RPC" */
   name?: string
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string
 }
 
 /**
- * @description Connects to a JSON-RPC API via a URL.
+ * @description Connects to a HTTP JSON-RPC API via a URL.
  */
-export function jsonRpcProvider<TChain extends Chain = Chain>({
+export function httpProvider<TChain extends Chain = Chain>({
   chain,
-  id = 'jsonRpc',
-  name = 'JSON-RPC',
-  url = chain.rpcUrls.default,
-}: JsonRpcProviderConfig<TChain>): JsonRpcProvider<TChain> {
+  id = 'http',
+  name = 'HTTP JSON-RPC',
+  url = chain.rpcUrls.default.http,
+}: HttpProviderConfig<TChain>): HttpProvider<TChain> {
   return createNetworkProvider({
     chain,
     id,
