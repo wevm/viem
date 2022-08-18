@@ -95,9 +95,10 @@ describe('http provider', () => {
             },
           },
         ],
-        "id": "alchemy",
+        "id": "alchemy-http",
         "name": "Alchemy",
         "request": [Function],
+        "transportMode": "http",
         "type": "networkProvider",
       }
     `)
@@ -213,9 +214,10 @@ describe('web socket provider', () => {
           },
         ],
         "getSocket": [Function],
-        "id": "alchemy",
+        "id": "alchemy-webSocket",
         "name": "Alchemy",
         "request": [Function],
+        "transportMode": "webSocket",
         "type": "networkProvider",
       }
     `)

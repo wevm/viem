@@ -47,6 +47,7 @@ test('creates', async () => {
       "id": "webSocket",
       "name": "WebSocket JSON-RPC",
       "request": [Function],
+      "transportMode": "webSocket",
       "type": "networkProvider",
     }
   `)

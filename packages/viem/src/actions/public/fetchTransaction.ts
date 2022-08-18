@@ -1,4 +1,5 @@
-import { BaseProvider } from '../../providers'
+import { NetworkProvider } from '../../providers/network/createNetworkProvider'
+import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 import {
   BlockTime,
   Data,
@@ -38,8 +39,8 @@ export type FetchTransactionArgs =
 
 export type FetchTransactionResponse = TransactionResult<bigint>
 
-export async function fetchTransaction<TProvider extends BaseProvider>(
-  provider: TProvider,
+export async function fetchTransaction(
+  provider: NetworkProvider | WalletProvider,
   {
     blockHash,
     blockNumber,

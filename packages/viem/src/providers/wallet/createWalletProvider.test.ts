@@ -13,7 +13,6 @@ test('creates', () => {
     removeListener: <any>(async () => null),
     request: <any>(async () => null),
   })
-
   expect(provider).toMatchInlineSnapshot(`
     {
       "chains": [

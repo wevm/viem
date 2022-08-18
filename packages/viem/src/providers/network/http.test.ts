@@ -46,6 +46,7 @@ test('creates', async () => {
       "id": "http",
       "name": "HTTP JSON-RPC",
       "request": [Function],
+      "transportMode": "http",
       "type": "networkProvider",
     }
   `)

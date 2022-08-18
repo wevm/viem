@@ -1,4 +1,5 @@
-import { BaseProvider } from '../../providers'
+import { NetworkProvider } from '../../providers/network/createNetworkProvider'
+import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 import { Block, BlockTime, Data } from '../../types/ethereum-provider'
 import { BaseError, numberToHex } from '../../utils'
 
@@ -24,8 +25,8 @@ export type FetchBlockArgs = {
 
 export type FetchBlockResponse = Block<bigint>
 
-export async function fetchBlock<TProvider extends BaseProvider>(
-  provider: TProvider,
+export async function fetchBlock(
+  provider: NetworkProvider | WalletProvider,
   {
     blockHash,
     blockNumber,

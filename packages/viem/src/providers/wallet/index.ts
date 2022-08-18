@@ -1,3 +1,5 @@
+export type { WalletProvider } from './createWalletProvider'
+
 export { injectedProvider } from './injected'
 export type {
   InjectedProvider,

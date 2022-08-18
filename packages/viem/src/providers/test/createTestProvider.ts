@@ -63,8 +63,8 @@ export function createTestProvider<
         })
         return result
       },
+      type: 'testProvider',
     }),
     chain,
-    type: 'testProvider',
   }
 }

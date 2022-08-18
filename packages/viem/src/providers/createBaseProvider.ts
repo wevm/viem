@@ -14,6 +14,7 @@ export type BaseProvider<
   TChain extends Chain = Chain,
   TRequestFn extends BaseProviderRequestFn = PublicRequests['request'],
   TId extends string = string,
+  TType extends string = string,
 > = {
   /** The chains that are configured with the provider. */
   chains: TChain[]
@@ -23,6 +24,7 @@ export type BaseProvider<
   name: string
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
   request: TRequestFn
+  type: TType
 }
 
 /**
@@ -37,21 +39,25 @@ export type BaseProvider<
 export function createBaseProvider<
   TChain extends Chain,
   TRequestFn extends BaseProviderRequestFn,
-  TId extends string = string,
+  TId extends string,
+  TType extends string,
 >({
   chains,
   id,
   name,
   request,
-}: BaseProvider<TChain, TRequestFn, TId>): BaseProvider<
+  type,
+}: BaseProvider<TChain, TRequestFn, TId, TType>): BaseProvider<
   TChain,
   TRequestFn,
-  TId
+  TId,
+  TType
 > {
   return {
     chains,
     id,
     name,
     request: buildRequest(request),
+    type,
   }
 }

@@ -1,18 +1,24 @@
 import { Chain } from '../../chains'
 import { BaseProvider, createBaseProvider } from '../createBaseProvider'
 
-export type NetworkProviderConfig<TChain extends Chain> = Omit<
+export type TransportMode = 'http' | 'webSocket'
+
+export type NetworkProviderConfig<TChain extends Chain = Chain> = Omit<
   BaseProvider<TChain>,
-  'chains'
+  'chains' | 'type'
 > & {
   /** The chain that the provider should connect to. */
   chain: TChain
+  /** Transport mode of the provider. */
+  transportMode: TransportMode
 }
 
-export type NetworkProvider<TChain extends Chain> = BaseProvider<TChain> & {
-  chain: TChain
-  type: 'networkProvider'
-}
+export type NetworkProvider<TChain extends Chain = Chain> =
+  BaseProvider<TChain> & {
+    chain: TChain
+    transportMode: TransportMode
+    type: 'networkProvider'
+  }
 
 /**
  * @description Creates a provider that is intended to be used as a base for
@@ -24,6 +30,7 @@ export function createNetworkProvider<TChain extends Chain>({
   id,
   name,
   request,
+  transportMode,
 }: NetworkProviderConfig<TChain>): NetworkProvider<TChain> {
   return {
     ...createBaseProvider({
@@ -31,8 +38,9 @@ export function createNetworkProvider<TChain extends Chain>({
       id,
       name,
       request,
+      type: 'networkProvider',
     }),
     chain,
-    type: 'networkProvider',
+    transportMode,
   }
 }

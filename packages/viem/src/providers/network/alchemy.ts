@@ -29,7 +29,7 @@ export function alchemyHttpProvider({
 }: AlchemyProviderConfig): AlchemyHttpProvider {
   return httpProvider({
     chain,
-    id: 'alchemy',
+    id: 'alchemy-http',
     name: 'Alchemy',
     url: `${chain.rpcUrls.alchemy?.http}/${apiKey}`,
   })
@@ -42,7 +42,7 @@ export function alchemyWebSocketProvider({
 }: AlchemyProviderConfig): AlchemyWebSocketProvider {
   return webSocketProvider({
     chain,
-    id: 'alchemy',
+    id: 'alchemy-webSocket',
     name: 'Alchemy',
     url: `${chain.rpcUrls.alchemy?.webSocket}/${apiKey}`,
   })

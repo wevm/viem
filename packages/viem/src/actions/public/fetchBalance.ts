@@ -1,4 +1,5 @@
-import { BaseProvider } from '../../providers'
+import { NetworkProvider } from '../../providers/network/createNetworkProvider'
+import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 import { Address, BlockTime } from '../../types/ethereum-provider'
 import { numberToHex } from '../../utils'
 
@@ -17,8 +18,8 @@ export type FetchBalanceArgs = {
 
 export type FetchBalanceResponse = bigint
 
-export async function fetchBalance<TProvider extends BaseProvider>(
-  provider: TProvider,
+export async function fetchBalance(
+  provider: NetworkProvider | WalletProvider,
   { address, blockNumber, blockTime = 'latest' }: FetchBalanceArgs,
 ): Promise<FetchBalanceResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined

@@ -15,6 +15,7 @@ export type {
   AlchemyWebSocketProvider,
   HttpProvider,
   HttpProviderConfig,
+  NetworkProvider,
   WebSocketProvider,
   WebSocketProviderConfig,
 } from './network'
@@ -25,6 +26,7 @@ export type {
   AnvilProviderConfig,
   HardhatProvider,
   HardhatProviderConfig,
+  TestProvider,
 } from './test'
 
 export { externalProvider, injectedProvider } from './wallet'
@@ -33,6 +35,7 @@ export type {
   InjectedProvider,
   InjectedProviderRequestFn,
   InjectedProviderReturnValue,
+  WalletProvider,
 } from './wallet'
 
 export { createBaseProvider } from './createBaseProvider'

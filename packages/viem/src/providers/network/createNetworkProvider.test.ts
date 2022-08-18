@@ -10,6 +10,7 @@ test('creates', () => {
     id: 'network',
     name: 'Network',
     request: <any>(async () => null),
+    transportMode: 'http',
   })
 
   expect(provider).toMatchInlineSnapshot(`
@@ -49,6 +50,7 @@ test('creates', () => {
       "id": "network",
       "name": "Network",
       "request": [Function],
+      "transportMode": "http",
       "type": "networkProvider",
     }
   `)

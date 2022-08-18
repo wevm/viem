@@ -5,6 +5,8 @@ export type {
   AlchemyProviderConfig,
 } from './alchemy'
 
+export type { NetworkProvider } from './createNetworkProvider'
+
 export { httpProvider } from './http'
 export type { HttpProvider, HttpProviderConfig } from './http'
 

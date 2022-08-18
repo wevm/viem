@@ -53,13 +53,15 @@ describe('getSocket', () => {
   })
 
   test('multiple invocations on a url only opens one socket', async () => {
-    const [socket, socket2] = await Promise.all([
+    const [socket, socket2, socket3, socket4] = await Promise.all([
       getSocket(local.rpcUrls.default.webSocket),
       getSocket(local.rpcUrls.default.webSocket),
       getSocket(local.rpcUrls.default.webSocket),
       getSocket(local.rpcUrls.default.webSocket),
     ])
     expect(socket).toBe(socket2)
+    expect(socket).toBe(socket3)
+    expect(socket).toBe(socket4)
   })
 })
 

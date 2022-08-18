@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { fetchBalance } from 'viem/actions/public'
-import { BaseProvider } from 'viem/providers'
+import { NetworkProvider, WalletProvider } from 'viem/providers'
 
 export function FetchBalance({
   address = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   provider,
 }: {
   address?: `0x${string}`
-  provider: BaseProvider
+  provider: NetworkProvider | WalletProvider
 }) {
   const [balance, setBalance] = useState<bigint>()
   useEffect(() => {

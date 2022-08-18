@@ -37,5 +37,6 @@ export function httpProvider<TChain extends Chain = Chain>({
       })
       return result
     },
+    transportMode: 'http',
   })
 }

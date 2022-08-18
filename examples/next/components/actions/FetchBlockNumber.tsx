@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import { FetchBlockNumberResponse, fetchBlockNumber } from 'viem/actions/public'
-import { BaseProvider } from 'viem/providers'
+import { NetworkProvider, WalletProvider } from 'viem/providers'
 
-export function FetchBlockNumber({ provider }: { provider: BaseProvider }) {
+export function FetchBlockNumber({
+  provider,
+}: {
+  provider: NetworkProvider | WalletProvider
+}) {
   const [blockNumber, setBlockNumber] = useState<FetchBlockNumberResponse>()
   useEffect(() => {
     ;(async () => {

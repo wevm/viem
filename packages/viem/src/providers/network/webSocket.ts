@@ -43,6 +43,7 @@ export function webSocketProvider<TChain extends Chain = Chain>({
       })
       return result
     },
+    transportMode: 'webSocket',
   })
 
   return {

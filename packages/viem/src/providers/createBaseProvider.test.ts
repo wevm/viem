@@ -10,6 +10,7 @@ test('creates', () => {
     id: 'base',
     name: 'Base',
     request: <any>(async () => null),
+    type: 'baseProvider',
   })
 
   expect(provider).toMatchInlineSnapshot(`
@@ -34,6 +35,7 @@ test('creates', () => {
       "id": "base",
       "name": "Base",
       "request": [Function],
+      "type": "baseProvider",
     }
   `)
 })
