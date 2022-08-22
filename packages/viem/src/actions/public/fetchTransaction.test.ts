@@ -34,7 +34,7 @@ test('fetches transaction', async () => {
   await mine(testProvider, { blocks: 1 })
 
   const transaction = await fetchTransaction(networkProvider, {
-    blockTime: 'latest',
+    blockTag: 'latest',
     index: 0,
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`

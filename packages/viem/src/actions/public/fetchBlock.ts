@@ -1,25 +1,29 @@
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
-import { Block, BlockTime, Data } from '../../types/ethereum-provider'
+import { Block, BlockTag, Data } from '../../types/ethereum-provider'
 import { BaseError, numberToHex } from '../../utils'
 
 export type FetchBlockArgs = {
+  /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
 } & (
   | {
+      /** Hash of the block. */
       blockHash?: Data
       blockNumber?: never
-      blockTime?: never
+      blockTag?: never
     }
   | {
       blockHash?: never
+      /** The block number. */
       blockNumber?: number
-      blockTime?: never
+      blockTag?: never
     }
   | {
       blockHash?: never
       blockNumber?: never
-      blockTime?: BlockTime
+      /** The block tag. Defaults to 'latest'. */
+      blockTag?: BlockTag
     }
 )
 
@@ -30,7 +34,7 @@ export async function fetchBlock(
   {
     blockHash,
     blockNumber,
-    blockTime = 'latest',
+    blockTag = 'latest',
     includeTransactions = false,
   }: FetchBlockArgs = {},
 ): Promise<FetchBlockResponse> {
@@ -46,7 +50,7 @@ export async function fetchBlock(
   } else {
     block = await provider.request({
       method: 'eth_getBlockByNumber',
-      params: [blockNumberHex || blockTime, includeTransactions],
+      params: [blockNumberHex || blockTag, includeTransactions],
     })
   }
 

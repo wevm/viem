@@ -166,10 +166,10 @@ describe('args: blockNumber', () => {
   })
 })
 
-describe('args: blockTime', () => {
+describe('args: blockTag', () => {
   test('fetches block by block time (latest)', async () => {
     const block = await fetchBlock(networkProvider, {
-      blockTime: 'latest',
+      blockTag: 'latest',
     })
     expect(block).toBeDefined()
     expect(Object.keys(block!)).toMatchInlineSnapshot(`
@@ -201,7 +201,7 @@ describe('args: blockTime', () => {
 
   test('fetches block by block time (pending)', async () => {
     const block = await fetchBlock(networkProvider, {
-      blockTime: 'pending',
+      blockTag: 'pending',
     })
     expect(block).toBeDefined()
     expect(Object.keys(block!)).toMatchInlineSnapshot(`
@@ -233,7 +233,7 @@ describe('args: blockTime', () => {
 
   test('fetches block by block time (earliest)', async () => {
     const block = await fetchBlock(networkProvider, {
-      blockTime: 'earliest',
+      blockTag: 'earliest',
     })
     expect(block).toBeDefined()
     expect(Object.keys(block!)).toMatchInlineSnapshot(`

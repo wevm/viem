@@ -1,4 +1,9 @@
+export { checksumAddress } from './address'
+export type { Address } from './address'
+
 export { BaseError } from './BaseError'
+
+export { blockTime } from './block'
 
 export {
   buildRequest,
@@ -17,9 +22,6 @@ export {
   RpcError,
   TransactionRejectedRpcError,
 } from './buildRequest'
-
-export { checksumAddress } from './address'
-export type { Address } from './address'
 
 export { numberToHex } from './number'
 

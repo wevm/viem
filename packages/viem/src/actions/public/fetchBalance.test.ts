@@ -59,7 +59,7 @@ test('fetches balance at latest', async () => {
   expect(
     await fetchBalance(networkProvider, {
       address: targetAccount.address,
-      blockTime: 'latest',
+      blockTag: 'latest',
     }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
 })

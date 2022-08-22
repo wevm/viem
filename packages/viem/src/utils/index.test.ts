@@ -20,6 +20,7 @@ test('exports utils', () => {
       "ResourceUnavailableRpcError": [Function],
       "RpcError": [Function],
       "TransactionRejectedRpcError": [Function],
+      "blockTime": 12000,
       "buildRequest": [Function],
       "checksumAddress": [Function],
       "displayToValue": [Function],

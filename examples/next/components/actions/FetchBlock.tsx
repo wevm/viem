@@ -10,7 +10,7 @@ export function FetchBlock({
   const [block, setBlock] = useState<FetchBlockResponse>()
   useEffect(() => {
     ;(async () => {
-      setBlock(await fetchBlock(provider, { blockTime: 'latest' }))
+      setBlock(await fetchBlock(provider, { blockTag: 'latest' }))
       setBlock(await fetchBlock(provider, { blockNumber: 42069 }))
     })()
   }, [provider])

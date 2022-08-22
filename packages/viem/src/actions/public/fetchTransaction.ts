@@ -1,7 +1,7 @@
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 import {
-  BlockTime,
+  BlockTag,
   Data,
   TransactionResult,
 } from '../../types/ethereum-provider'
@@ -11,28 +11,28 @@ export type FetchTransactionArgs =
   | {
       blockHash: Data
       blockNumber?: never
-      blockTime?: never
+      blockTag?: never
       hash?: never
       index: number
     }
   | {
       blockHash?: never
       blockNumber: number
-      blockTime?: never
+      blockTag?: never
       hash?: never
       index: number
     }
   | {
       blockHash?: never
       blockNumber?: never
-      blockTime: BlockTime
+      blockTag: BlockTag
       hash?: never
       index: number
     }
   | {
       blockHash?: never
       blockNumber?: never
-      blockTime?: never
+      blockTag?: never
       hash: Data
       index?: number
     }
@@ -44,7 +44,7 @@ export async function fetchTransaction(
   {
     blockHash,
     blockNumber,
-    blockTime = 'latest',
+    blockTag = 'latest',
     hash,
     index,
   }: FetchTransactionArgs,
@@ -63,10 +63,10 @@ export async function fetchTransaction(
       method: 'eth_getTransactionByBlockHashAndIndex',
       params: [blockHash, numberToHex(index)],
     })
-  } else if (blockNumberHex || blockTime) {
+  } else if (blockNumberHex || blockTag) {
     transaction = await provider.request({
       method: 'eth_getTransactionByBlockNumberAndIndex',
-      params: [blockNumberHex || blockTime, numberToHex(index)],
+      params: [blockNumberHex || blockTag, numberToHex(index)],
     })
   }
 
@@ -74,7 +74,7 @@ export async function fetchTransaction(
     throw new TransactionNotFoundError({
       blockHash,
       blockNumber,
-      blockTime,
+      blockTag,
       hash,
       index,
     })
@@ -136,21 +136,21 @@ export class TransactionNotFoundError extends BaseError {
   constructor({
     blockHash,
     blockNumber,
-    blockTime,
+    blockTag,
     hash,
     index,
   }: {
     blockHash?: Data
     blockNumber?: number
-    blockTime?: BlockTime
+    blockTag?: BlockTag
     hash?: Data
     index?: number
   }) {
     let identifier = 'Transaction'
     if (blockHash && index !== undefined)
       identifier = `Transaction at block hash "${blockHash}" at index "${index}"`
-    if (blockTime && index !== undefined)
-      identifier = `Transaction at block time "${blockTime}" at index "${index}"`
+    if (blockTag && index !== undefined)
+      identifier = `Transaction at block time "${blockTag}" at index "${index}"`
     if (blockNumber && index !== undefined)
       identifier = `Transaction at block number "${blockNumber}" at index "${index}"`
     if (hash) identifier = `Transaction with hash "${hash}"`

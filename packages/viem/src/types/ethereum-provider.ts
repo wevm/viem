@@ -111,7 +111,7 @@ export type BlockIdentifier = {
     }
 )
 export type BlockNumber = Quantity
-export type BlockTime = 'latest' | 'earliest' | 'pending'
+export type BlockTag = 'latest' | 'earliest' | 'pending'
 
 export type Data = `0x${string}`
 
@@ -531,7 +531,7 @@ export type PublicRequests = {
     method: 'eth_call'
     params: [
       request: TransactionRequest,
-      block: BlockNumber | BlockTime | BlockIdentifier,
+      block: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Data>
   request(args: {
@@ -556,7 +556,7 @@ export type PublicRequests = {
      * // => '0x5208'
      * */
     method: 'eth_estimateGas'
-    params: [parameters: EstimateGasParameters, block: BlockNumber | BlockTime]
+    params: [parameters: EstimateGasParameters, block: BlockNumber | BlockTag]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -579,7 +579,7 @@ export type PublicRequests = {
       /** Number of blocks in the requested range. Between 1 and 1024 blocks can be requested in a single query. Less than requested may be returned if not all blocks are available. */
       blockCount: Quantity,
       /** Highest number block of the requested range. */
-      newestBlock: BlockNumber | BlockTime,
+      newestBlock: BlockNumber | BlockTag,
       /** A monotonically increasing list of percentile values to sample from each block's effective priority fees per gas in ascending order, weighted by gas used. */
       rewardPercentiles: string[] | undefined,
     ]
@@ -603,7 +603,7 @@ export type PublicRequests = {
      * // => '0x12a05...'
      * */
     method: 'eth_getBalance'
-    params: [address: Address, block: BlockNumber | BlockTime | BlockIdentifier]
+    params: [address: Address, block: BlockNumber | BlockTag | BlockIdentifier]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -642,7 +642,7 @@ export type PublicRequests = {
     method: 'eth_getBlockByNumber'
     params: [
       /** block number, or one of "latest", "earliest" or "pending" */
-      block: BlockNumber | BlockTime,
+      block: BlockNumber | BlockTag,
       /** true will pull full transaction objects, false will pull transaction hashes */
       includeTransactionObjects: boolean,
     ]
@@ -667,7 +667,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getBlockTransactionCountByNumber'
-    params: [block: BlockNumber | BlockTime]
+    params: [block: BlockNumber | BlockTag]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -678,7 +678,7 @@ export type PublicRequests = {
      * // => '0x...'
      * */
     method: 'eth_getCode'
-    params: [address: Address, block: BlockNumber | BlockTime | BlockIdentifier]
+    params: [address: Address, block: BlockNumber | BlockTag | BlockIdentifier]
   }): Promise<Data>
   request(args: {
     /**
@@ -717,8 +717,8 @@ export type PublicRequests = {
         topics?: Data[]
       } & (
         | {
-            fromBlock?: BlockNumber | BlockTime
-            toBlock?: BlockNumber | BlockTime
+            fromBlock?: BlockNumber | BlockTag
+            toBlock?: BlockNumber | BlockTag
           }
         | {
             blockHash?: Data
@@ -738,7 +738,7 @@ export type PublicRequests = {
     params: [
       address: Address,
       index: Quantity,
-      block: BlockNumber | BlockTime | BlockIdentifier,
+      block: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Log[]>
   request(args: {
@@ -761,7 +761,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionByBlockNumberAndIndex'
-    params: [block: BlockNumber | BlockTime, index: Quantity]
+    params: [block: BlockNumber | BlockTag, index: Quantity]
   }): Promise<TransactionResult | null>
   request(args: {
     /**
@@ -783,7 +783,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getTransactionCount'
-    params: [address: Address, block: BlockNumber | BlockTime | BlockIdentifier]
+    params: [address: Address, block: BlockNumber | BlockTag | BlockIdentifier]
   }): Promise<Quantity | null>
   request(args: {
     /**
@@ -816,7 +816,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getUncleByBlockNumberAndIndex'
-    params: [block: BlockNumber | BlockTime, index: Quantity]
+    params: [block: BlockNumber | BlockTag, index: Quantity]
   }): Promise<Uncle | null>
   request(args: {
     /**
@@ -838,7 +838,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getUncleCountByBlockNumber'
-    params: [block: BlockNumber | BlockTime]
+    params: [block: BlockNumber | BlockTag]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -861,8 +861,8 @@ export type PublicRequests = {
     method: 'eth_newFilter'
     params: [
       filter: {
-        fromBlock?: BlockNumber | BlockTime
-        toBlock?: BlockNumber | BlockTime
+        fromBlock?: BlockNumber | BlockTag
+        toBlock?: BlockNumber | BlockTag
         address?: Data | Data[]
         topics?: Data[]
       },
@@ -1104,7 +1104,7 @@ export type TestRequests<Name extends string = 'anvil'> = {
      * @description Set the timestamp of the next block.
      * @link https://hardhat.org/hardhat-network/docs/reference#evm_setnextblocktimestamp
      */
-    method: 'evm_setNextBlockTimestamp'
+    method: 'evm_setNextBlockTagstamp'
     params: [Quantity]
   }): Promise<void>
   request(args: {
