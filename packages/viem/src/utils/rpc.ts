@@ -57,19 +57,28 @@ export async function getSocket(url: string) {
 
 async function webSocket(
   socket: WebSocket,
-  { body }: { body: { method: string; params?: any[] } },
+  {
+    body,
+    onMessage,
+    onError,
+  }: {
+    body: { method: string; params?: any[] }
+    onMessage: (message: RpcResponse) => void
+    onError: (message: RpcResponse['error']) => void
+  },
 ) {
   socket.send(JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }))
 
-  const response: RpcResponse = await new Promise((resolve) => {
-    socket.onmessage = ({ data }) => {
-      resolve(JSON.parse(data))
+  socket.onmessage = ({ data }) => {
+    const message: RpcResponse = JSON.parse(data)
+    if (message.error) {
+      onError(message.error)
+    } else {
+      onMessage(message)
     }
-  })
-  if (response.error) {
-    throw response.error
   }
-  return response
+
+  return socket
 }
 
 ///////////////////////////////////////////////////

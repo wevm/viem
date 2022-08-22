@@ -68,9 +68,13 @@ describe('getSocket', () => {
 describe('webSocket', () => {
   test('valid request', async () => {
     const socket = await getSocket(local.rpcUrls.default.webSocket)
-    const { id, ...version } = await rpc.webSocket(socket, {
-      body: { method: 'web3_clientVersion' },
-    })
+    const { id, ...version } = await new Promise<any>((resolve, reject) =>
+      rpc.webSocket(socket, {
+        body: { method: 'web3_clientVersion' },
+        onMessage: resolve,
+        onError: reject,
+      }),
+    )
     expect(id).toBeDefined()
     expect(version).toMatchInlineSnapshot(`
       {
@@ -82,12 +86,16 @@ describe('webSocket', () => {
 
   test('valid request', async () => {
     const socket = await getSocket(local.rpcUrls.default.webSocket)
-    const { id, ...block } = await rpc.webSocket(socket, {
-      body: {
-        method: 'eth_getBlockByNumber',
-        params: [numberToHex(initialBlockNumber), false],
-      },
-    })
+    const { id, ...block } = await new Promise<any>((resolve, reject) =>
+      rpc.webSocket(socket, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        onMessage: resolve,
+        onError: reject,
+      }),
+    )
     expect(id).toBeDefined()
     expect(block).toMatchInlineSnapshot(`
       {
@@ -247,12 +255,17 @@ describe('webSocket', () => {
 
   test('invalid request', async () => {
     const socket = await getSocket(local.rpcUrls.default.webSocket)
-    await expect(() =>
-      rpc.webSocket(socket, {
-        body: {
-          method: 'wagmi_lol',
-        },
-      }),
+    await expect(
+      () =>
+        new Promise<any>((resolve, reject) =>
+          rpc.webSocket(socket, {
+            body: {
+              method: 'wagmi_lol',
+            },
+            onMessage: resolve,
+            onError: reject,
+          }),
+        ),
     ).rejects.toThrowError(
       'data did not match any variant of untagged enum EthRpcCall',
     )

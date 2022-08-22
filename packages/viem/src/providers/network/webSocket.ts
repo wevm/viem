@@ -35,12 +35,16 @@ export function webSocketProvider<TChain extends Chain = Chain>({
     name,
     async request({ method, params }: any) {
       const socket = await getSocket(url)
-      const { result } = await rpc.webSocket(socket, {
-        body: {
-          method,
-          params,
-        },
-      })
+      const { result } = await new Promise<any>((resolve, reject) =>
+        rpc.webSocket(socket, {
+          body: {
+            method,
+            params,
+          },
+          onMessage: resolve,
+          onError: reject,
+        }),
+      )
       return result
     },
     transportMode: 'webSocket',
