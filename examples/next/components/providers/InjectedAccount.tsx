@@ -4,8 +4,8 @@ import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 import {
   AccountProvider,
   accountProvider as accountProvider_,
-} from 'viem/providers/account'
-import { injectedProvider } from 'viem/providers'
+  injectedProvider,
+} from 'viem/providers'
 
 import { SendTransaction } from '../actions/SendTransaction'
 
