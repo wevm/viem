@@ -11,6 +11,9 @@ export type {
   WatchBlocksResponse,
 } from './block'
 
+export { mine, setBalance } from './test'
+export type { MineArgs, SetBalanceArgs } from './test'
+
 export { fetchTransaction, sendTransaction } from './transaction'
 export type {
   FetchTransactionArgs,

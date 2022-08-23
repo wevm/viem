@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { injectedProvider } from 'viem/providers/wallet'
+import { injectedProvider } from 'viem/providers'
 
 import { FetchBalance } from '../actions/FetchBalance'
 import { FetchBlock } from '../actions/FetchBlock'

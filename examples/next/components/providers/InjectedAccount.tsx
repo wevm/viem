@@ -5,7 +5,7 @@ import {
   AccountProvider,
   accountProvider as accountProvider_,
 } from 'viem/providers/account'
-import { injectedProvider } from 'viem/providers/wallet'
+import { injectedProvider } from 'viem/providers'
 
 import { SendTransaction } from '../actions/SendTransaction'
 

@@ -1,5 +1,5 @@
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { alchemyHttpProvider } from 'viem/providers/network'
+import { alchemyHttpProvider } from 'viem/providers'
 
 import { FetchBalance } from '../actions/FetchBalance'
 import { FetchBlock } from '../actions/FetchBlock'
