@@ -36,10 +36,11 @@ test('creates', async () => {
           },
         },
       ],
-      "id": "hardhat",
+      "key": "hardhat",
       "name": "Hardhat",
       "request": [Function],
       "type": "testProvider",
+      "uniqueId": "hardhat.1337",
     }
   `)
 })

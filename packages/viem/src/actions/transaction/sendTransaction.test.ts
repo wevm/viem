@@ -5,13 +5,11 @@ import {
   accounts,
   networkProvider,
   testProvider,
-  walletProvider,
 } from '../../../test/utils'
 import { etherToValue, gweiToValue, numberToHex } from '../../utils'
-import { fetchBalance } from '../public/fetchBalance'
-import { fetchBlock } from '../public/fetchBlock'
-import { mine } from '../test'
-import { setBalance } from '../test/setBalance'
+import { fetchBalance } from '../account'
+import { fetchBlock } from '../block'
+import { mine, setBalance } from '../test'
 
 import { sendTransaction } from './sendTransaction'
 
@@ -473,24 +471,4 @@ test('insufficient funds: errors when user is out of funds', async () => {
       },
     }),
   ).rejects.toThrow('Insufficient funds for gas * price + value')
-})
-
-// eslint-disable-next-line prettier/prettier
-;[walletProvider, networkProvider].forEach((provider) => {
-  test(`invalid provider: errors when not an accountProvider (${
-    provider!.id
-  })`, async () => {
-    await setup()
-
-    await expect(
-      // @ts-expect-error – testing for JS consumers
-      sendTransaction(provider!, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: etherToValue('1'),
-        },
-      }),
-    ).rejects.toThrow(`Invalid provider of type "${provider?.type}" provided`)
-  })
 })

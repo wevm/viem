@@ -7,8 +7,8 @@ export type HttpProvider<TChain extends Chain = Chain> = NetworkProvider<TChain>
 export type HttpProviderConfig<TChain extends Chain = Chain> = {
   /** The chain that the provider should connect to. */
   chain: TChain
-  /** A identifier for the provider. Defaults to "http" */
-  id?: string
+  /** A key for the provider. Defaults to "http" */
+  key?: string
   /** A name for the provider. Defaults to "HTTP JSON-RPC" */
   name?: string
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
@@ -20,13 +20,13 @@ export type HttpProviderConfig<TChain extends Chain = Chain> = {
  */
 export function httpProvider<TChain extends Chain = Chain>({
   chain,
-  id = 'http',
+  key = 'http',
   name = 'HTTP JSON-RPC',
   url = chain.rpcUrls.default.http,
 }: HttpProviderConfig<TChain>): HttpProvider<TChain> {
   return createNetworkProvider({
     chain,
-    id,
+    key,
     name,
     async request({ method, params }: any) {
       const { result } = await rpc.http(url, {

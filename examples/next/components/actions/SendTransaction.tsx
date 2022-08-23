@@ -1,4 +1,4 @@
-import { sendTransaction } from 'viem/actions/account'
+import { sendTransaction } from 'viem/actions'
 import { AccountProvider } from 'viem/providers'
 import { etherToValue } from 'viem/utils'
 

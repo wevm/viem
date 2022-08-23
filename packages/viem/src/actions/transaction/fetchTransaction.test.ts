@@ -8,10 +8,10 @@ import {
   testProvider,
 } from '../../../test/utils'
 import { etherToValue } from '../../utils'
-import { sendTransaction } from '../account/sendTransaction'
+import { fetchBlock } from '../block'
+import { sendTransaction } from '../transaction'
 import { mine } from '../test'
 import { setBalance } from '../test/setBalance'
-import { fetchBlock } from './fetchBlock'
 import { fetchTransaction } from './fetchTransaction'
 
 const sourceAccount = accounts[0]
@@ -139,9 +139,7 @@ describe('args: blockHash', () => {
         blockHash,
         index: 420,
       }),
-    ).rejects.toThrowError(
-      'Transaction at block time "latest" at index "420" could not be found.',
-    )
+    ).rejects.toThrowError('Transaction at block hash')
   })
 })
 

@@ -366,7 +366,7 @@ test('exports chains', () => {
         "network": "sepolia",
         "rpcUrls": {
           "default": {
-            "http": "https://rpc.sepolia.online",
+            "http": "https://rpc.sepolia.org",
           },
         },
         "testnet": true,

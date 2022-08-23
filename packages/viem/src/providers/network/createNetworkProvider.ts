@@ -5,7 +5,7 @@ export type TransportMode = 'http' | 'webSocket'
 
 export type NetworkProviderConfig<TChain extends Chain = Chain> = Omit<
   BaseProvider<TChain>,
-  'chains' | 'type'
+  'chains' | 'type' | 'uniqueId'
 > & {
   /** The chain that the provider should connect to. */
   chain: TChain
@@ -27,7 +27,7 @@ export type NetworkProvider<TChain extends Chain = Chain> =
  */
 export function createNetworkProvider<TChain extends Chain>({
   chain,
-  id,
+  key,
   name,
   request,
   transportMode,
@@ -35,10 +35,11 @@ export function createNetworkProvider<TChain extends Chain>({
   return {
     ...createBaseProvider({
       chains: [chain],
-      id,
+      key,
       name,
       request,
       type: 'networkProvider',
+      uniqueId: `${key}.${chain.id}.${transportMode}`,
     }),
     chain,
     transportMode,

@@ -59,11 +59,11 @@ async function webSocket(
   socket: WebSocket,
   {
     body,
-    onMessage,
+    onData,
     onError,
   }: {
     body: { method: string; params?: any[] }
-    onMessage: (message: RpcResponse) => void
+    onData: (message: RpcResponse) => void
     onError: (message: RpcResponse['error']) => void
   },
 ) {
@@ -74,7 +74,7 @@ async function webSocket(
     if (message.error) {
       onError(message.error)
     } else {
-      onMessage(message)
+      onData(message)
     }
   }
 

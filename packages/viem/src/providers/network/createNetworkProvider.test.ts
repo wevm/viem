@@ -7,7 +7,7 @@ import { createNetworkProvider } from './createNetworkProvider'
 test('creates', () => {
   const provider = createNetworkProvider({
     chain: local,
-    id: 'network',
+    key: 'network',
     name: 'Network',
     request: <any>(async () => null),
     transportMode: 'http',
@@ -47,11 +47,12 @@ test('creates', () => {
           },
         },
       ],
-      "id": "network",
+      "key": "network",
       "name": "Network",
       "request": [Function],
       "transportMode": "http",
       "type": "networkProvider",
+      "uniqueId": "network.1337.http",
     }
   `)
 })

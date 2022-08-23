@@ -12,8 +12,8 @@ export type ExternalProviderArg = {
 export type ExternalProviderConfig = {
   /** Chains that the provider should be aware of. */
   chains: Chain[]
-  /** A identifier for the provider. */
-  id?: string
+  /** A key for the provider. */
+  key?: string
   /** A name for the provider. */
   name?: string
 }
@@ -23,14 +23,15 @@ export type ExternalProviderConfig = {
  */
 export function externalProvider(
   provider: ExternalProviderArg,
-  { chains, id = 'external', name = 'External' }: ExternalProviderConfig,
+  { chains, key = 'external', name = 'External' }: ExternalProviderConfig,
 ): ExternalProvider {
   return createWalletProvider({
     chains,
-    id,
+    key,
     name,
     on: provider.on.bind(provider),
     removeListener: provider.removeListener.bind(provider),
     request: provider.request.bind(provider),
+    uniqueId: key,
   })
 }

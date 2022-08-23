@@ -5,7 +5,8 @@ import * as actions from './index'
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
-      "sendTransaction": [Function],
+      "fetchBalance": [Function],
+      "requestAccountAddresses": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

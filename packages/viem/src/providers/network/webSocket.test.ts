@@ -44,11 +44,12 @@ test('creates', async () => {
         },
       ],
       "getSocket": [Function],
-      "id": "webSocket",
+      "key": "webSocket",
       "name": "WebSocket JSON-RPC",
       "request": [Function],
       "transportMode": "webSocket",
       "type": "networkProvider",
+      "uniqueId": "webSocket.1337.webSocket",
     }
   `)
 })
@@ -81,7 +82,7 @@ Object.keys(chains).forEach((key) => {
 test('request (local)', async () => {
   const provider = webSocketProvider({
     chain: chains.local,
-    id: 'jsonRpc',
+    key: 'jsonRpc',
     name: 'JSON RPC',
   })
 

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { networkProvider, testProvider } from '../../../test/utils'
 
-import { fetchBlockNumber } from '../public/fetchBlockNumber'
+import { fetchBlockNumber } from '../block'
 import { mine } from './mine'
 
 test('mines 1 block', async () => {

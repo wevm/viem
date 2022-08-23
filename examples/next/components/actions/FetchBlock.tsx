@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FetchBlockResponse, fetchBlock } from 'viem/actions/public'
+import { FetchBlockResponse, fetchBlock } from 'viem/actions'
 import { NetworkProvider, WalletProvider } from 'viem/providers'
 
 export function FetchBlock({
@@ -7,10 +7,12 @@ export function FetchBlock({
 }: {
   provider: NetworkProvider | WalletProvider
 }) {
+  const [latestBlock, setLatestBlock] = useState<FetchBlockResponse>()
   const [block, setBlock] = useState<FetchBlockResponse>()
+
   useEffect(() => {
     ;(async () => {
-      setBlock(await fetchBlock(provider, { blockTag: 'latest' }))
+      setLatestBlock(await fetchBlock(provider, { blockTag: 'latest' }))
       setBlock(await fetchBlock(provider, { blockNumber: 42069 }))
     })()
   }, [provider])
@@ -18,11 +20,25 @@ export function FetchBlock({
     <div>
       <details>
         <summary>latest</summary>
-        <div>{JSON.stringify(block, undefined, 4)}</div>
+        <div>
+          {JSON.stringify(
+            latestBlock,
+            (_, value) =>
+              typeof value === 'bigint' ? value.toString() : value,
+            4,
+          )}
+        </div>
       </details>
       <details>
         <summary>block 42069</summary>
-        <div>{JSON.stringify(block, undefined, 4)}</div>
+        <div>
+          {JSON.stringify(
+            block,
+            (_, value) =>
+              typeof value === 'bigint' ? value.toString() : value,
+            4,
+          )}
+        </div>
       </details>
     </div>
   )

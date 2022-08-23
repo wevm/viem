@@ -14,7 +14,7 @@ export async function setBalance(
   { address, value }: SetBalanceArgs,
 ) {
   return await provider.request({
-    method: `${provider.id}_setBalance`,
+    method: `${provider.key}_setBalance`,
     params: [address, numberToHex(value)],
   })
 }

@@ -94,12 +94,13 @@ test('creates', () => {
           },
         },
       ],
-      "id": "external",
+      "key": "external",
       "name": "External",
       "on": [Function],
       "removeListener": [Function],
       "request": [Function],
       "type": "walletProvider",
+      "uniqueId": "external",
     }
   `)
 })

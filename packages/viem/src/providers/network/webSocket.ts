@@ -10,8 +10,8 @@ export type WebSocketProvider<TChain extends Chain = Chain> =
 export type WebSocketProviderConfig<TChain extends Chain = Chain> = {
   /** The chain that the provider should connect to. */
   chain: TChain
-  /** A identifier for the provider. Defaults to "webSocket" */
-  id?: string
+  /** A key for the provider. Defaults to "webSocket" */
+  key?: string
   /** A name for the provider. Defaults to "WebSocket JSON-RPC" */
   name?: string
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
@@ -23,7 +23,7 @@ export type WebSocketProviderConfig<TChain extends Chain = Chain> = {
  */
 export function webSocketProvider<TChain extends Chain = Chain>({
   chain,
-  id = 'webSocket',
+  key = 'webSocket',
   name = 'WebSocket JSON-RPC',
   url = chain.rpcUrls.default.webSocket,
 }: WebSocketProviderConfig<TChain>): WebSocketProvider<TChain> {
@@ -31,7 +31,7 @@ export function webSocketProvider<TChain extends Chain = Chain>({
 
   const provider = createNetworkProvider({
     chain,
-    id,
+    key,
     name,
     async request({ method, params }: any) {
       const socket = await getSocket(url)
@@ -41,7 +41,7 @@ export function webSocketProvider<TChain extends Chain = Chain>({
             method,
             params,
           },
-          onMessage: resolve,
+          onData: resolve,
           onError: reject,
         }),
       )

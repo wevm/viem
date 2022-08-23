@@ -1,4 +1,4 @@
-import { fetchBalance } from 'viem/actions/public'
+import { fetchBalance } from 'viem/actions'
 import { mainnet } from 'viem/chains'
 import { alchemyHttpProvider } from 'viem/providers'
 

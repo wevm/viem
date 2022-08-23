@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FetchBlockNumberResponse, fetchBlockNumber } from 'viem/actions/public'
+import { FetchBlockNumberResponse, fetchBlockNumber } from 'viem/actions'
 import { NetworkProvider, WalletProvider } from 'viem/providers'
 
 export function FetchBlockNumber({

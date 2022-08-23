@@ -174,7 +174,7 @@ export const sepolia = createChain({
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'SEP', decimals: 18 },
   rpcUrls: {
     default: {
-      http: 'https://rpc.sepolia.online',
+      http: 'https://rpc.sepolia.org',
     },
   },
   blockExplorers: {

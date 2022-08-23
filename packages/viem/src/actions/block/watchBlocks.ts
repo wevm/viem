@@ -5,6 +5,8 @@ import { wait } from '../../utils/wait'
 import { FetchBlockResponse, fetchBlock } from './fetchBlock'
 
 export type WatchBlocksArgs = {
+  /** Whether or not to emit the latest block to the callback when the subscription opens. */
+  emitOnOpen?: boolean
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
 }
@@ -14,7 +16,7 @@ export type WatchBlocksCallback = (block: WatchBlocksResponse) => void
 export function watchBlocks(
   provider: NetworkProvider | WalletProvider,
   callback: WatchBlocksCallback,
-  { includeTransactions = false }: WatchBlocksArgs = {},
+  { emitOnOpen = false, includeTransactions = false }: WatchBlocksArgs = {},
 ) {
   // if (
   //   provider.type === 'networkProvider' &&
@@ -22,6 +24,7 @@ export function watchBlocks(
   // )
   //   return subscribeBlocks()
   return pollBlocks(provider, callback, {
+    emitOnOpen,
     includeTransactions,
   })
 }
@@ -32,11 +35,11 @@ export function watchBlocks(
 function pollBlocks(
   provider: NetworkProvider | WalletProvider,
   callback: WatchBlocksCallback,
-  { includeTransactions = false }: WatchBlocksArgs = {},
+  { emitOnOpen = false, includeTransactions = false }: WatchBlocksArgs = {},
 ) {
-  const id = JSON.stringify([provider.id, includeTransactions])
+  const cacheKey = JSON.stringify([provider.uniqueId, includeTransactions])
   return subscribe<WatchBlocksCallback, WatchBlocksResponse>(
-    id,
+    cacheKey,
     callback,
   )(({ emit }) => {
     let active = true
@@ -52,6 +55,8 @@ function pollBlocks(
     // that to calculate the time to fetch the next block.
     fetchBlock_().then(async (block) => {
       if (!active) return
+
+      if (emitOnOpen) emit(block)
 
       // In order to keep in sync, we need to find the time
       // to wait to fetch the next block.

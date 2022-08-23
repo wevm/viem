@@ -1,5 +1,4 @@
-export { sendTransaction } from './sendTransaction'
-export type {
-  SendTransactionArgs,
-  SendTransactionResponse,
-} from './sendTransaction'
+export { fetchBalance } from './fetchBalance'
+export type { FetchBalanceArgs, FetchBalanceResponse } from './fetchBalance'
+
+export { requestAccountAddresses } from './requestAccountAddresses'

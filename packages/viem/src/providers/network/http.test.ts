@@ -43,11 +43,12 @@ test('creates', async () => {
           },
         },
       ],
-      "id": "http",
+      "key": "http",
       "name": "HTTP JSON-RPC",
       "request": [Function],
       "transportMode": "http",
       "type": "networkProvider",
+      "uniqueId": "http.1337.http",
     }
   `)
 })
@@ -70,7 +71,7 @@ Object.keys(chains).forEach((key) => {
 test('request (local)', async () => {
   const provider = httpProvider({
     chain: chains.local,
-    id: 'jsonRpc',
+    key: 'jsonRpc',
     name: 'JSON RPC',
   })
 

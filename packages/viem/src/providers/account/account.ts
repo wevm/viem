@@ -16,8 +16,8 @@ export type AccountProvider = Omit<
 export type AccountProviderConfig = {
   /** The address of the connected user. */
   address: string
-  /** An identifier for the account provider */
-  id?: string
+  /** An key for the account provider */
+  key?: string
   /** A name for the account provider */
   name?: string
 }
@@ -31,15 +31,16 @@ export function accountProvider(
   provider: WalletProvider,
   {
     address,
-    id = 'account',
+    key = 'account',
     name = `Account ${address}`,
   }: AccountProviderConfig,
 ): AccountProvider {
   return {
     address,
-    id,
+    key,
     name,
     request: <any>provider.request,
     type: 'accountProvider',
+    uniqueId: `${key}.${provider.uniqueId}.${address}`,
   }
 }

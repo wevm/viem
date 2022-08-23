@@ -71,7 +71,7 @@ describe('webSocket', () => {
     const { id, ...version } = await new Promise<any>((resolve, reject) =>
       rpc.webSocket(socket, {
         body: { method: 'web3_clientVersion' },
-        onMessage: resolve,
+        onData: resolve,
         onError: reject,
       }),
     )
@@ -92,7 +92,7 @@ describe('webSocket', () => {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
         },
-        onMessage: resolve,
+        onData: resolve,
         onError: reject,
       }),
     )
@@ -262,7 +262,7 @@ describe('webSocket', () => {
             body: {
               method: 'wagmi_lol',
             },
-            onMessage: resolve,
+            onData: resolve,
             onError: reject,
           }),
         ),

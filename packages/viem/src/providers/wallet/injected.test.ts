@@ -116,12 +116,13 @@ test('creates', async () => {
             },
           },
         ],
-        "id": "injected",
+        "key": "injected",
         "name": "Injected",
         "on": [Function],
         "removeListener": [Function],
         "request": [Function],
         "type": "walletProvider",
+        "uniqueId": "injected",
       }
     `)
 })

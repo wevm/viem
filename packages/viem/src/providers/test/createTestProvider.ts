@@ -3,16 +3,16 @@ import { TestRequests } from '../../types/ethereum-provider'
 import { rpc } from '../../utils'
 import { BaseProvider, createBaseProvider } from '../createBaseProvider'
 
-export type TestProviderId = 'anvil' | 'hardhat'
+export type TestProviderKey = 'anvil' | 'hardhat'
 
 export type TestProviderConfig<
   TChain extends Chain,
-  TId extends TestProviderId,
+  TKey extends TestProviderKey,
 > = {
   /** The chain that the provider should connect to. */
   chain: TChain
-  /** A identifier for the provider. */
-  id: TId
+  /** A key for the provider. */
+  key: TKey
   /** A name for the provider. */
   name: string
   /** URL of the test node. */
@@ -21,8 +21,8 @@ export type TestProviderConfig<
 
 export type TestProvider<
   TChain extends Chain = Chain,
-  TId extends TestProviderId = TestProviderId,
-> = BaseProvider<TChain, TestRequests<TId>['request'], TId> & {
+  TKey extends TestProviderKey = TestProviderKey,
+> = BaseProvider<TChain, TestRequests<TKey>['request'], TKey> & {
   chain: TChain
   type: 'testProvider'
 }
@@ -34,13 +34,13 @@ export type TestProvider<
  */
 export function createTestProvider<
   TChain extends Chain,
-  TId extends TestProviderId,
+  TKey extends TestProviderKey,
 >({
   chain: chain_,
-  id,
+  key,
   name,
   url = chain_.rpcUrls.local?.http,
-}: TestProviderConfig<TChain, TId>): TestProvider<TChain, TId> {
+}: TestProviderConfig<TChain, TKey>): TestProvider<TChain, TKey> {
   if (!url) throw new Error('url is required')
   const chain: typeof chain_ = {
     ...chain_,
@@ -52,7 +52,7 @@ export function createTestProvider<
   return {
     ...createBaseProvider({
       chains: [chain],
-      id,
+      key,
       name,
       async request({ method, params }: any) {
         const { result } = await rpc.http(url, {
@@ -64,6 +64,7 @@ export function createTestProvider<
         return result
       },
       type: 'testProvider',
+      uniqueId: `${key}.${chain.id}`,
     }),
     chain,
   }

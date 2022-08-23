@@ -9,8 +9,8 @@ import {
 export type WalletProviderConfig<
   TChain extends Chain = Chain,
   TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
-  TId extends string = string,
-> = Omit<BaseProvider<TChain, TRequestFn, TId>, 'type'> & {
+  TKey extends string = string,
+> = Omit<BaseProvider<TChain, TRequestFn, TKey>, 'type'> & {
   /** Event listener callback that matches the EIP-1193 events spec. */
   on: Events['on']
   /** Event listener callback that matches the EIP-1193 events spec. */
@@ -20,8 +20,8 @@ export type WalletProviderConfig<
 export type WalletProvider<
   TChain extends Chain = Chain,
   TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
-  TId extends string = string,
-> = WalletProviderConfig<TChain, TRequestFn, TId> & {
+  TKey extends string = string,
+> = WalletProviderConfig<TChain, TRequestFn, TKey> & {
   type: 'walletProvider'
 }
 
@@ -33,25 +33,27 @@ export type WalletProvider<
 export function createWalletProvider<
   TChain extends Chain,
   TRequestFn extends BaseProviderRequestFn,
-  TId extends string,
+  TKey extends string,
 >({
   chains,
-  id,
+  key,
   name,
   on,
   removeListener,
   request,
-}: WalletProviderConfig<TChain, TRequestFn, TId>): WalletProvider<
+  uniqueId,
+}: WalletProviderConfig<TChain, TRequestFn, TKey>): WalletProvider<
   TChain,
   TRequestFn,
-  TId
+  TKey
 > {
   const baseProvider = createBaseProvider({
     chains,
-    id,
+    key,
     name,
     request,
     type: 'walletProvider',
+    uniqueId,
   })
   return {
     ...baseProvider,

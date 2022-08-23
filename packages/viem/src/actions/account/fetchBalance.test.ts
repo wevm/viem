@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import {
   accountProvider,
@@ -7,17 +7,16 @@ import {
   testProvider,
 } from '../../../test/utils'
 import { etherToValue } from '../../utils'
-import { sendTransaction } from '../account/sendTransaction'
-import { mine } from '../test'
-import { setBalance } from '../test/setBalance'
+import { fetchBlockNumber } from '../block'
+import { sendTransaction } from '../transaction'
+import { mine, setBalance } from '../test'
 
 import { fetchBalance } from './fetchBalance'
-import { fetchBlockNumber } from './fetchBlockNumber'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
-beforeAll(async () => {
+async function setup() {
   await setBalance(testProvider, {
     address: targetAccount.address,
     value: targetAccount.balance,
@@ -47,15 +46,17 @@ beforeAll(async () => {
     },
   })
   await mine(testProvider, { blocks: 1 })
-})
+}
 
 test('fetches balance', async () => {
+  await setup()
   expect(
     await fetchBalance(networkProvider, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
 })
 
 test('fetches balance at latest', async () => {
+  await setup()
   expect(
     await fetchBalance(networkProvider, {
       address: targetAccount.address,
@@ -65,6 +66,7 @@ test('fetches balance at latest', async () => {
 })
 
 test('fetches balance at block number', async () => {
+  await setup()
   const currentBlockNumber = await fetchBlockNumber(networkProvider)
   expect(
     await fetchBalance(networkProvider, {

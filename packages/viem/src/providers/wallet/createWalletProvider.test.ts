@@ -7,11 +7,12 @@ import { createWalletProvider } from './createWalletProvider'
 test('creates', () => {
   const provider = createWalletProvider({
     chains: [local],
-    id: 'wallet',
+    key: 'wallet',
     name: 'Wallet',
     on: <any>(async () => null),
     removeListener: <any>(async () => null),
     request: <any>(async () => null),
+    uniqueId: 'wallet',
   })
   expect(provider).toMatchInlineSnapshot(`
     {
@@ -32,12 +33,13 @@ test('creates', () => {
           },
         },
       ],
-      "id": "wallet",
+      "key": "wallet",
       "name": "Wallet",
       "on": [Function],
       "removeListener": [Function],
       "request": [Function],
       "type": "walletProvider",
+      "uniqueId": "wallet",
     }
   `)
 })

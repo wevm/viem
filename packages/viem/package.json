@@ -16,17 +16,13 @@
   ],
   "exports": {
     ".": "./dist/index.js",
-    "./actions/account": {
-      "module": "./actions/account/dist/viem-actions-account.esm.js",
-      "default": "./actions/account/dist/viem-actions-account.cjs.js"
+    "./actions": {
+      "module": "./actions/dist/viem-actions.esm.js",
+      "default": "./actions/dist/viem-actions.cjs.js"
     },
-    "./actions/public": {
-      "module": "./actions/public/dist/viem-actions-public.esm.js",
-      "default": "./actions/public/dist/viem-actions-public.cjs.js"
-    },
-    "./actions/wallet": {
-      "module": "./actions/wallet/dist/viem-actions-wallet.esm.js",
-      "default": "./actions/wallet/dist/viem-actions-wallet.cjs.js"
+    "./actions/test": {
+      "module": "./actions/test/dist/viem-actions-test.esm.js",
+      "default": "./actions/test/dist/viem-actions-test.cjs.js"
     },
     "./chains": {
       "module": "./chains/dist/viem-chains.esm.js",
@@ -63,9 +59,8 @@
   },
   "preconstruct": {
     "entrypoints": [
-      "actions/account/index.ts",
-      "actions/public/index.ts",
-      "actions/wallet/index.ts",
+      "actions/index.ts",
+      "actions/test/index.ts",
       "chains.ts",
       "index.ts",
       "providers/index.ts",

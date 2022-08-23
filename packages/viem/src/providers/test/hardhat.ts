@@ -18,7 +18,7 @@ export function hardhatProvider<TChain extends Chain>({
 }: HardhatProviderConfig<TChain>): HardhatProvider<TChain> {
   return createTestProvider({
     chain,
-    id: 'hardhat',
+    key: 'hardhat',
     name: 'Hardhat',
     url,
   })

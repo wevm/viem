@@ -23,6 +23,21 @@ describe('http', () => {
     expect(blocks.length).toBe(5)
   }, 10_000)
 
+  test('watches for new blocks w/ emitOnOpen', async () => {
+    const block = await fetchBlock(networkProvider)
+    vi.setSystemTime(Number(block.timestamp * 1000n))
+
+    const blocks: WatchBlocksResponse[] = []
+    const unwatch = watchBlocks(
+      networkProvider,
+      (block) => blocks.push(block),
+      { emitOnOpen: true },
+    )
+    await wait(5000)
+    unwatch()
+    expect(blocks.length).toBe(6)
+  }, 10_000)
+
   test('watches for new blocks (out of sync time)', async () => {
     const block = await fetchBlock(networkProvider)
     vi.setSystemTime(Number(block.timestamp * 1000n) + 500)

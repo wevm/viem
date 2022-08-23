@@ -13,7 +13,7 @@ export async function mine(
   { blocks, interval }: MineArgs,
 ) {
   return await provider.request({
-    method: `${provider.id}_mine`,
+    method: `${provider.key}_mine`,
     params: [numberToHex(blocks), numberToHex(interval || 0)],
   })
 }

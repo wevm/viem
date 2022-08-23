@@ -1,4 +1,0 @@
-{
-  "main": "dist/viem-actions-account.cjs.js",
-  "module": "dist/viem-actions-account.esm.js"
-}

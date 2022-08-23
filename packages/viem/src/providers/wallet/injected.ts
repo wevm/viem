@@ -5,8 +5,8 @@ import { WalletProvider, createWalletProvider } from './createWalletProvider'
 export type InjectedProviderConfig = {
   /** Chains that the provider should be aware of. */
   chains: Chain[]
-  /** A identifier for the provider. */
-  id?: string
+  /** A key for the provider. */
+  key?: string
   /** A name for the provider. */
   name?: string
 }
@@ -25,7 +25,7 @@ export type InjectedProviderReturnValue = InjectedProvider | null
  */
 export function injectedProvider({
   chains,
-  id = 'injected',
+  key = 'injected',
   name = 'Injected',
 }: InjectedProviderConfig): InjectedProviderReturnValue {
   if (typeof window === 'undefined') return null
@@ -33,12 +33,13 @@ export function injectedProvider({
 
   return createWalletProvider({
     chains,
-    id,
+    key,
     name,
     on: window.ethereum!.on.bind(window.ethereum!),
     removeListener: window.ethereum!.removeListener.bind(window.ethereum!),
     request: <InjectedProviderRequestFn>(
       window.ethereum!.request.bind(window.ethereum!)
     ),
+    uniqueId: key,
   })
 }

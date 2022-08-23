@@ -95,11 +95,12 @@ describe('http provider', () => {
             },
           },
         ],
-        "id": "alchemy-http",
+        "key": "alchemy",
         "name": "Alchemy",
         "request": [Function],
         "transportMode": "http",
         "type": "networkProvider",
+        "uniqueId": "alchemy.1.http",
       }
     `)
   })
@@ -214,11 +215,12 @@ describe('web socket provider', () => {
           },
         ],
         "getSocket": [Function],
-        "id": "alchemy-webSocket",
+        "key": "alchemy",
         "name": "Alchemy",
         "request": [Function],
         "transportMode": "webSocket",
         "type": "networkProvider",
+        "uniqueId": "alchemy.1.webSocket",
       }
     `)
   })

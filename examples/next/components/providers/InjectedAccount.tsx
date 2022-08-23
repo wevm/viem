@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { requestAccountAddresses } from 'viem/actions/wallet'
+import { requestAccountAddresses } from 'viem/actions'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 import {
   AccountProvider,

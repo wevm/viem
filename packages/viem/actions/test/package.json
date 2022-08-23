@@ -1,0 +1,4 @@
+{
+  "main": "dist/viem-actions-test.cjs.js",
+  "module": "dist/viem-actions-test.esm.js"
+}

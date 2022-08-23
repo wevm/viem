@@ -5,10 +5,9 @@ import * as actions from './index'
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
-      "fetchBalance": [Function],
       "fetchBlock": [Function],
       "fetchBlockNumber": [Function],
-      "fetchTransaction": [Function],
+      "watchBlocks": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }
   `)

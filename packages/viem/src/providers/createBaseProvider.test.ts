@@ -7,10 +7,11 @@ import { createBaseProvider } from './createBaseProvider'
 test('creates', () => {
   const provider = createBaseProvider({
     chains: [local],
-    id: 'base',
+    key: 'base',
     name: 'Base',
     request: <any>(async () => null),
     type: 'baseProvider',
+    uniqueId: 'base',
   })
 
   expect(provider).toMatchInlineSnapshot(`
@@ -32,10 +33,11 @@ test('creates', () => {
           },
         },
       ],
-      "id": "base",
+      "key": "base",
       "name": "Base",
       "request": [Function],
       "type": "baseProvider",
+      "uniqueId": "base",
     }
   `)
 })

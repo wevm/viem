@@ -1,7 +1,6 @@
 import { AccountProvider } from '../../providers'
 import { TransactionRequest as TransactionRequestRpc } from '../../types/ethereum-provider'
 import { BaseError, numberToHex } from '../../utils'
-import { InvalidProviderError } from '../errors'
 
 export type TransactionRequest = TransactionRequestRpc<bigint>
 
@@ -15,12 +14,6 @@ export async function sendTransaction(
   provider: AccountProvider,
   { request }: SendTransactionArgs,
 ): Promise<SendTransactionResponse> {
-  if (provider.type !== 'accountProvider')
-    throw new InvalidProviderError({
-      givenProvider: provider.type,
-      expectedProvider: 'accountProvider',
-    })
-
   if (
     request.maxFeePerGas !== undefined &&
     request.maxPriorityFeePerGas !== undefined &&

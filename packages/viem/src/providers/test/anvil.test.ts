@@ -36,10 +36,11 @@ test('creates', async () => {
           },
         },
       ],
-      "id": "anvil",
+      "key": "anvil",
       "name": "Anvil",
       "request": [Function],
       "type": "testProvider",
+      "uniqueId": "anvil.1337",
     }
   `)
 })

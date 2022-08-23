@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { requestAccountAddresses } from 'viem/actions/wallet'
+import { requestAccountAddresses } from 'viem/actions'
 import { InjectedProvider } from 'viem/providers'
 
 export function RequestAccountAddresses({

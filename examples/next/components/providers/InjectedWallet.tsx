@@ -6,6 +6,8 @@ import { FetchBalance } from '../actions/FetchBalance'
 import { FetchBlock } from '../actions/FetchBlock'
 import { FetchBlockNumber } from '../actions/FetchBlockNumber'
 import { RequestAccountAddresses } from '../actions/RequestAccountAddresses'
+import { FetchTransaction } from '../actions/FetchTransaction'
+import { WatchBlocks } from '../actions/WatchBlocks'
 
 const provider = injectedProvider({
   chains: [arbitrum, goerli, mainnet, optimism, polygon],
@@ -36,6 +38,14 @@ export function InjectedWallet() {
       <hr />
       <h3>fetchBlockNumber</h3>
       <FetchBlockNumber provider={provider} />
+      <br />
+      <hr />
+      <h3>fetchTransaction</h3>
+      <FetchTransaction provider={provider} />
+      <br />
+      <hr />
+      <h3>watchBlocks</h3>
+      <WatchBlocks provider={provider} />
     </div>
   )
 }

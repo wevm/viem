@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchBalance } from 'viem/actions/public'
+import { fetchBalance } from 'viem/actions'
 import { NetworkProvider, WalletProvider } from 'viem/providers'
 
 export function FetchBalance({

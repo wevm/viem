@@ -15,7 +15,7 @@ export function anvilProvider<TChain extends Chain>({
 }: AnvilProviderConfig<TChain>): AnvilProvider<TChain> {
   return createTestProvider({
     chain,
-    id: 'anvil',
+    key: 'anvil',
     name: 'Anvil',
     url,
   })

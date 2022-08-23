@@ -7,7 +7,7 @@ import { createTestProvider } from './createTestProvider'
 test('creates', () => {
   const provider = createTestProvider({
     chain: local,
-    id: 'anvil',
+    key: 'anvil',
     name: 'Anvil',
   })
 
@@ -39,10 +39,11 @@ test('creates', () => {
           },
         },
       ],
-      "id": "anvil",
+      "key": "anvil",
       "name": "Anvil",
       "request": [Function],
       "type": "testProvider",
+      "uniqueId": "anvil.1337",
     }
   `)
 })
@@ -50,7 +51,7 @@ test('creates', () => {
 test('creates with custom url', () => {
   const provider = createTestProvider({
     chain: local,
-    id: 'anvil',
+    key: 'anvil',
     name: 'Anvil',
     url: 'http://localhost:1337',
   })
@@ -83,10 +84,11 @@ test('creates with custom url', () => {
           },
         },
       ],
-      "id": "anvil",
+      "key": "anvil",
       "name": "Anvil",
       "request": [Function],
       "type": "testProvider",
+      "uniqueId": "anvil.1337",
     }
   `)
 })
@@ -95,7 +97,7 @@ test('errors if no url found', () => {
   expect(() =>
     createTestProvider({
       chain: { ...local, rpcUrls: { default: { http: '' } } },
-      id: 'anvil',
+      key: 'anvil',
       name: 'Anvil',
     }),
   ).toThrowError('url is required')
