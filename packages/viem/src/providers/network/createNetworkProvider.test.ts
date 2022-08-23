@@ -49,6 +49,7 @@ test('creates', () => {
       ],
       "key": "network",
       "name": "Network",
+      "pollingInterval": 4000,
       "request": [Function],
       "transportMode": "http",
       "type": "networkProvider",

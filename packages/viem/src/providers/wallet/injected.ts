@@ -9,6 +9,8 @@ export type InjectedProviderConfig = {
   key?: string
   /** A name for the provider. */
   name?: string
+  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  pollingInterval?: number
 }
 
 export type InjectedProviderRequestFn = (PublicRequests &
@@ -27,6 +29,7 @@ export function injectedProvider({
   chains,
   key = 'injected',
   name = 'Injected',
+  pollingInterval,
 }: InjectedProviderConfig): InjectedProviderReturnValue {
   if (typeof window === 'undefined') return null
   if (typeof window.ethereum === 'undefined') return null
@@ -36,6 +39,7 @@ export function injectedProvider({
     key,
     name,
     on: window.ethereum!.on.bind(window.ethereum!),
+    pollingInterval,
     removeListener: window.ethereum!.removeListener.bind(window.ethereum!),
     request: <InjectedProviderRequestFn>(
       window.ethereum!.request.bind(window.ethereum!)

@@ -46,6 +46,7 @@ test('creates', async () => {
       "getSocket": [Function],
       "key": "webSocket",
       "name": "WebSocket JSON-RPC",
+      "pollingInterval": 4000,
       "request": [Function],
       "transportMode": "webSocket",
       "type": "networkProvider",

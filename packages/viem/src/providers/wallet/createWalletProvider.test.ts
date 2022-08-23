@@ -36,6 +36,7 @@ test('creates', () => {
       "key": "wallet",
       "name": "Wallet",
       "on": [Function],
+      "pollingInterval": 4000,
       "removeListener": [Function],
       "request": [Function],
       "type": "walletProvider",

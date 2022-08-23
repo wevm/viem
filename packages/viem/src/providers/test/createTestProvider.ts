@@ -15,6 +15,8 @@ export type TestProviderConfig<
   key: TKey
   /** A name for the provider. */
   name: string
+  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  pollingInterval?: number
   /** URL of the test node. */
   url?: string
 }
@@ -39,6 +41,7 @@ export function createTestProvider<
   chain: chain_,
   key,
   name,
+  pollingInterval,
   url = chain_.rpcUrls.local?.http,
 }: TestProviderConfig<TChain, TKey>): TestProvider<TChain, TKey> {
   if (!url) throw new Error('url is required')
@@ -54,6 +57,7 @@ export function createTestProvider<
       chains: [chain],
       key,
       name,
+      pollingInterval,
       async request({ method, params }: any) {
         const { result } = await rpc.http(url, {
           body: {

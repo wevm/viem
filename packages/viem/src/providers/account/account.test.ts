@@ -14,6 +14,7 @@ test('creates signer', async () => {
       "address": "0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
       "key": "account",
       "name": "Account 0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",
+      "pollingInterval": 4000,
       "request": [Function],
       "type": "accountProvider",
       "uniqueId": "account.external.0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac",

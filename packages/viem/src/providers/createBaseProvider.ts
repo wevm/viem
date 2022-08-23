@@ -2,6 +2,8 @@ import { Chain } from '../chains'
 import { PublicRequests } from '../types/ethereum-provider'
 import { buildRequest } from '../utils/buildRequest'
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
 export type BaseProviderRequestFn = <TMethod extends string>({
   method,
   params,
@@ -22,6 +24,8 @@ export type BaseProvider<
   key: TKey
   /** A name for the provider. */
   name: string
+  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  pollingInterval: number
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
   request: TRequestFn
   /** The type of provider. */
@@ -29,6 +33,13 @@ export type BaseProvider<
   /** A unique ID for the provider. */
   uniqueId: string
 }
+
+export type BaseProviderConfig<
+  TChain extends Chain = Chain,
+  TRequestFn extends BaseProviderRequestFn = PublicRequests['request'],
+  TKey extends string = string,
+  TType extends string = string,
+> = PartialBy<BaseProvider<TChain, TRequestFn, TKey, TType>, 'pollingInterval'>
 
 /**
  * @description Creates a base provider with configured chains & a request function. Intended
@@ -48,10 +59,11 @@ export function createBaseProvider<
   chains,
   key,
   name,
+  pollingInterval = 4_000,
   request,
   type,
   uniqueId,
-}: BaseProvider<TChain, TRequestFn, TKey, TType>): BaseProvider<
+}: BaseProviderConfig<TChain, TRequestFn, TKey, TType>): BaseProvider<
   TChain,
   TRequestFn,
   TKey,
@@ -61,6 +73,7 @@ export function createBaseProvider<
     chains,
     key,
     name,
+    pollingInterval,
     request: buildRequest(request),
     type,
     uniqueId,

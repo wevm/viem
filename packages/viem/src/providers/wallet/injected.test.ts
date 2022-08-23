@@ -47,6 +47,7 @@ test('creates', async () => {
                 "url": "https://etherscan.io",
               },
             },
+            "blockTime": 12000,
             "ens": {
               "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
             },
@@ -119,6 +120,7 @@ test('creates', async () => {
         "key": "injected",
         "name": "Injected",
         "on": [Function],
+        "pollingInterval": 4000,
         "removeListener": [Function],
         "request": [Function],
         "type": "walletProvider",

@@ -2,6 +2,7 @@ import { Chain } from '../../chains'
 import { Events } from '../../types/ethereum-provider'
 import {
   BaseProvider,
+  BaseProviderConfig,
   BaseProviderRequestFn,
   createBaseProvider,
 } from '../createBaseProvider'
@@ -10,7 +11,7 @@ export type WalletProviderConfig<
   TChain extends Chain = Chain,
   TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
   TKey extends string = string,
-> = Omit<BaseProvider<TChain, TRequestFn, TKey>, 'type'> & {
+> = Omit<BaseProviderConfig<TChain, TRequestFn, TKey>, 'type'> & {
   /** Event listener callback that matches the EIP-1193 events spec. */
   on: Events['on']
   /** Event listener callback that matches the EIP-1193 events spec. */
@@ -21,7 +22,11 @@ export type WalletProvider<
   TChain extends Chain = Chain,
   TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
   TKey extends string = string,
-> = WalletProviderConfig<TChain, TRequestFn, TKey> & {
+> = BaseProvider<TChain, TRequestFn, TKey> & {
+  /** Event listener callback that matches the EIP-1193 events spec. */
+  on: Events['on']
+  /** Event listener callback that matches the EIP-1193 events spec. */
+  removeListener: Events['removeListener']
   type: 'walletProvider'
 }
 
@@ -39,6 +44,7 @@ export function createWalletProvider<
   key,
   name,
   on,
+  pollingInterval,
   removeListener,
   request,
   uniqueId,
@@ -51,6 +57,7 @@ export function createWalletProvider<
     chains,
     key,
     name,
+    pollingInterval,
     request,
     type: 'walletProvider',
     uniqueId,

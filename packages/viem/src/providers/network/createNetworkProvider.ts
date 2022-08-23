@@ -1,10 +1,14 @@
 import { Chain } from '../../chains'
-import { BaseProvider, createBaseProvider } from '../createBaseProvider'
+import {
+  BaseProvider,
+  BaseProviderConfig,
+  createBaseProvider,
+} from '../createBaseProvider'
 
 export type TransportMode = 'http' | 'webSocket'
 
 export type NetworkProviderConfig<TChain extends Chain = Chain> = Omit<
-  BaseProvider<TChain>,
+  BaseProviderConfig<TChain>,
   'chains' | 'type' | 'uniqueId'
 > & {
   /** The chain that the provider should connect to. */
@@ -29,6 +33,7 @@ export function createNetworkProvider<TChain extends Chain>({
   chain,
   key,
   name,
+  pollingInterval,
   request,
   transportMode,
 }: NetworkProviderConfig<TChain>): NetworkProvider<TChain> {
@@ -37,6 +42,7 @@ export function createNetworkProvider<TChain extends Chain>({
       chains: [chain],
       key,
       name,
+      pollingInterval,
       request,
       type: 'networkProvider',
       uniqueId: `${key}.${chain.id}.${transportMode}`,

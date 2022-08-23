@@ -25,6 +25,7 @@ test('creates', () => {
               "url": "https://etherscan.io",
             },
           },
+          "blockTime": 12000,
           "ens": {
             "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
           },
@@ -97,6 +98,7 @@ test('creates', () => {
       "key": "external",
       "name": "External",
       "on": [Function],
+      "pollingInterval": 4000,
       "removeListener": [Function],
       "request": [Function],
       "type": "walletProvider",

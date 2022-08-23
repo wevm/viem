@@ -154,6 +154,7 @@ test('exports chains', () => {
             "url": "https://etherscan.io",
           },
         },
+        "blockTime": 12000,
         "ens": {
           "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
         },

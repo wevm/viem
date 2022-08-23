@@ -15,6 +15,8 @@ export type Chain = {
   name: string
   /** Internal network name */
   network: string
+  /** Block time (in ms) of the network. */
+  blockTime?: number
   /** Currency used by chain */
   nativeCurrency?: {
     name: string
@@ -95,6 +97,7 @@ export const mainnet = createChain({
   network: 'mainnet',
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  blockTime: 12_000,
   rpcUrls: {
     alchemy: {
       http: 'https://eth-mainnet.alchemyapi.io/v2',

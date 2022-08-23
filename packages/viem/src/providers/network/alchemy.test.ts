@@ -22,6 +22,7 @@ describe('http provider', () => {
               "url": "https://etherscan.io",
             },
           },
+          "blockTime": 12000,
           "ens": {
             "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
           },
@@ -64,6 +65,7 @@ describe('http provider', () => {
                 "url": "https://etherscan.io",
               },
             },
+            "blockTime": 12000,
             "ens": {
               "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
             },
@@ -97,6 +99,7 @@ describe('http provider', () => {
         ],
         "key": "alchemy",
         "name": "Alchemy",
+        "pollingInterval": 4000,
         "request": [Function],
         "transportMode": "http",
         "type": "networkProvider",
@@ -141,6 +144,7 @@ describe('web socket provider', () => {
               "url": "https://etherscan.io",
             },
           },
+          "blockTime": 12000,
           "ens": {
             "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
           },
@@ -183,6 +187,7 @@ describe('web socket provider', () => {
                 "url": "https://etherscan.io",
               },
             },
+            "blockTime": 12000,
             "ens": {
               "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
             },
@@ -217,6 +222,7 @@ describe('web socket provider', () => {
         "getSocket": [Function],
         "key": "alchemy",
         "name": "Alchemy",
+        "pollingInterval": 4000,
         "request": [Function],
         "transportMode": "webSocket",
         "type": "networkProvider",

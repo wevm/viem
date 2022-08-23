@@ -15,6 +15,8 @@ export type AlchemyProviderConfig = {
    * the chains that Alchemy supports can be provided.
    */
   chain: AlchemyChain
+  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  pollingInterval?: number
 }
 
 export type AlchemyHttpProvider = HttpProvider<AlchemyChain>
@@ -26,11 +28,13 @@ const defaultAlchemyApiKey = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC'
 export function alchemyHttpProvider({
   apiKey = defaultAlchemyApiKey,
   chain,
+  pollingInterval,
 }: AlchemyProviderConfig): AlchemyHttpProvider {
   return httpProvider({
     chain,
     key: 'alchemy',
     name: 'Alchemy',
+    pollingInterval,
     url: `${chain.rpcUrls.alchemy?.http}/${apiKey}`,
   })
 }
@@ -39,11 +43,13 @@ export function alchemyHttpProvider({
 export function alchemyWebSocketProvider({
   apiKey = defaultAlchemyApiKey,
   chain,
+  pollingInterval,
 }: AlchemyProviderConfig): AlchemyWebSocketProvider {
   return webSocketProvider({
     chain,
     key: 'alchemy',
     name: 'Alchemy',
+    pollingInterval,
     url: `${chain.rpcUrls.alchemy?.webSocket}/${apiKey}`,
   })
 }

@@ -18,6 +18,8 @@ export type AccountProviderConfig = {
   address: string
   /** An key for the account provider */
   key?: string
+  /** Polling frequency. */
+  pollingInterval?: number
   /** A name for the account provider */
   name?: string
 }
@@ -32,6 +34,7 @@ export function accountProvider(
   {
     address,
     key = 'account',
+    pollingInterval = 4_000,
     name = `Account ${address}`,
   }: AccountProviderConfig,
 ): AccountProvider {
@@ -39,6 +42,7 @@ export function accountProvider(
     address,
     key,
     name,
+    pollingInterval,
     request: <any>provider.request,
     type: 'accountProvider',
     uniqueId: `${key}.${provider.uniqueId}.${address}`,

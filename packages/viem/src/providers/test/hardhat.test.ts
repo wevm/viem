@@ -38,6 +38,7 @@ test('creates', async () => {
       ],
       "key": "hardhat",
       "name": "Hardhat",
+      "pollingInterval": 4000,
       "request": [Function],
       "type": "testProvider",
       "uniqueId": "hardhat.1337",

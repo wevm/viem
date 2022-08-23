@@ -38,6 +38,7 @@ test('creates', async () => {
       ],
       "key": "anvil",
       "name": "Anvil",
+      "pollingInterval": 4000,
       "request": [Function],
       "type": "testProvider",
       "uniqueId": "anvil.1337",

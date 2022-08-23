@@ -14,6 +14,8 @@ export type WebSocketProviderConfig<TChain extends Chain = Chain> = {
   key?: string
   /** A name for the provider. Defaults to "WebSocket JSON-RPC" */
   name?: string
+  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  pollingInterval?: number
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string
 }
@@ -25,6 +27,7 @@ export function webSocketProvider<TChain extends Chain = Chain>({
   chain,
   key = 'webSocket',
   name = 'WebSocket JSON-RPC',
+  pollingInterval,
   url = chain.rpcUrls.default.webSocket,
 }: WebSocketProviderConfig<TChain>): WebSocketProvider<TChain> {
   if (!url) throw new Error('url is required')
@@ -33,6 +36,7 @@ export function webSocketProvider<TChain extends Chain = Chain>({
     chain,
     key,
     name,
+    pollingInterval,
     async request({ method, params }: any) {
       const socket = await getSocket(url)
       const { result } = await new Promise<any>((resolve, reject) =>

@@ -45,6 +45,7 @@ test('creates', async () => {
       ],
       "key": "http",
       "name": "HTTP JSON-RPC",
+      "pollingInterval": 4000,
       "request": [Function],
       "transportMode": "http",
       "type": "networkProvider",

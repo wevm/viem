@@ -35,6 +35,7 @@ test('creates', () => {
       ],
       "key": "base",
       "name": "Base",
+      "pollingInterval": 4000,
       "request": [Function],
       "type": "baseProvider",
       "uniqueId": "base",

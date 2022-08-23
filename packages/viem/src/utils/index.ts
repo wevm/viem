@@ -3,8 +3,6 @@ export type { Address } from './address'
 
 export { BaseError } from './BaseError'
 
-export { blockTime } from './block'
-
 export {
   buildRequest,
   InternalRpcError,
