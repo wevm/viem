@@ -111,7 +111,7 @@ export type BlockIdentifier = {
     }
 )
 export type BlockNumber = Quantity
-export type BlockTag = 'latest' | 'earliest' | 'pending'
+export type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
 
 export type Data = `0x${string}`
 
@@ -641,7 +641,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getBlockByNumber'
     params: [
-      /** block number, or one of "latest", "earliest" or "pending" */
+      /** block number, or one of "latest", "safe", "finalized", "earliest" or "pending" */
       block: BlockNumber | BlockTag,
       /** true will pull full transaction objects, false will pull transaction hashes */
       includeTransactionObjects: boolean,
