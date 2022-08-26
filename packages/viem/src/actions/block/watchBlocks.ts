@@ -1,9 +1,12 @@
 import { NetworkProvider, WalletProvider } from '../../providers'
+import { BlockTag } from '../../types/ethereum-provider'
 import { subscribe } from '../../utils/subscribe'
 import { wait } from '../../utils/wait'
 import { FetchBlockResponse, fetchBlock } from './fetchBlock'
 
 export type WatchBlocksArgs = {
+  /** The block tag. Defaults to "latest". */
+  blockTag?: BlockTag
   /** Whether or not to emit the latest block to the callback when the subscription opens. */
   emitOnOpen?: boolean
   /** Whether or not to include transaction data in the response. */
@@ -18,6 +21,7 @@ export function watchBlocks(
   provider: NetworkProvider | WalletProvider,
   callback: WatchBlocksCallback,
   {
+    blockTag = 'latest',
     emitOnOpen = false,
     includeTransactions = false,
     pollingInterval: pollingInterval_,
@@ -27,12 +31,8 @@ export function watchBlocks(
     provider.type === 'networkProvider' ? provider.chain.blockTime : undefined
   const pollingInterval =
     pollingInterval_ ?? (blockTime || provider.pollingInterval)
-  // if (
-  //   provider.type === 'networkProvider' &&
-  //   provider.transportMode === 'webSocket'
-  // )
-  //   return subscribeBlocks()
   return pollBlocks(provider, callback, {
+    blockTag,
     emitOnOpen,
     includeTransactions,
     pollingInterval,
@@ -46,6 +46,7 @@ function pollBlocks(
   provider: NetworkProvider | WalletProvider,
   callback: WatchBlocksCallback,
   {
+    blockTag,
     emitOnOpen,
     includeTransactions,
     pollingInterval,
@@ -60,7 +61,7 @@ function pollBlocks(
 
     const fetchBlock_ = () => {
       return fetchBlock(provider, {
-        blockTag: 'latest',
+        blockTag,
         includeTransactions,
       })
     }
