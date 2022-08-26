@@ -1,11 +1,29 @@
 import { Chain } from '../../chains'
-import { getSocket, rpc } from '../../utils/rpc'
+import { Data } from '../../types/ethereum-provider'
+import { RpcResponse, getSocket, rpc } from '../../utils/rpc'
 import { NetworkProvider, createNetworkProvider } from './createNetworkProvider'
 
-export type WebSocketProvider<TChain extends Chain = Chain> =
-  NetworkProvider<TChain> & {
-    getSocket(): Promise<WebSocket>
-  }
+type WebSocketProviderSubscribeArgs = {
+  onData: (data: RpcResponse) => void
+  onError?: (error: any) => void
+}
+
+type WebSocketProviderSubscribeResponse = {
+  subscriptionId: Data
+  unsubscribe: () => Promise<RpcResponse<boolean>>
+}
+
+type WebSocketProviderSubscribe = {
+  subscribe(
+    args: WebSocketProviderSubscribeArgs & {
+      /**
+       * @description Add information about compiled contracts
+       * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
+       */
+      params: ['newHeads']
+    },
+  ): Promise<WebSocketProviderSubscribeResponse>
+}
 
 export type WebSocketProviderConfig<TChain extends Chain = Chain> = {
   /** The chain that the provider should connect to. */
@@ -19,6 +37,12 @@ export type WebSocketProviderConfig<TChain extends Chain = Chain> = {
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string
 }
+
+export type WebSocketProvider<TChain extends Chain = Chain> =
+  NetworkProvider<TChain> & {
+    getSocket(): Promise<WebSocket>
+    subscribe: WebSocketProviderSubscribe['subscribe']
+  }
 
 /**
  * @description Connects to a WebSocket JSON-RPC API via a URL.
@@ -56,6 +80,46 @@ export function webSocketProvider<TChain extends Chain = Chain>({
 
   return {
     ...provider,
-    getSocket: () => getSocket(url),
+    getSocket() {
+      return getSocket(url)
+    },
+    async subscribe({ params, onData, onError }: any) {
+      const socket = await getSocket(url)
+      const { result: subscriptionId } = await new Promise<any>(
+        (resolve, reject) =>
+          rpc.webSocket(socket, {
+            body: {
+              method: 'eth_subscribe',
+              params,
+            },
+            onData: (data) => {
+              if (typeof data.id === 'number') {
+                resolve(data)
+                return
+              }
+              onData(data)
+            },
+            onError: (error) => {
+              reject(error)
+              onError?.(error)
+            },
+          }),
+      )
+      return {
+        subscriptionId,
+        async unsubscribe() {
+          return new Promise<any>((resolve, reject) =>
+            rpc.webSocket(socket, {
+              body: {
+                method: 'eth_unsubscribe',
+                params: [subscriptionId],
+              },
+              onData: resolve,
+              onError: reject,
+            }),
+          )
+        },
+      }
+    },
   }
 }

@@ -224,6 +224,7 @@ describe('web socket provider', () => {
         "name": "Alchemy",
         "pollingInterval": 4000,
         "request": [Function],
+        "subscribe": [Function],
         "transportMode": "webSocket",
         "type": "networkProvider",
         "uniqueId": "alchemy.1.webSocket",

@@ -1,14 +1,14 @@
 let id = 0
 
-type RpcResponse = {
+export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
   id: number
 } & (
   | {
-      result: any
+      result: TResult
       error?: never
     }
-  | { result?: never; error: any }
+  | { result?: never; error: TError }
 )
 
 ///////////////////////////////////////////////////
@@ -36,7 +36,7 @@ async function http(
 ///////////////////////////////////////////////////
 // WebSocket
 
-const sockets = new Map()
+const sockets = new Map<string, WebSocket>()
 
 export async function getSocket(url: string) {
   let socket = sockets.get(url)
