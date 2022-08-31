@@ -6,6 +6,7 @@ import { FetchBlock } from '../actions/FetchBlock'
 import { FetchBlockNumber } from '../actions/FetchBlockNumber'
 import { FetchTransaction } from '../actions/FetchTransaction'
 import { WatchBlocks } from '../actions/WatchBlocks'
+import { WatchBlockNumber } from '../actions/WatchBlockNumber'
 
 const providers = {
   mainnet: alchemyHttpProvider({ chain: mainnet }),
@@ -69,6 +70,17 @@ export function AlchemyNetwork() {
           <div key={chain}>
             <strong>{chain}</strong>
             <WatchBlocks provider={provider} />
+          </div>
+        ))}
+      </div>
+      <br />
+      <hr />
+      <h3>watchBlockNumber</h3>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 48 }}>
+        {Object.entries(providers).map(([chain, provider]) => (
+          <div key={chain}>
+            <strong>{chain}</strong>
+            <WatchBlockNumber provider={provider} />
           </div>
         ))}
       </div>

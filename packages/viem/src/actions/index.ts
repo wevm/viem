@@ -1,11 +1,19 @@
 export { fetchBalance, requestAccountAddresses } from './account'
 export type { FetchBalanceArgs, FetchBalanceResponse } from './account'
 
-export { fetchBlock, fetchBlockNumber, watchBlocks } from './block'
+export {
+  fetchBlock,
+  fetchBlockNumber,
+  watchBlockNumber,
+  watchBlocks,
+} from './block'
 export type {
   FetchBlockArgs,
   FetchBlockNumberResponse,
   FetchBlockResponse,
+  WatchBlockNumberArgs,
+  WatchBlockNumberCallback,
+  WatchBlockNumberResponse,
   WatchBlocksArgs,
   WatchBlocksCallback,
   WatchBlocksResponse,

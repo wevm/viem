@@ -4,6 +4,7 @@ import 'viem/window'
 import { AlchemyNetwork } from '../components/providers/AlchemyNetwork'
 import { InjectedAccount } from '../components/providers/InjectedAccount'
 import { InjectedWallet } from '../components/providers/InjectedWallet'
+import { WalletConnectAccount } from '../components/providers/WalletConnectAccount'
 
 export default function Index() {
   const [provider, setProvider] = useState('alchemy-network')
@@ -41,10 +42,23 @@ export default function Index() {
           />
           <label htmlFor="injected-account">Account: injectedProvider</label>
         </div>
+        <div>
+          <input
+            type="radio"
+            id="wc-account"
+            name="provider"
+            onChange={() => setProvider('wc-account')}
+            checked={provider === 'wc-account'}
+          />
+          <label htmlFor="wc-account">
+            Account: externalProvider (Wallet Connect)
+          </label>
+        </div>
       </div>
       {provider === 'alchemy-network' && <AlchemyNetwork />}
       {provider === 'injected-wallet' && <InjectedWallet />}
       {provider === 'injected-account' && <InjectedAccount />}
+      {provider === 'wc-account' && <WalletConnectAccount />}
     </div>
   )
 }

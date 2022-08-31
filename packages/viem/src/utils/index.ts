@@ -26,6 +26,11 @@ export { numberToHex } from './number'
 export { rpc } from './rpc'
 
 export {
+  deserializeTransactionResult,
+  serializeTransactionRequest,
+} from './transaction'
+
+export {
   displayToValue,
   etherToValue,
   etherUnits,
