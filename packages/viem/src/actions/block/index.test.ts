@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "fetchBlock": [Function],
       "fetchBlockNumber": [Function],
+      "watchBlockNumber": [Function],
       "watchBlocks": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }

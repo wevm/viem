@@ -22,6 +22,7 @@ test('exports utils', () => {
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
       "checksumAddress": [Function],
+      "deserializeTransactionResult": [Function],
       "displayToValue": [Function],
       "etherToValue": [Function],
       "etherUnits": {
@@ -38,6 +39,7 @@ test('exports utils', () => {
         "http": [Function],
         "webSocket": [Function],
       },
+      "serializeTransactionRequest": [Function],
       "valueAsEther": [Function],
       "valueAsGwei": [Function],
       "valueToDisplay": [Function],
