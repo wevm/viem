@@ -63,16 +63,9 @@ export function webSocketProvider<TChain extends Chain = Chain>({
     pollingInterval,
     async request({ method, params }: any) {
       const socket = await getSocket(url)
-      const { result } = await new Promise<any>((resolve, reject) =>
-        rpc.webSocket(socket, {
-          body: {
-            method,
-            params,
-          },
-          onData: resolve,
-          onError: reject,
-        }),
-      )
+      const { result } = await rpc.webSocketAsync(socket, {
+        body: { method, params },
+      })
       return result
     },
     transportMode: 'webSocket',

@@ -55,7 +55,7 @@ export async function getSocket(url: string) {
   return socket
 }
 
-async function webSocket(
+function webSocket(
   socket: WebSocket,
   {
     body,
@@ -81,9 +81,27 @@ async function webSocket(
   return socket
 }
 
+async function webSocketAsync(
+  socket: WebSocket,
+  {
+    body,
+  }: {
+    body: { method: string; params?: any[] }
+  },
+) {
+  return new Promise<any>((resolve, reject) =>
+    rpc.webSocket(socket, {
+      body,
+      onData: resolve,
+      onError: reject,
+    }),
+  )
+}
+
 ///////////////////////////////////////////////////
 
 export const rpc = {
   http,
   webSocket,
+  webSocketAsync,
 }
