@@ -5,6 +5,7 @@ import pkg from '../../package.json'
 const version = <any>process.env.TEST ? '1.0.2' : pkg.version
 
 export class BaseError extends Error {
+  humanMessage: string
   details: string
 
   constructor({
@@ -26,5 +27,6 @@ export class BaseError extends Error {
       ].join('\n'),
     )
     this.details = details
+    this.humanMessage = humanMessage
   }
 }

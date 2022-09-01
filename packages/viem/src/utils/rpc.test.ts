@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { initialBlockNumber } from '../../test/utils'
 
-import { local } from '../chains'
+import { local, mainnet } from '../chains'
 import { numberToHex } from './number'
 
 import { getSocket, rpc } from './rpc'
@@ -42,6 +42,25 @@ describe('http', () => {
         body: { method: 'eth_wagmi' },
       }),
     ).rejects.toThrowError('')
+  })
+
+  test('timeout', async () => {
+    try {
+      await rpc.http(mainnet.rpcUrls.default.http, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        timeout: 10,
+      })
+    } catch (err) {
+      expect(err).toMatchInlineSnapshot(`
+        [RequestTimeoutError: The request took too long to respond.
+
+        Details: The request timed out. Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+        Version: viem@1.0.2]
+      `)
+    }
   })
 })
 
@@ -463,5 +482,25 @@ describe('webSocketAsync', () => {
     ).rejects.toThrowError(
       'data did not match any variant of untagged enum EthRpcCall',
     )
+  })
+
+  test('timeout', async () => {
+    const socket = await getSocket(mainnet.rpcUrls.default.webSocket)
+    try {
+      await rpc.webSocketAsync(socket, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        timeout: 10,
+      })
+    } catch (err) {
+      expect(err).toMatchInlineSnapshot(`
+        [RequestTimeoutError: The request took too long to respond.
+
+        Details: The request timed out. Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+        Version: viem@1.0.2]
+      `)
+    }
   })
 })

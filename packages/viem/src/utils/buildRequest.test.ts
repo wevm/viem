@@ -1,5 +1,7 @@
 import { expect, test } from 'vitest'
 
+import { BaseError } from './BaseError'
+
 import {
   InternalRpcError,
   InvalidInputRpcError,
@@ -29,6 +31,21 @@ test('valid request', async () => {
       "ok": true,
     }
   `)
+})
+
+test('BaseError', async () => {
+  try {
+    await buildRequest(() =>
+      Promise.reject(new BaseError({ humanMessage: 'foo', details: 'bar' })),
+    )()
+  } catch (err) {
+    expect(err).toMatchInlineSnapshot(`
+      [RpcError: foo
+
+      Details: bar
+      Version: viem@1.0.2]
+    `)
+  }
 })
 
 test('ParseRpcError', async () => {

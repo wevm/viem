@@ -38,6 +38,7 @@ test('exports utils', () => {
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
+        "webSocketAsync": [Function],
       },
       "serializeTransactionRequest": [Function],
       "valueAsEther": [Function],

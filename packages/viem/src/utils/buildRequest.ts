@@ -59,12 +59,22 @@ export class RpcError extends BaseError {
   name = 'RpcError'
 
   constructor(
-    { code, message }: { code: number; message: string },
+    {
+      code,
+      details,
+      humanMessage: humanMessage_,
+      message,
+    }: {
+      code: number
+      details?: string
+      humanMessage?: string
+      message: string
+    },
     { docsLink, humanMessage }: { docsLink?: string; humanMessage: string },
   ) {
     super({
-      humanMessage,
-      details: message,
+      humanMessage: humanMessage_ || humanMessage,
+      details: details || message,
       docsLink,
     })
     this.code = code
