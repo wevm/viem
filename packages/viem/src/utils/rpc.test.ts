@@ -7,6 +7,16 @@ import { numberToHex } from './number'
 
 import { getSocket, rpc } from './rpc'
 
+test('rpc', () => {
+  expect(rpc).toMatchInlineSnapshot(`
+    {
+      "http": [Function],
+      "webSocket": [Function],
+      "webSocketAsync": [Function],
+    }
+  `)
+})
+
 describe('http', () => {
   test('valid request', async () => {
     expect(

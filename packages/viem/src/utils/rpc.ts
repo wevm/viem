@@ -1,4 +1,5 @@
 import { BaseError } from './BaseError'
+import { withTimeout } from './promise/withTimeout'
 
 let id = 0
 
@@ -34,32 +35,26 @@ async function http(
     timeout = 0,
   }: { body: { method: string; params?: any[] }; timeout?: number },
 ) {
-  try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), timeout)
+  return withTimeout(
+    async ({ signal }) => {
+      const response: RpcResponse = await (
+        await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }),
+          signal: timeout > 0 ? signal : undefined,
+        })
+      ).json()
 
-    const response: RpcResponse = await (
-      await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }),
-        signal: timeout > 0 ? controller.signal : undefined,
-      })
-    ).json()
-
-    clearTimeout(timeoutId)
-
-    if (response.error) {
-      throw response.error
-    }
-    return response
-  } catch (err) {
-    if ((<Error>err).name === 'AbortError')
-      throw new RequestTimeoutError({ body })
-    throw err
-  }
+      if (response.error) {
+        throw response.error
+      }
+      return response
+    },
+    { errorInstance: new RequestTimeoutError({ body }), timeout, signal: true },
+  )
 }
 
 ///////////////////////////////////////////////////
@@ -120,25 +115,21 @@ async function webSocketAsync(
     timeout?: number
   },
 ) {
-  return new Promise<any>((resolve, reject) => {
-    let timeoutId: NodeJS.Timer
-    if (timeout > 0) {
-      timeoutId = setTimeout(() => {
-        reject(new RequestTimeoutError({ body }))
-      }, timeout)
-    }
-    return rpc.webSocket(socket, {
-      body,
-      onData: (message) => {
-        clearTimeout(timeoutId)
-        resolve(message)
-      },
-      onError: (error) => {
-        clearTimeout(timeoutId)
-        reject(error)
-      },
-    })
-  })
+  return withTimeout(
+    () =>
+      new Promise<RpcResponse>((resolve, reject) => {
+        return rpc.webSocket(socket, {
+          body,
+          onData: (message) => {
+            resolve(message)
+          },
+          onError: (error) => {
+            reject(error)
+          },
+        })
+      }),
+    { errorInstance: new RequestTimeoutError({ body }), timeout },
+  )
 }
 
 ///////////////////////////////////////////////////
