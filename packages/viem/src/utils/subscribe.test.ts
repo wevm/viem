@@ -72,6 +72,8 @@ test('cleans up listeners correctly', async () => {
 
   const emitter = vi.fn(({ emit }) => {
     setTimeout(() => emit({ foo: 'bar' }), 100)
+    setTimeout(() => emit({ foo: 'bar' }), 200)
+    setTimeout(() => emit({ foo: 'bar' }), 300)
     return () => {
       //
     }
@@ -80,16 +82,25 @@ test('cleans up listeners correctly', async () => {
   const unwatch1 = subscribe(id, callback1)(emitter)
   const unwatch2 = subscribe(id, callback2)(emitter)
   const unwatch3 = subscribe(id, callback3)(emitter)
+
   unwatch1()
-  unwatch2()
-  unwatch3()
+
+  expect(emitter).toHaveBeenCalledOnce()
 
   await wait(100)
 
   expect(emitter).toHaveBeenCalledOnce()
   expect(callback1).toHaveBeenCalledTimes(0)
-  expect(callback2).toHaveBeenCalledTimes(0)
-  expect(callback3).toHaveBeenCalledTimes(0)
+  expect(callback2).toHaveBeenCalledTimes(1)
+
+  unwatch2()
+
+  await wait(100)
+
+  expect(emitter).toHaveBeenCalledOnce()
+  expect(callback3).toHaveBeenCalledTimes(2)
+
+  unwatch3()
 })
 
 test('cleans up emit function correctly', async () => {
@@ -99,18 +110,37 @@ test('cleans up emit function correctly', async () => {
   let active = true
   const emitter = vi.fn(({ emit }) => {
     setTimeout(() => emit({ foo: 'bar' }), 100)
+    setTimeout(() => emit({ foo: 'bar' }), 200)
+    setTimeout(() => emit({ foo: 'bar' }), 300)
     return () => {
       active = false
     }
   })
 
-  const unwatch = subscribe(id, callback)(emitter)
+  const unwatch1 = subscribe(id, callback)(emitter)
+  const unwatch2 = subscribe(id, callback)(emitter)
+  const unwatch3 = subscribe(id, callback)(emitter)
 
   await wait(100)
-
-  expect(emitter).toHaveBeenCalledOnce()
+  expect(emitter).toHaveBeenCalledTimes(1)
   expect(callback).toHaveBeenNthCalledWith(1, { foo: 'bar' })
   expect(active).toBe(true)
-  unwatch()
+
+  unwatch1()
+
+  await wait(100)
+  expect(emitter).toHaveBeenCalledTimes(1)
+  expect(callback).toHaveBeenNthCalledWith(1, { foo: 'bar' })
+  expect(active).toBe(true)
+
+  unwatch2()
+
+  await wait(100)
+  expect(emitter).toHaveBeenCalledTimes(1)
+  expect(callback).toHaveBeenNthCalledWith(1, { foo: 'bar' })
+  expect(active).toBe(true)
+
+  unwatch3()
+
   expect(active).toBe(false)
 })
