@@ -13,6 +13,7 @@ test('creates', async () => {
   expect(provider).toMatchInlineSnapshot(`
     {
       "chain": {
+        "blockTime": 1000,
         "id": 1337,
         "name": "Localhost",
         "network": "localhost",
@@ -29,6 +30,7 @@ test('creates', async () => {
       },
       "chains": [
         {
+          "blockTime": 1000,
           "id": 1337,
           "name": "Localhost",
           "network": "localhost",

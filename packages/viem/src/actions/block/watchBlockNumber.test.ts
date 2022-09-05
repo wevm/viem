@@ -17,7 +17,7 @@ test('watches for new block numbers', async () => {
   )
   await wait(5000)
   unwatch()
-  expect(blockNumbers.length).toBe(5)
+  expect(blockNumbers.length).toBe(4)
 }, 10_000)
 
 describe('walletProvider', () => {
@@ -30,12 +30,12 @@ describe('walletProvider', () => {
     )
     await wait(5000)
     unwatch()
-    expect(blockNumbers.length).toBe(5)
+    expect(blockNumbers.length).toBe(4)
   }, 10_000)
 })
 
 describe('emitOnOpen', () => {
-  test('watches for new blocks', async () => {
+  test('watches for new block numbers', async () => {
     const blockNumbers: WatchBlockNumberResponse[] = []
     const unwatch = watchBlockNumber(
       networkProvider,
@@ -47,7 +47,7 @@ describe('emitOnOpen', () => {
     )
     await wait(5000)
     unwatch()
-    expect(blockNumbers.length).toBe(6)
+    expect(blockNumbers.length).toBe(5)
   }, 10_000)
 })
 
@@ -63,14 +63,14 @@ describe('blockTime on chain', () => {
     )
     await wait(2000)
     unwatch()
-    expect(blockNumbers.length).toBe(10)
+    expect(blockNumbers.length).toBe(9)
   }, 10_000)
 })
 
 describe('pollingInterval on provider', () => {
-  test('watches for new blocks', async () => {
+  test('watches for new block numbers', async () => {
     const provider = httpProvider({
-      chain: local,
+      chain: { ...local, blockTime: undefined },
       pollingInterval: 500,
     })
 
@@ -80,23 +80,11 @@ describe('pollingInterval on provider', () => {
     )
     await wait(2000)
     unwatch()
-    expect(blockNumbers.length).toBe(4)
+    expect(blockNumbers.length).toBe(3)
   }, 10_000)
 })
 
 describe('behavior', () => {
-  test('watches for new blocks (out of sync time)', async () => {
-    const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(
-      networkProvider,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
-    )
-    await wait(5000)
-    unwatch()
-    expect(blockNumbers.length).toBe(5)
-  }, 10_000)
-
   test('watch > unwatch > watch', async () => {
     let blockNumbers: WatchBlockNumberResponse[] = []
     let unwatch = watchBlockNumber(
@@ -106,7 +94,7 @@ describe('behavior', () => {
     )
     await wait(3000)
     unwatch()
-    expect(blockNumbers.length).toBe(3)
+    expect(blockNumbers.length).toBe(2)
 
     blockNumbers = []
     unwatch = watchBlockNumber(
@@ -116,7 +104,7 @@ describe('behavior', () => {
     )
     await wait(3000)
     unwatch()
-    expect(blockNumbers.length).toBe(3)
+    expect(blockNumbers.length).toBe(2)
   }, 10_000)
 
   test('multiple watchers', async () => {
@@ -141,7 +129,7 @@ describe('behavior', () => {
     unwatch1()
     unwatch2()
     unwatch3()
-    expect(blockNumbers.length).toBe(9)
+    expect(blockNumbers.length).toBe(6)
 
     blockNumbers = []
 
@@ -164,7 +152,7 @@ describe('behavior', () => {
     unwatch1()
     unwatch2()
     unwatch3()
-    expect(blockNumbers.length).toBe(9)
+    expect(blockNumbers.length).toBe(6)
   }, 10_000)
 
   test('immediately unwatch', async () => {

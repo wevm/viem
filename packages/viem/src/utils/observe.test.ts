@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
-import { subscribe } from './subscribe'
+import { observe } from './observe'
 import { wait } from './wait'
 
 test('emits data to callbacks', async () => {
@@ -16,9 +16,9 @@ test('emits data to callbacks', async () => {
     }
   })
 
-  const unwatch1 = subscribe(id, callback1)(emitter)
-  const unwatch2 = subscribe(id, callback2)(emitter)
-  const unwatch3 = subscribe(id, callback3)(emitter)
+  const unwatch1 = observe(id, callback1)(emitter)
+  const unwatch2 = observe(id, callback2)(emitter)
+  const unwatch3 = observe(id, callback3)(emitter)
 
   await wait(100)
 
@@ -41,7 +41,7 @@ test('scopes to id', async () => {
       //
     }
   })
-  const unwatch1 = subscribe(id1, callback1)(emitter1)
+  const unwatch1 = observe(id1, callback1)(emitter1)
 
   const id2 = 'mock2'
   const callback2 = vi.fn()
@@ -51,7 +51,7 @@ test('scopes to id', async () => {
       //
     }
   })
-  const unwatch2 = subscribe(id2, callback2)(emitter2)
+  const unwatch2 = observe(id2, callback2)(emitter2)
 
   await wait(100)
 
@@ -64,7 +64,7 @@ test('scopes to id', async () => {
   unwatch2()
 })
 
-test('cleans up listeners correctly', async () => {
+test('cleans up listeners correctly (staggered unwatch)', async () => {
   const id = 'mock'
   const callback1 = vi.fn()
   const callback2 = vi.fn()
@@ -79,9 +79,9 @@ test('cleans up listeners correctly', async () => {
     }
   })
 
-  const unwatch1 = subscribe(id, callback1)(emitter)
-  const unwatch2 = subscribe(id, callback2)(emitter)
-  const unwatch3 = subscribe(id, callback3)(emitter)
+  const unwatch1 = observe(id, callback1)(emitter)
+  const unwatch2 = observe(id, callback2)(emitter)
+  const unwatch3 = observe(id, callback3)(emitter)
 
   unwatch1()
 
@@ -103,6 +103,36 @@ test('cleans up listeners correctly', async () => {
   unwatch3()
 })
 
+test('cleans up listeners correctly (immediately unwatch)', async () => {
+  const id = 'mock'
+  const callback1 = vi.fn()
+  const callback2 = vi.fn()
+  const callback3 = vi.fn()
+
+  const emitter = vi.fn(({ emit }) => {
+    setTimeout(() => emit({ foo: 'bar' }), 100)
+    setTimeout(() => emit({ foo: 'bar' }), 200)
+    return () => {
+      //
+    }
+  })
+
+  const unwatch1 = observe(id, callback1)(emitter)
+  const unwatch2 = observe(id, callback2)(emitter)
+  const unwatch3 = observe(id, callback3)(emitter)
+
+  unwatch1()
+  unwatch2()
+  unwatch3()
+
+  await wait(300)
+
+  expect(emitter).toHaveBeenCalledOnce()
+  expect(callback1).toHaveBeenCalledTimes(0)
+  expect(callback2).toHaveBeenCalledTimes(0)
+  expect(callback3).toHaveBeenCalledTimes(0)
+})
+
 test('cleans up emit function correctly', async () => {
   const id = 'mock'
   const callback = vi.fn()
@@ -117,9 +147,9 @@ test('cleans up emit function correctly', async () => {
     }
   })
 
-  const unwatch1 = subscribe(id, callback)(emitter)
-  const unwatch2 = subscribe(id, callback)(emitter)
-  const unwatch3 = subscribe(id, callback)(emitter)
+  const unwatch1 = observe(id, callback)(emitter)
+  const unwatch2 = observe(id, callback)(emitter)
+  const unwatch3 = observe(id, callback)(emitter)
 
   await wait(100)
   expect(emitter).toHaveBeenCalledTimes(1)

@@ -423,6 +423,7 @@ export const local = createChain({
   id: 1337,
   name: 'Localhost',
   network: 'localhost',
+  blockTime: 1_000,
   rpcUrls: {
     local: { http: 'http://127.0.0.1:8545', webSocket: 'ws://127.0.0.1:8545' },
     default: {

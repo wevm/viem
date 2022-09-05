@@ -21,7 +21,7 @@ test('watches for new blocks', async () => {
   )
   await wait(5000)
   unwatch()
-  expect(blocks.length).toBe(5)
+  expect(blocks.length).toBe(4)
 }, 10_000)
 
 describe('walletProvider', () => {
@@ -37,7 +37,7 @@ describe('walletProvider', () => {
     )
     await wait(5000)
     unwatch()
-    expect(blocks.length).toBe(5)
+    expect(blocks.length).toBe(4)
   }, 10_000)
 })
 
@@ -57,7 +57,7 @@ describe('emitOnOpen', () => {
     )
     await wait(5000)
     unwatch()
-    expect(blocks.length).toBe(6)
+    expect(blocks.length).toBe(5)
   }, 10_000)
 })
 
@@ -75,12 +75,27 @@ describe('blockTime on chain', () => {
     unwatch()
     expect(blocks.length).toBe(10)
   }, 10_000)
+
+  test('watches for new blocks (out of sync w/ block time)', async () => {
+    const block = await fetchBlock(networkProvider)
+    vi.setSystemTime(Number(block.timestamp * 1000n) + 500)
+
+    const provider = httpProvider({
+      chain: { ...local, blockTime: 1_000 },
+    })
+
+    const blocks: WatchBlocksResponse[] = []
+    const unwatch = watchBlocks(provider, (block) => blocks.push(block))
+    await wait(5000)
+    unwatch()
+    expect(blocks.length).toBe(5)
+  }, 10_000)
 })
 
 describe('pollingInterval on provider', () => {
   test('watches for new blocks', async () => {
     const provider = httpProvider({
-      chain: local,
+      chain: { ...local, blockTime: undefined },
       pollingInterval: 500,
     })
     const block = await fetchBlock(provider)
@@ -90,26 +105,11 @@ describe('pollingInterval on provider', () => {
     const unwatch = watchBlocks(provider, (block) => blocks.push(block))
     await wait(2000)
     unwatch()
-    expect(blocks.length).toBe(4)
+    expect(blocks.length).toBe(3)
   }, 10_000)
 })
 
 describe('behavior', () => {
-  test('watches for new blocks (out of sync time)', async () => {
-    const block = await fetchBlock(networkProvider)
-    vi.setSystemTime(Number(block.timestamp * 1000n) + 500)
-
-    const blocks: WatchBlocksResponse[] = []
-    const unwatch = watchBlocks(
-      networkProvider,
-      (block) => blocks.push(block),
-      defaultConfig,
-    )
-    await wait(5000)
-    unwatch()
-    expect(blocks.length).toBe(5)
-  }, 10_000)
-
   test('watch > unwatch > watch', async () => {
     const block = await fetchBlock(networkProvider)
     vi.setSystemTime(Number(block.timestamp * 1000n))
@@ -122,7 +122,7 @@ describe('behavior', () => {
     )
     await wait(3000)
     unwatch()
-    expect(blocks.length).toBe(3)
+    expect(blocks.length).toBe(2)
 
     blocks = []
     unwatch = watchBlocks(
@@ -132,7 +132,7 @@ describe('behavior', () => {
     )
     await wait(3000)
     unwatch()
-    expect(blocks.length).toBe(3)
+    expect(blocks.length).toBe(2)
   }, 10_000)
 
   test('multiple watchers', async () => {
@@ -160,7 +160,7 @@ describe('behavior', () => {
     unwatch1()
     unwatch2()
     unwatch3()
-    expect(blocks.length).toBe(9)
+    expect(blocks.length).toBe(6)
 
     blocks = []
 
@@ -183,7 +183,7 @@ describe('behavior', () => {
     unwatch1()
     unwatch2()
     unwatch3()
-    expect(blocks.length).toBe(9)
+    expect(blocks.length).toBe(6)
   }, 10_000)
 
   test('immediately unwatch', async () => {

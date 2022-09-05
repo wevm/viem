@@ -1,6 +1,6 @@
 import { NetworkProvider, WalletProvider } from '../../providers'
-import { subscribe } from '../../utils/subscribe'
-import { wait } from '../../utils/wait'
+import { observe } from '../../utils/observe'
+import { poll } from '../../utils/poll'
 import { FetchBlockNumberResponse, fetchBlockNumber } from './fetchBlockNumber'
 
 export type WatchBlockNumberArgs = {
@@ -26,47 +26,16 @@ export function watchBlockNumber(
     provider.type === 'networkProvider' ? provider.chain.blockTime : undefined
   const pollingInterval =
     pollingInterval_ ?? (blockTime || provider.pollingInterval)
-  return pollBlockNumber(provider, callback, {
-    emitOnOpen,
-    pollingInterval,
-  })
-}
+  const observerId = JSON.stringify(['watchBlockNumber', provider.uniqueId])
 
-////////////////////////////////////////////////////////////
-// Polling
-
-function pollBlockNumber(
-  provider: NetworkProvider | WalletProvider,
-  callback: WatchBlockNumberCallback,
-  { emitOnOpen, pollingInterval }: Required<WatchBlockNumberArgs>,
-) {
-  const cacheKey = JSON.stringify([provider.uniqueId])
-  return subscribe<WatchBlockNumberCallback, WatchBlockNumberResponse>(
-    cacheKey,
+  return observe<WatchBlockNumberCallback, WatchBlockNumberResponse>(
+    observerId,
     callback,
-  )(({ emit }) => {
-    let active = true
-
-    const fetchBlockNumber_ = () => {
-      return fetchBlockNumber(provider)
-    }
-
-    fetchBlockNumber_().then(async (blockNumber) => {
-      if (!active) return
-
-      if (emitOnOpen) emit(blockNumber)
-
-      const poll = async () => {
-        if (!active) return
-        const block = await fetchBlockNumber_()
-        emit(block)
-        await wait(pollingInterval)
-        poll()
-      }
-
-      poll()
-    })
-
-    return () => (active = false)
-  })
+  )(({ emit }) =>
+    poll(() => fetchBlockNumber(provider), {
+      emitOnOpen,
+      onData: emit,
+      interval: pollingInterval,
+    }),
+  )
 }

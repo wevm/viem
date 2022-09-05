@@ -14,6 +14,7 @@ test('creates', () => {
   expect(provider).toMatchInlineSnapshot(`
     {
       "chain": {
+        "blockTime": 1000,
         "id": 1337,
         "name": "Localhost",
         "network": "localhost",
@@ -27,6 +28,7 @@ test('creates', () => {
       },
       "chains": [
         {
+          "blockTime": 1000,
           "id": 1337,
           "name": "Localhost",
           "network": "localhost",
@@ -60,6 +62,7 @@ test('creates with custom url', () => {
   expect(provider).toMatchInlineSnapshot(`
     {
       "chain": {
+        "blockTime": 1000,
         "id": 1337,
         "name": "Localhost",
         "network": "localhost",
@@ -73,6 +76,7 @@ test('creates with custom url', () => {
       },
       "chains": [
         {
+          "blockTime": 1000,
           "id": 1337,
           "name": "Localhost",
           "network": "localhost",

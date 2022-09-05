@@ -1,7 +1,7 @@
 import { NetworkProvider, WalletProvider } from '../../providers'
 import { BlockTag } from '../../types/ethereum-provider'
-import { subscribe } from '../../utils/subscribe'
-import { wait } from '../../utils/wait'
+import { observe } from '../../utils/observe'
+import { poll } from '../../utils/poll'
 import { FetchBlockResponse, fetchBlock } from './fetchBlock'
 
 export type WatchBlocksArgs = {
@@ -31,71 +31,44 @@ export function watchBlocks(
     provider.type === 'networkProvider' ? provider.chain.blockTime : undefined
   const pollingInterval =
     pollingInterval_ ?? (blockTime || provider.pollingInterval)
-  return pollBlocks(provider, callback, {
-    blockTag,
-    emitOnOpen,
+  const observerId = JSON.stringify([
+    'watchBlocks',
+    provider.uniqueId,
     includeTransactions,
-    pollingInterval,
-  })
-}
+  ])
 
-////////////////////////////////////////////////////////////
-// Polling
-
-function pollBlocks(
-  provider: NetworkProvider | WalletProvider,
-  callback: WatchBlocksCallback,
-  {
-    blockTag,
-    emitOnOpen,
-    includeTransactions,
-    pollingInterval,
-  }: Required<WatchBlocksArgs>,
-) {
-  const cacheKey = JSON.stringify([provider.uniqueId, includeTransactions])
-  return subscribe<WatchBlocksCallback, WatchBlocksResponse>(
-    cacheKey,
+  return observe<WatchBlocksCallback, WatchBlocksResponse>(
+    observerId,
     callback,
-  )(({ emit }) => {
-    let active = true
+  )(({ emit }) =>
+    poll(
+      () =>
+        fetchBlock(provider, {
+          blockTag,
+          includeTransactions,
+        }),
+      {
+        emitOnOpen,
+        initialWaitTime: async (block) => {
+          if (!blockTime) return pollingInterval
+          if (pollingInterval_ !== undefined) return pollingInterval
 
-    const fetchBlock_ = () => {
-      return fetchBlock(provider, {
-        blockTag,
-        includeTransactions,
-      })
-    }
+          // In order to keep in sync, we need to find the time
+          // to wait to fetch the next block.
+          const waitTime =
+            blockTime - (Number(new Date()) - Number(block.timestamp * 1000n))
 
-    // We are going to fetch the latest block, and then use
-    // that to calculate the time to fetch the next block.
-    fetchBlock_().then(async (block) => {
-      if (!active) return
-
-      if (emitOnOpen) emit(block)
-
-      // In order to keep in sync, we need to find the time
-      // to wait to fetch the next block.
-      const waitTime =
-        pollingInterval - (Number(new Date()) - Number(block.timestamp * 1000n))
-
-      // If the wait time is between the polling interval time, we will wait that
-      // time and then fetch the next block. Otherwise, we are expecting a
-      // new block so we will fetch immediately.
-      if (waitTime > 0 && waitTime < pollingInterval) {
-        await wait(waitTime)
-      }
-
-      const poll = async () => {
-        if (!active) return
-        const block = await fetchBlock_()
-        emit(block)
-        await wait(pollingInterval)
-        poll()
-      }
-
-      poll()
-    })
-
-    return () => (active = false)
-  })
+          // If the wait time is between the block time, we will wait that
+          // time and then fetch the next block. Otherwise, we are expecting a
+          // new block so we will fetch immediately.
+          if (waitTime > 0 && waitTime < blockTime) {
+            return waitTime
+          }
+          return 0
+        },
+        onData: emit,
+        interval: pollingInterval,
+      },
+    ),
+  )
 }

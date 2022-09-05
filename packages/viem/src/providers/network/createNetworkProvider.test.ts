@@ -16,6 +16,7 @@ test('creates', () => {
   expect(provider).toMatchInlineSnapshot(`
     {
       "chain": {
+        "blockTime": 1000,
         "id": 1337,
         "name": "Localhost",
         "network": "localhost",
@@ -32,6 +33,7 @@ test('creates', () => {
       },
       "chains": [
         {
+          "blockTime": 1000,
           "id": 1337,
           "name": "Localhost",
           "network": "localhost",
