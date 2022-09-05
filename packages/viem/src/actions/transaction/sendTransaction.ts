@@ -1,4 +1,4 @@
-import { AccountProvider } from '../../providers'
+import { AccountProvider } from '../../providers/account'
 import { TransactionRequest } from '../../types/ethereum-provider'
 import { BaseError, serializeTransactionRequest } from '../../utils'
 

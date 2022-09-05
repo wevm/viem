@@ -1,4 +1,4 @@
-import { InjectedProvider } from '../../providers'
+import { InjectedProvider } from '../../providers/wallet'
 import { checksumAddress } from '../../utils'
 
 export async function requestAccountAddresses(provider: InjectedProvider) {
