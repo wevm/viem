@@ -1,5 +1,5 @@
 import { sendTransaction } from 'viem/actions'
-import { AccountProvider } from 'viem/providers'
+import { AccountProvider } from 'viem/providers/account'
 import { etherToValue } from 'viem/utils'
 
 export function SendTransaction({ provider }: { provider: AccountProvider }) {

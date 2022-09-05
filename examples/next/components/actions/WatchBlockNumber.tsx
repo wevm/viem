@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { WatchBlockNumberResponse, watchBlockNumber } from 'viem/actions'
-import { NetworkProvider, WalletProvider } from 'viem/providers'
+import { NetworkProvider } from 'viem/providers/network'
+import { WalletProvider } from 'viem/providers/wallet'
 
 export function WatchBlockNumber({
   provider,

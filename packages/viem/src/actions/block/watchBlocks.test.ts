@@ -5,7 +5,7 @@ import { fetchBlock } from './fetchBlock'
 import { networkProvider, walletProvider } from '../../../test/utils'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
-import { httpProvider } from '../../providers'
+import { httpProvider } from '../../providers/network'
 
 const defaultConfig = { pollingInterval: 1_000 }
 

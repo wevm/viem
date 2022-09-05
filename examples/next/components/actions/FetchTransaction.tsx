@@ -4,7 +4,8 @@ import {
   FetchTransactionResponse,
   fetchTransaction,
 } from 'viem/actions'
-import { NetworkProvider, WalletProvider } from 'viem/providers'
+import { NetworkProvider } from 'viem/providers/network'
+import { WalletProvider } from 'viem/providers/wallet'
 import { Address } from 'viem/utils'
 
 export function FetchTransaction({

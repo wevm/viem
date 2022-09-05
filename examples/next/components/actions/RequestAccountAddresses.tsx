@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { requestAccountAddresses } from 'viem/actions'
-import { InjectedProvider } from 'viem/providers'
+import { InjectedProvider } from 'viem/providers/wallet'
 
 export function RequestAccountAddresses({
   onAddresses,

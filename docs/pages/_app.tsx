@@ -5,7 +5,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>𝐯𝐢𝐞𝐦</title>
+        <title>viem</title>
         <link
           rel="icon"
           href="/icon-light.png"

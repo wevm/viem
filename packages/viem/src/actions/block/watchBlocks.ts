@@ -1,4 +1,5 @@
-import { NetworkProvider, WalletProvider } from '../../providers'
+import { NetworkProvider } from '../../providers/network'
+import { WalletProvider } from '../../providers/wallet'
 import { BlockTag } from '../../types/ethereum-provider'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
