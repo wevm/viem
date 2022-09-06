@@ -46,12 +46,22 @@ describe('http', () => {
     `)
   })
 
+  test('invalid rpc params', async () => {
+    await expect(() =>
+      rpc.http(local.rpcUrls.default.http, {
+        body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
+      }),
+    ).rejects.toThrowError(
+      'invalid length 1, expected a (both 0x-prefixed or not) hex string with length of 64',
+    )
+  })
+
   test('invalid request', async () => {
     expect(
       rpc.http(local.rpcUrls.default.http, {
         body: { method: 'eth_wagmi' },
       }),
-    ).rejects.toThrowError('')
+    ).rejects.toThrowError('Method not found')
   })
 
   test('timeout', async () => {
@@ -65,7 +75,7 @@ describe('http', () => {
       })
     } catch (err) {
       expect(err).toMatchInlineSnapshot(`
-        [RequestTimeoutError: The request took too long to respond.
+        [RpcTimeoutError: The request took too long to respond.
 
         Details: The request timed out. Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
         Version: viem@1.0.2]
@@ -506,7 +516,7 @@ describe('webSocketAsync', () => {
       })
     } catch (err) {
       expect(err).toMatchInlineSnapshot(`
-        [RequestTimeoutError: The request took too long to respond.
+        [RpcTimeoutError: The request took too long to respond.
 
         Details: The request timed out. Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
         Version: viem@1.0.2]

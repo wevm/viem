@@ -3,8 +3,8 @@ import { withTimeout } from './promise/withTimeout'
 
 let id = 0
 
-class RequestTimeoutError extends BaseError {
-  name = 'RequestTimeoutError'
+export class RpcTimeoutError extends BaseError {
+  name = 'RpcTimeoutError'
 
   constructor({ body }: { body: { [key: string]: unknown } }) {
     super({
@@ -35,26 +35,26 @@ async function http(
     timeout = 0,
   }: { body: { method: string; params?: any[] }; timeout?: number },
 ) {
-  return withTimeout(
+  const response = await withTimeout(
     async ({ signal }) => {
-      const response: RpcResponse = await (
-        await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-          body: JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }),
-          signal: timeout > 0 ? signal : undefined,
-        })
-      ).json()
-
-      if (response.error) {
-        throw response.error
-      }
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }),
+        signal: timeout > 0 ? signal : undefined,
+      })
       return response
     },
-    { errorInstance: new RequestTimeoutError({ body }), timeout, signal: true },
+    { errorInstance: new RpcTimeoutError({ body }), timeout, signal: true },
   )
+
+  const data = await response.json()
+  if (data.error) {
+    throw data.error
+  }
+  return <RpcResponse>data
 }
 
 ///////////////////////////////////////////////////
@@ -128,7 +128,7 @@ async function webSocketAsync(
           },
         })
       }),
-    { errorInstance: new RequestTimeoutError({ body }), timeout },
+    { errorInstance: new RpcTimeoutError({ body }), timeout },
   )
 }
 

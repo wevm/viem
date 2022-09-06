@@ -19,6 +19,7 @@ import {
   TransactionRejectedRpcError,
   buildRequest,
 } from './buildRequest'
+import { RpcTimeoutError } from './rpc'
 
 test('valid request', async () => {
   expect(
@@ -254,6 +255,21 @@ test('Error', async () => {
       [RpcError: An unknown error occurred.
 
       Details: message
+      Version: viem@1.0.2]
+    `)
+  }
+})
+
+test('RpcTimeoutError', async () => {
+  try {
+    await buildRequest(() =>
+      Promise.reject(new RpcTimeoutError({ body: { foo: 'bar' } })),
+    )()
+  } catch (err) {
+    expect(err).toMatchInlineSnapshot(`
+      [RpcTimeoutError: The request took too long to respond.
+
+      Details: The request timed out. Request body: {"foo":"bar"}
       Version: viem@1.0.2]
     `)
   }
