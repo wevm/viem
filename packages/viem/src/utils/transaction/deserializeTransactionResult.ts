@@ -1,4 +1,27 @@
-import { TransactionResult } from '../../types/ethereum-provider'
+import {
+  TransactionResult as ProviderTransactionResult,
+  TransactionResultBase,
+  TransactionResultEIP1559,
+  TransactionResultEIP2930,
+  TransactionResultLegacy,
+} from '../../types/ethereum-provider'
+
+export const transactionType = {
+  legacy: '0x0',
+  eip2930: '0x1',
+  eip1559: '0x2',
+} as const
+
+export type TransactionResult =
+  | (Omit<TransactionResultLegacy<bigint>, 'type'> & {
+      type: 'legacy'
+    })
+  | (Omit<TransactionResultEIP2930<bigint>, 'type'> & {
+      type: 'eip2930'
+    })
+  | (Omit<TransactionResultEIP1559<bigint>, 'type'> & {
+      type: 'eip1559'
+    })
 
 export function deserializeTransactionResult({
   accessList,
@@ -16,22 +39,17 @@ export function deserializeTransactionResult({
   s,
   to,
   transactionIndex,
+  type,
   v,
   value,
-}: TransactionResult): TransactionResult<bigint> {
-  return {
-    accessList,
+}: ProviderTransactionResult): TransactionResult {
+  const result: TransactionResultBase<bigint> = {
     blockHash,
     blockNumber: BigInt(blockNumber),
     from,
     gas: BigInt(gas),
-    gasPrice: BigInt(gasPrice),
     hash,
     input,
-    maxFeePerGas: maxFeePerGas ? BigInt(maxFeePerGas) : undefined,
-    maxPriorityFeePerGas: maxPriorityFeePerGas
-      ? BigInt(maxPriorityFeePerGas)
-      : undefined,
     nonce: BigInt(nonce),
     r,
     s,
@@ -39,5 +57,28 @@ export function deserializeTransactionResult({
     transactionIndex: BigInt(transactionIndex),
     v: BigInt(v),
     value: BigInt(value),
+  }
+  if (type === transactionType.eip2930) {
+    return {
+      ...result,
+      accessList,
+      gasPrice: BigInt(gasPrice),
+      type: 'eip2930',
+    }
+  }
+  if (type === transactionType.eip1559) {
+    return {
+      ...result,
+      accessList,
+      maxFeePerGas: BigInt(maxFeePerGas),
+      maxPriorityFeePerGas: BigInt(maxPriorityFeePerGas),
+      type: 'eip1559',
+    }
+  }
+  return {
+    ...result,
+    accessList: undefined,
+    gasPrice: BigInt(gasPrice),
+    type: 'legacy',
   }
 }

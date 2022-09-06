@@ -1,12 +1,13 @@
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
-import {
+import type {
   BlockTag,
   Data,
-  TransactionResult,
+  TransactionResult as ProviderTransactionResult,
 } from '../../types/ethereum-provider'
 import {
   BaseError,
+  TransactionResult,
   deserializeTransactionResult,
   numberToHex,
 } from '../../utils'
@@ -41,7 +42,7 @@ export type FetchTransactionArgs =
       index?: number
     }
 
-export type FetchTransactionResponse = TransactionResult<bigint>
+export type FetchTransactionResponse = TransactionResult
 
 export async function fetchTransaction(
   provider: NetworkProvider | WalletProvider,
@@ -56,7 +57,7 @@ export async function fetchTransaction(
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  let transaction: TransactionResult | null = null
+  let transaction: ProviderTransactionResult | null = null
   if (hash) {
     transaction = await provider.request({
       method: 'eth_getTransactionByHash',

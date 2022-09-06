@@ -11,6 +11,7 @@ export type AccountProvider = Omit<
 > & {
   address: string
   type: 'accountProvider'
+  walletProvider: WalletProvider
 }
 
 export type AccountProviderConfig = {
@@ -46,5 +47,6 @@ export function accountProvider(
     request: <any>provider.request,
     type: 'accountProvider',
     uniqueId: `${key}.${provider.uniqueId}.${address}`,
+    walletProvider: provider,
   }
 }

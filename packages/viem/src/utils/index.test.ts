@@ -41,6 +41,11 @@ test('exports utils', () => {
         "webSocketAsync": [Function],
       },
       "serializeTransactionRequest": [Function],
+      "transactionType": {
+        "eip1559": "0x2",
+        "eip2930": "0x1",
+        "legacy": "0x0",
+      },
       "valueAsEther": [Function],
       "valueAsGwei": [Function],
       "valueToDisplay": [Function],

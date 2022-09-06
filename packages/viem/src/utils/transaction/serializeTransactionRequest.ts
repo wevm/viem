@@ -1,5 +1,7 @@
-import { TransactionRequest } from '../../types/ethereum-provider'
+import { TransactionRequest as ProviderTransactionRequest } from '../../types/ethereum-provider'
 import { numberToHex } from '../number'
+
+export type TransactionRequest = ProviderTransactionRequest<bigint>
 
 export function serializeTransactionRequest({
   accessList,
@@ -12,8 +14,8 @@ export function serializeTransactionRequest({
   nonce,
   to,
   value,
-}: TransactionRequest<bigint>) {
-  let request: TransactionRequest = {
+}: TransactionRequest) {
+  let request: ProviderTransactionRequest = {
     accessList,
     data,
     from,

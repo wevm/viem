@@ -142,20 +142,22 @@ export type FeeHistory = {
   reward?: Quantity[][]
 }
 
+export type FeeValuesLegacy<TQuantity = Quantity> = {
+  /** Base fee per gas. */
+  gasPrice: TQuantity
+  maxFeePerGas?: never
+  maxPriorityFeePerGas?: never
+}
+export type FeeValuesEIP1559<TQuantity = Quantity> = {
+  gasPrice?: never
+  /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
+  maxFeePerGas: TQuantity
+  /** Max priority fee per gas (in wei). */
+  maxPriorityFeePerGas: TQuantity
+}
 export type FeeValues<TQuantity = Quantity> =
-  | {
-      /** Base fee per gas. */
-      gasPrice?: TQuantity
-      maxFeePerGas?: never
-      maxPriorityFeePerGas?: never
-    }
-  | {
-      gasPrice?: never
-      /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
-      maxFeePerGas?: TQuantity
-      /** Max priority fee per gas (in wei). */
-      maxPriorityFeePerGas?: TQuantity
-    }
+  | FeeValuesLegacy<TQuantity>
+  | FeeValuesEIP1559<TQuantity>
 
 export type Log = {
   /** The address from which this log originated */
@@ -233,8 +235,8 @@ export type TransactionReceipt = {
   /** Index of this transaction in the block */
   transactionIndex: Quantity
 }
-export type TransactionResult<TQuantity = Quantity> = {
-  accessList: AccessList
+
+export type TransactionResultBase<TQuantity = Quantity> = {
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: Data | null
   /** Number of block containing this transaction or `null` if pending */
@@ -243,16 +245,10 @@ export type TransactionResult<TQuantity = Quantity> = {
   from: Data
   /** Gas provided for transaction execution */
   gas: TQuantity
-  /** Price in wei of each gas used */
-  gasPrice: TQuantity
   /** Hash of this transaction */
   hash: Data
   /** Contract code or a hashed method call */
   input: Data
-  /** Max fee per gas. */
-  maxFeePerGas?: TQuantity
-  /** Max priority fee per gas. */
-  maxPriorityFeePerGas?: TQuantity
   /** Unique number identifying this transaction */
   nonce: TQuantity
   /** ECDSA signature r */
@@ -268,8 +264,30 @@ export type TransactionResult<TQuantity = Quantity> = {
   /** Value in wei sent with this transaction */
   value: TQuantity
 }
-export type TransactionRequest<TQuantity = Quantity> = {
-  accessList?: AccessList
+export type TransactionResultLegacy<TQuantity = Quantity> =
+  TransactionResultBase<TQuantity> &
+    FeeValuesLegacy<TQuantity> & {
+      accessList: undefined
+      type: TransactionTypeLegacy
+    }
+export type TransactionResultEIP2930<TQuantity = Quantity> =
+  TransactionResultBase<TQuantity> &
+    FeeValuesLegacy<TQuantity> & {
+      accessList: AccessList
+      type: TransactionTypeEIP2930
+    }
+export type TransactionResultEIP1559<TQuantity = Quantity> =
+  TransactionResultBase<TQuantity> &
+    FeeValuesEIP1559<TQuantity> & {
+      accessList: AccessList
+      type: TransactionTypeEIP1559
+    }
+export type TransactionResult<TQuantity = Quantity> =
+  | TransactionResultLegacy<TQuantity>
+  | TransactionResultEIP2930<TQuantity>
+  | TransactionResultEIP1559<TQuantity>
+
+export type TransactionRequestBase<TQuantity = Quantity> = {
   /** Contract code or a hashed method call with encoded args */
   data?: Data
   /** Transaction sender */
@@ -282,7 +300,30 @@ export type TransactionRequest<TQuantity = Quantity> = {
   to?: Data
   /** Value in wei sent with this transaction */
   value?: TQuantity
-} & FeeValues<TQuantity>
+}
+export type TransactionRequestLegacy<TQuantity = Quantity> =
+  TransactionRequestBase<TQuantity> &
+    Partial<FeeValuesLegacy<TQuantity>> & {
+      accessList?: never
+    }
+export type TransactionRequestEIP2930<TQuantity = Quantity> =
+  TransactionRequestBase<TQuantity> &
+    Partial<FeeValuesLegacy<TQuantity>> & {
+      accessList?: AccessList
+    }
+export type TransactionRequestEIP1559<TQuantity = Quantity> =
+  TransactionRequestBase<TQuantity> &
+    Partial<FeeValuesEIP1559<TQuantity>> & {
+      accessList?: AccessList
+    }
+export type TransactionRequest<TQuantity = Quantity> =
+  | TransactionRequestLegacy<TQuantity>
+  | TransactionRequestEIP2930<TQuantity>
+  | TransactionRequestEIP1559<TQuantity>
+
+export type TransactionTypeLegacy = '0x0'
+export type TransactionTypeEIP2930 = '0x1'
+export type TransactionTypeEIP1559 = '0x2'
 
 export type Uncle = Block
 

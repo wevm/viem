@@ -1,9 +1,12 @@
 import { AccountProvider } from '../../providers/account'
-import { TransactionRequest } from '../../types/ethereum-provider'
-import { BaseError, serializeTransactionRequest } from '../../utils'
+import {
+  BaseError,
+  TransactionRequest,
+  serializeTransactionRequest,
+} from '../../utils'
 
 export type SendTransactionArgs = {
-  request: TransactionRequest<bigint>
+  request: TransactionRequest
 }
 
 export type SendTransactionResponse = { hash: `0x${string}` }

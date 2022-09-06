@@ -39,16 +39,12 @@ test('fetches transaction', async () => {
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
     [
-      "accessList",
       "blockHash",
       "blockNumber",
       "from",
       "gas",
-      "gasPrice",
       "hash",
       "input",
-      "maxFeePerGas",
-      "maxPriorityFeePerGas",
       "nonce",
       "r",
       "s",
@@ -56,8 +52,124 @@ test('fetches transaction', async () => {
       "transactionIndex",
       "v",
       "value",
+      "accessList",
+      "maxFeePerGas",
+      "maxPriorityFeePerGas",
+      "type",
     ]
   `)
+  expect(transaction.type).toMatchInlineSnapshot('"eip1559"')
+  expect(transaction.from).toMatchInlineSnapshot(
+    '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
+  )
+  expect(transaction.gas).toBeDefined()
+  expect(transaction.transactionIndex).toMatchInlineSnapshot('0n')
+  expect(transaction.to).toMatchInlineSnapshot(
+    '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
+  )
+  expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
+})
+
+test('fetches transaction (legacy)', async () => {
+  const block = await fetchBlock(networkProvider)
+
+  await setBalance(testProvider, {
+    address: targetAccount.address,
+    value: targetAccount.balance,
+  })
+
+  await sendTransaction(accountProvider, {
+    request: {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: etherToValue('1'),
+      gasPrice: BigInt(block.baseFeePerGas ?? 0),
+    },
+  })
+
+  await mine(testProvider, { blocks: 1 })
+
+  const transaction = await fetchTransaction(networkProvider, {
+    blockTag: 'latest',
+    index: 0,
+  })
+  expect(Object.keys(transaction)).toMatchInlineSnapshot(`
+    [
+      "blockHash",
+      "blockNumber",
+      "from",
+      "gas",
+      "hash",
+      "input",
+      "nonce",
+      "r",
+      "s",
+      "to",
+      "transactionIndex",
+      "v",
+      "value",
+      "accessList",
+      "gasPrice",
+      "type",
+    ]
+  `)
+  expect(transaction.type).toMatchInlineSnapshot('"legacy"')
+  expect(transaction.from).toMatchInlineSnapshot(
+    '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
+  )
+  expect(transaction.gas).toBeDefined()
+  expect(transaction.transactionIndex).toMatchInlineSnapshot('0n')
+  expect(transaction.to).toMatchInlineSnapshot(
+    '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
+  )
+  expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
+})
+
+test('fetches transaction (eip2930)', async () => {
+  const block = await fetchBlock(networkProvider)
+
+  await setBalance(testProvider, {
+    address: targetAccount.address,
+    value: targetAccount.balance,
+  })
+
+  await sendTransaction(accountProvider, {
+    request: {
+      accessList: [{ address: targetAccount.address, storageKeys: [] }],
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: etherToValue('1'),
+      gasPrice: BigInt(block.baseFeePerGas ?? 0),
+    },
+  })
+
+  await mine(testProvider, { blocks: 1 })
+
+  const transaction = await fetchTransaction(networkProvider, {
+    blockTag: 'latest',
+    index: 0,
+  })
+  expect(Object.keys(transaction)).toMatchInlineSnapshot(`
+    [
+      "blockHash",
+      "blockNumber",
+      "from",
+      "gas",
+      "hash",
+      "input",
+      "nonce",
+      "r",
+      "s",
+      "to",
+      "transactionIndex",
+      "v",
+      "value",
+      "accessList",
+      "gasPrice",
+      "type",
+    ]
+  `)
+  expect(transaction.type).toMatchInlineSnapshot('"eip2930"')
   expect(transaction.from).toMatchInlineSnapshot(
     '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
   )

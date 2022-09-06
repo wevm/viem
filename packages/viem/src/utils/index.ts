@@ -28,7 +28,9 @@ export { rpc } from './rpc'
 export {
   deserializeTransactionResult,
   serializeTransactionRequest,
+  transactionType,
 } from './transaction'
+export type { TransactionRequest, TransactionResult } from './transaction'
 
 export {
   displayToValue,
