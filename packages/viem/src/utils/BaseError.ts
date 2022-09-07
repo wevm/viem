@@ -8,6 +8,8 @@ export class BaseError extends Error {
   humanMessage: string
   details: string
 
+  name = 'ViemError'
+
   constructor({
     humanMessage,
     details,

@@ -41,7 +41,7 @@ test('BaseError', async () => {
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
-      [RpcError: foo
+      [ViemError: foo
 
       Details: bar
       Version: viem@1.0.2]
@@ -252,7 +252,7 @@ test('Error', async () => {
     await buildRequest(() => Promise.reject({ code: 69, message: 'message' }))()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
-      [RpcError: An unknown error occurred.
+      [UnknownRpcError: An unknown RPC error occurred.
 
       Details: message
       Version: viem@1.0.2]

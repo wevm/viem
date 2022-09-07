@@ -1,5 +1,4 @@
 import { BaseError } from './BaseError'
-import { RpcTimeoutError } from './rpc'
 
 export function buildRequest<TRequest extends (args: any) => Promise<any>>(
   request: TRequest,
@@ -34,10 +33,8 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         throw new JsonRpcVersionUnsupportedError(<RequestError>err)
       if ((<RequestError>err).code === -32602)
         throw new InvalidParamsRpcError(<RequestError>err)
-      if ((<RequestError>err).name === RpcTimeoutError.name) throw err
-      throw new RpcError(<RequestError>err, {
-        humanMessage: 'An unknown error occurred.',
-      })
+      if (err instanceof BaseError) throw err
+      throw new UnknownRpcError(<Error>err)
     }
   }) as TRequest
 }
@@ -204,6 +201,17 @@ export class JsonRpcVersionUnsupportedError extends RpcError {
   constructor(err: RpcError) {
     super(err, {
       humanMessage: 'Version of JSON-RPC protocol is not supported.',
+    })
+  }
+}
+
+export class UnknownRpcError extends BaseError {
+  name = 'UnknownRpcError'
+
+  constructor(err: Error) {
+    super({
+      humanMessage: 'An unknown RPC error occurred.',
+      details: err.message,
     })
   }
 }
