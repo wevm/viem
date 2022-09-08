@@ -41,7 +41,7 @@ describe('walletProvider', () => {
   }, 10_000)
 })
 
-describe('emitOnOpen', () => {
+describe('emitOnBegin', () => {
   test('watches for new blocks', async () => {
     const block = await fetchBlock(networkProvider)
     vi.setSystemTime(Number(block.timestamp * 1000n))
@@ -52,7 +52,7 @@ describe('emitOnOpen', () => {
       (block) => blocks.push(block),
       {
         ...defaultConfig,
-        emitOnOpen: true,
+        emitOnBegin: true,
       },
     )
     await wait(5000)

@@ -3,14 +3,18 @@ import { wait } from './wait'
 export function poll<TData>(
   fn: () => Promise<TData>,
   {
-    emitOnOpen,
+    emitOnBegin,
     initialWaitTime,
     onData,
     interval,
   }: {
-    emitOnOpen?: boolean
+    // Whether or not to emit when the polling starts.
+    emitOnBegin?: boolean
+    // The initial wait time (in ms) before polling.
     initialWaitTime?: (data: TData) => Promise<number>
+    // The function to invoke when data is received.
     onData: (data: TData) => void
+    // The interval (in ms).
     interval: number
   },
 ) {
@@ -19,7 +23,7 @@ export function poll<TData>(
   fn().then(async (data) => {
     if (!active) return
 
-    if (emitOnOpen) onData(data)
+    if (emitOnBegin) onData(data)
 
     const initialWait = (await initialWaitTime?.(data)) ?? interval
     await wait(initialWait)

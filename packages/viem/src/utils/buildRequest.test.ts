@@ -263,13 +263,21 @@ test('Error', async () => {
 test('RpcTimeoutError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcTimeoutError({ body: { foo: 'bar' } })),
+      Promise.reject(
+        new RpcTimeoutError({
+          body: { foo: 'bar' },
+          url: 'http://localhost:8000',
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
       [RpcTimeoutError: The request took too long to respond.
 
-      Details: The request timed out. Request body: {"foo":"bar"}
+      URL: http://localhost:8000
+      Request body: {"foo":"bar"}
+
+      Details: The request timed out.
       Version: viem@1.0.2]
     `)
   }

@@ -19,6 +19,8 @@ test('exports utils', () => {
       "ResourceNotFoundRpcError": [Function],
       "ResourceUnavailableRpcError": [Function],
       "RpcError": [Function],
+      "RpcHttpRequestError": [Function],
+      "RpcTimeoutError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
       "checksumAddress": [Function],

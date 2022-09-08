@@ -9,7 +9,7 @@ export type WatchBlocksArgs = {
   /** The block tag. Defaults to "latest". */
   blockTag?: BlockTag
   /** Whether or not to emit the latest block to the callback when the subscription opens. */
-  emitOnOpen?: boolean
+  emitOnBegin?: boolean
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
   /** Polling frequency (in ms). Defaults to provider's pollingInterval config. */
@@ -23,7 +23,7 @@ export function watchBlocks(
   callback: WatchBlocksCallback,
   {
     blockTag = 'latest',
-    emitOnOpen = false,
+    emitOnBegin = false,
     includeTransactions = false,
     pollingInterval: pollingInterval_,
   }: WatchBlocksArgs = {},
@@ -49,7 +49,7 @@ export function watchBlocks(
           includeTransactions,
         }),
       {
-        emitOnOpen,
+        emitOnBegin,
         initialWaitTime: async (block) => {
           if (!blockTime) return pollingInterval
           if (pollingInterval_ !== undefined) return pollingInterval

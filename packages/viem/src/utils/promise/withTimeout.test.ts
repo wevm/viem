@@ -1,8 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { createServer } from 'http'
-import { AddressInfo } from 'net'
-
+import { createHttpServer } from '../../../test/utils'
 import { wait } from '../wait'
 import { withTimeout } from './withTimeout'
 
@@ -18,35 +16,22 @@ test('times out correctly', async () => {
 })
 
 test('times out correctly w/ signal', async () => {
-  const server = createServer((req, res) => {
-    setTimeout(() => res.end('wagmi'), 5000)
-  })
+  const server = await createHttpServer((req, res) =>
+    setTimeout(() => res.end('wagmi'), 5000),
+  )
 
-  await expect(
-    () =>
-      new Promise((resolve, reject) => {
-        server.listen(async () => {
-          const { port } = <AddressInfo>server.address()
-
-          ;(async () => {
-            try {
-              resolve(
-                await withTimeout(
-                  async ({ signal }) => {
-                    await fetch(`http://localhost:${port}`, { signal })
-                  },
-                  {
-                    errorInstance: new Error('timed out'),
-                    timeout: 500,
-                    signal: true,
-                  },
-                ),
-              )
-            } catch (err) {
-              reject(err)
-            }
-          })()
-        })
-      }),
+  await expect(() =>
+    withTimeout(
+      async ({ signal }) => {
+        await fetch(server.url, { signal })
+      },
+      {
+        errorInstance: new Error('timed out'),
+        timeout: 500,
+        signal: true,
+      },
+    ),
   ).rejects.toThrowError('timed out')
+
+  server.close()
 })

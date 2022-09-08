@@ -23,7 +23,7 @@ export {
 
 export { numberToHex } from './number'
 
-export { rpc } from './rpc'
+export { RpcHttpRequestError, RpcTimeoutError, rpc } from './rpc'
 
 export {
   deserializeTransactionResult,

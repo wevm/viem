@@ -10,7 +10,7 @@ export function WatchBlocks({
 }) {
   const [block, setBlock] = useState<WatchBlocksResponse>()
   useEffect(() => {
-    const unwatch = watchBlocks(provider, setBlock, { emitOnOpen: true })
+    const unwatch = watchBlocks(provider, setBlock, { emitOnBegin: true })
     return unwatch
   }, [provider])
   return <div>{block?.hash}</div>

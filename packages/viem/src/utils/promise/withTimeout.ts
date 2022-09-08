@@ -4,7 +4,14 @@ export function withTimeout<TData>(
     errorInstance,
     timeout,
     signal,
-  }: { errorInstance: Error; timeout: number; signal?: boolean },
+  }: {
+    // The error instance to throw when the timeout is reached.
+    errorInstance: Error
+    // The timeout (in ms).
+    timeout: number
+    // Whether or not the timeout should use an abort signal.
+    signal?: boolean
+  },
 ): Promise<TData> {
   return new Promise((resolve, reject) => {
     ;(async () => {

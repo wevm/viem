@@ -1,3 +1,5 @@
+import { RequestListener, createServer } from 'http'
+import { AddressInfo } from 'net'
 import { local } from '../src/chains'
 import { accountProvider as accountProvider_ } from '../src/providers/account'
 import { httpProvider, webSocketProvider } from '../src/providers/network'
@@ -89,3 +91,21 @@ export const accountProvider = accountProvider_(walletProvider!, {
 })
 
 export const testProvider = anvilProvider({ chain: local })
+
+export function createHttpServer(
+  handler: RequestListener,
+): Promise<{ close: () => Promise<unknown>; url: string }> {
+  const server = createServer(handler)
+
+  const closeAsync = () =>
+    new Promise((resolve, reject) =>
+      server.close((err) => (err ? reject(err) : resolve(undefined))),
+    )
+
+  return new Promise((resolve) => {
+    server.listen(() => {
+      const { port } = <AddressInfo>server.address()
+      resolve({ close: closeAsync, url: `http://localhost:${port}` })
+    })
+  })
+}

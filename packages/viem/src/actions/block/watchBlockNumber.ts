@@ -6,7 +6,7 @@ import { FetchBlockNumberResponse, fetchBlockNumber } from './fetchBlockNumber'
 
 export type WatchBlockNumberArgs = {
   /** Whether or not to emit the latest block to the callback when the subscription opens. */
-  emitOnOpen?: boolean
+  emitOnBegin?: boolean
   /** Polling frequency (in ms). Defaults to provider's pollingInterval config. */
   pollingInterval?: number
 }
@@ -19,7 +19,7 @@ export function watchBlockNumber(
   provider: NetworkProvider | WalletProvider,
   callback: WatchBlockNumberCallback,
   {
-    emitOnOpen = false,
+    emitOnBegin = false,
     pollingInterval: pollingInterval_,
   }: WatchBlockNumberArgs = {},
 ) {
@@ -34,7 +34,7 @@ export function watchBlockNumber(
     callback,
   )(({ emit }) =>
     poll(() => fetchBlockNumber(provider), {
-      emitOnOpen,
+      emitOnBegin,
       onData: emit,
       interval: pollingInterval,
     }),

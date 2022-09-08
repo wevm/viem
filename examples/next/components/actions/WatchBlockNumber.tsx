@@ -11,7 +11,7 @@ export function WatchBlockNumber({
   const [blockNumber, setBlockNumber] = useState<WatchBlockNumberResponse>()
   useEffect(() => {
     const unwatch = watchBlockNumber(provider, setBlockNumber, {
-      emitOnOpen: true,
+      emitOnBegin: true,
     })
     return unwatch
   }, [provider])

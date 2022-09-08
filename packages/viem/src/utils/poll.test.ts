@@ -26,14 +26,14 @@ test('polls on a given interval', async () => {
   `)
 })
 
-test('emitOnOpen', async () => {
+test('emitOnBegin', async () => {
   let items: string[] = []
   poll(
     async () => {
       return 'wagmi'
     },
     {
-      emitOnOpen: true,
+      emitOnBegin: true,
       onData: (data) => items.push(data),
       interval: 100,
     },

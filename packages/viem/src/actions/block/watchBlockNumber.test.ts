@@ -34,7 +34,7 @@ describe('walletProvider', () => {
   }, 10_000)
 })
 
-describe('emitOnOpen', () => {
+describe('emitOnBegin', () => {
   test('watches for new block numbers', async () => {
     const blockNumbers: WatchBlockNumberResponse[] = []
     const unwatch = watchBlockNumber(
@@ -42,7 +42,7 @@ describe('emitOnOpen', () => {
       (blockNumber) => blockNumbers.push(blockNumber),
       {
         ...defaultConfig,
-        emitOnOpen: true,
+        emitOnBegin: true,
       },
     )
     await wait(5000)

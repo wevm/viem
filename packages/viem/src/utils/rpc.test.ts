@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
-import { initialBlockNumber } from '../../test/utils'
+import { createHttpServer, initialBlockNumber } from '../../test/utils'
 
 import { local, mainnet } from '../chains'
 import { numberToHex } from './number'
 
-import { getSocket, rpc } from './rpc'
+import { RpcHttpRequestError, RpcTimeoutError, getSocket, rpc } from './rpc'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`
@@ -64,6 +64,50 @@ describe('http', () => {
     ).rejects.toThrowError('Method not found')
   })
 
+  test('http error', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(500, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 0,
+      }),
+    ).rejects.toThrowError(`Details: ngmi`)
+    expect(retryCount).toBe(0)
+  })
+
+  test('http error', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(500, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({}))
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 0,
+      }),
+    ).rejects.toThrowError('Details: Internal Server Error')
+    expect(retryCount).toBe(0)
+  })
+
   test('timeout', async () => {
     try {
       await rpc.http(mainnet.rpcUrls.default.http, {
@@ -77,10 +121,123 @@ describe('http', () => {
       expect(err).toMatchInlineSnapshot(`
         [RpcTimeoutError: The request took too long to respond.
 
-        Details: The request timed out. Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+        URL: https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+        Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+
+        Details: The request timed out.
         Version: viem@1.0.2]
       `)
     }
+  })
+
+  test('retries (500 status code)', async () => {
+    let retryCount = -1
+
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(500)
+      res.end('ngmi')
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 2,
+      }),
+    ).rejects.toThrowError('The RPC HTTP request failed.')
+    expect(retryCount).toBe(2)
+  })
+
+  test('retries (408 status code)', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(408, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 2,
+      }),
+    ).rejects.toThrowError('The RPC HTTP request failed.')
+    expect(retryCount).toBe(2)
+  })
+
+  test('retries (408 status code)', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(408, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 2,
+      }),
+    ).rejects.toThrowError('The RPC HTTP request failed.')
+    expect(retryCount).toBe(2)
+  })
+
+  test('does not retry for 401', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(401, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 2,
+      }),
+    ).rejects.toThrowError('The RPC HTTP request failed.')
+    expect(retryCount).toBe(0)
+  })
+
+  test('retries (500 status code w/ Retry-After)', async () => {
+    let retryCount = -1
+
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(500, {
+        'Retry-After': 1,
+      })
+      res.end('ngmi')
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(initialBlockNumber), false],
+        },
+        retryCount: 2,
+      }),
+    ).rejects.toThrowError('The RPC HTTP request failed.')
+    expect(retryCount).toBe(2)
   })
 })
 
@@ -518,9 +675,53 @@ describe('webSocketAsync', () => {
       expect(err).toMatchInlineSnapshot(`
         [RpcTimeoutError: The request took too long to respond.
 
-        Details: The request timed out. Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+        URL: wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+        Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+
+        Details: The request timed out.
         Version: viem@1.0.2]
       `)
     }
   })
+})
+
+test('RpcHttpRequestError', () => {
+  const err = new RpcHttpRequestError({
+    url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+    body: {
+      method: 'eth_getBlockByNumber',
+      params: [numberToHex(initialBlockNumber), false],
+    },
+    status: 500,
+    details: 'Some error',
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [RpcHttpRequestError: The RPC HTTP request failed.
+
+    Status: 500
+    URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+    Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+
+    Details: Some error
+    Version: viem@1.0.2]
+  `)
+})
+
+test('RpcTimeoutError', () => {
+  const err = new RpcTimeoutError({
+    url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+    body: {
+      method: 'eth_getBlockByNumber',
+      params: [numberToHex(initialBlockNumber), false],
+    },
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [RpcTimeoutError: The request took too long to respond.
+
+    URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+    Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+
+    Details: The request timed out.
+    Version: viem@1.0.2]
+  `)
 })
