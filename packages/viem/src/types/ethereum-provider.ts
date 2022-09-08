@@ -240,7 +240,7 @@ export type TransactionResultBase<TQuantity = Quantity> = {
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: Data | null
   /** Number of block containing this transaction or `null` if pending */
-  blockNumber: TQuantity
+  blockNumber: TQuantity | null
   /** Transaction sender */
   from: Data
   /** Gas provided for transaction execution */
@@ -258,7 +258,7 @@ export type TransactionResultBase<TQuantity = Quantity> = {
   /** Transaction recipient or `null` if deploying a contract */
   to: Data | null
   /** Index of this transaction in the block or `null` if pending */
-  transactionIndex: TQuantity
+  transactionIndex: TQuantity | null
   /** ECDSA recovery ID */
   v: TQuantity
   /** Value in wei sent with this transaction */

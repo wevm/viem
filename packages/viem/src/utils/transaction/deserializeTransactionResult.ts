@@ -45,7 +45,7 @@ export function deserializeTransactionResult({
 }: ProviderTransactionResult): TransactionResult {
   const result: TransactionResultBase<bigint> = {
     blockHash,
-    blockNumber: BigInt(blockNumber),
+    blockNumber: blockNumber ? BigInt(blockNumber) : null,
     from,
     gas: BigInt(gas),
     hash,
@@ -54,7 +54,7 @@ export function deserializeTransactionResult({
     r,
     s,
     to,
-    transactionIndex: BigInt(transactionIndex),
+    transactionIndex: transactionIndex ? BigInt(transactionIndex) : null,
     v: BigInt(v),
     value: BigInt(value),
   }
