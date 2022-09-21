@@ -1,12 +1,15 @@
 import { Chain } from '../../../chains'
-import { ConnectedRequests } from '../../types/ethereum-provider'
+import {
+  ConnectedRequests,
+  PublicRequests,
+} from '../../types/ethereum-provider'
 import { BaseProvider } from '../createBaseProvider'
 import { WalletProvider } from '../wallet/createWalletProvider'
 
-export type AccountProviderRequestFn = ConnectedRequests['request']
+export type AccountProviderRequests = PublicRequests & ConnectedRequests
 
 export type AccountProvider = Omit<
-  BaseProvider<Chain, AccountProviderRequestFn>,
+  BaseProvider<Chain, AccountProviderRequests>,
   'chains'
 > & {
   address: string

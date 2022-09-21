@@ -4,7 +4,7 @@ export { injectedProvider } from './injected'
 export type {
   InjectedProvider,
   InjectedProviderConfig,
-  InjectedProviderRequestFn,
+  InjectedProviderRequests,
   InjectedProviderReturnValue,
 } from './injected'
 

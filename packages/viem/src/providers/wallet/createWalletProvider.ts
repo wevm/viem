@@ -3,15 +3,15 @@ import { Events } from '../../types/ethereum-provider'
 import {
   BaseProvider,
   BaseProviderConfig,
-  BaseProviderRequestFn,
+  BaseProviderRequests,
   createBaseProvider,
 } from '../createBaseProvider'
 
 export type WalletProviderConfig<
   TChain extends Chain = Chain,
-  TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
+  TRequests extends BaseProviderRequests = BaseProviderRequests,
   TKey extends string = string,
-> = Omit<BaseProviderConfig<TChain, TRequestFn, TKey>, 'type'> & {
+> = Omit<BaseProviderConfig<TChain, TRequests, TKey>, 'type'> & {
   /** Event listener callback that matches the EIP-1193 events spec. */
   on: Events['on']
   /** Event listener callback that matches the EIP-1193 events spec. */
@@ -20,9 +20,9 @@ export type WalletProviderConfig<
 
 export type WalletProvider<
   TChain extends Chain = Chain,
-  TRequestFn extends BaseProviderRequestFn = BaseProviderRequestFn,
+  TRequests extends BaseProviderRequests = BaseProviderRequests,
   TKey extends string = string,
-> = BaseProvider<TChain, TRequestFn, TKey> & {
+> = BaseProvider<TChain, TRequests, TKey> & {
   /** Event listener callback that matches the EIP-1193 events spec. */
   on: Events['on']
   /** Event listener callback that matches the EIP-1193 events spec. */
@@ -37,7 +37,7 @@ export type WalletProvider<
  * They have access to "public" RPC methods as well as event listeners. */
 export function createWalletProvider<
   TChain extends Chain,
-  TRequestFn extends BaseProviderRequestFn,
+  TRequests extends BaseProviderRequests,
   TKey extends string,
 >({
   chains,
@@ -48,9 +48,9 @@ export function createWalletProvider<
   removeListener,
   request,
   uniqueId,
-}: WalletProviderConfig<TChain, TRequestFn, TKey>): WalletProvider<
+}: WalletProviderConfig<TChain, TRequests, TKey>): WalletProvider<
   TChain,
-  TRequestFn,
+  TRequests,
   TKey
 > {
   const baseProvider = createBaseProvider({

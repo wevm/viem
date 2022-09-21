@@ -1,10 +1,11 @@
+import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 
 export type FetchBlockNumberResponse = number
 
 export async function fetchBlockNumber(
-  provider: NetworkProvider | WalletProvider,
+  provider: NetworkProvider | WalletProvider | AccountProvider,
 ): Promise<FetchBlockNumberResponse> {
   const blockNumber = await provider.request({
     method: 'eth_blockNumber',

@@ -4,17 +4,13 @@ import { buildRequest } from '../utils/buildRequest'
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type BaseProviderRequestFn = <TMethod extends string>({
-  method,
-  params,
-}: {
-  method: TMethod
-  params?: any[]
-}) => Promise<any>
+export type BaseProviderRequests = {
+  request(...args: any): Promise<any>
+}
 
 export type BaseProvider<
   TChain extends Chain = Chain,
-  TRequestFn extends BaseProviderRequestFn = PublicRequests['request'],
+  TRequests extends BaseProviderRequests = PublicRequests,
   TKey extends string = string,
   TType extends string = string,
 > = {
@@ -27,7 +23,7 @@ export type BaseProvider<
   /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
   pollingInterval: number
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
-  request: TRequestFn
+  request: TRequests['request']
   /** The type of provider. */
   type: TType
   /** A unique ID for the provider. */
@@ -36,10 +32,10 @@ export type BaseProvider<
 
 export type BaseProviderConfig<
   TChain extends Chain = Chain,
-  TRequestFn extends BaseProviderRequestFn = PublicRequests['request'],
+  TRequests extends BaseProviderRequests = PublicRequests,
   TKey extends string = string,
   TType extends string = string,
-> = PartialBy<BaseProvider<TChain, TRequestFn, TKey, TType>, 'pollingInterval'>
+> = PartialBy<BaseProvider<TChain, TRequests, TKey, TType>, 'pollingInterval'>
 
 /**
  * @description Creates a base provider with configured chains & a request function. Intended
@@ -52,7 +48,7 @@ export type BaseProviderConfig<
  */
 export function createBaseProvider<
   TChain extends Chain,
-  TRequestFn extends BaseProviderRequestFn,
+  TRequests extends BaseProviderRequests,
   TKey extends string,
   TType extends string,
 >({
@@ -63,9 +59,9 @@ export function createBaseProvider<
   request,
   type,
   uniqueId,
-}: BaseProviderConfig<TChain, TRequestFn, TKey, TType>): BaseProvider<
+}: BaseProviderConfig<TChain, TRequests, TKey, TType>): BaseProvider<
   TChain,
-  TRequestFn,
+  TRequests,
   TKey,
   TType
 > {

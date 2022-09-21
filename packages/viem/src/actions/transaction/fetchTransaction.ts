@@ -1,3 +1,4 @@
+import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 import type {
@@ -45,7 +46,7 @@ export type FetchTransactionArgs =
 export type FetchTransactionResponse = TransactionResult
 
 export async function fetchTransaction(
-  provider: NetworkProvider | WalletProvider,
+  provider: NetworkProvider | WalletProvider | AccountProvider,
   {
     blockHash,
     blockNumber,

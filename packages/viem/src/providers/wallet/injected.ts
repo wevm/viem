@@ -13,10 +13,9 @@ export type InjectedProviderConfig = {
   pollingInterval?: number
 }
 
-export type InjectedProviderRequestFn = (PublicRequests &
-  InjectedRequests)['request']
+export type InjectedProviderRequests = PublicRequests & InjectedRequests
 
-export type InjectedProvider = WalletProvider<Chain, InjectedProviderRequestFn>
+export type InjectedProvider = WalletProvider<Chain, InjectedProviderRequests>
 
 export type InjectedProviderReturnValue = InjectedProvider | null
 
@@ -41,7 +40,7 @@ export function injectedProvider({
     on: window.ethereum!.on.bind(window.ethereum!),
     pollingInterval,
     removeListener: window.ethereum!.removeListener.bind(window.ethereum!),
-    request: <InjectedProviderRequestFn>(
+    request: <InjectedProviderRequests['request']>(
       window.ethereum!.request.bind(window.ethereum!)
     ),
     uniqueId: key,

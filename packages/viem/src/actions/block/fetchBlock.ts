@@ -1,3 +1,4 @@
+import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
 import { Block, BlockTag, Data } from '../../types/ethereum-provider'
@@ -30,7 +31,7 @@ export type FetchBlockArgs = {
 export type FetchBlockResponse = Block<bigint>
 
 export async function fetchBlock(
-  provider: NetworkProvider | WalletProvider,
+  provider: NetworkProvider | WalletProvider | AccountProvider,
   {
     blockHash,
     blockNumber,

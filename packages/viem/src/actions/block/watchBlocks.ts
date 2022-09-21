@@ -1,3 +1,4 @@
+import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network'
 import { WalletProvider } from '../../providers/wallet'
 import { BlockTag } from '../../types/ethereum-provider'
@@ -19,7 +20,7 @@ export type WatchBlocksResponse = FetchBlockResponse
 export type WatchBlocksCallback = (block: WatchBlocksResponse) => void
 
 export function watchBlocks(
-  provider: NetworkProvider | WalletProvider,
+  provider: NetworkProvider | WalletProvider | AccountProvider,
   callback: WatchBlocksCallback,
   {
     blockTag = 'latest',

@@ -1,3 +1,4 @@
+import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network'
 import { WalletProvider } from '../../providers/wallet'
 import { observe } from '../../utils/observe'
@@ -16,7 +17,7 @@ export type WatchBlockNumberCallback = (
 ) => void
 
 export function watchBlockNumber(
-  provider: NetworkProvider | WalletProvider,
+  provider: NetworkProvider | WalletProvider | AccountProvider,
   callback: WatchBlockNumberCallback,
   {
     emitOnBegin = false,
