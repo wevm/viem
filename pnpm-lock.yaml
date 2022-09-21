@@ -91,15 +91,7 @@ importers:
       eslint-config-next: 12.2.2_he2ccbldppg44uulnyq4rwocfa
       typescript: 4.7.4
 
-  examples/bun:
-    specifiers:
-      bun-types: ^0.1.0
-      viem: workspace:*
-    devDependencies:
-      bun-types: 0.1.8
-      viem: link:../../packages/viem
-
-  examples/next:
+  examples/_dev:
     specifiers:
       '@next/bundle-analyzer': ^12.2.4
       '@preconstruct/next': ^4.0.0
@@ -2805,10 +2797,6 @@ packages:
   /builtin-modules/3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
     engines: {node: '>=6'}
-    dev: true
-
-  /bun-types/0.1.8:
-    resolution: {integrity: sha512-gIcflj8Urhq38QsIeZBeFsJyrJ0k2MUsxYJ4nNW2mkPLmvfvT+wyqdvXRpZVVEFtFZeGYXmihZW3AymWEXdbEA==}
     dev: true
 
   /bundlewatch/0.3.3:
