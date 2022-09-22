@@ -5,6 +5,7 @@ import {
   TransactionResultEIP2930,
   TransactionResultLegacy,
 } from '../../types/ethereum-provider'
+import { hexToNumber } from '../number'
 
 export const transactionType = {
   legacy: '0x0',
@@ -13,13 +14,13 @@ export const transactionType = {
 } as const
 
 export type TransactionResult =
-  | (Omit<TransactionResultLegacy<bigint>, 'type'> & {
+  | (Omit<TransactionResultLegacy<bigint, number>, 'type'> & {
       type: 'legacy'
     })
-  | (Omit<TransactionResultEIP2930<bigint>, 'type'> & {
+  | (Omit<TransactionResultEIP2930<bigint, number>, 'type'> & {
       type: 'eip2930'
     })
-  | (Omit<TransactionResultEIP1559<bigint>, 'type'> & {
+  | (Omit<TransactionResultEIP1559<bigint, number>, 'type'> & {
       type: 'eip1559'
     })
 
@@ -43,9 +44,9 @@ export function deserializeTransactionResult({
   v,
   value,
 }: ProviderTransactionResult): TransactionResult {
-  const result: TransactionResultBase<bigint> = {
+  const result: TransactionResultBase<bigint, number> = {
     blockHash,
-    blockNumber: blockNumber ? BigInt(blockNumber) : null,
+    blockNumber: blockNumber ? hexToNumber(blockNumber) : null,
     from,
     gas: BigInt(gas),
     hash,
@@ -54,7 +55,7 @@ export function deserializeTransactionResult({
     r,
     s,
     to,
-    transactionIndex: transactionIndex ? BigInt(transactionIndex) : null,
+    transactionIndex: transactionIndex ? hexToNumber(transactionIndex) : null,
     v: BigInt(v),
     value: BigInt(value),
   }

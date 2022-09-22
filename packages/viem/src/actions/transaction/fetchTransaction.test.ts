@@ -63,7 +63,7 @@ test('fetches transaction', async () => {
     '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
   )
   expect(transaction.gas).toBeDefined()
-  expect(transaction.transactionIndex).toMatchInlineSnapshot('0n')
+  expect(transaction.transactionIndex).toMatchInlineSnapshot('0')
   expect(transaction.to).toMatchInlineSnapshot(
     '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
   )
@@ -118,7 +118,7 @@ test('fetches transaction (legacy)', async () => {
     '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
   )
   expect(transaction.gas).toBeDefined()
-  expect(transaction.transactionIndex).toMatchInlineSnapshot('0n')
+  expect(transaction.transactionIndex).toMatchInlineSnapshot('0')
   expect(transaction.to).toMatchInlineSnapshot(
     '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
   )
@@ -174,7 +174,7 @@ test('fetches transaction (eip2930)', async () => {
     '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
   )
   expect(transaction.gas).toBeDefined()
-  expect(transaction.transactionIndex).toMatchInlineSnapshot('0n')
+  expect(transaction.transactionIndex).toMatchInlineSnapshot('0')
   expect(transaction.to).toMatchInlineSnapshot(
     '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
   )
@@ -200,7 +200,7 @@ describe('args: hash', () => {
       '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
     )
     expect(transaction.gas).toBeDefined()
-    expect(transaction.transactionIndex).toMatchInlineSnapshot('0n')
+    expect(transaction.transactionIndex).toMatchInlineSnapshot('0')
     expect(transaction.to).toMatchInlineSnapshot(
       '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
     )
@@ -233,7 +233,7 @@ describe('args: blockHash', () => {
       '"0xd4bddf5e3d0435d7a6214a0b949c7bb58621f37c"',
     )
     expect(transaction.gas).toMatchInlineSnapshot('250000n')
-    expect(transaction.transactionIndex).toMatchInlineSnapshot('5n')
+    expect(transaction.transactionIndex).toMatchInlineSnapshot('5')
     expect(transaction.to).toMatchInlineSnapshot(
       '"0x3845badade8e6dff049820680d1f14bd3903a5d0"',
     )
@@ -265,7 +265,7 @@ describe('args: blockNumber', () => {
       '"0xc937580291f30d7d25174df96b31f9649d346d9c"',
     )
     expect(transaction.gas).toMatchInlineSnapshot('62230n')
-    expect(transaction.transactionIndex).toMatchInlineSnapshot('5n')
+    expect(transaction.transactionIndex).toMatchInlineSnapshot('5')
     expect(transaction.to).toMatchInlineSnapshot(
       '"0xdac17f958d2ee523a2206206994597c13d831ec7"',
     )

@@ -1,8 +1,12 @@
 import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
-import { Block, BlockTag, Data } from '../../types/ethereum-provider'
-import { BaseError, numberToHex } from '../../utils'
+import {
+  BlockTag,
+  Data,
+  Block as ProviderBlock,
+} from '../../types/ethereum-provider'
+import { BaseError, Block, deserializeBlock, numberToHex } from '../../utils'
 
 export type FetchBlockArgs = {
   /** Whether or not to include transaction data in the response. */
@@ -28,7 +32,7 @@ export type FetchBlockArgs = {
     }
 )
 
-export type FetchBlockResponse = Block<bigint>
+export type FetchBlockResponse = Block
 
 export async function fetchBlock(
   provider: NetworkProvider | WalletProvider | AccountProvider,
@@ -42,7 +46,7 @@ export async function fetchBlock(
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  let block: Block | null = null
+  let block: ProviderBlock | null = null
   if (blockHash) {
     block = await provider.request({
       method: 'eth_getBlockByHash',
@@ -57,58 +61,6 @@ export async function fetchBlock(
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
   return deserializeBlock(block)
-}
-
-///////////////////////////////////////////////////////
-
-// Serializers
-
-export function deserializeBlock({
-  baseFeePerGas,
-  difficulty,
-  extraData,
-  gasLimit,
-  gasUsed,
-  hash,
-  logsBloom,
-  miner,
-  mixHash,
-  nonce,
-  number,
-  parentHash,
-  receiptsRoot,
-  sha3Uncles,
-  size,
-  stateRoot,
-  timestamp,
-  totalDifficulty,
-  transactions,
-  transactionsRoot,
-  uncles,
-}: Block): Block<bigint> {
-  return {
-    baseFeePerGas: baseFeePerGas ? BigInt(baseFeePerGas) : null,
-    difficulty: BigInt(difficulty),
-    extraData,
-    gasLimit: BigInt(gasLimit),
-    gasUsed: BigInt(gasUsed),
-    hash,
-    logsBloom,
-    miner,
-    mixHash,
-    nonce,
-    number: number ? BigInt(number) : null,
-    parentHash,
-    receiptsRoot,
-    sha3Uncles,
-    size: BigInt(size),
-    stateRoot,
-    timestamp: BigInt(timestamp),
-    totalDifficulty: totalDifficulty ? BigInt(totalDifficulty) : null,
-    transactions,
-    transactionsRoot,
-    uncles,
-  }
 }
 
 ///////////////////////////////////////////////////////

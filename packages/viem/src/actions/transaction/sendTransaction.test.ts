@@ -6,7 +6,12 @@ import {
   networkProvider,
   testProvider,
 } from '../../../test/utils'
-import { etherToValue, gweiToValue, numberToHex } from '../../utils'
+import {
+  etherToValue,
+  gweiToValue,
+  hexToNumber,
+  numberToHex,
+} from '../../utils'
 import { fetchBalance } from '../account'
 import { fetchBlock } from '../block'
 import { mine, setBalance } from '../test'
@@ -422,7 +427,7 @@ describe('args: nonce', () => {
             from: sourceAccount.address,
             to: targetAccount.address,
             value: etherToValue('1'),
-            nonce: BigInt(transactionCount),
+            nonce: hexToNumber(transactionCount),
           },
         })
       ).hash,
@@ -452,7 +457,7 @@ describe('args: nonce', () => {
           from: sourceAccount.address,
           to: targetAccount.address,
           value: etherToValue('1'),
-          nonce: 1n,
+          nonce: 1,
         },
       }),
     ).rejects.toThrowError(`nonce too low`)

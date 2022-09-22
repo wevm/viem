@@ -5,6 +5,7 @@ import * as number from './index'
 test('exports number', () => {
   expect(number).toMatchInlineSnapshot(`
     {
+      "hexToNumber": [Function],
       "numberToHex": [Function],
       Symbol(Symbol.toStringTag): "Module",
     }

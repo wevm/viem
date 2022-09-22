@@ -24,6 +24,7 @@ test('exports utils', () => {
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
       "checksumAddress": [Function],
+      "deserializeBlock": [Function],
       "deserializeTransactionResult": [Function],
       "displayToValue": [Function],
       "etherToValue": [Function],
@@ -36,6 +37,7 @@ test('exports utils', () => {
         "ether": -9,
         "wei": 9,
       },
+      "hexToNumber": [Function],
       "numberToHex": [Function],
       "rpc": {
         "http": [Function],

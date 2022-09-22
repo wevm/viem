@@ -21,7 +21,10 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
-export { numberToHex } from './number'
+export { deserializeBlock } from './block'
+export type { Block } from './block'
+
+export { hexToNumber, numberToHex } from './number'
 
 export { RpcHttpRequestError, RpcTimeoutError, rpc } from './rpc'
 
