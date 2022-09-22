@@ -1,0 +1,72 @@
+@tailwind utilities;
+
+body {
+  --shiki-color-text: #414141;
+  --shiki-color-background: transparent;
+  --shiki-token-constant: #1976d2;
+  --shiki-token-string: #22863a;
+  --shiki-token-comment: #aaa;
+  --shiki-token-keyword: #d32f2f;
+  --shiki-token-parameter: #ff9800;
+  --shiki-token-function: #6f42c1;
+  --shiki-token-string-expression: #22863a;
+  --shiki-token-punctuation: #212121;
+  --shiki-token-link: #22863a;
+  --nextra-shiki-deleted: #f00;
+  --nextra-shiki-inserted: #f00;
+}
+
+.dark body {
+  --shiki-color-text: #d1d1d1;
+  --shiki-token-constant: #79b8ff;
+  --shiki-token-string: #ffab70;
+  --shiki-token-comment: #6b737c;
+  --shiki-token-keyword: #f472b6;
+  --shiki-token-parameter: #ff9800;
+  --shiki-token-function: #f472b6;
+  --shiki-token-string-expression: #7dd3fc;
+  --shiki-token-punctuation: #bbbbbb;
+  --shiki-token-link: #ffab70;
+}
+
+
+.docs-search > span {
+  width: 100%;
+}
+
+.algolia-autocomplete .algolia-docsearch-suggestion--category-header span {
+  display: inline-block;
+}
+.algolia-autocomplete .ds-dropdown-menu {
+  width: 500px;
+  min-width: 300px;
+  max-width: calc(100vw - 50px);
+}
+
+[data-reach-skip-link] {
+  @apply sr-only;
+}
+
+[data-reach-skip-link]:focus {
+  @apply not-sr-only fixed ml-6 top-0 bg-white text-lg px-6 py-2 mt-2 outline-none focus:ring z-50;
+}
+
+.dark .invert-on-dark {
+  filter: invert(1) brightness(1.8);
+}
+
+body {
+  background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 1) 300px
+    ),
+    fixed 0 0 / 20px 20px radial-gradient(#d1d1d1 1px, transparent 0),
+    fixed 10px 10px / 20px 20px radial-gradient(#d1d1d1 1px, transparent 0);
+}
+
+.dark body {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #111 300px),
+    fixed 0 0 / 20px 20px radial-gradient(#313131 1px, transparent 0),
+    fixed 10px 10px / 20px 20px radial-gradient(#313131 1px, transparent 0);
+}
