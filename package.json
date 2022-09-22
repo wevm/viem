@@ -9,7 +9,6 @@
     "changeset:version": "changeset version && pnpm install --lockfile-only",
     "dev": "preconstruct dev",
     "dev:docs": "pnpm --filter docs dev",
-    "example:bun": "pnpm --filter example-bun dev",
     "example:next": "pnpm --filter example-next dev",
     "format": "prettier . --write",
     "lint": "eslint . --cache",
