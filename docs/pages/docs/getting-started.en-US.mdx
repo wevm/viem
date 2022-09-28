@@ -7,3 +7,34 @@ import { Callout } from 'nextra-theme-docs'
 ```bash
 npm i viem
 ```
+
+## Quick Start
+
+### 1. Set up your provider
+
+Firstly, set up your [provider](/TODO) with a desired [chain](/TODO).
+
+```tsx {1-2,4}
+import { httpProvider } from 'viem/providers/network'
+import { mainnet } from 'viem/chains'
+
+const mainnetProvider = httpProvider({ chain: mainnet })
+```
+
+[Read more about setting up providers.](/TODO)
+
+### 2. Consume actions!
+
+Now that you have a provider set up, you can now interact with Ethereum & consume [actions](/TODO)!
+
+```tsx {3,7}
+import { httpProvider } from 'viem/providers/network'
+import { mainnet } from 'viem/chains'
+import { fetchBlockNumber } from 'viem/actions'
+
+const mainnetProvider = httpProvider({ chain: mainnet })
+
+const blockNumber = await fetchBlockNumber(httpProvider)
+```
+
+[Read more about actions.](/TODO)

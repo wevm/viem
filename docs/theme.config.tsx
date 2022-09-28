@@ -72,7 +72,7 @@ const config: DocsThemeConfig = {
       )
     },
   },
-  gitTimestamp: ({ timestamp }) => <>Last updated on {timestamp.toString()}</>,
+  gitTimestamp: null,
   head() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const config = useConfig()
@@ -127,6 +127,12 @@ const config: DocsThemeConfig = {
   },
   sidebar: {
     defaultMenuCollapsed: true,
+    titleComponent: ({ title, type }) =>
+      type === 'separator' ? (
+        <div className="-mb-5 -mt-3">{title}</div>
+      ) : (
+        <>{title}</>
+      ),
   },
   titleSuffix: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

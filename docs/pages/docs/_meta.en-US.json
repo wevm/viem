@@ -1,3 +1,22 @@
 {
-  "getting-started": "Getting Started"
+  "getting-started": "Getting Started",
+  "chains": "Chains",
+  "--- providers": {
+    "title": "Providers",
+    "type": "separator"
+  },
+  "intro-to-providers": "Intro",
+  "network-providers": {
+    "title": "Network Providers"
+  },
+  "wallet-providers": "Wallet Providers",
+  "account-provider": "Account Provider",
+  "test-provider": "Test Provider",
+  "--- actions": {
+    "title": "Actions",
+    "type": "separator"
+  },
+  "intro-to-actions": "Intro",
+  "fetchBlock": "fetchBlock",
+  "fetchBlockNumber": "fetchBlockNumber"
 }

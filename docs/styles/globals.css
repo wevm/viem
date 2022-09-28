@@ -23,12 +23,11 @@ body {
   --shiki-token-comment: #6b737c;
   --shiki-token-keyword: #f472b6;
   --shiki-token-parameter: #ff9800;
-  --shiki-token-function: #f472b6;
+  --shiki-token-function: #72f476;
   --shiki-token-string-expression: #7dd3fc;
   --shiki-token-punctuation: #bbbbbb;
   --shiki-token-link: #ffab70;
 }
-
 
 .docs-search > span {
   width: 100%;

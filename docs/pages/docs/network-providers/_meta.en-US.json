@@ -1,0 +1,9 @@
+{
+  "http": "HTTP",
+  "webSocket": "WebSocket",
+  "--- hey": {
+    "title": "Third Party",
+    "type": "separator"
+  },
+  "alchemy": "Alchemy"
+}
