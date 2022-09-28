@@ -51,7 +51,7 @@ export function deserializeTransactionResult({
     gas: BigInt(gas),
     hash,
     input,
-    nonce: BigInt(nonce),
+    nonce: hexToNumber(nonce),
     r,
     s,
     to,
