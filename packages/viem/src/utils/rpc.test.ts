@@ -82,7 +82,7 @@ describe('http', () => {
         },
         retryCount: 0,
       }),
-    ).rejects.toThrowError(`Details: ngmi`)
+    ).rejects.toThrowError(`Details: "ngmi"`)
     expect(retryCount).toBe(0)
   })
 
@@ -121,7 +121,7 @@ describe('http', () => {
       expect(err).toMatchInlineSnapshot(`
         [RpcTimeoutError: The request took too long to respond.
 
-        URL: https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+        URL: https://cloudflare-eth.com
         Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
 
         Details: The request timed out.
@@ -661,8 +661,8 @@ describe('webSocketAsync', () => {
     )
   })
 
-  test('timeout', async () => {
-    const socket = await getSocket(mainnet.rpcUrls.default.webSocket)
+  test.skip('timeout', async () => {
+    const socket = await getSocket(local.rpcUrls.default.webSocket)
     try {
       await rpc.webSocketAsync(socket, {
         body: {

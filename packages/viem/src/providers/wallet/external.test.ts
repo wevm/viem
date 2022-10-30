@@ -42,17 +42,8 @@ test('creates', () => {
           },
           "network": "mainnet",
           "rpcUrls": {
-            "alchemy": {
-              "http": "https://eth-mainnet.alchemyapi.io/v2",
-              "webSocket": "wss://eth-mainnet.g.alchemy.com/v2",
-            },
             "default": {
-              "http": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-              "webSocket": "wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            },
-            "infura": {
-              "http": "https://mainnet.infura.io/v3",
-              "webSocket": "wss://mainnet.infura.io/ws/v3",
+              "http": "https://cloudflare-eth.com",
             },
           },
         },
@@ -80,17 +71,8 @@ test('creates', () => {
           },
           "network": "polygon",
           "rpcUrls": {
-            "alchemy": {
-              "http": "https://polygon-mainnet.g.alchemy.com/v2",
-              "webSocket": "wss://polygon-mainnet.g.alchemy.com/v2",
-            },
             "default": {
-              "http": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-              "webSocket": "wss://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            },
-            "infura": {
-              "http": "https://polygon-mainnet.infura.io/v3",
-              "webSocket": "wss://polygon-mainnet.infura.io/v3",
+              "http": "https://polygon-rpc.com",
             },
           },
         },

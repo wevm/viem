@@ -13,7 +13,7 @@ const chains = [arbitrum, goerli, mainnet, optimism, polygon]
 
 const wcProvider = new WalletConnectProvider({
   rpc: chains.reduce(
-    (rpcMap, chain) => ({ ...rpcMap, [chain.id]: chain.rpcUrls.alchemy.http }),
+    (rpcMap, chain) => ({ ...rpcMap, [chain.id]: chain.rpcUrls.default.http }),
     {},
   ),
 })

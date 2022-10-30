@@ -1,26 +1,26 @@
 import { useState } from 'react'
 import 'viem/window'
 
-import { AlchemyNetwork } from '../components/providers/AlchemyNetwork'
+import { HttpNetwork } from '../components/providers/HttpNetwork'
 import { InjectedAccount } from '../components/providers/InjectedAccount'
 import { InjectedWallet } from '../components/providers/InjectedWallet'
 import { WalletConnectAccount } from '../components/providers/WalletConnectAccount'
 
 export default function Index() {
-  const [provider, setProvider] = useState('alchemy-network')
+  const [provider, setProvider] = useState('http-network')
   return (
     <div>
-      <h1>𝐯𝐢𝐞𝐦 alpha</h1>
+      <h1>viem alpha</h1>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 16 }}>
         <div>
           <input
             type="radio"
-            id="alchemy-network"
+            id="http-network"
             name="provider"
-            onChange={() => setProvider('alchemy-network')}
-            checked={provider === 'alchemy-network'}
+            onChange={() => setProvider('http-network')}
+            checked={provider === 'http-network'}
           />
-          <label htmlFor="alchemy-network">Network: alchemyProvider</label>
+          <label htmlFor="http-network">Network: httpProvider</label>
         </div>
         <div>
           <input
@@ -55,7 +55,7 @@ export default function Index() {
           </label>
         </div>
       </div>
-      {provider === 'alchemy-network' && <AlchemyNetwork />}
+      {provider === 'http-network' && <HttpNetwork />}
       {provider === 'injected-wallet' && <InjectedWallet />}
       {provider === 'injected-account' && <InjectedAccount />}
       {provider === 'wc-account' && <WalletConnectAccount />}

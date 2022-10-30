@@ -33,17 +33,8 @@ test('exports chains', () => {
         },
         "network": "arbitrum",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://arb-mainnet.g.alchemy.com/v2",
-            "webSocket": "wss://arb-mainnet.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://arb-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://arb-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://arbitrum-mainnet.infura.io/v3",
-            "webSocket": "wss://arbitrum-mainnet.infura.io/v3",
+            "http": "https://arb1.arbitrum.io/rpc",
           },
         },
       },
@@ -71,17 +62,8 @@ test('exports chains', () => {
         },
         "network": "arbitrumGoerli",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://arb-goerli.g.alchemy.com/v2",
-            "webSocket": "wss://arb-goerli.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://arb-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://arb-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://arbitrum-goerli.infura.io/v3",
-            "webSocket": "wss://arbitrum-goerli.infura.io/v3",
+            "http": "https://goerli-rollup.arbitrum.io/rpc",
           },
         },
         "testnet": true,
@@ -113,17 +95,8 @@ test('exports chains', () => {
         },
         "network": "goerli",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://eth-goerli.alchemyapi.io/v2",
-            "webSocket": "wss://eth-goerli.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://eth-goerli.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://eth-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://goerli.infura.io/v3",
-            "webSocket": "wss://goerli.infura.io/ws/v3",
+            "http": "https://rpc.ankr.com/eth_goerli",
           },
         },
         "testnet": true,
@@ -172,17 +145,8 @@ test('exports chains', () => {
         },
         "network": "mainnet",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://eth-mainnet.alchemyapi.io/v2",
-            "webSocket": "wss://eth-mainnet.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://mainnet.infura.io/v3",
-            "webSocket": "wss://mainnet.infura.io/ws/v3",
+            "http": "https://cloudflare-eth.com",
           },
         },
       },
@@ -210,17 +174,8 @@ test('exports chains', () => {
         },
         "network": "optimism",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://opt-mainnet.g.alchemy.com/v2",
-            "webSocket": "wss://opt-mainnet.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://opt-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://opt-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://optimism-mainnet.infura.io/v3",
-            "webSocket": "wss://optimism-mainnet.infura.io/v3",
+            "http": "https://mainnet.optimism.io",
           },
         },
       },
@@ -248,17 +203,8 @@ test('exports chains', () => {
         },
         "network": "optimismGoerli",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://opt-goerli.g.alchemy.com/v2",
-            "webSocket": "wss://opt-goerli.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://opt-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://opt-goerli.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://optimism-goerli.infura.io/v3",
-            "webSocket": "wss://optimism-goerli.infura.io/v3",
+            "http": "https://goerli.optimism.io",
           },
         },
         "testnet": true,
@@ -287,17 +233,8 @@ test('exports chains', () => {
         },
         "network": "polygon",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://polygon-mainnet.g.alchemy.com/v2",
-            "webSocket": "wss://polygon-mainnet.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://polygon-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://polygon-mainnet.infura.io/v3",
-            "webSocket": "wss://polygon-mainnet.infura.io/v3",
+            "http": "https://polygon-rpc.com",
           },
         },
       },
@@ -325,17 +262,8 @@ test('exports chains', () => {
         },
         "network": "polygonMumbai",
         "rpcUrls": {
-          "alchemy": {
-            "http": "https://polygon-mumbai.g.alchemy.com/v2",
-            "webSocket": "wss://polygon-mumbai.g.alchemy.com/v2",
-          },
           "default": {
-            "http": "https://polygon-mumbai.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-            "webSocket": "wss://polygon-mumbai.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
-          },
-          "infura": {
-            "http": "https://polygon-mumbai.infura.io/v3",
-            "webSocket": "wss://polygon-mumbai.infura.io/v3",
+            "http": "https://matic-mumbai.chainstacklabs.com",
           },
         },
         "testnet": true,

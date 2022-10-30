@@ -1,5 +1,5 @@
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { alchemyHttpProvider } from 'viem/providers/network'
+import { httpProvider } from 'viem/providers/network'
 
 import { FetchBalance } from '../actions/FetchBalance'
 import { FetchBlock } from '../actions/FetchBlock'
@@ -9,14 +9,14 @@ import { WatchBlocks } from '../actions/WatchBlocks'
 import { WatchBlockNumber } from '../actions/WatchBlockNumber'
 
 const providers = {
-  mainnet: alchemyHttpProvider({ chain: mainnet }),
-  polygon: alchemyHttpProvider({ chain: polygon }),
-  optimism: alchemyHttpProvider({ chain: optimism }),
-  arbitrum: alchemyHttpProvider({ chain: arbitrum }),
-  goerli: alchemyHttpProvider({ chain: goerli }),
+  mainnet: httpProvider({ chain: mainnet }),
+  polygon: httpProvider({ chain: polygon }),
+  optimism: httpProvider({ chain: optimism }),
+  arbitrum: httpProvider({ chain: arbitrum }),
+  goerli: httpProvider({ chain: goerli }),
 }
 
-export function AlchemyNetwork() {
+export function HttpNetwork() {
   return (
     <div>
       <hr />

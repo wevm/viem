@@ -6,12 +6,8 @@
     - Cache deterministic responses? i.e. `eth_call` responses
 - Network Providers
   - Provider Types
-    - Custom JSON RPC
-    - Alchemy
-    - Infura
-    - Ankr
-    - Public
-    - ??
+    - HTTP
+    - WebSocket
   - Custom Request
   - Connection Details
   - Realtime?

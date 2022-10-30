@@ -1,10 +1,3 @@
-export { alchemyHttpProvider, alchemyWebSocketProvider } from './alchemy'
-export type {
-  AlchemyHttpProvider,
-  AlchemyWebSocketProvider,
-  AlchemyProviderConfig,
-} from './alchemy'
-
 export type { NetworkProvider } from './createNetworkProvider'
 
 export { httpProvider } from './http'
