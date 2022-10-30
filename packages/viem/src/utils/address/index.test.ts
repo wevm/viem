@@ -6,7 +6,6 @@ test('exports address', () => {
   expect(address).toMatchInlineSnapshot(`
     {
       "checksumAddress": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

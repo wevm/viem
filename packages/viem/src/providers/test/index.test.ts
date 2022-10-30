@@ -7,7 +7,6 @@ test('exports providers', () => {
     {
       "anvilProvider": [Function],
       "hardhatProvider": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

@@ -1,9 +1,0 @@
-{
-  "injected": "Injected",
-  "external": "External",
-  "--- hey": {
-    "title": "Third Party",
-    "type": "separator"
-  },
-  "wallet-connect": "Wallet Connect"
-}

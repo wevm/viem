@@ -1,4 +1,4 @@
 {
-  "main": "dist/viem-providers-wallet.cjs.js",
-  "module": "dist/viem-providers-wallet.esm.js"
+  "type": "module",
+  "main": "../../dist/providers/wallet/index.js"
 }

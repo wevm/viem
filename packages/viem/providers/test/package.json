@@ -1,4 +1,4 @@
 {
-  "main": "dist/viem-providers-test.cjs.js",
-  "module": "dist/viem-providers-test.esm.js"
+  "type": "module",
+  "main": "../../dist/providers/test/index.js"
 }

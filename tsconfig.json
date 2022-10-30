@@ -1,17 +1,22 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "preserveSymlinks": true,
+    "baseUrl": ".",
     "declaration": true,
     "declarationDir": "dist",
+    "esModuleInterop": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "paths": {
+      "viem": ["packages/viem/src"],
+      "viem/*": ["packages/viem/src/*"]
+    },
+    "preserveSymlinks": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "resolveJsonModule": true,
+    "target": "ESNext",
     "types": ["node"]
   }
 }

@@ -7,7 +7,6 @@ test('exports utils', () => {
     {
       "withRetry": [Function],
       "withTimeout": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

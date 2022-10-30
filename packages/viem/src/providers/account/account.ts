@@ -1,4 +1,4 @@
-import { Chain } from '../../../chains'
+import { Chain } from '../../chains'
 import {
   ConnectedRequests,
   PublicRequests,

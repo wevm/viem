@@ -132,7 +132,7 @@ async function http(
   if (!response.ok) {
     throw new RpcHttpRequestError({
       body,
-      details: data.error || response.statusText,
+      details: JSON.stringify(data.error) || response.statusText,
       status: response.status,
       url,
     })

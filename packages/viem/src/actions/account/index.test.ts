@@ -7,7 +7,6 @@ test('exports actions', () => {
     {
       "fetchBalance": [Function],
       "requestAccountAddresses": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

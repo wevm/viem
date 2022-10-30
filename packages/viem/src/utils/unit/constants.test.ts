@@ -17,7 +17,6 @@ test('exports constants', () => {
         "ether": -18,
         "gwei": -9,
       },
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

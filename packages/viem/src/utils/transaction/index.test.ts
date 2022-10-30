@@ -12,7 +12,6 @@ test('exports utils', () => {
         "eip2930": "0x1",
         "legacy": "0x0",
       },
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

@@ -7,7 +7,6 @@ test('exports number', () => {
     {
       "hexToNumber": [Function],
       "numberToHex": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

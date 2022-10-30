@@ -2,6 +2,10 @@
   "name": "viem",
   "description": "TypeScript (& JavaScript) Interface for Ethereum",
   "version": "0.0.0",
+  "scripts": {
+    "build": "tsup",
+    "dev": "DEV=true tsup"
+  },
   "dependencies": {
     "@noble/hashes": "^1.1.2"
   },
@@ -17,54 +21,41 @@
   "exports": {
     ".": "./dist/index.js",
     "./actions": {
-      "module": "./actions/dist/viem-actions.esm.js",
-      "default": "./actions/dist/viem-actions.cjs.js"
+      "types": "./dist/actions/index.d.ts",
+      "default": "./dist/actions/index.js"
     },
     "./chains": {
-      "module": "./chains/dist/viem-chains.esm.js",
-      "default": "./chains/dist/viem-chains.cjs.js"
+      "types": "./dist/chains.d.ts",
+      "default": "./dist/chains.js"
     },
     "./providers/account": {
-      "module": "./providers/account/dist/viem-providers-account.esm.js",
-      "default": "./providers/account/dist/viem-providers-account.cjs.js"
+      "types": "./dist/providers/account/index.d.ts",
+      "default": "./dist/providers/account/index.js"
     },
     "./providers/network": {
-      "module": "./providers/network/dist/viem-providers-network.esm.js",
-      "default": "./providers/network/dist/viem-providers-network.cjs.js"
+      "types": "./dist/providers/network/index.d.ts",
+      "default": "./dist/providers/network/index.js"
     },
     "./providers/test": {
-      "module": "./providers/test/dist/viem-providers-test.esm.js",
-      "default": "./providers/test/dist/viem-providers-test.cjs.js"
+      "types": "./dist/providers/test/index.d.ts",
+      "default": "./dist/providers/test/index.js"
     },
     "./providers/wallet": {
-      "module": "./providers/wallet/dist/viem-providers-wallet.esm.js",
-      "default": "./providers/wallet/dist/viem-providers-wallet.cjs.js"
+      "types": "./dist/providers/wallet/index.d.ts",
+      "default": "./dist/providers/wallet/index.js"
     },
     "./utils": {
-      "module": "./utils/dist/viem-utils.esm.js",
-      "default": "./utils/dist/viem-utils.cjs.js"
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     },
     "./window": {
-      "module": "./window/dist/viem-window.esm.js",
-      "default": "./window/dist/viem-window.cjs.js"
+      "types": "./dist/window.d.ts",
+      "default": "./dist/window.js"
     }
   },
-  "preconstruct": {
-    "entrypoints": [
-      "actions/index.ts",
-      "chains.ts",
-      "index.ts",
-      "providers/account/index.ts",
-      "providers/network/index.ts",
-      "providers/test/index.ts",
-      "providers/wallet/index.ts",
-      "utils/index.ts",
-      "window.ts"
-    ]
-  },
-  "main": "dist/viem.cjs.js",
-  "module": "dist/viem.esm.js",
-  "types": "dist/viem.cjs.d.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "WAGMIT",
   "repository": "wagmi-dev/viem",
   "author": "moxey.eth",

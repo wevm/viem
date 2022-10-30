@@ -9,7 +9,6 @@ test('exports providers', () => {
       "alchemyWebSocketProvider": [Function],
       "httpProvider": [Function],
       "webSocketProvider": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

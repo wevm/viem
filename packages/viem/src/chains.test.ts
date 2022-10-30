@@ -373,7 +373,6 @@ test('exports chains', () => {
         },
         "testnet": true,
       },
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

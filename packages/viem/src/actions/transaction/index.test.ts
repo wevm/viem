@@ -7,7 +7,6 @@ test('exports actions', () => {
     {
       "fetchTransaction": [Function],
       "sendTransaction": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

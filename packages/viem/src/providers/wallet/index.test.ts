@@ -7,7 +7,6 @@ test('exports providers', () => {
     {
       "externalProvider": [Function],
       "injectedProvider": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

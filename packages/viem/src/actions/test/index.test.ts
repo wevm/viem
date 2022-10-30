@@ -7,7 +7,6 @@ test('exports actions', () => {
     {
       "mine": [Function],
       "setBalance": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

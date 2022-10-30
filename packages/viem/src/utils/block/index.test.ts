@@ -6,7 +6,6 @@ test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "deserializeBlock": [Function],
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })

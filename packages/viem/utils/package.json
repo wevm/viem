@@ -1,4 +1,4 @@
 {
-  "main": "dist/viem-utils.cjs.js",
-  "module": "dist/viem-utils.esm.js"
+  "type": "module",
+  "main": "../../dist/utils/index.js"
 }

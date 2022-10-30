@@ -23,7 +23,6 @@ test('exports value utils', () => {
         "ether": -18,
         "gwei": -9,
       },
-      Symbol(Symbol.toStringTag): "Module",
     }
   `)
 })
