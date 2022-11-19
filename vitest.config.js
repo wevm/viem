@@ -10,6 +10,6 @@ export default defineConfig({
       statements: 98,
     },
     environment: 'jsdom',
-    globalSetup: './packages/viem/test/globalSetup.ts',
+    globalSetup: './packages/core/test/setup.ts',
   },
 })

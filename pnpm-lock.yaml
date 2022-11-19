@@ -82,7 +82,7 @@ importers:
       next: 12.2.2_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../packages/viem
+      viem: link:../../packages/core
     devDependencies:
       '@next/bundle-analyzer': 12.2.4
       '@preconstruct/next': 4.0.0
@@ -93,7 +93,7 @@ importers:
       eslint-config-next: 12.2.2_he2ccbldppg44uulnyq4rwocfa
       typescript: 4.7.4
 
-  packages/viem:
+  packages/core:
     specifiers:
       '@noble/hashes': ^1.1.2
     dependencies:

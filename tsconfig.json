@@ -8,10 +8,6 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "node",
-    "paths": {
-      "viem": ["packages/viem/src"],
-      "viem/*": ["packages/viem/src/*"]
-    },
     "preserveSymlinks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
