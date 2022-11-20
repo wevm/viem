@@ -133,34 +133,16 @@ describe('args: gas', () => {
   test('sends transaction with too little gas', async () => {
     await setup()
 
-    expect(
-      (
-        await sendTransaction(accountProvider, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: etherToValue('1'),
-            gas: 100n,
-          },
-        })
-      ).hash,
-    ).toBeDefined()
-
-    expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-    expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-
-    await mine(testProvider, { blocks: 1 })
-
-    expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-    expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(() =>
+      sendTransaction(accountProvider, {
+        request: {
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: etherToValue('1'),
+          gas: 100n,
+        },
+      }),
+    ).rejects.toThrowError(`intrinsic gas too low`)
   })
 
   test('sends transaction with too much gas', async () => {
