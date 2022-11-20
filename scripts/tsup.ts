@@ -33,6 +33,7 @@ export function getConfig({
       async onSuccess() {
         // remove all files in dist
         await fs.emptyDir('dist')
+
         // symlink files and type definitions
         for (const file of entry) {
           const filePath = path.resolve(file)
@@ -41,17 +42,15 @@ export function getConfig({
             .replace(/\.ts$/, '.js')
           // Make sure directory exists
           await fs.ensureDir(path.dirname(distSourceFile))
+          // Create symlink between source and dist file
+          await fs.symlink(filePath, distSourceFile, 'file')
           // Create file linking up type definitions
-          const srcSourceFile = path
+          const srcTypesFile = path
             .relative(path.dirname(distSourceFile), filePath)
             .replace(/\.ts$/, '')
           await fs.outputFile(
-            distSourceFile,
-            `export * from '${srcSourceFile}'`,
-          )
-          await fs.outputFile(
             distSourceFile.replace(/\.js$/, '.d.ts'),
-            `export * from '${srcSourceFile}'`,
+            `export * from '${srcTypesFile}'`,
           )
         }
         validateExports(exports)
