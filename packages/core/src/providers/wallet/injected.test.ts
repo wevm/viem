@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
-import { accounts } from '../../../test/utils'
+import { accounts } from '../../../../test/src/utils'
 
 import { local, mainnet, polygon } from '../../chains'
 import { rpc } from '../../utils'

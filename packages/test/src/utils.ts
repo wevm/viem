@@ -1,11 +1,12 @@
+import { local } from 'viem/chains'
+import { accountProvider as accountProvider_ } from 'viem/providers/account'
+import { httpProvider, webSocketProvider } from 'viem/providers/network'
+import { anvilProvider } from 'viem/providers/test'
+import { externalProvider } from 'viem/providers/wallet'
+import { rpc } from 'viem/utils'
+
 import { RequestListener, createServer } from 'http'
 import { AddressInfo } from 'net'
-import { local } from '../src/chains'
-import { accountProvider as accountProvider_ } from '../src/providers/account'
-import { httpProvider, webSocketProvider } from '../src/providers/network'
-import { anvilProvider } from '../src/providers/test'
-import { externalProvider } from '../src/providers/wallet'
-import { rpc } from '../src/utils/rpc'
 
 export const accounts = [
   {

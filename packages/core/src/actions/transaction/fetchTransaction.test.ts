@@ -6,7 +6,7 @@ import {
   initialBlockNumber,
   networkProvider,
   testProvider,
-} from '../../../test/utils'
+} from '../../../../test/src/utils'
 import { etherToValue } from '../../utils'
 import { fetchBlock } from '../block'
 import { sendTransaction } from '../transaction'

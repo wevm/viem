@@ -5,7 +5,7 @@ import {
   accounts,
   networkProvider,
   testProvider,
-} from '../../../test/utils'
+} from '../../../../test/src/utils'
 import {
   etherToValue,
   gweiToValue,

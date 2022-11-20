@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer } from '../../../test/utils'
+import { createHttpServer } from '../../../../test/src/utils'
 import { withRetry } from './withRetry'
 
 test('shouldRetryOnResponse: retries, and then errors', async () => {

@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { WatchBlocksResponse, watchBlocks } from './watchBlocks'
 import { fetchBlock } from './fetchBlock'
-import { networkProvider, walletProvider } from '../../../test/utils'
+import { networkProvider, walletProvider } from '../../../../test/src/utils'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
 import { httpProvider } from '../../providers/network'

@@ -1,0 +1,43 @@
+{
+  "name": "@viem/test",
+  "description": "TypeScript (& JavaScript) Interface for Ethereum",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsup",
+    "dev": "DEV=true tsup"
+  },
+  "peerDependencies": {
+    "viem": "workspace:*"
+  },
+  "devDependencies": {
+    "viem": "workspace:*"
+  },
+  "files": [
+    "/dist",
+    "/setup"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./setup": {
+      "types": "./dist/setup.d.ts",
+      "default": "./dist/setup.js"
+    }
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "WAGMIT",
+  "repository": "wagmi-dev/viem",
+  "author": "moxey.eth",
+  "ethereum": "moxey.eth",
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3"
+  ]
+}

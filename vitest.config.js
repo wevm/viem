@@ -10,6 +10,6 @@ export default defineConfig({
       statements: 98,
     },
     environment: 'jsdom',
-    globalSetup: './packages/core/test/setup.ts',
+    globalSetup: './packages/test/src/setup.ts',
   },
 })

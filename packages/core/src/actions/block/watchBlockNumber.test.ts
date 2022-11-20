@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { WatchBlockNumberResponse, watchBlockNumber } from './watchBlockNumber'
-import { networkProvider, walletProvider } from '../../../test/utils'
+import { networkProvider, walletProvider } from '../../../../test/src/utils'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
 import { httpProvider } from '../../providers/network'

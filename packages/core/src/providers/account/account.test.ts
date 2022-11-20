@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { walletProvider } from '../../../test/utils'
+import { walletProvider } from '../../../../test/src/utils'
 
 import { accountProvider } from './account'
 

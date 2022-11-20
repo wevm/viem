@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { networkProvider } from '../../../test/utils'
+import { networkProvider } from '../../../../test/src/utils'
 
 import { fetchBlockNumber } from './fetchBlockNumber'
 

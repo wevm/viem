@@ -5,7 +5,7 @@ import {
   accounts,
   networkProvider,
   testProvider,
-} from '../../../test/utils'
+} from '../../../../test/src'
 import { etherToValue } from '../../utils'
 import { fetchBlockNumber } from '../block'
 import { sendTransaction } from '../transaction'

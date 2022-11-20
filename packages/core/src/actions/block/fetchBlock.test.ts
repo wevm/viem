@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { initialBlockNumber, networkProvider } from '../../../test/utils'
+import { initialBlockNumber, networkProvider } from '../../../../test/src/utils'
 import { BlockNotFoundError, fetchBlock } from './fetchBlock'
 
 test('fetches latest block', async () => {
