@@ -1,7 +1,6 @@
 import { Block as ProviderBlock } from '../../types/ethereum-provider'
-import { hexToNumber } from '../number'
 
-export type Block = ProviderBlock<bigint, number>
+export type Block = ProviderBlock<bigint>
 
 export function deserializeBlock({
   baseFeePerGas,
@@ -38,7 +37,7 @@ export function deserializeBlock({
     miner,
     mixHash,
     nonce,
-    number: number ? hexToNumber(number) : null,
+    number: number ? BigInt(number) : null,
     parentHash,
     receiptsRoot,
     sealFields,

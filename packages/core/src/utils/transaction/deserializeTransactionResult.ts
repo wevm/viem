@@ -46,7 +46,7 @@ export function deserializeTransactionResult({
 }: ProviderTransactionResult): TransactionResult {
   const result: TransactionResultBase<bigint, number> = {
     blockHash,
-    blockNumber: blockNumber ? hexToNumber(blockNumber) : null,
+    blockNumber: blockNumber ? BigInt(blockNumber) : null,
     from,
     gas: BigInt(gas),
     hash,

@@ -49,11 +49,11 @@ export type Events = {
 
 // Provider Requests
 
-export type AccessList = Array<{ address: string; storageKeys: Array<string> }>
+export type AccessList = Array<{ address: Address; storageKeys: Array<Data> }>
 
 export type Address = `0x${string}`
 
-export type Block<TQuantity = Quantity, TIndex = Quantity> = {
+export type Block<TQuantity = Quantity> = {
   /** Base fee per gas */
   baseFeePerGas: TQuantity | null
   /** Difficulty for this block */
@@ -75,7 +75,7 @@ export type Block<TQuantity = Quantity, TIndex = Quantity> = {
   /** Proof-of-work hash or `null` if pending */
   nonce: Data | null
   /** Block number or `null` if pending */
-  number: TIndex | null
+  number: TQuantity | null
   /** Parent block hash */
   parentHash: Data
   /** Root of the this block’s receipts trie */
@@ -241,7 +241,7 @@ export type TransactionResultBase<TQuantity = Quantity, TIndex = Quantity> = {
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: Data | null
   /** Number of block containing this transaction or `null` if pending */
-  blockNumber: TIndex | null
+  blockNumber: TQuantity | null
   /** Transaction sender */
   from: Data
   /** Gas provided for transaction execution */
