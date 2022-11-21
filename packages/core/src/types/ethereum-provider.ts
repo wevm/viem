@@ -1,4 +1,20 @@
 import { ProviderRpcError } from '../providers/errors'
+import { Address } from './address'
+import { BlockTag } from './block'
+import { Data } from './data'
+import {
+  RpcBlock as Block,
+  RpcBlockIdentifier as BlockIdentifier,
+  RpcBlockNumber as BlockNumber,
+  RpcFeeHistory as FeeHistory,
+  RpcFeeValues as FeeValues,
+  RpcLog as Log,
+  Quantity,
+  RpcTransactionReceipt as TransactionReceipt,
+  RpcTransactionRequest as TransactionRequest,
+  RpcTransactionResult as TransactionResult,
+  RpcUncle as Uncle,
+} from './rpc'
 
 //////////////////////////////////////////////////
 
@@ -49,73 +65,6 @@ export type Events = {
 
 // Provider Requests
 
-export type AccessList = Array<{ address: Address; storageKeys: Array<Data> }>
-
-export type Address = `0x${string}`
-
-export type Block<TQuantity = Quantity> = {
-  /** Base fee per gas */
-  baseFeePerGas: TQuantity | null
-  /** Difficulty for this block */
-  difficulty: TQuantity
-  /** "Extra data" field of this block */
-  extraData: Data
-  /** Maximum gas allowed in this block */
-  gasLimit: TQuantity
-  /** Total used gas by all transactions in this block */
-  gasUsed: TQuantity
-  /** Block hash or `null` if pending */
-  hash: Data | null
-  /** Logs bloom filter or `null` if pending */
-  logsBloom: Data | null
-  /** Address that received this block’s mining rewards */
-  miner: Data
-  /** Unique identifier for the block. */
-  mixHash: Data
-  /** Proof-of-work hash or `null` if pending */
-  nonce: Data | null
-  /** Block number or `null` if pending */
-  number: TQuantity | null
-  /** Parent block hash */
-  parentHash: Data
-  /** Root of the this block’s receipts trie */
-  receiptsRoot: Data
-  sealFields: Data[]
-  /** SHA3 of the uncles data in this block */
-  sha3Uncles: Data
-  /** Size of this block in bytes */
-  size: TQuantity
-  /** Root of this block’s final state trie */
-  stateRoot: Data
-  /** Unix timestamp of when this block was collated */
-  timestamp: TQuantity
-  /** Total difficulty of the chain until this block */
-  totalDifficulty: TQuantity | null
-  /** List of transaction objects or hashes */
-  transactions: (Data | TransactionResult)[]
-  /** Root of this block’s transaction trie */
-  transactionsRoot: Data
-  /** List of uncle hashes */
-  uncles: Data[]
-}
-export type BlockIdentifier = {
-  /** Whether or not to throw an error if the block is not in the canonical chain as described below. Only allowed in conjunction with the blockHash tag. Defaults to false. */
-  requireCanonical?: boolean
-} & (
-  | {
-      /** The block in the canonical chain with this number */
-      blockNumber: Quantity
-    }
-  | {
-      /** The block uniquely identified by this hash. The `blockNumber` and `blockHash` properties are mutually exclusive; exactly one of them must be set. */
-      blockHash: Data
-    }
-)
-export type BlockNumber = Quantity
-export type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
-
-export type Data = `0x${string}`
-
 export type EstimateGasParameters = {
   /** Contract code or a hashed method call with encoded args */
   data?: Data
@@ -128,58 +77,6 @@ export type EstimateGasParameters = {
   /** Value in wei sent with this transaction */
   value?: Quantity
 } & FeeValues
-
-export type FeeHistory = {
-  /**
-   * An array of block base fees per gas. This includes the next block after
-   * the newest of the returned range, because this value can be derived from the newest block.
-   * Zeroes are returned for pre-EIP-1559 blocks. */
-  baseFeePerGas: Quantity[]
-  /** An array of block gas used ratios. These are calculated as the ratio of gasUsed and gasLimit. */
-  gasUsedRatio: number[]
-  /** Lowest number block of the returned range. */
-  oldestBlock: Quantity
-  /** An array of effective priority fees per gas data points from a single block. All zeroes are returned if the block is empty. */
-  reward?: Quantity[][]
-}
-
-export type FeeValuesLegacy<TQuantity = Quantity> = {
-  /** Base fee per gas. */
-  gasPrice: TQuantity
-  maxFeePerGas?: never
-  maxPriorityFeePerGas?: never
-}
-export type FeeValuesEIP1559<TQuantity = Quantity> = {
-  gasPrice?: never
-  /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
-  maxFeePerGas: TQuantity
-  /** Max priority fee per gas (in wei). */
-  maxPriorityFeePerGas: TQuantity
-}
-export type FeeValues<TQuantity = Quantity> =
-  | FeeValuesLegacy<TQuantity>
-  | FeeValuesEIP1559<TQuantity>
-
-export type Log = {
-  /** The address from which this log originated */
-  address: Data
-  /** Hash of block containing this log or `null` if pending */
-  blockHash: Data | null
-  /** Contains the non-indexed arguments of the log */
-  data: Data
-  /** Hash of the transaction that created this log or `null` if pending */
-  transactionHash: Data | null
-  /** Number of block containing this log or `null` if pending */
-  blockNumber: Quantity | null
-  /** Index of this log within its block or `null` if pending */
-  logIndex: Quantity | null
-  /** Index of the transaction that created this log or `null` if pending */
-  transactionIndex: Quantity | null
-  /** List of order-dependent topics */
-  topics: Data[]
-  /** `true` if this filter has been destroyed and is invalid */
-  removed: boolean
-}
 
 export type NativeCurrency = {
   /** A 0x-prefixed hexadecimal string */
@@ -205,140 +102,6 @@ export type NetworkSync = {
   /** Block number at which syncing started */
   startingBlock: Quantity
 }
-
-export type Quantity = `0x${string}`
-
-export type TransactionReceipt = {
-  /** Hash of block containing this transaction */
-  blockHash: Data
-  /** Number of block containing this transaction */
-  blockNumber: Quantity
-  /** Address of new contract or `null` if no contract was created */
-  contractAddress: Data | null
-  /** Gas used by this and all preceding transactions in this block */
-  cumulativeGasUsed: Quantity
-  /** Pre-London, it is equal to the transaction's gasPrice. Post-London, it is equal to the actual gas price paid for inclusion. */
-  effectiveGasPrice: Quantity
-  /** Transaction sender */
-  from: Data
-  /** Gas used by this transaction */
-  gasUsed: Quantity
-  /** List of log objects generated by this transaction */
-  logs: Log[]
-  /** Logs bloom filter */
-  logsBloom: Data
-  /** `1` if this transaction was successful or `0` if it failed */
-  status: 0 | 1
-  /** Transaction recipient or `null` if deploying a contract */
-  to: Data | null
-  /** Hash of this transaction */
-  transactionHash: Data
-  /** Index of this transaction in the block */
-  transactionIndex: Quantity
-}
-
-export type TransactionResultBase<TQuantity = Quantity, TIndex = Quantity> = {
-  /** Hash of block containing this transaction or `null` if pending */
-  blockHash: Data | null
-  /** Number of block containing this transaction or `null` if pending */
-  blockNumber: TQuantity | null
-  /** Transaction sender */
-  from: Data
-  /** Gas provided for transaction execution */
-  gas: TQuantity
-  /** Hash of this transaction */
-  hash: Data
-  /** Contract code or a hashed method call */
-  input: Data
-  /** Unique number identifying this transaction */
-  nonce: TIndex
-  /** ECDSA signature r */
-  r: Data
-  /** ECDSA signature s */
-  s: Data
-  /** Transaction recipient or `null` if deploying a contract */
-  to: Data | null
-  /** Index of this transaction in the block or `null` if pending */
-  transactionIndex: TIndex | null
-  /** ECDSA recovery ID */
-  v: TQuantity
-  /** Value in wei sent with this transaction */
-  value: TQuantity
-}
-export type TransactionResultLegacy<
-  TQuantity = Quantity,
-  TIndex = Quantity,
-> = TransactionResultBase<TQuantity, TIndex> &
-  FeeValuesLegacy<TQuantity> & {
-    accessList: undefined
-    type: TransactionTypeLegacy
-  }
-export type TransactionResultEIP2930<
-  TQuantity = Quantity,
-  TIndex = Quantity,
-> = TransactionResultBase<TQuantity, TIndex> &
-  FeeValuesLegacy<TQuantity> & {
-    accessList: AccessList
-    type: TransactionTypeEIP2930
-  }
-export type TransactionResultEIP1559<
-  TQuantity = Quantity,
-  TIndex = Quantity,
-> = TransactionResultBase<TQuantity, TIndex> &
-  FeeValuesEIP1559<TQuantity> & {
-    accessList: AccessList
-    type: TransactionTypeEIP1559
-  }
-export type TransactionResult<TQuantity = Quantity, TIndex = Quantity> =
-  | TransactionResultLegacy<TQuantity, TIndex>
-  | TransactionResultEIP2930<TQuantity, TIndex>
-  | TransactionResultEIP1559<TQuantity, TIndex>
-
-export type TransactionRequestBase<TQuantity = Quantity, TIndex = Quantity> = {
-  /** Contract code or a hashed method call with encoded args */
-  data?: Data
-  /** Transaction sender */
-  from: Data
-  /** Gas provided for transaction execution */
-  gas?: TQuantity
-  /** Unique number identifying this transaction */
-  nonce?: TIndex
-  /** Transaction recipient */
-  to?: Data
-  /** Value in wei sent with this transaction */
-  value?: TQuantity
-}
-export type TransactionRequestLegacy<
-  TQuantity = Quantity,
-  TIndex = Quantity,
-> = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: never
-  }
-export type TransactionRequestEIP2930<
-  TQuantity = Quantity,
-  TIndex = Quantity,
-> = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: AccessList
-  }
-export type TransactionRequestEIP1559<
-  TQuantity = Quantity,
-  TIndex = Quantity,
-> = TransactionRequestBase<TQuantity, TIndex> &
-  Partial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList
-  }
-export type TransactionRequest<TQuantity = Quantity, TIndex = Quantity> =
-  | TransactionRequestLegacy<TQuantity, TIndex>
-  | TransactionRequestEIP2930<TQuantity, TIndex>
-  | TransactionRequestEIP1559<TQuantity, TIndex>
-
-export type TransactionTypeLegacy = '0x0'
-export type TransactionTypeEIP2930 = '0x1'
-export type TransactionTypeEIP1559 = '0x2'
-
-export type Uncle = Block
 
 export type WalletPermissionCaveat = {
   type: string
@@ -744,7 +507,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getFilterChanges'
     params: [filterId: Quantity]
-  }): Promise<Log[]>
+  }): Promise<Log>
   request(args: {
     /**
      * @description Returns a list of all logs based on filter ID
@@ -755,7 +518,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getFilterLogs'
     params: [filterId: Quantity]
-  }): Promise<Log[]>
+  }): Promise<Log>
   request(args: {
     /**
      * @description Returns a list of all logs based on a filter object
@@ -779,7 +542,7 @@ export type PublicRequests = {
           }
       ),
     ]
-  }): Promise<Log[]>
+  }): Promise<Log>
   request(args: {
     /**
      * @description Returns the value from a storage position at an address
@@ -794,7 +557,7 @@ export type PublicRequests = {
       index: Quantity,
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
-  }): Promise<Log[]>
+  }): Promise<Log>
   request(args: {
     /**
      * @description Returns information about a transaction specified by block hash and transaction index

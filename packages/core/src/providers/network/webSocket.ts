@@ -1,5 +1,5 @@
 import { Chain } from '../../chains'
-import { Data } from '../../types/ethereum-provider'
+import { Data } from '../../types'
 import { RpcResponse, getSocket, rpc } from '../../utils/rpc'
 import { NetworkProvider, createNetworkProvider } from './createNetworkProvider'
 

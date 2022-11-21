@@ -1,7 +1,7 @@
 import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network'
 import { WalletProvider } from '../../providers/wallet'
-import { BlockTag } from '../../types/ethereum-provider'
+import { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import { FetchBlockResponse, fetchBlock } from './fetchBlock'

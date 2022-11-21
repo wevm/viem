@@ -1,9 +1,6 @@
 import { AccountProvider } from '../../providers/account'
-import {
-  BaseError,
-  TransactionRequest,
-  serializeTransactionRequest,
-} from '../../utils'
+import { TransactionRequest } from '../../types'
+import { BaseError, serializeTransactionRequest } from '../../utils'
 
 export type SendTransactionArgs = {
   request: TransactionRequest

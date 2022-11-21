@@ -1,7 +1,5 @@
-import { TransactionRequest as ProviderTransactionRequest } from '../../types/ethereum-provider'
+import { RpcTransactionRequest, TransactionRequest } from '../../types'
 import { numberToHex } from '../number'
-
-export type TransactionRequest = ProviderTransactionRequest<bigint, number>
 
 export function serializeTransactionRequest({
   accessList,
@@ -15,7 +13,7 @@ export function serializeTransactionRequest({
   to,
   value,
 }: TransactionRequest) {
-  let request: ProviderTransactionRequest = {
+  let request: RpcTransactionRequest = {
     accessList,
     data,
     from,

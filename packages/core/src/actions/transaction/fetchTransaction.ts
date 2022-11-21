@@ -1,14 +1,14 @@
 import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
-import type {
+import {
   BlockTag,
   Data,
-  TransactionResult as ProviderTransactionResult,
-} from '../../types/ethereum-provider'
+  RpcTransactionResult,
+  TransactionResult,
+} from '../../types'
 import {
   BaseError,
-  TransactionResult,
   deserializeTransactionResult,
   numberToHex,
 } from '../../utils'
@@ -58,7 +58,7 @@ export async function fetchTransaction(
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  let transaction: ProviderTransactionResult | null = null
+  let transaction: RpcTransactionResult | null = null
   if (hash) {
     transaction = await provider.request({
       method: 'eth_getTransactionByHash',

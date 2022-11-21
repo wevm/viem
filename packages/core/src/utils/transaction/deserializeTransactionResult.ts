@@ -1,10 +1,8 @@
 import {
-  TransactionResult as ProviderTransactionResult,
+  RpcTransactionResult,
+  TransactionResult,
   TransactionResultBase,
-  TransactionResultEIP1559,
-  TransactionResultEIP2930,
-  TransactionResultLegacy,
-} from '../../types/ethereum-provider'
+} from '../../types'
 import { hexToNumber } from '../number'
 
 export const transactionType = {
@@ -12,17 +10,6 @@ export const transactionType = {
   eip2930: '0x1',
   eip1559: '0x2',
 } as const
-
-export type TransactionResult =
-  | (Omit<TransactionResultLegacy<bigint, number>, 'type'> & {
-      type: 'legacy'
-    })
-  | (Omit<TransactionResultEIP2930<bigint, number>, 'type'> & {
-      type: 'eip2930'
-    })
-  | (Omit<TransactionResultEIP1559<bigint, number>, 'type'> & {
-      type: 'eip1559'
-    })
 
 export function deserializeTransactionResult({
   accessList,
@@ -43,7 +30,7 @@ export function deserializeTransactionResult({
   type,
   v,
   value,
-}: ProviderTransactionResult): TransactionResult {
+}: RpcTransactionResult): TransactionResult {
   const result: TransactionResultBase<bigint, number> = {
     blockHash,
     blockNumber: blockNumber ? BigInt(blockNumber) : null,

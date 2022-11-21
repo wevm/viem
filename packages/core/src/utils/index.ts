@@ -22,7 +22,6 @@ export {
 } from './buildRequest'
 
 export { deserializeBlock } from './block'
-export type { Block } from './block'
 
 export { hexToNumber, numberToHex } from './number'
 
@@ -33,7 +32,6 @@ export {
   serializeTransactionRequest,
   transactionType,
 } from './transaction'
-export type { TransactionRequest, TransactionResult } from './transaction'
 
 export {
   displayToValue,

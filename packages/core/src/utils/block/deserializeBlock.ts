@@ -1,6 +1,5 @@
-import { Block as ProviderBlock } from '../../types/ethereum-provider'
-
-export type Block = ProviderBlock<bigint>
+import { Block, RpcBlock } from '../../types'
+import { deserializeTransactionResult } from '../transaction'
 
 export function deserializeBlock({
   baseFeePerGas,
@@ -22,10 +21,14 @@ export function deserializeBlock({
   stateRoot,
   timestamp,
   totalDifficulty,
-  transactions,
+  transactions: transactions_,
   transactionsRoot,
   uncles,
-}: ProviderBlock): Block {
+}: RpcBlock): Block {
+  const transactions = transactions_.map((transaction) => {
+    if (typeof transaction === 'string') return transaction
+    return deserializeTransactionResult(transaction)
+  })
   return {
     baseFeePerGas: baseFeePerGas ? BigInt(baseFeePerGas) : null,
     difficulty: BigInt(difficulty),

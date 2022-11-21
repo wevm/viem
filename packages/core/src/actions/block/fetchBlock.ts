@@ -1,12 +1,8 @@
 import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
-import {
-  BlockTag,
-  Data,
-  Block as ProviderBlock,
-} from '../../types/ethereum-provider'
-import { BaseError, Block, deserializeBlock, numberToHex } from '../../utils'
+import { Block, BlockTag, Data, RpcBlock } from '../../types'
+import { BaseError, deserializeBlock, numberToHex } from '../../utils'
 
 export type FetchBlockArgs = {
   /** Whether or not to include transaction data in the response. */
@@ -46,7 +42,7 @@ export async function fetchBlock(
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  let block: ProviderBlock | null = null
+  let block: RpcBlock | null = null
   if (blockHash) {
     block = await provider.request({
       method: 'eth_getBlockByHash',

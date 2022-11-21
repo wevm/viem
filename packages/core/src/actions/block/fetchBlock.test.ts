@@ -440,21 +440,22 @@ describe('args: includeTransactions', () => {
     expect(block?.transactions.length).toEqual(124)
     expect(block?.transactions[0]).toMatchInlineSnapshot(`
       {
+        "accessList": undefined,
         "blockHash": "0xf338169e315cc8de7e1d0e9edb09730cb508b392160d754774718b31cc4a70c0",
-        "blockNumber": "0xe6e560",
+        "blockNumber": 15132000n,
         "from": "0x74922747c8468737c73cf4a484823f3d9912cc69",
-        "gas": "0x183ac",
-        "gasPrice": "0xa7a358200",
+        "gas": 99244n,
+        "gasPrice": 45000000000n,
         "hash": "0x9697a030cfaee4cefb5e6a1359ecdcd03a0217416fa0888f3962c74f2c2074cb",
         "input": "0xa9059cbb000000000000000000000000a455c16a55d65bd19e88733b73794465a04d9561000000000000000000000000000000000000000000000000000000000587d1ff",
-        "nonce": "0x0",
+        "nonce": 0,
         "r": "0x6dbd07efacd8589d90b85c91ba08dd98bdfafebe90e72d4dc02d786b327894c5",
         "s": "0xe9455b807886f39301ea09987333659902aca4042f6e9e9e9cdfcb70b56e4fd",
         "to": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        "transactionIndex": "0x0",
-        "type": "0x0",
-        "v": "0x25",
-        "value": "0x0",
+        "transactionIndex": 0,
+        "type": "legacy",
+        "v": 37n,
+        "value": 0n,
       }
     `)
   })

@@ -1,5 +1,5 @@
 import { TestProvider } from '../../providers/test/createTestProvider'
-import { Address } from '../../types/ethereum-provider'
+import { Address } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetBalanceArgs = {

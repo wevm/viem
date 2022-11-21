@@ -1,7 +1,7 @@
 import { AccountProvider } from '../../providers/account'
 import { NetworkProvider } from '../../providers/network/createNetworkProvider'
 import { WalletProvider } from '../../providers/wallet/createWalletProvider'
-import { Address, BlockTag } from '../../types/ethereum-provider'
+import { Address, BlockTag } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type FetchBalanceArgs = {

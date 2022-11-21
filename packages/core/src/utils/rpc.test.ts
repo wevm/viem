@@ -119,7 +119,15 @@ describe('http', () => {
       })
     } catch (err) {
       expect(err).toMatchInlineSnapshot(
-        '[TypeError: AbortSignal: Expected [object AbortSignal] to be an instance of AbortSignal.]',
+        `
+        [RpcTimeoutError: The request took too long to respond.
+
+        URL: https://cloudflare-eth.com
+        Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+
+        Details: The request timed out.
+        Version: viem@1.0.2]
+      `,
       )
     }
   })
