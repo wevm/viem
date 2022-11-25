@@ -52,7 +52,7 @@ describe('http', () => {
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
       }),
     ).rejects.toThrowError(
-      'invalid length 1, expected a (both 0x-prefixed or not) hex string with length of 64',
+      'invalid length 1, expected a (both 0x-prefixed or not) hex string',
     )
   })
 
