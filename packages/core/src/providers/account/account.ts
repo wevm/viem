@@ -1,15 +1,15 @@
-import { Chain } from '../../chains'
 import {
   ConnectedRequests,
   PublicRequests,
 } from '../../types/ethereum-provider'
+import { uid } from '../../utils/uid'
 import { BaseProvider } from '../createBaseProvider'
 import { WalletProvider } from '../wallet/createWalletProvider'
 
 export type AccountProviderRequests = PublicRequests & ConnectedRequests
 
 export type AccountProvider = Omit<
-  BaseProvider<Chain, AccountProviderRequests>,
+  BaseProvider<AccountProviderRequests>,
   'chains'
 > & {
   address: string
@@ -49,7 +49,7 @@ export function accountProvider(
     pollingInterval,
     request: <any>provider.request,
     type: 'accountProvider',
-    uniqueId: `${key}.${provider.uniqueId}.${address}`,
+    uid: uid(),
     walletProvider: provider,
   }
 }

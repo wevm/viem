@@ -1,4 +1,4 @@
-import { testProvider } from './utils'
+import { testProvider } from '../../test/src/utils'
 
 export async function setup() {
   testProvider.request({

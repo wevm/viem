@@ -62,30 +62,27 @@ export const networkProvider =
         chain: local,
       })
 
-export const walletProvider = externalProvider(
-  {
-    on: (message, listener) => {
-      if (message === 'accountsChanged') {
-        listener([accounts[0].address] as any)
-      }
-    },
-    removeListener: () => null,
-    request: async ({ method, params }: any) => {
-      if (method === 'eth_requestAccounts') {
-        return [accounts[0].address]
-      }
-
-      const { result } = await rpc.http(local.rpcUrls.default.http, {
-        body: {
-          method,
-          params,
-        },
-      })
-      return result
-    },
+export const walletProvider = externalProvider({
+  on: (message, listener) => {
+    if (message === 'accountsChanged') {
+      listener([accounts[0].address] as any)
+    }
   },
-  { chains: [local] },
-)
+  removeListener: () => null,
+  request: async ({ method, params }: any) => {
+    if (method === 'eth_requestAccounts') {
+      return [accounts[0].address]
+    }
+
+    const { result } = await rpc.http(local.rpcUrls.default.http, {
+      body: {
+        method,
+        params,
+      },
+    })
+    return result
+  },
+})
 
 export const accountProvider = accountProvider_(walletProvider!, {
   address: accounts[0].address,

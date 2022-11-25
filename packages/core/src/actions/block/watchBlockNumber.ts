@@ -28,7 +28,7 @@ export function watchBlockNumber(
     provider.type === 'networkProvider' ? provider.chain.blockTime : undefined
   const pollingInterval =
     pollingInterval_ ?? (blockTime || provider.pollingInterval)
-  const observerId = JSON.stringify(['watchBlockNumber', provider.uniqueId])
+  const observerId = JSON.stringify(['watchBlockNumber', provider.uid])
 
   return observe<WatchBlockNumberCallback, WatchBlockNumberResponse>(
     observerId,

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 import { injectedProvider } from 'viem/providers/wallet'
 
 import { FetchBalance } from '../actions/FetchBalance'
@@ -10,9 +9,7 @@ import { FetchTransaction } from '../actions/FetchTransaction'
 import { WatchBlocks } from '../actions/WatchBlocks'
 import { WatchBlockNumber } from '../actions/WatchBlockNumber'
 
-const provider = injectedProvider({
-  chains: [arbitrum, goerli, mainnet, optimism, polygon],
-})
+const provider = injectedProvider()
 
 export function InjectedWallet() {
   const [addresses, setAddresses] = useState<`0x${string}`[]>([])

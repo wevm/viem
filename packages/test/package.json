@@ -13,17 +13,12 @@
     "viem": "workspace:*"
   },
   "files": [
-    "/dist",
-    "/setup"
+    "/dist"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./setup": {
-      "types": "./dist/setup.d.ts",
-      "default": "./dist/setup.js"
     }
   },
   "type": "module",

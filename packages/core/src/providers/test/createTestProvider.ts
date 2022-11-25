@@ -24,7 +24,7 @@ export type TestProviderConfig<
 export type TestProvider<
   TChain extends Chain = Chain,
   TKey extends TestProviderKey = TestProviderKey,
-> = BaseProvider<TChain, TestRequests<TKey>, TKey> & {
+> = BaseProvider<TestRequests<TKey>, TKey> & {
   chain: TChain
   type: 'testProvider'
 }
@@ -54,7 +54,6 @@ export function createTestProvider<
   }
   return {
     ...createBaseProvider({
-      chains: [chain],
       key,
       name,
       pollingInterval,
@@ -68,7 +67,6 @@ export function createTestProvider<
         return result
       },
       type: 'testProvider',
-      uniqueId: `${key}.${chain.id}`,
     }),
     chain,
   }

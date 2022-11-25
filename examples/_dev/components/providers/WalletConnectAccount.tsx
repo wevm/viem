@@ -10,7 +10,6 @@ import { externalProvider } from 'viem/providers/wallet'
 import { SendTransaction } from '../actions/SendTransaction'
 
 const chains = [arbitrum, goerli, mainnet, optimism, polygon]
-
 const wcProvider = new WalletConnectProvider({
   rpc: chains.reduce(
     (rpcMap, chain) => ({ ...rpcMap, [chain.id]: chain.rpcUrls.default.http }),
@@ -18,7 +17,6 @@ const wcProvider = new WalletConnectProvider({
   ),
 })
 const provider = externalProvider(wcProvider, {
-  chains,
   key: 'walletConnect',
   name: 'Wallet Connect',
 })

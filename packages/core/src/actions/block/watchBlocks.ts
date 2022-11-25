@@ -35,7 +35,7 @@ export function watchBlocks(
     pollingInterval_ ?? (blockTime || provider.pollingInterval)
   const observerId = JSON.stringify([
     'watchBlocks',
-    provider.uniqueId,
+    provider.uid,
     includeTransactions,
   ])
 

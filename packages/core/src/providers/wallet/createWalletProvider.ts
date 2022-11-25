@@ -1,4 +1,3 @@
-import { Chain } from '../../chains'
 import { Events } from '../../types/ethereum-provider'
 import {
   BaseProvider,
@@ -8,10 +7,9 @@ import {
 } from '../createBaseProvider'
 
 export type WalletProviderConfig<
-  TChain extends Chain = Chain,
   TRequests extends BaseProviderRequests = BaseProviderRequests,
   TKey extends string = string,
-> = Omit<BaseProviderConfig<TChain, TRequests, TKey>, 'type'> & {
+> = Omit<BaseProviderConfig<TRequests, TKey>, 'type'> & {
   /** Event listener callback that matches the EIP-1193 events spec. */
   on: Events['on']
   /** Event listener callback that matches the EIP-1193 events spec. */
@@ -19,10 +17,9 @@ export type WalletProviderConfig<
 }
 
 export type WalletProvider<
-  TChain extends Chain = Chain,
   TRequests extends BaseProviderRequests = BaseProviderRequests,
   TKey extends string = string,
-> = BaseProvider<TChain, TRequests, TKey> & {
+> = BaseProvider<TRequests, TKey> & {
   /** Event listener callback that matches the EIP-1193 events spec. */
   on: Events['on']
   /** Event listener callback that matches the EIP-1193 events spec. */
@@ -36,31 +33,22 @@ export type WalletProvider<
  * via a JSON-RPC API that the wallet controls (Injected MetaMask, WalletConnect, etc).
  * They have access to "public" RPC methods as well as event listeners. */
 export function createWalletProvider<
-  TChain extends Chain,
   TRequests extends BaseProviderRequests,
   TKey extends string,
 >({
-  chains,
   key,
   name,
   on,
   pollingInterval,
   removeListener,
   request,
-  uniqueId,
-}: WalletProviderConfig<TChain, TRequests, TKey>): WalletProvider<
-  TChain,
-  TRequests,
-  TKey
-> {
+}: WalletProviderConfig<TRequests, TKey>): WalletProvider<TRequests, TKey> {
   const baseProvider = createBaseProvider({
-    chains,
     key,
     name,
     pollingInterval,
     request,
     type: 'walletProvider',
-    uniqueId,
   })
   return {
     ...baseProvider,

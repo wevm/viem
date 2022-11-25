@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { requestAccountAddresses } from 'viem/actions'
-import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 import {
   AccountProvider,
   accountProvider as accountProvider_,
@@ -9,9 +8,7 @@ import { injectedProvider } from 'viem/providers/wallet'
 
 import { SendTransaction } from '../actions/SendTransaction'
 
-const provider = injectedProvider({
-  chains: [arbitrum, goerli, mainnet, optimism, polygon],
-})
+const provider = injectedProvider()
 
 export function InjectedAccount() {
   const [accountProvider, setAccountProvider] = useState<AccountProvider>()

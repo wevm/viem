@@ -1,6 +1,6 @@
-import { Chain } from '../chains'
 import { PublicRequests } from '../types/ethereum-provider'
 import { buildRequest } from '../utils/buildRequest'
+import { uid } from '../utils/uid'
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
@@ -9,13 +9,10 @@ export type BaseProviderRequests = {
 }
 
 export type BaseProvider<
-  TChain extends Chain = Chain,
   TRequests extends BaseProviderRequests = PublicRequests,
   TKey extends string = string,
   TType extends string = string,
 > = {
-  /** The chains that are configured with the provider. */
-  chains: TChain[]
   /** A key for the provider. */
   key: TKey
   /** A name for the provider. */
@@ -27,15 +24,17 @@ export type BaseProvider<
   /** The type of provider. */
   type: TType
   /** A unique ID for the provider. */
-  uniqueId: string
+  uid: string
 }
 
 export type BaseProviderConfig<
-  TChain extends Chain = Chain,
   TRequests extends BaseProviderRequests = PublicRequests,
   TKey extends string = string,
   TType extends string = string,
-> = PartialBy<BaseProvider<TChain, TRequests, TKey, TType>, 'pollingInterval'>
+> = Omit<
+  PartialBy<BaseProvider<TRequests, TKey, TType>, 'pollingInterval'>,
+  'uid'
+>
 
 /**
  * @description Creates a base provider with configured chains & a request function. Intended
@@ -47,31 +46,26 @@ export type BaseProviderConfig<
  * })
  */
 export function createBaseProvider<
-  TChain extends Chain,
   TRequests extends BaseProviderRequests,
   TKey extends string,
   TType extends string,
 >({
-  chains,
   key,
   name,
   pollingInterval = 4_000,
   request,
   type,
-  uniqueId,
-}: BaseProviderConfig<TChain, TRequests, TKey, TType>): BaseProvider<
-  TChain,
+}: BaseProviderConfig<TRequests, TKey, TType>): BaseProvider<
   TRequests,
   TKey,
   TType
 > {
   return {
-    chains,
     key,
     name,
     pollingInterval,
     request: buildRequest(request),
     type,
-    uniqueId,
+    uid: uid(),
   }
 }

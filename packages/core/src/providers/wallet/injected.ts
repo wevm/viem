@@ -1,10 +1,7 @@
-import { Chain } from '../../chains'
 import { InjectedRequests, PublicRequests } from '../../types/ethereum-provider'
 import { WalletProvider, createWalletProvider } from './createWalletProvider'
 
 export type InjectedProviderConfig = {
-  /** Chains that the provider should be aware of. */
-  chains: Chain[]
   /** A key for the provider. */
   key?: string
   /** A name for the provider. */
@@ -15,7 +12,7 @@ export type InjectedProviderConfig = {
 
 export type InjectedProviderRequests = PublicRequests & InjectedRequests
 
-export type InjectedProvider = WalletProvider<Chain, InjectedProviderRequests>
+export type InjectedProvider = WalletProvider<InjectedProviderRequests>
 
 export type InjectedProviderReturnValue = InjectedProvider | null
 
@@ -25,16 +22,14 @@ export type InjectedProviderReturnValue = InjectedProvider | null
  * like MetaMask, or a wallet browser.
  */
 export function injectedProvider({
-  chains,
   key = 'injected',
   name = 'Injected',
   pollingInterval,
-}: InjectedProviderConfig): InjectedProviderReturnValue {
+}: InjectedProviderConfig = {}): InjectedProviderReturnValue {
   if (typeof window === 'undefined') return null
   if (typeof window.ethereum === 'undefined') return null
 
   return createWalletProvider({
-    chains,
     key,
     name,
     on: window.ethereum!.on.bind(window.ethereum!),
@@ -43,6 +38,5 @@ export function injectedProvider({
     request: <InjectedProviderRequests['request']>(
       window.ethereum!.request.bind(window.ethereum!)
     ),
-    uniqueId: key,
   })
 }

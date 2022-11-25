@@ -6,10 +6,11 @@ import { wait } from '../../utils/wait'
 import { webSocketProvider } from './webSocket'
 
 test('creates', async () => {
-  const provider = webSocketProvider({
+  const { uid, ...provider } = webSocketProvider({
     chain: chains.local,
   })
 
+  expect(uid).toBeDefined()
   expect(provider).toMatchInlineSnapshot(`
     {
       "chain": {
@@ -28,24 +29,6 @@ test('creates', async () => {
           },
         },
       },
-      "chains": [
-        {
-          "blockTime": 1000,
-          "id": 1337,
-          "name": "Localhost",
-          "network": "localhost",
-          "rpcUrls": {
-            "default": {
-              "http": "http://127.0.0.1:8545",
-              "webSocket": "ws://127.0.0.1:8545",
-            },
-            "local": {
-              "http": "http://127.0.0.1:8545",
-              "webSocket": "ws://127.0.0.1:8545",
-            },
-          },
-        },
-      ],
       "getSocket": [Function],
       "key": "webSocket",
       "name": "WebSocket JSON-RPC",
@@ -54,7 +37,6 @@ test('creates', async () => {
       "subscribe": [Function],
       "transportMode": "webSocket",
       "type": "networkProvider",
-      "uniqueId": "webSocket.1337.webSocket",
     }
   `)
 })
