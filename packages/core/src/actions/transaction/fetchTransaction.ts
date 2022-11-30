@@ -1,6 +1,4 @@
-import { AccountProvider } from '../../providers/account'
-import { NetworkProvider } from '../../providers/network/createNetworkProvider'
-import { WalletProvider } from '../../providers/wallet/createWalletProvider'
+import { NetworkRpc } from '../../rpcs/createNetworkRpc'
 import {
   BlockTag,
   Data,
@@ -46,7 +44,7 @@ export type FetchTransactionArgs =
 export type FetchTransactionResponse = TransactionResult
 
 export async function fetchTransaction(
-  provider: NetworkProvider | WalletProvider | AccountProvider,
+  rpc: NetworkRpc,
   {
     blockHash,
     blockNumber,
@@ -60,17 +58,17 @@ export async function fetchTransaction(
 
   let transaction: RpcTransactionResult | null = null
   if (hash) {
-    transaction = await provider.request({
+    transaction = await rpc.request({
       method: 'eth_getTransactionByHash',
       params: [hash],
     })
   } else if (blockHash) {
-    transaction = await provider.request({
+    transaction = await rpc.request({
       method: 'eth_getTransactionByBlockHashAndIndex',
       params: [blockHash, numberToHex(index)],
     })
   } else if (blockNumberHex || blockTag) {
-    transaction = await provider.request({
+    transaction = await rpc.request({
       method: 'eth_getTransactionByBlockNumberAndIndex',
       params: [blockNumberHex || blockTag, numberToHex(index)],
     })

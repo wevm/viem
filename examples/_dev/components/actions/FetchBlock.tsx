@@ -1,22 +1,17 @@
 import { useEffect, useState } from 'react'
 import { FetchBlockResponse, fetchBlock } from 'viem/actions'
-import { NetworkProvider } from 'viem/providers/network'
-import { WalletProvider } from 'viem/providers/wallet'
+import { NetworkRpc } from 'viem/rpcs'
 
-export function FetchBlock({
-  provider,
-}: {
-  provider: NetworkProvider | WalletProvider
-}) {
+export function FetchBlock({ rpc }: { rpc: NetworkRpc }) {
   const [latestBlock, setLatestBlock] = useState<FetchBlockResponse>()
   const [block, setBlock] = useState<FetchBlockResponse>()
 
   useEffect(() => {
     ;(async () => {
-      setLatestBlock(await fetchBlock(provider, { blockTag: 'latest' }))
-      setBlock(await fetchBlock(provider, { blockNumber: 42069 }))
+      setLatestBlock(await fetchBlock(rpc, { blockTag: 'latest' }))
+      setBlock(await fetchBlock(rpc, { blockNumber: 42069 }))
     })()
-  }, [provider])
+  }, [rpc])
   return (
     <div>
       <details>

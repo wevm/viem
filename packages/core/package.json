@@ -13,7 +13,7 @@
     "/actions",
     "/chains",
     "/dist",
-    "/providers",
+    "/rpcs",
     "/types",
     "/utils",
     "/window"
@@ -28,21 +28,9 @@
       "types": "./dist/chains.d.ts",
       "default": "./dist/chains.js"
     },
-    "./providers/account": {
-      "types": "./dist/providers/account/index.d.ts",
-      "default": "./dist/providers/account/index.js"
-    },
-    "./providers/network": {
-      "types": "./dist/providers/network/index.d.ts",
-      "default": "./dist/providers/network/index.js"
-    },
-    "./providers/test": {
-      "types": "./dist/providers/test/index.d.ts",
-      "default": "./dist/providers/test/index.js"
-    },
-    "./providers/wallet": {
-      "types": "./dist/providers/wallet/index.d.ts",
-      "default": "./dist/providers/wallet/index.js"
+    "./rpcs": {
+      "types": "./dist/rpcs/index.d.ts",
+      "default": "./dist/rpcs/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",

@@ -1,22 +1,15 @@
 import { useState } from 'react'
 import { requestAccountAddresses } from 'viem/actions'
-import { InjectedProvider } from 'viem/providers/wallet'
+import { WalletRpc } from 'viem/rpcs'
 
-export function RequestAccountAddresses({
-  onAddresses,
-  provider,
-}: {
-  onAddresses?: (address: `0x${string}`[]) => void
-  provider: InjectedProvider
-}) {
+export function RequestAccountAddresses({ rpc }: { rpc: WalletRpc }) {
   const [addresses, setAddresses] = useState<`0x${string}`[]>()
   return (
     <div>
       <button
         onClick={async () => {
-          const addresses = await requestAccountAddresses(provider)
+          const addresses = await requestAccountAddresses(rpc)
           setAddresses(addresses)
-          onAddresses?.(addresses)
         }}
       >
         request addresses

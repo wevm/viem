@@ -1,6 +1,4 @@
-import { AccountProvider } from '../../providers/account'
-import { NetworkProvider } from '../../providers/network/createNetworkProvider'
-import { WalletProvider } from '../../providers/wallet/createWalletProvider'
+import { NetworkRpc } from '../../rpcs'
 import { Address, BlockTag } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -20,12 +18,12 @@ export type FetchBalanceArgs = {
 export type FetchBalanceResponse = bigint
 
 export async function fetchBalance(
-  provider: NetworkProvider | WalletProvider | AccountProvider,
+  rpc: NetworkRpc,
   { address, blockNumber, blockTag = 'latest' }: FetchBalanceArgs,
 ): Promise<FetchBalanceResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
-  const balance = await provider.request({
+  const balance = await rpc.request({
     method: 'eth_getBalance',
     params: [address, blockNumberHex || blockTag],
   })

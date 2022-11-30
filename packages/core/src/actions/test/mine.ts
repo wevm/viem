@@ -1,4 +1,4 @@
-import { TestProvider } from '../../providers/test/createTestProvider'
+import { TestRpc } from '../../rpcs'
 import { numberToHex } from '../../utils'
 
 export type MineArgs = {
@@ -8,12 +8,9 @@ export type MineArgs = {
   interval?: number
 }
 
-export async function mine(
-  provider: TestProvider,
-  { blocks, interval }: MineArgs,
-) {
-  return await provider.request({
-    method: `${provider.key}_mine`,
+export async function mine(rpc: TestRpc, { blocks, interval }: MineArgs) {
+  return await rpc.request({
+    method: `${rpc.key}_mine`,
     params: [numberToHex(blocks), numberToHex(interval || 0)],
   })
 }

@@ -48,3 +48,5 @@ export type {
   TransactionResultEIP2930,
   TransactionResultLegacy,
 } from './transaction'
+
+export type { PartialBy } from './utils'

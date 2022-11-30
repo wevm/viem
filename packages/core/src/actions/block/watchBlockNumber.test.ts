@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'vitest'
 
 import { WatchBlockNumberResponse, watchBlockNumber } from './watchBlockNumber'
-import { networkProvider, walletProvider } from '../../../../test/src/utils'
+import { networkRpc } from '../../../../test/src/utils'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
-import { httpProvider } from '../../providers/network'
+import { createNetworkRpc, http } from '../../rpcs'
 
 const defaultConfig = { pollingInterval: 1_000 }
 
 test('watches for new block numbers', async () => {
   const blockNumbers: WatchBlockNumberResponse[] = []
   const unwatch = watchBlockNumber(
-    networkProvider,
+    networkRpc,
     (blockNumber) => blockNumbers.push(blockNumber),
     defaultConfig,
   )
@@ -20,25 +20,11 @@ test('watches for new block numbers', async () => {
   expect(blockNumbers.length).toBe(4)
 }, 10_000)
 
-describe('walletProvider', () => {
-  test('watches for new block numbers', async () => {
-    const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(
-      walletProvider,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
-    )
-    await wait(5000)
-    unwatch()
-    expect(blockNumbers.length).toBe(4)
-  }, 10_000)
-})
-
 describe('emitOnBegin', () => {
   test('watches for new block numbers', async () => {
     const blockNumbers: WatchBlockNumberResponse[] = []
     const unwatch = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       {
         ...defaultConfig,
@@ -53,12 +39,14 @@ describe('emitOnBegin', () => {
 
 describe('blockTime on chain', () => {
   test('watches for new block numbers', async () => {
-    const provider = httpProvider({
-      chain: { ...local, blockTime: 200 },
-    })
+    const rpc = createNetworkRpc(
+      http({
+        chain: { ...local, blockTime: 200 },
+      }),
+    )
 
     const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(provider, (blockNumber) =>
+    const unwatch = watchBlockNumber(rpc, (blockNumber) =>
       blockNumbers.push(blockNumber),
     )
     await wait(2000)
@@ -67,15 +55,17 @@ describe('blockTime on chain', () => {
   }, 10_000)
 })
 
-describe('pollingInterval on provider', () => {
+describe('pollingInterval on rpc', () => {
   test('watches for new block numbers', async () => {
-    const provider = httpProvider({
-      chain: { ...local, blockTime: undefined },
-      pollingInterval: 500,
-    })
+    const rpc = createNetworkRpc(
+      http({
+        chain: { ...local, blockTime: undefined },
+      }),
+      { pollingInterval: 500 },
+    )
 
     const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(provider, (blockNumber) =>
+    const unwatch = watchBlockNumber(rpc, (blockNumber) =>
       blockNumbers.push(blockNumber),
     )
     await wait(2000)
@@ -88,7 +78,7 @@ describe('behavior', () => {
   test('watch > unwatch > watch', async () => {
     let blockNumbers: WatchBlockNumberResponse[] = []
     let unwatch = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
@@ -98,7 +88,7 @@ describe('behavior', () => {
 
     blockNumbers = []
     unwatch = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
@@ -111,17 +101,17 @@ describe('behavior', () => {
     let blockNumbers: WatchBlockNumberResponse[] = []
 
     let unwatch1 = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
     let unwatch2 = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
     let unwatch3 = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
@@ -134,17 +124,17 @@ describe('behavior', () => {
     blockNumbers = []
 
     unwatch1 = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
     unwatch2 = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
     unwatch3 = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )
@@ -158,7 +148,7 @@ describe('behavior', () => {
   test('immediately unwatch', async () => {
     const blockNumbers: WatchBlockNumberResponse[] = []
     const unwatch = watchBlockNumber(
-      networkProvider,
+      networkRpc,
       (blockNumber) => blockNumbers.push(blockNumber),
       defaultConfig,
     )

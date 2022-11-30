@@ -1,13 +1,11 @@
-import { AccountProvider } from '../../providers/account'
-import { NetworkProvider } from '../../providers/network/createNetworkProvider'
-import { WalletProvider } from '../../providers/wallet/createWalletProvider'
+import { NetworkRpc } from '../../rpcs'
 
 export type FetchBlockNumberResponse = number
 
 export async function fetchBlockNumber(
-  provider: NetworkProvider | WalletProvider | AccountProvider,
+  rpc: NetworkRpc,
 ): Promise<FetchBlockNumberResponse> {
-  const blockNumber = await provider.request({
+  const blockNumber = await rpc.request({
     method: 'eth_blockNumber',
   })
   return Number(BigInt(blockNumber))

@@ -1,4 +1,4 @@
-import { AccountProvider } from '../../providers/account'
+import { WalletRpc } from '../../rpcs'
 import { TransactionRequest } from '../../types'
 import { BaseError, serializeTransactionRequest } from '../../utils'
 
@@ -9,7 +9,7 @@ export type SendTransactionArgs = {
 export type SendTransactionResponse = { hash: `0x${string}` }
 
 export async function sendTransaction(
-  provider: AccountProvider,
+  rpc: WalletRpc,
   { request }: SendTransactionArgs,
 ): Promise<SendTransactionResponse> {
   if (
@@ -24,7 +24,7 @@ export async function sendTransaction(
 
   const rpcRequest = serializeTransactionRequest(request)
 
-  const hash = await provider.request({
+  const hash = await rpc.request({
     method: 'eth_sendTransaction',
     params: [rpcRequest],
   })

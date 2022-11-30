@@ -215,6 +215,7 @@ async function webSocketAsync(
         return rpc.webSocket(socket, {
           body: { ...body, id: id_ },
           onData: (message) => {
+            /* c8 ignore next */
             if (message.id !== id_) return
             resolve(message)
           },

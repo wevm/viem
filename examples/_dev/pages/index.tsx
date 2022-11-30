@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import 'viem/window'
 
-import { HttpNetwork } from '../components/providers/HttpNetwork'
-import { InjectedAccount } from '../components/providers/InjectedAccount'
-import { InjectedWallet } from '../components/providers/InjectedWallet'
-import { WalletConnectAccount } from '../components/providers/WalletConnectAccount'
+import { HttpNetwork } from '../components/rpcs/HttpNetwork'
+import { InjectedWallet } from '../components/rpcs/InjectedWallet'
+import { WalletConnectWallet } from '../components/rpcs/WalletConnectWallet'
 
 export default function Index() {
-  const [provider, setProvider] = useState('http-network')
+  const [rpc, setRpc] = useState('http-network')
   return (
     <div>
       <h1>viem alpha</h1>
@@ -16,49 +15,36 @@ export default function Index() {
           <input
             type="radio"
             id="http-network"
-            name="provider"
-            onChange={() => setProvider('http-network')}
-            checked={provider === 'http-network'}
+            name="rpc"
+            onChange={() => setRpc('http-network')}
+            checked={rpc === 'http-network'}
           />
-          <label htmlFor="http-network">Network: httpProvider</label>
+          <label htmlFor="http-network">Network: HTTP</label>
         </div>
         <div>
           <input
             type="radio"
             id="injected-wallet"
-            name="provider"
-            onChange={() => setProvider('injected-wallet')}
-            checked={provider === 'injected-wallet'}
+            name="rpc"
+            onChange={() => setRpc('injected-wallet')}
+            checked={rpc === 'injected-wallet'}
           />
-          <label htmlFor="injected-wallet">Wallet: injectedProvider</label>
-        </div>
-        <div>
-          <input
-            type="radio"
-            id="injected-account"
-            name="provider"
-            onChange={() => setProvider('injected-account')}
-            checked={provider === 'injected-account'}
-          />
-          <label htmlFor="injected-account">Account: injectedProvider</label>
+          <label htmlFor="injected-wallet">Wallet: External (Injected)</label>
         </div>
         <div>
           <input
             type="radio"
             id="wc-account"
-            name="provider"
-            onChange={() => setProvider('wc-account')}
-            checked={provider === 'wc-account'}
+            name="rpc"
+            onChange={() => setRpc('wc-account')}
+            checked={rpc === 'wc-account'}
           />
-          <label htmlFor="wc-account">
-            Account: externalProvider (Wallet Connect)
-          </label>
+          <label htmlFor="wc-account">Wallet: External (Wallet Connect)</label>
         </div>
       </div>
-      {provider === 'http-network' && <HttpNetwork />}
-      {provider === 'injected-wallet' && <InjectedWallet />}
-      {provider === 'injected-account' && <InjectedAccount />}
-      {provider === 'wc-account' && <WalletConnectAccount />}
+      {rpc === 'http-network' && <HttpNetwork />}
+      {rpc === 'injected-wallet' && <InjectedWallet />}
+      {rpc === 'wc-account' && <WalletConnectWallet />}
     </div>
   )
 }

@@ -128,7 +128,7 @@ jobs:
       matrix:
         node-version: [18]
         pnpm-version: [7]
-        provider-mode: ['http', 'webSocket']
+        adapter-mode: ['http', 'webSocket']
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2.2.2
@@ -173,4 +173,4 @@ jobs:
           VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
-          VITE_NETWORK_PROVIDER_MODE: ${{ matrix.provider-mode }}
+          VITE_NETWORK_ADAPTER_MODE: ${{ matrix.adapter-mode }}

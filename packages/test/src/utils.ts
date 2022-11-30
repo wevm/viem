@@ -1,8 +1,13 @@
+/* c8 ignore start */
 import { local } from 'viem/chains'
-import { accountProvider as accountProvider_ } from 'viem/providers/account'
-import { httpProvider, webSocketProvider } from 'viem/providers/network'
-import { anvilProvider } from 'viem/providers/test'
-import { externalProvider } from 'viem/providers/wallet'
+import {
+  createNetworkRpc,
+  createTestRpc,
+  createWalletRpc,
+  external,
+  http,
+  webSocket,
+} from 'viem/rpcs'
 import { rpc } from 'viem/utils'
 
 import { RequestListener, createServer } from 'http'
@@ -53,42 +58,48 @@ export const accounts = [
 
 export const initialBlockNumber = Number(process.env.VITE_ANVIL_BLOCK_NUMBER)
 
-export const networkProvider =
-  process.env.VITE_NETWORK_PROVIDER_MODE === 'webSocket'
-    ? webSocketProvider({
-        chain: local,
-      })
-    : httpProvider({
-        chain: local,
-      })
+export const networkRpc =
+  process.env.VITE_NETWORK_ADAPTER_MODE === 'webSocket'
+    ? createNetworkRpc(
+        http({
+          chain: local,
+        }),
+      )
+    : createNetworkRpc(
+        webSocket({
+          chain: local,
+        }),
+      )
 
-export const walletProvider = externalProvider({
-  on: (message, listener) => {
-    if (message === 'accountsChanged') {
-      listener([accounts[0].address] as any)
-    }
-  },
-  removeListener: () => null,
-  request: async ({ method, params }: any) => {
-    if (method === 'eth_requestAccounts') {
-      return [accounts[0].address]
-    }
-
-    const { result } = await rpc.http(local.rpcUrls.default.http, {
-      body: {
-        method,
-        params,
+export const walletRpc = createWalletRpc(
+  external({
+    provider: {
+      on: (message: string, listener: (...args: any[]) => null) => {
+        if (message === 'accountsChanged') {
+          listener([accounts[0].address] as any)
+        }
       },
-    })
-    return result
-  },
-})
+      removeListener: () => null,
+      request: async ({ method, params }: any) => {
+        if (method === 'eth_requestAccounts') {
+          return [accounts[0].address]
+        }
 
-export const accountProvider = accountProvider_(walletProvider!, {
-  address: accounts[0].address,
-})
+        const { result } = await rpc.http(local.rpcUrls.default.http, {
+          body: {
+            method,
+            params,
+          },
+        })
+        return result
+      },
+    },
+  }),
+)
 
-export const testProvider = anvilProvider({ chain: local })
+export const testRpc = createTestRpc(http({ chain: local }), {
+  key: 'anvil',
+})
 
 export function createHttpServer(
   handler: RequestListener,
@@ -107,3 +118,4 @@ export function createHttpServer(
     })
   })
 }
+/* c8 ignore stop */

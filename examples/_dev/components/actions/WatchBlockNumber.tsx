@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import { WatchBlockNumberResponse, watchBlockNumber } from 'viem/actions'
-import { NetworkProvider } from 'viem/providers/network'
-import { WalletProvider } from 'viem/providers/wallet'
+import { NetworkRpc } from 'viem/rpcs'
 
-export function WatchBlockNumber({
-  provider,
-}: {
-  provider: NetworkProvider | WalletProvider
-}) {
+export function WatchBlockNumber({ rpc }: { rpc: NetworkRpc }) {
   const [blockNumber, setBlockNumber] = useState<WatchBlockNumberResponse>()
   useEffect(() => {
-    const unwatch = watchBlockNumber(provider, setBlockNumber, {
+    const unwatch = watchBlockNumber(rpc, setBlockNumber, {
       emitOnBegin: true,
     })
     return unwatch
-  }, [provider])
+  }, [rpc])
   return <div>{blockNumber}</div>
 }

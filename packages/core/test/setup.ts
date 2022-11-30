@@ -1,7 +1,7 @@
-import { testProvider } from '../../test/src/utils'
+import { testRpc } from '../../test/src/utils'
 
 export async function setup() {
-  await testProvider.request({
+  await testRpc.request({
     method: 'anvil_reset',
     params: [
       {
@@ -12,5 +12,5 @@ export async function setup() {
       },
     ],
   })
-  await testProvider.request({ method: 'evm_setAutomine', params: [false] })
+  await testRpc.request({ method: 'evm_setAutomine', params: [false] })
 }

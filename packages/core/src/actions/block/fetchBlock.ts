@@ -1,6 +1,4 @@
-import { AccountProvider } from '../../providers/account'
-import { NetworkProvider } from '../../providers/network/createNetworkProvider'
-import { WalletProvider } from '../../providers/wallet/createWalletProvider'
+import { NetworkRpc } from '../../rpcs'
 import { Block, BlockTag, Data, RpcBlock } from '../../types'
 import { BaseError, deserializeBlock, numberToHex } from '../../utils'
 
@@ -31,7 +29,7 @@ export type FetchBlockArgs = {
 export type FetchBlockResponse = Block
 
 export async function fetchBlock(
-  provider: NetworkProvider | WalletProvider | AccountProvider,
+  rpc: NetworkRpc,
   {
     blockHash,
     blockNumber,
@@ -44,12 +42,12 @@ export async function fetchBlock(
 
   let block: RpcBlock | null = null
   if (blockHash) {
-    block = await provider.request({
+    block = await rpc.request({
       method: 'eth_getBlockByHash',
       params: [blockHash, includeTransactions],
     })
   } else {
-    block = await provider.request({
+    block = await rpc.request({
       method: 'eth_getBlockByNumber',
       params: [blockNumberHex || blockTag, includeTransactions],
     })

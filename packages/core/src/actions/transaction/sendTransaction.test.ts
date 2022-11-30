@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  accountProvider,
   accounts,
-  networkProvider,
-  testProvider,
+  networkRpc,
+  testRpc,
+  walletRpc,
 } from '../../../../test/src/utils'
 import {
   etherToValue,
@@ -22,15 +22,15 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await setBalance(testProvider, {
+  await setBalance(testRpc, {
     address: sourceAccount.address,
     value: sourceAccount.balance,
   })
-  await setBalance(testProvider, {
+  await setBalance(testRpc, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
-  await mine(testProvider, { blocks: 1 })
+  await mine(testRpc, { blocks: 1 })
 }
 
 test('sends transaction', async () => {
@@ -38,7 +38,7 @@ test('sends transaction', async () => {
 
   expect(
     (
-      await sendTransaction(accountProvider, {
+      await sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -49,19 +49,19 @@ test('sends transaction', async () => {
   ).toBeDefined()
 
   expect(
-    await fetchBalance(networkProvider, { address: targetAccount.address }),
+    await fetchBalance(networkRpc, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+    await fetchBalance(networkRpc, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await mine(testProvider, { blocks: 1 })
+  await mine(testRpc, { blocks: 1 })
 
   expect(
-    await fetchBalance(networkProvider, { address: targetAccount.address }),
+    await fetchBalance(networkRpc, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+    await fetchBalance(networkRpc, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
@@ -70,7 +70,7 @@ test('sends transaction w/ no value', async () => {
 
   expect(
     (
-      await sendTransaction(accountProvider, {
+      await sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -80,19 +80,19 @@ test('sends transaction w/ no value', async () => {
   ).toBeDefined()
 
   expect(
-    await fetchBalance(networkProvider, { address: targetAccount.address }),
+    await fetchBalance(networkRpc, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+    await fetchBalance(networkRpc, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
-  await mine(testProvider, { blocks: 1 })
+  await mine(testRpc, { blocks: 1 })
 
   expect(
-    await fetchBalance(networkProvider, { address: targetAccount.address }),
+    await fetchBalance(networkRpc, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(networkProvider, { address: sourceAccount.address }),
+    await fetchBalance(networkRpc, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
@@ -102,7 +102,7 @@ describe('args: gas', () => {
 
     expect(
       (
-        await sendTransaction(accountProvider, {
+        await sendTransaction(walletRpc, {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
@@ -114,19 +114,19 @@ describe('args: gas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
@@ -134,7 +134,7 @@ describe('args: gas', () => {
     await setup()
 
     expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -149,7 +149,7 @@ describe('args: gas', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -165,11 +165,11 @@ describe('args: gasPrice', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const block = await fetchBlock(networkProvider)
+    const block = await fetchBlock(networkRpc)
 
     expect(
       (
-        await sendTransaction(accountProvider, {
+        await sendTransaction(walletRpc, {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
@@ -181,33 +181,33 @@ describe('args: gasPrice', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('errors when gas price is less than block base fee', async () => {
     await setup()
 
-    await testProvider.request({
+    await testRpc.request({
       method: 'anvil_setNextBlockBaseFeePerGas',
       params: [numberToHex(69n)],
     })
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     await expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -221,10 +221,10 @@ describe('args: gasPrice', () => {
   test('errors when account has insufficient funds', async () => {
     await setup()
 
-    const block = await fetchBlock(networkProvider)
+    const block = await fetchBlock(networkRpc)
 
     await expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -240,11 +240,11 @@ describe('args: maxFeePerGas', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const block = await fetchBlock(networkProvider)
+    const block = await fetchBlock(networkRpc)
 
     expect(
       (
-        await sendTransaction(accountProvider, {
+        await sendTransaction(walletRpc, {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
@@ -256,19 +256,19 @@ describe('args: maxFeePerGas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
@@ -276,7 +276,7 @@ describe('args: maxFeePerGas', () => {
     await setup()
 
     await expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -290,10 +290,10 @@ describe('args: maxFeePerGas', () => {
   test('errors when account has insufficient funds', async () => {
     await setup()
 
-    const block = await fetchBlock(networkProvider)
+    const block = await fetchBlock(networkRpc)
 
     await expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -312,7 +312,7 @@ describe('args: maxPriorityFeePerGas', () => {
 
     expect(
       (
-        await sendTransaction(accountProvider, {
+        await sendTransaction(walletRpc, {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
@@ -324,30 +324,30 @@ describe('args: maxPriorityFeePerGas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
     await setup()
 
-    const block = await fetchBlock(networkProvider)
+    const block = await fetchBlock(networkRpc)
 
     expect(
       (
-        await sendTransaction(accountProvider, {
+        await sendTransaction(walletRpc, {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
@@ -360,25 +360,25 @@ describe('args: maxPriorityFeePerGas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('maxPriorityFeePerGas + maxFeePerGas: maxFeePerGas below baseFeePerGas + maxPriorityFeePerGas', () => {
     expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -397,14 +397,14 @@ describe('args: nonce', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const transactionCount = (await networkProvider.request({
+    const transactionCount = (await networkRpc.request({
       method: 'eth_getTransactionCount',
       params: [sourceAccount.address, 'latest'],
     }))!
 
     expect(
       (
-        await sendTransaction(accountProvider, {
+        await sendTransaction(walletRpc, {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
@@ -416,25 +416,25 @@ describe('args: nonce', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
-    await mine(testProvider, { blocks: 1 })
+    await mine(testRpc, { blocks: 1 })
 
     expect(
-      await fetchBalance(networkProvider, { address: targetAccount.address }),
+      await fetchBalance(networkRpc, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(networkProvider, { address: sourceAccount.address }),
+      await fetchBalance(networkRpc, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('errors when incorrect nonce provided', () => {
     expect(() =>
-      sendTransaction(accountProvider, {
+      sendTransaction(walletRpc, {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
@@ -450,7 +450,7 @@ test('insufficient funds: errors when user is out of funds', async () => {
   await setup()
 
   await expect(
-    sendTransaction(accountProvider, {
+    sendTransaction(walletRpc, {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,

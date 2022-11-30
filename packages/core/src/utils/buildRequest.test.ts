@@ -17,6 +17,7 @@ import {
   ResourceUnavailableRpcError,
   RpcError,
   TransactionRejectedRpcError,
+  UnknownRpcError,
   buildRequest,
 } from './buildRequest'
 import { RpcTimeoutError } from './rpc'
@@ -492,6 +493,15 @@ test('JsonRpcVersionUnsupportedError', () => {
     [JsonRpcVersionUnsupportedError: Version of JSON-RPC protocol is not supported.
 
     Details: message
+    Version: viem@1.0.2]
+  `)
+})
+
+test('UnknownRpcError', async () => {
+  expect(new UnknownRpcError(new Error('oh no'))).toMatchInlineSnapshot(`
+    [UnknownRpcError: An unknown RPC error occurred.
+
+    Details: oh no
     Version: viem@1.0.2]
   `)
 })

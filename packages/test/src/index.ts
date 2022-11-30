@@ -1,9 +1,8 @@
 export {
-  accountProvider,
   accounts,
   createHttpServer,
   initialBlockNumber,
-  networkProvider,
-  testProvider,
-  walletProvider,
+  networkRpc,
+  testRpc,
+  walletRpc,
 } from './utils'

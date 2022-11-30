@@ -1,16 +1,6 @@
-import {
-  ConnectedRequests,
-  Events,
-  InjectedFlags,
-  InjectedRequests,
-  PublicRequests,
-} from './ethereum-provider'
+import { Events, Requests } from './eip1193'
 
-type WindowProvider = PublicRequests &
-  ConnectedRequests &
-  InjectedRequests &
-  Events &
-  InjectedFlags
+type WindowProvider = Requests & Events
 
 declare global {
   interface Window {

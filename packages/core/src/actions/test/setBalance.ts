@@ -1,4 +1,4 @@
-import { TestProvider } from '../../providers/test/createTestProvider'
+import { TestRpc } from '../../rpcs'
 import { Address } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -10,11 +10,11 @@ export type SetBalanceArgs = {
 }
 
 export async function setBalance(
-  provider: TestProvider,
+  rpc: TestRpc,
   { address, value }: SetBalanceArgs,
 ) {
-  return await provider.request({
-    method: `${provider.key}_setBalance`,
+  return await rpc.request({
+    method: `${rpc.key}_setBalance`,
     params: [address, numberToHex(value)],
   })
 }
