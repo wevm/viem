@@ -6,7 +6,7 @@ test('exports adapters', () => {
   expect(adapters).toMatchInlineSnapshot(`
     {
       "createAdapter": [Function],
-      "external": [Function],
+      "ethereumProvider": [Function],
       "http": [Function],
       "webSocket": [Function],
     }

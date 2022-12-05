@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import WalletConnectProvider from '@walletconnect/ethereum-provider'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { createWalletRpc, external } from 'viem/rpcs'
+import { createWalletRpc, ethereumProvider } from 'viem/rpcs'
 
 import { SendTransaction } from '../actions/SendTransaction'
 
@@ -12,7 +12,9 @@ const walletConnectProvider = new WalletConnectProvider({
     {},
   ),
 })
-const rpc = createWalletRpc(external({ provider: walletConnectProvider }))
+const rpc = createWalletRpc(
+  ethereumProvider({ provider: walletConnectProvider }),
+)
 
 export function WalletConnectWallet() {
   const [connected, setConnected] = useState(false)

@@ -6,7 +6,7 @@ import { http } from './adapters/http'
 import { webSocket } from './adapters/webSocket'
 import { local } from '../chains'
 import { SignableRequests, WalletRequests } from '../types/eip1193'
-import { external } from './adapters/external'
+import { ethereumProvider } from './adapters/ethereumProvider'
 
 const mockAdapter = createAdapter({
   key: 'mock',
@@ -40,19 +40,19 @@ test('creates', () => {
 })
 
 describe('adapters', () => {
-  test('external', () => {
+  test('ethereumProvider', () => {
     const { uid, ...rpc } = createWalletRpc(
-      external({ provider: { request: async () => null } }),
+      ethereumProvider({ provider: { request: async () => null } }),
     )
 
     expect(uid).toBeDefined()
     expect(rpc).toMatchInlineSnapshot(`
       {
         "adapter": {
-          "key": "external",
-          "name": "External",
+          "key": "ethereumProvider",
+          "name": "Ethereum Provider",
           "request": [Function],
-          "type": "external",
+          "type": "ethereumProvider",
         },
         "key": "wallet",
         "name": "Wallet RPC Client",

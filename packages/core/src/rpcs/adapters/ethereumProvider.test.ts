@@ -3,7 +3,7 @@ import '../../types/window'
 
 import { Requests } from '../../types/eip1193'
 
-import { external } from './external'
+import { ethereumProvider } from './ethereumProvider'
 
 vi.stubGlobal('window', {
   ethereum: {
@@ -14,20 +14,20 @@ vi.stubGlobal('window', {
 })
 
 test('default', () => {
-  const adapter = external({
+  const adapter = ethereumProvider({
     provider: {
       request: vi.fn(async () => null) as unknown as Requests['request'],
     },
   })
 
-  assertType<'external'>(adapter.config.type)
+  assertType<'ethereumProvider'>(adapter.config.type)
   expect(adapter).toMatchInlineSnapshot(`
     {
       "config": {
-        "key": "external",
-        "name": "External",
+        "key": "ethereumProvider",
+        "name": "Ethereum Provider",
         "request": [Function],
-        "type": "external",
+        "type": "ethereumProvider",
       },
       "value": undefined,
     }
@@ -36,18 +36,18 @@ test('default', () => {
 
 describe('config', () => {
   test('provider', () => {
-    const adapter = external({
+    const adapter = ethereumProvider({
       provider: window.ethereum!,
     })
 
-    assertType<'external'>(adapter.config.type)
+    assertType<'ethereumProvider'>(adapter.config.type)
     expect(adapter).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "external",
-          "name": "External",
+          "key": "ethereumProvider",
+          "name": "Ethereum Provider",
           "request": [Function],
-          "type": "external",
+          "type": "ethereumProvider",
         },
         "value": undefined,
       }
@@ -55,7 +55,7 @@ describe('config', () => {
   })
 
   test('key', () => {
-    const adapter = external({
+    const adapter = ethereumProvider({
       key: 'mock',
       provider: {
         request: vi.fn(async () => null) as unknown as Requests['request'],
@@ -66,9 +66,9 @@ describe('config', () => {
       {
         "config": {
           "key": "mock",
-          "name": "External",
+          "name": "Ethereum Provider",
           "request": [Function],
-          "type": "external",
+          "type": "ethereumProvider",
         },
         "value": undefined,
       }
@@ -76,7 +76,7 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const adapter = external({
+    const adapter = ethereumProvider({
       name: 'Mock Adapter',
       provider: {
         request: vi.fn(async () => null) as unknown as Requests['request'],
@@ -86,10 +86,10 @@ describe('config', () => {
     expect(adapter).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "external",
+          "key": "ethereumProvider",
           "name": "Mock Adapter",
           "request": [Function],
-          "type": "external",
+          "type": "ethereumProvider",
         },
         "value": undefined,
       }

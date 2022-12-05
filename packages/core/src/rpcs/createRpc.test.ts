@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createAdapter, external, http, webSocket } from './adapters'
+import { createAdapter, ethereumProvider, http, webSocket } from './adapters'
 import { local } from '../chains'
 import { Requests } from '../types/eip1193'
 
@@ -114,19 +114,19 @@ describe('adapters', () => {
     `)
   })
 
-  test('external', () => {
+  test('ethereumProvider', () => {
     const { uid, ...rpc } = createRpc(
-      external({ provider: { request: async () => null } }),
+      ethereumProvider({ provider: { request: async () => null } }),
     )
 
     expect(uid).toBeDefined()
     expect(rpc).toMatchInlineSnapshot(`
       {
         "adapter": {
-          "key": "external",
-          "name": "External",
+          "key": "ethereumProvider",
+          "name": "Ethereum Provider",
           "request": [Function],
-          "type": "external",
+          "type": "ethereumProvider",
         },
         "key": "base",
         "name": "Base RPC Client",

@@ -10,7 +10,7 @@ test('exports rpcs', () => {
       "createRpc": [Function],
       "createTestRpc": [Function],
       "createWalletRpc": [Function],
-      "external": [Function],
+      "ethereumProvider": [Function],
       "http": [Function],
       "webSocket": [Function],
     }

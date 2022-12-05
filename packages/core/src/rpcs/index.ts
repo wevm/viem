@@ -1,9 +1,9 @@
-export { createAdapter, external, http, webSocket } from './adapters'
+export { createAdapter, ethereumProvider, http, webSocket } from './adapters'
 export type {
   Adapter,
   AdapterConfig,
-  ExternalAdapter,
-  ExternalAdapterConfig,
+  EthereumProviderAdapter,
+  EthereumProviderAdapterConfig,
   HttpAdapter,
   HttpAdapterConfig,
   WebSocketAdapter,

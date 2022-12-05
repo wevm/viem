@@ -1,12 +1,14 @@
-import { createWalletRpc, external } from 'viem/rpcs'
+import { createWalletRpc, ethereumProvider } from 'viem/rpcs'
 
 import { RequestAccountAddresses } from '../actions/RequestAccountAddresses'
 import { SendTransaction } from '../actions/SendTransaction'
 
 const rpc = createWalletRpc(
-  external({
+  ethereumProvider({
     provider:
-      typeof window !== 'undefined' ? window.ethereum : { request: () => null },
+      typeof window !== 'undefined'
+        ? window.ethereum!
+        : { request: async () => null },
   }),
 )
 

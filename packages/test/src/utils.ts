@@ -4,7 +4,7 @@ import {
   createNetworkRpc,
   createTestRpc,
   createWalletRpc,
-  external,
+  ethereumProvider,
   http,
   webSocket,
 } from 'viem/rpcs'
@@ -72,7 +72,7 @@ export const networkRpc =
       )
 
 export const walletRpc = createWalletRpc(
-  external({
+  ethereumProvider({
     provider: {
       on: (message: string, listener: (...args: any[]) => null) => {
         if (message === 'accountsChanged') {
