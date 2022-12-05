@@ -6,10 +6,10 @@ test('exports rpcs', () => {
   expect(rpcs).toMatchInlineSnapshot(`
     {
       "createAdapter": [Function],
-      "createNetworkRpc": [Function],
-      "createRpc": [Function],
-      "createTestRpc": [Function],
-      "createWalletRpc": [Function],
+      "createClient": [Function],
+      "createNetworkClient": [Function],
+      "createTestClient": [Function],
+      "createWalletClient": [Function],
       "ethereumProvider": [Function],
       "http": [Function],
       "webSocket": [Function],

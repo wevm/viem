@@ -1,12 +1,11 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createNetworkRpc } from './createNetworkRpc'
+import { createTestClient } from './createTestClient'
 import { createAdapter } from './adapters/createAdapter'
 import { http } from './adapters/http'
-import { ethereumProvider } from './adapters/ethereumProvider'
-import { webSocket } from './adapters/webSocket'
 import { local } from '../chains'
-import { PublicRequests } from '../types/eip1193'
+import { TestRequests } from '../types/eip1193'
+import { webSocket } from './adapters/webSocket'
 
 const mockAdapter = createAdapter({
   key: 'mock',
@@ -16,11 +15,11 @@ const mockAdapter = createAdapter({
 })
 
 test('creates', () => {
-  const { uid, ...rpc } = createNetworkRpc(mockAdapter)
+  const { uid, ...client } = createTestClient(mockAdapter, { key: 'anvil' })
 
-  assertType<PublicRequests['request']>(rpc.request)
+  assertType<TestRequests<'anvil'>['request']>(client.request)
   expect(uid).toBeDefined()
-  expect(rpc).toMatchInlineSnapshot(`
+  expect(client).toMatchInlineSnapshot(`
     {
       "adapter": {
         "key": "mock",
@@ -28,21 +27,23 @@ test('creates', () => {
         "request": [MockFunction spy],
         "type": "mock",
       },
-      "key": "network",
-      "name": "Network RPC Client",
+      "key": "anvil",
+      "name": "Test Client",
       "pollingInterval": 4000,
       "request": [Function],
-      "type": "networkRpc",
+      "type": "testClient",
     }
   `)
 })
 
 describe('adapters', () => {
   test('http', () => {
-    const { uid, ...rpc } = createNetworkRpc(http({ chain: local }))
+    const { uid, ...client } = createTestClient(http({ chain: local }), {
+      key: 'anvil',
+    })
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -68,20 +69,22 @@ describe('adapters', () => {
           "type": "network",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "network",
-        "name": "Network RPC Client",
+        "key": "anvil",
+        "name": "Test Client",
         "pollingInterval": 4000,
         "request": [Function],
-        "type": "networkRpc",
+        "type": "testClient",
       }
     `)
   })
 
   test('webSocket', () => {
-    const { uid, ...rpc } = createNetworkRpc(webSocket({ chain: local }))
+    const { uid, ...client } = createTestClient(webSocket({ chain: local }), {
+      key: 'anvil',
+    })
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -108,34 +111,11 @@ describe('adapters', () => {
           "transportMode": "webSocket",
           "type": "network",
         },
-        "key": "network",
-        "name": "Network RPC Client",
+        "key": "anvil",
+        "name": "Test Client",
         "pollingInterval": 4000,
         "request": [Function],
-        "type": "networkRpc",
-      }
-    `)
-  })
-
-  test('ethereumProvider', () => {
-    const { uid, ...rpc } = createNetworkRpc(
-      ethereumProvider({ provider: { request: async () => null } }),
-    )
-
-    expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
-      {
-        "adapter": {
-          "key": "ethereumProvider",
-          "name": "Ethereum Provider",
-          "request": [Function],
-          "type": "ethereumProvider",
-        },
-        "key": "network",
-        "name": "Network RPC Client",
-        "pollingInterval": 4000,
-        "request": [Function],
-        "type": "networkRpc",
+        "type": "testClient",
       }
     `)
   })

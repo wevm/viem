@@ -1,4 +1,4 @@
-import { NetworkRpc } from '../../rpcs/createNetworkRpc'
+import { NetworkClient } from '../../clients'
 import {
   BlockTag,
   Data,
@@ -44,7 +44,7 @@ export type FetchTransactionArgs =
 export type FetchTransactionResponse = TransactionResult
 
 export async function fetchTransaction(
-  rpc: NetworkRpc,
+  client: NetworkClient,
   {
     blockHash,
     blockNumber,
@@ -58,17 +58,17 @@ export async function fetchTransaction(
 
   let transaction: RpcTransactionResult | null = null
   if (hash) {
-    transaction = await rpc.request({
+    transaction = await client.request({
       method: 'eth_getTransactionByHash',
       params: [hash],
     })
   } else if (blockHash) {
-    transaction = await rpc.request({
+    transaction = await client.request({
       method: 'eth_getTransactionByBlockHashAndIndex',
       params: [blockHash, numberToHex(index)],
     })
   } else if (blockNumberHex || blockTag) {
-    transaction = await rpc.request({
+    transaction = await client.request({
       method: 'eth_getTransactionByBlockNumberAndIndex',
       params: [blockNumberHex || blockTag, numberToHex(index)],
     })

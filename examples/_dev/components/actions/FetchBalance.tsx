@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react'
 import { fetchBalance } from 'viem/actions'
-import { NetworkRpc } from 'viem/rpcs'
+import { NetworkClient } from 'viem/clients'
 
 export function FetchBalance({
   address = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-  rpc,
+  client,
 }: {
   address?: `0x${string}`
-  rpc: NetworkRpc
+  client: NetworkClient
 }) {
   const [balance, setBalance] = useState<bigint>()
   useEffect(() => {
     ;(async () => {
       setBalance(
-        await fetchBalance(rpc, {
+        await fetchBalance(client, {
           address,
         }),
       )
     })()
-  }, [address, rpc])
+  }, [address, client])
   return <div>Balance: {balance?.toString()} wei</div>
 }

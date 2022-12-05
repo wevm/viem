@@ -4,7 +4,7 @@ import { createAdapter, ethereumProvider, http, webSocket } from './adapters'
 import { local } from '../chains'
 import { Requests } from '../types/eip1193'
 
-import { createRpc } from './createRpc'
+import { createClient } from './createClient'
 
 test('creates', () => {
   const mockAdapter = createAdapter({
@@ -13,11 +13,11 @@ test('creates', () => {
     request: vi.fn(async () => null) as unknown as Requests['request'],
     type: 'mock',
   })
-  const { uid, ...rpc } = createRpc(mockAdapter)
+  const { uid, ...client } = createClient(mockAdapter)
 
-  assertType<Requests['request']>(rpc.request)
+  assertType<Requests['request']>(client.request)
   expect(uid).toBeDefined()
-  expect(rpc).toMatchInlineSnapshot(`
+  expect(client).toMatchInlineSnapshot(`
     {
       "adapter": {
         "key": "mock",
@@ -26,7 +26,7 @@ test('creates', () => {
         "type": "mock",
       },
       "key": "base",
-      "name": "Base RPC Client",
+      "name": "Base Client",
       "pollingInterval": 4000,
       "request": [Function],
       "type": "base",
@@ -36,10 +36,10 @@ test('creates', () => {
 
 describe('adapters', () => {
   test('http', () => {
-    const { uid, ...rpc } = createRpc(http({ chain: local }))
+    const { uid, ...client } = createClient(http({ chain: local }))
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -66,7 +66,7 @@ describe('adapters', () => {
           "url": "http://127.0.0.1:8545",
         },
         "key": "base",
-        "name": "Base RPC Client",
+        "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
         "type": "base",
@@ -75,10 +75,10 @@ describe('adapters', () => {
   })
 
   test('webSocket', () => {
-    const { uid, ...rpc } = createRpc(webSocket({ chain: local }))
+    const { uid, ...client } = createClient(webSocket({ chain: local }))
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -106,7 +106,7 @@ describe('adapters', () => {
           "type": "network",
         },
         "key": "base",
-        "name": "Base RPC Client",
+        "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
         "type": "base",
@@ -115,12 +115,12 @@ describe('adapters', () => {
   })
 
   test('ethereumProvider', () => {
-    const { uid, ...rpc } = createRpc(
+    const { uid, ...client } = createClient(
       ethereumProvider({ provider: { request: async () => null } }),
     )
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "key": "ethereumProvider",
@@ -129,7 +129,7 @@ describe('adapters', () => {
           "type": "ethereumProvider",
         },
         "key": "base",
-        "name": "Base RPC Client",
+        "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
         "type": "base",
@@ -146,13 +146,13 @@ describe('config', () => {
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...rpc } = createRpc(mockAdapter, {
+    const { uid, ...client } = createClient(mockAdapter, {
       key: 'bar',
     })
 
-    assertType<Requests['request']>(rpc.request)
+    assertType<Requests['request']>(client.request)
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "key": "mock",
@@ -161,7 +161,7 @@ describe('config', () => {
           "type": "mock",
         },
         "key": "bar",
-        "name": "Base RPC Client",
+        "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
         "type": "base",
@@ -176,11 +176,13 @@ describe('config', () => {
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...rpc } = createRpc(mockAdapter, { name: 'Mock RPC' })
+    const { uid, ...client } = createClient(mockAdapter, {
+      name: 'Mock Client',
+    })
 
-    assertType<Requests['request']>(rpc.request)
+    assertType<Requests['request']>(client.request)
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "key": "mock",
@@ -189,7 +191,7 @@ describe('config', () => {
           "type": "mock",
         },
         "key": "base",
-        "name": "Mock RPC",
+        "name": "Mock Client",
         "pollingInterval": 4000,
         "request": [Function],
         "type": "base",
@@ -204,11 +206,13 @@ describe('config', () => {
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...rpc } = createRpc(mockAdapter, { pollingInterval: 10_000 })
+    const { uid, ...client } = createClient(mockAdapter, {
+      pollingInterval: 10_000,
+    })
 
-    assertType<Requests['request']>(rpc.request)
+    assertType<Requests['request']>(client.request)
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "key": "mock",
@@ -217,7 +221,7 @@ describe('config', () => {
           "type": "mock",
         },
         "key": "base",
-        "name": "Base RPC Client",
+        "name": "Base Client",
         "pollingInterval": 10000,
         "request": [Function],
         "type": "base",
@@ -232,11 +236,11 @@ describe('config', () => {
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...rpc } = createRpc(mockAdapter, { type: 'foo' })
+    const { uid, ...client } = createClient(mockAdapter, { type: 'foo' })
 
-    assertType<Requests['request']>(rpc.request)
+    assertType<Requests['request']>(client.request)
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "key": "mock",
@@ -245,7 +249,7 @@ describe('config', () => {
           "type": "mock",
         },
         "key": "base",
-        "name": "Base RPC Client",
+        "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
         "type": "foo",

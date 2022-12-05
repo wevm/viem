@@ -2,7 +2,7 @@ export {
   accounts,
   createHttpServer,
   initialBlockNumber,
-  networkRpc,
-  testRpc,
-  walletRpc,
+  networkClient,
+  testClient,
+  walletClient,
 } from './utils'

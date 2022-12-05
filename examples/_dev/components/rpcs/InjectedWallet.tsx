@@ -1,9 +1,9 @@
-import { createWalletRpc, ethereumProvider } from 'viem/rpcs'
+import { createWalletClient, ethereumProvider } from 'viem/clients'
 
 import { RequestAccountAddresses } from '../actions/RequestAccountAddresses'
 import { SendTransaction } from '../actions/SendTransaction'
 
-const rpc = createWalletRpc(
+const client = createWalletClient(
   ethereumProvider({
     provider:
       typeof window !== 'undefined'
@@ -13,15 +13,15 @@ const rpc = createWalletRpc(
 )
 
 export function InjectedWallet() {
-  if (!rpc) return null
+  if (!client) return null
   return (
     <div>
       <hr />
       <h3>requestAccountAddresses</h3>
-      <RequestAccountAddresses rpc={rpc} />
+      <RequestAccountAddresses client={client} />
       <hr />
       <h3>sendTransaction</h3>
-      <SendTransaction rpc={rpc} />
+      <SendTransaction client={client} />
     </div>
   )
 }

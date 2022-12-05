@@ -3,9 +3,9 @@ import { describe, expect, test } from 'vitest'
 import {
   accounts,
   initialBlockNumber,
-  networkRpc,
-  testRpc,
-  walletRpc,
+  networkClient,
+  testClient,
+  walletClient,
 } from '../../../../test/src/utils'
 import { etherToValue } from '../../utils'
 import { fetchBlock } from '../block'
@@ -18,12 +18,12 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 test('fetches transaction', async () => {
-  await setBalance(testRpc, {
+  await setBalance(testClient, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
 
-  await sendTransaction(walletRpc, {
+  await sendTransaction(walletClient, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
@@ -31,9 +31,9 @@ test('fetches transaction', async () => {
     },
   })
 
-  await mine(testRpc, { blocks: 1 })
+  await mine(testClient, { blocks: 1 })
 
-  const transaction = await fetchTransaction(networkRpc, {
+  const transaction = await fetchTransaction(networkClient, {
     blockTag: 'latest',
     index: 0,
   })
@@ -71,14 +71,14 @@ test('fetches transaction', async () => {
 })
 
 test('fetches transaction (legacy)', async () => {
-  const block = await fetchBlock(networkRpc)
+  const block = await fetchBlock(networkClient)
 
-  await setBalance(testRpc, {
+  await setBalance(testClient, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
 
-  await sendTransaction(walletRpc, {
+  await sendTransaction(walletClient, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
@@ -87,9 +87,9 @@ test('fetches transaction (legacy)', async () => {
     },
   })
 
-  await mine(testRpc, { blocks: 1 })
+  await mine(testClient, { blocks: 1 })
 
-  const transaction = await fetchTransaction(networkRpc, {
+  const transaction = await fetchTransaction(networkClient, {
     blockTag: 'latest',
     index: 0,
   })
@@ -126,14 +126,14 @@ test('fetches transaction (legacy)', async () => {
 })
 
 test('fetches transaction (eip2930)', async () => {
-  const block = await fetchBlock(networkRpc)
+  const block = await fetchBlock(networkClient)
 
-  await setBalance(testRpc, {
+  await setBalance(testClient, {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
 
-  await sendTransaction(walletRpc, {
+  await sendTransaction(walletClient, {
     request: {
       accessList: [{ address: targetAccount.address, storageKeys: [] }],
       from: sourceAccount.address,
@@ -143,9 +143,9 @@ test('fetches transaction (eip2930)', async () => {
     },
   })
 
-  await mine(testRpc, { blocks: 1 })
+  await mine(testClient, { blocks: 1 })
 
-  const transaction = await fetchTransaction(networkRpc, {
+  const transaction = await fetchTransaction(networkClient, {
     blockTag: 'latest',
     index: 0,
   })
@@ -183,7 +183,7 @@ test('fetches transaction (eip2930)', async () => {
 
 describe('args: hash', () => {
   test('fetches transaction by hash', async () => {
-    const { hash } = await sendTransaction(walletRpc, {
+    const { hash } = await sendTransaction(walletClient, {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
@@ -191,9 +191,9 @@ describe('args: hash', () => {
       },
     })
 
-    await mine(testRpc, { blocks: 1 })
+    await mine(testClient, { blocks: 1 })
 
-    const transaction = await fetchTransaction(networkRpc, {
+    const transaction = await fetchTransaction(networkClient, {
       hash,
     })
     expect(transaction.from).toMatchInlineSnapshot(
@@ -209,7 +209,7 @@ describe('args: hash', () => {
 
   test('throws if transaction not found', async () => {
     await expect(
-      fetchTransaction(networkRpc, {
+      fetchTransaction(networkClient, {
         hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
       }),
     ).rejects.toThrowError(
@@ -220,12 +220,12 @@ describe('args: hash', () => {
 
 describe('args: blockHash', () => {
   test('blockHash: fetches transaction by block hash & index', async () => {
-    const { hash: blockHash } = await fetchBlock(networkRpc, {
+    const { hash: blockHash } = await fetchBlock(networkClient, {
       blockNumber: initialBlockNumber - 69,
     })
 
     if (!blockHash) throw new Error('no block hash found')
-    const transaction = await fetchTransaction(networkRpc, {
+    const transaction = await fetchTransaction(networkClient, {
       blockHash,
       index: 5,
     })
@@ -241,13 +241,13 @@ describe('args: blockHash', () => {
   }, 10000)
 
   test('blockHash: throws if transaction not found', async () => {
-    const { hash: blockHash } = await fetchBlock(networkRpc, {
+    const { hash: blockHash } = await fetchBlock(networkClient, {
       blockNumber: initialBlockNumber - 69,
     })
     if (!blockHash) throw new Error('no block hash found')
 
     await expect(
-      fetchTransaction(networkRpc, {
+      fetchTransaction(networkClient, {
         blockHash,
         index: 420,
       }),
@@ -257,7 +257,7 @@ describe('args: blockHash', () => {
 
 describe('args: blockNumber', () => {
   test('fetches transaction by block number & index', async () => {
-    const transaction = await fetchTransaction(networkRpc, {
+    const transaction = await fetchTransaction(networkClient, {
       blockNumber: initialBlockNumber - 420,
       index: 5,
     })
@@ -274,7 +274,7 @@ describe('args: blockNumber', () => {
 
   test('throws if transaction not found', async () => {
     await expect(
-      fetchTransaction(networkRpc, {
+      fetchTransaction(networkClient, {
         blockNumber: initialBlockNumber - 420,
         index: 420,
       }),

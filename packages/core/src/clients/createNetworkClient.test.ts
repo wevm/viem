@@ -1,12 +1,12 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createWalletRpc } from './createWalletRpc'
+import { createNetworkClient } from './createNetworkClient'
 import { createAdapter } from './adapters/createAdapter'
 import { http } from './adapters/http'
+import { ethereumProvider } from './adapters/ethereumProvider'
 import { webSocket } from './adapters/webSocket'
 import { local } from '../chains'
-import { SignableRequests, WalletRequests } from '../types/eip1193'
-import { ethereumProvider } from './adapters/ethereumProvider'
+import { PublicRequests } from '../types/eip1193'
 
 const mockAdapter = createAdapter({
   key: 'mock',
@@ -16,13 +16,11 @@ const mockAdapter = createAdapter({
 })
 
 test('creates', () => {
-  const { uid, ...rpc } = createWalletRpc(mockAdapter)
+  const { uid, ...client } = createNetworkClient(mockAdapter)
 
-  assertType<SignableRequests['request'] & WalletRequests['request']>(
-    rpc.request,
-  )
+  assertType<PublicRequests['request']>(client.request)
   expect(uid).toBeDefined()
-  expect(rpc).toMatchInlineSnapshot(`
+  expect(client).toMatchInlineSnapshot(`
     {
       "adapter": {
         "key": "mock",
@@ -30,44 +28,21 @@ test('creates', () => {
         "request": [MockFunction spy],
         "type": "mock",
       },
-      "key": "wallet",
-      "name": "Wallet RPC Client",
+      "key": "network",
+      "name": "Network Client",
       "pollingInterval": 4000,
       "request": [Function],
-      "type": "walletRpc",
+      "type": "networkClient",
     }
   `)
 })
 
 describe('adapters', () => {
-  test('ethereumProvider', () => {
-    const { uid, ...rpc } = createWalletRpc(
-      ethereumProvider({ provider: { request: async () => null } }),
-    )
-
-    expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
-      {
-        "adapter": {
-          "key": "ethereumProvider",
-          "name": "Ethereum Provider",
-          "request": [Function],
-          "type": "ethereumProvider",
-        },
-        "key": "wallet",
-        "name": "Wallet RPC Client",
-        "pollingInterval": 4000,
-        "request": [Function],
-        "type": "walletRpc",
-      }
-    `)
-  })
-
   test('http', () => {
-    const { uid, ...rpc } = createWalletRpc(http({ chain: local }))
+    const { uid, ...client } = createNetworkClient(http({ chain: local }))
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -93,20 +68,20 @@ describe('adapters', () => {
           "type": "network",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "wallet",
-        "name": "Wallet RPC Client",
+        "key": "network",
+        "name": "Network Client",
         "pollingInterval": 4000,
         "request": [Function],
-        "type": "walletRpc",
+        "type": "networkClient",
       }
     `)
   })
 
   test('webSocket', () => {
-    const { uid, ...rpc } = createWalletRpc(webSocket({ chain: local }))
+    const { uid, ...client } = createNetworkClient(webSocket({ chain: local }))
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -133,11 +108,34 @@ describe('adapters', () => {
           "transportMode": "webSocket",
           "type": "network",
         },
-        "key": "wallet",
-        "name": "Wallet RPC Client",
+        "key": "network",
+        "name": "Network Client",
         "pollingInterval": 4000,
         "request": [Function],
-        "type": "walletRpc",
+        "type": "networkClient",
+      }
+    `)
+  })
+
+  test('ethereumProvider', () => {
+    const { uid, ...client } = createNetworkClient(
+      ethereumProvider({ provider: { request: async () => null } }),
+    )
+
+    expect(uid).toBeDefined()
+    expect(client).toMatchInlineSnapshot(`
+      {
+        "adapter": {
+          "key": "ethereumProvider",
+          "name": "Ethereum Provider",
+          "request": [Function],
+          "type": "ethereumProvider",
+        },
+        "key": "network",
+        "name": "Network Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "type": "networkClient",
       }
     `)
   })

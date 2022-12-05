@@ -1,11 +1,12 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createTestRpc } from './createTestRpc'
+import { createWalletClient } from './createWalletClient'
 import { createAdapter } from './adapters/createAdapter'
 import { http } from './adapters/http'
-import { local } from '../chains'
-import { TestRequests } from '../types/eip1193'
 import { webSocket } from './adapters/webSocket'
+import { local } from '../chains'
+import { SignableRequests, WalletRequests } from '../types/eip1193'
+import { ethereumProvider } from './adapters/ethereumProvider'
 
 const mockAdapter = createAdapter({
   key: 'mock',
@@ -15,11 +16,13 @@ const mockAdapter = createAdapter({
 })
 
 test('creates', () => {
-  const { uid, ...rpc } = createTestRpc(mockAdapter, { key: 'anvil' })
+  const { uid, ...client } = createWalletClient(mockAdapter)
 
-  assertType<TestRequests<'anvil'>['request']>(rpc.request)
+  assertType<SignableRequests['request'] & WalletRequests['request']>(
+    client.request,
+  )
   expect(uid).toBeDefined()
-  expect(rpc).toMatchInlineSnapshot(`
+  expect(client).toMatchInlineSnapshot(`
     {
       "adapter": {
         "key": "mock",
@@ -27,23 +30,44 @@ test('creates', () => {
         "request": [MockFunction spy],
         "type": "mock",
       },
-      "key": "anvil",
-      "name": "Test RPC Client",
+      "key": "wallet",
+      "name": "Wallet Client",
       "pollingInterval": 4000,
       "request": [Function],
-      "type": "testRpc",
+      "type": "walletClient",
     }
   `)
 })
 
 describe('adapters', () => {
-  test('http', () => {
-    const { uid, ...rpc } = createTestRpc(http({ chain: local }), {
-      key: 'anvil',
-    })
+  test('ethereumProvider', () => {
+    const { uid, ...client } = createWalletClient(
+      ethereumProvider({ provider: { request: async () => null } }),
+    )
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
+      {
+        "adapter": {
+          "key": "ethereumProvider",
+          "name": "Ethereum Provider",
+          "request": [Function],
+          "type": "ethereumProvider",
+        },
+        "key": "wallet",
+        "name": "Wallet Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "type": "walletClient",
+      }
+    `)
+  })
+
+  test('http', () => {
+    const { uid, ...client } = createWalletClient(http({ chain: local }))
+
+    expect(uid).toBeDefined()
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -69,22 +93,20 @@ describe('adapters', () => {
           "type": "network",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "anvil",
-        "name": "Test RPC Client",
+        "key": "wallet",
+        "name": "Wallet Client",
         "pollingInterval": 4000,
         "request": [Function],
-        "type": "testRpc",
+        "type": "walletClient",
       }
     `)
   })
 
   test('webSocket', () => {
-    const { uid, ...rpc } = createTestRpc(webSocket({ chain: local }), {
-      key: 'anvil',
-    })
+    const { uid, ...client } = createWalletClient(webSocket({ chain: local }))
 
     expect(uid).toBeDefined()
-    expect(rpc).toMatchInlineSnapshot(`
+    expect(client).toMatchInlineSnapshot(`
       {
         "adapter": {
           "chain": {
@@ -111,11 +133,11 @@ describe('adapters', () => {
           "transportMode": "webSocket",
           "type": "network",
         },
-        "key": "anvil",
-        "name": "Test RPC Client",
+        "key": "wallet",
+        "name": "Wallet Client",
         "pollingInterval": 4000,
         "request": [Function],
-        "type": "testRpc",
+        "type": "walletClient",
       }
     `)
   })

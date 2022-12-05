@@ -1,4 +1,4 @@
-import { NetworkRpc } from '../../rpcs'
+import { NetworkClient } from '../../clients'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import { FetchBlockNumberResponse, fetchBlockNumber } from './fetchBlockNumber'
@@ -15,22 +15,23 @@ export type WatchBlockNumberCallback = (
 ) => void
 
 export function watchBlockNumber(
-  rpc: NetworkRpc,
+  client: NetworkClient,
   callback: WatchBlockNumberCallback,
   {
     emitOnBegin = false,
     pollingInterval: pollingInterval_,
   }: WatchBlockNumberArgs = {},
 ) {
-  const blockTime = rpc.adapter.chain?.blockTime
-  const pollingInterval = pollingInterval_ ?? (blockTime || rpc.pollingInterval)
-  const observerId = JSON.stringify(['watchBlockNumber', rpc.uid])
+  const blockTime = client.adapter.chain?.blockTime
+  const pollingInterval =
+    pollingInterval_ ?? (blockTime || client.pollingInterval)
+  const observerId = JSON.stringify(['watchBlockNumber', client.uid])
 
   return observe<WatchBlockNumberCallback, WatchBlockNumberResponse>(
     observerId,
     callback,
   )(({ emit }) =>
-    poll(() => fetchBlockNumber(rpc), {
+    poll(() => fetchBlockNumber(client), {
       emitOnBegin,
       onData: emit,
       interval: pollingInterval,

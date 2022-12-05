@@ -3,31 +3,31 @@ import { buildRequest } from '../utils/buildRequest'
 import { uid } from '../utils/uid'
 import { Adapter, BaseRpcRequests } from './adapters/createAdapter'
 
-export type Rpc<
+export type Client<
   TAdapter extends Adapter = Adapter,
   TRequests extends BaseRpcRequests = Requests,
 > = {
   /** The RPC adapter (http, webSocket, injected, etc) */
   adapter: TAdapter['config'] & TAdapter['value']
-  /** A key for the RPC client. */
+  /** A key for the client. */
   key: string
-  /** A name for the RPC client. */
+  /** A name for the client. */
   name: string
   /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
   request: TRequests['request']
-  /** The type of RPC client. */
+  /** The type of client. */
   type: string
-  /** A unique ID for the RPC client. */
+  /** A unique ID for the client. */
   uid: string
 }
 
-export type RpcConfig<
+export type ClientConfig<
   TAdapter extends Adapter = Adapter,
   TRequests extends BaseRpcRequests = Requests,
 > = Partial<
-  Pick<Rpc<TAdapter, TRequests>, 'key' | 'name' | 'pollingInterval' | 'type'>
+  Pick<Client<TAdapter, TRequests>, 'key' | 'name' | 'pollingInterval' | 'type'>
 >
 
 /**
@@ -38,21 +38,21 @@ export type RpcConfig<
  *
  * @example
  * import { mainnet } from 'viem/chains'
- * import { createRpc, http } from 'viem/rpcs'
- * const rpc = createRpc(http({ chain: mainnet }))
+ * import { createClient, http } from 'viem/clients'
+ * const client = createClient(http({ chain: mainnet }))
  */
-export function createRpc<
+export function createClient<
   TAdapter extends Adapter,
   TRequests extends BaseRpcRequests,
 >(
   adapter: TAdapter,
   {
     key = 'base',
-    name = 'Base RPC Client',
+    name = 'Base Client',
     pollingInterval = 4_000,
     type = 'base',
-  }: RpcConfig<TAdapter, TRequests> = {},
-): Rpc<TAdapter, TRequests> {
+  }: ClientConfig<TAdapter, TRequests> = {},
+): Client<TAdapter, TRequests> {
   const { config, value } = adapter
   return {
     adapter: { ...config, ...value },

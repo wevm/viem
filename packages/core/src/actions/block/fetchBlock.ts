@@ -1,4 +1,4 @@
-import { NetworkRpc } from '../../rpcs'
+import { NetworkClient } from '../../clients'
 import { Block, BlockTag, Data, RpcBlock } from '../../types'
 import { BaseError, deserializeBlock, numberToHex } from '../../utils'
 
@@ -29,7 +29,7 @@ export type FetchBlockArgs = {
 export type FetchBlockResponse = Block
 
 export async function fetchBlock(
-  rpc: NetworkRpc,
+  client: NetworkClient,
   {
     blockHash,
     blockNumber,
@@ -42,12 +42,12 @@ export async function fetchBlock(
 
   let block: RpcBlock | null = null
   if (blockHash) {
-    block = await rpc.request({
+    block = await client.request({
       method: 'eth_getBlockByHash',
       params: [blockHash, includeTransactions],
     })
   } else {
-    block = await rpc.request({
+    block = await client.request({
       method: 'eth_getBlockByNumber',
       params: [blockNumberHex || blockTag, includeTransactions],
     })

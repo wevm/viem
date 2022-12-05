@@ -1,4 +1,4 @@
-import { NetworkRpc } from '../../rpcs'
+import { NetworkClient } from '../../clients'
 import { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -11,14 +11,14 @@ export type WatchBlocksArgs = {
   emitOnBegin?: boolean
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
-  /** Polling frequency (in ms). Defaults to RPC's pollingInterval config. */
+  /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
 }
 export type WatchBlocksResponse = FetchBlockResponse
 export type WatchBlocksCallback = (block: WatchBlocksResponse) => void
 
 export function watchBlocks(
-  rpc: NetworkRpc,
+  client: NetworkClient,
   callback: WatchBlocksCallback,
   {
     blockTag = 'latest',
@@ -27,11 +27,12 @@ export function watchBlocks(
     pollingInterval: pollingInterval_,
   }: WatchBlocksArgs = {},
 ) {
-  const blockTime = rpc.adapter.chain?.blockTime
-  const pollingInterval = pollingInterval_ ?? (blockTime || rpc.pollingInterval)
+  const blockTime = client.adapter.chain?.blockTime
+  const pollingInterval =
+    pollingInterval_ ?? (blockTime || client.pollingInterval)
   const observerId = JSON.stringify([
     'watchBlocks',
-    rpc.uid,
+    client.uid,
     includeTransactions,
   ])
 
@@ -41,7 +42,7 @@ export function watchBlocks(
   )(({ emit }) =>
     poll(
       () =>
-        fetchBlock(rpc, {
+        fetchBlock(client, {
           blockTag,
           includeTransactions,
         }),

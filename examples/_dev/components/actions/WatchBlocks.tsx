@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { WatchBlocksResponse, watchBlocks } from 'viem/actions'
-import { NetworkRpc } from 'viem/rpcs'
+import { NetworkClient } from 'viem/clients'
 
-export function WatchBlocks({ rpc }: { rpc: NetworkRpc }) {
+export function WatchBlocks({ client }: { client: NetworkClient }) {
   const [block, setBlock] = useState<WatchBlocksResponse>()
   useEffect(() => {
-    const unwatch = watchBlocks(rpc, setBlock, { emitOnBegin: true })
+    const unwatch = watchBlocks(client, setBlock, { emitOnBegin: true })
     return unwatch
-  }, [rpc])
+  }, [client])
   return <div>{block?.hash}</div>
 }

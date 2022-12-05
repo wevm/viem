@@ -1,4 +1,4 @@
-import { TestRpc } from '../../rpcs'
+import { TestClient } from '../../clients'
 import { Address } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -10,7 +10,7 @@ export type SetBalanceArgs = {
 }
 
 export async function setBalance(
-  rpc: TestRpc,
+  rpc: TestClient,
   { address, value }: SetBalanceArgs,
 ) {
   return await rpc.request({

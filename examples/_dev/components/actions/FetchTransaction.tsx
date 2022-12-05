@@ -4,21 +4,21 @@ import {
   FetchTransactionResponse,
   fetchTransaction,
 } from 'viem/actions'
-import { NetworkRpc } from 'viem/rpcs'
+import { NetworkClient } from 'viem/clients'
 import { Address } from 'viem/utils'
 
-export function FetchTransaction({ rpc }: { rpc: NetworkRpc }) {
+export function FetchTransaction({ client }: { client: NetworkClient }) {
   return (
     <div>
-      <FetchTransactionByHash rpc={rpc} />
-      <FetchTransactionByHashAndIndex rpc={rpc} />
-      <FetchTransactionByNumberAndIndex rpc={rpc} />
-      <FetchTransactionByTagAndIndex rpc={rpc} />
+      <FetchTransactionByHash client={client} />
+      <FetchTransactionByHashAndIndex client={client} />
+      <FetchTransactionByNumberAndIndex client={client} />
+      <FetchTransactionByTagAndIndex client={client} />
     </div>
   )
 }
 
-function FetchTransactionByHash({ rpc }: { rpc: NetworkRpc }) {
+function FetchTransactionByHash({ client }: { client: NetworkClient }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [hash, setHash] = useState<Address>(
@@ -27,7 +27,7 @@ function FetchTransactionByHash({ rpc }: { rpc: NetworkRpc }) {
 
   const handleFetchTransaction = async () => {
     if (hash) {
-      setTransaction(await fetchTransaction(rpc, { hash }))
+      setTransaction(await fetchTransaction(client, { hash }))
     }
   }
 
@@ -56,7 +56,7 @@ function FetchTransactionByHash({ rpc }: { rpc: NetworkRpc }) {
   )
 }
 
-function FetchTransactionByHashAndIndex({ rpc }: { rpc: NetworkRpc }) {
+function FetchTransactionByHashAndIndex({ client }: { client: NetworkClient }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [blockHash, setBlockHash] = useState<Address>(
@@ -67,7 +67,7 @@ function FetchTransactionByHashAndIndex({ rpc }: { rpc: NetworkRpc }) {
   const handleFetchTransaction = async () => {
     if (blockHash && index) {
       setTransaction(
-        await fetchTransaction(rpc, { blockHash, index: parseInt(index) }),
+        await fetchTransaction(client, { blockHash, index: parseInt(index) }),
       )
     }
   }
@@ -102,7 +102,11 @@ function FetchTransactionByHashAndIndex({ rpc }: { rpc: NetworkRpc }) {
   )
 }
 
-function FetchTransactionByNumberAndIndex({ rpc }: { rpc: NetworkRpc }) {
+function FetchTransactionByNumberAndIndex({
+  client,
+}: {
+  client: NetworkClient
+}) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [blockNumber, setBlockNumber] = useState<string>('15394198')
@@ -111,7 +115,7 @@ function FetchTransactionByNumberAndIndex({ rpc }: { rpc: NetworkRpc }) {
   const handleFetchTransaction = async () => {
     if (blockNumber && index) {
       setTransaction(
-        await fetchTransaction(rpc, {
+        await fetchTransaction(client, {
           blockNumber: parseInt(blockNumber),
           index: parseInt(index),
         }),
@@ -149,7 +153,7 @@ function FetchTransactionByNumberAndIndex({ rpc }: { rpc: NetworkRpc }) {
   )
 }
 
-function FetchTransactionByTagAndIndex({ rpc }: { rpc: NetworkRpc }) {
+function FetchTransactionByTagAndIndex({ client }: { client: NetworkClient }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [blockTag, setBlockTag] =
@@ -159,7 +163,7 @@ function FetchTransactionByTagAndIndex({ rpc }: { rpc: NetworkRpc }) {
   const handleFetchTransaction = async () => {
     if (blockTag && index) {
       setTransaction(
-        await fetchTransaction(rpc, {
+        await fetchTransaction(client, {
           blockTag,
           index: parseInt(index),
         }),

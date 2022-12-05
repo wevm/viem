@@ -13,7 +13,7 @@
     "/actions",
     "/chains",
     "/dist",
-    "/rpcs",
+    "/clients",
     "/types",
     "/utils",
     "/window"
@@ -28,9 +28,9 @@
       "types": "./dist/chains.d.ts",
       "default": "./dist/chains.js"
     },
-    "./rpcs": {
-      "types": "./dist/rpcs/index.d.ts",
-      "default": "./dist/rpcs/index.js"
+    "./clients": {
+      "types": "./dist/clients/index.d.ts",
+      "default": "./dist/clients/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",

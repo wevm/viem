@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { FetchBlockNumberResponse, fetchBlockNumber } from 'viem/actions'
-import { NetworkRpc } from 'viem/rpcs'
+import { NetworkClient } from 'viem/clients'
 
-export function FetchBlockNumber({ rpc }: { rpc: NetworkRpc }) {
+export function FetchBlockNumber({ client }: { client: NetworkClient }) {
   const [blockNumber, setBlockNumber] = useState<FetchBlockNumberResponse>()
   useEffect(() => {
     ;(async () => {
-      setBlockNumber(await fetchBlockNumber(rpc))
+      setBlockNumber(await fetchBlockNumber(client))
     })()
-  }, [rpc])
+  }, [client])
   return <div>{blockNumber}</div>
 }

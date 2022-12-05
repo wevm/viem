@@ -10,7 +10,7 @@ export default defineConfig(
       'src/index.ts',
       'src/actions/index.ts',
       'src/chains.ts',
-      'src/rpcs/index.ts',
+      'src/clients/index.ts',
       'src/utils/index.ts',
       'src/window.ts',
     ],

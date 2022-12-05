@@ -1,13 +1,13 @@
 /* c8 ignore start */
 import { local } from 'viem/chains'
 import {
-  createNetworkRpc,
-  createTestRpc,
-  createWalletRpc,
+  createNetworkClient,
+  createTestClient,
+  createWalletClient,
   ethereumProvider,
   http,
   webSocket,
-} from 'viem/rpcs'
+} from 'viem/clients'
 import { rpc } from 'viem/utils'
 
 import { RequestListener, createServer } from 'http'
@@ -58,20 +58,20 @@ export const accounts = [
 
 export const initialBlockNumber = Number(process.env.VITE_ANVIL_BLOCK_NUMBER)
 
-export const networkRpc =
+export const networkClient =
   process.env.VITE_NETWORK_ADAPTER_MODE === 'webSocket'
-    ? createNetworkRpc(
+    ? createNetworkClient(
         http({
           chain: local,
         }),
       )
-    : createNetworkRpc(
+    : createNetworkClient(
         webSocket({
           chain: local,
         }),
       )
 
-export const walletRpc = createWalletRpc(
+export const walletClient = createWalletClient(
   ethereumProvider({
     provider: {
       on: (message: string, listener: (...args: any[]) => null) => {
@@ -97,7 +97,7 @@ export const walletRpc = createWalletRpc(
   }),
 )
 
-export const testRpc = createTestRpc(http({ chain: local }), {
+export const testClient = createTestClient(http({ chain: local }), {
   key: 'anvil',
 })
 
