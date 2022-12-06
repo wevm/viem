@@ -68,12 +68,6 @@ importers:
     dependencies:
       '@noble/hashes': 1.1.2
 
-  packages/test:
-    specifiers:
-      viem: workspace:*
-    devDependencies:
-      viem: link:../core
-
   playgrounds/benchmark:
     specifiers:
       '@preconstruct/next': ^4.0.0
