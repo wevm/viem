@@ -1,5 +1,5 @@
 import { sendTransaction } from 'viem/actions'
-import { WalletClient } from 'viem/clients'
+import type { WalletClient } from 'viem/clients'
 import { etherToValue } from 'viem/utils'
 
 export function SendTransaction({ client }: { client: WalletClient }) {

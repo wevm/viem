@@ -1,5 +1,5 @@
 /* c8 ignore start */
-import { local } from 'viem/chains'
+import { local } from '../src/chains'
 import {
   createPublicClient,
   createTestClient,
@@ -7,11 +7,12 @@ import {
   ethereumProvider,
   http,
   webSocket,
-} from 'viem/clients'
-import { rpc } from 'viem/utils'
+} from '../src/clients'
+import { rpc } from '../src/utils'
 
-import { RequestListener, createServer } from 'http'
-import { AddressInfo } from 'net'
+import type { RequestListener } from 'http'
+import { createServer } from 'http'
+import type { AddressInfo } from 'net'
 
 export const accounts = [
   {
@@ -113,7 +114,7 @@ export function createHttpServer(
 
   return new Promise((resolve) => {
     server.listen(() => {
-      const { port } = <AddressInfo>server.address()
+      const { port } = server.address() as AddressInfo
       resolve({ close: closeAsync, url: `http://localhost:${port}` })
     })
   })

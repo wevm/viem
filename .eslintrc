@@ -14,7 +14,12 @@
       "impliedStrict": true,
       "experimentalObjectRestSpread": true
     },
-    "allowImportExportEverywhere": true
+    "allowImportExportEverywhere": true,
+    "project": [
+      "./tsconfig.json",
+      "./docs/tsconfig.json",
+      "./examples/*/tsconfig.json"
+    ]
   },
   "extends": [
     "eslint:recommended",
@@ -26,6 +31,9 @@
     "prettier"
   ],
   "rules": {
+    "@typescript-eslint/consistent-type-assertions": "error",
+    "@typescript-eslint/consistent-type-exports": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
@@ -53,6 +61,14 @@
       }
     ]
   },
+  "ignorePatterns": [
+    "CHANGELOG.md",
+    "build",
+    "dist",
+    "node_modules",
+    "**/*.config.js",
+    "**/*.config.mjs"
+  ],
   "settings": {
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx", ".d.ts"]

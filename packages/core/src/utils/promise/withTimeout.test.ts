@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer } from '../../../../test/src/utils'
+import { createHttpServer } from '../../../test'
 import { wait } from '../wait'
 import { withTimeout } from './withTimeout'
 

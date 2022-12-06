@@ -1,6 +1,7 @@
-import { SignableRequests, WalletRequests } from '../types/eip1193'
-import { Transport } from './transports/createTransport'
-import { Client, ClientConfig, createClient } from './createClient'
+import type { SignableRequests, WalletRequests } from '../types/eip1193'
+import type { Transport } from './transports/createTransport'
+import type { Client, ClientConfig } from './createClient'
+import { createClient } from './createClient'
 
 export type WalletClientConfig = {
   /** The key of the Wallet Client. */

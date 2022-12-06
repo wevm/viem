@@ -1,8 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { WatchBlocksResponse, watchBlocks } from './watchBlocks'
+import type { WatchBlocksResponse } from './watchBlocks'
+import { watchBlocks } from './watchBlocks'
 import { fetchBlock } from './fetchBlock'
-import { publicClient } from '../../../../test/src/utils'
+import { publicClient } from '../../../test'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
 import { createPublicClient, http } from '../../clients'

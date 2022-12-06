@@ -1,4 +1,4 @@
-import { Block, RpcBlock } from '../../types'
+import type { Block, RpcBlock } from '../../types'
 import { deserializeTransactionResult } from '../transaction'
 
 export function deserializeBlock({

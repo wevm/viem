@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { WatchBlockNumberResponse, watchBlockNumber } from './watchBlockNumber'
-import { publicClient } from '../../../../test/src/utils'
+import type { WatchBlockNumberResponse } from './watchBlockNumber'
+import { watchBlockNumber } from './watchBlockNumber'
+import { publicClient } from '../../../test'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
 import { createPublicClient, http } from '../../clients'

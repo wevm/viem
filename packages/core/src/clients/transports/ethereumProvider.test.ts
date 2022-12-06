@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 import '../../types/window'
 
-import { Requests } from '../../types/eip1193'
+import type { Requests } from '../../types/eip1193'
 
 import { ethereumProvider } from './ethereumProvider'
 

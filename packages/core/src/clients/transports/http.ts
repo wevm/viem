@@ -1,6 +1,7 @@
-import { Chain } from '../../chains'
+import type { Chain } from '../../chains'
 import { rpc } from '../../utils/rpc'
-import { Transport, TransportConfig, createTransport } from './createTransport'
+import type { Transport, TransportConfig } from './createTransport'
+import { createTransport } from './createTransport'
 
 export type HttpTransportConfig<TChain extends Chain = Chain> = {
   /** The chain that the RPC should connect to. */

@@ -6,7 +6,7 @@ import {
   publicClient,
   testClient,
   walletClient,
-} from '../../../../test/src/utils'
+} from '../../../test'
 import { etherToValue } from '../../utils'
 import { fetchBlock } from '../block'
 import { sendTransaction } from '../transaction'

@@ -1,5 +1,5 @@
-import { PublicClient } from '../../clients'
-import {
+import type { PublicClient } from '../../clients'
+import type {
   BlockTag,
   Data,
   RpcTransactionResult,

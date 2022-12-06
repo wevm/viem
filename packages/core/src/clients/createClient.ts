@@ -1,7 +1,7 @@
-import { Requests } from '../types/eip1193'
+import type { Requests } from '../types/eip1193'
 import { buildRequest } from '../utils/buildRequest'
 import { uid } from '../utils/uid'
-import { BaseRpcRequests, Transport } from './transports/createTransport'
+import type { BaseRpcRequests, Transport } from './transports/createTransport'
 
 export type Client<
   TTransport extends Transport = Transport,

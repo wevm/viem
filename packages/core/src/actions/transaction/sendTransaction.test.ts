@@ -1,11 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../../../test/src/utils'
+import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import {
   etherToValue,
   gweiToValue,

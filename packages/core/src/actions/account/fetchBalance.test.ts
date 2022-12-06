@@ -1,11 +1,6 @@
 import { expect, test } from 'vitest'
 
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../../../test/src'
+import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { etherToValue } from '../../utils'
 import { fetchBlockNumber } from '../block'
 import { sendTransaction } from '../transaction'

@@ -1,4 +1,4 @@
-import { testClient } from '../../test/src/utils'
+import { testClient } from './utils'
 
 export async function setup() {
   await testClient.request({

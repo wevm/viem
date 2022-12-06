@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient } from '../../../../test/src/utils'
+import { accounts, publicClient, testClient } from '../../../test'
 import { etherToValue } from '../../utils'
 import { fetchBalance } from '../account'
 import { setBalance } from '../test/setBalance'

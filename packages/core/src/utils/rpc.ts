@@ -141,7 +141,7 @@ async function http(
   if (data.error) {
     throw data.error
   }
-  return <RpcResponse>data
+  return data as RpcResponse
 }
 
 ///////////////////////////////////////////////////

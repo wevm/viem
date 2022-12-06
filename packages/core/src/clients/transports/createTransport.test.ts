@@ -1,6 +1,6 @@
 import { assertType, expect, test, vi } from 'vitest'
 
-import { Requests } from '../../types/eip1193'
+import type { Requests } from '../../types/eip1193'
 
 import { createTransport } from './createTransport'
 

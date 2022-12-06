@@ -4,13 +4,13 @@ import { createTestClient } from './createTestClient'
 import { createTransport } from './transports/createTransport'
 import { http } from './transports/http'
 import { local } from '../chains'
-import { TestRequests } from '../types/eip1193'
+import type { TestRequests } from '../types/eip1193'
 import { webSocket } from './transports/webSocket'
 
 const mockTransport = createTransport({
   key: 'mock',
   name: 'Mock Transport',
-  request: <any>vi.fn(() => null),
+  request: vi.fn(() => null) as any,
   type: 'mock',
 })
 

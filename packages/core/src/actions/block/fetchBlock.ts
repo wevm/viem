@@ -1,5 +1,5 @@
-import { PublicClient } from '../../clients'
-import { Block, BlockTag, Data, RpcBlock } from '../../types'
+import type { PublicClient } from '../../clients'
+import type { Block, BlockTag, Data, RpcBlock } from '../../types'
 import { BaseError, deserializeBlock, numberToHex } from '../../utils'
 
 export type FetchBlockArgs = {

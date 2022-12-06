@@ -3,7 +3,7 @@
 import pkg from '../../package.json'
 
 /* c8 ignore next */
-const version = <any>process.env.TEST ? '1.0.2' : pkg.version
+const version = process.env.TEST ? '1.0.2' : pkg.version
 
 export class BaseError extends Error {
   humanMessage: string

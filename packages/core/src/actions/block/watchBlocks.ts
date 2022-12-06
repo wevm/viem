@@ -1,8 +1,9 @@
-import { PublicClient } from '../../clients'
-import { BlockTag } from '../../types'
+import type { PublicClient } from '../../clients'
+import type { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import { FetchBlockResponse, fetchBlock } from './fetchBlock'
+import type { FetchBlockResponse } from './fetchBlock'
+import { fetchBlock } from './fetchBlock'
 
 export type WatchBlocksArgs = {
   /** The block tag. Defaults to "latest". */

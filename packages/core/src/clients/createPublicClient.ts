@@ -1,6 +1,7 @@
-import { PublicRequests } from '../types/eip1193'
-import { Transport } from './transports/createTransport'
-import { Client, ClientConfig, createClient } from './createClient'
+import type { PublicRequests } from '../types/eip1193'
+import type { Transport } from './transports/createTransport'
+import type { Client, ClientConfig } from './createClient'
+import { createClient } from './createClient'
 
 export type PublicClientConfig = {
   /** The key of the Network Client. */

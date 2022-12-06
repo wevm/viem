@@ -1,7 +1,7 @@
-import { Block, BlockIdentifier, BlockNumber, Uncle } from './block'
-import { FeeHistory, FeeValues } from './fee'
-import { Log } from './log'
-import {
+import type { Block, BlockIdentifier, BlockNumber, Uncle } from './block'
+import type { FeeHistory, FeeValues } from './fee'
+import type { Log } from './log'
+import type {
   TransactionReceipt,
   TransactionRequest,
   TransactionResultEIP1559,

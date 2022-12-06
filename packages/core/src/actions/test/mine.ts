@@ -1,4 +1,4 @@
-import { TestClient } from '../../clients'
+import type { TestClient } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type MineArgs = {

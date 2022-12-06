@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import {
+import type {
   FetchTransactionArgs,
   FetchTransactionResponse,
-  fetchTransaction,
 } from 'viem/actions'
-import { PublicClient } from 'viem/clients'
-import { Address } from 'viem/utils'
+import { fetchTransaction } from 'viem/actions'
+import type { PublicClient } from 'viem/clients'
+import type { Address } from 'viem/utils'
 
 export function FetchTransaction({ client }: { client: PublicClient }) {
   return (

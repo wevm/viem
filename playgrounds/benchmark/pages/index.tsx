@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { local } from 'viem/chains'
 
-import { SuiteItem, getSuite } from '../suite'
+import type { SuiteItem } from '../suite'
+import { getSuite } from '../suite'
 import { benchmark } from '../utils/benchmark'
 
 type Result = { name: string; duration: number; err?: Error }

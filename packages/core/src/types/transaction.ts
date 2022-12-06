@@ -1,7 +1,7 @@
-import { Address } from './address'
-import { Data } from './data'
-import { FeeValuesEIP1559, FeeValuesLegacy } from './fee'
-import { Log } from './log'
+import type { Address } from './address'
+import type { Data } from './data'
+import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee'
+import type { Log } from './log'
 
 export type AccessList = Array<{ address: Address; storageKeys: Array<Data> }>
 

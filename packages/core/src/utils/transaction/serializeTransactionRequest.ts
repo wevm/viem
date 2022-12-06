@@ -1,4 +1,4 @@
-import { RpcTransactionRequest, TransactionRequest } from '../../types'
+import type { RpcTransactionRequest, TransactionRequest } from '../../types'
 import { numberToHex } from '../number'
 
 export function serializeTransactionRequest({

@@ -50,7 +50,7 @@ export function withRetry<TData>(
       } catch (err) {
         if (
           count < retryCount &&
-          (await shouldRetryOnError({ count, error: <Error>err }))
+          (await shouldRetryOnError({ count, error: err as Error }))
         )
           return retry()
         reject(err)

@@ -1,7 +1,8 @@
-import { PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import { FetchBlockNumberResponse, fetchBlockNumber } from './fetchBlockNumber'
+import type { FetchBlockNumberResponse } from './fetchBlockNumber'
+import { fetchBlockNumber } from './fetchBlockNumber'
 
 export type WatchBlockNumberArgs = {
   /** Whether or not to emit the latest block to the callback when the subscription opens. */

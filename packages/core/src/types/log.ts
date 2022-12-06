@@ -1,4 +1,4 @@
-import { Data } from './data'
+import type { Data } from './data'
 
 export type Log<TQuantity = bigint, TIndex = number> = {
   /** The address from which this log originated */

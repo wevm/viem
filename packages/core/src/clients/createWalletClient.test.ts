@@ -5,13 +5,13 @@ import { createTransport } from './transports/createTransport'
 import { http } from './transports/http'
 import { webSocket } from './transports/webSocket'
 import { local } from '../chains'
-import { SignableRequests, WalletRequests } from '../types/eip1193'
+import type { SignableRequests, WalletRequests } from '../types/eip1193'
 import { ethereumProvider } from './transports/ethereumProvider'
 
 const mockTransport = createTransport({
   key: 'mock',
   name: 'Mock Transport',
-  request: <any>vi.fn(() => null),
+  request: vi.fn(() => null) as any,
   type: 'mock',
 })
 

@@ -1,5 +1,5 @@
-import { PublicClient } from '../../clients'
-import { Address, BlockTag } from '../../types'
+import type { PublicClient } from '../../clients'
+import type { Address, BlockTag } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type FetchBalanceArgs = {

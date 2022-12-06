@@ -1,5 +1,5 @@
-import { TestClient } from '../../clients'
-import { Address } from '../../types'
+import type { TestClient } from '../../clients'
+import type { Address } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetBalanceArgs = {

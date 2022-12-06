@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { publicClient } from '../../../../test/src/utils'
+import { publicClient } from '../../../test'
 
 import { fetchBlockNumber } from './fetchBlockNumber'
 

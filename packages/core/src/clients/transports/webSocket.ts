@@ -1,7 +1,9 @@
-import { Chain } from '../../chains'
-import { Data } from '../../types'
-import { RpcResponse, getSocket, rpc } from '../../utils/rpc'
-import { Transport, TransportConfig, createTransport } from './createTransport'
+import type { Chain } from '../../chains'
+import type { Data } from '../../types'
+import type { RpcResponse } from '../../utils/rpc'
+import { getSocket, rpc } from '../../utils/rpc'
+import type { Transport, TransportConfig } from './createTransport'
+import { createTransport } from './createTransport'
 
 type WebSocketTransportSubscribeArgs = {
   onData: (data: RpcResponse) => void

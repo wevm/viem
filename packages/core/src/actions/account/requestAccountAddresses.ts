@@ -1,4 +1,4 @@
-import { WalletClient } from '../../clients'
+import type { WalletClient } from '../../clients'
 import { checksumAddress } from '../../utils'
 
 export async function requestAccountAddresses(rpc: WalletClient) {

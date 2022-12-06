@@ -1,5 +1,5 @@
-import { WalletClient } from '../../clients'
-import { TransactionRequest } from '../../types'
+import type { WalletClient } from '../../clients'
+import type { TransactionRequest } from '../../types'
 import { BaseError, serializeTransactionRequest } from '../../utils'
 
 export type SendTransactionArgs = {

@@ -1,5 +1,5 @@
-import { Data } from './data'
-import { TransactionResult } from './transaction'
+import type { Data } from './data'
+import type { TransactionResult } from './transaction'
 
 export type Block<
   TQuantity = bigint,

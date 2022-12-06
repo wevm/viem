@@ -1,8 +1,8 @@
-import { RpcError } from '../utils'
-import { Address } from './address'
-import { BlockTag } from './block'
-import { Data } from './data'
-import {
+import type { RpcError } from '../utils'
+import type { Address } from './address'
+import type { BlockTag } from './block'
+import type { Data } from './data'
+import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,

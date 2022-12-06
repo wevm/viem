@@ -1,4 +1,4 @@
-import { PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients'
 
 export type FetchBlockNumberResponse = number
 

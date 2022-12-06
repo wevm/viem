@@ -1,5 +1,5 @@
-import { Chain } from '../../chains'
-import { Requests } from '../../types/eip1193'
+import type { Chain } from '../../chains'
+import type { Requests } from '../../types/eip1193'
 
 export type BaseRpcRequests = {
   request(...args: any): Promise<any>

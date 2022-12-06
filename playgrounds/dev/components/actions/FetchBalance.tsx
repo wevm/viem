@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchBalance } from 'viem/actions'
-import { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem/clients'
 
 export function FetchBalance({
   address = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',

@@ -6,12 +6,12 @@ import { http } from './transports/http'
 import { ethereumProvider } from './transports/ethereumProvider'
 import { webSocket } from './transports/webSocket'
 import { local } from '../chains'
-import { PublicRequests } from '../types/eip1193'
+import type { PublicRequests } from '../types/eip1193'
 
 const mockTransport = createTransport({
   key: 'mock',
   name: 'Mock Transport',
-  request: <any>vi.fn(() => null),
+  request: vi.fn(() => null) as any,
   type: 'mock',
 })
 

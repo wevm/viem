@@ -7,7 +7,7 @@ import {
   webSocket,
 } from './transports'
 import { local } from '../chains'
-import { Requests } from '../types/eip1193'
+import type { Requests } from '../types/eip1193'
 
 import { createClient } from './createClient'
 
