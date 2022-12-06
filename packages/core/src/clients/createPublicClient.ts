@@ -1,8 +1,8 @@
 import { PublicRequests } from '../types/eip1193'
-import { Adapter } from './adapters/createAdapter'
+import { Transport } from './transports/createTransport'
 import { Client, ClientConfig, createClient } from './createClient'
 
-export type NetworkClientConfig = {
+export type PublicClientConfig = {
   /** The key of the Network Client. */
   key?: ClientConfig['key']
   /** The name of the Network Client. */
@@ -11,35 +11,35 @@ export type NetworkClientConfig = {
   pollingInterval?: ClientConfig['pollingInterval']
 }
 
-export type NetworkClient<TAdapter extends Adapter = Adapter> = Client<
-  TAdapter,
+export type PublicClient<TTransport extends Transport = Transport> = Client<
+  TTransport,
   PublicRequests
 >
 
 /**
- * @description Creates a network client with a given adapter.
+ * @description Creates a public client with a given transport.
  *
  * - Only has access to "public" EIP-1474 RPC methods (ie. `eth_blockNumber`, etc).
  *
  * @example
  * import { mainnet } from 'viem/chains'
- * import { createNetworkClient, http } from 'viem/clients'
- * const client = createNetworkClient(http({ chain: mainnet }))
+ * import { createPublicClient, http } from 'viem/clients'
+ * const client = createPublicClient(http({ chain: mainnet }))
  */
-export function createNetworkClient<TAdapter extends Adapter>(
-  adapter: TAdapter,
+export function createPublicClient<TTransport extends Transport>(
+  transport: TTransport,
   {
-    key = 'network',
-    name = 'Network Client',
+    key = 'public',
+    name = 'Public Client',
     pollingInterval,
-  }: NetworkClientConfig = {},
-): NetworkClient<TAdapter> {
+  }: PublicClientConfig = {},
+): PublicClient<TTransport> {
   return {
-    ...createClient(adapter, {
+    ...createClient(transport, {
       key,
       name,
       pollingInterval,
-      type: 'networkClient',
+      type: 'publicClient',
     }),
   }
 }

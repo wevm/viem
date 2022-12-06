@@ -2,22 +2,22 @@ import { assertType, expect, test, vi } from 'vitest'
 
 import { Requests } from '../../types/eip1193'
 
-import { createAdapter } from './createAdapter'
+import { createTransport } from './createTransport'
 
 test('default', () => {
-  const adapter = createAdapter({
+  const transport = createTransport({
     key: 'mock',
-    name: 'Mock Adapter',
+    name: 'Mock Transport',
     request: vi.fn(async () => null) as unknown as Requests['request'],
     type: 'mock',
   })
 
-  assertType<'mock'>(adapter.config.type)
-  expect(adapter).toMatchInlineSnapshot(`
+  assertType<'mock'>(transport.config.type)
+  expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
         "key": "mock",
-        "name": "Mock Adapter",
+        "name": "Mock Transport",
         "request": [MockFunction spy],
         "type": "mock",
       },
@@ -27,10 +27,10 @@ test('default', () => {
 })
 
 test('value', () => {
-  const adapter = createAdapter(
+  const transport = createTransport(
     {
       key: 'mock',
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     },
@@ -40,11 +40,11 @@ test('value', () => {
     },
   )
 
-  expect(adapter).toMatchInlineSnapshot(`
+  expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
         "key": "mock",
-        "name": "Mock Adapter",
+        "name": "Mock Transport",
         "request": [MockFunction spy],
         "type": "mock",
       },

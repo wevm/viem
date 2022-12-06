@@ -1,5 +1,5 @@
 import { TestRequests } from '../types/eip1193'
-import { Adapter } from './adapters/createAdapter'
+import { Transport } from './transports/createTransport'
 import { Client, ClientConfig, createClient } from './createClient'
 
 export type TestClientConfig<TKey extends string = string> = {
@@ -12,12 +12,12 @@ export type TestClientConfig<TKey extends string = string> = {
 }
 
 export type TestClient<
-  TAdapter extends Adapter = Adapter,
+  TTransport extends Transport = Transport,
   TKey extends string = string,
-> = Client<TAdapter, TestRequests<TKey>>
+> = Client<TTransport, TestRequests<TKey>>
 
 /**
- * @description Creates a test client with a given adapter.
+ * @description Creates a test client with a given transport.
  *
  * - Only has access to "test" RPC methods (ie. `anvil_setBalance`,
  * `evm_mine`, etc).
@@ -27,12 +27,15 @@ export type TestClient<
  * import { createTestClient, http } from 'viem/clients'
  * const client = createTestClient(http({ chain: local }), { key: 'anvil' })
  */
-export function createTestClient<TAdapter extends Adapter, TKey extends string>(
-  adapter: TAdapter,
+export function createTestClient<
+  TTransport extends Transport,
+  TKey extends string,
+>(
+  transport: TTransport,
   { key, name = 'Test Client', pollingInterval }: TestClientConfig<TKey>,
-): TestClient<TAdapter, TKey> {
+): TestClient<TTransport, TKey> {
   return {
-    ...createClient(adapter, {
+    ...createClient(transport, {
       key,
       name,
       pollingInterval,

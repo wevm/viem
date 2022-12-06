@@ -1,22 +1,22 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { createWalletClient } from './createWalletClient'
-import { createAdapter } from './adapters/createAdapter'
-import { http } from './adapters/http'
-import { webSocket } from './adapters/webSocket'
+import { createTransport } from './transports/createTransport'
+import { http } from './transports/http'
+import { webSocket } from './transports/webSocket'
 import { local } from '../chains'
 import { SignableRequests, WalletRequests } from '../types/eip1193'
-import { ethereumProvider } from './adapters/ethereumProvider'
+import { ethereumProvider } from './transports/ethereumProvider'
 
-const mockAdapter = createAdapter({
+const mockTransport = createTransport({
   key: 'mock',
-  name: 'Mock Adapter',
+  name: 'Mock Transport',
   request: <any>vi.fn(() => null),
   type: 'mock',
 })
 
 test('creates', () => {
-  const { uid, ...client } = createWalletClient(mockAdapter)
+  const { uid, ...client } = createWalletClient(mockTransport)
 
   assertType<SignableRequests['request'] & WalletRequests['request']>(
     client.request,
@@ -24,22 +24,22 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
-      "adapter": {
-        "key": "mock",
-        "name": "Mock Adapter",
-        "request": [MockFunction spy],
-        "type": "mock",
-      },
       "key": "wallet",
       "name": "Wallet Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "transport": {
+        "key": "mock",
+        "name": "Mock Transport",
+        "request": [MockFunction spy],
+        "type": "mock",
+      },
       "type": "walletClient",
     }
   `)
 })
 
-describe('adapters', () => {
+describe('transports', () => {
   test('ethereumProvider', () => {
     const { uid, ...client } = createWalletClient(
       ethereumProvider({ provider: { request: async () => null } }),
@@ -48,16 +48,16 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "wallet",
+        "name": "Wallet Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "key": "ethereumProvider",
           "name": "Ethereum Provider",
           "request": [Function],
           "type": "ethereumProvider",
         },
-        "key": "wallet",
-        "name": "Wallet Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "walletClient",
       }
     `)
@@ -69,7 +69,11 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "wallet",
+        "name": "Wallet Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -89,14 +93,9 @@ describe('adapters', () => {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "transportMode": "http",
-          "type": "network",
+          "type": "http",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "wallet",
-        "name": "Wallet Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "walletClient",
       }
     `)
@@ -108,7 +107,11 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "wallet",
+        "name": "Wallet Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -130,13 +133,8 @@ describe('adapters', () => {
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
-          "type": "network",
+          "type": "webSocket",
         },
-        "key": "wallet",
-        "name": "Wallet Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "walletClient",
       }
     `)

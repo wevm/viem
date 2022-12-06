@@ -1,7 +1,7 @@
 /* c8 ignore start */
 import { local } from 'viem/chains'
 import {
-  createNetworkClient,
+  createPublicClient,
   createTestClient,
   createWalletClient,
   ethereumProvider,
@@ -58,14 +58,14 @@ export const accounts = [
 
 export const initialBlockNumber = Number(process.env.VITE_ANVIL_BLOCK_NUMBER)
 
-export const networkClient =
-  process.env.VITE_NETWORK_ADAPTER_MODE === 'webSocket'
-    ? createNetworkClient(
+export const publicClient =
+  process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
+    ? createPublicClient(
         http({
           chain: local,
         }),
       )
-    : createNetworkClient(
+    : createPublicClient(
         webSocket({
           chain: local,
         }),

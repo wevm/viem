@@ -2,20 +2,20 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { WatchBlocksResponse, watchBlocks } from './watchBlocks'
 import { fetchBlock } from './fetchBlock'
-import { networkClient } from '../../../../test/src/utils'
+import { publicClient } from '../../../../test/src/utils'
 import { wait } from '../../utils/wait'
 import { local } from '../../chains'
-import { createNetworkClient, http } from '../../clients'
+import { createPublicClient, http } from '../../clients'
 
 const defaultConfig = { pollingInterval: 1_000 }
 
 test('watches for new blocks', async () => {
-  const block = await fetchBlock(networkClient)
+  const block = await fetchBlock(publicClient)
   vi.setSystemTime(Number(block.timestamp * 1000n))
 
   const blocks: WatchBlocksResponse[] = []
   const unwatch = watchBlocks(
-    networkClient,
+    publicClient,
     (block) => blocks.push(block),
     defaultConfig,
   )
@@ -26,11 +26,11 @@ test('watches for new blocks', async () => {
 
 describe('emitOnBegin', () => {
   test('watches for new blocks', async () => {
-    const block = await fetchBlock(networkClient)
+    const block = await fetchBlock(publicClient)
     vi.setSystemTime(Number(block.timestamp * 1000n))
 
     const blocks: WatchBlocksResponse[] = []
-    const unwatch = watchBlocks(networkClient, (block) => blocks.push(block), {
+    const unwatch = watchBlocks(publicClient, (block) => blocks.push(block), {
       ...defaultConfig,
       emitOnBegin: true,
     })
@@ -42,7 +42,7 @@ describe('emitOnBegin', () => {
 
 describe('blockTime on chain', () => {
   test('watches for new blocks', async () => {
-    const rpc = createNetworkClient(
+    const rpc = createPublicClient(
       http({
         chain: { ...local, blockTime: 200 },
       }),
@@ -58,10 +58,10 @@ describe('blockTime on chain', () => {
   }, 10_000)
 
   test('watches for new blocks (out of sync w/ block time)', async () => {
-    const block = await fetchBlock(networkClient)
+    const block = await fetchBlock(publicClient)
     vi.setSystemTime(Number(block.timestamp * 1000n) + 500)
 
-    const rpc = createNetworkClient(
+    const rpc = createPublicClient(
       http({
         chain: { ...local, blockTime: 1_000 },
       }),
@@ -77,7 +77,7 @@ describe('blockTime on chain', () => {
 
 describe('pollingInterval on rpc', () => {
   test('watches for new blocks', async () => {
-    const rpc = createNetworkClient(
+    const rpc = createPublicClient(
       http({
         chain: { ...local, blockTime: undefined },
       }),
@@ -96,12 +96,12 @@ describe('pollingInterval on rpc', () => {
 
 describe('behavior', () => {
   test('watch > unwatch > watch', async () => {
-    const block = await fetchBlock(networkClient)
+    const block = await fetchBlock(publicClient)
     vi.setSystemTime(Number(block.timestamp * 1000n))
 
     let blocks: WatchBlocksResponse[] = []
     let unwatch = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
@@ -111,7 +111,7 @@ describe('behavior', () => {
 
     blocks = []
     unwatch = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
@@ -121,23 +121,23 @@ describe('behavior', () => {
   }, 10_000)
 
   test('multiple watchers', async () => {
-    const block = await fetchBlock(networkClient)
+    const block = await fetchBlock(publicClient)
     vi.setSystemTime(Number(block.timestamp * 1000n))
 
     let blocks: WatchBlocksResponse[] = []
 
     let unwatch1 = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
     let unwatch2 = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
     let unwatch3 = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
@@ -150,17 +150,17 @@ describe('behavior', () => {
     blocks = []
 
     unwatch1 = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
     unwatch2 = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
     unwatch3 = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )
@@ -174,7 +174,7 @@ describe('behavior', () => {
   test('immediately unwatch', async () => {
     const blocks: WatchBlocksResponse[] = []
     const unwatch = watchBlocks(
-      networkClient,
+      publicClient,
       (block) => blocks.push(block),
       defaultConfig,
     )

@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import * as adapters from './index'
+import * as transports from './index'
 
-test('exports adapters', () => {
-  expect(adapters).toMatchInlineSnapshot(`
+test('exports transports', () => {
+  expect(transports).toMatchInlineSnapshot(`
     {
-      "createAdapter": [Function],
+      "createTransport": [Function],
       "ethereumProvider": [Function],
       "http": [Function],
       "webSocket": [Function],

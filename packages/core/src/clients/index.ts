@@ -1,20 +1,25 @@
-export { createAdapter, ethereumProvider, http, webSocket } from './adapters'
+export {
+  createTransport,
+  ethereumProvider,
+  http,
+  webSocket,
+} from './transports'
 export type {
-  Adapter,
-  AdapterConfig,
-  EthereumProviderAdapter,
-  EthereumProviderAdapterConfig,
-  HttpAdapter,
-  HttpAdapterConfig,
-  WebSocketAdapter,
-  WebSocketAdapterConfig,
-} from './adapters'
+  Transport,
+  TransportConfig,
+  EthereumProviderTransport,
+  EthereumProviderTransportConfig,
+  HttpTransport,
+  HttpTransportConfig,
+  WebSocketTransport,
+  WebSocketTransportConfig,
+} from './transports'
 
 export { createClient } from './createClient'
 export type { Client, ClientConfig } from './createClient'
 
-export { createNetworkClient } from './createNetworkClient'
-export type { NetworkClient, NetworkClientConfig } from './createNetworkClient'
+export { createPublicClient } from './createPublicClient'
+export type { PublicClient, PublicClientConfig } from './createPublicClient'
 
 export { createTestClient } from './createTestClient'
 export type { TestClient, TestClientConfig } from './createTestClient'

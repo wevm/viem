@@ -1,4 +1,4 @@
-import { NetworkClient } from '../../clients'
+import { PublicClient } from '../../clients'
 import { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -18,7 +18,7 @@ export type WatchBlocksResponse = FetchBlockResponse
 export type WatchBlocksCallback = (block: WatchBlocksResponse) => void
 
 export function watchBlocks(
-  client: NetworkClient,
+  client: PublicClient,
   callback: WatchBlocksCallback,
   {
     blockTag = 'latest',
@@ -27,7 +27,7 @@ export function watchBlocks(
     pollingInterval: pollingInterval_,
   }: WatchBlocksArgs = {},
 ) {
-  const blockTime = client.adapter.chain?.blockTime
+  const blockTime = client.transport.chain?.blockTime
   const pollingInterval =
     pollingInterval_ ?? (blockTime || client.pollingInterval)
   const observerId = JSON.stringify([

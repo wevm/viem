@@ -1,63 +1,62 @@
 import { Chain } from '../../chains'
 import { Data } from '../../types'
 import { RpcResponse, getSocket, rpc } from '../../utils/rpc'
-import { Adapter, AdapterConfig, createAdapter } from './createAdapter'
+import { Transport, TransportConfig, createTransport } from './createTransport'
 
-type WebSocketAdapterSubscribeArgs = {
+type WebSocketTransportSubscribeArgs = {
   onData: (data: RpcResponse) => void
   onError?: (error: any) => void
 }
 
-type WebSocketAdapterSubscribeResponse = {
+type WebSocketTransportSubscribeResponse = {
   subscriptionId: Data
   unsubscribe: () => Promise<RpcResponse<boolean>>
 }
 
-type WebSocketAdapterSubscribe = {
+type WebSocketTransportSubscribe = {
   subscribe(
-    args: WebSocketAdapterSubscribeArgs & {
+    args: WebSocketTransportSubscribeArgs & {
       /**
        * @description Add information about compiled contracts
        * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
        */
       params: ['newHeads']
     },
-  ): Promise<WebSocketAdapterSubscribeResponse>
+  ): Promise<WebSocketTransportSubscribeResponse>
 }
 
-export type WebSocketAdapterConfig<TChain extends Chain = Chain> = {
+export type WebSocketTransportConfig<TChain extends Chain = Chain> = {
   /** The chain that the RPC should connect to. */
   chain: TChain
-  /** The key of the WebSocket adapter. */
-  key?: AdapterConfig['key']
-  /** The name of the WebSocket adapter. */
-  name?: AdapterConfig['name']
+  /** The key of the WebSocket transport. */
+  key?: TransportConfig['key']
+  /** The name of the WebSocket transport. */
+  name?: TransportConfig['name']
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string
 }
 
-export type WebSocketAdapter<TChain extends Chain = Chain> = Adapter<
-  'network',
+export type WebSocketTransport<TChain extends Chain = Chain> = Transport<
+  'webSocket',
   {
     chain: TChain
     getSocket(): Promise<WebSocket>
-    subscribe: WebSocketAdapterSubscribe['subscribe']
-    transportMode: 'webSocket'
+    subscribe: WebSocketTransportSubscribe['subscribe']
   }
 >
 
 /**
- * @description Creates a WebSocket adapter that connects to a JSON-RPC API.
+ * @description Creates a WebSocket transport that connects to a JSON-RPC API.
  */
 export function webSocket<TChain extends Chain = Chain>({
   chain,
   key = 'webSocket',
   name = 'WebSocket JSON-RPC',
   url = chain.rpcUrls.default.webSocket,
-}: WebSocketAdapterConfig<TChain>): WebSocketAdapter<TChain> {
+}: WebSocketTransportConfig<TChain>): WebSocketTransport<TChain> {
   if (!url) throw new Error('url is required')
 
-  return createAdapter(
+  return createTransport(
     {
       key,
       name,
@@ -68,7 +67,7 @@ export function webSocket<TChain extends Chain = Chain>({
         })
         return result
       },
-      type: 'network',
+      type: 'webSocket',
     },
     {
       chain,
@@ -113,7 +112,6 @@ export function webSocket<TChain extends Chain = Chain>({
           },
         }
       },
-      transportMode: 'webSocket',
     },
   )
 }

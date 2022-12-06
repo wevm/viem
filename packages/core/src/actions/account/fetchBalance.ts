@@ -1,4 +1,4 @@
-import { NetworkClient } from '../../clients'
+import { PublicClient } from '../../clients'
 import { Address, BlockTag } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -18,7 +18,7 @@ export type FetchBalanceArgs = {
 export type FetchBalanceResponse = bigint
 
 export async function fetchBalance(
-  client: NetworkClient,
+  client: PublicClient,
   { address, blockNumber, blockTag = 'latest' }: FetchBalanceArgs,
 ): Promise<FetchBalanceResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined

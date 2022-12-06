@@ -1,50 +1,54 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createNetworkClient } from './createNetworkClient'
-import { createAdapter } from './adapters/createAdapter'
-import { http } from './adapters/http'
-import { ethereumProvider } from './adapters/ethereumProvider'
-import { webSocket } from './adapters/webSocket'
+import { createPublicClient } from './createPublicClient'
+import { createTransport } from './transports/createTransport'
+import { http } from './transports/http'
+import { ethereumProvider } from './transports/ethereumProvider'
+import { webSocket } from './transports/webSocket'
 import { local } from '../chains'
 import { PublicRequests } from '../types/eip1193'
 
-const mockAdapter = createAdapter({
+const mockTransport = createTransport({
   key: 'mock',
-  name: 'Mock Adapter',
+  name: 'Mock Transport',
   request: <any>vi.fn(() => null),
   type: 'mock',
 })
 
 test('creates', () => {
-  const { uid, ...client } = createNetworkClient(mockAdapter)
+  const { uid, ...client } = createPublicClient(mockTransport)
 
   assertType<PublicRequests['request']>(client.request)
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
-      "adapter": {
+      "key": "public",
+      "name": "Public Client",
+      "pollingInterval": 4000,
+      "request": [Function],
+      "transport": {
         "key": "mock",
-        "name": "Mock Adapter",
+        "name": "Mock Transport",
         "request": [MockFunction spy],
         "type": "mock",
       },
-      "key": "network",
-      "name": "Network Client",
-      "pollingInterval": 4000,
-      "request": [Function],
-      "type": "networkClient",
+      "type": "publicClient",
     }
   `)
 })
 
-describe('adapters', () => {
+describe('transports', () => {
   test('http', () => {
-    const { uid, ...client } = createNetworkClient(http({ chain: local }))
+    const { uid, ...client } = createPublicClient(http({ chain: local }))
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "public",
+        "name": "Public Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -64,26 +68,25 @@ describe('adapters', () => {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "transportMode": "http",
-          "type": "network",
+          "type": "http",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "network",
-        "name": "Network Client",
-        "pollingInterval": 4000,
-        "request": [Function],
-        "type": "networkClient",
+        "type": "publicClient",
       }
     `)
   })
 
   test('webSocket', () => {
-    const { uid, ...client } = createNetworkClient(webSocket({ chain: local }))
+    const { uid, ...client } = createPublicClient(webSocket({ chain: local }))
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "public",
+        "name": "Public Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -105,37 +108,32 @@ describe('adapters', () => {
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
-          "type": "network",
+          "type": "webSocket",
         },
-        "key": "network",
-        "name": "Network Client",
-        "pollingInterval": 4000,
-        "request": [Function],
-        "type": "networkClient",
+        "type": "publicClient",
       }
     `)
   })
 
   test('ethereumProvider', () => {
-    const { uid, ...client } = createNetworkClient(
+    const { uid, ...client } = createPublicClient(
       ethereumProvider({ provider: { request: async () => null } }),
     )
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "public",
+        "name": "Public Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "key": "ethereumProvider",
           "name": "Ethereum Provider",
           "request": [Function],
           "type": "ethereumProvider",
         },
-        "key": "network",
-        "name": "Network Client",
-        "pollingInterval": 4000,
-        "request": [Function],
-        "type": "networkClient",
+        "type": "publicClient",
       }
     `)
   })

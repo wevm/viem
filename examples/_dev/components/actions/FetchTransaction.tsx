@@ -4,10 +4,10 @@ import {
   FetchTransactionResponse,
   fetchTransaction,
 } from 'viem/actions'
-import { NetworkClient } from 'viem/clients'
+import { PublicClient } from 'viem/clients'
 import { Address } from 'viem/utils'
 
-export function FetchTransaction({ client }: { client: NetworkClient }) {
+export function FetchTransaction({ client }: { client: PublicClient }) {
   return (
     <div>
       <FetchTransactionByHash client={client} />
@@ -18,7 +18,7 @@ export function FetchTransaction({ client }: { client: NetworkClient }) {
   )
 }
 
-function FetchTransactionByHash({ client }: { client: NetworkClient }) {
+function FetchTransactionByHash({ client }: { client: PublicClient }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [hash, setHash] = useState<Address>(
@@ -56,7 +56,7 @@ function FetchTransactionByHash({ client }: { client: NetworkClient }) {
   )
 }
 
-function FetchTransactionByHashAndIndex({ client }: { client: NetworkClient }) {
+function FetchTransactionByHashAndIndex({ client }: { client: PublicClient }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [blockHash, setBlockHash] = useState<Address>(
@@ -105,7 +105,7 @@ function FetchTransactionByHashAndIndex({ client }: { client: NetworkClient }) {
 function FetchTransactionByNumberAndIndex({
   client,
 }: {
-  client: NetworkClient
+  client: PublicClient
 }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
@@ -153,7 +153,7 @@ function FetchTransactionByNumberAndIndex({
   )
 }
 
-function FetchTransactionByTagAndIndex({ client }: { client: NetworkClient }) {
+function FetchTransactionByTagAndIndex({ client }: { client: PublicClient }) {
   const [transaction, setTransaction] = useState<FetchTransactionResponse>()
 
   const [blockTag, setBlockTag] =

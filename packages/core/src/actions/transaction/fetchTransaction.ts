@@ -1,4 +1,4 @@
-import { NetworkClient } from '../../clients'
+import { PublicClient } from '../../clients'
 import {
   BlockTag,
   Data,
@@ -44,7 +44,7 @@ export type FetchTransactionArgs =
 export type FetchTransactionResponse = TransactionResult
 
 export async function fetchTransaction(
-  client: NetworkClient,
+  client: PublicClient,
   {
     blockHash,
     blockNumber,

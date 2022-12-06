@@ -1,42 +1,42 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { createTestClient } from './createTestClient'
-import { createAdapter } from './adapters/createAdapter'
-import { http } from './adapters/http'
+import { createTransport } from './transports/createTransport'
+import { http } from './transports/http'
 import { local } from '../chains'
 import { TestRequests } from '../types/eip1193'
-import { webSocket } from './adapters/webSocket'
+import { webSocket } from './transports/webSocket'
 
-const mockAdapter = createAdapter({
+const mockTransport = createTransport({
   key: 'mock',
-  name: 'Mock Adapter',
+  name: 'Mock Transport',
   request: <any>vi.fn(() => null),
   type: 'mock',
 })
 
 test('creates', () => {
-  const { uid, ...client } = createTestClient(mockAdapter, { key: 'anvil' })
+  const { uid, ...client } = createTestClient(mockTransport, { key: 'anvil' })
 
   assertType<TestRequests<'anvil'>['request']>(client.request)
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
-      "adapter": {
-        "key": "mock",
-        "name": "Mock Adapter",
-        "request": [MockFunction spy],
-        "type": "mock",
-      },
       "key": "anvil",
       "name": "Test Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "transport": {
+        "key": "mock",
+        "name": "Mock Transport",
+        "request": [MockFunction spy],
+        "type": "mock",
+      },
       "type": "testClient",
     }
   `)
 })
 
-describe('adapters', () => {
+describe('transports', () => {
   test('http', () => {
     const { uid, ...client } = createTestClient(http({ chain: local }), {
       key: 'anvil',
@@ -45,7 +45,11 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "anvil",
+        "name": "Test Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -65,14 +69,9 @@ describe('adapters', () => {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "transportMode": "http",
-          "type": "network",
+          "type": "http",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "anvil",
-        "name": "Test Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "testClient",
       }
     `)
@@ -86,7 +85,11 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "anvil",
+        "name": "Test Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -108,13 +111,8 @@ describe('adapters', () => {
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
-          "type": "network",
+          "type": "webSocket",
         },
-        "key": "anvil",
-        "name": "Test Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "testClient",
       }
     `)

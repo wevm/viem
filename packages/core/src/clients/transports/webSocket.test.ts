@@ -6,18 +6,18 @@ import { wait } from '../../utils/wait'
 import { webSocket } from './webSocket'
 
 test('default', () => {
-  const adapter = webSocket({
+  const transport = webSocket({
     chain: chains.local,
   })
 
-  assertType<'network'>(adapter.config.type)
-  expect(adapter).toMatchInlineSnapshot(`
+  assertType<'webSocket'>(transport.config.type)
+  expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
         "key": "webSocket",
         "name": "WebSocket JSON-RPC",
         "request": [Function],
-        "type": "network",
+        "type": "webSocket",
       },
       "value": {
         "chain": {
@@ -38,7 +38,6 @@ test('default', () => {
         },
         "getSocket": [Function],
         "subscribe": [Function],
-        "transportMode": "webSocket",
       },
     }
   `)
@@ -46,18 +45,18 @@ test('default', () => {
 
 describe('config', () => {
   test('key', () => {
-    const adapter = webSocket({
+    const transport = webSocket({
       chain: chains.local,
       key: 'mock',
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "mock",
           "name": "WebSocket JSON-RPC",
           "request": [Function],
-          "type": "network",
+          "type": "webSocket",
         },
         "value": {
           "chain": {
@@ -78,25 +77,24 @@ describe('config', () => {
           },
           "getSocket": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
         },
       }
     `)
   })
 
   test('name', () => {
-    const adapter = webSocket({
+    const transport = webSocket({
       chain: chains.local,
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "webSocket",
-          "name": "Mock Adapter",
+          "name": "Mock Transport",
           "request": [Function],
-          "type": "network",
+          "type": "webSocket",
         },
         "value": {
           "chain": {
@@ -117,25 +115,24 @@ describe('config', () => {
           },
           "getSocket": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
         },
       }
     `)
   })
 
   test('url', () => {
-    const adapter = webSocket({
+    const transport = webSocket({
       chain: chains.local,
       url: 'https://mockapi.com/rpc',
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",
           "request": [Function],
-          "type": "network",
+          "type": "webSocket",
         },
         "value": {
           "chain": {
@@ -156,7 +153,6 @@ describe('config', () => {
           },
           "getSocket": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
         },
       }
     `)
@@ -180,26 +176,26 @@ Object.keys(chains).forEach((key) => {
   const chain = chains[key]
   if (!chain.rpcUrls.default.webSocket) return
   test(`request (${key})`, async () => {
-    const adapter = webSocket({
+    const transport = webSocket({
       chain,
       url: chain.rpcUrls.default.webSocket,
     })
 
     expect(
-      await adapter.config.request({ method: 'eth_blockNumber' }),
+      await transport.config.request({ method: 'eth_blockNumber' }),
     ).toBeDefined()
   })
 })
 
 test('request (local)', async () => {
-  const adapter = webSocket({
+  const transport = webSocket({
     chain: chains.local,
     key: 'jsonRpc',
     name: 'JSON RPC',
   })
 
   expect(
-    await adapter.config.request({ method: 'eth_blockNumber' }),
+    await transport.config.request({ method: 'eth_blockNumber' }),
   ).toBeDefined()
 })
 /* eslint-enable import/namespace */

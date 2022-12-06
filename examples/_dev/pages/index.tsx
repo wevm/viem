@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import 'viem/window'
 
-import { HttpNetwork } from '../components/rpcs/HttpNetwork'
-import { InjectedWallet } from '../components/rpcs/InjectedWallet'
-import { WalletConnectWallet } from '../components/rpcs/WalletConnectWallet'
+import { HttpPublic } from '../components/clients/HttpPublic'
+import { InjectedWallet } from '../components/clients/InjectedWallet'
+import { WalletConnectWallet } from '../components/clients/WalletConnectWallet'
 
 export default function Index() {
-  const [rpc, setRpc] = useState('http-network')
+  const [rpc, setRpc] = useState('http-public')
   return (
     <div>
       <h1>viem alpha</h1>
@@ -14,12 +14,12 @@ export default function Index() {
         <div>
           <input
             type="radio"
-            id="http-network"
+            id="http-public"
             name="rpc"
-            onChange={() => setRpc('http-network')}
-            checked={rpc === 'http-network'}
+            onChange={() => setRpc('http-public')}
+            checked={rpc === 'http-public'}
           />
-          <label htmlFor="http-network">Network: HTTP</label>
+          <label htmlFor="http-public">Public: HTTP</label>
         </div>
         <div>
           <input
@@ -42,7 +42,7 @@ export default function Index() {
           <label htmlFor="wc-account">Wallet: External (Wallet Connect)</label>
         </div>
       </div>
-      {rpc === 'http-network' && <HttpNetwork />}
+      {rpc === 'http-public' && <HttpPublic />}
       {rpc === 'injected-wallet' && <InjectedWallet />}
       {rpc === 'wc-account' && <WalletConnectWallet />}
     </div>

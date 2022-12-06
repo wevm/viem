@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts, networkClient, testClient } from '../../../../test/src/utils'
+import { accounts, publicClient, testClient } from '../../../../test/src/utils'
 import { etherToValue } from '../../utils'
 import { fetchBalance } from '../account'
 import { setBalance } from '../test/setBalance'
@@ -13,7 +13,7 @@ test('sets balance', async () => {
     value: etherToValue('420'),
   })
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
     }),
   ).toMatchInlineSnapshot('420000000000000000000n')
@@ -22,7 +22,7 @@ test('sets balance', async () => {
     value: etherToValue('69'),
   })
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
     }),
   ).toMatchInlineSnapshot('69000000000000000000n')

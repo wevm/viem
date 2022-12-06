@@ -14,14 +14,14 @@ vi.stubGlobal('window', {
 })
 
 test('default', () => {
-  const adapter = ethereumProvider({
+  const transport = ethereumProvider({
     provider: {
       request: vi.fn(async () => null) as unknown as Requests['request'],
     },
   })
 
-  assertType<'ethereumProvider'>(adapter.config.type)
-  expect(adapter).toMatchInlineSnapshot(`
+  assertType<'ethereumProvider'>(transport.config.type)
+  expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
         "key": "ethereumProvider",
@@ -36,12 +36,12 @@ test('default', () => {
 
 describe('config', () => {
   test('provider', () => {
-    const adapter = ethereumProvider({
+    const transport = ethereumProvider({
       provider: window.ethereum!,
     })
 
-    assertType<'ethereumProvider'>(adapter.config.type)
-    expect(adapter).toMatchInlineSnapshot(`
+    assertType<'ethereumProvider'>(transport.config.type)
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "ethereumProvider",
@@ -55,14 +55,14 @@ describe('config', () => {
   })
 
   test('key', () => {
-    const adapter = ethereumProvider({
+    const transport = ethereumProvider({
       key: 'mock',
       provider: {
         request: vi.fn(async () => null) as unknown as Requests['request'],
       },
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "mock",
@@ -76,18 +76,18 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const adapter = ethereumProvider({
-      name: 'Mock Adapter',
+    const transport = ethereumProvider({
+      name: 'Mock Transport',
       provider: {
         request: vi.fn(async () => null) as unknown as Requests['request'],
       },
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "ethereumProvider",
-          "name": "Mock Adapter",
+          "name": "Mock Transport",
           "request": [Function],
           "type": "ethereumProvider",
         },

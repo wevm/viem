@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { FetchBlockNumberResponse, fetchBlockNumber } from 'viem/actions'
-import { NetworkClient } from 'viem/clients'
+import { PublicClient } from 'viem/clients'
 
-export function FetchBlockNumber({ client }: { client: NetworkClient }) {
+export function FetchBlockNumber({ client }: { client: PublicClient }) {
   const [blockNumber, setBlockNumber] = useState<FetchBlockNumberResponse>()
   useEffect(() => {
     ;(async () => {

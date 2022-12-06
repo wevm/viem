@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { WatchBlocksResponse, watchBlocks } from 'viem/actions'
-import { NetworkClient } from 'viem/clients'
+import { PublicClient } from 'viem/clients'
 
-export function WatchBlocks({ client }: { client: NetworkClient }) {
+export function WatchBlocks({ client }: { client: PublicClient }) {
   const [block, setBlock] = useState<WatchBlocksResponse>()
   useEffect(() => {
     const unwatch = watchBlocks(client, setBlock, { emitOnBegin: true })

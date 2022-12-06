@@ -5,10 +5,10 @@ import * as rpcs from './index'
 test('exports rpcs', () => {
   expect(rpcs).toMatchInlineSnapshot(`
     {
-      "createAdapter": [Function],
       "createClient": [Function],
-      "createNetworkClient": [Function],
+      "createPublicClient": [Function],
       "createTestClient": [Function],
+      "createTransport": [Function],
       "createWalletClient": [Function],
       "ethereumProvider": [Function],
       "http": [Function],

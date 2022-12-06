@@ -1,4 +1,4 @@
-import { NetworkClient } from '../../clients'
+import { PublicClient } from '../../clients'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import { FetchBlockNumberResponse, fetchBlockNumber } from './fetchBlockNumber'
@@ -15,14 +15,14 @@ export type WatchBlockNumberCallback = (
 ) => void
 
 export function watchBlockNumber(
-  client: NetworkClient,
+  client: PublicClient,
   callback: WatchBlockNumberCallback,
   {
     emitOnBegin = false,
     pollingInterval: pollingInterval_,
   }: WatchBlockNumberArgs = {},
 ) {
-  const blockTime = client.adapter.chain?.blockTime
+  const blockTime = client.transport.chain?.blockTime
   const pollingInterval =
     pollingInterval_ ?? (blockTime || client.pollingInterval)
   const observerId = JSON.stringify(['watchBlockNumber', client.uid])

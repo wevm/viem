@@ -1,37 +1,36 @@
 import { Chain } from '../../chains'
 import { rpc } from '../../utils/rpc'
-import { Adapter, AdapterConfig, createAdapter } from './createAdapter'
+import { Transport, TransportConfig, createTransport } from './createTransport'
 
-export type HttpAdapterConfig<TChain extends Chain = Chain> = {
+export type HttpTransportConfig<TChain extends Chain = Chain> = {
   /** The chain that the RPC should connect to. */
   chain: TChain
-  /** The key of the HTTP adapter. */
-  key?: AdapterConfig['key']
-  /** The name of the HTTP adapter. */
-  name?: AdapterConfig['name']
+  /** The key of the HTTP transport. */
+  key?: TransportConfig['key']
+  /** The name of the HTTP transport. */
+  name?: TransportConfig['name']
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string
 }
 
-export type HttpAdapter<TChain extends Chain = Chain> = Adapter<
-  'network',
+export type HttpTransport<TChain extends Chain = Chain> = Transport<
+  'http',
   {
     chain: TChain
-    transportMode: 'http'
     url: string
   }
 >
 
 /**
- * @description Creates a HTTP adapter that connects to a JSON-RPC API.
+ * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
 export function http<TChain extends Chain = Chain>({
   chain,
   key = 'http',
   name = 'HTTP JSON-RPC',
   url = chain.rpcUrls.default.http,
-}: HttpAdapterConfig<TChain>): HttpAdapter<TChain> {
-  return createAdapter(
+}: HttpTransportConfig<TChain>): HttpTransport<TChain> {
+  return createTransport(
     {
       key,
       name,
@@ -44,11 +43,10 @@ export function http<TChain extends Chain = Chain>({
         })
         return result
       },
-      type: 'network',
+      type: 'http',
     },
     {
       chain,
-      transportMode: 'http',
       url,
     },
   )

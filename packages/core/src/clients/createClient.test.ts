@@ -1,47 +1,56 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createAdapter, ethereumProvider, http, webSocket } from './adapters'
+import {
+  createTransport,
+  ethereumProvider,
+  http,
+  webSocket,
+} from './transports'
 import { local } from '../chains'
 import { Requests } from '../types/eip1193'
 
 import { createClient } from './createClient'
 
 test('creates', () => {
-  const mockAdapter = createAdapter({
+  const mockTransport = createTransport({
     key: 'mock',
-    name: 'Mock Adapter',
+    name: 'Mock Transport',
     request: vi.fn(async () => null) as unknown as Requests['request'],
     type: 'mock',
   })
-  const { uid, ...client } = createClient(mockAdapter)
+  const { uid, ...client } = createClient(mockTransport)
 
   assertType<Requests['request']>(client.request)
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
-      "adapter": {
-        "key": "mock",
-        "name": "Mock Adapter",
-        "request": [MockFunction spy],
-        "type": "mock",
-      },
       "key": "base",
       "name": "Base Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "transport": {
+        "key": "mock",
+        "name": "Mock Transport",
+        "request": [MockFunction spy],
+        "type": "mock",
+      },
       "type": "base",
     }
   `)
 })
 
-describe('adapters', () => {
+describe('transports', () => {
   test('http', () => {
     const { uid, ...client } = createClient(http({ chain: local }))
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -61,14 +70,9 @@ describe('adapters', () => {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "transportMode": "http",
-          "type": "network",
+          "type": "http",
           "url": "http://127.0.0.1:8545",
         },
-        "key": "base",
-        "name": "Base Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "base",
       }
     `)
@@ -80,7 +84,11 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "chain": {
             "blockTime": 1000,
             "id": 1337,
@@ -102,13 +110,8 @@ describe('adapters', () => {
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "subscribe": [Function],
-          "transportMode": "webSocket",
-          "type": "network",
+          "type": "webSocket",
         },
-        "key": "base",
-        "name": "Base Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "base",
       }
     `)
@@ -122,16 +125,16 @@ describe('adapters', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
           "key": "ethereumProvider",
           "name": "Ethereum Provider",
           "request": [Function],
           "type": "ethereumProvider",
         },
-        "key": "base",
-        "name": "Base Client",
-        "pollingInterval": 4000,
-        "request": [Function],
         "type": "base",
       }
     `)
@@ -140,13 +143,13 @@ describe('adapters', () => {
 
 describe('config', () => {
   test('key', () => {
-    const mockAdapter = createAdapter({
+    const mockTransport = createTransport({
       key: 'mock',
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...client } = createClient(mockAdapter, {
+    const { uid, ...client } = createClient(mockTransport, {
       key: 'bar',
     })
 
@@ -154,29 +157,29 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
-          "key": "mock",
-          "name": "Mock Adapter",
-          "request": [MockFunction spy],
-          "type": "mock",
-        },
         "key": "bar",
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "transport": {
+          "key": "mock",
+          "name": "Mock Transport",
+          "request": [MockFunction spy],
+          "type": "mock",
+        },
         "type": "base",
       }
     `)
   })
 
   test('name', () => {
-    const mockAdapter = createAdapter({
+    const mockTransport = createTransport({
       key: 'mock',
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...client } = createClient(mockAdapter, {
+    const { uid, ...client } = createClient(mockTransport, {
       name: 'Mock Client',
     })
 
@@ -184,29 +187,29 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
-          "key": "mock",
-          "name": "Mock Adapter",
-          "request": [MockFunction spy],
-          "type": "mock",
-        },
         "key": "base",
         "name": "Mock Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "transport": {
+          "key": "mock",
+          "name": "Mock Transport",
+          "request": [MockFunction spy],
+          "type": "mock",
+        },
         "type": "base",
       }
     `)
   })
 
   test('pollingInterval', () => {
-    const mockAdapter = createAdapter({
+    const mockTransport = createTransport({
       key: 'mock',
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...client } = createClient(mockAdapter, {
+    const { uid, ...client } = createClient(mockTransport, {
       pollingInterval: 10_000,
     })
 
@@ -214,44 +217,44 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
-          "key": "mock",
-          "name": "Mock Adapter",
-          "request": [MockFunction spy],
-          "type": "mock",
-        },
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 10000,
         "request": [Function],
+        "transport": {
+          "key": "mock",
+          "name": "Mock Transport",
+          "request": [MockFunction spy],
+          "type": "mock",
+        },
         "type": "base",
       }
     `)
   })
 
   test('type', () => {
-    const mockAdapter = createAdapter({
+    const mockTransport = createTransport({
       key: 'mock',
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
       request: vi.fn(async () => null) as unknown as Requests['request'],
       type: 'mock',
     })
-    const { uid, ...client } = createClient(mockAdapter, { type: 'foo' })
+    const { uid, ...client } = createClient(mockTransport, { type: 'foo' })
 
     assertType<Requests['request']>(client.request)
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "adapter": {
-          "key": "mock",
-          "name": "Mock Adapter",
-          "request": [MockFunction spy],
-          "type": "mock",
-        },
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "transport": {
+          "key": "mock",
+          "name": "Mock Transport",
+          "request": [MockFunction spy],
+          "type": "mock",
+        },
         "type": "foo",
       }
     `)

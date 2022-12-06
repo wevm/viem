@@ -1,9 +1,9 @@
-import { NetworkClient } from '../../clients'
+import { PublicClient } from '../../clients'
 
 export type FetchBlockNumberResponse = number
 
 export async function fetchBlockNumber(
-  rpc: NetworkClient,
+  rpc: PublicClient,
 ): Promise<FetchBlockNumberResponse> {
   const blockNumber = await rpc.request({
     method: 'eth_blockNumber',

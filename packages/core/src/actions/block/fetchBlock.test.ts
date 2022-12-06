@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { initialBlockNumber, networkClient } from '../../../../test/src/utils'
+import { initialBlockNumber, publicClient } from '../../../../test/src/utils'
 import { BlockNotFoundError, fetchBlock } from './fetchBlock'
 
 test('fetches latest block', async () => {
-  const block = await fetchBlock(networkClient)
+  const block = await fetchBlock(publicClient)
   expect(block).toBeDefined()
   expect(Object.keys(block!)).toMatchInlineSnapshot(`
     [
@@ -36,7 +36,7 @@ test('fetches latest block', async () => {
 
 describe('args: blockNumber', () => {
   test('fetches block by block number', async () => {
-    const block = await fetchBlock(networkClient, {
+    const block = await fetchBlock(publicClient, {
       blockNumber: initialBlockNumber - 1,
     })
     expect(block).toMatchInlineSnapshot(`
@@ -170,7 +170,7 @@ describe('args: blockNumber', () => {
 
 describe('args: blockTag', () => {
   test('fetches block by block time (latest)', async () => {
-    const block = await fetchBlock(networkClient, {
+    const block = await fetchBlock(publicClient, {
       blockTag: 'latest',
     })
     expect(block).toBeDefined()
@@ -203,7 +203,7 @@ describe('args: blockTag', () => {
   })
 
   test('fetches block by block time (pending)', async () => {
-    const block = await fetchBlock(networkClient, {
+    const block = await fetchBlock(publicClient, {
       blockTag: 'pending',
     })
     expect(block).toBeDefined()
@@ -236,7 +236,7 @@ describe('args: blockTag', () => {
   })
 
   test('fetches block by block time (earliest)', async () => {
-    const block = await fetchBlock(networkClient, {
+    const block = await fetchBlock(publicClient, {
       blockTag: 'earliest',
     })
     expect(block).toBeDefined()
@@ -271,10 +271,10 @@ describe('args: blockTag', () => {
 
 describe('args: hash', () => {
   test('fetches block by block hash', async () => {
-    const initialBlock = await fetchBlock(networkClient, {
+    const initialBlock = await fetchBlock(publicClient, {
       blockNumber: initialBlockNumber,
     })
-    const block = await fetchBlock(networkClient, {
+    const block = await fetchBlock(publicClient, {
       blockHash: initialBlock!.hash!,
     })
     expect(block).toMatchInlineSnapshot(`
@@ -433,7 +433,7 @@ describe('args: hash', () => {
 
 describe('args: includeTransactions', () => {
   test('fetches block with transactions included', async () => {
-    const block = await fetchBlock(networkClient, {
+    const block = await fetchBlock(publicClient, {
       blockNumber: initialBlockNumber,
       includeTransactions: true,
     })
@@ -463,7 +463,7 @@ describe('args: includeTransactions', () => {
 
 test('non-existent block: throws if block number does not exist', async () => {
   await expect(
-    fetchBlock(networkClient, {
+    fetchBlock(publicClient, {
       blockNumber: 69420694206942,
       includeTransactions: true,
     }),
@@ -477,7 +477,7 @@ test('non-existent block: throws if block number does not exist', async () => {
 
 test('non-existent block: throws if block hash does not exist', async () => {
   await expect(
-    fetchBlock(networkClient, {
+    fetchBlock(publicClient, {
       blockHash:
         '0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722',
       includeTransactions: true,

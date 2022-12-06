@@ -5,40 +5,40 @@ export type BaseRpcRequests = {
   request(...args: any): Promise<any>
 }
 
-export type AdapterConfig<
+export type TransportConfig<
   TType extends string = string,
   TRequests extends BaseRpcRequests['request'] = Requests['request'],
 > = {
-  /** Chain that is configured with the adapter. */
+  /** Chain that is configured with the transport. */
   chain?: Chain
-  /** The name of the adapter. */
+  /** The name of the transport. */
   name: string
-  /** The key of the adapter. */
+  /** The key of the transport. */
   key: string
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
   request: TRequests
-  /** The type of the adapter. */
+  /** The type of the transport. */
   type: TType
 }
 
-export type Adapter<
+export type Transport<
   TType extends string = string,
   TRpcAttributes = Record<string, any>,
 > = {
-  config: AdapterConfig<TType>
+  config: TransportConfig<TType>
   value?: TRpcAttributes
 }
 
 /**
- * @description Creates an adapter intended to be used with an RPC client.
+ * @description Creates an transport intended to be used with a client.
  */
-export function createAdapter<
+export function createTransport<
   TType extends string = string,
   TRpcAttributes = any,
 >(
-  config: AdapterConfig<TType>,
+  config: TransportConfig<TType>,
   value?: TRpcAttributes,
-): Adapter<TType, TRpcAttributes> {
+): Transport<TType, TRpcAttributes> {
   return {
     config,
     value,

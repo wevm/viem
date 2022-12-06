@@ -1,14 +1,12 @@
 import { Requests } from '../types/eip1193'
 import { buildRequest } from '../utils/buildRequest'
 import { uid } from '../utils/uid'
-import { Adapter, BaseRpcRequests } from './adapters/createAdapter'
+import { BaseRpcRequests, Transport } from './transports/createTransport'
 
 export type Client<
-  TAdapter extends Adapter = Adapter,
+  TTransport extends Transport = Transport,
   TRequests extends BaseRpcRequests = Requests,
 > = {
-  /** The RPC adapter (http, webSocket, injected, etc) */
-  adapter: TAdapter['config'] & TAdapter['value']
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -17,6 +15,8 @@ export type Client<
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
   request: TRequests['request']
+  /** The RPC transport (http, webSocket, ethereumProvider, etc) */
+  transport: TTransport['config'] & TTransport['value']
   /** The type of client. */
   type: string
   /** A unique ID for the client. */
@@ -24,14 +24,17 @@ export type Client<
 }
 
 export type ClientConfig<
-  TAdapter extends Adapter = Adapter,
+  TTransport extends Transport = Transport,
   TRequests extends BaseRpcRequests = Requests,
 > = Partial<
-  Pick<Client<TAdapter, TRequests>, 'key' | 'name' | 'pollingInterval' | 'type'>
+  Pick<
+    Client<TTransport, TRequests>,
+    'key' | 'name' | 'pollingInterval' | 'type'
+  >
 >
 
 /**
- * @description Creates a base RPC client with the given adapter.
+ * @description Creates a base RPC client with the given transport.
  *
  * - Intended to be used as a base for other RPC clients.
  * - Has access to _all_ EIP-1474 RPC methods.
@@ -42,20 +45,20 @@ export type ClientConfig<
  * const client = createClient(http({ chain: mainnet }))
  */
 export function createClient<
-  TAdapter extends Adapter,
+  TTransport extends Transport,
   TRequests extends BaseRpcRequests,
 >(
-  adapter: TAdapter,
+  transport: TTransport,
   {
     key = 'base',
     name = 'Base Client',
     pollingInterval = 4_000,
     type = 'base',
-  }: ClientConfig<TAdapter, TRequests> = {},
-): Client<TAdapter, TRequests> {
-  const { config, value } = adapter
+  }: ClientConfig<TTransport, TRequests> = {},
+): Client<TTransport, TRequests> {
+  const { config, value } = transport
   return {
-    adapter: { ...config, ...value },
+    transport: { ...config, ...value },
     key,
     name,
     pollingInterval,

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { FetchBlockResponse, fetchBlock } from 'viem/actions'
-import { NetworkClient } from 'viem/clients'
+import { PublicClient } from 'viem/clients'
 
-export function FetchBlock({ client }: { client: NetworkClient }) {
+export function FetchBlock({ client }: { client: PublicClient }) {
   const [latestBlock, setLatestBlock] = useState<FetchBlockResponse>()
   const [block, setBlock] = useState<FetchBlockResponse>()
 

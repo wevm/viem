@@ -1,4 +1,4 @@
-import { NetworkClient } from '../../clients'
+import { PublicClient } from '../../clients'
 import { Block, BlockTag, Data, RpcBlock } from '../../types'
 import { BaseError, deserializeBlock, numberToHex } from '../../utils'
 
@@ -29,7 +29,7 @@ export type FetchBlockArgs = {
 export type FetchBlockResponse = Block
 
 export async function fetchBlock(
-  client: NetworkClient,
+  client: PublicClient,
   {
     blockHash,
     blockNumber,

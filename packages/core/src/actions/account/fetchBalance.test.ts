@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import {
   accounts,
-  networkClient,
+  publicClient,
   testClient,
   walletClient,
 } from '../../../../test/src'
@@ -51,14 +51,14 @@ async function setup() {
 test('fetches balance', async () => {
   await setup()
   expect(
-    await fetchBalance(networkClient, { address: targetAccount.address }),
+    await fetchBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
 })
 
 test('fetches balance at latest', async () => {
   await setup()
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
       blockTag: 'latest',
     }),
@@ -67,27 +67,27 @@ test('fetches balance at latest', async () => {
 
 test('fetches balance at block number', async () => {
   await setup()
-  const currentBlockNumber = await fetchBlockNumber(networkClient)
+  const currentBlockNumber = await fetchBlockNumber(publicClient)
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber,
     }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 1,
     }),
   ).toMatchInlineSnapshot('10003000000000000000000n')
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 2,
     }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await fetchBalance(networkClient, {
+    await fetchBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 3,
     }),

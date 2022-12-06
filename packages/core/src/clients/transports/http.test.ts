@@ -5,18 +5,18 @@ import * as chains from '../../chains'
 import { http } from './http'
 
 test('default', () => {
-  const adapter = http({
+  const transport = http({
     chain: chains.local,
   })
 
-  assertType<'network'>(adapter.config.type)
-  expect(adapter).toMatchInlineSnapshot(`
+  assertType<'http'>(transport.config.type)
+  expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
         "key": "http",
         "name": "HTTP JSON-RPC",
         "request": [Function],
-        "type": "network",
+        "type": "http",
       },
       "value": {
         "chain": {
@@ -35,7 +35,6 @@ test('default', () => {
             },
           },
         },
-        "transportMode": "http",
         "url": "http://127.0.0.1:8545",
       },
     }
@@ -44,18 +43,18 @@ test('default', () => {
 
 describe('config', () => {
   test('key', () => {
-    const adapter = http({
+    const transport = http({
       chain: chains.local,
       key: 'mock',
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "mock",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "type": "network",
+          "type": "http",
         },
         "value": {
           "chain": {
@@ -74,7 +73,6 @@ describe('config', () => {
               },
             },
           },
-          "transportMode": "http",
           "url": "http://127.0.0.1:8545",
         },
       }
@@ -82,18 +80,18 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const adapter = http({
+    const transport = http({
       chain: chains.local,
-      name: 'Mock Adapter',
+      name: 'Mock Transport',
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "http",
-          "name": "Mock Adapter",
+          "name": "Mock Transport",
           "request": [Function],
-          "type": "network",
+          "type": "http",
         },
         "value": {
           "chain": {
@@ -112,7 +110,6 @@ describe('config', () => {
               },
             },
           },
-          "transportMode": "http",
           "url": "http://127.0.0.1:8545",
         },
       }
@@ -120,18 +117,18 @@ describe('config', () => {
   })
 
   test('url', () => {
-    const adapter = http({
+    const transport = http({
       chain: chains.local,
       url: 'https://mockapi.com/rpc',
     })
 
-    expect(adapter).toMatchInlineSnapshot(`
+    expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
-          "type": "network",
+          "type": "http",
         },
         "value": {
           "chain": {
@@ -150,7 +147,6 @@ describe('config', () => {
               },
             },
           },
-          "transportMode": "http",
           "url": "https://mockapi.com/rpc",
         },
       }
@@ -165,26 +161,26 @@ Object.keys(chains).forEach((key) => {
   // @ts-expect-error – testing
   const chain = chains[key]
   test(`request (${key})`, async () => {
-    const adapter = http({
+    const transport = http({
       chain,
       url: chain.rpcUrls.default.http,
     })
 
     expect(
-      await adapter.config.request({ method: 'eth_blockNumber' }),
+      await transport.config.request({ method: 'eth_blockNumber' }),
     ).toBeDefined()
   })
 })
 
 test('request (local)', async () => {
-  const adapter = http({
+  const transport = http({
     chain: chains.local,
     key: 'jsonRpc',
     name: 'JSON RPC',
   })
 
   expect(
-    await adapter.config.request({ method: 'eth_blockNumber' }),
+    await transport.config.request({ method: 'eth_blockNumber' }),
   ).toBeDefined()
 })
 /* eslint-enable import/namespace */
