@@ -4,8 +4,8 @@ import { withTimeout } from './promise/withTimeout'
 
 let id = 0
 
-export class RpcHttpRequestError extends BaseError {
-  name = 'RpcHttpRequestError'
+export class HttpRequestError extends BaseError {
+  name = 'HttpRequestError'
   status
 
   constructor({
@@ -21,7 +21,7 @@ export class RpcHttpRequestError extends BaseError {
   }) {
     super({
       humanMessage: [
-        'The RPC HTTP request failed.',
+        'The HTTP request failed.',
         '',
         `Status: ${status}`,
         `URL: ${url}`,
@@ -33,8 +33,19 @@ export class RpcHttpRequestError extends BaseError {
   }
 }
 
-export class RpcTimeoutError extends BaseError {
-  name = 'RpcTimeoutError'
+export class RpcError extends Error {
+  code: number
+
+  name = 'RpcError'
+
+  constructor({ code, message }: { code: number; message: string }) {
+    super(message)
+    this.code = code
+  }
+}
+
+export class TimeoutError extends BaseError {
+  name = 'TimeoutError'
 
   constructor({
     body,
@@ -102,7 +113,7 @@ async function http(
           return response
         },
         {
-          errorInstance: new RpcTimeoutError({ body, url }),
+          errorInstance: new TimeoutError({ body, url }),
           timeout,
           signal: true,
         },
@@ -130,7 +141,7 @@ async function http(
   }
 
   if (!response.ok) {
-    throw new RpcHttpRequestError({
+    throw new HttpRequestError({
       body,
       details: JSON.stringify(data.error) || response.statusText,
       status: response.status,
@@ -139,7 +150,7 @@ async function http(
   }
 
   if (data.error) {
-    throw data.error
+    throw new RpcError(data.error)
   }
   return data as RpcResponse
 }
@@ -212,20 +223,21 @@ async function webSocketAsync(
   return withTimeout(
     () =>
       new Promise<RpcResponse>((resolve, reject) => {
+        const body_ = { ...body, id: id_ }
         return rpc.webSocket(socket, {
-          body: { ...body, id: id_ },
+          body: body_,
           onData: (message) => {
             /* c8 ignore next */
             if (message.id !== id_) return
             resolve(message)
           },
           onError: (error) => {
-            reject(error)
+            reject(new RpcError(error))
           },
         })
       }),
     {
-      errorInstance: new RpcTimeoutError({ body, url: socket.url }),
+      errorInstance: new TimeoutError({ body, url: socket.url }),
       timeout,
     },
   )

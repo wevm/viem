@@ -5,7 +5,7 @@ import { createHttpServer, initialBlockNumber } from '../../test'
 import { local, mainnet } from '../chains'
 import { numberToHex } from './number'
 
-import { RpcHttpRequestError, RpcTimeoutError, getSocket, rpc } from './rpc'
+import { HttpRequestError, TimeoutError, getSocket, rpc } from './rpc'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`
@@ -61,7 +61,7 @@ describe('http', () => {
       rpc.http(local.rpcUrls.default.http, {
         body: { method: 'eth_wagmi' },
       }),
-    ).rejects.toThrowError('Method not found')
+    ).rejects.toThrowErrorMatchingInlineSnapshot('"Method not found"')
   })
 
   test('http error', async () => {
@@ -120,7 +120,7 @@ describe('http', () => {
     } catch (err) {
       expect(err).toMatchInlineSnapshot(
         `
-        [RpcTimeoutError: The request took too long to respond.
+        [TimeoutError: The request took too long to respond.
 
         URL: https://cloudflare-eth.com
         Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
@@ -149,7 +149,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The RPC HTTP request failed.')
+    ).rejects.toThrowError('The HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 
@@ -171,7 +171,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The RPC HTTP request failed.')
+    ).rejects.toThrowError('The HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 
@@ -193,7 +193,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The RPC HTTP request failed.')
+    ).rejects.toThrowError('The HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 
@@ -215,7 +215,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The RPC HTTP request failed.')
+    ).rejects.toThrowError('The HTTP request failed.')
     expect(retryCount).toBe(0)
   })
 
@@ -238,7 +238,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The RPC HTTP request failed.')
+    ).rejects.toThrowError('The HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 })
@@ -658,8 +658,8 @@ describe('webSocketAsync', () => {
           method: 'wagmi_lol',
         },
       }),
-    ).rejects.toThrowError(
-      'data did not match any variant of untagged enum EthRpcCall',
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '"data did not match any variant of untagged enum EthRpcCall"',
     )
   })
 
@@ -675,7 +675,7 @@ describe('webSocketAsync', () => {
       })
     } catch (err) {
       expect(err).toMatchInlineSnapshot(`
-        [RpcTimeoutError: The request took too long to respond.
+        [TimeoutError: The request took too long to respond.
 
         URL: wss://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
         Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
@@ -687,8 +687,8 @@ describe('webSocketAsync', () => {
   })
 })
 
-test('RpcHttpRequestError', () => {
-  const err = new RpcHttpRequestError({
+test('HttpRequestError', () => {
+  const err = new HttpRequestError({
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
@@ -698,7 +698,7 @@ test('RpcHttpRequestError', () => {
     details: 'Some error',
   })
   expect(err).toMatchInlineSnapshot(`
-    [RpcHttpRequestError: The RPC HTTP request failed.
+    [HttpRequestError: The HTTP request failed.
 
     Status: 500
     URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
@@ -709,8 +709,8 @@ test('RpcHttpRequestError', () => {
   `)
 })
 
-test('RpcTimeoutError', () => {
-  const err = new RpcTimeoutError({
+test('TimeoutError', () => {
+  const err = new TimeoutError({
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
@@ -718,7 +718,7 @@ test('RpcTimeoutError', () => {
     },
   })
   expect(err).toMatchInlineSnapshot(`
-    [RpcTimeoutError: The request took too long to respond.
+    [TimeoutError: The request took too long to respond.
 
     URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
     Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}

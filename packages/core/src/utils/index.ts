@@ -14,10 +14,9 @@ export {
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
-  RequestError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcError,
+  RpcRequestError,
   TransactionRejectedRpcError,
 } from './buildRequest'
 
@@ -25,7 +24,7 @@ export { deserializeBlock } from './block'
 
 export { hexToNumber, numberToHex } from './number'
 
-export { RpcHttpRequestError, RpcTimeoutError, rpc } from './rpc'
+export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
 
 export {
   deserializeTransactionResult,

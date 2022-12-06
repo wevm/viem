@@ -15,12 +15,12 @@ import {
   RequestError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcError,
+  RpcRequestError,
   TransactionRejectedRpcError,
   UnknownRpcError,
   buildRequest,
 } from './buildRequest'
-import { RpcTimeoutError } from './rpc'
+import { RpcError, TimeoutError } from './rpc'
 
 test('valid request', async () => {
   expect(
@@ -53,7 +53,7 @@ test('BaseError', async () => {
 test('ParseRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32700, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32700, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -65,10 +65,10 @@ test('ParseRpcError', async () => {
   }
 })
 
-test('InvalidRequestError', async () => {
+test('InvalidRpcRequestError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32600, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32600, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -83,7 +83,7 @@ test('InvalidRequestError', async () => {
 test('MethodNotFoundRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32601, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32601, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -98,7 +98,7 @@ test('MethodNotFoundRpcError', async () => {
 test('InvalidParamsRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32602, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32602, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -114,7 +114,7 @@ test('InvalidParamsRpcError', async () => {
 test('InternalRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32603, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32603, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -129,7 +129,7 @@ test('InternalRpcError', async () => {
 test('InvalidInputRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32000, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32000, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -145,7 +145,7 @@ test('InvalidInputRpcError', async () => {
 test('ResourceNotFoundRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32001, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32001, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -160,7 +160,7 @@ test('ResourceNotFoundRpcError', async () => {
 test('ResourceUnavailableRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32002, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32002, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -175,7 +175,7 @@ test('ResourceUnavailableRpcError', async () => {
 test('TransactionRejectedRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32003, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32003, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -190,7 +190,7 @@ test('TransactionRejectedRpcError', async () => {
 test('MethodNotSupportedRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32004, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32004, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -205,7 +205,7 @@ test('MethodNotSupportedRpcError', async () => {
 test('LimitExceededRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32005, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32005, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -220,7 +220,7 @@ test('LimitExceededRpcError', async () => {
 test('JsonRpcVersionUnsupportedError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32006, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32006, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -235,7 +235,7 @@ test('JsonRpcVersionUnsupportedError', async () => {
 test('InvalidParamsRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject({ code: -32602, message: 'message' }),
+      Promise.reject(new RpcError({ code: -32602, message: 'message' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -250,7 +250,9 @@ test('InvalidParamsRpcError', async () => {
 
 test('Error', async () => {
   try {
-    await buildRequest(() => Promise.reject({ code: 69, message: 'message' }))()
+    await buildRequest(() =>
+      Promise.reject(new RpcError({ code: 69, message: 'message' })),
+    )
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
       [UnknownRpcError: An unknown RPC error occurred.
@@ -261,11 +263,11 @@ test('Error', async () => {
   }
 })
 
-test('RpcTimeoutError', async () => {
+test('TimeoutError', async () => {
   try {
     await buildRequest(() =>
       Promise.reject(
-        new RpcTimeoutError({
+        new TimeoutError({
           body: { foo: 'bar' },
           url: 'http://localhost:8000',
         }),
@@ -273,7 +275,7 @@ test('RpcTimeoutError', async () => {
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
-      [RpcTimeoutError: The request took too long to respond.
+      [TimeoutError: The request took too long to respond.
 
       URL: http://localhost:8000
       Request body: {"foo":"bar"}
@@ -284,20 +286,36 @@ test('RpcTimeoutError', async () => {
   }
 })
 
-test('RequestError', () => {
-  expect(new RequestError({ code: 1337, message: 'error details' }))
-    .toMatchInlineSnapshot(`
-      [RequestError: Could not make request.
+test('Unknown error', async () => {
+  try {
+    await buildRequest(() => Promise.reject(new Error('wagmi')))()
+  } catch (err) {
+    expect(err).toMatchInlineSnapshot(`
+      [UnknownRpcError: An unknown RPC error occurred.
 
-      Details: error details
+      Details: wagmi
       Version: viem@1.0.2]
     `)
+  }
 })
 
-test('RpcError', () => {
+test('RequestError', () => {
   expect(
-    new RpcError(
-      { code: 1337, message: 'error details' },
+    new RequestError(new RpcError({ code: 1337, message: 'error details' }), {
+      humanMessage: 'An internal error was received.',
+    }),
+  ).toMatchInlineSnapshot(`
+    [RpcError: An internal error was received.
+
+    Details: error details
+    Version: viem@1.0.2]
+  `)
+})
+
+test('RpcRequestError', () => {
+  expect(
+    new RpcRequestError(
+      new RpcError({ code: 1337, message: 'error details' }),
       { humanMessage: 'An internal error was received.' },
     ),
   ).toMatchInlineSnapshot(`
@@ -308,10 +326,10 @@ test('RpcError', () => {
   `)
 })
 
-test('RpcError', () => {
+test('RpcRequestError', () => {
   expect(
-    new RpcError(
-      { code: 1337, message: 'error details' },
+    new RpcRequestError(
+      new RpcError({ code: 1337, message: 'error details' }),
       {
         humanMessage: 'An internal error was received.',
         docsLink: 'https://viem.sh',
@@ -329,10 +347,12 @@ test('RpcError', () => {
 
 test('ParseRpcError', () => {
   expect(
-    new ParseRpcError({
-      code: -32700,
-      message: 'message',
-    } as RequestError),
+    new ParseRpcError(
+      new RpcError({
+        code: -32700,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [ParseRpcError: Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.
 
@@ -343,10 +363,12 @@ test('ParseRpcError', () => {
 
 test('InvalidRequestRpcError', () => {
   expect(
-    new InvalidRequestRpcError({
-      code: -32600,
-      message: 'message',
-    } as RequestError),
+    new InvalidRequestRpcError(
+      new RpcError({
+        code: -32600,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [InvalidRequestRpcError: JSON is not a valid request object.
 
@@ -357,10 +379,12 @@ test('InvalidRequestRpcError', () => {
 
 test('MethodNotFoundRpcError', () => {
   expect(
-    new MethodNotFoundRpcError({
-      code: -32601,
-      message: 'message',
-    } as RequestError),
+    new MethodNotFoundRpcError(
+      new RpcError({
+        code: -32601,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [MethodNotFoundRpcError: The method does not exist / is not available.
 
@@ -371,10 +395,12 @@ test('MethodNotFoundRpcError', () => {
 
 test('InvalidParamsRpcError', () => {
   expect(
-    new InvalidParamsRpcError({
-      code: -32602,
-      message: 'message',
-    } as RequestError),
+    new InvalidParamsRpcError(
+      new RpcError({
+        code: -32602,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
     Double check you have provided the correct parameters.
@@ -386,10 +412,12 @@ test('InvalidParamsRpcError', () => {
 
 test('InternalRpcError', () => {
   expect(
-    new InternalRpcError({
-      code: -32603,
-      message: 'message',
-    } as RequestError),
+    new InternalRpcError(
+      new RpcError({
+        code: -32603,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [InternalRpcError: An internal error was received.
 
@@ -400,10 +428,12 @@ test('InternalRpcError', () => {
 
 test('InvalidInputRpcError', () => {
   expect(
-    new InvalidInputRpcError({
-      code: -32000,
-      message: 'message',
-    } as RequestError),
+    new InvalidInputRpcError(
+      new RpcError({
+        code: -32000,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [InvalidInputRpcError: Missing or invalid parameters.
     Double check you have provided the correct parameters.
@@ -415,10 +445,12 @@ test('InvalidInputRpcError', () => {
 
 test('ResourceNotFoundRpcError', () => {
   expect(
-    new ResourceNotFoundRpcError({
-      code: -32001,
-      message: 'message',
-    } as RequestError),
+    new ResourceNotFoundRpcError(
+      new RpcError({
+        code: -32001,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [ResourceNotFoundRpcError: Requested resource not found.
 
@@ -429,10 +461,12 @@ test('ResourceNotFoundRpcError', () => {
 
 test('ResourceUnavailableRpcError', () => {
   expect(
-    new ResourceUnavailableRpcError({
-      code: -32002,
-      message: 'message',
-    } as RequestError),
+    new ResourceUnavailableRpcError(
+      new RpcError({
+        code: -32002,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [ResourceUnavailableRpcError: Requested resource not available.
 
@@ -443,10 +477,12 @@ test('ResourceUnavailableRpcError', () => {
 
 test('TransactionRejectedRpcError', () => {
   expect(
-    new TransactionRejectedRpcError({
-      code: -32003,
-      message: 'message',
-    } as RequestError),
+    new TransactionRejectedRpcError(
+      new RpcError({
+        code: -32003,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [TransactionRejectedRpcError: Transaction creation failed.
 
@@ -457,10 +493,12 @@ test('TransactionRejectedRpcError', () => {
 
 test('MethodNotSupportedRpcError', () => {
   expect(
-    new MethodNotSupportedRpcError({
-      code: -32004,
-      message: 'message',
-    } as RequestError),
+    new MethodNotSupportedRpcError(
+      new RpcError({
+        code: -32004,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [MethodNotSupportedRpcError: Method is not implemented.
 
@@ -471,10 +509,12 @@ test('MethodNotSupportedRpcError', () => {
 
 test('LimitExceededRpcError', () => {
   expect(
-    new LimitExceededRpcError({
-      code: -32005,
-      message: 'message',
-    } as RequestError),
+    new LimitExceededRpcError(
+      new RpcError({
+        code: -32005,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [LimitExceededRpcError: Request exceeds defined limit.
 
@@ -485,10 +525,12 @@ test('LimitExceededRpcError', () => {
 
 test('JsonRpcVersionUnsupportedError', () => {
   expect(
-    new JsonRpcVersionUnsupportedError({
-      code: -32006,
-      message: 'message',
-    } as RequestError),
+    new JsonRpcVersionUnsupportedError(
+      new RpcError({
+        code: -32006,
+        message: 'message',
+      }),
+    ),
   ).toMatchInlineSnapshot(`
     [JsonRpcVersionUnsupportedError: Version of JSON-RPC protocol is not supported.
 

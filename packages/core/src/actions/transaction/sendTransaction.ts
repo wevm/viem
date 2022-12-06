@@ -17,10 +17,7 @@ export async function sendTransaction(
     request.maxPriorityFeePerGas !== undefined &&
     request.maxFeePerGas < request.maxPriorityFeePerGas
   )
-    throw new BaseError({
-      humanMessage: 'Gas values provided are invalid.',
-      details: 'maxFeePerGas cannot be less than maxPriorityFeePerGas',
-    })
+    throw new InvalidGasArgumentsError()
 
   const rpcRequest = serializeTransactionRequest(request)
 
@@ -29,4 +26,15 @@ export async function sendTransaction(
     params: [rpcRequest],
   })
   return { hash }
+}
+
+export class InvalidGasArgumentsError extends BaseError {
+  name = 'InvalidGasArgumentsError'
+
+  constructor() {
+    super({
+      humanMessage: 'Gas values provided are invalid.',
+      details: 'maxFeePerGas cannot be less than maxPriorityFeePerGas',
+    })
+  }
 }

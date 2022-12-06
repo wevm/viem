@@ -1,4 +1,5 @@
 import { BaseError } from './BaseError'
+import { RpcError } from './rpc'
 
 export function buildRequest<TRequest extends (args: any) => Promise<any>>(
   request: TRequest,
@@ -7,20 +8,22 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
     try {
       return await request(args)
     } catch (err) {
-      const err_ = err as RequestError
-      if (err_.code === -32700) throw new ParseRpcError(err_)
-      if (err_.code === -32600) throw new InvalidRequestRpcError(err_)
-      if (err_.code === -32601) throw new MethodNotFoundRpcError(err_)
-      if (err_.code === -32602) throw new InvalidParamsRpcError(err_)
-      if (err_.code === -32603) throw new InternalRpcError(err_)
-      if (err_.code === -32000) throw new InvalidInputRpcError(err_)
-      if (err_.code === -32001) throw new ResourceNotFoundRpcError(err_)
-      if (err_.code === -32002) throw new ResourceUnavailableRpcError(err_)
-      if (err_.code === -32003) throw new TransactionRejectedRpcError(err_)
-      if (err_.code === -32004) throw new MethodNotSupportedRpcError(err_)
-      if (err_.code === -32005) throw new LimitExceededRpcError(err_)
-      if (err_.code === -32006) throw new JsonRpcVersionUnsupportedError(err_)
-      if (err instanceof BaseError) throw err
+      if (err instanceof RpcError) {
+        if (err.code === -32700) throw new ParseRpcError(err)
+        if (err.code === -32600) throw new InvalidRequestRpcError(err)
+        if (err.code === -32601) throw new MethodNotFoundRpcError(err)
+        if (err.code === -32602) throw new InvalidParamsRpcError(err)
+        if (err.code === -32603) throw new InternalRpcError(err)
+        if (err.code === -32000) throw new InvalidInputRpcError(err)
+        if (err.code === -32001) throw new ResourceNotFoundRpcError(err)
+        if (err.code === -32002) throw new ResourceUnavailableRpcError(err)
+        if (err.code === -32003) throw new TransactionRejectedRpcError(err)
+        if (err.code === -32004) throw new MethodNotSupportedRpcError(err)
+        if (err.code === -32005) throw new LimitExceededRpcError(err)
+        if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
+      }
+      if (err instanceof BaseError)
+        throw new RequestError(err, { humanMessage: err.humanMessage })
       throw new UnknownRpcError(err as Error)
     }
   }) as TRequest
@@ -29,41 +32,33 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
 ////////////////////////////////////////////////////////////
 
 export class RequestError extends BaseError {
-  code: number
-
-  name = 'RequestError'
-
-  constructor({ code, message }: { code: number; message: string }) {
-    super({ humanMessage: 'Could not make request.', details: message })
-    this.code = code
-  }
-}
-
-export class RpcError extends BaseError {
-  code: number
-
-  name = 'RpcError'
-
   constructor(
-    {
-      code,
-      message,
-    }: {
-      code: number
-      message: string
-    },
+    err: Error,
     { docsLink, humanMessage }: { docsLink?: string; humanMessage: string },
   ) {
     super({
-      humanMessage,
-      details: message,
+      cause: err,
       docsLink,
+      humanMessage,
     })
-    this.code = code
+    this.name = err.name
   }
 }
 
-export class ParseRpcError extends RpcError {
+export class RpcRequestError extends RequestError {
+  code: number
+
+  constructor(
+    err: RpcError,
+    { docsLink, humanMessage }: { docsLink?: string; humanMessage: string },
+  ) {
+    super(err, { docsLink, humanMessage })
+    this.code = err.code
+    this.name = err.name
+  }
+}
+
+export class ParseRpcError extends RpcRequestError {
   name = 'ParseRpcError'
   code = -32700
 
@@ -75,7 +70,7 @@ export class ParseRpcError extends RpcError {
   }
 }
 
-export class InvalidRequestRpcError extends RpcError {
+export class InvalidRequestRpcError extends RpcRequestError {
   name = 'InvalidRequestRpcError'
   code = -32600
 
@@ -84,7 +79,7 @@ export class InvalidRequestRpcError extends RpcError {
   }
 }
 
-export class MethodNotFoundRpcError extends RpcError {
+export class MethodNotFoundRpcError extends RpcRequestError {
   name = 'MethodNotFoundRpcError'
   code = -32601
 
@@ -95,7 +90,7 @@ export class MethodNotFoundRpcError extends RpcError {
   }
 }
 
-export class InvalidParamsRpcError extends RpcError {
+export class InvalidParamsRpcError extends RpcRequestError {
   name = 'InvalidParamsRpcError'
   code = -32602
 
@@ -109,7 +104,7 @@ export class InvalidParamsRpcError extends RpcError {
   }
 }
 
-export class InternalRpcError extends RpcError {
+export class InternalRpcError extends RpcRequestError {
   name = 'InternalRpcError'
   code = -32603
 
@@ -118,7 +113,7 @@ export class InternalRpcError extends RpcError {
   }
 }
 
-export class InvalidInputRpcError extends RpcError {
+export class InvalidInputRpcError extends RpcRequestError {
   name = 'InvalidInputRpcError'
   code = -32000
 
@@ -132,7 +127,7 @@ export class InvalidInputRpcError extends RpcError {
   }
 }
 
-export class ResourceNotFoundRpcError extends RpcError {
+export class ResourceNotFoundRpcError extends RpcRequestError {
   name = 'ResourceNotFoundRpcError'
   code = -32001
 
@@ -141,7 +136,7 @@ export class ResourceNotFoundRpcError extends RpcError {
   }
 }
 
-export class ResourceUnavailableRpcError extends RpcError {
+export class ResourceUnavailableRpcError extends RpcRequestError {
   name = 'ResourceUnavailableRpcError'
   code = -32002
 
@@ -150,7 +145,7 @@ export class ResourceUnavailableRpcError extends RpcError {
   }
 }
 
-export class TransactionRejectedRpcError extends RpcError {
+export class TransactionRejectedRpcError extends RpcRequestError {
   name = 'TransactionRejectedRpcError'
   code = -32003
 
@@ -159,7 +154,7 @@ export class TransactionRejectedRpcError extends RpcError {
   }
 }
 
-export class MethodNotSupportedRpcError extends RpcError {
+export class MethodNotSupportedRpcError extends RpcRequestError {
   name = 'MethodNotSupportedRpcError'
   code = -32004
 
@@ -168,7 +163,7 @@ export class MethodNotSupportedRpcError extends RpcError {
   }
 }
 
-export class LimitExceededRpcError extends RpcError {
+export class LimitExceededRpcError extends RpcRequestError {
   name = 'LimitExceededRpcError'
   code = -32005
 
@@ -177,7 +172,7 @@ export class LimitExceededRpcError extends RpcError {
   }
 }
 
-export class JsonRpcVersionUnsupportedError extends RpcError {
+export class JsonRpcVersionUnsupportedError extends RpcRequestError {
   name = 'JsonRpcVersionUnsupportedError'
   code = -32006
 
@@ -188,13 +183,12 @@ export class JsonRpcVersionUnsupportedError extends RpcError {
   }
 }
 
-export class UnknownRpcError extends BaseError {
+export class UnknownRpcError extends RequestError {
   name = 'UnknownRpcError'
 
   constructor(err: Error) {
-    super({
+    super(err, {
       humanMessage: 'An unknown RPC error occurred.',
-      details: err.message,
     })
   }
 }

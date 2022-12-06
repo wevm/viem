@@ -6,6 +6,7 @@ test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "BaseError": [Function],
+      "HttpRequestError": [Function],
       "InternalRpcError": [Function],
       "InvalidInputRpcError": [Function],
       "InvalidParamsRpcError": [Function],
@@ -15,12 +16,11 @@ test('exports utils', () => {
       "MethodNotFoundRpcError": [Function],
       "MethodNotSupportedRpcError": [Function],
       "ParseRpcError": [Function],
-      "RequestError": [Function],
       "ResourceNotFoundRpcError": [Function],
       "ResourceUnavailableRpcError": [Function],
       "RpcError": [Function],
-      "RpcHttpRequestError": [Function],
-      "RpcTimeoutError": [Function],
+      "RpcRequestError": [Function],
+      "TimeoutError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
       "checksumAddress": [Function],
