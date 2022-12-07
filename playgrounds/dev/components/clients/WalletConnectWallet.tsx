@@ -8,7 +8,10 @@ import { SendTransaction } from '../actions/SendTransaction'
 const chains = [arbitrum, goerli, mainnet, optimism, polygon]
 const walletConnectProvider = new WalletConnectProvider({
   rpc: chains.reduce(
-    (rpcMap, chain) => ({ ...rpcMap, [chain.id]: chain.rpcUrls.default.http }),
+    (rpcMap, chain) => ({
+      ...rpcMap,
+      [chain.id]: chain.rpcUrls.default.http[0],
+    }),
     {},
   ),
 })
