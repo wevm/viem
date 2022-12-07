@@ -5,7 +5,7 @@ import type {
 } from 'viem/actions'
 import { fetchTransaction } from 'viem/actions'
 import type { PublicClient } from 'viem/clients'
-import type { Address } from 'viem/utils'
+import type { Address } from 'viem'
 
 export function FetchTransaction({ client }: { client: PublicClient }) {
   return (
