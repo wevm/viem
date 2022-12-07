@@ -1,5 +1,4 @@
 export { checksumAddress } from './address'
-export type { Address } from './address'
 
 export { BaseError } from './BaseError'
 
