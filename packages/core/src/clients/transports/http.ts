@@ -29,7 +29,7 @@ export function http<TChain extends Chain = Chain>({
   chain,
   key = 'http',
   name = 'HTTP JSON-RPC',
-  url = chain.rpcUrls.default.http,
+  url = chain.rpcUrls.default.http[0],
 }: HttpTransportConfig<TChain>): HttpTransport<TChain> {
   return createTransport(
     {

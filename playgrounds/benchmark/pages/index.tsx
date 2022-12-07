@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { local } from 'viem/chains'
+import { localhost } from 'viem/chains'
 
 import type { SuiteItem } from '../suite'
 import { getSuite } from '../suite'
@@ -11,7 +11,7 @@ type ResultsMap = {
 }
 
 export default function Index() {
-  const [url, setUrl] = useState<string>(local.rpcUrls.default.http)
+  const [url, setUrl] = useState<string>(localhost.rpcUrls.default.http[0])
   const suite = useMemo(() => getSuite({ url }), [url])
 
   ////////////////////////////////////////////////////////

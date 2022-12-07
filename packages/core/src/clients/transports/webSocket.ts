@@ -35,7 +35,7 @@ export type WebSocketTransportConfig<TChain extends Chain = Chain> = {
   /** The name of the WebSocket transport. */
   name?: TransportConfig['name']
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
-  url?: string
+  url: string
 }
 
 export type WebSocketTransport<TChain extends Chain = Chain> = Transport<
@@ -54,10 +54,8 @@ export function webSocket<TChain extends Chain = Chain>({
   chain,
   key = 'webSocket',
   name = 'WebSocket JSON-RPC',
-  url = chain.rpcUrls.default.webSocket,
+  url,
 }: WebSocketTransportConfig<TChain>): WebSocketTransport<TChain> {
-  if (!url) throw new Error('url is required')
-
   return createTransport(
     {
       key,

@@ -6,10 +6,11 @@ import {
   http,
   webSocket,
 } from './transports'
-import { local } from '../chains'
+import { localhost } from '../chains'
 import type { Requests } from '../types/eip1193'
 
 import { createClient } from './createClient'
+import { localWsUrl } from '../../test/utils'
 
 test('creates', () => {
   const mockTransport = createTransport({
@@ -41,7 +42,7 @@ test('creates', () => {
 
 describe('transports', () => {
   test('http', () => {
-    const { uid, ...client } = createClient(http({ chain: local }))
+    const { uid, ...client } = createClient(http({ chain: localhost }))
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -52,18 +53,19 @@ describe('transports', () => {
         "request": [Function],
         "transport": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -79,7 +81,9 @@ describe('transports', () => {
   })
 
   test('webSocket', () => {
-    const { uid, ...client } = createClient(webSocket({ chain: local }))
+    const { uid, ...client } = createClient(
+      webSocket({ chain: localhost, url: localWsUrl }),
+    )
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -90,18 +94,19 @@ describe('transports', () => {
         "request": [Function],
         "transport": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },

@@ -65,8 +65,10 @@ importers:
   packages/core:
     specifiers:
       '@noble/hashes': ^1.1.2
+      '@wagmi/chains': ^0.1.0
     dependencies:
       '@noble/hashes': 1.1.2
+      '@wagmi/chains': 0.1.0
 
   playgrounds/benchmark:
     specifiers:
@@ -1306,6 +1308,10 @@ packages:
     dependencies:
       sirv: 2.0.2
     dev: true
+
+  /@wagmi/chains/0.1.0:
+    resolution: {integrity: sha512-seQVLZRHG2id8xqG+VnieFQ2gdavwa5Do+90lxbm/5EqiBo0S9LPFns6BKsSjW8o8T6UnmqzqhZwd4Q6cz8fFg==}
+    dev: false
 
   /@walletconnect/browser-utils/1.8.0:
     resolution: {integrity: sha512-Wcqqx+wjxIo9fv6eBUFHPsW1y/bGWWRboni5dfD8PtOmrihrEpOCmvRJe4rfl7xgJW8Ea9UqKEaq0bIRLHlK4A==}

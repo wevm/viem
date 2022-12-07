@@ -25,12 +25,9 @@ export function watchBlocks(
     blockTag = 'latest',
     emitOnBegin = false,
     includeTransactions = false,
-    pollingInterval: pollingInterval_,
+    pollingInterval = client.pollingInterval,
   }: WatchBlocksArgs = {},
 ) {
-  const blockTime = client.transport.chain?.blockTime
-  const pollingInterval =
-    pollingInterval_ ?? (blockTime || client.pollingInterval)
   const observerId = JSON.stringify([
     'watchBlocks',
     client.uid,
@@ -49,23 +46,6 @@ export function watchBlocks(
         }),
       {
         emitOnBegin,
-        initialWaitTime: async (block) => {
-          if (!blockTime) return pollingInterval
-          if (pollingInterval_ !== undefined) return pollingInterval
-
-          // In order to keep in sync, we need to find the time
-          // to wait to fetch the next block.
-          const waitTime =
-            blockTime - (Number(new Date()) - Number(block.timestamp * 1000n))
-
-          // If the wait time is between the block time, we will wait that
-          // time and then fetch the next block. Otherwise, we are expecting a
-          // new block so we will fetch immediately.
-          if (waitTime > 0 && waitTime < blockTime) {
-            return waitTime
-          }
-          return 0
-        },
         onData: emit,
         interval: pollingInterval,
       },

@@ -3,9 +3,10 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 import { createTestClient } from './createTestClient'
 import { createTransport } from './transports/createTransport'
 import { http } from './transports/http'
-import { local } from '../chains'
+import { localhost } from '../chains'
 import type { TestRequests } from '../types/eip1193'
 import { webSocket } from './transports/webSocket'
+import { localWsUrl } from '../../test/utils'
 
 const mockTransport = createTransport({
   key: 'mock',
@@ -38,7 +39,7 @@ test('creates', () => {
 
 describe('transports', () => {
   test('http', () => {
-    const { uid, ...client } = createTestClient(http({ chain: local }), {
+    const { uid, ...client } = createTestClient(http({ chain: localhost }), {
       key: 'anvil',
     })
 
@@ -51,18 +52,19 @@ describe('transports', () => {
         "request": [Function],
         "transport": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -78,9 +80,12 @@ describe('transports', () => {
   })
 
   test('webSocket', () => {
-    const { uid, ...client } = createTestClient(webSocket({ chain: local }), {
-      key: 'anvil',
-    })
+    const { uid, ...client } = createTestClient(
+      webSocket({ chain: localhost, url: localWsUrl }),
+      {
+        key: 'anvil',
+      },
+    )
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -91,18 +96,19 @@ describe('transports', () => {
         "request": [Function],
         "transport": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },

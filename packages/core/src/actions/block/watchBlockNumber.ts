@@ -20,12 +20,9 @@ export function watchBlockNumber(
   callback: WatchBlockNumberCallback,
   {
     emitOnBegin = false,
-    pollingInterval: pollingInterval_,
+    pollingInterval = client.pollingInterval,
   }: WatchBlockNumberArgs = {},
 ) {
-  const blockTime = client.transport.chain?.blockTime
-  const pollingInterval =
-    pollingInterval_ ?? (blockTime || client.pollingInterval)
   const observerId = JSON.stringify(['watchBlockNumber', client.uid])
 
   return observe<WatchBlockNumberCallback, WatchBlockNumberResponse>(
