@@ -5,10 +5,10 @@ The `webSocket` transport connects to a JSON-RPC API via a WebSocket.
 ## Usage
 
 ```ts {5}
-import { createNetworkClient, webSocket } from 'viem/clients'
+import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createNetworkClient(
+const client = createPublicClient(
   webSocket({ chain: mainnet, url: 'wss://eth-mainnet.g.alchemy.com/v2/...' }),
 )
 ```

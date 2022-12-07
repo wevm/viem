@@ -5,7 +5,7 @@ The `ethereumProvider` transport accepts an [EIP-1193 Ethereum Provider](/TODO) 
 ## Usage
 
 ```ts {4}
-import { createWalletClient, ethereumProvider } from 'viem/clients'
+import { createWalletClient, ethereumProvider } from 'viem'
 
 const client = createWalletClient(
   ethereumProvider({ provider: window.ethereum }),
@@ -14,4 +14,4 @@ const client = createWalletClient(
 
 ## Gotchas
 
-- It is generally not recommended to pair the `ethereumProvider` transport with a [Network Client](/TODO). This is because some wallets restrict access to public actions (such as `fetchBlockNumber`).
+- It is generally not recommended to pair the `ethereumProvider` transport with a [Public Client](/TODO). This is because some wallets restrict access to public actions (such as `fetchBlockNumber`).

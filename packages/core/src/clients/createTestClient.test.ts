@@ -16,7 +16,7 @@ const mockTransport = createTransport({
 })
 
 test('creates', () => {
-  const { uid, ...client } = createTestClient(mockTransport, { key: 'anvil' })
+  const { uid, ...client } = createTestClient(mockTransport, { mode: 'anvil' })
 
   assertType<TestRequests<'anvil'>['request']>(client.request)
   expect(uid).toBeDefined()
@@ -40,7 +40,7 @@ test('creates', () => {
 describe('transports', () => {
   test('http', () => {
     const { uid, ...client } = createTestClient(http({ chain: localhost }), {
-      key: 'anvil',
+      mode: 'anvil',
     })
 
     expect(uid).toBeDefined()
@@ -83,7 +83,7 @@ describe('transports', () => {
     const { uid, ...client } = createTestClient(
       webSocket({ chain: localhost, url: localWsUrl }),
       {
-        key: 'anvil',
+        mode: 'anvil',
       },
     )
 

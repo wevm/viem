@@ -53,7 +53,7 @@ export default defineConfig({
           text: 'Clients & Transports',
           items: [
             { text: 'Introduction', link: '/docs/clients/intro' },
-            { text: 'Network Client', link: '/docs/clients/network' },
+            { text: 'Public Client', link: '/docs/clients/public' },
             { text: 'Wallet Client', link: '/docs/clients/wallet' },
             { text: 'Test Client', link: '/docs/clients/test' },
             {

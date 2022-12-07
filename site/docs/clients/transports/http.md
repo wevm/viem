@@ -4,12 +4,16 @@ The `http` transport connects to a JSON-RPC API via HTTP.
 
 ## Usage
 
-```ts {5}
-import { createNetworkClient, http } from 'viem/clients'
+```ts
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createNetworkClient(
-  http({ chain: mainnet, url: 'https://eth-mainnet.g.alchemy.com/v2/...' }),
+const client = createPublicClient(
+  http({
+    // [!code focus:4]
+    chain: mainnet,
+    url: 'https://eth-mainnet.g.alchemy.com/v2/...',
+  }),
 )
 ```
 
