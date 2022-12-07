@@ -1,5 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
+import { localWsUrl } from '../../../test/utils'
+
 import * as chains from '../../chains'
 import { wait } from '../../utils/wait'
 
@@ -7,7 +9,8 @@ import { webSocket } from './webSocket'
 
 test('default', () => {
   const transport = webSocket({
-    chain: chains.local,
+    chain: chains.localhost,
+    url: localWsUrl,
   })
 
   assertType<'webSocket'>(transport.config.type)
@@ -21,18 +24,19 @@ test('default', () => {
       },
       "value": {
         "chain": {
-          "blockTime": 1000,
           "id": 1337,
           "name": "Localhost",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
           "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": "http://127.0.0.1:8545",
-              "webSocket": "ws://127.0.0.1:8545",
-            },
-            "local": {
-              "http": "http://127.0.0.1:8545",
-              "webSocket": "ws://127.0.0.1:8545",
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
             },
           },
         },
@@ -46,8 +50,9 @@ test('default', () => {
 describe('config', () => {
   test('key', () => {
     const transport = webSocket({
-      chain: chains.local,
+      chain: chains.localhost,
       key: 'mock',
+      url: localWsUrl,
     })
 
     expect(transport).toMatchInlineSnapshot(`
@@ -60,18 +65,19 @@ describe('config', () => {
         },
         "value": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -84,8 +90,9 @@ describe('config', () => {
 
   test('name', () => {
     const transport = webSocket({
-      chain: chains.local,
+      chain: chains.localhost,
       name: 'Mock Transport',
+      url: localWsUrl,
     })
 
     expect(transport).toMatchInlineSnapshot(`
@@ -98,18 +105,19 @@ describe('config', () => {
         },
         "value": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -122,7 +130,7 @@ describe('config', () => {
 
   test('url', () => {
     const transport = webSocket({
-      chain: chains.local,
+      chain: chains.localhost,
       url: 'https://mockapi.com/rpc',
     })
 
@@ -136,18 +144,19 @@ describe('config', () => {
         },
         "value": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -161,50 +170,33 @@ describe('config', () => {
 
 test('getSocket', async () => {
   const rpc = webSocket({
-    chain: chains.local,
+    chain: chains.localhost,
+    url: localWsUrl,
   })
   const socket = await rpc.value?.getSocket()
   expect(socket).toBeDefined()
   expect(socket?.readyState).toBe(WebSocket.OPEN)
 })
 
-/* eslint-disable import/namespace */
-Object.keys(chains).forEach((key) => {
-  if (key === 'local') return
-
-  // @ts-expect-error – testing
-  const chain = chains[key]
-  if (!chain.rpcUrls.default.webSocket) return
-  test(`request (${key})`, async () => {
-    const transport = webSocket({
-      chain,
-      url: chain.rpcUrls.default.webSocket,
-    })
-
-    expect(
-      await transport.config.request({ method: 'eth_blockNumber' }),
-    ).toBeDefined()
-  })
-})
-
-test('request (local)', async () => {
+test('request', async () => {
   const transport = webSocket({
-    chain: chains.local,
+    chain: chains.localhost,
     key: 'jsonRpc',
     name: 'JSON RPC',
+    url: localWsUrl,
   })
 
   expect(
     await transport.config.request({ method: 'eth_blockNumber' }),
   ).toBeDefined()
 })
-/* eslint-enable import/namespace */
 
 test('subscribe', async () => {
   const rpc = webSocket({
-    chain: chains.local,
+    chain: chains.localhost,
     key: 'jsonRpc',
     name: 'JSON RPC',
+    url: localWsUrl,
   })
   if (!rpc.value) return
 
@@ -232,9 +224,10 @@ test('subscribe', async () => {
 
 test('throws on bogus subscription', async () => {
   const rpc = webSocket({
-    chain: chains.local,
+    chain: chains.localhost,
     key: 'jsonRpc',
     name: 'JSON RPC',
+    url: localWsUrl,
   })
 
   let errors: any[] = []
@@ -247,12 +240,4 @@ test('throws on bogus subscription', async () => {
     }),
   ).rejects.toThrowError()
   expect(errors.length).toBeGreaterThan(0)
-})
-
-test('throws if no url is provided', () => {
-  expect(() =>
-    webSocket({
-      chain: { ...chains.local, rpcUrls: { default: { http: '' } } },
-    }),
-  ).toThrow('url is required')
 })

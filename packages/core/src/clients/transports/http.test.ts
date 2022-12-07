@@ -6,7 +6,7 @@ import { http } from './http'
 
 test('default', () => {
   const transport = http({
-    chain: chains.local,
+    chain: chains.localhost,
   })
 
   assertType<'http'>(transport.config.type)
@@ -20,18 +20,19 @@ test('default', () => {
       },
       "value": {
         "chain": {
-          "blockTime": 1000,
           "id": 1337,
           "name": "Localhost",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
           "network": "localhost",
           "rpcUrls": {
             "default": {
-              "http": "http://127.0.0.1:8545",
-              "webSocket": "ws://127.0.0.1:8545",
-            },
-            "local": {
-              "http": "http://127.0.0.1:8545",
-              "webSocket": "ws://127.0.0.1:8545",
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
             },
           },
         },
@@ -44,7 +45,7 @@ test('default', () => {
 describe('config', () => {
   test('key', () => {
     const transport = http({
-      chain: chains.local,
+      chain: chains.localhost,
       key: 'mock',
     })
 
@@ -58,18 +59,19 @@ describe('config', () => {
         },
         "value": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -81,7 +83,7 @@ describe('config', () => {
 
   test('name', () => {
     const transport = http({
-      chain: chains.local,
+      chain: chains.localhost,
       name: 'Mock Transport',
     })
 
@@ -95,18 +97,19 @@ describe('config', () => {
         },
         "value": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -118,7 +121,7 @@ describe('config', () => {
 
   test('url', () => {
     const transport = http({
-      chain: chains.local,
+      chain: chains.localhost,
       url: 'https://mockapi.com/rpc',
     })
 
@@ -132,18 +135,19 @@ describe('config', () => {
         },
         "value": {
           "chain": {
-            "blockTime": 1000,
             "id": 1337,
             "name": "Localhost",
+            "nativeCurrency": {
+              "decimals": 18,
+              "name": "Ether",
+              "symbol": "ETH",
+            },
             "network": "localhost",
             "rpcUrls": {
               "default": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
-              },
-              "local": {
-                "http": "http://127.0.0.1:8545",
-                "webSocket": "ws://127.0.0.1:8545",
+                "http": [
+                  "http://127.0.0.1:8545",
+                ],
               },
             },
           },
@@ -154,27 +158,9 @@ describe('config', () => {
   })
 })
 
-/* eslint-disable import/namespace */
-Object.keys(chains).forEach((key) => {
-  if (key === 'local') return
-
-  // @ts-expect-error – testing
-  const chain = chains[key]
-  test(`request (${key})`, async () => {
-    const transport = http({
-      chain,
-      url: chain.rpcUrls.default.http,
-    })
-
-    expect(
-      await transport.config.request({ method: 'eth_blockNumber' }),
-    ).toBeDefined()
-  })
-})
-
-test('request (local)', async () => {
+test('request', async () => {
   const transport = http({
-    chain: chains.local,
+    chain: chains.localhost,
     key: 'jsonRpc',
     name: 'JSON RPC',
   })
@@ -183,4 +169,3 @@ test('request (local)', async () => {
     await transport.config.request({ method: 'eth_blockNumber' }),
   ).toBeDefined()
 })
-/* eslint-enable import/namespace */

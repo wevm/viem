@@ -7,7 +7,8 @@
     "dev": "DEV=true tsup"
   },
   "dependencies": {
-    "@noble/hashes": "^1.1.2"
+    "@noble/hashes": "^1.1.2",
+    "@wagmi/chains": "^0.1.0"
   },
   "files": [
     "/actions",

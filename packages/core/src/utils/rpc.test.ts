@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
 import { createHttpServer, initialBlockNumber } from '../../test'
+import { localWsUrl } from '../../test/utils'
 
-import { local, mainnet } from '../chains'
+import { localhost, mainnet } from '../chains'
 import { numberToHex } from './number'
 
 import { HttpRequestError, TimeoutError, getSocket, rpc } from './rpc'
@@ -20,7 +21,7 @@ test('rpc', () => {
 describe('http', () => {
   test('valid request', async () => {
     expect(
-      await rpc.http(local.rpcUrls.default.http, {
+      await rpc.http(localhost.rpcUrls.default.http[0], {
         body: { method: 'web3_clientVersion' },
       }),
     ).toMatchInlineSnapshot(`
@@ -34,7 +35,7 @@ describe('http', () => {
 
   test('valid request w/ incremented id', async () => {
     expect(
-      await rpc.http(local.rpcUrls.default.http, {
+      await rpc.http(localhost.rpcUrls.default.http[0], {
         body: { method: 'web3_clientVersion' },
       }),
     ).toMatchInlineSnapshot(`
@@ -48,7 +49,7 @@ describe('http', () => {
 
   test('invalid rpc params', async () => {
     await expect(() =>
-      rpc.http(local.rpcUrls.default.http, {
+      rpc.http(localhost.rpcUrls.default.http[0], {
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
       }),
     ).rejects.toThrowError(
@@ -58,7 +59,7 @@ describe('http', () => {
 
   test('invalid request', async () => {
     expect(
-      rpc.http(local.rpcUrls.default.http, {
+      rpc.http(localhost.rpcUrls.default.http[0], {
         body: { method: 'eth_wagmi' },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot('"Method not found"')
@@ -110,7 +111,7 @@ describe('http', () => {
 
   test('timeout', async () => {
     try {
-      await rpc.http(mainnet.rpcUrls.default.http, {
+      await rpc.http(mainnet.rpcUrls.default.http[0], {
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
@@ -245,17 +246,17 @@ describe('http', () => {
 
 describe('getSocket', () => {
   test('creates WebSocket instance', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     expect(socket).toBeDefined()
     expect(socket.readyState).toEqual(WebSocket.OPEN)
   })
 
   test('multiple invocations on a url only opens one socket', async () => {
     const [socket, socket2, socket3, socket4] = await Promise.all([
-      getSocket(local.rpcUrls.default.webSocket),
-      getSocket(local.rpcUrls.default.webSocket),
-      getSocket(local.rpcUrls.default.webSocket),
-      getSocket(local.rpcUrls.default.webSocket),
+      getSocket(localWsUrl),
+      getSocket(localWsUrl),
+      getSocket(localWsUrl),
+      getSocket(localWsUrl),
     ])
     expect(socket).toBe(socket2)
     expect(socket).toBe(socket3)
@@ -265,7 +266,7 @@ describe('getSocket', () => {
 
 describe('webSocket', () => {
   test('valid request', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     const { id, ...version } = await new Promise<any>((resolve, reject) =>
       rpc.webSocket(socket, {
         body: { method: 'web3_clientVersion' },
@@ -283,7 +284,7 @@ describe('webSocket', () => {
   })
 
   test('valid request', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     const { id, ...block } = await new Promise<any>((resolve, reject) =>
       rpc.webSocket(socket, {
         body: {
@@ -452,7 +453,7 @@ describe('webSocket', () => {
   })
 
   test('invalid request', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     await expect(
       () =>
         new Promise<any>((resolve, reject) =>
@@ -472,7 +473,7 @@ describe('webSocket', () => {
 
 describe('webSocketAsync', () => {
   test('valid request', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     const { id, ...version } = await rpc.webSocketAsync(socket, {
       body: { method: 'web3_clientVersion' },
     })
@@ -486,7 +487,7 @@ describe('webSocketAsync', () => {
   })
 
   test('valid request', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     const { id, ...block } = await rpc.webSocketAsync(socket, {
       body: {
         method: 'eth_getBlockByNumber',
@@ -651,7 +652,7 @@ describe('webSocketAsync', () => {
   })
 
   test('invalid request', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     await expect(() =>
       rpc.webSocketAsync(socket, {
         body: {
@@ -664,7 +665,7 @@ describe('webSocketAsync', () => {
   })
 
   test.skip('timeout', async () => {
-    const socket = await getSocket(local.rpcUrls.default.webSocket)
+    const socket = await getSocket(localWsUrl)
     try {
       await rpc.webSocketAsync(socket, {
         body: {

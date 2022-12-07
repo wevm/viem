@@ -1,5 +1,5 @@
 /* c8 ignore start */
-import { local } from '../src/chains'
+import { localhost } from '../src/chains'
 import {
   createPublicClient,
   createTestClient,
@@ -59,16 +59,19 @@ export const accounts = [
 
 export const initialBlockNumber = Number(process.env.VITE_ANVIL_BLOCK_NUMBER)
 
+export const localWsUrl = 'ws://127.0.0.1:8545'
+
 export const publicClient =
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
     ? createPublicClient(
         http({
-          chain: local,
+          chain: localhost,
         }),
       )
     : createPublicClient(
         webSocket({
-          chain: local,
+          chain: localhost,
+          url: localWsUrl,
         }),
       )
 
@@ -86,7 +89,7 @@ export const walletClient = createWalletClient(
           return [accounts[0].address]
         }
 
-        const { result } = await rpc.http(local.rpcUrls.default.http, {
+        const { result } = await rpc.http(localhost.rpcUrls.default.http[0], {
           body: {
             method,
             params,
@@ -98,7 +101,7 @@ export const walletClient = createWalletClient(
   }),
 )
 
-export const testClient = createTestClient(http({ chain: local }), {
+export const testClient = createTestClient(http({ chain: localhost }), {
   key: 'anvil',
 })
 

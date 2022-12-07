@@ -4,7 +4,7 @@ import type { WatchBlockNumberResponse } from './watchBlockNumber'
 import { watchBlockNumber } from './watchBlockNumber'
 import { publicClient } from '../../../test'
 import { wait } from '../../utils/wait'
-import { local } from '../../chains'
+import { localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
 const defaultConfig = { pollingInterval: 1_000 }
@@ -38,29 +38,11 @@ describe('emitOnBegin', () => {
   }, 10_000)
 })
 
-describe('blockTime on chain', () => {
-  test('watches for new block numbers', async () => {
-    const rpc = createPublicClient(
-      http({
-        chain: { ...local, blockTime: 200 },
-      }),
-    )
-
-    const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(rpc, (blockNumber) =>
-      blockNumbers.push(blockNumber),
-    )
-    await wait(2000)
-    unwatch()
-    expect(blockNumbers.length).toBe(9)
-  }, 10_000)
-})
-
 describe('pollingInterval on rpc', () => {
   test('watches for new block numbers', async () => {
     const rpc = createPublicClient(
       http({
-        chain: { ...local, blockTime: undefined },
+        chain: localhost,
       }),
       { pollingInterval: 500 },
     )
