@@ -10,7 +10,7 @@ export type MineArgs = {
 
 export async function mine(rpc: TestClient, { blocks, interval }: MineArgs) {
   return await rpc.request({
-    method: `${rpc.key}_mine`,
+    method: `${rpc.mode}_mine`,
     params: [numberToHex(blocks), numberToHex(interval || 0)],
   })
 }

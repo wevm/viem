@@ -4,9 +4,9 @@ import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 
 export type PublicClientConfig = {
-  /** The key of the Network Client. */
+  /** The key of the Public Client. */
   key?: ClientConfig['key']
-  /** The name of the Network Client. */
+  /** The name of the Public Client. */
   name?: ClientConfig['name']
   /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
   pollingInterval?: ClientConfig['pollingInterval']

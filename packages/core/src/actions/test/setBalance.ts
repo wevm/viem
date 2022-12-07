@@ -14,7 +14,7 @@ export async function setBalance(
   { address, value }: SetBalanceArgs,
 ) {
   return await rpc.request({
-    method: `${rpc.key}_setBalance`,
+    method: `${rpc.mode}_setBalance`,
     params: [address, numberToHex(value)],
   })
 }

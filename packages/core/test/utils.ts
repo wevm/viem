@@ -102,7 +102,7 @@ export const walletClient = createWalletClient(
 )
 
 export const testClient = createTestClient(http({ chain: localhost }), {
-  key: 'anvil',
+  mode: 'anvil',
 })
 
 export function createHttpServer(

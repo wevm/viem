@@ -16,13 +16,14 @@ const mockTransport = createTransport({
 })
 
 test('creates', () => {
-  const { uid, ...client } = createTestClient(mockTransport, { key: 'anvil' })
+  const { uid, ...client } = createTestClient(mockTransport, { mode: 'anvil' })
 
   assertType<TestRequests<'anvil'>['request']>(client.request)
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
-      "key": "anvil",
+      "key": "test",
+      "mode": "anvil",
       "name": "Test Client",
       "pollingInterval": 4000,
       "request": [Function],
@@ -40,13 +41,14 @@ test('creates', () => {
 describe('transports', () => {
   test('http', () => {
     const { uid, ...client } = createTestClient(http({ chain: localhost }), {
-      key: 'anvil',
+      mode: 'anvil',
     })
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "key": "anvil",
+        "key": "test",
+        "mode": "anvil",
         "name": "Test Client",
         "pollingInterval": 4000,
         "request": [Function],
@@ -83,14 +85,15 @@ describe('transports', () => {
     const { uid, ...client } = createTestClient(
       webSocket({ chain: localhost, url: localWsUrl }),
       {
-        key: 'anvil',
+        mode: 'anvil',
       },
     )
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
-        "key": "anvil",
+        "key": "test",
+        "mode": "anvil",
         "name": "Test Client",
         "pollingInterval": 4000,
         "request": [Function],
