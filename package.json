@@ -9,7 +9,7 @@
     "changeset:version": "changeset version && pnpm install --lockfile-only",
     "dev": "pnpm --parallel --filter './packages/**' dev",
     "dev:docs": "pnpm --parallel --filter site dev",
-    "format": "prettier . --write",
+    "format": "prettier packages/ --write",
     "lint": "eslint . --cache",
     "lint:fix": "pnpm lint --fix",
     "playground": "pnpm --filter playground-dev dev",
