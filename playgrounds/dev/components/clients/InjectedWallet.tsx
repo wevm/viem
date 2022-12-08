@@ -17,7 +17,7 @@ export function InjectedWallet() {
   return (
     <div>
       <hr />
-      <h3>requestAccountAddresses</h3>
+      <h3>requestAccounts</h3>
       <RequestAccountAddresses client={client} />
       <hr />
       <h3>sendTransaction</h3>

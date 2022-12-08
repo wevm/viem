@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { requestAccountAddresses } from 'viem/actions'
+import { requestAccounts } from 'viem/actions'
 import type { WalletClient } from 'viem/clients'
 
 export function RequestAccountAddresses({ client }: { client: WalletClient }) {
@@ -8,7 +8,7 @@ export function RequestAccountAddresses({ client }: { client: WalletClient }) {
     <div>
       <button
         onClick={async () => {
-          const addresses = await requestAccountAddresses(client)
+          const addresses = await requestAccounts(client)
           setAddresses(addresses)
         }}
       >

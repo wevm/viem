@@ -6,7 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "fetchBalance": [Function],
-      "requestAccountAddresses": [Function],
+      "requestAccounts": [Function],
     }
   `)
 })
