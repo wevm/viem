@@ -78,7 +78,7 @@ export default defineConfig({
         {
           text: 'Public Actions',
           items: [
-            { text: 'Introduction', link: '/docs/actions/introduction' },
+            { text: 'Introduction', link: '/docs/actions/public-actions' },
             { text: 'fetchBalance', link: '/docs/actions/fetchBalance' },
             { text: 'fetchBlock', link: '/docs/actions/fetchBlock' },
             {
@@ -99,7 +99,7 @@ export default defineConfig({
         {
           text: 'Wallet Actions',
           items: [
-            { text: 'Introduction', link: '/docs/actions/introduction' },
+            { text: 'Introduction', link: '/docs/actions/wallet-actions' },
             { text: 'requestAccounts', link: '/docs/actions/requestAccounts' },
             { text: 'sendTransaction', link: '/docs/actions/sendTransaction' },
           ],
@@ -107,6 +107,7 @@ export default defineConfig({
         {
           text: 'Test Actions',
           items: [
+            { text: 'Introduction', link: '/docs/actions/test-actions' },
             { text: 'mine', link: '/docs/actions/mine' },
             { text: 'setBalance', link: '/docs/actions/setBalance' },
           ],
