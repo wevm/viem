@@ -14,7 +14,7 @@ import { fetchTransaction } from 'viem'
 import { fetchTransaction } from 'viem'
 import { publicClient } from '.'
  
-const block = await fetchTransaction(publicClient, { // [!code focus:99]
+const transaction = await fetchTransaction(publicClient, { // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
 /**
@@ -42,7 +42,7 @@ The transaction information.
 Get information about a transaction given a transaction hash.
 
 ```ts
-const block = await fetchTransaction(publicClient, {
+const transaction = await fetchTransaction(publicClient, {
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
@@ -54,7 +54,7 @@ const block = await fetchTransaction(publicClient, {
 Get information about a transaction given a block hash (and index).
 
 ```ts
-const block = await fetchTransaction(publicClient, {
+const transaction = await fetchTransaction(publicClient, {
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus:2]
   index: 0
 })
@@ -67,7 +67,7 @@ const block = await fetchTransaction(publicClient, {
 Get information about a transaction given a block number (and index).
 
 ```ts
-const block = await fetchTransaction(publicClient, {
+const transaction = await fetchTransaction(publicClient, {
   blockNumber: 69420n, // [!code focus:2]
   index: 0
 })
@@ -80,7 +80,7 @@ const block = await fetchTransaction(publicClient, {
 Get information about a transaction given a block tag (and index).
 
 ```ts
-const block = await fetchTransaction(publicClient, {
+const transaction = await fetchTransaction(publicClient, {
   blockTag: 'safe', // [!code focus:2]
   index: 0
 })
@@ -93,7 +93,7 @@ const block = await fetchTransaction(publicClient, {
 An index to be used with a block identifier (number, hash or tag).
 
 ```ts
-const block = await fetchTransaction(publicClient, {
+const transaction = await fetchTransaction(publicClient, {
   blockTag: 'safe',
   index: 0 // [!code focus]
 })

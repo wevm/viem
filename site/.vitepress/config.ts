@@ -89,7 +89,10 @@ export default defineConfig({
               text: 'fetchTransaction',
               link: '/docs/actions/fetchTransaction',
             },
-            { text: 'watchBlock', link: '/docs/actions/watchBlock' },
+            {
+              text: 'watchBlockNumber',
+              link: '/docs/actions/watchBlockNumber',
+            },
             { text: 'watchBlocks', link: '/docs/actions/watchBlocks' },
           ],
         },

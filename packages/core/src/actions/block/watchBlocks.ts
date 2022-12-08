@@ -20,6 +20,7 @@ export type WatchBlocksCallback<TChain extends Chain = Chain> = (
   block: WatchBlocksResponse<TChain>,
 ) => void
 
+/** @description Watches and returns information for incoming blocks. */
 export function watchBlocks<TChain extends Chain>(
   client: PublicClient<any, TChain>,
   callback: WatchBlocksCallback<TChain>,
