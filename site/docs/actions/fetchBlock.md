@@ -40,9 +40,6 @@ Information about the block.
 Information at a given block hash.
 
 ```ts
-import { fetchBlock } from 'viem'
-import { publicClient } from '.'
- 
 const block = await fetchBlock(publicClient, {
   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d' // [!code focus]
 })
@@ -55,9 +52,6 @@ const block = await fetchBlock(publicClient, {
 Information at a given block number.
 
 ```ts
-import { fetchBlock } from 'viem'
-import { publicClient } from '.'
- 
 const block = await fetchBlock(publicClient, {
   blockNumber: 42069n // [!code focus]
 })
@@ -71,9 +65,6 @@ const block = await fetchBlock(publicClient, {
 Information at a given block tag.
 
 ```ts
-import { fetchBlock } from 'viem'
-import { publicClient } from '.'
- 
 const block = await fetchBlock(publicClient, {
   blockTag: 'safe' // [!code focus]
 })
@@ -87,10 +78,11 @@ const block = await fetchBlock(publicClient, {
 Include transactions on the block.
 
 ```ts
-import { fetchBlock } from 'viem'
-import { publicClient } from '.'
- 
 const block = await fetchBlock(publicClient, {
   includeTransactions: true // [!code focus]
 })
 ```
+
+## Example
+
+TODO

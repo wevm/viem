@@ -78,3 +78,7 @@ const balance = await fetchBalance({
 const balanceAsEther = valueAsEther(balance) // [!code focus:2]
 // "6.942"
 ```
+
+## Example
+
+TODO
