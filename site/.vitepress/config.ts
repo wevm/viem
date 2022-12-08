@@ -76,7 +76,7 @@ export default defineConfig({
           ],
         },
         {
-          text: 'Actions',
+          text: 'Public Actions',
           items: [
             { text: 'Introduction', link: '/docs/actions/introduction' },
             { text: 'fetchBalance', link: '/docs/actions/fetchBalance' },
@@ -89,10 +89,16 @@ export default defineConfig({
               text: 'fetchTransaction',
               link: '/docs/actions/fetchTransaction',
             },
-            { text: 'requestAccounts', link: '/docs/actions/requestAccounts' },
-            { text: 'sendTransaction', link: '/docs/actions/sendTransaction' },
             { text: 'watchBlock', link: '/docs/actions/watchBlock' },
             { text: 'watchBlocks', link: '/docs/actions/watchBlocks' },
+          ],
+        },
+        {
+          text: 'Wallet Actions',
+          items: [
+            { text: 'Introduction', link: '/docs/actions/introduction' },
+            { text: 'requestAccounts', link: '/docs/actions/requestAccounts' },
+            { text: 'sendTransaction', link: '/docs/actions/sendTransaction' },
           ],
         },
         {

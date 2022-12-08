@@ -8,9 +8,9 @@ npm i viem
 
 ## Quick Start
 
-### 1. Set up your client & transport
+### 1. Set up your Client & Transport
 
-Firstly, set up your [client](/TODO) with a desired [transport](/TODO) & [chain](/TODO).
+Firstly, set up your [Client](/TODO) with a desired [Transport](/TODO) & [Chain](/TODO).
 
 ```tsx
 import { createPublicClient, http } from 'viem'

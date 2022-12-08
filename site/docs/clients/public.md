@@ -1,16 +1,24 @@
 # Public Client
 
-The `createPublicClient` function sets up a Public Client with a given [transport](/TODO) configured for a [chain](/TODO).
+The `createPublicClient` function sets up a Public Client with a given [Transport](/TODO) configured for a [Chain](/TODO).
 
-The Public Client provides access to [public actions](#supported-actions)
+The Public Client provides access to [Public Actions](#supported-actions)
+
+## Import
+
+```ts
+import { createPublicClient } from 'viem'
+```
 
 ## Usage
+
+Initialize a Client with your desired Transport (e.g. `http`).
 
 ```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient(http({ chain: mainnet }))
+const client = createPublicClient(http({ chain: mainnet })) // [!code focus]
 ```
 
 ## Configuration
@@ -18,8 +26,9 @@ const client = createPublicClient(http({ chain: mainnet }))
 ### key (optional)
 
 - **Type:** `string`
+- **Default:** `"public"`
 
-A key for the client.
+A key for the Client.
 
 ```ts
 const client = createPublicClient(
@@ -31,8 +40,9 @@ const client = createPublicClient(
 ### name (optional)
 
 - **Type:** `string`
+- **Default:** `"Public Client"`
 
-A name for the client.
+A name for the Client.
 
 ```ts
 const client = createPublicClient(
@@ -46,7 +56,7 @@ const client = createPublicClient(
 - **Type:** `number`
 - **Default:** `4_000`
 
-Frequency (in ms) for polling enabled actions & events.
+Frequency (in ms) for polling enabled Actions.
 
 ```ts
 const client = createPublicClient(
