@@ -516,6 +516,10 @@ test('non-existent block: throws if block number does not exist', async () => {
   await expect(
     fetchBlock(publicClient, {
       blockNumber: 69420694206942n,
+<<<<<<< HEAD
+=======
+      includeTransactions: true,
+>>>>>>> 201a7ea (docs: fetchBlock)
     }),
   ).rejects.toMatchInlineSnapshot(`
       [BlockNotFoundError: Block at number "69420694206942" could not be found.

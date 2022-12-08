@@ -12,8 +12,9 @@ import { fetchBalance } from 'viem'
 
 ```ts
 import { fetchBalance } from 'viem'
+import { publicClient } from '.'
  
-const balance = await fetchBalance({ // [!code focus:4]
+const balance = await fetchBalance(publicClient, { // [!code focus:4]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 10000000000000000000000n (wei)
@@ -39,7 +40,7 @@ const balance = await fetchBalance({
 })
 ```
 
-### blockNumber
+### blockNumber (optional)
 
 - **Type:** `bigint`
 
@@ -52,7 +53,7 @@ const balance = await fetchBalance({
 })
 ```
 
-### blockTag
+### blockTag (optional)
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -68,3 +69,12 @@ const balance = await fetchBalance({
 ## Tips
 
 - You can convert the balance to ether units with [`valueAsEther`](/TODO).
+
+```ts
+const balance = await fetchBalance({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockTag: 'safe'
+})
+const balanceAsEther = valueAsEther(balance) // [!code focus:2]
+// "6.942"
+```
