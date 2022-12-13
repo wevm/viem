@@ -11,5 +11,5 @@ export function WatchBlockNumber({ client }: { client: PublicClient }) {
     })
     return unwatch
   }, [client])
-  return <div>{blockNumber}</div>
+  return <div>{blockNumber?.toString()}</div>
 }

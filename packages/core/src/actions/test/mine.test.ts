@@ -9,12 +9,12 @@ test('mines 1 block', async () => {
   const currentBlockNumber = await fetchBlockNumber(publicClient)
   await mine(testClient, { blocks: 1 })
   const nextBlockNumber = await fetchBlockNumber(publicClient)
-  expect(nextBlockNumber).toEqual(currentBlockNumber + 1)
+  expect(nextBlockNumber).toEqual(currentBlockNumber + 1n)
 })
 
 test('mines 5 blocks', async () => {
   const currentBlockNumber = await fetchBlockNumber(publicClient)
   await mine(testClient, { blocks: 5 })
   const nextBlockNumber = await fetchBlockNumber(publicClient)
-  expect(nextBlockNumber).toEqual(currentBlockNumber + 5)
+  expect(nextBlockNumber).toEqual(currentBlockNumber + 5n)
 })

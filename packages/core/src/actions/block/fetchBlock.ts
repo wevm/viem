@@ -15,7 +15,7 @@ export type FetchBlockArgs = {
   | {
       blockHash?: never
       /** The block number. */
-      blockNumber?: number
+      blockNumber?: bigint
       blockTag?: never
     }
   | {
@@ -68,7 +68,7 @@ export class BlockNotFoundError extends BaseError {
     blockNumber,
   }: {
     blockHash?: Data
-    blockNumber?: number
+    blockNumber?: bigint
   }) {
     let identifier = 'Block'
     if (blockHash) identifier = `Block at hash "${blockHash}"`

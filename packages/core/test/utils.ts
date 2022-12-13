@@ -57,7 +57,9 @@ export const accounts = [
   },
 ] as const
 
-export const initialBlockNumber = Number(process.env.VITE_ANVIL_BLOCK_NUMBER)
+export const initialBlockNumber = BigInt(
+  Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
+)
 
 export const localWsUrl = 'ws://127.0.0.1:8545'
 

@@ -72,19 +72,19 @@ test('fetches balance at block number', async () => {
   expect(
     await fetchBalance(publicClient, {
       address: targetAccount.address,
-      blockNumber: currentBlockNumber - 1,
+      blockNumber: currentBlockNumber - 1n,
     }),
   ).toMatchInlineSnapshot('10003000000000000000000n')
   expect(
     await fetchBalance(publicClient, {
       address: targetAccount.address,
-      blockNumber: currentBlockNumber - 2,
+      blockNumber: currentBlockNumber - 2n,
     }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
     await fetchBalance(publicClient, {
       address: targetAccount.address,
-      blockNumber: currentBlockNumber - 3,
+      blockNumber: currentBlockNumber - 3n,
     }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 })

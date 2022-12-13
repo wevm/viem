@@ -10,5 +10,5 @@ export function FetchBlockNumber({ client }: { client: PublicClient }) {
       setBlockNumber(await fetchBlockNumber(client))
     })()
   }, [client])
-  return <div>{blockNumber}</div>
+  return <div>{blockNumber?.toString()}</div>
 }
