@@ -174,3 +174,7 @@ jobs:
           VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
