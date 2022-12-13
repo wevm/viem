@@ -21,7 +21,7 @@ export type FetchTransactionArgs =
     }
   | {
       blockHash?: never
-      blockNumber: number
+      blockNumber: bigint
       blockTag?: never
       hash?: never
       index: number
@@ -99,7 +99,7 @@ export class TransactionNotFoundError extends BaseError {
     index,
   }: {
     blockHash?: Data
-    blockNumber?: number
+    blockNumber?: bigint
     blockTag?: BlockTag
     hash?: Data
     index?: number

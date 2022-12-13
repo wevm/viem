@@ -221,7 +221,7 @@ describe('args: hash', () => {
 describe('args: blockHash', () => {
   test('blockHash: fetches transaction by block hash & index', async () => {
     const { hash: blockHash } = await fetchBlock(publicClient, {
-      blockNumber: initialBlockNumber - 69,
+      blockNumber: initialBlockNumber - 69n,
     })
 
     if (!blockHash) throw new Error('no block hash found')
@@ -242,7 +242,7 @@ describe('args: blockHash', () => {
 
   test('blockHash: throws if transaction not found', async () => {
     const { hash: blockHash } = await fetchBlock(publicClient, {
-      blockNumber: initialBlockNumber - 69,
+      blockNumber: initialBlockNumber - 69n,
     })
     if (!blockHash) throw new Error('no block hash found')
 
@@ -258,7 +258,7 @@ describe('args: blockHash', () => {
 describe('args: blockNumber', () => {
   test('fetches transaction by block number & index', async () => {
     const transaction = await fetchTransaction(publicClient, {
-      blockNumber: initialBlockNumber - 420,
+      blockNumber: initialBlockNumber - 420n,
       index: 5,
     })
     expect(transaction.from).toMatchInlineSnapshot(
@@ -275,7 +275,7 @@ describe('args: blockNumber', () => {
   test('throws if transaction not found', async () => {
     await expect(
       fetchTransaction(publicClient, {
-        blockNumber: initialBlockNumber - 420,
+        blockNumber: initialBlockNumber - 420n,
         index: 420,
       }),
     ).rejects.toThrowError(
@@ -315,7 +315,7 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockNumber', async () => {
-    expect(new TransactionNotFoundError({ blockNumber: 42069, index: 420 }))
+    expect(new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }))
       .toMatchInlineSnapshot(`
         [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 

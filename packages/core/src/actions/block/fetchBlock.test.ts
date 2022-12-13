@@ -37,7 +37,7 @@ test('fetches latest block', async () => {
 describe('args: blockNumber', () => {
   test('fetches block by block number', async () => {
     const block = await fetchBlock(publicClient, {
-      blockNumber: initialBlockNumber - 1,
+      blockNumber: initialBlockNumber - 1n,
     })
     expect(block).toMatchInlineSnapshot(`
       {
@@ -464,7 +464,7 @@ describe('args: includeTransactions', () => {
 test('non-existent block: throws if block number does not exist', async () => {
   await expect(
     fetchBlock(publicClient, {
-      blockNumber: 69420694206942,
+      blockNumber: 69420694206942n,
       includeTransactions: true,
     }),
   ).rejects.toMatchInlineSnapshot(`
@@ -491,7 +491,8 @@ test('non-existent block: throws if block hash does not exist', async () => {
 })
 
 test('BlockNotFoundError', () => {
-  expect(new BlockNotFoundError({ blockNumber: 69420 })).toMatchInlineSnapshot(`
+  expect(new BlockNotFoundError({ blockNumber: 69420n }))
+    .toMatchInlineSnapshot(`
     [BlockNotFoundError: Block at number "69420" could not be found.
 
     Details: block not found at given hash or number

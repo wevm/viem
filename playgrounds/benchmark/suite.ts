@@ -41,7 +41,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'blockByNumber',
       fns: {
         viem: async () => {
-          await fetchBlock(viemClient, { blockNumber: 69420 })
+          await fetchBlock(viemClient, { blockNumber: 69420n })
         },
         ethers: async () => {
           await ethersProvider.getBlock(69420)
@@ -54,7 +54,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       fns: {
         viem: async () => {
           await fetchBlock(viemClient, {
-            blockNumber: 69420,
+            blockNumber: 69420n,
             includeTransactions: true,
           })
         },
