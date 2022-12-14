@@ -816,11 +816,11 @@ describe('defineChain', () => {
       transactionRequest.feeCurrency({ feeCurrency: '0x1' }),
     ).toMatchInlineSnapshot('"0x1"')
     expect(
-      transactionRequest.gatewayFee({ gatewayFee: '0x1' }),
+      transactionRequest.gatewayFee({ gatewayFee: 1n }),
     ).toMatchInlineSnapshot('1n')
     expect(
-      transactionRequest.gatewayFee({ gatewayFee: null }),
-    ).toMatchInlineSnapshot('null')
+      transactionRequest.gatewayFee({ gatewayFee: undefined }),
+    ).toMatchInlineSnapshot('undefined')
     expect(
       transactionRequest.gatewayFeeRecipient({
         gatewayFeeRecipient: '0x1',

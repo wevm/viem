@@ -34,7 +34,20 @@ export type MergeIntersectionProperties<T, U> = {
  * => { a: string, c: number }
  */
 export type NonEmptyProperties<T> = {
-  [K in keyof T as T[K] extends void ? never : K]: T[K]
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K]
+}
+
+/**
+ * @description Makes nullable properties from T optional.
+ *
+ * @example
+ * OptionalProperties<{ a: string | undefined, c: number }>
+ * => { a?: string | undefined, c: number }
+ */
+export type OptionalProperties<T> = {
+  [K in keyof T as T[K] extends NonNullable<unknown> ? K : never]: T[K]
+} & {
+  [K in keyof T as T[K] extends NonNullable<unknown> ? never : K]?: T[K]
 }
 
 /**

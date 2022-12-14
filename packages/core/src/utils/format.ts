@@ -3,6 +3,7 @@ import type {
   MapReturnTypes,
   MergeIntersectionProperties,
   NonEmptyProperties,
+  OptionalProperties,
 } from '../types'
 
 export type ExtractFormatter<
@@ -42,12 +43,11 @@ export type Formatted<TSource, TTarget, TFormatter> =
     ? // If the attribute exists on the Target type (e.g. Block) AND Formatter type, then use the Formatter attribute.
       MergeIntersectionProperties<TTarget, MapReturnTypes<TFormatter>> &
         // If Formatter attributes exist, attach them; otherwise attach the Target type (e.g. Block).
-        (NonEmptyProperties<MapReturnTypes<TFormatter>> extends Record<
-          string,
-          never
-        >
+        (OptionalProperties<
+          NonEmptyProperties<MapReturnTypes<TFormatter>>
+        > extends Record<string, never>
           ? TTarget
-          : NonEmptyProperties<MapReturnTypes<TFormatter>>)
+          : OptionalProperties<NonEmptyProperties<MapReturnTypes<TFormatter>>>)
     : never
 
 /**

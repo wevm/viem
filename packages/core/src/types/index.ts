@@ -54,4 +54,5 @@ export type {
   MapReturnTypes,
   MergeIntersectionProperties,
   NonEmptyProperties,
+  OptionalProperties,
 } from './utils'

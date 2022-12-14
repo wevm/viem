@@ -43,7 +43,7 @@ export type Formatter<TSource = any, TTarget = any> = Partial<{
 export type Formatters = {
   block?: Formatter<RpcBlock, Block>
   transaction?: Formatter<RpcTransaction, Transaction>
-  transactionRequest?: Formatter<RpcTransactionRequest, TransactionRequest>
+  transactionRequest?: Formatter<TransactionRequest, RpcTransactionRequest>
 }
 
 export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
@@ -95,14 +95,13 @@ export const celo = defineChain({
       }) => gatewayFeeRecipient,
     },
     transactionRequest: {
-      feeCurrency: ({ feeCurrency }: { feeCurrency: Address | null }) =>
-        feeCurrency,
-      gatewayFee: ({ gatewayFee }: { gatewayFee: Quantity | null }) =>
-        gatewayFee ? BigInt(gatewayFee) : null,
+      feeCurrency: ({ feeCurrency }: { feeCurrency?: Address }) => feeCurrency,
+      gatewayFee: ({ gatewayFee }: { gatewayFee?: bigint }) =>
+        gatewayFee ? BigInt(gatewayFee) : undefined,
       gatewayFeeRecipient: ({
         gatewayFeeRecipient,
       }: {
-        gatewayFeeRecipient: Address | null
+        gatewayFeeRecipient?: Address
       }) => gatewayFeeRecipient,
     },
   },
