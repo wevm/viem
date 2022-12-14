@@ -19,17 +19,22 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
-export { deserializeBlock } from './block'
+export type { ExtractFormatter, Formatted } from './format'
+export { format } from './format'
+
+export type {
+  BlockFormatter,
+  FormattedBlock,
+  FormattedTransaction,
+  TransactionFormatter,
+} from './formatters'
+export { formatBlock, formatTransaction, transactionType } from './formatters'
 
 export { hexToNumber, numberToHex } from './number'
 
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
 
-export {
-  deserializeTransactionResult,
-  serializeTransactionRequest,
-  transactionType,
-} from './transaction'
+export { serializeTransactionRequest } from './transaction'
 
 export {
   displayToValue,

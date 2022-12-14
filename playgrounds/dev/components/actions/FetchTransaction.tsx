@@ -116,7 +116,7 @@ function FetchTransactionByNumberAndIndex({
     if (blockNumber && index) {
       setTransaction(
         await fetchTransaction(client, {
-          blockNumber: parseInt(blockNumber),
+          blockNumber: BigInt(blockNumber),
           index: parseInt(index),
         }),
       )

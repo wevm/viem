@@ -10,7 +10,7 @@ export function FetchBlock({ client }: { client: PublicClient }) {
   useEffect(() => {
     ;(async () => {
       setLatestBlock(await fetchBlock(client, { blockTag: 'latest' }))
-      setBlock(await fetchBlock(client, { blockNumber: 42069 }))
+      setBlock(await fetchBlock(client, { blockNumber: 42069n }))
     })()
   }, [client])
 

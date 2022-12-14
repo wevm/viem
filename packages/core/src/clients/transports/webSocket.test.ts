@@ -17,12 +17,6 @@ test('default', () => {
   expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
-        "key": "webSocket",
-        "name": "WebSocket JSON-RPC",
-        "request": [Function],
-        "type": "webSocket",
-      },
-      "value": {
         "chain": {
           "id": 1337,
           "name": "Localhost",
@@ -40,6 +34,12 @@ test('default', () => {
             },
           },
         },
+        "key": "webSocket",
+        "name": "WebSocket JSON-RPC",
+        "request": [Function],
+        "type": "webSocket",
+      },
+      "value": {
         "getSocket": [Function],
         "subscribe": [Function],
       },
@@ -58,12 +58,6 @@ describe('config', () => {
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "mock",
-          "name": "WebSocket JSON-RPC",
-          "request": [Function],
-          "type": "webSocket",
-        },
-        "value": {
           "chain": {
             "id": 1337,
             "name": "Localhost",
@@ -81,6 +75,12 @@ describe('config', () => {
               },
             },
           },
+          "key": "mock",
+          "name": "WebSocket JSON-RPC",
+          "request": [Function],
+          "type": "webSocket",
+        },
+        "value": {
           "getSocket": [Function],
           "subscribe": [Function],
         },
@@ -98,12 +98,6 @@ describe('config', () => {
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "webSocket",
-          "name": "Mock Transport",
-          "request": [Function],
-          "type": "webSocket",
-        },
-        "value": {
           "chain": {
             "id": 1337,
             "name": "Localhost",
@@ -121,6 +115,12 @@ describe('config', () => {
               },
             },
           },
+          "key": "webSocket",
+          "name": "Mock Transport",
+          "request": [Function],
+          "type": "webSocket",
+        },
+        "value": {
           "getSocket": [Function],
           "subscribe": [Function],
         },
@@ -137,12 +137,6 @@ describe('config', () => {
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "webSocket",
-          "name": "WebSocket JSON-RPC",
-          "request": [Function],
-          "type": "webSocket",
-        },
-        "value": {
           "chain": {
             "id": 1337,
             "name": "Localhost",
@@ -160,6 +154,12 @@ describe('config', () => {
               },
             },
           },
+          "key": "webSocket",
+          "name": "WebSocket JSON-RPC",
+          "request": [Function],
+          "type": "webSocket",
+        },
+        "value": {
           "getSocket": [Function],
           "subscribe": [Function],
         },

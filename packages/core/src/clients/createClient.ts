@@ -7,6 +7,7 @@ export type Client<
   TTransport extends Transport = Transport,
   TRequests extends BaseRpcRequests = Requests,
 > = {
+  chain?: TTransport['config']['chain']
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -58,11 +59,12 @@ export function createClient<
 ): Client<TTransport, TRequests> {
   const { config, value } = transport
   return {
-    transport: { ...config, ...value },
+    chain: config.chain,
     key,
     name,
     pollingInterval,
     request: buildRequest(config.request),
+    transport: { ...config, ...value },
     type,
     uid: uid(),
   }

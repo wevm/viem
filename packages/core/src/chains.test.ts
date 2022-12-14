@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import * as chains from './chains'
 
@@ -238,6 +238,39 @@ test('exports chains', () => {
         },
         "testnet": true,
       },
+      "celo": {
+        "formatters": {
+          "block": {
+            "difficulty": [Function],
+            "gasLimit": [Function],
+            "mixHash": [Function],
+            "nonce": [Function],
+            "randomness": [Function],
+            "uncles": [Function],
+          },
+          "transaction": {
+            "feeCurrency": [Function],
+            "gatewayFee": [Function],
+            "gatewayFeeRecipient": [Function],
+          },
+        },
+        "id": 42220,
+        "name": "Celo",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Celo",
+          "symbol": "CELO",
+        },
+        "network": "celo",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://rpc.ankr.com/celo",
+            ],
+          },
+        },
+      },
+      "defineChain": [Function],
       "fantom": {
         "blockExplorers": {
           "default": {
@@ -705,4 +738,73 @@ test('exports chains', () => {
       },
     }
   `)
+})
+
+describe('defineChain', () => {
+  test('default', () => {
+    expect(
+      chains.defineChain({
+        id: 42220,
+        name: 'Celo',
+        network: 'celo',
+        nativeCurrency: { name: 'Celo', symbol: 'CELO', decimals: 18 },
+        rpcUrls: {
+          default: { http: ['https://rpc.ankr.com/celo'] },
+        },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "id": 42220,
+        "name": "Celo",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Celo",
+          "symbol": "CELO",
+        },
+        "network": "celo",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://rpc.ankr.com/celo",
+            ],
+          },
+        },
+      }
+    `)
+  })
+
+  test('args: formatters', () => {
+    const { block, transaction } = chains.celo.formatters!
+
+    expect(
+      block.randomness({
+        randomness: { committed: '0x0', revealed: '0x0' },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "committed": "0x0",
+        "revealed": "0x0",
+      }
+    `)
+    expect(block.difficulty()).toBeUndefined()
+    expect(block.gasLimit()).toBeUndefined()
+    expect(block.mixHash()).toBeUndefined()
+    expect(block.nonce()).toBeUndefined()
+    expect(block.uncles()).toBeUndefined()
+
+    expect(
+      transaction.feeCurrency({ feeCurrency: '0x1' }),
+    ).toMatchInlineSnapshot('"0x1"')
+    expect(transaction.gatewayFee({ gatewayFee: '0x1' })).toMatchInlineSnapshot(
+      '1n',
+    )
+    expect(transaction.gatewayFee({ gatewayFee: null })).toMatchInlineSnapshot(
+      'null',
+    )
+    expect(
+      transaction.gatewayFeeRecipient({
+        gatewayFeeRecipient: '0x1',
+      }),
+    ).toMatchInlineSnapshot('"0x1"')
+  })
 })

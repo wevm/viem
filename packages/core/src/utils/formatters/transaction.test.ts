@@ -1,23 +1,20 @@
 import { expect, test } from 'vitest'
 
-import {
-  deserializeTransactionResult,
-  transactionType,
-} from './deserializeTransactionResult'
+import { formatTransaction, transactionType } from './transaction'
 
 test('transactionType', () => {
   expect(transactionType).toMatchInlineSnapshot(`
     {
-      "eip1559": "0x2",
-      "eip2930": "0x1",
-      "legacy": "0x0",
+      "0x0": "legacy",
+      "0x1": "eip2930",
+      "0x2": "eip1559",
     }
   `)
 })
 
 test('legacy transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: undefined,
       blockHash: '0x1',
       blockNumber: '0x10f2c',
@@ -37,12 +34,11 @@ test('legacy transaction', () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "accessList": undefined,
       "blockHash": "0x1",
       "blockNumber": 69420n,
       "from": "0x1",
       "gas": 69420420n,
-      "gasPrice": 69n,
+      "gasPrice": "0x45",
       "hash": "0x1",
       "input": "0x1",
       "nonce": 1,
@@ -59,7 +55,7 @@ test('legacy transaction', () => {
 
 test('eip2930 transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: [
         {
           address: '0x1',
@@ -98,7 +94,7 @@ test('eip2930 transaction', () => {
       "blockNumber": 69420n,
       "from": "0x1",
       "gas": 69420420n,
-      "gasPrice": 69n,
+      "gasPrice": "0x45",
       "hash": "0x1",
       "input": "0x1",
       "nonce": 1,
@@ -115,7 +111,7 @@ test('eip2930 transaction', () => {
 
 test('eip1559 transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: [
         {
           address: '0x1',
@@ -171,7 +167,7 @@ test('eip1559 transaction', () => {
 
 test('pending transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: [
         {
           address: '0x1',

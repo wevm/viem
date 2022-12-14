@@ -10,8 +10,6 @@ export type WatchBlocksArgs = {
   blockTag?: BlockTag
   /** Whether or not to emit the latest block to the callback when the subscription opens. */
   emitOnBegin?: boolean
-  /** Whether or not to include transaction data in the response. */
-  includeTransactions?: boolean
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
 }
@@ -24,15 +22,10 @@ export function watchBlocks(
   {
     blockTag = 'latest',
     emitOnBegin = false,
-    includeTransactions = false,
     pollingInterval = client.pollingInterval,
   }: WatchBlocksArgs = {},
 ) {
-  const observerId = JSON.stringify([
-    'watchBlocks',
-    client.uid,
-    includeTransactions,
-  ])
+  const observerId = JSON.stringify(['watchBlocks', client.uid])
 
   return observe<WatchBlocksCallback, WatchBlocksResponse>(
     observerId,
@@ -42,7 +35,6 @@ export function watchBlocks(
       () =>
         fetchBlock(client, {
           blockTag,
-          includeTransactions,
         }),
       {
         emitOnBegin,

@@ -34,7 +34,7 @@ export type TransactionReceipt<TQuantity = bigint, TIndex = number> = {
   transactionIndex: TIndex
 }
 
-export type TransactionResultBase<TQuantity = bigint, TIndex = number> = {
+export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: Data | null
   /** Number of block containing this transaction or `null` if pending */
@@ -62,37 +62,37 @@ export type TransactionResultBase<TQuantity = bigint, TIndex = number> = {
   /** Value in wei sent with this transaction */
   value: TQuantity
 }
-export type TransactionResultLegacy<
+export type TransactionLegacy<
   TQuantity = bigint,
   TIndex = number,
   TType = 'legacy',
-> = TransactionResultBase<TQuantity, TIndex> &
+> = TransactionBase<TQuantity, TIndex> &
   FeeValuesLegacy<TQuantity> & {
-    accessList: undefined
+    accessList?: never
     type: TType
   }
-export type TransactionResultEIP2930<
+export type TransactionEIP2930<
   TQuantity = bigint,
   TIndex = number,
   TType = 'eip2930',
-> = TransactionResultBase<TQuantity, TIndex> &
+> = TransactionBase<TQuantity, TIndex> &
   FeeValuesLegacy<TQuantity> & {
     accessList: AccessList
     type: TType
   }
-export type TransactionResultEIP1559<
+export type TransactionEIP1559<
   TQuantity = bigint,
   TIndex = number,
   TType = 'eip1559',
-> = TransactionResultBase<TQuantity, TIndex> &
+> = TransactionBase<TQuantity, TIndex> &
   FeeValuesEIP1559<TQuantity> & {
     accessList: AccessList
     type: TType
   }
-export type TransactionResult<TQuantity = bigint, TIndex = number> =
-  | TransactionResultLegacy<TQuantity, TIndex>
-  | TransactionResultEIP2930<TQuantity, TIndex>
-  | TransactionResultEIP1559<TQuantity, TIndex>
+export type Transaction<TQuantity = bigint, TIndex = number> =
+  | TransactionLegacy<TQuantity, TIndex>
+  | TransactionEIP2930<TQuantity, TIndex>
+  | TransactionEIP1559<TQuantity, TIndex>
 
 export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Contract code or a hashed method call with encoded args */

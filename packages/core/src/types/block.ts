@@ -1,10 +1,7 @@
 import type { Data } from './data'
-import type { TransactionResult } from './transaction'
+import type { Transaction } from './transaction'
 
-export type Block<
-  TQuantity = bigint,
-  TTransactionResult = TransactionResult,
-> = {
+export type Block<TQuantity = bigint, TTransaction = Transaction> = {
   /** Base fee per gas */
   baseFeePerGas: TQuantity | null
   /** Difficulty for this block */
@@ -43,7 +40,7 @@ export type Block<
   /** Total difficulty of the chain until this block */
   totalDifficulty: TQuantity | null
   /** List of transaction objects or hashes */
-  transactions: (Data | TTransactionResult)[]
+  transactions: (Data | TTransaction)[]
   /** Root of this block’s transaction trie */
   transactionsRoot: Data
   /** List of uncle hashes */

@@ -22,6 +22,7 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
+      "chain": undefined,
       "key": "test",
       "mode": "anvil",
       "name": "Test Client",
@@ -47,6 +48,23 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "chain": {
+          "id": 1337,
+          "name": "Localhost",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "network": "localhost",
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
+            },
+          },
+        },
         "key": "test",
         "mode": "anvil",
         "name": "Test Client",
@@ -92,6 +110,23 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "chain": {
+          "id": 1337,
+          "name": "Localhost",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "network": "localhost",
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
+            },
+          },
+        },
         "key": "test",
         "mode": "anvil",
         "name": "Test Client",

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test } from 'vitest'
 
 import {
   accounts,
@@ -13,6 +13,9 @@ import { sendTransaction } from '../transaction'
 import { mine } from '../test'
 import { setBalance } from '../test/setBalance'
 import { TransactionNotFoundError, fetchTransaction } from './fetchTransaction'
+import type { Address, Transaction } from '../../types'
+import { createPublicClient, http } from '../../clients'
+import { celo } from '../../chains'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -37,25 +40,28 @@ test('fetches transaction', async () => {
     blockTag: 'latest',
     index: 0,
   })
+  assertType<Transaction>(transaction)
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
     [
+      "hash",
+      "nonce",
       "blockHash",
       "blockNumber",
+      "transactionIndex",
       "from",
+      "to",
+      "value",
+      "gasPrice",
       "gas",
-      "hash",
       "input",
-      "nonce",
+      "v",
       "r",
       "s",
-      "to",
-      "transactionIndex",
-      "v",
-      "value",
-      "accessList",
-      "maxFeePerGas",
-      "maxPriorityFeePerGas",
       "type",
+      "accessList",
+      "maxPriorityFeePerGas",
+      "maxFeePerGas",
+      "chainId",
     ]
   `)
   expect(transaction.type).toMatchInlineSnapshot('"eip1559"')
@@ -95,22 +101,22 @@ test('fetches transaction (legacy)', async () => {
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
     [
+      "hash",
+      "nonce",
       "blockHash",
       "blockNumber",
+      "transactionIndex",
       "from",
+      "to",
+      "value",
+      "gasPrice",
       "gas",
-      "hash",
       "input",
-      "nonce",
+      "v",
       "r",
       "s",
-      "to",
-      "transactionIndex",
-      "v",
-      "value",
-      "accessList",
-      "gasPrice",
       "type",
+      "chainId",
     ]
   `)
   expect(transaction.type).toMatchInlineSnapshot('"legacy"')
@@ -151,22 +157,23 @@ test('fetches transaction (eip2930)', async () => {
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
     [
+      "hash",
+      "nonce",
       "blockHash",
       "blockNumber",
+      "transactionIndex",
       "from",
+      "to",
+      "value",
+      "gasPrice",
       "gas",
-      "hash",
       "input",
-      "nonce",
+      "v",
       "r",
       "s",
-      "to",
-      "transactionIndex",
-      "v",
-      "value",
-      "accessList",
-      "gasPrice",
       "type",
+      "accessList",
+      "chainId",
     ]
   `)
   expect(transaction.type).toMatchInlineSnapshot('"eip2930"')
@@ -179,6 +186,49 @@ test('fetches transaction (eip2930)', async () => {
     '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
   )
   expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
+})
+
+test('chain w/ custom block type', async () => {
+  const client = createPublicClient(
+    http({
+      chain: celo,
+    }),
+  )
+
+  const transaction = await fetchTransaction(client, {
+    blockNumber: 16628100n,
+    index: 0,
+  })
+  assertType<
+    Transaction & {
+      feeCurrency: Address | null
+      gatewayFee: bigint | null
+      gatewayFeeRecipient: Address | null
+    }
+  >(transaction)
+  expect(transaction).toMatchInlineSnapshot(`
+    {
+      "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",
+      "blockNumber": 16628100n,
+      "ethCompatible": false,
+      "feeCurrency": null,
+      "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
+      "gas": 1527520n,
+      "gasPrice": "0xb2cb8b7e",
+      "gatewayFee": 0n,
+      "gatewayFeeRecipient": null,
+      "hash": "0x55678b68cc086d5b9739bb28748b492db030d001d9eb59001cc2d1f7a3305d17",
+      "input": "0x389ec778",
+      "nonce": 697201,
+      "r": "0xf507fb8fa33ffd05a7f26c980bbb8271aa113affc8f192feba87abe26549bda1",
+      "s": "0x7971c7b15ab4475ce6256da0bdf62ca1d1e491be8a03fe7637289f98c166f521",
+      "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
+      "transactionIndex": 0,
+      "type": "legacy",
+      "v": 84475n,
+      "value": 0n,
+    }
+  `)
 })
 
 describe('args: hash', () => {
@@ -221,7 +271,7 @@ describe('args: hash', () => {
 describe('args: blockHash', () => {
   test('blockHash: fetches transaction by block hash & index', async () => {
     const { hash: blockHash } = await fetchBlock(publicClient, {
-      blockNumber: initialBlockNumber - 69,
+      blockNumber: initialBlockNumber - 69n,
     })
 
     if (!blockHash) throw new Error('no block hash found')
@@ -242,7 +292,7 @@ describe('args: blockHash', () => {
 
   test('blockHash: throws if transaction not found', async () => {
     const { hash: blockHash } = await fetchBlock(publicClient, {
-      blockNumber: initialBlockNumber - 69,
+      blockNumber: initialBlockNumber - 69n,
     })
     if (!blockHash) throw new Error('no block hash found')
 
@@ -258,7 +308,7 @@ describe('args: blockHash', () => {
 describe('args: blockNumber', () => {
   test('fetches transaction by block number & index', async () => {
     const transaction = await fetchTransaction(publicClient, {
-      blockNumber: initialBlockNumber - 420,
+      blockNumber: initialBlockNumber - 420n,
       index: 5,
     })
     expect(transaction.from).toMatchInlineSnapshot(
@@ -275,7 +325,7 @@ describe('args: blockNumber', () => {
   test('throws if transaction not found', async () => {
     await expect(
       fetchTransaction(publicClient, {
-        blockNumber: initialBlockNumber - 420,
+        blockNumber: initialBlockNumber - 420n,
         index: 420,
       }),
     ).rejects.toThrowError(
@@ -315,7 +365,7 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockNumber', async () => {
-    expect(new TransactionNotFoundError({ blockNumber: 42069, index: 420 }))
+    expect(new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }))
       .toMatchInlineSnapshot(`
         [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 

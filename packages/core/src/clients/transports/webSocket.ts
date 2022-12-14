@@ -41,10 +41,10 @@ export type WebSocketTransportConfig<TChain extends Chain = Chain> = {
 export type WebSocketTransport<TChain extends Chain = Chain> = Transport<
   'webSocket',
   {
-    chain: TChain
     getSocket(): Promise<WebSocket>
     subscribe: WebSocketTransportSubscribe['subscribe']
-  }
+  },
+  TChain
 >
 
 /**
@@ -58,6 +58,7 @@ export function webSocket<TChain extends Chain = Chain>({
 }: WebSocketTransportConfig<TChain>): WebSocketTransport<TChain> {
   return createTransport(
     {
+      chain,
       key,
       name,
       async request({ method, params }) {
@@ -70,7 +71,6 @@ export function webSocket<TChain extends Chain = Chain>({
       type: 'webSocket',
     },
     {
-      chain,
       getSocket() {
         return getSocket(url)
       },
