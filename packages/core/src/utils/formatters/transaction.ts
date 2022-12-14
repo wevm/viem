@@ -7,6 +7,10 @@ import { hexToNumber } from '../number'
 export type TransactionFormatter<TChain extends Chain = Chain> =
   ExtractFormatter<TChain, 'transaction'>
 
+type FormatTransactionOptions = {
+  formatter?: FormatOptions<RpcTransaction, Transaction>['formatter']
+}
+
 export type FormattedTransaction<
   TFormatter extends Formatter | undefined = Formatter,
 > = Formatted<RpcTransaction, Transaction, TFormatter>
@@ -21,11 +25,7 @@ export function formatTransaction<
   TFormatter extends Formatter | undefined = Formatter,
 >(
   transaction_: RpcTransaction,
-  {
-    formatter,
-  }: {
-    formatter?: FormatOptions<RpcTransaction, Transaction>['formatter']
-  } = {},
+  { formatter }: FormatTransactionOptions = {},
 ): FormattedTransaction<TFormatter> {
   const transaction = format<RpcTransaction, Transaction, TFormatter>(
     transaction_,

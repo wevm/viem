@@ -8,6 +8,10 @@ export type BlockFormatter<TChain extends Chain = Chain> = ExtractFormatter<
   'block'
 >
 
+type FormatBlockOptions = {
+  formatter?: FormatOptions<RpcBlock, Block>['formatter']
+}
+
 export type FormattedBlock<
   TFormatter extends Formatter | undefined = Formatter,
 > = Formatted<RpcBlock, Block, TFormatter>
@@ -16,9 +20,7 @@ export function formatBlock<
   TFormatter extends Formatter | undefined = Formatter,
 >(
   block: RpcBlock,
-  {
-    formatter,
-  }: { formatter?: FormatOptions<RpcBlock, Block>['formatter'] } = {},
+  { formatter }: FormatBlockOptions = {},
 ): FormattedBlock<TFormatter> {
   return format<RpcBlock, Block, TFormatter>(block, {
     replacer: {
