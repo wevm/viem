@@ -38,17 +38,24 @@ export type FormatOptions<TSource, TTarget> = {
  * Formatted<{ a: `0x${string}`, b: number }, { a: bigint }, { a: () => number }>
  * => { a: number, b: number }
  */
-export type Formatted<TSource, TTarget, TFormatter> =
-  TFormatter extends Formatter<TSource>
-    ? // If the attribute exists on the Target type (e.g. Block) AND Formatter type, then use the Formatter attribute.
-      MergeIntersectionProperties<TTarget, MapReturnTypes<TFormatter>> &
-        // If Formatter attributes exist, attach them; otherwise attach the Target type (e.g. Block).
-        (OptionalProperties<
-          NonEmptyProperties<MapReturnTypes<TFormatter>>
-        > extends Record<string, never>
-          ? TTarget
-          : OptionalProperties<NonEmptyProperties<MapReturnTypes<TFormatter>>>)
-    : never
+export type Formatted<
+  TSource,
+  TTarget,
+  TFormatter,
+  TAllowOptional = false,
+> = TFormatter extends Formatter<TSource>
+  ? // If the attribute exists on the Target type (e.g. Block) AND Formatter type, then use the Formatter attribute.
+    MergeIntersectionProperties<TTarget, MapReturnTypes<TFormatter>> &
+      // If Formatter attributes exist, attach them; otherwise attach the Target type (e.g. Block).
+      (NonEmptyProperties<MapReturnTypes<TFormatter>> extends Record<
+        string,
+        never
+      >
+        ? TTarget
+        : TAllowOptional extends true
+        ? OptionalProperties<NonEmptyProperties<MapReturnTypes<TFormatter>>>
+        : NonEmptyProperties<MapReturnTypes<TFormatter>>)
+  : never
 
 /**
  * @description Formats a data object using the given replacer and an optional formatter.

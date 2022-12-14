@@ -6,7 +6,7 @@ import { BaseError, formatTransactionRequest } from '../../utils'
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
-> = Formatted<TransactionRequest, TransactionRequest, TFormatter>
+> = Formatted<TransactionRequest, TransactionRequest, TFormatter, true>
 
 export type SendTransactionArgs<TChain extends Chain = Chain> = {
   chain?: TChain
