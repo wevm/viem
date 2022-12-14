@@ -26,15 +26,20 @@ export type {
   BlockFormatter,
   FormattedBlock,
   FormattedTransaction,
+  FormattedTransactionRequest,
   TransactionFormatter,
+  TransactionRequestFormatter,
 } from './formatters'
-export { formatBlock, formatTransaction, transactionType } from './formatters'
+export {
+  formatBlock,
+  formatTransaction,
+  formatTransactionRequest,
+  transactionType,
+} from './formatters'
 
 export { hexToNumber, numberToHex } from './number'
 
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
-
-export { serializeTransactionRequest } from './transaction'
 
 export {
   displayToValue,

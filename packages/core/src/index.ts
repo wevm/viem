@@ -96,6 +96,11 @@ export type {
   Uncle,
 } from './types'
 
+export type {
+  FormattedBlock,
+  FormattedTransaction,
+  FormattedTransactionRequest,
+} from './utils'
 export {
   BaseError,
   HttpRequestError,
@@ -120,11 +125,11 @@ export {
   etherUnits,
   formatBlock,
   formatTransaction,
+  formatTransactionRequest,
   gweiToValue,
   gweiUnits,
   hexToNumber,
   numberToHex,
-  serializeTransactionRequest,
   transactionType,
   valueAsEther,
   valueAsGwei,

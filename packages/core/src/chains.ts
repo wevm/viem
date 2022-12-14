@@ -29,7 +29,9 @@ import type {
   Quantity,
   RpcBlock,
   RpcTransaction,
+  RpcTransactionRequest,
   Transaction,
+  TransactionRequest,
 } from './types'
 
 export type Formatter<TSource = any, TTarget = any> = Partial<{
@@ -41,6 +43,7 @@ export type Formatter<TSource = any, TTarget = any> = Partial<{
 export type Formatters = {
   block?: Formatter<RpcBlock, Block>
   transaction?: Formatter<RpcTransaction, Transaction>
+  transactionRequest?: Formatter<RpcTransactionRequest, TransactionRequest>
 }
 
 export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
@@ -81,6 +84,17 @@ export const celo = defineChain({
       uncles: () => undefined,
     },
     transaction: {
+      feeCurrency: ({ feeCurrency }: { feeCurrency: Address | null }) =>
+        feeCurrency,
+      gatewayFee: ({ gatewayFee }: { gatewayFee: Quantity | null }) =>
+        gatewayFee ? BigInt(gatewayFee) : null,
+      gatewayFeeRecipient: ({
+        gatewayFeeRecipient,
+      }: {
+        gatewayFeeRecipient: Address | null
+      }) => gatewayFeeRecipient,
+    },
+    transactionRequest: {
       feeCurrency: ({ feeCurrency }: { feeCurrency: Address | null }) =>
         feeCurrency,
       gatewayFee: ({ gatewayFee }: { gatewayFee: Quantity | null }) =>

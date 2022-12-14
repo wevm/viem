@@ -37,7 +37,6 @@ export function format<
     const key_ = key as keyof TSource
     const formatter_ = formatter?.[key_] || replacer[key_]
     acc[key_] = formatter_ ? formatter_?.(data) : value
-    if (typeof acc[key_] === 'undefined') delete acc[key_]
     return acc
   }, data) as unknown as Formatted<TSource, TTarget, TFormatter>
 }

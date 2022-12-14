@@ -774,7 +774,7 @@ describe('defineChain', () => {
   })
 
   test('args: formatters', () => {
-    const { block, transaction } = chains.celo.formatters!
+    const { block, transaction, transactionRequest } = chains.celo.formatters!
 
     expect(
       block.randomness({
@@ -803,6 +803,21 @@ describe('defineChain', () => {
     )
     expect(
       transaction.gatewayFeeRecipient({
+        gatewayFeeRecipient: '0x1',
+      }),
+    ).toMatchInlineSnapshot('"0x1"')
+
+    expect(
+      transactionRequest.feeCurrency({ feeCurrency: '0x1' }),
+    ).toMatchInlineSnapshot('"0x1"')
+    expect(
+      transactionRequest.gatewayFee({ gatewayFee: '0x1' }),
+    ).toMatchInlineSnapshot('1n')
+    expect(
+      transactionRequest.gatewayFee({ gatewayFee: null }),
+    ).toMatchInlineSnapshot('null')
+    expect(
+      transactionRequest.gatewayFeeRecipient({
         gatewayFeeRecipient: '0x1',
       }),
     ).toMatchInlineSnapshot('"0x1"')

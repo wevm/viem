@@ -1,6 +1,6 @@
 import type { WalletClient } from '../../clients'
 import type { TransactionRequest } from '../../types'
-import { BaseError, serializeTransactionRequest } from '../../utils'
+import { BaseError, formatTransactionRequest } from '../../utils'
 
 export type SendTransactionArgs = {
   request: TransactionRequest
@@ -19,11 +19,9 @@ export async function sendTransaction(
   )
     throw new InvalidGasArgumentsError()
 
-  const rpcRequest = serializeTransactionRequest(request)
-
   const hash = await client.request({
     method: 'eth_sendTransaction',
-    params: [rpcRequest],
+    params: [formatTransactionRequest(request)],
   })
   return { hash }
 }
