@@ -109,6 +109,7 @@ test('args: formatter', () => {
   ).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": null,
+      "difficulty": undefined,
       "extraData": "0x",
       "gasLimit": 29999943n,
       "gasUsed": 0n,

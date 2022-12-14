@@ -33,6 +33,7 @@ test('exports utils', () => {
       "format": [Function],
       "formatBlock": [Function],
       "formatTransaction": [Function],
+      "formatTransactionRequest": [Function],
       "gweiToValue": [Function],
       "gweiUnits": {
         "ether": -9,
@@ -45,7 +46,6 @@ test('exports utils', () => {
         "webSocket": [Function],
         "webSocketAsync": [Function],
       },
-      "serializeTransactionRequest": [Function],
       "transactionType": {
         "0x0": "legacy",
         "0x1": "eip2930",

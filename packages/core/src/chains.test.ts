@@ -253,6 +253,11 @@ test('exports chains', () => {
             "gatewayFee": [Function],
             "gatewayFeeRecipient": [Function],
           },
+          "transactionRequest": {
+            "feeCurrency": [Function],
+            "gatewayFee": [Function],
+            "gatewayFeeRecipient": [Function],
+          },
         },
         "id": 42220,
         "name": "Celo",
