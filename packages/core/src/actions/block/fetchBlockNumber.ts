@@ -1,6 +1,6 @@
 import type { PublicClient } from '../../clients'
 
-export type FetchBlockNumberResponse = number
+export type FetchBlockNumberResponse = bigint
 
 export async function fetchBlockNumber(
   rpc: PublicClient,
@@ -8,5 +8,5 @@ export async function fetchBlockNumber(
   const blockNumber = await rpc.request({
     method: 'eth_blockNumber',
   })
-  return Number(BigInt(blockNumber))
+  return BigInt(blockNumber)
 }

@@ -6,7 +6,7 @@ export type FetchBalanceArgs = {
   address: Address
 } & (
   | {
-      blockNumber?: number
+      blockNumber?: bigint
       blockTag?: never
     }
   | {

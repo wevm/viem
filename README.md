@@ -8,3 +8,9 @@
 <p align="center">
   TypeScript Interface for Ethereum
 <p>
+
+<p align="center">
+  <a href="https://codecov.io/github/wagmi-dev/viem" >
+    <img src="https://codecov.io/github/wagmi-dev/viem/branch/main/graph/badge.svg?token=iUTN9R4Qfg"/>
+  </a>
+</p>
