@@ -15,6 +15,28 @@ export type FormatOptions<TSource, TTarget> = {
   replacer: Formatter<TSource, TTarget>
 }
 
+/**
+ * The type of the object that results from applying `TFormatter` to
+ * the `TSource` and merging it with the `TTarget`.
+ *
+ * If `TFormatter` has properties that exist on the `TTarget`, those properties
+ * will be overwritten by the `TFormatter` properties.
+ *
+ * If `TFormatter` has no properties, then the result will be the same
+ * as the `TTarget` object.
+ *
+ * @example
+ * Formatted<{ a: `0x${string}`, b: number }, { a: bigint }, { a: () => undefined }>
+ * => { a: undefined, b: number }
+ *
+ * @example
+ * Formatted<{ a: `0x${string}`, b: number }, { a: bigint }, { c: () => boolean }>
+ * => { a: bigint, b: number, c: boolean }
+ *
+ * @example
+ * Formatted<{ a: `0x${string}`, b: number }, { a: bigint }, { a: () => number }>
+ * => { a: number, b: number }
+ */
 export type Formatted<TSource, TTarget, TFormatter> =
   TFormatter extends Formatter<TSource>
     ? // If the attribute exists on the Target type (e.g. Block) AND Formatter type, then use the Formatter attribute.
@@ -28,6 +50,9 @@ export type Formatted<TSource, TTarget, TFormatter> =
           : NonEmptyProperties<MapReturnTypes<TFormatter>>)
     : never
 
+/**
+ * @description Formats a data object using the given replacer and an optional formatter.
+ */
 export function format<
   TSource extends Record<string, any>,
   TTarget,
