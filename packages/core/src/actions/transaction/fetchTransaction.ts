@@ -48,7 +48,7 @@ export type FetchTransactionArgs =
 export type FetchTransactionResponse<TChain extends Chain = Chain> =
   FormattedTransaction<TransactionFormatter<TChain>>
 
-  /** @description Returns information about a transaction given a hash or block identifier. */
+/** @description Returns information about a transaction given a hash or block identifier. */
 export async function fetchTransaction<TChain extends Chain>(
   client: PublicClient<any, TChain>,
   {
