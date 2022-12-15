@@ -140,11 +140,11 @@ test('chain w/ custom block type', async () => {
       chain: celo,
     }),
   )
-
   const transaction = await fetchTransaction(client, {
     blockNumber: 16628100n,
     index: 0,
   })
+
   assertType<
     Transaction & {
       feeCurrency: Address | null

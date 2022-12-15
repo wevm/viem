@@ -59,13 +59,16 @@ export function defineChain<TFormatters extends Formatters = Formatters>(
   return { ...chain }
 }
 
-function defineChainType<TSource extends Record<string, unknown>, TFormatted>({
+function defineFormatter<TSource extends Record<string, unknown>, TFormatted>({
   format,
 }: {
   format: (data: TSource) => TFormatted
 }) {
   return <
-      TFormat extends Formatter<TSource>,
+      TFormat extends Formatter<
+        TSource,
+        TFormatted & { [key: string]: unknown }
+      >,
       TExclude extends (keyof TSource)[] = [],
     >({
       exclude,
@@ -91,9 +94,9 @@ function defineChainType<TSource extends Record<string, unknown>, TFormatted>({
     }
 }
 
-const defineBlock = defineChainType({ format: formatBlock })
-const defineTransaction = defineChainType({ format: formatTransaction })
-const defineTransactionRequest = defineChainType({
+const defineBlock = defineFormatter({ format: formatBlock })
+const defineTransaction = defineFormatter({ format: formatTransaction })
+const defineTransactionRequest = defineFormatter({
   format: formatTransactionRequest,
 })
 
