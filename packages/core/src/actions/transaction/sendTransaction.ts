@@ -1,16 +1,29 @@
+import type { Chain, Formatter } from '../../chains'
 import type { WalletClient } from '../../clients'
-import type { TransactionRequest } from '../../types'
-import { BaseError, serializeTransactionRequest } from '../../utils'
+import type {
+  MergeIntersectionProperties,
+  TransactionRequest,
+} from '../../types'
+import type { Formatted, TransactionRequestFormatter } from '../../utils'
+import { BaseError, format, formatTransactionRequest } from '../../utils'
 
-export type SendTransactionArgs = {
-  request: TransactionRequest
+export type FormattedTransactionRequest<
+  TFormatter extends Formatter | undefined = Formatter,
+> = MergeIntersectionProperties<
+  Formatted<TFormatter, TransactionRequest, true>,
+  TransactionRequest
+>
+
+export type SendTransactionArgs<TChain extends Chain = Chain> = {
+  chain?: TChain
+  request: FormattedTransactionRequest<TransactionRequestFormatter<TChain>>
 }
 
 export type SendTransactionResponse = { hash: `0x${string}` }
 
-export async function sendTransaction(
+export async function sendTransaction<TChain extends Chain>(
   client: WalletClient,
-  { request }: SendTransactionArgs,
+  { chain, request }: SendTransactionArgs<TChain>,
 ): Promise<SendTransactionResponse> {
   if (
     request.maxFeePerGas !== undefined &&
@@ -19,11 +32,16 @@ export async function sendTransaction(
   )
     throw new InvalidGasArgumentsError()
 
-  const rpcRequest = serializeTransactionRequest(request)
+  // TODO: validate `chain`
+
+  const request_ = format(request as TransactionRequest, {
+    formatter:
+      chain?.formatters?.transactionRequest || formatTransactionRequest,
+  })
 
   const hash = await client.request({
     method: 'eth_sendTransaction',
-    params: [rpcRequest],
+    params: [request_],
   })
   return { hash }
 }

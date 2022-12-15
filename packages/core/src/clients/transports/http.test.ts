@@ -13,12 +13,6 @@ test('default', () => {
   expect(transport).toMatchInlineSnapshot(`
     {
       "config": {
-        "key": "http",
-        "name": "HTTP JSON-RPC",
-        "request": [Function],
-        "type": "http",
-      },
-      "value": {
         "chain": {
           "id": 1337,
           "name": "Localhost",
@@ -36,6 +30,12 @@ test('default', () => {
             },
           },
         },
+        "key": "http",
+        "name": "HTTP JSON-RPC",
+        "request": [Function],
+        "type": "http",
+      },
+      "value": {
         "url": "http://127.0.0.1:8545",
       },
     }
@@ -52,12 +52,6 @@ describe('config', () => {
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "mock",
-          "name": "HTTP JSON-RPC",
-          "request": [Function],
-          "type": "http",
-        },
-        "value": {
           "chain": {
             "id": 1337,
             "name": "Localhost",
@@ -75,6 +69,12 @@ describe('config', () => {
               },
             },
           },
+          "key": "mock",
+          "name": "HTTP JSON-RPC",
+          "request": [Function],
+          "type": "http",
+        },
+        "value": {
           "url": "http://127.0.0.1:8545",
         },
       }
@@ -90,12 +90,6 @@ describe('config', () => {
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "http",
-          "name": "Mock Transport",
-          "request": [Function],
-          "type": "http",
-        },
-        "value": {
           "chain": {
             "id": 1337,
             "name": "Localhost",
@@ -113,6 +107,12 @@ describe('config', () => {
               },
             },
           },
+          "key": "http",
+          "name": "Mock Transport",
+          "request": [Function],
+          "type": "http",
+        },
+        "value": {
           "url": "http://127.0.0.1:8545",
         },
       }
@@ -128,12 +128,6 @@ describe('config', () => {
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "http",
-          "name": "HTTP JSON-RPC",
-          "request": [Function],
-          "type": "http",
-        },
-        "value": {
           "chain": {
             "id": 1337,
             "name": "Localhost",
@@ -151,6 +145,12 @@ describe('config', () => {
               },
             },
           },
+          "key": "http",
+          "name": "HTTP JSON-RPC",
+          "request": [Function],
+          "type": "http",
+        },
+        "value": {
           "url": "https://mockapi.com/rpc",
         },
       }

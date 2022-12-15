@@ -10,9 +10,9 @@ import type {
   RpcFeeValues as FeeValues,
   RpcLog as Log,
   Quantity,
+  RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
-  RpcTransactionResult as TransactionResult,
   RpcUncle as Uncle,
 } from './rpc'
 
@@ -428,7 +428,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getTransactionByBlockHashAndIndex'
     params: [hash: Data, index: Quantity]
-  }): Promise<TransactionResult | null>
+  }): Promise<Transaction | null>
   request(args: {
     /**
      * @description Returns information about a transaction specified by block number and transaction index
@@ -439,7 +439,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getTransactionByBlockNumberAndIndex'
     params: [block: BlockNumber | BlockTag, index: Quantity]
-  }): Promise<TransactionResult | null>
+  }): Promise<Transaction | null>
   request(args: {
     /**
      * @description Returns information about a transaction specified by hash
@@ -450,7 +450,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getTransactionByHash'
     params: [hash: Data]
-  }): Promise<TransactionResult | null>
+  }): Promise<Transaction | null>
   request(args: {
     /**
      * @description Returns the number of transactions sent from an address

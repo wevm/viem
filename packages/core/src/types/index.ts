@@ -30,7 +30,7 @@ export type {
   RpcLog,
   RpcTransactionReceipt,
   RpcTransactionRequest,
-  RpcTransactionResult,
+  RpcTransaction,
   RpcUncle,
 } from './rpc'
 
@@ -42,11 +42,15 @@ export type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
-  TransactionResult,
-  TransactionResultBase,
-  TransactionResultEIP1559,
-  TransactionResultEIP2930,
-  TransactionResultLegacy,
+  Transaction,
+  TransactionBase,
+  TransactionEIP1559,
+  TransactionEIP2930,
+  TransactionLegacy,
 } from './transaction'
 
-export type { PartialBy } from './utils'
+export type {
+  PartialBy,
+  MergeIntersectionProperties,
+  OptionalNullable,
+} from './utils'

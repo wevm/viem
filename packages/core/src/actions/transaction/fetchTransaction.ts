@@ -1,17 +1,16 @@
-import type { PublicClient } from '../../clients'
+import type { Chain } from '../../chains'
+import type { PublicClient, Transport } from '../../clients'
+import type { BlockTag, Data, RpcTransaction } from '../../types'
+import { BaseError, format, numberToHex } from '../../utils'
 import type {
-  BlockTag,
-  Data,
-  RpcTransactionResult,
-  TransactionResult,
-} from '../../types'
-import {
-  BaseError,
-  deserializeTransactionResult,
-  numberToHex,
-} from '../../utils'
+  FormattedTransaction,
+  TransactionFormatter,
+} from '../../utils/formatters/transaction'
+import { formatTransaction } from '../../utils/formatters/transaction'
 
-export type FetchTransactionArgs =
+export type FetchTransactionArgs<TChain extends Chain = Chain> = {
+  chain?: TChain
+} & (
   | {
       blockHash: Data
       blockNumber?: never
@@ -40,23 +39,26 @@ export type FetchTransactionArgs =
       hash: Data
       index?: number
     }
+)
 
-export type FetchTransactionResponse = TransactionResult
+export type FetchTransactionResponse<TChain extends Chain = Chain> =
+  FormattedTransaction<TransactionFormatter<TChain>>
 
-export async function fetchTransaction(
-  client: PublicClient,
+export async function fetchTransaction<TChain extends Chain>(
+  client: PublicClient<Transport<any, any, TChain>>,
   {
     blockHash,
     blockNumber,
     blockTag = 'latest',
+    chain = client.chain,
     hash,
     index,
-  }: FetchTransactionArgs,
-): Promise<FetchTransactionResponse> {
+  }: FetchTransactionArgs<TChain>,
+): Promise<FetchTransactionResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  let transaction: RpcTransactionResult | null = null
+  let transaction: RpcTransaction | null = null
   if (hash) {
     transaction = await client.request({
       method: 'eth_getTransactionByHash',
@@ -82,7 +84,10 @@ export async function fetchTransaction(
       hash,
       index,
     })
-  return deserializeTransactionResult(transaction)
+
+  return format(transaction, {
+    formatter: chain?.formatters?.transaction || formatTransaction,
+  })
 }
 
 ///////////////////////////////////////////////////////

@@ -1,11 +1,10 @@
-import type { PublicClient } from '../../clients'
-import type { Block, BlockTag, Data, RpcBlock } from '../../types'
-import { BaseError, deserializeBlock, numberToHex } from '../../utils'
+import type { Chain } from '../../chains'
+import type { PublicClient, Transport } from '../../clients'
+import type { BlockTag, Data, RpcBlock } from '../../types'
+import type { BlockFormatter, FormattedBlock } from '../../utils'
+import { BaseError, format, formatBlock, numberToHex } from '../../utils'
 
-export type FetchBlockArgs = {
-  /** Whether or not to include transaction data in the response. */
-  includeTransactions?: boolean
-} & (
+export type FetchBlockArgs =
   | {
       /** Hash of the block. */
       blockHash?: Data
@@ -24,19 +23,15 @@ export type FetchBlockArgs = {
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag
     }
-)
 
-export type FetchBlockResponse = Block
+export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
+  BlockFormatter<TChain>
+>
 
-export async function fetchBlock(
-  client: PublicClient,
-  {
-    blockHash,
-    blockNumber,
-    blockTag = 'latest',
-    includeTransactions = false,
-  }: FetchBlockArgs = {},
-): Promise<FetchBlockResponse> {
+export async function fetchBlock<TChain extends Chain>(
+  client: PublicClient<Transport<any, any, TChain>>,
+  { blockHash, blockNumber, blockTag = 'latest' }: FetchBlockArgs = {},
+): Promise<FetchBlockResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
@@ -44,17 +39,20 @@ export async function fetchBlock(
   if (blockHash) {
     block = await client.request({
       method: 'eth_getBlockByHash',
-      params: [blockHash, includeTransactions],
+      params: [blockHash, false],
     })
   } else {
     block = await client.request({
       method: 'eth_getBlockByNumber',
-      params: [blockNumberHex || blockTag, includeTransactions],
+      params: [blockNumberHex || blockTag, false],
     })
   }
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
-  return deserializeBlock(block)
+
+  return format(block, {
+    formatter: client.chain?.formatters?.block || formatBlock,
+  })
 }
 
 ///////////////////////////////////////////////////////

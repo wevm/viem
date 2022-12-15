@@ -17,9 +17,9 @@ export type HttpTransportConfig<TChain extends Chain = Chain> = {
 export type HttpTransport<TChain extends Chain = Chain> = Transport<
   'http',
   {
-    chain: TChain
     url: string
-  }
+  },
+  TChain
 >
 
 /**
@@ -33,6 +33,7 @@ export function http<TChain extends Chain = Chain>({
 }: HttpTransportConfig<TChain>): HttpTransport<TChain> {
   return createTransport(
     {
+      chain,
       key,
       name,
       async request({ method, params }) {
@@ -47,7 +48,6 @@ export function http<TChain extends Chain = Chain>({
       type: 'http',
     },
     {
-      chain,
       url,
     },
   )

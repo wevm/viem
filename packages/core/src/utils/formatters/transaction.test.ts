@@ -1,23 +1,20 @@
 import { expect, test } from 'vitest'
 
-import {
-  deserializeTransactionResult,
-  transactionType,
-} from './deserializeTransactionResult'
+import { formatTransaction, transactionType } from './transaction'
 
 test('transactionType', () => {
   expect(transactionType).toMatchInlineSnapshot(`
     {
-      "eip1559": "0x2",
-      "eip2930": "0x1",
-      "legacy": "0x0",
+      "0x0": "legacy",
+      "0x1": "eip2930",
+      "0x2": "eip1559",
     }
   `)
 })
 
 test('legacy transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: undefined,
       blockHash: '0x1',
       blockNumber: '0x10f2c',
@@ -37,7 +34,6 @@ test('legacy transaction', () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "accessList": undefined,
       "blockHash": "0x1",
       "blockNumber": 69420n,
       "from": "0x1",
@@ -59,7 +55,7 @@ test('legacy transaction', () => {
 
 test('eip2930 transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: [
         {
           address: '0x1',
@@ -115,7 +111,7 @@ test('eip2930 transaction', () => {
 
 test('eip1559 transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: [
         {
           address: '0x1',
@@ -153,6 +149,7 @@ test('eip1559 transaction', () => {
       "blockNumber": 69420n,
       "from": "0x1",
       "gas": 69420420n,
+      "gasPrice": undefined,
       "hash": "0x1",
       "input": "0x1",
       "maxFeePerGas": 5n,
@@ -171,7 +168,7 @@ test('eip1559 transaction', () => {
 
 test('pending transaction', () => {
   expect(
-    deserializeTransactionResult({
+    formatTransaction({
       accessList: [
         {
           address: '0x1',
@@ -209,6 +206,7 @@ test('pending transaction', () => {
       "blockNumber": null,
       "from": "0x1",
       "gas": 69420420n,
+      "gasPrice": undefined,
       "hash": "0x1",
       "input": "0x1",
       "maxFeePerGas": 5n,
@@ -221,6 +219,63 @@ test('pending transaction', () => {
       "type": "eip1559",
       "v": 1n,
       "value": 1n,
+    }
+  `)
+})
+
+test('nullish values', () => {
+  expect(
+    formatTransaction({
+      accessList: [
+        {
+          address: '0x1',
+          storageKeys: ['0x1'],
+        },
+      ],
+      blockHash: '0x1',
+      blockNumber: '0x10f2c',
+      from: '0x1',
+      gas: undefined,
+      hash: '0x1',
+      input: '0x1',
+      maxFeePerGas: '0x5',
+      maxPriorityFeePerGas: '0x1',
+      nonce: undefined,
+      r: '0x1',
+      s: '0x1',
+      to: '0x1',
+      transactionIndex: '0x1',
+      type: undefined,
+      v: undefined,
+      value: undefined,
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "accessList": [
+        {
+          "address": "0x1",
+          "storageKeys": [
+            "0x1",
+          ],
+        },
+      ],
+      "blockHash": "0x1",
+      "blockNumber": 69420n,
+      "from": "0x1",
+      "gas": undefined,
+      "gasPrice": undefined,
+      "hash": "0x1",
+      "input": "0x1",
+      "maxFeePerGas": 5n,
+      "maxPriorityFeePerGas": 1n,
+      "nonce": undefined,
+      "r": "0x1",
+      "s": "0x1",
+      "to": "0x1",
+      "transactionIndex": 1,
+      "type": undefined,
+      "v": undefined,
+      "value": undefined,
     }
   `)
 })

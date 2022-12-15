@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { celo, localhost } from '../../chains'
 import {
   etherToValue,
   gweiToValue,
@@ -34,6 +35,44 @@ test('sends transaction', async () => {
   expect(
     (
       await sendTransaction(walletClient, {
+        request: {
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: etherToValue('1'),
+        },
+      })
+    ).hash,
+  ).toBeDefined()
+
+  expect(
+    await fetchBalance(publicClient, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await fetchBalance(publicClient, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  await mine(testClient, { blocks: 1 })
+
+  expect(
+    await fetchBalance(publicClient, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10001000000000000000000n')
+  expect(
+    await fetchBalance(publicClient, { address: sourceAccount.address }),
+  ).toBeLessThan(sourceAccount.balance)
+})
+
+test('sends transaction (w/ formatter)', async () => {
+  await setup()
+
+  expect(
+    (
+      await sendTransaction(walletClient, {
+        chain: {
+          ...localhost,
+          formatters: {
+            transactionRequest: celo.formatters?.transactionRequest,
+          },
+        },
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,

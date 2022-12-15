@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { ethers, providers } from 'ethers'
 import {
   fetchBalance,
   fetchBlock,
@@ -8,17 +8,54 @@ import {
 } from 'viem/actions'
 import { createClient, http } from 'viem/clients'
 import { mainnet } from 'viem/chains'
-import { etherToValue } from 'viem/utils'
+import { etherToValue, formatBlock } from 'viem/utils'
+import type { RpcBlock } from 'viem'
 
 export type SuiteItem = {
   title: string
   key: string
   fns: {
-    viem: () => Promise<void>
-    ethers: () => Promise<void>
+    viem: () => void | Promise<void>
+    ethers: () => void | Promise<void>
   }
 }
 export type Suite = SuiteItem[]
+
+const block: RpcBlock = {
+  baseFeePerGas: '0x1',
+  difficulty: '0x2d3a678cddba9b',
+  extraData: '0x',
+  gasLimit: '0x1c9c347',
+  gasUsed: '0x0',
+  hash: '0xebc3644804e4040c0a74c5a5bbbc6b46a71a5d4010fe0c92ebb2fdf4a43ea5dd',
+  logsBloom:
+    '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+  miner: '0x0000000000000000000000000000000000000000',
+  mixHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  nonce: '0x0000000000000000',
+  number: '0xec6fc6',
+  parentHash:
+    '0xe55516ad8029e53cd32087f14653d851401b05245abb1b2d6ed4ddcc597ac5a6',
+  receiptsRoot:
+    '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
+  sealFields: [
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x0000000000000000',
+  ],
+  sha3Uncles:
+    '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+  size: '0x208',
+  stateRoot:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  timestamp: '0x63198f6f',
+  totalDifficulty: '0x1',
+  transactions: [],
+  transactionsRoot:
+    '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
+  uncles: [],
+}
+
+const formatter = new providers.Formatter()
 
 export const getSuite = ({ url }: { url: string }): Suite => {
   const viemClient = createClient(http({ chain: mainnet, url }))
@@ -49,21 +86,6 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       },
     },
     {
-      title: 'block by number w/ txns',
-      key: 'blockByNumberWithTxns',
-      fns: {
-        viem: async () => {
-          await fetchBlock(viemClient, {
-            blockNumber: 69420n,
-            includeTransactions: true,
-          })
-        },
-        ethers: async () => {
-          await ethersProvider.getBlockWithTransactions(69420)
-        },
-      },
-    },
-    {
       title: 'block by hash',
       key: 'blockByHash',
       fns: {
@@ -75,24 +97,6 @@ export const getSuite = ({ url }: { url: string }): Suite => {
         },
         ethers: async () => {
           await ethersProvider.getBlock(
-            '0x70d7e49dfc4dcc8c5f18b3c66744f625acd0886da57b1bfd46503809aa1b6250',
-          )
-        },
-      },
-    },
-    {
-      title: 'block by hash w/ txns',
-      key: 'blockByHashWithTxns',
-      fns: {
-        viem: async () => {
-          await fetchBlock(viemClient, {
-            blockHash:
-              '0x70d7e49dfc4dcc8c5f18b3c66744f625acd0886da57b1bfd46503809aa1b6250',
-            includeTransactions: true,
-          })
-        },
-        ethers: async () => {
-          await ethersProvider.getBlockWithTransactions(
             '0x70d7e49dfc4dcc8c5f18b3c66744f625acd0886da57b1bfd46503809aa1b6250',
           )
         },
@@ -150,6 +154,18 @@ export const getSuite = ({ url }: { url: string }): Suite => {
               to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
               value: ethers.utils.parseEther('0.001'),
             })
+        },
+      },
+    },
+    {
+      title: 'format block',
+      key: 'formatBlock',
+      fns: {
+        viem: () => {
+          formatBlock(block)
+        },
+        ethers: () => {
+          formatter.block(block)
         },
       },
     },
