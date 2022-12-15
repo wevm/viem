@@ -23,9 +23,9 @@ const client = createPublicClient(http({ chain: mainnet }))
 In a production app, it is highly recommended to pass through your authenticated RPC provider URL (Alchemy, Infura, Ankr, etc). If no URL is provided, viem will default to a public RPC provider. [Read more](/TODO).
 :::
 
-### 2. Consume actions!
+### 2. Consume Actions!
 
-Now that you have a Client set up, you can now interact with Ethereum and consume [actions](/TODO)!
+Now that you have a Client set up, you can now interact with Ethereum and consume [Actions](/TODO)!
 
 ```tsx {6}
 import { createPublicClient, http, fetchBlockNumber } from 'viem'
