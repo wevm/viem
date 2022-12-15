@@ -1,12 +1,18 @@
 import type { Chain, Formatter } from '../../chains'
 import type { WalletClient } from '../../clients'
-import type { TransactionRequest } from '../../types'
+import type {
+  MergeIntersectionProperties,
+  TransactionRequest,
+} from '../../types'
 import type { Formatted, TransactionRequestFormatter } from '../../utils'
-import { BaseError, formatTransactionRequest } from '../../utils'
+import { BaseError, format, formatTransactionRequest } from '../../utils'
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
-> = Formatted<TransactionRequest, TransactionRequest, TFormatter, true>
+> = MergeIntersectionProperties<
+  Formatted<TFormatter, TransactionRequest, true>,
+  TransactionRequest
+>
 
 export type SendTransactionArgs<TChain extends Chain = Chain> = {
   chain?: TChain
@@ -28,13 +34,14 @@ export async function sendTransaction<TChain extends Chain>(
 
   // TODO: validate `chain`
 
+  const request_ = format(request as TransactionRequest, {
+    formatter:
+      chain?.formatters?.transactionRequest || formatTransactionRequest,
+  })
+
   const hash = await client.request({
     method: 'eth_sendTransaction',
-    params: [
-      formatTransactionRequest(request, {
-        formatter: chain?.formatters?.transactionRequest,
-      }),
-    ],
+    params: [request_],
   })
   return { hash }
 }

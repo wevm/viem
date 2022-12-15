@@ -51,8 +51,6 @@ export type {
 
 export type {
   PartialBy,
-  MapReturnTypes,
   MergeIntersectionProperties,
-  NonEmptyProperties,
-  OptionalProperties,
+  OptionalNullable,
 } from './utils'

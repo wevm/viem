@@ -1,7 +1,7 @@
 import type { Chain } from '../../chains'
 import type { PublicClient, Transport } from '../../clients'
 import type { BlockTag, Data, RpcTransaction } from '../../types'
-import { BaseError, numberToHex } from '../../utils'
+import { BaseError, format, numberToHex } from '../../utils'
 import type {
   FormattedTransaction,
   TransactionFormatter,
@@ -85,8 +85,8 @@ export async function fetchTransaction<TChain extends Chain>(
       index,
     })
 
-  return formatTransaction<TransactionFormatter<TChain>>(transaction, {
-    formatter: chain?.formatters?.transaction,
+  return format(transaction, {
+    formatter: chain?.formatters?.transaction || formatTransaction,
   })
 }
 

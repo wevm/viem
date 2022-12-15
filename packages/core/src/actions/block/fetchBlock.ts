@@ -2,11 +2,9 @@ import type { Chain } from '../../chains'
 import type { PublicClient, Transport } from '../../clients'
 import type { BlockTag, Data, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
-import { BaseError, formatBlock, numberToHex } from '../../utils'
+import { BaseError, format, formatBlock, numberToHex } from '../../utils'
 
-export type FetchBlockArgs<TChain extends Chain> = {
-  chain?: TChain
-} & (
+export type FetchBlockArgs =
   | {
       /** Hash of the block. */
       blockHash?: Data
@@ -25,7 +23,6 @@ export type FetchBlockArgs<TChain extends Chain> = {
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag
     }
-)
 
 export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
   BlockFormatter<TChain>
@@ -33,12 +30,7 @@ export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
 
 export async function fetchBlock<TChain extends Chain>(
   client: PublicClient<Transport<any, any, TChain>>,
-  {
-    blockHash,
-    blockNumber,
-    blockTag = 'latest',
-    chain = client.chain,
-  }: FetchBlockArgs<TChain> = {},
+  { blockHash, blockNumber, blockTag = 'latest' }: FetchBlockArgs = {},
 ): Promise<FetchBlockResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
@@ -58,8 +50,8 @@ export async function fetchBlock<TChain extends Chain>(
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
 
-  return formatBlock<BlockFormatter<TChain>>(block, {
-    formatter: chain?.formatters?.block,
+  return format(block, {
+    formatter: client.chain?.formatters?.block || formatBlock,
   })
 }
 

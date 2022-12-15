@@ -19,11 +19,10 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
-export type { ExtractFormatter, Formatted } from './format'
-export { format } from './format'
-
 export type {
   BlockFormatter,
+  ExtractFormatter,
+  Formatted,
   FormattedBlock,
   FormattedTransaction,
   FormattedTransactionRequest,
@@ -31,6 +30,7 @@ export type {
   TransactionRequestFormatter,
 } from './formatters'
 export {
+  format,
   formatBlock,
   formatTransaction,
   formatTransactionRequest,

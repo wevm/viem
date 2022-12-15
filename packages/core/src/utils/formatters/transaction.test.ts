@@ -38,7 +38,7 @@ test('legacy transaction', () => {
       "blockNumber": 69420n,
       "from": "0x1",
       "gas": 69420420n,
-      "gasPrice": "0x45",
+      "gasPrice": 69n,
       "hash": "0x1",
       "input": "0x1",
       "nonce": 1,
@@ -94,7 +94,7 @@ test('eip2930 transaction', () => {
       "blockNumber": 69420n,
       "from": "0x1",
       "gas": 69420420n,
-      "gasPrice": "0x45",
+      "gasPrice": 69n,
       "hash": "0x1",
       "input": "0x1",
       "nonce": 1,
@@ -149,6 +149,7 @@ test('eip1559 transaction', () => {
       "blockNumber": 69420n,
       "from": "0x1",
       "gas": 69420420n,
+      "gasPrice": undefined,
       "hash": "0x1",
       "input": "0x1",
       "maxFeePerGas": 5n,
@@ -205,6 +206,7 @@ test('pending transaction', () => {
       "blockNumber": null,
       "from": "0x1",
       "gas": 69420420n,
+      "gasPrice": undefined,
       "hash": "0x1",
       "input": "0x1",
       "maxFeePerGas": 5n,
@@ -217,6 +219,63 @@ test('pending transaction', () => {
       "type": "eip1559",
       "v": 1n,
       "value": 1n,
+    }
+  `)
+})
+
+test('nullish values', () => {
+  expect(
+    formatTransaction({
+      accessList: [
+        {
+          address: '0x1',
+          storageKeys: ['0x1'],
+        },
+      ],
+      blockHash: '0x1',
+      blockNumber: '0x10f2c',
+      from: '0x1',
+      gas: undefined,
+      hash: '0x1',
+      input: '0x1',
+      maxFeePerGas: '0x5',
+      maxPriorityFeePerGas: '0x1',
+      nonce: undefined,
+      r: '0x1',
+      s: '0x1',
+      to: '0x1',
+      transactionIndex: '0x1',
+      type: undefined,
+      v: undefined,
+      value: undefined,
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "accessList": [
+        {
+          "address": "0x1",
+          "storageKeys": [
+            "0x1",
+          ],
+        },
+      ],
+      "blockHash": "0x1",
+      "blockNumber": 69420n,
+      "from": "0x1",
+      "gas": undefined,
+      "gasPrice": undefined,
+      "hash": "0x1",
+      "input": "0x1",
+      "maxFeePerGas": 5n,
+      "maxPriorityFeePerGas": 1n,
+      "nonce": undefined,
+      "r": "0x1",
+      "s": "0x1",
+      "to": "0x1",
+      "transactionIndex": 1,
+      "type": undefined,
+      "v": undefined,
+      "value": undefined,
     }
   `)
 })

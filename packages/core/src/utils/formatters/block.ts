@@ -1,40 +1,28 @@
 import type { Chain, Formatter } from '../../chains'
 import type { Block, RpcBlock } from '../../types'
-import type { ExtractFormatter, FormatOptions, Formatted } from '../format'
-import { format } from '../format'
+import type { ExtractFormatter, Formatted } from './format'
 
 export type BlockFormatter<TChain extends Chain = Chain> = ExtractFormatter<
   TChain,
   'block'
 >
 
-type FormatBlockOptions = {
-  formatter?: FormatOptions<RpcBlock, Block>['formatter']
-}
-
 export type FormattedBlock<
   TFormatter extends Formatter | undefined = Formatter,
-> = Formatted<RpcBlock, Block, TFormatter>
+> = Formatted<TFormatter, Block>
 
-export function formatBlock<
-  TFormatter extends Formatter | undefined = Formatter,
->(
-  block: RpcBlock,
-  { formatter }: FormatBlockOptions = {},
-): FormattedBlock<TFormatter> {
-  return format<RpcBlock, Block, TFormatter>(block, {
-    replacer: {
-      baseFeePerGas: (block) =>
-        block.baseFeePerGas ? BigInt(block.baseFeePerGas) : null,
-      difficulty: (block) => BigInt(block.difficulty),
-      gasLimit: (block) => BigInt(block.gasLimit),
-      gasUsed: (block) => BigInt(block.gasUsed),
-      number: (block) => (block.number ? BigInt(block.number) : null),
-      size: (block) => BigInt(block.size),
-      timestamp: (block) => BigInt(block.timestamp),
-      totalDifficulty: (block) =>
-        block.totalDifficulty ? BigInt(block.totalDifficulty) : null,
-    },
-    formatter,
-  })
+export function formatBlock(block: Partial<RpcBlock>) {
+  return {
+    ...block,
+    baseFeePerGas: block.baseFeePerGas ? BigInt(block.baseFeePerGas) : null,
+    difficulty: block.difficulty ? BigInt(block.difficulty) : undefined,
+    gasLimit: block.gasLimit ? BigInt(block.gasLimit) : undefined,
+    gasUsed: block.gasUsed ? BigInt(block.gasUsed) : undefined,
+    number: block.number ? BigInt(block.number) : null,
+    size: block.size ? BigInt(block.size) : undefined,
+    timestamp: block.timestamp ? BigInt(block.timestamp) : undefined,
+    totalDifficulty: block.totalDifficulty
+      ? BigInt(block.totalDifficulty)
+      : null,
+  } as Block
 }

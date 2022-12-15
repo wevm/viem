@@ -5,7 +5,7 @@ import { watchBlocks } from './watchBlocks'
 import { fetchBlock } from './fetchBlock'
 import { publicClient } from '../../../test'
 import { wait } from '../../utils/wait'
-import { localhost } from '../../chains'
+import { celo, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
 const defaultConfig = { pollingInterval: 1_000 }
@@ -17,6 +17,26 @@ test('watches for new blocks', async () => {
   const blocks: WatchBlocksResponse[] = []
   const unwatch = watchBlocks(
     publicClient,
+    (block) => blocks.push(block),
+    defaultConfig,
+  )
+  await wait(5000)
+  unwatch()
+  expect(blocks.length).toBe(4)
+}, 10_000)
+
+test('custom chain type', async () => {
+  const client = createPublicClient(
+    http({
+      chain: celo,
+    }),
+  )
+  const block = await fetchBlock(client)
+  vi.setSystemTime(Number(block.timestamp * 1000n))
+
+  const blocks: WatchBlocksResponse<typeof celo>[] = []
+  const unwatch = watchBlocks(
+    client,
     (block) => blocks.push(block),
     defaultConfig,
   )

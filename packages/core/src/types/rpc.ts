@@ -12,10 +12,10 @@ import type {
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
 
-export type RpcBlock = Block<Quantity, RpcTransaction>
+export type RpcBlock = Block<Quantity>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
-export type RpcUncle = Uncle<Quantity, Index>
+export type RpcUncle = Uncle<Quantity>
 export type RpcFeeHistory = FeeHistory<Quantity>
 export type RpcFeeValues = FeeValues<Quantity>
 export type RpcLog = Log<Quantity, Index>

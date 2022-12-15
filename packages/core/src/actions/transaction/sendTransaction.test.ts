@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
-import { localhost } from '../../chains'
+import { celo, localhost } from '../../chains'
 import {
   etherToValue,
   gweiToValue,
@@ -70,9 +70,7 @@ test('sends transaction (w/ formatter)', async () => {
         chain: {
           ...localhost,
           formatters: {
-            transactionRequest: {
-              foo: ({ foo }: { foo?: string }) => foo,
-            },
+            transactionRequest: celo.formatters?.transactionRequest,
           },
         },
         request: {

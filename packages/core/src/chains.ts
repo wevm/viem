@@ -1,4 +1,4 @@
-// TODO: Remove PoC implementation once @wagmi/chains provides custom chain types.
+// TODO: Remove chain formatter implementation once @wagmi/chains supports it.
 
 import type { Chain as Chain_ } from '@wagmi/chains'
 import {
@@ -33,12 +33,15 @@ import type {
   Transaction,
   TransactionRequest,
 } from './types'
+import {
+  formatBlock,
+  formatTransaction,
+  formatTransactionRequest,
+} from './utils'
 
-export type Formatter<TSource = any, TTarget = any> = Partial<{
-  [K in keyof TSource | (string & Record<string, unknown>)]: (
-    value: TSource,
-  ) => K extends keyof TTarget ? TTarget[K] | undefined : unknown
-}>
+export type Formatter<TSource = any, TTarget = any> = (
+  value: TSource & { [key: string]: unknown },
+) => Partial<TTarget>
 
 export type Formatters = {
   block?: Formatter<RpcBlock, Block>
@@ -53,8 +56,46 @@ export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
 export function defineChain<TFormatters extends Formatters = Formatters>(
   chain: Chain<TFormatters>,
 ) {
-  return chain
+  return { ...chain }
 }
+
+function defineChainType<TSource extends Record<string, unknown>, TFormatted>({
+  format,
+}: {
+  format: (data: TSource) => TFormatted
+}) {
+  return <
+      TInclude extends Formatter<TSource>,
+      TExclude extends (keyof TSource)[] = [],
+    >({
+      exclude,
+      include,
+    }: {
+      exclude?: TExclude
+      include?: TInclude
+    }) =>
+    (data: TSource & { [key: string]: unknown }) => {
+      const formatted = format(data)
+      if (exclude) {
+        for (const key of exclude) {
+          delete (formatted as any)[key]
+        }
+      }
+      return {
+        ...formatted,
+        ...include?.(data),
+      } as (TExclude[number] extends []
+        ? TFormatted
+        : Omit<TFormatted, TExclude[number]>) &
+        ReturnType<TInclude>
+    }
+}
+
+const defineBlock = defineChainType({ format: formatBlock })
+const defineTransaction = defineChainType({ format: formatTransaction })
+const defineTransactionRequest = defineChainType({
+  format: formatTransactionRequest,
+})
 
 export const arbitrumGoerli = defineChain(arbitrumGoerli_)
 export const arbitrum = defineChain(arbitrum_)
@@ -71,39 +112,30 @@ export const celo = defineChain({
     default: { http: ['https://rpc.ankr.com/celo'] },
   },
   formatters: {
-    block: {
-      randomness: ({
-        randomness,
-      }: {
-        randomness: { committed: Data; revealed: Data }
-      }) => randomness,
-      difficulty: () => undefined,
-      gasLimit: () => undefined,
-      mixHash: () => undefined,
-      nonce: () => undefined,
-      uncles: () => undefined,
-    },
-    transaction: {
-      feeCurrency: ({ feeCurrency }: { feeCurrency: Address | null }) =>
-        feeCurrency,
-      gatewayFee: ({ gatewayFee }: { gatewayFee: Quantity | null }) =>
-        gatewayFee ? BigInt(gatewayFee) : null,
-      gatewayFeeRecipient: ({
-        gatewayFeeRecipient,
-      }: {
-        gatewayFeeRecipient: Address | null
-      }) => gatewayFeeRecipient,
-    },
-    transactionRequest: {
-      feeCurrency: ({ feeCurrency }: { feeCurrency?: Address }) => feeCurrency,
-      gatewayFee: ({ gatewayFee }: { gatewayFee?: bigint }) =>
-        gatewayFee ? BigInt(gatewayFee) : undefined,
-      gatewayFeeRecipient: ({
-        gatewayFeeRecipient,
-      }: {
-        gatewayFeeRecipient?: Address
-      }) => gatewayFeeRecipient,
-    },
+    block: defineBlock({
+      exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
+      include: (block) => ({
+        randomness: block.randomness as { committed: Data; revealed: Data },
+      }),
+    }),
+    transaction: defineTransaction({
+      include: (transaction) => ({
+        feeCurrency: transaction.feeCurrency as Address | null,
+        gatewayFee: transaction.gatewayFee
+          ? BigInt(transaction.gatewayFee as Quantity)
+          : null,
+        gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
+      }),
+    }),
+    transactionRequest: defineTransactionRequest({
+      include: (transactionRequest) => ({
+        feeCurrency: transactionRequest.feeCurrency as Address | undefined,
+        gatewayFee: transactionRequest.gatewayFee as Quantity | undefined,
+        gatewayFeeRecipient: transactionRequest.gatewayFeeRecipient as
+          | Address
+          | undefined,
+      }),
+    }),
   },
 })
 export const fantomTestnet = defineChain(fantomTestnet_)

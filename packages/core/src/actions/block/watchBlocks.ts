@@ -1,4 +1,5 @@
-import type { PublicClient } from '../../clients'
+import type { Chain } from '../../chains'
+import type { PublicClient, Transport } from '../../clients'
 import type { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -13,12 +14,15 @@ export type WatchBlocksArgs = {
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
 }
-export type WatchBlocksResponse = FetchBlockResponse
-export type WatchBlocksCallback = (block: WatchBlocksResponse) => void
+export type WatchBlocksResponse<TChain extends Chain = Chain> =
+  FetchBlockResponse<TChain>
+export type WatchBlocksCallback<TChain extends Chain = Chain> = (
+  block: WatchBlocksResponse<TChain>,
+) => void
 
-export function watchBlocks(
-  client: PublicClient,
-  callback: WatchBlocksCallback,
+export function watchBlocks<TChain extends Chain>(
+  client: PublicClient<Transport<any, any, TChain>>,
+  callback: WatchBlocksCallback<TChain>,
   {
     blockTag = 'latest',
     emitOnBegin = false,
@@ -27,7 +31,7 @@ export function watchBlocks(
 ) {
   const observerId = JSON.stringify(['watchBlocks', client.uid])
 
-  return observe<WatchBlocksCallback, WatchBlocksResponse>(
+  return observe<WatchBlocksCallback<TChain>, WatchBlocksResponse<TChain>>(
     observerId,
     callback,
   )(({ emit }) =>
