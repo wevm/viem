@@ -65,14 +65,14 @@ function defineChainType<TSource extends Record<string, unknown>, TFormatted>({
   format: (data: TSource) => TFormatted
 }) {
   return <
-      TInclude extends Formatter<TSource>,
+      TFormat extends Formatter<TSource>,
       TExclude extends (keyof TSource)[] = [],
     >({
       exclude,
-      include,
+      format: formatOverride,
     }: {
       exclude?: TExclude
-      include?: TInclude
+      format?: TFormat
     }) =>
     (data: TSource & { [key: string]: unknown }) => {
       const formatted = format(data)
@@ -83,11 +83,11 @@ function defineChainType<TSource extends Record<string, unknown>, TFormatted>({
       }
       return {
         ...formatted,
-        ...include?.(data),
+        ...formatOverride?.(data),
       } as (TExclude[number] extends []
         ? TFormatted
         : Omit<TFormatted, TExclude[number]>) &
-        ReturnType<TInclude>
+        ReturnType<TFormat>
     }
 }
 
@@ -114,12 +114,12 @@ export const celo = defineChain({
   formatters: {
     block: defineBlock({
       exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
-      include: (block) => ({
+      format: (block) => ({
         randomness: block.randomness as { committed: Data; revealed: Data },
       }),
     }),
     transaction: defineTransaction({
-      include: (transaction) => ({
+      format: (transaction) => ({
         feeCurrency: transaction.feeCurrency as Address | null,
         gatewayFee: transaction.gatewayFee
           ? BigInt(transaction.gatewayFee as Quantity)
@@ -128,7 +128,7 @@ export const celo = defineChain({
       }),
     }),
     transactionRequest: defineTransactionRequest({
-      include: (transactionRequest) => ({
+      format: (transactionRequest) => ({
         feeCurrency: transactionRequest.feeCurrency as Address | undefined,
         gatewayFee: transactionRequest.gatewayFee as Quantity | undefined,
         gatewayFeeRecipient: transactionRequest.gatewayFeeRecipient as
