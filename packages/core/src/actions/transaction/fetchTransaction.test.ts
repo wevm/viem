@@ -135,11 +135,11 @@ test('fetches transaction (eip2930)', async () => {
 })
 
 test('chain w/ custom block type', async () => {
-  const client = createPublicClient(
-    http({
-      chain: celo,
-    }),
-  )
+  const client = createPublicClient({
+    chain: celo,
+    transport: http(),
+  })
+
   const transaction = await fetchTransaction(client, {
     blockNumber: 16628100n,
     index: 0,

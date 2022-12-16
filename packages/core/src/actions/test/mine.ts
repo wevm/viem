@@ -8,9 +8,9 @@ export type MineArgs = {
   interval?: number
 }
 
-export async function mine(rpc: TestClient, { blocks, interval }: MineArgs) {
-  return await rpc.request({
-    method: `${rpc.mode}_mine`,
+export async function mine(client: TestClient, { blocks, interval }: MineArgs) {
+  return await client.request({
+    method: `${client.mode}_mine`,
     params: [numberToHex(blocks), numberToHex(interval || 0)],
   })
 }

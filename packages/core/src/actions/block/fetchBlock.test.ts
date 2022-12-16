@@ -39,14 +39,14 @@ test('fetches latest block', async () => {
 })
 
 test('chain w/ custom block type', async () => {
-  const client = createPublicClient(
-    http({
-      chain: celo,
-    }),
-  )
+  const client = createPublicClient({
+    chain: celo,
+    transport: http(),
+  })
   const block = await fetchBlock(client, {
     blockNumber: 16645775n,
   })
+
   assertType<
     Omit<Block, 'difficulty' | 'gasLimit' | 'mixHash' | 'nonce' | 'uncles'> & {
       randomness: { committed: Data; revealed: Data }

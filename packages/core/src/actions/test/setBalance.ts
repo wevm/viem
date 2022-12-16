@@ -10,11 +10,11 @@ export type SetBalanceArgs = {
 }
 
 export async function setBalance(
-  rpc: TestClient,
+  client: TestClient,
   { address, value }: SetBalanceArgs,
 ) {
-  return await rpc.request({
-    method: `${rpc.mode}_setBalance`,
+  return await client.request({
+    method: `${client.mode}_setBalance`,
     params: [address, numberToHex(value)],
   })
 }

@@ -13,15 +13,19 @@ import { createClient } from './createClient'
 import { localWsUrl } from '../../test/utils'
 
 test('creates', () => {
-  const mockTransport = createTransport({
-    key: 'mock',
-    name: 'Mock Transport',
-    request: vi.fn(async () => null) as unknown as Requests['request'],
-    type: 'mock',
+  const mockTransport = () =>
+    createTransport({
+      key: 'mock',
+      name: 'Mock Transport',
+      request: vi.fn(async () => null) as unknown as Requests['request'],
+      type: 'mock',
+    })
+  const { uid, ...client } = createClient({
+    transport: mockTransport,
   })
-  const { uid, ...client } = createClient(mockTransport)
 
   assertType<Requests['request']>(client.request)
+
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
@@ -43,7 +47,10 @@ test('creates', () => {
 
 describe('transports', () => {
   test('http', () => {
-    const { uid, ...client } = createClient(http({ chain: localhost }))
+    const { uid, ...client } = createClient({
+      chain: localhost,
+      transport: http(),
+    })
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -70,28 +77,11 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "type": "http",
-          "url": "http://127.0.0.1:8545",
+          "url": undefined,
         },
         "type": "base",
       }
@@ -99,9 +89,10 @@ describe('transports', () => {
   })
 
   test('webSocket', () => {
-    const { uid, ...client } = createClient(
-      webSocket({ chain: localhost, url: localWsUrl }),
-    )
+    const { uid, ...client } = createClient({
+      chain: localhost,
+      transport: webSocket({ url: localWsUrl }),
+    })
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -128,23 +119,6 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "getSocket": [Function],
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",
@@ -158,9 +132,9 @@ describe('transports', () => {
   })
 
   test('ethereumProvider', () => {
-    const { uid, ...client } = createClient(
-      ethereumProvider({ provider: { request: async () => null } }),
-    )
+    const { uid, ...client } = createClient({
+      transport: ethereumProvider({ provider: { request: async () => null } }),
+    })
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -184,14 +158,16 @@ describe('transports', () => {
 
 describe('config', () => {
   test('key', () => {
-    const mockTransport = createTransport({
-      key: 'mock',
-      name: 'Mock Transport',
-      request: vi.fn(async () => null) as unknown as Requests['request'],
-      type: 'mock',
-    })
-    const { uid, ...client } = createClient(mockTransport, {
+    const mockTransport = () =>
+      createTransport({
+        key: 'mock',
+        name: 'Mock Transport',
+        request: vi.fn(async () => null) as unknown as Requests['request'],
+        type: 'mock',
+      })
+    const { uid, ...client } = createClient({
       key: 'bar',
+      transport: mockTransport,
     })
 
     assertType<Requests['request']>(client.request)
@@ -215,14 +191,16 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const mockTransport = createTransport({
-      key: 'mock',
-      name: 'Mock Transport',
-      request: vi.fn(async () => null) as unknown as Requests['request'],
-      type: 'mock',
-    })
-    const { uid, ...client } = createClient(mockTransport, {
+    const mockTransport = () =>
+      createTransport({
+        key: 'mock',
+        name: 'Mock Transport',
+        request: vi.fn(async () => null) as unknown as Requests['request'],
+        type: 'mock',
+      })
+    const { uid, ...client } = createClient({
       name: 'Mock Client',
+      transport: mockTransport,
     })
 
     assertType<Requests['request']>(client.request)
@@ -246,14 +224,16 @@ describe('config', () => {
   })
 
   test('pollingInterval', () => {
-    const mockTransport = createTransport({
-      key: 'mock',
-      name: 'Mock Transport',
-      request: vi.fn(async () => null) as unknown as Requests['request'],
-      type: 'mock',
-    })
-    const { uid, ...client } = createClient(mockTransport, {
+    const mockTransport = () =>
+      createTransport({
+        key: 'mock',
+        name: 'Mock Transport',
+        request: vi.fn(async () => null) as unknown as Requests['request'],
+        type: 'mock',
+      })
+    const { uid, ...client } = createClient({
       pollingInterval: 10_000,
+      transport: mockTransport,
     })
 
     assertType<Requests['request']>(client.request)
@@ -277,13 +257,17 @@ describe('config', () => {
   })
 
   test('type', () => {
-    const mockTransport = createTransport({
-      key: 'mock',
-      name: 'Mock Transport',
-      request: vi.fn(async () => null) as unknown as Requests['request'],
-      type: 'mock',
+    const mockTransport = () =>
+      createTransport({
+        key: 'mock',
+        name: 'Mock Transport',
+        request: vi.fn(async () => null) as unknown as Requests['request'],
+        type: 'mock',
+      })
+    const { uid, ...client } = createClient({
+      transport: mockTransport,
+      type: 'foo',
     })
-    const { uid, ...client } = createClient(mockTransport, { type: 'foo' })
 
     assertType<Requests['request']>(client.request)
     expect(uid).toBeDefined()

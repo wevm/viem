@@ -13,12 +13,12 @@ test('BaseError', () => {
   `)
 })
 
-test('BaseError (w/ docsLink)', () => {
+test('BaseError (w/ docsPath)', () => {
   expect(
     new BaseError({
       details: 'details',
       humanMessage: 'An error occurred.',
-      docsLink: 'https://viem.sh/lol',
+      docsPath: '/lol',
     }),
   ).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
@@ -33,7 +33,7 @@ test('BaseError (w/ docsLink)', () => {
 test('inherited BaseError', () => {
   const err = new BaseError({
     details: 'details',
-    docsLink: 'https://viem.sh/lol',
+    docsPath: '/lol',
     humanMessage: 'An error occurred.',
   })
   expect(
@@ -56,7 +56,7 @@ test('inherited Error', () => {
   expect(
     new BaseError({
       cause: err,
-      docsLink: 'https://viem.sh/lol',
+      docsPath: '/lol',
       humanMessage: 'An internal error occurred.',
     }),
   ).toMatchInlineSnapshot(`

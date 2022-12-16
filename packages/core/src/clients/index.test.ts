@@ -1,10 +1,11 @@
 import { expect, test } from 'vitest'
 
-import * as rpcs from './index'
+import * as clients from './index'
 
-test('exports rpcs', () => {
-  expect(rpcs).toMatchInlineSnapshot(`
+test('exports clients', () => {
+  expect(clients).toMatchInlineSnapshot(`
     {
+      "UrlRequiredError": [Function],
       "createClient": [Function],
       "createPublicClient": [Function],
       "createTestClient": [Function],

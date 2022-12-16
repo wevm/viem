@@ -1,4 +1,5 @@
 export {
+  UrlRequiredError,
   createTransport,
   ethereumProvider,
   http,

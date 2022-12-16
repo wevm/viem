@@ -1,5 +1,5 @@
 import type { Chain } from '../../chains'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient } from '../../clients'
 import type { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -21,7 +21,7 @@ export type WatchBlocksCallback<TChain extends Chain = Chain> = (
 ) => void
 
 export function watchBlocks<TChain extends Chain>(
-  client: PublicClient<Transport<any, any, TChain>>,
+  client: PublicClient<any, TChain>,
   callback: WatchBlocksCallback<TChain>,
   {
     blockTag = 'latest',

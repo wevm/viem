@@ -26,11 +26,10 @@ test('watches for new blocks', async () => {
 }, 10_000)
 
 test('custom chain type', async () => {
-  const client = createPublicClient(
-    http({
-      chain: celo,
-    }),
-  )
+  const client = createPublicClient({
+    chain: celo,
+    transport: http(),
+  })
   const block = await fetchBlock(client)
   vi.setSystemTime(Number(block.timestamp * 1000n))
 
@@ -61,19 +60,18 @@ describe('emitOnBegin', () => {
   }, 10_000)
 })
 
-describe('pollingInterval on rpc', () => {
+describe('pollingInterval on client', () => {
   test('watches for new blocks', async () => {
-    const rpc = createPublicClient(
-      http({
-        chain: localhost,
-      }),
-      { pollingInterval: 500 },
-    )
-    const block = await fetchBlock(rpc)
+    const client = createPublicClient({
+      chain: localhost,
+      transport: http(),
+      pollingInterval: 500,
+    })
+    const block = await fetchBlock(client)
     vi.setSystemTime(Number(block.timestamp * 1000n))
 
     const blocks: WatchBlocksResponse[] = []
-    const unwatch = watchBlocks(rpc, (block) => blocks.push(block))
+    const unwatch = watchBlocks(client, (block) => blocks.push(block))
     await wait(2000)
     unwatch()
     expect(blocks.length).toBe(3)

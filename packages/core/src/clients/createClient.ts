@@ -1,3 +1,4 @@
+import type { Chain } from '../chains'
 import type { Requests } from '../types/eip1193'
 import { buildRequest } from '../utils/buildRequest'
 import { uid } from '../utils/uid'
@@ -5,9 +6,11 @@ import type { BaseRpcRequests, Transport } from './transports/createTransport'
 
 export type Client<
   TTransport extends Transport = Transport,
+  TChain extends Chain = Chain,
   TRequests extends BaseRpcRequests = Requests,
 > = {
-  chain?: TTransport['config']['chain']
+  /** Chain for the client. */
+  chain?: TChain
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -17,7 +20,7 @@ export type Client<
   /** Request function wrapped with friendly error handling */
   request: TRequests['request']
   /** The RPC transport (http, webSocket, ethereumProvider, etc) */
-  transport: TTransport['config'] & TTransport['value']
+  transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
   /** The type of client. */
   type: string
   /** A unique ID for the client. */
@@ -26,13 +29,16 @@ export type Client<
 
 export type ClientConfig<
   TTransport extends Transport = Transport,
+  TChain extends Chain = Chain,
   TRequests extends BaseRpcRequests = Requests,
 > = Partial<
   Pick<
-    Client<TTransport, TRequests>,
-    'key' | 'name' | 'pollingInterval' | 'type'
+    Client<TTransport, TChain, TRequests>,
+    'chain' | 'key' | 'name' | 'pollingInterval' | 'type'
   >
->
+> & {
+  transport: TTransport
+}
 
 /**
  * @description Creates a base RPC client with the given transport.
@@ -47,19 +53,23 @@ export type ClientConfig<
  */
 export function createClient<
   TTransport extends Transport,
+  TChain extends Chain,
   TRequests extends BaseRpcRequests,
->(
-  transport: TTransport,
-  {
-    key = 'base',
-    name = 'Base Client',
-    pollingInterval = 4_000,
-    type = 'base',
-  }: ClientConfig<TTransport, TRequests> = {},
-): Client<TTransport, TRequests> {
-  const { config, value } = transport
+>({
+  chain,
+  key = 'base',
+  name = 'Base Client',
+  pollingInterval = 4_000,
+  transport,
+  type = 'base',
+}: ClientConfig<TTransport, TChain, TRequests>): Client<
+  TTransport,
+  TChain,
+  TRequests
+> {
+  const { config, value } = transport({ chain })
   return {
-    chain: config.chain,
+    chain,
     key,
     name,
     pollingInterval,

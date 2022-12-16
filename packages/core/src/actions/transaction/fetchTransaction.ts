@@ -1,5 +1,5 @@
 import type { Chain } from '../../chains'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient } from '../../clients'
 import type { BlockTag, Data, RpcTransaction } from '../../types'
 import { BaseError, format, numberToHex } from '../../utils'
 import type {
@@ -8,9 +8,7 @@ import type {
 } from '../../utils/formatters/transaction'
 import { formatTransaction } from '../../utils/formatters/transaction'
 
-export type FetchTransactionArgs<TChain extends Chain = Chain> = {
-  chain?: TChain
-} & (
+export type FetchTransactionArgs =
   | {
       blockHash: Data
       blockNumber?: never
@@ -39,21 +37,19 @@ export type FetchTransactionArgs<TChain extends Chain = Chain> = {
       hash: Data
       index?: number
     }
-)
 
 export type FetchTransactionResponse<TChain extends Chain = Chain> =
   FormattedTransaction<TransactionFormatter<TChain>>
 
 export async function fetchTransaction<TChain extends Chain>(
-  client: PublicClient<Transport<any, any, TChain>>,
+  client: PublicClient<any, TChain>,
   {
     blockHash,
     blockNumber,
     blockTag = 'latest',
-    chain = client.chain,
     hash,
     index,
-  }: FetchTransactionArgs<TChain>,
+  }: FetchTransactionArgs,
 ): Promise<FetchTransactionResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
@@ -86,7 +82,7 @@ export async function fetchTransaction<TChain extends Chain>(
     })
 
   return format(transaction, {
-    formatter: chain?.formatters?.transaction || formatTransaction,
+    formatter: client.chain?.formatters?.transaction || formatTransaction,
   })
 }
 

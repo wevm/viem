@@ -3,6 +3,7 @@ import '../../types/window'
 
 import type { Requests } from '../../types/eip1193'
 
+import type { EthereumProviderTransport } from './ethereumProvider'
 import { ethereumProvider } from './ethereumProvider'
 
 vi.stubGlobal('window', {
@@ -20,8 +21,10 @@ test('default', () => {
     },
   })
 
-  assertType<'ethereumProvider'>(transport.config.type)
-  expect(transport).toMatchInlineSnapshot(`
+  assertType<EthereumProviderTransport>(transport)
+  assertType<'ethereumProvider'>(transport({}).config.type)
+
+  expect(transport({})).toMatchInlineSnapshot(`
     {
       "config": {
         "key": "ethereumProvider",
@@ -38,9 +41,8 @@ describe('config', () => {
   test('provider', () => {
     const transport = ethereumProvider({
       provider: window.ethereum!,
-    })
+    })({})
 
-    assertType<'ethereumProvider'>(transport.config.type)
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
@@ -60,7 +62,7 @@ describe('config', () => {
       provider: {
         request: vi.fn(async () => null) as unknown as Requests['request'],
       },
-    })
+    })({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
@@ -81,7 +83,7 @@ describe('config', () => {
       provider: {
         request: vi.fn(async () => null) as unknown as Requests['request'],
       },
-    })
+    })({})
 
     expect(transport).toMatchInlineSnapshot(`
       {

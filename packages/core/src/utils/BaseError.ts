@@ -5,7 +5,7 @@ import pkg from '../../package.json'
 /* c8 ignore next */
 const version = process.env.TEST ? '1.0.2' : pkg.version
 
-type BaseErrorArgs = { docsLink?: string; humanMessage: string } & (
+type BaseErrorArgs = { docsPath?: string; humanMessage: string } & (
   | {
       cause?: never
       details: string
@@ -19,7 +19,7 @@ type BaseErrorArgs = { docsLink?: string; humanMessage: string } & (
 export class BaseError extends Error {
   humanMessage: string
   details: string
-  docsLink?: string
+  docsPath?: string
 
   name = 'ViemError'
 
@@ -30,11 +30,11 @@ export class BaseError extends Error {
         : args.cause instanceof Error
         ? args.cause.message
         : args.details!
-    const docsLink =
-      args.cause instanceof BaseError ? args.cause.docsLink : args.docsLink
+    const docsPath =
+      args.cause instanceof BaseError ? args.cause.docsPath : args.docsPath
     const message = [
       humanMessage,
-      ...(docsLink ? ['', 'Docs: ' + docsLink] : []),
+      ...(docsPath ? ['', 'Docs: https://viem.sh' + docsPath] : []),
       '',
       'Details: ' + details,
       'Version: viem@' + version,
@@ -44,7 +44,7 @@ export class BaseError extends Error {
 
     if (args.cause) this.cause = args.cause
     this.details = details
-    this.docsLink = docsLink
+    this.docsPath = docsPath
     this.humanMessage = humanMessage
   }
 }

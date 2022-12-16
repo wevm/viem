@@ -1,42 +1,26 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import * as chains from '../../chains'
+import { localhost } from '../../chains'
 
+import type { HttpTransport } from './http'
 import { http } from './http'
 
 test('default', () => {
-  const transport = http({
-    chain: chains.localhost,
-  })
+  const transport = http({ url: 'https://mockapi.com/rpc' })
 
-  assertType<'http'>(transport.config.type)
-  expect(transport).toMatchInlineSnapshot(`
+  assertType<HttpTransport>(transport)
+  assertType<'http'>(transport({}).config.type)
+
+  expect(transport({})).toMatchInlineSnapshot(`
     {
       "config": {
-        "chain": {
-          "id": 1337,
-          "name": "Localhost",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "network": "localhost",
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545",
-              ],
-            },
-          },
-        },
         "key": "http",
         "name": "HTTP JSON-RPC",
         "request": [Function],
         "type": "http",
       },
       "value": {
-        "url": "http://127.0.0.1:8545",
+        "url": "https://mockapi.com/rpc",
       },
     }
   `)
@@ -45,37 +29,20 @@ test('default', () => {
 describe('config', () => {
   test('key', () => {
     const transport = http({
-      chain: chains.localhost,
       key: 'mock',
-    })
+      url: 'https://mockapi.com/rpc',
+    })({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "key": "mock",
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "type": "http",
         },
         "value": {
-          "url": "http://127.0.0.1:8545",
+          "url": "https://mockapi.com/rpc",
         },
       }
     `)
@@ -83,37 +50,20 @@ describe('config', () => {
 
   test('name', () => {
     const transport = http({
-      chain: chains.localhost,
       name: 'Mock Transport',
-    })
+      url: 'https://mockapi.com/rpc',
+    })({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "key": "http",
           "name": "Mock Transport",
           "request": [Function],
           "type": "http",
         },
         "value": {
-          "url": "http://127.0.0.1:8545",
+          "url": "https://mockapi.com/rpc",
         },
       }
     `)
@@ -121,30 +71,12 @@ describe('config', () => {
 
   test('url', () => {
     const transport = http({
-      chain: chains.localhost,
       url: 'https://mockapi.com/rpc',
-    })
+    })({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
@@ -160,12 +92,24 @@ describe('config', () => {
 
 test('request', async () => {
   const transport = http({
-    chain: chains.localhost,
     key: 'jsonRpc',
     name: 'JSON RPC',
-  })
+  })({ chain: localhost })
 
   expect(
     await transport.config.request({ method: 'eth_blockNumber' }),
   ).toBeDefined()
+})
+
+test('no url', () => {
+  expect(() => http()({})).toThrowErrorMatchingInlineSnapshot(
+    `
+    "No URL was provided to the Transport.
+
+    Docs: https://viem.sh/TODO
+
+    Details: A valid RPC URL is required to execute an Action. Please provide a valid RPC URL to the Transport.
+    Version: viem@1.0.2"
+  `,
+  )
 })

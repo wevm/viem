@@ -34,11 +34,11 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
 export class RequestError extends BaseError {
   constructor(
     err: Error,
-    { docsLink, humanMessage }: { docsLink?: string; humanMessage: string },
+    { docsPath, humanMessage }: { docsPath?: string; humanMessage: string },
   ) {
     super({
       cause: err,
-      docsLink,
+      docsPath,
       humanMessage,
     })
     this.name = err.name
@@ -50,9 +50,9 @@ export class RpcRequestError extends RequestError {
 
   constructor(
     err: RpcError,
-    { docsLink, humanMessage }: { docsLink?: string; humanMessage: string },
+    { docsPath, humanMessage }: { docsPath?: string; humanMessage: string },
   ) {
-    super(err, { docsLink, humanMessage })
+    super(err, { docsPath, humanMessage })
     this.code = err.code
     this.name = err.name
   }

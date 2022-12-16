@@ -9,11 +9,11 @@ import { WatchBlocks } from '../actions/WatchBlocks'
 import { WatchBlockNumber } from '../actions/WatchBlockNumber'
 
 const clients = {
-  mainnet: createPublicClient(http({ chain: mainnet })),
-  polygon: createPublicClient(http({ chain: polygon })),
-  optimism: createPublicClient(http({ chain: optimism })),
-  arbitrum: createPublicClient(http({ chain: arbitrum })),
-  goerli: createPublicClient(http({ chain: goerli })),
+  mainnet: createPublicClient({ chain: mainnet, transport: http() }),
+  polygon: createPublicClient({ chain: polygon, transport: http() }),
+  optimism: createPublicClient({ chain: optimism, transport: http() }),
+  arbitrum: createPublicClient({ chain: arbitrum, transport: http() }),
+  goerli: createPublicClient({ chain: goerli, transport: http() }),
 }
 
 export function HttpPublic() {

@@ -13,6 +13,7 @@ test('default', () => {
   })
 
   assertType<'mock'>(transport.config.type)
+
   expect(transport).toMatchInlineSnapshot(`
     {
       "config": {

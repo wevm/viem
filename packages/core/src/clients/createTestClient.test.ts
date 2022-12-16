@@ -8,15 +8,19 @@ import type { TestRequests } from '../types/eip1193'
 import { webSocket } from './transports/webSocket'
 import { localWsUrl } from '../../test/utils'
 
-const mockTransport = createTransport({
-  key: 'mock',
-  name: 'Mock Transport',
-  request: vi.fn(() => null) as any,
-  type: 'mock',
-})
+const mockTransport = () =>
+  createTransport({
+    key: 'mock',
+    name: 'Mock Transport',
+    request: vi.fn(() => null) as any,
+    type: 'mock',
+  })
 
 test('creates', () => {
-  const { uid, ...client } = createTestClient(mockTransport, { mode: 'anvil' })
+  const { uid, ...client } = createTestClient({
+    mode: 'anvil',
+    transport: mockTransport,
+  })
 
   assertType<TestRequests<'anvil'>['request']>(client.request)
   expect(uid).toBeDefined()
@@ -41,8 +45,10 @@ test('creates', () => {
 
 describe('transports', () => {
   test('http', () => {
-    const { uid, ...client } = createTestClient(http({ chain: localhost }), {
+    const { uid, ...client } = createTestClient({
+      chain: localhost,
       mode: 'anvil',
+      transport: http(),
     })
 
     expect(uid).toBeDefined()
@@ -71,28 +77,11 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "type": "http",
-          "url": "http://127.0.0.1:8545",
+          "url": undefined,
         },
         "type": "testClient",
       }
@@ -100,12 +89,11 @@ describe('transports', () => {
   })
 
   test('webSocket', () => {
-    const { uid, ...client } = createTestClient(
-      webSocket({ chain: localhost, url: localWsUrl }),
-      {
-        mode: 'anvil',
-      },
-    )
+    const { uid, ...client } = createTestClient({
+      chain: localhost,
+      mode: 'anvil',
+      transport: webSocket({ url: localWsUrl }),
+    })
 
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
@@ -133,23 +121,6 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "chain": {
-            "id": 1337,
-            "name": "Localhost",
-            "nativeCurrency": {
-              "decimals": 18,
-              "name": "Ether",
-              "symbol": "ETH",
-            },
-            "network": "localhost",
-            "rpcUrls": {
-              "default": {
-                "http": [
-                  "http://127.0.0.1:8545",
-                ],
-              },
-            },
-          },
           "getSocket": [Function],
           "key": "webSocket",
           "name": "WebSocket JSON-RPC",

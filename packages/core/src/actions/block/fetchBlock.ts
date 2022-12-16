@@ -1,5 +1,5 @@
 import type { Chain } from '../../chains'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient } from '../../clients'
 import type { BlockTag, Data, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { BaseError, format, formatBlock, numberToHex } from '../../utils'
@@ -29,7 +29,7 @@ export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
 >
 
 export async function fetchBlock<TChain extends Chain>(
-  client: PublicClient<Transport<any, any, TChain>>,
+  client: PublicClient<any, TChain>,
   { blockHash, blockNumber, blockTag = 'latest' }: FetchBlockArgs = {},
 ): Promise<FetchBlockResponse<TChain>> {
   const blockNumberHex =

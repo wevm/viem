@@ -1,11 +1,9 @@
-import type { Chain } from '../../chains'
 import { rpc } from '../../utils/rpc'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
+import { UrlRequiredError } from './errors'
 
-export type HttpTransportConfig<TChain extends Chain = Chain> = {
-  /** The chain that the RPC should connect to. */
-  chain: TChain
+export type HttpTransportConfig = {
   /** The key of the HTTP transport. */
   key?: TransportConfig['key']
   /** The name of the HTTP transport. */
@@ -14,41 +12,42 @@ export type HttpTransportConfig<TChain extends Chain = Chain> = {
   url?: string
 }
 
-export type HttpTransport<TChain extends Chain = Chain> = Transport<
+export type HttpTransport = Transport<
   'http',
   {
-    url: string
-  },
-  TChain
+    url?: string
+  }
 >
 
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
-export function http<TChain extends Chain = Chain>({
-  chain,
+export function http({
   key = 'http',
   name = 'HTTP JSON-RPC',
-  url = chain.rpcUrls.default.http[0],
-}: HttpTransportConfig<TChain>): HttpTransport<TChain> {
-  return createTransport(
-    {
-      chain,
-      key,
-      name,
-      async request({ method, params }) {
-        const { result } = await rpc.http(url, {
-          body: {
-            method,
-            params,
-          },
-        })
-        return result
+  url,
+}: HttpTransportConfig = {}): HttpTransport {
+  return ({ chain }) => {
+    const url_ = url || chain?.rpcUrls.default.http[0]
+    if (!url_) throw new UrlRequiredError()
+    return createTransport(
+      {
+        key,
+        name,
+        async request({ method, params }) {
+          const { result } = await rpc.http(url_, {
+            body: {
+              method,
+              params,
+            },
+          })
+          return result
+        },
+        type: 'http',
       },
-      type: 'http',
-    },
-    {
-      url,
-    },
-  )
+      {
+        url,
+      },
+    )
+  }
 }

@@ -49,6 +49,7 @@ export type {
   WebSocketTransportConfig,
 } from './clients'
 export {
+  UrlRequiredError,
   createClient,
   createPublicClient,
   createTestClient,

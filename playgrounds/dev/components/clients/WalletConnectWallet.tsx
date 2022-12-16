@@ -15,9 +15,9 @@ const walletConnectProvider = new WalletConnectProvider({
     {},
   ),
 })
-const client = createWalletClient(
-  ethereumProvider({ provider: walletConnectProvider }),
-)
+const client = createWalletClient({
+  transport: ethereumProvider({ provider: walletConnectProvider }),
+})
 
 export function WalletConnectWallet() {
   const [connected, setConnected] = useState(false)

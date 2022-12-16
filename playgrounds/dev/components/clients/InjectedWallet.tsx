@@ -3,14 +3,14 @@ import { createWalletClient, ethereumProvider } from 'viem/clients'
 import { RequestAccountAddresses } from '../actions/RequestAccountAddresses'
 import { SendTransaction } from '../actions/SendTransaction'
 
-const client = createWalletClient(
-  ethereumProvider({
+const client = createWalletClient({
+  transport: ethereumProvider({
     provider:
       typeof window !== 'undefined'
         ? window.ethereum!
         : { request: async () => null },
   }),
-)
+})
 
 export function InjectedWallet() {
   if (!client) return null

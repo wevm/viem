@@ -332,13 +332,13 @@ test('RpcRequestError', () => {
       new RpcError({ code: 1337, message: 'error details' }),
       {
         humanMessage: 'An internal error was received.',
-        docsLink: 'https://viem.sh',
+        docsPath: '/lol',
       },
     ),
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
 
-    Docs: https://viem.sh
+    Docs: https://viem.sh/lol
 
     Details: error details
     Version: viem@1.0.2]

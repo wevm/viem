@@ -29,10 +29,11 @@ export function ethereumProvider<TProvider extends EthereumProvider>({
   name = 'Ethereum Provider',
   provider,
 }: EthereumProviderTransportConfig<TProvider>): EthereumProviderTransport {
-  return createTransport({
-    key,
-    name,
-    request: provider.request.bind(provider),
-    type: 'ethereumProvider',
-  })
+  return () =>
+    createTransport({
+      key,
+      name,
+      request: provider.request.bind(provider),
+      type: 'ethereumProvider',
+    })
 }

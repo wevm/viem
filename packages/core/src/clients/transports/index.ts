@@ -1,6 +1,8 @@
 export { createTransport } from './createTransport'
 export type { Transport, TransportConfig } from './createTransport'
 
+export { UrlRequiredError } from './errors'
+
 export { ethereumProvider } from './ethereumProvider'
 export type {
   EthereumProviderTransport,

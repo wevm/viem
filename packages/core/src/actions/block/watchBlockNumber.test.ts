@@ -38,17 +38,16 @@ describe('emitOnBegin', () => {
   }, 10_000)
 })
 
-describe('pollingInterval on rpc', () => {
+describe('pollingInterval on client', () => {
   test('watches for new block numbers', async () => {
-    const rpc = createPublicClient(
-      http({
-        chain: localhost,
-      }),
-      { pollingInterval: 500 },
-    )
+    const client = createPublicClient({
+      chain: localhost,
+      transport: http(),
+      pollingInterval: 500,
+    })
 
     const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(rpc, (blockNumber) =>
+    const unwatch = watchBlockNumber(client, (blockNumber) =>
       blockNumbers.push(blockNumber),
     )
     await wait(2000)

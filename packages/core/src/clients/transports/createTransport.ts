@@ -7,11 +7,8 @@ export type BaseRpcRequests = {
 
 export type TransportConfig<
   TType extends string = string,
-  TChain extends Chain = Chain,
   TRequests extends BaseRpcRequests['request'] = Requests['request'],
 > = {
-  /** Chain that is configured with the transport. */
-  chain?: TChain
   /** The name of the transport. */
   name: string
   /** The key of the transport. */
@@ -25,9 +22,12 @@ export type TransportConfig<
 export type Transport<
   TType extends string = string,
   TRpcAttributes = Record<string, any>,
-  TChain extends Chain = Chain,
-> = {
-  config: TransportConfig<TType, TChain>
+> = <TChain extends Chain = Chain>({
+  chain,
+}: {
+  chain?: TChain
+}) => {
+  config: TransportConfig<TType>
   value?: TRpcAttributes
 }
 
@@ -37,11 +37,10 @@ export type Transport<
 export function createTransport<
   TType extends string = string,
   TRpcAttributes = any,
-  TChain extends Chain = Chain,
 >(
-  config: TransportConfig<TType, TChain>,
+  config: TransportConfig<TType>,
   value?: TRpcAttributes,
-): Transport<TType, TRpcAttributes, TChain> {
+): ReturnType<Transport<TType, TRpcAttributes>> {
   return {
     config,
     value,

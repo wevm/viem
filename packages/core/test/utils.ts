@@ -65,20 +65,19 @@ export const localWsUrl = 'ws://127.0.0.1:8545'
 
 export const publicClient =
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
-    ? createPublicClient(
-        http({
-          chain: localhost,
-        }),
-      )
-    : createPublicClient(
-        webSocket({
-          chain: localhost,
+    ? createPublicClient({
+        chain: localhost,
+        transport: http(),
+      })
+    : createPublicClient({
+        chain: localhost,
+        transport: webSocket({
           url: localWsUrl,
         }),
-      )
+      })
 
-export const walletClient = createWalletClient(
-  ethereumProvider({
+export const walletClient = createWalletClient({
+  transport: ethereumProvider({
     provider: {
       on: (message: string, listener: (...args: any[]) => null) => {
         if (message === 'accountsChanged') {
@@ -101,10 +100,12 @@ export const walletClient = createWalletClient(
       },
     },
   }),
-)
+})
 
-export const testClient = createTestClient(http({ chain: localhost }), {
+export const testClient = createTestClient({
+  chain: localhost,
   mode: 'anvil',
+  transport: http(),
 })
 
 export function createHttpServer(
