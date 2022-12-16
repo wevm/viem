@@ -10,16 +10,18 @@ import { webSocket } from 'viem'
 
 ## Usage
 
-```ts
+```ts {4-6}
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient(
-  webSocket({ // [!code focus:4]
-    chain: mainnet, 
-    url: 'wss://eth-mainnet.g.alchemy.com/v2/...' 
-  })
-)
+const transport = webSocket({
+  url: 'wss://eth-mainnet.g.alchemy.com/v2/...' 
+})
+
+const client = createPublicClient({
+  chain: mainnet, 
+  transport,
+})
 ```
 
 ::: warning
@@ -28,21 +30,6 @@ If no `url` is provided, then the transport will fall back to a public RPC URL o
 
 ## Configuration
 
-### chain
-
-- **Type:** [`Chain`](/TODO)
-
-The chain that the Transport should connect to.
-
-```ts
-const client = createPublicClient(
-  webSocket({ 
-    chain: mainnet, // [!code focus]
-    url: 'wss://eth-mainnet.g.alchemy.com/v2/...' 
-  })
-)
-```
-
 ### url
 
 - **Type:** `string`
@@ -50,12 +37,9 @@ const client = createPublicClient(
 URL of the JSON-RPC API.
 
 ```ts
-const client = createPublicClient(
-  webSocket({ 
-    chain: mainnet,
-    url: 'wss://eth-mainnet.g.alchemy.com/v2/...'  // [!code focus]
-  })
-)
+const transport = webSocket({
+  url: 'wss://eth-mainnet.g.alchemy.com/v2/...' // [!code focus]
+})
 ```
 
 ### key (optional)
@@ -66,13 +50,10 @@ const client = createPublicClient(
 A key for the Transport.
 
 ```ts
-const client = createPublicClient(
-  webSocket({ 
-    chain: mainnet,
-    key: 'alchemy',  // [!code focus]
-    url: 'wss://eth-mainnet.g.alchemy.com/v2/...'
-  })
-)
+const transport = webSocket({ 
+  key: 'alchemy',  // [!code focus]
+  url: 'wss://eth-mainnet.g.alchemy.com/v2/...'
+})
 ```
 
 ### name (optional)
@@ -83,11 +64,8 @@ const client = createPublicClient(
 A name for the Transport
 
 ```ts
-const client = createPublicClient(
-  webSocket({ 
-    chain: mainnet,
-    name: 'Alchemy WebSocket Provider',  // [!code focus]
-    url: 'wss://eth-mainnet.g.alchemy.com/v2/...'
-  })
-)
+const transport = webSocket({ 
+  name: 'Alchemy WebSocket Provider',  // [!code focus]
+  url: 'wss://eth-mainnet.g.alchemy.com/v2/...'
+})
 ```

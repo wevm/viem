@@ -16,7 +16,10 @@ Firstly, set up your [Client](/TODO) with a desired [Transport](/TODO) & [Chain]
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient(http({ chain: mainnet }))
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
 ```
 
 ::: info

@@ -12,16 +12,14 @@ import { createWalletClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired Transport (e.g. `ethereumProvider`).
-
-## Usage
+Initialize a Client with your desired [Transport](/TODO) (e.g. `ethereumProvider`).
 
 ```ts
 import { createWalletClient, ethereumProvider } from 'viem'
 
-const client = createWalletClient(
-  ethereumProvider({ provider: window.ethereum })
-)
+const client = createWalletClient({
+  transport: ethereumProvider({ provider: window.ethereum })
+})
 ```
 
 ## Configuration
@@ -34,10 +32,12 @@ const client = createWalletClient(
 A key for the Client.
 
 ```ts
-const client = createWalletClient(
-  ethereumProvider({ provider: window.ethereum }),
-  { key: 'foo' }, // [!code focus]
-)
+import { createWalletClient, ethereumProvider } from 'viem'
+
+const client = createWalletClient({
+  key: 'foo', // [!code focus]
+  transport: ethereumProvider({ provider: window.ethereum })
+})
 ```
 
 ### name (optional)
@@ -48,10 +48,12 @@ const client = createWalletClient(
 A name for the Client.
 
 ```ts
-const client = createWalletClient(
-  ethereumProvider({ provider: window.ethereum }),
-  { key: 'Foo Wallet Client' }, // [!code focus]
-)
+import { createWalletClient, ethereumProvider } from 'viem'
+
+const client = createWalletClient({
+  name: 'Foo Wallet Client', // [!code focus]
+  transport: ethereumProvider({ provider: window.ethereum })
+})
 ```
 
 ### pollingInterval (optional)
@@ -62,10 +64,12 @@ const client = createWalletClient(
 Frequency (in ms) for polling enabled Actions.
 
 ```ts
-const client = createWalletClient(
-  ethereumProvider({ provider: window.ethereum }),
-  { pollingInterval: 10_000 }, // [!code focus]
-)
+import { createWalletClient, ethereumProvider } from 'viem'
+
+const client = createWalletClient({
+  pollingInterval: 10_000, // [!code focus]
+  transport: ethereumProvider({ provider: window.ethereum })
+})
 ```
 
 ## Supported actions

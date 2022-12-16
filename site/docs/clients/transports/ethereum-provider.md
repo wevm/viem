@@ -10,12 +10,12 @@ import { ethereumProvider } from 'viem'
 
 ## Usage
 
-```ts 
+```ts {3}
 import { createWalletClient, ethereumProvider } from 'viem'
 
-const client = createWalletClient(
-  ethereumProvider({ provider: window.ethereum }) // [!code focus]
-)
+const transport = ethereumProvider({ provider: window.ethereum })
+
+const client = createWalletClient({ transport })
 ```
 
 ## Gotchas
@@ -31,13 +31,10 @@ const client = createWalletClient(
 
 An [EIP-1193](/TODO) or equivalent provider with an [EIP-1193 `request`](/TODO) function.
 
-```ts 
-import { createWalletClient, ethereumProvider } from 'viem'
-import { exampleProvider } from './providers' // [!code focus]
-
-const client = createWalletClient(
-  ethereumProvider({ provider: exampleProvider }) // [!code focus]
-)
+```ts
+const transport = ethereumProvider({ 
+  provider: window.ethereum // [!code focus]
+})
 ```
 
 ### key (optional)
@@ -47,15 +44,11 @@ const client = createWalletClient(
 
 A key for the Transport.
 
-```ts 
-import { createWalletClient, ethereumProvider } from 'viem'
-
-const client = createWalletClient(
-  ethereumProvider({ 
-    key: 'windowProvider', // [!code focus]
-    provider: window.ethereum
-  })
-)
+```ts
+const transport = ethereumProvider({ 
+  key: 'windowProvider', // [!code focus]
+  provider: window.ethereum
+})
 ```
 
 ### name (optional)
@@ -65,13 +58,9 @@ const client = createWalletClient(
 
 A name for the Transport
 
-```ts 
-import { createWalletClient, ethereumProvider } from 'viem'
-
-const client = createWalletClient(
-  ethereumProvider({ 
-    name: 'Window Ethereum Provider', // [!code focus]
-    provider: exampleProvider
-  })
-)
+```ts
+const transport = ethereumProvider({ 
+  name: 'Window Ethereum Provider', // [!code focus]
+  provider: window.ethereum
+})
 ```

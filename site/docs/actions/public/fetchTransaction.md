@@ -29,7 +29,7 @@ const transaction = await fetchTransaction(publicClient, { // [!code focus:99]
 
 ## Returns
 
-[`TransactionResultLegacy | TransactionResultEIP1559 | TransactionResultEIP2930`](/TODO)
+[`Transaction`](/TODO)
 
 The transaction information.
 

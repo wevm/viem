@@ -10,16 +10,18 @@ import { http } from 'viem'
 
 ## Usage
 
-```ts
+```ts {4-6}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient(
-  http({ // [!code focus:4]
-    chain: mainnet,
-    url: 'https://eth-mainnet.g.alchemy.com/v2/...',
-  })
-)
+const transport = http({ 
+  url: 'https://eth-mainnet.g.alchemy.com/v2/...' 
+})
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport,
+})
 ```
 
 ::: warning
@@ -27,23 +29,6 @@ If no `url` is provided, then the transport will fall back to a public RPC URL o
 :::
 
 ## Configuration
-
-### chain
-
-- **Type:** [`Chain`](/TODO)
-
-The Chain that the Transport should connect to.
-
-```ts
-const client = createPublicClient(
-  http({ 
-    chain: mainnet, // [!code focus]
-    url: 'https://eth-mainnet.g.alchemy.com/v2/...',
-  })
-)
-```
-
-> Read more on [Chains](/TODO).
 
 ### key (optional)
 
@@ -53,13 +38,10 @@ const client = createPublicClient(
 A key for the Transport.
 
 ```ts
-const client = createPublicClient(
-  http({ 
-    chain: mainnet,
-    key: 'alchemy', // [!code focus]
-    url: 'https://eth-mainnet.g.alchemy.com/v2/...',
-  })
-)
+const transport = http({
+  key: 'alchemy', // [!code focus]
+  url: 'https://eth-mainnet.g.alchemy.com/v2/...',
+})
 ```
 
 ### name (optional)
@@ -70,13 +52,10 @@ const client = createPublicClient(
 A name for the Transport
 
 ```ts
-const client = createPublicClient(
-  http({ 
-    chain: mainnet,
-    name: 'Alchemy HTTP Provider', // [!code focus]
-    url: 'https://eth-mainnet.g.alchemy.com/v2/...',
-  })
-)
+const transport = http({
+  name: 'Alchemy HTTP Provider', // [!code focus]
+  url: 'https://eth-mainnet.g.alchemy.com/v2/...',
+})
 ```
 
 ### url (optional)
@@ -87,10 +66,7 @@ const client = createPublicClient(
 URL of the JSON-RPC API.
 
 ```ts
-const client = createPublicClient(
-  http({ 
-    chain: mainnet,
-    url: 'https://eth-mainnet.g.alchemy.com/v2/...', // [!code focus]
-  })
-)
+const transport = http({
+  url: 'https://eth-mainnet.g.alchemy.com/v2/...', // [!code focus]
+})
 ```

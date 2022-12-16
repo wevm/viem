@@ -40,6 +40,8 @@ export default defineConfig({
 
     logo: { light: '/icon-light.png', dark: '/icon-dark.png' },
 
+    outline: [2, 3],
+
     sidebar: {
       '/docs/': [
         {
@@ -78,38 +80,44 @@ export default defineConfig({
         {
           text: 'Public Actions',
           items: [
-            { text: 'Introduction', link: '/docs/actions/public-actions' },
-            { text: 'fetchBalance', link: '/docs/actions/fetchBalance' },
-            { text: 'fetchBlock', link: '/docs/actions/fetchBlock' },
+            { text: 'Introduction', link: '/docs/actions/public/introduction' },
+            { text: 'fetchBalance', link: '/docs/actions/public/fetchBalance' },
+            { text: 'fetchBlock', link: '/docs/actions/public/fetchBlock' },
             {
               text: 'fetchBlockNumber',
-              link: '/docs/actions/fetchBlockNumber',
+              link: '/docs/actions/public/fetchBlockNumber',
             },
             {
               text: 'fetchTransaction',
-              link: '/docs/actions/fetchTransaction',
+              link: '/docs/actions/public/fetchTransaction',
             },
             {
               text: 'watchBlockNumber',
-              link: '/docs/actions/watchBlockNumber',
+              link: '/docs/actions/public/watchBlockNumber',
             },
-            { text: 'watchBlocks', link: '/docs/actions/watchBlocks' },
+            { text: 'watchBlocks', link: '/docs/actions/public/watchBlocks' },
           ],
         },
         {
           text: 'Wallet Actions',
           items: [
-            { text: 'Introduction', link: '/docs/actions/wallet-actions' },
-            { text: 'requestAccounts', link: '/docs/actions/requestAccounts' },
-            { text: 'sendTransaction', link: '/docs/actions/sendTransaction' },
+            { text: 'Introduction', link: '/docs/actions/wallet/introduction' },
+            {
+              text: 'requestAccounts',
+              link: '/docs/actions/wallet/requestAccounts',
+            },
+            {
+              text: 'sendTransaction',
+              link: '/docs/actions/wallet/sendTransaction',
+            },
           ],
         },
         {
           text: 'Test Actions',
           items: [
-            { text: 'Introduction', link: '/docs/actions/test-actions' },
-            { text: 'mine', link: '/docs/actions/mine' },
-            { text: 'setBalance', link: '/docs/actions/setBalance' },
+            { text: 'Introduction', link: '/docs/actions/test/introduction' },
+            { text: 'mine', link: '/docs/actions/test/mine' },
+            { text: 'setBalance', link: '/docs/actions/test/setBalance' },
           ],
         },
         {

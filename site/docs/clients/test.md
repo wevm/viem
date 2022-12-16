@@ -12,16 +12,17 @@ import { createTestClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired Transport (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
+Initialize a Client with your desired [Chain](/TODO), [Transport](/TODO) (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
 
 ```ts
 import { createTestClient, http } from 'viem'
 import { foundry } from 'viem/chains'
 
-const client = createTestClient( // [!code focus:4]
-  http({ chain: foundry }), 
-  { mode: 'anvil' }
-)
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
 ```
 
 ## Configuration
@@ -30,27 +31,42 @@ const client = createTestClient( // [!code focus:4]
 
 - **Type:** `"anvil" | "hardhat"`
 
-Mode of the Client.
+Mode of the Test Client.
 
 ```ts
-const client = createTestClient(
-  http({ chain: foundry }),
-  { mode: 'anvil' }, // [!code focus]
-)
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil', // [!code focus]
+  transport: http(), 
+})
 ```
 
-### key (optional)
+### transport
 
-- **Type:** `string`
-- **Default:** `"test"`
+- **Type:** [Transport](/TODO)
 
-A key for the Client.
+[Transport](/TODO) of the Test Client.
 
 ```ts
-const client = createTestClient(
-  http({ chain: foundry }),
-  { mode: 'anvil', key: 'test' }, // [!code focus]
-)
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil', 
+  transport: http(),  // [!code focus]
+})
+```
+
+### chain (optional)
+
+- **Type:** [Chain](/TODO)
+
+[Chain](/TODO) of the Test Client.
+
+```ts
+const client = createTestClient({
+  chain: foundry, // [!code focus]
+  mode: 'anvil',
+  transport: http(), 
+})
 ```
 
 ### name (optional)
@@ -61,10 +77,12 @@ const client = createTestClient(
 A name for the Client.
 
 ```ts
-const client = createTestClient(
-  http({ chain: foundry }),
-  { mode: 'anvil', name: 'Anvil Test Client' }, // [!code focus]
-)
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil', 
+  name: 'Anvil Client',  // [!code focus]
+  transport: http(),
+})
 ```
 
 ### pollingInterval (optional)
@@ -75,10 +93,12 @@ const client = createTestClient(
 Frequency (in ms) for polling enabled Actions.
 
 ```ts
-const client = createTestClient(
-  http({ chain: foundry }),
-  { mode: 'anvil', pollingInterval: 10_000 }, // [!code focus]
-)
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil', 
+  pollingInterval: 10_000,  // [!code focus]
+  transport: http(),
+})
 ```
 
 ## Supported actions

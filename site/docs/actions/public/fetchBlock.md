@@ -70,19 +70,6 @@ const block = await fetchBlock(publicClient, {
 })
 ```
 
-### includeTransactions (optional)
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Include transactions on the block.
-
-```ts
-const block = await fetchBlock(publicClient, {
-  includeTransactions: true // [!code focus]
-})
-```
-
 ## Example
 
 TODO

@@ -81,21 +81,6 @@ const unwatch = watchBlocks(
 )
 ```
 
-### includeTransactions (optional)
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Whether or not to include transaction data in the response.
-
-```ts
-const unwatch = watchBlocks(
-  client,
-  block => console.log(block),
-  { includeTransactions: true } // [!code focus]
-)
-```
-
 ### pollingInterval (optional)
 
 - **Type:** `number`
