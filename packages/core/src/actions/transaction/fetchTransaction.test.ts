@@ -8,13 +8,13 @@ import {
   walletClient,
 } from '../../../test'
 import { etherToValue } from '../../utils'
-import { fetchBlock } from '../block'
-import { sendTransaction } from '../transaction'
-import { setBalance } from '../test/setBalance'
-import { TransactionNotFoundError, fetchTransaction } from './fetchTransaction'
 import type { Address, Transaction } from '../../types'
 import { createPublicClient, http } from '../../clients'
 import { celo } from '../../chains'
+import { fetchBlock } from '../block'
+import { sendTransaction } from '../transaction'
+import { TransactionNotFoundError, fetchTransaction } from './fetchTransaction'
+import { mine, setBalance } from '../test'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -293,6 +293,26 @@ describe('args: blockNumber', () => {
       'Transaction at block number "15131999" at index "420" could not be found.',
     )
   })
+})
+
+describe('args: blockTag', () => {
+  test('fetches transaction by block tag & index', async () => {
+    await sendTransaction(walletClient, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+      },
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    const transaction = await fetchTransaction(publicClient, {
+      blockTag: 'latest',
+      index: 0,
+    })
+    expect(transaction).toBeDefined()
+  }, 10000)
 })
 
 describe('TransactionNotFoundError', () => {
