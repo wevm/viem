@@ -18,7 +18,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http()
+  transport: http(),
 })
 ```
 
@@ -30,11 +30,14 @@ In a production app, it is highly recommended to pass through your authenticated
 
 Now that you have a Client set up, you can now interact with Ethereum and consume [Actions](/TODO)!
 
-```tsx {6}
+```tsx {9}
 import { createPublicClient, http, fetchBlockNumber } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient(http({ chain: mainnet }))
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
 
 const blockNumber = await fetchBlockNumber(client)
 ```
