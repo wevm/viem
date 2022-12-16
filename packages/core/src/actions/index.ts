@@ -1,4 +1,4 @@
-export { fetchBalance, requestAccountAddresses } from './account'
+export { fetchBalance, requestAccounts } from './account'
 export type { FetchBalanceArgs, FetchBalanceResponse } from './account'
 
 export {

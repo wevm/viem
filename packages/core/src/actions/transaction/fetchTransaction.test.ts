@@ -8,14 +8,13 @@ import {
   walletClient,
 } from '../../../test'
 import { etherToValue } from '../../utils'
-import { fetchBlock } from '../block'
-import { sendTransaction } from '../transaction'
-import { mine } from '../test'
-import { setBalance } from '../test/setBalance'
-import { TransactionNotFoundError, fetchTransaction } from './fetchTransaction'
 import type { Address, Transaction } from '../../types'
 import { createPublicClient, http } from '../../clients'
 import { celo } from '../../chains'
+import { fetchBlock } from '../block'
+import { sendTransaction } from '../transaction'
+import { TransactionNotFoundError, fetchTransaction } from './fetchTransaction'
+import { mine, setBalance } from '../test'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -85,7 +84,7 @@ test('fetches transaction (eip2930)', async () => {
     value: targetAccount.balance,
   })
 
-  await sendTransaction(walletClient, {
+  const { hash } = await sendTransaction(walletClient, {
     request: {
       accessList: [{ address: targetAccount.address, storageKeys: [] }],
       from: sourceAccount.address,
@@ -95,11 +94,8 @@ test('fetches transaction (eip2930)', async () => {
     },
   })
 
-  await mine(testClient, { blocks: 1 })
-
   const transaction = await fetchTransaction(publicClient, {
-    blockTag: 'latest',
-    index: 0,
+    hash,
   })
   expect(Object.keys(transaction)).toMatchInlineSnapshot(`
     [
@@ -127,7 +123,6 @@ test('fetches transaction (eip2930)', async () => {
     '"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"',
   )
   expect(transaction.gas).toBeDefined()
-  expect(transaction.transactionIndex).toMatchInlineSnapshot('0')
   expect(transaction.to).toMatchInlineSnapshot(
     '"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"',
   )
@@ -298,6 +293,26 @@ describe('args: blockNumber', () => {
       'Transaction at block number "15131999" at index "420" could not be found.',
     )
   })
+})
+
+describe('args: blockTag', () => {
+  test('fetches transaction by block tag & index', async () => {
+    await sendTransaction(walletClient, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+      },
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    const transaction = await fetchTransaction(publicClient, {
+      blockTag: 'latest',
+      index: 0,
+    })
+    expect(transaction).toBeDefined()
+  }, 10000)
 })
 
 describe('TransactionNotFoundError', () => {

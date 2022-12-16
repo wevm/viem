@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vp-button-brand-text: var(--vp-c-black);
+  --vp-button-brand-hover-text: var(--vp-c-black);
+
+  --vp-c-brand: var(--vp-c-yellow);
+  --vp-c-brand-light: var(--vp-c-yellow-light);
+  --vp-c-brand-lighter: var(--vp-c-yellow-lighter);
+  --vp-c-brand-dark: var(--vp-c-yellow-dark);
+  --vp-c-brand-darker: var(--vp-c-yellow-darker);
+
+  --vp-c-text-light-1: var(--vp-c-black-soft);
+}
+
+.dark {
+  --vp-c-brand: var(--vp-c-yellow);
+}
+
+.VPNavBarTitle .VPImage {
+  margin-right: 4px;
+}

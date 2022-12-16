@@ -7,7 +7,7 @@ import { fetchBlockNumber } from './fetchBlockNumber'
 export type WatchBlockNumberArgs = {
   /** Whether or not to emit the latest block to the callback when the subscription opens. */
   emitOnBegin?: boolean
-  /** Polling frequency (in ms). Defaults to RPC's pollingInterval config. */
+  /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 }
 export type WatchBlockNumberResponse = FetchBlockNumberResponse
@@ -15,6 +15,7 @@ export type WatchBlockNumberCallback = (
   blockNumber: WatchBlockNumberResponse,
 ) => void
 
+/** @description Watches and returns incoming block numbers. */
 export function watchBlockNumber(
   client: PublicClient,
   callback: WatchBlockNumberCallback,

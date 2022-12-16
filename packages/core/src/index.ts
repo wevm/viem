@@ -23,7 +23,7 @@ export {
   fetchBlockNumber,
   fetchTransaction,
   mine,
-  requestAccountAddresses,
+  requestAccounts,
   sendTransaction,
   setBalance,
   watchBlockNumber,
