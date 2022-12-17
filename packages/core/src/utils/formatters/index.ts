@@ -5,7 +5,7 @@ export type { ExtractFormatter, FormatOptions, Formatted } from './format'
 export { format } from './format'
 
 export type { FormattedTransaction, TransactionFormatter } from './transaction'
-export { formatTransaction, transactionType } from './transaction'
+export { formatTransaction } from './transaction'
 
 export type {
   FormattedTransactionRequest,

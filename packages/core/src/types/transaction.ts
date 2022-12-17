@@ -1,11 +1,20 @@
+import type { transactionType } from '../constants'
 import type { Address } from './address'
 import type { Data } from './data'
 import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee'
 import type { Log } from './log'
+import type { ValueOf } from './utils'
 
 export type AccessList = Array<{ address: Address; storageKeys: Array<Data> }>
 
-export type TransactionReceipt<TQuantity = bigint, TIndex = number> = {
+export type TransactionType = ValueOf<typeof transactionType>
+
+export type TransactionReceipt<
+  TQuantity = bigint,
+  TIndex = number,
+  TStatus = 'success' | 'reverted',
+  TType = TransactionType,
+> = {
   /** Hash of block containing this transaction */
   blockHash: Data
   /** Number of block containing this transaction */
@@ -25,13 +34,15 @@ export type TransactionReceipt<TQuantity = bigint, TIndex = number> = {
   /** Logs bloom filter */
   logsBloom: Data
   /** `1` if this transaction was successful or `0` if it failed */
-  status: 0 | 1
+  status: TStatus
   /** Transaction recipient or `null` if deploying a contract */
   to: Address | null
   /** Hash of this transaction */
   transactionHash: Data
   /** Index of this transaction in the block */
   transactionIndex: TIndex
+  /** Transaction type */
+  type: TType
 }
 
 export type TransactionBase<TQuantity = bigint, TIndex = number> = {

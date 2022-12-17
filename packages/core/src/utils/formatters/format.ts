@@ -4,7 +4,10 @@ import type { OptionalNullable } from '../../types'
 export type ExtractFormatter<
   TChain extends Chain,
   TKey extends keyof NonNullable<TChain['formatters']>,
-> = NonNullable<TChain['formatters']>[TKey]
+  TFallbackFormatter extends Formatter = Formatter,
+> = NonNullable<TChain['formatters']>[TKey] extends NonNullable<unknown>
+  ? NonNullable<TChain['formatters']>[TKey]
+  : TFallbackFormatter
 
 export type FormatOptions<TSource, TTarget> = {
   formatter: Formatter<TSource, TTarget>

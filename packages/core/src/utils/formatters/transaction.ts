@@ -1,20 +1,19 @@
-import type { Chain, Formatter } from '../../chains'
+import type { Chain, Formatter, Formatters } from '../../chains'
 import type { RpcTransaction, Transaction } from '../../types'
-import type { ExtractFormatter, Formatted } from './format'
+import { transactionType } from '../../constants'
 import { hexToNumber } from '../number'
+import type { ExtractFormatter, Formatted } from './format'
 
 export type TransactionFormatter<TChain extends Chain = Chain> =
-  ExtractFormatter<TChain, 'transaction'>
+  ExtractFormatter<
+    TChain,
+    'transaction',
+    NonNullable<Formatters['transaction']>
+  >
 
 export type FormattedTransaction<
   TFormatter extends Formatter | undefined = Formatter,
 > = Formatted<TFormatter, Transaction>
-
-export const transactionType = {
-  '0x0': 'legacy',
-  '0x1': 'eip2930',
-  '0x2': 'eip1559',
-} as const
 
 export function formatTransaction(transaction: Partial<RpcTransaction>) {
   const transaction_ = {

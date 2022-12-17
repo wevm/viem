@@ -4,6 +4,7 @@ import {
   fetchBlock,
   fetchBlockNumber,
   fetchTransaction,
+  fetchTransactionReceipt,
   sendTransaction,
 } from 'viem/actions'
 import { createClient, http } from 'viem/clients'
@@ -59,7 +60,7 @@ const formatter = new providers.Formatter()
 
 export const getSuite = ({ url }: { url: string }): Suite => {
   const viemClient = createClient({ chain: mainnet, transport: http({ url }) })
-  const ethersProvider = new ethers.providers.JsonRpcProvider(url)
+  const ethersProvider = new ethers.providers.StaticJsonRpcProvider(url)
   return [
     {
       title: 'current block number',
@@ -129,6 +130,22 @@ export const getSuite = ({ url }: { url: string }): Suite => {
         },
         ethers: async () => {
           await ethersProvider.getTransaction(
+            '0x493b3ce4b88a2b432c85f75ab18b1d54ac37d59659c2c4a41514c4c6f4d6a87f',
+          )
+        },
+      },
+    },
+    {
+      title: 'get txn receipt',
+      key: 'getTransactionReceipt',
+      fns: {
+        viem: async () => {
+          await fetchTransactionReceipt(viemClient, {
+            hash: '0x493b3ce4b88a2b432c85f75ab18b1d54ac37d59659c2c4a41514c4c6f4d6a87f',
+          })
+        },
+        ethers: async () => {
+          await ethersProvider.getTransactionReceipt(
             '0x493b3ce4b88a2b432c85f75ab18b1d54ac37d59659c2c4a41514c4c6f4d6a87f',
           )
         },

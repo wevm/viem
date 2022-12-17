@@ -4,6 +4,12 @@ export type {
   FetchTransactionResponse,
 } from './fetchTransaction'
 
+export { fetchTransactionReceipt } from './fetchTransactionReceipt'
+export type {
+  FetchTransactionReceiptArgs,
+  FetchTransactionReceiptResponse,
+} from './fetchTransactionReceipt'
+
 export { sendTransaction } from './sendTransaction'
 export type {
   SendTransactionArgs,

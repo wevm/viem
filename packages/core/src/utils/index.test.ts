@@ -26,19 +26,11 @@ test('exports utils', () => {
       "checksumAddress": [Function],
       "displayToValue": [Function],
       "etherToValue": [Function],
-      "etherUnits": {
-        "gwei": 9,
-        "wei": 18,
-      },
       "format": [Function],
       "formatBlock": [Function],
       "formatTransaction": [Function],
       "formatTransactionRequest": [Function],
       "gweiToValue": [Function],
-      "gweiUnits": {
-        "ether": -9,
-        "wei": 9,
-      },
       "hexToNumber": [Function],
       "numberToHex": [Function],
       "rpc": {
@@ -46,18 +38,9 @@ test('exports utils', () => {
         "webSocket": [Function],
         "webSocketAsync": [Function],
       },
-      "transactionType": {
-        "0x0": "legacy",
-        "0x1": "eip2930",
-        "0x2": "eip1559",
-      },
       "valueAsEther": [Function],
       "valueAsGwei": [Function],
       "valueToDisplay": [Function],
-      "weiUnits": {
-        "ether": -18,
-        "gwei": -9,
-      },
     }
   `)
 })

@@ -34,3 +34,12 @@ export type OptionalNullable<T> = {
  * => { a?: string, b: number }
  */
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+/**
+ * @description Creates a type that extracts the values of T.
+ *
+ * @example
+ * ValueOf<{ a: string, b: number }>
+ * => string | number
+ */
+export type ValueOf<T> = T[keyof T]
