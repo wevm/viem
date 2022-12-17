@@ -22,10 +22,16 @@ export type {
 export { mine, setBalance } from './test'
 export type { MineArgs, SetBalanceArgs } from './test'
 
-export { fetchTransaction, sendTransaction } from './transaction'
+export {
+  fetchTransaction,
+  fetchTransactionReceipt,
+  sendTransaction,
+} from './transaction'
 export type {
   FetchTransactionArgs,
   FetchTransactionResponse,
+  FetchTransactionReceiptArgs,
+  FetchTransactionReceiptResponse,
   SendTransactionArgs,
   SendTransactionResponse,
 } from './transaction'

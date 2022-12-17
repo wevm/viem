@@ -29,8 +29,10 @@ import type {
   Quantity,
   RpcBlock,
   RpcTransaction,
+  RpcTransactionReceipt,
   RpcTransactionRequest,
   Transaction,
+  TransactionReceipt,
   TransactionRequest,
 } from './types'
 import {
@@ -38,6 +40,7 @@ import {
   formatTransaction,
   formatTransactionRequest,
 } from './utils'
+import { formatTransactionReceipt } from './utils/formatters/transactionReceipt'
 
 export type Formatter<TSource = any, TTarget = any> = (
   value: TSource & { [key: string]: unknown },
@@ -46,6 +49,7 @@ export type Formatter<TSource = any, TTarget = any> = (
 export type Formatters = {
   block?: Formatter<RpcBlock, Block>
   transaction?: Formatter<RpcTransaction, Transaction>
+  transactionReceipt?: Formatter<RpcTransactionReceipt, TransactionReceipt>
   transactionRequest?: Formatter<TransactionRequest, RpcTransactionRequest>
 }
 
@@ -94,10 +98,13 @@ function defineFormatter<TSource extends Record<string, unknown>, TFormatted>({
     }
 }
 
-const defineBlock = defineFormatter({ format: formatBlock })
-const defineTransaction = defineFormatter({ format: formatTransaction })
-const defineTransactionRequest = defineFormatter({
+export const defineBlock = defineFormatter({ format: formatBlock })
+export const defineTransaction = defineFormatter({ format: formatTransaction })
+export const defineTransactionRequest = defineFormatter({
   format: formatTransactionRequest,
+})
+export const defineTransactionReceipt = defineFormatter({
+  format: formatTransactionReceipt,
 })
 
 export const arbitrumGoerli = defineChain(arbitrumGoerli_)

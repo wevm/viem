@@ -6,6 +6,8 @@ export type {
   FetchBlockResponse,
   FetchTransactionArgs,
   FetchTransactionResponse,
+  FetchTransactionReceiptArgs,
+  FetchTransactionReceiptResponse,
   MineArgs,
   SendTransactionArgs,
   SendTransactionResponse,
@@ -22,6 +24,7 @@ export {
   fetchBlock,
   fetchBlockNumber,
   fetchTransaction,
+  fetchTransactionReceipt,
   mine,
   requestAccounts,
   sendTransaction,
@@ -59,6 +62,8 @@ export {
   http,
   webSocket,
 } from './clients'
+
+export { etherUnits, gweiUnits, transactionType, weiUnits } from './constants'
 
 export type {
   Address,
@@ -123,17 +128,13 @@ export {
   checksumAddress,
   displayToValue,
   etherToValue,
-  etherUnits,
   formatBlock,
   formatTransaction,
   formatTransactionRequest,
   gweiToValue,
-  gweiUnits,
   hexToNumber,
   numberToHex,
-  transactionType,
   valueAsEther,
   valueAsGwei,
   valueToDisplay,
-  weiUnits,
 } from './utils'

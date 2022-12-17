@@ -34,7 +34,6 @@ export {
   formatBlock,
   formatTransaction,
   formatTransactionRequest,
-  transactionType,
 } from './formatters'
 
 export { hexToNumber, numberToHex } from './number'
@@ -44,11 +43,8 @@ export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
 export {
   displayToValue,
   etherToValue,
-  etherUnits,
   gweiToValue,
-  gweiUnits,
   valueAsEther,
   valueAsGwei,
   valueToDisplay,
-  weiUnits,
 } from './unit'

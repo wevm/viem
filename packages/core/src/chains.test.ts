@@ -260,7 +260,11 @@ test('exports chains', () => {
           },
         },
       },
+      "defineBlock": [Function],
       "defineChain": [Function],
+      "defineTransaction": [Function],
+      "defineTransactionReceipt": [Function],
+      "defineTransactionRequest": [Function],
       "fantom": {
         "blockExplorers": {
           "default": {

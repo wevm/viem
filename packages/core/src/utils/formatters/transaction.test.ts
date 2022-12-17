@@ -1,16 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { formatTransaction, transactionType } from './transaction'
-
-test('transactionType', () => {
-  expect(transactionType).toMatchInlineSnapshot(`
-    {
-      "0x0": "legacy",
-      "0x1": "eip2930",
-      "0x2": "eip1559",
-    }
-  `)
-})
+import { formatTransaction } from './transaction'
 
 test('legacy transaction', () => {
   expect(
