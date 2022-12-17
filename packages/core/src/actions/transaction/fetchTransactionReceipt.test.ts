@@ -1,11 +1,17 @@
-import { assertType, expect, test } from 'vitest'
+import { assertType, describe, expect, it, test } from 'vitest'
 
-import { publicClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { celo, defineTransactionReceipt, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { TransactionReceipt } from '../../types'
+import { etherToValue, gweiToValue } from '../../utils'
+import { wait } from '../../utils/wait'
+import { fetchBlock } from '../block'
+import { mine } from '../test'
+import { fetchTransaction } from './fetchTransaction'
 
 import { fetchTransactionReceipt } from './fetchTransactionReceipt'
+import { sendTransaction } from './sendTransaction'
 
 test('fetches transaction receipt', async () => {
   const receipt = await fetchTransactionReceipt(publicClient, {
@@ -140,15 +146,76 @@ test('chain w/ custom block type', async () => {
   `)
 })
 
+describe('e2e', () => {
+  const sourceAccount = accounts[0]
+  const targetAccount = accounts[1]
+
+  it('fetches transaction receipt', async () => {
+    const block = await fetchBlock(publicClient)
+
+    const maxFeePerGas = block.baseFeePerGas! + gweiToValue('10')
+    const maxPriorityFeePerGas = gweiToValue('10')
+
+    const { hash } = await sendTransaction(walletClient, {
+      request: {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: etherToValue('1'),
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      },
+    })
+
+    expect(await fetchTransaction(publicClient, { hash })).toBeDefined()
+    await expect(() =>
+      fetchTransactionReceipt(publicClient, {
+        hash,
+      }),
+    ).rejects.toThrowError('transaction receipt not found')
+
+    mine(testClient, { blocks: 1 })
+    await wait(0)
+
+    const {
+      blockHash,
+      blockNumber,
+      effectiveGasPrice,
+      transactionHash,
+      ...receipt
+    } = await fetchTransactionReceipt(publicClient, {
+      hash,
+    })
+
+    expect(blockHash).toBeDefined()
+    expect(blockNumber).toBeDefined()
+    expect(effectiveGasPrice).toBeDefined()
+    expect(transactionHash).toBeDefined()
+    expect(receipt).toMatchInlineSnapshot(`
+      {
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionIndex": 0,
+        "type": null,
+      }
+    `)
+  })
+})
+
 test('throws if transaction not found', async () => {
   await expect(
     fetchTransactionReceipt(publicClient, {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Transaction with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found.
+    "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found.
 
-    Details: transaction not found
+    Details: transaction receipt not found
     Version: viem@1.0.2"
   `)
 })

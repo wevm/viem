@@ -1,10 +1,14 @@
-import type { Chain, Formatter } from '../../chains'
+import type { Chain, Formatter, Formatters } from '../../chains'
 import type { RpcTransactionRequest, TransactionRequest } from '../../types'
 import type { ExtractFormatter, Formatted } from './format'
 import { numberToHex } from '../number'
 
 export type TransactionRequestFormatter<TChain extends Chain = Chain> =
-  ExtractFormatter<TChain, 'transactionRequest'>
+  ExtractFormatter<
+    TChain,
+    'transactionRequest',
+    NonNullable<Formatters['transactionRequest']>
+  >
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
