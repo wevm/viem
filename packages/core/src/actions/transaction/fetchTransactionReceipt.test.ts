@@ -10,7 +10,10 @@ import { fetchBlock } from '../block'
 import { mine } from '../test'
 import { fetchTransaction } from './fetchTransaction'
 
-import { fetchTransactionReceipt } from './fetchTransactionReceipt'
+import {
+  TransactionReceiptNotFoundError,
+  fetchTransactionReceipt,
+} from './fetchTransactionReceipt'
 import { sendTransaction } from './sendTransaction'
 
 test('fetches transaction receipt', async () => {
@@ -213,6 +216,19 @@ test('throws if transaction not found', async () => {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found.
+
+    Details: transaction receipt not found
+    Version: viem@1.0.2"
+  `)
+})
+
+test('TransactionReceiptNotFoundError', () => {
+  const error = new TransactionReceiptNotFoundError({
+    hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
+  })
+
+  expect(error.message).toMatchInlineSnapshot(`
     "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found.
 
     Details: transaction receipt not found

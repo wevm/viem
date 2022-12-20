@@ -6,7 +6,16 @@ import { localWsUrl } from '../../test/utils'
 import { localhost, mainnet } from '../chains'
 import { numberToHex } from './number'
 
-import { HttpRequestError, TimeoutError, getSocket, rpc } from './rpc'
+import type { RpcResponse } from './rpc'
+import {
+  HttpRequestError,
+  RpcError,
+  TimeoutError,
+  WebSocketRequestError,
+  getSocket,
+  rpc,
+} from './rpc'
+import { wait } from './wait'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`
@@ -62,7 +71,54 @@ describe('http', () => {
       rpc.http(localhost.rpcUrls.default.http[0], {
         body: { method: 'eth_wagmi' },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot('"Method not found"')
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "RPC Request failed.
+
+      URL: http://127.0.0.1:8545
+      Request body: {\\"method\\":\\"eth_wagmi\\"}
+
+      Details: Method not found
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('serial requests', async () => {
+    let response: any = []
+    for (const i in Array.from({ length: 10 })) {
+      response.push(
+        await rpc.http(localhost.rpcUrls.default.http[0], {
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+          },
+        }),
+      )
+    }
+    expect(response.map((r: any) => r.result.number)).toEqual(
+      Array.from({ length: 10 }).map((_, i) =>
+        numberToHex(initialBlockNumber - BigInt(i)),
+      ),
+    )
+  })
+
+  test('parallel requests', async () => {
+    await wait(500)
+    const response = await Promise.all(
+      Array.from({ length: 50 }).map(async (_, i) => {
+        return await rpc.http(localhost.rpcUrls.default.http[0], {
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+          },
+        })
+      }),
+    )
+    expect(response.map((r) => r.result.number)).toEqual(
+      Array.from({ length: 50 }).map((_, i) =>
+        numberToHex(initialBlockNumber - BigInt(i)),
+      ),
+    )
+    await wait(500)
   })
 
   test('http error', async () => {
@@ -150,7 +206,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The HTTP request failed.')
+    ).rejects.toThrowError('HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 
@@ -172,7 +228,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The HTTP request failed.')
+    ).rejects.toThrowError('HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 
@@ -194,7 +250,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The HTTP request failed.')
+    ).rejects.toThrowError('HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 
@@ -216,7 +272,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The HTTP request failed.')
+    ).rejects.toThrowError('HTTP request failed.')
     expect(retryCount).toBe(0)
   })
 
@@ -239,7 +295,7 @@ describe('http', () => {
         },
         retryCount: 2,
       }),
-    ).rejects.toThrowError('The HTTP request failed.')
+    ).rejects.toThrowError('HTTP request failed.')
     expect(retryCount).toBe(2)
   })
 })
@@ -281,6 +337,7 @@ describe('webSocket', () => {
         "result": "anvil/v0.1.0",
       }
     `)
+    expect(socket.requests.size).toBe(0)
   })
 
   test('valid request', async () => {
@@ -450,6 +507,7 @@ describe('webSocket', () => {
         },
       }
     `)
+    expect(socket.requests.size).toBe(0)
   })
 
   test('invalid request', async () => {
@@ -468,6 +526,187 @@ describe('webSocket', () => {
     ).rejects.toThrowError(
       'data did not match any variant of untagged enum EthRpcCall',
     )
+    expect(socket.requests.size).toBe(0)
+  })
+
+  test('invalid request (closing socket)', async () => {
+    const socket = await getSocket(localWsUrl)
+    await wait(1000)
+    socket.close()
+    await expect(
+      () =>
+        new Promise<any>((resolve, reject) =>
+          rpc.webSocket(socket, {
+            body: {
+              method: 'wagmi_lol',
+            },
+            onData: resolve,
+            onError: reject,
+          }),
+        ),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "WebSocket request failed.
+
+      URL: ws://127.0.0.1:8545/
+      Request body: {\\"method\\":\\"wagmi_lol\\"}
+
+      Details: Socket is closed.
+      Version: viem@1.0.2"
+    `,
+    )
+    await wait(100)
+  })
+
+  test('invalid request (closed socket)', async () => {
+    const socket = await getSocket(localWsUrl)
+    socket.close()
+    await wait(1000)
+    await expect(
+      () =>
+        new Promise<any>((resolve, reject) =>
+          rpc.webSocket(socket, {
+            body: {
+              method: 'wagmi_lol',
+            },
+            onData: resolve,
+            onError: reject,
+          }),
+        ),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "WebSocket request failed.
+
+      URL: ws://127.0.0.1:8545/
+      Request body: {\\"method\\":\\"wagmi_lol\\"}
+
+      Details: Socket is closed.
+      Version: viem@1.0.2"
+    `,
+    )
+  })
+})
+
+describe('webSocket (subscription)', () => {
+  test('basic', async () => {
+    const socket = await getSocket(localWsUrl)
+    let data_: RpcResponse[] = []
+    rpc.webSocket(socket, {
+      body: {
+        method: 'eth_subscribe',
+        params: ['newHeads'],
+      },
+      onData: (data) => data_.push(data),
+    })
+    await wait(2000)
+    expect(socket.subscriptions.size).toBe(1)
+    expect(data_.length).toBe(3)
+
+    await rpc.webSocketAsync(socket, {
+      body: {
+        method: 'eth_unsubscribe',
+        params: [(data_[0] as any).result],
+      },
+    })
+
+    await wait(2000)
+    expect(socket.subscriptions.size).toBe(0)
+    expect(data_.length).toBe(3)
+  })
+
+  test('multiple', async () => {
+    const socket = await getSocket(localWsUrl)
+    let s1: RpcResponse[] = []
+    rpc.webSocket(socket, {
+      body: {
+        method: 'eth_subscribe',
+        params: ['newHeads'],
+      },
+      onData: (data) => s1.push(data),
+    })
+
+    let s2: RpcResponse[] = []
+    rpc.webSocket(socket, {
+      body: {
+        method: 'eth_subscribe',
+        params: ['newHeads'],
+      },
+      onData: (data) => s2.push(data),
+    })
+
+    let s3: RpcResponse[] = []
+    rpc.webSocket(socket, {
+      body: {
+        method: 'eth_subscribe',
+        params: ['newPendingTransactions'],
+      },
+      onData: (data) => s3.push(data),
+    })
+
+    await wait(2000)
+    expect(socket.requests.size).toBe(0)
+    expect(socket.subscriptions.size).toBe(3)
+    expect(s1.length).toBe(3)
+    expect(s2.length).toBe(3)
+    expect(s3.length).toBe(1)
+
+    await rpc.webSocketAsync(socket, {
+      body: {
+        method: 'eth_unsubscribe',
+        params: [(s1[0] as any).result],
+      },
+    })
+
+    await wait(2000)
+    expect(socket.requests.size).toBe(0)
+    expect(socket.subscriptions.size).toBe(2)
+    expect(s1.length).toBe(3)
+    expect(s2.length).toBe(5)
+    expect(s3.length).toBe(1)
+
+    await rpc.webSocketAsync(socket, {
+      body: {
+        method: 'eth_unsubscribe',
+        params: [(s2[0] as any).result],
+      },
+    })
+    await rpc.webSocketAsync(socket, {
+      body: {
+        method: 'eth_unsubscribe',
+        params: [(s3[0] as any).result],
+      },
+    })
+
+    await wait(2000)
+    expect(socket.requests.size).toBe(0)
+    expect(socket.subscriptions.size).toBe(0)
+    expect(s1.length).toBe(3)
+    expect(s2.length).toBe(5)
+    expect(s3.length).toBe(1)
+  }, 10_000)
+
+  test('invalid subscription', async () => {
+    const socket = await getSocket(localWsUrl)
+    let err_: Error | undefined
+    rpc.webSocket(socket, {
+      body: {
+        method: 'eth_subscribe',
+        params: ['fakeHeadz'],
+      },
+      onError: (err) => (err_ = err),
+    })
+    await wait(500)
+    expect(socket.requests.size).toBe(0)
+    expect(socket.subscriptions.size).toBe(0)
+    expect(err_).toMatchInlineSnapshot(`
+      [RpcError: RPC Request failed.
+
+      URL: ws://127.0.0.1:8545/
+      Request body: {"method":"eth_subscribe","params":["fakeHeadz"]}
+
+      Details: data did not match any variant of untagged enum EthRpcCall
+      Version: viem@1.0.2]
+    `)
   })
 })
 
@@ -484,6 +723,7 @@ describe('webSocketAsync', () => {
         "result": "anvil/v0.1.0",
       }
     `)
+    expect(socket.requests.size).toBe(0)
   })
 
   test('valid request', async () => {
@@ -649,6 +889,50 @@ describe('webSocketAsync', () => {
         },
       }
     `)
+    expect(socket.requests.size).toBe(0)
+  })
+
+  test('serial requests', async () => {
+    const socket = await getSocket(localWsUrl)
+    let response: any = []
+    for (const i in Array.from({ length: 10 })) {
+      response.push(
+        await rpc.webSocketAsync(socket, {
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+          },
+        }),
+      )
+    }
+    expect(response.map((r: any) => r.result.number)).toEqual(
+      Array.from({ length: 10 }).map((_, i) =>
+        numberToHex(initialBlockNumber - BigInt(i)),
+      ),
+    )
+    expect(socket.requests.size).toBe(0)
+  })
+
+  test('parallel requests', async () => {
+    await wait(500)
+    const socket = await getSocket(localWsUrl)
+    const response = await Promise.all(
+      Array.from({ length: 100 }).map(async (_, i) => {
+        return await rpc.webSocketAsync(socket, {
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+          },
+        })
+      }),
+    )
+    expect(response.map((r) => r.result.number)).toEqual(
+      Array.from({ length: 100 }).map((_, i) =>
+        numberToHex(initialBlockNumber - BigInt(i)),
+      ),
+    )
+    expect(socket.requests.size).toBe(0)
+    await wait(500)
   })
 
   test('invalid request', async () => {
@@ -660,7 +944,15 @@ describe('webSocketAsync', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '"data did not match any variant of untagged enum EthRpcCall"',
+      `
+      "RPC Request failed.
+
+      URL: ws://127.0.0.1:8545/
+      Request body: {\\"method\\":\\"wagmi_lol\\"}
+
+      Details: data did not match any variant of untagged enum EthRpcCall
+      Version: viem@1.0.2"
+    `,
     )
   })
 
@@ -688,6 +980,23 @@ describe('webSocketAsync', () => {
   })
 })
 
+test('RpcError', () => {
+  const err = new RpcError({
+    body: { foo: 'bar' },
+    error: { code: 420, message: 'Error' },
+    url: 'https://lol.com',
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [RpcError: RPC Request failed.
+
+    URL: https://lol.com
+    Request body: {"foo":"bar"}
+
+    Details: Error
+    Version: viem@1.0.2]
+  `)
+})
+
 test('HttpRequestError', () => {
   const err = new HttpRequestError({
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
@@ -699,10 +1008,30 @@ test('HttpRequestError', () => {
     details: 'Some error',
   })
   expect(err).toMatchInlineSnapshot(`
-    [HttpRequestError: The HTTP request failed.
+    [HttpRequestError: HTTP request failed.
 
     Status: 500
     URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+    Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
+
+    Details: Some error
+    Version: viem@1.0.2]
+  `)
+})
+
+test('WebSocketRequestError', () => {
+  const err = new WebSocketRequestError({
+    url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+    body: {
+      method: 'eth_getBlockByNumber',
+      params: [numberToHex(initialBlockNumber), false],
+    },
+    details: 'Some error',
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [WebSocketRequestError: WebSocket request failed.
+
+    URL: ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
     Request body: {"method":"eth_getBlockByNumber","params":["0xe6e560",false]}
 
     Details: Some error

@@ -31,7 +31,9 @@ export class BaseError extends Error {
         ? args.cause.message
         : args.details!
     const docsPath =
-      args.cause instanceof BaseError ? args.cause.docsPath : args.docsPath
+      args.cause instanceof BaseError
+        ? args.cause.docsPath || args.docsPath
+        : args.docsPath
     const message = [
       humanMessage,
       ...(docsPath ? ['', 'Docs: https://viem.sh' + docsPath] : []),

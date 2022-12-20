@@ -67,13 +67,13 @@ export const publicClient =
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
     ? createPublicClient({
         chain: localhost,
-        transport: http(),
-      })
-    : createPublicClient({
-        chain: localhost,
         transport: webSocket({
           url: localWsUrl,
         }),
+      })
+    : createPublicClient({
+        chain: localhost,
+        transport: http(),
       })
 
 export const walletClient = createWalletClient({

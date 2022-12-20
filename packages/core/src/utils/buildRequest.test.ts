@@ -53,7 +53,13 @@ test('BaseError', async () => {
 test('ParseRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32700, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32700, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -68,7 +74,13 @@ test('ParseRpcError', async () => {
 test('InvalidRpcRequestError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32600, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32600, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -83,7 +95,13 @@ test('InvalidRpcRequestError', async () => {
 test('MethodNotFoundRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32601, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32601, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -98,7 +116,13 @@ test('MethodNotFoundRpcError', async () => {
 test('InvalidParamsRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32602, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32602, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -114,7 +138,13 @@ test('InvalidParamsRpcError', async () => {
 test('InternalRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32603, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32603, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -129,7 +159,13 @@ test('InternalRpcError', async () => {
 test('InvalidInputRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32000, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32000, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -145,7 +181,13 @@ test('InvalidInputRpcError', async () => {
 test('ResourceNotFoundRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32001, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32001, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -160,7 +202,13 @@ test('ResourceNotFoundRpcError', async () => {
 test('ResourceUnavailableRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32002, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32002, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -175,7 +223,13 @@ test('ResourceUnavailableRpcError', async () => {
 test('TransactionRejectedRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32003, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32003, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -190,7 +244,13 @@ test('TransactionRejectedRpcError', async () => {
 test('MethodNotSupportedRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32004, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32004, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -205,7 +265,13 @@ test('MethodNotSupportedRpcError', async () => {
 test('LimitExceededRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32005, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32005, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -220,7 +286,13 @@ test('LimitExceededRpcError', async () => {
 test('JsonRpcVersionUnsupportedError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32006, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32006, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -235,7 +307,13 @@ test('JsonRpcVersionUnsupportedError', async () => {
 test('InvalidParamsRpcError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: -32602, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32602, message: 'message' },
+        }),
+      ),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -251,7 +329,13 @@ test('InvalidParamsRpcError', async () => {
 test('Error', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new RpcError({ code: 69, message: 'message' })),
+      Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: 69, message: 'message' },
+        }),
+      ),
     )
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`
@@ -301,9 +385,16 @@ test('Unknown error', async () => {
 
 test('RequestError', () => {
   expect(
-    new RequestError(new RpcError({ code: 1337, message: 'error details' }), {
-      humanMessage: 'An internal error was received.',
-    }),
+    new RequestError(
+      new RpcError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: { code: 1337, message: 'error details' },
+      }),
+      {
+        humanMessage: 'An internal error was received.',
+      },
+    ),
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
 
@@ -315,7 +406,11 @@ test('RequestError', () => {
 test('RpcRequestError', () => {
   expect(
     new RpcRequestError(
-      new RpcError({ code: 1337, message: 'error details' }),
+      new RpcError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: { code: 1337, message: 'error details' },
+      }),
       { humanMessage: 'An internal error was received.' },
     ),
   ).toMatchInlineSnapshot(`
@@ -329,7 +424,11 @@ test('RpcRequestError', () => {
 test('RpcRequestError', () => {
   expect(
     new RpcRequestError(
-      new RpcError({ code: 1337, message: 'error details' }),
+      new RpcError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: { code: 1337, message: 'error details' },
+      }),
       {
         humanMessage: 'An internal error was received.',
         docsPath: '/lol',
@@ -349,8 +448,12 @@ test('ParseRpcError', () => {
   expect(
     new ParseRpcError(
       new RpcError({
-        code: -32700,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32700,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -365,8 +468,12 @@ test('InvalidRequestRpcError', () => {
   expect(
     new InvalidRequestRpcError(
       new RpcError({
-        code: -32600,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32600,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -381,8 +488,12 @@ test('MethodNotFoundRpcError', () => {
   expect(
     new MethodNotFoundRpcError(
       new RpcError({
-        code: -32601,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32601,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -397,8 +508,12 @@ test('InvalidParamsRpcError', () => {
   expect(
     new InvalidParamsRpcError(
       new RpcError({
-        code: -32602,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32602,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -414,8 +529,12 @@ test('InternalRpcError', () => {
   expect(
     new InternalRpcError(
       new RpcError({
-        code: -32603,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32603,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -430,8 +549,12 @@ test('InvalidInputRpcError', () => {
   expect(
     new InvalidInputRpcError(
       new RpcError({
-        code: -32000,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32000,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -447,8 +570,12 @@ test('ResourceNotFoundRpcError', () => {
   expect(
     new ResourceNotFoundRpcError(
       new RpcError({
-        code: -32001,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32001,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -463,8 +590,12 @@ test('ResourceUnavailableRpcError', () => {
   expect(
     new ResourceUnavailableRpcError(
       new RpcError({
-        code: -32002,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32002,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -479,8 +610,12 @@ test('TransactionRejectedRpcError', () => {
   expect(
     new TransactionRejectedRpcError(
       new RpcError({
-        code: -32003,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32003,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -495,8 +630,12 @@ test('MethodNotSupportedRpcError', () => {
   expect(
     new MethodNotSupportedRpcError(
       new RpcError({
-        code: -32004,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32004,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -511,8 +650,12 @@ test('LimitExceededRpcError', () => {
   expect(
     new LimitExceededRpcError(
       new RpcError({
-        code: -32005,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32005,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
@@ -527,8 +670,12 @@ test('JsonRpcVersionUnsupportedError', () => {
   expect(
     new JsonRpcVersionUnsupportedError(
       new RpcError({
-        code: -32006,
-        message: 'message',
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: -32006,
+          message: 'message',
+        },
       }),
     ),
   ).toMatchInlineSnapshot(`
