@@ -1,7 +1,7 @@
 import { wait } from './wait'
 
 export function poll<TData>(
-  fn: ({ unwatch }: { unwatch: () => void }) => Promise<TData | void>,
+  fn: ({ unpoll }: { unpoll: () => void }) => Promise<TData | void>,
   {
     emitOnBegin,
     initialWaitTime,
@@ -21,14 +21,14 @@ export function poll<TData>(
 
   const watch = async () => {
     let data: TData | void
-    if (emitOnBegin) data = await fn({ unwatch })
+    if (emitOnBegin) data = await fn({ unpoll: unwatch })
 
     const initialWait = (await initialWaitTime?.(data)) ?? interval
     await wait(initialWait)
 
     const poll = async () => {
       if (!active) return
-      await fn({ unwatch })
+      await fn({ unpoll: unwatch })
       await wait(interval)
       poll()
     }

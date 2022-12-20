@@ -73,7 +73,7 @@ test('initialWaitTime', async () => {
 
 test('stop polling', async () => {
   let items: string[] = []
-  const stop = poll(
+  const unpoll = poll(
     async () => {
       items.push('wagmi')
     },
@@ -92,13 +92,34 @@ test('stop polling', async () => {
     ]
   `)
 
-  stop()
+  unpoll()
 
   await wait(500)
   expect(items).toMatchInlineSnapshot(`
     [
       "wagmi",
       "wagmi",
+      "wagmi",
+      "wagmi",
+    ]
+  `)
+})
+
+test('stop polling via callback', async () => {
+  let items: string[] = []
+  poll(
+    async ({ unpoll }) => {
+      items.push('wagmi')
+      if (items.length === 2) unpoll()
+    },
+    {
+      interval: 100,
+    },
+  )
+
+  await wait(500)
+  expect(items).toMatchInlineSnapshot(`
+    [
       "wagmi",
       "wagmi",
     ]
