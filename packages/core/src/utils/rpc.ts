@@ -4,78 +4,40 @@ import { withTimeout } from './promise/withTimeout'
 
 let id = 0
 
-export class HttpRequestError extends BaseError {
-  name = 'HttpRequestError'
-  status
-
-  constructor({
-    body,
-    details,
-    status,
-    url,
-  }: {
-    body: { [key: string]: unknown }
-    details: string
-    status: number
-    url: string
-  }) {
-    super({
-      humanMessage: [
-        'The HTTP request failed.',
-        '',
-        `Status: ${status}`,
-        `URL: ${url}`,
-        `Request body: ${JSON.stringify(body)}`,
-      ].join('\n'),
-      details,
-    })
-    this.status = status
-  }
+type Success<T> = {
+  method?: never
+  result: T
+  error?: never
+}
+type Error<T> = {
+  method?: never
+  result?: never
+  error: T
+}
+type Subscription<TResult, TError> = {
+  method: 'eth_subscription'
+  error?: never
+  result?: never
+  params: {
+    subscription: string
+  } & (
+    | {
+        result: TResult
+        error?: never
+      }
+    | {
+        result?: never
+        error: TError
+      }
+  )
 }
 
-export class RpcError extends Error {
-  code: number
-
-  name = 'RpcError'
-
-  constructor({ code, message }: { code: number; message: string }) {
-    super(message)
-    this.code = code
-  }
-}
-
-export class TimeoutError extends BaseError {
-  name = 'TimeoutError'
-
-  constructor({
-    body,
-    url,
-  }: {
-    body: { [key: string]: unknown }
-    url: string
-  }) {
-    super({
-      humanMessage: [
-        'The request took too long to respond.',
-        '',
-        `URL: ${url}`,
-        `Request body: ${JSON.stringify(body)}`,
-      ].join('\n'),
-      details: 'The request timed out.',
-    })
-  }
-}
+type RpcRequest = { method: string; params?: any[] }
 
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
   id: number
-} & (
-  | {
-      result: TResult
-      error?: never
-    }
-  | { result?: never; error: TError }
-)
+} & (Success<TResult> | Error<TError> | Subscription<TResult, TError>)
 
 ///////////////////////////////////////////////////
 // HTTP
@@ -89,7 +51,7 @@ async function http(
     timeout = 0,
   }: {
     // The RPC request body.
-    body: { method: string; params?: any[] }
+    body: RpcRequest
     // The base delay (in ms) between retries.
     retryDelay?: number
     // The max number of times to retry.
@@ -120,8 +82,11 @@ async function http(
       ),
     {
       delay: ({ count, data }) => {
+        // If we find a Retry-After header, let's retry after the given time.
         const retryAfter = data?.headers.get('Retry-After')
         if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
+
+        // Otherwise, let's retry with an exponential backoff.
         return ~~((Math.random() + 0.5) * (1 << count)) * retryDelay
       },
       retryCount,
@@ -150,7 +115,7 @@ async function http(
   }
 
   if (data.error) {
-    throw new RpcError(data.error)
+    throw new RpcError({ body, error: data.error, url })
   }
   return data as RpcResponse
 }
@@ -158,84 +123,149 @@ async function http(
 ///////////////////////////////////////////////////
 // WebSocket
 
-const sockets = new Map<string, WebSocket>()
+type Id = string | number
+type CallbackFn = (message: any) => void
+type CallbackMap = Map<Id, CallbackFn>
 
-export async function getSocket(url: string) {
-  let socket = sockets.get(url)
-  if (!socket) {
-    socket = new WebSocket(url)
-    sockets.set(url, socket)
+export type Socket = WebSocket & {
+  requests: CallbackMap
+  subscriptions: CallbackMap
+}
+
+const sockets = new Map<string, Socket>()
+
+export async function getSocket(url_: string) {
+  const url = new URL(url_)
+  const urlKey = url.toString()
+
+  let socket = sockets.get(urlKey)
+
+  // If the socket already exists, return it.
+  if (socket) return socket
+
+  const webSocket = new WebSocket(url)
+
+  // Set up a cache for incoming "synchronous" requests.
+  const requests = new Map<Id, CallbackFn>()
+
+  // Set up a cache for subscriptions (eth_subscribe).
+  const subscriptions = new Map<Id, CallbackFn>()
+
+  const onMessage = ({ data }: { data: string }) => {
+    const message: RpcResponse = JSON.parse(data)
+    const isSubscription = message.method === 'eth_subscription'
+    const id = isSubscription ? message.params.subscription : message.id
+    const cache = isSubscription ? subscriptions : requests
+    const callback = cache.get(id)
+    if (callback) callback({ data })
+    if (!isSubscription) cache.delete(id)
   }
-  if (socket.readyState === WebSocket.CONNECTING) {
+  const onClose = () => {
+    sockets.delete(urlKey)
+    webSocket.removeEventListener('close', onClose)
+    webSocket.removeEventListener('message', onMessage)
+  }
+
+  // Setup event listeners for RPC & subscription responses.
+  webSocket.addEventListener('close', onClose)
+  webSocket.addEventListener('message', onMessage)
+
+  // Wait for the socket to open.
+  if (webSocket.readyState === WebSocket.CONNECTING) {
     await new Promise((resolve, reject) => {
-      if (socket) {
-        socket.onopen = resolve
-        socket.onerror = reject
-      }
+      if (!webSocket) return
+      webSocket.onopen = resolve
+      webSocket.onerror = reject
     })
   }
+
+  // Create a new socket instance.
+  socket = Object.assign(webSocket, {
+    requests,
+    subscriptions,
+  })
+  sockets.set(urlKey, socket)
+
   return socket
 }
 
 function webSocket(
-  socket: WebSocket,
+  socket: Socket,
   {
     body,
     onData,
     onError,
   }: {
     // The RPC request body.
-    body: { method: string; params?: any[]; id?: number }
+    body: RpcRequest
     // The callback to invoke when the request is successful.
-    onData: (message: RpcResponse) => void
+    onData?: (message: RpcResponse) => void
     // The callback to invoke if the request errors.
-    onError: (message: RpcResponse['error']) => void
+    onError?: (message: RpcResponse['error']) => void
   },
 ) {
-  socket.send(JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }))
+  if (
+    socket.readyState === socket.CLOSED ||
+    socket.readyState === socket.CLOSING
+  )
+    throw new WebSocketRequestError({
+      body,
+      url: socket.url,
+      details: 'Socket is closed.',
+    })
 
-  socket.onmessage = ({ data }) => {
+  const id_ = id++
+
+  const callback = ({ data }: { data: any }) => {
     const message: RpcResponse = JSON.parse(data)
+
+    if (typeof message.id === 'number' && id_ !== message.id) return
+
     if (message.error) {
-      onError(message.error)
+      onError?.(new RpcError({ body, error: message.error, url: socket.url }))
     } else {
-      onData(message)
+      onData?.(message)
+    }
+
+    // If we are subscribing to a topic, we want to set up a listener for incoming
+    // messages.
+    if (body.method === 'eth_subscribe' && typeof message.result === 'string') {
+      socket.subscriptions.set(message.result, callback)
+    }
+
+    // If we are unsubscribing from a topic, we want to remove the listener.
+    if (body.method === 'eth_unsubscribe') {
+      socket.subscriptions.delete(body.params?.[0])
     }
   }
+  socket.requests.set(id_, callback)
+
+  socket.send(JSON.stringify({ jsonrpc: '2.0', ...body, id: id_ }))
 
   return socket
 }
 
 async function webSocketAsync(
-  socket: WebSocket,
+  socket: Socket,
   {
     body,
     timeout = 0,
   }: {
     // The RPC request body.
-    body: { method: string; params?: any[] }
+    body: RpcRequest
     // The timeout (in ms) for the request.
     timeout?: number
   },
 ) {
-  let id_ = id++
-
   return withTimeout(
     () =>
-      new Promise<RpcResponse>((resolve, reject) => {
-        const body_ = { ...body, id: id_ }
-        return rpc.webSocket(socket, {
-          body: body_,
-          onData: (message) => {
-            /* c8 ignore next */
-            if (message.id !== id_) return
-            resolve(message)
-          },
-          onError: (error) => {
-            reject(new RpcError(error))
-          },
-        })
-      }),
+      new Promise<RpcResponse>((onData, onError) =>
+        rpc.webSocket(socket, {
+          body,
+          onData,
+          onError,
+        }),
+      ),
     {
       errorInstance: new TimeoutError({ body, url: socket.url }),
       timeout,
@@ -249,4 +279,109 @@ export const rpc = {
   http,
   webSocket,
   webSocketAsync,
+}
+
+///////////////////////////////////////////////////
+// Errors
+
+export class HttpRequestError extends BaseError {
+  name = 'HttpRequestError'
+  status
+
+  constructor({
+    body,
+    details,
+    status,
+    url,
+  }: {
+    body: { [key: string]: unknown }
+    details: string
+    status: number
+    url: string
+  }) {
+    super({
+      humanMessage: [
+        'HTTP request failed.',
+        '',
+        `Status: ${status}`,
+        `URL: ${url}`,
+        `Request body: ${JSON.stringify(body)}`,
+      ].join('\n'),
+      details,
+    })
+    this.status = status
+  }
+}
+
+export class WebSocketRequestError extends BaseError {
+  name = 'WebSocketRequestError'
+
+  constructor({
+    body,
+    details,
+    url,
+  }: {
+    body: { [key: string]: unknown }
+    details: string
+    url: string
+  }) {
+    super({
+      humanMessage: [
+        'WebSocket request failed.',
+        '',
+        `URL: ${url}`,
+        `Request body: ${JSON.stringify(body)}`,
+      ].join('\n'),
+      details,
+    })
+  }
+}
+
+export class RpcError extends BaseError {
+  code: number
+
+  name = 'RpcError'
+
+  constructor({
+    body,
+    error,
+    url,
+  }: {
+    body: { [key: string]: unknown }
+    error: { code: number; message: string }
+    url: string
+  }) {
+    super({
+      humanMessage: [
+        'RPC Request failed.',
+        '',
+        `URL: ${url}`,
+        `Request body: ${JSON.stringify(body)}`,
+      ].join('\n'),
+      details: error.message,
+    })
+    this.code = error.code
+  }
+}
+
+export class TimeoutError extends BaseError {
+  name = 'TimeoutError'
+
+  constructor({
+    body,
+    url,
+  }: {
+    body: { [key: string]: unknown }
+    url: string
+  }) {
+    super({
+      humanMessage: [
+        'The request took too long to respond.',
+        '',
+        `URL: ${url}`,
+        `Request body: ${JSON.stringify(body)}`,
+      ].join('\n'),
+      details: 'The request timed out.',
+    })
+  }
 }
