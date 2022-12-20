@@ -1,43 +1,41 @@
 import { wait } from './wait'
 
 export function poll<TData>(
-  fn: () => Promise<TData>,
+  fn: ({ unwatch }: { unwatch: () => void }) => Promise<TData | void>,
   {
     emitOnBegin,
     initialWaitTime,
-    onData,
     interval,
   }: {
     // Whether or not to emit when the polling starts.
     emitOnBegin?: boolean
     // The initial wait time (in ms) before polling.
-    initialWaitTime?: (data: TData) => Promise<number>
-    // The function to invoke when data is received.
-    onData: (data: TData) => void
+    initialWaitTime?: (data: TData | void) => Promise<number>
     // The interval (in ms).
     interval: number
   },
 ) {
   let active = true
 
-  fn().then(async (data) => {
-    if (!active) return
+  const unwatch = () => (active = false)
 
-    if (emitOnBegin) onData(data)
+  const watch = async () => {
+    let data: TData | void
+    if (emitOnBegin) data = await fn({ unwatch })
 
     const initialWait = (await initialWaitTime?.(data)) ?? interval
     await wait(initialWait)
 
     const poll = async () => {
       if (!active) return
-      const data = await fn()
-      onData(data)
+      await fn({ unwatch })
       await wait(interval)
       poll()
     }
 
     poll()
-  })
+  }
+  watch()
 
-  return () => (active = false)
+  return unwatch
 }

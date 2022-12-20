@@ -37,13 +37,14 @@ export function watchBlocks<TChain extends Chain>(
     callback,
   )(({ emit }) =>
     poll(
-      () =>
-        fetchBlock(client, {
-          blockTag,
-        }),
+      async () =>
+        emit(
+          await fetchBlock(client, {
+            blockTag,
+          }),
+        ),
       {
         emitOnBegin,
-        onData: emit,
         interval: pollingInterval,
       },
     ),

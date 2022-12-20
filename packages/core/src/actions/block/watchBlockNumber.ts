@@ -30,9 +30,8 @@ export function watchBlockNumber(
     observerId,
     callback,
   )(({ emit }) =>
-    poll(() => fetchBlockNumber(client), {
+    poll(async () => emit(await fetchBlockNumber(client)), {
       emitOnBegin,
-      onData: emit,
       interval: pollingInterval,
     }),
   )
