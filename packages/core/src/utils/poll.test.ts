@@ -7,10 +7,9 @@ test('polls on a given interval', async () => {
   let items: string[] = []
   poll(
     async () => {
-      return 'wagmi'
+      items.push('wagmi')
     },
     {
-      onData: (data) => items.push(data),
       interval: 100,
     },
   )
@@ -30,11 +29,10 @@ test('emitOnBegin', async () => {
   let items: string[] = []
   poll(
     async () => {
-      return 'wagmi'
+      items.push('wagmi')
     },
     {
       emitOnBegin: true,
-      onData: (data) => items.push(data),
       interval: 100,
     },
   )
@@ -55,11 +53,10 @@ test('initialWaitTime', async () => {
   let items: string[] = []
   poll(
     async () => {
-      return 'wagmi'
+      items.push('wagmi')
     },
     {
       initialWaitTime: async () => 200,
-      onData: (data) => items.push(data),
       interval: 100,
     },
   )
@@ -78,10 +75,9 @@ test('stop polling', async () => {
   let items: string[] = []
   const stop = poll(
     async () => {
-      return 'wagmi'
+      items.push('wagmi')
     },
     {
-      onData: (data) => items.push(data),
       interval: 100,
     },
   )
