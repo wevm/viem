@@ -18,7 +18,7 @@ import { publicClient } from '.'
  
 const unwatch = watchBlocks( // [!code focus:99]
   publicClient,
-  block => console.log(block)
+  { onBlock: block => console.log(block) }
 )
 /**
  * > {
@@ -37,12 +37,6 @@ const unwatch = watchBlocks( // [!code focus:99]
  */
 ```
 
-## Listener
-
-`(block: Block) => void`
-
-The block information.
-
 ## Returns
 
 `UnwatchFn`
@@ -50,6 +44,35 @@ The block information.
 A function that can be invoked to stop watching for new blocks.
 
 ## Configuration
+
+### onBlock
+
+- **Type:** `(block: Block) => void`
+
+The block information.
+
+```ts
+const unwatch = watchBlocks(
+  publicClient,
+  { onBlock: block => console.log(block) } // [!code focus:1]
+)
+```
+
+### onError (optional)
+
+- **Type:** `(error: Error) => void`
+
+Error thrown from fetching a block.
+
+```ts
+const unwatch = watchBlocks(
+  publicClient,
+  { 
+    onBlock: block => console.log(block),
+    onError: error => console.log(error) // [!code focus:1]
+  }
+)
+```
 
 ### blockTag (optional)
 
@@ -61,8 +84,10 @@ Watch for new blocks on a given tag.
 ```ts
 const unwatch = watchBlocks(
   client,
-  block => console.log(block),
-  { blockTag: 'safe' } // [!code focus]
+  { 
+    blockTag: 'safe',
+    onBlock: block => console.log(block), // [!code focus]
+  }
 )
 ```
 
@@ -78,8 +103,10 @@ Missed blocks may occur in instances where internet connection is lost, or the b
 ```ts
 const unwatch = watchBlocks(
   client,
-  block => console.log(block),
-  { emitMissed: true } // [!code focus]
+  { 
+    emitMissed: true, // [!code focus]
+    onBlock: block => console.log(block),
+  }
 )
 ```
 
@@ -93,8 +120,10 @@ Whether or not to emit the block to the callback when the subscription opens.
 ```ts
 const unwatch = watchBlocks(
   client,
-  block => console.log(block),
-  { emitOnBegin: true } // [!code focus]
+  { 
+    emitOnBegin: true, // [!code focus]
+    onBlock: block => console.log(block),
+  }
 )
 ```
 
@@ -107,8 +136,10 @@ Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 ```ts
 const unwatch = watchBlocks(
   client,
-  block => console.log(block),
-  { pollingInterval: 12_000 } // [!code focus]
+  { 
+    onBlock: block => console.log(block),
+    pollingInterval: true, // [!code focus]
+  }
 )
 ```
 

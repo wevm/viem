@@ -18,7 +18,7 @@ import { publicClient } from '.'
  
 const unwatch = watchBlockNumber( // [!code focus:99]
   publicClient,
-  blockNumber => console.log(blockNumber)
+  { onBlockNumber: blockNumber => console.log(blockNumber) }
 )
 /**
  * > 69420n
@@ -53,8 +53,10 @@ Missed block numbers may occur in instances where internet connection is lost, o
 ```ts
 const unwatch = watchBlockNumber(
   client,
-  blockNumber => console.log(blockNumber),
-  { emitMissed: true } // [!code focus]
+  { 
+    emitMissed: true, // [!code focus]
+    onBlockNumber: blockNumber => console.log(blockNumber),
+  }
 )
 ```
 
@@ -68,8 +70,10 @@ Whether or not to emit the latest block number to the callback when the subscrip
 ```ts
 const unwatch = watchBlockNumber(
   client,
-  blockNumber => console.log(blockNumber),
-  { emitOnBegin: true } // [!code focus]
+  { 
+    emitOnBegin: true, // [!code focus]
+    onBlockNumber: blockNumber => console.log(blockNumber),
+  }
 )
 ```
 
@@ -82,8 +86,10 @@ Polling frequency (in ms). Defaults to Client's `pollingInterval` config.
 ```ts
 const unwatch = watchBlockNumber(
   client,
-  blockNumber => console.log(blockNumber),
-  { pollingInterval: 12_000 } // [!code focus]
+  { 
+    onBlockNumber: blockNumber => console.log(blockNumber),
+    pollingInterval: 12_000, // [!code focus]
+  }
 )
 ```
 

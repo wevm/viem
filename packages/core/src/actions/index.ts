@@ -11,12 +11,12 @@ export type {
   FetchBlockArgs,
   FetchBlockNumberResponse,
   FetchBlockResponse,
+  OnBlock,
+  OnBlockNumber,
+  OnBlockNumberResponse,
+  OnBlockResponse,
   WatchBlockNumberArgs,
-  WatchBlockNumberCallback,
-  WatchBlockNumberResponse,
   WatchBlocksArgs,
-  WatchBlocksCallback,
-  WatchBlocksResponse,
 } from './block'
 
 export { mine, setBalance } from './test'

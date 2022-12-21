@@ -1,18 +1,14 @@
 import type { MaybePromise } from '../types/utils'
 
-type Callback = (...args: any[]) => any
+type Callback = ((...args: any[]) => any) | undefined
+type Callbacks = Record<string, Callback>
 
-const listenersCache = new Map<
-  string,
-  { id: number; fn: (...args: any[]) => any }[]
->()
+const listenersCache = new Map<string, { id: number; fns: Callbacks }[]>()
 const cleanupCache = new Map<string, () => void>()
 
-type EmitFunction<TArgs extends any[]> = ({
-  emit,
-}: {
-  emit: (...args: TArgs) => void
-}) => MaybePromise<void | (() => void)>
+type EmitFunction<TCallbacks extends Callbacks> = (
+  emit: TCallbacks,
+) => MaybePromise<void | (() => void)>
 
 let callbackCount = 0
 
@@ -21,18 +17,23 @@ let callbackCount = 0
  * is set up under the same observer id, the function will only be called once
  * for both instances of the observer.
  */
-export function observe<TCallback extends Callback>(
+export function observe<TCallbacks extends Callbacks>(
   observerId: string,
-  callback: TCallback,
+  callbacks: TCallbacks,
 ) {
   const callbackId = ++callbackCount
 
   const getListeners = () => listenersCache.get(observerId) || []
 
-  const emit = (...args: Parameters<TCallback>[]) => {
-    const listeners = getListeners()
-    if (listeners.length === 0) return
-    listeners.forEach((listener) => listener.fn(...args))
+  let emit: TCallbacks = {} as TCallbacks
+  for (const key in callbacks) {
+    emit[key] = ((
+      ...args: Parameters<NonNullable<TCallbacks[keyof TCallbacks]>>
+    ) => {
+      const listeners = getListeners()
+      if (listeners.length === 0) return
+      listeners.forEach((listener) => listener.fns[key]?.(...args))
+    }) as TCallbacks[Extract<keyof TCallbacks, string>]
   }
 
   const unsubscribe = () => {
@@ -43,11 +44,11 @@ export function observe<TCallback extends Callback>(
     )
   }
 
-  return (fn: EmitFunction<Parameters<TCallback>>) => {
+  return (fn: EmitFunction<TCallbacks>) => {
     const listeners = getListeners()
     listenersCache.set(observerId, [
       ...listeners,
-      { id: callbackId, fn: callback },
+      { id: callbackId, fns: callbacks },
     ])
 
     const unwatch = () => {
@@ -58,7 +59,7 @@ export function observe<TCallback extends Callback>(
 
     if (listeners && listeners.length > 0) return unwatch
 
-    const cleanup = fn({ emit })
+    const cleanup = fn(emit)
     if (typeof cleanup === 'function') cleanupCache.set(observerId, cleanup)
 
     return unwatch

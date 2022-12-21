@@ -6,14 +6,10 @@ export type { FetchBlockNumberResponse } from './fetchBlockNumber'
 
 export { watchBlockNumber } from './watchBlockNumber'
 export type {
+  OnBlockNumber,
+  OnBlockNumberResponse,
   WatchBlockNumberArgs,
-  WatchBlockNumberCallback,
-  WatchBlockNumberResponse,
 } from './watchBlockNumber'
 
 export { watchBlocks } from './watchBlocks'
-export type {
-  WatchBlocksArgs,
-  WatchBlocksCallback,
-  WatchBlocksResponse,
-} from './watchBlocks'
+export type { OnBlock, OnBlockResponse, WatchBlocksArgs } from './watchBlocks'
