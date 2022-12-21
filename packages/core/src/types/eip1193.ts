@@ -778,7 +778,7 @@ export type TestRequests<Name extends string> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#evm_setintervalmining
      */
     method: 'evm_setIntervalMining'
-    params: [Quantity]
+    params: [number]
   }): Promise<void>
   request(args: {
     /**

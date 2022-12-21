@@ -1,6 +1,7 @@
 import type { Chain, Formatter, Formatters } from '../../chains'
 import type { Block, RpcBlock } from '../../types'
 import type { ExtractFormatter, Formatted } from './format'
+import { formatTransaction } from './transaction'
 
 export type BlockFormatter<TChain extends Chain = Chain> = ExtractFormatter<
   TChain,
@@ -13,6 +14,11 @@ export type FormattedBlock<
 > = Formatted<TFormatter, Block>
 
 export function formatBlock(block: Partial<RpcBlock>) {
+  // TODO: Properly format transactions with a custom formatter
+  const transactions = block.transactions?.map((transaction) => {
+    if (typeof transaction === 'string') return transaction
+    return formatTransaction(transaction)
+  })
   return {
     ...block,
     baseFeePerGas: block.baseFeePerGas ? BigInt(block.baseFeePerGas) : null,
@@ -22,6 +28,7 @@ export function formatBlock(block: Partial<RpcBlock>) {
     number: block.number ? BigInt(block.number) : null,
     size: block.size ? BigInt(block.size) : undefined,
     timestamp: block.timestamp ? BigInt(block.timestamp) : undefined,
+    transactions,
     totalDifficulty: block.totalDifficulty
       ? BigInt(block.totalDifficulty)
       : null,

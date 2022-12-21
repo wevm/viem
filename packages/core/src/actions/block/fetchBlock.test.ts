@@ -510,6 +510,14 @@ describe('args: hash', () => {
       }
     `)
   })
+
+  test('args: includeTransactions', async () => {
+    const block = await fetchBlock(publicClient, {
+      blockNumber: initialBlockNumber,
+      includeTransactions: true,
+    })
+    expect(typeof block.transactions[0] === 'object').toBe(true)
+  })
 })
 
 test('non-existent block: throws if block number does not exist', async () => {

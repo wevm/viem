@@ -26,7 +26,7 @@ export function watchBlockNumber(
 ) {
   const observerId = JSON.stringify(['watchBlockNumber', client.uid])
 
-  return observe<WatchBlockNumberCallback, WatchBlockNumberResponse>(
+  return observe<WatchBlockNumberResponse>(
     observerId,
     callback,
   )(({ emit }) =>

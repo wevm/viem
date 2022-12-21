@@ -4,7 +4,10 @@ import type { BlockTag, Data, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { BaseError, format, formatBlock, numberToHex } from '../../utils'
 
-export type FetchBlockArgs =
+export type FetchBlockArgs = {
+  /** Whether or not to include transaction data in the response. */
+  includeTransactions?: boolean
+} & (
   | {
       /** Hash of the block. */
       blockHash?: Data
@@ -23,6 +26,7 @@ export type FetchBlockArgs =
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag
     }
+)
 
 export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
   BlockFormatter<TChain>
@@ -30,7 +34,12 @@ export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
 
 export async function fetchBlock<TChain extends Chain>(
   client: PublicClient<any, TChain>,
-  { blockHash, blockNumber, blockTag = 'latest' }: FetchBlockArgs = {},
+  {
+    blockHash,
+    blockNumber,
+    blockTag = 'latest',
+    includeTransactions = false,
+  }: FetchBlockArgs = {},
 ): Promise<FetchBlockResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
@@ -39,12 +48,12 @@ export async function fetchBlock<TChain extends Chain>(
   if (blockHash) {
     block = await client.request({
       method: 'eth_getBlockByHash',
-      params: [blockHash, false],
+      params: [blockHash, includeTransactions],
     })
   } else {
     block = await client.request({
       method: 'eth_getBlockByNumber',
-      params: [blockNumberHex || blockTag, false],
+      params: [blockNumberHex || blockTag, includeTransactions],
     })
   }
 

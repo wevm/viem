@@ -14,7 +14,7 @@ export type Quantity = `0x${string}`
 export type Status = '0x0' | '0x1'
 export type TransactionType = '0x0' | '0x1' | '0x2'
 
-export type RpcBlock = Block<Quantity>
+export type RpcBlock = Block<Quantity, RpcTransaction>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>

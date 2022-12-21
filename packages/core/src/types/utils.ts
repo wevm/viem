@@ -1,3 +1,5 @@
+export type MaybePromise<T> = T | Promise<T>
+
 /**
  * @description Merges the intersection properties of T and U.
  *
