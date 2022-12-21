@@ -41,6 +41,23 @@ A function that can be invoked to stop watching for new block numbers.
 
 ## Configuration
 
+### emitMissed (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether or not to emit missed block numbers to the callback. 
+
+Missed block numbers may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/TODO) of the client.
+
+```ts
+const unwatch = watchBlockNumber(
+  client,
+  blockNumber => console.log(blockNumber),
+  { emitMissed: true } // [!code focus]
+)
+```
+
 ### emitOnBegin (optional)
 
 - **Type:** `boolean`

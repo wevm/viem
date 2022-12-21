@@ -67,12 +67,14 @@ export const publicClient =
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
     ? createPublicClient({
         chain: localhost,
+        pollingInterval: 1_000,
         transport: webSocket({
           url: localWsUrl,
         }),
       })
     : createPublicClient({
         chain: localhost,
+        pollingInterval: 1_000,
         transport: http(),
       })
 

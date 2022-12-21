@@ -2,24 +2,43 @@ import { describe, expect, test } from 'vitest'
 
 import type { WatchBlockNumberResponse } from './watchBlockNumber'
 import { watchBlockNumber } from './watchBlockNumber'
-import { publicClient } from '../../../test'
+import { publicClient, testClient } from '../../../test'
 import { wait } from '../../utils/wait'
 import { localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
-
-const defaultConfig = { pollingInterval: 1_000 }
+import { mine } from '../test/mine'
 
 test('watches for new block numbers', async () => {
   const blockNumbers: WatchBlockNumberResponse[] = []
-  const unwatch = watchBlockNumber(
-    publicClient,
-    (blockNumber) => blockNumbers.push(blockNumber),
-    defaultConfig,
+  const unwatch = watchBlockNumber(publicClient, (blockNumber) =>
+    blockNumbers.push(blockNumber),
   )
   await wait(5000)
   unwatch()
   expect(blockNumbers.length).toBe(4)
 }, 10_000)
+
+describe('emitMissed', () => {
+  test('emits on missed blocks', async () => {
+    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    const blockNumbers: WatchBlockNumberResponse[] = []
+    const unwatch = watchBlockNumber(
+      publicClient,
+      (block) => blockNumbers.push(block),
+      {
+        pollingInterval: 500,
+        emitMissed: true,
+      },
+    )
+    await mine(testClient, { blocks: 1 })
+    await wait(1000)
+    await mine(testClient, { blocks: 5 })
+    await wait(1000)
+    unwatch()
+    await testClient.request({ method: 'evm_setIntervalMining', params: [1] })
+    expect(blockNumbers.length).toBe(6)
+  })
+})
 
 describe('emitOnBegin', () => {
   test('watches for new block numbers', async () => {
@@ -28,7 +47,6 @@ describe('emitOnBegin', () => {
       publicClient,
       (blockNumber) => blockNumbers.push(blockNumber),
       {
-        ...defaultConfig,
         emitOnBegin: true,
       },
     )
@@ -52,27 +70,37 @@ describe('pollingInterval on client', () => {
     )
     await wait(2000)
     unwatch()
-    expect(blockNumbers.length).toBe(3)
+    expect(blockNumbers.length).toBe(2)
   }, 10_000)
 })
 
 describe('behavior', () => {
+  test('does not emit when no new incoming blocks', async () => {
+    const blockNumbers: WatchBlockNumberResponse[] = []
+    const unwatch = watchBlockNumber(
+      publicClient,
+      (block) => blockNumbers.push(block),
+      {
+        pollingInterval: 100,
+      },
+    )
+    await wait(1200)
+    unwatch()
+    expect(blockNumbers.length).toBe(2)
+  }, 10_000)
+
   test('watch > unwatch > watch', async () => {
     let blockNumbers: WatchBlockNumberResponse[] = []
-    let unwatch = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    let unwatch = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
     await wait(3000)
     unwatch()
     expect(blockNumbers.length).toBe(2)
 
     blockNumbers = []
-    unwatch = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    unwatch = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
     await wait(3000)
     unwatch()
@@ -82,20 +110,14 @@ describe('behavior', () => {
   test('multiple watchers', async () => {
     let blockNumbers: WatchBlockNumberResponse[] = []
 
-    let unwatch1 = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    let unwatch1 = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
-    let unwatch2 = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    let unwatch2 = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
-    let unwatch3 = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    let unwatch3 = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
     await wait(3000)
     unwatch1()
@@ -105,20 +127,14 @@ describe('behavior', () => {
 
     blockNumbers = []
 
-    unwatch1 = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    unwatch1 = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
-    unwatch2 = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    unwatch2 = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
-    unwatch3 = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    unwatch3 = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
     await wait(3000)
     unwatch1()
@@ -129,10 +145,8 @@ describe('behavior', () => {
 
   test('immediately unwatch', async () => {
     const blockNumbers: WatchBlockNumberResponse[] = []
-    const unwatch = watchBlockNumber(
-      publicClient,
-      (blockNumber) => blockNumbers.push(blockNumber),
-      defaultConfig,
+    const unwatch = watchBlockNumber(publicClient, (blockNumber) =>
+      blockNumbers.push(blockNumber),
     )
     unwatch()
     await wait(3000)

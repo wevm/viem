@@ -1,17 +1,17 @@
 import type { MaybePromise } from '../types/utils'
 
-type Callback<TData> = (data: TData) => any
+type Callback = (...args: any[]) => any
 
 const listenersCache = new Map<
   string,
-  { id: number; fn: (data: any) => any }[]
+  { id: number; fn: (...args: any[]) => any }[]
 >()
 const cleanupCache = new Map<string, () => void>()
 
-type EmitFunction<TData> = ({
+type EmitFunction<TArgs extends any[]> = ({
   emit,
 }: {
-  emit: (data: TData) => void
+  emit: (...args: TArgs) => void
 }) => MaybePromise<void | (() => void)>
 
 let callbackCount = 0
@@ -21,18 +21,18 @@ let callbackCount = 0
  * is set up under the same observer id, the function will only be called once
  * for both instances of the observer.
  */
-export function observe<
-  TData,
-  TCallback extends Callback<TData> = Callback<TData>,
->(observerId: string, callback: TCallback) {
+export function observe<TCallback extends Callback>(
+  observerId: string,
+  callback: TCallback,
+) {
   const callbackId = ++callbackCount
 
   const getListeners = () => listenersCache.get(observerId) || []
 
-  const emit = (data: TData) => {
+  const emit = (...args: Parameters<TCallback>[]) => {
     const listeners = getListeners()
     if (listeners.length === 0) return
-    listeners.forEach((listener) => listener.fn(data))
+    listeners.forEach((listener) => listener.fn(...args))
   }
 
   const unsubscribe = () => {
@@ -43,7 +43,7 @@ export function observe<
     )
   }
 
-  return (fn: EmitFunction<TData>) => {
+  return (fn: EmitFunction<Parameters<TCallback>>) => {
     const listeners = getListeners()
     listenersCache.set(observerId, [
       ...listeners,
