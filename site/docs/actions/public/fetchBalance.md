@@ -35,7 +35,7 @@ The balance of the address in wei.
 The address of the account.
 
 ```ts
-const balance = await fetchBalance({
+const balance = await fetchBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
 ```
@@ -47,7 +47,7 @@ const balance = await fetchBalance({
 The balance of the account at a block number.
 
 ```ts
-const balance = await fetchBalance({
+const balance = await fetchBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
 })
@@ -60,7 +60,7 @@ const balance = await fetchBalance({
 The balance of the account at a block tag.
 
 ```ts
-const balance = await fetchBalance({
+const balance = await fetchBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
 })
@@ -71,7 +71,7 @@ const balance = await fetchBalance({
 - You can convert the balance to ether units with [`valueAsEther`](/TODO).
 
 ```ts
-const balance = await fetchBalance({
+const balance = await fetchBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'
 })

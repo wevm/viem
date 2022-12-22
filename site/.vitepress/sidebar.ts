@@ -48,6 +48,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'fetchBalance',
               link: '/docs/actions/public/fetchBalance',
             },
+            {
+              text: 'fetchTransactionCount',
+              link: '/docs/actions/public/fetchTransactionCount',
+            },
           ],
         },
         {
@@ -157,10 +161,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'fetchTransaction',
               link: '/docs/actions/public/fetchTransaction',
-            },
-            {
-              text: 'fetchTransactionCount',
-              link: '/docs/actions/public/fetchTransactionCount',
             },
             {
               text: 'fetchTransactionReceipt',

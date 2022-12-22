@@ -1,5 +1,10 @@
-export { fetchBalance, requestAccounts } from './account'
-export type { FetchBalanceArgs, FetchBalanceResponse } from './account'
+export { fetchBalance, fetchTransactionCount, requestAccounts } from './account'
+export type {
+  FetchBalanceArgs,
+  FetchBalanceResponse,
+  FetchTransactionCountArgs,
+  FetchTransactionCountResponse,
+} from './account'
 
 export {
   fetchBlock,
