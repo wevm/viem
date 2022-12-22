@@ -5,13 +5,10 @@ import { sendTransaction } from '../transaction'
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
 
 import { fetchTransactionCount } from './fetchTransactionCount'
-import { mine } from '../test'
+import { mine, setNonce } from '../test'
 
 test('fetches transaction count', async () => {
-  await testClient.request({
-    method: 'anvil_setNonce',
-    params: [accounts[0].address, '0x0'],
-  })
+  await setNonce(testClient, { address: accounts[0].address, nonce: 0 })
 
   expect(
     await fetchTransactionCount(publicClient, {
