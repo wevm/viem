@@ -26,6 +26,7 @@ export {
   fetchTransaction,
   fetchTransactionReceipt,
   sendTransaction,
+  waitForTransactionReceipt,
 } from './transaction'
 export type {
   FetchTransactionArgs,
@@ -34,4 +35,6 @@ export type {
   FetchTransactionReceiptResponse,
   SendTransactionArgs,
   SendTransactionResponse,
+  WaitForTransactionReceiptArgs,
+  WaitForTransactionReceiptResponse,
 } from './transaction'

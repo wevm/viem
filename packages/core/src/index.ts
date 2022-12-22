@@ -16,6 +16,8 @@ export type {
   SendTransactionArgs,
   SendTransactionResponse,
   SetBalanceArgs,
+  WaitForTransactionReceiptArgs,
+  WaitForTransactionReceiptResponse,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
 } from './actions'
@@ -29,6 +31,7 @@ export {
   requestAccounts,
   sendTransaction,
   setBalance,
+  waitForTransactionReceipt,
   watchBlockNumber,
   watchBlocks,
 } from './actions'

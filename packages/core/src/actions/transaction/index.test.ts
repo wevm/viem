@@ -8,6 +8,7 @@ test('exports actions', () => {
       "fetchTransaction": [Function],
       "fetchTransactionReceipt": [Function],
       "sendTransaction": [Function],
+      "waitForTransactionReceipt": [Function],
     }
   `)
 })

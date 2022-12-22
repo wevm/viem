@@ -1,24 +1,22 @@
-# waitForTransaction
+# waitForTransactionReceipt
 
 Waits for the [Transaction](/TODO) to be included on a [Block](/TODO) (one confirmation), and then returns the [Transaction Receipt](/TODO). If the Transaction reverts, then the action will throw an error.
 
-The `waitForTransaction` action additionally supports:
-- transaction replacement detection (ie. sped up transactions), and
-- transaction revert reasons.
+The `waitForTransactionReceipt` action additionally supports replacement detection (ie. sped up transactions).
 
 ## Import
 
 ```ts
-import { waitForTransaction } from 'viem'
+import { waitForTransactionReceipt } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { waitForTransaction } from 'viem'
+import { waitForTransactionReceipt } from 'viem'
 import { publicClient } from '.'
  
-const transaction = await waitForTransaction( // [!code focus:99]
+const transaction = await waitForTransactionReceipt( // [!code focus:99]
   publicClient,
   { hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' }
 )
@@ -46,10 +44,10 @@ The transaction receipt.
 - **Type:** `number`
 - **Default:** `1`
 
-The number of confirmations (blocks that have passed).
+The number of confirmations (blocks that have passed) to wait before resolving.
 
 ```ts
-const transaction = await waitForTransaction(
+const transaction = await waitForTransactionReceipt(
   publicClient,
   { 
     confirmations: 5, // [!code focus:1]
@@ -60,12 +58,12 @@ const transaction = await waitForTransaction(
 
 ### onReplaced (optional)
 
-- **Type:** `({ reason: 'replaced' | 'repriced' | 'cancelled', receipt: TransactionReceipt, transaction: Transaction }) => void`
+- **Type:** `({ reason: 'replaced' | 'repriced' | 'cancelled', replacedTransaction: Transaction, transaction: Transaction, transactionReceipt: TransactionReceipt }) => void`
 
 Optional callback to emit if the transaction has been replaced.
 
 ```ts
-const transaction = await waitForTransaction(
+const transaction = await waitForTransactionReceipt(
   publicClient,
   { 
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
@@ -81,7 +79,7 @@ const transaction = await waitForTransaction(
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
 ```ts
-const transaction = await waitForTransaction(
+const transaction = await waitForTransactionReceipt(
   publicClient,
   { 
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
@@ -97,7 +95,7 @@ const transaction = await waitForTransaction(
 Optional timeout (in milliseconds) to wait before stopping polling.
 
 ```ts
-const transaction = await waitForTransaction(
+const transaction = await waitForTransactionReceipt(
   publicClient,
   { 
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
@@ -105,6 +103,15 @@ const transaction = await waitForTransaction(
   }
 )
 ```
+
+### Notes
+
+- Transactions can be replaced when a user modifies their transaction in their wallet (to speed up or cancel). Transactions are replaced when they are sent from the same nonce.
+- There are 3 types of transaction replacement reasons:
+  - `repriced`: The gas price has been modified (ie. different `maxFeePerGas`)
+  - `cancelled`: The transaction has been cancelled (ie. `value === 0n`)
+  - `replaced`: The transaction has been replaced (ie. different `value` or `data`)
+
 
 ## Example
 
