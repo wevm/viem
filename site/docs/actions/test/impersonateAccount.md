@@ -30,6 +30,5 @@ The address of the target account.
 ```ts
 await impersonateAccount(testClient, {
   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
-  nonce: 420
 })
 ```
