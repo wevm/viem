@@ -8,7 +8,7 @@ import {
 } from './waitForTransactionReceipt'
 import { etherToValue, gweiToValue, hexToNumber } from '../../utils'
 import { sendTransaction } from './sendTransaction'
-import { mine } from '../test'
+import { mine, setIntervalMining } from '../test'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -25,7 +25,7 @@ test('waits for transaction (send -> wait -> mine)', async () => {
     hash,
   })
   expect(status).toBe('success')
-}, 10_000)
+})
 
 test('waits for transaction (send -> mine -> wait)', async () => {
   const { hash } = await sendTransaction(walletClient, {
@@ -40,12 +40,12 @@ test('waits for transaction (send -> mine -> wait)', async () => {
     hash,
   })
   expect(status).toBe('success')
-}, 10_000)
+})
 
 describe('replaced transactions', () => {
   test('repriced', async () => {
     await mine(testClient, { blocks: 10 })
-    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -84,10 +84,7 @@ describe('replaced transactions', () => {
           },
         })
 
-        await testClient.request({
-          method: 'evm_setIntervalMining',
-          params: [1],
-        })
+        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -96,11 +93,11 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
-  }, 10_000)
+  })
 
   test('repriced (skipped blocks)', async () => {
     await mine(testClient, { blocks: 10 })
-    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -144,12 +141,12 @@ describe('replaced transactions', () => {
 
     expect(receipt !== null).toBeTruthy()
 
-    await testClient.request({ method: 'evm_setIntervalMining', params: [1] })
-  }, 10_000)
+    await setIntervalMining(testClient, { interval: 1 })
+  })
 
   test('cancelled', async () => {
     await mine(testClient, { blocks: 10 })
-    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -188,10 +185,7 @@ describe('replaced transactions', () => {
           },
         })
 
-        await testClient.request({
-          method: 'evm_setIntervalMining',
-          params: [1],
-        })
+        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -200,11 +194,11 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
-  }, 10_000)
+  })
 
   test('replaced', async () => {
     await mine(testClient, { blocks: 10 })
-    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -243,10 +237,7 @@ describe('replaced transactions', () => {
           },
         })
 
-        await testClient.request({
-          method: 'evm_setIntervalMining',
-          params: [1],
-        })
+        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -255,7 +246,7 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
-  }, 10_000)
+  })
 })
 
 describe('args: confirmations', () => {
@@ -279,11 +270,11 @@ describe('args: confirmations', () => {
     expect(receipt !== null).toBeTruthy()
     expect(end - start).toBeGreaterThan(3000 - 100)
     expect(end - start).toBeLessThanOrEqual(3000 + 100)
-  }, 10_000)
+  })
 
   test('waits for confirmations (replaced)', async () => {
     await mine(testClient, { blocks: 10 })
-    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -322,15 +313,12 @@ describe('args: confirmations', () => {
         })
 
         await wait(1000)
-        await testClient.request({
-          method: 'evm_setIntervalMining',
-          params: [1],
-        })
+        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
     expect(receipt !== null).toBeTruthy()
-  }, 10_000)
+  })
 })
 
 test('args: timeout', async () => {
@@ -347,7 +335,7 @@ test('args: timeout', async () => {
       timeout: 500,
     }),
   ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
-}, 10_000)
+})
 
 describe('errors', () => {
   test('throws when transaction not found', async () => {
@@ -361,7 +349,7 @@ describe('errors', () => {
       Details: transaction not found
       Version: viem@1.0.2"
     `)
-  }, 10_000)
+  })
 })
 
 test('WaitForTransactionReceiptTimeoutError', () => {

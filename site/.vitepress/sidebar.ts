@@ -40,7 +40,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsible: true,
       collapsed: true,
       items: [
-        { text: 'Introduction', link: '/docs/actions/public/introduction' },
+        { text: 'Introduction 🚧', link: '/docs/actions/public/introduction' },
         {
           text: 'Account',
           items: [
@@ -63,7 +63,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/fetchBlockNumber',
             },
             {
-              text: 'fetchBlockTransactionCount',
+              text: 'fetchBlockTransactionCount 🚧',
               link: '/docs/actions/public/fetchBlockTransactionCount',
             },
             {
@@ -74,31 +74,27 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'watchBlocks',
               link: '/docs/actions/public/watchBlocks',
             },
-            {
-              text: 'watchNewHeads',
-              link: '/docs/actions/public/watchNewHeads',
-            },
           ],
         },
         {
           text: 'Chain',
           items: [
-            { text: 'fetchChain', link: '/docs/actions/public/fetchChain' },
+            { text: 'fetchChain 🚧', link: '/docs/actions/public/fetchChain' },
           ],
         },
         {
           text: 'Client',
           items: [
             {
-              text: 'fetchClientVersion',
+              text: 'fetchClientVersion 🚧',
               link: '/docs/actions/public/fetchClientVersion',
             },
             {
-              text: 'fetchListeningStatus',
+              text: 'fetchListeningStatus 🚧',
               link: '/docs/actions/public/fetchListeningStatus',
             },
             {
-              text: 'fetchPeerCount',
+              text: 'fetchPeerCount 🚧',
               link: '/docs/actions/public/fetchPeerCount',
             },
           ],
@@ -107,19 +103,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Fee',
           items: [
             {
-              text: 'fetchFeeHistory',
+              text: 'fetchFeeHistory 🚧',
               link: '/docs/actions/public/fetchFeeHistory',
             },
             {
-              text: 'fetchGasEstimate',
+              text: 'fetchGasEstimate 🚧',
               link: '/docs/actions/public/fetchGasEstimate',
             },
             {
-              text: 'fetchGasPrice',
+              text: 'fetchGasPrice 🚧',
               link: '/docs/actions/public/fetchGasPrice',
             },
             {
-              text: 'watchGasPrice',
+              text: 'watchGasPrice 🚧',
               link: '/docs/actions/public/watchGasPrice',
             },
           ],
@@ -128,28 +124,28 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Filters & Logs',
           items: [
             {
-              text: 'createBlockFilter',
+              text: 'createBlockFilter 🚧',
               link: '/docs/actions/public/createBlockFilter',
             },
             {
-              text: 'createFilter',
+              text: 'createFilter 🚧',
               link: '/docs/actions/public/createFilter',
             },
             {
-              text: 'createPendingTransactionFilter',
+              text: 'createPendingTransactionFilter 🚧',
               link: '/docs/actions/public/createPendingTransactionFilter',
             },
             {
-              text: 'fetchFilterChanges',
+              text: 'fetchFilterChanges 🚧',
               link: '/docs/actions/public/fetchFilterChanges',
             },
             {
-              text: 'fetchFilterLogs',
+              text: 'fetchFilterLogs 🚧',
               link: '/docs/actions/public/fetchFilterLogs',
             },
-            { text: 'fetchLogs', link: '/docs/actions/public/fetchLogs' },
+            { text: 'fetchLogs 🚧', link: '/docs/actions/public/fetchLogs' },
             {
-              text: 'uninstallFilter',
+              text: 'uninstallFilter 🚧',
               link: '/docs/actions/public/uninstallFilter',
             },
           ],
@@ -157,7 +153,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Transaction',
           items: [
-            { text: 'call', link: '/docs/actions/public/call' },
+            { text: 'call 🚧', link: '/docs/actions/public/call' },
             {
               text: 'fetchTransaction',
               link: '/docs/actions/public/fetchTransaction',
@@ -167,7 +163,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/fetchTransactionReceipt',
             },
             {
-              text: 'sendRawTransaction',
+              text: 'sendRawTransaction 🚧',
               link: '/docs/actions/public/sendRawTransaction',
             },
             {
@@ -175,12 +171,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/waitForTransactionReceipt',
             },
             {
-              text: 'watchTransactions',
-              link: '/docs/actions/public/watchTransactions',
-            },
-            {
-              text: 'watchTransactionCount',
-              link: '/docs/actions/public/watchTransactionCount',
+              text: 'watchPendingTransactions 🚧',
+              link: '/docs/actions/public/watchPendingTransactions',
             },
           ],
         },
@@ -196,7 +188,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account',
           items: [
             {
-              text: 'fetchAccounts',
+              text: 'fetchAccounts 🚧',
               link: '/docs/actions/wallet/fetchAccounts',
             },
             {
@@ -209,7 +201,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Assets',
           items: [
             {
-              text: 'watchAsset',
+              text: 'watchAsset 🚧',
               link: '/docs/actions/wallet/watchAsset',
             },
           ],
@@ -218,11 +210,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Chain',
           items: [
             {
-              text: 'addChain',
+              text: 'addChain 🚧',
               link: '/docs/actions/wallet/addChain',
             },
             {
-              text: 'switchChain',
+              text: 'switchChain 🚧',
               link: '/docs/actions/wallet/switchChain',
             },
           ],
@@ -231,11 +223,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Data',
           items: [
             {
-              text: 'signMessage',
+              text: 'signMessage 🚧',
               link: '/docs/actions/wallet/signMessage',
             },
             {
-              text: 'signTypedData',
+              text: 'signTypedData 🚧',
               link: '/docs/actions/wallet/signTypedData',
             },
           ],
@@ -244,11 +236,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Permissions',
           items: [
             {
-              text: 'fetchPermissions',
+              text: 'fetchPermissions 🚧',
               link: '/docs/actions/wallet/fetchPermissions',
             },
             {
-              text: 'requestPermissions',
+              text: 'requestPermissions 🚧',
               link: '/docs/actions/wallet/requestPermissions',
             },
           ],
@@ -261,7 +253,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/wallet/sendTransaction',
             },
             {
-              text: 'signTransaction',
+              text: 'signTransaction 🚧',
               link: '/docs/actions/wallet/signTransaction',
             },
           ],
@@ -273,18 +265,18 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsible: true,
       collapsed: true,
       items: [
-        { text: 'Introduction', link: '/docs/actions/test/introduction' },
+        { text: 'Introduction 🚧', link: '/docs/actions/test/introduction' },
         {
           text: 'Account',
           items: [
             {
-              text: 'impersonateAccount',
+              text: 'impersonateAccount 🚧',
               link: '/docs/actions/test/impersonateAccount',
             },
             { text: 'setBalance', link: '/docs/actions/test/setBalance' },
-            { text: 'setNonce', link: '/docs/actions/test/setNonce' },
+            { text: 'setNonce 🚧', link: '/docs/actions/test/setNonce' },
             {
-              text: 'stopImpersonatingAccount',
+              text: 'stopImpersonatingAccount 🚧',
               link: '/docs/actions/test/stopImpersonatingAccount',
             },
           ],
@@ -292,39 +284,45 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Block',
           items: [
+            { text: 'getAutomine 🚧', link: '/docs/actions/test/getAutomine' },
             {
-              text: 'increaseTime',
+              text: 'increaseTime 🚧',
               link: '/docs/actions/test/increaseTime',
             },
             { text: 'mine', link: '/docs/actions/test/mine' },
             {
-              text: 'removeBlockTimestampInterval',
+              text: 'removeBlockTimestampInterval 🚧',
               link: '/docs/actions/test/removeBlockTimestampInterval',
             },
+            { text: 'setAutomine 🚧', link: '/docs/actions/test/setAutomine' },
             {
-              text: 'setNextBlockBaseFeePerGas',
-              link: '/docs/actions/test/setNextBlockBaseFeePerGas',
+              text: 'setIntervalMining',
+              link: '/docs/actions/test/setIntervalMining',
             },
             {
-              text: 'setNextBlockTimestamp',
-              link: '/docs/actions/test/setNextBlockTimestamp',
-            },
-            {
-              text: 'setBlockTimestampInterval',
+              text: 'setBlockTimestampInterval 🚧',
               link: '/docs/actions/test/setBlockTimestampInterval',
             },
             {
-              text: 'setBlockGasLimit',
+              text: 'setBlockGasLimit 🚧',
               link: '/docs/actions/test/setBlockGasLimit',
+            },
+            {
+              text: 'setNextBlockBaseFeePerGas 🚧',
+              link: '/docs/actions/test/setNextBlockBaseFeePerGas',
+            },
+            {
+              text: 'setNextBlockTimestamp 🚧',
+              link: '/docs/actions/test/setNextBlockTimestamp',
             },
           ],
         },
         {
           text: 'Contract',
           items: [
-            { text: 'setCode', link: '/docs/actions/test/setCode' },
+            { text: 'setCode 🚧', link: '/docs/actions/test/setCode' },
             {
-              text: 'setStorageAt',
+              text: 'setStorageAt 🚧',
               link: '/docs/actions/test/setStorageAt',
             },
           ],
@@ -332,10 +330,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Node',
           items: [
-            { text: 'nodeInfo', link: '/docs/actions/test/nodeInfo' },
-            { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
+            { text: 'nodeInfo 🚧', link: '/docs/actions/test/nodeInfo' },
+            { text: 'setCoinbase 🚧', link: '/docs/actions/test/setCoinbase' },
             {
-              text: 'setMinGasPrice',
+              text: 'setMinGasPrice 🚧',
               link: '/docs/actions/test/setMinGasPrice',
             },
           ],
@@ -343,53 +341,47 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Settings',
           items: [
-            { text: 'getAutomine', link: '/docs/actions/test/getAutomine' },
-            { text: 'reset', link: '/docs/actions/test/reset' },
-            { text: 'setAutomine', link: '/docs/actions/test/setAutomine' },
+            { text: 'reset 🚧', link: '/docs/actions/test/reset' },
             {
-              text: 'setIntervalMining',
-              link: '/docs/actions/test/setIntervalMining',
-            },
-            {
-              text: 'setLoggingEnabled',
+              text: 'setLoggingEnabled 🚧',
               link: '/docs/actions/test/setLoggingEnabled',
             },
-            { text: 'setRpcUrl', link: '/docs/actions/test/setRpcUrl' },
+            { text: 'setRpcUrl 🚧', link: '/docs/actions/test/setRpcUrl' },
           ],
         },
         {
           text: 'State',
           items: [
-            { text: 'loadState', link: '/docs/actions/test/loadState' },
-            { text: 'revert', link: '/docs/actions/test/revert' },
-            { text: 'snapshot', link: '/docs/actions/test/snapshot' },
+            { text: 'loadState 🚧', link: '/docs/actions/test/loadState' },
+            { text: 'revert 🚧', link: '/docs/actions/test/revert' },
+            { text: 'snapshot 🚧', link: '/docs/actions/test/snapshot' },
           ],
         },
         {
           text: 'Transaction',
           items: [
             {
-              text: 'dropTransaction',
+              text: 'dropTransaction 🚧',
               link: '/docs/actions/test/dropTransaction',
             },
             {
-              text: 'enableTraces',
+              text: 'enableTraces 🚧',
               link: '/docs/actions/test/enableTraces',
             },
             {
-              text: 'fetchTxpoolContent',
+              text: 'fetchTxpoolContent 🚧',
               link: '/docs/actions/test/fetchTxpoolContent',
             },
             {
-              text: 'fetchTxpoolStatus',
+              text: 'fetchTxpoolStatus 🚧',
               link: '/docs/actions/test/fetchTxpoolStatus',
             },
             {
-              text: 'inspectTxpool',
+              text: 'inspectTxpool 🚧',
               link: '/docs/actions/test/inspectTxpool',
             },
             {
-              text: 'sendUnsignedTransaction',
+              text: 'sendUnsignedTransaction 🚧',
               link: '/docs/actions/test/sendUnsignedTransaction',
             },
           ],
@@ -397,58 +389,47 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'Middlewares',
+      text: 'Contract 🚧',
       collapsible: true,
       collapsed: true,
       items: [
         {
-          text: 'withConfirmations',
-          link: '/docs/middlewares/withConfirmations',
-        },
-      ],
-    },
-    {
-      text: 'Contract',
-      collapsible: true,
-      collapsed: true,
-      items: [
-        {
-          text: 'deployContract',
+          text: 'deployContract 🚧',
           link: '/docs/contract/deployContract',
         },
         {
-          text: 'getContract',
+          text: 'getContract 🚧',
           link: '/docs/contract/getContract',
         },
         {
           text: 'Actions',
           items: [
             {
-              text: 'callContract',
+              text: 'callContract 🚧',
               link: '/docs/contract/callContract',
             },
             {
-              text: 'fetchContractCode',
+              text: 'fetchContractCode 🚧',
               link: '/docs/contract/fetchContractCode',
             },
             {
-              text: 'fetchContractStorage',
+              text: 'fetchContractStorage 🚧',
               link: '/docs/contract/fetchContractStorage',
             },
             {
-              text: 'multicall',
+              text: 'multicall 🚧',
               link: '/docs/contract/multicall',
             },
             {
-              text: 'readContract',
+              text: 'readContract 🚧',
               link: '/docs/contract/readContract',
             },
             {
-              text: 'writeContract',
+              text: 'writeContract 🚧',
               link: '/docs/contract/writeContract',
             },
             {
-              text: 'watchContractEvent',
+              text: 'watchContractEvent 🚧',
               link: '/docs/contract/watchContractEvent',
             },
           ],
@@ -457,43 +438,43 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeDeploy',
+              text: 'decodeDeploy 🚧',
               link: '/docs/abi/decodeDeploy',
             },
             {
-              text: 'decodeEventLog',
+              text: 'decodeEventLog 🚧',
               link: '/docs/abi/decodeEventLog',
             },
             {
-              text: 'decodeFunctionArgs',
+              text: 'decodeFunctionArgs 🚧',
               link: '/docs/abi/decodeFunctionArgs',
             },
             {
-              text: 'decodeFunctionError',
+              text: 'decodeFunctionError 🚧',
               link: '/docs/abi/decodeFunctionError',
             },
             {
-              text: 'decodeFunctionResult',
+              text: 'decodeFunctionResult 🚧',
               link: '/docs/abi/decodeFunctionResult',
             },
             {
-              text: 'encodeDeploy',
+              text: 'encodeDeploy 🚧',
               link: '/docs/abi/encodeDeploy',
             },
             {
-              text: 'encodeEventLog',
+              text: 'encodeEventLog 🚧',
               link: '/docs/abi/encodeEventLog',
             },
             {
-              text: 'encodeFunctionArgs',
+              text: 'encodeFunctionArgs 🚧',
               link: '/docs/abi/encodeFunctionArgs',
             },
             {
-              text: 'encodeFunctionError',
+              text: 'encodeFunctionError 🚧',
               link: '/docs/abi/encodeFunctionError',
             },
             {
-              text: 'encodeFunctionResult',
+              text: 'encodeFunctionResult 🚧',
               link: '/docs/abi/encodeFunctionArgs',
             },
           ],
@@ -501,28 +482,28 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'ENS',
+      text: 'ENS 🚧',
       collapsible: true,
       collapsed: true,
       items: [
         {
           text: 'Actions',
           items: [
-            { text: 'fetchEnsAddress', link: '/docs/ens/fetchEnsAddress' },
-            { text: 'fetchEnsAvatar', link: '/docs/ens/fetchEnsAvatar' },
+            { text: 'fetchEnsAddress 🚧', link: '/docs/ens/fetchEnsAddress' },
+            { text: 'fetchEnsAvatar 🚧', link: '/docs/ens/fetchEnsAvatar' },
             {
-              text: 'fetchEnsCoinAddress',
+              text: 'fetchEnsCoinAddress 🚧',
               link: '/docs/ens/fetchEnsCoinAddress',
             },
-            { text: 'fetchEnsContent', link: '/docs/ens/fetchEnsContent' },
-            { text: 'fetchEnsCover', link: '/docs/ens/fetchEnsCover' },
-            { text: 'fetchEnsName', link: '/docs/ens/fetchEnsName' },
+            { text: 'fetchEnsContent 🚧', link: '/docs/ens/fetchEnsContent' },
+            { text: 'fetchEnsCover 🚧', link: '/docs/ens/fetchEnsCover' },
+            { text: 'fetchEnsName 🚧', link: '/docs/ens/fetchEnsName' },
             {
-              text: 'fetchEnsResolver',
+              text: 'fetchEnsResolver 🚧',
               link: '/docs/ens/fetchEnsResolver',
             },
             {
-              text: 'fetchEnsTextRecord',
+              text: 'fetchEnsTextRecord 🚧',
               link: '/docs/ens/fetchEnsTextRecord',
             },
           ],
@@ -530,8 +511,8 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Utilities',
           items: [
-            { text: 'namehash', link: '/docs/ens/namehash' },
-            { text: 'labelhash', link: '/docs/ens/labelhash' },
+            { text: 'namehash 🚧', link: '/docs/ens/namehash' },
+            { text: 'labelhash 🚧', link: '/docs/ens/labelhash' },
           ],
         },
       ],
@@ -545,19 +526,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Addresses',
           items: [
             {
-              text: 'getAddress',
+              text: 'getAddress 🚧',
               link: '/docs/utilities/getAddress',
             },
             {
-              text: 'getContractAddress',
+              text: 'getContractAddress 🚧',
               link: '/docs/utilities/getContractAddress',
             },
             {
-              text: 'isAddress',
+              text: 'isAddress 🚧',
               link: '/docs/utilities/isAddress',
             },
             {
-              text: 'isAddressEqual',
+              text: 'isAddressEqual 🚧',
               link: '/docs/utilities/isAddressEqual',
             },
           ],
@@ -566,27 +547,27 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeBase58',
+              text: 'decodeBase58 🚧',
               link: '/docs/utilities/decodeBase58',
             },
             {
-              text: 'decodeBase64',
+              text: 'decodeBase64 🚧',
               link: '/docs/utilities/decodeBase64',
             },
             {
-              text: 'decodeRlp',
+              text: 'decodeRlp 🚧',
               link: '/docs/utilities/decodeRlp',
             },
             {
-              text: 'encodeBase58',
+              text: 'encodeBase58 🚧',
               link: '/docs/utilities/encodeBase58',
             },
             {
-              text: 'encodeBase64',
+              text: 'encodeBase64 🚧',
               link: '/docs/utilities/encodeBase64',
             },
             {
-              text: 'encodeRlp',
+              text: 'encodeRlp 🚧',
               link: '/docs/utilities/encodeRlp',
             },
           ],
@@ -595,11 +576,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Number',
           items: [
             {
-              text: 'hexToNumber',
+              text: 'hexToNumber 🚧',
               link: '/docs/utilities/hexToNumber',
             },
             {
-              text: 'numberToHex',
+              text: 'numberToHex 🚧',
               link: '/docs/utilities/numberToHex',
             },
           ],
@@ -608,23 +589,23 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Hash',
           items: [
             {
-              text: 'id',
+              text: 'id 🚧',
               link: '/docs/utilities/id',
             },
             {
-              text: 'hashMessage',
+              text: 'hashMessage 🚧',
               link: '/docs/utilities/hashMessage',
             },
             {
-              text: 'keccak256',
+              text: 'keccak256 🚧',
               link: '/docs/utilities/keccak256',
             },
             {
-              text: 'sha256',
+              text: 'sha256 🚧',
               link: '/docs/utilities/sha256',
             },
             {
-              text: 'sha512',
+              text: 'sha512 🚧',
               link: '/docs/utilities/sha512',
             },
           ],
@@ -633,19 +614,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'String',
           items: [
             {
-              text: 'bytesToString',
+              text: 'bytesToString 🚧',
               link: '/docs/utilities/bytesToString',
             },
             {
-              text: 'formatBytes32String',
+              text: 'formatBytes32String 🚧',
               link: '/docs/utilities/formatBytes32String',
             },
             {
-              text: 'parseBytes32String',
+              text: 'parseBytes32String 🚧',
               link: '/docs/utilities/parseBytes32String',
             },
             {
-              text: 'stringToBytes',
+              text: 'stringToBytes 🚧',
               link: '/docs/utilities/stringToBytes',
             },
           ],

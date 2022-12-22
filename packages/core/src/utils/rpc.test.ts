@@ -683,7 +683,7 @@ describe('webSocket (subscription)', () => {
     expect(s1.length).toBe(3)
     expect(s2.length).toBe(5)
     expect(s3.length).toBe(1)
-  }, 10_000)
+  })
 
   test('invalid subscription', async () => {
     const socket = await getSocket(localWsUrl)

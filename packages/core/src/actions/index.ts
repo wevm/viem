@@ -24,8 +24,8 @@ export type {
   WatchBlocksArgs,
 } from './block'
 
-export { mine, setBalance } from './test'
-export type { MineArgs, SetBalanceArgs } from './test'
+export { mine, setBalance, setIntervalMining } from './test'
+export type { MineArgs, SetBalanceArgs, SetIntervalMiningArgs } from './test'
 
 export {
   fetchTransaction,

@@ -8,6 +8,7 @@ import { localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import { mine } from '../test/mine'
 import * as fetchBlockNumber from './fetchBlockNumber'
+import { setIntervalMining } from '../test'
 
 test('watches for new block numbers', async () => {
   const blockNumbers: OnBlockNumberResponse[] = []
@@ -17,11 +18,11 @@ test('watches for new block numbers', async () => {
   await wait(5000)
   unwatch()
   expect(blockNumbers.length).toBe(4)
-}, 10_000)
+})
 
 describe('emitMissed', () => {
   test('emits on missed blocks', async () => {
-    await testClient.request({ method: 'evm_setIntervalMining', params: [99] })
+    await setIntervalMining(testClient, { interval: 0 })
     const blockNumbers: OnBlockNumberResponse[] = []
     const unwatch = watchBlockNumber(publicClient, {
       emitMissed: true,
@@ -33,7 +34,7 @@ describe('emitMissed', () => {
     await mine(testClient, { blocks: 5 })
     await wait(1000)
     unwatch()
-    await testClient.request({ method: 'evm_setIntervalMining', params: [1] })
+    await setIntervalMining(testClient, { interval: 1 })
     expect(blockNumbers.length).toBe(6)
   })
 })
@@ -48,7 +49,7 @@ describe('emitOnBegin', () => {
     await wait(5000)
     unwatch()
     expect(blockNumbers.length).toBe(5)
-  }, 10_000)
+  })
 })
 
 describe('pollingInterval on client', () => {
@@ -66,7 +67,7 @@ describe('pollingInterval on client', () => {
     await wait(2000)
     unwatch()
     expect(blockNumbers.length).toBe(2)
-  }, 10_000)
+  })
 })
 
 describe('behavior', () => {
@@ -79,7 +80,7 @@ describe('behavior', () => {
     await wait(1200)
     unwatch()
     expect(blockNumbers.length).toBe(2)
-  }, 10_000)
+  })
 
   test('watch > unwatch > watch', async () => {
     let blockNumbers: OnBlockNumberResponse[] = []
@@ -97,7 +98,7 @@ describe('behavior', () => {
     await wait(3000)
     unwatch()
     expect(blockNumbers.length).toBe(2)
-  }, 10_000)
+  })
 
   test('multiple watchers', async () => {
     let blockNumbers: OnBlockNumberResponse[] = []
@@ -133,7 +134,7 @@ describe('behavior', () => {
     unwatch2()
     unwatch3()
     expect(blockNumbers.length).toBe(6)
-  }, 10_000)
+  })
 
   test('immediately unwatch', async () => {
     const blockNumbers: OnBlockNumberResponse[] = []
@@ -143,7 +144,7 @@ describe('behavior', () => {
     unwatch()
     await wait(3000)
     expect(blockNumbers.length).toBe(0)
-  }, 10_000)
+  })
 })
 
 describe('errors', () => {
