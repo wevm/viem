@@ -2,7 +2,7 @@ import type { PublicClient } from '../../clients'
 import type { Address, BlockTag } from '../../types'
 import { hexToNumber, numberToHex } from '../../utils'
 
-export type FetchTransactionCountArgs = {
+export type GetTransactionCountArgs = {
   /** The account address. */
   address: Address
 } & (
@@ -17,15 +17,15 @@ export type FetchTransactionCountArgs = {
       blockTag?: BlockTag
     }
 )
-export type FetchTransactionCountResponse = number
+export type GetTransactionCountResponse = number
 
 /**
  * @description Returns the number of transactions an account has broadcast / sent.
  */
-export async function fetchTransactionCount(
+export async function getTransactionCount(
   client: PublicClient,
-  { address, blockTag = 'latest', blockNumber }: FetchTransactionCountArgs,
-): Promise<FetchTransactionCountResponse> {
+  { address, blockTag = 'latest', blockNumber }: GetTransactionCountArgs,
+): Promise<GetTransactionCountResponse> {
   const count = await client.request({
     method: 'eth_getTransactionCount',
     params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],

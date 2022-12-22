@@ -8,8 +8,8 @@ import {
   hexToNumber,
   numberToHex,
 } from '../../utils'
-import { fetchBalance } from '../account'
-import { fetchBlock } from '../block'
+import { getBalance } from '../account'
+import { getBlock } from '../block'
 import { mine, setBalance } from '../test'
 
 import { InvalidGasArgumentsError, sendTransaction } from './sendTransaction'
@@ -45,19 +45,19 @@ test('sends transaction', async () => {
   ).toBeDefined()
 
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(publicClient, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
   await mine(testClient, { blocks: 1 })
 
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await fetchBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(publicClient, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
@@ -83,19 +83,19 @@ test('sends transaction (w/ formatter)', async () => {
   ).toBeDefined()
 
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(publicClient, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
   await mine(testClient, { blocks: 1 })
 
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await fetchBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(publicClient, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
@@ -114,19 +114,19 @@ test('sends transaction w/ no value', async () => {
   ).toBeDefined()
 
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(publicClient, { address: sourceAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
 
   await mine(testClient, { blocks: 1 })
 
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
   expect(
-    await fetchBalance(publicClient, { address: sourceAccount.address }),
+    await getBalance(publicClient, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
 })
 
@@ -148,19 +148,19 @@ describe('args: gas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     await mine(testClient, { blocks: 1 })
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
@@ -199,7 +199,7 @@ describe('args: gasPrice', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const block = await fetchBlock(publicClient)
+    const block = await getBlock(publicClient)
 
     expect(
       (
@@ -215,19 +215,19 @@ describe('args: gasPrice', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     await mine(testClient, { blocks: 1 })
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
@@ -255,7 +255,7 @@ describe('args: gasPrice', () => {
   test('errors when account has insufficient funds', async () => {
     await setup()
 
-    const block = await fetchBlock(publicClient)
+    const block = await getBlock(publicClient)
 
     await expect(() =>
       sendTransaction(walletClient, {
@@ -274,7 +274,7 @@ describe('args: maxFeePerGas', () => {
   test('sends transaction', async () => {
     await setup()
 
-    const block = await fetchBlock(publicClient)
+    const block = await getBlock(publicClient)
 
     expect(
       (
@@ -290,19 +290,19 @@ describe('args: maxFeePerGas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     await mine(testClient, { blocks: 1 })
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
@@ -324,7 +324,7 @@ describe('args: maxFeePerGas', () => {
   test('errors when account has insufficient funds', async () => {
     await setup()
 
-    const block = await fetchBlock(publicClient)
+    const block = await getBlock(publicClient)
 
     await expect(() =>
       sendTransaction(walletClient, {
@@ -358,26 +358,26 @@ describe('args: maxPriorityFeePerGas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     await mine(testClient, { blocks: 1 })
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
   test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
     await setup()
 
-    const block = await fetchBlock(publicClient)
+    const block = await getBlock(publicClient)
 
     expect(
       (
@@ -394,19 +394,19 @@ describe('args: maxPriorityFeePerGas', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     await mine(testClient, { blocks: 1 })
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 
@@ -450,19 +450,19 @@ describe('args: nonce', () => {
     ).toBeDefined()
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
 
     await mine(testClient, { blocks: 1 })
 
     expect(
-      await fetchBalance(publicClient, { address: targetAccount.address }),
+      await getBalance(publicClient, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10001000000000000000000n')
     expect(
-      await fetchBalance(publicClient, { address: sourceAccount.address }),
+      await getBalance(publicClient, { address: sourceAccount.address }),
     ).toBeLessThan(sourceAccount.balance)
   })
 

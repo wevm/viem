@@ -8,17 +8,17 @@ import type {
 } from '../../utils/formatters/transactionReceipt'
 import { formatTransactionReceipt } from '../../utils/formatters/transactionReceipt'
 
-export type FetchTransactionReceiptArgs = {
+export type GetTransactionReceiptArgs = {
   /** The hash of the transaction. */
   hash: Data
 }
 
-export type FetchTransactionReceiptResponse<TChain extends Chain = Chain> =
+export type GetTransactionReceiptResponse<TChain extends Chain = Chain> =
   FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
 
-export async function fetchTransactionReceipt<TChain extends Chain>(
+export async function getTransactionReceipt<TChain extends Chain>(
   client: PublicClient<any, TChain>,
-  { hash }: FetchTransactionReceiptArgs,
+  { hash }: GetTransactionReceiptArgs,
 ) {
   const receipt = await client.request({
     method: 'eth_getTransactionReceipt',
@@ -30,7 +30,7 @@ export async function fetchTransactionReceipt<TChain extends Chain>(
   return format(receipt, {
     formatter:
       client.chain?.formatters?.transactionReceipt || formatTransactionReceipt,
-  }) as FetchTransactionReceiptResponse<TChain>
+  }) as GetTransactionReceiptResponse<TChain>
 }
 export class TransactionReceiptNotFoundError extends BaseError {
   name = 'TransactionReceiptNotFoundError'

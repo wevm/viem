@@ -7,7 +7,7 @@ import { wait } from '../../utils/wait'
 import { localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import { mine } from '../test/mine'
-import * as fetchBlockNumber from './fetchBlockNumber'
+import * as getBlockNumber from './getBlockNumber'
 import { setIntervalMining } from '../test'
 
 test('watches for new block numbers', async () => {
@@ -149,7 +149,7 @@ describe('behavior', () => {
 
 describe('errors', () => {
   test('handles error thrown', async () => {
-    vi.spyOn(fetchBlockNumber, 'fetchBlockNumber').mockRejectedValue(
+    vi.spyOn(getBlockNumber, 'getBlockNumber').mockRejectedValue(
       new Error('foo'),
     )
 

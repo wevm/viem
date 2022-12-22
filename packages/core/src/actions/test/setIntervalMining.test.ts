@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../../test'
 import { wait } from '../../utils/wait'
-import { fetchBlockNumber } from '../block'
+import { getBlockNumber } from '../block'
 import { mine } from './mine'
 
 import { setIntervalMining } from './setIntervalMining'
@@ -10,20 +10,20 @@ import { setIntervalMining } from './setIntervalMining'
 test('sets mining interval', async () => {
   await mine(testClient, { blocks: 1 })
 
-  const blockNumber1 = await fetchBlockNumber(publicClient)
+  const blockNumber1 = await getBlockNumber(publicClient)
   await setIntervalMining(testClient, { interval: 1 })
   await wait(2000)
-  const blockNumber2 = await fetchBlockNumber(publicClient)
+  const blockNumber2 = await getBlockNumber(publicClient)
   expect(blockNumber2 - blockNumber1).toBe(2n)
 
   await setIntervalMining(testClient, { interval: 2 })
   await wait(2000)
-  const blockNumber3 = await fetchBlockNumber(publicClient)
+  const blockNumber3 = await getBlockNumber(publicClient)
   expect(blockNumber3 - blockNumber2).toBe(1n)
 
   await setIntervalMining(testClient, { interval: 0 })
   await wait(2000)
-  const blockNumber4 = await fetchBlockNumber(publicClient)
+  const blockNumber4 = await getBlockNumber(publicClient)
   expect(blockNumber4 - blockNumber3).toBe(0n)
 
   await setIntervalMining(testClient, { interval: 1 })

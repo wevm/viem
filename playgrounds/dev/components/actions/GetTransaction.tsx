@@ -1,33 +1,30 @@
 import { useState } from 'react'
-import type {
-  FetchTransactionArgs,
-  FetchTransactionResponse,
-} from 'viem/actions'
-import { fetchTransaction } from 'viem/actions'
+import type { GetTransactionArgs, GetTransactionResponse } from 'viem/actions'
+import { getTransaction } from 'viem/actions'
 import type { PublicClient } from 'viem/clients'
 import type { Address } from 'viem'
 
-export function FetchTransaction({ client }: { client: PublicClient }) {
+export function GetTransaction({ client }: { client: PublicClient }) {
   return (
     <div>
-      <FetchTransactionByHash client={client} />
-      <FetchTransactionByHashAndIndex client={client} />
-      <FetchTransactionByNumberAndIndex client={client} />
-      <FetchTransactionByTagAndIndex client={client} />
+      <GetTransactionByHash client={client} />
+      <GetTransactionByHashAndIndex client={client} />
+      <GetTransactionByNumberAndIndex client={client} />
+      <GetTransactionByTagAndIndex client={client} />
     </div>
   )
 }
 
-function FetchTransactionByHash({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<FetchTransactionResponse>()
+function GetTransactionByHash({ client }: { client: PublicClient }) {
+  const [transaction, setTransaction] = useState<GetTransactionResponse>()
 
   const [hash, setHash] = useState<Address>(
     '0x43261d2aa0783f4648cec5c0552f69b6d94e5f1943dea60b9117f0d152a68f11',
   )
 
-  const handleFetchTransaction = async () => {
+  const handleGetTransaction = async () => {
     if (hash) {
-      setTransaction(await fetchTransaction(client, { hash }))
+      setTransaction(await getTransaction(client, { hash }))
     }
   }
 
@@ -41,7 +38,7 @@ function FetchTransactionByHash({ client }: { client: PublicClient }) {
             onChange={(e) => setHash(e.target.value as Address)}
             value={hash}
           />
-          <button onClick={handleFetchTransaction}>Fetch</button>
+          <button onClick={handleGetTransaction}>Get</button>
         </div>
         <div>
           {JSON.stringify(
@@ -56,18 +53,18 @@ function FetchTransactionByHash({ client }: { client: PublicClient }) {
   )
 }
 
-function FetchTransactionByHashAndIndex({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<FetchTransactionResponse>()
+function GetTransactionByHashAndIndex({ client }: { client: PublicClient }) {
+  const [transaction, setTransaction] = useState<GetTransactionResponse>()
 
   const [blockHash, setBlockHash] = useState<Address>(
     '0x5e57b4239379e3b03da75ddb8ef75effd8fb98e641a1177a8c146787f7c062ed',
   )
   const [index, setIndex] = useState<string>('0')
 
-  const handleFetchTransaction = async () => {
+  const handleGetTransaction = async () => {
     if (blockHash && index) {
       setTransaction(
-        await fetchTransaction(client, { blockHash, index: parseInt(index) }),
+        await getTransaction(client, { blockHash, index: parseInt(index) }),
       )
     }
   }
@@ -87,7 +84,7 @@ function FetchTransactionByHashAndIndex({ client }: { client: PublicClient }) {
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           />
-          <button onClick={handleFetchTransaction}>Fetch</button>
+          <button onClick={handleGetTransaction}>Get</button>
         </div>
         <div>
           {JSON.stringify(
@@ -102,20 +99,16 @@ function FetchTransactionByHashAndIndex({ client }: { client: PublicClient }) {
   )
 }
 
-function FetchTransactionByNumberAndIndex({
-  client,
-}: {
-  client: PublicClient
-}) {
-  const [transaction, setTransaction] = useState<FetchTransactionResponse>()
+function GetTransactionByNumberAndIndex({ client }: { client: PublicClient }) {
+  const [transaction, setTransaction] = useState<GetTransactionResponse>()
 
   const [blockNumber, setBlockNumber] = useState<string>('15394198')
   const [index, setIndex] = useState<string>('0')
 
-  const handleFetchTransaction = async () => {
+  const handleGetTransaction = async () => {
     if (blockNumber && index) {
       setTransaction(
-        await fetchTransaction(client, {
+        await getTransaction(client, {
           blockNumber: BigInt(blockNumber),
           index: parseInt(index),
         }),
@@ -138,7 +131,7 @@ function FetchTransactionByNumberAndIndex({
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           />
-          <button onClick={handleFetchTransaction}>Fetch</button>
+          <button onClick={handleGetTransaction}>Get</button>
         </div>
         <div>
           {JSON.stringify(
@@ -153,17 +146,17 @@ function FetchTransactionByNumberAndIndex({
   )
 }
 
-function FetchTransactionByTagAndIndex({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<FetchTransactionResponse>()
+function GetTransactionByTagAndIndex({ client }: { client: PublicClient }) {
+  const [transaction, setTransaction] = useState<GetTransactionResponse>()
 
   const [blockTag, setBlockTag] =
-    useState<FetchTransactionArgs['blockTag']>('latest')
+    useState<GetTransactionArgs['blockTag']>('latest')
   const [index, setIndex] = useState<string>('0')
 
-  const handleFetchTransaction = async () => {
+  const handleGetTransaction = async () => {
     if (blockTag && index) {
       setTransaction(
-        await fetchTransaction(client, {
+        await getTransaction(client, {
           blockTag,
           index: parseInt(index),
         }),
@@ -179,7 +172,7 @@ function FetchTransactionByTagAndIndex({ client }: { client: PublicClient }) {
           <input
             placeholder="block tag (latest)"
             onChange={(e) =>
-              setBlockTag(e.target.value as FetchTransactionArgs['blockTag'])
+              setBlockTag(e.target.value as GetTransactionArgs['blockTag'])
             }
             value={blockTag}
           />
@@ -188,7 +181,7 @@ function FetchTransactionByTagAndIndex({ client }: { client: PublicClient }) {
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           />
-          <button onClick={handleFetchTransaction}>Fetch</button>
+          <button onClick={handleGetTransaction}>Get</button>
         </div>
         <div>
           {JSON.stringify(

@@ -45,26 +45,26 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account',
           items: [
             {
-              text: 'fetchBalance',
-              link: '/docs/actions/public/fetchBalance',
+              text: 'getBalance',
+              link: '/docs/actions/public/getBalance',
             },
             {
-              text: 'fetchTransactionCount',
-              link: '/docs/actions/public/fetchTransactionCount',
+              text: 'getTransactionCount',
+              link: '/docs/actions/public/getTransactionCount',
             },
           ],
         },
         {
           text: 'Block',
           items: [
-            { text: 'fetchBlock', link: '/docs/actions/public/fetchBlock' },
+            { text: 'getBlock', link: '/docs/actions/public/getBlock' },
             {
-              text: 'fetchBlockNumber',
-              link: '/docs/actions/public/fetchBlockNumber',
+              text: 'getBlockNumber',
+              link: '/docs/actions/public/getBlockNumber',
             },
             {
-              text: 'fetchBlockTransactionCount 🚧',
-              link: '/docs/actions/public/fetchBlockTransactionCount',
+              text: 'getBlockTransactionCount 🚧',
+              link: '/docs/actions/public/getBlockTransactionCount',
             },
             {
               text: 'watchBlockNumber',
@@ -79,23 +79,23 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Chain',
           items: [
-            { text: 'fetchChain 🚧', link: '/docs/actions/public/fetchChain' },
+            { text: 'getChain 🚧', link: '/docs/actions/public/getChain' },
           ],
         },
         {
           text: 'Client',
           items: [
             {
-              text: 'fetchClientVersion 🚧',
-              link: '/docs/actions/public/fetchClientVersion',
+              text: 'getClientVersion 🚧',
+              link: '/docs/actions/public/getClientVersion',
             },
             {
-              text: 'fetchListeningStatus 🚧',
-              link: '/docs/actions/public/fetchListeningStatus',
+              text: 'getListeningStatus 🚧',
+              link: '/docs/actions/public/getListeningStatus',
             },
             {
-              text: 'fetchPeerCount 🚧',
-              link: '/docs/actions/public/fetchPeerCount',
+              text: 'getPeerCount 🚧',
+              link: '/docs/actions/public/getPeerCount',
             },
           ],
         },
@@ -103,16 +103,16 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Fee',
           items: [
             {
-              text: 'fetchFeeHistory 🚧',
-              link: '/docs/actions/public/fetchFeeHistory',
+              text: 'getFeeHistory 🚧',
+              link: '/docs/actions/public/getFeeHistory',
             },
             {
-              text: 'fetchGasEstimate 🚧',
-              link: '/docs/actions/public/fetchGasEstimate',
+              text: 'getGasEstimate 🚧',
+              link: '/docs/actions/public/getGasEstimate',
             },
             {
-              text: 'fetchGasPrice 🚧',
-              link: '/docs/actions/public/fetchGasPrice',
+              text: 'getGasPrice 🚧',
+              link: '/docs/actions/public/getGasPrice',
             },
             {
               text: 'watchGasPrice 🚧',
@@ -136,14 +136,14 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/createPendingTransactionFilter',
             },
             {
-              text: 'fetchFilterChanges 🚧',
-              link: '/docs/actions/public/fetchFilterChanges',
+              text: 'getFilterChanges 🚧',
+              link: '/docs/actions/public/getFilterChanges',
             },
             {
-              text: 'fetchFilterLogs 🚧',
-              link: '/docs/actions/public/fetchFilterLogs',
+              text: 'getFilterLogs 🚧',
+              link: '/docs/actions/public/getFilterLogs',
             },
-            { text: 'fetchLogs 🚧', link: '/docs/actions/public/fetchLogs' },
+            { text: 'getLogs 🚧', link: '/docs/actions/public/getLogs' },
             {
               text: 'uninstallFilter 🚧',
               link: '/docs/actions/public/uninstallFilter',
@@ -155,12 +155,12 @@ export const sidebar: DefaultTheme.Sidebar = {
           items: [
             { text: 'call 🚧', link: '/docs/actions/public/call' },
             {
-              text: 'fetchTransaction',
-              link: '/docs/actions/public/fetchTransaction',
+              text: 'getTransaction',
+              link: '/docs/actions/public/getTransaction',
             },
             {
-              text: 'fetchTransactionReceipt',
-              link: '/docs/actions/public/fetchTransactionReceipt',
+              text: 'getTransactionReceipt',
+              link: '/docs/actions/public/getTransactionReceipt',
             },
             {
               text: 'sendRawTransaction 🚧',
@@ -188,8 +188,8 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account',
           items: [
             {
-              text: 'fetchAccounts 🚧',
-              link: '/docs/actions/wallet/fetchAccounts',
+              text: 'getAccounts 🚧',
+              link: '/docs/actions/wallet/getAccounts',
             },
             {
               text: 'requestAccounts',
@@ -236,8 +236,8 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Permissions',
           items: [
             {
-              text: 'fetchPermissions 🚧',
-              link: '/docs/actions/wallet/fetchPermissions',
+              text: 'getPermissions 🚧',
+              link: '/docs/actions/wallet/getPermissions',
             },
             {
               text: 'requestPermissions 🚧',
@@ -362,12 +362,12 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/test/enableTraces',
             },
             {
-              text: 'fetchTxpoolContent',
-              link: '/docs/actions/test/fetchTxpoolContent',
+              text: 'getTxpoolContent',
+              link: '/docs/actions/test/getTxpoolContent',
             },
             {
-              text: 'fetchTxpoolStatus',
-              link: '/docs/actions/test/fetchTxpoolStatus',
+              text: 'getTxpoolStatus',
+              link: '/docs/actions/test/getTxpoolStatus',
             },
             {
               text: 'inspectTxpool',
@@ -402,12 +402,12 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/callContract',
             },
             {
-              text: 'fetchContractCode 🚧',
-              link: '/docs/contract/fetchContractCode',
+              text: 'getContractCode 🚧',
+              link: '/docs/contract/getContractCode',
             },
             {
-              text: 'fetchContractStorage 🚧',
-              link: '/docs/contract/fetchContractStorage',
+              text: 'getContractStorage 🚧',
+              link: '/docs/contract/getContractStorage',
             },
             {
               text: 'multicall 🚧',
@@ -482,22 +482,22 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Actions',
           items: [
-            { text: 'fetchEnsAddress 🚧', link: '/docs/ens/fetchEnsAddress' },
-            { text: 'fetchEnsAvatar 🚧', link: '/docs/ens/fetchEnsAvatar' },
+            { text: 'getEnsAddress 🚧', link: '/docs/ens/getEnsAddress' },
+            { text: 'getEnsAvatar 🚧', link: '/docs/ens/getEnsAvatar' },
             {
-              text: 'fetchEnsCoinAddress 🚧',
-              link: '/docs/ens/fetchEnsCoinAddress',
+              text: 'getEnsCoinAddress 🚧',
+              link: '/docs/ens/getEnsCoinAddress',
             },
-            { text: 'fetchEnsContent 🚧', link: '/docs/ens/fetchEnsContent' },
-            { text: 'fetchEnsCover 🚧', link: '/docs/ens/fetchEnsCover' },
-            { text: 'fetchEnsName 🚧', link: '/docs/ens/fetchEnsName' },
+            { text: 'getEnsContent 🚧', link: '/docs/ens/getEnsContent' },
+            { text: 'getEnsCover 🚧', link: '/docs/ens/getEnsCover' },
+            { text: 'getEnsName 🚧', link: '/docs/ens/getEnsName' },
             {
-              text: 'fetchEnsResolver 🚧',
-              link: '/docs/ens/fetchEnsResolver',
+              text: 'getEnsResolver 🚧',
+              link: '/docs/ens/getEnsResolver',
             },
             {
-              text: 'fetchEnsTextRecord 🚧',
-              link: '/docs/ens/fetchEnsTextRecord',
+              text: 'getEnsTextRecord 🚧',
+              link: '/docs/ens/getEnsTextRecord',
             },
           ],
         },

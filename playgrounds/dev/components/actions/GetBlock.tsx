@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
-import type { FetchBlockResponse } from 'viem/actions'
-import { fetchBlock } from 'viem/actions'
+import type { GetBlockResponse } from 'viem/actions'
+import { getBlock } from 'viem/actions'
 import type { PublicClient } from 'viem/clients'
 
-export function FetchBlock({ client }: { client: PublicClient }) {
-  const [latestBlock, setLatestBlock] = useState<FetchBlockResponse>()
-  const [block, setBlock] = useState<FetchBlockResponse>()
+export function GetBlock({ client }: { client: PublicClient }) {
+  const [latestBlock, setLatestBlock] = useState<GetBlockResponse>()
+  const [block, setBlock] = useState<GetBlockResponse>()
 
   useEffect(() => {
     ;(async () => {
-      setLatestBlock(await fetchBlock(client, { blockTag: 'latest' }))
-      setBlock(await fetchBlock(client, { blockNumber: 42069n }))
+      setLatestBlock(await getBlock(client, { blockTag: 'latest' }))
+      setBlock(await getBlock(client, { blockNumber: 42069n }))
     })()
   }, [client])
 

@@ -1,10 +1,10 @@
 import { ethers, providers } from 'ethers'
 import {
-  fetchBalance,
-  fetchBlock,
-  fetchBlockNumber,
-  fetchTransaction,
-  fetchTransactionReceipt,
+  getBalance,
+  getBlock,
+  getBlockNumber,
+  getTransaction,
+  getTransactionReceipt,
   sendTransaction,
 } from 'viem/actions'
 import { createClient, http } from 'viem/clients'
@@ -67,7 +67,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'blockNumber',
       fns: {
         viem: async () => {
-          await fetchBlockNumber(viemClient)
+          await getBlockNumber(viemClient)
         },
         ethers: async () => {
           await ethersProvider.getBlockNumber()
@@ -79,7 +79,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'blockByNumber',
       fns: {
         viem: async () => {
-          await fetchBlock(viemClient, { blockNumber: 69420n })
+          await getBlock(viemClient, { blockNumber: 69420n })
         },
         ethers: async () => {
           await ethersProvider.getBlock(69420)
@@ -91,7 +91,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'blockByHash',
       fns: {
         viem: async () => {
-          await fetchBlock(viemClient, {
+          await getBlock(viemClient, {
             blockHash:
               '0x70d7e49dfc4dcc8c5f18b3c66744f625acd0886da57b1bfd46503809aa1b6250',
           })
@@ -108,7 +108,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'balance',
       fns: {
         viem: async () => {
-          await fetchBalance(viemClient, {
+          await getBalance(viemClient, {
             address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
           })
         },
@@ -124,7 +124,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'getTransaction',
       fns: {
         viem: async () => {
-          await fetchTransaction(viemClient, {
+          await getTransaction(viemClient, {
             hash: '0x493b3ce4b88a2b432c85f75ab18b1d54ac37d59659c2c4a41514c4c6f4d6a87f',
           })
         },
@@ -140,7 +140,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       key: 'getTransactionReceipt',
       fns: {
         viem: async () => {
-          await fetchTransactionReceipt(viemClient, {
+          await getTransactionReceipt(viemClient, {
             hash: '0x493b3ce4b88a2b432c85f75ab18b1d54ac37d59659c2c4a41514c4c6f4d6a87f',
           })
         },

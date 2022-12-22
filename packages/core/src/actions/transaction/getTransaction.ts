@@ -8,7 +8,7 @@ import type {
 } from '../../utils/formatters/transaction'
 import { formatTransaction } from '../../utils/formatters/transaction'
 
-export type FetchTransactionArgs =
+export type GetTransactionArgs =
   | {
       /** The block hash */
       blockHash: Data
@@ -45,11 +45,11 @@ export type FetchTransactionArgs =
       index?: number
     }
 
-export type FetchTransactionResponse<TChain extends Chain = Chain> =
+export type GetTransactionResponse<TChain extends Chain = Chain> =
   FormattedTransaction<TransactionFormatter<TChain>>
 
 /** @description Returns information about a transaction given a hash or block identifier. */
-export async function fetchTransaction<TChain extends Chain>(
+export async function getTransaction<TChain extends Chain>(
   client: PublicClient<any, TChain>,
   {
     blockHash,
@@ -57,8 +57,8 @@ export async function fetchTransaction<TChain extends Chain>(
     blockTag = 'latest',
     hash,
     index,
-  }: FetchTransactionArgs,
-): Promise<FetchTransactionResponse<TChain>> {
+  }: GetTransactionArgs,
+): Promise<GetTransactionResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 

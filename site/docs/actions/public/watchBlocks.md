@@ -62,7 +62,7 @@ const unwatch = watchBlocks(
 
 - **Type:** `(error: Error) => void`
 
-Error thrown from fetching a block.
+Error thrown from getting a block.
 
 ```ts
 const unwatch = watchBlocks(

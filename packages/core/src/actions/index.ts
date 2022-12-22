@@ -1,21 +1,21 @@
-export { fetchBalance, fetchTransactionCount, requestAccounts } from './account'
+export { getBalance, getTransactionCount, requestAccounts } from './account'
 export type {
-  FetchBalanceArgs,
-  FetchBalanceResponse,
-  FetchTransactionCountArgs,
-  FetchTransactionCountResponse,
+  GetBalanceArgs,
+  GetBalanceResponse,
+  GetTransactionCountArgs,
+  GetTransactionCountResponse,
 } from './account'
 
 export {
-  fetchBlock,
-  fetchBlockNumber,
+  getBlock,
+  getBlockNumber,
   watchBlockNumber,
   watchBlocks,
 } from './block'
 export type {
-  FetchBlockArgs,
-  FetchBlockNumberResponse,
-  FetchBlockResponse,
+  GetBlockArgs,
+  GetBlockNumberResponse,
+  GetBlockResponse,
   OnBlock,
   OnBlockNumber,
   OnBlockNumberResponse,
@@ -46,16 +46,16 @@ export type {
 } from './test'
 
 export {
-  fetchTransaction,
-  fetchTransactionReceipt,
+  getTransaction,
+  getTransactionReceipt,
   sendTransaction,
   waitForTransactionReceipt,
 } from './transaction'
 export type {
-  FetchTransactionArgs,
-  FetchTransactionResponse,
-  FetchTransactionReceiptArgs,
-  FetchTransactionReceiptResponse,
+  GetTransactionArgs,
+  GetTransactionResponse,
+  GetTransactionReceiptArgs,
+  GetTransactionReceiptResponse,
   SendTransactionArgs,
   SendTransactionResponse,
   WaitForTransactionReceiptArgs,

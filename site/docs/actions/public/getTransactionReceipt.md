@@ -1,20 +1,20 @@
-# fetchTransactionReceipt
+# getTransactionReceipt
 
 Returns the transaction receipt given a transaction hash.
 
 ## Import
 
 ```ts
-import { fetchTransactionReceipt } from 'viem'
+import { getTransactionReceipt } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fetchTransactionReceipt } from 'viem'
+import { getTransactionReceipt } from 'viem'
 import { publicClient } from '.'
  
-const transaction = await fetchTransactionReceipt(publicClient, { // [!code focus:99]
+const transaction = await getTransactionReceipt(publicClient, { // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
 /**
@@ -43,7 +43,7 @@ The transaction receipt.
 A transaction hash.
 
 ```ts
-const transaction = await fetchTransactionReceipt(publicClient, {
+const transaction = await getTransactionReceipt(publicClient, {
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
@@ -51,7 +51,7 @@ const transaction = await fetchTransactionReceipt(publicClient, {
 
 ## Notes
 
-- A [Transaction Receipt](/TODO) is not to be confused with a [Transaction](/TODO).a Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain, whereas a Transaction is a **message** sent by an account that is broadcast to the network. You can fetch a Transaction using [`fetchTransaction`](/TODO).
+- A [Transaction Receipt](/TODO) is not to be confused with a [Transaction](/TODO).a Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain, whereas a Transaction is a **message** sent by an account that is broadcast to the network. You can get a Transaction using [`getTransaction`](/TODO).
 
 ## Example
 

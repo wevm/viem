@@ -4,7 +4,7 @@ import type { BlockTag, Data, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { BaseError, format, formatBlock, numberToHex } from '../../utils'
 
-export type FetchBlockArgs = {
+export type GetBlockArgs = {
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
 } & (
@@ -28,19 +28,19 @@ export type FetchBlockArgs = {
     }
 )
 
-export type FetchBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
+export type GetBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
   BlockFormatter<TChain>
 >
 
-export async function fetchBlock<TChain extends Chain>(
+export async function getBlock<TChain extends Chain>(
   client: PublicClient<any, TChain>,
   {
     blockHash,
     blockNumber,
     blockTag = 'latest',
     includeTransactions = false,
-  }: FetchBlockArgs = {},
-): Promise<FetchBlockResponse<TChain>> {
+  }: GetBlockArgs = {},
+): Promise<GetBlockResponse<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 

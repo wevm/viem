@@ -3,25 +3,25 @@ import type { PublicClient } from '../../clients'
 import type { Data, Transaction } from '../../types'
 import { BaseError } from '../../utils'
 import { observe } from '../../utils/observe'
-import { fetchBlock, watchBlockNumber } from '../block'
-import type { FetchTransactionResponse } from './fetchTransaction'
-import { TransactionNotFoundError, fetchTransaction } from './fetchTransaction'
-import type { FetchTransactionReceiptResponse } from './fetchTransactionReceipt'
+import { getBlock, watchBlockNumber } from '../block'
+import type { GetTransactionResponse } from './getTransaction'
+import { TransactionNotFoundError, getTransaction } from './getTransaction'
+import type { GetTransactionReceiptResponse } from './getTransactionReceipt'
 import {
   TransactionReceiptNotFoundError,
-  fetchTransactionReceipt,
-} from './fetchTransactionReceipt'
+  getTransactionReceipt,
+} from './getTransactionReceipt'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementResponse<TChain extends Chain = Chain> = {
   reason: ReplacementReason
   replacedTransaction: Transaction
   transaction: Transaction
-  transactionReceipt: FetchTransactionReceiptResponse<TChain>
+  transactionReceipt: GetTransactionReceiptResponse<TChain>
 }
 
 export type WaitForTransactionReceiptResponse<TChain extends Chain = Chain> =
-  FetchTransactionReceiptResponse<TChain>
+  GetTransactionReceiptResponse<TChain>
 
 export type WaitForTransactionReceiptArgs<TChain extends Chain = Chain> = {
   /** The number of confirmations (blocks that have passed) to wait before resolving. */
@@ -51,9 +51,9 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
     hash,
   ])
 
-  let transaction: FetchTransactionResponse<TChain> | undefined
-  let replacedTransaction: FetchTransactionResponse<TChain> | undefined
-  let receipt: FetchTransactionReceiptResponse<TChain>
+  let transaction: GetTransactionResponse<TChain> | undefined
+  let replacedTransaction: GetTransactionResponse<TChain> | undefined
+  let receipt: GetTransactionReceiptResponse<TChain>
 
   return new Promise((resolve, reject) => {
     if (timeout)
@@ -86,11 +86,11 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
                 return
               }
 
-              // Fetch the transaction to check if it's been replaced.
-              transaction = await fetchTransaction(client, { hash })
+              // Get the transaction to check if it's been replaced.
+              transaction = await getTransaction(client, { hash })
 
-              // Fetch the receipt to check if it's been processed.
-              receipt = await fetchTransactionReceipt(client, { hash })
+              // Get the receipt to check if it's been processed.
+              receipt = await getTransactionReceipt(client, { hash })
 
               // Check if we have enough confirmations. If not, continue polling.
               if (blockNumber - receipt.blockNumber + 1n < confirmations) return
@@ -107,7 +107,7 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
                 replacedTransaction = transaction
 
                 // Let's retrieve the transactions from the current block.
-                const block = await fetchBlock(client, {
+                const block = await getBlock(client, {
                   blockNumber,
                   includeTransactions: true,
                 })
@@ -124,7 +124,7 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
                 if (!replacementTransaction) return
 
                 // If we found a replacement transaction, return it's receipt.
-                receipt = await fetchTransactionReceipt(client, {
+                receipt = await getTransactionReceipt(client, {
                   hash: replacementTransaction.hash,
                 })
 

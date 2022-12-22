@@ -1,14 +1,14 @@
-export { fetchTransaction } from './fetchTransaction'
+export { getTransaction } from './getTransaction'
 export type {
-  FetchTransactionArgs,
-  FetchTransactionResponse,
-} from './fetchTransaction'
+  GetTransactionArgs,
+  GetTransactionResponse,
+} from './getTransaction'
 
-export { fetchTransactionReceipt } from './fetchTransactionReceipt'
+export { getTransactionReceipt } from './getTransactionReceipt'
 export type {
-  FetchTransactionReceiptArgs,
-  FetchTransactionReceiptResponse,
-} from './fetchTransactionReceipt'
+  GetTransactionReceiptArgs,
+  GetTransactionReceiptResponse,
+} from './getTransactionReceipt'
 
 export { sendTransaction } from './sendTransaction'
 export type {

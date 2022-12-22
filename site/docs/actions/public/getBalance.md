@@ -1,20 +1,20 @@
-# fetchBalance
+# getBalance
 
 Returns the balance of an address in wei.
 
 ## Import
 
 ```ts
-import { fetchBalance } from 'viem'
+import { getBalance } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fetchBalance } from 'viem'
+import { getBalance } from 'viem'
 import { publicClient } from '.'
  
-const balance = await fetchBalance(publicClient, { // [!code focus:4]
+const balance = await getBalance(publicClient, { // [!code focus:4]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 10000000000000000000000n (wei)
@@ -35,7 +35,7 @@ The balance of the address in wei.
 The address of the account.
 
 ```ts
-const balance = await fetchBalance(publicClient, {
+const balance = await getBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
 ```
@@ -47,7 +47,7 @@ const balance = await fetchBalance(publicClient, {
 The balance of the account at a block number.
 
 ```ts
-const balance = await fetchBalance(publicClient, {
+const balance = await getBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
 })
@@ -60,7 +60,7 @@ const balance = await fetchBalance(publicClient, {
 The balance of the account at a block tag.
 
 ```ts
-const balance = await fetchBalance(publicClient, {
+const balance = await getBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
 })
@@ -71,7 +71,7 @@ const balance = await fetchBalance(publicClient, {
 - You can convert the balance to ether units with [`valueAsEther`](/TODO).
 
 ```ts
-const balance = await fetchBalance(publicClient, {
+const balance = await getBalance(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'
 })

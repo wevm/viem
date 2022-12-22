@@ -1,10 +1,10 @@
 import type { PublicClient } from '../../clients'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import type { FetchBlockNumberResponse } from './fetchBlockNumber'
-import { fetchBlockNumber } from './fetchBlockNumber'
+import type { GetBlockNumberResponse } from './getBlockNumber'
+import { getBlockNumber } from './getBlockNumber'
 
-export type OnBlockNumberResponse = FetchBlockNumberResponse
+export type OnBlockNumberResponse = GetBlockNumberResponse
 export type OnBlockNumber = (
   blockNumber: OnBlockNumberResponse,
   prevBlockNumber: OnBlockNumberResponse | undefined,
@@ -17,7 +17,7 @@ export type WatchBlockNumberArgs = {
   emitOnBegin?: boolean
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumber
-  /** The callback to call when an error occurred when trying to fetch for a new block. */
+  /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
@@ -36,13 +36,13 @@ export function watchBlockNumber(
 ) {
   const observerId = JSON.stringify(['watchBlockNumber', client.uid])
 
-  let prevBlockNumber: FetchBlockNumberResponse | undefined
+  let prevBlockNumber: GetBlockNumberResponse | undefined
 
   return observe(observerId, { onBlockNumber, onError })((emit) =>
     poll(
       async () => {
         try {
-          const blockNumber = await fetchBlockNumber(client)
+          const blockNumber = await getBlockNumber(client)
 
           if (prevBlockNumber) {
             // If the current block number is the same as the previous,

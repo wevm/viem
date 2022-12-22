@@ -1,8 +1,8 @@
-export { fetchBlock } from './fetchBlock'
-export type { FetchBlockArgs, FetchBlockResponse } from './fetchBlock'
+export { getBlock } from './getBlock'
+export type { GetBlockArgs, GetBlockResponse } from './getBlock'
 
-export { fetchBlockNumber } from './fetchBlockNumber'
-export type { FetchBlockNumberResponse } from './fetchBlockNumber'
+export { getBlockNumber } from './getBlockNumber'
+export type { GetBlockNumberResponse } from './getBlockNumber'
 
 export { watchBlockNumber } from './watchBlockNumber'
 export type {

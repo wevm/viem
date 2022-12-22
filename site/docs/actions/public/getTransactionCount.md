@@ -1,20 +1,20 @@
-# fetchTransactionCount
+# getTransactionCount
 
 Returns the number of [Transactions](/TODO) an Account has broadcast / sent.
 
 ## Import
 
 ```ts
-import { fetchTransactionCount } from 'viem'
+import { getTransactionCount } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fetchTransactionCount } from 'viem'
+import { getTransactionCount } from 'viem'
 import { publicClient } from '.'
  
-const block = await fetchTransactionCount(publicClient, {  // [!code focus:99]
+const block = await getTransactionCount(publicClient, {  // [!code focus:99]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 420
@@ -35,7 +35,7 @@ The number of transactions an account has sent.
 The address of the account.
 
 ```ts
-const balance = await fetchTransactionCount(publicClient, {
+const balance = await getTransactionCount(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
 ```
@@ -47,7 +47,7 @@ const balance = await fetchTransactionCount(publicClient, {
 Get the count at a block number.
 
 ```ts
-const balance = await fetchTransactionCount(publicClient, {
+const balance = await getTransactionCount(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
 })
@@ -60,7 +60,7 @@ const balance = await fetchTransactionCount(publicClient, {
 Get the count at a block tag.
 
 ```ts
-const balance = await fetchTransactionCount(publicClient, {
+const balance = await getTransactionCount(publicClient, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
 })
@@ -72,4 +72,4 @@ const balance = await fetchTransactionCount(publicClient, {
 
 ## Example
 
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/fetchBlockNumber?embed=true"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/getBlockNumber?embed=true"></iframe>

@@ -4,14 +4,14 @@ import { etherToValue } from '../../utils'
 import { sendTransaction } from '../transaction'
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
 
-import { fetchTransactionCount } from './fetchTransactionCount'
+import { getTransactionCount } from './getTransactionCount'
 import { mine, setNonce } from '../test'
 
-test('fetches transaction count', async () => {
+test('gets transaction count', async () => {
   await setNonce(testClient, { address: accounts[0].address, nonce: 0 })
 
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: accounts[0].address,
     }),
   ).toBe(0)
@@ -26,7 +26,7 @@ test('fetches transaction count', async () => {
   await mine(testClient, { blocks: 1 })
 
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: accounts[0].address,
     }),
   ).toBe(1)
@@ -34,7 +34,7 @@ test('fetches transaction count', async () => {
 
 test('args: blockNumber', async () => {
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       blockNumber: 14932234n,
     }),
@@ -43,7 +43,7 @@ test('args: blockNumber', async () => {
 
 test('args: blockTag', async () => {
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       blockTag: 'latest',
     }),
@@ -52,7 +52,7 @@ test('args: blockTag', async () => {
 
 test('no count', async () => {
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ad',
     }),
   ).toBe(0)

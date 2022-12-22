@@ -6,7 +6,7 @@ A **Client** provides access to a subset of **Actions**. A **Client** in the con
 
 There are three types of **Clients** in viem:
 
-- A [Public Client](/TODO) which provides access to [Public Actions](/TODO), such as `fetchBlockNumber` and `fetchBalance`. 
+- A [Public Client](/TODO) which provides access to [Public Actions](/TODO), such as `getBlockNumber` and `getBalance`. 
 - A [Wallet Client](/TODO) which provides access to [Wallet Actions](/TODO), such as `sendTransaction` and `signMessage`.
 - A [Test Client](/TODO) which provides access to [Test Actions](/TODO), such as `mine` and `impersonate`.
 

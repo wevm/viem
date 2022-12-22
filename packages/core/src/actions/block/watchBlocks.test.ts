@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import type { OnBlockResponse } from './watchBlocks'
-import * as fetchBlock from './fetchBlock'
+import * as getBlock from './getBlock'
 import { watchBlocks } from './watchBlocks'
 import { mine } from '../test/mine'
 import { publicClient, testClient } from '../../../test'
@@ -170,7 +170,7 @@ describe('behavior', () => {
 
 describe('errors', () => {
   test('handles error thrown', async () => {
-    vi.spyOn(fetchBlock, 'fetchBlock').mockRejectedValue(new Error('foo'))
+    vi.spyOn(getBlock, 'getBlock').mockRejectedValue(new Error('foo'))
 
     let unwatch: () => void = () => null
     const error = await new Promise((resolve) => {

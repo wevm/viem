@@ -3,11 +3,11 @@ import type { PublicClient } from '../../clients'
 import type { BlockTag } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import type { FetchBlockResponse } from './fetchBlock'
-import { fetchBlock } from './fetchBlock'
+import type { GetBlockResponse } from './getBlock'
+import { getBlock } from './getBlock'
 
 export type OnBlockResponse<TChain extends Chain = Chain> =
-  FetchBlockResponse<TChain>
+  GetBlockResponse<TChain>
 export type OnBlock<TChain extends Chain = Chain> = (
   block: OnBlockResponse<TChain>,
   prevBlock: OnBlockResponse<TChain> | undefined,
@@ -22,7 +22,7 @@ export type WatchBlocksArgs<TChain extends Chain = Chain> = {
   emitOnBegin?: boolean
   /** The callback to call when a new block is received. */
   onBlock: OnBlock<TChain>
-  /** The callback to call when an error occurred when trying to fetch for a new block. */
+  /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
@@ -45,13 +45,13 @@ export function watchBlocks<TChain extends Chain>(
 ) {
   const observerId = JSON.stringify(['watchBlocks', client.uid])
 
-  let prevBlock: FetchBlockResponse<TChain> | undefined
+  let prevBlock: GetBlockResponse<TChain> | undefined
 
   return observe(observerId, { onBlock, onError })((emit) =>
     poll(
       async () => {
         try {
-          const block = await fetchBlock(client, {
+          const block = await getBlock(client, {
             blockTag,
             includeTransactions,
           })
@@ -64,7 +64,7 @@ export function watchBlocks<TChain extends Chain>(
             // `emitMissed` flag is truthy, let's emit those blocks.
             if (block.number - prevBlock.number > 1 && emitMissed) {
               for (let i = prevBlock?.number + 1n; i < block.number; i++) {
-                const block = await fetchBlock(client, {
+                const block = await getBlock(client, {
                   blockNumber: i,
                   includeTransactions,
                 })

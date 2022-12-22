@@ -99,9 +99,9 @@ const client = createPublicClient({
 
 ## Supported actions
 
-- [`fetchBalance`](/docs/fetchBalance)
-- [`fetchBlock`](/docs/fetchBlock)
-- [`fetchBlockNumber`](/docs/fetchBlockNumber)
-- [`fetchTransaction`](/docs/fetchTransaction)
+- [`getBalance`](/docs/getBalance)
+- [`getBlock`](/docs/getBlock)
+- [`getBlockNumber`](/docs/getBlockNumber)
+- [`getTransaction`](/docs/getTransaction)
 - [`watchBlock`](/docs/watchBlock)
 - [`watchBlockNumber`](/docs/watchBlockNumber)

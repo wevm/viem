@@ -1,20 +1,20 @@
-# fetchTransaction
+# getTransaction
 
 Returns information about a transaction given a hash or block identifier.
 
 ## Import
 
 ```ts
-import { fetchTransaction } from 'viem'
+import { getTransaction } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fetchTransaction } from 'viem'
+import { getTransaction } from 'viem'
 import { publicClient } from '.'
  
-const transaction = await fetchTransaction(publicClient, { // [!code focus:99]
+const transaction = await getTransaction(publicClient, { // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
 /**
@@ -42,7 +42,7 @@ The transaction information.
 Get information about a transaction given a transaction hash.
 
 ```ts
-const transaction = await fetchTransaction(publicClient, {
+const transaction = await getTransaction(publicClient, {
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
@@ -54,7 +54,7 @@ const transaction = await fetchTransaction(publicClient, {
 Get information about a transaction given a block hash (and index).
 
 ```ts
-const transaction = await fetchTransaction(publicClient, {
+const transaction = await getTransaction(publicClient, {
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus:2]
   index: 0
 })
@@ -67,7 +67,7 @@ const transaction = await fetchTransaction(publicClient, {
 Get information about a transaction given a block number (and index).
 
 ```ts
-const transaction = await fetchTransaction(publicClient, {
+const transaction = await getTransaction(publicClient, {
   blockNumber: 69420n, // [!code focus:2]
   index: 0
 })
@@ -80,7 +80,7 @@ const transaction = await fetchTransaction(publicClient, {
 Get information about a transaction given a block tag (and index).
 
 ```ts
-const transaction = await fetchTransaction(publicClient, {
+const transaction = await getTransaction(publicClient, {
   blockTag: 'safe', // [!code focus:2]
   index: 0
 })
@@ -93,7 +93,7 @@ const transaction = await fetchTransaction(publicClient, {
 An index to be used with a block identifier (number, hash or tag).
 
 ```ts
-const transaction = await fetchTransaction(publicClient, {
+const transaction = await getTransaction(publicClient, {
   blockTag: 'safe',
   index: 0 // [!code focus]
 })
@@ -102,8 +102,8 @@ const transaction = await fetchTransaction(publicClient, {
 
 ## Notes
 
-- A [Transaction](#fetchtransaction) is not to be confused with a [Transaction Receipt](/TODO). A Transaction is a **message** sent by an account that is broadcast to the network, whereas a Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain. You can fetch a Transaction Receipt using [`fetchTransactionReceipt`](/TODO).
+- A [Transaction](#gettransaction) is not to be confused with a [Transaction Receipt](/TODO). A Transaction is a **message** sent by an account that is broadcast to the network, whereas a Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain. You can get a Transaction Receipt using [`getTransactionReceipt`](/TODO).
 
 ## Example
 
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/fetchTransaction?embed=true"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/getTransaction?embed=true"></iframe>

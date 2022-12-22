@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient } from '../../../test'
-import { fetchTransactionCount } from '../account'
+import { getTransactionCount } from '../account'
 import { setNonce } from '../test/setNonce'
 
 const targetAccount = accounts[0]
@@ -12,7 +12,7 @@ test('sets nonce', async () => {
     nonce: 420,
   })
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: targetAccount.address,
     }),
   ).toBe(420)
@@ -21,7 +21,7 @@ test('sets nonce', async () => {
     nonce: 69,
   })
   expect(
-    await fetchTransactionCount(publicClient, {
+    await getTransactionCount(publicClient, {
       address: targetAccount.address,
     }),
   ).toBe(69)

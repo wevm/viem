@@ -5,8 +5,8 @@ import * as actions from './index'
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
-      "fetchBlock": [Function],
-      "fetchBlockNumber": [Function],
+      "getBlock": [Function],
+      "getBlockNumber": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
     }

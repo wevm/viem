@@ -2,11 +2,11 @@ import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { etherToValue } from '../../utils'
-import { fetchBlockNumber } from '../block'
+import { getBlockNumber } from '../block'
 import { sendTransaction } from '../transaction'
 import { mine, setBalance } from '../test'
 
-import { fetchBalance } from './fetchBalance'
+import { getBalance } from './getBalance'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -43,46 +43,46 @@ async function setup() {
   await mine(testClient, { blocks: 1 })
 }
 
-test('fetches balance', async () => {
+test('gets balance', async () => {
   await setup()
   expect(
-    await fetchBalance(publicClient, { address: targetAccount.address }),
+    await getBalance(publicClient, { address: targetAccount.address }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
 })
 
-test('fetches balance at latest', async () => {
+test('gets balance at latest', async () => {
   await setup()
   expect(
-    await fetchBalance(publicClient, {
+    await getBalance(publicClient, {
       address: targetAccount.address,
       blockTag: 'latest',
     }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
 })
 
-test('fetches balance at block number', async () => {
+test('gets balance at block number', async () => {
   await setup()
-  const currentBlockNumber = await fetchBlockNumber(publicClient)
+  const currentBlockNumber = await getBlockNumber(publicClient)
   expect(
-    await fetchBalance(publicClient, {
+    await getBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber,
     }),
   ).toMatchInlineSnapshot('10006000000000000000000n')
   expect(
-    await fetchBalance(publicClient, {
+    await getBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 1n,
     }),
   ).toMatchInlineSnapshot('10003000000000000000000n')
   expect(
-    await fetchBalance(publicClient, {
+    await getBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 2n,
     }),
   ).toMatchInlineSnapshot('10001000000000000000000n')
   expect(
-    await fetchBalance(publicClient, {
+    await getBalance(publicClient, {
       address: targetAccount.address,
       blockNumber: currentBlockNumber - 3n,
     }),

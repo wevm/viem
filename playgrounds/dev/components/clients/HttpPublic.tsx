@@ -1,10 +1,10 @@
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 import { createPublicClient, http } from 'viem/clients'
 
-import { FetchBalance } from '../actions/FetchBalance'
-import { FetchBlock } from '../actions/FetchBlock'
-import { FetchBlockNumber } from '../actions/FetchBlockNumber'
-import { FetchTransaction } from '../actions/FetchTransaction'
+import { GetBalance } from '../actions/GetBalance'
+import { GetBlock } from '../actions/GetBlock'
+import { GetBlockNumber } from '../actions/GetBlockNumber'
+import { GetTransaction } from '../actions/GetTransaction'
 import { WatchBlocks } from '../actions/WatchBlocks'
 import { WatchBlockNumber } from '../actions/WatchBlockNumber'
 
@@ -20,45 +20,45 @@ export function HttpPublic() {
   return (
     <div>
       <hr />
-      <h3>fetchBalance</h3>
+      <h3>getBalance</h3>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 48 }}>
         {Object.entries(clients).map(([chain, client]) => (
           <div key={chain}>
             <strong>{chain}</strong>
-            <FetchBalance client={client} />
+            <GetBalance client={client} />
           </div>
         ))}
       </div>
       <br />
       <hr />
-      <h3>fetchBlock</h3>
+      <h3>getBlock</h3>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 48 }}>
         {Object.entries(clients).map(([chain, client]) => (
           <div key={chain}>
             <strong>{chain}</strong>
-            <FetchBlock client={client} />
+            <GetBlock client={client} />
           </div>
         ))}
       </div>
       <br />
       <hr />
-      <h3>fetchBlockNumber</h3>
+      <h3>getBlockNumber</h3>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 48 }}>
         {Object.entries(clients).map(([chain, client]) => (
           <div key={chain}>
             <strong>{chain}</strong>
-            <FetchBlockNumber client={client} />
+            <GetBlockNumber client={client} />
           </div>
         ))}
       </div>
       <br />
       <hr />
-      <h3>fetchTransaction</h3>
+      <h3>getTransaction</h3>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 48 }}>
         {Object.entries(clients).map(([chain, client]) => (
           <div key={chain}>
             <strong>{chain}</strong>
-            <FetchTransaction client={client} />
+            <GetTransaction client={client} />
           </div>
         ))}
       </div>

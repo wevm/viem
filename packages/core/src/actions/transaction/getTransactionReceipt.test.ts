@@ -6,18 +6,18 @@ import { createPublicClient, http } from '../../clients'
 import type { TransactionReceipt } from '../../types'
 import { etherToValue, gweiToValue } from '../../utils'
 import { wait } from '../../utils/wait'
-import { fetchBlock } from '../block'
+import { getBlock } from '../block'
 import { mine } from '../test'
-import { fetchTransaction } from './fetchTransaction'
+import { getTransaction } from './getTransaction'
 
 import {
   TransactionReceiptNotFoundError,
-  fetchTransactionReceipt,
-} from './fetchTransactionReceipt'
+  getTransactionReceipt,
+} from './getTransactionReceipt'
 import { sendTransaction } from './sendTransaction'
 
-test('fetches transaction receipt', async () => {
-  const receipt = await fetchTransactionReceipt(publicClient, {
+test('gets transaction receipt', async () => {
+  const receipt = await getTransactionReceipt(publicClient, {
     hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
   })
   assertType<TransactionReceipt>(receipt)
@@ -88,7 +88,7 @@ test('chain w/ custom block type', async () => {
     },
     transport: http(),
   })
-  const receipt = await fetchTransactionReceipt(client, {
+  const receipt = await getTransactionReceipt(client, {
     hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
   })
 
@@ -153,8 +153,8 @@ describe('e2e', () => {
   const sourceAccount = accounts[0]
   const targetAccount = accounts[1]
 
-  it('fetches transaction receipt', async () => {
-    const block = await fetchBlock(publicClient)
+  it('gets transaction receipt', async () => {
+    const block = await getBlock(publicClient)
 
     const maxFeePerGas = block.baseFeePerGas! + gweiToValue('10')
     const maxPriorityFeePerGas = gweiToValue('10')
@@ -169,9 +169,9 @@ describe('e2e', () => {
       },
     })
 
-    expect(await fetchTransaction(publicClient, { hash })).toBeDefined()
+    expect(await getTransaction(publicClient, { hash })).toBeDefined()
     await expect(() =>
-      fetchTransactionReceipt(publicClient, {
+      getTransactionReceipt(publicClient, {
         hash,
       }),
     ).rejects.toThrowError('transaction receipt not found')
@@ -185,7 +185,7 @@ describe('e2e', () => {
       effectiveGasPrice,
       transactionHash,
       ...receipt
-    } = await fetchTransactionReceipt(publicClient, {
+    } = await getTransactionReceipt(publicClient, {
       hash,
     })
 
@@ -212,7 +212,7 @@ describe('e2e', () => {
 
 test('throws if transaction not found', async () => {
   await expect(
-    fetchTransactionReceipt(publicClient, {
+    getTransactionReceipt(publicClient, {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
