@@ -31,6 +31,7 @@ export {
   setCode,
   setIntervalMining,
   setNonce,
+  stopImpersonatingAccount,
 } from './test'
 export type {
   ImpersonateAccountArgs,
@@ -39,6 +40,7 @@ export type {
   SetCodeArgs,
   SetIntervalMiningArgs,
   SetNonceArgs,
+  StopImpersonatingAccountArgs,
 } from './test'
 
 export {

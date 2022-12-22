@@ -15,3 +15,6 @@ export type { SetIntervalMiningArgs } from './setIntervalMining'
 
 export { setNonce } from './setNonce'
 export type { SetNonceArgs } from './setNonce'
+
+export { stopImpersonatingAccount } from './stopImpersonatingAccount'
+export type { StopImpersonatingAccountArgs } from './stopImpersonatingAccount'

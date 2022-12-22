@@ -11,6 +11,7 @@ test('exports actions', () => {
       "setCode": [Function],
       "setIntervalMining": [Function],
       "setNonce": [Function],
+      "stopImpersonatingAccount": [Function],
     }
   `)
 })
