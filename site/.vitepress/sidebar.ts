@@ -270,13 +270,18 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account',
           items: [
             {
-              text: 'impersonateAccount 🚧',
+              text: 'impersonateAccount',
               link: '/docs/actions/test/impersonateAccount',
             },
             { text: 'setBalance', link: '/docs/actions/test/setBalance' },
-            { text: 'setNonce 🚧', link: '/docs/actions/test/setNonce' },
+            { text: 'setCode', link: '/docs/actions/test/setCode' },
+            { text: 'setNonce', link: '/docs/actions/test/setNonce' },
             {
-              text: 'stopImpersonatingAccount 🚧',
+              text: 'setStorageAt',
+              link: '/docs/actions/test/setStorageAt',
+            },
+            {
+              text: 'stopImpersonatingAccount',
               link: '/docs/actions/test/stopImpersonatingAccount',
             },
           ],
@@ -284,56 +289,45 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Block',
           items: [
-            { text: 'getAutomine 🚧', link: '/docs/actions/test/getAutomine' },
+            { text: 'getAutomine', link: '/docs/actions/test/getAutomine' },
             {
-              text: 'increaseTime 🚧',
+              text: 'increaseTime',
               link: '/docs/actions/test/increaseTime',
             },
             { text: 'mine', link: '/docs/actions/test/mine' },
             {
-              text: 'removeBlockTimestampInterval 🚧',
+              text: 'removeBlockTimestampInterval',
               link: '/docs/actions/test/removeBlockTimestampInterval',
             },
-            { text: 'setAutomine 🚧', link: '/docs/actions/test/setAutomine' },
+            { text: 'setAutomine', link: '/docs/actions/test/setAutomine' },
             {
               text: 'setIntervalMining',
               link: '/docs/actions/test/setIntervalMining',
             },
             {
-              text: 'setBlockTimestampInterval 🚧',
+              text: 'setBlockTimestampInterval',
               link: '/docs/actions/test/setBlockTimestampInterval',
             },
             {
-              text: 'setBlockGasLimit 🚧',
+              text: 'setBlockGasLimit',
               link: '/docs/actions/test/setBlockGasLimit',
             },
             {
-              text: 'setNextBlockBaseFeePerGas 🚧',
+              text: 'setNextBlockBaseFeePerGas',
               link: '/docs/actions/test/setNextBlockBaseFeePerGas',
             },
             {
-              text: 'setNextBlockTimestamp 🚧',
+              text: 'setNextBlockTimestamp',
               link: '/docs/actions/test/setNextBlockTimestamp',
-            },
-          ],
-        },
-        {
-          text: 'Contract',
-          items: [
-            { text: 'setCode 🚧', link: '/docs/actions/test/setCode' },
-            {
-              text: 'setStorageAt 🚧',
-              link: '/docs/actions/test/setStorageAt',
             },
           ],
         },
         {
           text: 'Node',
           items: [
-            { text: 'nodeInfo 🚧', link: '/docs/actions/test/nodeInfo' },
-            { text: 'setCoinbase 🚧', link: '/docs/actions/test/setCoinbase' },
+            { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
             {
-              text: 'setMinGasPrice 🚧',
+              text: 'setMinGasPrice',
               link: '/docs/actions/test/setMinGasPrice',
             },
           ],
@@ -341,47 +335,46 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Settings',
           items: [
-            { text: 'reset 🚧', link: '/docs/actions/test/reset' },
+            { text: 'reset', link: '/docs/actions/test/reset' },
             {
-              text: 'setLoggingEnabled 🚧',
+              text: 'setLoggingEnabled',
               link: '/docs/actions/test/setLoggingEnabled',
             },
-            { text: 'setRpcUrl 🚧', link: '/docs/actions/test/setRpcUrl' },
+            { text: 'setRpcUrl', link: '/docs/actions/test/setRpcUrl' },
           ],
         },
         {
           text: 'State',
           items: [
-            { text: 'loadState 🚧', link: '/docs/actions/test/loadState' },
-            { text: 'revert 🚧', link: '/docs/actions/test/revert' },
-            { text: 'snapshot 🚧', link: '/docs/actions/test/snapshot' },
+            { text: 'revert', link: '/docs/actions/test/revert' },
+            { text: 'snapshot', link: '/docs/actions/test/snapshot' },
           ],
         },
         {
           text: 'Transaction',
           items: [
             {
-              text: 'dropTransaction 🚧',
+              text: 'dropTransaction',
               link: '/docs/actions/test/dropTransaction',
             },
             {
-              text: 'enableTraces 🚧',
+              text: 'enableTraces',
               link: '/docs/actions/test/enableTraces',
             },
             {
-              text: 'fetchTxpoolContent 🚧',
+              text: 'fetchTxpoolContent',
               link: '/docs/actions/test/fetchTxpoolContent',
             },
             {
-              text: 'fetchTxpoolStatus 🚧',
+              text: 'fetchTxpoolStatus',
               link: '/docs/actions/test/fetchTxpoolStatus',
             },
             {
-              text: 'inspectTxpool 🚧',
+              text: 'inspectTxpool',
               link: '/docs/actions/test/inspectTxpool',
             },
             {
-              text: 'sendUnsignedTransaction 🚧',
+              text: 'sendUnsignedTransaction',
               link: '/docs/actions/test/sendUnsignedTransaction',
             },
           ],

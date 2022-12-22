@@ -611,7 +611,14 @@ export type TestRequests<Name extends string> = {
      */
     method: `${Name}_dropTransaction`
     params: [data: Data]
-  }): Promise<any>
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Turn on call traces for transactions that are returned to the user when they execute a transaction (instead of just txhash/receipt).
+     */
+    method: `${Name}_enableTraces`
+    params?: never
+  }): Promise<void>
   request(args: {
     /**
      * @description Impersonate an account or contract address.
@@ -754,7 +761,7 @@ export type TestRequests<Name extends string> = {
      * @link https://github.com/trufflesuite/ganache/blob/ef1858d5d6f27e4baeb75cccd57fb3dc77a45ae8/src/chains/ethereum/ethereum/RPC-METHODS.md#evm_increasetime
      */
     method: 'evm_increaseTime'
-    params: [timestamp: Quantity]
+    params: [seconds: Quantity]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -770,7 +777,21 @@ export type TestRequests<Name extends string> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#evm_setblockgaslimit
      */
     method: 'evm_setBlockGasLimit'
-    params: [Quantity]
+    params: [gasLimit: Quantity]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Similar to `evm_increaseTime` but sets a block timestamp `interval`.
+     * The timestamp of the next block will be computed as `lastBlock_timestamp` + `interval`
+     */
+    method: `${Name}_setBlockTimestampInterval`
+    params: [seconds: number]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Removes `setBlockTimestampInterval` if it exists
+     */
+    method: `${Name}_removeBlockTimestampInterval`
   }): Promise<void>
   request(args: {
     /**
@@ -796,6 +817,13 @@ export type TestRequests<Name extends string> = {
     method: 'evm_snapshot'
     params?: never
   }): Promise<Quantity>
+  request(args: {
+    /**
+     * @description Revert the state of the blockchain to a previous snapshot. Takes a single parameter, which is the snapshot id to revert to.
+     */
+    method: 'evm_revert'
+    params?: [id: Quantity]
+  }): Promise<void>
 }
 
 export type SignableRequests = {

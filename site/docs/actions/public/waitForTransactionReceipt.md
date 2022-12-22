@@ -2,11 +2,7 @@
 
 Waits for the [Transaction](/TODO) to be included on a [Block](/TODO) (one confirmation), and then returns the [Transaction Receipt](/TODO). If the Transaction reverts, then the action will throw an error.
 
-<<<<<<< Updated upstream
-The `waitForTransactionReceipt` action additionally supports replacement detection (ie. sped up transactions).
-=======
 The `waitForTransactionReceipt` action additionally supports Replacement detection (ie. sped up Transactions).
->>>>>>> Stashed changes
 
 ## Import
 
@@ -111,17 +107,10 @@ const transaction = await waitForTransactionReceipt(
 ### Notes
 
 - Transactions can be replaced when a user modifies their transaction in their wallet (to speed up or cancel). Transactions are replaced when they are sent from the same nonce.
-<<<<<<< Updated upstream
-- There are 3 types of transaction replacement reasons:
-  - `repriced`: The gas price has been modified (ie. different `maxFeePerGas`)
-  - `cancelled`: The transaction has been cancelled (ie. `value === 0n`)
-  - `replaced`: The transaction has been replaced (ie. different `value` or `data`)
-=======
 - There are 3 types of Transaction Replacement reasons:
   - `repriced`: The gas price has been modified (ie. different `maxFeePerGas`)
   - `cancelled`: The Transaction has been cancelled (ie. `value === 0n`)
   - `replaced`: The Transaction has been replaced (ie. different `value` or `data`)
->>>>>>> Stashed changes
 
 
 ## Example
