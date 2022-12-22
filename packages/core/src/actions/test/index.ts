@@ -1,3 +1,6 @@
+export { impersonateAccount } from './impersonateAccount'
+export type { ImpersonateAccountArgs } from './impersonateAccount'
+
 export { mine } from './mine'
 export type { MineArgs } from './mine'
 

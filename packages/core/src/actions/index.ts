@@ -24,8 +24,16 @@ export type {
   WatchBlocksArgs,
 } from './block'
 
-export { mine, setBalance, setCode, setIntervalMining, setNonce } from './test'
+export {
+  impersonateAccount,
+  mine,
+  setBalance,
+  setCode,
+  setIntervalMining,
+  setNonce,
+} from './test'
 export type {
+  ImpersonateAccountArgs,
   MineArgs,
   SetBalanceArgs,
   SetCodeArgs,

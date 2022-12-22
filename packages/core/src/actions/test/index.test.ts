@@ -5,6 +5,7 @@ import * as actions from './index'
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
+      "impersonateAccount": [Function],
       "mine": [Function],
       "setBalance": [Function],
       "setCode": [Function],
