@@ -15,3 +15,9 @@ export type {
   SendTransactionArgs,
   SendTransactionResponse,
 } from './sendTransaction'
+
+export { waitForTransactionReceipt } from './waitForTransactionReceipt'
+export type {
+  WaitForTransactionReceiptArgs,
+  WaitForTransactionReceiptResponse,
+} from './waitForTransactionReceipt'
