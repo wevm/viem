@@ -678,7 +678,7 @@ export type TestRequests<Name extends string> = {
       /** The address of the contract. */
       address: Address,
       /** Data bytecode. */
-      data: Data,
+      data: string,
     ]
   }): Promise<void>
   request(args: {

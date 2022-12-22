@@ -24,10 +24,11 @@ export type {
   WatchBlocksArgs,
 } from './block'
 
-export { mine, setBalance, setIntervalMining, setNonce } from './test'
+export { mine, setBalance, setCode, setIntervalMining, setNonce } from './test'
 export type {
   MineArgs,
   SetBalanceArgs,
+  SetCodeArgs,
   SetIntervalMiningArgs,
   SetNonceArgs,
 } from './test'

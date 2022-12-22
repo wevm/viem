@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "mine": [Function],
       "setBalance": [Function],
+      "setCode": [Function],
       "setIntervalMining": [Function],
       "setNonce": [Function],
     }
