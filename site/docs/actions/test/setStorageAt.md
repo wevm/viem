@@ -39,7 +39,7 @@ await setStorageAt(testClient, {
 
 ### index
 
-- **Type:** `number`
+- **Type:** `number | `0x${string}``
 
 The storage slot (index).
 
