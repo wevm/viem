@@ -25,6 +25,9 @@ export type { SetBlockTimestampIntervalArgs } from './setBlockTimestampInterval'
 export { setCode } from './setCode'
 export type { SetCodeArgs } from './setCode'
 
+export { setCoinbase } from './setCoinbase'
+export type { SetCoinbaseArgs } from './setCoinbase'
+
 export { setIntervalMining } from './setIntervalMining'
 export type { SetIntervalMiningArgs } from './setIntervalMining'
 

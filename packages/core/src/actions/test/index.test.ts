@@ -15,6 +15,7 @@ test('exports actions', () => {
       "setBlockGasLimit": [Function],
       "setBlockTimestampInterval": [Function],
       "setCode": [Function],
+      "setCoinbase": [Function],
       "setIntervalMining": [Function],
       "setNextBlockBaseFeePerGas": [Function],
       "setNextBlockTimestamp": [Function],

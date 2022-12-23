@@ -209,17 +209,7 @@ export type PublicRequests = {
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Data>
-  request(args: {
-    /**
-     * @description Returns the number of the most recent block seen by this client
-     * @link https://eips.ethereum.org/EIPS/eip-1474
-     * @example
-     * provider.request({ method: 'eth_blockNumber' })
-     * // => '0x1b4'
-     * */
-    method: 'eth_blockNumber'
-    params?: never
-  }): Promise<Quantity>
+  request(args: { method: 'eth_coinbase'; params?: never }): Promise<Address>
   request(args: {
     /**
      * @description Estimates the gas necessary to complete a transaction without submitting it to the network
