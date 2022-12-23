@@ -25,8 +25,10 @@ export type {
 } from './block'
 
 export {
+  getAutomine,
   impersonateAccount,
   mine,
+  setAutomine,
   setBalance,
   setCode,
   setIntervalMining,

@@ -14,9 +14,7 @@ import { setAutomine } from 'viem'
 import { setAutomine } from 'viem'
 import { testClient } from '.'
  
-await setAutomine(testClient, { // [!code focus:99]
-  enabled: true
-})
+await setAutomine(testClient, true) // [!code focus]
 ```
 
 ## Configuration
@@ -26,7 +24,5 @@ await setAutomine(testClient, { // [!code focus:99]
 - **Type:** `boolean`
 
 ```ts
-await setAutomine(testClient, {
-  enabled: false // [!code focus]
-})
+await setAutomine(testClient, false) // [!code focus]
 ```

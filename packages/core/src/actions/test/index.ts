@@ -1,8 +1,12 @@
+export { getAutomine } from './getAutomine'
+
 export { impersonateAccount } from './impersonateAccount'
 export type { ImpersonateAccountArgs } from './impersonateAccount'
 
 export { mine } from './mine'
 export type { MineArgs } from './mine'
+
+export { setAutomine } from './setAutomine'
 
 export { setBalance } from './setBalance'
 export type { SetBalanceArgs } from './setBalance'

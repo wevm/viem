@@ -30,6 +30,7 @@ export type {
   WatchBlocksArgs,
 } from './actions'
 export {
+  getAutomine,
   getBalance,
   getBlock,
   getBlockNumber,
@@ -40,6 +41,7 @@ export {
   mine,
   requestAccounts,
   sendTransaction,
+  setAutomine,
   setBalance,
   setCode,
   setIntervalMining,
