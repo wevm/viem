@@ -1,6 +1,6 @@
 # setBlockTimestampInterval
 
-Similar to [`increaseTime`](/TODO), but sets a block timestamp `interval`. The timestamp of the next block will be computed as `lastBlock_timestamp` + `interval`.
+Similar to [`increaseTime`](/TODO), but sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp` + `interval`.
 
 ## Import 
 

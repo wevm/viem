@@ -11,6 +11,7 @@ test('exports actions', () => {
       "mine": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
+      "setBlockTimestampInterval": [Function],
       "setCode": [Function],
       "setIntervalMining": [Function],
       "setNonce": [Function],

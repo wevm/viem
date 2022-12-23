@@ -14,6 +14,9 @@ export { setAutomine } from './setAutomine'
 export { setBalance } from './setBalance'
 export type { SetBalanceArgs } from './setBalance'
 
+export { setBlockTimestampInterval } from './setBlockTimestampInterval'
+export type { SetBlockTimestampIntervalArgs } from './setBlockTimestampInterval'
+
 export { setCode } from './setCode'
 export type { SetCodeArgs } from './setCode'
 
