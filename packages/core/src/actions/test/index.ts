@@ -28,6 +28,9 @@ export type { SetCodeArgs } from './setCode'
 export { setIntervalMining } from './setIntervalMining'
 export type { SetIntervalMiningArgs } from './setIntervalMining'
 
+export { setNextBlockBaseFeePerGas } from './setNextBlockBaseFeePerGas'
+export type { SetNextBlockBaseFeePerGasArgs } from './setNextBlockBaseFeePerGas'
+
 export { setNonce } from './setNonce'
 export type { SetNonceArgs } from './setNonce'
 
