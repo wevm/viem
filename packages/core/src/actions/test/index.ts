@@ -31,6 +31,9 @@ export type { SetIntervalMiningArgs } from './setIntervalMining'
 export { setNextBlockBaseFeePerGas } from './setNextBlockBaseFeePerGas'
 export type { SetNextBlockBaseFeePerGasArgs } from './setNextBlockBaseFeePerGas'
 
+export { setNextBlockTimestamp } from './setNextBlockTimestamp'
+export type { SetNextBlockTimestampArgs } from './setNextBlockTimestamp'
+
 export { setNonce } from './setNonce'
 export type { SetNonceArgs } from './setNonce'
 

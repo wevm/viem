@@ -806,7 +806,7 @@ export type TestRequests<Name extends string> = {
      * @description Set the timestamp of the next block.
      * @link https://hardhat.org/hardhat-network/docs/reference#evm_setnextblocktimestamp
      */
-    method: 'evm_setNextBlockTagstamp'
+    method: 'evm_setNextBlockTimestamp'
     params: [Quantity]
   }): Promise<void>
   request(args: {

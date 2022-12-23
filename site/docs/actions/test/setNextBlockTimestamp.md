@@ -30,3 +30,7 @@ await setNextBlockTimestamp(testClient, {
   timestamp: 1671744314 // [!code focus]
 })
 ```
+
+## Notes
+
+- The next Block `timestamp` cannot be lesser than the current Block `timestamp`.
