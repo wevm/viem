@@ -41,6 +41,7 @@ export {
   impersonateAccount,
   increaseTime,
   mine,
+  removeBlockTimestampInterval,
   requestAccounts,
   sendTransaction,
   setAutomine,

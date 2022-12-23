@@ -6,7 +6,7 @@ import { wait } from '../../utils/wait'
 import { getBlock } from '../block'
 import { setBlockTimestampInterval } from './setBlockTimestampInterval'
 
-test('increases block timestamp interval', async () => {
+test('sets block timestamp interval', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
   })

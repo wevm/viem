@@ -9,6 +9,8 @@ export type { IncreaseTimeArgs } from './increaseTime'
 export { mine } from './mine'
 export type { MineArgs } from './mine'
 
+export { removeBlockTimestampInterval } from './removeBlockTimestampInterval'
+
 export { setAutomine } from './setAutomine'
 
 export { setBalance } from './setBalance'

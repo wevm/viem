@@ -9,6 +9,7 @@ test('exports actions', () => {
       "impersonateAccount": [Function],
       "increaseTime": [Function],
       "mine": [Function],
+      "removeBlockTimestampInterval": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
       "setBlockTimestampInterval": [Function],
