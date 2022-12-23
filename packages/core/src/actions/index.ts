@@ -27,6 +27,7 @@ export type {
 export {
   getAutomine,
   impersonateAccount,
+  increaseTime,
   mine,
   setAutomine,
   setBalance,
@@ -38,6 +39,7 @@ export {
 } from './test'
 export type {
   ImpersonateAccountArgs,
+  IncreaseTimeArgs,
   MineArgs,
   SetBalanceArgs,
   SetCodeArgs,

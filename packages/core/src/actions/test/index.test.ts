@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "getAutomine": [Function],
       "impersonateAccount": [Function],
+      "increaseTime": [Function],
       "mine": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],

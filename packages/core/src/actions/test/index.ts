@@ -3,6 +3,9 @@ export { getAutomine } from './getAutomine'
 export { impersonateAccount } from './impersonateAccount'
 export type { ImpersonateAccountArgs } from './impersonateAccount'
 
+export { increaseTime } from './increaseTime'
+export type { IncreaseTimeArgs } from './increaseTime'
+
 export { mine } from './mine'
 export type { MineArgs } from './mine'
 
