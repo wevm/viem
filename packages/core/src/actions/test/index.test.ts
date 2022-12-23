@@ -12,6 +12,7 @@ test('exports actions', () => {
       "removeBlockTimestampInterval": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
+      "setBlockGasLimit": [Function],
       "setBlockTimestampInterval": [Function],
       "setCode": [Function],
       "setIntervalMining": [Function],

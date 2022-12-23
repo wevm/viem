@@ -16,6 +16,9 @@ export { setAutomine } from './setAutomine'
 export { setBalance } from './setBalance'
 export type { SetBalanceArgs } from './setBalance'
 
+export { setBlockGasLimit } from './setBlockGasLimit'
+export type { SetBlockGasLimitArgs } from './setBlockGasLimit'
+
 export { setBlockTimestampInterval } from './setBlockTimestampInterval'
 export type { SetBlockTimestampIntervalArgs } from './setBlockTimestampInterval'
 
