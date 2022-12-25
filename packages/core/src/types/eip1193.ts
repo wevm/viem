@@ -851,6 +851,17 @@ export type TestRequests<Name extends string> = {
     pending: Quantity
     queued: Quantity
   }>
+  request(args: {
+    /**
+     * @description Creates, signs, and sends a new transaction to the network regardless of the signature.
+     * @link https://eips.ethereum.org/EIPS/eip-1474
+     * @example
+     * provider.request({ method: 'eth_sendTransaction', params: [{ from: '0x...', to: '0x...', value: '0x...' }] })
+     * // => '0x...'
+     * */
+    method: 'eth_sendUnsignedTransaction'
+    params: [request: TransactionRequest]
+  }): Promise<Data>
 }
 
 export type SignableRequests = {

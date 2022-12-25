@@ -26,6 +26,12 @@ export type { ResetArgs } from './reset'
 export { revert } from './revert'
 export type { RevertArgs } from './revert'
 
+export { sendUnsignedTransaction } from './sendUnsignedTransaction'
+export type {
+  SendUnsignedTransactionArgs,
+  SendUnsignedTransactionResponse,
+} from './sendUnsignedTransaction'
+
 export { setAutomine } from './setAutomine'
 
 export { setBalance } from './setBalance'
