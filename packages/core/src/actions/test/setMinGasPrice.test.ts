@@ -5,7 +5,9 @@ import { gweiToValue } from '../../utils'
 
 import { setMinGasPrice } from './setMinGasPrice'
 
-test('set next block base fee per gas', async () => {
+test.todo('set min gas price')
+
+test('errors when eip-1559 is not enabled', async () => {
   await expect(
     setMinGasPrice(testClient, {
       gasPrice: gweiToValue('20'),

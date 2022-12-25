@@ -11,6 +11,9 @@ export type { MineArgs } from './mine'
 
 export { removeBlockTimestampInterval } from './removeBlockTimestampInterval'
 
+export { reset } from './reset'
+export type { ResetArgs } from './reset'
+
 export { setAutomine } from './setAutomine'
 
 export { setBalance } from './setBalance'
