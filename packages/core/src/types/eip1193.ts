@@ -721,6 +721,13 @@ export type TestRequests<Name extends string> = {
   }): Promise<void>
   request(args: {
     /**
+     * @description Sets the backend RPC URL.
+     */
+    method: `${Name}_setRpcUrl`
+    params: [url: string]
+  }): Promise<void>
+  request(args: {
+    /**
      * @description Writes a single position of an account's storage.
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setstorageat
      */

@@ -34,6 +34,8 @@ export type { SetCoinbaseArgs } from './setCoinbase'
 export { setIntervalMining } from './setIntervalMining'
 export type { SetIntervalMiningArgs } from './setIntervalMining'
 
+export { setLoggingEnabled } from './setLoggingEnabled'
+
 export { setMinGasPrice } from './setMinGasPrice'
 export type { SetMinGasPriceArgs } from './setMinGasPrice'
 
@@ -45,6 +47,8 @@ export type { SetNextBlockTimestampArgs } from './setNextBlockTimestamp'
 
 export { setNonce } from './setNonce'
 export type { SetNonceArgs } from './setNonce'
+
+export { setRpcUrl } from './setRpcUrl'
 
 export { setStorageAt } from './setStorageAt'
 export type { SetStorageAtArgs } from './setStorageAt'

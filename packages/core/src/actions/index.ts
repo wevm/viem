@@ -38,6 +38,7 @@ export {
   setCode,
   setCoinbase,
   setIntervalMining,
+  setLoggingEnabled,
   setMinGasPrice,
   setNextBlockBaseFeePerGas,
   setNextBlockTimestamp,
