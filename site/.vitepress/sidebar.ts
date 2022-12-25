@@ -358,10 +358,6 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/test/dropTransaction',
             },
             {
-              text: 'enableTraces',
-              link: '/docs/actions/test/enableTraces',
-            },
-            {
               text: 'getTxpoolContent',
               link: '/docs/actions/test/getTxpoolContent',
             },

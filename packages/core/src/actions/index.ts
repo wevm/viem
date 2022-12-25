@@ -27,8 +27,11 @@ export type {
 export {
   dropTransaction,
   getAutomine,
+  getTxpoolContent,
+  getTxpoolStatus,
   impersonateAccount,
   increaseTime,
+  inspectTxpool,
   mine,
   removeBlockTimestampInterval,
   reset,

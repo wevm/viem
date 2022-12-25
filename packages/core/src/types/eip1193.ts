@@ -821,6 +821,36 @@ export type TestRequests<Name extends string> = {
     method: 'evm_revert'
     params?: [id: Quantity]
   }): Promise<void>
+  request(args: {
+    /**
+     * @link https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-content
+     */
+    method: 'txpool_content'
+    params?: never
+  }): Promise<{
+    pending: Record<Address, Record<string, Transaction>>
+    queued: Record<Address, Record<string, Transaction>>
+  }>
+  request(args: {
+    /**
+     * @link https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-inspect
+     */
+    method: 'txpool_inspect'
+    params?: never
+  }): Promise<{
+    pending: Record<Address, Record<string, string>>
+    queued: Record<Address, Record<string, string>>
+  }>
+  request(args: {
+    /**
+     * @link https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-inspect
+     */
+    method: 'txpool_status'
+    params?: never
+  }): Promise<{
+    pending: Quantity
+    queued: Quantity
+  }>
 }
 
 export type SignableRequests = {

@@ -7,8 +7,11 @@ test('exports actions', () => {
     {
       "dropTransaction": [Function],
       "getAutomine": [Function],
+      "getTxpoolContent": [Function],
+      "getTxpoolStatus": [Function],
       "impersonateAccount": [Function],
       "increaseTime": [Function],
+      "inspectTxpool": [Function],
       "mine": [Function],
       "removeBlockTimestampInterval": [Function],
       "reset": [Function],
