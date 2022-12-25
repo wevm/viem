@@ -17,6 +17,7 @@ test('exports actions', () => {
       "setCode": [Function],
       "setCoinbase": [Function],
       "setIntervalMining": [Function],
+      "setMinGasPrice": [Function],
       "setNextBlockBaseFeePerGas": [Function],
       "setNextBlockTimestamp": [Function],
       "setNonce": [Function],

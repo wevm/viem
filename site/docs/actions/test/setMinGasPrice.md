@@ -2,6 +2,8 @@
 
 Change the minimum gas price accepted by the network (in wei).
 
+> Note: `setMinGasPrice` can only be used on clients that do not have EIP-1559 enabled.
+
 ## Import 
 
 ```ts

@@ -31,6 +31,9 @@ export type { SetCoinbaseArgs } from './setCoinbase'
 export { setIntervalMining } from './setIntervalMining'
 export type { SetIntervalMiningArgs } from './setIntervalMining'
 
+export { setMinGasPrice } from './setMinGasPrice'
+export type { SetMinGasPriceArgs } from './setMinGasPrice'
+
 export { setNextBlockBaseFeePerGas } from './setNextBlockBaseFeePerGas'
 export type { SetNextBlockBaseFeePerGasArgs } from './setNextBlockBaseFeePerGas'
 
