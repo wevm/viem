@@ -1,3 +1,6 @@
+export { dropTransaction } from './dropTransaction'
+export type { DropTransactionArgs } from './dropTransaction'
+
 export { getAutomine } from './getAutomine'
 
 export { impersonateAccount } from './impersonateAccount'

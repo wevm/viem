@@ -25,6 +25,7 @@ export type {
 } from './block'
 
 export {
+  dropTransaction,
   getAutomine,
   impersonateAccount,
   increaseTime,
@@ -49,6 +50,7 @@ export {
   stopImpersonatingAccount,
 } from './test'
 export type {
+  DropTransactionArgs,
   ImpersonateAccountArgs,
   IncreaseTimeArgs,
   MineArgs,

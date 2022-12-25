@@ -5,34 +5,24 @@ import { etherToValue } from '../../utils'
 import { getBalance } from '../account/getBalance'
 import { sendTransaction } from '../transaction/sendTransaction'
 import { mine } from './mine'
-import { snapshot } from './snapshot'
-import { revert } from './revert'
+import { dropTransaction } from './dropTransaction'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
-test('reverts', async () => {
+test('drops transaction', async () => {
   const balance = await getBalance(publicClient, {
     address: sourceAccount.address,
   })
-
-  const id = await snapshot(testClient)
-
-  await sendTransaction(walletClient, {
+  const { hash } = await sendTransaction(walletClient, {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
       value: etherToValue('2'),
     },
   })
+  await dropTransaction(testClient, { hash })
   await mine(testClient, { blocks: 1 })
-  expect(
-    await getBalance(publicClient, {
-      address: sourceAccount.address,
-    }),
-  ).not.toBe(balance)
-
-  await revert(testClient, { id })
   expect(
     await getBalance(publicClient, {
       address: sourceAccount.address,

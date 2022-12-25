@@ -1,4 +1,5 @@
 export type {
+  DropTransactionArgs,
   GetBalanceArgs,
   GetBalanceResponse,
   GetBlockArgs,
@@ -38,6 +39,7 @@ export type {
   WatchBlocksArgs,
 } from './actions'
 export {
+  dropTransaction,
   getAutomine,
   getBalance,
   getBlock,
