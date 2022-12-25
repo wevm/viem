@@ -31,6 +31,7 @@ export {
   mine,
   removeBlockTimestampInterval,
   reset,
+  revert,
   setAutomine,
   setBalance,
   setBlockGasLimit,
@@ -44,6 +45,7 @@ export {
   setNextBlockTimestamp,
   setNonce,
   setStorageAt,
+  snapshot,
   stopImpersonatingAccount,
 } from './test'
 export type {
@@ -51,6 +53,7 @@ export type {
   IncreaseTimeArgs,
   MineArgs,
   ResetArgs,
+  RevertArgs,
   SetBalanceArgs,
   SetBlockGasLimitArgs,
   SetBlockTimestampIntervalArgs,

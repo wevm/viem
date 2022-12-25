@@ -11,6 +11,7 @@ test('exports actions', () => {
       "mine": [Function],
       "removeBlockTimestampInterval": [Function],
       "reset": [Function],
+      "revert": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
       "setBlockGasLimit": [Function],
@@ -23,7 +24,9 @@ test('exports actions', () => {
       "setNextBlockBaseFeePerGas": [Function],
       "setNextBlockTimestamp": [Function],
       "setNonce": [Function],
+      "setRpcUrl": [Function],
       "setStorageAt": [Function],
+      "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
     }
   `)

@@ -14,6 +14,9 @@ export { removeBlockTimestampInterval } from './removeBlockTimestampInterval'
 export { reset } from './reset'
 export type { ResetArgs } from './reset'
 
+export { revert } from './revert'
+export type { RevertArgs } from './revert'
+
 export { setAutomine } from './setAutomine'
 
 export { setBalance } from './setBalance'
@@ -52,6 +55,8 @@ export { setRpcUrl } from './setRpcUrl'
 
 export { setStorageAt } from './setStorageAt'
 export type { SetStorageAtArgs } from './setStorageAt'
+
+export { snapshot } from './snapshot'
 
 export { stopImpersonatingAccount } from './stopImpersonatingAccount'
 export type { StopImpersonatingAccountArgs } from './stopImpersonatingAccount'

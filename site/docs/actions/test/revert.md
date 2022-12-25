@@ -1,6 +1,6 @@
 # revert
 
-revert the state of the blockchain at the current block.
+Revert the state of the blockchain at the current block.
 
 ## Import 
 
