@@ -1,4 +1,4 @@
-export { checksumAddress } from './address'
+export { getAddress, isAddress } from './address'
 
 export { BaseError } from './BaseError'
 

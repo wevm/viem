@@ -515,7 +515,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Addresses',
           items: [
             {
-              text: 'getAddress 🚧',
+              text: 'getAddress',
               link: '/docs/utilities/getAddress',
             },
             {
@@ -523,7 +523,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getContractAddress',
             },
             {
-              text: 'isAddress 🚧',
+              text: 'isAddress',
               link: '/docs/utilities/isAddress',
             },
             {

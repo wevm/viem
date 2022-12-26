@@ -1,1 +1,3 @@
-export { checksumAddress } from './checksumAddress'
+export { getAddress } from './getAddress'
+
+export { isAddress } from './isAddress'
