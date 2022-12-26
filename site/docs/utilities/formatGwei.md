@@ -1,5 +1,3 @@
-<!-- TODO: convert `gweiToDisplay` to `formatGwei`. -->
-
 # formatGwei
 
 Converts numerical wei to a string representation of gwei.

@@ -5,12 +5,12 @@ import * as value from './index'
 test('exports value utils', () => {
   expect(value).toMatchInlineSnapshot(`
     {
-      "displayToValue": [Function],
-      "etherToValue": [Function],
-      "gweiToValue": [Function],
-      "valueAsEther": [Function],
-      "valueAsGwei": [Function],
-      "valueToDisplay": [Function],
+      "formatEther": [Function],
+      "formatGwei": [Function],
+      "formatUnit": [Function],
+      "parseEther": [Function],
+      "parseGwei": [Function],
+      "parseUnit": [Function],
     }
   `)
 })

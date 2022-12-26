@@ -6,7 +6,7 @@ import {
   WaitForTransactionReceiptTimeoutError,
   waitForTransactionReceipt,
 } from './waitForTransactionReceipt'
-import { etherToValue, gweiToValue, hexToNumber } from '../../utils'
+import { hexToNumber, parseEther, parseGwei } from '../../utils'
 import { sendTransaction } from './sendTransaction'
 import { mine, setIntervalMining } from '../test'
 
@@ -18,7 +18,7 @@ test('waits for transaction (send -> wait -> mine)', async () => {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('1'),
+      value: parseEther('1'),
     },
   })
   const { status } = await waitForTransactionReceipt(publicClient, {
@@ -32,7 +32,7 @@ test('waits for transaction (send -> mine -> wait)', async () => {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('1'),
+      value: parseEther('1'),
     },
   })
   await mine(testClient, { blocks: 1 })
@@ -58,8 +58,8 @@ describe('replaced transactions', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
-        maxFeePerGas: gweiToValue('10'),
+        value: parseEther('1'),
+        maxFeePerGas: parseGwei('10'),
         nonce,
       },
     })
@@ -78,9 +78,9 @@ describe('replaced transactions', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             nonce,
-            maxFeePerGas: gweiToValue('20'),
+            maxFeePerGas: parseGwei('20'),
           },
         })
 
@@ -110,8 +110,8 @@ describe('replaced transactions', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
-        maxFeePerGas: gweiToValue('10'),
+        value: parseEther('1'),
+        maxFeePerGas: parseGwei('10'),
         nonce,
       },
     })
@@ -128,9 +128,9 @@ describe('replaced transactions', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             nonce,
-            maxFeePerGas: gweiToValue('20'),
+            maxFeePerGas: parseGwei('20'),
           },
         })
 
@@ -159,8 +159,8 @@ describe('replaced transactions', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
-        maxFeePerGas: gweiToValue('10'),
+        value: parseEther('1'),
+        maxFeePerGas: parseGwei('10'),
         nonce,
       },
     })
@@ -179,9 +179,9 @@ describe('replaced transactions', () => {
           request: {
             from: sourceAccount.address,
             to: sourceAccount.address,
-            value: etherToValue('0'),
+            value: parseEther('0'),
             nonce,
-            maxFeePerGas: gweiToValue('20'),
+            maxFeePerGas: parseGwei('20'),
           },
         })
 
@@ -211,8 +211,8 @@ describe('replaced transactions', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
-        maxFeePerGas: gweiToValue('10'),
+        value: parseEther('1'),
+        maxFeePerGas: parseGwei('10'),
         nonce,
       },
     })
@@ -231,9 +231,9 @@ describe('replaced transactions', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('2'),
+            value: parseEther('2'),
             nonce,
-            maxFeePerGas: gweiToValue('20'),
+            maxFeePerGas: parseGwei('20'),
           },
         })
 
@@ -255,8 +255,8 @@ describe('args: confirmations', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
-        maxFeePerGas: gweiToValue('10'),
+        value: parseEther('1'),
+        maxFeePerGas: parseGwei('10'),
       },
     })
 
@@ -287,8 +287,8 @@ describe('args: confirmations', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
-        maxFeePerGas: gweiToValue('10'),
+        value: parseEther('1'),
+        maxFeePerGas: parseGwei('10'),
         nonce,
       },
     })
@@ -306,9 +306,9 @@ describe('args: confirmations', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             nonce,
-            maxFeePerGas: gweiToValue('20'),
+            maxFeePerGas: parseGwei('20'),
           },
         })
 
@@ -326,7 +326,7 @@ test('args: timeout', async () => {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('1'),
+      value: parseEther('1'),
     },
   })
   await expect(() =>

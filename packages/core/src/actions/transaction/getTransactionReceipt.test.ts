@@ -4,7 +4,7 @@ import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { celo, defineTransactionReceipt, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { TransactionReceipt } from '../../types'
-import { etherToValue, gweiToValue } from '../../utils'
+import { parseEther, parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
 import { getBlock } from '../block'
 import { mine } from '../test'
@@ -156,14 +156,14 @@ describe('e2e', () => {
   it('gets transaction receipt', async () => {
     const block = await getBlock(publicClient)
 
-    const maxFeePerGas = block.baseFeePerGas! + gweiToValue('10')
-    const maxPriorityFeePerGas = gweiToValue('10')
+    const maxFeePerGas = block.baseFeePerGas! + parseGwei('10')
+    const maxPriorityFeePerGas = parseGwei('10')
 
     const { hash } = await sendTransaction(walletClient, {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
+        value: parseEther('1'),
         maxFeePerGas,
         maxPriorityFeePerGas,
       },

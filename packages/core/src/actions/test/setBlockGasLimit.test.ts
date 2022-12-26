@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../../test'
-import { gweiToValue } from '../../utils'
+import { parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
 
 import { getBlock } from '../block'
@@ -12,10 +12,10 @@ test('sets block gas limit', async () => {
     blockTag: 'latest',
   })
   await setBlockGasLimit(testClient, {
-    gasLimit: block1.gasLimit + gweiToValue('10'),
+    gasLimit: block1.gasLimit + parseGwei('10'),
   })
   await wait(1000)
   const block2 = await getBlock(publicClient, { blockTag: 'latest' })
-  expect(block2.gasLimit).toEqual(block1.gasLimit + gweiToValue('10'))
+  expect(block2.gasLimit).toEqual(block1.gasLimit + parseGwei('10'))
   await setBlockGasLimit(testClient, { gasLimit: block1.gasLimit })
 })

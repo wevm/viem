@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { etherToValue } from '../../utils'
+import { parseEther } from '../../utils'
 import { sendTransaction } from '../transaction'
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
 
@@ -20,7 +20,7 @@ test('gets transaction count', async () => {
     request: {
       from: accounts[0].address,
       to: accounts[0].address,
-      value: etherToValue('1'),
+      value: parseEther('1'),
     },
   })
   await mine(testClient, { blocks: 1 })

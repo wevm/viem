@@ -1,5 +1,3 @@
-<!-- TODO: convert `gweiToValue` to `parseGwei`. -->
-
 # parseGwei
 
 Converts a string representation of gwei to numerical wei.

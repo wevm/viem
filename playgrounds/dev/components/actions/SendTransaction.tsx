@@ -1,6 +1,6 @@
 import { sendTransaction } from 'viem/actions'
 import type { WalletClient } from 'viem/clients'
-import { etherToValue } from 'viem/utils'
+import { parseEther } from 'viem/utils'
 
 export function SendTransaction({ client }: { client: WalletClient }) {
   return (
@@ -12,7 +12,7 @@ export function SendTransaction({ client }: { client: WalletClient }) {
             request: {
               from: account,
               to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-              value: etherToValue('0.0001'),
+              value: parseEther('0.0001'),
             },
           })
         }}

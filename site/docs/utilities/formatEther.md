@@ -1,5 +1,3 @@
-<!-- TODO: convert `etherToDisplay` to `formatEther`. -->
-
 # formatEther
 
 Converts numerical wei to a string representation of ether.

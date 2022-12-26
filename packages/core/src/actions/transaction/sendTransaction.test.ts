@@ -2,12 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { celo, localhost } from '../../chains'
-import {
-  etherToValue,
-  gweiToValue,
-  hexToNumber,
-  numberToHex,
-} from '../../utils'
+import { hexToNumber, numberToHex, parseEther, parseGwei } from '../../utils'
 import { getBalance } from '../account'
 import { getBlock } from '../block'
 import { mine, setBalance } from '../test'
@@ -38,7 +33,7 @@ test('sends transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
         },
       })
     ).hash,
@@ -76,7 +71,7 @@ test('sends transaction (w/ formatter)', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
         },
       })
     ).hash,
@@ -140,7 +135,7 @@ describe('args: gas', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             gas: 1_000_000n,
           },
         })
@@ -172,7 +167,7 @@ describe('args: gas', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
           gas: 100n,
         },
       }),
@@ -187,7 +182,7 @@ describe('args: gas', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
           gas: 100_000_000n,
         },
       }),
@@ -207,7 +202,7 @@ describe('args: gasPrice', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             gasPrice: BigInt(block.baseFeePerGas ?? 0),
           },
         })
@@ -245,7 +240,7 @@ describe('args: gasPrice', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
           gasPrice: 1n,
         },
       }),
@@ -262,8 +257,8 @@ describe('args: gasPrice', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
-          gasPrice: BigInt(block.baseFeePerGas ?? 0) + etherToValue('10000'),
+          value: parseEther('1'),
+          gasPrice: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         },
       }),
     ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
@@ -282,7 +277,7 @@ describe('args: maxFeePerGas', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
           },
         })
@@ -314,7 +309,7 @@ describe('args: maxFeePerGas', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
           maxFeePerGas: 1n,
         },
       }),
@@ -331,9 +326,8 @@ describe('args: maxFeePerGas', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
-          maxFeePerGas:
-            BigInt(block.baseFeePerGas ?? 0) + etherToValue('10000'),
+          value: parseEther('1'),
+          maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         },
       }),
     ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
@@ -350,8 +344,8 @@ describe('args: maxPriorityFeePerGas', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
-            maxPriorityFeePerGas: gweiToValue('1'),
+            value: parseEther('1'),
+            maxPriorityFeePerGas: parseGwei('1'),
           },
         })
       ).hash,
@@ -385,9 +379,9 @@ describe('args: maxPriorityFeePerGas', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
-            maxPriorityFeePerGas: gweiToValue('10'),
-            maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + gweiToValue('10'),
+            value: parseEther('1'),
+            maxPriorityFeePerGas: parseGwei('10'),
+            maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
           },
         })
       ).hash,
@@ -416,9 +410,9 @@ describe('args: maxPriorityFeePerGas', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
-          maxPriorityFeePerGas: gweiToValue('11'),
-          maxFeePerGas: gweiToValue('10'),
+          value: parseEther('1'),
+          maxPriorityFeePerGas: parseGwei('11'),
+          maxFeePerGas: parseGwei('10'),
         },
       }),
     ).rejects.toThrowError(
@@ -442,7 +436,7 @@ describe('args: nonce', () => {
           request: {
             from: sourceAccount.address,
             to: targetAccount.address,
-            value: etherToValue('1'),
+            value: parseEther('1'),
             nonce: hexToNumber(transactionCount),
           },
         })
@@ -472,7 +466,7 @@ describe('args: nonce', () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
           nonce: 1,
         },
       }),
@@ -488,7 +482,7 @@ test('insufficient funds: errors when user is out of funds', async () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('100000'),
+        value: parseEther('100000'),
       },
     }),
   ).rejects.toThrow('Insufficient funds for gas * price + value')

@@ -1,5 +1,3 @@
-<!-- TODO: convert `valueToDisplay` to `formatUnit`, make second arg `exponent`. -->
-
 # formatUnit
 
 Divides a number by a given exponent of base 10 (10<sup>exponent</sup>), and formats it into a string representation of the number.

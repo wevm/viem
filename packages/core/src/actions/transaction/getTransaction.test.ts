@@ -7,7 +7,7 @@ import {
   testClient,
   walletClient,
 } from '../../../test'
-import { etherToValue } from '../../utils'
+import { parseEther } from '../../utils'
 import type { Address, Transaction } from '../../types'
 import { createPublicClient, http } from '../../clients'
 import { celo } from '../../chains'
@@ -89,7 +89,7 @@ test('gets transaction (eip2930)', async () => {
       accessList: [{ address: targetAccount.address, storageKeys: [] }],
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('1'),
+      value: parseEther('1'),
       gasPrice: BigInt(block.baseFeePerGas ?? 0),
     },
   })
@@ -301,7 +301,7 @@ describe('args: blockTag', () => {
       request: {
         from: sourceAccount.address,
         to: targetAccount.address,
-        value: etherToValue('1'),
+        value: parseEther('1'),
       },
     })
 

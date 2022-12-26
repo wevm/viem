@@ -9,7 +9,7 @@ import {
 } from 'viem/actions'
 import { createClient, http } from 'viem/clients'
 import { mainnet } from 'viem/chains'
-import { etherToValue, formatBlock } from 'viem/utils'
+import { formatBlock, parseEther } from 'viem/utils'
 import type { RpcBlock } from 'viem'
 
 export type SuiteItem = {
@@ -160,7 +160,7 @@ export const getSuite = ({ url }: { url: string }): Suite => {
             request: {
               from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
               to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-              value: etherToValue('0.001'),
+              value: parseEther('0.001'),
             },
           })
         },

@@ -1,5 +1,3 @@
-<!-- TODO: convert `displayToValue` to `parseUnit`, make second arg `exponent`. -->
-
 # parseUnit
 
 Multiplies a string representation of a number by a given exponent of base 10 (10<sup>exponent</sup>).

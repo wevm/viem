@@ -1,5 +1,3 @@
-<!-- TODO: convert `etherToValue` to `parseEther`. -->
-
 # parseEther
 
 Converts a string representation of ether to numerical wei.

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
-import { etherToValue } from '../../utils'
+import { parseEther } from '../../utils'
 import { getBalance } from '../account/getBalance'
 import { sendTransaction } from '../transaction/sendTransaction'
 import { mine } from './mine'
@@ -22,7 +22,7 @@ test('reverts', async () => {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('2'),
+      value: parseEther('2'),
     },
   })
   await mine(testClient, { blocks: 1 })

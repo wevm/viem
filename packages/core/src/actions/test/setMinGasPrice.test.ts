@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { testClient } from '../../../test'
-import { gweiToValue } from '../../utils'
+import { parseGwei } from '../../utils'
 
 import { setMinGasPrice } from './setMinGasPrice'
 
@@ -10,7 +10,7 @@ test.todo('set min gas price')
 test('errors when eip-1559 is not enabled', async () => {
   await expect(
     setMinGasPrice(testClient, {
-      gasPrice: gweiToValue('20'),
+      gasPrice: parseGwei('20'),
     }),
   ).rejects.toMatchInlineSnapshot(`
     [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.

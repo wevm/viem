@@ -1,4 +1,4 @@
-export function valueToDisplay(value: bigint, decimals: number) {
+export function formatUnit(value: bigint, decimals: number) {
   let display = value.toString()
 
   const negative = display.startsWith('-')

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient } from '../../../test'
-import { etherToValue } from '../../utils'
+import { parseEther } from '../../utils'
 import { getBalance } from '../account'
 import { mine, setBalance } from '../test'
 
@@ -19,7 +19,7 @@ test('sends unsigned transaction', async () => {
   })
   await setBalance(testClient, {
     address: sourceAccount.address,
-    value: etherToValue('10000'),
+    value: parseEther('10000'),
   })
 
   const balance = await getBalance(publicClient, {
@@ -32,7 +32,7 @@ test('sends unsigned transaction', async () => {
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,
-          value: etherToValue('1'),
+          value: parseEther('1'),
         },
       })
     ).hash,

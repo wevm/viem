@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
-import { etherToValue } from '../../utils'
+import { parseEther } from '../../utils'
 import { getBlockNumber } from '../block'
 import { sendTransaction } from '../transaction'
 import { mine, setBalance } from '../test'
@@ -21,7 +21,7 @@ async function setup() {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('1'),
+      value: parseEther('1'),
     },
   })
   await mine(testClient, { blocks: 1 })
@@ -29,7 +29,7 @@ async function setup() {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('2'),
+      value: parseEther('2'),
     },
   })
   await mine(testClient, { blocks: 1 })
@@ -37,7 +37,7 @@ async function setup() {
     request: {
       from: sourceAccount.address,
       to: targetAccount.address,
-      value: etherToValue('3'),
+      value: parseEther('3'),
     },
   })
   await mine(testClient, { blocks: 1 })

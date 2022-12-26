@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, testClient, walletClient } from '../../../test'
-import { etherToValue } from '../../utils'
+import { parseEther } from '../../utils'
 import { sendTransaction } from '../transaction/sendTransaction'
 
 import { inspectTxpool } from './inspectTxpool'
@@ -21,14 +21,14 @@ test('inspects txpool (pending)', async () => {
     request: {
       from: accounts[0].address,
       to: accounts[1].address,
-      value: etherToValue('2'),
+      value: parseEther('2'),
     },
   })
   await sendTransaction(walletClient, {
     request: {
       from: accounts[2].address,
       to: accounts[3].address,
-      value: etherToValue('3'),
+      value: parseEther('3'),
     },
   })
 

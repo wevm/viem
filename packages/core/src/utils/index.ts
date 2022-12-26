@@ -41,10 +41,10 @@ export { hexToNumber, numberToHex } from './number'
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
 
 export {
-  displayToValue,
-  etherToValue,
-  gweiToValue,
-  valueAsEther,
-  valueAsGwei,
-  valueToDisplay,
+  formatEther,
+  formatGwei,
+  formatUnit,
+  parseUnit,
+  parseEther,
+  parseGwei,
 } from './unit'
