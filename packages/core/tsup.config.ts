@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup'
 
 import { getConfig } from '../../scripts/tsup'
-import { dependencies, exports } from './package.json'
+import { dependencies } from './package.json'
 
 export default defineConfig(
   getConfig({
@@ -14,7 +14,6 @@ export default defineConfig(
       'src/utils/index.ts',
       'src/window.ts',
     ],
-    exports,
     external: Object.keys(dependencies),
     platform: 'neutral',
   }),

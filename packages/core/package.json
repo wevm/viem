@@ -43,7 +43,8 @@
     "./window": {
       "types": "./dist/window.d.ts",
       "default": "./dist/window.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "type": "module",
   "main": "dist/index.js",
