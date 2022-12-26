@@ -44,7 +44,7 @@ import { formatTransactionReceipt } from './utils/formatters/transactionReceipt'
 
 export type Formatter<TSource = any, TTarget = any> = (
   value: TSource & { [key: string]: unknown },
-) => Partial<TTarget>
+) => TTarget
 
 export type Formatters = {
   block?: Formatter<RpcBlock, Block>
@@ -71,7 +71,7 @@ function defineFormatter<TSource extends Record<string, unknown>, TFormatted>({
   return <
       TFormat extends Formatter<
         TSource,
-        TFormatted & { [key: string]: unknown }
+        Partial<TFormatted> & { [key: string]: unknown }
       >,
       TExclude extends (keyof TSource)[] = [],
     >({
@@ -91,10 +91,10 @@ function defineFormatter<TSource extends Record<string, unknown>, TFormatted>({
       return {
         ...formatted,
         ...formatOverride?.(data),
-      } as (TExclude[number] extends []
-        ? TFormatted
-        : Omit<TFormatted, TExclude[number]>) &
-        ReturnType<TFormat>
+      } as TFormatted &
+        ReturnType<TFormat> & {
+          [K in TExclude[number]]: never
+        }
     }
 }
 

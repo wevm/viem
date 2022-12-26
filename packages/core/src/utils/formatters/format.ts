@@ -38,7 +38,7 @@ export type Formatted<
     ? TFallback
     : TAllowOptional extends true
     ? OptionalNullable<ReturnType<TFormatter>>
-    : Required<ReturnType<TFormatter>>
+    : ReturnType<TFormatter>
   : never
 
 /**
