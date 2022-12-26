@@ -27,5 +27,5 @@ test('drops transaction', async () => {
     await getBalance(publicClient, {
       address: sourceAccount.address,
     }),
-  ).toBe(balance)
+  ).not.toBeLessThan(balance)
 })
