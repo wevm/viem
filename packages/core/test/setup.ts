@@ -1,16 +1,11 @@
 import { testClient } from './utils'
+import { reset, setAutomine, setIntervalMining } from '../src'
 
 export async function setup() {
-  await testClient.request({
-    method: 'anvil_reset',
-    params: [
-      {
-        forking: {
-          jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
-          blockNumber: parseInt(process.env.VITE_ANVIL_BLOCK_NUMBER!),
-        },
-      },
-    ],
+  await reset(testClient, {
+    blockNumber: BigInt(parseInt(process.env.VITE_ANVIL_BLOCK_NUMBER!)),
+    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
   })
-  await testClient.request({ method: 'evm_setAutomine', params: [false] })
+  await setAutomine(testClient, false)
+  await setIntervalMining(testClient, { interval: 1 })
 }
