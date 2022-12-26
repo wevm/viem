@@ -79,6 +79,8 @@ jobs:
             packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Link
+        run: pnpm dev
       - name: Lint code
         run: pnpm lint
       - name: Check types
