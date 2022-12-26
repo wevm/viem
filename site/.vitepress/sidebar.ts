@@ -544,6 +544,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/decodeBase64',
             },
             {
+              text: 'decodeHex 🚧',
+              link: '/docs/utilities/decodeHex',
+            },
+            {
               text: 'decodeRlp 🚧',
               link: '/docs/utilities/decodeRlp',
             },
@@ -556,6 +560,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/encodeBase64',
             },
             {
+              text: 'encodeHex 🚧',
+              link: '/docs/utilities/encodeHex',
+            },
+            {
               text: 'encodeRlp 🚧',
               link: '/docs/utilities/encodeRlp',
             },
@@ -565,11 +573,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Number',
           items: [
             {
-              text: 'hexToNumber 🚧',
+              text: 'hexToNumber',
               link: '/docs/utilities/hexToNumber',
             },
             {
-              text: 'numberToHex 🚧',
+              text: 'numberToHex',
               link: '/docs/utilities/numberToHex',
             },
           ],
