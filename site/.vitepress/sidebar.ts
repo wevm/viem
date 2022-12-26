@@ -527,7 +527,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/isAddress',
             },
             {
-              text: 'isAddressEqual 🚧',
+              text: 'isAddressEqual',
               link: '/docs/utilities/isAddressEqual',
             },
           ],

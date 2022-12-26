@@ -1,4 +1,4 @@
-export { getAddress, isAddress } from './address'
+export { getAddress, isAddress, isAddressEqual } from './address'
 
 export { BaseError } from './BaseError'
 

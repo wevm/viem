@@ -33,6 +33,7 @@ test('exports utils', () => {
       "getAddress": [Function],
       "hexToNumber": [Function],
       "isAddress": [Function],
+      "isAddressEqual": [Function],
       "numberToHex": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],

@@ -176,6 +176,7 @@ export {
   getAddress,
   formatEther,
   isAddress,
+  isAddressEqual,
   parseEther,
   parseGwei,
   parseUnit,

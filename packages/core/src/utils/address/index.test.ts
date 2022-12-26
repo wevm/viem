@@ -7,6 +7,7 @@ test('exports address', () => {
     {
       "getAddress": [Function],
       "isAddress": [Function],
+      "isAddressEqual": [Function],
     }
   `)
 })
