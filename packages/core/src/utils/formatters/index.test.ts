@@ -8,6 +8,7 @@ test('exports formatters', () => {
       "format": [Function],
       "formatBlock": [Function],
       "formatTransaction": [Function],
+      "formatTransactionReceipt": [Function],
       "formatTransactionRequest": [Function],
     }
   `)

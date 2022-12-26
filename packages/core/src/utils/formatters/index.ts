@@ -8,6 +8,12 @@ export type { FormattedTransaction, TransactionFormatter } from './transaction'
 export { formatTransaction } from './transaction'
 
 export type {
+  FormattedTransactionReceipt,
+  TransactionReceiptFormatter,
+} from './transactionReceipt'
+export { formatTransactionReceipt } from './transactionReceipt'
+
+export type {
   FormattedTransactionRequest,
   TransactionRequestFormatter,
 } from './transactionRequest'

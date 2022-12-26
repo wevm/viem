@@ -25,8 +25,10 @@ export type {
   Formatted,
   FormattedBlock,
   FormattedTransaction,
+  FormattedTransactionReceipt,
   FormattedTransactionRequest,
   TransactionFormatter,
+  TransactionReceiptFormatter,
   TransactionRequestFormatter,
 } from './formatters'
 export {

@@ -159,6 +159,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/getTransaction',
             },
             {
+              text: 'getTransactionConfirmations',
+              link: '/docs/actions/public/getTransactionConfirmations',
+            },
+            {
               text: 'getTransactionReceipt',
               link: '/docs/actions/public/getTransactionReceipt',
             },

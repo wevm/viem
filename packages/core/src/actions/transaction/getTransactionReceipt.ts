@@ -36,7 +36,7 @@ export class TransactionReceiptNotFoundError extends BaseError {
   name = 'TransactionReceiptNotFoundError'
   constructor({ hash }: { hash: Data }) {
     super({
-      humanMessage: `Transaction receipt with hash "${hash}" could not be found.`,
+      humanMessage: `Transaction receipt with hash "${hash}" could not be found. The Transaction may not be processed on a block yet.`,
       details: 'transaction receipt not found',
     })
   }

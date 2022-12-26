@@ -78,12 +78,15 @@ export type {
 
 export {
   getTransaction,
+  getTransactionConfirmations,
   getTransactionReceipt,
   sendTransaction,
   waitForTransactionReceipt,
 } from './transaction'
 export type {
   GetTransactionArgs,
+  GetTransactionConfirmationsArgs,
+  GetTransactionConfirmationsResponse,
   GetTransactionResponse,
   GetTransactionReceiptArgs,
   GetTransactionReceiptResponse,

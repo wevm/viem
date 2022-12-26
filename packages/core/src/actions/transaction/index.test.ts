@@ -6,6 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "getTransaction": [Function],
+      "getTransactionConfirmations": [Function],
       "getTransactionReceipt": [Function],
       "sendTransaction": [Function],
       "waitForTransactionReceipt": [Function],

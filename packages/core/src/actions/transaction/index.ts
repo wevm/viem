@@ -4,6 +4,12 @@ export type {
   GetTransactionResponse,
 } from './getTransaction'
 
+export { getTransactionConfirmations } from './getTransactionConfirmations'
+export type {
+  GetTransactionConfirmationsArgs,
+  GetTransactionConfirmationsResponse,
+} from './getTransactionConfirmations'
+
 export { getTransactionReceipt } from './getTransactionReceipt'
 export type {
   GetTransactionReceiptArgs,
