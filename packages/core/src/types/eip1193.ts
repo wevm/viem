@@ -209,6 +209,16 @@ export type PublicRequests = {
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Data>
+  request(args: {
+    /**
+     * @description Returns the chain ID associated with the current network
+     * @example
+     * provider.request({ method: 'eth_chainId' })
+     * // => '1'
+     */
+    method: 'eth_chainId'
+    params?: never
+  }): Promise<Quantity>
   request(args: { method: 'eth_coinbase'; params?: never }): Promise<Address>
   request(args: {
     /**
