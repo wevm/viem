@@ -83,23 +83,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
-          text: 'Client',
-          items: [
-            {
-              text: 'getClientVersion 🚧',
-              link: '/docs/actions/public/getClientVersion',
-            },
-            {
-              text: 'getListeningStatus 🚧',
-              link: '/docs/actions/public/getListeningStatus',
-            },
-            {
-              text: 'getPeerCount 🚧',
-              link: '/docs/actions/public/getPeerCount',
-            },
-          ],
-        },
-        {
           text: 'Fee',
           items: [
             {
