@@ -11,6 +11,7 @@ export type {
 export type { Data } from './data'
 
 export type {
+  EstimateGasParameters,
   FeeHistory,
   FeeValues,
   FeeValuesEIP1559,
@@ -25,6 +26,7 @@ export type {
   RpcBlock,
   RpcBlockIdentifier,
   RpcBlockNumber,
+  RpcEstimateGasParameters,
   RpcFeeHistory,
   RpcFeeValues,
   RpcLog,

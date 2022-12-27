@@ -29,6 +29,7 @@ test('exports actions', () => {
       "createTransport": [Function],
       "createWalletClient": [Function],
       "dropTransaction": [Function],
+      "estimateGas": [Function],
       "etherUnits": {
         "gwei": 9,
         "wei": 18,

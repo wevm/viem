@@ -1,4 +1,6 @@
 export type {
+  EstimateGasArgs,
+  EstimateGasResponse,
   DropTransactionArgs,
   GetBalanceArgs,
   GetBalanceResponse,
@@ -45,6 +47,7 @@ export type {
   WatchBlocksArgs,
 } from './actions'
 export {
+  estimateGas,
   dropTransaction,
   getAutomine,
   getBalance,

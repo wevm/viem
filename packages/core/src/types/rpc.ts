@@ -1,5 +1,5 @@
 import type { Block, BlockIdentifier, BlockNumber, Uncle } from './block'
-import type { FeeHistory, FeeValues } from './fee'
+import type { EstimateGasParameters, FeeHistory, FeeValues } from './fee'
 import type { Log } from './log'
 import type {
   TransactionEIP1559,
@@ -17,6 +17,7 @@ export type TransactionType = '0x0' | '0x1' | '0x2'
 export type RpcBlock = Block<Quantity, RpcTransaction>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
+export type RpcEstimateGasParameters = EstimateGasParameters<Quantity>
 export type RpcUncle = Uncle<Quantity>
 export type RpcFeeHistory = FeeHistory<Quantity>
 export type RpcFeeValues = FeeValues<Quantity>

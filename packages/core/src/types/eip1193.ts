@@ -6,8 +6,8 @@ import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
+  RpcEstimateGasParameters as EstimateGasParameters,
   RpcFeeHistory as FeeHistory,
-  RpcFeeValues as FeeValues,
   RpcLog as Log,
   Quantity,
   RpcTransaction as Transaction,
@@ -61,19 +61,6 @@ export type Events = {
 //////////////////////////////////////////////////
 
 // Provider Requests
-
-export type EstimateGasParameters = {
-  /** Contract code or a hashed method call with encoded args */
-  data?: Data
-  /** Gas provided for transaction execution */
-  gas?: Quantity
-  /** Transaction sender */
-  from?: Data
-  /** Transaction recipient */
-  to?: Data
-  /** Value in wei sent with this transaction */
-  value?: Quantity
-} & FeeValues
 
 export type NativeCurrency = {
   /** A 0x-prefixed hexadecimal string */

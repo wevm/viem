@@ -1,3 +1,6 @@
+export { estimateGas } from './estimateGas'
+export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
+
 export { getBalance } from './getBalance'
 export type { GetBalanceArgs, GetBalanceResponse } from './getBalance'
 

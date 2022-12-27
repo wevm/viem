@@ -86,12 +86,12 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Fee',
           items: [
             {
-              text: 'getFeeHistory 🚧',
-              link: '/docs/actions/public/getFeeHistory',
+              text: 'estimateGas',
+              link: '/docs/actions/public/estimateGas',
             },
             {
-              text: 'getGasEstimate 🚧',
-              link: '/docs/actions/public/getGasEstimate',
+              text: 'getFeeHistory 🚧',
+              link: '/docs/actions/public/getFeeHistory',
             },
             {
               text: 'getGasPrice 🚧',

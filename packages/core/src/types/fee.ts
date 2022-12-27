@@ -1,3 +1,18 @@
+import type { Data } from './data'
+
+export type EstimateGasParameters<TQuantity = bigint> = {
+  /** Contract code or a hashed method call with encoded args */
+  data?: Data
+  /** Gas provided for transaction execution */
+  gas?: TQuantity
+  /** Transaction sender */
+  from?: Data
+  /** Transaction recipient */
+  to?: Data
+  /** Value in wei sent with this transaction */
+  value?: TQuantity
+} & Partial<FeeValues<TQuantity>>
+
 export type FeeHistory<TQuantity = bigint> = {
   /**
    * An array of block base fees per gas. This includes the next block after

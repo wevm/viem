@@ -6,6 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "dropTransaction": [Function],
+      "estimateGas": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
       "getBlock": [Function],
