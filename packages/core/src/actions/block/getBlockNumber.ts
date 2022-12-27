@@ -2,6 +2,7 @@ import type { PublicClient } from '../../clients'
 import { getCache, withCache } from '../../utils/promise'
 
 export type GetBlockNumberArgs = {
+  /** The maximum age (in ms) of the cached value. */
   maxAge?: number
 }
 
