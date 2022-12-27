@@ -42,7 +42,7 @@ export function watchBlockNumber(
     poll(
       async () => {
         try {
-          const blockNumber = await getBlockNumber(client)
+          const blockNumber = await getBlockNumber(client, { maxAge: 0 })
 
           if (prevBlockNumber) {
             // If the current block number is the same as the previous,

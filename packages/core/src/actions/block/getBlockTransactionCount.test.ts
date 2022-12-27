@@ -38,6 +38,7 @@ test('args: blockHash', async () => {
 })
 
 test('args: blockTag', async () => {
+  await mine(testClient, { blocks: 1 })
   expect(
     await getBlockTransactionCount(publicClient, {
       blockTag: 'latest',

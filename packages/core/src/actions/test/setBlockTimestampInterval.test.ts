@@ -5,8 +5,10 @@ import { wait } from '../../utils/wait'
 
 import { getBlock } from '../block'
 import { setBlockTimestampInterval } from './setBlockTimestampInterval'
+import { setIntervalMining } from './setIntervalMining'
 
 test('sets block timestamp interval', async () => {
+  await setIntervalMining(testClient, { interval: 1 })
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
   })

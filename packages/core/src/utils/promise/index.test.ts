@@ -5,6 +5,8 @@ import * as utils from './index'
 test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
+      "getCache": [Function],
+      "withCache": [Function],
       "withRetry": [Function],
       "withTimeout": [Function],
     }

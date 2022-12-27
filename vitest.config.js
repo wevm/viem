@@ -11,7 +11,8 @@ export default defineConfig({
       exclude: ['**/dist/**', '**/*.test.ts'],
     },
     environment: 'jsdom',
-    globalSetup: ['./packages/core/test/setup.ts'],
+    setupFiles: ['./packages/core/test/setup.ts'],
+    globalSetup: ['./packages/core/test/globalSetup.ts'],
     testTimeout: 10_000,
   },
 })
