@@ -63,7 +63,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/getBlockNumber',
             },
             {
-              text: 'getBlockTransactionCount 🚧',
+              text: 'getBlockTransactionCount',
               link: '/docs/actions/public/getBlockTransactionCount',
             },
             {

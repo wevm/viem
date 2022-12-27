@@ -9,6 +9,7 @@ export type {
 export {
   getBlock,
   getBlockNumber,
+  getBlockTransactionCount,
   watchBlockNumber,
   watchBlocks,
 } from './block'
@@ -16,6 +17,8 @@ export type {
   GetBlockArgs,
   GetBlockNumberResponse,
   GetBlockResponse,
+  GetBlockTransactionCountArgs,
+  GetBlockTransactionCountResponse,
   OnBlock,
   OnBlockNumber,
   OnBlockNumberResponse,

@@ -1,6 +1,12 @@
 export { getBlock } from './getBlock'
 export type { GetBlockArgs, GetBlockResponse } from './getBlock'
 
+export { getBlockTransactionCount } from './getBlockTransactionCount'
+export type {
+  GetBlockTransactionCountArgs,
+  GetBlockTransactionCountResponse,
+} from './getBlockTransactionCount'
+
 export { getBlockNumber } from './getBlockNumber'
 export type { GetBlockNumberResponse } from './getBlockNumber'
 

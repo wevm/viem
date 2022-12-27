@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "getBlock": [Function],
       "getBlockNumber": [Function],
+      "getBlockTransactionCount": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
     }
