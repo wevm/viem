@@ -1,7 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { accounts, initialBlockNumber, publicClient } from '../../../test'
+import {
+  accounts,
+  initialBlockNumber,
+  publicClient,
+  testClient,
+} from '../../../test'
 import { parseEther, parseGwei } from '../../utils'
+import { reset } from '../test'
 import { estimateGas } from './estimateGas'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
@@ -17,6 +23,10 @@ test('estimates gas', async () => {
 })
 
 test('args: blockNumber', async () => {
+  await reset(testClient, {
+    blockNumber: BigInt(parseInt(process.env.VITE_ANVIL_BLOCK_NUMBER!)),
+    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
+  })
   expect(
     await estimateGas(publicClient, {
       blockNumber: initialBlockNumber,
