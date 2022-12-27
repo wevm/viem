@@ -1,6 +1,6 @@
 # setRpcUrl
 
-Enable or disable logging on the test node network.
+Sets the backend RPC URL.
 
 ## Import 
 

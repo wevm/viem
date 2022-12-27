@@ -51,6 +51,7 @@ export {
   getBlock,
   getBlockNumber,
   getBlockTransactionCount,
+  getChainId,
   getTransaction,
   getTransactionConfirmations,
   getTransactionCount,

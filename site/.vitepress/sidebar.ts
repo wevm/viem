@@ -79,7 +79,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Chain',
           items: [
-            { text: 'getChain 🚧', link: '/docs/actions/public/getChain' },
+            { text: 'getChainId', link: '/docs/actions/public/getChainId' },
           ],
         },
         {

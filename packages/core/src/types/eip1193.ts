@@ -183,7 +183,7 @@ export type PublicRequests = {
      */
     method: 'net_version'
     params?: never
-  }): Promise<string>
+  }): Promise<Quantity>
   request(args: {
     /**
      * @description Returns the number of the most recent block seen by this client

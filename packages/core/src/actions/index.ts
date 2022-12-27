@@ -27,6 +27,8 @@ export type {
   WatchBlocksArgs,
 } from './block'
 
+export { getChainId } from './chain'
+
 export {
   dropTransaction,
   getAutomine,

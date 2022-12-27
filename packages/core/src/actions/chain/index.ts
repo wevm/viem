@@ -1,0 +1,1 @@
+export { getChainId } from './getChainId'
