@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { accounts, testClient, walletClient } from '../../../test'
 import { parseEther } from '../../utils'
-import { sendTransaction } from '../transaction'
+import { sendTransaction } from '../wallet/sendTransaction'
 import { impersonateAccount } from './impersonateAccount'
 
 const account = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'

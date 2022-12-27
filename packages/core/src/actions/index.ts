@@ -1,33 +1,47 @@
-export { getBalance, getTransactionCount, requestAccounts } from './account'
+export {
+  getBalance,
+  getBlock,
+  getBlockNumber,
+  getBlockNumberCache,
+  getBlockTransactionCount,
+  getChainId,
+  getTransaction,
+  getTransactionConfirmations,
+  getTransactionCount,
+  getTransactionReceipt,
+  waitForTransactionReceipt,
+  watchBlockNumber,
+  watchBlocks,
+} from './public'
 export type {
   GetBalanceArgs,
   GetBalanceResponse,
-  GetTransactionCountArgs,
-  GetTransactionCountResponse,
-} from './account'
-
-export {
-  getBlock,
-  getBlockNumber,
-  getBlockTransactionCount,
-  watchBlockNumber,
-  watchBlocks,
-} from './block'
-export type {
   GetBlockArgs,
+  GetBlockNumberArgs,
   GetBlockNumberResponse,
   GetBlockResponse,
   GetBlockTransactionCountArgs,
   GetBlockTransactionCountResponse,
+  GetTransactionArgs,
+  GetTransactionConfirmationsArgs,
+  GetTransactionConfirmationsResponse,
+  GetTransactionCountArgs,
+  GetTransactionCountResponse,
+  GetTransactionReceiptArgs,
+  GetTransactionReceiptResponse,
+  GetTransactionResponse,
   OnBlock,
   OnBlockNumber,
   OnBlockNumberResponse,
   OnBlockResponse,
+  ReplacementReason,
+  ReplacementResponse,
+  WaitForTransactionReceiptArgs,
+  WaitForTransactionReceiptResponse,
+  WaitForTransactionReceiptTimeoutError,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
-} from './block'
-
-export { getChainId } from './chain'
+} from './public'
 
 export {
   dropTransaction,
@@ -81,22 +95,10 @@ export type {
   StopImpersonatingAccountArgs,
 } from './test'
 
-export {
-  getTransaction,
-  getTransactionConfirmations,
-  getTransactionReceipt,
-  sendTransaction,
-  waitForTransactionReceipt,
-} from './transaction'
+export { requestAccounts, sendTransaction } from './wallet'
 export type {
-  GetTransactionArgs,
-  GetTransactionConfirmationsArgs,
-  GetTransactionConfirmationsResponse,
-  GetTransactionResponse,
-  GetTransactionReceiptArgs,
-  GetTransactionReceiptResponse,
+  FormattedTransactionRequest,
+  InvalidGasArgumentsError,
   SendTransactionArgs,
   SendTransactionResponse,
-  WaitForTransactionReceiptArgs,
-  WaitForTransactionReceiptResponse,
-} from './transaction'
+} from './wallet'

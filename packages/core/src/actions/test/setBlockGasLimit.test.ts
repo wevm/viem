@@ -4,7 +4,7 @@ import { publicClient, testClient } from '../../../test'
 import { parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
 
-import { getBlock } from '../block'
+import { getBlock } from '../public/getBlock'
 import { setBlockGasLimit } from './setBlockGasLimit'
 
 test('sets block gas limit', async () => {

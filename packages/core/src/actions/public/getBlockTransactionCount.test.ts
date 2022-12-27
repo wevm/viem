@@ -9,9 +9,8 @@ import {
 } from '../../../test'
 import { parseEther } from '../../utils'
 import { mine } from '../test'
-import { sendTransaction } from '../transaction/sendTransaction'
+import { sendTransaction } from '..'
 import { getBlock } from './getBlock'
-
 import { getBlockTransactionCount } from './getBlockTransactionCount'
 
 test('default', async () => {

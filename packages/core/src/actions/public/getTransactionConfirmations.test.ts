@@ -5,7 +5,7 @@ import { parseEther } from '../../utils'
 import { mine } from '../test'
 import { getTransactionConfirmations } from './getTransactionConfirmations'
 import { getTransactionReceipt } from './getTransactionReceipt'
-import { sendTransaction } from './sendTransaction'
+import { sendTransaction } from '..'
 
 test('default', async () => {
   const { hash } = await sendTransaction(walletClient, {

@@ -1,11 +1,10 @@
 import { expect, test } from 'vitest'
 
 import { parseEther } from '../../utils'
-import { sendTransaction } from '../transaction'
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
-
-import { getTransactionCount } from './getTransactionCount'
+import { sendTransaction } from '..'
 import { mine, setNonce } from '../test'
+import { getTransactionCount } from './getTransactionCount'
 
 test('gets transaction count', async () => {
   await setNonce(testClient, { address: accounts[0].address, nonce: 0 })

@@ -5,7 +5,7 @@ import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
 } from '../../utils'
-import { getBlockNumber } from '../block'
+import { getBlockNumber } from './getBlockNumber'
 import { getTransaction } from './getTransaction'
 
 export type GetTransactionConfirmationsArgs<TChain extends Chain> =

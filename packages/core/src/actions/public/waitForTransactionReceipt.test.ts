@@ -7,7 +7,7 @@ import {
   waitForTransactionReceipt,
 } from './waitForTransactionReceipt'
 import { hexToNumber, parseEther, parseGwei } from '../../utils'
-import { sendTransaction } from './sendTransaction'
+import { sendTransaction } from '..'
 import { mine, setIntervalMining } from '../test'
 
 const sourceAccount = accounts[0]

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient } from '../../../test'
 import { parseEther } from '../../utils'
-import { getBalance } from '../account'
+import { getBalance } from '../public/getBalance'
 import { mine, setBalance } from '../test'
 
 import { sendUnsignedTransaction } from './sendUnsignedTransaction'

@@ -2,8 +2,7 @@ import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { parseEther } from '../../utils'
-import { getBlockNumber } from '../block'
-import { sendTransaction } from '../transaction'
+import { getBlockNumber, sendTransaction } from '..'
 import { mine, setBalance } from '../test'
 
 import { getBalance } from './getBalance'

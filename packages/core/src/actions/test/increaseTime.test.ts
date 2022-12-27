@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../../test'
 
-import { getBlock } from '../block'
+import { getBlock } from '../public/getBlock'
 import { increaseTime } from './increaseTime'
 import { mine } from './mine'
 

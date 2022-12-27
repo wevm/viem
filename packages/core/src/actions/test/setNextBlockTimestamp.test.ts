@@ -3,7 +3,7 @@ import { expect, test } from 'vitest'
 import { publicClient, testClient } from '../../../test'
 import { wait } from '../../utils/wait'
 
-import { getBlock } from '../block'
+import { getBlock } from '../public/getBlock'
 import { setNextBlockTimestamp } from './setNextBlockTimestamp'
 
 test('sets block timestamp interval', async () => {

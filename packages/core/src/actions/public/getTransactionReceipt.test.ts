@@ -6,15 +6,14 @@ import { createPublicClient, http } from '../../clients'
 import type { TransactionReceipt } from '../../types'
 import { parseEther, parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
-import { getBlock } from '../block'
 import { mine } from '../test'
+import { getBlock, sendTransaction } from '..'
 import { getTransaction } from './getTransaction'
 
 import {
   TransactionReceiptNotFoundError,
   getTransactionReceipt,
 } from './getTransactionReceipt'
-import { sendTransaction } from './sendTransaction'
 
 test('gets transaction receipt', async () => {
   const receipt = await getTransactionReceipt(publicClient, {

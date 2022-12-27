@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient } from '../../../test'
-import { getTransactionCount } from '../account'
+import { getTransactionCount } from '../public/getTransactionCount'
 import { setNonce } from '../test/setNonce'
 
 const targetAccount = accounts[0]

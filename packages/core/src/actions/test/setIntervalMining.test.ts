@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../../test'
 import { wait } from '../../utils/wait'
-import { getBlockNumber } from '../block'
+import { getBlockNumber } from '../public/getBlockNumber'
 import { mine } from './mine'
 
 import { setIntervalMining } from './setIntervalMining'

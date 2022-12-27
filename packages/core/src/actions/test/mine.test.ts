@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../../test'
 
-import { getBlockNumber } from '../block'
+import { getBlockNumber } from '../public/getBlockNumber'
 import { mine } from './mine'
 
 test('mines 1 block', async () => {
