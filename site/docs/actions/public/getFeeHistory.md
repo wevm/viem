@@ -63,7 +63,7 @@ Highest number block of the requested range.
 ```ts
 const feeHistory = await getFeeHistory(publicClient, {
   blockCount: 4,
-  blockNumber: 1551231n // [!code focus]
+  blockNumber: 1551231n, // [!code focus]
   rewardPercentiles: [25, 75]
 })
 ```
@@ -78,7 +78,7 @@ Highest number block of the requested range.
 ```ts
 const feeHistory = await getFeeHistory(publicClient, {
   blockCount: 4,
-  blockTag: 'safe' // [!code focus]
+  blockTag: 'safe', // [!code focus]
   rewardPercentiles: [25, 75]
 })
 ```

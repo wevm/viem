@@ -90,11 +90,11 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/estimateGas',
             },
             {
-              text: 'getFeeHistory 🚧',
+              text: 'getFeeHistory',
               link: '/docs/actions/public/getFeeHistory',
             },
             {
-              text: 'getGasPrice 🚧',
+              text: 'getGasPrice',
               link: '/docs/actions/public/getGasPrice',
             },
             {

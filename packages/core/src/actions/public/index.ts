@@ -24,6 +24,9 @@ export { getChainId } from './getChainId'
 export { getFeeHistory } from './getFeeHistory'
 export type { GetFeeHistoryArgs, GetFeeHistoryResponse } from './getFeeHistory'
 
+export { getGasPrice } from './getGasPrice'
+export type { GetGasPriceResponse } from './getGasPrice'
+
 export { getTransaction } from './getTransaction'
 export type {
   GetTransactionArgs,
