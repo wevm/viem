@@ -1,3 +1,6 @@
+export { call } from './call'
+export type { CallArgs, CallResponse, FormattedCall } from './call'
+
 export { estimateGas } from './estimateGas'
 export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
 

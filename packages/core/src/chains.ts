@@ -57,10 +57,11 @@ export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
   formatters?: TFormatters
 }
 
-export function defineChain<TFormatters extends Formatters = Formatters>(
-  chain: Chain<TFormatters>,
-) {
-  return { ...chain }
+export function defineChain<
+  TFormatters extends Formatters = Formatters,
+  TChain extends Chain<TFormatters> = Chain<TFormatters>,
+>(chain: TChain) {
+  return chain
 }
 
 function defineFormatter<TSource extends Record<string, unknown>, TFormatted>({

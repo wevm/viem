@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
-import { celo, localhost } from '../../chains'
+import { celo, defineChain, localhost } from '../../chains'
 import { hexToNumber, numberToHex, parseEther, parseGwei } from '../../utils'
 import { getBalance, getBlock } from '..'
 import { mine, setBalance } from '../test'
@@ -58,15 +58,17 @@ test('sends transaction', async () => {
 test('sends transaction (w/ formatter)', async () => {
   await setup()
 
+  const chain = defineChain({
+    ...localhost,
+    formatters: {
+      transactionRequest: celo.formatters.transactionRequest,
+    },
+  })
+
   expect(
     (
       await sendTransaction(walletClient, {
-        chain: {
-          ...localhost,
-          formatters: {
-            transactionRequest: celo.formatters?.transactionRequest,
-          },
-        },
+        chain,
         request: {
           from: sourceAccount.address,
           to: targetAccount.address,

@@ -5,6 +5,7 @@ import * as actions from './index'
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
+      "call": [Function],
       "dropTransaction": [Function],
       "estimateGas": [Function],
       "getAutomine": [Function],

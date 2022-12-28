@@ -1,4 +1,5 @@
 export {
+  call,
   estimateGas,
   getBalance,
   getBlock,
@@ -17,6 +18,8 @@ export {
   watchBlocks,
 } from './public'
 export type {
+  CallArgs,
+  CallResponse,
   EstimateGasArgs,
   EstimateGasResponse,
   GetBalanceArgs,

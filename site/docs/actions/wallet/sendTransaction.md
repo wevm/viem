@@ -32,7 +32,7 @@ The transaction hash.
 
 ## Configuration
 
-### request
+### params
 
 - **Type:** [`TransactionRequest`](/TODO)
 

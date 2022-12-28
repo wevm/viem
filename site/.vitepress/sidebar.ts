@@ -136,7 +136,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Transaction',
           items: [
-            { text: 'call 🚧', link: '/docs/actions/public/call' },
+            { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'getTransaction',
               link: '/docs/actions/public/getTransaction',

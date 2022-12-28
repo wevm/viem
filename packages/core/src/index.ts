@@ -1,4 +1,6 @@
 export type {
+  CallArgs,
+  CallResponse,
   EstimateGasArgs,
   EstimateGasResponse,
   DropTransactionArgs,
@@ -50,6 +52,7 @@ export type {
   WatchBlocksArgs,
 } from './actions'
 export {
+  call,
   estimateGas,
   dropTransaction,
   getAutomine,
