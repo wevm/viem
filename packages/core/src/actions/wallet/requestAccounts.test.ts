@@ -4,7 +4,7 @@ import { walletClient } from '../../../test'
 
 import { requestAccounts } from './requestAccounts'
 
-test('gets block number', async () => {
+test('requests accounts', async () => {
   expect(await requestAccounts(walletClient!)).toMatchInlineSnapshot(`
       [
         "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",

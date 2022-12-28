@@ -1,3 +1,5 @@
+export { getAccounts } from './getAccounts'
+
 export { requestAccounts } from './requestAccounts'
 
 export { InvalidGasArgumentsError, sendTransaction } from './sendTransaction'

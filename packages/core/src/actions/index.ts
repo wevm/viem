@@ -106,7 +106,7 @@ export type {
   StopImpersonatingAccountArgs,
 } from './test'
 
-export { requestAccounts, sendTransaction } from './wallet'
+export { getAccounts, requestAccounts, sendTransaction } from './wallet'
 export type {
   FormattedTransactionRequest,
   InvalidGasArgumentsError,

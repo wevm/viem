@@ -175,7 +175,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account',
           items: [
             {
-              text: 'getAccounts 🚧',
+              text: 'getAccounts',
               link: '/docs/actions/wallet/getAccounts',
             },
             {

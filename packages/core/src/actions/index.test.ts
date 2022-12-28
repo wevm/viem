@@ -8,6 +8,7 @@ test('exports actions', () => {
       "call": [Function],
       "dropTransaction": [Function],
       "estimateGas": [Function],
+      "getAccounts": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
       "getBlock": [Function],

@@ -5,7 +5,7 @@ import { BaseError } from '../BaseError'
 
 const addressRegex = /^(0x)?[a-fA-F0-9]{40}$/
 
-function checksumAddress(address_: Address): Address {
+export function checksumAddress(address_: Address): Address {
   const hexAddress = address_.substring(2).toLowerCase()
   const bytes = new TextEncoder().encode(hexAddress)
   const hash = keccak_256(bytes)

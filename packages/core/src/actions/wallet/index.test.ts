@@ -6,6 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "InvalidGasArgumentsError": [Function],
+      "getAccounts": [Function],
       "requestAccounts": [Function],
       "sendTransaction": [Function],
     }
