@@ -22,7 +22,7 @@ export type SendTransactionArgs<TChain extends Chain = Chain> = {
 export type SendTransactionResponse = { hash: `0x${string}` }
 
 export async function sendTransaction<TChain extends Chain>(
-  client: WalletClient,
+  client: WalletClient<any, TChain>,
   { chain, request }: SendTransactionArgs<TChain>,
 ): Promise<SendTransactionResponse> {
   if (

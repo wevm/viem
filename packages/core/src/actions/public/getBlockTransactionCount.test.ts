@@ -22,7 +22,7 @@ test('args: blockNumber', async () => {
     await getBlockTransactionCount(publicClient, {
       blockNumber: initialBlockNumber - 1n,
     }),
-  ).toBe(99)
+  ).toBe(120)
 })
 
 test('args: blockHash', async () => {
@@ -33,7 +33,7 @@ test('args: blockHash', async () => {
     await getBlockTransactionCount(publicClient, {
       blockHash: block.hash!,
     }),
-  ).toBe(99)
+  ).toBe(120)
 })
 
 test('args: blockTag', async () => {

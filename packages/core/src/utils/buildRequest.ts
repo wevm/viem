@@ -22,8 +22,7 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         if (err.code === -32005) throw new LimitExceededRpcError(err)
         if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
       }
-      if (err instanceof BaseError)
-        throw new RequestError(err, { humanMessage: err.humanMessage })
+      if (err instanceof BaseError) throw err
       throw new UnknownRpcError(err as Error)
     }
   }) as TRequest

@@ -4,12 +4,12 @@ import { withTimeout } from './promise/withTimeout'
 
 let id = 0
 
-type Success<T> = {
+type SuccessResult<T> = {
   method?: never
   result: T
   error?: never
 }
-type Error<T> = {
+type ErrorResult<T> = {
   method?: never
   result?: never
   error: T
@@ -37,7 +37,11 @@ type RpcRequest = { method: string; params?: any[] }
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
   id: number
-} & (Success<TResult> | Error<TError> | Subscription<TResult, TError>)
+} & (
+  | SuccessResult<TResult>
+  | ErrorResult<TError>
+  | Subscription<TResult, TError>
+)
 
 ///////////////////////////////////////////////////
 // HTTP
@@ -358,6 +362,7 @@ export class RpcError extends BaseError {
         `URL: ${url}`,
         `Request body: ${JSON.stringify(body)}`,
       ].join('\n'),
+      cause: error as any,
       details: error.message,
     })
     this.code = error.code
