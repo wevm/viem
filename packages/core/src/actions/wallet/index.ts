@@ -8,3 +8,6 @@ export type {
   SendTransactionArgs,
   SendTransactionResponse,
 } from './sendTransaction'
+
+export { signMessage } from './signMessage'
+export type { SignMessageArgs, SignMessageResponse } from './signMessage'

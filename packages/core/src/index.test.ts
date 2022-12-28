@@ -92,6 +92,7 @@ test('exports actions', () => {
       "setNextBlockTimestamp": [Function],
       "setNonce": [Function],
       "setStorageAt": [Function],
+      "signMessage": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "transactionType": {

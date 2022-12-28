@@ -92,6 +92,11 @@ export const walletClient = createWalletClient({
           return [accounts[0].address]
         }
 
+        if (method === 'personal_sign') {
+          method = 'eth_sign'
+          params = [params[1], params[0]]
+        }
+
         const { result } = await rpc.http(localhost.rpcUrls.default.http[0], {
           body: {
             method,

@@ -927,6 +927,22 @@ export type SignableRequests = {
     method: 'eth_syncing'
     params?: never
   }): Promise<NetworkSync | false>
+  request(args: {
+    /**
+     * @description Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`
+     * @link https://eips.ethereum.org/EIPS/eip-1474
+     * @example
+     * provider.request({ method: 'personal_sign', params: ['0x...', '0x...'] })
+     * // => '0x...'
+     * */
+    method: 'personal_sign'
+    params: [
+      /** Data to sign */
+      data: Data,
+      /** Address to use for signing */
+      address: Data,
+    ]
+  }): Promise<Data>
 }
 
 export type WalletRequests = {

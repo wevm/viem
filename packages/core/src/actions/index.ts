@@ -106,10 +106,17 @@ export type {
   StopImpersonatingAccountArgs,
 } from './test'
 
-export { getAccounts, requestAccounts, sendTransaction } from './wallet'
+export {
+  getAccounts,
+  requestAccounts,
+  sendTransaction,
+  signMessage,
+} from './wallet'
 export type {
   FormattedTransactionRequest,
   InvalidGasArgumentsError,
   SendTransactionArgs,
   SendTransactionResponse,
+  SignMessageArgs,
+  SignMessageResponse,
 } from './wallet'
