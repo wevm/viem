@@ -48,6 +48,7 @@ test('exports actions', () => {
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],
       "getChainId": [Function],
+      "getFeeHistory": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],

@@ -1,6 +1,8 @@
 export type { BlockFormatter, FormattedBlock } from './block'
 export { formatBlock } from './block'
 
+export { formatFeeHistory } from './feeHistory'
+
 export type { ExtractFormatter, FormatOptions, Formatted } from './format'
 export { format } from './format'
 

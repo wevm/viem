@@ -244,7 +244,7 @@ export type PublicRequests = {
       /** Highest number block of the requested range. */
       newestBlock: BlockNumber | BlockTag,
       /** A monotonically increasing list of percentile values to sample from each block's effective priority fees per gas in ascending order, weighted by gas used. */
-      rewardPercentiles: string[] | undefined,
+      rewardPercentiles: number[] | undefined,
     ]
   }): Promise<FeeHistory>
   request(args: {
