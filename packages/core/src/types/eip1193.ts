@@ -564,7 +564,7 @@ export type PublicRequests = {
      * // => '0x...'
      * */
     method: 'eth_sendRawTransaction'
-    params?: never
+    params: [signedTransaction: Data]
   }): Promise<Data>
   request(args: {
     /**
