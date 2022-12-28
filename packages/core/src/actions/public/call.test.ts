@@ -98,16 +98,7 @@ test('errors: contract revert (contract error)', async () => {
         to: wagmiContractAddress,
       },
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "RPC Request failed.
-
-    URL: ws://127.0.0.1:8545/
-    Request body: {\\"method\\":\\"eth_call\\",\\"params\\":[{\\"data\\":\\"0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4\\",\\"from\\":\\"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266\\",\\"to\\":\\"0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2\\"},\\"latest\\"]}
-
-    Details: execution reverted: Token ID is taken
-    Internal Error: {\\"code\\":3,\\"message\\":\\"execution reverted: Token ID is taken\\",\\"data\\":\\"0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000\\"}
-    Version: viem@1.0.2"
-  `)
+  ).rejects.toThrowError(`execution reverted: Token ID is taken`)
 })
 
 test('errors: contract revert (insufficient params)', async () => {
@@ -119,14 +110,5 @@ test('errors: contract revert (insufficient params)', async () => {
         to: wagmiContractAddress,
       },
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "RPC Request failed.
-
-    URL: ws://127.0.0.1:8545/
-    Request body: {\\"method\\":\\"eth_call\\",\\"params\\":[{\\"data\\":\\"0xa0712d68\\",\\"from\\":\\"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266\\",\\"to\\":\\"0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2\\"},\\"latest\\"]}
-
-    Details: execution reverted
-    Internal Error: {\\"code\\":3,\\"message\\":\\"execution reverted\\",\\"data\\":\\"0x\\"}
-    Version: viem@1.0.2"
-  `)
+  ).rejects.toThrowError(`execution reverted`)
 })
