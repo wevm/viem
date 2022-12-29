@@ -1,5 +1,6 @@
 import { createWalletClient, ethereumProvider } from 'viem/clients'
 
+import { AddChain } from '../actions/AddChain'
 import { RequestAccountAddresses } from '../actions/RequestAccountAddresses'
 import { SendTransaction } from '../actions/SendTransaction'
 
@@ -22,6 +23,9 @@ export function InjectedWallet() {
       <hr />
       <h3>sendTransaction</h3>
       <SendTransaction client={client} />
+      <hr />
+      <h3>add chain</h3>
+      <AddChain client={client} />
     </div>
   )
 }

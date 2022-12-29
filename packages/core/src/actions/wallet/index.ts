@@ -1,3 +1,5 @@
+export { addChain } from './addChain'
+
 export { getAccounts } from './getAccounts'
 
 export { requestAccounts } from './requestAccounts'

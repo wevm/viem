@@ -27,7 +27,7 @@ export class BaseError extends Error {
     const details =
       args.cause instanceof BaseError
         ? args.cause.details
-        : args.cause instanceof Error
+        : args.cause?.message
         ? args.cause.message
         : args.details!
     const docsPath =
@@ -39,12 +39,12 @@ export class BaseError extends Error {
       ...(docsPath ? ['', 'Docs: https://viem.sh' + docsPath] : []),
       '',
       'Details: ' + details,
+      'Version: viem@' + version,
       ...(args.cause &&
       !(args.cause instanceof BaseError) &&
       Object.keys(args.cause).length > 0
         ? ['Internal Error: ' + JSON.stringify(args.cause)]
         : []),
-      'Version: viem@' + version,
     ].join('\n')
 
     super(message)

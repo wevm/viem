@@ -56,6 +56,7 @@ export type {
   WatchBlocksArgs,
 } from './actions'
 export {
+  addChain,
   call,
   estimateGas,
   dropTransaction,

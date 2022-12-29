@@ -78,8 +78,8 @@ describe('http', () => {
       Request body: {\\"method\\":\\"eth_wagmi\\"}
 
       Details: Method not found
-      Internal Error: {\\"code\\":-32601,\\"message\\":\\"Method not found\\"}
-      Version: viem@1.0.2"
+      Version: viem@1.0.2
+      Internal Error: {\\"code\\":-32601,\\"message\\":\\"Method not found\\"}"
     `)
   })
 
@@ -714,8 +714,8 @@ describe('webSocket (subscription)', () => {
       Request body: {"method":"eth_subscribe","params":["fakeHeadz"]}
 
       Details: data did not match any variant of untagged enum EthRpcCall
-      Internal Error: {"code":-32602,"message":"data did not match any variant of untagged enum EthRpcCall"}
-      Version: viem@1.0.2]
+      Version: viem@1.0.2
+      Internal Error: {"code":-32602,"message":"data did not match any variant of untagged enum EthRpcCall"}]
     `)
   })
 })
@@ -969,8 +969,8 @@ describe('webSocketAsync', () => {
       Request body: {\\"method\\":\\"wagmi_lol\\"}
 
       Details: data did not match any variant of untagged enum EthRpcCall
-      Internal Error: {\\"code\\":-32602,\\"message\\":\\"data did not match any variant of untagged enum EthRpcCall\\"}
-      Version: viem@1.0.2"
+      Version: viem@1.0.2
+      Internal Error: {\\"code\\":-32602,\\"message\\":\\"data did not match any variant of untagged enum EthRpcCall\\"}"
     `,
     )
   })
@@ -1012,8 +1012,8 @@ test('RpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: Error
-    Internal Error: {"code":420,"message":"Error"}
-    Version: viem@1.0.2]
+    Version: viem@1.0.2
+    Internal Error: {"code":420,"message":"Error"}]
   `)
 })
 

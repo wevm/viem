@@ -23,6 +23,7 @@ test('exports actions', () => {
       "TimeoutError": [Function],
       "TransactionRejectedRpcError": [Function],
       "UrlRequiredError": [Function],
+      "addChain": [Function],
       "call": [Function],
       "createClient": [Function],
       "createPublicClient": [Function],

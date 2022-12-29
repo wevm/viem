@@ -76,19 +76,19 @@ export type Events = {
 
 // Provider Requests
 
-export type NativeCurrency = {
+export type Chain = {
   /** A 0x-prefixed hexadecimal string */
   chainId: string
+  /** The chain name. */
   chainName: string
+  /** Native currency for the chain. */
   nativeCurrency?: {
     name: string
-    /** 2-6 characters long */
     symbol: string
     decimals: number
   }
   rpcUrls: string[]
   blockExplorerUrls?: string[]
-  /** Currently ignored. */
   iconUrls?: string[]
 }
 
@@ -1013,7 +1013,7 @@ export type WalletRequests = {
      * // => { ... }
      */
     method: 'wallet_addEthereumChain'
-    params: NativeCurrency[]
+    params: [chain: Chain]
   }): Promise<null>
   request(args: {
     /**

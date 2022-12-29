@@ -107,6 +107,7 @@ export type {
 } from './test'
 
 export {
+  addChain,
   getAccounts,
   requestAccounts,
   sendTransaction,

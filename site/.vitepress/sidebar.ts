@@ -188,7 +188,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Assets',
           items: [
             {
-              text: 'watchAsset 🚧',
+              text: 'watchAsset',
               link: '/docs/actions/wallet/watchAsset',
             },
           ],
@@ -197,7 +197,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Chain',
           items: [
             {
-              text: 'addChain 🚧',
+              text: 'addChain',
               link: '/docs/actions/wallet/addChain',
             },
             {

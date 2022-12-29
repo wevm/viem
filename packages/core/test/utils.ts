@@ -102,6 +102,9 @@ export const walletClient = createWalletClient({
           }
           return true
         }
+        if (method === 'wallet_addEthereumChain') {
+          return null
+        }
 
         const { result } = await rpc.http(localhost.rpcUrls.default.http[0], {
           body: {
