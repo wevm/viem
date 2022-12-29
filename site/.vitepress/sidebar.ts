@@ -185,6 +185,28 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Assets',
+          items: [
+            {
+              text: 'watchAsset 🚧',
+              link: '/docs/actions/wallet/watchAsset',
+            },
+          ],
+        },
+        {
+          text: 'Chain',
+          items: [
+            {
+              text: 'addChain 🚧',
+              link: '/docs/actions/wallet/addChain',
+            },
+            {
+              text: 'switchChain 🚧',
+              link: '/docs/actions/wallet/switchChain',
+            },
+          ],
+        },
+        {
           text: 'Data',
           items: [
             {
@@ -194,6 +216,19 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'signTypedData 🚧',
               link: '/docs/actions/wallet/signTypedData',
+            },
+          ],
+        },
+        {
+          text: 'Permissions',
+          items: [
+            {
+              text: 'getPermissions 🚧',
+              link: '/docs/actions/wallet/getPermissions',
+            },
+            {
+              text: 'requestPermissions 🚧',
+              link: '/docs/actions/wallet/requestPermissions',
             },
           ],
         },
