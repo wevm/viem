@@ -111,6 +111,7 @@ export {
   requestAccounts,
   sendTransaction,
   signMessage,
+  watchAsset,
 } from './wallet'
 export type {
   FormattedTransactionRequest,
@@ -119,4 +120,6 @@ export type {
   SendTransactionResponse,
   SignMessageArgs,
   SignMessageResponse,
+  WatchAssetArgs,
+  WatchAssetResponse,
 } from './wallet'

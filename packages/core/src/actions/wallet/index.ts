@@ -11,3 +11,6 @@ export type {
 
 export { signMessage } from './signMessage'
 export type { SignMessageArgs, SignMessageResponse } from './signMessage'
+
+export { watchAsset } from './watchAsset'
+export type { WatchAssetArgs, WatchAssetResponse } from './watchAsset'

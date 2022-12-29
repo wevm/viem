@@ -10,6 +10,7 @@ test('exports actions', () => {
       "requestAccounts": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],
+      "watchAsset": [Function],
     }
   `)
 })

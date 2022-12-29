@@ -101,6 +101,7 @@ test('exports actions', () => {
         "0x2": "eip1559",
       },
       "waitForTransactionReceipt": [Function],
+      "watchAsset": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
       "webSocket": [Function],

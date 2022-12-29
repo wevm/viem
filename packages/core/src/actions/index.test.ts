@@ -51,6 +51,7 @@ test('exports actions', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "waitForTransactionReceipt": [Function],
+      "watchAsset": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
     }

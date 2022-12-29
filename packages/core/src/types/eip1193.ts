@@ -1,4 +1,3 @@
-import type { RpcError } from '../utils'
 import type { Address } from './address'
 import type { BlockTag } from './block'
 import type { Data } from './data'
@@ -15,6 +14,21 @@ import type {
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc'
+
+//////////////////////////////////////////////////
+
+// Errors
+
+export class RpcError extends Error {
+  code: number
+  details: string
+
+  constructor(code: number, message: string) {
+    super(message)
+    this.code = code
+    this.details = message
+  }
+}
 
 //////////////////////////////////////////////////
 
@@ -1013,7 +1027,7 @@ export type WalletRequests = {
     params: [chain: { chainId: string }]
   }): Promise<null>
   /**
-   * @description Requests that the user tracks the token in the browser extension. Returns a boolean indicating if the token was successfully added.
+   * @description Requests that the user tracks the token in their wallet. Returns a boolean indicating if the token was successfully added.
    * @link https://eips.ethereum.org/EIPS/eip-747
    * @example
    * provider.request({ method: 'wallet_watchAsset' }] })

@@ -13,6 +13,7 @@ import { rpc } from '../src/utils'
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
+import { RpcError } from '../src/types/eip1193'
 
 export const accounts = [
   {
@@ -91,10 +92,15 @@ export const walletClient = createWalletClient({
         if (method === 'eth_requestAccounts') {
           return [accounts[0].address]
         }
-
         if (method === 'personal_sign') {
           method = 'eth_sign'
           params = [params[1], params[0]]
+        }
+        if (method === 'wallet_watchAsset') {
+          if (params[0].type === 'ERC721') {
+            throw new RpcError(-32602, 'Token type ERC721 not supported.')
+          }
+          return true
         }
 
         const { result } = await rpc.http(localhost.rpcUrls.default.http[0], {

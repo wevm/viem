@@ -50,6 +50,8 @@ export type {
   StopImpersonatingAccountArgs,
   WaitForTransactionReceiptArgs,
   WaitForTransactionReceiptResponse,
+  WatchAssetArgs,
+  WatchAssetResponse,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
 } from './actions'
@@ -98,6 +100,7 @@ export {
   snapshot,
   stopImpersonatingAccount,
   waitForTransactionReceipt,
+  watchAsset,
   watchBlockNumber,
   watchBlocks,
 } from './actions'
