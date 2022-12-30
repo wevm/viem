@@ -8,6 +8,7 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
     try {
       return await request(args)
     } catch (err_) {
+      console.log(err_)
       let err = err_ as unknown as RpcError
       if (err.code === -32700) throw new ParseRpcError(err)
       if (err.code === -32600) throw new InvalidRequestRpcError(err)
@@ -21,6 +22,8 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
       if (err.code === -32004) throw new MethodNotSupportedRpcError(err)
       if (err.code === -32005) throw new LimitExceededRpcError(err)
       if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
+      // TODO: 4001 - user rejected
+      // TODO: 4902 - switch chain error
       if (err_ instanceof BaseError) throw err_
       throw new UnknownRpcError(err as Error)
     }

@@ -96,6 +96,7 @@ test('exports actions', () => {
       "signMessage": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
+      "switchChain": [Function],
       "transactionType": {
         "0x0": "legacy",
         "0x1": "eip2930",

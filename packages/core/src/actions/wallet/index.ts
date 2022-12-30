@@ -14,5 +14,8 @@ export type {
 export { signMessage } from './signMessage'
 export type { SignMessageArgs, SignMessageResponse } from './signMessage'
 
+export { switchChain } from './switchChain'
+export type { SwitchChainArgs } from './switchChain'
+
 export { watchAsset } from './watchAsset'
 export type { WatchAssetArgs, WatchAssetResponse } from './watchAsset'

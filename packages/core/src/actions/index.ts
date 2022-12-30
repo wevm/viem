@@ -112,6 +112,7 @@ export {
   requestAccounts,
   sendTransaction,
   signMessage,
+  switchChain,
   watchAsset,
 } from './wallet'
 export type {
@@ -121,6 +122,7 @@ export type {
   SendTransactionResponse,
   SignMessageArgs,
   SignMessageResponse,
+  SwitchChainArgs,
   WatchAssetArgs,
   WatchAssetResponse,
 } from './wallet'

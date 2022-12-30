@@ -201,7 +201,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/wallet/addChain',
             },
             {
-              text: 'switchChain 🚧',
+              text: 'switchChain',
               link: '/docs/actions/wallet/switchChain',
             },
           ],

@@ -11,6 +11,7 @@ test('exports actions', () => {
       "requestAccounts": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],
+      "switchChain": [Function],
       "watchAsset": [Function],
     }
   `)

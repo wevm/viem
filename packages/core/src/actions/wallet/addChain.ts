@@ -1,10 +1,6 @@
 import type { Chain } from '../../chains'
 import type { WalletClient } from '../../clients'
-import type { WatchAssetParams } from '../../types/eip1193'
 import { numberToHex } from '../../utils'
-
-export type WatchAssetArgs = WatchAssetParams
-export type WatchAssetResponse = boolean
 
 export async function addChain(client: WalletClient, chain: Chain) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain

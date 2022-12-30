@@ -102,7 +102,11 @@ export const walletClient = createWalletClient({
           }
           return true
         }
-        if (method === 'wallet_addEthereumChain') {
+        if (method === 'wallet_addEthereumChain') return null
+        if (method === 'wallet_switchEthereumChain') {
+          if (params[0].chainId === '0xfa') {
+            throw new RpcError(-4902, 'Unrecognized chain.')
+          }
           return null
         }
 
