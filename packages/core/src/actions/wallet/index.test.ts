@@ -8,6 +8,7 @@ test('exports actions', () => {
       "InvalidGasArgumentsError": [Function],
       "addChain": [Function],
       "getAccounts": [Function],
+      "getPermissions": [Function],
       "requestAccounts": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],

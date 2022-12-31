@@ -995,7 +995,7 @@ export type WalletRequests = {
   }): Promise<WalletPermission[]>
   request(args: {
     /**
-     * @description Gets the caller's current permissions.
+     * @description Gets the wallets current permissions.
      * @link https://eips.ethereum.org/EIPS/eip-2255
      * @example
      * provider.request({ method: 'wallet_getPermissions' })

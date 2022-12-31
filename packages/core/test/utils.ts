@@ -109,6 +109,19 @@ export const walletClient = createWalletClient({
           }
           return null
         }
+        if (method === 'wallet_getPermissions')
+          return [
+            {
+              invoker: 'https://example.com',
+              parentCapability: 'eth_accounts',
+              caveats: [
+                {
+                  type: 'filterResponse',
+                  value: ['0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb'],
+                },
+              ],
+            },
+          ]
 
         const { result } = await rpc.http(localhost.rpcUrls.default.http[0], {
           body: {

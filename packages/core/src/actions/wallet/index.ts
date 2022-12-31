@@ -2,6 +2,9 @@ export { addChain } from './addChain'
 
 export { getAccounts } from './getAccounts'
 
+export { getPermissions } from './getPermissions'
+export type { GetPermissionsResponse } from './getPermissions'
+
 export { requestAccounts } from './requestAccounts'
 
 export { InvalidGasArgumentsError, sendTransaction } from './sendTransaction'

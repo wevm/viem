@@ -52,6 +52,7 @@ test('exports actions', () => {
       "getChainId": [Function],
       "getFeeHistory": [Function],
       "getGasPrice": [Function],
+      "getPermissions": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],

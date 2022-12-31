@@ -109,6 +109,7 @@ export type {
 export {
   addChain,
   getAccounts,
+  getPermissions,
   requestAccounts,
   sendTransaction,
   signMessage,
@@ -117,6 +118,7 @@ export {
 } from './wallet'
 export type {
   FormattedTransactionRequest,
+  GetPermissionsResponse,
   InvalidGasArgumentsError,
   SendTransactionArgs,
   SendTransactionResponse,
