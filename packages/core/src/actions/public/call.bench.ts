@@ -1,6 +1,11 @@
 import { bench, describe } from 'vitest'
 
-import { accounts, ethersProvider, publicClient } from '../../../test'
+import {
+  accounts,
+  ethersProvider,
+  publicClient,
+  web3Provider,
+} from '../../../test'
 
 import { call } from './call'
 
@@ -20,6 +25,14 @@ describe('Call', () => {
 
   bench('ethers: `call`', async () => {
     await ethersProvider.call({
+      data: name4bytes,
+      from: accounts[0].address,
+      to: wagmiContractAddress,
+    })
+  })
+
+  bench('web3.js: `call`', async () => {
+    await web3Provider.eth.call({
       data: name4bytes,
       from: accounts[0].address,
       to: wagmiContractAddress,

@@ -1,6 +1,11 @@
 import { bench, describe } from 'vitest'
 
-import { accounts, ethersProvider, publicClient } from '../../../test'
+import {
+  accounts,
+  ethersProvider,
+  publicClient,
+  web3Provider,
+} from '../../../test'
 import { parseEther } from '../../utils'
 
 import { estimateGas } from './estimateGas'
@@ -21,6 +26,14 @@ describe('Estimate Gas', () => {
       from: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
+    })
+  })
+
+  bench('web3.js: `estimateGas`', async () => {
+    await web3Provider.eth.estimateGas({
+      from: accounts[0].address,
+      to: accounts[1].address,
+      value: '1000000000000',
     })
   })
 })

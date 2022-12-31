@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, publicClient } from '../../../test'
+import { ethersProvider, publicClient, web3Provider } from '../../../test'
 
 import { getGasPrice } from './getGasPrice'
 
@@ -11,5 +11,9 @@ describe('Get Gas Price', () => {
 
   bench('ethers: `getGasPrice`', async () => {
     await ethersProvider.getGasPrice()
+  })
+
+  bench('web3.js: `getGasPrice`', async () => {
+    await web3Provider.eth.getGasPrice()
   })
 })
