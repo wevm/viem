@@ -8,6 +8,7 @@ dist
 node_modules
 tsconfig.tsbuildinfo
 coverage
+bench
 
 # local env files
 .env
