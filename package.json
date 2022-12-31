@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "anvil": "source .env && anvil --fork-url $ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
-    "bench": "vitest bench",
-    "bench:ci": "CI=true vitest bench",
+    "bench": "vitest bench --no-threads",
+    "bench:ci": "CI=true vitest bench --no-threads",
     "build": "pnpm -r --filter './packages/**' build",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
