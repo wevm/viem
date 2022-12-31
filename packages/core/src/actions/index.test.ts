@@ -32,6 +32,7 @@ test('exports actions', () => {
       "mine": [Function],
       "removeBlockTimestampInterval": [Function],
       "requestAccounts": [Function],
+      "requestPermissions": [Function],
       "reset": [Function],
       "revert": [Function],
       "sendTransaction": [Function],

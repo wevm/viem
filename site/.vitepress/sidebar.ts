@@ -223,11 +223,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Permissions',
           items: [
             {
-              text: 'getPermissions 🚧',
+              text: 'getPermissions',
               link: '/docs/actions/wallet/getPermissions',
             },
             {
-              text: 'requestPermissions 🚧',
+              text: 'requestPermissions',
               link: '/docs/actions/wallet/requestPermissions',
             },
           ],

@@ -109,7 +109,10 @@ export const walletClient = createWalletClient({
           }
           return null
         }
-        if (method === 'wallet_getPermissions')
+        if (
+          method === 'wallet_getPermissions' ||
+          method === 'wallet_requestPermissions'
+        )
           return [
             {
               invoker: 'https://example.com',
