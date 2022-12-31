@@ -9,6 +9,6 @@
     "outDir": "dist",
     "typeRoots": ["./types"]
   },
-  "exclude": ["node_modules", "**/*.test.ts"],
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.bench.ts"],
   "include": ["src"]
 }

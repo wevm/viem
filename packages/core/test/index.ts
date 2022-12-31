@@ -1,3 +1,5 @@
+export { ethersProvider } from './bench'
+
 export {
   accounts,
   createHttpServer,
