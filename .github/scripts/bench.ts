@@ -77,8 +77,9 @@ function getResultsTable(report: Report) {
     for (const { name, hz, mean, samples, totalTime } of results) {
       let label = ''
       if (results.length > 1) {
-        if (hz === maxHz) label = '**Winner** 🏆'
-        else label = `_**${(maxHz / hz).toFixed(2)}x** slower_`
+        const multiplier = maxHz / hz
+        if (multiplier < 1.03) label = '**Winner** 🏆'
+        else label = `_**${multiplier.toFixed(2)}x** slower_`
       }
       table += `| ${name} | \`${hz.toFixed(2)}\` | \`${mean.toFixed(
         3,
