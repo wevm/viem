@@ -1,4 +1,4 @@
-export { ethersProvider, web3Provider } from './bench'
+export { essentialProvider, ethersProvider, web3Provider } from './bench'
 
 export {
   accounts,

@@ -1,6 +1,11 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, publicClient, web3Provider } from '../../../test'
+import {
+  essentialProvider,
+  ethersProvider,
+  publicClient,
+  web3Provider,
+} from '../../../test'
 
 import { getBlock } from './getBlock'
 
@@ -15,5 +20,9 @@ describe('Get Block', () => {
 
   bench('web3.js: `getBlock`', async () => {
     await web3Provider.eth.getBlock('latest')
+  })
+
+  bench('essential-eth: `getBlock`', async () => {
+    await essentialProvider.getBlock('latest')
   })
 })
