@@ -6,6 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "call": [Function],
+      "createPendingTransactionFilter": [Function],
       "estimateGas": [Function],
       "getBalance": [Function],
       "getBlock": [Function],
@@ -14,6 +15,7 @@ test('exports actions', () => {
       "getBlockTransactionCount": [Function],
       "getChainId": [Function],
       "getFeeHistory": [Function],
+      "getFilterChanges": [Function],
       "getGasPrice": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],

@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "addChain": [Function],
       "call": [Function],
+      "createPendingTransactionFilter": [Function],
       "dropTransaction": [Function],
       "estimateGas": [Function],
       "getAccounts": [Function],
@@ -18,6 +19,7 @@ test('exports actions', () => {
       "getBlockTransactionCount": [Function],
       "getChainId": [Function],
       "getFeeHistory": [Function],
+      "getFilterChanges": [Function],
       "getGasPrice": [Function],
       "getPermissions": [Function],
       "getTransaction": [Function],

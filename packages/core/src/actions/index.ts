@@ -1,5 +1,6 @@
 export {
   call,
+  createPendingTransactionFilter,
   estimateGas,
   getBalance,
   getBlock,
@@ -8,6 +9,7 @@ export {
   getBlockTransactionCount,
   getChainId,
   getFeeHistory,
+  getFilterChanges,
   getGasPrice,
   getTransaction,
   getTransactionConfirmations,
@@ -20,6 +22,7 @@ export {
 export type {
   CallArgs,
   CallResponse,
+  CreatePendingTransactionFilterResponse,
   EstimateGasArgs,
   EstimateGasResponse,
   GetBalanceArgs,
@@ -32,6 +35,8 @@ export type {
   GetBlockTransactionCountResponse,
   GetFeeHistoryArgs,
   GetFeeHistoryResponse,
+  GetFilterChangesArgs,
+  GetFilterChangesResponse,
   GetGasPriceResponse,
   GetTransactionArgs,
   GetTransactionConfirmationsArgs,

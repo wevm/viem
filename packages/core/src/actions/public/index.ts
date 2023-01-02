@@ -1,6 +1,9 @@
 export { call } from './call'
 export type { CallArgs, CallResponse, FormattedCall } from './call'
 
+export { createPendingTransactionFilter } from './createPendingTransactionFilter'
+export type { CreatePendingTransactionFilterResponse } from './createPendingTransactionFilter'
+
 export { estimateGas } from './estimateGas'
 export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
 
@@ -26,6 +29,12 @@ export { getChainId } from './getChainId'
 
 export { getFeeHistory } from './getFeeHistory'
 export type { GetFeeHistoryArgs, GetFeeHistoryResponse } from './getFeeHistory'
+
+export { getFilterChanges } from './getFilterChanges'
+export type {
+  GetFilterChangesArgs,
+  GetFilterChangesResponse,
+} from './getFilterChanges'
 
 export { getGasPrice } from './getGasPrice'
 export type { GetGasPriceResponse } from './getGasPrice'

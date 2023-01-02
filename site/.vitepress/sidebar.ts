@@ -115,11 +115,11 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/createFilter',
             },
             {
-              text: 'createPendingTransactionFilter 🚧',
+              text: 'createPendingTransactionFilter',
               link: '/docs/actions/public/createPendingTransactionFilter',
             },
             {
-              text: 'getFilterChanges 🚧',
+              text: 'getFilterChanges',
               link: '/docs/actions/public/getFilterChanges',
             },
             {

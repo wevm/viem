@@ -18,6 +18,8 @@ export type {
   FeeValuesLegacy,
 } from './fee'
 
+export type { Filter, FilterType } from './filter'
+
 export type { Log } from './log'
 
 export type {
