@@ -20,10 +20,33 @@ let callbackCount = 0
 export function observe<TCallbacks extends Callbacks>(
   observerId: string,
   callbacks: TCallbacks,
+  fn: EmitFunction<TCallbacks>,
 ) {
   const callbackId = ++callbackCount
 
   const getListeners = () => listenersCache.get(observerId) || []
+
+  const unsubscribe = () => {
+    const listeners = getListeners()
+    listenersCache.set(
+      observerId,
+      listeners.filter((cb: any) => cb.id !== callbackId),
+    )
+  }
+
+  const unwatch = () => {
+    const cleanup = cleanupCache.get(observerId)
+    if (getListeners().length === 1 && cleanup) cleanup()
+    unsubscribe()
+  }
+
+  const listeners = getListeners()
+  listenersCache.set(observerId, [
+    ...listeners,
+    { id: callbackId, fns: callbacks },
+  ])
+
+  if (listeners && listeners.length > 0) return unwatch
 
   let emit: TCallbacks = {} as TCallbacks
   for (const key in callbacks) {
@@ -36,32 +59,8 @@ export function observe<TCallbacks extends Callbacks>(
     }) as TCallbacks[Extract<keyof TCallbacks, string>]
   }
 
-  const unsubscribe = () => {
-    const listeners = getListeners()
-    listenersCache.set(
-      observerId,
-      listeners.filter((cb: any) => cb.id !== callbackId),
-    )
-  }
+  const cleanup = fn(emit)
+  if (typeof cleanup === 'function') cleanupCache.set(observerId, cleanup)
 
-  return (fn: EmitFunction<TCallbacks>) => {
-    const listeners = getListeners()
-    listenersCache.set(observerId, [
-      ...listeners,
-      { id: callbackId, fns: callbacks },
-    ])
-
-    const unwatch = () => {
-      const cleanup = cleanupCache.get(observerId)
-      if (getListeners().length === 1 && cleanup) cleanup()
-      unsubscribe()
-    }
-
-    if (listeners && listeners.length > 0) return unwatch
-
-    const cleanup = fn(emit)
-    if (typeof cleanup === 'function') cleanupCache.set(observerId, cleanup)
-
-    return unwatch
-  }
+  return unwatch
 }

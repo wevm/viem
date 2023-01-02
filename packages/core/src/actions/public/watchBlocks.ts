@@ -47,7 +47,7 @@ export function watchBlocks<TChain extends Chain>(
 
   let prevBlock: GetBlockResponse<TChain> | undefined
 
-  return observe(observerId, { onBlock, onError })((emit) =>
+  return observe(observerId, { onBlock, onError }, (emit) =>
     poll(
       async () => {
         try {

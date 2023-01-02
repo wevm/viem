@@ -38,7 +38,7 @@ export function watchBlockNumber(
 
   let prevBlockNumber: GetBlockNumberResponse | undefined
 
-  return observe(observerId, { onBlockNumber, onError })((emit) =>
+  return observe(observerId, { onBlockNumber, onError }, (emit) =>
     poll(
       async () => {
         try {

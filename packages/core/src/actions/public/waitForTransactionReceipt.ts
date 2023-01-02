@@ -62,7 +62,9 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
         timeout,
       )
 
-    const unobserve = observe(observerId, { onReplaced, resolve, reject })(
+    const unobserve = observe(
+      observerId,
+      { onReplaced, resolve, reject },
       (emit) => {
         const unwatch = watchBlockNumber(client, {
           emitMissed: true,

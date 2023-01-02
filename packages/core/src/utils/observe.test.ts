@@ -16,9 +16,9 @@ test('emits data to callbacks', async () => {
     }
   })
 
-  const unwatch1 = observe(id, { emit: callback1 })(emitter)
-  const unwatch2 = observe(id, { emit: callback2 })(emitter)
-  const unwatch3 = observe(id, { emit: callback3 })(emitter)
+  const unwatch1 = observe(id, { emit: callback1 }, emitter)
+  const unwatch2 = observe(id, { emit: callback2 }, emitter)
+  const unwatch3 = observe(id, { emit: callback3 }, emitter)
 
   await wait(100)
 
@@ -41,7 +41,7 @@ test('scopes to id', async () => {
       //
     }
   })
-  const unwatch1 = observe(id1, { emit: callback1 })(emitter1)
+  const unwatch1 = observe(id1, { emit: callback1 }, emitter1)
 
   const id2 = 'mock2'
   const callback2 = vi.fn()
@@ -51,7 +51,7 @@ test('scopes to id', async () => {
       //
     }
   })
-  const unwatch2 = observe(id2, { emit: callback2 })(emitter2)
+  const unwatch2 = observe(id2, { emit: callback2 }, emitter2)
 
   await wait(100)
 
@@ -79,9 +79,9 @@ test('cleans up listeners correctly (staggered unwatch)', async () => {
     }
   })
 
-  const unwatch1 = observe(id, { emit: callback1 })(emitter)
-  const unwatch2 = observe(id, { emit: callback2 })(emitter)
-  const unwatch3 = observe(id, { emit: callback3 })(emitter)
+  const unwatch1 = observe(id, { emit: callback1 }, emitter)
+  const unwatch2 = observe(id, { emit: callback2 }, emitter)
+  const unwatch3 = observe(id, { emit: callback3 }, emitter)
 
   unwatch1()
 
@@ -117,9 +117,9 @@ test('cleans up listeners correctly (immediately unwatch)', async () => {
     }
   })
 
-  const unwatch1 = observe(id, { emit: callback1 })(emitter)
-  const unwatch2 = observe(id, { emit: callback2 })(emitter)
-  const unwatch3 = observe(id, { emit: callback3 })(emitter)
+  const unwatch1 = observe(id, { emit: callback1 }, emitter)
+  const unwatch2 = observe(id, { emit: callback2 }, emitter)
+  const unwatch3 = observe(id, { emit: callback3 }, emitter)
 
   unwatch1()
   unwatch2()
@@ -147,9 +147,9 @@ test('cleans up emit function correctly', async () => {
     }
   })
 
-  const unwatch1 = observe(id, { emit: callback })(emitter)
-  const unwatch2 = observe(id, { emit: callback })(emitter)
-  const unwatch3 = observe(id, { emit: callback })(emitter)
+  const unwatch1 = observe(id, { emit: callback }, emitter)
+  const unwatch2 = observe(id, { emit: callback }, emitter)
+  const unwatch3 = observe(id, { emit: callback }, emitter)
 
   await wait(100)
   expect(emitter).toHaveBeenCalledTimes(1)
