@@ -1,4 +1,4 @@
-import type { RpcLog } from '../../types'
+import type { Log, RpcLog } from '../../types'
 
 export function formatLog(log: Partial<RpcLog>) {
   return {
@@ -8,5 +8,5 @@ export function formatLog(log: Partial<RpcLog>) {
     transactionIndex: log.transactionIndex
       ? BigInt(log.transactionIndex)
       : null,
-  }
+  } as Log
 }

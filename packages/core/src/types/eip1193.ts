@@ -368,7 +368,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getFilterChanges'
     params: [filterId: Quantity]
-  }): Promise<Log>
+  }): Promise<Log[] | Data[]>
   request(args: {
     /**
      * @description Returns a list of all logs based on filter ID

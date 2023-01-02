@@ -1,6 +1,7 @@
 export type {
   CallArgs,
   CallResponse,
+  CreatePendingTransactionFilterResponse,
   EstimateGasArgs,
   EstimateGasResponse,
   DropTransactionArgs,
@@ -14,6 +15,8 @@ export type {
   GetBlockTransactionCountResponse,
   GetFeeHistoryArgs,
   GetFeeHistoryResponse,
+  GetFilterChangesArgs,
+  GetFilterChangesResponse,
   GetGasPriceResponse,
   GetPermissionsResponse,
   GetTransactionArgs,
