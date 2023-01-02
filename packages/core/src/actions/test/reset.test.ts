@@ -15,4 +15,5 @@ test('resets the fork', async () => {
   })
   expect(await getBlockNumber(publicClient)).toBe(initialBlockNumber)
   await setIntervalMining(testClient, { interval: 1 })
+  await mine(testClient, { blocks: 1 })
 })

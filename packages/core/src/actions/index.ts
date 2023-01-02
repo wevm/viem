@@ -15,9 +15,11 @@ export {
   getTransactionConfirmations,
   getTransactionCount,
   getTransactionReceipt,
+  uninstallFilter,
   waitForTransactionReceipt,
   watchBlockNumber,
   watchBlocks,
+  watchPendingTransactions,
 } from './public'
 export type {
   CallArgs,
@@ -50,13 +52,18 @@ export type {
   OnBlockNumber,
   OnBlockNumberResponse,
   OnBlockResponse,
+  OnTransactions,
+  OnTransactionsResponse,
   ReplacementReason,
   ReplacementResponse,
+  UninstallFilterArgs,
+  UninstallFilterResponse,
   WaitForTransactionReceiptArgs,
   WaitForTransactionReceiptResponse,
   WaitForTransactionReceiptTimeoutError,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
+  WatchPendingTransactionsArgs,
 } from './public'
 
 export {

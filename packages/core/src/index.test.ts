@@ -104,10 +104,12 @@ test('exports actions', () => {
         "0x1": "eip2930",
         "0x2": "eip1559",
       },
+      "uninstallFilter": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
+      "watchPendingTransactions": [Function],
       "webSocket": [Function],
       "weiUnits": {
         "ether": -18,

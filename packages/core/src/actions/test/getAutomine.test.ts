@@ -5,7 +5,8 @@ import { testClient } from '../../../test'
 import { getAutomine } from './getAutomine'
 import { setAutomine } from './setAutomine'
 
-test('gets automine status', async () => {
+// TODO: Anvil sometimes stops interval mining when automining is programatically set.
+test.skip('gets automine status', async () => {
   await setAutomine(testClient, true)
   expect(await getAutomine(testClient)).toEqual(true)
   await setAutomine(testClient, false)

@@ -56,10 +56,12 @@ test('exports actions', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "uninstallFilter": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
+      "watchPendingTransactions": [Function],
     }
   `)
 })

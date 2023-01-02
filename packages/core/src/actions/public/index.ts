@@ -63,6 +63,12 @@ export type {
   GetTransactionReceiptResponse,
 } from './getTransactionReceipt'
 
+export { uninstallFilter } from './uninstallFilter'
+export type {
+  UninstallFilterArgs,
+  UninstallFilterResponse,
+} from './uninstallFilter'
+
 export { waitForTransactionReceipt } from './waitForTransactionReceipt'
 export type {
   WaitForTransactionReceiptArgs,
@@ -81,3 +87,10 @@ export type {
 
 export { watchBlocks } from './watchBlocks'
 export type { WatchBlocksArgs, OnBlock, OnBlockResponse } from './watchBlocks'
+
+export { watchPendingTransactions } from './watchPendingTransactions'
+export type {
+  OnTransactions,
+  OnTransactionsResponse,
+  WatchPendingTransactionsArgs,
+} from './watchPendingTransactions'

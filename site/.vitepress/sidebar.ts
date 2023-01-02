@@ -128,7 +128,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
             { text: 'getLogs 🚧', link: '/docs/actions/public/getLogs' },
             {
-              text: 'uninstallFilter 🚧',
+              text: 'uninstallFilter',
               link: '/docs/actions/public/uninstallFilter',
             },
           ],
@@ -158,7 +158,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/waitForTransactionReceipt',
             },
             {
-              text: 'watchPendingTransactions 🚧',
+              text: 'watchPendingTransactions',
               link: '/docs/actions/public/watchPendingTransactions',
             },
           ],

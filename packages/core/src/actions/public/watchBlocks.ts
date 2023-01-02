@@ -43,7 +43,14 @@ export function watchBlocks<TChain extends Chain>(
     pollingInterval = client.pollingInterval,
   }: WatchBlocksArgs<TChain>,
 ) {
-  const observerId = JSON.stringify(['watchBlocks', client.uid])
+  const observerId = JSON.stringify([
+    'watchBlocks',
+    client.uid,
+    emitMissed,
+    emitOnBegin,
+    includeTransactions,
+    pollingInterval,
+  ])
 
   let prevBlock: GetBlockResponse<TChain> | undefined
 

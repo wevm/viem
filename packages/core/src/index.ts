@@ -34,6 +34,8 @@ export type {
   OnBlockNumber,
   OnBlockNumberResponse,
   OnBlockResponse,
+  OnTransactions,
+  OnTransactionsResponse,
   ResetArgs,
   RequestPermissionsResponse,
   RevertArgs,
@@ -56,12 +58,15 @@ export type {
   SignMessageResponse,
   StopImpersonatingAccountArgs,
   SwitchChainArgs,
+  UninstallFilterArgs,
+  UninstallFilterResponse,
   WaitForTransactionReceiptArgs,
   WaitForTransactionReceiptResponse,
   WatchAssetArgs,
   WatchAssetResponse,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
+  WatchPendingTransactionsArgs,
 } from './actions'
 export {
   addChain,
@@ -111,10 +116,12 @@ export {
   snapshot,
   stopImpersonatingAccount,
   switchChain,
+  uninstallFilter,
   waitForTransactionReceipt,
   watchAsset,
   watchBlockNumber,
   watchBlocks,
+  watchPendingTransactions,
 } from './actions'
 
 export type {

@@ -1,8 +1,8 @@
 # getFilterChanges
 
-Returns a list of all logs based on Filter ID.
+Returns a list of logs or hashes based on a [Filter](/TODO) since the last time it was called.
 
-A Filter ID can be created from the following actions:
+A Filter can be created from the following actions:
 
 - [`createFilter`](/TODO)
 - [`createBlockFilter`](/TODO)

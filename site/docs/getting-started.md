@@ -2,9 +2,21 @@
 
 ## Installation
 
-```bash
+::: code-group
+
+```bash [npm]
 npm i viem
 ```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [yarn]
+yarn add viem
+```
+
+:::
 
 ## Quick Start
 

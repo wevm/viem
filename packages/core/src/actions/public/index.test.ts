@@ -21,9 +21,11 @@ test('exports actions', () => {
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],
       "getTransactionReceipt": [Function],
+      "uninstallFilter": [Function],
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
+      "watchPendingTransactions": [Function],
     }
   `)
 })

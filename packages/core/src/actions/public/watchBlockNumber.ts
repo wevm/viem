@@ -34,7 +34,13 @@ export function watchBlockNumber(
     pollingInterval = client.pollingInterval,
   }: WatchBlockNumberArgs,
 ) {
-  const observerId = JSON.stringify(['watchBlockNumber', client.uid])
+  const observerId = JSON.stringify([
+    'watchBlockNumber',
+    client.uid,
+    emitOnBegin,
+    emitMissed,
+    pollingInterval,
+  ])
 
   let prevBlockNumber: GetBlockNumberResponse | undefined
 
