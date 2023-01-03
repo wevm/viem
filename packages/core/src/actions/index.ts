@@ -1,5 +1,6 @@
 export {
   call,
+  createBlockFilter,
   createPendingTransactionFilter,
   estimateGas,
   getBalance,
@@ -24,6 +25,7 @@ export {
 export type {
   CallArgs,
   CallResponse,
+  CreateBlockFilterResponse,
   CreatePendingTransactionFilterResponse,
   EstimateGasArgs,
   EstimateGasResponse,

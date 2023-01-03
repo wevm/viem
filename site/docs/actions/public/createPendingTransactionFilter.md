@@ -1,17 +1,17 @@
 # createPendingTransactionFilter
 
-Creates a Filter to listen for new pending transactions that can be used with [`getFilterChanges`](/TODO).
+Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](/TODO).
 
 ## Import
 
 ```ts
-import { getFilterChanges } from 'viem'
+import { createPendingTransactionFilter } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { createPendingTransactionFilter, getFilterChanges } from 'viem'
+import { createPendingTransactionFilter } from 'viem'
 import { publicClient } from '.'
 
 const filter = await createPendingTransactionFilter(publicClient) // [!code focus:99]

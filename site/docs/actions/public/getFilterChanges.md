@@ -16,12 +16,27 @@ import { getFilterChanges } from 'viem'
 
 ## Usage
 
+### Blocks
+
+```ts
+import { createBlockFilter, getFilterChanges } from 'viem'
+import { publicClient } from '.'
+
+const filter = await createBlockFilter(publicClient) // [!code focus:99]
+// ...
+const hashes = await getFilterChanges(publicClient, { filter })
+// ["0x10d86dc08ac2f18f00ef0daf7998dcc8673cbcf1f1501eeb2fac1afd2f851128", ...]
+```
+
+### Transactions
+
 ```ts
 import { createPendingTransactionFilter, getFilterChanges } from 'viem'
 import { publicClient } from '.'
 
-const filter = await createPendingTransactionFilter(publicClient)
-const logs = await getFilterChanges(publicClient, { filter }) // [!code focus:99]
+const filter = await createPendingTransactionFilter(publicClient) // [!code focus:99]
+// ...
+const hashes = await getFilterChanges(publicClient, { filter })
 // ["0x89b3aa1c01ca4da5d15eca9fab459d062db5c0c9b76609acb0741901f01f6d19", ...]
 ```
 

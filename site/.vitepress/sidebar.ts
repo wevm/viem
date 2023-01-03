@@ -107,7 +107,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Filters & Logs',
           items: [
             {
-              text: 'createBlockFilter 🚧',
+              text: 'createBlockFilter',
               link: '/docs/actions/public/createBlockFilter',
             },
             {
@@ -531,6 +531,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/decodeBase64',
             },
             {
+              text: 'decodeBytes 🚧',
+              link: '/docs/utilities/decodeBytes',
+            },
+            {
               text: 'decodeHex 🚧',
               link: '/docs/utilities/decodeHex',
             },
@@ -545,6 +549,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'encodeBase64 🚧',
               link: '/docs/utilities/encodeBase64',
+            },
+            {
+              text: 'encodeBytes 🚧',
+              link: '/docs/utilities/encodeBytes',
             },
             {
               text: 'encodeHex 🚧',

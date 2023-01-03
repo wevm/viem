@@ -4,6 +4,9 @@ export type { CallArgs, CallResponse, FormattedCall } from './call'
 export { createPendingTransactionFilter } from './createPendingTransactionFilter'
 export type { CreatePendingTransactionFilterResponse } from './createPendingTransactionFilter'
 
+export { createBlockFilter } from './createBlockFilter'
+export type { CreateBlockFilterResponse } from './createBlockFilter'
+
 export { estimateGas } from './estimateGas'
 export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
 

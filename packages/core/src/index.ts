@@ -1,6 +1,7 @@
 export type {
   CallArgs,
   CallResponse,
+  CreateBlockFilterResponse,
   CreatePendingTransactionFilterResponse,
   EstimateGasArgs,
   EstimateGasResponse,
@@ -71,6 +72,8 @@ export type {
 export {
   addChain,
   call,
+  createBlockFilter,
+  createPendingTransactionFilter,
   estimateGas,
   dropTransaction,
   getAutomine,
