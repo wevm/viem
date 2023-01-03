@@ -43,8 +43,13 @@ export function watchPendingTransactions(
       async () => {
         try {
           if (!filter) {
-            filter = await createPendingTransactionFilter(client)
-            return
+            try {
+              filter = await createPendingTransactionFilter(client)
+              return
+            } catch (err) {
+              unwatch()
+              throw err
+            }
           }
 
           const hashes = await getFilterChanges(client, { filter })

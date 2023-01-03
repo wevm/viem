@@ -8,6 +8,8 @@ import { getTxpoolContent } from './getTxpoolContent'
 import { mine } from './mine'
 
 test('gets txpool content (empty)', async () => {
+  await mine(testClient, { blocks: 1 })
+
   expect(await getTxpoolContent(testClient)).toMatchInlineSnapshot(`
     {
       "pending": {},

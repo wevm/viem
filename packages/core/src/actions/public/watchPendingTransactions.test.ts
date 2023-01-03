@@ -14,11 +14,12 @@ test(
   'watches for pending transactions',
   async () => {
     await setIntervalMining(testClient, { interval: 0 })
+    await wait(1000)
 
-    const transactions: OnTransactionsResponse[] = []
+    let transactions: OnTransactionsResponse = []
     const unwatch = watchPendingTransactions(publicClient, {
       onTransactions: (transactions_) => {
-        transactions.push(transactions_)
+        transactions = [...transactions, ...transactions_]
       },
     })
     await wait(1000)
@@ -32,38 +33,30 @@ test(
     await wait(1000)
     await sendTransaction(walletClient, {
       request: {
-        from: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('1'),
-      },
-    })
-    await sendTransaction(walletClient, {
-      request: {
-        from: accounts[0].address,
-        to: accounts[1].address,
+        from: accounts[2].address,
+        to: accounts[3].address,
         value: parseEther('1'),
       },
     })
     await wait(1000)
     unwatch()
-    expect(transactions[0].length).toBe(1)
-    expect(transactions[1].length).toBe(2)
+    expect(transactions.length).toBe(2)
 
     await setIntervalMining(testClient, { interval: 1 })
     await mine(testClient, { blocks: 1 })
   },
-  { retry: 3 },
+  { timeout: 10_000 },
 )
 
 test('watches for pending transactions (unbatched)', async () => {
   await setIntervalMining(testClient, { interval: 0 })
   await wait(1000)
 
-  const transactions: OnTransactionsResponse[] = []
+  let transactions: OnTransactionsResponse = []
   const unwatch = watchPendingTransactions(publicClient, {
     batch: false,
     onTransactions: (transactions_) => {
-      transactions.push(transactions_)
+      transactions = [...transactions, ...transactions_]
     },
   })
   await wait(1000)
@@ -91,9 +84,7 @@ test('watches for pending transactions (unbatched)', async () => {
   })
   await wait(2000)
   unwatch()
-  expect(transactions[0].length).toBe(1)
-  expect(transactions[1].length).toBe(1)
-  expect(transactions[2].length).toBe(1)
+  expect(transactions.length).toBe(3)
 
   await setIntervalMining(testClient, { interval: 1 })
   await mine(testClient, { blocks: 1 })

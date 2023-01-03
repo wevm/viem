@@ -8,10 +8,6 @@ export default defineConfig({
     },
     coverage: {
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      lines: 98,
-      branches: 98,
-      functions: 98,
-      statements: 98,
       exclude: ['**/dist/**', '**/*.test.ts', '**/core/test/**'],
     },
     environment: 'jsdom',

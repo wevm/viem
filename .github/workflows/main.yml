@@ -130,6 +130,8 @@ jobs:
       matrix:
         node-version: [18]
         pnpm-version: [7]
+        shard: [1, 2, 3]
+        total-shards: [3]
         transport-mode: ['http', 'webSocket']
     steps:
       - uses: actions/checkout@v3
@@ -173,7 +175,7 @@ jobs:
         with:
           timeout_minutes: 20
           max_attempts: 3
-          command: pnpm test:ci
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           ALCHEMY_ID: ${{ secrets.ALCHEMY_ID }}
           VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
