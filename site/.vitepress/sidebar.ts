@@ -535,7 +535,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/decodeBytes',
             },
             {
-              text: 'decodeHex 🚧',
+              text: 'decodeHex',
               link: '/docs/utilities/decodeHex',
             },
             {
@@ -555,7 +555,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/encodeBytes',
             },
             {
-              text: 'encodeHex 🚧',
+              text: 'encodeHex',
               link: '/docs/utilities/encodeHex',
             },
             {
