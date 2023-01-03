@@ -202,6 +202,7 @@ export type {
   FormattedBlock,
   FormattedTransaction,
   FormattedTransactionRequest,
+  Keccak256Options,
 } from './utils'
 export {
   BaseError,
@@ -231,6 +232,7 @@ export {
   hexToBigInt,
   hexToBytes,
   hexToString,
+  keccak256,
   parseEther,
   parseGwei,
   parseUnit,

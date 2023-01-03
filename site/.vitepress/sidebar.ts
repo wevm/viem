@@ -565,19 +565,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
-          text: 'Number',
-          items: [
-            {
-              text: 'hexToNumber',
-              link: '/docs/utilities/hexToNumber',
-            },
-            {
-              text: 'numberToHex',
-              link: '/docs/utilities/numberToHex',
-            },
-          ],
-        },
-        {
           text: 'Hash',
           items: [
             {
@@ -589,7 +576,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/hashMessage',
             },
             {
-              text: 'keccak256 🚧',
+              text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
             {

@@ -40,6 +40,7 @@ test('exports utils', () => {
       "hexToString": [Function],
       "isAddress": [Function],
       "isAddressEqual": [Function],
+      "keccak256": [Function],
       "numberToHex": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],

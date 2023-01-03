@@ -78,6 +78,7 @@ test('exports actions', () => {
       "inspectTxpool": [Function],
       "isAddress": [Function],
       "isAddressEqual": [Function],
+      "keccak256": [Function],
       "mine": [Function],
       "numberToHex": [Function],
       "parseEther": [Function],
