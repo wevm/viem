@@ -1,6 +1,6 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { Data, Transaction } from '../../types'
+import type { Hash, Transaction } from '../../types'
 import { BaseError } from '../../utils'
 import { observe } from '../../utils/observe'
 import { getBlock, watchBlockNumber } from '../public'
@@ -27,7 +27,7 @@ export type WaitForTransactionReceiptArgs<TChain extends Chain = Chain> = {
   /** The number of confirmations (blocks that have passed) to wait before resolving. */
   confirmations?: number
   /** The hash of the transaction. */
-  hash: Data
+  hash: Hash
   onReplaced?: (response: ReplacementResponse<TChain>) => void
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
@@ -170,7 +170,7 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
 
 export class WaitForTransactionReceiptTimeoutError extends BaseError {
   name = 'WaitForTransactionReceiptTimeoutError'
-  constructor({ hash }: { hash: Data }) {
+  constructor({ hash }: { hash: Hash }) {
     super({
       humanMessage: `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
       details: 'timeout waiting for confirmation.',

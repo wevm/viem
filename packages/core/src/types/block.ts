@@ -1,4 +1,4 @@
-import type { Data } from './data'
+import type { Address, Hash, Hex } from './misc'
 import type { Transaction } from './transaction'
 
 export type Block<TQuantity = bigint, TTransaction = Transaction> = {
@@ -7,44 +7,44 @@ export type Block<TQuantity = bigint, TTransaction = Transaction> = {
   /** Difficulty for this block */
   difficulty: TQuantity
   /** "Extra data" field of this block */
-  extraData: Data
+  extraData: Hex
   /** Maximum gas allowed in this block */
   gasLimit: TQuantity
   /** Total used gas by all transactions in this block */
   gasUsed: TQuantity
   /** Block hash or `null` if pending */
-  hash: Data | null
+  hash: Hash | null
   /** Logs bloom filter or `null` if pending */
-  logsBloom: Data | null
+  logsBloom: Hex | null
   /** Address that received this block’s mining rewards */
-  miner: Data
+  miner: Address
   /** Unique identifier for the block. */
-  mixHash: Data
+  mixHash: Hash
   /** Proof-of-work hash or `null` if pending */
-  nonce: Data | null
+  nonce: Hex | null
   /** Block number or `null` if pending */
   number: TQuantity | null
   /** Parent block hash */
-  parentHash: Data
+  parentHash: Hash
   /** Root of the this block’s receipts trie */
-  receiptsRoot: Data
-  sealFields: Data[]
+  receiptsRoot: Hex
+  sealFields: Hex[]
   /** SHA3 of the uncles data in this block */
-  sha3Uncles: Data
+  sha3Uncles: Hash
   /** Size of this block in bytes */
   size: TQuantity
   /** Root of this block’s final state trie */
-  stateRoot: Data
+  stateRoot: Hash
   /** Unix timestamp of when this block was collated */
   timestamp: TQuantity
   /** Total difficulty of the chain until this block */
   totalDifficulty: TQuantity | null
   /** List of transaction objects or hashes */
-  transactions: Data[] | TTransaction[]
+  transactions: Hash[] | TTransaction[]
   /** Root of this block’s transaction trie */
-  transactionsRoot: Data
+  transactionsRoot: Hash
   /** List of uncle hashes */
-  uncles: Data[]
+  uncles: Hash[]
 }
 
 export type BlockIdentifier<TQuantity = bigint> = {
@@ -57,7 +57,7 @@ export type BlockIdentifier<TQuantity = bigint> = {
     }
   | {
       /** The block uniquely identified by this hash. The `blockNumber` and `blockHash` properties are mutually exclusive; exactly one of them must be set. */
-      blockHash: Data
+      blockHash: Hash
     }
 )
 

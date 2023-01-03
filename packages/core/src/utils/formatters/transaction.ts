@@ -1,7 +1,7 @@
 import type { Chain, Formatter, Formatters } from '../../chains'
 import type { RpcTransaction, Transaction } from '../../types'
 import { transactionType } from '../../constants'
-import { hexToNumber } from '../number'
+import { hexToNumber } from '../encoding'
 import type { ExtractFormatter, Formatted } from './format'
 
 export type TransactionFormatter<TChain extends Chain = Chain> =

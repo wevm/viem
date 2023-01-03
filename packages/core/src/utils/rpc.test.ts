@@ -4,7 +4,7 @@ import { createHttpServer, initialBlockNumber } from '../../test'
 import { localWsUrl } from '../../test/utils'
 
 import { localhost, mainnet } from '../chains'
-import { numberToHex } from './number'
+import { numberToHex } from './encoding'
 
 import type { RpcResponse } from './rpc'
 import {

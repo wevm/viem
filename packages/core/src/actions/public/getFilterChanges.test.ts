@@ -5,7 +5,7 @@ import { accounts, publicClient, testClient, walletClient } from '../../../test'
 import { mine, setIntervalMining } from '../test'
 import { sendTransaction } from '../wallet'
 import { parseEther } from '../../utils'
-import type { Data } from '../../types'
+import type { Hash } from '../../types'
 import { createBlockFilter } from './createBlockFilter'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter'
 import { getFilterChanges } from './getFilterChanges'
@@ -36,7 +36,7 @@ test('pending txns', async () => {
   })
 
   let hashes = await getFilterChanges(publicClient, { filter })
-  assertType<Data[]>(hashes)
+  assertType<Hash[]>(hashes)
   expect(hashes.length).toBe(2)
 
   mine(testClient, { blocks: 1 })
@@ -64,7 +64,7 @@ test('new blocks', async () => {
   await mine(testClient, { blocks: 2 })
 
   let hashes = await getFilterChanges(publicClient, { filter })
-  assertType<Data[]>(hashes)
+  assertType<Hash[]>(hashes)
   expect(hashes.length).toBe(2)
 
   hashes = await getFilterChanges(publicClient, { filter })

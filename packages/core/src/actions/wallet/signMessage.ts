@@ -1,12 +1,12 @@
 import type { WalletClient } from '../../clients'
-import type { Address, Data } from '../../types'
+import type { Address, Hex } from '../../types'
 
 export type SignMessageArgs = {
   from: Address
-  data: Data
+  data: Hex
 }
 
-export type SignMessageResponse = Data
+export type SignMessageResponse = Hex
 
 export async function signMessage(
   client: WalletClient,

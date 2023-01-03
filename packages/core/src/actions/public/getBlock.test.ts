@@ -3,7 +3,7 @@ import { assertType, describe, expect, test } from 'vitest'
 import { initialBlockNumber, publicClient } from '../../../test'
 import { celo } from '../../chains'
 import { createPublicClient, http } from '../../clients'
-import type { Block, Data } from '../../types'
+import type { Block, Hex } from '../../types'
 import { BlockNotFoundError, getBlock } from './getBlock'
 
 test('gets latest block', async () => {
@@ -49,7 +49,7 @@ test('chain w/ custom block type', async () => {
 
   assertType<
     Omit<Block, 'difficulty' | 'gasLimit' | 'mixHash' | 'nonce' | 'uncles'> & {
-      randomness: { committed: Data; revealed: Data }
+      randomness: { committed: Hex; revealed: Hex }
     }
   >(block)
   expect(block).toMatchInlineSnapshot(`

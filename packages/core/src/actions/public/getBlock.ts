@@ -1,6 +1,6 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { BlockTag, Data, RpcBlock } from '../../types'
+import type { BlockTag, Hash, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { BaseError, format, formatBlock, numberToHex } from '../../utils'
 
@@ -10,7 +10,7 @@ export type GetBlockArgs = {
 } & (
   | {
       /** Hash of the block. */
-      blockHash?: Data
+      blockHash?: Hash
       blockNumber?: never
       blockTag?: never
     }
@@ -74,7 +74,7 @@ export class BlockNotFoundError extends BaseError {
     blockHash,
     blockNumber,
   }: {
-    blockHash?: Data
+    blockHash?: Hash
     blockNumber?: bigint
   }) {
     let identifier = 'Block'

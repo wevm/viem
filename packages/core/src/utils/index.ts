@@ -38,7 +38,17 @@ export {
   formatTransactionRequest,
 } from './formatters'
 
-export { hexToNumber, numberToHex } from './number'
+export {
+  bytesToHex,
+  encodeHex,
+  decodeHex,
+  hexToBigInt,
+  hexToBytes,
+  hexToNumber,
+  hexToString,
+  numberToHex,
+  stringToHex,
+} from './encoding'
 
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
 

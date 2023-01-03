@@ -1,14 +1,14 @@
-import type { Data } from './data'
+import type { Address, Hex } from './misc'
 
 export type EstimateGasParameters<TQuantity = bigint> = {
   /** Contract code or a hashed method call with encoded args */
-  data?: Data
+  data?: Hex
   /** Gas provided for transaction execution */
   gas?: TQuantity
   /** Transaction sender */
-  from?: Data
+  from?: Address
   /** Transaction recipient */
-  to?: Data
+  to?: Address
   /** Value in wei sent with this transaction */
   value?: TQuantity
 } & Partial<FeeValues<TQuantity>>

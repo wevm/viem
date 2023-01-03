@@ -1,9 +1,9 @@
 import type { TestClient } from '../../clients'
-import type { Data } from '../../types'
+import type { Hash } from '../../types'
 
 export type DropTransactionArgs = {
   /** The hash of the transaction to drop. */
-  hash: Data
+  hash: Hash
 }
 
 export async function dropTransaction(

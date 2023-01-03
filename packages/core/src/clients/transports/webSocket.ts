@@ -1,4 +1,4 @@
-import type { Data } from '../../types'
+import type { Hash } from '../../types'
 import type { RpcResponse } from '../../utils/rpc'
 import { getSocket, rpc } from '../../utils/rpc'
 import type { Transport, TransportConfig } from './createTransport'
@@ -11,7 +11,7 @@ type WebSocketTransportSubscribeArgs = {
 }
 
 type WebSocketTransportSubscribeResponse = {
-  subscriptionId: Data
+  subscriptionId: Hash
   unsubscribe: () => Promise<RpcResponse<boolean>>
 }
 

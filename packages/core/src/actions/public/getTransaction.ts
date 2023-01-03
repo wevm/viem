@@ -1,6 +1,6 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { BlockTag, Data, RpcTransaction } from '../../types'
+import type { BlockTag, Hash, RpcTransaction } from '../../types'
 import { BaseError, format, numberToHex } from '../../utils'
 import type {
   FormattedTransaction,
@@ -11,7 +11,7 @@ import { formatTransaction } from '../../utils/formatters/transaction'
 export type GetTransactionArgs =
   | {
       /** The block hash */
-      blockHash: Data
+      blockHash: Hash
       blockNumber?: never
       blockTag?: never
       hash?: never
@@ -41,7 +41,7 @@ export type GetTransactionArgs =
       blockNumber?: never
       blockTag?: never
       /** The hash of the transaction. */
-      hash: Data
+      hash: Hash
       index?: number
     }
 
@@ -107,10 +107,10 @@ export class TransactionNotFoundError extends BaseError {
     hash,
     index,
   }: {
-    blockHash?: Data
+    blockHash?: Hash
     blockNumber?: bigint
     blockTag?: BlockTag
-    hash?: Data
+    hash?: Hash
     index?: number
   }) {
     let identifier = 'Transaction'

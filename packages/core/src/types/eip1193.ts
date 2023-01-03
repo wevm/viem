@@ -1,6 +1,5 @@
-import type { Address } from './address'
 import type { BlockTag } from './block'
-import type { Data } from './data'
+import type { Address, Hash, Hex } from './misc'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -150,7 +149,7 @@ export type PublicRequests = {
      * // => '0xc94770007dda54cF92009BFF0dE90c06F603a09f'
      */
     method: 'web3_sha3'
-    params: [data: Data]
+    params: [data: Hash]
   }): Promise<string>
   request(args: {
     /**
@@ -209,7 +208,7 @@ export type PublicRequests = {
       request: TransactionRequest,
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
-  }): Promise<Data>
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Returns the chain ID associated with the current network
@@ -299,7 +298,7 @@ export type PublicRequests = {
     method: 'eth_getBlockByHash'
     params: [
       /** hash of a block */
-      hash: Data,
+      hash: Hash,
       /** true will pull full transaction objects, false will pull transaction hashes */
       includeTransactionObjects: boolean,
     ]
@@ -334,7 +333,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getBlockTransactionCountByHash'
-    params: [hash: Data]
+    params: [hash: Hash]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -357,7 +356,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getCode'
     params: [address: Address, block: BlockNumber | BlockTag | BlockIdentifier]
-  }): Promise<Data>
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Returns a list of all logs based on filter ID since the last log retrieval
@@ -368,7 +367,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getFilterChanges'
     params: [filterId: Quantity]
-  }): Promise<Log[] | Data[]>
+  }): Promise<Log[] | Hex[]>
   request(args: {
     /**
      * @description Returns a list of all logs based on filter ID
@@ -391,15 +390,15 @@ export type PublicRequests = {
     method: 'eth_getLogs'
     params: [
       filter: {
-        address?: Data | Data[]
-        topics?: Data[]
+        address?: Address | Address[]
+        topics?: Hex[]
       } & (
         | {
             fromBlock?: BlockNumber | BlockTag
             toBlock?: BlockNumber | BlockTag
           }
         | {
-            blockHash?: Data
+            blockHash?: Hash
           }
       ),
     ]
@@ -428,7 +427,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionByBlockHashAndIndex'
-    params: [hash: Data, index: Quantity]
+    params: [hash: Hash, index: Quantity]
   }): Promise<Transaction | null>
   request(args: {
     /**
@@ -450,7 +449,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionByHash'
-    params: [hash: Data]
+    params: [hash: Hash]
   }): Promise<Transaction | null>
   request(args: {
     /**
@@ -472,7 +471,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getTransactionReceipt'
-    params: [hash: Data]
+    params: [hash: Hash]
   }): Promise<TransactionReceipt | null>
   request(args: {
     /**
@@ -483,7 +482,7 @@ export type PublicRequests = {
      * // => { ... }
      * */
     method: 'eth_getUncleByBlockHashAndIndex'
-    params: [hash: Data, index: Quantity]
+    params: [hash: Hash, index: Quantity]
   }): Promise<Uncle | null>
   request(args: {
     /**
@@ -505,7 +504,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_getUncleCountByBlockHash'
-    params: [hash: Data]
+    params: [hash: Hash]
   }): Promise<Quantity>
   request(args: {
     /**
@@ -542,8 +541,8 @@ export type PublicRequests = {
       filter: {
         fromBlock?: BlockNumber | BlockTag
         toBlock?: BlockNumber | BlockTag
-        address?: Data | Data[]
-        topics?: Data[]
+        address?: Address | Address[]
+        topics?: Hex[]
       },
     ]
   }): Promise<Quantity>
@@ -578,8 +577,8 @@ export type PublicRequests = {
      * // => '0x...'
      * */
     method: 'eth_sendRawTransaction'
-    params: [signedTransaction: Data]
-  }): Promise<Data>
+    params: [signedTransaction: Hex]
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Destroys a filter based on filter ID
@@ -611,7 +610,7 @@ export type TestRequests<Name extends string> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_droptransaction
      */
     method: `${Name}_dropTransaction`
-    params: [data: Data]
+    params: [hash: Hash]
   }): Promise<void>
   request(args: {
     /**
@@ -643,9 +642,9 @@ export type TestRequests<Name extends string> = {
     method: `${Name}_mine`
     params: [
       /** Number of blocks to mine. */
-      count: Data,
+      count: Hex,
       /** Interval between each block in seconds. */
-      interval: Data | undefined,
+      interval: Hex | undefined,
     ]
   }): Promise<void>
   request(args: {
@@ -872,7 +871,7 @@ export type TestRequests<Name extends string> = {
      * */
     method: 'eth_sendUnsignedTransaction'
     params: [request: TransactionRequest]
-  }): Promise<Data>
+  }): Promise<Hash>
 }
 
 export type SignableRequests = {
@@ -886,7 +885,7 @@ export type SignableRequests = {
      * */
     method: 'eth_sendTransaction'
     params: [request: TransactionRequest]
-  }): Promise<Data>
+  }): Promise<Hash>
   request(args: {
     /**
      * @description Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`
@@ -898,11 +897,11 @@ export type SignableRequests = {
     method: 'eth_sign'
     params: [
       /** Address to use for signing */
-      address: Data,
+      address: Address,
       /** Data to sign */
-      data: Data,
+      data: Hex,
     ]
-  }): Promise<Data>
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Signs a transaction that can be submitted to the network at a later time using with `eth_sendRawTransaction`
@@ -913,7 +912,7 @@ export type SignableRequests = {
      * */
     method: 'eth_signTransaction'
     params: [request: TransactionRequest]
-  }): Promise<Data>
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`
@@ -925,11 +924,11 @@ export type SignableRequests = {
     method: 'eth_signTypedData'
     params: [
       /** Address to use for signing */
-      address: Data,
+      address: Address,
       /** Message to sign containing type information, a domain separator, and data */
-      message: Data,
+      message: Hex,
     ]
-  }): Promise<Data>
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Returns information about the status of this client’s network synchronization
@@ -952,11 +951,11 @@ export type SignableRequests = {
     method: 'personal_sign'
     params: [
       /** Data to sign */
-      data: Data,
+      data: Hex,
       /** Address to use for signing */
-      address: Data,
+      address: Address,
     ]
-  }): Promise<Data>
+  }): Promise<Hex>
 }
 
 export type WalletRequests = {
@@ -970,7 +969,7 @@ export type WalletRequests = {
      * */
     method: 'eth_accounts'
     params?: never
-  }): Promise<Data[]>
+  }): Promise<Address[]>
   request(args: {
     /**
      * @description Requests that the user provides an Ethereum address to be identified by. Typically causes a browser extension popup to appear.

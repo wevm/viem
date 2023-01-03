@@ -1,7 +1,7 @@
 import type { Chain, Formatter, Formatters } from '../../chains'
 import { transactionType } from '../../constants'
 import type { RpcTransactionReceipt, TransactionReceipt } from '../../types'
-import { hexToNumber } from '../number'
+import { hexToNumber } from '../encoding'
 import type { ExtractFormatter, Formatted } from './format'
 import { formatLog } from './log'
 

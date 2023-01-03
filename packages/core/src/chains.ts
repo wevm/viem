@@ -25,7 +25,7 @@ import {
 import type {
   Address,
   Block,
-  Data,
+  Hex,
   Quantity,
   RpcBlock,
   RpcTransaction,
@@ -126,7 +126,10 @@ export const celo = defineChain({
     block: defineBlock({
       exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
       format: (block) => ({
-        randomness: block.randomness as { committed: Data; revealed: Data },
+        randomness: block.randomness as {
+          committed: Hex
+          revealed: Hex
+        },
       }),
     }),
     transaction: defineTransaction({

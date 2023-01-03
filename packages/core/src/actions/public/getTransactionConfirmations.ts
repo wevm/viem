@@ -1,6 +1,6 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { Data } from '../../types'
+import type { Hash } from '../../types'
 import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
@@ -11,7 +11,7 @@ import { getTransaction } from './getTransaction'
 export type GetTransactionConfirmationsArgs<TChain extends Chain> =
   | {
       /** The transaction hash. */
-      hash: Data
+      hash: Hash
       transactionReceipt?: never
     }
   | {

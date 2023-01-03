@@ -1,14 +1,14 @@
 import type { TestClient } from '../../clients'
-import type { Address, Data } from '../../types'
+import type { Address, Hash, Hex } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetStorageAtArgs = {
   /** The account address. */
   address: Address
   /** The storage slot (index). Can either be a number or hash value. */
-  index: number | Data
+  index: number | Hash
   /** The value to store as a 32 byte hex string. */
-  value: Data
+  value: Hex
 }
 
 export async function setStorageAt(

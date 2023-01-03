@@ -2,7 +2,7 @@ import type { Chain, Formatter } from '../../chains'
 import type { PublicClient } from '../../clients'
 import type {
   BlockTag,
-  Data,
+  Hex,
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
@@ -33,7 +33,7 @@ export type CallArgs<TChain extends Chain = Chain> = {
     }
 )
 
-export type CallResponse = { data: Data | undefined }
+export type CallResponse = { data: Hex | undefined }
 
 export async function call<TChain extends Chain>(
   client: PublicClient,

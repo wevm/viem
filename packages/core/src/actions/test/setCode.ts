@@ -1,11 +1,11 @@
 import type { TestClient } from '../../clients'
-import type { Address, Data } from '../../types'
+import type { Address, Hex } from '../../types'
 
 export type SetCodeArgs = {
   /** The account address. */
   address: Address
   /** The bytecode to set */
-  bytecode: Data
+  bytecode: Hex
 }
 
 export async function setCode(

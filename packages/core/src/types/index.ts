@@ -1,5 +1,3 @@
-export type { Address } from './address'
-
 export type {
   Block,
   BlockIdentifier,
@@ -7,8 +5,6 @@ export type {
   BlockTag,
   Uncle,
 } from './block'
-
-export type { Data } from './data'
 
 export type {
   EstimateGasParameters,
@@ -21,6 +17,8 @@ export type {
 export type { Filter, FilterType } from './filter'
 
 export type { Log } from './log'
+
+export type { Address, BytesArray, Hex, Hash } from './misc'
 
 export type {
   Index,

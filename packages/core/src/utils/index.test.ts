@@ -23,6 +23,9 @@ test('exports utils', () => {
       "TimeoutError": [Function],
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
+      "bytesToHex": [Function],
+      "decodeHex": [Function],
+      "encodeHex": [Function],
       "format": [Function],
       "formatBlock": [Function],
       "formatEther": [Function],
@@ -31,7 +34,10 @@ test('exports utils', () => {
       "formatTransactionRequest": [Function],
       "formatUnit": [Function],
       "getAddress": [Function],
+      "hexToBigInt": [Function],
+      "hexToBytes": [Function],
       "hexToNumber": [Function],
+      "hexToString": [Function],
       "isAddress": [Function],
       "isAddressEqual": [Function],
       "numberToHex": [Function],
@@ -43,6 +49,7 @@ test('exports utils', () => {
         "webSocket": [Function],
         "webSocketAsync": [Function],
       },
+      "stringToHex": [Function],
     }
   `)
 })

@@ -1,12 +1,12 @@
 import type { PublicClient } from '../../clients'
-import type { Data, Filter } from '../../types'
+import type { Filter, Hash } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter'
 import { getFilterChanges } from './getFilterChanges'
 import { uninstallFilter } from './uninstallFilter'
 
-export type OnTransactionsResponse = Data[]
+export type OnTransactionsResponse = Hash[]
 export type OnTransactions = (transactions: OnTransactionsResponse) => void
 
 export type WatchPendingTransactionsArgs = {

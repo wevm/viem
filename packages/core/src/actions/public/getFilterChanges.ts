@@ -1,5 +1,5 @@
 import type { PublicClient } from '../../clients'
-import type { Data, Filter, FilterType, Log } from '../../types'
+import type { Filter, FilterType, Hash, Log } from '../../types'
 
 import { formatLog } from '../../utils/formatters/log'
 
@@ -7,7 +7,7 @@ export type GetFilterChangesArgs<TFilterType extends FilterType> = {
   filter: Filter<TFilterType>
 }
 export type GetFilterChangesResponse<TFilterType extends FilterType> =
-  TFilterType extends 'default' ? Log[] : Data[]
+  TFilterType extends 'default' ? Log[] : Hash[]
 
 export async function getFilterChanges<TFilterType extends FilterType>(
   client: PublicClient,

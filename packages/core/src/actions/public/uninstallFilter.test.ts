@@ -8,7 +8,7 @@ import { uninstallFilter } from './uninstallFilter'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
 import { parseEther } from '../../utils'
-import type { Data } from '../../types'
+import type { Hash } from '../../types'
 
 test('default', async () => {
   const filter = await createPendingTransactionFilter(publicClient)
@@ -34,7 +34,7 @@ test('pending txns', async () => {
   })
 
   let hashes = await getFilterChanges(publicClient, { filter })
-  assertType<Data[]>(hashes)
+  assertType<Hash[]>(hashes)
   expect(hashes.length).toBe(2)
 
   mine(testClient, { blocks: 1 })
