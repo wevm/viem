@@ -40,13 +40,17 @@ export {
 
 export {
   bytesToHex,
-  encodeHex,
+  bytesToString,
+  decodeBytes,
   decodeHex,
+  encodeBytes,
+  encodeHex,
   hexToBigInt,
   hexToBytes,
   hexToNumber,
   hexToString,
   numberToHex,
+  stringToBytes,
   stringToHex,
 } from './encoding'
 

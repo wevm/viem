@@ -1,12 +1,6 @@
 import { expect, test } from 'vitest'
 
-import {
-  decodeHex,
-  hexToBigInt,
-  hexToBytes,
-  hexToNumber,
-  hexToString,
-} from './decodeHex'
+import { decodeHex, hexToBigInt, hexToNumber, hexToString } from './decodeHex'
 
 test('converts hex to number', () => {
   expect(decodeHex('0x0', 'number')).toMatchInlineSnapshot('0')
@@ -72,38 +66,6 @@ test('converts hex to bytes', () => {
   )
   expect(decodeHex('0x48656c6c6f20576f726c6421', 'bytes'))
     .toMatchInlineSnapshot(`
-    Uint8Array [
-      72,
-      101,
-      108,
-      108,
-      111,
-      32,
-      87,
-      111,
-      114,
-      108,
-      100,
-      33,
-    ]
-  `)
-
-  expect(hexToBytes('0x')).toMatchInlineSnapshot(`Uint8Array []`)
-  expect(hexToBytes('0x61')).toMatchInlineSnapshot(`
-    Uint8Array [
-      97,
-    ]
-  `)
-  expect(hexToBytes('0x616263')).toMatchInlineSnapshot(
-    `
-    Uint8Array [
-      97,
-      98,
-      99,
-    ]
-  `,
-  )
-  expect(hexToBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(`
     Uint8Array [
       72,
       101,

@@ -1,4 +1,5 @@
 import type { Hex } from '../../types'
+import { hexToBytes } from './encodeBytes'
 
 type DecodeHexResponse<TTo> = TTo extends 'string'
   ? string
@@ -9,10 +10,6 @@ type DecodeHexResponse<TTo> = TTo extends 'string'
   : TTo extends 'bytes'
   ? Uint8Array
   : never
-
-function assertLength(hex: Hex) {
-  if (hex.length % 2) throw new Error('Hex value is unpadded.')
-}
 
 /**
  * @description Decodes a hex string into a string, number, bigint, or bytes (Uint8Array).
@@ -39,25 +36,6 @@ export function hexToNumber(hex: Hex): number {
  */
 export function hexToBigInt(hex: Hex): bigint {
   return BigInt(hex)
-}
-
-/**
- * @description Decodes a hex string into bytes (Uint8Array).
- */
-export function hexToBytes(hex_: Hex): Uint8Array {
-  let hex = hex_.slice(2) as Hex
-
-  assertLength(hex)
-
-  const array = new Uint8Array(hex.length / 2)
-  for (let index = 0; index < array.length; index++) {
-    const start = index * 2
-    const hexByte = hex.slice(start, start + 2)
-    const byte = Number.parseInt(hexByte, 16)
-    if (Number.isNaN(byte) || byte < 0) throw new Error('Invalid byte sequence')
-    array[index] = byte
-  }
-  return array
 }
 
 /**

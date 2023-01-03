@@ -531,7 +531,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/decodeBase64',
             },
             {
-              text: 'decodeBytes 🚧',
+              text: 'decodeBytes',
               link: '/docs/utilities/decodeBytes',
             },
             {
@@ -551,7 +551,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/encodeBase64',
             },
             {
-              text: 'encodeBytes 🚧',
+              text: 'encodeBytes',
               link: '/docs/utilities/encodeBytes',
             },
             {

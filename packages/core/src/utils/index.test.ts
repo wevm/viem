@@ -24,7 +24,10 @@ test('exports utils', () => {
       "TransactionRejectedRpcError": [Function],
       "buildRequest": [Function],
       "bytesToHex": [Function],
+      "bytesToString": [Function],
+      "decodeBytes": [Function],
       "decodeHex": [Function],
+      "encodeBytes": [Function],
       "encodeHex": [Function],
       "format": [Function],
       "formatBlock": [Function],
@@ -50,6 +53,7 @@ test('exports utils', () => {
         "webSocket": [Function],
         "webSocketAsync": [Function],
       },
+      "stringToBytes": [Function],
       "stringToHex": [Function],
     }
   `)

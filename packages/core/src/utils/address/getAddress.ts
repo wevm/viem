@@ -1,14 +1,13 @@
-import { keccak_256 } from '@noble/hashes/sha3'
-
 import type { Address } from '../../types'
 import { BaseError } from '../BaseError'
+import { stringToBytes } from '../encoding'
+import { keccak256 } from '../hash'
 
 const addressRegex = /^(0x)?[a-fA-F0-9]{40}$/
 
 export function checksumAddress(address_: Address): Address {
   const hexAddress = address_.substring(2).toLowerCase()
-  const bytes = new TextEncoder().encode(hexAddress)
-  const hash = keccak_256(bytes)
+  const hash = keccak256(stringToBytes(hexAddress), { to: 'bytes' })
 
   let address = hexAddress.split('')
   for (let i = 0; i < 40; i += 2) {

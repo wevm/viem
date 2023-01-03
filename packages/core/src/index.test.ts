@@ -25,6 +25,7 @@ test('exports actions', () => {
       "UrlRequiredError": [Function],
       "addChain": [Function],
       "bytesToHex": [Function],
+      "bytesToString": [Function],
       "call": [Function],
       "createBlockFilter": [Function],
       "createClient": [Function],
@@ -33,8 +34,10 @@ test('exports actions', () => {
       "createTestClient": [Function],
       "createTransport": [Function],
       "createWalletClient": [Function],
+      "decodeBytes": [Function],
       "decodeHex": [Function],
       "dropTransaction": [Function],
+      "encodeBytes": [Function],
       "encodeHex": [Function],
       "estimateGas": [Function],
       "etherUnits": {
@@ -107,6 +110,7 @@ test('exports actions', () => {
       "signMessage": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
+      "stringToBytes": [Function],
       "stringToHex": [Function],
       "switchChain": [Function],
       "transactionType": {
