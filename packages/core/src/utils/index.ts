@@ -55,7 +55,7 @@ export {
 } from './encoding'
 
 export type { Keccak256Options } from './hash'
-export { keccak256 } from './hash'
+export { getEventSignature, getSignature, keccak256 } from './hash'
 
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
 

@@ -568,8 +568,12 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Hash',
           items: [
             {
-              text: 'id 🚧',
-              link: '/docs/utilities/id',
+              text: 'getEventSignature',
+              link: '/docs/utilities/getEventSignature',
+            },
+            {
+              text: 'getSignature',
+              link: '/docs/utilities/getSignature',
             },
             {
               text: 'hashMessage 🚧',

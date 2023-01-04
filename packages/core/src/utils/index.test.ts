@@ -37,6 +37,8 @@ test('exports utils', () => {
       "formatTransactionRequest": [Function],
       "formatUnit": [Function],
       "getAddress": [Function],
+      "getEventSignature": [Function],
+      "getSignature": [Function],
       "hexToBigInt": [Function],
       "hexToBytes": [Function],
       "hexToNumber": [Function],

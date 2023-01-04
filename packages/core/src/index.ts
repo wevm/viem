@@ -229,6 +229,8 @@ export {
   encodeBytes,
   encodeHex,
   getAddress,
+  getEventSignature,
+  getSignature,
   formatEther,
   isAddress,
   isAddressEqual,
