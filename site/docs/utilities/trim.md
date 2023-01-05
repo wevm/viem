@@ -24,7 +24,7 @@ trim(new Uint8Array([0, 0, 0, 0, 0, 0, 1, 122, 51, 123]))
 
 ## Returns
 
-`Hex | Uint8Array`
+`Hex | ByteArray`
 
 The trimmed value.
 

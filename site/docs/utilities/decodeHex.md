@@ -31,7 +31,7 @@ decodeHex('0x1', 'boolean')
 
 ## Returns
 
-`string | bigint | number | Uint8Array`
+`string | bigint | number | ByteArray`
 
 The targeted type.
 

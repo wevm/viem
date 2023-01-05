@@ -1,4 +1,4 @@
-import type { Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types'
 import { hexToBytes } from './encodeBytes'
 
 type DecodeHexResponse<TTo> = TTo extends 'string'
@@ -8,7 +8,7 @@ type DecodeHexResponse<TTo> = TTo extends 'string'
   : TTo extends 'number'
   ? number
   : TTo extends 'bytes'
-  ? Uint8Array
+  ? ByteArray
   : TTo extends 'boolean'
   ? boolean
   : never

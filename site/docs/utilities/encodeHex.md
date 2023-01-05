@@ -38,7 +38,7 @@ The hex value.
 
 ### Value
 
-- **Type:** `string | number | bigint | Uint8Array`
+- **Type:** `string | number | bigint | ByteArray`
 
 The value to hex encode.
 
@@ -75,7 +75,7 @@ stringToHex('Hello World!')
 
 ### bytesToHex
 
-- **Type:** `Uint8Array`
+- **Type:** `ByteArray`
 
 Encodes a byte array to a hex value.
 

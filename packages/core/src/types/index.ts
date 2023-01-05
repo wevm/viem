@@ -18,7 +18,7 @@ export type { Filter, FilterType } from './filter'
 
 export type { Log } from './log'
 
-export type { Address, BytesArray, Hex, Hash } from './misc'
+export type { Address, ByteArray, Hex, Hash } from './misc'
 
 export type {
   Index,

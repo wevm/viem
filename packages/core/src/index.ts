@@ -166,7 +166,7 @@ export type {
   BlockIdentifier,
   BlockNumber,
   BlockTag,
-  BytesArray,
+  ByteArray,
   Hex,
   FeeHistory,
   FeeValues,

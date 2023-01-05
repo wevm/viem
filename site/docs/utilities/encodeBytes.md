@@ -28,7 +28,7 @@ encodeBytes(true)
 
 ## Returns
 
-`Uint8Array`
+`ByteArray`
 
 The byte array represented as a `Uint8Array`.
 

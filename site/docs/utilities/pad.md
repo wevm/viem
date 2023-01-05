@@ -24,7 +24,7 @@ pad(new Uint8Array([1, 122, 51, 123]))
 
 ## Returns
 
-`Hex | Uint8Array`
+`Hex | ByteArray`
 
 The value with padded zeros.
 

@@ -1,4 +1,4 @@
-import type { Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types'
 
 const trimStart = [new RegExp(`^([0]*)(.*)$`), '$2'] as const
 const trimEnd = [new RegExp(`^(.*?)([0]*)$`), '$1'] as const
@@ -22,7 +22,7 @@ export function trimHex(hex_: Hex, { dir = 'left' }: TrimOptions = {}) {
 }
 
 export function trimBytes(
-  bytes: Uint8Array,
+  bytes: ByteArray,
   { dir = 'left' }: TrimOptions = {},
 ) {
   let sliceLength = 0
@@ -36,7 +36,7 @@ export function trimBytes(
 }
 
 export function trim(
-  hexOrBytes: Hex | Uint8Array,
+  hexOrBytes: Hex | ByteArray,
   { dir = 'left' }: TrimOptions = {},
 ) {
   if (typeof hexOrBytes === 'string') return trimHex(hexOrBytes, { dir })

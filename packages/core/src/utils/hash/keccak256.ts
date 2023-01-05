@@ -1,6 +1,6 @@
 import { keccak_256 } from '@noble/hashes/sha3'
 
-import type { Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types'
 
 import { encodeHex } from '../encoding'
 
@@ -10,13 +10,13 @@ export type Keccak256Options<TTo extends To> = {
   to?: TTo
 }
 export type Keccak256Hash<TTo extends To> = TTo extends 'bytes'
-  ? Uint8Array
+  ? ByteArray
   : TTo extends 'hex'
   ? Hex
   : never
 
 export function keccak256<TTo extends To = 'hex'>(
-  value: Uint8Array,
+  value: ByteArray,
   { to: to_ }: Keccak256Options<TTo> = {},
 ): Keccak256Hash<TTo> {
   const to = to_ || 'hex'

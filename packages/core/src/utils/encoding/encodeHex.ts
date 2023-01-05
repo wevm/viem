@@ -1,4 +1,4 @@
-import type { Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types'
 
 const hexes = Array.from({ length: 256 }, (v, i) =>
   i.toString(16).padStart(2, '0'),
@@ -12,9 +12,9 @@ export function boolToHex(value: boolean): Hex {
 }
 
 /**
- * @description Encodes a bytes32 array into a hex string
+ * @description Encodes a bytes array into a hex string
  */
-export function bytesToHex(value: Uint8Array): Hex {
+export function bytesToHex(value: ByteArray): Hex {
   let hex = ''
   for (let i = 0; i < value.length; i++) {
     hex += hexes[value[i]]
@@ -23,10 +23,10 @@ export function bytesToHex(value: Uint8Array): Hex {
 }
 
 /**
- * @description Encodes a string, number, bigint, or Uint8Array into a hex string
+ * @description Encodes a string, number, bigint, or ByteArray into a hex string
  */
 export function encodeHex(
-  value: string | number | bigint | boolean | Uint8Array,
+  value: string | number | bigint | boolean | ByteArray,
 ): Hex {
   if (typeof value === 'number' || typeof value === 'bigint')
     return numberToHex(value)

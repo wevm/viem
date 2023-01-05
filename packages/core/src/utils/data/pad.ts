@@ -1,4 +1,4 @@
-import type { Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types'
 
 type PadOptions = {
   dir?: 'left' | 'right'
@@ -17,7 +17,7 @@ export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
 }
 
 export function padBytes(
-  bytes: Uint8Array,
+  bytes: ByteArray,
   { dir, size = 32 }: PadOptions = {},
 ) {
   if (bytes.length > size)
@@ -34,7 +34,7 @@ export function padBytes(
 }
 
 export function pad(
-  hexOrBytes: Hex | Uint8Array,
+  hexOrBytes: Hex | ByteArray,
   { dir, size = 32 }: PadOptions = {},
 ) {
   if (typeof hexOrBytes === 'string') return padHex(hexOrBytes, { dir, size })

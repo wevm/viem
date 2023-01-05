@@ -42,7 +42,7 @@ The targeted type.
 
 ### value
 
-- **Type:** `Uint8Array`
+- **Type:** `ByteArray`
 
 The byte array to decode.
 

@@ -25,7 +25,7 @@ keccak256(encodeBytes('Hello world'))
 
 ## Returns
 
-`Hex | Uint8Array`
+`Hex | ByteArray`
 
 The hashed value.
 
@@ -33,7 +33,7 @@ The hashed value.
 
 ### value
 
-- **Type:** `Uint8Array`
+- **Type:** `ByteArray`
 
 The byte array to hash.
 
