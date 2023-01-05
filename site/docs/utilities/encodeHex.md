@@ -1,6 +1,6 @@
 # encodeHex
 
-Encodes a string, number or byte array to a hex string value.
+Encodes a string, number, boolean or byte array to a hex value value.
 
 ## Import
 
@@ -23,6 +23,9 @@ encodeHex(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 )
 // "0x48656c6c6f20576f726c6421"
+
+encodeHex(true)
+// "0x1"
 ```
 
 ## Returns
@@ -45,7 +48,7 @@ The value to hex encode.
 
 - **Type:** `number | bigint`
 
-Encodes a number value to a hex string.
+Encodes a number value to a hex value.
 
 ```ts
 import { numberToHex } from 'viem'
@@ -61,7 +64,7 @@ numberToHex(4206942069420694206942069420694206942069n)
 
 - **Type:** `string`
 
-Encodes a UTF-8 string value to a hex string.
+Encodes a UTF-8 string value to a hex value.
 
 ```ts
 import { stringToHex } from 'viem'
@@ -74,7 +77,7 @@ stringToHex('Hello World!')
 
 - **Type:** `Uint8Array`
 
-Encodes a byte array to a hex string.
+Encodes a byte array to a hex value.
 
 ```ts
 import { stringToHex } from 'viem'
@@ -83,4 +86,17 @@ bytesToHex(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
 )
 // "0x48656c6c6f20576f726c6421"
+```
+
+### boolToHex
+
+- **Type:** `boolean`
+
+Encodes a boolean to a hex value.
+
+```ts
+import { stringToHex } from 'viem'
+
+bytesToHex(true)
+// "0x1"
 ```

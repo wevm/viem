@@ -1,7 +1,31 @@
-export { decodeBytes, bytesToString } from './decodeBytes'
+export {
+  boolToBytes,
+  encodeBytes,
+  hexToBytes,
+  numberToBytes,
+  stringToBytes,
+} from './encodeBytes'
 
-export { decodeHex, hexToNumber, hexToBigInt, hexToString } from './decodeHex'
+export {
+  boolToHex,
+  bytesToHex,
+  encodeHex,
+  numberToHex,
+  stringToHex,
+} from './encodeHex'
 
-export { encodeBytes, hexToBytes, stringToBytes } from './encodeBytes'
+export {
+  bytesToBigint,
+  bytesToBool,
+  bytesToNumber,
+  bytesToString,
+  decodeBytes,
+} from './decodeBytes'
 
-export { encodeHex, numberToHex, bytesToHex, stringToHex } from './encodeHex'
+export {
+  decodeHex,
+  hexToBigInt,
+  hexToBool,
+  hexToNumber,
+  hexToString,
+} from './decodeHex'

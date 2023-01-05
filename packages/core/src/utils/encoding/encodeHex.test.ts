@@ -1,6 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { bytesToHex, encodeHex, numberToHex, stringToHex } from './encodeHex'
+import {
+  boolToHex,
+  bytesToHex,
+  encodeHex,
+  numberToHex,
+  stringToHex,
+} from './encodeHex'
 
 test('converts numbers to hex', () => {
   expect(encodeHex(0)).toMatchInlineSnapshot('"0x0"')
@@ -12,6 +18,19 @@ test('converts numbers to hex', () => {
   expect(numberToHex(7)).toMatchInlineSnapshot('"0x7"')
   expect(numberToHex(69)).toMatchInlineSnapshot('"0x45"')
   expect(numberToHex(420)).toMatchInlineSnapshot('"0x1a4"')
+
+  expect(
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+    () => numberToHex(420182738912731283712937129),
+  ).toThrowErrorMatchingInlineSnapshot(
+    '"Number is not in safe integer range (0 to 9007199254740991)"',
+  )
+  expect(
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+    () => numberToHex(-69),
+  ).toThrowErrorMatchingInlineSnapshot(
+    '"Number is not in safe integer range (0 to 9007199254740991)"',
+  )
 })
 
 test('converts bigints to hex', () => {
@@ -30,6 +49,21 @@ test('converts bigints to hex', () => {
   expect(
     numberToHex(4206942069420694206942069420694206942069n),
   ).toMatchInlineSnapshot('"0xc5cf39211876fb5e5884327fa56fc0b75"')
+
+  expect(
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+    () => numberToHex(-69n),
+  ).toThrowErrorMatchingInlineSnapshot(
+    '"Number is not in safe integer range (0 to 9007199254740991)"',
+  )
+})
+
+test('converts boolean to hex', () => {
+  expect(encodeHex(true)).toMatchInlineSnapshot('"0x1"')
+  expect(encodeHex(false)).toMatchInlineSnapshot('"0x0"')
+
+  expect(boolToHex(true)).toMatchInlineSnapshot('"0x1"')
+  expect(boolToHex(false)).toMatchInlineSnapshot('"0x0"')
 })
 
 test('converts string to hex', () => {

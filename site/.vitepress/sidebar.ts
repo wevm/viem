@@ -111,8 +111,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/createBlockFilter',
             },
             {
-              text: 'createFilter 🚧',
-              link: '/docs/actions/public/createFilter',
+              text: 'createEventFilter',
+              link: '/docs/actions/public/createEventFilter',
             },
             {
               text: 'createPendingTransactionFilter',
@@ -127,6 +127,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/getFilterLogs',
             },
             { text: 'getLogs 🚧', link: '/docs/actions/public/getLogs' },
+            {
+              text: 'watchEvents',
+              link: '/docs/actions/public/watchEvents',
+            },
             {
               text: 'uninstallFilter',
               link: '/docs/actions/public/uninstallFilter',
@@ -520,6 +524,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Data',
+          items: [
+            {
+              text: 'pad',
+              link: '/docs/utilities/pad',
+            },
+            {
+              text: 'trim',
+              link: '/docs/utilities/trim',
+            },
+          ],
+        },
+        {
           text: 'Encoding',
           items: [
             {
@@ -590,27 +607,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'sha512 🚧',
               link: '/docs/utilities/sha512',
-            },
-          ],
-        },
-        {
-          text: 'String',
-          items: [
-            {
-              text: 'bytesToString 🚧',
-              link: '/docs/utilities/bytesToString',
-            },
-            {
-              text: 'formatBytes32String 🚧',
-              link: '/docs/utilities/formatBytes32String',
-            },
-            {
-              text: 'parseBytes32String 🚧',
-              link: '/docs/utilities/parseBytes32String',
-            },
-            {
-              text: 'stringToBytes 🚧',
-              link: '/docs/utilities/stringToBytes',
             },
           ],
         },

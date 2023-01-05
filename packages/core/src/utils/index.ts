@@ -19,6 +19,8 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
+export { pad, padBytes, padHex, trim, trimBytes, trimHex } from './data'
+
 export type {
   BlockFormatter,
   ExtractFormatter,
@@ -39,16 +41,23 @@ export {
 } from './formatters'
 
 export {
+  boolToBytes,
+  boolToHex,
+  bytesToBigint,
+  bytesToBool,
   bytesToHex,
+  bytesToNumber,
   bytesToString,
   decodeBytes,
   decodeHex,
   encodeBytes,
   encodeHex,
+  hexToBool,
   hexToBigInt,
   hexToBytes,
   hexToNumber,
   hexToString,
+  numberToBytes,
   numberToHex,
   stringToBytes,
   stringToHex,

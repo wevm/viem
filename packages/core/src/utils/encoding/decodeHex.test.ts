@@ -1,6 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { decodeHex, hexToBigInt, hexToNumber, hexToString } from './decodeHex'
+import {
+  decodeHex,
+  hexToBigInt,
+  hexToBool,
+  hexToNumber,
+  hexToString,
+} from './decodeHex'
 
 test('converts hex to number', () => {
   expect(decodeHex('0x0', 'number')).toMatchInlineSnapshot('0')
@@ -30,6 +36,18 @@ test('converts hex to bigint', () => {
   expect(
     hexToBigInt('0xc5cf39211876fb5e5884327fa56fc0b75'),
   ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
+})
+
+test('converts hex to boolean', () => {
+  expect(decodeHex('0x0', 'boolean')).toMatchInlineSnapshot('false')
+  expect(decodeHex('0x1', 'boolean')).toMatchInlineSnapshot('true')
+
+  expect(hexToBool('0x0')).toMatchInlineSnapshot('false')
+  expect(hexToBool('0x1')).toMatchInlineSnapshot('true')
+
+  expect(() => hexToBool('0xa')).toThrowErrorMatchingInlineSnapshot(
+    '"Hex value is not a valid boolean."',
+  )
 })
 
 test('converts hex to string', () => {
@@ -82,9 +100,6 @@ test('converts hex to bytes', () => {
     ]
   `)
 
-  expect(() => decodeHex('0x1', 'bytes')).toThrowErrorMatchingInlineSnapshot(
-    '"Hex value is unpadded."',
-  )
   expect(() => decodeHex('0xgg', 'bytes')).toThrowErrorMatchingInlineSnapshot(
     '"Invalid byte sequence"',
   )

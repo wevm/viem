@@ -1,6 +1,81 @@
 import { expect, test } from 'vitest'
 
-import { bytesToHex, bytesToString, decodeBytes } from './decodeBytes'
+import {
+  bytesToBigint,
+  bytesToBool,
+  bytesToHex,
+  bytesToNumber,
+  bytesToString,
+  decodeBytes,
+} from './decodeBytes'
+
+test('converts bytes to number', () => {
+  expect(decodeBytes(new Uint8Array([0]), 'number')).toMatchInlineSnapshot('0')
+  expect(decodeBytes(new Uint8Array([7]), 'number')).toMatchInlineSnapshot('7')
+  expect(decodeBytes(new Uint8Array([69]), 'number')).toMatchInlineSnapshot(
+    '69',
+  )
+  expect(decodeBytes(new Uint8Array([1, 164]), 'number')).toMatchInlineSnapshot(
+    '420',
+  )
+
+  expect(bytesToNumber(new Uint8Array([0]))).toMatchInlineSnapshot('0')
+  expect(bytesToNumber(new Uint8Array([7]))).toMatchInlineSnapshot('7')
+  expect(bytesToNumber(new Uint8Array([69]))).toMatchInlineSnapshot('69')
+  expect(bytesToNumber(new Uint8Array([1, 164]))).toMatchInlineSnapshot('420')
+})
+
+test('converts bytes to bigint', () => {
+  expect(decodeBytes(new Uint8Array([0]), 'bigint')).toMatchInlineSnapshot('0n')
+  expect(decodeBytes(new Uint8Array([7]), 'bigint')).toMatchInlineSnapshot('7n')
+  expect(decodeBytes(new Uint8Array([69]), 'bigint')).toMatchInlineSnapshot(
+    '69n',
+  )
+  expect(decodeBytes(new Uint8Array([1, 164]), 'bigint')).toMatchInlineSnapshot(
+    '420n',
+  )
+  expect(
+    decodeBytes(
+      new Uint8Array([
+        12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11,
+        117,
+      ]),
+      'bigint',
+    ),
+  ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
+
+  expect(bytesToBigint(new Uint8Array([0]))).toMatchInlineSnapshot('0n')
+  expect(bytesToBigint(new Uint8Array([7]))).toMatchInlineSnapshot('7n')
+  expect(bytesToBigint(new Uint8Array([69]))).toMatchInlineSnapshot('69n')
+  expect(bytesToBigint(new Uint8Array([1, 164]))).toMatchInlineSnapshot('420n')
+  expect(
+    bytesToBigint(
+      new Uint8Array([
+        12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11,
+        117,
+      ]),
+    ),
+  ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
+})
+
+test('converts bytes to boolean', () => {
+  expect(decodeBytes(new Uint8Array([0]), 'boolean')).toMatchInlineSnapshot(
+    'false',
+  )
+  expect(decodeBytes(new Uint8Array([1]), 'boolean')).toMatchInlineSnapshot(
+    'true',
+  )
+
+  expect(bytesToBool(new Uint8Array([0]))).toMatchInlineSnapshot('false')
+  expect(bytesToBool(new Uint8Array([1]))).toMatchInlineSnapshot('true')
+
+  expect(() =>
+    bytesToBool(new Uint8Array([69])),
+  ).toThrowErrorMatchingInlineSnapshot('"Bytes value is not a valid boolean."')
+  expect(() =>
+    bytesToBool(new Uint8Array([1, 2])),
+  ).toThrowErrorMatchingInlineSnapshot('"Bytes value is not a valid boolean."')
+})
 
 test('converts bytes to string', () => {
   expect(decodeBytes(new Uint8Array([]), 'string')).toMatchInlineSnapshot(`""`)

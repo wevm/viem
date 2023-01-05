@@ -14,6 +14,7 @@ import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
 import { RpcError } from '../src/types/eip1193'
+import type { Hex } from '../src/types'
 
 export const accounts = [
   {
@@ -143,6 +144,13 @@ export const testClient = createTestClient({
   mode: 'anvil',
   transport: http(),
 })
+
+export const vitalikAddress = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
+export const usdcAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+export const transfer1Data = (address: string): Hex =>
+  `0xa9059cbb000000000000000000000000${address
+    .slice(2)
+    .toLowerCase()}0000000000000000000000000000000000000000000000000000000000000001`
 
 export function createHttpServer(
   handler: RequestListener,
