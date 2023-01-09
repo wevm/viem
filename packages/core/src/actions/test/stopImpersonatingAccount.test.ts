@@ -1,12 +1,17 @@
 import { expect, test } from 'vitest'
 
-import { accounts, testClient, walletClient } from '../../../test'
+import {
+  accounts,
+  testClient,
+  vitalikAddress,
+  walletClient,
+} from '../../../test'
 import { parseEther } from '../../utils'
 import { sendTransaction } from '../wallet/sendTransaction'
 import { impersonateAccount } from './impersonateAccount'
 import { stopImpersonatingAccount } from './stopImpersonatingAccount'
 
-const account = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
+const account = vitalikAddress
 
 test('stops impersonating account', async () => {
   await impersonateAccount(testClient, { address: account })

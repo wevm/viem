@@ -237,7 +237,7 @@ export {
   encodeRlp,
   getAddress,
   getEventSignature,
-  getSignature,
+  getFunctionSignature,
   formatEther,
   isAddress,
   isAddressEqual,

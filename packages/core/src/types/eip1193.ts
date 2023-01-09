@@ -542,7 +542,7 @@ export type PublicRequests = {
         fromBlock?: BlockNumber | BlockTag
         toBlock?: BlockNumber | BlockTag
         address?: Address | Address[]
-        topics?: Hex[]
+        topics?: (Hex | Hex[] | null)[]
       },
     ]
   }): Promise<Quantity>

@@ -7,7 +7,7 @@ import { webSocket } from './transports/webSocket'
 import { localhost } from '../chains'
 import type { SignableRequests, WalletRequests } from '../types/eip1193'
 import { ethereumProvider } from './transports/ethereumProvider'
-import { localWsUrl } from '../../test/utils'
+import { localWsUrl } from '../../test'
 
 const mockTransport = () =>
   createTransport({

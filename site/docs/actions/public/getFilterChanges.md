@@ -4,8 +4,8 @@ Returns a list of logs or hashes based on a [Filter](/TODO) since the last time 
 
 A Filter can be created from the following actions:
 
-- [`createFilter`](/TODO)
 - [`createBlockFilter`](/TODO)
+- [`createEventFilter`](/TODO)
 - [`createPendingTransactionFilter`](/TODO)
 
 ## Import
@@ -28,6 +28,21 @@ const hashes = await getFilterChanges(publicClient, { filter })
 // ["0x10d86dc08ac2f18f00ef0daf7998dcc8673cbcf1f1501eeb2fac1afd2f851128", ...]
 ```
 
+### Events
+
+```ts
+import { createEventFilter, getFilterChanges } from 'viem'
+import { publicClient } from '.'
+
+const filter = await createEventFilter(publicClient, { // [!code focus:99]
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: 'Transfer(address,address,uint256)',
+})
+// ...
+const logs = await getFilterChanges(publicClient, { filter })
+// [{ ... }, { ... }, { ... }]
+```
+
 ### Transactions
 
 ```ts
@@ -44,7 +59,7 @@ const hashes = await getFilterChanges(publicClient, { filter })
 
 [`Log[]`](/TODO)
 
-If the filter was created with `createFilter`, it returns a list of logs.
+If the filter was created with `createEventFilter`, it returns a list of logs.
 
 **OR**
 

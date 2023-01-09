@@ -6,7 +6,7 @@ test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "getEventSignature": [Function],
-      "getSignature": [Function],
+      "getFunctionSignature": [Function],
       "keccak256": [Function],
     }
   `)

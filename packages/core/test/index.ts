@@ -2,8 +2,15 @@ export { essentialProvider, ethersProvider, web3Provider } from './bench'
 
 export {
   accounts,
-  createHttpServer,
   initialBlockNumber,
+  localWsUrl,
+  transfer1Data,
+  usdcAddress,
+  vitalikAddress,
+} from './constants'
+
+export {
+  createHttpServer,
   publicClient,
   testClient,
   walletClient,

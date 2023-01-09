@@ -13,7 +13,7 @@ export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
         hex.length / 2,
       )} bytes) exceeds padding size (${size} bytes).`,
     )
-  return '0x' + hex[dir === 'right' ? 'padEnd' : 'padStart'](64, '0')
+  return ('0x' + hex[dir === 'right' ? 'padEnd' : 'padStart'](64, '0')) as Hex
 }
 
 export function padBytes(

@@ -37,6 +37,11 @@ export type {
 } from './rpc'
 
 export type {
+  ExtractArgsFromEventDefinition,
+  ExtractArgsFromFunctionDefinition,
+} from './solidity'
+
+export type {
   AccessList,
   TransactionReceipt,
   TransactionRequest,

@@ -1,4 +1,4 @@
-import { hashDefinition } from './hashDefinition'
+import { hashFunction } from './hashFunction'
 
 export const getEventSignature = (event: `${string}(${string})`) =>
-  hashDefinition(event)
+  hashFunction(event)

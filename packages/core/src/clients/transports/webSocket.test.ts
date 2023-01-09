@@ -1,10 +1,8 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { localWsUrl } from '../../../test/utils'
+import { localWsUrl } from '../../../test'
 import { localhost } from '../../chains'
-
 import { wait } from '../../utils/wait'
-
 import type { WebSocketTransport } from './webSocket'
 import { webSocket } from './webSocket'
 

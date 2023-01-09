@@ -66,9 +66,15 @@ export {
   stringToHex,
 } from './encoding'
 
-export { getEventSignature, getSignature, keccak256 } from './hash'
+export { getEventSignature, getFunctionSignature, keccak256 } from './hash'
 
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
+
+export {
+  extractFunctionName,
+  extractFunctionParams,
+  extractFunctionType,
+} from './solidity'
 
 export {
   formatEther,
