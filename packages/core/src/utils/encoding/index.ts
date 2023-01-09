@@ -14,6 +14,9 @@ export {
   stringToHex,
 } from './encodeHex'
 
+export type { EncodeRlpResponse } from './encodeRlp'
+export { encodeRlp } from './encodeRlp'
+
 export {
   bytesToBigint,
   bytesToBool,
@@ -29,3 +32,5 @@ export {
   hexToNumber,
   hexToString,
 } from './decodeHex'
+
+export { decodeRlp } from './decodeRlp'

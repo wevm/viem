@@ -32,8 +32,10 @@ test('exports utils', () => {
       "bytesToString": [Function],
       "decodeBytes": [Function],
       "decodeHex": [Function],
+      "decodeRlp": [Function],
       "encodeBytes": [Function],
       "encodeHex": [Function],
+      "encodeRlp": [Function],
       "format": [Function],
       "formatBlock": [Function],
       "formatEther": [Function],
@@ -68,8 +70,6 @@ test('exports utils', () => {
       "stringToBytes": [Function],
       "stringToHex": [Function],
       "trim": [Function],
-      "trimBytes": [Function],
-      "trimHex": [Function],
     }
   `)
 })

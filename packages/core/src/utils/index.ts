@@ -19,7 +19,7 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
-export { pad, padBytes, padHex, trim, trimBytes, trimHex } from './data'
+export { pad, padBytes, padHex, trim } from './data'
 
 export type {
   BlockFormatter,
@@ -40,6 +40,7 @@ export {
   formatTransactionRequest,
 } from './formatters'
 
+export type { EncodeRlpResponse } from './encoding'
 export {
   boolToBytes,
   boolToHex,
@@ -50,8 +51,10 @@ export {
   bytesToString,
   decodeBytes,
   decodeHex,
+  decodeRlp,
   encodeBytes,
   encodeHex,
+  encodeRlp,
   hexToBool,
   hexToBigInt,
   hexToBytes,
@@ -63,7 +66,6 @@ export {
   stringToHex,
 } from './encoding'
 
-export type { Keccak256Options } from './hash'
 export { getEventSignature, getSignature, keccak256 } from './hash'
 
 export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'

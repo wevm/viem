@@ -199,10 +199,10 @@ export type {
 } from './types'
 
 export type {
+  EncodeRlpResponse,
   FormattedBlock,
   FormattedTransaction,
   FormattedTransactionRequest,
-  Keccak256Options,
 } from './utils'
 export {
   BaseError,
@@ -231,8 +231,10 @@ export {
   bytesToNumber,
   decodeBytes,
   decodeHex,
+  decodeRlp,
   encodeBytes,
   encodeHex,
+  encodeRlp,
   getAddress,
   getEventSignature,
   getSignature,
@@ -261,6 +263,4 @@ export {
   stringToBytes,
   stringToHex,
   trim,
-  trimBytes,
-  trimHex,
 } from './utils'

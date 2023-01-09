@@ -55,7 +55,7 @@ test('converts numbers to bytes', () => {
 })
 
 test('converts bigints to bytes', () => {
-  expect(encodeBytes(0)).toMatchInlineSnapshot(`
+  expect(encodeBytes(0n)).toMatchInlineSnapshot(`
     Uint8Array [
       0,
     ]
@@ -78,26 +78,26 @@ test('converts bigints to bytes', () => {
   `)
   expect(encodeBytes(4206942069420694206942069420694206942069n))
     .toMatchInlineSnapshot(`
-    Uint8Array [
-      12,
-      92,
-      243,
-      146,
-      17,
-      135,
-      111,
-      181,
-      229,
-      136,
-      67,
-      39,
-      250,
-      86,
-      252,
-      11,
-      117,
-    ]
-  `)
+      Uint8Array [
+        12,
+        92,
+        243,
+        146,
+        17,
+        135,
+        111,
+        181,
+        229,
+        136,
+        67,
+        39,
+        250,
+        86,
+        252,
+        11,
+        117,
+      ]
+    `)
 
   expect(numberToBytes(0)).toMatchInlineSnapshot(`
     Uint8Array [
@@ -122,26 +122,26 @@ test('converts bigints to bytes', () => {
   `)
   expect(numberToBytes(4206942069420694206942069420694206942069n))
     .toMatchInlineSnapshot(`
-    Uint8Array [
-      12,
-      92,
-      243,
-      146,
-      17,
-      135,
-      111,
-      181,
-      229,
-      136,
-      67,
-      39,
-      250,
-      86,
-      252,
-      11,
-      117,
-    ]
-  `)
+      Uint8Array [
+        12,
+        92,
+        243,
+        146,
+        17,
+        135,
+        111,
+        181,
+        229,
+        136,
+        67,
+        39,
+        250,
+        86,
+        252,
+        11,
+        117,
+      ]
+    `)
 })
 
 test('converts boolean to bytes', () => {

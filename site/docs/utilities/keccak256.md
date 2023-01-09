@@ -37,7 +37,7 @@ The hashed value.
 
 The byte array to hash.
 
-### options.to
+### to
 
 - **Type:** `"bytes" | "hex"`
 - **Default:** `"hex"`
@@ -49,7 +49,7 @@ import { keccak256 } from 'viem'
 
 keccak256(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33],
-  { to: 'bytes' } // [!code focus]
+  'bytes' // [!code focus]
 )
 // Uint8Array [62, 162, 241, 208, 171, 243, 252, 102, 207, 41, 238, 187, 112, 203, 212, 231, 254, 118, 46, 248, 160, 155, 204, 6, 200, 237, 246, 65, 35, 10, 254, 192] // [!code focus]
 ```

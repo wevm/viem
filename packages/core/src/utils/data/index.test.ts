@@ -9,8 +9,6 @@ test('exports utils', () => {
       "padBytes": [Function],
       "padHex": [Function],
       "trim": [Function],
-      "trimBytes": [Function],
-      "trimHex": [Function],
     }
   `)
 })

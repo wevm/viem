@@ -540,14 +540,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeBase58 🚧',
-              link: '/docs/utilities/decodeBase58',
-            },
-            {
-              text: 'decodeBase64 🚧',
-              link: '/docs/utilities/decodeBase64',
-            },
-            {
               text: 'decodeBytes',
               link: '/docs/utilities/decodeBytes',
             },
@@ -556,16 +548,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/decodeHex',
             },
             {
-              text: 'decodeRlp 🚧',
+              text: 'decodeRlp',
               link: '/docs/utilities/decodeRlp',
-            },
-            {
-              text: 'encodeBase58 🚧',
-              link: '/docs/utilities/encodeBase58',
-            },
-            {
-              text: 'encodeBase64 🚧',
-              link: '/docs/utilities/encodeBase64',
             },
             {
               text: 'encodeBytes',
@@ -576,7 +560,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/encodeHex',
             },
             {
-              text: 'encodeRlp 🚧',
+              text: 'encodeRlp',
               link: '/docs/utilities/encodeRlp',
             },
           ],
@@ -599,14 +583,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
-            },
-            {
-              text: 'sha256 🚧',
-              link: '/docs/utilities/sha256',
-            },
-            {
-              text: 'sha512 🚧',
-              link: '/docs/utilities/sha512',
             },
           ],
         },

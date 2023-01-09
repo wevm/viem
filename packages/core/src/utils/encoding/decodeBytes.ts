@@ -15,6 +15,19 @@ type DecodeBytesResponse<TTo> = TTo extends 'string'
   : never
 
 /**
+ * @description Decodes a byte array into a UTF-8 string, hex value, number, bigint or boolean.
+ */
+export function decodeBytes<
+  TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
+>(bytes: ByteArray, to: TTo): DecodeBytesResponse<TTo> {
+  if (to === 'number') return bytesToNumber(bytes) as DecodeBytesResponse<TTo>
+  if (to === 'bigint') return bytesToBigint(bytes) as DecodeBytesResponse<TTo>
+  if (to === 'boolean') return bytesToBool(bytes) as DecodeBytesResponse<TTo>
+  if (to === 'string') return bytesToString(bytes) as DecodeBytesResponse<TTo>
+  return bytesToHex(bytes) as DecodeBytesResponse<TTo>
+}
+
+/**
  * @description Decodes a byte array into a bigint.
  */
 export function bytesToBigint(bytes: ByteArray): bigint {
@@ -46,17 +59,4 @@ export function bytesToNumber(bytes: ByteArray): number {
  */
 export function bytesToString(bytes: ByteArray): string {
   return new TextDecoder().decode(bytes)
-}
-
-/**
- * @description Decodes a byte array into a UTF-8 string, hex value, number, bigint or boolean.
- */
-export function decodeBytes<
-  TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
->(bytes: ByteArray, to: TTo): DecodeBytesResponse<TTo> {
-  if (to === 'number') return bytesToNumber(bytes) as DecodeBytesResponse<TTo>
-  if (to === 'bigint') return bytesToBigint(bytes) as DecodeBytesResponse<TTo>
-  if (to === 'boolean') return bytesToBool(bytes) as DecodeBytesResponse<TTo>
-  if (to === 'string') return bytesToString(bytes) as DecodeBytesResponse<TTo>
-  return bytesToHex(bytes) as DecodeBytesResponse<TTo>
 }

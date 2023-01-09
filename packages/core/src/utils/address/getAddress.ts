@@ -7,7 +7,7 @@ const addressRegex = /^(0x)?[a-fA-F0-9]{40}$/
 
 export function checksumAddress(address_: Address): Address {
   const hexAddress = address_.substring(2).toLowerCase()
-  const hash = keccak256(stringToBytes(hexAddress), { to: 'bytes' })
+  const hash = keccak256(stringToBytes(hexAddress), 'bytes')
 
   let address = hexAddress.split('')
   for (let i = 0; i < 40; i += 2) {

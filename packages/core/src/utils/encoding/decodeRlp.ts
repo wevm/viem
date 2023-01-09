@@ -1,0 +1,99 @@
+import type { ByteArray, Hex } from '../../types'
+import { trim } from '../data'
+import { bytesToNumber } from './decodeBytes'
+import { hexToBytes } from './encodeBytes'
+import { bytesToHex } from './encodeHex'
+import type { RecursiveArray } from './encodeRlp'
+
+type DecodeRlpResponse<TTo> = TTo extends 'bytes'
+  ? ByteArray
+  : TTo extends 'hex'
+  ? Hex
+  : never
+
+export function decodeRlp<TTo extends 'bytes' | 'hex'>(
+  value: ByteArray | Hex,
+  to: TTo,
+): RecursiveArray<DecodeRlpResponse<TTo>> {
+  const bytes = parse(value)
+  const [data, consumed] = rlpToBytes(bytes)
+  if (consumed < bytes.length)
+    throw new Error('rlp prefix length is less than data length')
+  return format(data, to)
+}
+
+function parse(value: ByteArray | Hex) {
+  if (typeof value === 'string') {
+    if (value.length > 3 && value.length % 2 !== 0)
+      throw new Error('hex value is invalid length')
+    return hexToBytes(value)
+  }
+  return value
+}
+
+function format<TTo extends 'bytes' | 'hex'>(
+  bytes: RecursiveArray<ByteArray>,
+  to: TTo,
+): RecursiveArray<DecodeRlpResponse<TTo>> {
+  if (Array.isArray(bytes)) return bytes.map((b) => format(b, to))
+  return (
+    to === 'hex' ? trim(bytesToHex(bytes)) : bytes
+  ) as DecodeRlpResponse<TTo>
+}
+
+function rlpToBytes(
+  bytes: ByteArray,
+  offset = 0,
+): [result: RecursiveArray<ByteArray>, consumed: number] {
+  if (bytes.length === 0) return [new Uint8Array([]), 0]
+
+  const prefix = bytes[offset]
+
+  if (prefix <= 0x7f) return [new Uint8Array([bytes[offset]]), 1]
+
+  if (prefix <= 0xb7) {
+    const length = prefix - 0x80
+    const offset_ = offset + 1
+
+    if (offset_ + length > bytes.length)
+      throw new Error('data length too short')
+
+    return [bytes.slice(offset_, offset_ + length), 1 + length]
+  }
+
+  if (prefix <= 0xbf) {
+    const lengthOfLength = prefix - 0xb7
+    const offset_ = offset + 1
+    const length = bytesToNumber(bytes.slice(offset_, offset_ + lengthOfLength))
+
+    if (offset_ + lengthOfLength + length > bytes.length)
+      throw new Error('data length too short')
+
+    return [
+      bytes.slice(offset_ + lengthOfLength, offset_ + lengthOfLength + length),
+      1 + lengthOfLength + length,
+    ]
+  }
+
+  let lengthOfLength = 0
+  let length = prefix - 0xc0
+  if (prefix > 0xf7) {
+    lengthOfLength = prefix - 0xf7
+    length = bytesToNumber(bytes.slice(offset + 1, offset + 1 + lengthOfLength))
+  }
+
+  if (offset + 1 + lengthOfLength > bytes.length)
+    throw new Error('data length too short')
+
+  let offset_ = offset + 1 + lengthOfLength
+  let consumed = 1 + lengthOfLength + length
+  let result = []
+  while (offset_ < offset + consumed) {
+    const decoded = rlpToBytes(bytes, offset_)
+    result.push(decoded[0])
+    offset_ += decoded[1]
+    if (offset_ > offset + consumed) throw new Error('data length too long')
+  }
+
+  return [result, consumed]
+}

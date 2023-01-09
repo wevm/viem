@@ -6,11 +6,11 @@ import {
 
 import { bench, describe } from 'vitest'
 
-import { trimBytes, trimHex } from './trim'
+import { trim } from './trim'
 
 describe('Trim Hex', () => {
   bench('viem: `trimHex`', () => {
-    trimHex('0x00000000000000000000000a4e12a45')
+    trim('0x00000000000000000000000a4e12a45')
   })
 
   bench('ethers: `hexStripZeros`', () => {
@@ -24,7 +24,7 @@ describe('Trim Hex', () => {
 
 describe('Trim Bytes', () => {
   bench('viem: `trimBytes`', () => {
-    trimBytes(
+    trim(
       new Uint8Array([
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 122, 51, 123,
       ]),

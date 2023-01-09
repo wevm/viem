@@ -6,9 +6,6 @@ import { encodeHex } from '../encoding'
 
 type To = 'hex' | 'bytes'
 
-export type Keccak256Options<TTo extends To> = {
-  to?: TTo
-}
 export type Keccak256Hash<TTo extends To> = TTo extends 'bytes'
   ? ByteArray
   : TTo extends 'hex'
@@ -17,7 +14,7 @@ export type Keccak256Hash<TTo extends To> = TTo extends 'bytes'
 
 export function keccak256<TTo extends To = 'hex'>(
   value: ByteArray,
-  { to: to_ }: Keccak256Options<TTo> = {},
+  to_?: TTo,
 ): Keccak256Hash<TTo> {
   const to = to_ || 'hex'
   const bytes = keccak_256(value)

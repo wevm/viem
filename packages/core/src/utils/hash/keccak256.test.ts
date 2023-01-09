@@ -16,7 +16,7 @@ test('to bytes', () => {
   expect(
     keccak256(
       new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
-      { to: 'bytes' },
+      'bytes',
     ),
   ).toMatchInlineSnapshot(
     `
