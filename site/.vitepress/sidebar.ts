@@ -540,6 +540,14 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
+              text: 'decodeBase58 🚧',
+              link: '/docs/utilities/decodeBase58',
+            },
+            {
+              text: 'decodeBase64 🚧',
+              link: '/docs/utilities/decodeBase64',
+            },
+            {
               text: 'decodeBytes',
               link: '/docs/utilities/decodeBytes',
             },
@@ -552,12 +560,24 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/decodeRlp',
             },
             {
+              text: 'encodeBase58 🚧',
+              link: '/docs/utilities/encodeBase58',
+            },
+            {
+              text: 'encodeBase64 🚧',
+              link: '/docs/utilities/encodeBase64',
+            },
+            {
               text: 'encodeBytes',
               link: '/docs/utilities/encodeBytes',
             },
             {
               text: 'encodeHex',
               link: '/docs/utilities/encodeHex',
+            },
+            {
+              text: 'encodePacked 🚧',
+              link: '/docs/utilities/encodePacked',
             },
             {
               text: 'encodeRlp',
