@@ -593,8 +593,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getEventSignature',
             },
             {
-              text: 'getSignature',
-              link: '/docs/utilities/getSignature',
+              text: 'getFunctionSignature',
+              link: '/docs/utilities/getFunctionSignature',
             },
             {
               text: 'hashMessage 🚧',

@@ -1,22 +1,22 @@
-# getSignature
+# getFunctionSignature
 
 Returns the function signature (4 byte encoding) for a given function definition.
 
 ## Install
 
 ```ts
-import { getSignature } from 'viem'
+import { getFunctionSignature } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { getSignature } from 'viem'
+import { getFunctionSignature } from 'viem'
 
-const signature = getSignature('function ownerOf(uint256 tokenId)')
+const signature = getFunctionSignature('function ownerOf(uint256 tokenId)')
 // 0x6352211e
 
-const signature = getSignature('ownerOf(uint256)')
+const signature = getFunctionSignature('ownerOf(uint256)')
 // 0x6352211e
 ```
 
