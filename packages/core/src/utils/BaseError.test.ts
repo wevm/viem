@@ -3,9 +3,14 @@ import { expect, test } from 'vitest'
 import { BaseError } from './BaseError'
 
 test('BaseError', () => {
-  expect(
-    new BaseError({ details: 'details', humanMessage: 'An error occurred.' }),
-  ).toMatchInlineSnapshot(`
+  expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Version: viem@1.0.2]
+  `)
+
+  expect(new BaseError('An error occurred.', { details: 'details' }))
+    .toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
     Details: details
@@ -15,9 +20,8 @@ test('BaseError', () => {
 
 test('BaseError (w/ docsPath)', () => {
   expect(
-    new BaseError({
+    new BaseError('An error occurred.', {
       details: 'details',
-      humanMessage: 'An error occurred.',
       docsPath: '/lol',
     }),
   ).toMatchInlineSnapshot(`
@@ -31,15 +35,13 @@ test('BaseError (w/ docsPath)', () => {
 })
 
 test('inherited BaseError', () => {
-  const err = new BaseError({
+  const err = new BaseError('An error occurred.', {
     details: 'details',
     docsPath: '/lol',
-    humanMessage: 'An error occurred.',
   })
   expect(
-    new BaseError({
+    new BaseError('An internal error occurred.', {
       cause: err,
-      humanMessage: 'An internal error occurred.',
     }),
   ).toMatchInlineSnapshot(`
     [ViemError: An internal error occurred.
@@ -54,10 +56,9 @@ test('inherited BaseError', () => {
 test('inherited Error', () => {
   const err = new Error('details')
   expect(
-    new BaseError({
+    new BaseError('An internal error occurred.', {
       cause: err,
       docsPath: '/lol',
-      humanMessage: 'An internal error occurred.',
     }),
   ).toMatchInlineSnapshot(`
     [ViemError: An internal error occurred.

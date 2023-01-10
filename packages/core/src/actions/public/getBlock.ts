@@ -65,7 +65,6 @@ export async function getBlock<TChain extends Chain>(
 }
 
 ///////////////////////////////////////////////////////
-
 // Errors
 
 export class BlockNotFoundError extends BaseError {
@@ -80,9 +79,6 @@ export class BlockNotFoundError extends BaseError {
     let identifier = 'Block'
     if (blockHash) identifier = `Block at hash "${blockHash}"`
     if (blockNumber) identifier = `Block at number "${blockNumber}"`
-    super({
-      humanMessage: `${identifier} could not be found.`,
-      details: 'block not found at given hash or number',
-    })
+    super(`${identifier} could not be found.`)
   }
 }

@@ -38,7 +38,7 @@ test('valid request', async () => {
 test('BaseError', async () => {
   try {
     await buildRequest(() =>
-      Promise.reject(new BaseError({ humanMessage: 'foo', details: 'bar' })),
+      Promise.reject(new BaseError('foo', { details: 'bar' })),
     )()
   } catch (err) {
     expect(err).toMatchInlineSnapshot(`

@@ -1,4 +1,5 @@
 import type { ByteArray, Hex } from '../../types'
+import { BaseError } from '../BaseError'
 import { trim } from '../data'
 import { bytesToNumber } from './decodeBytes'
 import { hexToBytes } from './encodeBytes'
@@ -18,14 +19,17 @@ export function decodeRlp<TTo extends 'bytes' | 'hex'>(
   const bytes = parse(value)
   const [data, consumed] = rlpToBytes(bytes)
   if (consumed < bytes.length)
-    throw new Error('rlp prefix length is less than data length')
+    throw new DataLengthTooLongError({
+      consumed,
+      length: bytes.length,
+    })
   return format(data, to)
 }
 
 function parse(value: ByteArray | Hex) {
   if (typeof value === 'string') {
     if (value.length > 3 && value.length % 2 !== 0)
-      throw new Error('hex value is invalid length')
+      throw new InvalidHexValueError(value)
     return hexToBytes(value)
   }
   return value
@@ -56,7 +60,10 @@ function rlpToBytes(
     const offset_ = offset + 1
 
     if (offset_ + length > bytes.length)
-      throw new Error('data length too short')
+      throw new DataLengthTooShortError({
+        length: offset_ + length,
+        dataLength: bytes.length,
+      })
 
     return [bytes.slice(offset_, offset_ + length), 1 + length]
   }
@@ -67,7 +74,10 @@ function rlpToBytes(
     const length = bytesToNumber(bytes.slice(offset_, offset_ + lengthOfLength))
 
     if (offset_ + lengthOfLength + length > bytes.length)
-      throw new Error('data length too short')
+      throw new DataLengthTooShortError({
+        length: lengthOfLength + length,
+        dataLength: bytes.length - lengthOfLength,
+      })
 
     return [
       bytes.slice(offset_ + lengthOfLength, offset_ + lengthOfLength + length),
@@ -82,18 +92,67 @@ function rlpToBytes(
     length = bytesToNumber(bytes.slice(offset + 1, offset + 1 + lengthOfLength))
   }
 
-  if (offset + 1 + lengthOfLength > bytes.length)
-    throw new Error('data length too short')
+  let nextOffset = offset + 1 + lengthOfLength
+  if (nextOffset > bytes.length)
+    throw new DataLengthTooShortError({
+      length: nextOffset,
+      dataLength: bytes.length,
+    })
 
-  let offset_ = offset + 1 + lengthOfLength
   let consumed = 1 + lengthOfLength + length
   let result = []
-  while (offset_ < offset + consumed) {
-    const decoded = rlpToBytes(bytes, offset_)
+  while (nextOffset < offset + consumed) {
+    const decoded = rlpToBytes(bytes, nextOffset)
     result.push(decoded[0])
-    offset_ += decoded[1]
-    if (offset_ > offset + consumed) throw new Error('data length too long')
+    nextOffset += decoded[1]
+    if (nextOffset > offset + consumed)
+      throw new OffsetOutOfBoundsError({
+        nextOffset: nextOffset,
+        offset: offset + consumed,
+      })
   }
 
   return [result, consumed]
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Errors
+
+class DataLengthTooLongError extends BaseError {
+  name = 'DataLengthTooLongError'
+  constructor({ consumed, length }: { consumed: number; length: number }) {
+    super(
+      `Consumed bytes (${consumed}) is shorter than data length (${
+        length - 1
+      }).`,
+    )
+  }
+}
+
+class DataLengthTooShortError extends BaseError {
+  name = 'DataLengthTooShortError'
+  constructor({ length, dataLength }: { length: number; dataLength: number }) {
+    super(
+      `Data length (${dataLength - 1}) is shorter than prefix length (${
+        length - 1
+      }).`,
+    )
+  }
+}
+
+class InvalidHexValueError extends BaseError {
+  name = 'InvalidHexValueError'
+  constructor(value: Hex) {
+    super(
+      `Hex value "${value}" is an odd length (${value.length}). It must be an even length.`,
+    )
+  }
+}
+class OffsetOutOfBoundsError extends BaseError {
+  name = 'OffsetOutOfBoundsError'
+  constructor({ nextOffset, offset }: { nextOffset: number; offset: number }) {
+    super(
+      `Next offset (${nextOffset}) is greater than previous offset + consumed bytes (${offset})`,
+    )
+  }
 }

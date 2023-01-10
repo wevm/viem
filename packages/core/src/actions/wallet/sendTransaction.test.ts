@@ -416,8 +416,12 @@ describe('args: maxPriorityFeePerGas', () => {
           maxFeePerGas: parseGwei('10'),
         },
       }),
-    ).rejects.toThrowError(
-      `maxFeePerGas cannot be less than maxPriorityFeePerGas`,
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "\`maxFeePerGas\` cannot be less than \`maxPriorityFeePerGas\`
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 })
@@ -491,9 +495,8 @@ test('insufficient funds: errors when user is out of funds', async () => {
 
 test('InvalidGasArgumentsError', () => {
   expect(new InvalidGasArgumentsError()).toMatchInlineSnapshot(`
-    [InvalidGasArgumentsError: Gas values provided are invalid.
+    [InvalidGasArgumentsError: \`maxFeePerGas\` cannot be less than \`maxPriorityFeePerGas\`
 
-    Details: maxFeePerGas cannot be less than maxPriorityFeePerGas
     Version: viem@1.0.2]
   `)
 })

@@ -303,16 +303,18 @@ export class HttpRequestError extends BaseError {
     status: number
     url: string
   }) {
-    super({
-      humanMessage: [
+    super(
+      [
         'HTTP request failed.',
         '',
         `Status: ${status}`,
         `URL: ${url}`,
         `Request body: ${JSON.stringify(body)}`,
       ].join('\n'),
-      details,
-    })
+      {
+        details,
+      },
+    )
     this.status = status
   }
 }
@@ -329,15 +331,17 @@ export class WebSocketRequestError extends BaseError {
     details: string
     url: string
   }) {
-    super({
-      humanMessage: [
+    super(
+      [
         'WebSocket request failed.',
         '',
         `URL: ${url}`,
         `Request body: ${JSON.stringify(body)}`,
       ].join('\n'),
-      details,
-    })
+      {
+        details,
+      },
+    )
   }
 }
 
@@ -355,16 +359,18 @@ export class RpcError extends BaseError {
     error: { code: number; message: string }
     url: string
   }) {
-    super({
-      humanMessage: [
+    super(
+      [
         'RPC Request failed.',
         '',
         `URL: ${url}`,
         `Request body: ${JSON.stringify(body)}`,
       ].join('\n'),
-      cause: error as any,
-      details: error.message,
-    })
+      {
+        cause: error as any,
+        details: error.message,
+      },
+    )
     this.code = error.code
   }
 }
@@ -379,14 +385,16 @@ export class TimeoutError extends BaseError {
     body: { [key: string]: unknown }
     url: string
   }) {
-    super({
-      humanMessage: [
+    super(
+      [
         'The request took too long to respond.',
         '',
         `URL: ${url}`,
         `Request body: ${JSON.stringify(body)}`,
       ].join('\n'),
-      details: 'The request timed out.',
-    })
+      {
+        details: 'The request timed out.',
+      },
+    )
   }
 }

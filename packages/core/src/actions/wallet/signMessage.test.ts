@@ -36,7 +36,6 @@ test('hex', async () => {
 
     Docs: https://viem.sh/TODO
 
-    Details: data must be a hex value.
     Version: viem@1.0.2"
   `,
   )

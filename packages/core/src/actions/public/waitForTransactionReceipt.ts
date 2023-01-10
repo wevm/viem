@@ -171,9 +171,8 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
 export class WaitForTransactionReceiptTimeoutError extends BaseError {
   name = 'WaitForTransactionReceiptTimeoutError'
   constructor({ hash }: { hash: Hash }) {
-    super({
-      humanMessage: `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
-      details: 'timeout waiting for confirmation.',
-    })
+    super(
+      `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
+    )
   }
 }

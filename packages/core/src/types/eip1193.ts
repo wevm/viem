@@ -15,7 +15,6 @@ import type {
 } from './rpc'
 
 //////////////////////////////////////////////////
-
 // Errors
 
 export class RpcError extends Error {
@@ -30,7 +29,6 @@ export class RpcError extends Error {
 }
 
 //////////////////////////////////////////////////
-
 // Provider Events
 
 export type ProviderConnectInfo = {
@@ -72,7 +70,6 @@ export type Events = {
 }
 
 //////////////////////////////////////////////////
-
 // Provider Requests
 
 export type Chain = {

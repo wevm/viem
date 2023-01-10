@@ -173,7 +173,7 @@ describe('e2e', () => {
       getTransactionReceipt(publicClient, {
         hash,
       }),
-    ).rejects.toThrowError('transaction receipt not found')
+    ).rejects.toThrowError('Transaction receipt with hash')
 
     mine(testClient, { blocks: 1 })
     await wait(0)
@@ -217,7 +217,6 @@ test('throws if transaction not found', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found. The Transaction may not be processed on a block yet.
 
-    Details: transaction receipt not found
     Version: viem@1.0.2"
   `)
 })
@@ -230,7 +229,6 @@ test('TransactionReceiptNotFoundError', () => {
   expect(error.message).toMatchInlineSnapshot(`
     "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found. The Transaction may not be processed on a block yet.
 
-    Details: transaction receipt not found
     Version: viem@1.0.2"
   `)
 })

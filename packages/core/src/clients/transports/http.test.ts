@@ -104,11 +104,10 @@ test('request', async () => {
 test('no url', () => {
   expect(() => http()({})).toThrowErrorMatchingInlineSnapshot(
     `
-    "No URL was provided to the Transport.
+    "No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/TODO
 
-    Details: A valid RPC URL is required to execute an Action. Please provide a valid RPC URL to the Transport.
     Version: viem@1.0.2"
   `,
   )

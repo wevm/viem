@@ -46,7 +46,11 @@ test('converts hex to boolean', () => {
   expect(hexToBool('0x1')).toMatchInlineSnapshot('true')
 
   expect(() => hexToBool('0xa')).toThrowErrorMatchingInlineSnapshot(
-    '"Hex value is not a valid boolean."',
+    `
+    "Hex value \\"0xa\\" is not a valid boolean. The hex value must be \\"0x0\\" (false) or \\"0x1\\" (true).
+
+    Version: viem@1.0.2"
+  `,
   )
 })
 

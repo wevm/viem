@@ -5,10 +5,10 @@ import pkg from '../../package.json'
 /* c8 ignore next */
 const version = process.env.TEST ? '1.0.2' : pkg.version
 
-type BaseErrorArgs = { docsPath?: string; humanMessage: string } & (
+type BaseErrorArgs = { docsPath?: string } & (
   | {
       cause?: never
-      details: string
+      details?: string
     }
   | {
       cause: BaseError | Error
@@ -23,7 +23,7 @@ export class BaseError extends Error {
 
   name = 'ViemError'
 
-  constructor({ humanMessage, ...args }: BaseErrorArgs) {
+  constructor(humanMessage: string, args: BaseErrorArgs = {}) {
     const details =
       args.cause instanceof BaseError
         ? args.cause.details
@@ -38,7 +38,7 @@ export class BaseError extends Error {
       humanMessage,
       ...(docsPath ? ['', 'Docs: https://viem.sh' + docsPath] : []),
       '',
-      'Details: ' + details,
+      ...(details ? ['Details: ' + details] : []),
       'Version: viem@' + version,
       ...(args.cause &&
       !(args.cause instanceof BaseError) &&

@@ -319,7 +319,6 @@ describe('TransactionNotFoundError', () => {
     expect(new TransactionNotFoundError({})).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction could not be found.
 
-      Details: transaction not found
       Version: viem@1.0.2]
     `)
   })
@@ -329,7 +328,6 @@ describe('TransactionNotFoundError', () => {
       .toMatchInlineSnapshot(`
         [TransactionNotFoundError: Transaction at block hash "0x123" at index "420" could not be found.
 
-        Details: transaction not found
         Version: viem@1.0.2]
       `)
   })
@@ -339,7 +337,6 @@ describe('TransactionNotFoundError', () => {
       .toMatchInlineSnapshot(`
         [TransactionNotFoundError: Transaction at block time "latest" at index "420" could not be found.
 
-        Details: transaction not found
         Version: viem@1.0.2]
       `)
   })
@@ -349,7 +346,6 @@ describe('TransactionNotFoundError', () => {
       .toMatchInlineSnapshot(`
         [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 
-        Details: transaction not found
         Version: viem@1.0.2]
       `)
   })
@@ -359,7 +355,6 @@ describe('TransactionNotFoundError', () => {
       .toMatchInlineSnapshot(`
         [TransactionNotFoundError: Transaction with hash "0x123" could not be found.
 
-        Details: transaction not found
         Version: viem@1.0.2]
       `)
   })

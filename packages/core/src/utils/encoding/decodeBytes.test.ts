@@ -69,12 +69,18 @@ test('converts bytes to boolean', () => {
   expect(bytesToBool(new Uint8Array([0]))).toMatchInlineSnapshot('false')
   expect(bytesToBool(new Uint8Array([1]))).toMatchInlineSnapshot('true')
 
-  expect(() =>
-    bytesToBool(new Uint8Array([69])),
-  ).toThrowErrorMatchingInlineSnapshot('"Bytes value is not a valid boolean."')
-  expect(() =>
-    bytesToBool(new Uint8Array([1, 2])),
-  ).toThrowErrorMatchingInlineSnapshot('"Bytes value is not a valid boolean."')
+  expect(() => bytesToBool(new Uint8Array([69])))
+    .toThrowErrorMatchingInlineSnapshot(`
+    "Bytes value \\"69\\" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
+
+    Version: viem@1.0.2"
+  `)
+  expect(() => bytesToBool(new Uint8Array([1, 2])))
+    .toThrowErrorMatchingInlineSnapshot(`
+    "Bytes value \\"1,2\\" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
+
+    Version: viem@1.0.2"
+  `)
 })
 
 test('converts bytes to string', () => {

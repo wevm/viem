@@ -30,9 +30,6 @@ export function getAddress(address: Address) {
 export class InvalidAddressError extends BaseError {
   name = 'InvalidAddressError'
   constructor({ address }: { address: Address }) {
-    super({
-      humanMessage: `Address "${address}" is invalid.`,
-      details: 'An invalid address was provided.',
-    })
+    super(`Address "${address}" is invalid.`)
   }
 }

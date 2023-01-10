@@ -32,14 +32,12 @@ describe('errors', () => {
       .toThrowErrorMatchingInlineSnapshot(`
         "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az\\" is invalid.
 
-        Details: An invalid address was provided.
         Version: viem@1.0.2"
       `)
     expect(() => getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff'))
       .toThrowErrorMatchingInlineSnapshot(`
         "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff\\" is invalid.
 
-        Details: An invalid address was provided.
         Version: viem@1.0.2"
       `)
   })
@@ -53,7 +51,6 @@ test('InvalidAddressError', () => {
   ).toMatchInlineSnapshot(`
     [InvalidAddressError: Address "0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az" is invalid.
 
-    Details: An invalid address was provided.
     Version: viem@1.0.2]
   `)
 })

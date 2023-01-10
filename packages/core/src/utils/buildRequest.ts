@@ -36,10 +36,9 @@ export class RequestError extends BaseError {
     err: Error,
     { docsPath, humanMessage }: { docsPath?: string; humanMessage: string },
   ) {
-    super({
+    super(humanMessage, {
       cause: err,
       docsPath,
-      humanMessage,
     })
     this.name = err.name
   }

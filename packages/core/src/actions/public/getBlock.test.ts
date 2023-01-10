@@ -555,11 +555,10 @@ test('non-existent block: throws if block number does not exist', async () => {
       blockNumber: 69420694206942n,
     }),
   ).rejects.toMatchInlineSnapshot(`
-      [BlockNotFoundError: Block at number "69420694206942" could not be found.
+    [BlockNotFoundError: Block at number "69420694206942" could not be found.
 
-      Details: block not found at given hash or number
-      Version: viem@1.0.2]
-    `)
+    Version: viem@1.0.2]
+  `)
 })
 
 test('non-existent block: throws if block hash does not exist', async () => {
@@ -569,32 +568,28 @@ test('non-existent block: throws if block hash does not exist', async () => {
         '0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722',
     }),
   ).rejects.toMatchInlineSnapshot(`
-      [BlockNotFoundError: Block at hash "0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722" could not be found.
+    [BlockNotFoundError: Block at hash "0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722" could not be found.
 
-      Details: block not found at given hash or number
-      Version: viem@1.0.2]
-    `)
+    Version: viem@1.0.2]
+  `)
 })
 
 test('BlockNotFoundError', () => {
   expect(new BlockNotFoundError({ blockNumber: 69420n }))
     .toMatchInlineSnapshot(`
-    [BlockNotFoundError: Block at number "69420" could not be found.
+      [BlockNotFoundError: Block at number "69420" could not be found.
 
-    Details: block not found at given hash or number
-    Version: viem@1.0.2]
-  `)
+      Version: viem@1.0.2]
+    `)
   expect(new BlockNotFoundError({ blockHash: '0x69420' }))
     .toMatchInlineSnapshot(`
       [BlockNotFoundError: Block at hash "0x69420" could not be found.
 
-      Details: block not found at given hash or number
       Version: viem@1.0.2]
     `)
   expect(new BlockNotFoundError({})).toMatchInlineSnapshot(`
     [BlockNotFoundError: Block could not be found.
 
-    Details: block not found at given hash or number
     Version: viem@1.0.2]
   `)
 })

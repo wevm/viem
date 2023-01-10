@@ -82,9 +82,8 @@ test('errors: maxFeePerGas less than maxPriorityFeePerGas', async () => {
       },
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Gas values provided are invalid.
+    "\`maxFeePerGas\` cannot be less than \`maxPriorityFeePerGas\`
 
-    Details: maxFeePerGas cannot be less than maxPriorityFeePerGas
     Version: viem@1.0.2"
   `)
 })

@@ -16,11 +16,12 @@ export async function signMessage(
   let data
   if (typeof data_ === 'string') {
     if (!data_.startsWith('0x'))
-      throw new BaseError({
-        humanMessage: `data ("${data_}") must be a hex value. Encode it first to a hex with the \`encodeHex\` util.`,
-        details: `data must be a hex value.`,
-        docsPath: '/TODO',
-      })
+      throw new BaseError(
+        `data ("${data_}") must be a hex value. Encode it first to a hex with the \`encodeHex\` util.`,
+        {
+          docsPath: '/TODO',
+        },
+      )
     data = data_
   } else {
     data = encodeHex(data_)

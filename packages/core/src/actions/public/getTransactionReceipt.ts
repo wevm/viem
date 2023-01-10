@@ -35,9 +35,8 @@ export async function getTransactionReceipt<TChain extends Chain>(
 export class TransactionReceiptNotFoundError extends BaseError {
   name = 'TransactionReceiptNotFoundError'
   constructor({ hash }: { hash: Hash }) {
-    super({
-      humanMessage: `Transaction receipt with hash "${hash}" could not be found. The Transaction may not be processed on a block yet.`,
-      details: 'transaction receipt not found',
-    })
+    super(
+      `Transaction receipt with hash "${hash}" could not be found. The Transaction may not be processed on a block yet.`,
+    )
   }
 }

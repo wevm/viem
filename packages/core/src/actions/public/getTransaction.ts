@@ -95,7 +95,6 @@ export async function getTransaction<TChain extends Chain>(
 }
 
 ///////////////////////////////////////////////////////
-
 // Errors
 
 export class TransactionNotFoundError extends BaseError {
@@ -121,9 +120,6 @@ export class TransactionNotFoundError extends BaseError {
     if (blockNumber && index !== undefined)
       identifier = `Transaction at block number "${blockNumber}" at index "${index}"`
     if (hash) identifier = `Transaction with hash "${hash}"`
-    super({
-      humanMessage: `${identifier} could not be found.`,
-      details: 'transaction not found',
-    })
+    super(`${identifier} could not be found.`)
   }
 }

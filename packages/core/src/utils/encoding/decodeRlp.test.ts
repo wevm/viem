@@ -38,10 +38,18 @@ test('single byte >= 0x80', () => {
   expect(decodeRlp('0x81ff', 'hex')).toBe(encodeHex(255))
 
   expect(() => decodeRlp('0x81', 'hex')).toThrowErrorMatchingInlineSnapshot(
-    '"data length too short"',
+    `
+    "Data length (0) is shorter than prefix length (1).
+
+    Version: viem@1.0.2"
+  `,
   )
   expect(() => decodeRlp('0x81f', 'hex')).toThrowErrorMatchingInlineSnapshot(
-    '"hex value is invalid length"',
+    `
+    "Hex value \\"0x81f\\" is an odd length (5). It must be an even length.
+
+    Version: viem@1.0.2"
+  `,
   )
 })
 
@@ -88,12 +96,18 @@ test('multiple bytes < 56 bytes', () => {
     ),
   ).toBe(encodeHex('hello world my name is jake and i am a cool guy lmao hi'))
 
-  expect(() =>
-    decodeRlp('0x871fffffffffff', 'hex'),
-  ).toThrowErrorMatchingInlineSnapshot('"data length too short"')
-  expect(() =>
-    decodeRlp('0x871ffffffffffff', 'hex'),
-  ).toThrowErrorMatchingInlineSnapshot('"hex value is invalid length"')
+  expect(() => decodeRlp('0x871fffffffffff', 'hex'))
+    .toThrowErrorMatchingInlineSnapshot(`
+    "Data length (6) is shorter than prefix length (7).
+
+    Version: viem@1.0.2"
+  `)
+  expect(() => decodeRlp('0x871ffffffffffff', 'hex'))
+    .toThrowErrorMatchingInlineSnapshot(`
+    "Hex value \\"0x871ffffffffffff\\" is an odd length (17). It must be an even length.
+
+    Version: viem@1.0.2"
+  `)
 })
 
 test('multiple bytes >= 56 bytes', () => {
@@ -193,21 +207,33 @@ test('multiple bytes >= 56 bytes', () => {
       '0xb85001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
       'bytes',
     ),
-  ).toThrowErrorMatchingInlineSnapshot('"data length too short"')
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Data length (79) is shorter than prefix length (80).
+
+    Version: viem@1.0.2"
+  `)
   expect(() =>
     decodeRlp(
       '0xb82001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
       'bytes',
     ),
   ).toThrowErrorMatchingInlineSnapshot(
-    '"rlp prefix length is less than data length"',
+    `
+    "Consumed bytes (34) is shorter than data length (80).
+
+    Version: viem@1.0.2"
+  `,
   )
   expect(() =>
     decodeRlp(
       '0xb850010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
       'bytes',
     ),
-  ).toThrowErrorMatchingInlineSnapshot('"hex value is invalid length"')
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Hex value \\"0xb850010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\\" is an odd length (165). It must be an even length.
+
+    Version: viem@1.0.2"
+  `)
 })
 
 test('array', () => {
@@ -301,12 +327,18 @@ test('array', () => {
     ],
   ])
 
-  expect(() =>
-    decodeRlp('0xc7c0c1c0c3c0c0', 'hex'),
-  ).toThrowErrorMatchingInlineSnapshot('"data length too short"')
-  expect(() =>
-    decodeRlp('0xd0c28181c4c38281ffc7c17fc3c3824b81', 'bytes'),
-  ).toThrowErrorMatchingInlineSnapshot('"data length too long"')
+  expect(() => decodeRlp('0xc7c0c1c0c3c0c0', 'hex'))
+    .toThrowErrorMatchingInlineSnapshot(`
+    "Data length (6) is shorter than prefix length (7).
+
+    Version: viem@1.0.2"
+  `)
+  expect(() => decodeRlp('0xd0c28181c4c38281ffc7c17fc3c3824b81', 'bytes'))
+    .toThrowErrorMatchingInlineSnapshot(`
+    "Next offset (17) is greater than previous offset + consumed bytes (16)
+
+    Version: viem@1.0.2"
+  `)
 })
 
 test('input: bytes', () => {

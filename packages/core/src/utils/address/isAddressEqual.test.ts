@@ -37,21 +37,19 @@ describe('errors', () => {
         '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac',
       ),
     ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az\\" is invalid.
+      "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az\\" is invalid.
 
-        Details: An invalid address was provided.
-        Version: viem@1.0.2"
-      `)
+      Version: viem@1.0.2"
+    `)
     expect(() =>
       isAddressEqual(
         '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff',
         '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac',
       ),
     ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff\\" is invalid.
+      "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff\\" is invalid.
 
-        Details: An invalid address was provided.
-        Version: viem@1.0.2"
-      `)
+      Version: viem@1.0.2"
+    `)
   })
 })

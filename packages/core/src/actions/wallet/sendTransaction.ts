@@ -48,11 +48,7 @@ export async function sendTransaction<TChain extends Chain>(
 
 export class InvalidGasArgumentsError extends BaseError {
   name = 'InvalidGasArgumentsError'
-
   constructor() {
-    super({
-      humanMessage: 'Gas values provided are invalid.',
-      details: 'maxFeePerGas cannot be less than maxPriorityFeePerGas',
-    })
+    super('`maxFeePerGas` cannot be less than `maxPriorityFeePerGas`')
   }
 }
