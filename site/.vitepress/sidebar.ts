@@ -514,7 +514,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getAddress',
             },
             {
-              text: 'getContractAddress 🚧',
+              text: 'getContractAddress',
               link: '/docs/utilities/getContractAddress',
             },
             {

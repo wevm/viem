@@ -9,9 +9,9 @@ export type GetCreateAddressOptions = {
 }
 
 export type GetCreate2AddressOptions = {
+  bytecode: ByteArray | Hex
   from: Address
   salt: ByteArray | Hex
-  initCode: ByteArray | Hex
 }
 
 export type GetContractAddressOptions =
@@ -21,7 +21,7 @@ export type GetContractAddressOptions =
   | ({ opcode: 'CREATE2' } & GetCreate2AddressOptions)
 
 export function getContractAddress(opts: GetContractAddressOptions) {
-  if (opts.opcode === 'CREATE2') throw new Error('TODO')
+  if (opts.opcode === 'CREATE2') return getCreate2Address(opts)
   return getCreateAddress(opts)
 }
 
@@ -34,4 +34,8 @@ export function getCreateAddress(opts: GetCreateAddressOptions) {
   return getAddress(
     ('0x' + keccak256(encodeRlp([from, nonce], 'bytes')).slice(26)) as Address,
   )
+}
+
+export function getCreate2Address(_opts: GetCreate2AddressOptions) {
+  throw new Error('TODO')
 }
