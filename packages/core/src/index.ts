@@ -199,6 +199,9 @@ export type {
 } from './types'
 
 export type {
+  GetContractAddressOptions,
+  GetCreateAddressOptions,
+  GetCreate2AddressOptions,
   EncodeRlpResponse,
   FormattedBlock,
   FormattedTransaction,
@@ -236,6 +239,9 @@ export {
   encodeHex,
   encodeRlp,
   getAddress,
+  getContractAddress,
+  getCreateAddress,
+  getCreate2Address,
   getEventSignature,
   getFunctionSignature,
   formatEther,
