@@ -7,6 +7,9 @@ test('exports address', () => {
     {
       "checksumAddress": [Function],
       "getAddress": [Function],
+      "getContractAddress": [Function],
+      "getCreate2Address": [Function],
+      "getCreateAddress": [Function],
       "isAddress": [Function],
       "isAddressEqual": [Function],
     }

@@ -31,6 +31,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'Ethereum Provider (EIP-1193)',
               link: '/docs/clients/transports/ethereum-provider',
             },
+            {
+              text: 'Fallback 🚧',
+              link: '/docs/clients/transports/fallback',
+            },
           ],
         },
       ],
@@ -510,7 +514,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getAddress',
             },
             {
-              text: 'getContractAddress 🚧',
+              text: 'getContractAddress',
               link: '/docs/utilities/getContractAddress',
             },
             {

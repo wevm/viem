@@ -1,4 +1,16 @@
-export { getAddress, isAddress, isAddressEqual } from './address'
+export type {
+  GetContractAddressOptions,
+  GetCreate2AddressOptions,
+  GetCreateAddressOptions,
+} from './address'
+export {
+  getAddress,
+  getContractAddress,
+  getCreateAddress,
+  getCreate2Address,
+  isAddress,
+  isAddressEqual,
+} from './address'
 
 export { BaseError } from './BaseError'
 
