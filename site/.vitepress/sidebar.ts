@@ -378,19 +378,15 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsed: true,
       items: [
         {
-          text: 'deployContract 🚧',
-          link: '/docs/contract/deployContract',
-        },
-        {
-          text: 'getContract 🚧',
-          link: '/docs/contract/getContract',
-        },
-        {
           text: 'Actions',
           items: [
             {
               text: 'callContract 🚧',
               link: '/docs/contract/callContract',
+            },
+            {
+              text: 'deployContract 🚧',
+              link: '/docs/contract/deployContract',
             },
             {
               text: 'getContractCode 🚧',
@@ -531,8 +527,28 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Data',
           items: [
             {
+              text: 'concat',
+              link: '/docs/utilities/concat',
+            },
+            {
+              text: 'isBytes',
+              link: '/docs/utilities/isBytes',
+            },
+            {
+              text: 'isHex',
+              link: '/docs/utilities/isHex',
+            },
+            {
               text: 'pad',
               link: '/docs/utilities/pad',
+            },
+            {
+              text: 'slice',
+              link: '/docs/utilities/slice',
+            },
+            {
+              text: 'size',
+              link: '/docs/utilities/size',
             },
             {
               text: 'trim',
