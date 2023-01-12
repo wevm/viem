@@ -6,6 +6,14 @@ type PadOptions = {
   size?: number
 }
 
+export function pad(
+  hexOrBytes: Hex | ByteArray,
+  { dir, size = 32 }: PadOptions = {},
+) {
+  if (typeof hexOrBytes === 'string') return padHex(hexOrBytes, { dir, size })
+  return padBytes(hexOrBytes, { dir, size })
+}
+
 export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
   let hex = hex_.replace('0x', '')
   if (hex.length > size * 2)
@@ -36,14 +44,6 @@ export function padBytes(
       bytes[padEnd ? i : bytes.length - i - 1]
   }
   return paddedBytes
-}
-
-export function pad(
-  hexOrBytes: Hex | ByteArray,
-  { dir, size = 32 }: PadOptions = {},
-) {
-  if (typeof hexOrBytes === 'string') return padHex(hexOrBytes, { dir, size })
-  return padBytes(hexOrBytes, { dir, size })
 }
 
 ///////////////////////////////////////////////////////////////

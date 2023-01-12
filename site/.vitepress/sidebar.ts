@@ -318,6 +318,17 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'ENS',
+          items: [
+            { text: 'getEnsAddress 🚧', link: '/docs/ens/getEnsAddress' },
+            { text: 'getEnsName 🚧', link: '/docs/ens/getEnsName' },
+            {
+              text: 'getEnsResolver 🚧',
+              link: '/docs/ens/getEnsResolver',
+            },
+          ],
+        },
+        {
           text: 'Node',
           items: [
             { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
@@ -462,42 +473,6 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'ENS 🚧',
-      collapsible: true,
-      collapsed: true,
-      items: [
-        {
-          text: 'Actions',
-          items: [
-            { text: 'getEnsAddress 🚧', link: '/docs/ens/getEnsAddress' },
-            { text: 'getEnsAvatar 🚧', link: '/docs/ens/getEnsAvatar' },
-            {
-              text: 'getEnsCoinAddress 🚧',
-              link: '/docs/ens/getEnsCoinAddress',
-            },
-            { text: 'getEnsContent 🚧', link: '/docs/ens/getEnsContent' },
-            { text: 'getEnsCover 🚧', link: '/docs/ens/getEnsCover' },
-            { text: 'getEnsName 🚧', link: '/docs/ens/getEnsName' },
-            {
-              text: 'getEnsResolver 🚧',
-              link: '/docs/ens/getEnsResolver',
-            },
-            {
-              text: 'getEnsTextRecord 🚧',
-              link: '/docs/ens/getEnsTextRecord',
-            },
-          ],
-        },
-        {
-          text: 'Utilities',
-          items: [
-            { text: 'namehash 🚧', link: '/docs/ens/namehash' },
-            { text: 'labelhash 🚧', link: '/docs/ens/labelhash' },
-          ],
-        },
-      ],
-    },
-    {
       text: 'Utilities',
       collapsible: true,
       collapsed: true,
@@ -603,6 +578,13 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'encodeRlp',
               link: '/docs/utilities/encodeRlp',
             },
+          ],
+        },
+        {
+          text: 'ENS',
+          items: [
+            { text: 'namehash 🚧', link: '/docs/ens/namehash' },
+            { text: 'labelhash 🚧', link: '/docs/ens/labelhash' },
           ],
         },
         {
