@@ -31,7 +31,7 @@ export {
   TransactionRejectedRpcError,
 } from './buildRequest'
 
-export { pad, padBytes, padHex, trim } from './data'
+export { isBytes, isHex, pad, padBytes, padHex, size, trim } from './data'
 
 export type {
   BlockFormatter,

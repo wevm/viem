@@ -8,10 +8,12 @@ test('exports utils', () => {
       "concat": [Function],
       "concatBytes": [Function],
       "concatHex": [Function],
+      "isBytes": [Function],
       "isHex": [Function],
       "pad": [Function],
       "padBytes": [Function],
       "padHex": [Function],
+      "size": [Function],
       "trim": [Function],
     }
   `)
