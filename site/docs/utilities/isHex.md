@@ -17,6 +17,7 @@ isHex('0x1a4')
 // true
 
 isHex('0x1a4z')
+isHex('foo')
 // false
 ```
 
