@@ -1,4 +1,5 @@
 import type { ByteArray, Hex } from '../../types'
+import type { NumberToHexOpts } from './encodeHex'
 import { numberToHex } from './encodeHex'
 
 const encoder = new TextEncoder()
@@ -45,8 +46,8 @@ export function hexToBytes(hex_: Hex): ByteArray {
 /**
  * @description Encodes a number into a byte array.
  */
-export function numberToBytes(value: bigint | number) {
-  const hex = numberToHex(value)
+export function numberToBytes(value: bigint | number, opts?: NumberToHexOpts) {
+  const hex = numberToHex(value, opts)
   return hexToBytes(hex)
 }
 

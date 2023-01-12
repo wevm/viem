@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import {
   boolToBytes,
@@ -8,140 +8,502 @@ import {
   stringToBytes,
 } from './encodeBytes'
 
-test('converts numbers to bytes', () => {
-  expect(encodeBytes(0)).toMatchInlineSnapshot(`
-    Uint8Array [
-      0,
-    ]
-  `)
-  expect(encodeBytes(7)).toMatchInlineSnapshot(`
-    Uint8Array [
-      7,
-    ]
-  `)
-  expect(encodeBytes(69)).toMatchInlineSnapshot(`
-    Uint8Array [
-      69,
-    ]
-  `)
-  expect(encodeBytes(420)).toMatchInlineSnapshot(`
-    Uint8Array [
-      1,
-      164,
-    ]
-  `)
+describe('converts numbers to bytes', () => {
+  test('default', () => {
+    expect(encodeBytes(0)).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+      ]
+    `)
+    expect(encodeBytes(7)).toMatchInlineSnapshot(`
+      Uint8Array [
+        7,
+      ]
+    `)
+    expect(encodeBytes(69)).toMatchInlineSnapshot(`
+      Uint8Array [
+        69,
+      ]
+    `)
+    expect(encodeBytes(420)).toMatchInlineSnapshot(`
+      Uint8Array [
+        1,
+        164,
+      ]
+    `)
 
-  expect(numberToBytes(0)).toMatchInlineSnapshot(`
-    Uint8Array [
-      0,
-    ]
-  `)
-  expect(numberToBytes(7)).toMatchInlineSnapshot(`
-    Uint8Array [
-      7,
-    ]
-  `)
-  expect(numberToBytes(69)).toMatchInlineSnapshot(`
-    Uint8Array [
-      69,
-    ]
-  `)
-  expect(numberToBytes(420)).toMatchInlineSnapshot(`
-    Uint8Array [
-      1,
-      164,
-    ]
-  `)
+    expect(numberToBytes(0)).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+      ]
+    `)
+    expect(numberToBytes(7)).toMatchInlineSnapshot(`
+      Uint8Array [
+        7,
+      ]
+    `)
+    expect(numberToBytes(69)).toMatchInlineSnapshot(`
+      Uint8Array [
+        69,
+      ]
+    `)
+    expect(numberToBytes(420)).toMatchInlineSnapshot(`
+      Uint8Array [
+        1,
+        164,
+      ]
+    `)
+
+    expect(() => encodeBytes(-69)).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"-69\\" is not in safe integer range (0 to 9007199254740991)"',
+    )
+  })
+
+  test('args: size', () => {
+    expect(numberToBytes(7, { size: 1 })).toMatchInlineSnapshot(`
+      Uint8Array [
+        7,
+      ]
+    `)
+    expect(numberToBytes(10, { size: 2 })).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+        10,
+      ]
+    `)
+    expect(numberToBytes(69420, { size: 4 })).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+        1,
+        15,
+        44,
+      ]
+    `)
+
+    expect(() =>
+      numberToBytes(-7, { size: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"-7\\" is not in safe 8-bit unsigned integer range (0 to 255)"',
+    )
+    expect(() =>
+      numberToBytes(256, { size: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"256\\" is not in safe 8-bit unsigned integer range (0 to 255)"',
+    )
+    expect(() =>
+      numberToBytes(65536, { size: 2 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"65536\\" is not in safe 16-bit unsigned integer range (0 to 65535)"',
+    )
+  })
+
+  test('args: signed', () => {
+    expect(numberToBytes(32, { size: 1, signed: true })).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        32,
+      ]
+    `,
+    )
+    expect(
+      numberToBytes(-32, {
+        size: 1,
+        signed: true,
+      }),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        224,
+      ]
+    `)
+    expect(
+      numberToBytes(-32, {
+        size: 4,
+        signed: true,
+      }),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        255,
+        255,
+        255,
+        224,
+      ]
+    `)
+
+    expect(numberToBytes(127, { size: 2, signed: true })).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        0,
+        127,
+      ]
+    `,
+    )
+    expect(numberToBytes(-127, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
+      Uint8Array [
+        255,
+        129,
+      ]
+    `)
+    expect(numberToBytes(32767, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
+      Uint8Array [
+        127,
+        255,
+      ]
+    `)
+    expect(numberToBytes(-32768, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
+      Uint8Array [
+        128,
+        0,
+      ]
+    `)
+    expect(() =>
+      numberToBytes(32768, { size: 2, signed: true }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"32768\\" is not in safe 16-bit signed integer range (-32768 to 32767)"',
+    )
+    expect(() =>
+      numberToBytes(-32769, { size: 2, signed: true }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"-32769\\" is not in safe 16-bit signed integer range (-32768 to 32767)"',
+    )
+  })
 })
 
-test('converts bigints to bytes', () => {
-  expect(encodeBytes(0n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      0,
-    ]
-  `)
-  expect(encodeBytes(7n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      7,
-    ]
-  `)
-  expect(encodeBytes(69n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      69,
-    ]
-  `)
-  expect(encodeBytes(420n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      1,
-      164,
-    ]
-  `)
-  expect(encodeBytes(4206942069420694206942069420694206942069n))
-    .toMatchInlineSnapshot(`
+describe('converts bigints to bytes', () => {
+  test('default', () => {
+    expect(encodeBytes(0n)).toMatchInlineSnapshot(`
       Uint8Array [
-        12,
-        92,
-        243,
-        146,
-        17,
-        135,
-        111,
-        181,
+        0,
+      ]
+    `)
+    expect(encodeBytes(7n)).toMatchInlineSnapshot(`
+      Uint8Array [
+        7,
+      ]
+    `)
+    expect(encodeBytes(69n)).toMatchInlineSnapshot(`
+      Uint8Array [
+        69,
+      ]
+    `)
+    expect(encodeBytes(420n)).toMatchInlineSnapshot(`
+      Uint8Array [
+        1,
+        164,
+      ]
+    `)
+    expect(encodeBytes(4206942069420694206942069420694206942069n))
+      .toMatchInlineSnapshot(`
+        Uint8Array [
+          12,
+          92,
+          243,
+          146,
+          17,
+          135,
+          111,
+          181,
+          229,
+          136,
+          67,
+          39,
+          250,
+          86,
+          252,
+          11,
+          117,
+        ]
+      `)
+
+    expect(numberToBytes(0)).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+      ]
+    `)
+    expect(numberToBytes(7n)).toMatchInlineSnapshot(`
+      Uint8Array [
+        7,
+      ]
+    `)
+    expect(numberToBytes(69n)).toMatchInlineSnapshot(`
+      Uint8Array [
+        69,
+      ]
+    `)
+    expect(numberToBytes(420n)).toMatchInlineSnapshot(`
+      Uint8Array [
+        1,
+        164,
+      ]
+    `)
+    expect(numberToBytes(4206942069420694206942069420694206942069n))
+      .toMatchInlineSnapshot(`
+        Uint8Array [
+          12,
+          92,
+          243,
+          146,
+          17,
+          135,
+          111,
+          181,
+          229,
+          136,
+          67,
+          39,
+          250,
+          86,
+          252,
+          11,
+          117,
+        ]
+      `)
+  })
+
+  test('args: size', () => {
+    expect(numberToBytes(7n, { size: 1 })).toMatchInlineSnapshot(`
+      Uint8Array [
+        7,
+      ]
+    `)
+    expect(numberToBytes(10n, { size: 2 })).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+        10,
+      ]
+    `)
+    expect(numberToBytes(69n, { size: 4 })).toMatchInlineSnapshot(`
+      Uint8Array [
+        0,
+        0,
+        0,
+        69,
+      ]
+    `)
+    expect(
+      numberToBytes(6123123124124124213123129n, { size: 32 }),
+    ).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        16,
+        159,
+        43,
+        112,
+        14,
+        48,
         229,
-        136,
-        67,
-        39,
-        250,
-        86,
-        252,
-        11,
-        117,
+        179,
+        152,
+        57,
+      ]
+    `,
+    )
+
+    expect(() =>
+      numberToBytes(-7n, { size: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"-7n\\" is not in safe 8-bit unsigned integer range (0n to 255n)"',
+    )
+    expect(() =>
+      numberToBytes(256n, { size: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"256n\\" is not in safe 8-bit unsigned integer range (0n to 255n)"',
+    )
+    expect(() =>
+      numberToBytes(65536n, { size: 2 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"65536n\\" is not in safe 16-bit unsigned integer range (0n to 65535n)"',
+    )
+    expect(() =>
+      numberToBytes(18446744073709551616n, { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"18446744073709551616n\\" is not in safe 64-bit unsigned integer range (0n to 18446744073709551615n)"',
+    )
+  })
+
+  test('args: signed', () => {
+    expect(numberToBytes(32n, { size: 1, signed: true })).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        32,
+      ]
+    `,
+    )
+    expect(
+      numberToBytes(-32n, {
+        size: 1,
+        signed: true,
+      }),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        224,
+      ]
+    `)
+    expect(
+      numberToBytes(-32n, {
+        size: 4,
+        signed: true,
+      }),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        255,
+        255,
+        255,
+        224,
       ]
     `)
 
-  expect(numberToBytes(0)).toMatchInlineSnapshot(`
-    Uint8Array [
-      0,
-    ]
-  `)
-  expect(numberToBytes(7n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      7,
-    ]
-  `)
-  expect(numberToBytes(69n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      69,
-    ]
-  `)
-  expect(numberToBytes(420n)).toMatchInlineSnapshot(`
-    Uint8Array [
-      1,
-      164,
-    ]
-  `)
-  expect(numberToBytes(4206942069420694206942069420694206942069n))
-    .toMatchInlineSnapshot(`
+    expect(numberToBytes(127n, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
       Uint8Array [
-        12,
-        92,
-        243,
-        146,
-        17,
-        135,
-        111,
-        181,
-        229,
-        136,
-        67,
-        39,
-        250,
-        86,
-        252,
-        11,
-        117,
+        0,
+        127,
       ]
     `)
+    expect(numberToBytes(-127n, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
+      Uint8Array [
+        255,
+        129,
+      ]
+    `)
+    expect(numberToBytes(32767n, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
+      Uint8Array [
+        127,
+        255,
+      ]
+    `)
+    expect(numberToBytes(-32768n, { size: 2, signed: true }))
+      .toMatchInlineSnapshot(`
+      Uint8Array [
+        128,
+        0,
+      ]
+    `)
+
+    expect(
+      numberToBytes(12312312312312312412n, { size: 32, signed: true }),
+    ).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        170,
+        222,
+        30,
+        208,
+        139,
+        11,
+        50,
+        92,
+      ]
+    `,
+    )
+    expect(
+      numberToBytes(-12312312312312312412n, { size: 32, signed: true }),
+    ).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        85,
+        33,
+        225,
+        47,
+        116,
+        244,
+        205,
+        164,
+      ]
+    `,
+    )
+
+    expect(() =>
+      numberToBytes(170141183460469231731687303715884105728n, {
+        size: 16,
+        signed: true,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"170141183460469231731687303715884105728n\\" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)"',
+    )
+    expect(() =>
+      numberToBytes(-170141183460469231731687303715884105729n, {
+        size: 16,
+        signed: true,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Number \\"-170141183460469231731687303715884105729n\\" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)"',
+    )
+  })
 })
 
 test('converts boolean to bytes', () => {

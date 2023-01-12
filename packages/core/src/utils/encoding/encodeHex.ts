@@ -1,3 +1,4 @@
+import { pad } from '../data'
 import type { ByteArray, Hex } from '../../types'
 
 const hexes = Array.from({ length: 256 }, (v, i) =>
@@ -37,18 +38,58 @@ export function encodeHex(
   return bytesToHex(value)
 }
 
+export type NumberToHexOpts =
+  | {
+      // Whether or not the number of a signed representation.
+      signed?: boolean
+      // The size of the output hex (in bytes).
+      size: number
+    }
+  | {
+      signed?: never
+      size?: never
+    }
+
 /**
  * @description Encodes a number or bigint into a hex string
  */
-export function numberToHex(value: number | bigint): Hex {
-  if (
-    value < 0 ||
-    (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER)
-  )
+export function numberToHex(
+  value_: number | bigint,
+  opts: NumberToHexOpts = {},
+): Hex {
+  const { signed, size } = opts
+
+  let value = BigInt(value_)
+
+  let maxValue
+  if (size) {
+    if (signed) maxValue = (1n << (BigInt(size) * 8n - 1n)) - 1n
+    else maxValue = 2n ** (BigInt(size) * 8n) - 1n
+  } else if (typeof value_ === 'number') {
+    maxValue = BigInt(Number.MAX_SAFE_INTEGER)
+  }
+
+  const minValue = typeof maxValue === 'bigint' && signed ? -maxValue - 1n : 0
+
+  if ((maxValue && value > maxValue) || value < minValue) {
+    const suffix = typeof value_ === 'bigint' ? 'n' : ''
     throw new Error(
-      `Number is not in safe integer range (0 to ${Number.MAX_SAFE_INTEGER})`,
+      `Number "${value_}${suffix}" is not in safe ${
+        size ? `${size * 8}-bit ${signed ? 'signed' : 'unsigned'} ` : ''
+      }integer range ${
+        maxValue
+          ? `(${minValue}${suffix} to ${maxValue}${suffix})`
+          : `(above ${minValue})`
+      }`,
     )
-  return `0x${value.toString(16)}`
+  }
+
+  const hex = `0x${(signed && value < 0
+    ? (1n << BigInt(size * 8)) + BigInt(value)
+    : value
+  ).toString(16)}` as Hex
+  if (size) return pad(hex, { size }) as Hex
+  return hex
 }
 
 /**

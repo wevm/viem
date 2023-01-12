@@ -75,12 +75,10 @@ describe('hex', () => {
   })
 
   test('args: size', () => {
-    expect(padHex('0x1', { size: 4 })).toMatchInlineSnapshot(
-      '"0x0000000000000000000000000000000000000000000000000000000000000001"',
-    )
+    expect(padHex('0x1', { size: 4 })).toMatchInlineSnapshot('"0x00000001"')
 
     expect(padHex('0xa4e12a45', { size: 4 })).toMatchInlineSnapshot(
-      '"0x00000000000000000000000000000000000000000000000000000000a4e12a45"',
+      '"0xa4e12a45"',
     )
 
     expect(() =>

@@ -15,7 +15,8 @@ export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
       type: 'hex',
     })
 
-  return ('0x' + hex[dir === 'right' ? 'padEnd' : 'padStart'](64, '0')) as Hex
+  return ('0x' +
+    hex[dir === 'right' ? 'padEnd' : 'padStart'](size * 2, '0')) as Hex
 }
 
 export function padBytes(
