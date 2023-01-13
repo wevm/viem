@@ -9,3 +9,5 @@ export { pad, padBytes, padHex } from './pad'
 export { trim } from './trim'
 
 export { size } from './size'
+
+export { slice, sliceBytes, sliceHex } from './slice'

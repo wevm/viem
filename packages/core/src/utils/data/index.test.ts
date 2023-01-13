@@ -14,6 +14,9 @@ test('exports utils', () => {
       "padBytes": [Function],
       "padHex": [Function],
       "size": [Function],
+      "slice": [Function],
+      "sliceBytes": [Function],
+      "sliceHex": [Function],
       "trim": [Function],
     }
   `)

@@ -1,0 +1,184 @@
+import { expect, test } from 'vitest'
+
+import { slice, sliceBytes, sliceHex } from './slice'
+
+test('hex', () => {
+  expect(sliceHex('0x')).toMatchInlineSnapshot('"0x"')
+  expect(sliceHex('0x0123456789')).toMatchInlineSnapshot('"0x0123456789"')
+
+  expect(sliceHex('0x', 0)).toMatchInlineSnapshot('"0x"')
+  expect(sliceHex('0x0123456789', 0, 4)).toMatchInlineSnapshot('"0x01234567"')
+  expect(sliceHex('0x0123456789', 1, 4)).toMatchInlineSnapshot('"0x234567"')
+  expect(sliceHex('0x0123456789', 2, 5)).toMatchInlineSnapshot('"0x456789"')
+  expect(sliceHex('0x0123456789', 2)).toMatchInlineSnapshot('"0x456789"')
+  expect(slice('0x0123456789', 2)).toMatchInlineSnapshot('"0x456789"')
+
+  expect(sliceHex('0x0123456789', -1)).toMatchInlineSnapshot('"0x89"')
+  expect(sliceHex('0x0123456789', -3, -1)).toMatchInlineSnapshot('"0x4567"')
+  expect(sliceHex('0x0123456789', -5)).toMatchInlineSnapshot('"0x0123456789"')
+  expect(slice('0x0123456789', -5)).toMatchInlineSnapshot('"0x0123456789"')
+
+  expect(sliceHex('0x0123456789', 0, 10)).toMatchInlineSnapshot(
+    '"0x0123456789"',
+  )
+  expect(sliceHex('0x0123456789', -10)).toMatchInlineSnapshot('"0x0123456789"')
+
+  expect(() => sliceHex('0x0123456789', 5)).toThrowErrorMatchingInlineSnapshot(
+    '"Slice starting at offset \\"5\\" is out-of-bounds (size: 5)."',
+  )
+})
+
+test('bytes', () => {
+  expect(sliceBytes(new Uint8Array([]))).toMatchInlineSnapshot('Uint8Array []')
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+    ]
+  `)
+
+  expect(sliceBytes(new Uint8Array([]), 0)).toMatchInlineSnapshot(
+    'Uint8Array []',
+  )
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 4))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      0,
+      1,
+      2,
+      3,
+    ]
+  `)
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2, 8))
+    .toMatchInlineSnapshot(`
+      Uint8Array [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+      ]
+    `)
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 5, 9))
+    .toMatchInlineSnapshot(`
+      Uint8Array [
+        5,
+        6,
+        7,
+        8,
+      ]
+    `)
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+    ]
+  `)
+  expect(slice(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+    ]
+  `)
+
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -1))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      9,
+    ]
+  `)
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -3, -1))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      7,
+      8,
+    ]
+  `)
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -8))
+    .toMatchInlineSnapshot(`
+      Uint8Array [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+      ]
+    `)
+  expect(slice(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -8))
+    .toMatchInlineSnapshot(`
+      Uint8Array [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+      ]
+    `)
+
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 10))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+    ]
+  `)
+  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -10))
+    .toMatchInlineSnapshot(`
+    Uint8Array [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+    ]
+  `)
+
+  expect(() =>
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 10),
+  ).toThrowErrorMatchingInlineSnapshot(
+    '"Slice starting at offset \\"10\\" is out-of-bounds (size: 10)."',
+  )
+})
