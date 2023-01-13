@@ -1,4 +1,5 @@
 import type { Address, ByteArray, Hex } from '../../types'
+import { concat, isBytes, pad, slice } from '../data'
 import { encodeBytes, encodeRlp } from '../encoding'
 import { keccak256 } from '../hash'
 import { getAddress } from './getAddress'
@@ -36,6 +37,23 @@ export function getCreateAddress(opts: GetCreateAddressOptions) {
   )
 }
 
-export function getCreate2Address(_opts: GetCreate2AddressOptions) {
-  throw new Error('TODO')
+export function getCreate2Address(opts: GetCreate2AddressOptions) {
+  const from = encodeBytes(getAddress(opts.from))
+  const salt = pad(
+    isBytes(opts.salt) ? opts.salt : encodeBytes(opts.salt as Hex),
+    { size: 32 },
+  ) as ByteArray
+  const bytecodeHash = encodeBytes(
+    keccak256(
+      (isBytes(opts.bytecode)
+        ? opts.bytecode
+        : encodeBytes(opts.bytecode as Hex)) as ByteArray,
+    ),
+  )
+  return getAddress(
+    slice(
+      keccak256(concat([encodeBytes('0xff'), from, salt, bytecodeHash])),
+      12,
+    ),
+  )
 }
