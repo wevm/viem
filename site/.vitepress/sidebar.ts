@@ -87,6 +87,17 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'ENS',
+          items: [
+            { text: 'getEnsAddress 🚧', link: '/docs/ens/getEnsAddress' },
+            { text: 'getEnsName 🚧', link: '/docs/ens/getEnsName' },
+            {
+              text: 'getEnsResolver 🚧',
+              link: '/docs/ens/getEnsResolver',
+            },
+          ],
+        },
+        {
           text: 'Fee',
           items: [
             {
@@ -314,17 +325,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'setNextBlockTimestamp',
               link: '/docs/actions/test/setNextBlockTimestamp',
-            },
-          ],
-        },
-        {
-          text: 'ENS',
-          items: [
-            { text: 'getEnsAddress 🚧', link: '/docs/ens/getEnsAddress' },
-            { text: 'getEnsName 🚧', link: '/docs/ens/getEnsName' },
-            {
-              text: 'getEnsResolver 🚧',
-              link: '/docs/ens/getEnsResolver',
             },
           ],
         },
