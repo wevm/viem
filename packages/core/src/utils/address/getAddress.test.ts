@@ -28,14 +28,16 @@ test('checksums address', () => {
 
 describe('errors', () => {
   test('invalid address', () => {
-    expect(() => getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az'),
+    ).toThrowErrorMatchingInlineSnapshot(`
         "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az\\" is invalid.
 
         Version: viem@1.0.2"
       `)
-    expect(() => getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff'),
+    ).toThrowErrorMatchingInlineSnapshot(`
         "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff\\" is invalid.
 
         Version: viem@1.0.2"

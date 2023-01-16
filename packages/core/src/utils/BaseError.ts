@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import pkg from '../../package.json'
 
@@ -36,14 +35,14 @@ export class BaseError extends Error {
         : args.docsPath
     const message = [
       humanMessage,
-      ...(docsPath ? ['', 'Docs: https://viem.sh' + docsPath] : []),
+      ...(docsPath ? ['', `Docs: https://viem.sh${docsPath}`] : []),
       '',
-      ...(details ? ['Details: ' + details] : []),
-      'Version: viem@' + version,
+      ...(details ? [`Details: ${details}`] : []),
+      `Version: viem@${version}`,
       ...(args.cause &&
       !(args.cause instanceof BaseError) &&
       Object.keys(args.cause).length > 0
-        ? ['Internal Error: ' + JSON.stringify(args.cause)]
+        ? [`Internal Error: ${JSON.stringify(args.cause)}`]
         : []),
     ].join('\n')
 

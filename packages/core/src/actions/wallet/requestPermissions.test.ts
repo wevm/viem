@@ -5,8 +5,9 @@ import { walletClient } from '../../../test'
 import { requestPermissions } from './requestPermissions'
 
 test('default', async () => {
-  expect(await requestPermissions(walletClient!, { eth_accounts: {} }))
-    .toMatchInlineSnapshot(`
+  expect(
+    await requestPermissions(walletClient!, { eth_accounts: {} }),
+  ).toMatchInlineSnapshot(`
     [
       {
         "caveats": [

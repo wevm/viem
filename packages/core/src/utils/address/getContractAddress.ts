@@ -33,7 +33,7 @@ export function getCreateAddress(opts: GetCreateAddressOptions) {
   if (nonce[0] === 0) nonce = new Uint8Array([])
 
   return getAddress(
-    ('0x' + keccak256(encodeRlp([from, nonce], 'bytes')).slice(26)) as Address,
+    `0x${keccak256(encodeRlp([from, nonce], 'bytes')).slice(26)}` as Address,
   )
 }
 

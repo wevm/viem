@@ -97,7 +97,7 @@ test('errors: contract revert (contract error)', async () => {
         to: wagmiContractAddress,
       },
     }),
-  ).rejects.toThrowError(`execution reverted: Token ID is taken`)
+  ).rejects.toThrowError('execution reverted: Token ID is taken')
 })
 
 test('errors: contract revert (insufficient params)', async () => {
@@ -109,5 +109,5 @@ test('errors: contract revert (insufficient params)', async () => {
         to: wagmiContractAddress,
       },
     }),
-  ).rejects.toThrowError(`execution reverted`)
+  ).rejects.toThrowError('execution reverted')
 })

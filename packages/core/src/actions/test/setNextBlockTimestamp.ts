@@ -11,7 +11,7 @@ export async function setNextBlockTimestamp(
   { timestamp }: SetNextBlockTimestampArgs,
 ) {
   return await client.request({
-    method: `evm_setNextBlockTimestamp`,
+    method: 'evm_setNextBlockTimestamp',
     params: [numberToHex(timestamp)],
   })
 }

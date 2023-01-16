@@ -23,7 +23,7 @@ export function trim(
       : data.slice(0, data.length - sliceLength)
 
   if (typeof hexOrBytes === 'string') {
-    if (data.length === 1 && dir === 'right') data = data + '0'
+    if (data.length === 1 && dir === 'right') data = `${data}0`
     return `0x${data}`
   }
   return data

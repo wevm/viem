@@ -30,7 +30,7 @@ export function encodeBytes(
 export function hexToBytes(hex_: Hex): ByteArray {
   let hex = hex_.slice(2) as string
 
-  if (hex.length % 2) hex = '0' + hex
+  if (hex.length % 2) hex = `0${hex}`
 
   const bytes = new Uint8Array(hex.length / 2)
   for (let index = 0; index < bytes.length; index++) {

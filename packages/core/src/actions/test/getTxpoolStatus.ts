@@ -3,7 +3,7 @@ import { hexToNumber } from '../../utils'
 
 export async function getTxpoolStatus(client: TestClient) {
   const { pending, queued } = await client.request({
-    method: `txpool_status`,
+    method: 'txpool_status',
   })
   return {
     pending: hexToNumber(pending),

@@ -15,31 +15,31 @@ export const clients = {
   mainnet: createPublicClient({
     chain: mainnet,
     transport: http({
-      url: mainnet.rpcUrls.alchemy.http[0] + '/' + apiKey,
+      url: `${mainnet.rpcUrls.alchemy.http[0]}/${apiKey}`,
     }),
   }),
   polygon: createPublicClient({
     chain: polygon,
     transport: http({
-      url: polygon.rpcUrls.alchemy.http[0] + '/' + apiKey,
+      url: `${polygon.rpcUrls.alchemy.http[0]}/${apiKey}`,
     }),
   }),
   optimism: createPublicClient({
     chain: optimism,
     transport: http({
-      url: optimism.rpcUrls.alchemy.http[0] + '/' + apiKey,
+      url: `${optimism.rpcUrls.alchemy.http[0]}/${apiKey}`,
     }),
   }),
   arbitrum: createPublicClient({
     chain: arbitrum,
     transport: http({
-      url: arbitrum.rpcUrls.alchemy.http[0] + '/' + apiKey,
+      url: `${arbitrum.rpcUrls.alchemy.http[0]}/${apiKey}`,
     }),
   }),
   goerli: createPublicClient({
     chain: goerli,
     transport: http({
-      url: goerli.rpcUrls.alchemy.http[0] + '/' + apiKey,
+      url: `${goerli.rpcUrls.alchemy.http[0]}/${apiKey}`,
     }),
   }),
 }

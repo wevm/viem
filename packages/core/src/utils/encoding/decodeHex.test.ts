@@ -71,7 +71,7 @@ test('converts hex to string', () => {
 })
 
 test('converts hex to bytes', () => {
-  expect(decodeHex('0x', 'bytes')).toMatchInlineSnapshot(`Uint8Array []`)
+  expect(decodeHex('0x', 'bytes')).toMatchInlineSnapshot('Uint8Array []')
   expect(decodeHex('0x61', 'bytes')).toMatchInlineSnapshot(`
     Uint8Array [
       97,
@@ -86,8 +86,9 @@ test('converts hex to bytes', () => {
     ]
   `,
   )
-  expect(decodeHex('0x48656c6c6f20576f726c6421', 'bytes'))
-    .toMatchInlineSnapshot(`
+  expect(
+    decodeHex('0x48656c6c6f20576f726c6421', 'bytes'),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       72,
       101,

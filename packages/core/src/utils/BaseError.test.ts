@@ -9,8 +9,9 @@ test('BaseError', () => {
     Version: viem@1.0.2]
   `)
 
-  expect(new BaseError('An error occurred.', { details: 'details' }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new BaseError('An error occurred.', { details: 'details' }),
+  ).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
     Details: details

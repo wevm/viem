@@ -172,7 +172,7 @@ describe('args: gas', () => {
           gas: 100n,
         },
       }),
-    ).rejects.toThrowError(`intrinsic gas too low`)
+    ).rejects.toThrowError('intrinsic gas too low')
   })
 
   test('sends transaction with too much gas', async () => {
@@ -187,7 +187,7 @@ describe('args: gas', () => {
           gas: 100_000_000n,
         },
       }),
-    ).rejects.toThrowError(`intrinsic gas too high`)
+    ).rejects.toThrowError('intrinsic gas too high')
   })
 })
 
@@ -245,7 +245,7 @@ describe('args: gasPrice', () => {
           gasPrice: 1n,
         },
       }),
-    ).rejects.toThrowError(`max fee per gas less than block base fee`)
+    ).rejects.toThrowError('max fee per gas less than block base fee')
   })
 
   test('errors when account has insufficient funds', async () => {
@@ -262,7 +262,7 @@ describe('args: gasPrice', () => {
           gasPrice: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         },
       }),
-    ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
+    ).rejects.toThrowError('Insufficient funds for gas * price + value')
   })
 })
 
@@ -314,7 +314,7 @@ describe('args: maxFeePerGas', () => {
           maxFeePerGas: 1n,
         },
       }),
-    ).rejects.toThrowError(`max fee per gas less than block base fee`)
+    ).rejects.toThrowError('max fee per gas less than block base fee')
   })
 
   test('errors when account has insufficient funds', async () => {
@@ -331,7 +331,7 @@ describe('args: maxFeePerGas', () => {
           maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         },
       }),
-    ).rejects.toThrowError(`Insufficient funds for gas * price + value`)
+    ).rejects.toThrowError('Insufficient funds for gas * price + value')
   })
 })
 
@@ -475,7 +475,7 @@ describe('args: nonce', () => {
           nonce: 1,
         },
       }),
-    ).rejects.toThrowError(`nonce too low`)
+    ).rejects.toThrowError('nonce too low')
   })
 })
 

@@ -30,8 +30,9 @@ test('hex', () => {
 
 test('bytes', () => {
   expect(sliceBytes(new Uint8Array([]))).toMatchInlineSnapshot('Uint8Array []')
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       0,
       1,
@@ -49,8 +50,9 @@ test('bytes', () => {
   expect(sliceBytes(new Uint8Array([]), 0)).toMatchInlineSnapshot(
     'Uint8Array []',
   )
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 4))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 4),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       0,
       1,
@@ -58,8 +60,9 @@ test('bytes', () => {
       3,
     ]
   `)
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2, 8))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2, 8),
+  ).toMatchInlineSnapshot(`
       Uint8Array [
         2,
         3,
@@ -69,8 +72,9 @@ test('bytes', () => {
         7,
       ]
     `)
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 5, 9))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 5, 9),
+  ).toMatchInlineSnapshot(`
       Uint8Array [
         5,
         6,
@@ -78,8 +82,9 @@ test('bytes', () => {
         8,
       ]
     `)
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       2,
       3,
@@ -91,8 +96,9 @@ test('bytes', () => {
       9,
     ]
   `)
-  expect(slice(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2))
-    .toMatchInlineSnapshot(`
+  expect(
+    slice(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 2),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       2,
       3,
@@ -105,21 +111,24 @@ test('bytes', () => {
     ]
   `)
 
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -1))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -1),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       9,
     ]
   `)
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -3, -1))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -3, -1),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       7,
       8,
     ]
   `)
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -8))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -8),
+  ).toMatchInlineSnapshot(`
       Uint8Array [
         2,
         3,
@@ -131,8 +140,9 @@ test('bytes', () => {
         9,
       ]
     `)
-  expect(slice(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -8))
-    .toMatchInlineSnapshot(`
+  expect(
+    slice(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -8),
+  ).toMatchInlineSnapshot(`
       Uint8Array [
         2,
         3,
@@ -145,8 +155,9 @@ test('bytes', () => {
       ]
     `)
 
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 10))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 10),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       0,
       1,
@@ -160,8 +171,9 @@ test('bytes', () => {
       9,
     ]
   `)
-  expect(sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -10))
-    .toMatchInlineSnapshot(`
+  expect(
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), -10),
+  ).toMatchInlineSnapshot(`
     Uint8Array [
       0,
       1,

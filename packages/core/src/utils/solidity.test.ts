@@ -22,8 +22,9 @@ test('extractFunctionParts', () => {
       "type": undefined,
     }
   `)
-  expect(extractFunctionParts('function bar(uint foo, address baz)'))
-    .toMatchInlineSnapshot(`
+  expect(
+    extractFunctionParts('function bar(uint foo, address baz)'),
+  ).toMatchInlineSnapshot(`
       {
         "name": "bar",
         "params": "uint foo, address baz",
@@ -63,8 +64,9 @@ test('extractFunctionType', () => {
 
 test('extractFunctionParams', () => {
   expect(extractFunctionParams('foo()')).toMatchInlineSnapshot('undefined')
-  expect(extractFunctionParams('bar(uint foo, address baz)'))
-    .toMatchInlineSnapshot(`
+  expect(
+    extractFunctionParams('bar(uint foo, address baz)'),
+  ).toMatchInlineSnapshot(`
     [
       {
         "name": "foo",
@@ -76,8 +78,9 @@ test('extractFunctionParams', () => {
       },
     ]
   `)
-  expect(extractFunctionParams('bar(uint indexed foo, address baz)'))
-    .toMatchInlineSnapshot(`
+  expect(
+    extractFunctionParams('bar(uint indexed foo, address baz)'),
+  ).toMatchInlineSnapshot(`
     [
       {
         "indexed": true,

@@ -74,7 +74,7 @@ export default function Index() {
       <table>
         <thead>
           <tr>
-            <th></th>
+            <th />
             {Object.keys(suite[0].fns).map((name) => (
               <th key={name} style={{ width: '200px', textAlign: 'right' }}>
                 {name}

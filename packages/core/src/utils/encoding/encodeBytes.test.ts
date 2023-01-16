@@ -137,22 +137,25 @@ describe('converts numbers to bytes', () => {
       ]
     `,
     )
-    expect(numberToBytes(-127, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-127, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         255,
         129,
       ]
     `)
-    expect(numberToBytes(32767, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(32767, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         127,
         255,
       ]
     `)
-    expect(numberToBytes(-32768, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-32768, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         128,
         0,
@@ -194,8 +197,9 @@ describe('converts bigints to bytes', () => {
         164,
       ]
     `)
-    expect(encodeBytes(4206942069420694206942069420694206942069n))
-      .toMatchInlineSnapshot(`
+    expect(
+      encodeBytes(4206942069420694206942069420694206942069n),
+    ).toMatchInlineSnapshot(`
         Uint8Array [
           12,
           92,
@@ -238,8 +242,9 @@ describe('converts bigints to bytes', () => {
         164,
       ]
     `)
-    expect(numberToBytes(4206942069420694206942069420694206942069n))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(4206942069420694206942069420694206942069n),
+    ).toMatchInlineSnapshot(`
         Uint8Array [
           12,
           92,
@@ -377,29 +382,33 @@ describe('converts bigints to bytes', () => {
       ]
     `)
 
-    expect(numberToBytes(127n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(127n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         0,
         127,
       ]
     `)
-    expect(numberToBytes(-127n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-127n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         255,
         129,
       ]
     `)
-    expect(numberToBytes(32767n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(32767n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         127,
         255,
       ]
     `)
-    expect(numberToBytes(-32768n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-32768n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         128,
         0,
@@ -563,7 +572,7 @@ test('converts hex to bytes', () => {
   `,
   )
 
-  expect(hexToBytes('0x')).toMatchInlineSnapshot(`Uint8Array []`)
+  expect(hexToBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
   expect(hexToBytes('0x61')).toMatchInlineSnapshot(`
       Uint8Array [
         97,

@@ -20,9 +20,8 @@ describe('converts numbers to hex', () => {
     expect(numberToHex(69)).toMatchInlineSnapshot('"0x45"')
     expect(numberToHex(420)).toMatchInlineSnapshot('"0x1a4"')
 
-    expect(
-      // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
-      () => numberToHex(420182738912731283712937129),
+    expect(() =>
+      numberToHex(420182738912731283712937129),
     ).toThrowErrorMatchingInlineSnapshot(
       '"Number \\"4.2018273891273126e+26\\" is not in safe integer range (0 to 9007199254740991)"',
     )
@@ -103,10 +102,7 @@ describe('converts bigints to hex', () => {
       numberToHex(4206942069420694206942069420694206942069n),
     ).toMatchInlineSnapshot('"0xc5cf39211876fb5e5884327fa56fc0b75"')
 
-    expect(
-      // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
-      () => numberToHex(-69n),
-    ).toThrowErrorMatchingInlineSnapshot(
+    expect(() => numberToHex(-69n)).toThrowErrorMatchingInlineSnapshot(
       '"Number \\"-69n\\" is not in safe integer range (above 0)"',
     )
   })

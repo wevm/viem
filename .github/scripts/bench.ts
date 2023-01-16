@@ -35,7 +35,7 @@ type Report = {
     repo: context.repo.repo,
   }
 
-  if (context.eventName == 'pull_request') {
+  if (context.eventName === 'pull_request') {
     const { data: comments } = await octokit.rest.issues.listComments({
       owner: context.repo.owner,
       repo: context.repo.repo,
@@ -71,7 +71,7 @@ function getResultsTable(report: Report) {
     const [name, results] = testResults[i]
 
     table += `| **${name}** | **ops/s** | **Mean (ms)** | **Total Time (ms)** | **# Samples**  | |\n`
-    if (i == 0) table += `|:---|:---|:---|:---|:---|:---|\n`
+    if (i === 0) table += "|:---|:---|:---|:---|:---|:---|\n"
 
     let maxHz = Math.max(...results.map((r) => r.hz))
     for (const { name, hz, mean, samples, totalTime } of results) {
@@ -85,7 +85,7 @@ function getResultsTable(report: Report) {
         3,
       )}\` | \`${totalTime.toFixed(3)}\` | ${samples.length} | ${label} |\n`
     }
-    table += `| | | | | | |\n`
+    table += "| | | | | | |\n"
   }
 
   return table

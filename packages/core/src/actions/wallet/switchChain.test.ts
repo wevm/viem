@@ -10,8 +10,9 @@ test('default', async () => {
 })
 
 test('unsupported chain', async () => {
-  await expect(switchChain(walletClient!, fantom)).rejects
-    .toMatchInlineSnapshot(`
+  await expect(
+    switchChain(walletClient!, fantom),
+  ).rejects.toMatchInlineSnapshot(`
     [UnknownRpcError: An unknown RPC error occurred.
 
     Details: Unrecognized chain.

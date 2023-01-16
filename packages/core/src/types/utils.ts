@@ -8,11 +8,12 @@ export type MaybePromise<T> = T | Promise<T>
  * => { a: number, b: number }
  */
 export type MergeIntersectionProperties<T, U> = {
-  [K in keyof T as K extends keyof U
-    ? U[K] extends void
-      ? never
-      : K
-    : K]: K extends keyof U ? U[K] : T[K]
+  [K in
+    keyof T as K extends keyof U
+      ? U[K] extends void
+        ? never
+        : K
+      : K]: K extends keyof U ? U[K] : T[K]
 }
 
 /**

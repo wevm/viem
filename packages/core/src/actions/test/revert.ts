@@ -8,7 +8,7 @@ export type RevertArgs = {
 
 export async function revert(client: TestClient, { id }: RevertArgs) {
   return await client.request({
-    method: `evm_revert`,
+    method: 'evm_revert',
     params: [id],
   })
 }
