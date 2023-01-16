@@ -7,5 +7,7 @@
     "playground-dev": "0.1.0",
     "@viem/site": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "red-cougars-dream"
+  ]
 }

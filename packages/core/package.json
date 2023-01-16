@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript (& JavaScript) Interface for Ethereum",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "scripts": {
     "build": "tsup",
     "dev": "DEV=true tsup"
