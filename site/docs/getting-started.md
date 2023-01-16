@@ -24,7 +24,7 @@ yarn add viem
 
 Firstly, set up your [Client](/TODO) with a desired [Transport](/TODO) & [Chain](/TODO).
 
-```tsx
+```tsx {4-8}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 

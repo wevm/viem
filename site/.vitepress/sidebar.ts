@@ -32,7 +32,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/clients/transports/ethereum-provider',
             },
             {
-              text: 'Fallback 🚧',
+              text: 'Fallback',
               link: '/docs/clients/transports/fallback',
             },
           ],
@@ -597,10 +597,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'getFunctionSignature',
               link: '/docs/utilities/getFunctionSignature',
-            },
-            {
-              text: 'hashMessage 🚧',
-              link: '/docs/utilities/hashMessage',
             },
             {
               text: 'keccak256',

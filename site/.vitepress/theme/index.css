@@ -12,21 +12,24 @@
   --vp-c-brand-lighter: var(--vp-c-yellow-lighter);
   --vp-c-brand-dark: var(--vp-c-yellow-dark);
   --vp-c-brand-darker: var(--vp-c-yellow-darker);
-
   --vp-c-text-light-1: var(--vp-c-black-soft);
 
-  --vp-code-line-highlight-color: rgb(255 197 22 / 10%);
+  --vp-c-yellow: #e0a800;
+
+  --vp-code-line-highlight-color: rgb(255 197 22 / 8%);
   --vp-code-font-size: 15px;
 
-  --vp-c-yellow: #e0a800;
 }
 
 .dark {
   --vp-c-yellow: #ffc517;
-
   --vp-c-brand: var(--vp-c-yellow);
 }
 
 .VPNavBarTitle .VPImage {
   margin-right: 4px;
+}
+
+.shiki .highlighted {
+  border-left: 2px solid var(--vp-c-brand);
 }
