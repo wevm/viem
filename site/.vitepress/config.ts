@@ -23,6 +23,10 @@ export default defineConfig({
     ],
   ],
 
+  markdown: {
+    theme: 'github-dark',
+  },
+
   themeConfig: {
     algolia: {
       appId: 'todo',
@@ -41,6 +45,11 @@ export default defineConfig({
     },
 
     logo: { light: '/icon-light.png', dark: '/icon-dark.png' },
+
+    nav: [
+      { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
+      { text: 'Examples', link: '/examples' },
+    ],
 
     outline: [2, 3],
 

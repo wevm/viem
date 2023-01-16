@@ -68,5 +68,10 @@
       "pnpm format",
       "pnpm lint:fix"
     ]
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "vitepress@1.0.0-alpha.34": "patches/vitepress@1.0.0-alpha.34.patch"
+    }
   }
 }
