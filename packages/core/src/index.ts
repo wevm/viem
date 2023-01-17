@@ -132,6 +132,8 @@ export type {
   ClientConfig,
   EthereumProviderTransport,
   EthereumProviderTransportConfig,
+  FallbackTransport,
+  FallbackTransportConfig,
   HttpTransport,
   HttpTransportConfig,
   PublicClient,
@@ -153,6 +155,7 @@ export {
   createTransport,
   createWalletClient,
   ethereumProvider,
+  fallback,
   http,
   webSocket,
 } from './clients'

@@ -2,6 +2,7 @@ export {
   UrlRequiredError,
   createTransport,
   ethereumProvider,
+  fallback,
   http,
   webSocket,
 } from './transports'
@@ -10,6 +11,8 @@ export type {
   TransportConfig,
   EthereumProviderTransport,
   EthereumProviderTransportConfig,
+  FallbackTransport,
+  FallbackTransportConfig,
   HttpTransport,
   HttpTransportConfig,
   WebSocketTransport,

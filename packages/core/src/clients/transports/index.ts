@@ -9,6 +9,9 @@ export type {
   EthereumProviderTransportConfig,
 } from './ethereumProvider'
 
+export { fallback } from './fallback'
+export type { FallbackTransport, FallbackTransportConfig } from './fallback'
+
 export { http } from './http'
 export type { HttpTransport, HttpTransportConfig } from './http'
 

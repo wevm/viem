@@ -8,6 +8,7 @@ test('exports transports', () => {
       "UrlRequiredError": [Function],
       "createTransport": [Function],
       "ethereumProvider": [Function],
+      "fallback": [Function],
       "http": [Function],
       "webSocket": [Function],
     }

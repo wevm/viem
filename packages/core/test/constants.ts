@@ -47,6 +47,7 @@ export const initialBlockNumber = BigInt(
   Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
 )
 
+export const localHttpUrl = 'http://127.0.0.1:8545'
 export const localWsUrl = 'ws://127.0.0.1:8545'
 
 // ERC20 `transferFrom` method

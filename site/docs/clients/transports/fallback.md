@@ -27,22 +27,4 @@ const client = createPublicClient({
 })
 ```
 
-## Configuration
-
-### timeout (optional)
-
-- **Type**: `number`
-- **Default**: `4_000`
-
-A timeout (in ms) after which another Transport will be attempted.
-
-```ts
-const client = createPublicClient({
-  chain: mainnet,
-  transport: fallback([alchemy, infura], {
-    timeout: 10_000 // [!code focus]
-  }),
-})
-```
-
 

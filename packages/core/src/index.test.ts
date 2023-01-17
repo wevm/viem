@@ -52,6 +52,7 @@ test('exports actions', () => {
         "wei": 18,
       },
       "ethereumProvider": [Function],
+      "fallback": [Function],
       "formatBlock": [Function],
       "formatEther": [Function],
       "formatGwei": [Function],

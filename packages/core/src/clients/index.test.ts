@@ -12,6 +12,7 @@ test('exports clients', () => {
       "createTransport": [Function],
       "createWalletClient": [Function],
       "ethereumProvider": [Function],
+      "fallback": [Function],
       "http": [Function],
       "webSocket": [Function],
     }
