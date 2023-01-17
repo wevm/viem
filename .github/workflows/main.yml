@@ -84,7 +84,7 @@ jobs:
       - name: Check types
         run: pnpm typecheck
       - name: Lint & format code
-        run: pnpm lint:fix && pnpm lint:format packages
+        run: pnpm format & pnpm lint:fix
       - name: Commit
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
