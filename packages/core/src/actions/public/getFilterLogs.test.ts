@@ -38,9 +38,9 @@ afterAll(async () => {
 
 test('default', async () => {
   const filter = await createEventFilter(publicClient)
-  expect(
-    await getFilterLogs(publicClient, { filter }),
-  ).toMatchInlineSnapshot('[]')
+  expect(await getFilterLogs(publicClient, { filter })).toMatchInlineSnapshot(
+    '[]',
+  )
 })
 
 describe('events', () => {
