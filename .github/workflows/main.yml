@@ -126,11 +126,6 @@ jobs:
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Build
         run: pnpm build
-      - name: Check size
-        run: pnpm size
-        env:
-          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
-          CI_BRANCH_BASE: main
 
   test:
     name: Test
@@ -249,6 +244,6 @@ jobs:
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
       - name: Report
-        run: node -r esbuild-register ./.github/scripts/bench.ts
+        run: node --loader esbuild-register/loader -r esbuild-register ./.github/scripts/bench.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

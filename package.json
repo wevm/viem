@@ -20,7 +20,6 @@
     "postinstall": "pnpm dev",
     "preinstall": "npx only-allow pnpm",
     "prepare": "npx simple-git-hooks",
-    "size": "bundlewatch --config .config/bundlewatch.config.js",
     "test": "vitest dev --coverage --no-threads",
     "test:ci": "CI=true vitest --coverage --no-threads",
     "test:ui": "vitest dev --ui --no-threads",
