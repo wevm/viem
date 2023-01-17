@@ -38,10 +38,9 @@ jobs:
         id: cache-node-modules
         with:
           path: |
+            dist
             node_modules
             playgrounds/**/node_modules
-            packages/**/node_modules
-            packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install Dependencies
@@ -73,10 +72,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
+            dist
             node_modules
             playgrounds/**/node_modules
-            packages/**/node_modules
-            packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Link
@@ -121,10 +119,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
+            dist
             node_modules
             playgrounds/**/node_modules
-            packages/**/node_modules
-            packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Build
@@ -160,10 +157,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
+            dist
             node_modules
             playgrounds/**/node_modules
-            packages/**/node_modules
-            packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install rust
@@ -222,10 +218,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
+            dist
             node_modules
             playgrounds/**/node_modules
-            packages/**/node_modules
-            packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install rust

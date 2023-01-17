@@ -31,10 +31,9 @@ jobs:
         id: cache-node-modules
         with:
           path: |
+            dist
             node_modules
             playgrounds/**/node_modules
-            packages/**/node_modules
-            packages/**/dist
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install Dependencies

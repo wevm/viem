@@ -1,17 +1,18 @@
 {
-  "name": "@viem/root",
-  "private": true,
+  "name": "viem",
+  "description": "TypeScript (& JavaScript) Interface for Ethereum",
+  "version": "0.0.1-alpha.0",
   "scripts": {
     "anvil": "source .env && anvil --fork-url $ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
-    "build": "pnpm -r --filter './packages/**' build",
+    "build": "tsup",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
-    "dev": "pnpm -r --filter './packages/**' dev",
+    "dev": "DEV=true tsup",
     "dev:docs": "pnpm -r --filter site dev",
-    "format": "rome format packages/ --write",
+    "format": "rome format src/ test/ --write",
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply-suggested",
     "playground": "pnpm --filter playground-dev dev",
@@ -24,6 +25,51 @@
     "test:ci": "CI=true vitest --coverage --no-threads",
     "test:ui": "vitest dev --ui --no-threads",
     "typecheck": "tsc --noEmit"
+  },
+  "files": [
+    "/actions",
+    "/chains",
+    "/dist",
+    "/clients",
+    "/types",
+    "/utils",
+    "/window"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./actions": {
+      "types": "./dist/actions/index.d.ts",
+      "default": "./dist/actions/index.js"
+    },
+    "./chains": {
+      "types": "./dist/chains.d.ts",
+      "default": "./dist/chains.js"
+    },
+    "./clients": {
+      "types": "./dist/clients/index.d.ts",
+      "default": "./dist/clients/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
+    },
+    "./window": {
+      "types": "./dist/window.d.ts",
+      "default": "./dist/window.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "dependencies": {
+    "@noble/hashes": "^1.1.2",
+    "@wagmi/chains": "^0.1.0",
+    "abitype": "^0.2.5"
   },
   "devDependencies": {
     "@actions/core": "^1.10.0",
@@ -53,6 +99,19 @@
     "vitest": "^0.25.2",
     "web3": "^1.8.1"
   },
+  "license": "MIT",
+  "repository": "wagmi-dev/viem",
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3"
+  ],
   "simple-git-hooks": {
     "pre-commit": "pnpm format & pnpm lint:fix"
   },

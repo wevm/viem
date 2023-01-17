@@ -8,11 +8,14 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "node",
+    "outDir": "dist",
     "preserveSymlinks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
     "types": ["node"]
-  }
+  },
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.bench.ts"],
+  "include": ["src"]
 }

@@ -17,3 +17,9 @@ bench
 .env.test.local
 .env.production.local
 .envrc
+
+actions/**
+chains/**
+clients/**
+utils/**
+window/**

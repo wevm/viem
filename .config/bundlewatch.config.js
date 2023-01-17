@@ -1,7 +1,7 @@
 module.exports = {
   files: [
     {
-      path: 'packages/**/dist/**/*.js',
+      path: 'dist/**/*.js',
     },
   ],
   ci: {

@@ -13,12 +13,15 @@ importers:
       '@actions/github': ^5.1.1
       '@changesets/changelog-github': ^0.4.5
       '@changesets/cli': ^2.23.2
+      '@noble/hashes': ^1.1.2
       '@testing-library/jest-dom': ^5.16.5
       '@types/dedent': ^0.7.0
       '@types/fs-extra': ^9.0.13
       '@types/node': ^17.0.45
       '@vitest/coverage-c8': ^0.24.3
       '@vitest/ui': ^0.19.1
+      '@wagmi/chains': ^0.1.0
+      abitype: ^0.2.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
       esbuild: ^0.16.12
@@ -35,6 +38,10 @@ importers:
       vite: ^3.0.4
       vitest: ^0.25.2
       web3: ^1.8.1
+    dependencies:
+      '@noble/hashes': 1.1.2
+      '@wagmi/chains': 0.1.0
+      abitype: 0.2.5_typescript@4.9.3
     devDependencies:
       '@actions/core': 1.10.0
       '@actions/github': 5.1.1
@@ -63,16 +70,6 @@ importers:
       vitest: 0.25.2_vnmq2nkosb62o4dsp6xedf6gbi
       web3: 1.8.1
 
-  packages/core:
-    specifiers:
-      '@noble/hashes': ^1.1.2
-      '@wagmi/chains': ^0.1.0
-      abitype: ^0.2.5
-    dependencies:
-      '@noble/hashes': 1.1.2
-      '@wagmi/chains': 0.1.0
-      abitype: 0.2.5
-
   playgrounds/benchmark:
     specifiers:
       '@preconstruct/next': ^4.0.0
@@ -99,7 +96,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       typescript: 4.9.3
-      viem: link:../../packages/core
+      viem: link:../..
 
   playgrounds/dev:
     specifiers:
@@ -121,7 +118,7 @@ importers:
       next: 12.2.2_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../packages/core
+      viem: link:../..
     devDependencies:
       '@next/bundle-analyzer': 12.2.4
       '@preconstruct/next': 4.0.0
@@ -2147,7 +2144,7 @@ packages:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     dev: true
 
-  /abitype/0.2.5:
+  /abitype/0.2.5_typescript@4.9.3:
     resolution: {integrity: sha512-t1iiokWYpkrziu4WL2Gb6YdGvaP9ZKs7WnA39TI8TsW2E99GVRgDPW/xOKhzoCdyxOYt550CNYEFluCwGaFHaA==}
     engines: {pnpm: '>=7'}
     peerDependencies:
@@ -2156,6 +2153,8 @@ packages:
     peerDependenciesMeta:
       zod:
         optional: true
+    dependencies:
+      typescript: 4.9.3
     dev: false
 
   /abortcontroller-polyfill/1.7.5:

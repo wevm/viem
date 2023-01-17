@@ -1,5 +1,5 @@
 prefer-workspace-packages: true
 packages:
+  - '.'
   - 'site'
-  - 'packages/*'
   - 'playgrounds/*'
