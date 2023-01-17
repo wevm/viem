@@ -81,10 +81,23 @@ jobs:
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Link
         run: pnpm dev
-      - name: Lint code
-        run: pnpm lint
       - name: Check types
         run: pnpm typecheck
+      - name: Lint & format code
+        run: pnpm lint:fix && pnpm lint:format packages
+      - name: Commit
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          git add .
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "no formatting changed"
+            exit 0
+          fi
+          git commit -m "chore: format"
+          git push
+          echo "pushed formatting changes https://github.com/$GITHUB_REPOSITORY/commit/$(git rev-parse HEAD)"
 
   build:
     name: Build
