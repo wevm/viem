@@ -3,6 +3,7 @@ import { createHttpServer, localHttpUrl } from '../../../test'
 import { localhost } from '../../chains'
 import { createClient } from '../createClient'
 
+import { getBlockNumber } from '../../actions'
 import { fallback, FallbackTransport } from './fallback'
 import { http } from './http'
 
@@ -48,57 +49,6 @@ test('default', () => {
           },
         ],
       },
-    }
-  `)
-})
-
-test('client usage', () => {
-  const alchemy = http({ url: 'https://alchemy.com/rpc' })
-  const infura = http({ url: 'https://infura.com/rpc' })
-  const transport = fallback([alchemy, infura])
-
-  const { uid, ...client } = createClient({
-    transport,
-  })
-
-  expect(client).toMatchInlineSnapshot(`
-    {
-      "chain": undefined,
-      "key": "base",
-      "name": "Base Client",
-      "pollingInterval": 4000,
-      "request": [Function],
-      "transport": {
-        "key": "fallback",
-        "name": "Fallback",
-        "request": [Function],
-        "transports": [
-          {
-            "config": {
-              "key": "http",
-              "name": "HTTP JSON-RPC",
-              "request": [Function],
-              "type": "http",
-            },
-            "value": {
-              "url": "https://alchemy.com/rpc",
-            },
-          },
-          {
-            "config": {
-              "key": "http",
-              "name": "HTTP JSON-RPC",
-              "request": [Function],
-              "type": "http",
-            },
-            "value": {
-              "url": "https://infura.com/rpc",
-            },
-          },
-        ],
-        "type": "fallback",
-      },
-      "type": "base",
     }
   `)
 })
@@ -181,5 +131,99 @@ describe('request', () => {
 
     // ensure `retryCount` on transport is adhered
     expect(count).toBe(6)
+  })
+})
+
+describe('client', () => {
+  test('default', () => {
+    const alchemy = http({ url: 'https://alchemy.com/rpc' })
+    const infura = http({ url: 'https://infura.com/rpc' })
+    const transport = fallback([alchemy, infura])
+
+    const { uid, ...client } = createClient({
+      transport,
+    })
+
+    expect(client).toMatchInlineSnapshot(`
+      {
+        "chain": undefined,
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
+          "key": "fallback",
+          "name": "Fallback",
+          "request": [Function],
+          "transports": [
+            {
+              "config": {
+                "key": "http",
+                "name": "HTTP JSON-RPC",
+                "request": [Function],
+                "type": "http",
+              },
+              "value": {
+                "url": "https://alchemy.com/rpc",
+              },
+            },
+            {
+              "config": {
+                "key": "http",
+                "name": "HTTP JSON-RPC",
+                "request": [Function],
+                "type": "http",
+              },
+              "value": {
+                "url": "https://infura.com/rpc",
+              },
+            },
+          ],
+          "type": "fallback",
+        },
+        "type": "base",
+      }
+    `)
+  })
+
+  test('request', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const local = http({ url: server.url })
+    const transport = fallback([local])
+    const client = createClient({ chain: localhost, transport })
+
+    expect(await getBlockNumber(client)).toBe(1n)
+  })
+
+  test('request (error)', async () => {
+    const server1 = await createHttpServer((req, res) => {
+      res.writeHead(500)
+      res.end()
+    })
+    const server2 = await createHttpServer((req, res) => {
+      res.writeHead(500)
+      res.end()
+    })
+    const server3 = await createHttpServer((req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback([
+      http({ url: server1.url }),
+      http({ url: server2.url }),
+      http({ url: server3.url }),
+    ])
+    const client = createClient({ chain: localhost, transport })
+
+    expect(await getBlockNumber(client)).toBe(1n)
   })
 })
