@@ -39,6 +39,12 @@ export type {
   GetFilterChangesResponse,
 } from './getFilterChanges'
 
+export { getFilterLogs } from './getFilterLogs'
+export type {
+  GetFilterLogsArgs,
+  GetFilterLogsResponse,
+} from './getFilterLogs'
+
 export { getGasPrice } from './getGasPrice'
 export type { GetGasPriceResponse } from './getGasPrice'
 
