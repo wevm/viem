@@ -35,7 +35,7 @@ import { VPButton } from 'vitepress/theme'
         />
       </a>
     </div>
-    <span class="text-xl max-w-xl">Feel like an Ethereum rockstar with viem – <span class="text-yellow-500 dark:text-yellow-400 font-medium">lightweight</span>, <span class="text-yellow-500 dark:text-yellow-400 font-medium">modular</span> & <span class="text-yellow-500 dark:text-yellow-400 font-medium">type-safe</span> building blocks for interacting with Ethereum.</span>
+    <span class="text-xl max-w-xl">Build reliable Ethereum apps & libraries with <span class="text-yellow-500 dark:text-yellow-400 font-medium">lightweight</span>, <span class="text-yellow-500 dark:text-yellow-400 font-medium">composable</span>, & <span class="text-yellow-500 dark:text-yellow-400 font-medium">type-safe</span> modules from Viem.</span>
   </div>
 </div>
 
@@ -72,7 +72,7 @@ yarn add viem
     <div class="card rounded-l sm:h-32 p-6 space-y-2">
       <span class="font-semibold">Modular</span>
       <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Composable modules to build dapps & libraries with speed.
+        Composable modules to build apps & libraries with speed.
       </p>
     </div>
   </div>
@@ -80,7 +80,7 @@ yarn add viem
     <div class="card rounded-l sm:h-32 p-6 space-y-2">
       <span class="font-semibold">Lightweight</span>
       <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Tiny 23kB bundle – optimized for tree-shaking.
+        Tiny 14kB bundle – optimized for tree-shaking.
       </p>
     </div>
   </div>
