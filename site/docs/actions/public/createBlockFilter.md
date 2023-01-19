@@ -20,8 +20,4 @@ const filter = await createBlockFilter(publicClient) // [!code focus:99]
 
 ## Returns
 
-[`Filter`](/TODO)
-
-## Example
-
-TODO
+[`Filter`](/docs/glossary/types#TODO)

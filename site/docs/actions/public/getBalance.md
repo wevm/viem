@@ -68,7 +68,7 @@ const balance = await getBalance(publicClient, {
 
 ## Tips
 
-- You can convert the balance to ether units with [`formatEther`](/TODO).
+- You can convert the balance to ether units with [`formatEther`](/docs/utilities/formatEther).
 
 ```ts
 const balance = await getBalance(publicClient, {
@@ -78,7 +78,3 @@ const balance = await getBalance(publicClient, {
 const balanceAsEther = formatEther(balance) // [!code focus:2]
 // "6.942"
 ```
-
-## Example
-
-TODO

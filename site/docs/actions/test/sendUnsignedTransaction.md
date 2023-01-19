@@ -34,7 +34,7 @@ The transaction hash.
 
 ### request
 
-- **Type:** [`TransactionRequest`](/TODO)
+- **Type:** [`TransactionRequest`](/docs/glossary/terms#TODO)
 
 The transaction request.
 

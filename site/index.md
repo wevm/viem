@@ -35,7 +35,7 @@ import { VPButton } from 'vitepress/theme'
         />
       </a>
     </div>
-    <span class="text-xl max-w-xl">Build reliable Ethereum apps & libraries with <span class="text-yellow-500 dark:text-yellow-400 font-medium">lightweight</span>, <span class="text-yellow-500 dark:text-yellow-400 font-medium">composable</span>, & <span class="text-yellow-500 dark:text-yellow-400 font-medium">type-safe</span> modules from Viem.</span>
+    <span class="text-xl max-w-xl">Build reliable Ethereum apps & libraries with <span class="text-yellow-500 dark:text-yellow-400 font-medium">lightweight</span>, <span class="text-yellow-500 dark:text-yellow-400 font-medium">composable</span>, & <span class="text-yellow-500 dark:text-yellow-400 font-medium">type-safe</span> modules from viem.</span>
   </div>
 </div>
 

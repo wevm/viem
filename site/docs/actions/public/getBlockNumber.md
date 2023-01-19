@@ -29,7 +29,7 @@ The number of the block.
 ### maxAge (optional)
 
 - **Type:** `number`
-- **Default:** [Client's `pollingInterval`](/TODO)
+- **Default:** [Client's `pollingInterval`](/docs/clients/public#pollinginterval-optional)
 
 The maximum age (in ms) of the cached value. 
 

@@ -26,7 +26,3 @@ await switchChain(walletClient, { id: avalanche.id }) // [!code focus]
 
 The Chain ID.
 
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>
-

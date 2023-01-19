@@ -22,11 +22,7 @@ await addChain(walletClient, avalanche) // [!code focus]
 
 ### chain
 
-- **Type:** [`Chain`](/TODO)
+- **Type:** [`Chain`](/docs/glossary/types#TODO)
 
 The chain to add to the wallet.
-
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>
 

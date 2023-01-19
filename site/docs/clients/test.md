@@ -1,6 +1,6 @@
 # Test Client
 
-The `createTestClient` function sets up a Test RPC Client with a given [Transport](/TODO).
+The `createTestClient` function sets up a Test RPC Client with a given [Transport](/docs/clients/intro).
 
 The Test RPC Client provides access to [Test Actions](#supported-actions).
 
@@ -12,7 +12,7 @@ import { createTestClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired [Chain](/TODO), [Transport](/TODO) (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
+Initialize a Client with your desired [Chain](/docs/clients/chains), [Transport](/docs/clients/intro) (e.g. `http`) and [mode](#mode) (e.g. `"anvil"`).
 
 ```ts
 import { createTestClient, http } from 'viem'
@@ -43,9 +43,9 @@ const client = createTestClient({
 
 ### transport
 
-- **Type:** [Transport](/TODO)
+- **Type:** [Transport](/docs/glossary/types#TODO)
 
-[Transport](/TODO) of the Test Client.
+[Transport](/docs/clients/intro) of the Test Client.
 
 ```ts
 const client = createTestClient({
@@ -57,9 +57,9 @@ const client = createTestClient({
 
 ### chain (optional)
 
-- **Type:** [Chain](/TODO)
+- **Type:** [Chain](/docs/glossary/types#TODO)
 
-[Chain](/TODO) of the Test Client.
+[Chain](/docs/clients/chains) of the Test Client.
 
 ```ts
 const client = createTestClient({
@@ -100,8 +100,3 @@ const client = createTestClient({
   transport: http(),
 })
 ```
-
-## Supported actions
-
-- [`mine`](/docs/mine)
-- [`setBalance`](/docs/setBalance)

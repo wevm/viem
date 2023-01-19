@@ -37,6 +37,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
           ],
         },
+        { text: 'Chains', link: '/docs/clients/chains' },
       ],
     },
     {
@@ -89,11 +90,11 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'ENS',
           items: [
-            { text: 'getEnsAddress 🚧', link: '/docs/ens/getEnsAddress' },
-            { text: 'getEnsName 🚧', link: '/docs/ens/getEnsName' },
+            { text: 'getEnsAddress 🚧', link: '/docs/actions/public/getEnsAddress' },
+            { text: 'getEnsName 🚧', link: '/docs/actions/public/getEnsName' },
             {
               text: 'getEnsResolver 🚧',
-              link: '/docs/ens/getEnsResolver',
+              link: '/docs/actions/public/getEnsResolver',
             },
           ],
         },
@@ -270,7 +271,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsible: true,
       collapsed: true,
       items: [
-        { text: 'Introduction 🚧', link: '/docs/actions/test/introduction' },
+        { text: 'Introduction', link: '/docs/actions/test/introduction' },
         {
           text: 'Account',
           items: [
@@ -383,10 +384,11 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: 'Contract 🚧',
+      text: 'Contract',
       collapsible: true,
       collapsed: true,
       items: [
+        { text: 'Introduction', link: '/docs/contract/introduction' },
         {
           text: 'Actions',
           items: [
@@ -399,12 +401,12 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/deployContract',
             },
             {
-              text: 'getContractCode 🚧',
-              link: '/docs/contract/getContractCode',
+              text: 'getCode 🚧',
+              link: '/docs/contract/getCode',
             },
             {
-              text: 'getContractStorage 🚧',
-              link: '/docs/contract/getContractStorage',
+              text: 'getStorageAt 🚧',
+              link: '/docs/contract/getStorageAt',
             },
             {
               text: 'multicall 🚧',
@@ -429,43 +431,43 @@ export const sidebar: DefaultTheme.Sidebar = {
           items: [
             {
               text: 'decodeDeploy 🚧',
-              link: '/docs/abi/decodeDeploy',
+              link: '/docs/contract/decodeDeploy',
             },
             {
-              text: 'decodeEventLog 🚧',
-              link: '/docs/abi/decodeEventLog',
+              text: 'decodeErrorParams 🚧',
+              link: '/docs/contract/decodeErrorParams',
             },
             {
-              text: 'decodeFunctionArgs 🚧',
-              link: '/docs/abi/decodeFunctionArgs',
+              text: 'decodeEventTopics 🚧',
+              link: '/docs/contract/decodeEventTopics',
             },
             {
-              text: 'decodeFunctionError 🚧',
-              link: '/docs/abi/decodeFunctionError',
+              text: 'decodeFunctionParams 🚧',
+              link: '/docs/contract/decodeFunctionParams',
             },
             {
               text: 'decodeFunctionResult 🚧',
-              link: '/docs/abi/decodeFunctionResult',
+              link: '/docs/contract/decodeFunctionResult',
             },
             {
               text: 'encodeDeploy 🚧',
-              link: '/docs/abi/encodeDeploy',
+              link: '/docs/contract/encodeDeploy',
             },
             {
-              text: 'encodeEventLog 🚧',
-              link: '/docs/abi/encodeEventLog',
+              text: 'encodeErrorParams 🚧',
+              link: '/docs/contract/encodeErrorParams',
             },
             {
-              text: 'encodeFunctionArgs 🚧',
-              link: '/docs/abi/encodeFunctionArgs',
+              text: 'encodeEventTopics 🚧',
+              link: '/docs/contract/encodeEventTopics',
             },
             {
-              text: 'encodeFunctionError 🚧',
-              link: '/docs/abi/encodeFunctionError',
+              text: 'encodeFunctionParams 🚧',
+              link: '/docs/contract/encodeFunctionParams',
             },
             {
               text: 'encodeFunctionResult 🚧',
-              link: '/docs/abi/encodeFunctionArgs',
+              link: '/docs/contract/encodeFunctionArgs',
             },
           ],
         },
@@ -582,8 +584,8 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'ENS',
           items: [
-            { text: 'namehash 🚧', link: '/docs/ens/namehash' },
-            { text: 'labelhash 🚧', link: '/docs/ens/labelhash' },
+            { text: 'namehash 🚧', link: '/docs/utilities/namehash' },
+            { text: 'labelhash 🚧', link: '/docs/utilities/labelhash' },
           ],
         },
         {
@@ -632,6 +634,15 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
           ],
         },
+      ],
+    },
+    {
+      text: 'Glossary',
+      collapsible: true,
+      collapsed: true,
+      items: [
+        { text: 'Terms', link: '/docs/glossary/terms' },
+        { text: 'Types', link: '/docs/glossary/types' },
       ],
     },
   ],

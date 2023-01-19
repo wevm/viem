@@ -34,7 +34,7 @@ The transaction hash.
 
 ### params
 
-- **Type:** [`TransactionRequest`](/TODO)
+- **Type:** [`TransactionRequest`](/docs/glossary/types#TODO)
 
 The transaction request.
 
@@ -50,9 +50,6 @@ const { hash } = await sendTransaction(walletClient, {
 
 ## Tips
 
-- For dapps: When using this action, it is assumed that the user has given permission for the dapp to access their accounts via [`requestAccounts`](/TODO). You can also check if the user has granted access to accounts via [`getAccounts`](/TODO)
+- For dapps: When using this action, it is assumed that the user has given permission for the dapp to access their accounts via [`requestAccounts`](/docs/actions/wallet/requestAccounts). You can also check if the user has granted access to accounts via [`getAccounts`](/docs/actions/wallet/getAccounts)
 
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>
 

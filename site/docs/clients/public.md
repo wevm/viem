@@ -1,6 +1,6 @@
 # Public Client
 
-The `createPublicClient` function sets up a Public Client with a given [Transport](/TODO) configured for a [Chain](/TODO).
+The `createPublicClient` function sets up a Public Client with a given [Transport](/docs/clients/intro) configured for a [Chain](/docs/clients/chains).
 
 The Public Client provides access to [Public Actions](#supported-actions)
 
@@ -12,7 +12,7 @@ import { createPublicClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired [Chain](/TODO) (e.g. `mainnet`) and [Transport](/TODO) (e.g. `http`).
+Initialize a Client with your desired [Chain](/docs/clients/chains) (e.g. `mainnet`) and [Transport](/docs/clients/intro) (e.g. `http`).
 
 ```ts
 import { createPublicClient, http } from 'viem'
@@ -28,9 +28,9 @@ const client = createPublicClient({
 
 ### transport
 
-- **Type:** [Transport](/TODO)
+- **Type:** [Transport](/docs/glossary/types#TODO)
 
-The [Transport](/TODO) of the Public Client. 
+The [Transport](/docs/clients/intro) of the Public Client. 
 
 ```ts
 const client = createPublicClient({
@@ -41,9 +41,9 @@ const client = createPublicClient({
 
 ### chain (optional)
 
-- **Type:** [Chain](/TODO)
+- **Type:** [Chain](/docs/glossary/types#TODO)
 
-The [Chain](/TODO) of the Public Client. 
+The [Chain](/docs/clients/chains) of the Public Client. 
 
 ```ts
 const client = createPublicClient({
@@ -96,12 +96,3 @@ const client = createPublicClient({
   transport: http(),
 })
 ```
-
-## Supported actions
-
-- [`getBalance`](/docs/getBalance)
-- [`getBlock`](/docs/getBlock)
-- [`getBlockNumber`](/docs/getBlockNumber)
-- [`getTransaction`](/docs/getTransaction)
-- [`watchBlock`](/docs/watchBlock)
-- [`watchBlockNumber`](/docs/watchBlockNumber)

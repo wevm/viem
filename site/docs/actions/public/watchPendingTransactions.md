@@ -2,7 +2,7 @@
 
 Watches and returns pending transaction hashes.
 
-This Action will batch up all the pending transactions found within the [`pollingInterval`](/TODO), and invoke them via [`onTransactions`](/TODO).
+This Action will batch up all the pending transactions found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onTransactions`](#ontransactions).
 
 ## Import
 
@@ -96,7 +96,3 @@ const unwatch = watchPendingTransactions(
   }
 )
 ```
-
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>

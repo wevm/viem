@@ -2,9 +2,9 @@
 
 Destroys a Filter that was created from one of the following actions:
 
-- [`createFilter`](/TODO)
-- [`createBlockFilter`](/TODO)
-- [`createPendingTransactionFilter`](/TODO)
+- [`createBlockFilter`](/docs/actions/public/createBlockFilter)
+- [`createEventFilter`](/docs/actions/public/createEventFilter)
+- [`createPendingTransactionFilter`](/docs/actions/public/createPendingTransactionFilter)
 
 ## Import
 
@@ -33,7 +33,7 @@ A boolean indicating if the Filter was successfully uninstalled.
 
 ### filter
 
-- **Type:** [`Filter`](/TODO)
+- **Type:** [`Filter`](/docs/glossary/terms#TODO)
 
 A created filter.
 
@@ -43,7 +43,3 @@ const uninstalled = await uninstallFilter(publicClient, {
   filter, // [!code focus]
 })
 ```
-
-## Example
-
-TODO

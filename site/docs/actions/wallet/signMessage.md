@@ -56,8 +56,3 @@ const message = await signMessage(walletClient, {
   data: '0xdeadbeaf', // [!code focus:1]
 })
 ```
-
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>
-

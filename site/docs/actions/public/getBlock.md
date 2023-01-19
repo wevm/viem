@@ -27,7 +27,7 @@ const block = await getBlock(publicClient) // [!code focus:99]
 
 ## Returns
 
-[`Block`](/TODO)
+[`Block`](/docs/glossary/types#TODO)
 
 Information about the block.
 
@@ -69,7 +69,3 @@ const block = await getBlock(publicClient, {
   blockTag: 'safe' // [!code focus]
 })
 ```
-
-## Example
-
-TODO

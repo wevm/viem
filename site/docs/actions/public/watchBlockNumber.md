@@ -48,7 +48,7 @@ A function that can be invoked to stop watching for new block numbers.
 
 Whether or not to emit missed block numbers to the callback. 
 
-Missed block numbers may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/TODO) of the client.
+Missed block numbers may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public.html#pollinginterval-optional) of the client.
 
 ```ts
 const unwatch = watchBlockNumber(
@@ -92,7 +92,3 @@ const unwatch = watchBlockNumber(
   }
 )
 ```
-
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>

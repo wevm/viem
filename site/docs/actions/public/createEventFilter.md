@@ -1,6 +1,6 @@
 # createEventFilter
 
-Creates a Filter to listen for new events that can be used with [`getFilterChanges`](/TODO).
+Creates a Filter to listen for new events that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).
 
 ## Install
 
@@ -94,7 +94,7 @@ const filter = await createEventFilter(publicClient, {
 
 ## Returns
 
-[`Filter`](/TODO)
+[`Filter`](/docs/glossary/types#TODO)
 
 ## Configuration
 

@@ -22,7 +22,7 @@ const feeHistory = await getFeeHistory(publicClient, { // [!code focus:4]
 
 ## Returns
 
-[`FeeHistory`](/TODO)
+[`FeeHistory`](/docs/glossary/types#TODO)
 
 The fee history.
 
@@ -82,7 +82,3 @@ const feeHistory = await getFeeHistory(publicClient, {
   rewardPercentiles: [25, 75]
 })
 ```
-
-## Example
-
-TODO

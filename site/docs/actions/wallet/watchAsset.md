@@ -5,23 +5,24 @@ Requests that the user tracks the token in their wallet. Returns a boolean indic
 ## Usage
 
 ```ts
-import { watchAsset } from 'viem'
+import { watchAsset } from 'viem';
 ```
 
 ## Usage
 
 ```ts
-import { watchAsset } from 'viem'
-import { walletClient } from '.'
- 
-await watchAsset(walletClient, { // [!code focus:99]
+import { watchAsset } from 'viem';
+import { walletClient } from '.';
+
+await watchAsset(walletClient, {
+  // [!code focus:99]
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     decimals: 18,
     symbol: 'WETH',
-  }
-})
+  },
+});
 ```
 
 ## Returns
@@ -45,8 +46,8 @@ await watchAsset(walletClient, {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     decimals: 18,
     symbol: 'WETH',
-  }
-})
+  },
+});
 ```
 
 ### options.address
@@ -61,9 +62,9 @@ await watchAsset(walletClient, {
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
     decimals: 18,
-    symbol: 'WETH'
-  }
-})
+    symbol: 'WETH',
+  },
+});
 ```
 
 ### options.decimals
@@ -79,9 +80,10 @@ await watchAsset(walletClient, {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     decimals: 18, // [!code focus]
     symbol: 'WETH',
-  }
-})
+  },
+});
 ```
+
 ### options.symbol
 
 - **Type:** `string`
@@ -111,13 +113,8 @@ await watchAsset(walletClient, {
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     decimals: 18
-    symbol: 'WETH', 
+    symbol: 'WETH',
     image: 'https://weth.com/icon.png', // [!code focus]
   }
 })
 ```
-
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>
-

@@ -1,6 +1,6 @@
 # stopImpersonatingAccount
 
-Stop impersonating an account after having previously used [`impersonateAccount`](/TODO).
+Stop impersonating an account after having previously used [`impersonateAccount`](/docs/actions/test/impersonateAccount).
 
 ## Import 
 

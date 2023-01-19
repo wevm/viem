@@ -1,6 +1,6 @@
 # createPendingTransactionFilter
 
-Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](/TODO).
+Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).
 
 ## Import
 
@@ -20,8 +20,5 @@ const filter = await createPendingTransactionFilter(publicClient) // [!code focu
 
 ## Returns
 
-[`Filter`](/TODO)
+[`Filter`](/docs/glossary/types#TODO)
 
-## Example
-
-TODO

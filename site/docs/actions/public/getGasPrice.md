@@ -22,7 +22,3 @@ const gasPrice = await getGasPrice(publicClient) // [!code focus:4]
 `bigint`
 
 The gas price (in wei).
-
-## Example
-
-TODO

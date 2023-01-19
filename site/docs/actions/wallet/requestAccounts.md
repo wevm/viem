@@ -26,7 +26,3 @@ const accounts = await requestAccounts(walletClient) // [!code focus:99]
 
 `'0x${string}'[]`
 
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>
-

@@ -1,6 +1,6 @@
 # getTransactionCount
 
-Returns the number of [Transactions](/TODO) an Account has broadcast / sent.
+Returns the number of [Transactions](/docs/glossary/terms#TODO) an Account has broadcast / sent.
 
 ## Import
 

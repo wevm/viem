@@ -1,6 +1,6 @@
 # waitForTransactionReceipt
 
-Waits for the [Transaction](/TODO) to be included on a [Block](/TODO) (one confirmation), and then returns the [Transaction Receipt](/TODO). If the Transaction reverts, then the action will throw an error.
+Waits for the [Transaction](/docs/glossary/terms#TODO) to be included on a [Block](/docs/glossary/terms#TODO) (one confirmation), and then returns the [Transaction Receipt](/docs/glossary/terms#TODO). If the Transaction reverts, then the action will throw an error.
 
 The `waitForTransactionReceipt` action additionally supports Replacement detection (ie. sped up Transactions).
 
@@ -33,7 +33,7 @@ const transaction = await waitForTransactionReceipt( // [!code focus:99]
 
 ## Returns
 
-[`TransactionReceipt`](/TODO)
+[`TransactionReceipt`](/docs/glossary/types#TODO)
 
 The transaction receipt.
 
@@ -112,7 +112,3 @@ const transaction = await waitForTransactionReceipt(
   - `cancelled`: The Transaction has been cancelled (ie. `value === 0n`)
   - `replaced`: The Transaction has been replaced (ie. different `value` or `data`)
 
-
-## Example
-
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/TODO"></iframe>

@@ -1,6 +1,6 @@
 # getAddress
 
-Converts an address to an address that is [checksum encoded](/TODO).
+Converts an address to an address that is [checksum encoded](https://eips.ethereum.org/EIPS/eip-55).
 
 ## Import
 

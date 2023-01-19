@@ -62,7 +62,3 @@ const block = await getBlockTransactionCount(publicClient, {
   blockTag: 'safe' // [!code focus]
 })
 ```
-
-## Example
-
-TODO

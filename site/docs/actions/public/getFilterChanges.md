@@ -1,12 +1,12 @@
 # getFilterChanges
 
-Returns a list of logs or hashes based on a [Filter](/TODO) since the last time it was called.
+Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#TODO) since the last time it was called.
 
 A Filter can be created from the following actions:
 
-- [`createBlockFilter`](/TODO)
-- [`createEventFilter`](/TODO)
-- [`createPendingTransactionFilter`](/TODO)
+- [`createBlockFilter`](/docs/actions/public/createBlockFilter)
+- [`createEventFilter`](/docs/actions/public/createEventFilter)
+- [`createPendingTransactionFilter`](/docs/actions/public/createPendingTransactionFilter)
 
 ## Import
 
@@ -57,19 +57,19 @@ const hashes = await getFilterChanges(publicClient, { filter })
 
 ## Returns
 
-[`Log[]`](/TODO)
+[`Log[]`](/docs/glossary/types#TODO)
 
 If the filter was created with `createEventFilter`, it returns a list of logs.
 
 **OR**
 
-[`"0x${string}"[]`](/TODO)
+`"0x${string}"[]`
 
 If the filter was created with `createPendingTransactionFilter`, it returns a list of transaction hashes.
 
 **OR**
 
-[`"0x${string}"[]`](/TODO)
+`"0x${string}"[]`
 
 If the filter was created with `createBlockFilter`, it returns a list of block hashes.
 
@@ -77,7 +77,7 @@ If the filter was created with `createBlockFilter`, it returns a list of block h
 
 ### filter
 
-- **Type:** [`Filter`](/TODO)
+- **Type:** [`Filter`](/docs/glossary/types#TODO)
 
 A created filter.
 
@@ -87,7 +87,3 @@ const logs = await getFilterChanges(publicClient, {
   filter, // [!code focus]
 })
 ```
-
-## Example
-
-TODO

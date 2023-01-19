@@ -1,6 +1,6 @@
 # Wallet Client
 
-The `createWalletClient` function sets up a Wallet Client with a given [Transport](/TODO).
+The `createWalletClient` function sets up a Wallet Client with a given [Transport](/docs/clients/intro).
 
 The Wallet Client provides access to [Wallet Actions](#supported-actions)
 
@@ -12,7 +12,7 @@ import { createWalletClient } from 'viem'
 
 ## Usage
 
-Initialize a Client with your desired [Transport](/TODO) (e.g. `ethereumProvider`).
+Initialize a Client with your desired [Transport](/docs/clients/intro) (e.g. `ethereumProvider`).
 
 ```ts
 import { createWalletClient, ethereumProvider } from 'viem'
@@ -71,8 +71,3 @@ const client = createWalletClient({
   transport: ethereumProvider({ provider: window.ethereum })
 })
 ```
-
-## Supported actions
-
-- [`requestAccounts`](/docs/requestAccounts)
-- [`sendTransaction`](/docs/sendTransaction)

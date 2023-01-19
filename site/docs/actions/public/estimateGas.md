@@ -68,7 +68,7 @@ const gasEstimate = await estimateGas(publicClient, {
 
 - **Type:** `bigint`
 
-The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/TODO).
+The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
 
 ```ts
 const gasEstimate = await estimateGas(publicClient, {
@@ -85,7 +85,7 @@ const gasEstimate = await estimateGas(publicClient, {
 
 - **Type:** `bigint`
 
-Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/TODO)
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
 const gasEstimate = await estimateGas(publicClient, {
@@ -102,7 +102,7 @@ const gasEstimate = await estimateGas(publicClient, {
 
 - **Type:** `bigint`
 
-Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/TODO)
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
 const gasEstimate = await estimateGas(publicClient, {
@@ -182,7 +182,3 @@ const gasEstimate = await estimateGas(publicClient, {
   }
 })
 ```
-
-## Example
-
-TODO
