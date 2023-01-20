@@ -1,0 +1,1 @@
+export { encodeAbi } from './encodeAbi'

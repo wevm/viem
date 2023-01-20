@@ -44,6 +44,7 @@ test('exports actions', () => {
       "decodeHex": [Function],
       "decodeRlp": [Function],
       "dropTransaction": [Function],
+      "encodeAbi": [Function],
       "encodeBytes": [Function],
       "encodeHex": [Function],
       "encodeRlp": [Function],

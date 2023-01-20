@@ -243,6 +243,7 @@ export {
   decodeBytes,
   decodeHex,
   decodeRlp,
+  encodeAbi,
   encodeBytes,
   encodeHex,
   encodeRlp,

@@ -13,8 +13,6 @@ import { Hex } from '../../types'
 import { concat, padHex, size } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
-type PreparedParam = { dynamic: boolean; encoded: Hex }
-
 export function encodeAbi<TParams extends readonly AbiParameter[]>({
   params,
   values,
@@ -28,6 +26,11 @@ export function encodeAbi<TParams extends readonly AbiParameter[]>({
 }
 
 /////////////////////////////////////////////////////////////////
+
+type PreparedParam = { dynamic: boolean; encoded: Hex }
+
+type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
+type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
 
 function prepareParams<TParams extends readonly AbiParameter[]>({
   params,
@@ -53,11 +56,11 @@ function prepareParam<TParam extends AbiParameter>({
   const arrayComponents = getArrayComponents(param.type)
   if (arrayComponents) {
     const [length, type] = arrayComponents
-    return encodeArray(value as any, { length, param: { ...param, type } })
+    return encodeArray(value, { length, param: { ...param, type } })
   }
   if (param.type === 'tuple') {
-    return encodeTuple(value as any, {
-      param: param as any,
+    return encodeTuple(value as unknown as Tuple, {
+      param: param as TupleAbiParameter,
     })
   }
   if (param.type === 'address') {

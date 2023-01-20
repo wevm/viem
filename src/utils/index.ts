@@ -1,3 +1,5 @@
+export { encodeAbi } from './abi'
+
 export type {
   GetContractAddressOptions,
   GetCreate2AddressOptions,
