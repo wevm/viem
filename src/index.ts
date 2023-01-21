@@ -207,6 +207,8 @@ export type {
 } from './types'
 
 export type {
+  AbiEncodingArrayLengthMismatchError,
+  AbiEncodingLengthMismatchError,
   GetContractAddressOptions,
   GetCreateAddressOptions,
   GetCreate2AddressOptions,
@@ -214,6 +216,8 @@ export type {
   FormattedBlock,
   FormattedTransaction,
   FormattedTransactionRequest,
+  InvalidAbiEncodingTypeError,
+  InvalidArrayError,
 } from './utils'
 export {
   BaseError,

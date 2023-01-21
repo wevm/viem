@@ -521,6 +521,40 @@ describe('static', () => {
     })
   })
 
+  describe('struct: (uint256,bool,address)', () => {
+    test('default', () => {
+      expect(
+        // cast abi-encode "a((uint256,bool,address))" "(420,true,0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC)"
+        encodeAbi({
+          params: [
+            {
+              components: [
+                {
+                  internalType: 'uint256',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'bool',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'address',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ABIExample.Foo',
+              name: 'fooOut',
+              type: 'tuple',
+            },
+          ],
+          values: [[420n, true, '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']],
+        }),
+      ).toMatchInlineSnapshot(
+        '"0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac"',
+      )
+    })
+  })
+
   describe('struct: ((uint256,bool,address),(uint256,bool,address),uint8[2])', () => {
     test('default', () => {
       expect(
@@ -548,6 +582,22 @@ describe('static', () => {
         }),
       ).toMatchInlineSnapshot(
         '"0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac00000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002"',
+      )
+    })
+  })
+
+  describe('(uint256[2],bool,string[])', () => {
+    test('default', () => {
+      expect(
+        encodeAbi({
+          params: extractFunction({
+            abi: mixedAbi,
+            name: 'uintArrayBoolStringArrayReturn',
+          }).outputs,
+          values: [[420n, 69n], true, ['wagmi', 'viem', 'lol']],
+        }),
+      ).toMatchInlineSnapshot(
+        '"0x00000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000057761676d6900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000047669656d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036c6f6c0000000000000000000000000000000000000000000000000000000000"',
       )
     })
   })
@@ -860,6 +910,62 @@ describe('dynamic', () => {
       )
     })
   })
+})
+
+test('invalid type', () => {
+  expect(() =>
+    encodeAbi({ params: [{ name: 'x', type: 'lol' }], values: [69] }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Type \\"lol\\" is not a valid encoding type.
+    Please provide a valid ABI type.
+
+    Docs: https://viem.sh/docs/contract/encodeAbi#params
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('invalid params/values lengths', () => {
+  expect(() =>
+    encodeAbi({
+      params: [{ name: 'x', type: 'uint256[3]' }],
+      /* @ts-expect-error */
+      values: [69, 420],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "ABI encoding params/values length mismatch.
+    Expected length (params): 1
+    Given length (values): 2
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('invalid array', () => {
+  expect(() =>
+    /* @ts-expect-error */
+    encodeAbi({ params: [{ name: 'x', type: 'uint256[3]' }], values: [69] }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Value \\"69\\" is not a valid array.
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('invalid array lengths', () => {
+  expect(() =>
+    encodeAbi({
+      params: [{ name: 'x', type: 'uint256[3]' }],
+      /* @ts-expect-error */
+      values: [[69n, 420n]],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "ABI encoding array length mismatch for type uint256[3].
+    Expected length: 3
+    Given length: 2
+
+    Version: viem@1.0.2"
+  `)
 })
 
 test('getArrayComponents', () => {

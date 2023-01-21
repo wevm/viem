@@ -1,15 +1,10 @@
-/**
- * TODO:
- * - Humanized errors.
- * - More test cases (100% coverage).
- */
-
 import {
   AbiParameter,
   AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
 } from 'abitype'
 import { Hex } from '../../types'
+import { BaseError } from '../BaseError'
 import { concat, padHex, size } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
@@ -20,7 +15,11 @@ export function encodeAbi<TParams extends readonly AbiParameter[]>({
   params: TParams
   values: AbiParametersToPrimitiveTypes<TParams>
 }) {
-  if (params.length !== values.length) throw new Error('TODO: length mismatch')
+  if (params.length !== values.length)
+    throw new AbiEncodingLengthMismatchError({
+      expectedLength: params.length,
+      givenLength: values.length,
+    })
   const preparedParams = prepareParams({ params, values })
   return encodeParams(preparedParams)
 }
@@ -76,9 +75,10 @@ function prepareParam<TParam extends AbiParameter>({
   if (param.type.startsWith('bytes')) {
     return encodeBytes(value as unknown as Hex, { param })
   }
-  if (param.type === 'string') return encodeString(value as unknown as string)
-
-  throw new Error('TODO')
+  if (param.type === 'string') {
+    return encodeString(value as unknown as string)
+  }
+  throw new InvalidAbiEncodingTypeError(param.type)
 }
 
 /////////////////////////////////////////////////////////////////
@@ -122,8 +122,13 @@ function encodeArray<TParam extends AbiParameter>(
 ): PreparedParam {
   let dynamic = length === null
 
-  if (!Array.isArray(value)) throw new Error('TODO')
-  if (!dynamic && value.length !== length) throw new Error('TODO')
+  if (!Array.isArray(value)) throw new InvalidArrayError(value)
+  if (!dynamic && value.length !== length)
+    throw new AbiEncodingArrayLengthMismatchError({
+      expectedLength: length,
+      givenLength: value.length,
+      type: `${param.type}[${length}]`,
+    })
 
   let dynamicChild = false
   let preparedParams: PreparedParam[] = []
@@ -228,4 +233,55 @@ export function getArrayComponents(
     ? // Return `null` if the array is dynamic.
       [matches[2] ? Number(matches[2]) : null, matches[1]]
     : undefined
+}
+
+/////////////////////////////////////////////////////////////////
+// Errors
+
+export class AbiEncodingArrayLengthMismatchError extends BaseError {
+  name = 'AbiEncodingArrayLengthMismatchError'
+  constructor({
+    expectedLength,
+    givenLength,
+    type,
+  }: { expectedLength: number; givenLength: number; type: string }) {
+    super(
+      [
+        `ABI encoding array length mismatch for type ${type}.`,
+        `Expected length: ${expectedLength}`,
+        `Given length: ${givenLength}`,
+      ].join('\n'),
+    )
+  }
+}
+
+export class AbiEncodingLengthMismatchError extends BaseError {
+  name = 'AbiEncodingLengthMismatchError'
+  constructor({ expectedLength, givenLength }: { expectedLength: number; givenLength: number }) {
+    super(
+      [
+        'ABI encoding params/values length mismatch.',
+        `Expected length (params): ${expectedLength}`,
+        `Given length (values): ${givenLength}`,
+      ].join('\n'),
+    )
+  }
+}
+export class InvalidAbiEncodingTypeError extends BaseError {
+  name = 'InvalidAbiEncodingType'
+  constructor(type: string) {
+    super(
+      [
+        `Type "${type}" is not a valid encoding type.`,
+        'Please provide a valid ABI type.',
+      ].join('\n'),
+      { docsPath: '/docs/contract/encodeAbi#params' },
+    )
+  }
+}
+export class InvalidArrayError extends BaseError {
+  name = 'InvalidArrayError'
+  constructor(value: unknown) {
+    super([`Value "${value}" is not a valid array.`].join('\n'))
+  }
 }
