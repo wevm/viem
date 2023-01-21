@@ -257,7 +257,10 @@ export class AbiEncodingArrayLengthMismatchError extends BaseError {
 
 export class AbiEncodingLengthMismatchError extends BaseError {
   name = 'AbiEncodingLengthMismatchError'
-  constructor({ expectedLength, givenLength }: { expectedLength: number; givenLength: number }) {
+  constructor({
+    expectedLength,
+    givenLength,
+  }: { expectedLength: number; givenLength: number }) {
     super(
       [
         'ABI encoding params/values length mismatch.',
