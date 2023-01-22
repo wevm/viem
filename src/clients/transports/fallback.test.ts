@@ -8,8 +8,8 @@ import { fallback, FallbackTransport } from './fallback'
 import { http } from './http'
 
 test('default', () => {
-  const alchemy = http({ url: 'https://alchemy.com/rpc' })
-  const infura = http({ url: 'https://infura.com/rpc' })
+  const alchemy = http('https://alchemy.com/rpc')
+  const infura = http('https://infura.com/rpc')
   const transport = fallback([alchemy, infura])
 
   assertType<FallbackTransport>(transport)
@@ -62,7 +62,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const local = http({ url: server.url })
+    const local = http(server.url)
     const transport = fallback([local])({ chain: localhost })
 
     expect(await transport.config.request({ method: 'eth_blockNumber' })).toBe(
@@ -90,10 +90,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([
-      http({ url: server1.url }),
-      http({ url: server3.url }),
-    ])({
+    let transport = fallback([http(server1.url), http(server3.url)])({
       chain: localhost,
     })
     expect(await transport.config.request({ method: 'eth_blockNumber' })).toBe(
@@ -105,9 +102,9 @@ describe('request', () => {
 
     count = 0
     transport = fallback([
-      http({ url: server1.url }),
-      http({ url: server2.url }),
-      http({ url: server3.url }),
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
     ])({
       chain: localhost,
     })
@@ -119,10 +116,7 @@ describe('request', () => {
     expect(count).toBe(7)
 
     count = 0
-    transport = fallback([
-      http({ url: server1.url }),
-      http({ url: server2.url }),
-    ])({
+    transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -136,8 +130,8 @@ describe('request', () => {
 
 describe('client', () => {
   test('default', () => {
-    const alchemy = http({ url: 'https://alchemy.com/rpc' })
-    const infura = http({ url: 'https://infura.com/rpc' })
+    const alchemy = http('https://alchemy.com/rpc')
+    const infura = http('https://infura.com/rpc')
     const transport = fallback([alchemy, infura])
 
     const { uid, ...client } = createClient({
@@ -194,7 +188,7 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const local = http({ url: server.url })
+    const local = http(server.url)
     const transport = fallback([local])
     const client = createClient({ chain: localhost, transport })
 
@@ -218,9 +212,9 @@ describe('client', () => {
     })
 
     const transport = fallback([
-      http({ url: server1.url }),
-      http({ url: server2.url }),
-      http({ url: server3.url }),
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
     ])
     const client = createClient({ chain: localhost, transport })
 

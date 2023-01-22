@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import WalletConnectProvider from '@walletconnect/ethereum-provider'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { createWalletClient, ethereumProvider } from 'viem/clients'
+import { createWalletClient, custom } from 'viem/clients'
 
 import { SendTransaction } from '../actions/SendTransaction'
 
@@ -16,7 +16,7 @@ const walletConnectProvider = new WalletConnectProvider({
   ),
 })
 const client = createWalletClient({
-  transport: ethereumProvider({ provider: walletConnectProvider }),
+  transport: custom(walletConnectProvider),
 })
 
 export function WalletConnectWallet() {

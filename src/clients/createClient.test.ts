@@ -4,12 +4,7 @@ import { localhost } from '../chains'
 import type { Requests } from '../types/eip1193'
 import { localWsUrl } from '../../test'
 import { createClient } from './createClient'
-import {
-  createTransport,
-  ethereumProvider,
-  http,
-  webSocket,
-} from './transports'
+import { createTransport, custom, http, webSocket } from './transports'
 
 test('creates', () => {
   const mockTransport = () =>
@@ -90,7 +85,7 @@ describe('transports', () => {
   test('webSocket', () => {
     const { uid, ...client } = createClient({
       chain: localhost,
-      transport: webSocket({ url: localWsUrl }),
+      transport: webSocket(localWsUrl),
     })
 
     expect(uid).toBeDefined()
@@ -130,9 +125,9 @@ describe('transports', () => {
     `)
   })
 
-  test('ethereumProvider', () => {
+  test('custom', () => {
     const { uid, ...client } = createClient({
-      transport: ethereumProvider({ provider: { request: async () => null } }),
+      transport: custom({ request: async () => null }),
     })
 
     expect(uid).toBeDefined()
@@ -144,10 +139,10 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "key": "ethereumProvider",
-          "name": "Ethereum Provider",
+          "key": "custom",
+          "name": "Custom Provider",
           "request": [Function],
-          "type": "ethereumProvider",
+          "type": "custom",
         },
         "type": "base",
       }

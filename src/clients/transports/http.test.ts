@@ -6,7 +6,7 @@ import type { HttpTransport } from './http'
 import { http } from './http'
 
 test('default', () => {
-  const transport = http({ url: 'https://mockapi.com/rpc' })
+  const transport = http('https://mockapi.com/rpc')
 
   assertType<HttpTransport>(transport)
   assertType<'http'>(transport({}).config.type)
@@ -28,9 +28,8 @@ test('default', () => {
 
 describe('config', () => {
   test('key', () => {
-    const transport = http({
+    const transport = http('https://mockapi.com/rpc', {
       key: 'mock',
-      url: 'https://mockapi.com/rpc',
     })({})
 
     expect(transport).toMatchInlineSnapshot(`
@@ -49,9 +48,8 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const transport = http({
+    const transport = http('https://mockapi.com/rpc', {
       name: 'Mock Transport',
-      url: 'https://mockapi.com/rpc',
     })({})
 
     expect(transport).toMatchInlineSnapshot(`
@@ -70,9 +68,7 @@ describe('config', () => {
   })
 
   test('url', () => {
-    const transport = http({
-      url: 'https://mockapi.com/rpc',
-    })({})
+    const transport = http('https://mockapi.com/rpc')({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
@@ -91,7 +87,7 @@ describe('config', () => {
 })
 
 test('request', async () => {
-  const transport = http({
+  const transport = http(undefined, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })({ chain: localhost })

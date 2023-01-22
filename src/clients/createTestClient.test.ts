@@ -92,7 +92,7 @@ describe('transports', () => {
     const { uid, ...client } = createTestClient({
       chain: localhost,
       mode: 'anvil',
-      transport: webSocket({ url: localWsUrl }),
+      transport: webSocket(localWsUrl),
     })
 
     expect(uid).toBeDefined()

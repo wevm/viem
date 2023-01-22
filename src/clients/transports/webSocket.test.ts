@@ -7,9 +7,7 @@ import type { WebSocketTransport } from './webSocket'
 import { webSocket } from './webSocket'
 
 test('default', () => {
-  const transport = webSocket({
-    url: localWsUrl,
-  })
+  const transport = webSocket(localWsUrl)
 
   assertType<WebSocketTransport>(transport)
   assertType<'webSocket'>(transport({}).config.type)
@@ -19,9 +17,8 @@ test('default', () => {
 
 describe('config', () => {
   test('key', () => {
-    const transport = webSocket({
+    const transport = webSocket(localWsUrl, {
       key: 'mock',
-      url: localWsUrl,
     })
 
     expect(transport({})).toMatchInlineSnapshot(`
@@ -41,9 +38,8 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const transport = webSocket({
+    const transport = webSocket(localWsUrl, {
       name: 'Mock Transport',
-      url: localWsUrl,
     })
 
     expect(transport({})).toMatchInlineSnapshot(`
@@ -63,9 +59,7 @@ describe('config', () => {
   })
 
   test('url', () => {
-    const transport = webSocket({
-      url: 'https://mockapi.com/rpc',
-    })
+    const transport = webSocket('https://mockapi.com/rpc')
 
     expect(transport({})).toMatchInlineSnapshot(`
       {
@@ -85,16 +79,14 @@ describe('config', () => {
 })
 
 test('getSocket', async () => {
-  const transport = webSocket({
-    url: localWsUrl,
-  })
+  const transport = webSocket(localWsUrl)
   const socket = await transport({}).value?.getSocket()
   expect(socket).toBeDefined()
   expect(socket?.readyState).toBe(WebSocket.OPEN)
 })
 
 test('request', async () => {
-  const transport = webSocket({
+  const transport = webSocket(undefined, {
     key: 'jsonRpc',
     name: 'JSON RPC',
   })
@@ -112,10 +104,9 @@ test('request', async () => {
 })
 
 test('subscribe', async () => {
-  const transport = webSocket({
+  const transport = webSocket(localWsUrl, {
     key: 'jsonRpc',
     name: 'JSON RPC',
-    url: localWsUrl,
   })({})
   if (!transport.value) return
 
@@ -142,10 +133,9 @@ test('subscribe', async () => {
 })
 
 test('throws on bogus subscription', async () => {
-  const transport = webSocket({
+  const transport = webSocket(localWsUrl, {
     key: 'jsonRpc',
     name: 'JSON RPC',
-    url: localWsUrl,
   })
 
   let errors: any[] = []
@@ -161,7 +151,7 @@ test('throws on bogus subscription', async () => {
 })
 
 test('no url', () => {
-  expect(() => webSocket({})({})).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => webSocket()({})).toThrowErrorMatchingInlineSnapshot(`
     "No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
     Docs: https://viem.sh/TODO

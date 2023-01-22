@@ -32,8 +32,6 @@ export type WebSocketTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the WebSocket transport. */
   name?: TransportConfig['name']
-  /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
-  url?: string
 }
 
 export type WebSocketTransport = Transport<
@@ -47,11 +45,14 @@ export type WebSocketTransport = Transport<
 /**
  * @description Creates a WebSocket transport that connects to a JSON-RPC API.
  */
-export function webSocket({
-  key = 'webSocket',
-  name = 'WebSocket JSON-RPC',
-  url,
-}: WebSocketTransportConfig = {}): WebSocketTransport {
+export function webSocket(
+  /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
+  url?: string,
+  {
+    key = 'webSocket',
+    name = 'WebSocket JSON-RPC',
+  }: WebSocketTransportConfig = {},
+): WebSocketTransport {
   return ({ chain }) => {
     const url_ = url || chain?.rpcUrls.default.webSocket?.[0]
     if (!url_) throw new UrlRequiredError()

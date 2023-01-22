@@ -28,8 +28,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/clients/transports/websocket',
             },
             {
-              text: 'Ethereum Provider (EIP-1193)',
-              link: '/docs/clients/transports/ethereum-provider',
+              text: 'Custom (EIP-1193)',
+              link: '/docs/clients/transports/custom',
             },
             {
               text: 'Fallback',

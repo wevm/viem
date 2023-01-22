@@ -19,7 +19,7 @@ export type Client<
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
   request: TRequests['request']
-  /** The RPC transport (http, webSocket, ethereumProvider, etc) */
+  /** The RPC transport (http, webSocket, custom, etc) */
   transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
   /** The type of client. */
   type: string

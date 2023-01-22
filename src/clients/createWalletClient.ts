@@ -30,9 +30,9 @@ export type WalletClient<
  * (ie. `eth_sendTransaction`, `eth_requestAccounts`, etc).
  *
  * @example
- * import { createWalletClient, ethereumProvider } from 'viem/clients'
+ * import { createWalletClient, custom } from 'viem'
  * const client = createWalletClient(
- *  ethereumProvider({ provider: window.ethereum })
+ *  custom(window.ethereum)
  * )
  */
 export function createWalletClient<

@@ -10,13 +10,11 @@ import { http } from 'viem'
 
 ## Usage
 
-```ts {4-6}
+```ts {4}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const transport = http({ 
-  url: 'https://eth-mainnet.g.alchemy.com/v2/...' 
-})
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
 
 const client = createPublicClient({
   chain: mainnet,
@@ -30,6 +28,17 @@ If no `url` is provided, then the transport will fall back to a public RPC URL o
 
 ## Configuration
 
+### url (optional)
+
+- **Type:** `string`
+- **Default:** `chain.rpcUrls.default.http[0]`
+
+URL of the JSON-RPC API.
+
+```ts
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
+```
+
 ### key (optional)
 
 - **Type:** `string`
@@ -38,9 +47,8 @@ If no `url` is provided, then the transport will fall back to a public RPC URL o
 A key for the Transport.
 
 ```ts
-const transport = http({
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   key: 'alchemy', // [!code focus]
-  url: 'https://eth-mainnet.g.alchemy.com/v2/...',
 })
 ```
 
@@ -52,21 +60,7 @@ const transport = http({
 A name for the Transport
 
 ```ts
-const transport = http({
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   name: 'Alchemy HTTP Provider', // [!code focus]
-  url: 'https://eth-mainnet.g.alchemy.com/v2/...',
-})
-```
-
-### url (optional)
-
-- **Type:** `string`
-- **Default:** `chain.rpcUrls.default.http[0]`
-
-URL of the JSON-RPC API.
-
-```ts
-const transport = http({
-  url: 'https://eth-mainnet.g.alchemy.com/v2/...', // [!code focus]
 })
 ```

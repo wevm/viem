@@ -14,33 +14,23 @@ const apiKey = 'PjT72qifrAFZ4WV_drrd30N5onftY5VA'
 export const clients = {
   mainnet: createPublicClient({
     chain: mainnet,
-    transport: http({
-      url: `${mainnet.rpcUrls.alchemy.http[0]}/${apiKey}`,
-    }),
+    transport: http(`${mainnet.rpcUrls.alchemy.http[0]}/${apiKey}`),
   }),
   polygon: createPublicClient({
     chain: polygon,
-    transport: http({
-      url: `${polygon.rpcUrls.alchemy.http[0]}/${apiKey}`,
-    }),
+    transport: http(`${polygon.rpcUrls.alchemy.http[0]}/${apiKey}`),
   }),
   optimism: createPublicClient({
     chain: optimism,
-    transport: http({
-      url: `${optimism.rpcUrls.alchemy.http[0]}/${apiKey}`,
-    }),
+    transport: http(`${optimism.rpcUrls.alchemy.http[0]}/${apiKey}`),
   }),
   arbitrum: createPublicClient({
     chain: arbitrum,
-    transport: http({
-      url: `${arbitrum.rpcUrls.alchemy.http[0]}/${apiKey}`,
-    }),
+    transport: http(`${arbitrum.rpcUrls.alchemy.http[0]}/${apiKey}`),
   }),
   goerli: createPublicClient({
     chain: goerli,
-    transport: http({
-      url: `${goerli.rpcUrls.alchemy.http[0]}/${apiKey}`,
-    }),
+    transport: http(`${goerli.rpcUrls.alchemy.http[0]}/${apiKey}`),
   }),
 }
 

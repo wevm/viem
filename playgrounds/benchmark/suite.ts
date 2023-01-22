@@ -59,7 +59,7 @@ const block: RpcBlock = {
 const formatter = new providers.Formatter()
 
 export const getSuite = ({ url }: { url: string }): Suite => {
-  const viemClient = createClient({ chain: mainnet, transport: http({ url }) })
+  const viemClient = createClient({ chain: mainnet, transport: http(url) })
   const ethersProvider = new ethers.providers.StaticJsonRpcProvider(url)
   return [
     {

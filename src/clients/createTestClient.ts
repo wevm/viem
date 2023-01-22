@@ -38,9 +38,9 @@ export type TestClient<
  * `evm_mine`, etc).
  *
  * @example
+ * import { createTestClient, http } from 'viem'
  * import { local } from 'viem/chains'
- * import { createTestClient, http } from 'viem/clients'
- * const client = createTestClient(http({ chain: local }), { mode: 'anvil' })
+ * const client = createTestClient({ chain: local, mode: 'anvil', transport: http() })
  */
 export function createTestClient<
   TTransport extends Transport,

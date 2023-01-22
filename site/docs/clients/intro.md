@@ -20,4 +20,4 @@ There are three types of Transports in viem:
 
 - A [HTTP Transport](/docs/clients/transports/http) that executes requests via a HTTP JSON-RPC API.
 - A [WebSocket Transport](/docs/clients/transports/webSocket) that executes requests via a WebSocket JSON-RPC API.
-- An [Ethereum Provider Transport](/docs/clients/transports/ethereumProvider) that executes requests via an [EIP-1193 Provider](https://eips.ethereum.org/EIPS/eip-1193) (such as `window.ethereum`).
+- A [Custom Transport](/docs/clients/transports/custom) that executes requests via an [EIP-1193 Provider](https://eips.ethereum.org/EIPS/eip-1193) (such as `window.ethereum`).

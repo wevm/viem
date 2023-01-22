@@ -3,11 +3,11 @@ export type { Transport, TransportConfig } from './createTransport'
 
 export { UrlRequiredError } from './errors'
 
-export { ethereumProvider } from './ethereumProvider'
+export { custom } from './custom'
 export type {
-  EthereumProviderTransport,
-  EthereumProviderTransportConfig,
-} from './ethereumProvider'
+  CustomTransport,
+  CustomTransportConfig,
+} from './custom'
 
 export { fallback } from './fallback'
 export type { FallbackTransport, FallbackTransportConfig } from './fallback'

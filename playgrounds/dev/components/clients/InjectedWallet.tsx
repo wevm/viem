@@ -1,4 +1,4 @@
-import { createWalletClient, ethereumProvider } from 'viem/clients'
+import { createWalletClient, custom } from 'viem/clients'
 
 import { AddChain } from '../actions/AddChain'
 import { GetPermissions } from '../actions/GetPermissions'
@@ -8,12 +8,11 @@ import { SendTransaction } from '../actions/SendTransaction'
 import { SwitchChain } from '../actions/SwitchChain'
 
 const client = createWalletClient({
-  transport: ethereumProvider({
-    provider:
-      typeof window !== 'undefined'
-        ? window.ethereum!
-        : { request: async () => null },
-  }),
+  transport: custom(
+    typeof window !== 'undefined'
+      ? window.ethereum!
+      : { request: async () => null },
+  ),
 })
 
 export function InjectedWallet() {

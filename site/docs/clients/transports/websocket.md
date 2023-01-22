@@ -10,13 +10,11 @@ import { webSocket } from 'viem'
 
 ## Usage
 
-```ts {4-6}
+```ts {4}
 import { createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const transport = webSocket({
-  url: 'wss://eth-mainnet.g.alchemy.com/v2/...' 
-})
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
 
 const client = createPublicClient({
   chain: mainnet, 
@@ -37,9 +35,7 @@ If no `url` is provided, then the transport will fall back to a public RPC URL o
 URL of the JSON-RPC API.
 
 ```ts
-const transport = webSocket({
-  url: 'wss://eth-mainnet.g.alchemy.com/v2/...' // [!code focus]
-})
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
 ```
 
 ### key (optional)
@@ -50,9 +46,8 @@ const transport = webSocket({
 A key for the Transport.
 
 ```ts
-const transport = webSocket({ 
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', { 
   key: 'alchemy',  // [!code focus]
-  url: 'wss://eth-mainnet.g.alchemy.com/v2/...'
 })
 ```
 
@@ -64,8 +59,7 @@ const transport = webSocket({
 A name for the Transport
 
 ```ts
-const transport = webSocket({ 
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', { 
   name: 'Alchemy WebSocket Provider',  // [!code focus]
-  url: 'wss://eth-mainnet.g.alchemy.com/v2/...'
 })
 ```

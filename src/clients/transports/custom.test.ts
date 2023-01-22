@@ -3,8 +3,8 @@ import '../../types/window'
 
 import type { Requests } from '../../types/eip1193'
 
-import type { EthereumProviderTransport } from './ethereumProvider'
-import { ethereumProvider } from './ethereumProvider'
+import type { CustomTransport } from './custom'
+import { custom } from './custom'
 
 vi.stubGlobal('window', {
   ethereum: {
@@ -15,22 +15,20 @@ vi.stubGlobal('window', {
 })
 
 test('default', () => {
-  const transport = ethereumProvider({
-    provider: {
-      request: vi.fn(async () => null) as unknown as Requests['request'],
-    },
+  const transport = custom({
+    request: vi.fn(async () => null) as unknown as Requests['request'],
   })
 
-  assertType<EthereumProviderTransport>(transport)
-  assertType<'ethereumProvider'>(transport({}).config.type)
+  assertType<CustomTransport>(transport)
+  assertType<'custom'>(transport({}).config.type)
 
   expect(transport({})).toMatchInlineSnapshot(`
     {
       "config": {
-        "key": "ethereumProvider",
-        "name": "Ethereum Provider",
+        "key": "custom",
+        "name": "Custom Provider",
         "request": [Function],
-        "type": "ethereumProvider",
+        "type": "custom",
       },
       "value": undefined,
     }
@@ -39,17 +37,15 @@ test('default', () => {
 
 describe('config', () => {
   test('provider', () => {
-    const transport = ethereumProvider({
-      provider: window.ethereum!,
-    })({})
+    const transport = custom(window.ethereum!)({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "ethereumProvider",
-          "name": "Ethereum Provider",
+          "key": "custom",
+          "name": "Custom Provider",
           "request": [Function],
-          "type": "ethereumProvider",
+          "type": "custom",
         },
         "value": undefined,
       }
@@ -57,20 +53,20 @@ describe('config', () => {
   })
 
   test('key', () => {
-    const transport = ethereumProvider({
-      key: 'mock',
-      provider: {
+    const transport = custom(
+      {
         request: vi.fn(async () => null) as unknown as Requests['request'],
       },
-    })({})
+      { key: 'mock' },
+    )({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
           "key": "mock",
-          "name": "Ethereum Provider",
+          "name": "Custom Provider",
           "request": [Function],
-          "type": "ethereumProvider",
+          "type": "custom",
         },
         "value": undefined,
       }
@@ -78,20 +74,22 @@ describe('config', () => {
   })
 
   test('name', () => {
-    const transport = ethereumProvider({
-      name: 'Mock Transport',
-      provider: {
+    const transport = custom(
+      {
         request: vi.fn(async () => null) as unknown as Requests['request'],
       },
-    })({})
+      {
+        name: 'Mock Transport',
+      },
+    )({})
 
     expect(transport).toMatchInlineSnapshot(`
       {
         "config": {
-          "key": "ethereumProvider",
+          "key": "custom",
           "name": "Mock Transport",
           "request": [Function],
-          "type": "ethereumProvider",
+          "type": "custom",
         },
         "value": undefined,
       }

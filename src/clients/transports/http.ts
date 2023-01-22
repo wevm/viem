@@ -8,8 +8,6 @@ export type HttpTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the HTTP transport. */
   name?: TransportConfig['name']
-  /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
-  url?: string
 }
 
 export type HttpTransport = Transport<
@@ -22,11 +20,11 @@ export type HttpTransport = Transport<
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
-export function http({
-  key = 'http',
-  name = 'HTTP JSON-RPC',
-  url,
-}: HttpTransportConfig = {}): HttpTransport {
+export function http(
+  /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
+  url?: string,
+  { key = 'http', name = 'HTTP JSON-RPC' }: HttpTransportConfig = {},
+): HttpTransport {
   return ({ chain }) => {
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()

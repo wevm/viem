@@ -3,7 +3,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 import { createPublicClient } from './createPublicClient'
 import { createTransport } from './transports/createTransport'
 import { http } from './transports/http'
-import { ethereumProvider } from './transports/ethereumProvider'
+import { custom } from './transports/custom'
 import { webSocket } from './transports/webSocket'
 import { localhost } from '../chains'
 import type { PublicRequests } from '../types/eip1193'
@@ -89,7 +89,7 @@ describe('transports', () => {
   test('webSocket', () => {
     const { uid, ...client } = createPublicClient({
       chain: localhost,
-      transport: webSocket({ url: localWsUrl }),
+      transport: webSocket(localWsUrl),
     })
 
     expect(uid).toBeDefined()
@@ -129,9 +129,9 @@ describe('transports', () => {
     `)
   })
 
-  test('ethereumProvider', () => {
+  test('custom', () => {
     const { uid, ...client } = createPublicClient({
-      transport: ethereumProvider({ provider: { request: async () => null } }),
+      transport: custom({ request: async () => null }),
     })
 
     expect(uid).toBeDefined()
@@ -143,10 +143,10 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "key": "ethereumProvider",
-          "name": "Ethereum Provider",
+          "key": "custom",
+          "name": "Custom Provider",
           "request": [Function],
-          "type": "ethereumProvider",
+          "type": "custom",
         },
         "type": "publicClient",
       }

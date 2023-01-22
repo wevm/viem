@@ -6,7 +6,7 @@ import { http } from './transports/http'
 import { webSocket } from './transports/webSocket'
 import { localhost } from '../chains'
 import type { SignableRequests, WalletRequests } from '../types/eip1193'
-import { ethereumProvider } from './transports/ethereumProvider'
+import { custom } from './transports/custom'
 import { localWsUrl } from '../../test'
 
 const mockTransport = () =>
@@ -43,9 +43,9 @@ test('creates', () => {
 })
 
 describe('transports', () => {
-  test('ethereumProvider', () => {
+  test('custom', () => {
     const { uid, ...client } = createWalletClient({
-      transport: ethereumProvider({ provider: { request: async () => null } }),
+      transport: custom({ request: async () => null }),
     })
 
     expect(uid).toBeDefined()
@@ -57,10 +57,10 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
-          "key": "ethereumProvider",
-          "name": "Ethereum Provider",
+          "key": "custom",
+          "name": "Custom Provider",
           "request": [Function],
-          "type": "ethereumProvider",
+          "type": "custom",
         },
         "type": "walletClient",
       }
@@ -69,7 +69,7 @@ describe('transports', () => {
 
   test('http', () => {
     const { uid, ...client } = createWalletClient({
-      transport: http({ url: 'https://mockapi.com/rpc' }),
+      transport: http('https://mockapi.com/rpc'),
     })
 
     expect(uid).toBeDefined()
@@ -95,7 +95,7 @@ describe('transports', () => {
   test('webSocket', () => {
     const { uid, ...client } = createWalletClient({
       chain: localhost,
-      transport: webSocket({ url: localWsUrl }),
+      transport: webSocket(localWsUrl),
     })
 
     expect(uid).toBeDefined()
