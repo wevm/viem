@@ -8,7 +8,7 @@ export default defineConfig({
     },
     coverage: {
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      exclude: ['**/dist/**', '**/*.test.ts', '**/core/test/**'],
+      exclude: ['**/dist/**', '**/*.test.ts', '**/test/**'],
     },
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
