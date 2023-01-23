@@ -6,18 +6,19 @@ import type {
 } from '../../types'
 import { numberToHex } from '../../utils'
 
-export type EstimateGasArgs = EstimateGasParameters & (
-  | {
-      /** The balance of the account at a block number. */
-      blockNumber?: bigint
-      blockTag?: never
-    }
-  | {
-      blockNumber?: never
-      /** The balance of the account at a block tag. */
-      blockTag?: BlockTag
-    }
-)
+export type EstimateGasArgs = EstimateGasParameters &
+  (
+    | {
+        /** The balance of the account at a block number. */
+        blockNumber?: bigint
+        blockTag?: never
+      }
+    | {
+        blockNumber?: never
+        /** The balance of the account at a block tag. */
+        blockTag?: BlockTag
+      }
+  )
 
 export type EstimateGasResponse = bigint
 

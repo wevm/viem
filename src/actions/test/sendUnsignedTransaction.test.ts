@@ -32,13 +32,11 @@ test('sends unsigned transaction', async () => {
   })
 
   expect(
-    (
-      await sendUnsignedTransaction(testClient, {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-      })
-    ),
+    await sendUnsignedTransaction(testClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
   ).toBeDefined()
 
   expect(
