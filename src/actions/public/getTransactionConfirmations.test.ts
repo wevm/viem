@@ -8,12 +8,10 @@ import { getTransactionReceipt } from './getTransactionReceipt'
 import { sendTransaction } from '..'
 
 test('default', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   await mine(testClient, { blocks: 1 })
   const transactionReceipt = await getTransactionReceipt(publicClient, {
@@ -27,12 +25,10 @@ test('default', async () => {
 })
 
 test('multiple confirmations', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   await mine(testClient, { blocks: 10 })
   const transactionReceipt = await getTransactionReceipt(publicClient, {
@@ -46,12 +42,10 @@ test('multiple confirmations', async () => {
 })
 
 test('args: hash', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   await mine(testClient, { blocks: 10 })
   expect(
@@ -62,12 +56,10 @@ test('args: hash', async () => {
 })
 
 test('no confirmations', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   expect(
     await getTransactionConfirmations(publicClient, {

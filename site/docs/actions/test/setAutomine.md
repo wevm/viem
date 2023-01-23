@@ -17,7 +17,7 @@ import { testClient } from '.'
 await setAutomine(testClient, true) // [!code focus]
 ```
 
-## Configuration
+## Parameters
 
 ### enabled
 

@@ -44,11 +44,9 @@ test('args: blockTag', async () => {
     }),
   ).toBe(0)
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   await mine(testClient, { blocks: 1 })
   expect(

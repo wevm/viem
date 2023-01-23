@@ -24,7 +24,7 @@ size(new Uint8Array([1, 122, 51, 123])) // 4
 
 The size of the value (in bytes).
 
-## Arguments
+## Parameters
 
 ### value
 

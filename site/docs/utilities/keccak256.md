@@ -29,7 +29,7 @@ keccak256(encodeBytes('Hello world'))
 
 The hashed value.
 
-## Arguments
+## Parameters
 
 ### value
 

@@ -17,7 +17,7 @@ import { testClient } from '.'
 await reset(testClient) // [!code focus]
 ```
 
-## Configuration
+## Parameters
 
 ### blockNumber (optional)
 

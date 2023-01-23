@@ -14,6 +14,8 @@ import { readContract } from 'viem'
 
 ## Usage
 
+Below is a very basic example of how to call a read-only function on a contract (with no arguments).
+
 ::: code-group
 
 ```ts [example.ts]
@@ -55,11 +57,60 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Passing Arguments
+
+If your function requires argument(s), you can pass them through with the `args` attribute.
+
+TypeScript types for `args` will be inferred from the function name & ABI, to guard you from inserting the wrong values.
+
+For example, the `balanceOf` function name below requires an **address** argument, and it is typed as `["0x${string}"]`.
+
+::: code-group
+
+```ts {9} [example.ts]
+import { readContract } from 'viem'
+import { publicClient } from './client'
+import { wagmiAbi } from './abi'
+
+const data = await readContract(publicClient, {
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'balanceOf',
+  args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
+})
+```
+
+```ts [abi.ts]
+export const wagmiAbi = [
+  ...
+  {
+    inputs: [{ name: "owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  ...
+] as const;
+```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ## Return Value
 
 The response from the contract. Type is inferred.
 
-## Configuration
+## Parameters
 
 ### address
 

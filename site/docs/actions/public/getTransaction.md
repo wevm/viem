@@ -33,7 +33,7 @@ const transaction = await getTransaction(publicClient, { // [!code focus:99]
 
 The transaction information.
 
-## Configuration
+## Parameters
 
 ### hash (optional)
 

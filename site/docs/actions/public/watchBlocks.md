@@ -43,7 +43,7 @@ const unwatch = watchBlocks( // [!code focus:99]
 
 A function that can be invoked to stop watching for new blocks.
 
-## Configuration
+## Parameters
 
 ### onBlock
 

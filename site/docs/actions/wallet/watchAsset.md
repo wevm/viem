@@ -31,7 +31,7 @@ await watchAsset(walletClient, {
 
 Boolean indicating if the token was successfully added.
 
-## Configuration
+## Parameters
 
 ### type
 

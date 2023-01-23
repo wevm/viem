@@ -26,7 +26,7 @@ const signature = getFunctionSignature('ownerOf(uint256)')
 
 The signature as a hex value.
 
-## Arguments
+## Parameters
 
 ### function
 

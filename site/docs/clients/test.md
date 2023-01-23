@@ -25,7 +25,7 @@ const client = createTestClient({
 })
 ```
 
-## Configuration
+## Parameters
 
 ### mode
 

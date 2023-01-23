@@ -19,7 +19,7 @@ await setNextBlockTimestamp(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### timestamp
 

@@ -18,7 +18,7 @@ const client = createWalletClient({
 })
 ```
 
-## Configuration
+## Parameters
 
 ### provider
 

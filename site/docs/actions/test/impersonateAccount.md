@@ -19,7 +19,7 @@ await impersonateAccount(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### address
 

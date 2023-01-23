@@ -19,7 +19,7 @@ await setNextBlockBaseFeePerGas(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### baseFeePerGas
 

@@ -21,7 +21,7 @@ parseUnit('420', 9) // [!code focus:2]
 
 `bigint`
 
-## Arguments
+## Parameters
 
 ### value
 

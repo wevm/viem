@@ -1,3 +1,0 @@
-# getCode
-
-TODO

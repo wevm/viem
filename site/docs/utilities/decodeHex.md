@@ -35,7 +35,7 @@ decodeHex('0x1', 'boolean')
 
 The targeted type.
 
-## Arguments
+## Parameters
 
 ### hex
 

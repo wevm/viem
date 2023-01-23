@@ -19,7 +19,7 @@ await setIntervalMining(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### interval
 

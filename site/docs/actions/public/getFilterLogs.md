@@ -31,7 +31,7 @@ const logs = await getFilterLogs(publicClient, { filter })
 
 A list of event logs.
 
-## Configuration
+## Parameters
 
 ### filter
 

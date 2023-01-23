@@ -26,7 +26,7 @@ const signature = getEventSignature('Transfer(address indexed from, address inde
 
 The signature as a hex value.
 
-## Arguments
+## Parameters
 
 ### event
 

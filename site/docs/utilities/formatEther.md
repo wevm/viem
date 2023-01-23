@@ -21,7 +21,7 @@ formatEther(1000000000000000000n) // [!code focus:2]
 
 `string`
 
-## Arguments
+## Parameters
 
 ### value
 

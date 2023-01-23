@@ -14,12 +14,10 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 test('waits for transaction (send -> wait -> mine)', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
   })
   const { status } = await waitForTransactionReceipt(publicClient, {
     hash,
@@ -28,12 +26,10 @@ test('waits for transaction (send -> wait -> mine)', async () => {
 })
 
 test('waits for transaction (send -> mine -> wait)', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
   })
   await mine(testClient, { blocks: 1 })
   const { status } = await waitForTransactionReceipt(publicClient, {
@@ -54,14 +50,12 @@ describe('replaced transactions', () => {
       })) ?? '0x0',
     )
 
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas: parseGwei('10'),
-        nonce,
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
     })
 
     let replacement: any
@@ -75,13 +69,11 @@ describe('replaced transactions', () => {
 
         // speed up
         await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            nonce,
-            maxFeePerGas: parseGwei('20'),
-          },
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
         })
 
         await setIntervalMining(testClient, { interval: 1 })
@@ -106,14 +98,12 @@ describe('replaced transactions', () => {
       })) ?? '0x0',
     )
 
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas: parseGwei('10'),
-        nonce,
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
     })
 
     const [receipt] = await Promise.all([
@@ -125,13 +115,11 @@ describe('replaced transactions', () => {
 
         // speed up
         await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            nonce,
-            maxFeePerGas: parseGwei('20'),
-          },
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
         })
 
         await wait(1000)
@@ -155,14 +143,12 @@ describe('replaced transactions', () => {
       })) ?? '0x0',
     )
 
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas: parseGwei('10'),
-        nonce,
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
     })
 
     let replacement: any
@@ -176,13 +162,11 @@ describe('replaced transactions', () => {
 
         // speed up
         await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: sourceAccount.address,
-            value: parseEther('0'),
-            nonce,
-            maxFeePerGas: parseGwei('20'),
-          },
+          from: sourceAccount.address,
+          to: sourceAccount.address,
+          value: parseEther('0'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
         })
 
         await setIntervalMining(testClient, { interval: 1 })
@@ -207,14 +191,12 @@ describe('replaced transactions', () => {
       })) ?? '0x0',
     )
 
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas: parseGwei('10'),
-        nonce,
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
     })
 
     let replacement: any
@@ -228,13 +210,11 @@ describe('replaced transactions', () => {
 
         // speed up
         await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('2'),
-            nonce,
-            maxFeePerGas: parseGwei('20'),
-          },
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('2'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
         })
 
         await setIntervalMining(testClient, { interval: 1 })
@@ -251,13 +231,11 @@ describe('replaced transactions', () => {
 
 describe('args: confirmations', () => {
   test('waits for confirmations', async () => {
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas: parseGwei('10'),
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
     })
 
     const start = Date.now()
@@ -283,14 +261,12 @@ describe('args: confirmations', () => {
       })) ?? '0x0',
     )
 
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas: parseGwei('10'),
-        nonce,
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
     })
 
     const [receipt] = await Promise.all([
@@ -303,13 +279,11 @@ describe('args: confirmations', () => {
 
         // speed up
         await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            nonce,
-            maxFeePerGas: parseGwei('20'),
-          },
+          from: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
         })
 
         await wait(1000)
@@ -322,12 +296,10 @@ describe('args: confirmations', () => {
 })
 
 test('args: timeout', async () => {
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
   })
   await expect(() =>
     waitForTransactionReceipt(publicClient, {

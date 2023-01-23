@@ -14,11 +14,9 @@ import { estimateGas } from './estimateGas'
 describe('Estimate Gas', () => {
   bench('viem: `estimateGas`', async () => {
     await estimateGas(publicClient, {
-      request: {
-        from: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('1'),
-      },
+      from: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
     })
   })
 

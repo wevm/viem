@@ -16,11 +16,9 @@ const name4bytes = '0x06fdde03'
 describe('Call', () => {
   bench('viem: `call`', async () => {
     await call(publicClient, {
-      request: {
-        data: name4bytes,
-        from: accounts[0].address,
-        to: wagmiContractAddress,
-      },
+      data: name4bytes,
+      from: accounts[0].address,
+      to: wagmiContractAddress,
     })
   })
 

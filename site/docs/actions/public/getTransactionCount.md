@@ -26,7 +26,7 @@ const block = await getTransactionCount(publicClient, {  // [!code focus:99]
 
 The number of transactions an account has sent. 
 
-## Configuration
+## Parameters
 
 ### address
 

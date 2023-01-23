@@ -26,7 +26,7 @@ getContractAddress({ // [!code focus:99]
 
 The contract address.
 
-## Configuration
+## Parameters
 
 ### from (optional)
 

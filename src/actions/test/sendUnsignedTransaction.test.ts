@@ -34,13 +34,11 @@ test('sends unsigned transaction', async () => {
   expect(
     (
       await sendUnsignedTransaction(testClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
       })
-    ).hash,
+    ),
   ).toBeDefined()
 
   expect(

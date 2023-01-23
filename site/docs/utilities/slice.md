@@ -26,7 +26,7 @@ slice(new Uint8Array([1, 122, 51, 123]), 1, 3)
 
 The section of the sliced value.
 
-## Arguments
+## Parameters
 
 ### value
 

@@ -20,7 +20,7 @@ await setBalance(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### address
 

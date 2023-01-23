@@ -34,7 +34,7 @@ const transaction = await getTransactionReceipt(publicClient, { // [!code focus:
 
 The transaction receipt.
 
-## Configuration
+## Parameters
 
 ### hash
 

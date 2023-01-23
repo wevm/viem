@@ -29,7 +29,7 @@ const uninstalled = await uninstallFilter(publicClient, { filter }) // [!code fo
 
 A boolean indicating if the Filter was successfully uninstalled.
 
-## Configuration
+## Parameters
 
 ### filter
 

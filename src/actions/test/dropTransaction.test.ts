@@ -17,12 +17,10 @@ test('drops transaction', async () => {
   const balance = await getBalance(publicClient, {
     address: sourceAccount.address,
   })
-  const { hash } = await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('2'),
-    },
+  const hash = await sendTransaction(walletClient, {
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('2'),
   })
   await dropTransaction(testClient, { hash })
   await mine(testClient, { blocks: 1 })

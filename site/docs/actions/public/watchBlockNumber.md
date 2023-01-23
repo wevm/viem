@@ -39,7 +39,7 @@ The block number.
 
 A function that can be invoked to stop watching for new block numbers.
 
-## Configuration
+## Parameters
 
 ### emitMissed (optional)
 

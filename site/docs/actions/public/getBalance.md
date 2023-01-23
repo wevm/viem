@@ -26,7 +26,7 @@ const balance = await getBalance(publicClient, { // [!code focus:4]
 
 The balance of the address in wei.
 
-## Configuration
+## Parameters
 
 ### address
 

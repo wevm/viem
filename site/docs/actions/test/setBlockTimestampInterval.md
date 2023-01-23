@@ -19,7 +19,7 @@ await setBlockTimestampInterval(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### interval
 

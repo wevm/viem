@@ -50,18 +50,14 @@ test('pending txns', async () => {
   const filter = await createPendingTransactionFilter(publicClient)
 
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
 
   let hashes = await getFilterChanges(publicClient, { filter })
@@ -74,11 +70,9 @@ test('pending txns', async () => {
   expect(hashes.length).toBe(0)
 
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
 
   hashes = await getFilterChanges(publicClient, { filter })
@@ -108,18 +102,14 @@ describe('events', () => {
     const filter = await createEventFilter(publicClient)
 
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[0].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[1].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[1].address),
     })
 
     await mine(testClient, { blocks: 1 })
@@ -132,11 +122,9 @@ describe('events', () => {
     expect(logs.length).toBe(0)
 
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[2].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[2].address),
     })
 
     await mine(testClient, { blocks: 1 })
@@ -151,18 +139,14 @@ describe('events', () => {
     })
 
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[0].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[1].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[1].address),
     })
 
     await mine(testClient, { blocks: 1 })
@@ -175,11 +159,9 @@ describe('events', () => {
     expect(logs.length).toBe(0)
 
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[2].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[2].address),
     })
 
     await mine(testClient, { blocks: 1 })

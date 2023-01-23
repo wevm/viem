@@ -158,14 +158,12 @@ describe('e2e', () => {
     const maxFeePerGas = block.baseFeePerGas! + parseGwei('10')
     const maxPriorityFeePerGas = parseGwei('10')
 
-    const { hash } = await sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-      },
+    const hash = await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas,
+      maxPriorityFeePerGas,
     })
 
     expect(await getTransaction(publicClient, { hash })).toBeDefined()

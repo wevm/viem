@@ -21,7 +21,7 @@ await setMinGasPrice(testClient, { // [!code focus:99]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### gasPrice
 

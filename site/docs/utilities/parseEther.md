@@ -21,7 +21,7 @@ parseEther('420') // [!code focus:2]
 
 `bigint`
 
-## Arguments
+## Parameters
 
 ### value
 

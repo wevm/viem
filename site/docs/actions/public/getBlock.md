@@ -31,7 +31,7 @@ const block = await getBlock(publicClient) // [!code focus:99]
 
 Information about the block.
 
-## Configuration
+## Parameters
 
 ### blockHash (optional)
 

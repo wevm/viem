@@ -18,7 +18,7 @@ import { walletClient } from '.'
 await addChain(walletClient, avalanche) // [!code focus]
 ```
 
-## Arguments
+## Parameters
 
 ### chain
 

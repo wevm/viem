@@ -19,7 +19,7 @@ await mine(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### blocks
 

@@ -96,7 +96,7 @@ const filter = await createEventFilter(publicClient, {
 
 [`Filter`](/docs/glossary/types#TODO)
 
-## Configuration
+## Parameters
 
 ### address
 

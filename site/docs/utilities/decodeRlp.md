@@ -32,7 +32,7 @@ decodeRlp(new Uint8Array ([133, 1, 35, 69, 103, 137]), 'hex')
 
 The hex value or byte array.
 
-## Arguments
+## Parameters
 
 ### value
 

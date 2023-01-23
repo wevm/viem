@@ -401,8 +401,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/deployContract',
             },
             {
-              text: 'getCode 🚧',
-              link: '/docs/contract/getCode',
+              text: 'getBytecode 🚧',
+              link: '/docs/contract/getBytecode',
             },
             {
               text: 'getStorageAt 🚧',
@@ -421,8 +421,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/writeContract',
             },
             {
-              text: 'watchContractEvent 🚧',
-              link: '/docs/contract/watchContractEvent',
+              text: 'watchContractEvents 🚧',
+              link: '/docs/contract/watchContractEvents',
             },
           ],
         },
@@ -430,8 +430,8 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeDeploy 🚧',
-              link: '/docs/contract/decodeDeploy',
+              text: 'decodeConstructorParams 🚧',
+              link: '/docs/contract/decodeConstructorParams',
             },
             {
               text: 'decodeErrorParams 🚧',
@@ -450,8 +450,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeFunctionResult',
             },
             {
-              text: 'encodeDeploy 🚧',
-              link: '/docs/contract/encodeDeploy',
+              text: 'encodeConstructorParams 🚧',
+              link: '/docs/contract/encodeConstructorParams',
             },
             {
               text: 'encodeErrorParams 🚧',

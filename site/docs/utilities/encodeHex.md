@@ -34,7 +34,7 @@ encodeHex(true)
 
 The hex value.
 
-## Arguments
+## Parameters
 
 ### Value
 

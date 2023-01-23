@@ -18,11 +18,9 @@ test('stops impersonating account', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      request: {
-        from: account,
-        to: accounts[0].address,
-        value: parseEther('1'),
-      },
+      from: account,
+      to: accounts[0].address,
+      value: parseEther('1'),
     }),
   ).toBeDefined()
 
@@ -30,11 +28,9 @@ test('stops impersonating account', async () => {
 
   await expect(
     sendTransaction(walletClient, {
-      request: {
-        from: account,
-        to: accounts[0].address,
-        value: parseEther('1'),
-      },
+      from: account,
+      to: accounts[0].address,
+      value: parseEther('1'),
     }),
   ).rejects.toThrowError('No Signer available')
 })

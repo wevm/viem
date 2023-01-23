@@ -18,7 +18,7 @@ import { walletClient } from '.'
 await switchChain(walletClient, { id: avalanche.id }) // [!code focus]
 ```
 
-## Arguments
+## Parameters
 
 ### id
 

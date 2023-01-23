@@ -32,7 +32,7 @@ encodeBytes(true)
 
 The byte array represented as a `Uint8Array`.
 
-## Arguments
+## Parameters
 
 ### value
 

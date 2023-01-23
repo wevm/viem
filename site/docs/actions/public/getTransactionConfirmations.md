@@ -40,7 +40,7 @@ const confirmations = await getTransactionConfirmations(publicClient, {  // [!co
 
 The number of blocks passed since the transaction was processed. If confirmations is `0`, then the Transaction has not been confirmed & processed yet.
 
-## Configuration
+## Parameters
 
 ### transactionReceipt
 

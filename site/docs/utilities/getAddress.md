@@ -23,7 +23,7 @@ getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac') // [!code focus:2]
 
 The checksummed address.
 
-## Arguments
+## Parameters
 
 ### address
 

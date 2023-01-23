@@ -32,7 +32,7 @@ encodeRlp('0x123456789', 'bytes')
 
 The hex value or byte array.
 
-## Arguments
+## Parameters
 
 ### value
 

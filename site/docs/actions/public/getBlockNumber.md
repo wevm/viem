@@ -24,7 +24,7 @@ const block = await getBlockNumber(publicClient) // [!code focus:99]
 
 The number of the block.
 
-## Configuration
+## Parameters
 
 ### maxAge (optional)
 

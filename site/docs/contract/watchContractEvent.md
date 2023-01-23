@@ -1,3 +1,0 @@
-# watchContractEvent
-
-TODO

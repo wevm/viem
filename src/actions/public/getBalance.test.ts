@@ -17,27 +17,21 @@ async function setup() {
   })
 
   await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    },
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
   })
   await mine(testClient, { blocks: 1 })
   await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('2'),
-    },
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('2'),
   })
   await mine(testClient, { blocks: 1 })
   await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('3'),
-    },
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('3'),
   })
   await mine(testClient, { blocks: 1 })
 }

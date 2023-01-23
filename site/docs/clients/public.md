@@ -24,7 +24,7 @@ const client = createPublicClient({
 })
 ```
 
-## Configuration
+## Parameters
 
 ### transport
 

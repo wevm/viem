@@ -21,7 +21,7 @@ formatUnit(420000000000n, 9) // [!code focus:2]
 
 `string`
 
-## Arguments
+## Parameters
 
 ### value
 

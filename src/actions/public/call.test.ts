@@ -18,11 +18,9 @@ const sourceAccount = accounts[0]
 
 test('default', async () => {
   const { data } = await call(publicClient, {
-    request: {
-      data: name4bytes,
-      from: sourceAccount.address,
-      to: wagmiContractAddress,
-    },
+    data: name4bytes,
+    from: sourceAccount.address,
+    to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot(
     '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
@@ -37,23 +35,19 @@ test('custom formatter', async () => {
 
   const { data } = await call(client, {
     chain: celo,
-    request: {
-      gatewayFee: numberToHex(1n),
-      data: name4bytes,
-      from: sourceAccount.address,
-      to: wagmiContractAddress,
-    },
+    gatewayFee: numberToHex(1n),
+    data: name4bytes,
+    from: sourceAccount.address,
+    to: wagmiContractAddress,
   })
   expect(data).toBeUndefined()
 })
 
 test('zero data', async () => {
   const { data } = await call(publicClient, {
-    request: {
-      data: mint4bytes,
-      from: sourceAccount.address,
-      to: wagmiContractAddress,
-    },
+    data: mint4bytes,
+    from: sourceAccount.address,
+    to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
 })
@@ -61,11 +55,9 @@ test('zero data', async () => {
 test('args: blockNumber', async () => {
   const { data } = await call(publicClient, {
     blockNumber: 15564164n,
-    request: {
-      data: `${mintWithParams4bytes}${fourTwenty}`,
-      from: sourceAccount.address,
-      to: wagmiContractAddress,
-    },
+    data: `${mintWithParams4bytes}${fourTwenty}`,
+    from: sourceAccount.address,
+    to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
 })
@@ -73,13 +65,11 @@ test('args: blockNumber', async () => {
 test('errors: maxFeePerGas less than maxPriorityFeePerGas', async () => {
   await expect(
     call(publicClient, {
-      request: {
-        data: `${mintWithParams4bytes}${fourTwenty}`,
-        from: sourceAccount.address,
-        to: wagmiContractAddress,
-        maxFeePerGas: parseGwei('20'),
-        maxPriorityFeePerGas: parseGwei('22'),
-      },
+      data: `${mintWithParams4bytes}${fourTwenty}`,
+      from: sourceAccount.address,
+      to: wagmiContractAddress,
+      maxFeePerGas: parseGwei('20'),
+      maxPriorityFeePerGas: parseGwei('22'),
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     "\`maxFeePerGas\` cannot be less than \`maxPriorityFeePerGas\`
@@ -91,11 +81,9 @@ test('errors: maxFeePerGas less than maxPriorityFeePerGas', async () => {
 test('errors: contract revert (contract error)', async () => {
   await expect(
     call(publicClient, {
-      request: {
-        data: `${mintWithParams4bytes}${fourTwenty}`,
-        from: sourceAccount.address,
-        to: wagmiContractAddress,
-      },
+      data: `${mintWithParams4bytes}${fourTwenty}`,
+      from: sourceAccount.address,
+      to: wagmiContractAddress,
     }),
   ).rejects.toThrowError('execution reverted: Token ID is taken')
 })
@@ -103,11 +91,9 @@ test('errors: contract revert (contract error)', async () => {
 test('errors: contract revert (insufficient params)', async () => {
   await expect(
     call(publicClient, {
-      request: {
-        data: mintWithParams4bytes,
-        from: sourceAccount.address,
-        to: wagmiContractAddress,
-      },
+      data: mintWithParams4bytes,
+      from: sourceAccount.address,
+      to: wagmiContractAddress,
     }),
   ).rejects.toThrowError('execution reverted')
 })

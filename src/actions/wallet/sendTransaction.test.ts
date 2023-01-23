@@ -27,15 +27,11 @@ test('sends transaction', async () => {
   await setup()
 
   expect(
-    (
-      await sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-        },
-      })
-    ).hash,
+    await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
   ).toBeDefined()
 
   expect(
@@ -66,16 +62,12 @@ test('sends transaction (w/ formatter)', async () => {
   })
 
   expect(
-    (
-      await sendTransaction(walletClient, {
-        chain,
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-        },
-      })
-    ).hash,
+    await sendTransaction(walletClient, {
+      chain,
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
   ).toBeDefined()
 
   expect(
@@ -99,14 +91,10 @@ test('sends transaction w/ no value', async () => {
   await setup()
 
   expect(
-    (
-      await sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-        },
-      })
-    ).hash,
+    await sendTransaction(walletClient, {
+      from: sourceAccount.address,
+      to: targetAccount.address,
+    }),
   ).toBeDefined()
 
   expect(
@@ -131,16 +119,12 @@ describe('args: gas', () => {
     await setup()
 
     expect(
-      (
-        await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            gas: 1_000_000n,
-          },
-        })
-      ).hash,
+      await sendTransaction(walletClient, {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 1_000_000n,
+      }),
     ).toBeDefined()
 
     expect(
@@ -165,12 +149,10 @@ describe('args: gas', () => {
 
     expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          gas: 100n,
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100n,
       }),
     ).rejects.toThrowError('intrinsic gas too low')
   })
@@ -180,12 +162,10 @@ describe('args: gas', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          gas: 100_000_000n,
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100_000_000n,
       }),
     ).rejects.toThrowError('intrinsic gas too high')
   })
@@ -198,16 +178,12 @@ describe('args: gasPrice', () => {
     const block = await getBlock(publicClient)
 
     expect(
-      (
-        await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            gasPrice: BigInt(block.baseFeePerGas ?? 0),
-          },
-        })
-      ).hash,
+      await sendTransaction(walletClient, {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gasPrice: BigInt(block.baseFeePerGas ?? 0),
+      }),
     ).toBeDefined()
 
     expect(
@@ -238,12 +214,10 @@ describe('args: gasPrice', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          gasPrice: 1n,
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gasPrice: 1n,
       }),
     ).rejects.toThrowError('max fee per gas less than block base fee')
   })
@@ -255,12 +229,10 @@ describe('args: gasPrice', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          gasPrice: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gasPrice: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
       }),
     ).rejects.toThrowError('Insufficient funds for gas * price + value')
   })
@@ -273,16 +245,12 @@ describe('args: maxFeePerGas', () => {
     const block = await getBlock(publicClient)
 
     expect(
-      (
-        await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
-          },
-        })
-      ).hash,
+      await sendTransaction(walletClient, {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
+      }),
     ).toBeDefined()
 
     expect(
@@ -307,12 +275,10 @@ describe('args: maxFeePerGas', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          maxFeePerGas: 1n,
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: 1n,
       }),
     ).rejects.toThrowError('max fee per gas less than block base fee')
   })
@@ -324,12 +290,10 @@ describe('args: maxFeePerGas', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
       }),
     ).rejects.toThrowError('Insufficient funds for gas * price + value')
   })
@@ -340,16 +304,12 @@ describe('args: maxPriorityFeePerGas', () => {
     await setup()
 
     expect(
-      (
-        await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            maxPriorityFeePerGas: parseGwei('1'),
-          },
-        })
-      ).hash,
+      await sendTransaction(walletClient, {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxPriorityFeePerGas: parseGwei('1'),
+      }),
     ).toBeDefined()
 
     expect(
@@ -375,17 +335,13 @@ describe('args: maxPriorityFeePerGas', () => {
     const block = await getBlock(publicClient)
 
     expect(
-      (
-        await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            maxPriorityFeePerGas: parseGwei('10'),
-            maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
-          },
-        })
-      ).hash,
+      await sendTransaction(walletClient, {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxPriorityFeePerGas: parseGwei('10'),
+        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
+      }),
     ).toBeDefined()
 
     expect(
@@ -408,13 +364,11 @@ describe('args: maxPriorityFeePerGas', () => {
   test('maxPriorityFeePerGas + maxFeePerGas: maxFeePerGas below baseFeePerGas + maxPriorityFeePerGas', () => {
     expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          maxPriorityFeePerGas: parseGwei('11'),
-          maxFeePerGas: parseGwei('10'),
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxPriorityFeePerGas: parseGwei('11'),
+        maxFeePerGas: parseGwei('10'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
@@ -436,16 +390,12 @@ describe('args: nonce', () => {
     }))!
 
     expect(
-      (
-        await sendTransaction(walletClient, {
-          request: {
-            from: sourceAccount.address,
-            to: targetAccount.address,
-            value: parseEther('1'),
-            nonce: hexToNumber(transactionCount),
-          },
-        })
-      ).hash,
+      await sendTransaction(walletClient, {
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        nonce: hexToNumber(transactionCount),
+      }),
     ).toBeDefined()
 
     expect(
@@ -468,12 +418,10 @@ describe('args: nonce', () => {
   test('errors when incorrect nonce provided', () => {
     expect(() =>
       sendTransaction(walletClient, {
-        request: {
-          from: sourceAccount.address,
-          to: targetAccount.address,
-          value: parseEther('1'),
-          nonce: 1,
-        },
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        nonce: 1,
       }),
     ).rejects.toThrowError('nonce too low')
   })
@@ -484,11 +432,9 @@ test('insufficient funds: errors when user is out of funds', async () => {
 
   await expect(
     sendTransaction(walletClient, {
-      request: {
-        from: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('100000'),
-      },
+      from: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('100000'),
     }),
   ).rejects.toThrow('Insufficient funds for gas * price + value')
 })

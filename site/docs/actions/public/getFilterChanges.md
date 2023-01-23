@@ -73,7 +73,7 @@ If the filter was created with `createPendingTransactionFilter`, it returns a li
 
 If the filter was created with `createBlockFilter`, it returns a list of block hashes.
 
-## Configuration
+## Parameters
 
 ### filter
 

@@ -29,7 +29,7 @@ const message = await signMessage(walletClient, { // [!code focus:99]
 
 The signed message.
 
-## Configuration
+## Parameters
 
 ### from
 

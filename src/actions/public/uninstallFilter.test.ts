@@ -19,18 +19,14 @@ test('pending txns', async () => {
   const filter = await createPendingTransactionFilter(publicClient)
 
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
 
   let hashes = await getFilterChanges(publicClient, { filter })
@@ -45,11 +41,9 @@ test('pending txns', async () => {
   expect(await uninstallFilter(publicClient, { filter })).toBeTruthy()
 
   await sendTransaction(walletClient, {
-    request: {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    },
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
   })
 
   hashes = await getFilterChanges(publicClient, { filter })

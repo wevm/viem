@@ -28,7 +28,7 @@ pad(new Uint8Array([1, 122, 51, 123]))
 
 The value with padded zeros.
 
-## Configuration
+## Parameters
 
 ### dir
 

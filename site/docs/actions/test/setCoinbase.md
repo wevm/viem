@@ -19,7 +19,7 @@ await setCoinbase(testClient, { // [!code focus:99]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### address
 

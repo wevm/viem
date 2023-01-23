@@ -22,18 +22,14 @@ test(
   'inspects txpool (pending)',
   async () => {
     await sendTransaction(walletClient, {
-      request: {
-        from: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('2'),
-      },
+      from: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('2'),
     })
     await sendTransaction(walletClient, {
-      request: {
-        from: accounts[2].address,
-        to: accounts[3].address,
-        value: parseEther('3'),
-      },
+      from: accounts[2].address,
+      to: accounts[3].address,
+      value: parseEther('3'),
     })
 
     const txpool1 = await inspectTxpool(testClient)

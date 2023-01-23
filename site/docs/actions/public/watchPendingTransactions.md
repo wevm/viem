@@ -33,7 +33,7 @@ const unwatch = watchPendingTransactions( // [!code focus:99]
 
 A function that can be invoked to stop watching for new pending transaction hashes.
 
-## Configuration
+## Parameters
 
 ### onTransactions
 

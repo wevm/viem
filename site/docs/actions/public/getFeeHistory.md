@@ -26,7 +26,7 @@ const feeHistory = await getFeeHistory(publicClient, { // [!code focus:4]
 
 The fee history.
 
-## Configuration
+## Parameters
 
 ### blockCount
 

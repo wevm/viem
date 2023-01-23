@@ -23,12 +23,10 @@ beforeAll(async () => {
 describe('Send Transaction', () => {
   bench('viem: `sendTransaction`', async () => {
     await sendTransaction(walletClient, {
-      request: {
-        from: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('1'),
-        nonce: nonce++,
-      },
+      from: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+      nonce: nonce++,
     })
   })
 

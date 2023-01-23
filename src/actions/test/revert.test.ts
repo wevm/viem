@@ -19,11 +19,9 @@ test('reverts', async () => {
   const id = await snapshot(testClient)
 
   await sendTransaction(walletClient, {
-    request: {
-      from: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('2'),
-    },
+    from: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('2'),
   })
   await mine(testClient, { blocks: 1 })
   expect(

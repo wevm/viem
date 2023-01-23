@@ -157,11 +157,9 @@ export const getSuite = ({ url }: { url: string }): Suite => {
       fns: {
         viem: async () => {
           await sendTransaction(viemClient, {
-            request: {
-              from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-              to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-              value: parseEther('0.001'),
-            },
+            from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+            to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+            value: parseEther('0.001'),
           })
         },
         ethers: async () => {

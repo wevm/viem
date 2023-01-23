@@ -24,7 +24,7 @@ const count = await getBlockTransactionCount(publicClient) // [!code focus:99]
 
 The block transaction count.
 
-## Configuration
+## Parameters
 
 ### blockHash (optional)
 

@@ -22,7 +22,7 @@ const client = createWalletClient({
 })
 ```
 
-## Configuration
+## Parameters
 
 ### key (optional)
 

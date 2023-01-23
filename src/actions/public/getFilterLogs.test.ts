@@ -48,18 +48,14 @@ describe('events', () => {
     const filter = await createEventFilter(publicClient)
 
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[0].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[1].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[1].address),
     })
 
     await mine(testClient, { blocks: 1 })
@@ -75,18 +71,14 @@ describe('events', () => {
     })
 
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[0].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      request: {
-        from: vitalikAddress,
-        to: usdcAddress,
-        data: transfer1Data(accounts[1].address),
-      },
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[1].address),
     })
 
     await mine(testClient, { blocks: 1 })

@@ -19,7 +19,7 @@ await revert(testClient, { // [!code focus:99]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### id
 

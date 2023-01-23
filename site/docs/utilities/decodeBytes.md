@@ -38,7 +38,7 @@ decodeBytes(new Uint8Array([1]), 'boolean')
 
 The targeted type.
 
-## Arguments
+## Parameters
 
 ### value
 

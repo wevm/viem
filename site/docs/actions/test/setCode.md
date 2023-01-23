@@ -20,7 +20,7 @@ await setCode(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### address
 

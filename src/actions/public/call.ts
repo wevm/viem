@@ -17,46 +17,77 @@ export type FormattedCall<
   TransactionRequest
 >
 
-export type CallArgs<TChain extends Chain = Chain> = {
+export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
+  TransactionRequestFormatter<TChain>
+> & {
   chain?: TChain
-  request: FormattedCall<TransactionRequestFormatter<TChain>>
 } & (
-  | {
-      /** The balance of the account at a block number. */
-      blockNumber?: bigint
-      blockTag?: never
-    }
-  | {
-      blockNumber?: never
-      /** The balance of the account at a block tag. */
-      blockTag?: BlockTag
-    }
-)
+    | {
+        /** The balance of the account at a block number. */
+        blockNumber?: bigint
+        blockTag?: never
+      }
+    | {
+        blockNumber?: never
+        /** The balance of the account at a block tag. */
+        blockTag?: BlockTag
+      }
+  )
 
 export type CallResponse = { data: Hex | undefined }
 
 export async function call<TChain extends Chain>(
   client: PublicClient,
-  { blockNumber, blockTag = 'latest', chain, request }: CallArgs<TChain>,
+  {
+    blockNumber,
+    blockTag = 'latest',
+    chain,
+    from,
+    accessList,
+    data,
+    gas,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    nonce,
+    to,
+    value,
+    ...rest
+  }: CallArgs<TChain>,
 ): Promise<CallResponse> {
   if (
-    request.maxFeePerGas !== undefined &&
-    request.maxPriorityFeePerGas !== undefined &&
-    request.maxFeePerGas < request.maxPriorityFeePerGas
+    maxFeePerGas !== undefined &&
+    maxPriorityFeePerGas !== undefined &&
+    maxFeePerGas < maxPriorityFeePerGas
   )
     throw new InvalidGasArgumentsError()
 
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
-  const request_ = format(request as TransactionRequest, {
-    formatter:
-      chain?.formatters?.transactionRequest || formatTransactionRequest,
-  })
+  const request_ = format(
+    {
+      from,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+      ...rest,
+    } as TransactionRequest,
+    {
+      formatter:
+        chain?.formatters?.transactionRequest || formatTransactionRequest,
+    },
+  )
 
-  const data = await client.request({
+  const response = await client.request({
     method: 'eth_call',
     params: [request_, blockNumberHex || blockTag],
   })
-  if (data === '0x') return { data: undefined }
-  return { data }
+  if (response === '0x') return { data: undefined }
+  return { data: response }
 }

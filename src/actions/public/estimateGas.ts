@@ -6,7 +6,7 @@ import type {
 } from '../../types'
 import { numberToHex } from '../../utils'
 
-export type EstimateGasArgs = { request: EstimateGasParameters } & (
+export type EstimateGasArgs = EstimateGasParameters & (
   | {
       /** The balance of the account at a block number. */
       blockNumber?: bigint
@@ -29,16 +29,14 @@ export async function estimateGas(
   {
     blockNumber,
     blockTag = 'latest',
-    request: {
-      data,
-      from,
-      gas,
-      gasPrice,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      to,
-      value,
-    },
+    data,
+    from,
+    gas,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    to,
+    value,
   }: EstimateGasArgs,
 ): Promise<EstimateGasResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined

@@ -19,7 +19,7 @@ await setBlockGasLimit(testClient, { // [!code focus:4]
 })
 ```
 
-## Configuration
+## Parameters
 
 ### gasLimit
 

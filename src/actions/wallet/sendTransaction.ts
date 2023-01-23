@@ -1,6 +1,7 @@
 import type { Chain, Formatter } from '../../chains'
 import type { WalletClient } from '../../clients'
 import type {
+  Hash,
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
@@ -14,36 +15,64 @@ export type FormattedTransactionRequest<
   TransactionRequest
 >
 
-export type SendTransactionArgs<TChain extends Chain = Chain> = {
-  chain?: TChain
-  request: FormattedTransactionRequest<TransactionRequestFormatter<TChain>>
-}
+export type SendTransactionArgs<TChain extends Chain = Chain> =
+  FormattedTransactionRequest<TransactionRequestFormatter<TChain>> & {
+    chain?: TChain
+  }
 
-export type SendTransactionResponse = { hash: `0x${string}` }
+export type SendTransactionResponse = Hash
 
 export async function sendTransaction<TChain extends Chain>(
   client: WalletClient,
-  { chain, request }: SendTransactionArgs<TChain>,
+  {
+    chain,
+    from,
+    accessList,
+    data,
+    gas,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    nonce,
+    to,
+    value,
+    ...rest
+  }: SendTransactionArgs<TChain>,
 ): Promise<SendTransactionResponse> {
   if (
-    request.maxFeePerGas !== undefined &&
-    request.maxPriorityFeePerGas !== undefined &&
-    request.maxFeePerGas < request.maxPriorityFeePerGas
+    maxFeePerGas !== undefined &&
+    maxPriorityFeePerGas !== undefined &&
+    maxFeePerGas < maxPriorityFeePerGas
   )
     throw new InvalidGasArgumentsError()
 
   // TODO: validate `chain`
 
-  const request_ = format(request as TransactionRequest, {
-    formatter:
-      chain?.formatters?.transactionRequest || formatTransactionRequest,
-  })
+  const request_ = format(
+    {
+      from,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+      ...rest,
+    } as TransactionRequest,
+    {
+      formatter:
+        chain?.formatters?.transactionRequest || formatTransactionRequest,
+    },
+  )
 
   const hash = await client.request({
     method: 'eth_sendTransaction',
     params: [request_],
   })
-  return { hash }
+  return hash
 }
 
 export class InvalidGasArgumentsError extends BaseError {

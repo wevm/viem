@@ -37,7 +37,7 @@ const transaction = await waitForTransactionReceipt( // [!code focus:99]
 
 The transaction receipt.
 
-## Configuration
+## Parameters
 
 ### confirmations (optional)
 
