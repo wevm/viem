@@ -430,7 +430,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeAbi',
+              text: 'decodeAbi 🚧',
               link: '/docs/contract/decodeAbi',
             },
             {

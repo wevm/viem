@@ -1,3 +1,3 @@
-# encodeDeploy
+# encodeConstructorParams
 
 TODO
