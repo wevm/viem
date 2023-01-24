@@ -57,7 +57,6 @@ describe('ABI Encode (static struct)', () => {
   bench('ethers: `AbiCoder.encode`', () => {
     const coder = new AbiCoder()
     coder.encode(
-      // @ts-expect-error
       getFunctionInputs({
         abi: mixedAbi,
         name: 'staticStruct2',

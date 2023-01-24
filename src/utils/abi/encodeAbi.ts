@@ -125,7 +125,7 @@ function encodeArray<TParam extends AbiParameter>(
   if (!Array.isArray(value)) throw new InvalidArrayError(value)
   if (!dynamic && value.length !== length)
     throw new AbiEncodingArrayLengthMismatchError({
-      expectedLength: length,
+      expectedLength: length!,
       givenLength: value.length,
       type: `${param.type}[${length}]`,
     })
