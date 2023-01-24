@@ -33,6 +33,7 @@ test('exports utils', () => {
       "decodeBytes": [Function],
       "decodeHex": [Function],
       "decodeRlp": [Function],
+      "encodeAbi": [Function],
       "encodeBytes": [Function],
       "encodeHex": [Function],
       "encodeRlp": [Function],

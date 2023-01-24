@@ -1,4 +1,12 @@
 export type {
+  AbiEncodingArrayLengthMismatchError,
+  AbiEncodingLengthMismatchError,
+  InvalidAbiEncodingTypeError,
+  InvalidArrayError,
+} from './abi'
+export { encodeAbi } from './abi'
+
+export type {
   GetContractAddressOptions,
   GetCreate2AddressOptions,
   GetCreateAddressOptions,
