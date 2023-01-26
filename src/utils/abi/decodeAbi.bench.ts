@@ -1,0 +1,53 @@
+import {
+  Abi,
+  AbiFunction,
+  ExtractAbiFunction,
+  ExtractAbiFunctionNames,
+} from 'abitype'
+import { AbiCoder } from 'ethers/lib/utils'
+import { bench, describe, test } from 'vitest'
+
+import { mixedAbi } from '../../../test'
+import { decodeAbi } from './decodeAbi'
+
+export function getFunctionInputs<
+  TAbi extends Abi,
+  TName extends ExtractAbiFunctionNames<TAbi>,
+>({
+  abi,
+  name,
+}: {
+  abi: TAbi
+  name: TName
+}): ExtractAbiFunction<TAbi, TName>['inputs'] {
+  return (
+    abi.find(
+      (abi) => abi.type === 'function' && abi.name === name,
+    ) as AbiFunction & {
+      type: 'function'
+    }
+  )?.inputs!
+}
+
+describe('ABI Decode (static struct)', () => {
+  bench('viem: `decodeAbi`', () => {
+    decodeAbi({
+      data: '0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac00000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002',
+      params: getFunctionInputs({
+        abi: mixedAbi,
+        name: 'staticStruct2',
+      }),
+    })
+  })
+
+  bench('ethers: `AbiCoder.decode`', () => {
+    const coder = new AbiCoder()
+    coder.decode(
+      getFunctionInputs({
+        abi: mixedAbi,
+        name: 'staticStruct2',
+      }),
+      '0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac00000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002'
+    )
+  })
+})

@@ -1,5 +1,6 @@
 import type { ByteArray, Hex } from '../../types'
 import { BaseError } from '../BaseError'
+import { trim } from '../data'
 import { hexToBytes } from './encodeBytes'
 
 type DecodeHexResponse<TTo> = TTo extends 'string'
@@ -52,8 +53,8 @@ export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
  * @description Decodes a hex string into a boolean.
  */
 export function hexToBool(hex: Hex): boolean {
-  if (hex === '0x0') return false
-  if (hex === '0x1') return true
+  if (trim(hex) === '0x0') return false
+  if (trim(hex) === '0x1') return true
   throw new InvalidHexBooleanError(hex)
 }
 

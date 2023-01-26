@@ -142,7 +142,7 @@ function encodeArray<TParam extends AbiParameter>(
     const data = encodeParams(preparedParams)
     if (dynamic) {
       const length = numberToHex(preparedParams.length, { size: 32 })
-      return { dynamic: true, encoded: concat([length, data]) }
+      return { dynamic: true, encoded: preparedParams.length > 0 ? concat([length, data]) : length }
     }
     if (dynamicChild) return { dynamic: true, encoded: data }
   }
@@ -195,7 +195,7 @@ function encodeBytes<TParam extends AbiParameter>(
         padHex(value, { dir: 'right' }),
       ]),
     }
-  return { dynamic: false, encoded: padHex(value) }
+  return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }
 }
 
 function encodeBool(value: boolean): PreparedParam {
