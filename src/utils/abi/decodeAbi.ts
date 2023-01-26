@@ -90,6 +90,10 @@ function decodeParam({
 
 ////////////////////////////////////////////////////////////////////
 
+function decodeAddress(value: Hex) {
+  return { consumed: 32, value: checksumAddress(trim(value)) }
+}
+
 function decodeArray<TParam extends AbiParameter>(
   data: Hex,
   {
@@ -163,10 +167,6 @@ function decodeArray<TParam extends AbiParameter>(
     value.push(decodedChild.value)
   }
   return { value, consumed }
-}
-
-function decodeAddress(value: Hex) {
-  return { consumed: 32, value: checksumAddress(trim(value)) }
 }
 
 function decodeBool(value: Hex) {

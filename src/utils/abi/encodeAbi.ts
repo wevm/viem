@@ -3,6 +3,7 @@ import {
   AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
 } from 'abitype'
+
 import { Hex } from '../../types'
 import { BaseError } from '../BaseError'
 import { concat, padHex, size } from '../data'
@@ -119,6 +120,10 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
 
 /////////////////////////////////////////////////////////////////
 
+function encodeAddress(value: Hex): PreparedParam {
+  return { dynamic: false, encoded: padHex(value.toLowerCase() as Hex) }
+}
+
 function encodeArray<TParam extends AbiParameter>(
   value: AbiParameterToPrimitiveType<TParam>,
   {
@@ -164,36 +169,6 @@ function encodeArray<TParam extends AbiParameter>(
   }
 }
 
-function encodeTuple<
-  TParam extends AbiParameter & { components: readonly AbiParameter[] },
->(
-  value: AbiParameterToPrimitiveType<TParam>,
-  { param }: { param: TParam },
-): PreparedParam {
-  let dynamic = false
-  let preparedParams: PreparedParam[] = []
-  for (let i = 0; i < param.components.length; i++) {
-    const param_ = param.components[i]
-    const index = Array.isArray(value) ? i : param_.name
-    const preparedParam = prepareParam({
-      param: param_,
-      value: (value as any)[index!] as any,
-    })
-    preparedParams.push(preparedParam)
-    dynamic = preparedParam.dynamic
-  }
-  return {
-    dynamic,
-    encoded: dynamic
-      ? encodeParams(preparedParams)
-      : concat(preparedParams.map(({ encoded }) => encoded)),
-  }
-}
-
-function encodeAddress(value: Hex): PreparedParam {
-  return { dynamic: false, encoded: padHex(value.toLowerCase() as Hex) }
-}
-
 function encodeBytes<TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
@@ -234,6 +209,32 @@ function encodeString(value: string): PreparedParam {
       padHex(numberToHex(value.length, { size: 32 })),
       padHex(stringToHex(value), { dir: 'right' }),
     ]),
+  }
+}
+
+function encodeTuple<
+  TParam extends AbiParameter & { components: readonly AbiParameter[] },
+>(
+  value: AbiParameterToPrimitiveType<TParam>,
+  { param }: { param: TParam },
+): PreparedParam {
+  let dynamic = false
+  let preparedParams: PreparedParam[] = []
+  for (let i = 0; i < param.components.length; i++) {
+    const param_ = param.components[i]
+    const index = Array.isArray(value) ? i : param_.name
+    const preparedParam = prepareParam({
+      param: param_,
+      value: (value as any)[index!] as any,
+    })
+    preparedParams.push(preparedParam)
+    dynamic = preparedParam.dynamic
+  }
+  return {
+    dynamic,
+    encoded: dynamic
+      ? encodeParams(preparedParams)
+      : concat(preparedParams.map(({ encoded }) => encoded)),
   }
 }
 
