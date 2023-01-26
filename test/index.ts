@@ -1,5 +1,3 @@
-export { mixedAbi } from './abis'
-
 export { essentialProvider, ethersProvider, web3Provider } from './bench'
 
 export {

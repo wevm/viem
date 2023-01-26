@@ -1,4 +1,10 @@
 export type {
+  AbiDecodingDataSizeInvalidError,
+  InvalidAbiDecodingTypeError,
+} from './decodeAbi'
+export { decodeAbi } from './decodeAbi'
+
+export type {
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   InvalidAbiEncodingTypeError,

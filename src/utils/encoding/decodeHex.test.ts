@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import {
   decodeHex,
@@ -8,34 +8,90 @@ import {
   hexToString,
 } from './decodeHex'
 
-test('converts hex to number', () => {
-  expect(decodeHex('0x0', 'number')).toMatchInlineSnapshot('0')
-  expect(decodeHex('0x7', 'number')).toMatchInlineSnapshot('7')
-  expect(decodeHex('0x45', 'number')).toMatchInlineSnapshot('69')
-  expect(decodeHex('0x1a4', 'number')).toMatchInlineSnapshot('420')
+describe('converts hex to number', () => {
+  test('default', () => {
+    expect(decodeHex('0x0', 'number')).toMatchInlineSnapshot('0')
+    expect(decodeHex('0x7', 'number')).toMatchInlineSnapshot('7')
+    expect(decodeHex('0x45', 'number')).toMatchInlineSnapshot('69')
+    expect(decodeHex('0x1a4', 'number')).toMatchInlineSnapshot('420')
 
-  expect(hexToNumber('0x0')).toMatchInlineSnapshot('0')
-  expect(hexToNumber('0x7')).toMatchInlineSnapshot('7')
-  expect(hexToNumber('0x45')).toMatchInlineSnapshot('69')
-  expect(hexToNumber('0x1a4')).toMatchInlineSnapshot('420')
+    expect(hexToNumber('0x0')).toMatchInlineSnapshot('0')
+    expect(hexToNumber('0x7')).toMatchInlineSnapshot('7')
+    expect(hexToNumber('0x45')).toMatchInlineSnapshot('69')
+    expect(hexToNumber('0x1a4')).toMatchInlineSnapshot('420')
+  })
+
+  test('args: signed', () => {
+    expect(hexToNumber('0x20', { signed: true })).toBe(32)
+    expect(
+      hexToNumber('0xe0', {
+        signed: true,
+      }),
+    ).toBe(-32)
+    expect(
+      hexToNumber('0xffffffe0', {
+        signed: true,
+      }),
+    ).toBe(-32)
+
+    expect(hexToNumber('0x007f', { signed: true })).toBe(127)
+    expect(hexToNumber('0xff81', { signed: true })).toBe(-127)
+    expect(hexToNumber('0x7fff', { signed: true })).toBe(32767)
+    expect(hexToNumber('0x8000', { signed: true })).toBe(-32768)
+
+    expect(hexToNumber('0xffff', { signed: true })).toBe(-1)
+    expect(hexToNumber('0x4961769b', { signed: true })).toBe(1231124123)
+    expect(hexToNumber('0x00027760a62ec2ac', { signed: true })).toBe(
+      694206942069420,
+    )
+  })
 })
 
-test('converts hex to bigint', () => {
-  expect(decodeHex('0x0', 'bigint')).toMatchInlineSnapshot('0n')
-  expect(decodeHex('0x7', 'bigint')).toMatchInlineSnapshot('7n')
-  expect(decodeHex('0x45', 'bigint')).toMatchInlineSnapshot('69n')
-  expect(decodeHex('0x1a4', 'bigint')).toMatchInlineSnapshot('420n')
-  expect(
-    decodeHex('0xc5cf39211876fb5e5884327fa56fc0b75', 'bigint'),
-  ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
+describe('converts hex to bigint', () => {
+  test('default', () => {
+    expect(decodeHex('0x0', 'bigint')).toMatchInlineSnapshot('0n')
+    expect(decodeHex('0x7', 'bigint')).toMatchInlineSnapshot('7n')
+    expect(decodeHex('0x45', 'bigint')).toMatchInlineSnapshot('69n')
+    expect(decodeHex('0x1a4', 'bigint')).toMatchInlineSnapshot('420n')
+    expect(
+      decodeHex('0xc5cf39211876fb5e5884327fa56fc0b75', 'bigint'),
+    ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
 
-  expect(hexToBigInt('0x0')).toMatchInlineSnapshot('0n')
-  expect(hexToBigInt('0x7')).toMatchInlineSnapshot('7n')
-  expect(hexToBigInt('0x45')).toMatchInlineSnapshot('69n')
-  expect(hexToBigInt('0x1a4')).toMatchInlineSnapshot('420n')
-  expect(
-    hexToBigInt('0xc5cf39211876fb5e5884327fa56fc0b75'),
-  ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
+    expect(hexToBigInt('0x0')).toMatchInlineSnapshot('0n')
+    expect(hexToBigInt('0x7')).toMatchInlineSnapshot('7n')
+    expect(hexToBigInt('0x45')).toMatchInlineSnapshot('69n')
+    expect(hexToBigInt('0x1a4')).toMatchInlineSnapshot('420n')
+    expect(
+      hexToBigInt('0xc5cf39211876fb5e5884327fa56fc0b75'),
+    ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
+  })
+
+  test('signed', () => {
+    expect(hexToBigInt('0x20', { signed: true })).toBe(32n)
+    expect(
+      hexToBigInt('0xe0', {
+        signed: true,
+      }),
+    ).toBe(-32n)
+
+    expect(hexToBigInt('0x007f', { signed: true })).toBe(127n)
+    expect(hexToBigInt('0xff81', { signed: true })).toBe(-127n)
+    expect(hexToBigInt('0x7fff', { signed: true })).toBe(32767n)
+    expect(hexToBigInt('0x8000', { signed: true })).toBe(-32768n)
+
+    expect(
+      hexToBigInt(
+        '0x000000000000000000000000000000000000000000000000aade1ed08b0b325c',
+        { signed: true },
+      ),
+    ).toBe(12312312312312312412n)
+    expect(
+      hexToBigInt(
+        '0xffffffffffffffffffffffffffffffffffffffffffffffff5521e12f74f4cda4',
+        { signed: true },
+      ),
+    ).toBe(-12312312312312312412n)
+  })
 })
 
 test('converts hex to boolean', () => {

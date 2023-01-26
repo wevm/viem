@@ -40,6 +40,7 @@ test('exports actions', () => {
       "createTransport": [Function],
       "createWalletClient": [Function],
       "custom": [Function],
+      "decodeAbi": [Function],
       "decodeBytes": [Function],
       "decodeHex": [Function],
       "decodeRlp": [Function],

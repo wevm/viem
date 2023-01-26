@@ -8,6 +8,9 @@ import { BaseError } from '../BaseError'
 import { concat, padHex, size } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
+/**
+ * @description Encodes a list of primitive values into an ABI-encoded hex value.
+ */
 export function encodeAbi<TParams extends readonly AbiParameter[]>({
   params,
   values,
@@ -20,6 +23,7 @@ export function encodeAbi<TParams extends readonly AbiParameter[]>({
       expectedLength: params.length,
       givenLength: values.length,
     })
+  // Prepare the parameters to determine dynamic types to encode.
   const preparedParams = prepareParams({ params, values })
   return encodeParams(preparedParams)
 }
@@ -84,6 +88,7 @@ function prepareParam<TParam extends AbiParameter>({
 /////////////////////////////////////////////////////////////////
 
 function encodeParams(preparedParams: PreparedParam[]): Hex {
+  // 1. Compute the size of the static part of the parameters.
   let staticSize = 0
   for (let i = 0; i < preparedParams.length; i++) {
     const { dynamic, encoded } = preparedParams[i]
@@ -91,6 +96,7 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
     else staticSize += size(encoded)
   }
 
+  // 2. Split the parameters into static and dynamic parts.
   let staticParams: Hex[] = []
   let dynamicParams: Hex[] = []
   let dynamicSize = 0
@@ -105,6 +111,7 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
     }
   }
 
+  // 3. Concatenate static and dynamic parts.
   return concat([...staticParams, ...dynamicParams])
 }
 
@@ -142,7 +149,10 @@ function encodeArray<TParam extends AbiParameter>(
     const data = encodeParams(preparedParams)
     if (dynamic) {
       const length = numberToHex(preparedParams.length, { size: 32 })
-      return { dynamic: true, encoded: concat([length, data]) }
+      return {
+        dynamic: true,
+        encoded: preparedParams.length > 0 ? concat([length, data]) : length,
+      }
     }
     if (dynamicChild) return { dynamic: true, encoded: data }
   }
@@ -195,7 +205,7 @@ function encodeBytes<TParam extends AbiParameter>(
         padHex(value, { dir: 'right' }),
       ]),
     }
-  return { dynamic: false, encoded: padHex(value) }
+  return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }
 }
 
 function encodeBool(value: boolean): PreparedParam {
@@ -270,6 +280,7 @@ export class AbiEncodingLengthMismatchError extends BaseError {
     )
   }
 }
+
 export class InvalidAbiEncodingTypeError extends BaseError {
   name = 'InvalidAbiEncodingType'
   constructor(type: string) {
@@ -282,6 +293,7 @@ export class InvalidAbiEncodingTypeError extends BaseError {
     )
   }
 }
+
 export class InvalidArrayError extends BaseError {
   name = 'InvalidArrayError'
   constructor(value: unknown) {

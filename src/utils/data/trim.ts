@@ -3,12 +3,15 @@ import type { ByteArray, Hex } from '../../types'
 type TrimOptions = {
   dir?: 'left' | 'right'
 }
+type TrimResult<TValue extends ByteArray | Hex> = TValue extends Hex
+  ? Hex
+  : ByteArray
 
-export function trim(
-  hexOrBytes: Hex | ByteArray,
+export function trim<TValue extends ByteArray | Hex>(
+  hexOrBytes: TValue,
   { dir = 'left' }: TrimOptions = {},
-) {
-  let data =
+): TrimResult<TValue> {
+  let data: any =
     typeof hexOrBytes === 'string' ? hexOrBytes.replace('0x', '') : hexOrBytes
 
   let sliceLength = 0
@@ -24,7 +27,7 @@ export function trim(
 
   if (typeof hexOrBytes === 'string') {
     if (data.length === 1 && dir === 'right') data = `${data}0`
-    return `0x${data}`
+    return `0x${data}` as TrimResult<TValue>
   }
-  return data
+  return data as TrimResult<TValue>
 }

@@ -1,11 +1,12 @@
 import { AbiCoder } from 'ethers/lib/utils'
 import { bench, describe } from 'vitest'
 
-import { encodeAbi } from './encodeAbi'
+import { decodeAbi } from './decodeAbi'
 
-describe('ABI Encode (static struct)', () => {
-  bench('viem: `encodeAbi`', () => {
-    encodeAbi({
+describe('ABI Decode (static struct)', () => {
+  bench('viem: `decodeAbi`', () => {
+    decodeAbi({
+      data: '0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac00000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002',
       params: [
         {
           components: [
@@ -64,27 +65,12 @@ describe('ABI Encode (static struct)', () => {
           type: 'tuple',
         },
       ],
-      values: [
-        {
-          foo: {
-            x: 420n,
-            y: true,
-            z: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-          },
-          baz: {
-            x: 69n,
-            y: false,
-            z: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
-          },
-          x: [1, 2],
-        },
-      ],
     })
   })
 
-  bench('ethers: `AbiCoder.encode`', () => {
+  bench('ethers: `AbiCoder.decode`', () => {
     const coder = new AbiCoder()
-    coder.encode(
+    coder.decode(
       [
         {
           components: [
@@ -143,21 +129,7 @@ describe('ABI Encode (static struct)', () => {
           type: 'tuple',
         },
       ],
-      [
-        {
-          foo: {
-            x: 420n,
-            y: true,
-            z: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-          },
-          baz: {
-            x: 69n,
-            y: false,
-            z: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
-          },
-          x: [1, 2],
-        },
-      ],
+      '0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac00000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002',
     )
   })
 })
