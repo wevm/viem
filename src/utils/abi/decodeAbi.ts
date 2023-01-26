@@ -15,7 +15,8 @@ export function decodeAbi<TParams extends readonly AbiParameter[]>({
   data,
   params,
 }: { data: Hex; params: TParams }) {
-  if (size(data) % 32 !== 0) throw new AbiDecodingDataSizeInvalidError(size(data))
+  if (size(data) % 32 !== 0)
+    throw new AbiDecodingDataSizeInvalidError(size(data))
   return decodeParams({
     data,
     params,
