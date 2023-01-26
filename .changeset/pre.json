@@ -8,6 +8,7 @@
     "@viem/site": "0.0.0"
   },
   "changesets": [
+    "five-melons-agree",
     "red-cougars-dream"
   ]
 }
