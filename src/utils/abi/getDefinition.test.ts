@@ -4,6 +4,7 @@ import { getDefinition } from './getDefinition'
 
 test('foo()', () => {
   expect(
+    // @ts-expect-error
     getDefinition({
       name: 'foo',
       outputs: [],
