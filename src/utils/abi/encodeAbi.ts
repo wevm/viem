@@ -142,7 +142,10 @@ function encodeArray<TParam extends AbiParameter>(
     const data = encodeParams(preparedParams)
     if (dynamic) {
       const length = numberToHex(preparedParams.length, { size: 32 })
-      return { dynamic: true, encoded: preparedParams.length > 0 ? concat([length, data]) : length }
+      return {
+        dynamic: true,
+        encoded: preparedParams.length > 0 ? concat([length, data]) : length,
+      }
     }
     if (dynamicChild) return { dynamic: true, encoded: data }
   }
