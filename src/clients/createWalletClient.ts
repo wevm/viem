@@ -44,13 +44,11 @@ export function createWalletClient<
   name = 'Wallet Client',
   pollingInterval,
 }: WalletClientConfig<TTransport, TChain>): WalletClient<TTransport, TChain> {
-  return {
-    ...createClient({
-      key,
-      name,
-      pollingInterval,
-      transport,
-      type: 'walletClient',
-    }),
-  }
+  return createClient({
+    key,
+    name,
+    pollingInterval,
+    transport,
+    type: 'walletClient',
+  })
 }

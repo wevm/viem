@@ -38,14 +38,12 @@ export function createPublicClient<
   pollingInterval,
 }: PublicClientConfig<TTransport, TChain>): PublicClient<TTransport, TChain> {
   chain
-  return {
-    ...createClient({
-      chain,
-      key,
-      name,
-      pollingInterval,
-      transport,
-      type: 'publicClient',
-    }),
-  }
+  return createClient({
+    chain,
+    key,
+    name,
+    pollingInterval,
+    transport,
+    type: 'publicClient',
+  })
 }

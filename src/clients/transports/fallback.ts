@@ -17,8 +17,8 @@ export function fallback(
   transports: Transport[],
   { key = 'fallback', name = 'Fallback' }: FallbackTransportConfig = {},
 ): FallbackTransport {
-  return ({ chain }) => {
-    return createTransport(
+  return ({ chain }) =>
+    createTransport(
       {
         key,
         name,
@@ -45,5 +45,4 @@ export function fallback(
         ),
       },
     )
-  }
 }
