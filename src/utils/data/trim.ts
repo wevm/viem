@@ -11,7 +11,7 @@ export function trim<TValue extends ByteArray | Hex>(
   hexOrBytes: TValue,
   { dir = 'left' }: TrimOptions = {},
 ): TrimResult<TValue> {
-  let data =
+  let data: any =
     typeof hexOrBytes === 'string' ? hexOrBytes.replace('0x', '') : hexOrBytes
 
   let sliceLength = 0
@@ -27,7 +27,7 @@ export function trim<TValue extends ByteArray | Hex>(
 
   if (typeof hexOrBytes === 'string') {
     if (data.length === 1 && dir === 'right') data = `${data}0`
-    return `0x${data}`
+    return `0x${data}` as TrimResult<TValue>
   }
-  return data
+  return data as TrimResult<TValue>
 }
