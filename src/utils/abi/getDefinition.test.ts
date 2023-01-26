@@ -2,6 +2,27 @@ import { expect, test } from 'vitest'
 
 import { getDefinition } from './getDefinition'
 
+test('foo()', () => {
+  expect(
+    // @ts-expect-error
+    getDefinition({
+      name: 'foo',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    }),
+  ).toEqual('foo()')
+  expect(
+    getDefinition({
+      inputs: [],
+      name: 'foo',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    }),
+  ).toEqual('foo()')
+})
+
 test('foo(uint256)', () => {
   expect(
     getDefinition({

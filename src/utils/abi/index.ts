@@ -11,3 +11,5 @@ export type {
   InvalidArrayError,
 } from './encodeAbi'
 export { encodeAbi } from './encodeAbi'
+
+export { encodeFunctionParams } from './encodeFunctionParams'

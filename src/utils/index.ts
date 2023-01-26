@@ -6,7 +6,7 @@ export type {
   InvalidAbiDecodingTypeError,
   InvalidArrayError,
 } from './abi'
-export { decodeAbi, encodeAbi } from './abi'
+export { decodeAbi, encodeAbi, encodeFunctionParams } from './abi'
 
 export type {
   GetContractAddressOptions,
