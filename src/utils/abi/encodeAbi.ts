@@ -8,6 +8,9 @@ import { BaseError } from '../BaseError'
 import { concat, padHex, size } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
+/**
+ * @description Encodes a list of primitive values into an ABI-encoded hex value.
+ */
 export function encodeAbi<TParams extends readonly AbiParameter[]>({
   params,
   values,
@@ -20,6 +23,7 @@ export function encodeAbi<TParams extends readonly AbiParameter[]>({
       expectedLength: params.length,
       givenLength: values.length,
     })
+  // Prepare the parameters to determine dynamic types to encode.
   const preparedParams = prepareParams({ params, values })
   return encodeParams(preparedParams)
 }
@@ -84,6 +88,7 @@ function prepareParam<TParam extends AbiParameter>({
 /////////////////////////////////////////////////////////////////
 
 function encodeParams(preparedParams: PreparedParam[]): Hex {
+  // 1. Compute the size of the static part of the parameters.
   let staticSize = 0
   for (let i = 0; i < preparedParams.length; i++) {
     const { dynamic, encoded } = preparedParams[i]
@@ -91,6 +96,7 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
     else staticSize += size(encoded)
   }
 
+  // 2. Split the parameters into static and dynamic parts.
   let staticParams: Hex[] = []
   let dynamicParams: Hex[] = []
   let dynamicSize = 0
@@ -105,6 +111,7 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
     }
   }
 
+  // 3. Concatenate static and dynamic parts.
   return concat([...staticParams, ...dynamicParams])
 }
 
