@@ -1,4 +1,11 @@
-import type { Abi, AbiFunction, AbiType, AbiTypeToPrimitiveType, AbiParametersToPrimitiveTypes, ExtractAbiFunction } from 'abitype'
+import type {
+  Abi,
+  AbiFunction,
+  AbiType,
+  AbiTypeToPrimitiveType,
+  AbiParametersToPrimitiveTypes,
+  ExtractAbiFunction,
+} from 'abitype'
 
 import type { Trim } from './utils'
 

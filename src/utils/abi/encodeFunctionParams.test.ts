@@ -16,9 +16,7 @@ test('foo()', () => {
       ] as const,
       functionName: 'foo',
     }),
-  ).toEqual(
-    '0xc2985578',
-  )
+  ).toEqual('0xc2985578')
   expect(
     encodeFunctionParams({
       // @ts-expect-error
@@ -32,9 +30,7 @@ test('foo()', () => {
       ] as const,
       functionName: 'foo',
     }),
-  ).toEqual(
-    '0xc2985578',
-  )
+  ).toEqual('0xc2985578')
 })
 
 test('bar(uint256)', () => {
