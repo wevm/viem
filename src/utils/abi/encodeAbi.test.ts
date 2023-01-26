@@ -10,6 +10,15 @@ import {
 } from './encodeAbi'
 
 describe('static', () => {
+  test('blank', () => {
+    expect(
+      encodeAbi({
+        params: [],
+        values: [],
+      }),
+    ).toBe(undefined)
+  })
+
   test('uint', () => {
     expect(
       encodeAbi({

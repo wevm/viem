@@ -37,6 +37,7 @@ export type {
 } from './rpc'
 
 export type {
+  ExtractArgsFromAbi,
   ExtractArgsFromEventDefinition,
   ExtractArgsFromFunctionDefinition,
 } from './solidity'

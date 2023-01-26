@@ -252,6 +252,7 @@ export {
   decodeRlp,
   encodeAbi,
   encodeBytes,
+  encodeFunctionParams,
   encodeHex,
   encodeRlp,
   getAddress,

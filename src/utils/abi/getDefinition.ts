@@ -12,7 +12,8 @@ export function getDefinition(description: AbiFunction | AbiEvent | AbiError) {
   return `${description.name}(${getParams(description.inputs)})`
 }
 
-function getParams(params: readonly AbiParameter[]): string {
+function getParams(params?: readonly AbiParameter[]): string {
+  if (!params) return ''
   return params.map(getParam).join(',')
 }
 
