@@ -2,26 +2,20 @@ import {
   AbiParameter,
   AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
-  AbiType,
 } from 'abitype'
 
 import { Hex } from '../../types'
+import { BaseError } from '../BaseError'
 import { checksumAddress } from '../address'
-import { slice, trim } from '../data'
-import {
-  hexToBigInt,
-  hexToBool,
-  hexToBytes,
-  hexToNumber,
-  hexToString,
-} from '../encoding'
+import { size, slice, trim } from '../data'
+import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
 import { getArrayComponents } from './encodeAbi'
 
 export function decodeAbi<TParams extends readonly AbiParameter[]>({
   data,
   params,
 }: { data: Hex; params: TParams }) {
-  if (data.length % 2 !== 0) throw new Error('Invalid hex string')
+  if (size(data) % 32 !== 0) throw new AbiDecodingDataSizeInvalidError(size(data))
   return decodeParams({
     data,
     params,
@@ -31,9 +25,8 @@ export function decodeAbi<TParams extends readonly AbiParameter[]>({
 ////////////////////////////////////////////////////////////////////
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
-type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
 
-export function decodeParams<TParams extends readonly AbiParameter[]>({
+function decodeParams<TParams extends readonly AbiParameter[]>({
   data,
   params,
 }: {
@@ -53,7 +46,7 @@ export function decodeParams<TParams extends readonly AbiParameter[]>({
   return decodedValues as unknown as AbiParametersToPrimitiveTypes<TParams>
 }
 
-export function decodeParam({
+function decodeParam({
   data,
   param,
   position,
@@ -90,7 +83,7 @@ export function decodeParam({
   if (param.type === 'bool') {
     return decodeBool(value)
   }
-  throw new Error('TODO')
+  throw new InvalidAbiDecodingTypeError(param.type)
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -98,12 +91,11 @@ export function decodeParam({
 function decodeTuple<
   TParam extends AbiParameter & { components: readonly AbiParameter[] },
 >(data: Hex, { param, position }: { param: TParam; position: number }) {
-  const hasUnnamedChild = param.components.some(({ name }) => !name)
+  const hasUnnamedChild =
+    param.components.length === 0 || param.components.some(({ name }) => !name)
 
   let value: any = hasUnnamedChild ? [] : {}
   let consumed = 0
-
-  if (!param.components) return { consumed, value }
 
   if (hasDynamicChild(param)) {
     const offset = hexToNumber(slice(data, position, position + 32))
@@ -158,7 +150,7 @@ function decodeBytes<TParam extends AbiParameter>(
   return { consumed: 32, value }
 }
 
-export function decodeArray<TParam extends AbiParameter>(
+function decodeArray<TParam extends AbiParameter>(
   data: Hex,
   {
     param,
@@ -247,7 +239,7 @@ function decodeNumber<TParam extends AbiParameter>(
   }
 }
 
-export function hasDynamicChild(param: AbiParameter) {
+function hasDynamicChild(param: AbiParameter) {
   const { type } = param
   if (type === 'string') return true
   if (type === 'bytes') return true
@@ -263,4 +255,32 @@ export function hasDynamicChild(param: AbiParameter) {
     return true
 
   return false
+}
+
+/////////////////////////////////////////////////////////////////
+// Errors
+
+export class AbiDecodingDataSizeInvalidError extends BaseError {
+  name = 'AbiDecodingDataSizeInvalidError'
+  constructor(size: number) {
+    super(
+      [
+        `Data size of ${size} bytes is invalid.`,
+        'Size must be in increments of 32 bytes (size % 32 === 0).',
+      ].join('\n'),
+    )
+  }
+}
+
+export class InvalidAbiDecodingTypeError extends BaseError {
+  name = 'InvalidAbiDecodingType'
+  constructor(type: string) {
+    super(
+      [
+        `Type "${type}" is not a valid decoding type.`,
+        'Please provide a valid ABI type.',
+      ].join('\n'),
+      { docsPath: '/docs/contract/decodeAbi#params' },
+    )
+  }
 }

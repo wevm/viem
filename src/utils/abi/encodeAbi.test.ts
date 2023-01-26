@@ -1,40 +1,25 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  Abi,
-  AbiFunction,
-  ExtractAbiFunction,
-  ExtractAbiFunctionNames,
-} from 'abitype'
-
-import { mixedAbi } from '../../../test'
-import { encodeAbi, getArrayComponents } from './encodeAbi'
-
-export function extractFunction<
-  TAbi extends Abi,
-  TName extends ExtractAbiFunctionNames<TAbi>,
->({
-  abi,
-  name,
-}: {
-  abi: TAbi
-  name: TName
-}): ExtractAbiFunction<TAbi, TName> {
-  return (abi.find(
-    (abi) => abi.type === 'function' && abi.name === name,
-  ) as AbiFunction & {
-    type: 'function'
-  })! as ExtractAbiFunction<TAbi, TName>
-}
+  AbiEncodingArrayLengthMismatchError,
+  AbiEncodingLengthMismatchError,
+  InvalidAbiEncodingTypeError,
+  InvalidArrayError,
+  encodeAbi,
+  getArrayComponents,
+} from './encodeAbi'
 
 describe('static', () => {
   test('uint', () => {
     expect(
       encodeAbi({
-        params: extractFunction({
-          abi: mixedAbi,
-          name: 'staticUint',
-        }).inputs,
+        params: [
+          {
+            internalType: 'uint256',
+            name: 'xIn',
+            type: 'uint256',
+          },
+        ],
         values: [69420n],
       }),
     ).toBe('0x0000000000000000000000000000000000000000000000000000000000010f2c')
@@ -44,10 +29,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUint8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint8',
+              name: 'xIn',
+              type: 'uint8',
+            },
+          ],
           values: [32],
         }),
       ).toBe(
@@ -58,18 +46,24 @@ describe('static', () => {
     test('invalid value', () => {
       try {
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUint8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint8',
+              name: 'xIn',
+              type: 'uint8',
+            },
+          ],
           // @ts-expect-error
           values: [69420n],
         })
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUint8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint8',
+              name: 'xIn',
+              type: 'uint8',
+            },
+          ],
           // @ts-expect-error
           values: ['lol'],
         })
@@ -81,10 +75,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUint32',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint32',
+              name: 'xIn',
+              type: 'uint32',
+            },
+          ],
           values: [69420],
         }),
       ).toBe(
@@ -95,18 +92,24 @@ describe('static', () => {
     test('invalid value', () => {
       try {
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUint32',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint32',
+              name: 'xIn',
+              type: 'uint32',
+            },
+          ],
           // @ts-expect-error
           values: [69420n],
         })
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUint32',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint32',
+              name: 'xIn',
+              type: 'uint32',
+            },
+          ],
           // @ts-expect-error
           values: ['lol'],
         })
@@ -118,10 +121,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int256',
+              name: 'xIn',
+              type: 'int256',
+            },
+          ],
           values: [69420n],
         }),
       ).toBe(
@@ -132,10 +138,13 @@ describe('static', () => {
     test('negative (twos compliment)', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int256',
+              name: 'xIn',
+              type: 'int256',
+            },
+          ],
           values: [-69420n],
         }),
       ).toBe(
@@ -148,10 +157,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int8',
+              name: 'xIn',
+              type: 'int8',
+            },
+          ],
           values: [127],
         }),
       ).toBe(
@@ -162,10 +174,13 @@ describe('static', () => {
     test('negative (twos compliment)', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int8',
+              name: 'xIn',
+              type: 'int8',
+            },
+          ],
           values: [-128],
         }),
       ).toBe(
@@ -176,18 +191,24 @@ describe('static', () => {
     test('invalid value', () => {
       try {
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int8',
+              name: 'xIn',
+              type: 'int8',
+            },
+          ],
           // @ts-expect-error
           values: [69420n],
         })
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int8',
+              name: 'xIn',
+              type: 'int8',
+            },
+          ],
           // @ts-expect-error
           values: ['lol'],
         })
@@ -199,10 +220,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt32',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int32',
+              name: 'xIn',
+              type: 'int32',
+            },
+          ],
           values: [2147483647],
         }),
       ).toBe(
@@ -213,10 +237,13 @@ describe('static', () => {
     test('negative (twos compliment)', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int8',
+              name: 'xIn',
+              type: 'int8',
+            },
+          ],
           values: [-2147483648],
         }),
       ).toBe(
@@ -227,18 +254,24 @@ describe('static', () => {
     test('invalid value', () => {
       try {
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt32',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int32',
+              name: 'xIn',
+              type: 'int32',
+            },
+          ],
           // @ts-expect-error
           values: [69420n],
         })
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticInt32',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int32',
+              name: 'xIn',
+              type: 'int32',
+            },
+          ],
           // @ts-expect-error
           values: ['lol'],
         })
@@ -250,10 +283,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticAddress',
-          }).inputs,
+          params: [
+            {
+              internalType: 'address',
+              name: 'xIn',
+              type: 'address',
+            },
+          ],
           values: ['0x14dC79964da2C08b23698B3D3cc7Ca32193d9955'],
         }),
       ).toBe(
@@ -266,10 +302,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBoolean',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bool',
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
           values: [true],
         }),
       ).toBe(
@@ -277,10 +316,13 @@ describe('static', () => {
       )
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBoolean',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bool',
+              name: 'xIn',
+              type: 'bool',
+            },
+          ],
           values: [false],
         }),
       ).toBe(
@@ -293,10 +335,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBytes8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bytes8',
+              name: 'xIn',
+              type: 'bytes8',
+            },
+          ],
           values: ['0x0123456789abcdef'],
         }),
       ).toBe(
@@ -307,10 +352,13 @@ describe('static', () => {
     test('overflow', () => {
       expect(() =>
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBytes8',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bytes8',
+              name: 'xIn',
+              type: 'bytes8',
+            },
+          ],
           values: [
             '0x0000000000000000000000000000000000000000000000000000000000000000000000000123456789abcdef',
           ],
@@ -327,10 +375,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBytes16',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bytes16',
+              name: 'xIn',
+              type: 'bytes16',
+            },
+          ],
           values: ['0x4206942069420'],
         }),
       ).toBe(
@@ -341,10 +392,13 @@ describe('static', () => {
     test('overflow', () => {
       expect(() =>
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBytes16',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bytes16',
+              name: 'xIn',
+              type: 'bytes16',
+            },
+          ],
           values: [
             '0x00000000000000000000000000000000000000000000000000000000000000420',
           ],
@@ -361,10 +415,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUintArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[3]',
+              name: 'xIn',
+              type: 'uint256[3]',
+            },
+          ],
           values: [[69420n, 42069n, 420420420n]],
         }),
       ).toMatchInlineSnapshot(
@@ -377,10 +434,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticIntArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'int256[3]',
+              name: 'xIn',
+              type: 'int256[3]',
+            },
+          ],
           values: [[69420n, -42069n, 420420420n]],
         }),
       ).toMatchInlineSnapshot(
@@ -393,10 +453,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticAddressArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'address[2]',
+              name: 'xIn',
+              type: 'address[2]',
+            },
+          ],
           values: [
             [
               '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
@@ -414,10 +477,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBooleanArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bool[2]',
+              name: 'xIn',
+              type: 'bool[2]',
+            },
+          ],
           values: [[true, false]],
         }),
       ).toMatchInlineSnapshot(
@@ -430,10 +496,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticBytes8Array',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bytes8[2]',
+              name: 'xIn',
+              type: 'bytes8[2]',
+            },
+          ],
           values: [['0x123', '0x111']],
         }),
       ).toMatchInlineSnapshot(
@@ -446,10 +515,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUintNestedArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[3][2]',
+              name: 'xIn',
+              type: 'uint256[3][2]',
+            },
+          ],
           values: [
             [
               [69420n, 42069n, 420420420n],
@@ -467,10 +539,13 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticUintNestedArray2',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[3][2][4]',
+              name: 'xIn',
+              type: 'uint256[3][2][4]',
+            },
+          ],
           values: [
             [
               [
@@ -503,10 +578,30 @@ describe('static', () => {
       expect(
         // cast abi-encode "a((uint256,bool,address))" "(420,true,0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC)"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticStruct',
-          }).inputs,
+          params: [
+            {
+              components: [
+                {
+                  internalType: 'uint256',
+                  name: 'x',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'address',
+                  name: 'z',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ABIExample.Foo',
+              name: 'fooIn',
+              type: 'tuple',
+            },
+          ],
           values: [
             {
               x: 420n,
@@ -560,10 +655,64 @@ describe('static', () => {
       expect(
         // cast abi-encode "a(((uint256,bool,address),(uint256,bool,address),uint8[2]))" "((420,true,0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC),(69,false,0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b),[1,2])"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'staticStruct2',
-          }).inputs,
+          params: [
+            {
+              components: [
+                {
+                  components: [
+                    {
+                      internalType: 'uint256',
+                      name: 'x',
+                      type: 'uint256',
+                    },
+                    {
+                      internalType: 'bool',
+                      name: 'y',
+                      type: 'bool',
+                    },
+                    {
+                      internalType: 'address',
+                      name: 'z',
+                      type: 'address',
+                    },
+                  ],
+                  internalType: 'struct ABIExample.Foo',
+                  name: 'foo',
+                  type: 'tuple',
+                },
+                {
+                  components: [
+                    {
+                      internalType: 'uint256',
+                      name: 'x',
+                      type: 'uint256',
+                    },
+                    {
+                      internalType: 'bool',
+                      name: 'y',
+                      type: 'bool',
+                    },
+                    {
+                      internalType: 'address',
+                      name: 'z',
+                      type: 'address',
+                    },
+                  ],
+                  internalType: 'struct ABIExample.Foo',
+                  name: 'baz',
+                  type: 'tuple',
+                },
+                {
+                  internalType: 'uint8[2]',
+                  name: 'x',
+                  type: 'uint8[2]',
+                },
+              ],
+              internalType: 'struct ABIExample.Bar',
+              name: 'barIn',
+              type: 'tuple',
+            },
+          ],
           values: [
             {
               foo: {
@@ -590,10 +739,11 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'uintArrayBoolStringArrayReturn',
-          }).outputs,
+          params: [
+            { internalType: 'uint256[2]', name: 'xOut', type: 'uint256[2]' },
+            { internalType: 'bool', name: 'yOut', type: 'bool' },
+            { internalType: 'string[3]', name: 'zOut', type: 'string[3]' },
+          ] as any,
           values: [[420n, 69n], true, ['wagmi', 'viem', 'lol']],
         }),
       ).toMatchInlineSnapshot(
@@ -606,10 +756,23 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'uintBoolAddress',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256',
+              name: 'xIn',
+              type: 'uint256',
+            },
+            {
+              internalType: 'bool',
+              name: 'yIn',
+              type: 'bool',
+            },
+            {
+              internalType: 'address',
+              name: 'zIn',
+              type: 'address',
+            },
+          ],
           values: [420n, true, '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b'],
         }),
       ).toMatchInlineSnapshot(
@@ -622,10 +785,23 @@ describe('static', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'uintBoolAddressReturnUnnamed',
-          }).outputs,
+          params: [
+            {
+              internalType: 'uint256',
+              name: '',
+              type: 'uint256',
+            },
+            {
+              internalType: 'bool',
+              name: '',
+              type: 'bool',
+            },
+            {
+              internalType: 'address',
+              name: '',
+              type: 'address',
+            },
+          ],
           values: [420n, true, '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b'],
         }),
       ).toMatchInlineSnapshot(
@@ -641,10 +817,13 @@ describe('dynamic', () => {
     test('default', () => {
       expect(
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicString',
-          }).outputs,
+          params: [
+            {
+              internalType: 'string',
+              name: 'xOut',
+              type: 'string',
+            },
+          ],
           values: ['wagmi'],
         }),
       ).toMatchInlineSnapshot(
@@ -658,10 +837,23 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(string,uint,bool)" "wagmi" 420 true
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'stringUintBool',
-          }).inputs,
+          params: [
+            {
+              internalType: 'string',
+              name: 'xIn',
+              type: 'string',
+            },
+            {
+              internalType: 'uint256',
+              name: 'yIn',
+              type: 'uint256',
+            },
+            {
+              internalType: 'bool',
+              name: 'zIn',
+              type: 'bool',
+            },
+          ],
           values: ['wagmi', 420n, true],
         }),
       ).toMatchInlineSnapshot(
@@ -675,10 +867,23 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[2],bool,string)" "[420,69]" true "wagmi"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'uintArrayBoolString',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[2]',
+              name: 'xIn',
+              type: 'uint256[2]',
+            },
+            {
+              internalType: 'bool',
+              name: 'yIn',
+              type: 'bool',
+            },
+            {
+              internalType: 'string',
+              name: 'zIn',
+              type: 'string',
+            },
+          ] as const,
           values: [[420n, 69n], true, 'wagmi'],
         }),
       ).toMatchInlineSnapshot(
@@ -692,10 +897,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(bytes)" "0x042069"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicBytes',
-          }).inputs,
+          params: [
+            {
+              internalType: 'bytes',
+              name: 'xIn',
+              type: 'bytes',
+            },
+          ],
           values: ['0x042069'],
         }),
       ).toMatchInlineSnapshot(
@@ -709,10 +917,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[])" "[420,69,22,55]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicUintArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[]',
+              name: 'xIn',
+              type: 'uint256[]',
+            },
+          ],
           values: [[420n, 69n, 22n, 55n]],
         }),
       ).toMatchInlineSnapshot(
@@ -724,10 +935,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[])" "[]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicUintArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[]',
+              name: 'xIn',
+              type: 'uint256[]',
+            },
+          ],
           values: [[]],
         }),
       ).toMatchInlineSnapshot(
@@ -741,10 +955,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[][])" "[[420,69]]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicUintNestedArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[][]',
+              name: 'xIn',
+              type: 'uint256[][]',
+            },
+          ],
           values: [[[420n, 69n]]],
         }),
       ).toMatchInlineSnapshot(
@@ -756,10 +973,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[][])" "[[]]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicUintNestedArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[][]',
+              name: 'xIn',
+              type: 'uint256[][]',
+            },
+          ],
           values: [[[]]],
         }),
       ).toMatchInlineSnapshot(
@@ -771,10 +991,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[][])" "[[420,69],[22,55,22],[51,52,66,11]]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicUintNestedArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[][]',
+              name: 'xIn',
+              type: 'uint256[][]',
+            },
+          ],
           values: [
             [
               [420n, 69n],
@@ -794,10 +1017,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(uint[][][])" "[[[420,69]]]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicUintNestedNestedArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'uint256[][][]',
+              name: 'xIn',
+              type: 'uint256[][][]',
+            },
+          ],
           values: [[[[420n, 69n]]]],
         }),
       ).toMatchInlineSnapshot(
@@ -811,10 +1037,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(string[2])" "["wagmi","viem"]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicStringStaticArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'string[2]',
+              name: 'xIn',
+              type: 'string[2]',
+            },
+          ],
           values: [['wagmi', 'viem']],
         }),
       ).toMatchInlineSnapshot(
@@ -828,10 +1057,13 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(string[2][3])" "[["wagmi","viem"],["jake","tom"],["lol","haha"]]"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicStringNestedStaticArray',
-          }).inputs,
+          params: [
+            {
+              internalType: 'string[2][3]',
+              name: 'xIn',
+              type: 'string[2][3]',
+            },
+          ],
           values: [
             [
               ['wagmi', 'viem'],
@@ -851,10 +1083,30 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a((uint256[],bool,string[]))" "([1,2,3,4],true,[hello,world])"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicStruct',
-          }).inputs,
+          params: [
+            {
+              components: [
+                {
+                  internalType: 'uint256[]',
+                  name: 'x',
+                  type: 'uint256[]',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'string[]',
+                  name: 'z',
+                  type: 'string[]',
+                },
+              ],
+              internalType: 'struct ABIExample.Baz',
+              name: 'bazIn',
+              type: 'tuple',
+            },
+          ],
           values: [
             {
               x: [1n, 2n, 3n, 4n],
@@ -874,10 +1126,47 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a(((uint256[],bool,string[]),uint256,string[]))" "(([1,2,3,4],true,[hello,world]),420,[wagmi,viem])"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicStruct2',
-          }).inputs,
+          params: [
+            {
+              components: [
+                {
+                  components: [
+                    {
+                      internalType: 'uint256[]',
+                      name: 'x',
+                      type: 'uint256[]',
+                    },
+                    {
+                      internalType: 'bool',
+                      name: 'y',
+                      type: 'bool',
+                    },
+                    {
+                      internalType: 'string[]',
+                      name: 'z',
+                      type: 'string[]',
+                    },
+                  ],
+                  internalType: 'struct ABIExample.Baz',
+                  name: 'foo',
+                  type: 'tuple',
+                },
+                {
+                  internalType: 'uint256',
+                  name: 'a',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'string[]',
+                  name: 'b',
+                  type: 'string[]',
+                },
+              ],
+              internalType: 'struct ABIExample.Wagmi',
+              name: 'wagmiIn',
+              type: 'tuple',
+            },
+          ],
           values: [
             {
               foo: {
@@ -901,10 +1190,125 @@ describe('dynamic', () => {
       expect(
         // cast abi-encode "a((uint256[],bool,string[]),(((uint256[],bool,string),uint256,string[]),((uint256[],bool,string),uint256,string[]),uint256,string[]))" "([1,2,3,4],true,[hello, world])" "((([420,69],true,[nice,haha]),420,[wagmi,allday]),(([420,420],true,[this,is,a,param]),69420,[hello,there]),4204202,[lol,haha])"
         encodeAbi({
-          params: extractFunction({
-            abi: mixedAbi,
-            name: 'dynamicStructParams',
-          }).inputs,
+          params: [
+            {
+              components: [
+                {
+                  internalType: 'uint256[]',
+                  name: 'x',
+                  type: 'uint256[]',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'string[]',
+                  name: 'z',
+                  type: 'string[]',
+                },
+              ],
+              internalType: 'struct ABIExample.Baz',
+              name: 'bazIn',
+              type: 'tuple',
+            },
+            {
+              components: [
+                {
+                  components: [
+                    {
+                      components: [
+                        {
+                          internalType: 'uint256[]',
+                          name: 'x',
+                          type: 'uint256[]',
+                        },
+                        {
+                          internalType: 'bool',
+                          name: 'y',
+                          type: 'bool',
+                        },
+                        {
+                          internalType: 'string[]',
+                          name: 'z',
+                          type: 'string[]',
+                        },
+                      ],
+                      internalType: 'struct ABIExample.Baz',
+                      name: 'foo',
+                      type: 'tuple',
+                    },
+                    {
+                      internalType: 'uint256',
+                      name: 'a',
+                      type: 'uint256',
+                    },
+                    {
+                      internalType: 'string[]',
+                      name: 'b',
+                      type: 'string[]',
+                    },
+                  ],
+                  internalType: 'struct ABIExample.Wagmi',
+                  name: 'foo',
+                  type: 'tuple',
+                },
+                {
+                  components: [
+                    {
+                      components: [
+                        {
+                          internalType: 'uint256[]',
+                          name: 'x',
+                          type: 'uint256[]',
+                        },
+                        {
+                          internalType: 'bool',
+                          name: 'y',
+                          type: 'bool',
+                        },
+                        {
+                          internalType: 'string[]',
+                          name: 'z',
+                          type: 'string[]',
+                        },
+                      ],
+                      internalType: 'struct ABIExample.Baz',
+                      name: 'foo',
+                      type: 'tuple',
+                    },
+                    {
+                      internalType: 'uint256',
+                      name: 'a',
+                      type: 'uint256',
+                    },
+                    {
+                      internalType: 'string[]',
+                      name: 'b',
+                      type: 'string[]',
+                    },
+                  ],
+                  internalType: 'struct ABIExample.Wagmi',
+                  name: 'bar',
+                  type: 'tuple',
+                },
+                {
+                  internalType: 'uint256',
+                  name: 'c',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'string[]',
+                  name: 'd',
+                  type: 'string[]',
+                },
+              ],
+              internalType: 'struct ABIExample.Gmi',
+              name: 'gmiIn',
+              type: 'tuple',
+            },
+          ],
           values: [
             {
               x: [1n, 2n, 3n, 4n],
@@ -1006,4 +1410,54 @@ test('getArrayComponents', () => {
   expect(getArrayComponents('uint256[]')).toEqual([null, 'uint256'])
   expect(getArrayComponents('uint256[][]')).toEqual([null, 'uint256[]'])
   expect(getArrayComponents('uint256')).toBeUndefined()
+})
+
+test('AbiEncodingArrayLengthMismatchError', () => {
+  expect(
+    new AbiEncodingArrayLengthMismatchError({
+      expectedLength: 69,
+      givenLength: 420,
+      type: 'uint256[3]',
+    }),
+  ).toMatchInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[3].
+    Expected length: 69
+    Given length: 420
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('AbiEncodingLengthMismatchError', () => {
+  expect(
+    new AbiEncodingLengthMismatchError({
+      expectedLength: 69,
+      givenLength: 420,
+    }),
+  ).toMatchInlineSnapshot(`
+    [AbiEncodingLengthMismatchError: ABI encoding params/values length mismatch.
+    Expected length (params): 69
+    Given length (values): 420
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidAbiEncodingTypeError', () => {
+  expect(new InvalidAbiEncodingTypeError('lol')).toMatchInlineSnapshot(`
+    [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
+    Please provide a valid ABI type.
+
+    Docs: https://viem.sh/docs/contract/encodeAbi#params
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidArrayError', () => {
+  expect(new InvalidArrayError('lol')).toMatchInlineSnapshot(`
+    [InvalidArrayError: Value "lol" is not a valid array.
+
+    Version: viem@1.0.2]
+  `)
 })

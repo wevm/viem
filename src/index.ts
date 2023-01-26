@@ -207,6 +207,7 @@ export type {
 } from './types'
 
 export type {
+  AbiDecodingDataSizeInvalidError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   GetContractAddressOptions,
@@ -216,6 +217,7 @@ export type {
   FormattedBlock,
   FormattedTransaction,
   FormattedTransactionRequest,
+  InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,
 } from './utils'
@@ -244,6 +246,7 @@ export {
   bytesToBigint,
   bytesToBool,
   bytesToNumber,
+  decodeAbi,
   decodeBytes,
   decodeHex,
   decodeRlp,

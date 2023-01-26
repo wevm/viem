@@ -1,41 +1,69 @@
-import {
-  Abi,
-  AbiFunction,
-  ExtractAbiFunction,
-  ExtractAbiFunctionNames,
-} from 'abitype'
 import { AbiCoder } from 'ethers/lib/utils'
-import { bench, describe, test } from 'vitest'
+import { bench, describe } from 'vitest'
 
-import { mixedAbi } from '../../../test'
 import { encodeAbi } from './encodeAbi'
-
-export function getFunctionInputs<
-  TAbi extends Abi,
-  TName extends ExtractAbiFunctionNames<TAbi>,
->({
-  abi,
-  name,
-}: {
-  abi: TAbi
-  name: TName
-}): ExtractAbiFunction<TAbi, TName>['inputs'] {
-  return (
-    abi.find(
-      (abi) => abi.type === 'function' && abi.name === name,
-    ) as AbiFunction & {
-      type: 'function'
-    }
-  )?.inputs!
-}
 
 describe('ABI Encode (static struct)', () => {
   bench('viem: `encodeAbi`', () => {
     encodeAbi({
-      params: getFunctionInputs({
-        abi: mixedAbi,
-        name: 'staticStruct2',
-      }),
+      params: [
+        {
+          components: [
+            {
+              components: [
+                {
+                  internalType: 'uint256',
+                  name: 'x',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'address',
+                  name: 'z',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ABIExample.Foo',
+              name: 'foo',
+              type: 'tuple',
+            },
+            {
+              components: [
+                {
+                  internalType: 'uint256',
+                  name: 'x',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'address',
+                  name: 'z',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ABIExample.Foo',
+              name: 'baz',
+              type: 'tuple',
+            },
+            {
+              internalType: 'uint8[2]',
+              name: 'x',
+              type: 'uint8[2]',
+            },
+          ],
+          internalType: 'struct ABIExample.Bar',
+          name: 'barOut',
+          type: 'tuple',
+        },
+      ],
       values: [
         {
           foo: {
@@ -57,10 +85,64 @@ describe('ABI Encode (static struct)', () => {
   bench('ethers: `AbiCoder.encode`', () => {
     const coder = new AbiCoder()
     coder.encode(
-      getFunctionInputs({
-        abi: mixedAbi,
-        name: 'staticStruct2',
-      }),
+      [
+        {
+          components: [
+            {
+              components: [
+                {
+                  internalType: 'uint256',
+                  name: 'x',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'address',
+                  name: 'z',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ABIExample.Foo',
+              name: 'foo',
+              type: 'tuple',
+            },
+            {
+              components: [
+                {
+                  internalType: 'uint256',
+                  name: 'x',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'bool',
+                  name: 'y',
+                  type: 'bool',
+                },
+                {
+                  internalType: 'address',
+                  name: 'z',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ABIExample.Foo',
+              name: 'baz',
+              type: 'tuple',
+            },
+            {
+              internalType: 'uint8[2]',
+              name: 'x',
+              type: 'uint8[2]',
+            },
+          ],
+          internalType: 'struct ABIExample.Bar',
+          name: 'barOut',
+          type: 'tuple',
+        },
+      ],
       [
         {
           foo: {

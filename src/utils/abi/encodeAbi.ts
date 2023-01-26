@@ -273,6 +273,7 @@ export class AbiEncodingLengthMismatchError extends BaseError {
     )
   }
 }
+
 export class InvalidAbiEncodingTypeError extends BaseError {
   name = 'InvalidAbiEncodingType'
   constructor(type: string) {
@@ -285,6 +286,7 @@ export class InvalidAbiEncodingTypeError extends BaseError {
     )
   }
 }
+
 export class InvalidArrayError extends BaseError {
   name = 'InvalidArrayError'
   constructor(value: unknown) {
