@@ -1,5 +1,5 @@
+import { SizeExceedsPaddingSizeError } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
-import { BaseError } from '../BaseError'
 
 type PadOptions = {
   dir?: 'left' | 'right'
@@ -50,26 +50,4 @@ export function padBytes(
       bytes[padEnd ? i : bytes.length - i - 1]
   }
   return paddedBytes
-}
-
-///////////////////////////////////////////////////////////////
-// Errors
-
-class SizeExceedsPaddingSizeError extends BaseError {
-  name = 'SizeExceedsPaddingSizeError'
-  constructor({
-    size,
-    targetSize,
-    type,
-  }: {
-    size: number
-    targetSize: number
-    type: 'hex' | 'bytes'
-  }) {
-    super(
-      `${type.charAt(0).toUpperCase()}${type
-        .slice(1)
-        .toLowerCase()} size (${size}) exceeds padding size (${targetSize}).`,
-    )
-  }
 }

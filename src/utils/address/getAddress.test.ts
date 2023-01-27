@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { InvalidAddressError, getAddress } from './getAddress'
+import { getAddress } from './getAddress'
 
 test('checksums address', () => {
   expect(
@@ -43,16 +43,4 @@ describe('errors', () => {
         Version: viem@1.0.2"
       `)
   })
-})
-
-test('InvalidAddressError', () => {
-  expect(
-    new InvalidAddressError({
-      address: '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az',
-    }),
-  ).toMatchInlineSnapshot(`
-    [InvalidAddressError: Address "0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az" is invalid.
-
-    Version: viem@1.0.2]
-  `)
 })

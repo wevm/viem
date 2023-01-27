@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import {
-  decodeAbi,
-  AbiDecodingDataSizeInvalidError,
-  InvalidAbiDecodingTypeError,
-} from './decodeAbi'
+import { decodeAbi } from './decodeAbi'
 
 describe('static', () => {
   test('uint', () => {
@@ -1580,25 +1576,5 @@ test('invalid type', () => {
     Docs: https://viem.sh/docs/contract/decodeAbi#params
 
     Version: viem@1.0.2"
-  `)
-})
-
-test('AbiDecodingDataSizeInvalidError', () => {
-  expect(new AbiDecodingDataSizeInvalidError(69)).toMatchInlineSnapshot(`
-    [AbiDecodingDataSizeInvalidError: Data size of 69 bytes is invalid.
-    Size must be in increments of 32 bytes (size % 32 === 0).
-
-    Version: viem@1.0.2]
-  `)
-})
-
-test('InvalidAbiDecodingTypeError', () => {
-  expect(new InvalidAbiDecodingTypeError('lol')).toMatchInlineSnapshot(`
-    [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
-    Please provide a valid ABI type.
-
-    Docs: https://viem.sh/docs/contract/decodeAbi#params
-
-    Version: viem@1.0.2]
   `)
 })

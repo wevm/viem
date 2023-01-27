@@ -1,5 +1,5 @@
 import { AbiError, AbiEvent, AbiFunction, AbiParameter } from 'abitype'
-import { BaseError } from '../BaseError'
+import { InvalidDefinitionTypeError } from '../../errors'
 
 export function getDefinition(description: AbiFunction | AbiEvent | AbiError) {
   if (
@@ -24,18 +24,4 @@ function getParam(param: AbiParameter): string {
     )})${param.type.slice('tuple'.length)}`
   }
   return param.type
-}
-
-class InvalidDefinitionTypeError extends BaseError {
-  constructor(type: string) {
-    super(
-      [
-        `"${type}" is not a valid definition type.`,
-        'Valid types: "function", "event", "error"',
-      ].join('\n'),
-      {
-        docsPath: '/docs/contract/getDefinition',
-      },
-    )
-  }
 }

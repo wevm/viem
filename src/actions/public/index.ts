@@ -84,7 +84,6 @@ export type {
   WaitForTransactionReceiptResponse,
   ReplacementReason,
   ReplacementResponse,
-  WaitForTransactionReceiptTimeoutError,
 } from './waitForTransactionReceipt'
 
 export { watchBlockNumber } from './watchBlockNumber'

@@ -4,8 +4,11 @@ import {
   AbiParameterToPrimitiveType,
 } from 'abitype'
 
+import {
+  AbiDecodingDataSizeInvalidError,
+  InvalidAbiDecodingTypeError,
+} from '../../errors'
 import { Hex } from '../../types'
-import { BaseError } from '../BaseError'
 import { checksumAddress } from '../address'
 import { size, slice, trim } from '../data'
 import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
@@ -279,32 +282,4 @@ function hasDynamicChild(param: AbiParameter) {
     return true
 
   return false
-}
-
-/////////////////////////////////////////////////////////////////
-// Errors
-
-export class AbiDecodingDataSizeInvalidError extends BaseError {
-  name = 'AbiDecodingDataSizeInvalidError'
-  constructor(size: number) {
-    super(
-      [
-        `Data size of ${size} bytes is invalid.`,
-        'Size must be in increments of 32 bytes (size % 32 === 0).',
-      ].join('\n'),
-    )
-  }
-}
-
-export class InvalidAbiDecodingTypeError extends BaseError {
-  name = 'InvalidAbiDecodingType'
-  constructor(type: string) {
-    super(
-      [
-        `Type "${type}" is not a valid decoding type.`,
-        'Please provide a valid ABI type.',
-      ].join('\n'),
-      { docsPath: '/docs/contract/decodeAbi#params' },
-    )
-  }
 }

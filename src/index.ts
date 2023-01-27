@@ -153,7 +153,6 @@ export type {
   WebSocketTransportConfig,
 } from './clients'
 export {
-  UrlRequiredError,
   createClient,
   createPublicClient,
   createTestClient,
@@ -166,6 +165,51 @@ export {
 } from './clients'
 
 export { etherUnits, gweiUnits, transactionType, weiUnits } from './constants'
+
+export {
+  AbiDecodingDataSizeInvalidError,
+  AbiEncodingArrayLengthMismatchError,
+  AbiEncodingLengthMismatchError,
+  AbiFunctionNotFoundError,
+  BaseError,
+  BlockNotFoundError,
+  DataLengthTooLongError,
+  DataLengthTooShortError,
+  HttpRequestError,
+  InternalRpcError,
+  InvalidAbiDecodingTypeError,
+  InvalidAbiEncodingTypeError,
+  InvalidAddressError,
+  InvalidArrayError,
+  InvalidBytesBooleanError,
+  InvalidDefinitionTypeError,
+  InvalidGasArgumentsError,
+  InvalidHexBooleanError,
+  InvalidHexValueError,
+  InvalidInputRpcError,
+  InvalidParamsRpcError,
+  InvalidRequestRpcError,
+  JsonRpcVersionUnsupportedError,
+  LimitExceededRpcError,
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+  OffsetOutOfBoundsError,
+  ParseRpcError,
+  RequestError,
+  ResourceNotFoundRpcError,
+  ResourceUnavailableRpcError,
+  RpcError,
+  RpcRequestError,
+  SizeExceedsPaddingSizeError,
+  TimeoutError,
+  TransactionNotFoundError,
+  TransactionReceiptNotFoundError,
+  TransactionRejectedRpcError,
+  UnknownRpcError,
+  UrlRequiredError,
+  WaitForTransactionReceiptTimeoutError,
+  WebSocketRequestError,
+} from './errors'
 
 export type {
   Address,
@@ -207,9 +251,6 @@ export type {
 } from './types'
 
 export type {
-  AbiDecodingDataSizeInvalidError,
-  AbiEncodingArrayLengthMismatchError,
-  AbiEncodingLengthMismatchError,
   GetContractAddressOptions,
   GetCreateAddressOptions,
   GetCreate2AddressOptions,
@@ -217,28 +258,8 @@ export type {
   FormattedBlock,
   FormattedTransaction,
   FormattedTransactionRequest,
-  InvalidAbiDecodingTypeError,
-  InvalidAbiEncodingTypeError,
-  InvalidArrayError,
 } from './utils'
 export {
-  BaseError,
-  HttpRequestError,
-  InternalRpcError,
-  InvalidInputRpcError,
-  InvalidParamsRpcError,
-  InvalidRequestRpcError,
-  JsonRpcVersionUnsupportedError,
-  LimitExceededRpcError,
-  MethodNotFoundRpcError,
-  MethodNotSupportedRpcError,
-  ParseRpcError,
-  ResourceNotFoundRpcError,
-  ResourceUnavailableRpcError,
-  RpcError,
-  RpcRequestError,
-  TimeoutError,
-  TransactionRejectedRpcError,
   bytesToHex,
   bytesToString,
   boolToBytes,

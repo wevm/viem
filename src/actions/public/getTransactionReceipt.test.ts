@@ -8,12 +8,9 @@ import { parseEther, parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
 import { mine } from '../test'
 import { getBlock, sendTransaction } from '..'
-import { getTransaction } from './getTransaction'
 
-import {
-  TransactionReceiptNotFoundError,
-  getTransactionReceipt,
-} from './getTransactionReceipt'
+import { getTransaction } from './getTransaction'
+import { getTransactionReceipt } from './getTransactionReceipt'
 
 test('gets transaction receipt', async () => {
   const receipt = await getTransactionReceipt(publicClient, {
@@ -213,18 +210,6 @@ test('throws if transaction not found', async () => {
       hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found. The Transaction may not be processed on a block yet.
-
-    Version: viem@1.0.2"
-  `)
-})
-
-test('TransactionReceiptNotFoundError', () => {
-  const error = new TransactionReceiptNotFoundError({
-    hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
-  })
-
-  expect(error.message).toMatchInlineSnapshot(`
     "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found. The Transaction may not be processed on a block yet.
 
     Version: viem@1.0.2"

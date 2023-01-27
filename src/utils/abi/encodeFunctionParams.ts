@@ -1,7 +1,7 @@
 import { Abi, ExtractAbiFunctionNames } from 'abitype'
 
+import { AbiFunctionNotFoundError } from '../../errors'
 import { ExtractArgsFromAbi } from '../../types'
-import { BaseError } from '../BaseError'
 import { concatHex } from '../data'
 import { getFunctionSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
@@ -30,18 +30,4 @@ export function encodeFunctionParams<
         })
       : undefined
   return concatHex([signature, data ?? '0x'])
-}
-
-class AbiFunctionNotFoundError extends BaseError {
-  constructor(functionName: string) {
-    super(
-      [
-        `Function "${functionName}" not found on ABI.`,
-        'Make sure you are using the correct ABI and that the function exists on it.',
-      ].join('\n'),
-      {
-        docsPath: '/docs/contract/encodeFunctionParams',
-      },
-    )
-  }
 }

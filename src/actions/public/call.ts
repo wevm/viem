@@ -8,7 +8,7 @@ import type {
 } from '../../types'
 import type { Formatted, TransactionRequestFormatter } from '../../utils'
 import { format, formatTransactionRequest, numberToHex } from '../../utils'
-import { InvalidGasArgumentsError } from '../wallet'
+import { InvalidGasArgumentsError } from '../../errors'
 
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,

@@ -1,8 +1,6 @@
 export { createTransport } from './createTransport'
 export type { Transport, TransportConfig } from './createTransport'
 
-export { UrlRequiredError } from './errors'
-
 export { custom } from './custom'
 export type {
   CustomTransport,

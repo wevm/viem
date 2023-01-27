@@ -10,7 +10,7 @@ export { requestAccounts } from './requestAccounts'
 export { requestPermissions } from './requestPermissions'
 export type { RequestPermissionsResponse } from './requestPermissions'
 
-export { InvalidGasArgumentsError, sendTransaction } from './sendTransaction'
+export { sendTransaction } from './sendTransaction'
 export type {
   FormattedTransactionRequest,
   SendTransactionArgs,

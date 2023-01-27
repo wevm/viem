@@ -6,7 +6,7 @@ import { hexToNumber, numberToHex, parseEther, parseGwei } from '../../utils'
 import { getBalance, getBlock } from '..'
 import { mine, setBalance } from '../test'
 
-import { InvalidGasArgumentsError, sendTransaction } from './sendTransaction'
+import { sendTransaction } from './sendTransaction'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -437,12 +437,4 @@ test('insufficient funds: errors when user is out of funds', async () => {
       value: parseEther('100000'),
     }),
   ).rejects.toThrow('Insufficient funds for gas * price + value')
-})
-
-test('InvalidGasArgumentsError', () => {
-  expect(new InvalidGasArgumentsError()).toMatchInlineSnapshot(`
-    [InvalidGasArgumentsError: \`maxFeePerGas\` cannot be less than \`maxPriorityFeePerGas\`
-
-    Version: viem@1.0.2]
-  `)
 })

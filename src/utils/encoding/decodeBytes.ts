@@ -1,5 +1,5 @@
+import { InvalidBytesBooleanError } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
-import { BaseError } from '../BaseError'
 import { hexToBigInt, hexToNumber } from './decodeHex'
 import { bytesToHex } from './encodeHex'
 
@@ -60,16 +60,4 @@ export function bytesToNumber(bytes: ByteArray): number {
  */
 export function bytesToString(bytes: ByteArray): string {
   return new TextDecoder().decode(bytes)
-}
-
-////////////////////////////////////////////////////////////
-// Errors
-
-class InvalidBytesBooleanError extends BaseError {
-  name = 'InvalidBytesBooleanError'
-  constructor(bytes: ByteArray) {
-    super(
-      `Bytes value "${bytes}" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.`,
-    )
-  }
 }

@@ -3,7 +3,7 @@ import { bench, describe } from 'vitest'
 
 import { encodeAbi } from './encodeAbi'
 
-describe('ABI Encode (static struct)', () => {
+describe('ABI Encode', () => {
   bench('viem: `encodeAbi`', () => {
     encodeAbi({
       params: [

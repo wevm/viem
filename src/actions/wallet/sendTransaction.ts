@@ -1,12 +1,13 @@
 import type { Chain, Formatter } from '../../chains'
 import type { WalletClient } from '../../clients'
+import { InvalidGasArgumentsError } from '../../errors'
 import type {
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
 import type { Formatted, TransactionRequestFormatter } from '../../utils'
-import { BaseError, format, formatTransactionRequest } from '../../utils'
+import { format, formatTransactionRequest } from '../../utils'
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
@@ -73,11 +74,4 @@ export async function sendTransaction<TChain extends Chain>(
     params: [request_],
   })
   return hash
-}
-
-export class InvalidGasArgumentsError extends BaseError {
-  name = 'InvalidGasArgumentsError'
-  constructor() {
-    super('`maxFeePerGas` cannot be less than `maxPriorityFeePerGas`')
-  }
 }

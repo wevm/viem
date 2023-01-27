@@ -1,9 +1,9 @@
+import { UrlRequiredError } from '../../errors'
 import type { Hash } from '../../types'
 import type { RpcResponse } from '../../utils/rpc'
 import { getSocket, rpc } from '../../utils/rpc'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
-import { UrlRequiredError } from './errors'
 
 type WebSocketTransportSubscribeArgs = {
   onData: (data: RpcResponse) => void

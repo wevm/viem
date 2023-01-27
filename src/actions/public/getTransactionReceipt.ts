@@ -1,7 +1,8 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
+import { TransactionReceiptNotFoundError } from '../../errors'
 import type { Hash } from '../../types'
-import { BaseError, format } from '../../utils'
+import { format } from '../../utils'
 import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
@@ -31,12 +32,4 @@ export async function getTransactionReceipt<TChain extends Chain>(
     formatter:
       client.chain?.formatters?.transactionReceipt || formatTransactionReceipt,
   }) as GetTransactionReceiptResponse<TChain>
-}
-export class TransactionReceiptNotFoundError extends BaseError {
-  name = 'TransactionReceiptNotFoundError'
-  constructor({ hash }: { hash: Hash }) {
-    super(
-      `Transaction receipt with hash "${hash}" could not be found. The Transaction may not be processed on a block yet.`,
-    )
-  }
 }

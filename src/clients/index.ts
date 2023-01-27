@@ -1,5 +1,4 @@
 export {
-  UrlRequiredError,
   createTransport,
   custom,
   fallback,

@@ -1,6 +1,7 @@
 import type { WalletClient } from '../../clients'
+import { BaseError } from '../../errors'
 import type { Address, ByteArray, Hex } from '../../types'
-import { BaseError, encodeHex } from '../../utils'
+import { encodeHex } from '../../utils'
 
 export type SignMessageArgs = {
   from: Address

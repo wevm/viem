@@ -1,11 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { WaitForTransactionReceiptTimeoutError } from '../../errors'
 import { wait } from '../../utils/wait'
-import {
-  WaitForTransactionReceiptTimeoutError,
-  waitForTransactionReceipt,
-} from './waitForTransactionReceipt'
+import { waitForTransactionReceipt } from './waitForTransactionReceipt'
 import { hexToNumber, parseEther, parseGwei } from '../../utils'
 import { sendTransaction } from '..'
 import { mine, setIntervalMining } from '../test'
@@ -321,10 +319,4 @@ describe('errors', () => {
       Version: viem@1.0.2"
     `)
   })
-})
-
-test('WaitForTransactionReceiptTimeoutError', () => {
-  expect(() => {
-    throw new WaitForTransactionReceiptTimeoutError({ hash: '0x123' })
-  }).toThrowError(WaitForTransactionReceiptTimeoutError)
 })

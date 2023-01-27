@@ -5,7 +5,6 @@ import * as clients from './index'
 test('exports clients', () => {
   expect(clients).toMatchInlineSnapshot(`
     {
-      "UrlRequiredError": [Function],
       "createClient": [Function],
       "createPublicClient": [Function],
       "createTestClient": [Function],

@@ -4,7 +4,7 @@ import { initialBlockNumber, publicClient } from '../../../test'
 import { celo } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { Block, Hex } from '../../types'
-import { BlockNotFoundError, getBlock } from './getBlock'
+import { getBlock } from './getBlock'
 
 test('gets latest block', async () => {
   const block = await getBlock(publicClient)
@@ -574,24 +574,3 @@ test('non-existent block: throws if block hash does not exist', async () => {
   `)
 })
 
-test('BlockNotFoundError', () => {
-  expect(
-    new BlockNotFoundError({ blockNumber: 69420n }),
-  ).toMatchInlineSnapshot(`
-      [BlockNotFoundError: Block at number "69420" could not be found.
-
-      Version: viem@1.0.2]
-    `)
-  expect(
-    new BlockNotFoundError({ blockHash: '0x69420' }),
-  ).toMatchInlineSnapshot(`
-      [BlockNotFoundError: Block at hash "0x69420" could not be found.
-
-      Version: viem@1.0.2]
-    `)
-  expect(new BlockNotFoundError({})).toMatchInlineSnapshot(`
-    [BlockNotFoundError: Block could not be found.
-
-    Version: viem@1.0.2]
-  `)
-})

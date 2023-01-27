@@ -1,11 +1,3 @@
-export type {
-  AbiDecodingDataSizeInvalidError,
-  AbiEncodingArrayLengthMismatchError,
-  AbiEncodingLengthMismatchError,
-  InvalidAbiEncodingTypeError,
-  InvalidAbiDecodingTypeError,
-  InvalidArrayError,
-} from './abi'
 export { decodeAbi, encodeAbi, encodeFunctionParams } from './abi'
 
 export type {
@@ -22,24 +14,7 @@ export {
   isAddressEqual,
 } from './address'
 
-export { BaseError } from './BaseError'
-
-export {
-  buildRequest,
-  InternalRpcError,
-  InvalidInputRpcError,
-  InvalidParamsRpcError,
-  InvalidRequestRpcError,
-  JsonRpcVersionUnsupportedError,
-  LimitExceededRpcError,
-  MethodNotFoundRpcError,
-  MethodNotSupportedRpcError,
-  ParseRpcError,
-  ResourceNotFoundRpcError,
-  ResourceUnavailableRpcError,
-  RpcRequestError,
-  TransactionRejectedRpcError,
-} from './buildRequest'
+export { buildRequest } from './buildRequest'
 
 export {
   isBytes,
@@ -101,7 +76,7 @@ export {
 
 export { getEventSignature, getFunctionSignature, keccak256 } from './hash'
 
-export { HttpRequestError, RpcError, TimeoutError, rpc } from './rpc'
+export { rpc } from './rpc'
 
 export {
   extractFunctionName,

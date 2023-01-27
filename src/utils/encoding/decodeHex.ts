@@ -1,5 +1,5 @@
+import { InvalidHexBooleanError } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
-import { BaseError } from '../BaseError'
 import { trim } from '../data'
 import { hexToBytes } from './encodeBytes'
 
@@ -73,16 +73,4 @@ export function hexToNumber(hex: Hex, opts: NumberToHexOpts = {}): number {
 export function hexToString(hex: Hex): string {
   const bytes = hexToBytes(hex)
   return new TextDecoder().decode(bytes)
-}
-
-////////////////////////////////////////////////////////////
-// Errors
-
-class InvalidHexBooleanError extends BaseError {
-  name = 'InvalidHexBooleanError'
-  constructor(hex: Hex) {
-    super(
-      `Hex value "${hex}" is not a valid boolean. The hex value must be "0x0" (false) or "0x1" (true).`,
-    )
-  }
 }

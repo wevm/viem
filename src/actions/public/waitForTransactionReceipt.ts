@@ -1,16 +1,18 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
+import {
+  TransactionNotFoundError,
+  TransactionReceiptNotFoundError,
+  WaitForTransactionReceiptTimeoutError,
+} from '../../errors'
 import type { Hash, Transaction } from '../../types'
-import { BaseError } from '../../utils'
 import { observe } from '../../utils/observe'
 import { getBlock, watchBlockNumber } from '../public'
+
 import type { GetTransactionResponse } from './getTransaction'
-import { TransactionNotFoundError, getTransaction } from './getTransaction'
+import { getTransaction } from './getTransaction'
 import type { GetTransactionReceiptResponse } from './getTransactionReceipt'
-import {
-  TransactionReceiptNotFoundError,
-  getTransactionReceipt,
-} from './getTransactionReceipt'
+import { getTransactionReceipt } from './getTransactionReceipt'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementResponse<TChain extends Chain = Chain> = {
@@ -166,13 +168,4 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
       },
     )
   })
-}
-
-export class WaitForTransactionReceiptTimeoutError extends BaseError {
-  name = 'WaitForTransactionReceiptTimeoutError'
-  constructor({ hash }: { hash: Hash }) {
-    super(
-      `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
-    )
-  }
 }

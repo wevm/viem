@@ -1,7 +1,7 @@
+import { UrlRequiredError } from '../../errors'
 import { rpc } from '../../utils/rpc'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
-import { UrlRequiredError } from './errors'
 
 export type HttpTransportConfig = {
   /** The key of the HTTP transport. */

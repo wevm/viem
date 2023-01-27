@@ -12,7 +12,7 @@ import type { Address, Transaction } from '../../types'
 import { createPublicClient, http } from '../../clients'
 import { celo } from '../../chains'
 import { getBlock, sendTransaction } from '..'
-import { TransactionNotFoundError, getTransaction } from './getTransaction'
+import { getTransaction } from './getTransaction'
 import { mine, setBalance } from '../test'
 
 const sourceAccount = accounts[0]
@@ -308,54 +308,4 @@ describe('args: blockTag', () => {
     })
     expect(transaction).toBeDefined()
   }, 10000)
-})
-
-describe('TransactionNotFoundError', () => {
-  test('no args', async () => {
-    expect(new TransactionNotFoundError({})).toMatchInlineSnapshot(`
-      [TransactionNotFoundError: Transaction could not be found.
-
-      Version: viem@1.0.2]
-    `)
-  })
-
-  test('blockHash', async () => {
-    expect(
-      new TransactionNotFoundError({ blockHash: '0x123', index: 420 }),
-    ).toMatchInlineSnapshot(`
-        [TransactionNotFoundError: Transaction at block hash "0x123" at index "420" could not be found.
-
-        Version: viem@1.0.2]
-      `)
-  })
-
-  test('blockTag', async () => {
-    expect(
-      new TransactionNotFoundError({ blockTag: 'latest', index: 420 }),
-    ).toMatchInlineSnapshot(`
-        [TransactionNotFoundError: Transaction at block time "latest" at index "420" could not be found.
-
-        Version: viem@1.0.2]
-      `)
-  })
-
-  test('blockNumber', async () => {
-    expect(
-      new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }),
-    ).toMatchInlineSnapshot(`
-        [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
-
-        Version: viem@1.0.2]
-      `)
-  })
-
-  test('hash', async () => {
-    expect(
-      new TransactionNotFoundError({ hash: '0x123' }),
-    ).toMatchInlineSnapshot(`
-        [TransactionNotFoundError: Transaction with hash "0x123" could not be found.
-
-        Version: viem@1.0.2]
-      `)
-  })
 })

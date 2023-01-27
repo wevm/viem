@@ -65,7 +65,6 @@ export type {
   UninstallFilterResponse,
   WaitForTransactionReceiptArgs,
   WaitForTransactionReceiptResponse,
-  WaitForTransactionReceiptTimeoutError,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
   WatchPendingTransactionsArgs,
@@ -137,7 +136,6 @@ export {
 export type {
   FormattedTransactionRequest,
   GetPermissionsResponse,
-  InvalidGasArgumentsError,
   RequestPermissionsResponse,
   SendTransactionArgs,
   SendTransactionResponse,

@@ -1,5 +1,5 @@
+import { InvalidAddressError } from '../../errors'
 import type { Address } from '../../types'
-import { BaseError } from '../BaseError'
 import { stringToBytes } from '../encoding'
 import { keccak256 } from '../hash'
 
@@ -25,11 +25,4 @@ export function checksumAddress(address_: Address): Address {
 export function getAddress(address: Address) {
   if (!addressRegex.test(address)) throw new InvalidAddressError({ address })
   return checksumAddress(address)
-}
-
-export class InvalidAddressError extends BaseError {
-  name = 'InvalidAddressError'
-  constructor({ address }: { address: Address }) {
-    super(`Address "${address}" is invalid.`)
-  }
 }

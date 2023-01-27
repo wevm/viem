@@ -1,8 +1,9 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
+import { BlockNotFoundError } from '../../errors'
 import type { BlockTag, Hash, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
-import { BaseError, format, formatBlock, numberToHex } from '../../utils'
+import { format, formatBlock, numberToHex } from '../../utils'
 
 export type GetBlockArgs = {
   /** Whether or not to include transaction data in the response. */
@@ -62,23 +63,4 @@ export async function getBlock<TChain extends Chain>(
   return format(block, {
     formatter: client.chain?.formatters?.block || formatBlock,
   })
-}
-
-///////////////////////////////////////////////////////
-// Errors
-
-export class BlockNotFoundError extends BaseError {
-  name = 'BlockNotFoundError'
-  constructor({
-    blockHash,
-    blockNumber,
-  }: {
-    blockHash?: Hash
-    blockNumber?: bigint
-  }) {
-    let identifier = 'Block'
-    if (blockHash) identifier = `Block at hash "${blockHash}"`
-    if (blockNumber) identifier = `Block at number "${blockNumber}"`
-    super(`${identifier} could not be found.`)
-  }
 }

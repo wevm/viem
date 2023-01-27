@@ -1,7 +1,8 @@
 import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
+import { TransactionNotFoundError } from '../../errors'
 import type { BlockTag, Hash, RpcTransaction } from '../../types'
-import { BaseError, format, numberToHex } from '../../utils'
+import { format, numberToHex } from '../../utils'
 import type {
   FormattedTransaction,
   TransactionFormatter,
@@ -92,34 +93,4 @@ export async function getTransaction<TChain extends Chain>(
   return format(transaction, {
     formatter: client.chain?.formatters?.transaction || formatTransaction,
   })
-}
-
-///////////////////////////////////////////////////////
-// Errors
-
-export class TransactionNotFoundError extends BaseError {
-  name = 'TransactionNotFoundError'
-  constructor({
-    blockHash,
-    blockNumber,
-    blockTag,
-    hash,
-    index,
-  }: {
-    blockHash?: Hash
-    blockNumber?: bigint
-    blockTag?: BlockTag
-    hash?: Hash
-    index?: number
-  }) {
-    let identifier = 'Transaction'
-    if (blockTag && index !== undefined)
-      identifier = `Transaction at block time "${blockTag}" at index "${index}"`
-    if (blockHash && index !== undefined)
-      identifier = `Transaction at block hash "${blockHash}" at index "${index}"`
-    if (blockNumber && index !== undefined)
-      identifier = `Transaction at block number "${blockNumber}" at index "${index}"`
-    if (hash) identifier = `Transaction with hash "${hash}"`
-    super(`${identifier} could not be found.`)
-  }
 }
