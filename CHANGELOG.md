@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.4
+
+### Patch Changes
+
+- [`f2e6bb1`](https://github.com/wagmi-dev/viem/commit/f2e6bb1fee06ccd51c7b3a22accd01259daece0f) Thanks [@jxom](https://github.com/jxom)! - Added `decodeFunctionResult`.
+
 ## 0.0.1-alpha.3
 
 ### Patch Changes
