@@ -270,6 +270,7 @@ export {
   decodeAbi,
   decodeBytes,
   decodeFunctionData,
+  decodeFunctionResult,
   decodeHex,
   decodeRlp,
   encodeAbi,

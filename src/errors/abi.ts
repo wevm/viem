@@ -61,6 +61,22 @@ export class AbiFunctionNotFoundError extends BaseError {
   }
 }
 
+export class AbiFunctionOutputsNotFoundError extends BaseError {
+  name = 'AbiFunctionOutputsNotFoundError'
+  constructor(functionName: string) {
+    super(
+      [
+        `Function "${functionName}" does not contain any \`outputs\` on ABI.`,
+        'Cannot decode function result without knowing what the parameter types are.',
+        'Make sure you are using the correct ABI and that the function exists on it.',
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/decodeFunctionResult',
+      },
+    )
+  }
+}
+
 export class AbiFunctionSignatureNotFoundError extends BaseError {
   name = 'AbiFunctionSignatureNotFoundError'
   constructor(signature: Hex) {

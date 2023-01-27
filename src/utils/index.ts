@@ -1,6 +1,7 @@
 export {
   decodeAbi,
   decodeFunctionData,
+  decodeFunctionResult,
   encodeAbi,
   encodeFunctionData,
 } from './abi'

@@ -450,7 +450,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeFunctionData',
             },
             {
-              text: 'decodeFunctionResult 🚧',
+              text: 'decodeFunctionResult',
               link: '/docs/contract/decodeFunctionResult',
             },
             {

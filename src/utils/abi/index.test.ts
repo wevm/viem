@@ -7,6 +7,7 @@ test('exports utils', () => {
     {
       "decodeAbi": [Function],
       "decodeFunctionData": [Function],
+      "decodeFunctionResult": [Function],
       "encodeAbi": [Function],
       "encodeFunctionData": [Function],
     }
