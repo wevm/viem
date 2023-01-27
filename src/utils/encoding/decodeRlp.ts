@@ -1,4 +1,9 @@
-import { DataLengthTooLongError, DataLengthTooShortError, InvalidHexValueError, OffsetOutOfBoundsError } from '../../errors'
+import {
+  DataLengthTooLongError,
+  DataLengthTooShortError,
+  InvalidHexValueError,
+  OffsetOutOfBoundsError,
+} from '../../errors'
 import type { ByteArray, Hex } from '../../types'
 import { trim } from '../data'
 import { bytesToNumber } from './decodeBytes'

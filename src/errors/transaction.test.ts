@@ -1,5 +1,10 @@
-import { describe, expect, test } from "vitest"
-import { InvalidGasArgumentsError, TransactionNotFoundError, TransactionReceiptNotFoundError, WaitForTransactionReceiptTimeoutError } from "./transaction"
+import { describe, expect, test } from 'vitest'
+import {
+  InvalidGasArgumentsError,
+  TransactionNotFoundError,
+  TransactionReceiptNotFoundError,
+  WaitForTransactionReceiptTimeoutError,
+} from './transaction'
 
 describe('TransactionNotFoundError', () => {
   test('no args', async () => {

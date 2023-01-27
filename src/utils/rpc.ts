@@ -1,4 +1,9 @@
-import { HttpRequestError, RpcError, TimeoutError, WebSocketRequestError } from '../errors'
+import {
+  HttpRequestError,
+  RpcError,
+  TimeoutError,
+  WebSocketRequestError,
+} from '../errors'
 import { withRetry } from './promise'
 import { withTimeout } from './promise/withTimeout'
 

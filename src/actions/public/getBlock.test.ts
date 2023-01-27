@@ -573,4 +573,3 @@ test('non-existent block: throws if block hash does not exist', async () => {
     Version: viem@1.0.2]
   `)
 })
-
