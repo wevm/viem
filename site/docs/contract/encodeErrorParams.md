@@ -1,3 +1,0 @@
-# encodeErrorParams
-
-TODO

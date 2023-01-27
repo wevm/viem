@@ -1,11 +1,11 @@
-# encodeFunctionParams
+# encodeFunctionData
 
 Encodes the function name and parameters into an ABI encoded value (4byte selector & arguments).
 
 ## Install
 
 ```ts
-import { encodeFunctionParams } from 'viem'
+import { encodeFunctionData } from 'viem'
 ```
 
 ## Usage
@@ -15,9 +15,9 @@ Below is a very basic example of how to encode a function to calldata.
 ::: code-group
 
 ```ts [example.ts]
-import { encodeFunctionParams } from 'viem'
+import { encodeFunctionData } from 'viem'
 
-const data = encodeFunctionParams({
+const data = encodeFunctionData({
   abi: wagmiAbi,
   functionName: 'totalSupply'
 })
@@ -60,11 +60,11 @@ For example, the `balanceOf` function name below requires an **address** argumen
 ::: code-group
 
 ```ts {8} [example.ts]
-import { encodeFunctionParams } from 'viem'
+import { encodeFunctionData } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const data = encodeFunctionParams({
+const data = encodeFunctionData({
   abi: wagmiAbi,
   functionName: 'balanceOf',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
@@ -112,7 +112,7 @@ ABI encoded data (4byte function selector & arguments).
 The contract's ABI.
 
 ```ts
-const data = encodeFunctionParams({
+const data = encodeFunctionData({
   abi: wagmiAbi, // [!code focus]
   functionName: 'totalSupply',
 })
@@ -125,7 +125,7 @@ const data = encodeFunctionParams({
 The function to encode from the ABI.
 
 ```ts
-const data = encodeFunctionParams({
+const data = encodeFunctionData({
   abi: wagmiAbi,
   functionName: 'totalSupply', // [!code focus]
 })
@@ -138,7 +138,7 @@ const data = encodeFunctionParams({
 Arguments to pass to function call.
 
 ```ts
-const data = encodeFunctionParams({
+const data = encodeFunctionData({
   abi: wagmiAbi,
   functionName: 'balanceOf',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'] // [!code focus]

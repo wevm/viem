@@ -7,7 +7,7 @@ import { getFunctionSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { getDefinition } from './getDefinition'
 
-export function encodeFunctionParams<
+export function encodeFunctionData<
   TAbi extends Abi = Abi,
   TFunctionName extends ExtractAbiFunctionNames<TAbi> = any,
 >({

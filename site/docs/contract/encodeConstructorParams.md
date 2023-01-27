@@ -1,3 +1,0 @@
-# encodeConstructorParams
-
-TODO

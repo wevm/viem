@@ -1,5 +1,7 @@
 export { decodeAbi } from './decodeAbi'
 
+export { decodeFunctionData } from './decodeFunctionData'
+
 export { encodeAbi } from './encodeAbi'
 
-export { encodeFunctionParams } from './encodeFunctionParams'
+export { encodeFunctionData } from './encodeFunctionData'

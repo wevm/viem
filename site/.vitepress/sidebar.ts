@@ -430,24 +430,24 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeAbi 🚧',
+              text: 'decodeAbi',
               link: '/docs/contract/decodeAbi',
             },
             {
-              text: 'decodeConstructorParams 🚧',
-              link: '/docs/contract/decodeConstructorParams',
+              text: 'decodeConstructorData 🚧',
+              link: '/docs/contract/decodeConstructorData',
             },
             {
-              text: 'decodeErrorParams 🚧',
-              link: '/docs/contract/decodeErrorParams',
+              text: 'decodeErrorData 🚧',
+              link: '/docs/contract/decodeErrorData',
             },
             {
               text: 'decodeEventTopics 🚧',
               link: '/docs/contract/decodeEventTopics',
             },
             {
-              text: 'decodeFunctionParams 🚧',
-              link: '/docs/contract/decodeFunctionParams',
+              text: 'decodeFunctionData',
+              link: '/docs/contract/decodeFunctionData',
             },
             {
               text: 'decodeFunctionResult 🚧',
@@ -458,24 +458,24 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/encodeAbi',
             },
             {
-              text: 'encodeConstructorParams 🚧',
-              link: '/docs/contract/encodeConstructorParams',
+              text: 'encodeConstructorData 🚧',
+              link: '/docs/contract/encodeConstructorData',
             },
             {
-              text: 'encodeErrorParams 🚧',
-              link: '/docs/contract/encodeErrorParams',
+              text: 'encodeErrorData 🚧',
+              link: '/docs/contract/encodeErrorData',
             },
             {
               text: 'encodeEventTopics 🚧',
               link: '/docs/contract/encodeEventTopics',
             },
             {
-              text: 'encodeFunctionParams 🚧',
-              link: '/docs/contract/encodeFunctionParams',
+              text: 'encodeFunctionData',
+              link: '/docs/contract/encodeFunctionData',
             },
             {
               text: 'encodeFunctionResult 🚧',
-              link: '/docs/contract/encodeFunctionArgs',
+              link: '/docs/contract/encodeFunctionData',
             },
           ],
         },

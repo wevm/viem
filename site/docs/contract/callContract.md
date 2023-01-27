@@ -9,7 +9,7 @@ It is useful for:
 - **simulating** or **validating** a contract interaction.
 - retrieving **return data** (and **revert reasons**) of write functions (via `writeContract`).
 
-Internally, `callContract` uses a [Public Client](/docs/clients/public) to call the [`call` action](/docs/actions/public/call) with [ABI-encoded `data`](/docs/contract/encodeFunctionParams).
+Internally, `callContract` uses a [Public Client](/docs/clients/public) to call the [`call` action](/docs/actions/public/call) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 
 ## Import
 

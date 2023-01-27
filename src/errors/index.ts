@@ -3,6 +3,7 @@ export {
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   AbiFunctionNotFoundError,
+  AbiFunctionSignatureNotFoundError,
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,

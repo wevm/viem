@@ -1,3 +1,0 @@
-# decodeErrorParams
-
-TODO

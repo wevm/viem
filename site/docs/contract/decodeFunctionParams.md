@@ -1,3 +1,0 @@
-# decodeFunctionParams
-
-TODO

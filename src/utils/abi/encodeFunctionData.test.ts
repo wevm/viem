@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { encodeFunctionParams } from './encodeFunctionParams'
+import { encodeFunctionData } from './encodeFunctionData'
 
 test('foo()', () => {
   expect(
-    encodeFunctionParams({
+    encodeFunctionData({
       abi: [
         {
           inputs: [],
@@ -18,7 +18,7 @@ test('foo()', () => {
     }),
   ).toEqual('0xc2985578')
   expect(
-    encodeFunctionParams({
+    encodeFunctionData({
       // @ts-expect-error
       abi: [
         {
@@ -35,7 +35,7 @@ test('foo()', () => {
 
 test('bar(uint256)', () => {
   expect(
-    encodeFunctionParams({
+    encodeFunctionData({
       abi: [
         {
           inputs: [
@@ -61,7 +61,7 @@ test('bar(uint256)', () => {
 
 test('getVoter((uint256,bool,address,uint256))', () => {
   expect(
-    encodeFunctionParams({
+    encodeFunctionData({
       abi: [
         {
           inputs: [
@@ -116,7 +116,7 @@ test('getVoter((uint256,bool,address,uint256))', () => {
 
 test("errors: function doesn't exist", () => {
   expect(() =>
-    encodeFunctionParams({
+    encodeFunctionData({
       abi: [
         {
           inputs: [],
@@ -133,7 +133,7 @@ test("errors: function doesn't exist", () => {
     "Function \\"bar\\" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeFunctionParams
+    Docs: https://viem.sh/docs/contract/encodeFunctionData
 
     Version: viem@1.0.2"
   `)

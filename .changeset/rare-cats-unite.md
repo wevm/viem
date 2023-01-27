@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `encodeFunctionParams`.
+Added `encodeFunctionData`.

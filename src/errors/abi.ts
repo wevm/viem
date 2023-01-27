@@ -1,3 +1,4 @@
+import { Hex } from '../types'
 import { BaseError } from './base'
 
 export class AbiDecodingDataSizeInvalidError extends BaseError {
@@ -54,7 +55,23 @@ export class AbiFunctionNotFoundError extends BaseError {
         'Make sure you are using the correct ABI and that the function exists on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeFunctionParams',
+        docsPath: '/docs/contract/encodeFunctionData',
+      },
+    )
+  }
+}
+
+export class AbiFunctionSignatureNotFoundError extends BaseError {
+  name = 'AbiFunctionSignatureNotFoundError'
+  constructor(signature: Hex) {
+    super(
+      [
+        `Encoded function signature "${signature}" not found on ABI.`,
+        'Make sure you are using the correct ABI and that the function exists on it.',
+        `You can look up the signature "${signature}" here: https://sig.eth.samczsun.com/.`,
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/decodeFunctionData',
       },
     )
   }

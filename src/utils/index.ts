@@ -1,4 +1,9 @@
-export { decodeAbi, encodeAbi, encodeFunctionParams } from './abi'
+export {
+  decodeAbi,
+  decodeFunctionData,
+  encodeAbi,
+  encodeFunctionData,
+} from './abi'
 
 export type {
   GetContractAddressOptions,

@@ -1,3 +1,0 @@
-# decodeConstructorParams
-
-TODO
