@@ -1,5 +1,12 @@
 # viem
 
+## 0.0.1-alpha.3
+
+### Patch Changes
+
+- [`849653f`](https://github.com/wagmi-dev/viem/commit/849653f246422c75487c141e94509920563f6706) Thanks [@jxom](https://github.com/jxom)! - - **Breaking**: Renamed `encodeFunctionParams` to `encodeFunctionData`.
+  - Added `decodeFunctionData`.
+
 ## 0.0.1-alpha.2
 
 ### Patch Changes
