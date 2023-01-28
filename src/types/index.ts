@@ -40,6 +40,7 @@ export type {
   ExtractArgsFromAbi,
   ExtractArgsFromEventDefinition,
   ExtractArgsFromFunctionDefinition,
+  ExtractResultFromAbi,
 } from './solidity'
 
 export type {

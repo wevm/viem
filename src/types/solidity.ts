@@ -37,6 +37,31 @@ export type ExtractArgsFromAbi<
       /** Arguments to pass contract method */ args: TArgs
     }
 
+export type ExtractResultFromAbi<
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
+  TAbiFunction extends AbiFunction & { type: 'function' } = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction & { type: 'function' },
+  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['outputs']>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? {
+      /**
+       * Arguments to pass contract method
+       *
+       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
+       */
+      result?: readonly unknown[]
+    }
+  : TArgs extends readonly []
+  ? { result?: never }
+  : {
+      /** Arguments to pass contract method */ result: TArgs
+    }
+
 //////////////////////////////////////////////////////////////////////
 // Event/Function Definitions
 

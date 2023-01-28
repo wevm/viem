@@ -276,6 +276,7 @@ export {
   encodeAbi,
   encodeBytes,
   encodeFunctionData,
+  encodeFunctionResult,
   encodeHex,
   encodeRlp,
   getAddress,

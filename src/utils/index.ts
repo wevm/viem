@@ -4,6 +4,7 @@ export {
   decodeFunctionResult,
   encodeAbi,
   encodeFunctionData,
+  encodeFunctionResult,
 } from './abi'
 
 export type {

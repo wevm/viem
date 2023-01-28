@@ -74,6 +74,7 @@ test('exports actions', () => {
       "encodeAbi": [Function],
       "encodeBytes": [Function],
       "encodeFunctionData": [Function],
+      "encodeFunctionResult": [Function],
       "encodeHex": [Function],
       "encodeRlp": [Function],
       "estimateGas": [Function],

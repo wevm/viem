@@ -7,3 +7,5 @@ export { decodeFunctionResult } from './decodeFunctionResult'
 export { encodeAbi } from './encodeAbi'
 
 export { encodeFunctionData } from './encodeFunctionData'
+
+export { encodeFunctionResult } from './encodeFunctionResult'

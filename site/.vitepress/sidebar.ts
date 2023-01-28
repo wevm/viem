@@ -474,8 +474,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/encodeFunctionData',
             },
             {
-              text: 'encodeFunctionResult 🚧',
-              link: '/docs/contract/encodeFunctionData',
+              text: 'encodeFunctionResult',
+              link: '/docs/contract/encodeFunctionResult',
             },
           ],
         },
