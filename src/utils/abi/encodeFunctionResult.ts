@@ -22,7 +22,7 @@ export function encodeFunctionResult<
   if (!description) throw new AbiFunctionNotFoundError(functionName)
   if (!('outputs' in description))
     throw new AbiFunctionOutputsNotFoundError(functionName)
-  
+
   let values = Array.isArray(result) ? result : [result]
   if (description.outputs.length === 0 && !values[0]) values = []
 
