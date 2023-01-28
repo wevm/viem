@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.5
+
+### Patch Changes
+
+- [`ee4d256`](https://github.com/wagmi-dev/viem/commit/ee4d256a50e4312614501b15c6b5f9b7b3220be3) Thanks [@jxom](https://github.com/jxom)! - Added `encodeFunctionResult`.
+
 ## 0.0.1-alpha.4
 
 ### Patch Changes
