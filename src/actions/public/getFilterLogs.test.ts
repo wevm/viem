@@ -44,7 +44,8 @@ test('default', async () => {
 })
 
 describe('events', () => {
-  test('no args', async () => {
+  // TODO: enable when https://github.com/foundry-rs/foundry/issues/4205 is fixed.
+  test.skip('no args', async () => {
     const filter = await createEventFilter(publicClient)
 
     await sendTransaction(walletClient, {
@@ -65,7 +66,8 @@ describe('events', () => {
     expect(logs.length).toBe(2)
   })
 
-  test('args: event', async () => {
+  // TODO: enable when https://github.com/foundry-rs/foundry/issues/4205 is fixed.
+  test.skip('args: event', async () => {
     const filter = await createEventFilter(publicClient, {
       event: 'Transfer(address from, address to, uint256 value)',
     })
