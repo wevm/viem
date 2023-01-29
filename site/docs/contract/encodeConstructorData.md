@@ -1,3 +1,0 @@
-# encodeConstructorData
-
-TODO

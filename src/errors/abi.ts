@@ -1,6 +1,36 @@
 import { Hex } from '../types'
 import { BaseError } from './base'
 
+export class AbiConstructorNotFoundError extends BaseError {
+  name = 'AbiConstructorNotFoundError'
+  constructor() {
+    super(
+      [
+        'Constructor arguments were provided (`args`), but a constructor was not found on the ABI.',
+        'Make sure you are using the correct ABI and that the constructor exists on it.',
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/encodeDeployData',
+      },
+    )
+  }
+}
+
+export class AbiConstructorParamsNotFoundError extends BaseError {
+  name = 'AbiConstructorParamsNotFoundError'
+  constructor() {
+    super(
+      [
+        'Constructor arguments were provided (`args`), but a constructor parameters (`inputs`) were not found on the ABI.',
+        'Make sure you are using the correct ABI, and that the `inputs` attribute on the constructor exists.',
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/encodeDeployData',
+      },
+    )
+  }
+}
+
 export class AbiDecodingDataSizeInvalidError extends BaseError {
   name = 'AbiDecodingDataSizeInvalidError'
   constructor(size: number) {

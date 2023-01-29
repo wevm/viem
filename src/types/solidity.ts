@@ -37,6 +37,35 @@ export type ExtractArgsFromAbi<
       /** Arguments to pass contract method */ args: TArgs
     }
 
+export type ExtractConstructorArgsFromAbi<
+  TAbi extends Abi | readonly unknown[],
+  TAbiFunction extends AbiFunction & { type: 'constructor' } = TAbi extends Abi
+    ? Extract<
+        TAbi[number],
+        {
+          type: 'constructor'
+        }
+      >
+    : AbiFunction & { type: 'constructor' },
+  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? {
+      /**
+       * Arguments to pass contract method
+       *
+       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
+       */
+      args?: readonly unknown[]
+    }
+  : TArgs extends readonly []
+  ? { args?: never }
+  : {
+      /** Arguments to pass contract method */ args: TArgs
+    }
+
 export type ExtractResultFromAbi<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,

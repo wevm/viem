@@ -434,8 +434,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeAbi',
             },
             {
-              text: 'decodeConstructorData 🚧',
-              link: '/docs/contract/decodeConstructorData',
+              text: 'decodeDeployData 🚧',
+              link: '/docs/contract/decodeDeployData',
             },
             {
               text: 'decodeErrorData 🚧',
@@ -458,8 +458,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/encodeAbi',
             },
             {
-              text: 'encodeConstructorData 🚧',
-              link: '/docs/contract/encodeConstructorData',
+              text: 'encodeDeployData',
+              link: '/docs/contract/encodeDeployData',
             },
             {
               text: 'encodeErrorData 🚧',

@@ -5,10 +5,14 @@ import * as actions from './index'
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
+      "AbiConstructorNotFoundError": [Function],
+      "AbiConstructorParamsNotFoundError": [Function],
       "AbiDecodingDataSizeInvalidError": [Function],
       "AbiEncodingArrayLengthMismatchError": [Function],
       "AbiEncodingLengthMismatchError": [Function],
       "AbiFunctionNotFoundError": [Function],
+      "AbiFunctionOutputsNotFoundError": [Function],
+      "AbiFunctionSignatureNotFoundError": [Function],
       "BaseError": [Function],
       "BlockNotFoundError": [Function],
       "DataLengthTooLongError": [Function],
@@ -73,6 +77,7 @@ test('exports actions', () => {
       "dropTransaction": [Function],
       "encodeAbi": [Function],
       "encodeBytes": [Function],
+      "encodeDeployData": [Function],
       "encodeFunctionData": [Function],
       "encodeFunctionResult": [Function],
       "encodeHex": [Function],

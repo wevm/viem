@@ -1,4 +1,6 @@
 export {
+  AbiConstructorNotFoundError,
+  AbiConstructorParamsNotFoundError,
   AbiDecodingDataSizeInvalidError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,

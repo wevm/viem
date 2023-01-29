@@ -167,10 +167,14 @@ export {
 export { etherUnits, gweiUnits, transactionType, weiUnits } from './constants'
 
 export {
+  AbiConstructorNotFoundError,
+  AbiConstructorParamsNotFoundError,
   AbiDecodingDataSizeInvalidError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   AbiFunctionNotFoundError,
+  AbiFunctionOutputsNotFoundError,
+  AbiFunctionSignatureNotFoundError,
   BaseError,
   BlockNotFoundError,
   DataLengthTooLongError,
@@ -275,6 +279,7 @@ export {
   decodeRlp,
   encodeAbi,
   encodeBytes,
+  encodeDeployData,
   encodeFunctionData,
   encodeFunctionResult,
   encodeHex,
