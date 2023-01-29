@@ -1,5 +1,7 @@
 export { decodeAbi } from './decodeAbi'
 
+export { decodeErrorResult } from './decodeErrorResult'
+
 export { decodeFunctionData } from './decodeFunctionData'
 
 export { decodeFunctionResult } from './decodeFunctionResult'

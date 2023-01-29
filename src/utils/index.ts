@@ -1,5 +1,6 @@
 export {
   decodeAbi,
+  decodeErrorResult,
   decodeFunctionData,
   decodeFunctionResult,
   encodeAbi,

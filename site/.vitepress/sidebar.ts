@@ -438,8 +438,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeDeployData',
             },
             {
-              text: 'decodeErrorData 🚧',
-              link: '/docs/contract/decodeErrorData',
+              text: 'decodeErrorResult',
+              link: '/docs/contract/decodeErrorResult',
             },
             {
               text: 'decodeEventTopics 🚧',
@@ -462,8 +462,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/encodeDeployData',
             },
             {
-              text: 'encodeErrorData 🚧',
-              link: '/docs/contract/encodeErrorData',
+              text: 'encodeErrorResult 🚧',
+              link: '/docs/contract/encodeErrorResult',
             },
             {
               text: 'encodeEventTopics 🚧',

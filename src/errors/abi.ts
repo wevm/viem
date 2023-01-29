@@ -76,6 +76,22 @@ export class AbiEncodingLengthMismatchError extends BaseError {
   }
 }
 
+export class AbiErrorSignatureNotFoundError extends BaseError {
+  name = 'AbiErrorSignatureNotFoundError'
+  constructor(signature: Hex) {
+    super(
+      [
+        `Encoded error signature "${signature}" not found on ABI.`,
+        'Make sure you are using the correct ABI and that the error exists on it.',
+        `You can look up the signature "${signature}" here: https://sig.eth.samczsun.com/.`,
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/decodeErrorResult',
+      },
+    )
+  }
+}
+
 export class AbiFunctionNotFoundError extends BaseError {
   name = 'AbiFunctionNotFoundError'
   constructor(functionName: string) {

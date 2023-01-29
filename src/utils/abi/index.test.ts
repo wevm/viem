@@ -6,6 +6,7 @@ test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "decodeAbi": [Function],
+      "decodeErrorResult": [Function],
       "decodeFunctionData": [Function],
       "decodeFunctionResult": [Function],
       "encodeAbi": [Function],

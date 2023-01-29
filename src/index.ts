@@ -273,6 +273,7 @@ export {
   bytesToNumber,
   decodeAbi,
   decodeBytes,
+  decodeErrorResult,
   decodeFunctionData,
   decodeFunctionResult,
   decodeHex,
