@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.6
+
+### Patch Changes
+
+- [`94b32ab`](https://github.com/wagmi-dev/viem/commit/94b32ab85be156bf25fd64056532edc1d4441c70) Thanks [@jxom](https://github.com/jxom)! - Added `encodeDeployData`.
+
 ## 0.0.1-alpha.5
 
 ### Patch Changes
