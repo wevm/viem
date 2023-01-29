@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.7
+
+### Patch Changes
+
+- [`c52ce66`](https://github.com/wagmi-dev/viem/commit/c52ce660d62f3d44499ea13b88a883b76dd5fe08) Thanks [@jxom](https://github.com/jxom)! - Added `decodeErrorResult`.
+
 ## 0.0.1-alpha.6
 
 ### Patch Changes
