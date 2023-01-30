@@ -10,6 +10,8 @@ export { encodeAbi } from './encodeAbi'
 
 export { encodeDeployData } from './encodeDeployData'
 
+export { encodeEventTopics } from './encodeEventTopics'
+
 export { encodeFunctionData } from './encodeFunctionData'
 
 export { encodeFunctionResult } from './encodeFunctionResult'

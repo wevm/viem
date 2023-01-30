@@ -1,0 +1,5 @@
+---
+"viem": patch
+---
+
+Added `encodeEventTopics`.

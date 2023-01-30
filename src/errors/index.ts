@@ -5,6 +5,7 @@ export {
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   AbiErrorSignatureNotFoundError,
+  AbiEventNotFoundError,
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
   AbiFunctionSignatureNotFoundError,
@@ -30,6 +31,8 @@ export {
   InvalidHexValueError,
   OffsetOutOfBoundsError,
 } from './encoding'
+
+export { FilterTypeNotSupportedError } from './log'
 
 export {
   InternalRpcError,

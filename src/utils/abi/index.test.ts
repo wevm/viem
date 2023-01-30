@@ -11,6 +11,7 @@ test('exports utils', () => {
       "decodeFunctionResult": [Function],
       "encodeAbi": [Function],
       "encodeDeployData": [Function],
+      "encodeEventTopics": [Function],
       "encodeFunctionData": [Function],
       "encodeFunctionResult": [Function],
     }

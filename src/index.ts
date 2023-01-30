@@ -281,6 +281,7 @@ export {
   encodeAbi,
   encodeBytes,
   encodeDeployData,
+  encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
   encodeHex,

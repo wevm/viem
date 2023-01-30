@@ -3,14 +3,53 @@ import type {
   AbiFunction,
   AbiType,
   AbiTypeToPrimitiveType,
+  AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
   ExtractAbiFunction,
+  AbiParameter,
+  ExtractAbiEvent,
+  AbiEvent,
 } from 'abitype'
 
 import type { Trim } from './utils'
 
 //////////////////////////////////////////////////////////////////////
 // ABIs
+
+export type AbiEventParametersToPrimitiveTypes<
+  TAbiParameters extends readonly AbiParameter[],
+  TBase = TAbiParameters[0] extends { name: string } ? {} : [],
+> = TAbiParameters extends readonly [infer Head, ...infer Tail]
+  ? Head extends { indexed: true }
+    ? Head extends AbiParameter
+      ? Head extends { name: infer Name }
+        ? Name extends string
+          ? {
+              [name in Name]?:
+                | AbiParameterToPrimitiveType<Head>
+                | AbiParameterToPrimitiveType<Head>[]
+                | null
+            } & (Tail extends readonly []
+              ? {}
+              : Tail extends readonly AbiParameter[]
+              ? AbiEventParametersToPrimitiveTypes<Tail>
+              : {})
+          : never
+        : [
+            (
+              | AbiParameterToPrimitiveType<Head>
+              | AbiParameterToPrimitiveType<Head>[]
+              | null
+            ),
+            ...(Tail extends readonly []
+              ? []
+              : Tail extends readonly AbiParameter[]
+              ? AbiEventParametersToPrimitiveTypes<Tail>
+              : []),
+          ]
+      : TBase
+    : TBase
+  : TBase
 
 export type ExtractArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
@@ -89,6 +128,31 @@ export type ExtractResultFromAbi<
   ? { result?: never }
   : {
       /** Arguments to pass contract method */ result: TArgs
+    }
+
+export type ExtractEventArgsFromAbi<
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
+  TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
+    ? ExtractAbiEvent<TAbi, TFunctionName>
+    : AbiEvent & { type: 'event' },
+  TArgs = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? {
+      /**
+       * Arguments to pass contract method
+       *
+       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
+       */
+      args?: readonly unknown[]
+    }
+  : TArgs extends readonly []
+  ? { args?: never }
+  : {
+      args?: TArgs
     }
 
 //////////////////////////////////////////////////////////////////////

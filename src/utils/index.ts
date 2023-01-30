@@ -5,6 +5,7 @@ export {
   decodeFunctionResult,
   encodeAbi,
   encodeDeployData,
+  encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
 } from './abi'

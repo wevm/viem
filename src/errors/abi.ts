@@ -92,6 +92,21 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
   }
 }
 
+export class AbiEventNotFoundError extends BaseError {
+  name = 'AbiEventNotFoundError'
+  constructor(eventName: string) {
+    super(
+      [
+        `Event "${eventName}" not found on ABI.`,
+        'Make sure you are using the correct ABI and that the event exists on it.',
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/encodeEventTopics',
+      },
+    )
+  }
+}
+
 export class AbiFunctionNotFoundError extends BaseError {
   name = 'AbiFunctionNotFoundError'
   constructor(functionName: string) {
