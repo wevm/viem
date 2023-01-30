@@ -5,6 +5,7 @@ export {
   decodeFunctionResult,
   encodeAbi,
   encodeDeployData,
+  encodeErrorResult,
   encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,

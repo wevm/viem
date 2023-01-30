@@ -32,7 +32,7 @@ export function encodeAbi<TParams extends readonly AbiParameter[]>({
   // Prepare the parameters to determine dynamic types to encode.
   const preparedParams = prepareParams({ params, values })
   const data = encodeParams(preparedParams)
-  if (data.length === 0) return undefined
+  if (data.length === 0) return '0x'
   return data
 }
 

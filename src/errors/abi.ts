@@ -76,6 +76,37 @@ export class AbiEncodingLengthMismatchError extends BaseError {
   }
 }
 
+export class AbiErrorInputsNotFoundError extends BaseError {
+  name = 'AbiErrorInputsNotFoundError'
+  constructor(errorName: string) {
+    super(
+      [
+        `Arguments (\`args\`) were provided to "${errorName}", but "${errorName}" on the ABI does not contain any parameters (\`inputs\`).`,
+        'Cannot encode error result without knowing what the parameter types are.',
+        'Make sure you are using the correct ABI and that the inputs exist on it.',
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/encodeErrorResult',
+      },
+    )
+  }
+}
+
+export class AbiErrorNotFoundError extends BaseError {
+  name = 'AbiErrorNotFoundError'
+  constructor(errorName: string) {
+    super(
+      [
+        `Error "${errorName}" not found on ABI.`,
+        'Make sure you are using the correct ABI and that the error exists on it.',
+      ].join('\n'),
+      {
+        docsPath: '/docs/contract/encodeErrorResult',
+      },
+    )
+  }
+}
+
 export class AbiErrorSignatureNotFoundError extends BaseError {
   name = 'AbiErrorSignatureNotFoundError'
   constructor(signature: Hex) {

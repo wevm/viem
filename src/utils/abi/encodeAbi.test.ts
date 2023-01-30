@@ -9,7 +9,7 @@ describe('static', () => {
         params: [],
         values: [],
       }),
-    ).toBe(undefined)
+    ).toBe('0x')
   })
 
   test('uint', () => {

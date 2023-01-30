@@ -1,4 +1,4 @@
-import { Abi, AbiParameterToPrimitiveType } from 'abitype'
+import { Abi } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,

@@ -9,6 +9,8 @@ import type {
   AbiParameter,
   ExtractAbiEvent,
   AbiEvent,
+  AbiError,
+  ExtractAbiError,
 } from 'abitype'
 
 import type { Trim } from './utils'
@@ -87,6 +89,31 @@ export type ExtractConstructorArgsFromAbi<
       >
     : AbiFunction & { type: 'constructor' },
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? {
+      /**
+       * Arguments to pass contract method
+       *
+       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
+       */
+      args?: readonly unknown[]
+    }
+  : TArgs extends readonly []
+  ? { args?: never }
+  : {
+      /** Arguments to pass contract method */ args: TArgs
+    }
+
+export type ExtractErrorArgsFromAbi<
+  TAbi extends Abi | readonly unknown[],
+  TErrorName extends string,
+  TAbiError extends AbiError = TAbi extends Abi
+    ? ExtractAbiError<TAbi, TErrorName>
+    : AbiError,
+  TArgs = AbiParametersToPrimitiveTypes<TAbiError['inputs']>,
   FailedToParseArgs =
     | ([TArgs] extends [never] ? true : false)
     | (readonly unknown[] extends TArgs ? true : false),

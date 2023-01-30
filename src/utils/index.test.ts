@@ -23,6 +23,7 @@ test('exports utils', () => {
       "encodeAbi": [Function],
       "encodeBytes": [Function],
       "encodeDeployData": [Function],
+      "encodeErrorResult": [Function],
       "encodeEventTopics": [Function],
       "encodeFunctionData": [Function],
       "encodeFunctionResult": [Function],

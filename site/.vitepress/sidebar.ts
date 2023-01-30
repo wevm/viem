@@ -462,7 +462,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/encodeDeployData',
             },
             {
-              text: 'encodeErrorResult 🚧',
+              text: 'encodeErrorResult',
               link: '/docs/contract/encodeErrorResult',
             },
             {
