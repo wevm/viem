@@ -1,6 +1,6 @@
 # encodeEventTopics
 
-TODO
+Encodes an event (with optional arguments) into filter topics.
 
 ## Install
 
@@ -21,7 +21,7 @@ const topics = encodeEventTopics({
   abi: wagmiAbi,
   eventName: 'Transfer'
 })
-// ["0xddf252ad"]
+// ["0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0"]
 ```
 
 ```ts
@@ -81,7 +81,7 @@ const topics = encodeEventTopics({
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
   }]
 })
-// ["0xddf252ad", "0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266", "0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8"]
+// ["0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0", "0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266", "0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8"]
 ```
 
 ```ts
@@ -119,3 +119,52 @@ export const publicClient = createPublicClient({
 ```
 
 :::
+
+## Return Value
+
+Encoded topics.
+
+## Parameters
+
+### abi
+
+- **Type:** [`Abi`](/docs/glossary/types#TODO)
+
+The contract's ABI.
+
+```ts
+const data = encodeEventTopics({
+  abi: wagmiAbi, // [!code focus]
+  functionName: 'Transfer',
+})
+```
+
+### eventName
+
+- **Type:** `string`
+
+Name of the event.
+
+```ts
+const data = encodeEventTopics({
+  abi: wagmiAbi,
+  eventName: 'Transfer', // [!code focus]
+})
+```
+
+### args (optional)
+
+- **Type:** `string`
+
+A list of _indexed_ event arguments.
+
+```ts
+const data = encodeEventTopics({
+  abi: wagmiAbi,
+  eventName: 'Transfer',
+  args: { // [!code focus:4]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+  }
+})
+```
