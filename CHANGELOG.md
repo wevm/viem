@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.8
+
+### Patch Changes
+
+- [`9120e26`](https://github.com/wagmi-dev/viem/commit/9120e26fabe5d70ef13be7bc6eabfc966e3c4a29) Thanks [@jxom](https://github.com/jxom)! - Added `encodeErrorResult`.
+
 ## 0.0.1-alpha.7
 
 ### Patch Changes
