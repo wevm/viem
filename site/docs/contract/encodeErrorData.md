@@ -1,3 +1,0 @@
-# encodeErrorData
-
-TODO

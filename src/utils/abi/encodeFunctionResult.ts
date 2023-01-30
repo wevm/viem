@@ -26,7 +26,5 @@ export function encodeFunctionResult<
   let values = Array.isArray(result) ? result : [result]
   if (description.outputs.length === 0 && !values[0]) values = []
 
-  const data = encodeAbi({ params: description.outputs, values })
-  if (!data) return '0x'
-  return data
+  return encodeAbi({ params: description.outputs, values })
 }
