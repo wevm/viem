@@ -57,7 +57,7 @@ function encodeArg({
   value,
 }: { param: AbiParameter; value: AbiParameterToPrimitiveType<AbiParameter> }) {
   if (param.type === 'string' || param.type === 'bytes')
-    return keccak256(encodeBytes(value))
+    return keccak256(encodeBytes(value as string))
   if (param.type === 'tuple' || param.type.match(/^(.*)\[(\d+)?\]$/))
     throw new FilterTypeNotSupportedError(param.type)
   return encodeAbi({ params: [param], values: [value] })
