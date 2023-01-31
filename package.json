@@ -3,7 +3,7 @@
   "description": "TypeScript (& JavaScript) Interface for Ethereum",
   "version": "0.0.1-alpha.9",
   "scripts": {
-    "anvil": "source .env && anvil --fork-url $ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
+    "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
     "build": "tsup",
@@ -111,6 +111,9 @@
     "wallet",
     "web3"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "simple-git-hooks": {
     "pre-commit": "pnpm format & pnpm lint:fix"
   },
