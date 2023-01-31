@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.9
+
+### Patch Changes
+
+- [`976fd86`](https://github.com/wagmi-dev/viem/commit/976fd86ed55cb1931ba619c116db2753cf72a10b) Thanks [@jxom](https://github.com/jxom)! - Added `decodeDeployData`.
+
 ## 0.0.1-alpha.8
 
 ### Patch Changes
