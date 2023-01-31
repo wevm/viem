@@ -3,14 +3,14 @@ import { BaseError } from './base'
 
 export class AbiConstructorNotFoundError extends BaseError {
   name = 'AbiConstructorNotFoundError'
-  constructor() {
+  constructor({ docsPath }: { docsPath: string }) {
     super(
       [
-        'Constructor arguments were provided (`args`), but a constructor was not found on the ABI.',
+        'A constructor was not found on the ABI.',
         'Make sure you are using the correct ABI and that the constructor exists on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeDeployData',
+        docsPath,
       },
     )
   }
@@ -18,14 +18,14 @@ export class AbiConstructorNotFoundError extends BaseError {
 
 export class AbiConstructorParamsNotFoundError extends BaseError {
   name = 'AbiConstructorParamsNotFoundError'
-  constructor() {
+  constructor({ docsPath }: { docsPath: string }) {
     super(
       [
         'Constructor arguments were provided (`args`), but a constructor parameters (`inputs`) were not found on the ABI.',
         'Make sure you are using the correct ABI, and that the `inputs` attribute on the constructor exists.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeDeployData',
+        docsPath,
       },
     )
   }
@@ -78,7 +78,7 @@ export class AbiEncodingLengthMismatchError extends BaseError {
 
 export class AbiErrorInputsNotFoundError extends BaseError {
   name = 'AbiErrorInputsNotFoundError'
-  constructor(errorName: string) {
+  constructor(errorName: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Arguments (\`args\`) were provided to "${errorName}", but "${errorName}" on the ABI does not contain any parameters (\`inputs\`).`,
@@ -86,7 +86,7 @@ export class AbiErrorInputsNotFoundError extends BaseError {
         'Make sure you are using the correct ABI and that the inputs exist on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeErrorResult',
+        docsPath,
       },
     )
   }
@@ -94,14 +94,14 @@ export class AbiErrorInputsNotFoundError extends BaseError {
 
 export class AbiErrorNotFoundError extends BaseError {
   name = 'AbiErrorNotFoundError'
-  constructor(errorName: string) {
+  constructor(errorName: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Error "${errorName}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the error exists on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeErrorResult',
+        docsPath,
       },
     )
   }
@@ -109,7 +109,7 @@ export class AbiErrorNotFoundError extends BaseError {
 
 export class AbiErrorSignatureNotFoundError extends BaseError {
   name = 'AbiErrorSignatureNotFoundError'
-  constructor(signature: Hex) {
+  constructor(signature: Hex, { docsPath }: { docsPath: string }) {
     super(
       [
         `Encoded error signature "${signature}" not found on ABI.`,
@@ -117,7 +117,7 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
         `You can look up the signature "${signature}" here: https://sig.eth.samczsun.com/.`,
       ].join('\n'),
       {
-        docsPath: '/docs/contract/decodeErrorResult',
+        docsPath,
       },
     )
   }
@@ -125,14 +125,14 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
 
 export class AbiEventNotFoundError extends BaseError {
   name = 'AbiEventNotFoundError'
-  constructor(eventName: string) {
+  constructor(eventName: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Event "${eventName}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the event exists on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeEventTopics',
+        docsPath,
       },
     )
   }
@@ -140,14 +140,14 @@ export class AbiEventNotFoundError extends BaseError {
 
 export class AbiFunctionNotFoundError extends BaseError {
   name = 'AbiFunctionNotFoundError'
-  constructor(functionName: string) {
+  constructor(functionName: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Function "${functionName}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the function exists on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/encodeFunctionData',
+        docsPath,
       },
     )
   }
@@ -155,7 +155,7 @@ export class AbiFunctionNotFoundError extends BaseError {
 
 export class AbiFunctionOutputsNotFoundError extends BaseError {
   name = 'AbiFunctionOutputsNotFoundError'
-  constructor(functionName: string) {
+  constructor(functionName: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Function "${functionName}" does not contain any \`outputs\` on ABI.`,
@@ -163,7 +163,7 @@ export class AbiFunctionOutputsNotFoundError extends BaseError {
         'Make sure you are using the correct ABI and that the function exists on it.',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/decodeFunctionResult',
+        docsPath,
       },
     )
   }
@@ -171,7 +171,7 @@ export class AbiFunctionOutputsNotFoundError extends BaseError {
 
 export class AbiFunctionSignatureNotFoundError extends BaseError {
   name = 'AbiFunctionSignatureNotFoundError'
-  constructor(signature: Hex) {
+  constructor(signature: Hex, { docsPath }: { docsPath: string }) {
     super(
       [
         `Encoded function signature "${signature}" not found on ABI.`,
@@ -179,7 +179,7 @@ export class AbiFunctionSignatureNotFoundError extends BaseError {
         `You can look up the signature "${signature}" here: https://sig.eth.samczsun.com/.`,
       ].join('\n'),
       {
-        docsPath: '/docs/contract/decodeFunctionData',
+        docsPath,
       },
     )
   }
@@ -187,26 +187,26 @@ export class AbiFunctionSignatureNotFoundError extends BaseError {
 
 export class InvalidAbiEncodingTypeError extends BaseError {
   name = 'InvalidAbiEncodingType'
-  constructor(type: string) {
+  constructor(type: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Type "${type}" is not a valid encoding type.`,
         'Please provide a valid ABI type.',
       ].join('\n'),
-      { docsPath: '/docs/contract/encodeAbi#params' },
+      { docsPath },
     )
   }
 }
 
 export class InvalidAbiDecodingTypeError extends BaseError {
   name = 'InvalidAbiDecodingType'
-  constructor(type: string) {
+  constructor(type: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `Type "${type}" is not a valid decoding type.`,
         'Please provide a valid ABI type.',
       ].join('\n'),
-      { docsPath: '/docs/contract/decodeAbi#params' },
+      { docsPath },
     )
   }
 }
@@ -220,14 +220,14 @@ export class InvalidArrayError extends BaseError {
 
 export class InvalidDefinitionTypeError extends BaseError {
   name = 'InvalidDefinitionTypeError'
-  constructor(type: string) {
+  constructor(type: string, { docsPath }: { docsPath: string }) {
     super(
       [
         `"${type}" is not a valid definition type.`,
         'Valid types: "function", "event", "error"',
       ].join('\n'),
       {
-        docsPath: '/docs/contract/getDefinition',
+        docsPath,
       },
     )
   }

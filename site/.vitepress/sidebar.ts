@@ -434,7 +434,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeAbi',
             },
             {
-              text: 'decodeDeployData 🚧',
+              text: 'decodeDeployData',
               link: '/docs/contract/decodeDeployData',
             },
             {

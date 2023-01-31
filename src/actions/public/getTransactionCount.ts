@@ -30,5 +30,5 @@ export async function getTransactionCount(
     method: 'eth_getTransactionCount',
     params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],
   })
-  return hexToNumber(count ?? '0x0')
+  return hexToNumber(count)
 }

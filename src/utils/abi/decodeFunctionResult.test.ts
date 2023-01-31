@@ -226,7 +226,7 @@ test("error: function doesn't exist", () => {
     "Function \\"baz\\" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeFunctionData
+    Docs: https://viem.sh/docs/contract/decodeFunctionResult
 
     Version: viem@1.0.2"
   `,

@@ -12,14 +12,16 @@ export function decodeFunctionData({ abi, data }: { abi: Abi; data: Hex }) {
   const description = abi.find(
     (x) => signature === getFunctionSignature(getDefinition(x)),
   )
-  if (!description) throw new AbiFunctionSignatureNotFoundError(signature)
+  if (!description)
+    throw new AbiFunctionSignatureNotFoundError(signature, {
+      docsPath: '/docs/contract/decodeFunctionData',
+    })
   return {
     functionName: (description as { name: string }).name,
-    args:
-      'inputs' in description &&
-      description.inputs &&
-      description.inputs.length > 0
-        ? decodeAbi({ data: slice(data, 4), params: description.inputs })
-        : undefined,
+    args: ('inputs' in description &&
+    description.inputs &&
+    description.inputs.length > 0
+      ? decodeAbi({ data: slice(data, 4), params: description.inputs })
+      : undefined) as readonly unknown[] | undefined,
   }
 }

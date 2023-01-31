@@ -20,10 +20,12 @@ export function decodeAbi<TParams extends readonly AbiParameter[]>({
 }: { data: Hex; params: TParams }) {
   if (size(data) % 32 !== 0)
     throw new AbiDecodingDataSizeInvalidError(size(data))
-  return decodeParams({
+  const values = decodeParams({
     data,
     params,
   })
+  if (values.length === 0) return undefined
+  return values
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -88,7 +90,9 @@ function decodeParam({
   if (param.type === 'bool') {
     return decodeBool(value)
   }
-  throw new InvalidAbiDecodingTypeError(param.type)
+  throw new InvalidAbiDecodingTypeError(param.type, {
+    docsPath: '/docs/contract/decodeAbi',
+  })
 }
 
 ////////////////////////////////////////////////////////////////////

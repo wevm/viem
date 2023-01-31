@@ -90,7 +90,9 @@ function prepareParam<TParam extends AbiParameter>({
   if (param.type === 'string') {
     return encodeString(value as unknown as string)
   }
-  throw new InvalidAbiEncodingTypeError(param.type)
+  throw new InvalidAbiEncodingTypeError(param.type, {
+    docsPath: '/docs/contract/encodeAbi',
+  })
 }
 
 /////////////////////////////////////////////////////////////////

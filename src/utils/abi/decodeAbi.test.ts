@@ -3,6 +3,15 @@ import { describe, expect, test } from 'vitest'
 import { decodeAbi } from './decodeAbi'
 
 describe('static', () => {
+  test('blank', () => {
+    expect(
+      decodeAbi({
+        data: '0x',
+        params: [],
+      }),
+    ).toBe(undefined)
+  })
+
   test('uint', () => {
     expect(
       decodeAbi({
@@ -1573,7 +1582,7 @@ test('invalid type', () => {
     "Type \\"lol\\" is not a valid decoding type.
     Please provide a valid ABI type.
 
-    Docs: https://viem.sh/docs/contract/decodeAbi#params
+    Docs: https://viem.sh/docs/contract/decodeAbi
 
     Version: viem@1.0.2"
   `)

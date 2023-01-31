@@ -4,18 +4,20 @@ import {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
 } from '../../errors'
-import { ExtractConstructorArgsFromAbi, Hex } from '../../types'
-import { concatHex } from '../data'
-import { encodeAbi } from './encodeAbi'
+import { Hex } from '../../types'
+import { decodeAbi } from './decodeAbi'
 
-const docsPath = '/docs/contract/encodeDeployData'
+const docsPath = '/docs/contract/decodeDeployData'
 
-export function encodeDeployData<TAbi extends Abi = Abi>({
+export function decodeDeployData<TAbi extends Abi = Abi>({
   abi,
-  args,
   bytecode,
-}: { abi: TAbi; bytecode: Hex } & ExtractConstructorArgsFromAbi<TAbi>) {
-  if (!args || args.length === 0) return bytecode
+  data,
+}: { abi: TAbi; bytecode: Hex; data: Hex }): {
+  args?: readonly unknown[] | undefined
+  bytecode: Hex
+} {
+  if (data === bytecode) return { bytecode }
 
   const description = abi.find((x) => 'type' in x && x.type === 'constructor')
   if (!description) throw new AbiConstructorNotFoundError({ docsPath })
@@ -24,9 +26,9 @@ export function encodeDeployData<TAbi extends Abi = Abi>({
   if (!description.inputs || description.inputs.length === 0)
     throw new AbiConstructorParamsNotFoundError({ docsPath })
 
-  const data = encodeAbi({
+  const args = decodeAbi({
+    data: `0x${data.replace(bytecode, '')}`,
     params: description.inputs,
-    values: args as any,
   })
-  return concatHex([bytecode, data!])
+  return { args, bytecode }
 }

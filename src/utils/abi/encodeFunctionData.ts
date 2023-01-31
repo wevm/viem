@@ -19,7 +19,10 @@ export function encodeFunctionData<
   TFunctionName
 >) {
   const description = abi.find((x) => 'name' in x && x.name === functionName)
-  if (!description) throw new AbiFunctionNotFoundError(functionName)
+  if (!description)
+    throw new AbiFunctionNotFoundError(functionName, {
+      docsPath: '/docs/contract/encodeFunctionData',
+    })
   const definition = getDefinition(description)
   const signature = getFunctionSignature(definition)
   const data =

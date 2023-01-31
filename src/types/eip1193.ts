@@ -458,7 +458,7 @@ export type PublicRequests = {
      * */
     method: 'eth_getTransactionCount'
     params: [address: Address, block: BlockNumber | BlockTag | BlockIdentifier]
-  }): Promise<Quantity | null>
+  }): Promise<Quantity>
   request(args: {
     /**
      * @description Returns the receipt of a transaction specified by hash

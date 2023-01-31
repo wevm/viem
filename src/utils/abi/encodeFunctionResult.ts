@@ -7,6 +7,8 @@ import {
 import { ExtractResultFromAbi } from '../../types'
 import { encodeAbi } from './encodeAbi'
 
+const docsPath = '/docs/contract/encodeFunctionResult'
+
 export function encodeFunctionResult<
   TAbi extends Abi = Abi,
   TFunctionName extends ExtractAbiFunctionNames<TAbi> = any,
@@ -19,9 +21,10 @@ export function encodeFunctionResult<
   TFunctionName
 >) {
   const description = abi.find((x) => 'name' in x && x.name === functionName)
-  if (!description) throw new AbiFunctionNotFoundError(functionName)
+  if (!description)
+    throw new AbiFunctionNotFoundError(functionName, { docsPath })
   if (!('outputs' in description))
-    throw new AbiFunctionOutputsNotFoundError(functionName)
+    throw new AbiFunctionOutputsNotFoundError(functionName, { docsPath })
 
   let values = Array.isArray(result) ? result : [result]
   if (description.outputs.length === 0 && !values[0]) values = []

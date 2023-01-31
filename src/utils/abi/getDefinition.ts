@@ -7,7 +7,9 @@ export function getDefinition(description: AbiFunction | AbiEvent | AbiError) {
     description.type !== 'event' &&
     description.type !== 'error'
   )
-    throw new InvalidDefinitionTypeError(description.type)
+    throw new InvalidDefinitionTypeError(description.type, {
+      docsPath: '/docs/contract/getDefinition',
+    })
 
   return `${description.name}(${getParams(description.inputs)})`
 }

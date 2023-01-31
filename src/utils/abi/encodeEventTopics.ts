@@ -27,7 +27,10 @@ export function encodeEventTopics<
   eventName: TEventName
 } & ExtractEventArgsFromAbi<TAbi, TEventName>) {
   const description = abi.find((x) => 'name' in x && x.name === eventName)
-  if (!description) throw new AbiEventNotFoundError(eventName)
+  if (!description)
+    throw new AbiEventNotFoundError(eventName, {
+      docsPath: '/docs/contract/encodeEventTopics',
+    })
   const definition = getDefinition(description)
   const signature = getEventSignature(definition as `${string}(${string})`)
 

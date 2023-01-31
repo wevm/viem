@@ -71,7 +71,7 @@ test('error: constructor not found', () => {
       args: [69420n],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Constructor arguments were provided (\`args\`), but a constructor was not found on the ABI.
+    "A constructor was not found on the ABI.
     Make sure you are using the correct ABI and that the constructor exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeDeployData
