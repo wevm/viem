@@ -1575,7 +1575,6 @@ test('invalid type', () => {
   expect(() =>
     decodeAbi({
       data: '0x0000000000000000000000000000000000000000000000000000000000000000',
-      // @ts-expect-error
       params: [{ name: 'x', type: 'lol' }],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
