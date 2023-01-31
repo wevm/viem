@@ -8,6 +8,7 @@
     "@viem/site": "0.0.0"
   },
   "changesets": [
+    "beige-pillows-report",
     "five-melons-agree",
     "funny-beds-prove",
     "happy-bottles-collect",
