@@ -24,7 +24,7 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
       clean: true,
       // Only need to generate one file with tsup for development since we will create links in `onSuccess`
       entry: [entry[0] as string],
-      format: ['esm'],
+      format: ['esm', 'cjs'],
       silent: true,
       async onSuccess() {
         // remove all files in dist
@@ -46,6 +46,10 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
           await fs.outputFile(
             distSourceFile.replace(/\.js$/, '.d.ts'),
             `export * from '${srcTypesFile}'`,
+          )
+          fs.copyFileSync(
+            distSourceFile,
+            distSourceFile.replace('.js', '.mjs'),
           )
         }
         const exports = await generateExports(entry)

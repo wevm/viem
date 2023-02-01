@@ -120,6 +120,7 @@ export const celo = defineChain({
   network: 'celo',
   nativeCurrency: { name: 'Celo', symbol: 'CELO', decimals: 18 },
   rpcUrls: {
+    public: { http: ['https://rpc.ankr.com/celo'] },
     default: { http: ['https://rpc.ankr.com/celo'] },
   },
   formatters: {

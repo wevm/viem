@@ -95,7 +95,10 @@ test('request', async () => {
     await transport({
       chain: {
         ...localhost,
-        rpcUrls: { default: { http: [localWsUrl], webSocket: [localWsUrl] } },
+        rpcUrls: {
+          public: { http: [localWsUrl], webSocket: [localWsUrl] },
+          default: { http: [localWsUrl], webSocket: [localWsUrl] },
+        },
       },
     }).config.request({
       method: 'eth_blockNumber',
