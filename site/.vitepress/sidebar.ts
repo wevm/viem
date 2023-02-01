@@ -393,7 +393,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Actions',
           items: [
             {
-              text: 'callContract 🚧',
+              text: 'callContract',
               link: '/docs/contract/callContract',
             },
             {
