@@ -1,10 +1,9 @@
-import { Abi, AbiParameter } from 'abitype'
+import { Abi } from 'abitype'
 
 import type { Chain, Formatter } from '../../chains'
 import type { PublicClient } from '../../clients'
 import {
   AbiDecodingZeroDataError,
-  BaseError,
   ContractMethodExecutionError,
   ContractMethodZeroDataError,
 } from '../../errors'
@@ -21,7 +20,6 @@ import {
   formatAbiItemWithArgs,
   formatAbiItemWithParams,
   getAbiItem,
-  isAddress,
 } from '../../utils'
 import { call, CallArgs, FormattedCall } from './call'
 
