@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.10
+
+### Patch Changes
+
+- [#31](https://github.com/wagmi-dev/viem/pull/31) [`1f65640`](https://github.com/wagmi-dev/viem/commit/1f65640caa44957f38f68971e9b56d8e9229031d) Thanks [@jxom](https://github.com/jxom)! - Added initial `callContract` implementation
+
 ## 0.0.1-alpha.9
 
 ### Patch Changes
