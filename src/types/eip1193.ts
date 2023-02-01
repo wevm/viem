@@ -83,7 +83,7 @@ export type Chain = {
     symbol: string
     decimals: number
   }
-  rpcUrls: string[]
+  rpcUrls: readonly string[]
   blockExplorerUrls?: string[]
   iconUrls?: string[]
 }

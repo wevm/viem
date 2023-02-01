@@ -24,7 +24,7 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
       clean: true,
       // Only need to generate one file with tsup for development since we will create links in `onSuccess`
       entry: [entry[0] as string],
-      format: ['esm'],
+      format: ['esm', 'cjs'],
       silent: true,
       async onSuccess() {
         // remove all files in dist
@@ -47,6 +47,10 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
             distSourceFile.replace(/\.js$/, '.d.ts'),
             `export * from '${srcTypesFile}'`,
           )
+          fs.copyFileSync(
+            distSourceFile,
+            distSourceFile.replace('.js', '.mjs'),
+          )
         }
         const exports = await generateExports(entry)
         await generateProxyPackages(exports)
@@ -58,7 +62,7 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
     bundle: true,
     clean: true,
     dts: true,
-    format: ['esm'],
+    format: ['esm', 'cjs'],
     splitting: true,
     target: 'es2021',
     async onSuccess() {
@@ -91,7 +95,7 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
 }
 
 type Exports = {
-  [key: string]: string | { types?: string; default: string }
+  [key: string]: string | { types?: string; module: string; default: string }
 }
 
 /**
@@ -105,17 +109,22 @@ async function generateExports(entry: string[]) {
     const name = fileWithoutExtension
       .replace(/^src\//g, './')
       .replace(/\/index$/, '')
-    const distSourceFile = `${fileWithoutExtension.replace(
+    const distCjsFile = `${fileWithoutExtension.replace(
       /^src\//g,
       './dist/',
     )}.js`
+    const distEsmFile = `${fileWithoutExtension.replace(
+      /^src\//g,
+      './dist/',
+    )}.mjs`
     const distTypesFile = `${fileWithoutExtension.replace(
       /^src\//g,
       './dist/',
     )}.d.ts`
     exports[name] = {
       types: distTypesFile,
-      default: distSourceFile,
+      module: distEsmFile,
+      default: distCjsFile,
     }
   }
 
@@ -166,7 +175,7 @@ async function generateProxyPackages(exports: Exports) {
     await fs.outputFile(
       `${key}/package.json`,
       dedent`{
-        "type": "module",
+        "module": "${entrypoint.replace('.js', '.mjs')}",
         "main": "${entrypoint}"
       }`,
     )
