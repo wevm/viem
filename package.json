@@ -1,6 +1,6 @@
 {
   "name": "viem",
-  "description": "TypeScript (& JavaScript) Interface for Ethereum",
+  "description": "TypeScript Interface for Ethereum",
   "version": "0.0.1-alpha.10",
   "scripts": {
     "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
@@ -18,11 +18,14 @@
     "playground": "pnpm --filter playground-dev dev",
     "playground:benchmark": "pnpm --filter playground-benchmark dev",
     "postinstall": "pnpm dev",
+    "postpublish": "ts-node scripts/restore-package-json.ts",
     "preinstall": "npx only-allow pnpm",
+    "prepublishOnly": "ts-node scripts/generate-package-json.ts",
     "prepare": "npx simple-git-hooks",
     "test": "vitest dev --coverage --no-threads",
     "test:ci": "CI=true vitest --coverage --no-threads",
     "test:ui": "vitest dev --ui --no-threads",
+    "ts-node": "node --loader esbuild-register/loader -r esbuild-register",
     "typecheck": "tsc --noEmit"
   },
   "files": [
