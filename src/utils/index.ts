@@ -34,6 +34,8 @@ export {
   extractFunctionName,
   extractFunctionParams,
   extractFunctionType,
+  extractFunctionParts,
+  getContractError,
 } from './contract'
 
 export {
