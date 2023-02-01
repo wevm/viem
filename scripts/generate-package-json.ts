@@ -13,6 +13,8 @@ function generatePackageJson() {
   const {
     name,
     description,
+    dependencies,
+    peerDependencies,
     version,
     files,
     exports: exports_,
@@ -30,6 +32,8 @@ function generatePackageJson() {
     {
       name,
       description,
+      dependencies,
+      peerDependencies,
       version,
       files,
       exports: exports_,
