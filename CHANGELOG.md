@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.12
+
+### Patch Changes
+
+- [`6a47671`](https://github.com/wagmi-dev/viem/commit/6a47671ce9fe01f01cb744d85ac4e12674ef5b36) Thanks [@jxom](https://github.com/jxom)! - Fixed published `package.json`.
+
 ## 0.0.1-alpha.11
 
 ### Patch Changes
