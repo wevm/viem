@@ -1586,3 +1586,30 @@ test('invalid type', () => {
     Version: viem@1.0.2"
   `)
 })
+
+test('error: zero data', () => {
+  expect(() =>
+    decodeAbi({
+      params: [
+        {
+          inputs: [],
+          name: 'foo',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: 'x',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ] as const,
+      data: '0x',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Cannot decode zero data (\\"0x\\") with ABI parameters.
+
+    Version: viem@1.0.2"
+  `)
+})

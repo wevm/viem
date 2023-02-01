@@ -1,5 +1,7 @@
 export type {
   CallArgs,
+  CallContractArgs,
+  CallContractResponse,
   CallResponse,
   CreateBlockFilterResponse,
   CreatePendingTransactionFilterResponse,
@@ -74,6 +76,7 @@ export type {
 export {
   addChain,
   call,
+  callContract,
   createBlockFilter,
   createPendingTransactionFilter,
   estimateGas,
@@ -222,6 +225,7 @@ export {
 
 export type {
   Address,
+  AbiItem,
   AccessList,
   Block,
   BlockIdentifier,
@@ -260,6 +264,17 @@ export type {
 } from './types'
 
 export type {
+  DecodeAbiArgs,
+  DecodeErrorResultArgs,
+  DecodeFunctionDataArgs,
+  DecodeFunctionResultArgs,
+  DecodeFunctionResultResponse,
+  EncodeAbiArgs,
+  EncodeDeployDataArgs,
+  EncodeErrorResultArgs,
+  EncodeEventTopicsArgs,
+  EncodeFunctionDataArgs,
+  EncodeFunctionResultArgs,
   GetContractAddressOptions,
   GetCreateAddressOptions,
   GetCreate2AddressOptions,

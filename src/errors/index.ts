@@ -2,6 +2,7 @@ export {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
   AbiDecodingDataSizeInvalidError,
+  AbiDecodingZeroDataError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   AbiErrorInputsNotFoundError,
@@ -22,6 +23,11 @@ export { InvalidAddressError } from './address'
 export { BaseError } from './base'
 
 export { BlockNotFoundError } from './block'
+
+export {
+  ContractMethodExecutionError,
+  ContractMethodZeroDataError,
+} from './contract'
 
 export { SizeExceedsPaddingSizeError } from './data'
 

@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "addChain": [Function],
       "call": [Function],
+      "callContract": [Function],
       "createBlockFilter": [Function],
       "createPendingTransactionFilter": [Function],
       "dropTransaction": [Function],

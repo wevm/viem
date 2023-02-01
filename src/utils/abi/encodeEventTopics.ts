@@ -4,43 +4,45 @@ import {
   AbiParameterToPrimitiveType,
   ExtractAbiEventNames,
 } from 'abitype'
+
 import {
   AbiEventNotFoundError,
   FilterTypeNotSupportedError,
 } from '../../errors'
-import { Hex } from '../../types'
-import { ExtractEventArgsFromAbi } from '../../types/solidity'
+import { ExtractEventArgsFromAbi, Hex } from '../../types'
 import { encodeBytes } from '../encoding'
 import { keccak256, getEventSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
-import { getDefinition } from './getDefinition'
+import { formatAbiItemWithParams } from './formatAbiItemWithParams'
+import { getAbiItem } from './getAbiItem'
+
+export type EncodeEventTopicsArgs<
+  TAbi extends Abi = Abi,
+  TEventName extends ExtractAbiEventNames<TAbi> = any,
+> = {
+  abi: TAbi
+  eventName: TEventName
+} & ExtractEventArgsFromAbi<TAbi, TEventName>
 
 export function encodeEventTopics<
   TAbi extends Abi = Abi,
   TEventName extends ExtractAbiEventNames<TAbi> = any,
->({
-  abi,
-  eventName,
-  args,
-}: {
-  abi: TAbi
-  eventName: TEventName
-} & ExtractEventArgsFromAbi<TAbi, TEventName>) {
-  const description = abi.find((x) => 'name' in x && x.name === eventName)
-  if (!description)
+>({ abi, eventName, args }: EncodeEventTopicsArgs<TAbi, TEventName>) {
+  const abiItem = getAbiItem({ abi, name: eventName })
+  if (!abiItem)
     throw new AbiEventNotFoundError(eventName, {
       docsPath: '/docs/contract/encodeEventTopics',
     })
-  const definition = getDefinition(description)
+  const definition = formatAbiItemWithParams(abiItem)
   const signature = getEventSignature(definition as `${string}(${string})`)
 
   let topics: Hex[] = []
-  if (args && 'inputs' in description) {
+  if (args && 'inputs' in abiItem) {
     const args_ = Array.isArray(args)
       ? args
-      : description.inputs?.map((x: any) => (args as any)[x.name]) ?? []
+      : abiItem.inputs?.map((x: any) => (args as any)[x.name]) ?? []
     topics =
-      description.inputs
+      abiItem.inputs
         ?.filter((param) => 'indexed' in param && param.indexed)
         .map((param, i) =>
           Array.isArray(args_[i])

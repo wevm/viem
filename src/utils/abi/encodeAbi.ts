@@ -14,16 +14,18 @@ import { Hex } from '../../types'
 import { concat, padHex, size } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
+export type EncodeAbiArgs<TParams extends readonly AbiParameter[]> = {
+  params: TParams
+  values: AbiParametersToPrimitiveTypes<TParams>
+}
+
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
  */
 export function encodeAbi<TParams extends readonly AbiParameter[]>({
   params,
   values,
-}: {
-  params: TParams
-  values: AbiParametersToPrimitiveTypes<TParams>
-}) {
+}: EncodeAbiArgs<TParams>) {
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: params.length,

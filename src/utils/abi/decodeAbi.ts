@@ -6,6 +6,7 @@ import {
 
 import {
   AbiDecodingDataSizeInvalidError,
+  AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
 } from '../../errors'
 import { Hex } from '../../types'
@@ -14,10 +15,16 @@ import { size, slice, trim } from '../data'
 import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
 import { getArrayComponents } from './encodeAbi'
 
+export type DecodeAbiArgs<TParams extends readonly AbiParameter[]> = {
+  data: Hex
+  params: TParams
+}
+
 export function decodeAbi<TParams extends readonly AbiParameter[]>({
   data,
   params,
-}: { data: Hex; params: TParams }) {
+}: DecodeAbiArgs<TParams>) {
+  if (data === '0x' && params.length > 0) throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
     throw new AbiDecodingDataSizeInvalidError(size(data))
   const values = decodeParams({
@@ -98,7 +105,7 @@ function decodeParam({
 ////////////////////////////////////////////////////////////////////
 
 function decodeAddress(value: Hex) {
-  return { consumed: 32, value: checksumAddress(trim(value)) }
+  return { consumed: 32, value: checksumAddress(slice(value, -20)) }
 }
 
 function decodeArray<TParam extends AbiParameter>(

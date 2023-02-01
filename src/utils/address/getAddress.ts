@@ -11,10 +11,10 @@ export function checksumAddress(address_: Address): Address {
 
   let address = hexAddress.split('')
   for (let i = 0; i < 40; i += 2) {
-    if (hash?.[i >> 1] >> 4 >= 8) {
+    if (hash?.[i >> 1] >> 4 >= 8 && address[i]) {
       address[i] = address[i].toUpperCase()
     }
-    if ((hash[i >> 1] & 0x0f) >= 8) {
+    if ((hash[i >> 1] & 0x0f) >= 8 && address[i + 1]) {
       address[i + 1] = address[i + 1].toUpperCase()
     }
   }

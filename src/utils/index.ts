@@ -1,3 +1,16 @@
+export type {
+  DecodeAbiArgs,
+  DecodeErrorResultArgs,
+  DecodeFunctionDataArgs,
+  DecodeFunctionResultArgs,
+  DecodeFunctionResultResponse,
+  EncodeAbiArgs,
+  EncodeDeployDataArgs,
+  EncodeErrorResultArgs,
+  EncodeEventTopicsArgs,
+  EncodeFunctionDataArgs,
+  EncodeFunctionResultArgs,
+} from './abi'
 export {
   decodeAbi,
   decodeErrorResult,
@@ -9,6 +22,9 @@ export {
   encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
+  formatAbiItemWithArgs,
+  formatAbiItemWithParams,
+  getAbiItem,
 } from './abi'
 
 export type {
@@ -26,6 +42,14 @@ export {
 } from './address'
 
 export { buildRequest } from './buildRequest'
+
+export {
+  extractFunctionName,
+  extractFunctionParams,
+  extractFunctionType,
+  extractFunctionParts,
+  getContractError,
+} from './contract'
 
 export {
   isBytes,
@@ -89,11 +113,7 @@ export { getEventSignature, getFunctionSignature, keccak256 } from './hash'
 
 export { rpc } from './rpc'
 
-export {
-  extractFunctionName,
-  extractFunctionParams,
-  extractFunctionType,
-} from './solidity'
+export { stringify } from './stringify'
 
 export {
   formatEther,

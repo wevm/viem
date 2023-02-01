@@ -7,6 +7,20 @@ export type {
 } from './block'
 
 export type {
+  AbiItem,
+  AbiEventParametersToPrimitiveTypes,
+  ExtractArgsFromAbi,
+  ExtractArgsFromEventDefinition,
+  ExtractArgsFromFunctionDefinition,
+  ExtractConstructorArgsFromAbi,
+  ExtractErrorArgsFromAbi,
+  ExtractEventArgsFromAbi,
+  ExtractFunctionNameFromAbi,
+  ExtractResultFromAbi,
+  GetValue,
+} from './contract'
+
+export type {
   EstimateGasParameters,
   FeeHistory,
   FeeValues,
@@ -35,15 +49,6 @@ export type {
   RpcTransaction,
   RpcUncle,
 } from './rpc'
-
-export type {
-  ExtractArgsFromAbi,
-  ExtractArgsFromEventDefinition,
-  ExtractArgsFromFunctionDefinition,
-  ExtractConstructorArgsFromAbi,
-  ExtractErrorArgsFromAbi,
-  ExtractResultFromAbi,
-} from './solidity'
 
 export type {
   AccessList,

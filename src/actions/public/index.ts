@@ -1,6 +1,13 @@
 export { call } from './call'
 export type { CallArgs, CallResponse, FormattedCall } from './call'
 
+export { callContract } from './callContract'
+export type {
+  CallContractArgs,
+  CallContractResponse,
+  FormattedCallContract,
+} from './callContract'
+
 export { createPendingTransactionFilter } from './createPendingTransactionFilter'
 export type { CreatePendingTransactionFilterResponse } from './createPendingTransactionFilter'
 

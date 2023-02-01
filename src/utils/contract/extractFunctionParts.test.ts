@@ -5,7 +5,7 @@ import {
   extractFunctionParams,
   extractFunctionParts,
   extractFunctionType,
-} from './solidity'
+} from './extractFunctionParts'
 
 test('extractFunctionParts', () => {
   expect(extractFunctionParts('foo()')).toMatchInlineSnapshot(`

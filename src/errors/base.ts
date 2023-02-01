@@ -1,5 +1,6 @@
 // @ts-ignore
 import pkg from '../../package.json'
+import { stringify } from '../utils/stringify'
 
 /* c8 ignore next */
 const version = process.env.TEST ? '1.0.2' : pkg.version
@@ -42,7 +43,7 @@ export class BaseError extends Error {
       ...(args.cause &&
       !(args.cause instanceof BaseError) &&
       Object.keys(args.cause).length > 0
-        ? [`Internal Error: ${JSON.stringify(args.cause)}`]
+        ? [`Internal Error: ${stringify(args.cause)}`]
         : []),
     ].join('\n')
 

@@ -4,22 +4,28 @@ import {
   AbiFunctionOutputsNotFoundError,
 } from '../../errors'
 
-import { ExtractResultFromAbi } from '../../types'
+import { ExtractFunctionNameFromAbi, ExtractResultFromAbi } from '../../types'
 import { encodeAbi } from './encodeAbi'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
 
+export type EncodeFunctionResultArgs<
+  TAbi extends Abi = Abi,
+  TFunctionName extends string = any,
+> = {
+  abi: TAbi
+  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+  result?: ExtractResultFromAbi<TAbi, TFunctionName>
+}
+
 export function encodeFunctionResult<
   TAbi extends Abi = Abi,
-  TFunctionName extends ExtractAbiFunctionNames<TAbi> = any,
+  TFunctionName extends string = any,
 >({
   abi,
   functionName,
   result,
-}: { abi: TAbi; functionName: TFunctionName } & ExtractResultFromAbi<
-  TAbi,
-  TFunctionName
->) {
+}: EncodeFunctionResultArgs<TAbi, TFunctionName>) {
   const description = abi.find((x) => 'name' in x && x.name === functionName)
   if (!description)
     throw new AbiFunctionNotFoundError(functionName, { docsPath })

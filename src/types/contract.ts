@@ -1,22 +1,27 @@
 import type {
   Abi,
+  AbiError,
+  AbiEvent,
   AbiFunction,
   AbiType,
   AbiTypeToPrimitiveType,
+  AbiParameter,
   AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
   ExtractAbiFunction,
-  AbiParameter,
   ExtractAbiEvent,
-  AbiEvent,
-  AbiError,
   ExtractAbiError,
+  AbiStateMutability,
+  ExtractAbiFunctionNames,
 } from 'abitype'
+import { TransactionRequest } from './transaction'
 
 import type { Trim } from './utils'
 
 //////////////////////////////////////////////////////////////////////
 // ABIs
+
+export type AbiItem = Abi[number]
 
 export type AbiEventParametersToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
@@ -132,31 +137,6 @@ export type ExtractErrorArgsFromAbi<
       /** Arguments to pass contract method */ args: TArgs
     }
 
-export type ExtractResultFromAbi<
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  TAbiFunction extends AbiFunction & { type: 'function' } = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
-    : AbiFunction & { type: 'function' },
-  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['outputs']>,
-  FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
-> = true extends FailedToParseArgs
-  ? {
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
-       */
-      result?: readonly unknown[]
-    }
-  : TArgs extends readonly []
-  ? { result?: never }
-  : {
-      /** Arguments to pass contract method */ result: TArgs
-    }
-
 export type ExtractEventArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
@@ -181,6 +161,42 @@ export type ExtractEventArgsFromAbi<
   : {
       args?: TArgs
     }
+
+export type ExtractFunctionNameFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = string,
+  TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
+> = TAbi extends Abi
+  ? ExtractAbiFunctionNames<
+      TAbi,
+      TAbiStateMutability
+    > extends infer AbiFunctionNames
+    ?
+        | AbiFunctionNames
+        | (TFunctionName extends AbiFunctionNames ? TFunctionName : never)
+        | (Abi extends TAbi ? string : never)
+    : never
+  : TFunctionName
+
+export type ExtractResultFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = string,
+  TAbiFunction extends AbiFunction & {
+    type: 'function'
+  } = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction & { type: 'function' },
+  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['outputs']>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? unknown
+  : TArgs extends readonly []
+  ? void
+  : TArgs extends readonly [infer Arg]
+  ? Arg
+  : TArgs
 
 //////////////////////////////////////////////////////////////////////
 // Event/Function Definitions
@@ -293,3 +309,19 @@ export type ExtractArgsFromFunctionDefinition<TDef> = ExtractArgsFromDefinition<
   TDef,
   { indexedOnly: false }
 >
+
+//////////////////////////////////////////////////////////////////////
+// Call Args
+
+export type GetValue<
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
+  TValueType = TransactionRequest['value'],
+  TAbiFunction extends AbiFunction & { type: 'function' } = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction & { type: 'function' },
+> = TAbiFunction['stateMutability'] extends 'payable'
+  ? TValueType
+  : TAbiFunction['payable'] extends true
+  ? TValueType
+  : never
