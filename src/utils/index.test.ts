@@ -33,12 +33,15 @@ test('exports utils', () => {
       "extractFunctionParams": [Function],
       "extractFunctionType": [Function],
       "format": [Function],
+      "formatAbiItemWithArgs": [Function],
+      "formatAbiItemWithParams": [Function],
       "formatBlock": [Function],
       "formatEther": [Function],
       "formatGwei": [Function],
       "formatTransaction": [Function],
       "formatTransactionRequest": [Function],
       "formatUnit": [Function],
+      "getAbiItem": [Function],
       "getAddress": [Function],
       "getContractAddress": [Function],
       "getCreate2Address": [Function],
@@ -74,6 +77,7 @@ test('exports utils', () => {
       "sliceHex": [Function],
       "stringToBytes": [Function],
       "stringToHex": [Function],
+      "stringify": [Function],
       "trim": [Function],
     }
   `)

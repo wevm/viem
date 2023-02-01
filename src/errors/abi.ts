@@ -43,6 +43,13 @@ export class AbiDecodingDataSizeInvalidError extends BaseError {
   }
 }
 
+export class AbiDecodingZeroDataError extends BaseError {
+  name = 'AbiDecodingZeroDataError'
+  constructor() {
+    super('Cannot decode zero data ("0x") with ABI parameters.')
+  }
+}
+
 export class AbiEncodingArrayLengthMismatchError extends BaseError {
   name = 'AbiEncodingArrayLengthMismatchError'
   constructor({
@@ -220,15 +227,12 @@ export class InvalidArrayError extends BaseError {
 
 export class InvalidDefinitionTypeError extends BaseError {
   name = 'InvalidDefinitionTypeError'
-  constructor(type: string, { docsPath }: { docsPath: string }) {
+  constructor(type: string) {
     super(
       [
         `"${type}" is not a valid definition type.`,
         'Valid types: "function", "event", "error"',
       ].join('\n'),
-      {
-        docsPath,
-      },
     )
   }
 }

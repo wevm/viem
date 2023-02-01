@@ -1,3 +1,4 @@
+import { stringify } from '../utils'
 import { BaseError } from './base'
 
 export class HttpRequestError extends BaseError {
@@ -21,7 +22,7 @@ export class HttpRequestError extends BaseError {
         '',
         `Status: ${status}`,
         `URL: ${url}`,
-        `Request body: ${JSON.stringify(body)}`,
+        `Request body: ${stringify(body)}`,
       ].join('\n'),
       {
         details,
@@ -48,7 +49,7 @@ export class WebSocketRequestError extends BaseError {
         'WebSocket request failed.',
         '',
         `URL: ${url}`,
-        `Request body: ${JSON.stringify(body)}`,
+        `Request body: ${stringify(body)}`,
       ].join('\n'),
       {
         details,
@@ -76,7 +77,7 @@ export class RpcError extends BaseError {
         'RPC Request failed.',
         '',
         `URL: ${url}`,
-        `Request body: ${JSON.stringify(body)}`,
+        `Request body: ${stringify(body)}`,
       ].join('\n'),
       {
         cause: error as any,
@@ -102,7 +103,7 @@ export class TimeoutError extends BaseError {
         'The request took too long to respond.',
         '',
         `URL: ${url}`,
-        `Request body: ${JSON.stringify(body)}`,
+        `Request body: ${stringify(body)}`,
       ].join('\n'),
       {
         details: 'The request timed out.',

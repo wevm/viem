@@ -4,7 +4,7 @@ import { JsonRpcProvider } from 'essential-eth'
 
 import { localhost } from '../src/chains'
 
-export const ethersProvider = new providers.StaticJsonRpcProvider(
+export const ethersProvider = new providers.JsonRpcProvider(
   localhost.rpcUrls.default.http[0],
 )
 

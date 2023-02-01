@@ -1,5 +1,5 @@
 import { encodeBytes } from '../encoding'
-import { extractFunctionName, extractFunctionParams } from '../solidity'
+import { extractFunctionName, extractFunctionParams } from '../contract'
 import { keccak256 } from './keccak256'
 
 const hash = (value: string) => keccak256(encodeBytes(value))

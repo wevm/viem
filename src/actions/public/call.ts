@@ -2,6 +2,7 @@ import type { Chain, Formatter } from '../../chains'
 import type { PublicClient } from '../../clients'
 import { InvalidGasArgumentsError } from '../../errors'
 import type {
+  Address,
   BlockTag,
   Hex,
   MergeIntersectionProperties,
@@ -21,6 +22,7 @@ export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
   TransactionRequestFormatter<TChain>
 > & {
   chain?: TChain
+  from?: Address
 } & (
     | {
         /** The balance of the account at a block number. */

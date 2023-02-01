@@ -1,3 +1,5 @@
+import { Abi, AbiError, AbiEvent, AbiFunction, AbiParameter } from 'abitype'
+
 const paramsRegex = /((function|event)\s)?(.*)(\((.*)\))/
 
 export function extractFunctionParts(def: string) {

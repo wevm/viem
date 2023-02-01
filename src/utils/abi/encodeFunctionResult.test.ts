@@ -69,7 +69,7 @@ test('returns (address)', () => {
         },
       ] as const,
       functionName: 'foo',
-      result: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
+      result: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
     }),
   ).toEqual(
     '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',

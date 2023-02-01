@@ -9,6 +9,9 @@ export {
   encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
+  formatAbiItemWithArgs,
+  formatAbiItemWithParams,
+  getAbiItem,
 } from './abi'
 
 export type {
@@ -26,6 +29,12 @@ export {
 } from './address'
 
 export { buildRequest } from './buildRequest'
+
+export {
+  extractFunctionName,
+  extractFunctionParams,
+  extractFunctionType,
+} from './contract'
 
 export {
   isBytes,
@@ -89,11 +98,7 @@ export { getEventSignature, getFunctionSignature, keccak256 } from './hash'
 
 export { rpc } from './rpc'
 
-export {
-  extractFunctionName,
-  extractFunctionParams,
-  extractFunctionType,
-} from './solidity'
+export { stringify } from './stringify'
 
 export {
   formatEther,

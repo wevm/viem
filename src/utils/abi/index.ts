@@ -17,3 +17,9 @@ export { encodeEventTopics } from './encodeEventTopics'
 export { encodeFunctionData } from './encodeFunctionData'
 
 export { encodeFunctionResult } from './encodeFunctionResult'
+
+export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
+
+export { formatAbiItemWithParams } from './formatAbiItemWithParams'
+
+export { getAbiItem } from './getAbiItem'

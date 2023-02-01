@@ -1575,7 +1575,6 @@ test('invalid type', () => {
   expect(() =>
     decodeAbi({
       data: '0x0000000000000000000000000000000000000000000000000000000000000000',
-      // @ts-expect-error
       params: [{ name: 'x', type: 'lol' }],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
@@ -1583,6 +1582,33 @@ test('invalid type', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/decodeAbi
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('error: zero data', () => {
+  expect(() =>
+    decodeAbi({
+      params: [
+        {
+          inputs: [],
+          name: 'foo',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: 'x',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ] as const,
+      data: '0x',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Cannot decode zero data (\\"0x\\") with ABI parameters.
 
     Version: viem@1.0.2"
   `)

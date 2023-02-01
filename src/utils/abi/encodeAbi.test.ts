@@ -1350,7 +1350,6 @@ describe('dynamic', () => {
 
 test('invalid type', () => {
   expect(() =>
-    // @ts-expect-error
     encodeAbi({ params: [{ name: 'x', type: 'lol' }], values: [69] }),
   ).toThrowErrorMatchingInlineSnapshot(`
     "Type \\"lol\\" is not a valid encoding type.

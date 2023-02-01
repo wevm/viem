@@ -6,6 +6,7 @@ import {
 } from '../errors'
 import { withRetry } from './promise'
 import { withTimeout } from './promise/withTimeout'
+import { stringify } from './stringify'
 
 let id = 0
 
@@ -78,7 +79,7 @@ async function http(
               'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify({ jsonrpc: '2.0', id: id++, ...body }),
+            body: stringify({ jsonrpc: '2.0', id: id++, ...body }),
             signal: timeout > 0 ? signal : undefined,
           })
           return response
@@ -117,7 +118,7 @@ async function http(
   if (!response.ok) {
     throw new HttpRequestError({
       body,
-      details: JSON.stringify(data.error) || response.statusText,
+      details: stringify(data.error) || response.statusText,
       status: response.status,
       url,
     })

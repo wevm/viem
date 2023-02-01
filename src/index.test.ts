@@ -65,6 +65,7 @@ test('exports actions', () => {
       "bytesToNumber": [Function],
       "bytesToString": [Function],
       "call": [Function],
+      "callContract": [Function],
       "createBlockFilter": [Function],
       "createClient": [Function],
       "createPendingTransactionFilter": [Function],

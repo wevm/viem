@@ -67,7 +67,6 @@ test('error: constructor not found', () => {
       abi: [{}] as const,
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
-      // @ts-expect-error
       args: [69420n],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
@@ -92,7 +91,6 @@ test('error: no inputs', () => {
       ] as const,
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
-      // @ts-expect-error
       args: [69420n],
     }),
   ).toThrowErrorMatchingInlineSnapshot(
@@ -118,7 +116,6 @@ test('error: no inputs', () => {
       ] as const,
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
-      // @ts-expect-error
       args: [69420n],
     }),
   ).toThrowErrorMatchingInlineSnapshot(

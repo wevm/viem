@@ -1,5 +1,6 @@
 export {
   call,
+  callContract,
   createBlockFilter,
   createPendingTransactionFilter,
   estimateGas,
@@ -25,6 +26,8 @@ export {
 } from './public'
 export type {
   CallArgs,
+  CallContractArgs,
+  CallContractResponse,
   CallResponse,
   CreateBlockFilterResponse,
   CreatePendingTransactionFilterResponse,
