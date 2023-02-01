@@ -37,32 +37,38 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "module": "./dist/index.mjs",
       "default": "./dist/index.js"
     },
     "./actions": {
       "types": "./dist/actions/index.d.ts",
+      "module": "./dist/actions/index.mjs",
       "default": "./dist/actions/index.js"
     },
     "./chains": {
       "types": "./dist/chains.d.ts",
+      "module": "./dist/chains.mjs",
       "default": "./dist/chains.js"
     },
     "./clients": {
       "types": "./dist/clients/index.d.ts",
+      "module": "./dist/clients/index.mjs",
       "default": "./dist/clients/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
+      "module": "./dist/utils/index.mjs",
       "default": "./dist/utils/index.js"
     },
     "./window": {
       "types": "./dist/window.d.ts",
+      "module": "./dist/window.mjs",
       "default": "./dist/window.js"
     },
     "./package.json": "./package.json"
   },
-  "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
@@ -111,9 +117,6 @@
     "wallet",
     "web3"
   ],
-  "engines": {
-    "node": ">=18"
-  },
   "simple-git-hooks": {
     "pre-commit": "pnpm format & pnpm lint:fix"
   },
