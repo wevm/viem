@@ -52,23 +52,28 @@ test('exports chains', () => {
               "wss://arbitrum-mainnet.infura.io/ws/v3",
             ],
           },
+          "public": {
+            "http": [
+              "https://arb1.arbitrum.io/rpc",
+            ],
+          },
         },
       },
       "arbitrumGoerli": {
         "blockExplorers": {
           "default": {
             "name": "Arbiscan",
-            "url": "https://arbiscan.io",
+            "url": "https://goerli.arbiscan.io/",
           },
           "etherscan": {
             "name": "Arbiscan",
-            "url": "https://arbiscan.io",
+            "url": "https://goerli.arbiscan.io/",
           },
         },
         "contracts": {
           "multicall3": {
             "address": "0xca11bde05977b3631167028862be2a173976ca11",
-            "blockCreated": 7654707,
+            "blockCreated": 88114,
           },
         },
         "id": 421613,
@@ -90,7 +95,7 @@ test('exports chains', () => {
           },
           "default": {
             "http": [
-              "https://arb1.arbitrum.io/rpc",
+              "https://goerli-rollup.arbitrum.io/rpc",
             ],
           },
           "infura": {
@@ -99,6 +104,11 @@ test('exports chains', () => {
             ],
             "webSocket": [
               "wss://arbitrum-goerli.infura.io/ws/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://goerli-rollup.arbitrum.io/rpc",
             ],
           },
         },
@@ -131,6 +141,11 @@ test('exports chains', () => {
         "network": "avalanche",
         "rpcUrls": {
           "default": {
+            "http": [
+              "https://api.avax.network/ext/bc/C/rpc",
+            ],
+          },
+          "public": {
             "http": [
               "https://api.avax.network/ext/bc/C/rpc",
             ],
@@ -168,6 +183,11 @@ test('exports chains', () => {
               "https://api.avax-test.network/ext/bc/C/rpc",
             ],
           },
+          "public": {
+            "http": [
+              "https://api.avax-test.network/ext/bc/C/rpc",
+            ],
+          },
         },
         "testnet": true,
       },
@@ -189,7 +209,7 @@ test('exports chains', () => {
           },
         },
         "id": 56,
-        "name": "Binance Smart Chain",
+        "name": "BNB Smart Chain",
         "nativeCurrency": {
           "decimals": 18,
           "name": "BNB",
@@ -198,6 +218,11 @@ test('exports chains', () => {
         "network": "bsc",
         "rpcUrls": {
           "default": {
+            "http": [
+              "https://rpc.ankr.com/bsc",
+            ],
+          },
+          "public": {
             "http": [
               "https://rpc.ankr.com/bsc",
             ],
@@ -232,7 +257,12 @@ test('exports chains', () => {
         "rpcUrls": {
           "default": {
             "http": [
-              "https://bsctestapi.terminet.io/rpc",
+              "https://bsc-testnet.public.blastapi.io",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://bsc-testnet.public.blastapi.io",
             ],
           },
         },
@@ -254,6 +284,11 @@ test('exports chains', () => {
         "network": "celo",
         "rpcUrls": {
           "default": {
+            "http": [
+              "https://rpc.ankr.com/celo",
+            ],
+          },
+          "public": {
             "http": [
               "https://rpc.ankr.com/celo",
             ],
@@ -296,6 +331,11 @@ test('exports chains', () => {
               "https://rpc.ankr.com/fantom",
             ],
           },
+          "public": {
+            "http": [
+              "https://rpc.ankr.com/fantom",
+            ],
+          },
         },
       },
       "fantomTestnet": {
@@ -315,7 +355,7 @@ test('exports chains', () => {
             "blockCreated": 8328688,
           },
         },
-        "id": 250,
+        "id": 4002,
         "name": "Fantom Testnet",
         "nativeCurrency": {
           "decimals": 18,
@@ -325,6 +365,11 @@ test('exports chains', () => {
         "network": "fantom-testnet",
         "rpcUrls": {
           "default": {
+            "http": [
+              "https://rpc.testnet.fantom.network",
+            ],
+          },
+          "public": {
             "http": [
               "https://rpc.testnet.fantom.network",
             ],
@@ -342,6 +387,11 @@ test('exports chains', () => {
         "network": "foundry",
         "rpcUrls": {
           "default": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+          "public": {
             "http": [
               "http://127.0.0.1:8545",
             ],
@@ -373,7 +423,7 @@ test('exports chains', () => {
         "nativeCurrency": {
           "decimals": 18,
           "name": "Goerli Ether",
-          "symbol": "GOR",
+          "symbol": "ETH",
         },
         "network": "goerli",
         "rpcUrls": {
@@ -398,6 +448,11 @@ test('exports chains', () => {
               "wss://goerli.infura.io/ws/v3",
             ],
           },
+          "public": {
+            "http": [
+              "https://rpc.ankr.com/eth_goerli",
+            ],
+          },
         },
         "testnet": true,
       },
@@ -416,6 +471,11 @@ test('exports chains', () => {
               "http://127.0.0.1:8545",
             ],
           },
+          "public": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
         },
       },
       "localhost": {
@@ -429,6 +489,11 @@ test('exports chains', () => {
         "network": "localhost",
         "rpcUrls": {
           "default": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+          "public": {
             "http": [
               "http://127.0.0.1:8545",
             ],
@@ -485,13 +550,18 @@ test('exports chains', () => {
               "wss://mainnet.infura.io/ws/v3",
             ],
           },
+          "public": {
+            "http": [
+              "https://cloudflare-eth.com",
+            ],
+          },
         },
       },
       "optimism": {
         "blockExplorers": {
           "default": {
-            "name": "Etherscan",
-            "url": "https://optimistic.etherscan.io",
+            "name": "Optimism Explorer",
+            "url": "https://explorer.optimism.io",
           },
           "etherscan": {
             "name": "Etherscan",
@@ -532,6 +602,11 @@ test('exports chains', () => {
             ],
             "webSocket": [
               "wss://optimism-mainnet.infura.io/ws/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://mainnet.optimism.io",
             ],
           },
         },
@@ -581,6 +656,11 @@ test('exports chains', () => {
             ],
             "webSocket": [
               "wss://optimism-goerli.infura.io/ws/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://goerli.optimism.io",
             ],
           },
         },
@@ -633,6 +713,11 @@ test('exports chains', () => {
               "wss://polygon-mainnet.infura.io/ws/v3",
             ],
           },
+          "public": {
+            "http": [
+              "https://polygon-rpc.com",
+            ],
+          },
         },
       },
       "polygonMumbai": {
@@ -682,6 +767,11 @@ test('exports chains', () => {
               "wss://polygon-mumbai.infura.io/ws/v3",
             ],
           },
+          "public": {
+            "http": [
+              "https://matic-mumbai.chainstacklabs.com",
+            ],
+          },
         },
         "testnet": true,
       },
@@ -697,9 +787,6 @@ test('exports chains', () => {
           },
         },
         "contracts": {
-          "ensRegistry": {
-            "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
-          },
           "multicall3": {
             "address": "0xca11bde05977b3631167028862be2a173976ca11",
             "blockCreated": 6507670,
@@ -725,6 +812,11 @@ test('exports chains', () => {
             ],
             "webSocket": [
               "wss://sepolia.infura.io/ws/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://rpc.sepolia.org",
             ],
           },
         },
@@ -759,6 +851,11 @@ describe('defineChain', () => {
         "network": "celo",
         "rpcUrls": {
           "default": {
+            "http": [
+              "https://rpc.ankr.com/celo",
+            ],
+          },
+          "public": {
             "http": [
               "https://rpc.ankr.com/celo",
             ],
