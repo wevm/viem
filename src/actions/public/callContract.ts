@@ -10,6 +10,7 @@ import type {
   GetValue,
 } from '../../types'
 import {
+  EncodeFunctionDataArgs,
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
@@ -55,7 +56,7 @@ export async function callContract<
     abi,
     args,
     functionName,
-  } as any)
+  } as unknown as EncodeFunctionDataArgs<TAbi, TFunctionName>)
   try {
     const { data } = await call(client, {
       data: calldata,

@@ -10,11 +10,16 @@ import { encodeAbi } from './encodeAbi'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
+export type EncodeDeployDataArgs<TAbi extends Abi = Abi> = {
+  abi: TAbi
+  bytecode: Hex
+} & ExtractConstructorArgsFromAbi<TAbi>
+
 export function encodeDeployData<TAbi extends Abi = Abi>({
   abi,
   args,
   bytecode,
-}: { abi: TAbi; bytecode: Hex } & ExtractConstructorArgsFromAbi<TAbi>) {
+}: EncodeDeployDataArgs<TAbi>) {
   if (!args || args.length === 0) return bytecode
 
   const description = abi.find((x) => 'type' in x && x.type === 'constructor')

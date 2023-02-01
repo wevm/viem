@@ -264,6 +264,17 @@ export type {
 } from './types'
 
 export type {
+  DecodeAbiArgs,
+  DecodeErrorResultArgs,
+  DecodeFunctionDataArgs,
+  DecodeFunctionResultArgs,
+  DecodeFunctionResultResponse,
+  EncodeAbiArgs,
+  EncodeDeployDataArgs,
+  EncodeErrorResultArgs,
+  EncodeEventTopicsArgs,
+  EncodeFunctionDataArgs,
+  EncodeFunctionResultArgs,
   GetContractAddressOptions,
   GetCreateAddressOptions,
   GetCreate2AddressOptions,

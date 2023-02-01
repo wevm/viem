@@ -9,14 +9,21 @@ import { decodeAbi } from './decodeAbi'
 
 const docsPath = '/docs/contract/decodeDeployData'
 
+export type DecodeDeployDataArgs<TAbi extends Abi = Abi> = {
+  abi: TAbi
+  bytecode: Hex
+  data: Hex
+}
+export type DecodeDeployDataResponse = {
+  args?: readonly unknown[] | undefined
+  bytecode: Hex
+}
+
 export function decodeDeployData<TAbi extends Abi = Abi>({
   abi,
   bytecode,
   data,
-}: { abi: TAbi; bytecode: Hex; data: Hex }): {
-  args?: readonly unknown[] | undefined
-  bytecode: Hex
-} {
+}: DecodeDeployDataArgs<TAbi>): DecodeDeployDataResponse {
   if (data === bytecode) return { bytecode }
 
   const description = abi.find((x) => 'type' in x && x.type === 'constructor')

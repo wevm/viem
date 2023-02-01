@@ -6,7 +6,9 @@ import { getFunctionSignature } from '../hash'
 import { decodeAbi } from './decodeAbi'
 import { formatAbiItemWithParams } from './formatAbiItemWithParams'
 
-export function decodeErrorResult({ abi, data }: { abi: Abi; data: Hex }) {
+export type DecodeErrorResultArgs = { abi: Abi; data: Hex }
+
+export function decodeErrorResult({ abi, data }: DecodeErrorResultArgs) {
   const signature = slice(data, 0, 4)
   const description = abi.find(
     (x) => signature === getFunctionSignature(formatAbiItemWithParams(x)),

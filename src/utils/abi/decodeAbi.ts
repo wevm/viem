@@ -15,10 +15,15 @@ import { size, slice, trim } from '../data'
 import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
 import { getArrayComponents } from './encodeAbi'
 
+export type DecodeAbiArgs<TParams extends readonly AbiParameter[]> = {
+  data: Hex
+  params: TParams
+}
+
 export function decodeAbi<TParams extends readonly AbiParameter[]>({
   data,
   params,
-}: { data: Hex; params: TParams }) {
+}: DecodeAbiArgs<TParams>) {
   if (data === '0x' && params.length > 0) throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
     throw new AbiDecodingDataSizeInvalidError(size(data))

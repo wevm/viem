@@ -16,17 +16,18 @@ import { encodeAbi } from './encodeAbi'
 import { formatAbiItemWithParams } from './formatAbiItemWithParams'
 import { getAbiItem } from './getAbiItem'
 
+export type EncodeEventTopicsArgs<
+  TAbi extends Abi = Abi,
+  TEventName extends ExtractAbiEventNames<TAbi> = any,
+> = {
+  abi: TAbi
+  eventName: TEventName
+} & ExtractEventArgsFromAbi<TAbi, TEventName>
+
 export function encodeEventTopics<
   TAbi extends Abi = Abi,
   TEventName extends ExtractAbiEventNames<TAbi> = any,
->({
-  abi,
-  eventName,
-  args,
-}: {
-  abi: TAbi
-  eventName: TEventName
-} & ExtractEventArgsFromAbi<TAbi, TEventName>) {
+>({ abi, eventName, args }: EncodeEventTopicsArgs<TAbi, TEventName>) {
   const abiItem = getAbiItem({ abi, name: eventName })
   if (!abiItem)
     throw new AbiEventNotFoundError(eventName, {

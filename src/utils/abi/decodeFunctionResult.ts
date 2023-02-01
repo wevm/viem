@@ -13,6 +13,20 @@ import { decodeAbi } from './decodeAbi'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 
+export type DecodeFunctionResultArgs<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = any,
+> = {
+  abi: TAbi
+  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+  data: Hex
+}
+
+export type DecodeFunctionResultResponse<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = any,
+> = ExtractResultFromAbi<TAbi, TFunctionName>
+
 export function decodeFunctionResult<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
@@ -20,11 +34,10 @@ export function decodeFunctionResult<
   abi,
   functionName,
   data,
-}: {
-  abi: TAbi
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
-  data: Hex
-}): ExtractResultFromAbi<TAbi, TFunctionName> {
+}: DecodeFunctionResultArgs<TAbi, TFunctionName>): DecodeFunctionResultResponse<
+  TAbi,
+  TFunctionName
+> {
   const description = (abi as Abi).find(
     (x) => 'name' in x && x.name === functionName,
   )

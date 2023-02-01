@@ -8,6 +8,14 @@ import { encodeAbi } from './encodeAbi'
 import { formatAbiItemWithParams } from './formatAbiItemWithParams'
 import { getAbiItem } from './getAbiItem'
 
+export type EncodeFunctionDataArgs<
+TAbi extends Abi = Abi,
+TFunctionName extends string = any,
+> = {
+  abi: TAbi
+  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+} & ExtractArgsFromAbi<TAbi, TFunctionName>
+
 export function encodeFunctionData<
   TAbi extends Abi = Abi,
   TFunctionName extends string = any,
@@ -15,10 +23,7 @@ export function encodeFunctionData<
   abi,
   args,
   functionName,
-}: {
-  abi: TAbi
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
-} & ExtractArgsFromAbi<TAbi, TFunctionName>) {
+}: EncodeFunctionDataArgs<TAbi, TFunctionName>) {
   const description = getAbiItem({ abi, name: functionName })
   if (!description)
     throw new AbiFunctionNotFoundError(functionName, {

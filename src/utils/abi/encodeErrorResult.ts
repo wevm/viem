@@ -13,17 +13,18 @@ import { getAbiItem } from './getAbiItem'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 
+export type EncodeErrorResultArgs<
+  TAbi extends Abi = Abi,
+  TErrorName extends ExtractAbiErrorNames<TAbi> = any,
+> = {
+  abi: TAbi
+  errorName: TErrorName
+} & ExtractErrorArgsFromAbi<TAbi, TErrorName>
+
 export function encodeErrorResult<
   TAbi extends Abi = Abi,
   TErrorName extends ExtractAbiErrorNames<TAbi> = any,
->({
-  abi,
-  errorName,
-  args,
-}: { abi: TAbi; errorName: TErrorName } & ExtractErrorArgsFromAbi<
-  TAbi,
-  TErrorName
->) {
+>({ abi, errorName, args }: EncodeErrorResultArgs<TAbi, TErrorName>) {
   const description = getAbiItem({ abi, name: errorName })
   if (!description) throw new AbiErrorNotFoundError(errorName, { docsPath })
   const definition = formatAbiItemWithParams(description)

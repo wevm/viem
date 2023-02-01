@@ -9,6 +9,15 @@ import { encodeAbi } from './encodeAbi'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
 
+export type EncodeFunctionResultArgs<
+  TAbi extends Abi = Abi,
+  TFunctionName extends string = any,
+> = {
+  abi: TAbi
+  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+  result?: ExtractResultFromAbi<TAbi, TFunctionName>
+}
+
 export function encodeFunctionResult<
   TAbi extends Abi = Abi,
   TFunctionName extends string = any,
@@ -16,11 +25,7 @@ export function encodeFunctionResult<
   abi,
   functionName,
   result,
-}: {
-  abi: TAbi
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
-  result?: ExtractResultFromAbi<TAbi, TFunctionName>
-}) {
+}: EncodeFunctionResultArgs<TAbi, TFunctionName>) {
   const description = abi.find((x) => 'name' in x && x.name === functionName)
   if (!description)
     throw new AbiFunctionNotFoundError(functionName, { docsPath })
