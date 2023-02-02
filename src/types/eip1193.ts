@@ -1,11 +1,10 @@
 import type { BlockTag } from './block'
-import type { Address, Hash, Hex } from './misc'
+import type { Address, Hash, Hex, LogTopic } from './misc'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
   RpcEstimateGasParameters as EstimateGasParameters,
-  RpcGetLogsParameters as GetLogsParameters,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
   Quantity,
@@ -386,7 +385,23 @@ export type PublicRequests = {
      * // => [{ ... }, { ... }]
      * */
     method: 'eth_getLogs'
-    params: [parameters: GetLogsParameters]
+    params: [
+      parameters: {
+        address?: Address | Address[]
+        topics?: LogTopic[]
+      } & (
+        | {
+            fromBlock?: BlockNumber | BlockTag
+            toBlock?: BlockNumber | BlockTag
+            blockHash?: never
+          }
+        | {
+            fromBlock?: never
+            toBlock?: never
+            blockHash?: Hash
+          }
+      ),
+    ]
   }): Promise<Log[]>
   request(args: {
     /**
@@ -527,7 +542,7 @@ export type PublicRequests = {
         fromBlock?: BlockNumber | BlockTag
         toBlock?: BlockNumber | BlockTag
         address?: Address | Address[]
-        topics?: (Hex | Hex[] | null)[]
+        topics?: LogTopic[]
       },
     ]
   }): Promise<Quantity>
