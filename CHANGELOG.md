@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.14
+
+### Patch Changes
+
+- [`257c8f3`](https://github.com/wagmi-dev/viem/commit/257c8f34c83a05da7226fd84565535ffe4dc4a6a) Thanks [@jxom](https://github.com/jxom)! - Added `getBytecode`.
+
 ## 0.0.1-alpha.13
 
 ### Patch Changes
