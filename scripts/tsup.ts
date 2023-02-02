@@ -63,6 +63,7 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
     clean: true,
     dts: true,
     format: ['esm', 'cjs'],
+    sourcemap: true,
     splitting: true,
     target: 'es2021',
     async onSuccess() {
