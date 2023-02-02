@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.15
+
+### Patch Changes
+
+- [`a74d643`](https://github.com/wagmi-dev/viem/commit/a74d6438d3a1263b3b6616e0b7ec80791945c870) Thanks [@jxom](https://github.com/jxom)! - **Breaking**: Removed the `viem/actions` export in favor of `viem/public`, `viem/test` & `viem/wallet` exports.
+
 ## 0.0.1-alpha.14
 
 ### Patch Changes
