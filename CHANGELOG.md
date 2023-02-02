@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.13
+
+### Patch Changes
+
+- [`8799a49`](https://github.com/wagmi-dev/viem/commit/8799a490b8b08fb90cd6edcdc1551f6b6e96bc64) Thanks [@jxom](https://github.com/jxom)! - Added `deployContract`
+
 ## 0.0.1-alpha.12
 
 ### Patch Changes
