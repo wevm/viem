@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.16
+
+### Patch Changes
+
+- [`9f386f5`](https://github.com/wagmi-dev/viem/commit/9f386f5737a228a57d1376992cd5a1374ed69262) Thanks [@jxom](https://github.com/jxom)! - Added sourcemaps
+
 ## 0.0.1-alpha.15
 
 ### Patch Changes
