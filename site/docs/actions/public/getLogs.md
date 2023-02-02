@@ -16,7 +16,7 @@ By default, `getLogs` returns all events. In practice, you must use scoping to f
 import { getLogs } from 'viem'
 import { publicClient } from '.'
 
-const logs = await getLogs(publicClient, {})  // [!code focus:99]
+const logs = await getLogs(publicClient)  // [!code focus:99]
 // [{ ... }, { ... }, { ... }]
 ```
 
