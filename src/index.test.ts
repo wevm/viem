@@ -81,6 +81,7 @@ test('exports actions', () => {
       "decodeFunctionResult": [Function],
       "decodeHex": [Function],
       "decodeRlp": [Function],
+      "deployContract": [Function],
       "dropTransaction": [Function],
       "encodeAbi": [Function],
       "encodeBytes": [Function],

@@ -9,6 +9,7 @@ test('exports actions', () => {
       "callContract": [Function],
       "createBlockFilter": [Function],
       "createPendingTransactionFilter": [Function],
+      "deployContract": [Function],
       "estimateGas": [Function],
       "getBalance": [Function],
       "getBlock": [Function],

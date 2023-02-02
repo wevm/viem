@@ -14,6 +14,12 @@ export type { CreatePendingTransactionFilterResponse } from './createPendingTran
 export { createBlockFilter } from './createBlockFilter'
 export type { CreateBlockFilterResponse } from './createBlockFilter'
 
+export { deployContract } from './deployContract'
+export type {
+  DeployContractArgs,
+  DeployContractResponse,
+} from './deployContract'
+
 export { estimateGas } from './estimateGas'
 export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
 
