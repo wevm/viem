@@ -2,7 +2,7 @@
 
 Creates a Filter to listen for new events that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).
 
-## Install
+## Import
 
 ```ts
 import { createEventFilter } from 'viem'
