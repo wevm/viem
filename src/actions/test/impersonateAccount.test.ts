@@ -1,11 +1,6 @@
 import { expect, test } from 'vitest'
 
-import {
-  accounts,
-  testClient,
-  vitalikAddress,
-  walletClient,
-} from '../../../test'
+import { accounts, testClient, vitalikAddress, walletClient } from '../../_test'
 import { parseEther } from '../../utils'
 import { sendTransaction } from '../wallet/sendTransaction'
 import { impersonateAccount } from './impersonateAccount'

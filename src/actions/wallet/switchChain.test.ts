@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '../../../test'
+import { walletClient } from '../../_test'
 import { avalanche, fantom } from '../../chains'
 
 import { switchChain } from './switchChain'

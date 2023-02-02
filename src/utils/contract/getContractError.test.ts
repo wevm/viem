@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '../../../test'
-import { baycContractConfig } from '../../../test/abis'
+import { accounts } from '../../_test'
+import { baycContractConfig } from '../../_test/abis'
 import { BaseError } from '../../errors'
 import { getContractError } from './getContractError'
 

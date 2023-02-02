@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors'
 import { wait } from '../../utils/wait'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt'

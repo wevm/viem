@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { OnTransactionsResponse } from 'viem/actions'
-import { watchPendingTransactions } from 'viem/actions'
-import type { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem'
+import type { OnTransactionsResponse } from 'viem/public'
+import { watchPendingTransactions } from 'viem/public'
 
 export function WatchPendingTransactions({ client }: { client: PublicClient }) {
   const [transactions, setTransactions] = useState<OnTransactionsResponse>([])

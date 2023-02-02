@@ -2,7 +2,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localhost } from '../chains'
 import type { Requests } from '../types/eip1193'
-import { localWsUrl } from '../../test'
+import { localWsUrl } from '../_test'
 import { createClient } from './createClient'
 import { createTransport, custom, http, webSocket } from './transports'
 

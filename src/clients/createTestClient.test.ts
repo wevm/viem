@@ -6,7 +6,7 @@ import { http } from './transports/http'
 import { localhost } from '../chains'
 import type { TestRequests } from '../types/eip1193'
 import { webSocket } from './transports/webSocket'
-import { localWsUrl } from '../../test'
+import { localWsUrl } from '../_test'
 
 const mockTransport = () =>
   createTransport({

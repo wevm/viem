@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../../test'
+import { publicClient, testClient } from '../../_test'
 import { parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
 

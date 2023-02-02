@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '../../../test'
+import { testClient } from '../../_test'
 
 import { getAutomine } from './getAutomine'
 import { setAutomine } from './setAutomine'

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { parseEther } from '../../utils'
 import { mine } from '../test'
 import { getTransactionConfirmations } from './getTransactionConfirmations'

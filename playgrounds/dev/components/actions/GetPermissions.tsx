@@ -1,5 +1,5 @@
-import { getPermissions } from 'viem/actions'
-import type { WalletClient } from 'viem/clients'
+import type { WalletClient } from 'viem'
+import { getPermissions } from 'viem/wallet'
 
 export function GetPermissions({ client }: { client: WalletClient }) {
   return (

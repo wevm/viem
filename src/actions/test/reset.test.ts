@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient, testClient } from '../../../test'
+import { initialBlockNumber, publicClient, testClient } from '../../_test'
 
 import { getBlockNumber } from '../public/getBlockNumber'
 import { setIntervalMining } from './setIntervalMining'

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { OnBlockNumberResponse } from 'viem/actions'
-import { watchBlockNumber } from 'viem/actions'
-import type { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem'
+import type { OnBlockNumberResponse } from 'viem/public'
+import { watchBlockNumber } from 'viem/public'
 
 export function WatchBlockNumber({ client }: { client: PublicClient }) {
   const [blockNumber, setBlockNumber] = useState<OnBlockNumberResponse>()

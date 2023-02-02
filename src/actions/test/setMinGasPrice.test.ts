@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '../../../test'
+import { testClient } from '../../_test'
 import { parseGwei } from '../../utils'
 
 import { setMinGasPrice } from './setMinGasPrice'

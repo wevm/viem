@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { createHttpServer, localHttpUrl } from '../../../test'
+import { createHttpServer, localHttpUrl } from '../../_test'
 import { localhost } from '../../chains'
 import { createClient } from '../createClient'
 

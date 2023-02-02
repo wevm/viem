@@ -8,10 +8,12 @@ export default defineConfig(
     dev: process.env.DEV === 'true',
     entry: [
       'src/index.ts',
-      'src/actions/index.ts',
       'src/chains.ts',
       'src/clients/index.ts',
+      'src/public.ts',
+      'src/test.ts',
       'src/utils/index.ts',
+      'src/wallet.ts',
       'src/window.ts',
     ],
     external: Object.keys(dependencies),

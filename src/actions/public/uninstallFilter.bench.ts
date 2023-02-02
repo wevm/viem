@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '../../../test'
+import { publicClient } from '../../_test'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter'
 import { uninstallFilter } from './uninstallFilter'
 

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { createHttpServer, initialBlockNumber, localWsUrl } from '../../test'
+import { createHttpServer, initialBlockNumber, localWsUrl } from '../_test'
 
 import { localhost, mainnet } from '../chains'
 import { numberToHex } from './encoding'

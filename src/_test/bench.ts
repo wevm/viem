@@ -2,7 +2,7 @@ import { providers } from 'ethers'
 import Web3 from 'web3'
 import { JsonRpcProvider } from 'essential-eth'
 
-import { localhost } from '../src/chains'
+import { localhost } from '../chains'
 
 export const ethersProvider = new providers.JsonRpcProvider(
   localhost.rpcUrls.default.http[0],

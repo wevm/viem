@@ -1,6 +1,6 @@
-import { addChain } from 'viem/actions'
-import type { WalletClient } from 'viem/clients'
+import type { WalletClient } from 'viem'
 import { celo } from 'viem/chains'
+import { addChain } from 'viem/wallet'
 
 export function AddChain({ client }: { client: WalletClient }) {
   return (

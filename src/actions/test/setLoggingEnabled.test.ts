@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 
-import { testClient } from '../../../test'
+import { testClient } from '../../_test'
 
 import { setLoggingEnabled } from './setLoggingEnabled'
 

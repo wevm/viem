@@ -1,5 +1,5 @@
 /* c8 ignore start */
-import { localhost } from '../src/chains'
+import { localhost } from '../chains'
 import {
   createPublicClient,
   createTestClient,
@@ -7,9 +7,9 @@ import {
   custom,
   http,
   webSocket,
-} from '../src/clients'
-import { rpc } from '../src/utils'
-import { RpcError } from '../src/types/eip1193'
+} from '../clients'
+import { rpc } from '../utils'
+import { RpcError } from '../types/eip1193'
 import { accounts, localWsUrl } from './constants'
 
 import type { RequestListener } from 'http'

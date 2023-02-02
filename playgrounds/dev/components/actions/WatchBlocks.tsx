@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { OnBlockResponse } from 'viem/actions'
-import { watchBlocks } from 'viem/actions'
-import type { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem'
+import type { OnBlockResponse } from 'viem/public'
+import { watchBlocks } from 'viem/public'
 
 export function WatchBlocks({ client }: { client: PublicClient }) {
   const [block, setBlock] = useState<OnBlockResponse>()

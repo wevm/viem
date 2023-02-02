@@ -6,7 +6,7 @@ import {
   ethersProvider,
   publicClient,
   web3Provider,
-} from '../../../test'
+} from '../../_test'
 import { parseEther } from '../../utils'
 
 import { estimateGas } from './estimateGas'

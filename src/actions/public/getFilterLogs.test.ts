@@ -9,7 +9,7 @@ import {
   usdcAddress,
   vitalikAddress,
   walletClient,
-} from '../../../test'
+} from '../../_test'
 
 import {
   impersonateAccount,

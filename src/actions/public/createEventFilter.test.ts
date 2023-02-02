@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, initialBlockNumber, publicClient } from '../../../test'
+import { accounts, initialBlockNumber, publicClient } from '../../_test'
 
 import { numberToHex, pad } from '../../utils'
 import { buildFilterTopics, createEventFilter } from './createEventFilter'

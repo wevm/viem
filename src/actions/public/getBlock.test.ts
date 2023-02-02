@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient } from '../../../test'
+import { initialBlockNumber, publicClient } from '../../_test'
 import { celo } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { Block, Hex } from '../../types'

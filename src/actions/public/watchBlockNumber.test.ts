@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import type { OnBlockNumberResponse } from './watchBlockNumber'
 import { watchBlockNumber } from './watchBlockNumber'
-import { publicClient, testClient } from '../../../test'
+import { publicClient, testClient } from '../../_test'
 import { wait } from '../../utils/wait'
 import { localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts, walletClient } from '../../../test'
+import { accounts, walletClient } from '../../_test'
 import { encodeBytes, encodeHex } from '../../utils'
 
 import { signMessage } from './signMessage'

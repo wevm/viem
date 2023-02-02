@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { publicClient } from '../../../test'
+import { publicClient } from '../../_test'
 import { getChainId } from './getChainId'
 
 test('default', async () => {

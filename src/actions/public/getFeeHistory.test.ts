@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient } from '../../../test'
+import { initialBlockNumber, publicClient } from '../../_test'
 import { getFeeHistory } from './getFeeHistory'
 
 test('default', async () => {

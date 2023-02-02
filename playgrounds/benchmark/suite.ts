@@ -1,13 +1,14 @@
 import { ethers, providers } from 'ethers'
 import {
+  createClient,
   getBalance,
   getBlock,
   getBlockNumber,
   getTransaction,
   getTransactionReceipt,
+  http,
   sendTransaction,
-} from 'viem/actions'
-import { createClient, http } from 'viem/clients'
+} from 'viem'
 import { mainnet } from 'viem/chains'
 import { formatBlock, parseEther } from 'viem/utils'
 import type { RpcBlock } from 'viem'

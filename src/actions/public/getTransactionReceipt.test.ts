@@ -1,6 +1,6 @@
 import { assertType, describe, expect, it, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { celo, defineTransactionReceipt, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { TransactionReceipt } from '../../types'

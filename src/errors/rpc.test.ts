@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { initialBlockNumber } from '../../test'
+import { initialBlockNumber } from '../_test'
 import { numberToHex } from '../utils'
 import {
   HttpRequestError,

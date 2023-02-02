@@ -1,11 +1,7 @@
 import { Contract } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import {
-  ethersProvider,
-  publicClient,
-  wagmiContractConfig,
-} from '../../../test'
+import { ethersProvider, publicClient, wagmiContractConfig } from '../../_test'
 
 import { callContract } from './callContract'
 

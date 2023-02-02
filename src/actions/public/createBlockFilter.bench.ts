@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '../../../test'
+import { publicClient } from '../../_test'
 
 import { createBlockFilter } from './createBlockFilter'
 

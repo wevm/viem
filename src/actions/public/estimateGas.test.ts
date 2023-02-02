@@ -5,7 +5,7 @@ import {
   initialBlockNumber,
   publicClient,
   testClient,
-} from '../../../test'
+} from '../../_test'
 import { parseEther, parseGwei } from '../../utils'
 import { reset } from '../test'
 import { estimateGas } from './estimateGas'

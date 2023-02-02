@@ -1,6 +1,6 @@
 import { assertType, expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter'
 import { getFilterChanges } from './getFilterChanges'

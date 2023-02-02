@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient, web3Provider } from '../../../test'
+import { publicClient, web3Provider } from '../../_test'
 
 import { getChainId } from './getChainId'
 

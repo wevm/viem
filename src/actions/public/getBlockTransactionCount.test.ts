@@ -6,7 +6,7 @@ import {
   publicClient,
   testClient,
   walletClient,
-} from '../../../test'
+} from '../../_test'
 import { parseEther } from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '..'

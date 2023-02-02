@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { GetBlockResponse } from 'viem/actions'
-import { getBlock } from 'viem/actions'
-import type { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem'
+import type { GetBlockResponse } from 'viem/public'
+import { getBlock } from 'viem/public'
 
 export function GetBlock({ client }: { client: PublicClient }) {
   const [latestBlock, setLatestBlock] = useState<GetBlockResponse>()

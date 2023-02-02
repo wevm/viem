@@ -8,11 +8,11 @@ export default defineConfig({
     },
     coverage: {
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      exclude: ['**/dist/**', '**/*.test.ts', '**/test/**'],
+      exclude: ['**/dist/**', '**/*.test.ts', '**/_test/**'],
     },
     environment: 'jsdom',
-    setupFiles: ['./test/setup.ts'],
-    globalSetup: ['./test/globalSetup.ts'],
+    setupFiles: ['./src/_test/setup.ts'],
+    globalSetup: ['./src/_test/globalSetup.ts'],
     testTimeout: 10_000,
   },
 })

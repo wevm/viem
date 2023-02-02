@@ -3,7 +3,7 @@ import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
-} from '../../../test'
+} from '../../_test'
 
 import { getBytecode } from './getBytecode'
 

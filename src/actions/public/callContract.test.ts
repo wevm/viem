@@ -15,8 +15,8 @@ import {
   testClient,
   wagmiContractConfig,
   walletClient,
-} from '../../../test'
-import { baycContractConfig } from '../../../test/abis'
+} from '../../_test'
+import { baycContractConfig } from '../../_test/abis'
 import { BaseError } from '../../errors'
 import { encodeFunctionData, getContractError } from '../../utils'
 import { mine } from '../test'

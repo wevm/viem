@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import type { GetTransactionArgs, GetTransactionResponse } from 'viem/actions'
-import { getTransaction } from 'viem/actions'
-import type { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem'
+import type { GetTransactionArgs, GetTransactionResponse } from 'viem/public'
+import { getTransaction } from 'viem/public'
 import type { Address } from 'viem'
 
 export function GetTransaction({ client }: { client: PublicClient }) {

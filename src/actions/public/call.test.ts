@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient } from '../../../test'
+import { accounts, publicClient } from '../../_test'
 import { celo } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import { numberToHex, parseGwei } from '../../utils'

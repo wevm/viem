@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { requestAccounts } from 'viem/actions'
-import type { WalletClient } from 'viem/clients'
+import type { WalletClient } from 'viem'
+import { requestAccounts } from 'viem/wallet'
 
 export function RequestAccountAddresses({ client }: { client: WalletClient }) {
   const [addresses, setAddresses] = useState<`0x${string}`[]>()

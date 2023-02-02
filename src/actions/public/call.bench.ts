@@ -6,7 +6,7 @@ import {
   ethersProvider,
   publicClient,
   web3Provider,
-} from '../../../test'
+} from '../../_test'
 
 import { call } from './call'
 

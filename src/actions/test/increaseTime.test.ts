@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../../test'
+import { publicClient, testClient } from '../../_test'
 
 import { getBlock } from '../public/getBlock'
 import { increaseTime } from './increaseTime'

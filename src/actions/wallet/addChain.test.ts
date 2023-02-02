@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 
-import { walletClient } from '../../../test'
+import { walletClient } from '../../_test'
 import { avalanche } from '../../chains'
 
 import { addChain } from './addChain'

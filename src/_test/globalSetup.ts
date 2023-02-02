@@ -1,5 +1,5 @@
 import { testClient } from './utils'
-import { reset, setAutomine, setIntervalMining } from '../src'
+import { reset, setAutomine, setIntervalMining } from '../actions'
 
 export async function setup() {
   await reset(testClient, {

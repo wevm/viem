@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { celo, defineChain, localhost } from '../../chains'
 import { hexToNumber, numberToHex, parseEther, parseGwei } from '../../utils'
 import { getBalance, getBlock } from '..'

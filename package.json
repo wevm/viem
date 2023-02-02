@@ -42,11 +42,6 @@
       "module": "./dist/index.mjs",
       "default": "./dist/index.js"
     },
-    "./actions": {
-      "types": "./dist/actions/index.d.ts",
-      "module": "./dist/actions/index.mjs",
-      "default": "./dist/actions/index.js"
-    },
     "./chains": {
       "types": "./dist/chains.d.ts",
       "module": "./dist/chains.mjs",
@@ -57,10 +52,25 @@
       "module": "./dist/clients/index.mjs",
       "default": "./dist/clients/index.js"
     },
+    "./public": {
+      "types": "./dist/public.d.ts",
+      "module": "./dist/public.mjs",
+      "default": "./dist/public.js"
+    },
+    "./test": {
+      "types": "./dist/test.d.ts",
+      "module": "./dist/test.mjs",
+      "default": "./dist/test.js"
+    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "module": "./dist/utils/index.mjs",
       "default": "./dist/utils/index.js"
+    },
+    "./wallet": {
+      "types": "./dist/wallet.d.ts",
+      "module": "./dist/wallet.mjs",
+      "default": "./dist/wallet.js"
     },
     "./window": {
       "types": "./dist/window.d.ts",

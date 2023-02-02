@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
-import { baycContractConfig } from '../../../test/abis'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
+import { baycContractConfig } from '../../_test/abis'
 import { parseEther } from '../../utils'
 import { mine, setBalance } from '../test'
 import { callContract } from './callContract'

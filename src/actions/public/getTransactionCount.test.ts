@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { parseEther } from '../../utils'
-import { accounts, publicClient, testClient, walletClient } from '../../../test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { sendTransaction } from '..'
 import { mine, setNonce } from '../test'
 import { getTransactionCount } from './getTransactionCount'

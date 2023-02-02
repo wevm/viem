@@ -7,7 +7,7 @@ import { custom } from './transports/custom'
 import { webSocket } from './transports/webSocket'
 import { localhost } from '../chains'
 import type { PublicRequests } from '../types/eip1193'
-import { localWsUrl } from '../../test'
+import { localWsUrl } from '../_test'
 
 const mockTransport = () =>
   createTransport({

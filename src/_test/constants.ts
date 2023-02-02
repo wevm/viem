@@ -1,4 +1,4 @@
-import type { Hex } from '../src/types'
+import type { Hex } from '../types'
 
 export const accounts = [
   {
