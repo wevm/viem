@@ -5,6 +5,7 @@ import type {
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
   RpcEstimateGasParameters as EstimateGasParameters,
+  RpcGetLogsParameters as GetLogsParameters,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
   Quantity,
@@ -381,25 +382,12 @@ export type PublicRequests = {
      * @description Returns a list of all logs based on a filter object
      * @link https://eips.ethereum.org/EIPS/eip-1474
      * @example
-     * provider.request({ method: 'eth_getLogs', params: [{ ... }] })
+     * provider.request({ method: 'eth_getLogs', params: [{ fromBlock: '0x...', toBlock: '0x...', address: '0x...', topics: ['0x...'] }] })
      * // => [{ ... }, { ... }]
      * */
     method: 'eth_getLogs'
-    params: [
-      filter: {
-        address?: Address | Address[]
-        topics?: Hex[]
-      } & (
-        | {
-            fromBlock?: BlockNumber | BlockTag
-            toBlock?: BlockNumber | BlockTag
-          }
-        | {
-            blockHash?: Hash
-          }
-      ),
-    ]
-  }): Promise<Log>
+    params: [parameters: GetLogsParameters]
+  }): Promise<Log[]>
   request(args: {
     /**
      * @description Returns the value from a storage position at an address

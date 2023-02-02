@@ -30,7 +30,7 @@ export type {
 
 export type { Filter, FilterType } from './filter'
 
-export type { Log } from './log'
+export type { GetLogsParameters, Log } from './log'
 
 export type { Address, ByteArray, Hex, Hash } from './misc'
 

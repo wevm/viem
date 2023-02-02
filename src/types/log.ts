@@ -1,4 +1,26 @@
+import { BlockNumber, BlockTag } from './block'
 import type { Address, Hash, Hex } from './misc'
+
+export type GetLogsParameters<TQuantity = bigint> = {
+  /** Address or list of addresses from which logs originated */
+  address?: Address | Address[]
+  /** List of order-dependent topics */
+  topics?: Hex[]
+} & (
+  | {
+      /** Block number or tag after which to include logs */
+      fromBlock?: BlockNumber<TQuantity> | BlockTag
+      /** Block number or tag before which to include logs */
+      toBlock?: BlockNumber<TQuantity> | BlockTag
+      blockHash?: never
+    }
+  | {
+      fromBlock?: never
+      toBlock?: never
+      /** Hash of block to include logs from */
+      blockHash?: Hash
+    }
+)
 
 export type Log<TQuantity = bigint, TIndex = number> = {
   /** The address from which this log originated */
