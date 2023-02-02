@@ -29,6 +29,7 @@ test('exports utils', () => {
       "encodeFunctionResult": [Function],
       "encodeHex": [Function],
       "encodeRlp": [Function],
+      "extract": [Function],
       "extractFunctionName": [Function],
       "extractFunctionParams": [Function],
       "extractFunctionParts": [Function],

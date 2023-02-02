@@ -77,6 +77,7 @@ export type {
   TransactionRequestFormatter,
 } from './formatters'
 export {
+  extract,
   format,
   formatBlock,
   formatTransaction,

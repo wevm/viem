@@ -7,7 +7,7 @@ import type {
   TransactionRequest,
 } from '../../types'
 import type { Formatted, TransactionRequestFormatter } from '../../utils'
-import { format, formatTransactionRequest } from '../../utils'
+import { extract, format, formatTransactionRequest } from '../../utils'
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
@@ -47,8 +47,7 @@ export async function sendTransaction<TChain extends Chain>(
   )
     throw new InvalidGasArgumentsError()
 
-  // TODO: validate `chain`
-
+  const formatter = chain?.formatters?.transactionRequest
   const request_ = format(
     {
       from,
@@ -61,11 +60,11 @@ export async function sendTransaction<TChain extends Chain>(
       nonce,
       to,
       value,
-      ...rest,
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter }),
     } as TransactionRequest,
     {
-      formatter:
-        chain?.formatters?.transactionRequest || formatTransactionRequest,
+      formatter: formatter || formatTransactionRequest,
     },
   )
 

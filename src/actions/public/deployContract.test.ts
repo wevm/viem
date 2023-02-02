@@ -10,8 +10,7 @@ import { getTransactionReceipt } from './getTransactionReceipt'
 
 test('default', async () => {
   const hash = await deployContract(walletClient, {
-    abi: baycContractConfig.abi,
-    bytecode: baycContractConfig.bytecode,
+    ...baycContractConfig,
     args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
     from: accounts[0].address,
   })
@@ -39,8 +38,7 @@ test('no funds', async () => {
 
   await expect(() =>
     deployContract(walletClient, {
-      abi: baycContractConfig.abi,
-      bytecode: baycContractConfig.bytecode,
+      ...baycContractConfig,
       args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
       from: accounts[0].address,
     }),

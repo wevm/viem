@@ -8,7 +8,7 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Formatted, TransactionRequestFormatter } from '../../utils'
+import { extract, Formatted, TransactionRequestFormatter } from '../../utils'
 import { format, formatTransactionRequest, numberToHex } from '../../utils'
 
 export type FormattedCall<
@@ -66,6 +66,7 @@ export async function call<TChain extends Chain>(
 
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
+  const formatter = chain?.formatters?.transactionRequest
   const request_ = format(
     {
       from,
@@ -78,11 +79,11 @@ export async function call<TChain extends Chain>(
       nonce,
       to,
       value,
-      ...rest,
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter }),
     } as TransactionRequest,
     {
-      formatter:
-        chain?.formatters?.transactionRequest || formatTransactionRequest,
+      formatter: formatter || formatTransactionRequest,
     },
   )
 
