@@ -401,7 +401,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/deployContract',
             },
             {
-              text: 'getBytecode 🚧',
+              text: 'getBytecode',
               link: '/docs/contract/getBytecode',
             },
             {

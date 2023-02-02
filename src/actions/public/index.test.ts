@@ -16,6 +16,7 @@ test('exports actions', () => {
       "getBlockNumber": [Function],
       "getBlockNumberCache": [Function],
       "getBlockTransactionCount": [Function],
+      "getBytecode": [Function],
       "getChainId": [Function],
       "getFeeHistory": [Function],
       "getFilterChanges": [Function],

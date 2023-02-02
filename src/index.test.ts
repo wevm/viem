@@ -111,6 +111,7 @@ test('exports actions', () => {
       "getBlock": [Function],
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],
+      "getBytecode": [Function],
       "getChainId": [Function],
       "getContractAddress": [Function],
       "getCreate2Address": [Function],

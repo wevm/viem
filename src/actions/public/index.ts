@@ -41,6 +41,9 @@ export type {
   GetBlockTransactionCountResponse,
 } from './getBlockTransactionCount'
 
+export { getBytecode } from './getBytecode'
+export type { GetBytecodeArgs, GetBytecodeResponse } from './getBytecode'
+
 export { getChainId } from './getChainId'
 
 export { getFeeHistory } from './getFeeHistory'
