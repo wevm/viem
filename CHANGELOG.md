@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.19
+
+### Patch Changes
+
+- [`2028985`](https://github.com/wagmi-dev/viem/commit/202898521d4c211d73f8194c642c62a9baa57a46) Thanks [@jxom](https://github.com/jxom)! - Added `getStorageAt`
+
 ## 0.0.1-alpha.18
 
 ### Patch Changes
