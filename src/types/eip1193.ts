@@ -417,7 +417,7 @@ export type PublicRequests = {
       index: Quantity,
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
-  }): Promise<Log>
+  }): Promise<Hex>
   request(args: {
     /**
      * @description Returns information about a transaction specified by block hash and transaction index

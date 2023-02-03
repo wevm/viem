@@ -66,6 +66,9 @@ export type { GetGasPriceResponse } from './getGasPrice'
 export { getLogs } from './getLogs'
 export type { GetLogsArgs, GetLogsResponse } from './getLogs'
 
+export { getStorageAt } from './getStorageAt'
+export type { GetStorageAtArgs, GetStorageAtResponse } from './getStorageAt'
+
 export { getTransaction } from './getTransaction'
 export type {
   GetTransactionArgs,

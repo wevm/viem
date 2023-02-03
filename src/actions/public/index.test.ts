@@ -22,6 +22,7 @@ test('exports actions', () => {
       "getFilterLogs": [Function],
       "getGasPrice": [Function],
       "getLogs": [Function],
+      "getStorageAt": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],
