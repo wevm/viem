@@ -25,3 +25,6 @@ export type { SwitchChainArgs } from './switchChain'
 
 export { watchAsset } from './watchAsset'
 export type { WatchAssetArgs, WatchAssetResponse } from './watchAsset'
+
+export { writeContract } from './writeContract'
+export type { WriteContractArgs, WriteContractResponse } from './writeContract'

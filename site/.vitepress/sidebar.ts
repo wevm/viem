@@ -393,10 +393,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Actions',
           items: [
             {
-              text: 'callContract',
-              link: '/docs/contract/callContract',
-            },
-            {
               text: 'deployContract',
               link: '/docs/contract/deployContract',
             },
@@ -417,7 +413,11 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/readContract',
             },
             {
-              text: 'writeContract 🚧',
+              text: 'simulateContract',
+              link: '/docs/contract/simulateContract',
+            },
+            {
+              text: 'writeContract',
               link: '/docs/contract/writeContract',
             },
             {

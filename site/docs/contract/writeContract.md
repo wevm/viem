@@ -1,10 +1,16 @@
 # writeContract
 
-Calls a write function on a contract.
+Executes a write function on a contract.
 
-A "write" function on a Solidity contract  modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](/docs/glossary/terms) is needed to be broadcast in order to change the state. 
+A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](/docs/glossary/terms) is needed to be broadcast in order to change the state. 
 
 Internally, `writeContract` uses a [Wallet Client](/docs/clients/wallet) to call the [`sendTransaction` action](/docs/actions/wallet/sendTransaction) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
+
+::: warning
+
+The `writeContract` internally sends a transaction – it **does not** validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `simulateContract`](#usage) before you execute it. 
+
+:::
 
 ## Import
 
@@ -14,20 +20,23 @@ import { writeContract } from 'viem'
 
 ## Usage
 
-Below is a very basic example of how to call a write function on a contract (with no arguments).
+Below is a very basic example of how to execute a write function on a contract (with no arguments).
+
+While you can use `writeContract` [by itself](#standalone), it is highly recommended to pair it with [`simulateContract`](/docs/contracts/simulateContract) to validate that the contract write will execute without errors.
 
 ::: code-group
 
 ```ts [example.ts]
 import { writeContract } from 'viem'
-import { walletClient } from './client'
+import { publicClient, walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-await writeContract(walletClient, {
+const { request } = await simulateContract(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
 })
+await writeContract(walletClient, request)
 ```
 
 ```ts [abi.ts]
@@ -71,12 +80,13 @@ import { writeContract } from 'viem'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-await writeContract(walletClient, {
+const { request } = await simulateContract(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420]
 })
+await writeContract(walletClient, request)
 ```
 
 ```ts [abi.ts]
@@ -105,13 +115,58 @@ export const walletClient = createWalletClient({
 
 :::
 
+### Standalone
+
+If you don't need to perform validation on the contract write, you can also use it by itself:
+
+::: code-group
+
+```ts [example.ts]
+import { writeContract } from 'viem'
+import { walletClient } from './client'
+import { wagmiAbi } from './abi'
+
+await writeContract(walletClient, {
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+})
+```
+
+```ts [abi.ts]
+export const wagmiAbi = [
+  ...
+  {
+    inputs: [],
+    name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  ...
+] as const;
+```
+
+```ts [client.ts]
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum)
+})
+```
+
+:::
+
+
 ## Return Value
 
 `Hash`
 
 A [Transaction Hash](/docs/glossary/terms#TODO).
 
-Unlike [`readContract`](/docs/contract/readContract), `writeContract` only returns a [Transaction Hash](/docs/glossary/terms#TODO). If you would like to retrieve the return data of a write function, you can use the [`callContract` action](/docs/contract/callContract) – this action does not execute a transaction, and does not require gas (it is very similar to `readContract`).
+Unlike [`readContract`](/docs/contract/readContract), `writeContract` only returns a [Transaction Hash](/docs/glossary/terms#TODO). If you would like to retrieve the return data of a write function, you can use the [`simulateContract` action](/docs/contract/simulateContract) – this action does not execute a transaction, and does not require gas (it is very similar to `readContract`).
 
 ## Parameters
 

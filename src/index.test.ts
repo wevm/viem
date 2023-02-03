@@ -65,7 +65,6 @@ test('exports actions', () => {
       "bytesToNumber": [Function],
       "bytesToString": [Function],
       "call": [Function],
-      "callContract": [Function],
       "createBlockFilter": [Function],
       "createClient": [Function],
       "createPendingTransactionFilter": [Function],
@@ -177,6 +176,7 @@ test('exports actions', () => {
       "setNonce": [Function],
       "setStorageAt": [Function],
       "signMessage": [Function],
+      "simulateContract": [Function],
       "size": [Function],
       "slice": [Function],
       "sliceBytes": [Function],
@@ -203,6 +203,7 @@ test('exports actions', () => {
         "ether": -18,
         "gwei": -9,
       },
+      "writeContract": [Function],
     }
   `)
 })

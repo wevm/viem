@@ -7,7 +7,6 @@ test('exports actions', () => {
     {
       "addChain": [Function],
       "call": [Function],
-      "callContract": [Function],
       "createBlockFilter": [Function],
       "createPendingTransactionFilter": [Function],
       "deployContract": [Function],
@@ -58,6 +57,7 @@ test('exports actions', () => {
       "setNonce": [Function],
       "setStorageAt": [Function],
       "signMessage": [Function],
+      "simulateContract": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
@@ -67,6 +67,7 @@ test('exports actions', () => {
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
       "watchPendingTransactions": [Function],
+      "writeContract": [Function],
     }
   `)
 })

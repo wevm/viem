@@ -1,6 +1,6 @@
 # multicall
 
-Similar to [`callContract`](/docs/contract/callContract), but batches up & calls multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
+Similar to [`readContract`](/docs/contract/readContract), but batches up & calls multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
 
 ## Import
 

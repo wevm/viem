@@ -1,7 +1,5 @@
 export type {
   CallArgs,
-  CallContractArgs,
-  CallContractResponse,
   CallResponse,
   CreateBlockFilterResponse,
   CreatePendingTransactionFilterResponse,
@@ -65,6 +63,8 @@ export type {
   SetStorageAtArgs,
   SignMessageArgs,
   SignMessageResponse,
+  SimulateContractArgs,
+  SimulateContractResponse,
   StopImpersonatingAccountArgs,
   SwitchChainArgs,
   UninstallFilterArgs,
@@ -76,11 +76,12 @@ export type {
   WatchBlockNumberArgs,
   WatchBlocksArgs,
   WatchPendingTransactionsArgs,
+  WriteContractArgs,
+  WriteContractResponse,
 } from './actions'
 export {
   addChain,
   call,
-  callContract,
   createBlockFilter,
   createPendingTransactionFilter,
   deployContract,
@@ -130,6 +131,7 @@ export {
   setNonce,
   setStorageAt,
   signMessage,
+  simulateContract,
   snapshot,
   stopImpersonatingAccount,
   switchChain,
@@ -139,6 +141,7 @@ export {
   watchBlockNumber,
   watchBlocks,
   watchPendingTransactions,
+  writeContract,
 } from './actions'
 
 export type {

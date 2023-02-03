@@ -15,30 +15,42 @@ import {
   encodeFunctionData,
   getContractError,
 } from '../../utils'
+import { WriteContractArgs } from '../wallet'
 import { call, CallArgs, FormattedCall } from './call'
 
-export type FormattedCallContract<
+export type FormattedSimulateContract<
   TFormatter extends Formatter | undefined = Formatter,
 > = FormattedCall<TFormatter>
 
-export type CallContractArgs<
+export type SimulateContractArgs<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
-> = Omit<CallArgs<TChain>, 'from' | 'to' | 'data' | 'value'> & {
+> = Omit<CallArgs<TChain>, 'to' | 'data' | 'value'> & {
   address: Address
   abi: TAbi
-  from?: Address
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+  functionName: ExtractFunctionNameFromAbi<
+    TAbi,
+    TFunctionName,
+    'payable' | 'nonpayable'
+  >
   value?: GetValue<TAbi, TFunctionName, CallArgs<TChain>['value']>
 } & ExtractArgsFromAbi<TAbi, TFunctionName>
 
-export type CallContractResponse<
+export type SimulateContractResponse<
+  TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = ExtractResultFromAbi<TAbi, TFunctionName>
+> = {
+  result: ExtractResultFromAbi<TAbi, TFunctionName>
+  request: WriteContractArgs<TChain, TAbi, TFunctionName> & {
+    address: Address
+    abi: TAbi
+    functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+  } & ExtractArgsFromAbi<TAbi, TFunctionName>
+}
 
-export async function callContract<
+export async function simulateContract<
   TChain extends Chain,
   TAbi extends Abi = Abi,
   TFunctionName extends string = any,
@@ -50,8 +62,8 @@ export async function callContract<
     args,
     functionName,
     ...callRequest
-  }: CallContractArgs<TChain, TAbi, TFunctionName>,
-): Promise<CallContractResponse<TAbi, TFunctionName>> {
+  }: SimulateContractArgs<TChain, TAbi, TFunctionName>,
+): Promise<SimulateContractResponse<TChain, TAbi, TFunctionName>> {
   const calldata = encodeFunctionData({
     abi,
     args,
@@ -63,11 +75,21 @@ export async function callContract<
       to: address,
       ...callRequest,
     } as unknown as CallArgs<TChain>)
-    return decodeFunctionResult({
+    const result = decodeFunctionResult({
       abi,
       functionName,
       data: data || '0x',
-    }) as CallContractResponse<TAbi, TFunctionName>
+    })
+    return {
+      result,
+      request: {
+        abi,
+        address,
+        args,
+        functionName,
+        ...callRequest,
+      },
+    } as unknown as SimulateContractResponse<TChain, TAbi, TFunctionName>
   } catch (err) {
     throw getContractError(err, {
       abi,

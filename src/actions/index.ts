@@ -1,6 +1,5 @@
 export {
   call,
-  callContract,
   createBlockFilter,
   createPendingTransactionFilter,
   deployContract,
@@ -20,6 +19,7 @@ export {
   getTransactionConfirmations,
   getTransactionCount,
   getTransactionReceipt,
+  simulateContract,
   uninstallFilter,
   waitForTransactionReceipt,
   watchBlockNumber,
@@ -28,8 +28,6 @@ export {
 } from './public'
 export type {
   CallArgs,
-  CallContractArgs,
-  CallContractResponse,
   CallResponse,
   CreateBlockFilterResponse,
   CreatePendingTransactionFilterResponse,
@@ -70,6 +68,8 @@ export type {
   OnTransactionsResponse,
   ReplacementReason,
   ReplacementResponse,
+  SimulateContractArgs,
+  SimulateContractResponse,
   UninstallFilterArgs,
   UninstallFilterResponse,
   WaitForTransactionReceiptArgs,
@@ -141,6 +141,7 @@ export {
   signMessage,
   switchChain,
   watchAsset,
+  writeContract,
 } from './wallet'
 export type {
   FormattedTransactionRequest,
@@ -153,4 +154,6 @@ export type {
   SwitchChainArgs,
   WatchAssetArgs,
   WatchAssetResponse,
+  WriteContractArgs,
+  WriteContractResponse,
 } from './wallet'

@@ -6,7 +6,6 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "call": [Function],
-      "callContract": [Function],
       "createBlockFilter": [Function],
       "createPendingTransactionFilter": [Function],
       "deployContract": [Function],
@@ -26,6 +25,7 @@ test('exports actions', () => {
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],
       "getTransactionReceipt": [Function],
+      "simulateContract": [Function],
       "uninstallFilter": [Function],
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
