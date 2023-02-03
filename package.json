@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "0.0.1-alpha.17",
+  "version": "0.0.1-alpha.18",
   "scripts": {
     "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "bench": "vitest bench --no-threads",
