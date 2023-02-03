@@ -5,7 +5,6 @@ export { simulateContract } from './simulateContract'
 export type {
   SimulateContractArgs,
   SimulateContractResponse,
-  FormattedSimulateContract,
 } from './simulateContract'
 
 export { createPendingTransactionFilter } from './createPendingTransactionFilter'
@@ -90,6 +89,12 @@ export type {
   GetTransactionReceiptArgs,
   GetTransactionReceiptResponse,
 } from './getTransactionReceipt'
+
+export { readContract } from './readContract'
+export type {
+  ReadContractArgs,
+  ReadContractResponse,
+} from './readContract'
 
 export { uninstallFilter } from './uninstallFilter'
 export type {

@@ -413,7 +413,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/multicall',
             },
             {
-              text: 'readContract 🚧',
+              text: 'readContract',
               link: '/docs/contract/readContract',
             },
             {

@@ -16,11 +16,7 @@ import {
   getContractError,
 } from '../../utils'
 import { WriteContractArgs } from '../wallet'
-import { call, CallArgs, FormattedCall } from './call'
-
-export type FormattedSimulateContract<
-  TFormatter extends Formatter | undefined = Formatter,
-> = FormattedCall<TFormatter>
+import { call, CallArgs } from './call'
 
 export type SimulateContractArgs<
   TChain extends Chain = Chain,

@@ -26,6 +26,7 @@ test('exports actions', () => {
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],
       "getTransactionReceipt": [Function],
+      "readContract": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
       "waitForTransactionReceipt": [Function],

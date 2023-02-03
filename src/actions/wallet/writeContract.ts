@@ -10,15 +10,10 @@ import type {
 } from '../../types'
 import { EncodeFunctionDataArgs, encodeFunctionData } from '../../utils'
 import {
-  FormattedTransactionRequest,
   sendTransaction,
   SendTransactionArgs,
   SendTransactionResponse,
 } from './sendTransaction'
-
-export type FormattedWriteContract<
-  TFormatter extends Formatter | undefined = Formatter,
-> = FormattedTransactionRequest<TFormatter>
 
 export type WriteContractArgs<
   TChain extends Chain = Chain,

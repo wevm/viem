@@ -156,6 +156,7 @@ test('exports actions', () => {
       "parseEther": [Function],
       "parseGwei": [Function],
       "parseUnit": [Function],
+      "readContract": [Function],
       "removeBlockTimestampInterval": [Function],
       "requestAccounts": [Function],
       "requestPermissions": [Function],

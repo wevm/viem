@@ -37,6 +37,7 @@ test('exports actions', () => {
       "increaseTime": [Function],
       "inspectTxpool": [Function],
       "mine": [Function],
+      "readContract": [Function],
       "removeBlockTimestampInterval": [Function],
       "requestAccounts": [Function],
       "requestPermissions": [Function],
