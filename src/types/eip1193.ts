@@ -1,5 +1,5 @@
 import type { BlockTag } from './block'
-import type { Address, Hash, Hex } from './misc'
+import type { Address, Hash, Hex, LogTopic } from './misc'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -381,25 +381,28 @@ export type PublicRequests = {
      * @description Returns a list of all logs based on a filter object
      * @link https://eips.ethereum.org/EIPS/eip-1474
      * @example
-     * provider.request({ method: 'eth_getLogs', params: [{ ... }] })
+     * provider.request({ method: 'eth_getLogs', params: [{ fromBlock: '0x...', toBlock: '0x...', address: '0x...', topics: ['0x...'] }] })
      * // => [{ ... }, { ... }]
      * */
     method: 'eth_getLogs'
     params: [
-      filter: {
+      parameters: {
         address?: Address | Address[]
-        topics?: Hex[]
+        topics?: LogTopic[]
       } & (
         | {
             fromBlock?: BlockNumber | BlockTag
             toBlock?: BlockNumber | BlockTag
+            blockHash?: never
           }
         | {
+            fromBlock?: never
+            toBlock?: never
             blockHash?: Hash
           }
       ),
     ]
-  }): Promise<Log>
+  }): Promise<Log[]>
   request(args: {
     /**
      * @description Returns the value from a storage position at an address
@@ -539,7 +542,7 @@ export type PublicRequests = {
         fromBlock?: BlockNumber | BlockTag
         toBlock?: BlockNumber | BlockTag
         address?: Address | Address[]
-        topics?: (Hex | Hex[] | null)[]
+        topics?: LogTopic[]
       },
     ]
   }): Promise<Quantity>

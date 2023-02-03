@@ -32,7 +32,7 @@ export type { Filter, FilterType } from './filter'
 
 export type { Log } from './log'
 
-export type { Address, ByteArray, Hex, Hash } from './misc'
+export type { Address, ByteArray, Hex, Hash, LogTopic } from './misc'
 
 export type {
   Index,

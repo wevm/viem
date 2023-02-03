@@ -143,6 +143,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/getFilterLogs',
             },
             {
+              text: 'getLogs',
+              link: '/docs/actions/public/getLogs',
+            },
+            {
               text: 'watchEvents',
               link: '/docs/actions/public/watchEvents',
             },

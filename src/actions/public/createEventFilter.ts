@@ -6,7 +6,7 @@ import type {
   BlockTag,
   ExtractArgsFromEventDefinition,
   Filter,
-  Hex,
+  LogTopic,
 } from '../../types'
 import { getEventSignature, numberToHex } from '../../utils'
 
@@ -31,8 +31,6 @@ export type CreateEventFilterArgs<
 )
 export type CreateEventFilterResponse = Filter<'event'>
 
-type EncodedArg = Hex | Hex[] | null
-
 export async function createEventFilter<
   TEventDefinition extends `${string}(${string})`,
 >(
@@ -45,7 +43,7 @@ export async function createEventFilter<
     toBlock,
   }: CreateEventFilterArgs<TEventDefinition> = {},
 ): Promise<CreateEventFilterResponse> {
-  let topics: EncodedArg[] = []
+  let topics: LogTopic[] = []
   if (event) {
     topics = buildFilterTopics({ event, args })
   }
