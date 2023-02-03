@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.18
+
+### Patch Changes
+
+- [`7afdee8`](https://github.com/wagmi-dev/viem/commit/7afdee87cda6cebeeb9446773b6373ab680f7207) Thanks [@jxom](https://github.com/jxom)! - Added `readContract`
+
 ## 0.0.1-alpha.17
 
 ### Patch Changes
