@@ -60,6 +60,27 @@ describe('events', () => {
     expect(logs.length).toBe(2)
   })
 
+  test('args: event', async () => {
+    await sendTransaction(walletClient, {
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[0].address),
+    })
+    await sendTransaction(walletClient, {
+      from: vitalikAddress,
+      to: usdcAddress,
+      data: transfer1Data(accounts[1].address),
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    let logs = await getLogs(publicClient, {
+      event: 'Transfer(address from, address to, uint256 value)',
+    })
+    assertType<Log[]>(logs)
+    expect(logs.length).toBe(2)
+  })
+
   test('args: fromBlock/toBlock', async () => {
     let logs = await getLogs(publicClient, {
       event: 'Transfer(address from, address to, uint256 value)',
