@@ -8,17 +8,20 @@ import { getBlock } from './getBlock'
 
 export type OnBlockResponse<
   TChain extends Chain = Chain,
-  TOmitFields extends string = '',
-> = Omit<GetBlockResponse<TChain>, TOmitFields>
+  TIncludeTransactions = false,
+> = Omit<
+  GetBlockResponse<TChain>,
+  TIncludeTransactions extends false ? 'transactions' : ''
+>
 export type OnBlock<
   TChain extends Chain = Chain,
-  TOmitFields extends string = '',
+  TIncludeTransactions = false,
 > = (
-  block: OnBlockResponse<TChain, TOmitFields>,
-  prevBlock: OnBlockResponse<TChain, TOmitFields> | undefined,
+  block: OnBlockResponse<TChain, TIncludeTransactions>,
+  prevBlock: OnBlockResponse<TChain, TIncludeTransactions> | undefined,
 ) => void
 
-type BaseWatchBlocksArgs<TChain extends Chain = Chain> = {
+export type WatchBlocksArgs<TChain extends Chain = Chain> = {
   /** The block tag. Defaults to "latest". */
   blockTag?: BlockTag
   /** Whether or not to emit the missed blocks to the callback. */
@@ -29,24 +32,20 @@ type BaseWatchBlocksArgs<TChain extends Chain = Chain> = {
   onError?: (error: Error) => void
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
-}
-
-type OnBlockArgs<TChain extends Chain = Chain> =
+} & (
   | {
       /** Whether or not to include transaction data in the response. */
       includeTransactions: true
       /** The callback to call when a new block is received. */
-      onBlock: OnBlock<TChain>
+      onBlock: OnBlock<TChain, true>
     }
   | {
       /** Whether or not to include transaction data in the response. */
       includeTransactions?: false
       /** The callback to call when a new block is received. */
-      onBlock: OnBlock<TChain, 'transactions'>
+      onBlock: OnBlock<TChain>
     }
-
-export type WatchBlocksArgs<TChain extends Chain = Chain> =
-  BaseWatchBlocksArgs<TChain> & OnBlockArgs<TChain>
+)
 
 /** @description Watches and returns information for incoming blocks. */
 export function watchBlocks<

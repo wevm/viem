@@ -4,11 +4,13 @@ import type { OnBlockResponse } from './watchBlocks'
 import * as getBlock from './getBlock'
 import { watchBlocks } from './watchBlocks'
 import { mine } from '../test/mine'
-import { publicClient, testClient } from '../../_test'
+import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { wait } from '../../utils/wait'
-import { celo, localhost } from '../../chains'
+import { celo, Chain, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import { setIntervalMining } from '../test'
+import { sendTransaction } from '../wallet'
+import { parseEther } from '../../utils'
 
 test('watches for new blocks', async () => {
   const blocks: OnBlockResponse[] = []
@@ -23,6 +25,27 @@ test('watches for new blocks', async () => {
   unwatch()
   expect(blocks.length).toBe(4)
   expect(prevBlocks.length).toBe(3)
+})
+
+test('args: includeTransactions', async () => {
+  const blocks: OnBlockResponse<Chain, true>[] = []
+  const unwatch = watchBlocks(publicClient, {
+    includeTransactions: true,
+    onBlock: (block) => {
+      blocks.push(block)
+    },
+  })
+
+  await sendTransaction(walletClient, {
+    from: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
+  await wait(2000)
+
+  unwatch()
+  expect(blocks.length).toBe(2)
+  expect(blocks[0].transactions.length).toBe(1)
 })
 
 describe('emitMissed', () => {
