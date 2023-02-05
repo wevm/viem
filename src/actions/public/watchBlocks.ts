@@ -5,11 +5,19 @@ import { poll } from '../../utils/poll'
 import type { GetBlockResponse } from './getBlock'
 import { getBlock } from './getBlock'
 
-export type OnBlockResponse<TChain extends Chain = Chain> =
-  GetBlockResponse<TChain>
-export type OnBlock<TChain extends Chain = Chain> = (
-  block: OnBlockResponse<TChain>,
-  prevBlock: OnBlockResponse<TChain> | undefined,
+export type OnBlockResponse<
+  TChain extends Chain = Chain,
+  TIncludeTransactions = false,
+> = Omit<
+  GetBlockResponse<TChain>,
+  TIncludeTransactions extends false ? 'transactions' : ''
+>
+export type OnBlock<
+  TChain extends Chain = Chain,
+  TIncludeTransactions = false,
+> = (
+  block: OnBlockResponse<TChain, TIncludeTransactions>,
+  prevBlock: OnBlockResponse<TChain, TIncludeTransactions> | undefined,
 ) => void
 
 export type WatchBlocksArgs<TChain extends Chain = Chain> = {
@@ -19,18 +27,30 @@ export type WatchBlocksArgs<TChain extends Chain = Chain> = {
   emitMissed?: boolean
   /** Whether or not to emit the block to the callback when the subscription opens. */
   emitOnBegin?: boolean
-  /** The callback to call when a new block is received. */
-  onBlock: OnBlock<TChain>
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
-  /** Whether or not to include transaction data in the response. */
-  includeTransactions?: boolean
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
-}
+} & (
+  | {
+      /** Whether or not to include transaction data in the response. */
+      includeTransactions: true
+      /** The callback to call when a new block is received. */
+      onBlock: OnBlock<TChain, true>
+    }
+  | {
+      /** Whether or not to include transaction data in the response. */
+      includeTransactions?: false
+      /** The callback to call when a new block is received. */
+      onBlock: OnBlock<TChain>
+    }
+)
 
 /** @description Watches and returns information for incoming blocks. */
-export function watchBlocks<TChain extends Chain>(
+export function watchBlocks<
+  TChain extends Chain,
+  TWatchBlocksArgs extends WatchBlocksArgs<TChain>,
+>(
   client: PublicClient<any, TChain>,
   {
     blockTag = 'latest',
@@ -40,7 +60,7 @@ export function watchBlocks<TChain extends Chain>(
     onError,
     includeTransactions = false,
     pollingInterval = client.pollingInterval,
-  }: WatchBlocksArgs<TChain>,
+  }: TWatchBlocksArgs,
 ) {
   const observerId = JSON.stringify([
     'watchBlocks',
