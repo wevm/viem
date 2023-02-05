@@ -28,6 +28,8 @@ test('watches for new blocks', async () => {
 })
 
 test('args: includeTransactions', async () => {
+  await mine(testClient, { blocks: 1 })
+
   const blocks: OnBlockResponse<Chain, true>[] = []
   const unwatch = watchBlocks(publicClient, {
     includeTransactions: true,
@@ -44,7 +46,7 @@ test('args: includeTransactions', async () => {
   await wait(2000)
 
   unwatch()
-  expect(blocks.length).toBe(2)
+  expect(blocks.length).toBe(1)
   expect(blocks[0].transactions.length).toBe(1)
 })
 
