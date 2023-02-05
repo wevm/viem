@@ -1,9 +1,9 @@
 import { Abi } from 'abitype'
 
-import type { Chain, Formatter } from '../../chains'
 import type { PublicClient } from '../../clients'
 import type {
   Address,
+  Chain,
   ExtractArgsFromAbi,
   ExtractResultFromAbi,
   ExtractFunctionNameFromAbi,

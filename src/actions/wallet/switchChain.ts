@@ -1,5 +1,5 @@
-import type { Chain } from '../../chains'
 import type { WalletClient } from '../../clients'
+import { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SwitchChainArgs = { id: Chain['id'] }

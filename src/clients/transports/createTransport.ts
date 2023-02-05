@@ -1,4 +1,4 @@
-import type { Chain } from '../../chains'
+import type { Chain } from '../../types'
 import type { Requests } from '../../types/eip1193'
 
 export type BaseRpcRequests = {

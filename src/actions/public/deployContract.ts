@@ -1,8 +1,7 @@
 import { Abi } from 'abitype'
-import { Chain } from '../../chains'
 import { WalletClient } from '../../clients'
 
-import { ExtractConstructorArgsFromAbi, Hex } from '../../types'
+import { Chain, ExtractConstructorArgsFromAbi, Hex } from '../../types'
 import { encodeDeployData } from '../../utils'
 import {
   sendTransaction,

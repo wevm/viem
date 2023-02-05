@@ -1,6 +1,5 @@
-import type { Chain, Formatter, Formatters } from '../../chains'
-import type { Block, RpcBlock } from '../../types'
-import type { ExtractFormatter, Formatted } from './format'
+import type { Chain, Block, Formatter, Formatters, RpcBlock } from '../../types'
+import { defineFormatter, ExtractFormatter, Formatted } from './format'
 import { formatTransaction } from './transaction'
 
 export type BlockFormatter<TChain extends Chain = Chain> = ExtractFormatter<
@@ -34,3 +33,5 @@ export function formatBlock(block: Partial<RpcBlock>) {
       : null,
   } as Block
 }
+
+export const defineBlock = defineFormatter({ format: formatBlock })

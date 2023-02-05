@@ -20,8 +20,8 @@ importers:
       '@types/node': ^17.0.45
       '@vitest/coverage-c8': ^0.24.3
       '@vitest/ui': ^0.19.1
-      '@wagmi/chains': 0.0.0-20230201210619
-      abitype: ^0.2.5
+      '@wagmi/chains': ~0.2.6
+      abitype: ~0.2.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
       esbuild: ^0.16.12
@@ -40,7 +40,7 @@ importers:
       web3: ^1.8.1
     dependencies:
       '@noble/hashes': 1.1.2
-      '@wagmi/chains': 0.0.0-20230201210619_typescript@4.9.3
+      '@wagmi/chains': 0.2.6_typescript@4.9.3
       abitype: 0.2.5_typescript@4.9.3
     devDependencies:
       '@actions/core': 1.10.0
@@ -1947,8 +1947,8 @@ packages:
       - vue
     dev: true
 
-  /@wagmi/chains/0.0.0-20230201210619_typescript@4.9.3:
-    resolution: {integrity: sha512-3nqKt+CzF8WYQHOJKlbCgvU643oKt1T4Zq3hY7npzhREmrb3sonaslLHo5OXXZZNXmTw6cRtqjwdV3lmYfvU5g==}
+  /@wagmi/chains/0.2.6_typescript@4.9.3:
+    resolution: {integrity: sha512-YRvWZ6G5X25BgLB8jCAz7Je3yUh+CvmXujrWnL/1lbXslheEq1Ssf77zRfdQo+zfD4bwL/qHEUNREf8r6usKsA==}
     peerDependencies:
       typescript: '>=4.9.4'
     peerDependenciesMeta:

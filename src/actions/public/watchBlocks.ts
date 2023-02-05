@@ -1,6 +1,5 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { BlockTag } from '../../types'
+import type { BlockTag, Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import type { GetBlockResponse } from './getBlock'

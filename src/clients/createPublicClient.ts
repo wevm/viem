@@ -1,8 +1,8 @@
-import type { Chain } from '../chains'
 import type { PublicRequests } from '../types/eip1193'
 import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
+import { Chain } from '../types'
 
 export type PublicClientConfig<
   TTransport extends Transport = Transport,

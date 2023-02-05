@@ -5,6 +5,11 @@ import * as formatters from './index'
 test('exports formatters', () => {
   expect(formatters).toMatchInlineSnapshot(`
     {
+      "defineBlock": [Function],
+      "defineFormatter": [Function],
+      "defineTransaction": [Function],
+      "defineTransactionReceipt": [Function],
+      "defineTransactionRequest": [Function],
       "extract": [Function],
       "format": [Function],
       "formatBlock": [Function],
@@ -12,6 +17,11 @@ test('exports formatters', () => {
       "formatTransaction": [Function],
       "formatTransactionReceipt": [Function],
       "formatTransactionRequest": [Function],
+      "transactionType": {
+        "0x0": "legacy",
+        "0x1": "eip2930",
+        "0x2": "eip1559",
+      },
     }
   `)
 })

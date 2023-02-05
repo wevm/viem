@@ -114,6 +114,81 @@ test('exports chains', () => {
         },
         "testnet": true,
       },
+      "aurora": {
+        "blockExplorers": {
+          "default": {
+            "name": "Aurorascan",
+            "url": "https://aurorascan.dev",
+          },
+          "etherscan": {
+            "name": "Aurorascan",
+            "url": "https://aurorascan.dev",
+          },
+        },
+        "id": 1313161554,
+        "name": "Aurora",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "aurora",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://mainnet.aurora.dev",
+            ],
+          },
+          "infura": {
+            "http": [
+              "https://aurora-mainnet.infura.io/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://mainnet.aurora.dev",
+            ],
+          },
+        },
+      },
+      "auroraGoerli": {
+        "blockExplorers": {
+          "default": {
+            "name": "Aurorascan",
+            "url": "https://testnet.aurorascan.dev",
+          },
+          "etherscan": {
+            "name": "Aurorascan",
+            "url": "https://testnet.aurorascan.dev",
+          },
+        },
+        "id": 1313161555,
+        "name": "Aurora Testnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "aurora-testnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://testnet.aurora.dev",
+            ],
+          },
+          "infura": {
+            "http": [
+              "https://aurora-testnet.infura.io/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://testnet.aurora.dev",
+            ],
+          },
+        },
+        "testnet": true,
+      },
       "avalanche": {
         "blockExplorers": {
           "default": {
@@ -186,6 +261,63 @@ test('exports chains', () => {
           "public": {
             "http": [
               "https://api.avax-test.network/ext/bc/C/rpc",
+            ],
+          },
+        },
+        "testnet": true,
+      },
+      "bronos": {
+        "blockExplorers": {
+          "default": {
+            "name": "BronoScan",
+            "url": "https://broscan.bronos.org",
+          },
+        },
+        "id": 1039,
+        "name": "Bronos",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "BRO",
+          "symbol": "BRO",
+        },
+        "network": "bronos",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://evm.bronos.org",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://evm.bronos.org",
+            ],
+          },
+        },
+      },
+      "bronosTestnet": {
+        "blockExplorers": {
+          "default": {
+            "name": "BronoScan",
+            "url": "https://tbroscan.bronos.org",
+          },
+        },
+        "id": 1038,
+        "name": "Bronos Testnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Bronos Coin",
+          "symbol": "tBRO",
+        },
+        "network": "bronos-testnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://evm-testnet.bronos.org",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://evm-testnet.bronos.org",
             ],
           },
         },
@@ -268,38 +400,225 @@ test('exports chains', () => {
         },
         "testnet": true,
       },
+      "canto": {
+        "blockExplorers": {
+          "default": {
+            "name": "Canto EVM Explorer (Blockscout)",
+            "url": "https://evm.explorer.canto.io",
+          },
+        },
+        "id": 7700,
+        "name": "Canto",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Canto",
+          "symbol": "CANTO",
+        },
+        "network": "canto",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://canto.slingshot.finance",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://canto.slingshot.finance",
+            ],
+          },
+        },
+      },
       "celo": {
+        "blockExplorers": {
+          "default": {
+            "name": "Celo Explorer",
+            "url": "https://explorer.celo.org/mainnet",
+          },
+          "etherscan": {
+            "name": "CeloScan",
+            "url": "https://celoscan.io",
+          },
+        },
+        "contracts": {
+          "multicall3": {
+            "address": "0xcA11bde05977b3631167028862bE2a173976CA11",
+            "blockCreated": 13112599,
+          },
+        },
         "formatters": {
           "block": [Function],
           "transaction": [Function],
+          "transactionReceipt": [Function],
           "transactionRequest": [Function],
         },
         "id": 42220,
         "name": "Celo",
         "nativeCurrency": {
           "decimals": 18,
-          "name": "Celo",
+          "name": "CELO",
           "symbol": "CELO",
         },
         "network": "celo",
         "rpcUrls": {
           "default": {
             "http": [
-              "https://rpc.ankr.com/celo",
+              "https://forno.celo.org",
+            ],
+          },
+          "infura": {
+            "http": [
+              "https://celo-mainnet.infura.io/v3",
             ],
           },
           "public": {
             "http": [
-              "https://rpc.ankr.com/celo",
+              "https://forno.celo.org",
+            ],
+          },
+        },
+        "testnet": false,
+      },
+      "celoAlfajores": {
+        "blockExplorers": {
+          "default": {
+            "name": "Celo Explorer",
+            "url": "https://explorer.celo.org/alfajores",
+          },
+          "etherscan": {
+            "name": "CeloScan",
+            "url": "https://alfajores.celoscan.io/",
+          },
+        },
+        "contracts": {
+          "multicall3": {
+            "address": "0xcA11bde05977b3631167028862bE2a173976CA11",
+            "blockCreated": 14569001,
+          },
+        },
+        "formatters": {
+          "block": [Function],
+          "transaction": [Function],
+          "transactionReceipt": [Function],
+          "transactionRequest": [Function],
+        },
+        "id": 44787,
+        "name": "Alfajores",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "CELO",
+          "symbol": "A-CELO",
+        },
+        "network": "celo-alfajores",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://alfajores-forno.celo-testnet.org",
+            ],
+          },
+          "infura": {
+            "http": [
+              "https://celo-alfajores.infura.io/v3",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://alfajores-forno.celo-testnet.org",
+            ],
+          },
+        },
+        "testnet": true,
+      },
+      "crossbell": {
+        "blockExplorers": {
+          "default": {
+            "name": "CrossScan",
+            "url": "https://scan.crossbell.io",
+          },
+        },
+        "contracts": {
+          "multicall3": {
+            "address": "0xBB9759009cDaC82774EfC84D94cD9F7440f75Fcf",
+            "blockCreated": 23499787,
+          },
+        },
+        "id": 3737,
+        "name": "Crossbell",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "CSB",
+          "symbol": "CSB",
+        },
+        "network": "crossbell",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://rpc.crossbell.io",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://rpc.crossbell.io",
             ],
           },
         },
       },
-      "defineBlock": [Function],
       "defineChain": [Function],
-      "defineTransaction": [Function],
-      "defineTransactionReceipt": [Function],
-      "defineTransactionRequest": [Function],
+      "evmos": {
+        "blockExplorers": {
+          "default": {
+            "name": "Evmos Block Explorer",
+            "url": "https://escan.live/",
+          },
+        },
+        "id": 9001,
+        "name": "Evmos",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Evmos",
+          "symbol": "EVMOS",
+        },
+        "network": "evmos",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://eth.bd.evmos.org:8545",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://eth.bd.evmos.org:8545",
+            ],
+          },
+        },
+      },
+      "evmosTestnet": {
+        "blockExplorers": {
+          "default": {
+            "name": "Evmos Testnet Block Explorer",
+            "url": "https://evm.evmos.dev/",
+          },
+        },
+        "id": 9000,
+        "name": "Evmos Testnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Evmos",
+          "symbol": "EVMOS",
+        },
+        "network": "evmos-testnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://eth.bd.evmos.dev:8545",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://eth.bd.evmos.dev:8545",
+            ],
+          },
+        },
+      },
       "fantom": {
         "blockExplorers": {
           "default": {
@@ -376,6 +695,74 @@ test('exports chains', () => {
           },
         },
       },
+      "filecoin": {
+        "blockExplorers": {
+          "default": {
+            "name": "Filfox",
+            "url": "https://filfox.info/en",
+          },
+          "filscan": {
+            "name": "Filscan",
+            "url": "https://filscan.io",
+          },
+          "filscout": {
+            "name": "Filscout",
+            "url": "https://filscout.io/en",
+          },
+        },
+        "id": 314,
+        "name": "Filecoin Mainnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "filecoin",
+          "symbol": "FIL",
+        },
+        "network": "filecoin-mainnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://api.node.glif.io",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://api.node.glif.io",
+            ],
+          },
+        },
+      },
+      "filecoinTestnet": {
+        "blockExplorers": {
+          "default": {
+            "name": "Filfox",
+            "url": "https://hyperspace.filfox.info/en",
+          },
+          "gilf": {
+            "name": "Glif",
+            "url": "https://explorer.glif.io/?network=hyperspace",
+          },
+        },
+        "id": 3141,
+        "name": "Filecoin Hyperspace",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "testnet filecoin",
+          "symbol": "tFIL",
+        },
+        "network": "filecoin-hyperspace",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://api.hyperspace.node.glif.io/rpc/v1",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://api.hyperspace.node.glif.io/rpc/v1",
+            ],
+          },
+        },
+      },
       "foundry": {
         "id": 31337,
         "name": "Foundry",
@@ -394,6 +781,66 @@ test('exports chains', () => {
           "public": {
             "http": [
               "http://127.0.0.1:8545",
+            ],
+          },
+        },
+      },
+      "gnosis": {
+        "blockExplorers": {
+          "default": {
+            "name": "Gnosis Chain Explorer",
+            "url": "https://blockscout.com/xdai/mainnet/",
+          },
+          "etherscan": {
+            "name": "Gnosisscan",
+            "url": "https://gnosisscan.io/",
+          },
+        },
+        "id": 100,
+        "name": "Gnosis",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Gnosis",
+          "symbol": "xDAI",
+        },
+        "network": "gnosis",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://rpc.gnosischain.com",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://rpc.gnosischain.com",
+            ],
+          },
+        },
+      },
+      "gnosisChiado": {
+        "blockExplorers": {
+          "default": {
+            "name": "Blockscout",
+            "url": "https://blockscout.chiadochain.net",
+          },
+        },
+        "id": 10200,
+        "name": "Gnosis Chiado",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Gnosis",
+          "symbol": "xDAI",
+        },
+        "network": "chiado",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://rpc.chiadochain.net",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://rpc.chiadochain.net",
             ],
           },
         },
@@ -478,6 +925,74 @@ test('exports chains', () => {
           },
         },
       },
+      "iotex": {
+        "blockExplorers": {
+          "default": {
+            "name": "IoTeXScan",
+            "url": "https://iotexscan.io",
+          },
+        },
+        "id": 4689,
+        "name": "IoTeX",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "IoTeX",
+          "symbol": "IOTX",
+        },
+        "network": "iotex",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://babel-api.mainnet.iotex.io",
+            ],
+            "webSocket": [
+              "wss://babel-api.mainnet.iotex.io",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://babel-api.mainnet.iotex.io",
+            ],
+            "webSocket": [
+              "wss://babel-api.mainnet.iotex.io",
+            ],
+          },
+        },
+      },
+      "iotexTestnet": {
+        "blockExplorers": {
+          "default": {
+            "name": "IoTeXScan",
+            "url": "https://testnet.iotexscan.io",
+          },
+        },
+        "id": 4690,
+        "name": "IoTeX Testnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "IoTeX",
+          "symbol": "IOTX",
+        },
+        "network": "iotex-testnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://babel-api.testnet.iotex.io",
+            ],
+            "webSocket": [
+              "wss://babel-api.testnet.iotex.io",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://babel-api.testnet.iotex.io",
+            ],
+            "webSocket": [
+              "wss://babel-api.testnet.iotex.io",
+            ],
+          },
+        },
+      },
       "localhost": {
         "id": 1337,
         "name": "Localhost",
@@ -553,6 +1068,62 @@ test('exports chains', () => {
           "public": {
             "http": [
               "https://cloudflare-eth.com",
+            ],
+          },
+        },
+      },
+      "metis": {
+        "blockExplorers": {
+          "default": {
+            "name": "Andromeda Explorer",
+            "url": "https://andromeda-explorer.metis.io",
+          },
+        },
+        "id": 1088,
+        "name": "Metis",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Metis",
+          "symbol": "METIS",
+        },
+        "network": "andromeda",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://andromeda.metis.io/?owner=1088",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://andromeda.metis.io/?owner=1088",
+            ],
+          },
+        },
+      },
+      "metisGoerli": {
+        "blockExplorers": {
+          "default": {
+            "name": "Metis Goerli Explorer",
+            "url": "https://goerli.explorer.metisdevops.link",
+          },
+        },
+        "id": 599,
+        "name": "Metis Goerli",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Metis Goerli",
+          "symbol": "METIS",
+        },
+        "network": "metis-goerli",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://goerli.gateway.metisdevops.link",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://goerli.gateway.metisdevops.link",
             ],
           },
         },
@@ -822,51 +1393,140 @@ test('exports chains', () => {
         },
         "testnet": true,
       },
-    }
-  `)
-})
-
-describe('defineChain', () => {
-  test('default', () => {
-    expect(
-      chains.defineChain({
-        id: 42220,
-        name: 'Celo',
-        network: 'celo',
-        nativeCurrency: { name: 'Celo', symbol: 'CELO', decimals: 18 },
-        rpcUrls: {
-          public: { http: ['https://rpc.ankr.com/celo'] },
-          default: { http: ['https://rpc.ankr.com/celo'] },
+      "taraxa": {
+        "blockExplorers": {
+          "default": {
+            "name": "Taraxa Explorer",
+            "url": "https://explorer.mainnet.taraxa.io",
+          },
         },
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "id": 42220,
-        "name": "Celo",
+        "id": 841,
+        "name": "Taraxa Mainnet",
         "nativeCurrency": {
           "decimals": 18,
-          "name": "Celo",
-          "symbol": "CELO",
+          "name": "Tara",
+          "symbol": "TARA",
         },
-        "network": "celo",
+        "network": "taraxa",
         "rpcUrls": {
           "default": {
             "http": [
-              "https://rpc.ankr.com/celo",
+              "https://rpc.mainnet.taraxa.io",
             ],
           },
           "public": {
             "http": [
-              "https://rpc.ankr.com/celo",
+              "https://rpc.mainnet.taraxa.io",
             ],
           },
         },
-      }
-    `)
-  })
+      },
+      "taraxaTestnet": {
+        "blockExplorers": {
+          "default": {
+            "name": "Taraxa Explorer",
+            "url": "https://explorer.testnet.taraxa.io",
+          },
+        },
+        "id": 842,
+        "name": "Taraxa Testnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Tara",
+          "symbol": "TARA",
+        },
+        "network": "taraxa-testnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://rpc.testnet.taraxa.io",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://rpc.testnet.taraxa.io",
+            ],
+          },
+        },
+        "testnet": true,
+      },
+      "zkSync": {
+        "blockExplorers": {
+          "default": {
+            "name": "zkExplorer",
+            "url": "https://explorer.zksync.io",
+          },
+        },
+        "id": 324,
+        "name": "zkSync",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "zksync",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://zksync2-mainnet.zksync.io",
+            ],
+            "webSocket": [
+              "wss://zksync2-mainnet.zksync.io/ws",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://zksync2-mainnet.zksync.io",
+            ],
+            "webSocket": [
+              "wss://zksync2-mainnet.zksync.io/ws",
+            ],
+          },
+        },
+      },
+      "zkSyncTestnet": {
+        "blockExplorers": {
+          "default": {
+            "name": "zkExplorer",
+            "url": "https://goerli.explorer.zksync.io",
+          },
+        },
+        "id": 280,
+        "name": "zkSync Testnet",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "zksync-testnet",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "https://zksync2-testnet.zksync.dev",
+            ],
+            "webSocket": [
+              "wss://zksync2-testnet.zksync.dev/ws",
+            ],
+          },
+          "public": {
+            "http": [
+              "https://zksync2-testnet.zksync.dev",
+            ],
+            "webSocket": [
+              "wss://zksync2-testnet.zksync.dev/ws",
+            ],
+          },
+        },
+        "testnet": true,
+      },
+    }
+  `)
+})
 
-  test('args: formatters', () => {
-    const { block, transaction, transactionRequest } = chains.celo.formatters!
+describe('formatters', () => {
+  test('celo', () => {
+    const { block, transaction, transactionReceipt, transactionRequest } =
+      chains.celo.formatters!
 
     expect(
       block({
@@ -1101,6 +1761,124 @@ describe('defineChain', () => {
         "type": "eip1559",
         "v": 1n,
         "value": 0n,
+      }
+    `)
+
+    expect(
+      transactionReceipt({
+        accessList: [],
+        blockHash:
+          '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+        blockNumber: '0x1',
+        chainId: '0x1',
+        feeCurrency: null,
+        from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+        gas: '0x2',
+        gasPrice: undefined,
+        gatewayFee: null,
+        gatewayFeeRecipient: null,
+        hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+        input:
+          '0x23b872dd000000000000000000000000a00f99bc38b1ecda1fd70eaa1cd31d576a9f46b0000000000000000000000000f16e9b0d03470827a95cdfd0cb8a8a3b46969b910000000000000000000000000000000000000000000000000000002b3b6fb3d0',
+        maxFeePerGas: '0x4',
+        maxPriorityFeePerGas: '0x5',
+        nonce: '0x6',
+        r: '0x5e49a7bd0534c6b6d3bbe581659424d3747f920d40ce56e48d26e5d94aac32ca',
+        s: '0x1746abe27b7c4f00bda1ec714ac1f7083e9025b6ca3b2248e439a173e4ab55e0',
+        to: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+        transactionIndex: '0x7',
+        type: '0x2',
+        v: '0x1',
+        value: '0x0',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
+        "blockNumber": 1n,
+        "chainId": "0x1",
+        "cumulativeGasUsed": null,
+        "effectiveGasPrice": null,
+        "feeCurrency": null,
+        "from": "0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e",
+        "gas": "0x2",
+        "gasPrice": undefined,
+        "gasUsed": null,
+        "gatewayFee": null,
+        "gatewayFeeRecipient": null,
+        "hash": "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b",
+        "input": "0x23b872dd000000000000000000000000a00f99bc38b1ecda1fd70eaa1cd31d576a9f46b0000000000000000000000000f16e9b0d03470827a95cdfd0cb8a8a3b46969b910000000000000000000000000000000000000000000000000000002b3b6fb3d0",
+        "logs": null,
+        "maxFeePerGas": "0x4",
+        "maxPriorityFeePerGas": "0x5",
+        "nonce": "0x6",
+        "r": "0x5e49a7bd0534c6b6d3bbe581659424d3747f920d40ce56e48d26e5d94aac32ca",
+        "s": "0x1746abe27b7c4f00bda1ec714ac1f7083e9025b6ca3b2248e439a173e4ab55e0",
+        "status": null,
+        "to": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+        "transactionIndex": 7,
+        "type": "eip1559",
+        "v": "0x1",
+        "value": "0x0",
+      }
+    `)
+
+    expect(
+      transactionReceipt({
+        accessList: [],
+        blockHash:
+          '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+        blockNumber: '0x1',
+        chainId: '0x1',
+        feeCurrency: null,
+        from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+        gas: '0x2',
+        gasPrice: undefined,
+        gatewayFee: '0x1',
+        gatewayFeeRecipient: null,
+        hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+        input:
+          '0x23b872dd000000000000000000000000a00f99bc38b1ecda1fd70eaa1cd31d576a9f46b0000000000000000000000000f16e9b0d03470827a95cdfd0cb8a8a3b46969b910000000000000000000000000000000000000000000000000000002b3b6fb3d0',
+        maxFeePerGas: '0x4',
+        maxPriorityFeePerGas: '0x5',
+        nonce: '0x6',
+        r: '0x5e49a7bd0534c6b6d3bbe581659424d3747f920d40ce56e48d26e5d94aac32ca',
+        s: '0x1746abe27b7c4f00bda1ec714ac1f7083e9025b6ca3b2248e439a173e4ab55e0',
+        to: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+        transactionIndex: '0x7',
+        type: '0x2',
+        v: '0x1',
+        value: '0x0',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
+        "blockNumber": 1n,
+        "chainId": "0x1",
+        "cumulativeGasUsed": null,
+        "effectiveGasPrice": null,
+        "feeCurrency": null,
+        "from": "0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e",
+        "gas": "0x2",
+        "gasPrice": undefined,
+        "gasUsed": null,
+        "gatewayFee": 1n,
+        "gatewayFeeRecipient": null,
+        "hash": "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b",
+        "input": "0x23b872dd000000000000000000000000a00f99bc38b1ecda1fd70eaa1cd31d576a9f46b0000000000000000000000000f16e9b0d03470827a95cdfd0cb8a8a3b46969b910000000000000000000000000000000000000000000000000000002b3b6fb3d0",
+        "logs": null,
+        "maxFeePerGas": "0x4",
+        "maxPriorityFeePerGas": "0x5",
+        "nonce": "0x6",
+        "r": "0x5e49a7bd0534c6b6d3bbe581659424d3747f920d40ce56e48d26e5d94aac32ca",
+        "s": "0x1746abe27b7c4f00bda1ec714ac1f7083e9025b6ca3b2248e439a173e4ab55e0",
+        "status": null,
+        "to": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+        "transactionIndex": 7,
+        "type": "eip1559",
+        "v": "0x1",
+        "value": "0x0",
       }
     `)
 

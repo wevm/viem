@@ -1,6 +1,5 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { BlockTag, Hash, Quantity } from '../../types'
+import type { BlockTag, Chain, Hash, Quantity } from '../../types'
 import { hexToNumber, numberToHex } from '../../utils'
 
 export type GetBlockTransactionCountArgs =

@@ -1,7 +1,6 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
 import { BlockNotFoundError } from '../../errors'
-import type { BlockTag, Hash, RpcBlock } from '../../types'
+import type { BlockTag, Chain, Hash, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { format, formatBlock, numberToHex } from '../../utils'
 

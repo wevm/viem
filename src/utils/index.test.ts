@@ -20,6 +20,12 @@ test('exports utils', () => {
       "decodeFunctionResult": [Function],
       "decodeHex": [Function],
       "decodeRlp": [Function],
+      "defineBlock": [Function],
+      "defineChain": [Function],
+      "defineFormatter": [Function],
+      "defineTransaction": [Function],
+      "defineTransactionReceipt": [Function],
+      "defineTransactionRequest": [Function],
       "encodeAbi": [Function],
       "encodeBytes": [Function],
       "encodeDeployData": [Function],
@@ -29,6 +35,10 @@ test('exports utils', () => {
       "encodeFunctionResult": [Function],
       "encodeHex": [Function],
       "encodeRlp": [Function],
+      "etherUnits": {
+        "gwei": 9,
+        "wei": 18,
+      },
       "extract": [Function],
       "extractFunctionName": [Function],
       "extractFunctionParams": [Function],
@@ -51,6 +61,10 @@ test('exports utils', () => {
       "getCreateAddress": [Function],
       "getEventSignature": [Function],
       "getFunctionSignature": [Function],
+      "gweiUnits": {
+        "ether": -9,
+        "wei": 9,
+      },
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],
@@ -81,7 +95,16 @@ test('exports utils', () => {
       "stringToBytes": [Function],
       "stringToHex": [Function],
       "stringify": [Function],
+      "transactionType": {
+        "0x0": "legacy",
+        "0x1": "eip2930",
+        "0x2": "eip1559",
+      },
       "trim": [Function],
+      "weiUnits": {
+        "ether": -18,
+        "gwei": -9,
+      },
     }
   `)
 })

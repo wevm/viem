@@ -1,11 +1,10 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
 import {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from '../../errors'
-import type { Hash, Transaction } from '../../types'
+import type { Chain, Hash, Transaction } from '../../types'
 import { observe } from '../../utils/observe'
 import { getBlock, watchBlockNumber } from '../public'
 

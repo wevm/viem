@@ -1,9 +1,10 @@
-import type { Chain, Formatter } from '../../chains'
 import type { PublicClient } from '../../clients'
 import { InvalidGasArgumentsError } from '../../errors'
 import type {
   Address,
   BlockTag,
+  Chain,
+  Formatter,
   Hex,
   MergeIntersectionProperties,
   TransactionRequest,

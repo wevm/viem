@@ -6,6 +6,8 @@ export type {
   Uncle,
 } from './block'
 
+export type { Chain } from './chain'
+
 export type {
   AbiItem,
   AbiEventParametersToPrimitiveTypes,
@@ -29,6 +31,8 @@ export type {
 } from './fee'
 
 export type { Filter, FilterType } from './filter'
+
+export type { Formatter, Formatters } from './formatter'
 
 export type { Log } from './log'
 

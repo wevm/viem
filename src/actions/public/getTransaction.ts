@@ -1,7 +1,6 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
 import { TransactionNotFoundError } from '../../errors'
-import type { BlockTag, Hash, RpcTransaction } from '../../types'
+import type { BlockTag, Chain, Hash, RpcTransaction } from '../../types'
 import { format, numberToHex } from '../../utils'
 import type {
   FormattedTransaction,

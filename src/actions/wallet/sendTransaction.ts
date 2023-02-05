@@ -1,7 +1,8 @@
-import type { Chain, Formatter } from '../../chains'
 import type { WalletClient } from '../../clients'
 import { InvalidGasArgumentsError } from '../../errors'
 import type {
+  Chain,
+  Formatter,
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,

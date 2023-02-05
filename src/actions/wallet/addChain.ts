@@ -1,5 +1,5 @@
-import type { Chain } from '../../chains'
 import type { WalletClient } from '../../clients'
+import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export async function addChain(client: WalletClient, chain: Chain) {

@@ -185,8 +185,6 @@ export {
   webSocket,
 } from './clients'
 
-export { etherUnits, gweiUnits, transactionType, weiUnits } from './constants'
-
 export {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
@@ -325,12 +323,14 @@ export {
   encodeFunctionResult,
   encodeHex,
   encodeRlp,
+  etherUnits,
   getAddress,
   getContractAddress,
   getCreateAddress,
   getCreate2Address,
   getEventSignature,
   getFunctionSignature,
+  gweiUnits,
   formatEther,
   isAddress,
   isAddressEqual,
@@ -361,5 +361,7 @@ export {
   sliceHex,
   stringToBytes,
   stringToHex,
+  transactionType,
   trim,
+  weiUnits,
 } from './utils'

@@ -86,8 +86,8 @@
   "sideEffects": false,
   "dependencies": {
     "@noble/hashes": "^1.1.2",
-    "@wagmi/chains": "0.0.0-20230201210619",
-    "abitype": "^0.2.5"
+    "@wagmi/chains": "~0.2.6",
+    "abitype": "~0.2.5"
   },
   "devDependencies": {
     "@actions/core": "^1.10.0",

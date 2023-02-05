@@ -1,7 +1,6 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
 import { TransactionReceiptNotFoundError } from '../../errors'
-import type { Hash } from '../../types'
+import type { Chain, Hash } from '../../types'
 import { format } from '../../utils'
 import type {
   FormattedTransactionReceipt,

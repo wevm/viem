@@ -1,5 +1,4 @@
-import type { Chain, Formatter } from '../../chains'
-import type { OptionalNullable } from '../../types'
+import type { Chain, Formatter, OptionalNullable } from '../../types'
 
 export type ExtractFormatter<
   TChain extends Chain,
@@ -50,4 +49,42 @@ export function format<
   TTarget,
 >(data: TSource, { formatter }: FormatOptions<TSource, TTarget>) {
   return formatter(data) as Formatted<TFormatter, TTarget>
+}
+
+export function defineFormatter<
+  TSource extends Record<string, unknown>,
+  TFormatted,
+>({
+  format,
+}: {
+  format: (data: TSource) => TFormatted
+}) {
+  return <
+      TFormat extends Formatter<
+        TSource,
+        Partial<TFormatted> & { [key: string]: unknown }
+      >,
+      TExclude extends (keyof TSource)[] = [],
+    >({
+      exclude,
+      format: formatOverride,
+    }: {
+      exclude?: TExclude
+      format?: TFormat
+    }) =>
+    (data: TSource & { [key: string]: unknown }) => {
+      const formatted = format(data)
+      if (exclude) {
+        for (const key of exclude) {
+          delete (formatted as any)[key]
+        }
+      }
+      return {
+        ...formatted,
+        ...formatOverride?.(data),
+      } as TFormatted &
+        ReturnType<TFormat> & {
+          [K in TExclude[number]]: never
+        }
+    }
 }

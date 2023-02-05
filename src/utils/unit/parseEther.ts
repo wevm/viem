@@ -1,4 +1,4 @@
-import { etherUnits } from '../../constants'
+import { etherUnits } from '../../utils'
 import { parseUnit } from './parseUnit'
 
 export function parseEther(ether: `${number}`, unit: 'wei' | 'gwei' = 'wei') {

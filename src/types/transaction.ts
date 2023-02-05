@@ -1,4 +1,4 @@
-import type { transactionType } from '../constants'
+import { transactionType } from '../utils'
 import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee'
 import type { Log } from './log'
 import type { Address, Hash, Hex } from './misc'

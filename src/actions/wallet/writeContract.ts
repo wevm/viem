@@ -1,9 +1,9 @@
 import { Abi } from 'abitype'
 
-import type { Chain, Formatter } from '../../chains'
 import type { WalletClient } from '../../clients'
 import type {
   Address,
+  Chain,
   ExtractArgsFromAbi,
   ExtractFunctionNameFromAbi,
   GetValue,

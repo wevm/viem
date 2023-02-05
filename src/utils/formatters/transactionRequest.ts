@@ -1,6 +1,11 @@
-import type { Chain, Formatter, Formatters } from '../../chains'
-import type { RpcTransactionRequest, TransactionRequest } from '../../types'
-import type { ExtractFormatter, Formatted } from './format'
+import type {
+  Chain,
+  Formatter,
+  Formatters,
+  RpcTransactionRequest,
+  TransactionRequest,
+} from '../../types'
+import { defineFormatter, ExtractFormatter, Formatted } from './format'
 import { numberToHex } from '../encoding'
 
 export type TransactionRequestFormatter<TChain extends Chain = Chain> =
@@ -45,3 +50,7 @@ export function formatTransactionRequest(
         : undefined,
   } as RpcTransactionRequest
 }
+
+export const defineTransactionRequest = defineFormatter({
+  format: formatTransactionRequest,
+})

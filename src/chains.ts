@@ -1,167 +1,99 @@
-// TODO: Remove chain formatter implementation once @wagmi/chains supports it.
+import * as chains from '@wagmi/chains'
 
-import type { Chain as Chain_ } from '@wagmi/chains'
+import type { Address, Hex, Quantity } from './types'
 import {
-  arbitrumGoerli as arbitrumGoerli_,
-  arbitrum as arbitrum_,
-  avalancheFuji as avalancheFuji_,
-  avalanche as avalanche_,
-  bscTestnet as bscTestnet_,
-  bsc as bsc_,
-  fantomTestnet as fantomTestnet_,
-  fantom as fantom_,
-  foundry as foundry_,
-  goerli as goerli_,
-  hardhat as hardhat_,
-  localhost as localhost_,
-  mainnet as mainnet_,
-  optimismGoerli as optimismGoerli_,
-  optimism as optimism_,
-  polygonMumbai as polygonMumbai_,
-  polygon as polygon_,
-  sepolia as sepolia_,
-} from '@wagmi/chains'
-
-import type {
-  Address,
-  Block,
-  Hex,
-  Quantity,
-  RpcBlock,
-  RpcTransaction,
-  RpcTransactionReceipt,
-  RpcTransactionRequest,
-  Transaction,
-  TransactionReceipt,
-  TransactionRequest,
-} from './types'
-import {
-  formatBlock,
-  formatTransaction,
-  formatTransactionRequest,
+  defineBlock,
+  defineChain,
+  defineTransaction,
+  defineTransactionReceipt,
+  defineTransactionRequest,
 } from './utils'
-import { formatTransactionReceipt } from './utils/formatters/transactionReceipt'
 
-export type Formatter<TSource = any, TTarget = any> = (
-  value: TSource & { [key: string]: unknown },
-) => TTarget
+export type { Chain } from './types'
+export { defineChain } from './utils'
 
-export type Formatters = {
-  block?: Formatter<RpcBlock, Block>
-  transaction?: Formatter<RpcTransaction, Transaction>
-  transactionReceipt?: Formatter<RpcTransactionReceipt, TransactionReceipt>
-  transactionRequest?: Formatter<TransactionRequest, RpcTransactionRequest>
+const celoFormatters = {
+  block: defineBlock({
+    exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
+    format: (block) => ({
+      randomness: block.randomness as {
+        committed: Hex
+        revealed: Hex
+      },
+    }),
+  }),
+  transaction: defineTransaction({
+    format: (transaction) => ({
+      feeCurrency: transaction.feeCurrency as Address | null,
+      gatewayFee: transaction.gatewayFee
+        ? BigInt(transaction.gatewayFee as Quantity)
+        : null,
+      gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
+    }),
+  }),
+  transactionReceipt: defineTransactionReceipt({
+    format: (transaction) => ({
+      feeCurrency: transaction.feeCurrency as Address | null,
+      gatewayFee: transaction.gatewayFee
+        ? BigInt(transaction.gatewayFee as Quantity)
+        : null,
+      gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
+    }),
+  }),
+  transactionRequest: defineTransactionRequest({
+    format: (transactionRequest) => ({
+      feeCurrency: transactionRequest.feeCurrency as Address | undefined,
+      gatewayFee: transactionRequest.gatewayFee as Quantity | undefined,
+      gatewayFeeRecipient: transactionRequest.gatewayFeeRecipient as
+        | Address
+        | undefined,
+    }),
+  }),
 }
 
-export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
-  formatters?: TFormatters
-}
-
-export function defineChain<
-  TFormatters extends Formatters = Formatters,
-  TChain extends Chain<TFormatters> = Chain<TFormatters>,
->(chain: TChain) {
-  return chain
-}
-
-function defineFormatter<TSource extends Record<string, unknown>, TFormatted>({
-  format,
-}: {
-  format: (data: TSource) => TFormatted
-}) {
-  return <
-      TFormat extends Formatter<
-        TSource,
-        Partial<TFormatted> & { [key: string]: unknown }
-      >,
-      TExclude extends (keyof TSource)[] = [],
-    >({
-      exclude,
-      format: formatOverride,
-    }: {
-      exclude?: TExclude
-      format?: TFormat
-    }) =>
-    (data: TSource & { [key: string]: unknown }) => {
-      const formatted = format(data)
-      if (exclude) {
-        for (const key of exclude) {
-          delete (formatted as any)[key]
-        }
-      }
-      return {
-        ...formatted,
-        ...formatOverride?.(data),
-      } as TFormatted &
-        ReturnType<TFormat> & {
-          [K in TExclude[number]]: never
-        }
-    }
-}
-
-export const defineBlock = defineFormatter({ format: formatBlock })
-export const defineTransaction = defineFormatter({ format: formatTransaction })
-export const defineTransactionRequest = defineFormatter({
-  format: formatTransactionRequest,
-})
-export const defineTransactionReceipt = defineFormatter({
-  format: formatTransactionReceipt,
-})
-
-export const arbitrumGoerli = defineChain(arbitrumGoerli_)
-export const arbitrum = defineChain(arbitrum_)
-export const avalancheFuji = defineChain(avalancheFuji_)
-export const avalanche = defineChain(avalanche_)
-export const bscTestnet = defineChain(bscTestnet_)
-export const bsc = defineChain(bsc_)
+export const arbitrum = defineChain(chains.arbitrum)
+export const arbitrumGoerli = defineChain(chains.arbitrumGoerli)
+export const aurora = defineChain(chains.aurora)
+export const auroraGoerli = defineChain(chains.auroraTestnet)
+export const avalanche = defineChain(chains.avalanche)
+export const avalancheFuji = defineChain(chains.avalancheFuji)
+export const bronos = defineChain(chains.bronos)
+export const bronosTestnet = defineChain(chains.bronosTestnet)
+export const bsc = defineChain(chains.bsc)
+export const bscTestnet = defineChain(chains.bscTestnet)
+export const canto = defineChain(chains.canto)
 export const celo = defineChain({
-  id: 42220,
-  name: 'Celo',
-  network: 'celo',
-  nativeCurrency: { name: 'Celo', symbol: 'CELO', decimals: 18 },
-  rpcUrls: {
-    public: { http: ['https://rpc.ankr.com/celo'] },
-    default: { http: ['https://rpc.ankr.com/celo'] },
-  },
-  formatters: {
-    block: defineBlock({
-      exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
-      format: (block) => ({
-        randomness: block.randomness as {
-          committed: Hex
-          revealed: Hex
-        },
-      }),
-    }),
-    transaction: defineTransaction({
-      format: (transaction) => ({
-        feeCurrency: transaction.feeCurrency as Address | null,
-        gatewayFee: transaction.gatewayFee
-          ? BigInt(transaction.gatewayFee as Quantity)
-          : null,
-        gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
-      }),
-    }),
-    transactionRequest: defineTransactionRequest({
-      format: (transactionRequest) => ({
-        feeCurrency: transactionRequest.feeCurrency as Address | undefined,
-        gatewayFee: transactionRequest.gatewayFee as Quantity | undefined,
-        gatewayFeeRecipient: transactionRequest.gatewayFeeRecipient as
-          | Address
-          | undefined,
-      }),
-    }),
-  },
+  ...chains.celo,
+  formatters: celoFormatters,
 })
-export const fantomTestnet = defineChain(fantomTestnet_)
-export const fantom = defineChain(fantom_)
-export const foundry = defineChain(foundry_)
-export const goerli = defineChain(goerli_)
-export const hardhat = defineChain(hardhat_)
-export const localhost = defineChain(localhost_)
-export const mainnet = defineChain(mainnet_)
-export const optimismGoerli = defineChain(optimismGoerli_)
-export const optimism = defineChain(optimism_)
-export const polygonMumbai = defineChain(polygonMumbai_)
-export const polygon = defineChain(polygon_)
-export const sepolia = defineChain(sepolia_)
+export const celoAlfajores = defineChain({
+  ...chains.celoAlfajores,
+  formatters: celoFormatters,
+})
+export const crossbell = defineChain(chains.crossbell)
+export const evmos = defineChain(chains.evmos)
+export const evmosTestnet = defineChain(chains.evmosTestnet)
+export const fantom = defineChain(chains.fantom)
+export const fantomTestnet = defineChain(chains.fantomTestnet)
+export const filecoin = defineChain(chains.filecoin)
+export const filecoinTestnet = defineChain(chains.filecoinHyperspace)
+export const foundry = defineChain(chains.foundry)
+export const goerli = defineChain(chains.goerli)
+export const gnosis = defineChain(chains.gnosis)
+export const gnosisChiado = defineChain(chains.gnosisChiado)
+export const hardhat = defineChain(chains.hardhat)
+export const iotex = defineChain(chains.iotex)
+export const iotexTestnet = defineChain(chains.iotexTestnet)
+export const localhost = defineChain(chains.localhost)
+export const mainnet = defineChain(chains.mainnet)
+export const metis = defineChain(chains.metis)
+export const metisGoerli = defineChain(chains.metisGoerli)
+export const optimism = defineChain(chains.optimism)
+export const optimismGoerli = defineChain(chains.optimismGoerli)
+export const polygon = defineChain(chains.polygon)
+export const polygonMumbai = defineChain(chains.polygonMumbai)
+export const sepolia = defineChain(chains.sepolia)
+export const taraxa = defineChain(chains.taraxa)
+export const taraxaTestnet = defineChain(chains.taraxaTestnet)
+export const zkSync = defineChain(chains.zkSync)
+export const zkSyncTestnet = defineChain(chains.zkSyncTestnet)

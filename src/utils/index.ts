@@ -43,6 +43,8 @@ export {
 
 export { buildRequest } from './buildRequest'
 
+export { defineChain } from './chain'
+
 export {
   extractFunctionName,
   extractFunctionParams,
@@ -77,11 +79,17 @@ export type {
   TransactionRequestFormatter,
 } from './formatters'
 export {
+  defineBlock,
+  defineFormatter,
+  defineTransaction,
+  defineTransactionReceipt,
+  defineTransactionRequest,
   extract,
   format,
   formatBlock,
   formatTransaction,
   formatTransactionRequest,
+  transactionType,
 } from './formatters'
 
 export type { EncodeRlpResponse } from './encoding'
@@ -117,10 +125,13 @@ export { rpc } from './rpc'
 export { stringify } from './stringify'
 
 export {
+  etherUnits,
   formatEther,
   formatGwei,
   formatUnit,
+  gweiUnits,
   parseUnit,
   parseEther,
   parseGwei,
+  weiUnits,
 } from './unit'

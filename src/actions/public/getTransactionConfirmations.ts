@@ -1,6 +1,5 @@
-import type { Chain } from '../../chains'
 import type { PublicClient } from '../../clients'
-import type { Hash } from '../../types'
+import type { Chain, Hash } from '../../types'
 import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
