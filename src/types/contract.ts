@@ -10,6 +10,7 @@ import type {
   AbiParametersToPrimitiveTypes,
   ExtractAbiFunction,
   ExtractAbiEvent,
+  ExtractAbiEventNames,
   ExtractAbiError,
   AbiStateMutability,
   ExtractAbiFunctionNames,
@@ -139,9 +140,9 @@ export type ExtractErrorArgsFromAbi<
 
 export type ExtractEventArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TEventName extends string,
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
-    ? ExtractAbiEvent<TAbi, TFunctionName>
+    ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },
   TArgs = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
   FailedToParseArgs =
@@ -161,6 +162,18 @@ export type ExtractEventArgsFromAbi<
   : {
       args?: TArgs
     }
+
+export type ExtractEventNameFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string = string,
+> = TAbi extends Abi
+  ? ExtractAbiEventNames<TAbi> extends infer AbiEventNames
+    ?
+        | AbiEventNames
+        | (TEventName extends AbiEventNames ? TEventName : never)
+        | (Abi extends TAbi ? string : never)
+    : never
+  : TEventName
 
 export type ExtractFunctionNameFromAbi<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -200,6 +213,8 @@ export type ExtractResultFromAbi<
 
 //////////////////////////////////////////////////////////////////////
 // Event/Function Definitions
+
+export type EventDefinition = `${string}(${string})`
 
 type ExtractArgsFromDefinitionConfig = {
   indexedOnly: unknown

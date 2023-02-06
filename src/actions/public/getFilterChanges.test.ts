@@ -6,9 +6,9 @@ import {
   publicClient,
   testClient,
   transfer1Data,
-  usdcAddress,
   vitalikAddress,
   walletClient,
+  usdcContractConfig,
 } from '../../_test'
 
 import {
@@ -103,12 +103,12 @@ describe('events', () => {
 
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })
 
@@ -123,7 +123,7 @@ describe('events', () => {
 
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[2].address),
     })
 
@@ -140,12 +140,12 @@ describe('events', () => {
 
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })
 
@@ -160,7 +160,7 @@ describe('events', () => {
 
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[2].address),
     })
 
@@ -184,4 +184,6 @@ describe('events', () => {
     logs = await getFilterChanges(publicClient, { filter })
     expect(logs.length).toBe(0)
   })
+
+  test.todo('args: args')
 })

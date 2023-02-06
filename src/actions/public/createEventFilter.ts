@@ -4,18 +4,17 @@ import type {
   Address,
   BlockNumber,
   BlockTag,
+  EventDefinition,
   ExtractArgsFromEventDefinition,
   Filter,
   LogTopic,
 } from '../../types'
 import { getEventSignature, numberToHex } from '../../utils'
 
-export type EventFilterArgs<TEventDefinition extends `${string}(${string})`> =
+export type EventFilterArgs<TEventDefinition extends EventDefinition> =
   ExtractArgsFromEventDefinition<TEventDefinition>
 
-export type CreateEventFilterArgs<
-  TEventDefinition extends `${string}(${string})`,
-> = {
+export type CreateEventFilterArgs<TEventDefinition extends EventDefinition> = {
   address?: Address | Address[]
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
@@ -32,7 +31,7 @@ export type CreateEventFilterArgs<
 export type CreateEventFilterResponse = Filter<'event'>
 
 export async function createEventFilter<
-  TEventDefinition extends `${string}(${string})`,
+  TEventDefinition extends EventDefinition,
 >(
   client: PublicClient,
   {
@@ -62,9 +61,7 @@ export async function createEventFilter<
   return { id, type: 'event' }
 }
 
-export function buildFilterTopics<
-  TEventDefinition extends `${string}(${string})`,
->({
+export function buildFilterTopics<TEventDefinition extends EventDefinition,>({
   event,
   args: _args,
 }: {

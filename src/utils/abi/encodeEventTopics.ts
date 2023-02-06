@@ -9,11 +9,11 @@ import {
   AbiEventNotFoundError,
   FilterTypeNotSupportedError,
 } from '../../errors'
-import { ExtractEventArgsFromAbi, Hex } from '../../types'
+import { EventDefinition, ExtractEventArgsFromAbi, Hex } from '../../types'
 import { encodeBytes } from '../encoding'
 import { keccak256, getEventSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
-import { formatAbiItemWithParams } from './formatAbiItemWithParams'
+import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem } from './getAbiItem'
 
 export type EncodeEventTopicsArgs<
@@ -33,8 +33,8 @@ export function encodeEventTopics<
     throw new AbiEventNotFoundError(eventName, {
       docsPath: '/docs/contract/encodeEventTopics',
     })
-  const definition = formatAbiItemWithParams(abiItem)
-  const signature = getEventSignature(definition as `${string}(${string})`)
+  const definition = formatAbiItem(abiItem)
+  const signature = getEventSignature(definition as EventDefinition)
 
   let topics: Hex[] = []
   if (args && 'inputs' in abiItem) {

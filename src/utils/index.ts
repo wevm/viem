@@ -23,7 +23,7 @@ export {
   encodeFunctionData,
   encodeFunctionResult,
   formatAbiItemWithArgs,
-  formatAbiItemWithParams,
+  formatAbiItem,
   getAbiItem,
 } from './abi'
 

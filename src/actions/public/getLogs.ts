@@ -5,6 +5,7 @@ import type {
   Address,
   BlockNumber,
   BlockTag,
+  EventDefinition,
   Hash,
   LogTopic,
 } from '../../types'
@@ -12,7 +13,7 @@ import { numberToHex } from '../../utils'
 import { formatLog } from '../../utils/formatters/log'
 import { buildFilterTopics, EventFilterArgs } from './createEventFilter'
 
-export type GetLogsArgs<TEventDefinition extends `${string}(${string})`> = {
+export type GetLogsArgs<TEventDefinition extends EventDefinition> = {
   /** Address or list of addresses from which logs originated */
   address?: Address | Address[]
 } & (
@@ -43,7 +44,7 @@ export type GetLogsResponse = Log[]
 /**
  * @description Returns a collection of event logs.
  */
-export async function getLogs<TEventDefinition extends `${string}(${string})`,>(
+export async function getLogs<TEventDefinition extends EventDefinition,>(
   client: PublicClient,
   {
     address,

@@ -6,7 +6,7 @@ import {
   publicClient,
   testClient,
   transfer1Data,
-  usdcAddress,
+  usdcContractConfig,
   vitalikAddress,
   walletClient,
 } from '../../_test'
@@ -49,12 +49,12 @@ describe('events', () => {
 
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })
 
@@ -72,12 +72,12 @@ describe('events', () => {
 
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
       from: vitalikAddress,
-      to: usdcAddress,
+      to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })
 
@@ -99,4 +99,6 @@ describe('events', () => {
     assertType<Log[]>(logs)
     expect(logs.length).toBe(1056)
   })
+
+  test.todo('args: args')
 })

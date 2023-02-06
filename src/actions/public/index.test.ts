@@ -7,6 +7,8 @@ test('exports actions', () => {
     {
       "call": [Function],
       "createBlockFilter": [Function],
+      "createContractEventFilter": [Function],
+      "createEventFilter": [Function],
       "createPendingTransactionFilter": [Function],
       "deployContract": [Function],
       "estimateGas": [Function],
@@ -33,6 +35,8 @@ test('exports actions', () => {
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
+      "watchContractEvent": [Function],
+      "watchEvent": [Function],
       "watchPendingTransactions": [Function],
     }
   `)

@@ -13,6 +13,18 @@ export type { CreatePendingTransactionFilterResponse } from './createPendingTran
 export { createBlockFilter } from './createBlockFilter'
 export type { CreateBlockFilterResponse } from './createBlockFilter'
 
+export { createEventFilter } from './createEventFilter'
+export type {
+  CreateEventFilterArgs,
+  CreateEventFilterResponse,
+} from './createEventFilter'
+
+export { createContractEventFilter } from './createContractEventFilter'
+export type {
+  CreateContractEventFilterArgs,
+  CreateContractEventFilterResponse,
+} from './createContractEventFilter'
+
 export { deployContract } from './deployContract'
 export type {
   DeployContractArgs,
@@ -122,6 +134,12 @@ export type {
 
 export { watchBlocks } from './watchBlocks'
 export type { WatchBlocksArgs, OnBlock, OnBlockResponse } from './watchBlocks'
+
+export { watchContractEvent } from './watchContractEvent'
+export type { WatchContractEventArgs } from './watchContractEvent'
+
+export { watchEvent } from './watchEvent'
+export type { WatchEventArgs, OnLogs, OnLogsResponse } from './watchEvent'
 
 export { watchPendingTransactions } from './watchPendingTransactions'
 export type {

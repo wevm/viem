@@ -3,7 +3,7 @@ import { AbiParameter } from 'abitype'
 import { InvalidDefinitionTypeError } from '../../errors'
 import { AbiItem } from '../../types'
 
-export function formatAbiItemWithParams(
+export function formatAbiItem(
   abiItem: AbiItem,
   { includeName = false }: { includeName?: boolean } = {},
 ) {

@@ -1,4 +1,8 @@
-export { wagmiContractConfig } from './abis'
+export {
+  wagmiContractConfig,
+  uniswapV3PositionsContractConfig,
+  usdcContractConfig,
+} from './abis'
 
 export { essentialProvider, ethersProvider, web3Provider } from './bench'
 
@@ -8,7 +12,6 @@ export {
   localHttpUrl,
   localWsUrl,
   transfer1Data,
-  usdcAddress,
   vitalikAddress,
 } from './constants'
 

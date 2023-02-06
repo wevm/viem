@@ -53,6 +53,7 @@ export function watchPendingTransactions(
           }
 
           const hashes = await getFilterChanges(client, { filter })
+          if (hashes.length === 0) return
           if (batch) emit.onTransactions(hashes)
           else hashes.forEach((hash) => emit.onTransactions([hash]))
         } catch (err) {

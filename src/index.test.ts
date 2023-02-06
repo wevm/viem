@@ -67,6 +67,8 @@ test('exports actions', () => {
       "call": [Function],
       "createBlockFilter": [Function],
       "createClient": [Function],
+      "createContractEventFilter": [Function],
+      "createEventFilter": [Function],
       "createPendingTransactionFilter": [Function],
       "createPublicClient": [Function],
       "createTestClient": [Function],

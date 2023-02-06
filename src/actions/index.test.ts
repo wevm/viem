@@ -8,6 +8,8 @@ test('exports actions', () => {
       "addChain": [Function],
       "call": [Function],
       "createBlockFilter": [Function],
+      "createContractEventFilter": [Function],
+      "createEventFilter": [Function],
       "createPendingTransactionFilter": [Function],
       "deployContract": [Function],
       "dropTransaction": [Function],

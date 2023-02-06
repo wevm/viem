@@ -5,7 +5,7 @@ import { ExtractArgsFromAbi, ExtractFunctionNameFromAbi } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
-import { formatAbiItemWithParams } from './formatAbiItemWithParams'
+import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem } from './getAbiItem'
 
 export type EncodeFunctionDataArgs<
@@ -25,7 +25,7 @@ export function encodeFunctionData<
     throw new AbiFunctionNotFoundError(functionName, {
       docsPath: '/docs/contract/encodeFunctionData',
     })
-  const definition = formatAbiItemWithParams(description)
+  const definition = formatAbiItem(description)
   const signature = getFunctionSignature(definition)
   const data =
     'inputs' in description && description.inputs

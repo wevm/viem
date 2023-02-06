@@ -8,7 +8,7 @@ import { ExtractErrorArgsFromAbi, Hex } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
-import { formatAbiItemWithParams } from './formatAbiItemWithParams'
+import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem } from './getAbiItem'
 
 const docsPath = '/docs/contract/encodeErrorResult'
@@ -27,7 +27,7 @@ export function encodeErrorResult<
 >({ abi, errorName, args }: EncodeErrorResultArgs<TAbi, TErrorName>) {
   const description = getAbiItem({ abi, name: errorName })
   if (!description) throw new AbiErrorNotFoundError(errorName, { docsPath })
-  const definition = formatAbiItemWithParams(description)
+  const definition = formatAbiItem(description)
   const signature = getFunctionSignature(definition)
 
   let data: Hex = '0x'

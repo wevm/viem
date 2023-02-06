@@ -147,8 +147,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/getLogs',
             },
             {
-              text: 'watchEvents',
-              link: '/docs/actions/public/watchEvents',
+              text: 'watchEvent',
+              link: '/docs/actions/public/watchEvent',
             },
             {
               text: 'uninstallFilter',
@@ -405,7 +405,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/getBytecode',
             },
             {
-              text: 'getStorageAt 🚧',
+              text: 'getStorageAt',
               link: '/docs/contract/getStorageAt',
             },
             {
@@ -425,8 +425,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/writeContract',
             },
             {
-              text: 'watchContractEvents 🚧',
-              link: '/docs/contract/watchContractEvents',
+              text: 'watchContractEvent',
+              link: '/docs/contract/watchContractEvent',
             },
           ],
         },

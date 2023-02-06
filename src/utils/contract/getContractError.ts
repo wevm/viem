@@ -5,11 +5,7 @@ import {
   ContractMethodZeroDataError,
 } from '../../errors'
 import { Address } from '../../types'
-import {
-  formatAbiItemWithArgs,
-  formatAbiItemWithParams,
-  getAbiItem,
-} from '../abi'
+import { formatAbiItemWithArgs, formatAbiItem, getAbiItem } from '../abi'
 
 export function getContractError(
   err: unknown,
@@ -40,7 +36,7 @@ export function getContractError(
       })
     : undefined
   const functionWithParams = abiItem
-    ? formatAbiItemWithParams(abiItem, { includeName: true })
+    ? formatAbiItem(abiItem, { includeName: true })
     : undefined
 
   if (err instanceof AbiDecodingZeroDataError) {

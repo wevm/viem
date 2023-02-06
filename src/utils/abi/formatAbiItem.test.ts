@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { formatAbiItemWithParams } from './formatAbiItemWithParams'
+import { formatAbiItem } from './formatAbiItem'
 
 test('foo()', () => {
   expect(
     // @ts-expect-error
-    formatAbiItemWithParams({
+    formatAbiItem({
       name: 'foo',
       outputs: [],
       stateMutability: 'nonpayable',
@@ -13,7 +13,7 @@ test('foo()', () => {
     }),
   ).toEqual('foo()')
   expect(
-    formatAbiItemWithParams({
+    formatAbiItem({
       inputs: [],
       name: 'foo',
       outputs: [],
@@ -25,7 +25,7 @@ test('foo()', () => {
 
 test('foo(uint256)', () => {
   expect(
-    formatAbiItemWithParams({
+    formatAbiItem({
       inputs: [
         {
           internalType: 'uint256',
@@ -40,7 +40,7 @@ test('foo(uint256)', () => {
     }),
   ).toEqual('foo(uint256)')
   expect(
-    formatAbiItemWithParams(
+    formatAbiItem(
       {
         inputs: [
           {
@@ -61,7 +61,7 @@ test('foo(uint256)', () => {
 
 test('getVoter((uint256,bool,address,uint256),string[],bytes)', () => {
   expect(
-    formatAbiItemWithParams({
+    formatAbiItem({
       inputs: [
         {
           components: [
@@ -108,7 +108,7 @@ test('getVoter((uint256,bool,address,uint256),string[],bytes)', () => {
     }),
   ).toEqual('getVoter((uint256,bool,address,uint256),string[],bytes)')
   expect(
-    formatAbiItemWithParams(
+    formatAbiItem(
       {
         inputs: [
           {
@@ -163,7 +163,7 @@ test('getVoter((uint256,bool,address,uint256),string[],bytes)', () => {
 
 test('VoterEvent((uint256,bool,address,uint256),string[],bytes)', () => {
   expect(
-    formatAbiItemWithParams({
+    formatAbiItem({
       inputs: [
         {
           components: [
@@ -210,7 +210,7 @@ test('VoterEvent((uint256,bool,address,uint256),string[],bytes)', () => {
     }),
   ).toEqual('VoterEvent((uint256,bool,address,uint256),string[],bytes)')
   expect(
-    formatAbiItemWithParams(
+    formatAbiItem(
       {
         inputs: [
           {
@@ -265,7 +265,7 @@ test('VoterEvent((uint256,bool,address,uint256),string[],bytes)', () => {
 
 test('VoterError((uint256,bool,address,uint256),string[],bytes)', () => {
   expect(
-    formatAbiItemWithParams({
+    formatAbiItem({
       inputs: [
         {
           components: [
@@ -315,7 +315,7 @@ test('VoterError((uint256,bool,address,uint256),string[],bytes)', () => {
 
 test('error: invalid type', () => {
   expect(() =>
-    formatAbiItemWithParams({
+    formatAbiItem({
       inputs: [
         {
           internalType: 'bytes32[]',

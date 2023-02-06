@@ -33,6 +33,6 @@ export { encodeFunctionResult } from './encodeFunctionResult'
 
 export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
 
-export { formatAbiItemWithParams } from './formatAbiItemWithParams'
+export { formatAbiItem } from './formatAbiItem'
 
 export { getAbiItem } from './getAbiItem'
