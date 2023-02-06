@@ -4,8 +4,8 @@ import { toUnicode } from 'idna-uts46-hx'
  * @description Normalizes ENS name
  *
  * @example
- * normalize('awkweb.eth')
- * => 'awkweb.eth'
+ * normalize('wagmi-dev.eth')
+ * 'wagmi-dev.eth'
  *
  * @see https://docs.ens.domains/contract-api-reference/name-processing#normalising-names
  */

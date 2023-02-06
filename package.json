@@ -53,6 +53,11 @@
       "module": "./dist/clients/index.mjs",
       "default": "./dist/clients/index.js"
     },
+    "./ens": {
+      "types": "./dist/ens.d.ts",
+      "module": "./dist/ens.mjs",
+      "default": "./dist/ens.js"
+    },
     "./public": {
       "types": "./dist/public.d.ts",
       "module": "./dist/public.mjs",
