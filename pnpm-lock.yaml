@@ -11,6 +11,7 @@ importers:
     specifiers:
       '@actions/core': ^1.10.0
       '@actions/github': ^5.1.1
+      '@adraffy/ens-normalize': ^1.8.9
       '@changesets/changelog-github': ^0.4.5
       '@changesets/cli': ^2.23.2
       '@noble/hashes': ^1.1.2
@@ -21,7 +22,7 @@ importers:
       '@vitest/coverage-c8': ^0.24.3
       '@vitest/ui': ^0.19.1
       '@wagmi/chains': ~0.2.6
-      abitype: ~0.2.5
+      abitype: ~0.3.0
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
       esbuild: ^0.16.12
@@ -30,21 +31,24 @@ importers:
       ethers: ^5.7.2
       execa: ^6.1.0
       fs-extra: ^10.1.0
+      idna-uts46-hx: ^4.1.2
       jsdom: ^20.0.0
       rome: ^11.0.0
       simple-git-hooks: ^2.8.1
       tsup: ^6.5.0
-      typescript: ^4.9.3
+      typescript: ^4.9.4
       vite: ^3.0.4
       vitest: ^0.25.2
       web3: ^1.8.1
     dependencies:
       '@noble/hashes': 1.1.2
-      '@wagmi/chains': 0.2.6_typescript@4.9.3
-      abitype: 0.2.5_typescript@4.9.3
+      '@wagmi/chains': 0.2.6_typescript@4.9.5
+      abitype: 0.3.0_typescript@4.9.5
+      idna-uts46-hx: 4.1.2
     devDependencies:
       '@actions/core': 1.10.0
       '@actions/github': 5.1.1
+      '@adraffy/ens-normalize': 1.8.9
       '@changesets/changelog-github': 0.4.6
       '@changesets/cli': 2.24.0
       '@testing-library/jest-dom': 5.16.5
@@ -64,8 +68,8 @@ importers:
       jsdom: 20.0.0
       rome: 11.0.0
       simple-git-hooks: 2.8.1
-      tsup: 6.5.0_typescript@4.9.3
-      typescript: 4.9.3
+      tsup: 6.5.0_typescript@4.9.5
+      typescript: 4.9.5
       vite: 3.0.4
       vitest: 0.25.2_vnmq2nkosb62o4dsp6xedf6gbi
       web3: 1.8.1
@@ -171,6 +175,10 @@ packages:
 
   /@adobe/css-tools/4.0.1:
     resolution: {integrity: sha512-+u76oB43nOHrF4DDWRLWDCtci7f3QJoEBigemIdIeTi1ODqjx6Tad9NCVnPRwewWlKkVab5PlK8DCtPTyX7S8g==}
+    dev: true
+
+  /@adraffy/ens-normalize/1.8.9:
+    resolution: {integrity: sha512-93OmGCV0vO8+JQ3FHG+gZk/MPHzzMPDRiCiFcCQNTCnHaaxsacO3ScTPGlu2wX2dOtgfalbchPcw1cOYYjHCYQ==}
     dev: true
 
   /@algolia/autocomplete-core/1.7.2:
@@ -1947,7 +1955,7 @@ packages:
       - vue
     dev: true
 
-  /@wagmi/chains/0.2.6_typescript@4.9.3:
+  /@wagmi/chains/0.2.6_typescript@4.9.5:
     resolution: {integrity: sha512-YRvWZ6G5X25BgLB8jCAz7Je3yUh+CvmXujrWnL/1lbXslheEq1Ssf77zRfdQo+zfD4bwL/qHEUNREf8r6usKsA==}
     peerDependencies:
       typescript: '>=4.9.4'
@@ -1955,7 +1963,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 4.9.3
+      typescript: 4.9.5
     dev: false
 
   /@walletconnect/browser-utils/1.8.0:
@@ -2151,17 +2159,17 @@ packages:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     dev: true
 
-  /abitype/0.2.5_typescript@4.9.3:
-    resolution: {integrity: sha512-t1iiokWYpkrziu4WL2Gb6YdGvaP9ZKs7WnA39TI8TsW2E99GVRgDPW/xOKhzoCdyxOYt550CNYEFluCwGaFHaA==}
+  /abitype/0.3.0_typescript@4.9.5:
+    resolution: {integrity: sha512-0YokyAV4hKMcy97Pl+6QgZBlBdZJN2llslOs7kiFY+cu7kMlVXDBpxMExfv0krzBCQt2t7hNovpQ3y/zvEm18A==}
     engines: {pnpm: '>=7'}
     peerDependencies:
-      typescript: '>=4.7.4'
+      typescript: '>=4.9.4'
       zod: '>=3.19.1'
     peerDependenciesMeta:
       zod:
         optional: true
     dependencies:
-      typescript: 4.9.3
+      typescript: 4.9.5
     dev: false
 
   /abortcontroller-polyfill/1.7.5:
@@ -5181,6 +5189,13 @@ packages:
       punycode: 2.1.0
     dev: true
 
+  /idna-uts46-hx/4.1.2:
+    resolution: {integrity: sha512-EAB3egrcalcTQHcjA7yzXXkE4E09TIFerR//4yUYGYCeCfXmkU0LgsGJgYSIQA1lQunfsn4ZCWJhbelgl3cdiQ==}
+    engines: {node: '>=16.15.1', npm: '>=8.11.1'}
+    dependencies:
+      punycode: 2.3.0
+    dev: false
+
   /ieee754/1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
@@ -6755,8 +6770,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /punycode/2.1.1:
-    resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
+  /punycode/2.3.0:
+    resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
     engines: {node: '>=6'}
 
   /qrcode/1.4.4:
@@ -7712,7 +7727,7 @@ packages:
     engines: {node: '>=0.8'}
     dependencies:
       psl: 1.9.0
-      punycode: 2.1.1
+      punycode: 2.3.0
     dev: true
 
   /tough-cookie/4.0.0:
@@ -7720,7 +7735,7 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       psl: 1.9.0
-      punycode: 2.1.1
+      punycode: 2.3.0
       universalify: 0.1.2
     dev: true
 
@@ -7730,14 +7745,14 @@ packages:
   /tr46/1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.3.0
     dev: true
 
   /tr46/3.0.0:
     resolution: {integrity: sha512-l7FvfAHlcmulp8kr+flpQZmVwtu7nfRV7NZujtN0OqES8EL4O4e0qqzL0DC5gAvx/ZC/9lk6rhcUwYvkBnBnYA==}
     engines: {node: '>=12'}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.3.0
     dev: true
 
   /tree-kill/1.2.2:
@@ -7769,7 +7784,7 @@ packages:
     resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
     dev: false
 
-  /tsup/6.5.0_typescript@4.9.3:
+  /tsup/6.5.0_typescript@4.9.5:
     resolution: {integrity: sha512-36u82r7rYqRHFkD15R20Cd4ercPkbYmuvRkz3Q1LCm5BsiFNUgpo36zbjVhCOgvjyxNBWNKHsaD5Rl8SykfzNA==}
     engines: {node: '>=14'}
     hasBin: true
@@ -7799,7 +7814,7 @@ packages:
       source-map: 0.8.0-beta.0
       sucrase: 3.28.0
       tree-kill: 1.2.2
-      typescript: 4.9.3
+      typescript: 4.9.5
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -7906,6 +7921,11 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
+  /typescript/4.9.5:
+    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+
   /ultron/1.1.1:
     resolution: {integrity: sha512-UIEXBNeYmKptWH6z8ZnqTeS8fV74zG0/eRU9VGkpzz+LIJNs8W/zM/L+7ctCkRrgbNnnR0xxw4bKOr0cW0N0Og==}
     dev: true
@@ -7955,7 +7975,7 @@ packages:
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.3.0
 
   /url-set-query/1.0.0:
     resolution: {integrity: sha512-3AChu4NiXquPfeckE5R5cGdiHCMWJx1dwCWOmWIL4KHAziJNOFIYJlpGFeKDvwLPHovZRCxK3cYlwzqI9Vp+Gg==}
