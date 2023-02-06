@@ -1,5 +1,15 @@
 # viem
 
+## 0.0.1-alpha.20
+
+### Patch Changes
+
+- [`ebf1dc8`](https://github.com/wagmi-dev/viem/commit/ebf1dc8e4785fd8115687995916882caa94f7ecd) Thanks [@jxom](https://github.com/jxom)! - Added `watchEvent`
+
+* [`ebf1dc8`](https://github.com/wagmi-dev/viem/commit/ebf1dc8e4785fd8115687995916882caa94f7ecd) Thanks [@jxom](https://github.com/jxom)! - Added `watchContractEvent`
+
+- [`ae90357`](https://github.com/wagmi-dev/viem/commit/ae9035735590b09e375dd4f773dd8b5e6c953fab) Thanks [@jxom](https://github.com/jxom)! - Made `watchBlocks` more type safe with the `includeTransactions` arg.
+
 ## 0.0.1-alpha.19
 
 ### Patch Changes
