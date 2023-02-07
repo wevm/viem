@@ -17,6 +17,13 @@ test('BaseError', () => {
     Details: details
     Version: viem@1.0.2]
   `)
+
+  expect(new BaseError('', { details: 'details' })).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Details: details
+    Version: viem@1.0.2]
+  `)
 })
 
 test('BaseError (w/ docsPath)', () => {
@@ -29,6 +36,43 @@ test('BaseError (w/ docsPath)', () => {
     [ViemError: An error occurred.
 
     Docs: https://viem.sh/lol
+    Details: details
+    Version: viem@1.0.2]
+  `)
+  expect(
+    new BaseError('An error occurred.', {
+      cause: new BaseError('error', { docsPath: '/docs' }),
+    }),
+  ).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Docs: https://viem.sh/docs
+    Version: viem@1.0.2]
+  `)
+  expect(
+    new BaseError('An error occurred.', {
+      cause: new BaseError('error'),
+      docsPath: '/lol',
+    }),
+  ).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Docs: https://viem.sh/lol
+    Version: viem@1.0.2]
+  `)
+})
+
+test('BaseError (w/ metaMessages)', () => {
+  expect(
+    new BaseError('An error occurred.', {
+      details: 'details',
+      metaMessages: ['Reason: idk', 'Cause: lol'],
+    }),
+  ).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Reason: idk
+    Cause: lol
 
     Details: details
     Version: viem@1.0.2]
@@ -48,7 +92,6 @@ test('inherited BaseError', () => {
     [ViemError: An internal error occurred.
 
     Docs: https://viem.sh/lol
-
     Details: details
     Version: viem@1.0.2]
   `)
@@ -65,7 +108,6 @@ test('inherited Error', () => {
     [ViemError: An internal error occurred.
 
     Docs: https://viem.sh/lol
-
     Details: details
     Version: viem@1.0.2]
   `)

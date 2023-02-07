@@ -25,7 +25,6 @@ test('InvalidAbiDecodingTypeError', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/lol
-
     Version: viem@1.0.2]
   `)
 })
@@ -69,7 +68,6 @@ test('InvalidAbiEncodingTypeError', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/lol
-
     Version: viem@1.0.2]
   `)
 })

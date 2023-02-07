@@ -9,7 +9,7 @@ import { concatHex } from '../data'
 import { getFunctionSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem } from './getAbiItem'
+import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 
@@ -25,7 +25,11 @@ export function encodeErrorResult<
   TAbi extends Abi = Abi,
   TErrorName extends ExtractAbiErrorNames<TAbi> = any,
 >({ abi, errorName, args }: EncodeErrorResultArgs<TAbi, TErrorName>) {
-  const description = getAbiItem({ abi, name: errorName })
+  const description = getAbiItem({
+    abi,
+    args,
+    name: errorName,
+  } as GetAbiItemArgs)
   if (!description) throw new AbiErrorNotFoundError(errorName, { docsPath })
   const definition = formatAbiItem(description)
   const signature = getFunctionSignature(definition)

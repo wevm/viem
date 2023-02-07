@@ -1390,7 +1390,6 @@ test('invalid type', () => {
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/encodeAbi
-
     Version: viem@1.0.2"
   `)
 })

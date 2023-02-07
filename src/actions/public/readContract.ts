@@ -1,11 +1,10 @@
 import { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
+import { BaseError } from '../../errors'
 import type {
-  Address,
-  ExtractArgsFromAbi,
+  ContractConfig,
   ExtractResultFromAbi,
-  ExtractFunctionNameFromAbi,
   Formatter,
 } from '../../types'
 import {
@@ -13,6 +12,7 @@ import {
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
+  DecodeFunctionResultArgs,
 } from '../../utils'
 import { call, CallArgs, FormattedCall } from './call'
 
@@ -36,11 +36,8 @@ export type ReadContractArgs<
   | 'to'
   | 'data'
   | 'value'
-> & {
-  address: Address
-  abi: TAbi
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName, 'pure' | 'view'>
-} & ExtractArgsFromAbi<TAbi, TFunctionName>
+> &
+  ContractConfig<TAbi, TFunctionName, 'view' | 'pure'>
 
 export type ReadContractResponse<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -73,14 +70,16 @@ export async function readContract<
     } as unknown as CallArgs)
     return decodeFunctionResult({
       abi,
+      args,
       functionName,
       data: data || '0x',
-    })
+    } as DecodeFunctionResultArgs<TAbi, TFunctionName>)
   } catch (err) {
-    throw getContractError(err, {
+    throw getContractError(err as BaseError, {
       abi,
       address,
       args,
+      docsPath: '/docs/contract/readContract',
       functionName,
     })
   }

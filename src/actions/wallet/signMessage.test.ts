@@ -35,7 +35,6 @@ test('hex', async () => {
     "data (\\"deadbeaf\\") must be a hex value. Encode it first to a hex with the \`encodeHex\` util.
 
     Docs: https://viem.sh/TODO
-
     Version: viem@1.0.2"
   `,
   )

@@ -200,6 +200,79 @@ test('returns (Bar, string)', () => {
   ])
 })
 
+test('overloads', () => {
+  expect(
+    decodeFunctionResult({
+      abi: [
+        {
+          inputs: [{ internalType: 'uint256', name: 'x', type: 'uint256' }],
+          name: 'foo',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: 'x',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+        {
+          inputs: [],
+          name: 'foo',
+          outputs: [
+            {
+              internalType: 'address',
+              name: 'sender',
+              type: 'address',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ] as const,
+      functionName: 'foo',
+      data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    }),
+  ).toEqual('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC')
+
+  expect(
+    decodeFunctionResult({
+      abi: [
+        {
+          inputs: [{ internalType: 'uint256', name: 'x', type: 'uint256' }],
+          name: 'foo',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: 'x',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+        {
+          inputs: [],
+          name: 'foo',
+          outputs: [
+            {
+              internalType: 'address',
+              name: 'sender',
+              type: 'address',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ] as const,
+      functionName: 'foo',
+      data: '0x0000000000000000000000000000000000000000000000000000000000000069',
+      args: [10n],
+    }),
+  ).toEqual(105n)
+})
+
 test("error: function doesn't exist", () => {
   expect(() =>
     decodeFunctionResult({
@@ -228,7 +301,6 @@ test("error: function doesn't exist", () => {
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionResult
-
     Version: viem@1.0.2"
   `,
   )
@@ -255,7 +327,6 @@ test("error: function doesn't exist", () => {
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionResult
-
     Version: viem@1.0.2"
   `,
   )

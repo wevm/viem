@@ -4,9 +4,9 @@ import { RpcError } from './rpc'
 export class RequestError extends BaseError {
   constructor(
     err: Error,
-    { docsPath, humanMessage }: { docsPath?: string; humanMessage: string },
+    { docsPath, shortMessage }: { docsPath?: string; shortMessage: string },
   ) {
-    super(humanMessage, {
+    super(shortMessage, {
       cause: err,
       docsPath,
     })
@@ -19,9 +19,9 @@ export class RpcRequestError extends RequestError {
 
   constructor(
     err: RpcError,
-    { docsPath, humanMessage }: { docsPath?: string; humanMessage: string },
+    { docsPath, shortMessage }: { docsPath?: string; shortMessage: string },
   ) {
-    super(err, { docsPath, humanMessage })
+    super(err, { docsPath, shortMessage })
     this.code = err.code
     this.name = err.name
   }
@@ -33,7 +33,7 @@ export class ParseRpcError extends RpcRequestError {
 
   constructor(err: RpcError) {
     super(err, {
-      humanMessage:
+      shortMessage:
         'Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.',
     })
   }
@@ -44,7 +44,7 @@ export class InvalidRequestRpcError extends RpcRequestError {
   code = -32600
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'JSON is not a valid request object.' })
+    super(err, { shortMessage: 'JSON is not a valid request object.' })
   }
 }
 
@@ -54,7 +54,7 @@ export class MethodNotFoundRpcError extends RpcRequestError {
 
   constructor(err: RpcError) {
     super(err, {
-      humanMessage: 'The method does not exist / is not available.',
+      shortMessage: 'The method does not exist / is not available.',
     })
   }
 }
@@ -65,7 +65,7 @@ export class InvalidParamsRpcError extends RpcRequestError {
 
   constructor(err: RpcError) {
     super(err, {
-      humanMessage: [
+      shortMessage: [
         'Invalid parameters were provided to the RPC method.',
         'Double check you have provided the correct parameters.',
       ].join('\n'),
@@ -78,7 +78,7 @@ export class InternalRpcError extends RpcRequestError {
   code = -32603
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'An internal error was received.' })
+    super(err, { shortMessage: 'An internal error was received.' })
   }
 }
 
@@ -88,7 +88,7 @@ export class InvalidInputRpcError extends RpcRequestError {
 
   constructor(err: RpcError) {
     super(err, {
-      humanMessage: [
+      shortMessage: [
         'Missing or invalid parameters.',
         'Double check you have provided the correct parameters.',
       ].join('\n'),
@@ -101,7 +101,7 @@ export class ResourceNotFoundRpcError extends RpcRequestError {
   code = -32001
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'Requested resource not found.' })
+    super(err, { shortMessage: 'Requested resource not found.' })
   }
 }
 
@@ -110,7 +110,7 @@ export class ResourceUnavailableRpcError extends RpcRequestError {
   code = -32002
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'Requested resource not available.' })
+    super(err, { shortMessage: 'Requested resource not available.' })
   }
 }
 
@@ -119,7 +119,7 @@ export class TransactionRejectedRpcError extends RpcRequestError {
   code = -32003
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'Transaction creation failed.' })
+    super(err, { shortMessage: 'Transaction creation failed.' })
   }
 }
 
@@ -128,7 +128,7 @@ export class MethodNotSupportedRpcError extends RpcRequestError {
   code = -32004
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'Method is not implemented.' })
+    super(err, { shortMessage: 'Method is not implemented.' })
   }
 }
 
@@ -137,7 +137,7 @@ export class LimitExceededRpcError extends RpcRequestError {
   code = -32005
 
   constructor(err: RpcError) {
-    super(err, { humanMessage: 'Request exceeds defined limit.' })
+    super(err, { shortMessage: 'Request exceeds defined limit.' })
   }
 }
 
@@ -147,7 +147,7 @@ export class JsonRpcVersionUnsupportedError extends RpcRequestError {
 
   constructor(err: RpcError) {
     super(err, {
-      humanMessage: 'Version of JSON-RPC protocol is not supported.',
+      shortMessage: 'Version of JSON-RPC protocol is not supported.',
     })
   }
 }
@@ -157,7 +157,7 @@ export class UnknownRpcError extends RequestError {
 
   constructor(err: Error) {
     super(err, {
-      humanMessage: 'An unknown RPC error occurred.',
+      shortMessage: 'An unknown RPC error occurred.',
     })
   }
 }

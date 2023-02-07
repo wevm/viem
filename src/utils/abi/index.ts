@@ -1,7 +1,10 @@
 export type { DecodeAbiArgs } from './decodeAbi'
 export { decodeAbi } from './decodeAbi'
 
-export type { DecodeErrorResultArgs } from './decodeErrorResult'
+export type {
+  DecodeErrorResultArgs,
+  DecodeErrorResultResponse,
+} from './decodeErrorResult'
 export { decodeErrorResult } from './decodeErrorResult'
 
 export type { DecodeFunctionDataArgs } from './decodeFunctionData'
@@ -35,4 +38,5 @@ export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
 
 export { formatAbiItem } from './formatAbiItem'
 
+export type { GetAbiItemArgs } from './getAbiItem'
 export { getAbiItem } from './getAbiItem'

@@ -6,6 +6,7 @@
  *        - Calls against blocks
  *        - Custom chain types
  *        - Custom nonce
+ *        - More reverts (custom errors/Error(string)/Panic(uint256))
  */
 
 import { describe, expect, test } from 'vitest'
@@ -53,6 +54,18 @@ describe('wagmi', () => {
     ).toEqual(undefined)
   })
 
+  test('overloaded function', async () => {
+    expect(
+      (
+        await simulateContract(publicClient, {
+          ...wagmiContractConfig,
+          from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+          functionName: 'mint',
+        })
+      ).result,
+    ).toEqual(undefined)
+  })
+
   test('revert', async () => {
     await expect(() =>
       simulateContract(publicClient, {
@@ -62,14 +75,15 @@ describe('wagmi', () => {
         from: accounts[0].address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "ERC721: approval to current owner
-       
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      "The contract function \\"approve\\" reverted for the following reason:
+      ERC721: approval to current owner
+
       Contract:  0x0000000000000000000000000000000000000000
       Function:  approve(address to, uint256 tokenId)
       Arguments:        (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 420)
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Details: execution reverted: ERC721: approval to current owner
+      Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2"
     `)
     await expect(() =>
@@ -80,14 +94,15 @@ describe('wagmi', () => {
         from: accounts[0].address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Token ID is taken
-       
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      "The contract function \\"mint\\" reverted for the following reason:
+      Token ID is taken
+
       Contract:  0x0000000000000000000000000000000000000000
       Function:  mint(uint256 tokenId)
       Arguments:     (1)
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Details: execution reverted: Token ID is taken
+      Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2"
     `)
     await expect(() =>
@@ -102,14 +117,15 @@ describe('wagmi', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "ERC721: transfer caller is not owner nor approved
-       
-      Sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
+      "The contract function \\"safeTransferFrom\\" reverted for the following reason:
+      ERC721: transfer caller is not owner nor approved
+
       Contract:  0x0000000000000000000000000000000000000000
       Function:  safeTransferFrom(address from, address to, uint256 tokenId)
       Arguments:                 (0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6, 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 1)
+      Sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
-      Details: execution reverted: ERC721: transfer caller is not owner nor approved
+      Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2"
     `)
   })
@@ -178,14 +194,15 @@ describe('BAYC', () => {
           args: [1n],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "Sale must be active to mint Ape
-         
-        Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        "The contract function \\"mintApe\\" reverted for the following reason:
+        Sale must be active to mint Ape
+
         Contract:  0x0000000000000000000000000000000000000000
         Function:  mintApe(uint256 numberOfTokens)
         Arguments:        (1)
+        Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-        Details: execution reverted: Sale must be active to mint Ape
+        Docs: https://viem.sh/docs/contract/simulateContract
         Version: viem@1.0.2"
       `)
     })
@@ -210,15 +227,18 @@ test('fake contract address', async () => {
       args: [],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract method \\"mint\\" returned no data (\\"0x\\"). This could be due to any of the following:
+    "The contract function \\"mint\\" returned no data (\\"0x\\").
+
+    This could be due to any of the following:
     - The contract does not have the function \\"mint\\",
     - The parameters passed to the contract function may be invalid, or
     - The address is not a contract.
      
-    Contract: 0x0000000000000000000000000000000000000000
-    Function: mint()
-            > \\"0x\\"
+    Contract:  0x0000000000000000000000000000000000000000
+    Function:  mint()
+    Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+    Docs: https://viem.sh/docs/contract/simulateContract
     Version: viem@1.0.2"
   `)
 })

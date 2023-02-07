@@ -1,6 +1,16 @@
 {
   "files": {
-    "ignore": ["cache", "coverage", "node_modules", "dist", "generated", "CHANGELOG.md", "pnpm-lock.yaml", ".next"]
+    "ignore": [
+      "**/types/multicall.ts",
+      "cache",
+      "coverage",
+      "node_modules",
+      "dist",
+      "generated",
+      "CHANGELOG.md",
+      "pnpm-lock.yaml",
+      ".next"
+    ]
   },
   "formatter": {
     "enabled": true,

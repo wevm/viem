@@ -25,8 +25,8 @@ export { BaseError } from './base'
 export { BlockNotFoundError } from './block'
 
 export {
-  ContractMethodExecutionError,
-  ContractMethodZeroDataError,
+  ContractFunctionExecutionError,
+  RawContractError,
 } from './contract'
 
 export { SizeExceedsPaddingSizeError } from './data'

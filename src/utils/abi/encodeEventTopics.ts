@@ -14,7 +14,7 @@ import { encodeBytes } from '../encoding'
 import { keccak256, getEventSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem } from './getAbiItem'
+import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
 export type EncodeEventTopicsArgs<
   TAbi extends Abi = Abi,
@@ -28,7 +28,7 @@ export function encodeEventTopics<
   TAbi extends Abi = Abi,
   TEventName extends ExtractAbiEventNames<TAbi> = any,
 >({ abi, eventName, args }: EncodeEventTopicsArgs<TAbi, TEventName>) {
-  const abiItem = getAbiItem({ abi, name: eventName })
+  const abiItem = getAbiItem({ abi, args, name: eventName } as GetAbiItemArgs)
   if (!abiItem)
     throw new AbiEventNotFoundError(eventName, {
       docsPath: '/docs/contract/encodeEventTopics',

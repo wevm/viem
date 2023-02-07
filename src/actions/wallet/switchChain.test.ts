@@ -16,7 +16,6 @@ test('unsupported chain', async () => {
     [UnknownRpcError: An unknown RPC error occurred.
 
     Details: Unrecognized chain.
-    Version: viem@1.0.2
-    Internal Error: {"code":-4902,"details":"Unrecognized chain."}]
+    Version: viem@1.0.2]
   `)
 })

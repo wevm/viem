@@ -106,6 +106,38 @@ test('revert AccessDeniedError((uint256,bool,address,uint256))', () => {
   })
 })
 
+test('Error(string)', () => {
+  expect(
+    decodeErrorResult({
+      data: '0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000',
+    }),
+  ).toEqual({
+    errorName: 'Error',
+    args: ['test'],
+  })
+})
+
+test.todo('Panic(uint256)')
+
+test('zero data', () => {
+  expect(() =>
+    decodeErrorResult({
+      abi: [
+        {
+          inputs: [],
+          name: 'SoldOutError',
+          type: 'error',
+        },
+      ],
+      data: '0x',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Cannot decode zero data (\\"0x\\") with ABI parameters.
+
+    Version: viem@1.0.2"
+  `)
+})
+
 test("errors: error doesn't exist", () => {
   expect(() =>
     decodeErrorResult({
@@ -124,7 +156,6 @@ test("errors: error doesn't exist", () => {
     You can look up the signature \\"0xa3741467\\" here: https://sig.eth.samczsun.com/.
 
     Docs: https://viem.sh/docs/contract/decodeErrorResult
-
     Version: viem@1.0.2"
   `)
 })

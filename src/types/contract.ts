@@ -8,15 +8,16 @@ import type {
   AbiParameter,
   AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
+  AbiStateMutability,
   ExtractAbiFunction,
   ExtractAbiEvent,
   ExtractAbiEventNames,
-  ExtractAbiError,
-  AbiStateMutability,
   ExtractAbiFunctionNames,
+  ExtractAbiError,
+  ExtractAbiErrorNames,
 } from 'abitype'
-import { TransactionRequest } from './transaction'
-
+import type { Address } from './misc'
+import type { TransactionRequest } from './transaction'
 import type { Trim } from './utils'
 
 //////////////////////////////////////////////////////////////////////
@@ -191,6 +192,23 @@ export type ExtractFunctionNameFromAbi<
     : never
   : TFunctionName
 
+type ExtractNames<TAbi extends Abi> =
+  | ExtractAbiFunctionNames<TAbi>
+  | ExtractAbiEventNames<TAbi>
+  | ExtractAbiErrorNames<TAbi>
+
+export type ExtractNameFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TName extends string = string,
+> = TAbi extends Abi
+  ? ExtractNames<TAbi> extends infer AbiNames
+    ?
+        | AbiNames
+        | (TName extends AbiNames ? TName : never)
+        | (Abi extends TAbi ? string : never)
+    : never
+  : TName
+
 export type ExtractResultFromAbi<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
@@ -329,7 +347,24 @@ export type ExtractArgsFromFunctionDefinition<TDef> = ExtractArgsFromDefinition<
 >
 
 //////////////////////////////////////////////////////////////////////
-// Call Args
+// Args
+
+export type ContractConfig<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = string,
+  TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
+> = {
+  /** Contract ABI */
+  abi: TAbi
+  /** Contract address */
+  address: Address
+  /** Function to invoke on the contract */
+  functionName: ExtractFunctionNameFromAbi<
+    TAbi,
+    TFunctionName,
+    TAbiStateMutability
+  >
+} & ExtractArgsFromAbi<TAbi, TFunctionName>
 
 export type GetValue<
   TAbi extends Abi | readonly unknown[],

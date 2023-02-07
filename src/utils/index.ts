@@ -1,6 +1,7 @@
 export type {
   DecodeAbiArgs,
   DecodeErrorResultArgs,
+  DecodeErrorResultResponse,
   DecodeFunctionDataArgs,
   DecodeFunctionResultArgs,
   DecodeFunctionResultResponse,
@@ -10,6 +11,7 @@ export type {
   EncodeEventTopicsArgs,
   EncodeFunctionDataArgs,
   EncodeFunctionResultArgs,
+  GetAbiItemArgs,
 } from './abi'
 export {
   decodeAbi,

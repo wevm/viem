@@ -1,13 +1,7 @@
 import { Abi } from 'abitype'
 
 import type { WalletClient } from '../../clients'
-import type {
-  Address,
-  Chain,
-  ExtractArgsFromAbi,
-  ExtractFunctionNameFromAbi,
-  GetValue,
-} from '../../types'
+import type { Chain, ContractConfig, GetValue } from '../../types'
 import { EncodeFunctionDataArgs, encodeFunctionData } from '../../utils'
 import {
   sendTransaction,
@@ -20,11 +14,8 @@ export type WriteContractArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
 > = Omit<SendTransactionArgs<TChain>, 'to' | 'data' | 'value'> & {
-  address: Address
-  abi: TAbi
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
   value?: GetValue<TAbi, TFunctionName, SendTransactionArgs<TChain>['value']>
-} & ExtractArgsFromAbi<TAbi, TFunctionName>
+} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 
 export type WriteContractResponse = SendTransactionResponse
 

@@ -3,20 +3,21 @@
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
  *        - Calls against blocks
+ *        - Reverts (custom errors/Error(string)/Panic(uint256))
  */
 
 import { describe, expect, test } from 'vitest'
 import {
   accounts,
+  initialBlockNumber,
   publicClient,
   testClient,
+  vitalikAddress,
   wagmiContractConfig,
   walletClient,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
-import { encodeFunctionData } from '../../utils'
 import { mine } from '../test'
-import { sendTransaction } from '../wallet'
 
 import { deployContract } from './deployContract'
 import { getTransactionReceipt } from './getTransactionReceipt'
@@ -86,9 +87,72 @@ describe('wagmi', () => {
     expect(
       await readContract(publicClient, {
         ...wagmiContractConfig,
+        blockNumber: initialBlockNumber,
         functionName: 'totalSupply',
       }),
     ).toEqual(558n)
+  })
+
+  test('overloaded function', async () => {
+    expect(
+      await readContract(publicClient, {
+        ...wagmiContractConfig,
+        abi: [
+          {
+            inputs: [{ type: 'uint256', name: 'x' }],
+            name: 'balanceOf',
+            outputs: [{ type: 'address', name: 'x' }],
+            stateMutability: 'pure',
+            type: 'function',
+          },
+          ...wagmiContractConfig.abi,
+        ],
+        functionName: 'balanceOf',
+        args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
+      }),
+    ).toEqual(3n)
+  })
+})
+
+describe('bayc', () => {
+  test('revert', async () => {
+    await expect(() =>
+      readContract(publicClient, {
+        ...baycContractConfig,
+        functionName: 'tokenOfOwnerByIndex',
+        args: [vitalikAddress, 5n],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "The contract function \\"tokenOfOwnerByIndex\\" reverted for the following reason:
+      EnumerableSet: index out of bounds
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  tokenOfOwnerByIndex(address owner, uint256 index)
+      Arguments:                    (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('revert', async () => {
+    await expect(() =>
+      readContract(publicClient, {
+        ...baycContractConfig,
+        functionName: 'ownerOf',
+        args: [420213123123n],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "The contract function \\"ownerOf\\" reverted for the following reason:
+      ERC721: owner query for nonexistent token
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  ownerOf(uint256 tokenId)
+      Arguments:        (420213123123)
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2"
+    `)
   })
 })
 
@@ -100,15 +164,17 @@ test('fake contract address', async () => {
       functionName: 'totalSupply',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract method \\"totalSupply\\" returned no data (\\"0x\\"). This could be due to any of the following:
+    "The contract function \\"totalSupply\\" returned no data (\\"0x\\").
+
+    This could be due to any of the following:
     - The contract does not have the function \\"totalSupply\\",
     - The parameters passed to the contract function may be invalid, or
     - The address is not a contract.
      
-    Contract: 0x0000000000000000000000000000000000000000
-    Function: totalSupply()
-            > \\"0x\\"
+    Contract:  0x0000000000000000000000000000000000000000
+    Function:  totalSupply()
 
+    Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2"
   `)
 })

@@ -1,11 +1,13 @@
 // @ts-ignore
 import pkg from '../../package.json'
-import { stringify } from '../utils/stringify'
 
 /* c8 ignore next */
 const version = process.env.TEST ? '1.0.2' : pkg.version
 
-type BaseErrorArgs = { docsPath?: string } & (
+type BaseErrorArgs = {
+  docsPath?: string
+  metaMessages?: string[]
+} & (
   | {
       cause?: never
       details?: string
@@ -17,13 +19,14 @@ type BaseErrorArgs = { docsPath?: string } & (
 )
 
 export class BaseError extends Error {
-  humanMessage: string
   details: string
   docsPath?: string
+  metaMessages?: string[]
+  shortMessage: string
 
   name = 'ViemError'
 
-  constructor(humanMessage: string, args: BaseErrorArgs = {}) {
+  constructor(shortMessage: string, args: BaseErrorArgs = {}) {
     const details =
       args.cause instanceof BaseError
         ? args.cause.details
@@ -35,16 +38,12 @@ export class BaseError extends Error {
         ? args.cause.docsPath || args.docsPath
         : args.docsPath
     const message = [
-      humanMessage,
-      ...(docsPath ? ['', `Docs: https://viem.sh${docsPath}`] : []),
+      shortMessage || 'An error occurred.',
       '',
+      ...(args.metaMessages ? [...args.metaMessages, ''] : []),
+      ...(docsPath ? [`Docs: https://viem.sh${docsPath}`] : []),
       ...(details ? [`Details: ${details}`] : []),
       `Version: viem@${version}`,
-      ...(args.cause &&
-      !(args.cause instanceof BaseError) &&
-      Object.keys(args.cause).length > 0
-        ? [`Internal Error: ${stringify(args.cause)}`]
-        : []),
     ].join('\n')
 
     super(message)
@@ -52,6 +51,7 @@ export class BaseError extends Error {
     if (args.cause) this.cause = args.cause
     this.details = details
     this.docsPath = docsPath
-    this.humanMessage = humanMessage
+    this.metaMessages = args.metaMessages
+    this.shortMessage = shortMessage
   }
 }

@@ -11,6 +11,7 @@ export type { Chain } from './chain'
 export type {
   AbiItem,
   AbiEventParametersToPrimitiveTypes,
+  ContractConfig,
   EventDefinition,
   ExtractArgsFromAbi,
   ExtractArgsFromEventDefinition,
@@ -20,6 +21,7 @@ export type {
   ExtractEventArgsFromAbi,
   ExtractEventNameFromAbi,
   ExtractFunctionNameFromAbi,
+  ExtractNameFromAbi,
   ExtractResultFromAbi,
   GetValue,
 } from './contract'
@@ -39,6 +41,8 @@ export type { Formatter, Formatters } from './formatter'
 export type { Log } from './log'
 
 export type { Address, ByteArray, Hex, Hash, LogTopic } from './misc'
+
+export type { MulticallContracts } from './multicall'
 
 export type {
   Index,
