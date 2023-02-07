@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.21
+
+### Patch Changes
+
+- [`5a6bdf8`](https://github.com/wagmi-dev/viem/commit/5a6bdf8ea034b7edf6b2207b525764cee43bdb4b) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `encodeAbi` couldn't encode dynamic bytes larger than 32 bytes"
+
 ## 0.0.1-alpha.20
 
 ### Patch Changes
