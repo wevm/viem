@@ -15,20 +15,7 @@ import { readContract } from './readContract'
 export type MulticallArgs<
   TContracts extends ContractConfig[],
   TAllowFailure extends boolean = true,
-> = Omit<
-  CallArgs,
-  | 'accessList'
-  | 'chain'
-  | 'from'
-  | 'gas'
-  | 'gasPrice'
-  | 'maxFeePerGas'
-  | 'maxPriorityFeePerGas'
-  | 'nonce'
-  | 'to'
-  | 'data'
-  | 'value'
-> & {
+> = Pick<CallArgs, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
   contracts: readonly [...MulticallContracts<TContracts>]
   multicallAddress: Address
