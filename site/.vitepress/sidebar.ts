@@ -90,7 +90,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'ENS',
           items: [
-            { text: 'getEnsAddress 🚧', link: '/docs/actions/public/getEnsAddress' },
+            {
+              text: 'getEnsAddress 🚧',
+              link: '/docs/actions/public/getEnsAddress',
+            },
             { text: 'getEnsName 🚧', link: '/docs/actions/public/getEnsName' },
             {
               text: 'getEnsResolver 🚧',
@@ -596,8 +599,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'ENS',
           items: [
-            { text: 'namehash 🚧', link: '/docs/utilities/namehash' },
-            { text: 'labelhash 🚧', link: '/docs/utilities/labelhash' },
+            { text: 'labelhash', link: '/docs/utilities/labelhash' },
+            { text: 'namehash', link: '/docs/utilities/namehash' },
+
+            { text: 'normalize', link: '/docs/utilities/normalize' },
           ],
         },
         {
