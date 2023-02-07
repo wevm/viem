@@ -11,7 +11,7 @@ import {
   InvalidArrayError,
 } from '../../errors'
 import { Hex } from '../../types'
-import { concat, padHex, size } from '../data'
+import { concat, padHex, size, slice } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
 export type EncodeAbiArgs<TParams extends readonly AbiParameter[]> = {
@@ -183,14 +183,20 @@ function encodeBytes<TParam extends AbiParameter>(
   { param }: { param: TParam },
 ): PreparedParam {
   const [_, size_] = param.type.split('bytes')
-  if (!size_)
+  if (!size_) {
+    const partsLength = Math.floor(size(value) / 32)
+    const parts: Hex[] = []
+    for (let i = 0; i < partsLength + 1; i++) {
+      parts.push(padHex(slice(value, i * 32, (i + 1) * 32), { dir: 'right' }))
+    }
     return {
       dynamic: true,
       encoded: concat([
         padHex(numberToHex(size(value), { size: 32 })),
-        padHex(value, { dir: 'right' }),
+        ...parts,
       ]),
     }
+  }
   return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }
 }
 
