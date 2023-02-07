@@ -2,8 +2,8 @@ import { bench, describe } from 'vitest'
 
 import {
   accounts,
-  essentialProvider,
   ethersProvider,
+  ethersV6Provider,
   publicClient,
   web3Provider,
 } from '../../_test'
@@ -30,16 +30,16 @@ describe('Call', () => {
     })
   })
 
-  bench('web3.js: `call`', async () => {
-    await web3Provider.eth.call({
+  bench('ethers@6: `call`', async () => {
+    await ethersV6Provider.call({
       data: name4bytes,
       from: accounts[0].address,
       to: wagmiContractAddress,
     })
   })
 
-  bench('essential-eth: `call`', async () => {
-    await essentialProvider.call({
+  bench('web3.js: `call`', async () => {
+    await web3Provider.eth.call({
       data: name4bytes,
       from: accounts[0].address,
       to: wagmiContractAddress,

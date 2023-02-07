@@ -1,7 +1,6 @@
 import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import Web3 from 'web3'
-import { etherToWei } from 'essential-eth'
 
 import { parseUnit } from './parseUnit'
 
@@ -18,9 +17,5 @@ describe('Parse Unit', () => {
 
   bench('web3.js: `fromWei`', () => {
     web3.utils.fromWei('40')
-  })
-
-  bench('essential-eth: `etherToWei`', () => {
-    etherToWei('40')
   })
 })

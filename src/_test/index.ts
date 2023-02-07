@@ -4,7 +4,7 @@ export {
   usdcContractConfig,
 } from './abis'
 
-export { essentialProvider, ethersProvider, web3Provider } from './bench'
+export { ethersProvider, ethersV6Provider, web3Provider } from './bench'
 
 export {
   accounts,

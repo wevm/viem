@@ -1,5 +1,4 @@
 import { hexlify } from 'ethers/lib/utils'
-import { hexlify as hexlify2 } from 'essential-eth'
 import { bench, describe } from 'vitest'
 import Web3 from 'web3'
 
@@ -16,10 +15,6 @@ describe('Number to Hex', () => {
 
   bench('web3.js: `numberToHex`', () => {
     Web3.utils.numberToHex(52)
-  })
-
-  bench('essential-eth: `hexlify`', () => {
-    hexlify2(52)
   })
 })
 
@@ -50,11 +45,5 @@ describe('Bytes to Hex', () => {
     Web3.utils.bytesToHex([
       72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
     ])
-  })
-
-  bench('essential-eth: `hexlify`', () => {
-    hexlify2(
-      new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
-    )
   })
 })

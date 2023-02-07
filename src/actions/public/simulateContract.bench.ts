@@ -1,4 +1,5 @@
 import { Contract } from 'ethers'
+import { Contract as ContractV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
 import {
@@ -27,5 +28,14 @@ describe('Simulate Contract', () => {
       ethersProvider,
     )
     await wagmi.callStatic.mint(1)
+  })
+
+  bench('ethers@6: `callStatic`', async () => {
+    const wagmi = new ContractV6(
+      wagmiContractConfig.address,
+      wagmiContractConfig.abi,
+      ethersProvider,
+    )
+    await wagmi.mint.staticCall(1)
   })
 })
