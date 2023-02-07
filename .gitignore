@@ -21,6 +21,7 @@ bench
 actions/**
 chains/**
 clients/**
+ens/**
 public/**
 test/**
 utils/**
