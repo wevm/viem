@@ -214,6 +214,9 @@ export type ExtractResultFromAbi<
 //////////////////////////////////////////////////////////////////////
 // Event/Function Definitions
 
+// REFACTOR: Remove below once we implement `ParseAbi`.
+// https://github.com/wagmi-dev/viem/issues/29
+
 export type EventDefinition = `${string}(${string})`
 
 type ExtractArgsFromDefinitionConfig = {
