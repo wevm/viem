@@ -94,7 +94,7 @@ export class ContractFunctionRevertedError extends BaseError {
 
     super(
       [
-        `The contract function "${functionName}" reverted with the following reason:`,
+        `The contract function "${functionName}" reverted for the following reason:`,
         reason,
       ].join('\n'),
     )
