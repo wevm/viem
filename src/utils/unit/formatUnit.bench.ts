@@ -1,7 +1,6 @@
 import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import Web3 from 'web3'
-import { weiToEther } from 'essential-eth'
 
 import { formatUnit } from './formatUnit'
 
@@ -18,9 +17,5 @@ describe('Format Unit', () => {
 
   bench('web3.js: `toWei`', () => {
     web3.utils.toWei('40000000000000000000')
-  })
-
-  bench('essential-eth: `etherToWei`', () => {
-    weiToEther('40000000000000000000')
   })
 })

@@ -1,11 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import {
-  essentialProvider,
-  ethersProvider,
-  publicClient,
-  web3Provider,
-} from '../../_test'
+import { ethersProvider, publicClient, web3Provider } from '../../_test'
 
 import { getTransaction } from './getTransaction'
 
@@ -25,9 +20,5 @@ describe('Get Transaction', () => {
 
   bench('web3.js: `getTransaction`', async () => {
     await web3Provider.eth.getTransaction(hash)
-  })
-
-  bench('essential-eth: `getTransaction`', async () => {
-    await essentialProvider.getTransaction(hash)
   })
 })
