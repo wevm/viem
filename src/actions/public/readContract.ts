@@ -22,21 +22,8 @@ export type FormattedReadContract<
 
 export type ReadContractArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
-> = Omit<
-  CallArgs,
-  | 'accessList'
-  | 'chain'
-  | 'from'
-  | 'gas'
-  | 'gasPrice'
-  | 'maxFeePerGas'
-  | 'maxPriorityFeePerGas'
-  | 'nonce'
-  | 'to'
-  | 'data'
-  | 'value'
-> &
+  TFunctionName extends string = string,
+> = Pick<CallArgs, 'blockNumber' | 'blockTag'> &
   ContractConfig<TAbi, TFunctionName, 'view' | 'pure'>
 
 export type ReadContractResponse<
@@ -45,8 +32,8 @@ export type ReadContractResponse<
 > = ExtractResultFromAbi<TAbi, TFunctionName>
 
 export async function readContract<
-  TAbi extends Abi = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
 >(
   client: PublicClient,
   {
@@ -76,7 +63,7 @@ export async function readContract<
     } as DecodeFunctionResultArgs<TAbi, TFunctionName>)
   } catch (err) {
     throw getContractError(err as BaseError, {
-      abi,
+      abi: abi as Abi,
       address,
       args,
       docsPath: '/docs/contract/readContract',

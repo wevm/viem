@@ -13,13 +13,12 @@ test('foo()', () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
-      ] as const,
+      ],
       functionName: 'foo',
     }),
   ).toEqual('0xc2985578')
   expect(
     encodeFunctionData({
-      // @ts-expect-error
       abi: [
         {
           name: 'foo',
@@ -27,7 +26,7 @@ test('foo()', () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
-      ] as const,
+      ],
       functionName: 'foo',
     }),
   ).toEqual('0xc2985578')
@@ -50,7 +49,7 @@ test('bar(uint256)', () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
-      ] as const,
+      ],
       functionName: 'bar',
       args: [1n],
     }),
@@ -98,7 +97,7 @@ test('getVoter((uint256,bool,address,uint256))', () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
-      ] as const,
+      ],
       functionName: 'getVoter',
       args: [
         {
@@ -125,7 +124,7 @@ test("errors: function doesn't exist", () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
-      ] as const,
+      ],
       // @ts-expect-error
       functionName: 'bar',
     }),

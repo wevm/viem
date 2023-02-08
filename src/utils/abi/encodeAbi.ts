@@ -2,6 +2,7 @@ import {
   AbiParameter,
   AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
+  Narrow,
 } from 'abitype'
 
 import {
@@ -14,25 +15,33 @@ import { Hex } from '../../types'
 import { concat, padHex, size, slice } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
-export type EncodeAbiArgs<TParams extends readonly AbiParameter[]> = {
-  params: TParams
-  values: AbiParametersToPrimitiveTypes<TParams>
+export type EncodeAbiArgs<
+  TParams extends
+    | readonly AbiParameter[]
+    | readonly unknown[] = readonly AbiParameter[],
+> = {
+  params: Narrow<TParams>
+  values: TParams extends readonly AbiParameter[]
+    ? AbiParametersToPrimitiveTypes<TParams>
+    : never
 }
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
  */
-export function encodeAbi<TParams extends readonly AbiParameter[]>({
-  params,
-  values,
-}: EncodeAbiArgs<TParams>) {
+export function encodeAbi<
+  TParams extends readonly AbiParameter[] | readonly unknown[],
+>({ params, values }: EncodeAbiArgs<TParams>) {
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
-      expectedLength: params.length,
+      expectedLength: params.length as number,
       givenLength: values.length,
     })
   // Prepare the parameters to determine dynamic types to encode.
-  const preparedParams = prepareParams({ params, values })
+  const preparedParams = prepareParams({
+    params: params as readonly AbiParameter[],
+    values,
+  })
   const data = encodeParams(preparedParams)
   if (data.length === 0) return '0x'
   return data
@@ -49,7 +58,7 @@ function prepareParams<TParams extends readonly AbiParameter[]>({
   params,
   values,
 }: {
-  params: TParams
+  params: Narrow<TParams>
   values: AbiParametersToPrimitiveTypes<TParams>
 }) {
   let preparedParams: PreparedParam[] = []

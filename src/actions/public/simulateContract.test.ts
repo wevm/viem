@@ -391,7 +391,6 @@ test('fake contract address', async () => {
       address: '0x0000000000000000000000000000000000000069',
       functionName: 'mint',
       from: accounts[0].address,
-      args: [],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     "The contract function \\"mint\\" returned no data (\\"0x\\").

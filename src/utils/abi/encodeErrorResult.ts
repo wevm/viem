@@ -1,10 +1,13 @@
-import { Abi, ExtractAbiErrorNames } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
 } from '../../errors'
-
-import { ExtractErrorArgsFromAbi, Hex } from '../../types'
+import {
+  ExtractErrorArgsFromAbi,
+  ExtractErrorNameFromAbi,
+  Hex,
+} from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
@@ -14,16 +17,16 @@ import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 const docsPath = '/docs/contract/encodeErrorResult'
 
 export type EncodeErrorResultArgs<
-  TAbi extends Abi = Abi,
-  TErrorName extends ExtractAbiErrorNames<TAbi> = any,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TErrorName extends string = string,
 > = {
-  abi: TAbi
-  errorName: TErrorName
+  abi: Narrow<TAbi>
+  errorName: ExtractErrorNameFromAbi<TAbi, TErrorName>
 } & ExtractErrorArgsFromAbi<TAbi, TErrorName>
 
 export function encodeErrorResult<
-  TAbi extends Abi = Abi,
-  TErrorName extends ExtractAbiErrorNames<TAbi> = any,
+  TAbi extends Abi | readonly unknown[],
+  TErrorName extends string,
 >({ abi, errorName, args }: EncodeErrorResultArgs<TAbi, TErrorName>) {
   const description = getAbiItem({
     abi,

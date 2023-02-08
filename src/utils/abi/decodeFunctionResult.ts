@@ -1,4 +1,4 @@
-import { Abi } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
@@ -16,21 +16,21 @@ const docsPath = '/docs/contract/decodeFunctionResult'
 
 export type DecodeFunctionResultArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
+  TFunctionName extends string = string,
 > = {
-  abi: TAbi
+  abi: Narrow<TAbi>
   functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
   data: Hex
 } & Partial<ExtractArgsFromAbi<TAbi, TFunctionName>>
 
 export type DecodeFunctionResultResponse<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
+  TFunctionName extends string = string,
 > = ExtractResultFromAbi<TAbi, TFunctionName>
 
 export function decodeFunctionResult<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
 >({
   abi,
   args,

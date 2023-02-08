@@ -18,7 +18,6 @@ test('revert SoldOutError()', () => {
   expect(
     encodeErrorResult({
       abi: [
-        // @ts-expect-error
         {
           name: 'SoldOutError',
           type: 'error',
@@ -44,7 +43,7 @@ test('revert AccessDeniedError(string)', () => {
           name: 'AccessDeniedError',
           type: 'error',
         },
-      ] as const,
+      ],
       errorName: 'AccessDeniedError',
       args: ['you do not have access ser'],
     }),
@@ -116,6 +115,7 @@ test("errors: error doesn't exist", () => {
           type: 'error',
         },
       ],
+      // @ts-expect-error
       errorName: 'AccessDeniedError',
       args: [
         {
@@ -139,7 +139,6 @@ test('errors: no inputs', () => {
   expect(() =>
     encodeErrorResult({
       abi: [
-        // @ts-expect-error
         {
           name: 'AccessDeniedError',
           type: 'error',
@@ -167,7 +166,6 @@ test('errors: no inputs', () => {
     encodeErrorResult({
       abi: [
         {
-          // @ts-expect-error
           inputs: undefined,
           name: 'AccessDeniedError',
           type: 'error',

@@ -1,4 +1,4 @@
-import { Abi } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 
 import type { PublicClient } from '../../clients'
 import { BaseError } from '../../errors'
@@ -36,17 +36,14 @@ export type SimulateContractResponse<
   TFunctionName extends string = string,
 > = {
   result: ExtractResultFromAbi<TAbi, TFunctionName>
-  request: WriteContractArgs<TChain, TAbi, TFunctionName> & {
-    address: Address
-    abi: TAbi
-    functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
-  } & ExtractArgsFromAbi<TAbi, TFunctionName>
+  request: WriteContractArgs<TChain, TAbi, TFunctionName> &
+    ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
 export async function simulateContract<
   TChain extends Chain,
-  TAbi extends Abi = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
 >(
   client: PublicClient,
   {
@@ -86,7 +83,7 @@ export async function simulateContract<
     } as unknown as SimulateContractResponse<TChain, TAbi, TFunctionName>
   } catch (err) {
     throw getContractError(err as BaseError, {
-      abi,
+      abi: abi as Abi,
       address,
       args,
       docsPath: '/docs/contract/simulateContract',

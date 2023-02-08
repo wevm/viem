@@ -11,7 +11,7 @@ test('Transfer()', () => {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
     }),
   ).toEqual([
@@ -19,13 +19,12 @@ test('Transfer()', () => {
   ])
   expect(
     encodeEventTopics({
-      // @ts-expect-error
       abi: [
         {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
     }),
   ).toEqual([
@@ -58,7 +57,7 @@ test('no args: Transfer(address,address,uint256)', () => {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
     }),
   ).toEqual([
@@ -91,7 +90,7 @@ test('named args: Transfer(address,address,uint256)', () => {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
       args: {
         from: null,
@@ -130,7 +129,7 @@ test('named args: Transfer(address,address,uint256)', () => {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
       args: {
         from: null,
@@ -172,7 +171,7 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
       args: [null, '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     }),
@@ -205,7 +204,7 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
           name: 'Transfer',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Transfer',
       args: [
         null,
@@ -240,7 +239,7 @@ test('Foo(string)', () => {
           name: 'Foo',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Foo',
       args: {
         message: 'hello',
@@ -280,7 +279,7 @@ test('Foo((uint,string))', () => {
           name: 'Bar',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Bar',
       args: {
         x: {
@@ -311,7 +310,7 @@ test("errors: event doesn't exist", () => {
           name: 'Foo',
           type: 'event',
         },
-      ] as const,
+      ],
       // @ts-expect-error
       eventName: 'Bar',
     }),
@@ -327,14 +326,13 @@ test("errors: event doesn't exist", () => {
 test("errors: event doesn't exist", () => {
   expect(
     encodeEventTopics({
-      // @ts-expect-error
       abi: [
         {
           inputs: undefined,
           name: 'Foo',
           type: 'event',
         },
-      ] as const,
+      ],
       eventName: 'Foo',
       // @ts-expect-error
       args: {},

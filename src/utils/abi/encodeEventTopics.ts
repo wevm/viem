@@ -3,13 +3,19 @@ import {
   AbiParameter,
   AbiParameterToPrimitiveType,
   ExtractAbiEventNames,
+  Narrow,
 } from 'abitype'
 
 import {
   AbiEventNotFoundError,
   FilterTypeNotSupportedError,
 } from '../../errors'
-import { EventDefinition, ExtractEventArgsFromAbi, Hex } from '../../types'
+import {
+  EventDefinition,
+  ExtractEventArgsFromAbi,
+  ExtractEventNameFromAbi,
+  Hex,
+} from '../../types'
 import { encodeBytes } from '../encoding'
 import { keccak256, getEventSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
@@ -17,16 +23,16 @@ import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
 export type EncodeEventTopicsArgs<
-  TAbi extends Abi = Abi,
-  TEventName extends ExtractAbiEventNames<TAbi> = any,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string = string,
 > = {
-  abi: TAbi
-  eventName: TEventName
+  abi: Narrow<TAbi>
+  eventName: ExtractEventNameFromAbi<TAbi, TEventName>
 } & ExtractEventArgsFromAbi<TAbi, TEventName>
 
 export function encodeEventTopics<
-  TAbi extends Abi = Abi,
-  TEventName extends ExtractAbiEventNames<TAbi> = any,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string,
 >({ abi, eventName, args }: EncodeEventTopicsArgs<TAbi, TEventName>) {
   const abiItem = getAbiItem({ abi, args, name: eventName } as GetAbiItemArgs)
   if (!abiItem)

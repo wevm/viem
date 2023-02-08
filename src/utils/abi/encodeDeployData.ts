@@ -1,4 +1,4 @@
-import { Abi } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,
@@ -10,19 +10,22 @@ import { encodeAbi } from './encodeAbi'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
-export type EncodeDeployDataArgs<TAbi extends Abi = Abi> = {
-  abi: TAbi
-  bytecode: Hex
-} & ExtractConstructorArgsFromAbi<TAbi>
+export type EncodeDeployDataArgs<TAbi extends Abi | readonly unknown[] = Abi> =
+  {
+    abi: Narrow<TAbi>
+    bytecode: Hex
+  } & ExtractConstructorArgsFromAbi<TAbi>
 
-export function encodeDeployData<TAbi extends Abi = Abi>({
+export function encodeDeployData<TAbi extends Abi | readonly unknown[]>({
   abi,
   args,
   bytecode,
 }: EncodeDeployDataArgs<TAbi>) {
   if (!args || args.length === 0) return bytecode
 
-  const description = abi.find((x) => 'type' in x && x.type === 'constructor')
+  const description = (abi as Abi).find(
+    (x) => 'type' in x && x.type === 'constructor',
+  )
   if (!description) throw new AbiConstructorNotFoundError({ docsPath })
   if (!('inputs' in description))
     throw new AbiConstructorParamsNotFoundError({ docsPath })
