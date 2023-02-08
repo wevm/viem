@@ -1,3 +1,5 @@
+export { getEnsName } from './ens'
+
 export {
   call,
   createBlockFilter,

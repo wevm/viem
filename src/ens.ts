@@ -1,3 +1,5 @@
+export { getEnsName } from './actions'
+
 export {
   labelhash,
   namehash,

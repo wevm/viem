@@ -1,0 +1,1 @@
+export { getEnsName } from './getEnsName'
