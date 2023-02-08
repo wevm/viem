@@ -126,6 +126,40 @@ describe('request', () => {
     // ensure `retryCount` on transport is adhered
     expect(count).toBe(6)
   })
+
+  test('error (rpc)', async () => {
+    let count = 0
+    const server1 = await createHttpServer((req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+    const server2 = await createHttpServer((req, res) => {
+      count++
+      res.writeHead(500)
+      res.end()
+    })
+    const server3 = await createHttpServer((req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    let transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.config.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowError()
+  })
 })
 
 describe('client', () => {

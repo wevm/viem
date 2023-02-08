@@ -1,3 +1,4 @@
+import { HttpRequestError, RpcError } from '../../errors'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
 
@@ -31,7 +32,8 @@ export function fallback(
                 params,
               } as any)
             } catch (err) {
-              if (i < transports.length - 1) return fetch(i + 1)
+              if (!(err instanceof RpcError) && i < transports.length - 1)
+                return fetch(i + 1)
               throw err
             }
           }
