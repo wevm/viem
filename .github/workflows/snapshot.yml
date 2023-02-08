@@ -28,6 +28,8 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm i
+        env:
+          SKIP_WAGMI_CLI: true
 
       - name: Publish to npm
         uses: seek-oss/changesets-snapshot@v0

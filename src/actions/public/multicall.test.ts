@@ -2,8 +2,6 @@
  * TODO:  Heaps more test cases :D
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
- *        - Calls against blocks
- *        - Reverts (custom errors/Error(string)/Panic(uint256))
  */
 
 import { describe, expect, test } from 'vitest'

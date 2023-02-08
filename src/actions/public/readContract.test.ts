@@ -3,24 +3,19 @@
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
  *        - Calls against blocks
- *        - Reverts (custom errors/Error(string)/Panic(uint256))
  */
 
 import { describe, expect, test } from 'vitest'
 import {
-  accounts,
   initialBlockNumber,
   publicClient,
-  testClient,
   vitalikAddress,
   wagmiContractConfig,
-  walletClient,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
-import { mine } from '../test'
+import { errorsExampleABI } from '../../_test/generated'
+import { deployErrorExample } from '../../_test/utils'
 
-import { deployContract } from './deployContract'
-import { getTransactionReceipt } from './getTransactionReceipt'
 import { readContract } from './readContract'
 
 describe('wagmi', () => {
@@ -156,6 +151,159 @@ describe('bayc', () => {
   })
 })
 
+describe('contract errors', () => {
+  test('revert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'revertRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "revertRead" reverted with the following reason:
+      This is a revert message
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  revertRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('assert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'assertRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "assertRead" reverted with the following reason:
+      An \`assert\` condition failed.
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  assertRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('overflow', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'overflowRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
+      Arithmic operation resulted in underflow or overflow.
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  overflowRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('divide by zero', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'divideByZeroRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "divideByZeroRead" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  divideByZeroRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('require', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'requireRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
+      execution reverted
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  requireRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('custom error: simple', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'simpleCustomRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted.
+
+      Error:     SimpleError(string message)
+      Arguments:            (bugger)
+       
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  simpleCustomRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('custom error: complex', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'complexCustomRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "complexCustomRead" reverted.
+
+      Error:     ComplexError((address sender, uint256 bar), string message, uint256 number)
+      Arguments:             ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
+       
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  complexCustomRead()
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@1.0.2]
+    `)
+  })
+})
+
 test('fake contract address', async () => {
   await expect(() =>
     readContract(publicClient, {
@@ -178,17 +326,3 @@ test('fake contract address', async () => {
     Version: viem@1.0.2"
   `)
 })
-
-// Deploy BAYC Contract
-async function deployBAYC() {
-  const hash = await deployContract(walletClient, {
-    ...baycContractConfig,
-    args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-    from: accounts[0].address,
-  })
-  await mine(testClient, { blocks: 1 })
-  const { contractAddress } = await getTransactionReceipt(publicClient, {
-    hash,
-  })
-  return { contractAddress }
-}

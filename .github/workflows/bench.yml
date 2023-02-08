@@ -40,9 +40,23 @@ jobs:
             playgrounds/**/node_modules
             site/node_modules
           key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          profile: minimal
+          override: true
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
       - name: Install Dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: pnpm i
+      - name: Build Contracts
+        if: steps.cache-node-modules.outputs.cache-hit == 'true'
+        run: pnpm contracts:build
       - name: Link Dependencies
         if: steps.cache-node-modules.outputs.cache-hit == 'true'
         run: pnpm dev
@@ -91,6 +105,8 @@ jobs:
           VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+      - name: Build Contracts
+        run: pnpm contracts:build
       - name: Bench
         run: pnpm bench:ci
         env:

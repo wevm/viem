@@ -1,6 +1,6 @@
 import { PublicClient } from '../../clients'
 import { multicall3Abi } from '../../constants'
-import { BaseError, RawContractError } from '../../errors'
+import { AbiDecodingZeroDataError, BaseError, RawContractError } from '../../errors'
 import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
 import { MulticallResults } from '../../types/multicall'
 import {
@@ -28,7 +28,13 @@ export async function multicall<
   client: PublicClient,
   args: MulticallArgs<TContracts, TAllowFailure>,
 ): Promise<MulticallResults<TContracts, TAllowFailure>> {
-  const { allowFailure = true, contracts, multicallAddress } = args
+  const {
+    allowFailure = true,
+    blockNumber,
+    blockTag,
+    contracts,
+    multicallAddress,
+  } = args
 
   const calls = contracts.map(({ abi, address, args, functionName }) => {
     try {
@@ -62,11 +68,15 @@ export async function multicall<
     abi: multicall3Abi,
     address: multicallAddress,
     args: [calls],
+    blockNumber,
+    blockTag,
     functionName: 'aggregate3',
   })
   return results.map(({ returnData, success }, i) => {
+    const { callData } = calls[i]
     const { abi, address, functionName, args } = contracts[i]
     try {
+      if (callData === '0x') throw new AbiDecodingZeroDataError()
       if (!success) throw new RawContractError({ data: returnData })
       const result = decodeFunctionResult({
         abi,

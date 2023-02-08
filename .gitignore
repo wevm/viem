@@ -18,6 +18,9 @@ bench
 .env.production.local
 .envrc
 
+# @wagmi/cli
+generated.ts
+
 actions/**
 chains/**
 clients/**

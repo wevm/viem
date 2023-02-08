@@ -10,7 +10,6 @@ import {
   ContractFunctionZeroDataError,
 } from '../../errors/contract'
 import { Address } from '../../types'
-import { formatAbiItemWithArgs, formatAbiItem, getAbiItem } from '../abi'
 
 const EXECUTION_REVERTED_ERROR_CODE = 3
 
@@ -36,21 +35,8 @@ export function getContractError(
     err instanceof RawContractError ? err : err.cause || {}
   ) as RawContractError
 
-  const abiItem = getAbiItem({ abi, args, name: functionName })
-  const formattedArgs = abiItem
-    ? formatAbiItemWithArgs({
-        abiItem,
-        args,
-        includeFunctionName: false,
-        includeName: false,
-      })
-    : undefined
-  const functionWithParams = abiItem
-    ? formatAbiItem(abiItem, { includeName: true })
-    : undefined
-
   let cause = err
-  if (err instanceof AbiDecodingZeroDataError || data === '0x') {
+  if (err instanceof AbiDecodingZeroDataError) {
     cause = new ContractFunctionZeroDataError({ functionName })
   } else if (code === EXECUTION_REVERTED_ERROR_CODE && (data || message)) {
     cause = new ContractFunctionRevertedError({
@@ -66,9 +52,7 @@ export function getContractError(
     args,
     contractAddress: address,
     docsPath,
-    formattedArgs,
     functionName,
-    functionWithParams,
     sender,
   })
 }

@@ -1,5 +1,13 @@
 /* c8 ignore start */
-import { localhost } from '../chains'
+import { Abi } from 'abitype'
+import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import {
+  deployContract,
+  DeployContractArgs,
+  getTransactionReceipt,
+  mine,
+} from '../actions'
+import { Chain, localhost } from '../chains'
 import {
   createPublicClient,
   createTestClient,
@@ -11,10 +19,13 @@ import {
 import { rpc } from '../utils'
 import { RpcError } from '../types/eip1193'
 import { accounts, localWsUrl } from './constants'
+import { errorsExampleABI } from './generated'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
+import { baycContractConfig } from './abis'
+import { Hex } from '../types'
 
 export const publicClient =
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
@@ -107,6 +118,33 @@ export function createHttpServer(
       const { port } = server.address() as AddressInfo
       resolve({ close: closeAsync, url: `http://localhost:${port}` })
     })
+  })
+}
+
+export async function deploy<TAbi extends Abi = Abi>(
+  args: DeployContractArgs<Chain, TAbi>,
+) {
+  const hash = await deployContract(walletClient, args)
+  await mine(testClient, { blocks: 1 })
+  const { contractAddress } = await getTransactionReceipt(publicClient, {
+    hash,
+  })
+  return { contractAddress }
+}
+
+export async function deployBAYC() {
+  return deploy({
+    ...baycContractConfig,
+    args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
+    from: accounts[0].address,
+  })
+}
+
+export async function deployErrorExample() {
+  return deploy({
+    abi: errorsExampleABI,
+    bytecode: errorsExample.bytecode.object as Hex,
+    from: accounts[0].address,
   })
 }
 /* c8 ignore stop */

@@ -26,6 +26,8 @@ export { BlockNotFoundError } from './block'
 
 export {
   ContractFunctionExecutionError,
+  ContractFunctionRevertedError,
+  ContractFunctionZeroDataError,
   RawContractError,
 } from './contract'
 

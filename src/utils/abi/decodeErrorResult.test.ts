@@ -14,7 +14,15 @@ test('revert SoldOutError()', () => {
       ],
       data: '0x7f6df6bb',
     }),
-  ).toEqual({ errorName: 'SoldOutError', args: undefined })
+  ).toEqual({
+    abiItem: {
+      inputs: [],
+      name: 'SoldOutError',
+      type: 'error',
+    },
+    errorName: 'SoldOutError',
+    args: undefined,
+  })
   expect(
     decodeErrorResult({
       abi: [
@@ -26,7 +34,14 @@ test('revert SoldOutError()', () => {
       ],
       data: '0x7f6df6bb',
     }),
-  ).toEqual({ errorName: 'SoldOutError', args: undefined })
+  ).toEqual({
+    abiItem: {
+      name: 'SoldOutError',
+      type: 'error',
+    },
+    errorName: 'SoldOutError',
+    args: undefined,
+  })
 })
 
 test('revert AccessDeniedError(string)', () => {
@@ -48,6 +63,17 @@ test('revert AccessDeniedError(string)', () => {
       data: '0x83aa206e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001a796f7520646f206e6f7420686176652061636365737320736572000000000000',
     }),
   ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          internalType: 'string',
+          name: 'a',
+          type: 'string',
+        },
+      ],
+      name: 'AccessDeniedError',
+      type: 'error',
+    },
     errorName: 'AccessDeniedError',
     args: ['you do not have access ser'],
   })
@@ -94,6 +120,39 @@ test('revert AccessDeniedError((uint256,bool,address,uint256))', () => {
       data: '0x0a1895610000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000029',
     }),
   ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          components: [
+            {
+              internalType: 'uint256',
+              name: 'weight',
+              type: 'uint256',
+            },
+            {
+              internalType: 'bool',
+              name: 'voted',
+              type: 'bool',
+            },
+            {
+              internalType: 'address',
+              name: 'delegate',
+              type: 'address',
+            },
+            {
+              internalType: 'uint256',
+              name: 'vote',
+              type: 'uint256',
+            },
+          ],
+          internalType: 'struct Ballot.Voter',
+          name: 'voter',
+          type: 'tuple',
+        },
+      ],
+      name: 'AccessDeniedError',
+      type: 'error',
+    },
     errorName: 'AccessDeniedError',
     args: [
       {
@@ -112,6 +171,17 @@ test('Error(string)', () => {
       data: '0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000',
     }),
   ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          internalType: 'string',
+          name: 'message',
+          type: 'string',
+        },
+      ],
+      name: 'Error',
+      type: 'error',
+    },
     errorName: 'Error',
     args: ['test'],
   })

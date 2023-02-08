@@ -1,53 +1,10 @@
 import { expect, test } from 'vitest'
 
-import * as clients from './index'
+import * as solidity from './solidity'
 
-test('exports clients', () => {
-  expect(clients).toMatchInlineSnapshot(`
+test('exports solidity constants', () => {
+  expect(solidity).toMatchInlineSnapshot(`
     {
-      "multicall3Abi": [
-        {
-          "inputs": [
-            {
-              "components": [
-                {
-                  "name": "target",
-                  "type": "address",
-                },
-                {
-                  "name": "allowFailure",
-                  "type": "bool",
-                },
-                {
-                  "name": "callData",
-                  "type": "bytes",
-                },
-              ],
-              "name": "calls",
-              "type": "tuple[]",
-            },
-          ],
-          "name": "aggregate3",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "name": "success",
-                  "type": "bool",
-                },
-                {
-                  "name": "returnData",
-                  "type": "bytes",
-                },
-              ],
-              "name": "returnData",
-              "type": "tuple[]",
-            },
-          ],
-          "stateMutability": "view",
-          "type": "function",
-        },
-      ],
       "panicReasons": {
         "1": "An \`assert\` condition failed.",
         "17": "Arithmic operation resulted in underflow or overflow.",
