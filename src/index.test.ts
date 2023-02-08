@@ -151,6 +151,49 @@ test('exports actions', () => {
       "isHex": [Function],
       "keccak256": [Function],
       "mine": [Function],
+      "multicall3Abi": [
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "name": "target",
+                  "type": "address",
+                },
+                {
+                  "name": "allowFailure",
+                  "type": "bool",
+                },
+                {
+                  "name": "callData",
+                  "type": "bytes",
+                },
+              ],
+              "name": "calls",
+              "type": "tuple[]",
+            },
+          ],
+          "name": "aggregate3",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "name": "success",
+                  "type": "bool",
+                },
+                {
+                  "name": "returnData",
+                  "type": "bytes",
+                },
+              ],
+              "name": "returnData",
+              "type": "tuple[]",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
       "numberToBytes": [Function],
       "numberToHex": [Function],
       "pad": [Function],

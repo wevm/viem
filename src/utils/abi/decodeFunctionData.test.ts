@@ -134,7 +134,6 @@ test("errors: function doesn't exist", () => {
     You can look up the signature \\"0xa3741467\\" here: https://sig.eth.samczsun.com/.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionData
-
     Version: viem@1.0.2"
   `)
 })

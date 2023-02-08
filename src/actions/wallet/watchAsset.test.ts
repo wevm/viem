@@ -35,7 +35,6 @@ test('errors: unsupported type', async () => {
     Double check you have provided the correct parameters.
 
     Details: Token type ERC721 not supported.
-    Version: viem@1.0.2
-    Internal Error: {\\"code\\":-32602,\\"details\\":\\"Token type ERC721 not supported.\\"}"
+    Version: viem@1.0.2"
   `)
 })

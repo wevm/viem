@@ -1129,6 +1129,13 @@ export const wagmiContractConfig = {
       type: 'function',
     },
     {
+      inputs: [],
+      name: 'mint',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
       inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
       name: 'mint',
       outputs: [],

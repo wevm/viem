@@ -191,6 +191,8 @@ export {
   webSocket,
 } from './clients'
 
+export { multicall3Abi } from './constants'
+
 export {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
@@ -254,6 +256,8 @@ export type {
   BlockNumber,
   BlockTag,
   ByteArray,
+  Chain,
+  ContractConfig,
   Hex,
   FeeHistory,
   FeeValues,
@@ -300,6 +304,7 @@ export type {
   GetContractAddressOptions,
   GetCreateAddressOptions,
   GetCreate2AddressOptions,
+  GetAbiItemArgs,
   EncodeRlpResponse,
   FormattedBlock,
   FormattedTransaction,

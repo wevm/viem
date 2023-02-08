@@ -320,7 +320,6 @@ test("errors: event doesn't exist", () => {
     Make sure you are using the correct ABI and that the event exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeEventTopics
-
     Version: viem@1.0.2"
   `)
 })

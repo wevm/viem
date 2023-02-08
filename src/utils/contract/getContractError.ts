@@ -1,32 +1,42 @@
 import { Abi } from 'abitype'
 import {
   AbiDecodingZeroDataError,
-  ContractMethodExecutionError,
-  ContractMethodZeroDataError,
+  BaseError,
+  ContractFunctionExecutionError,
+  RawContractError,
 } from '../../errors'
+import {
+  ContractFunctionRevertedError,
+  ContractFunctionZeroDataError,
+} from '../../errors/contract'
 import { Address } from '../../types'
 import { formatAbiItemWithArgs, formatAbiItem, getAbiItem } from '../abi'
 
+const EXECUTION_REVERTED_ERROR_CODE = 3
+
 export function getContractError(
-  err: unknown,
+  err: BaseError,
   {
     abi,
     address,
     args,
+    docsPath,
     functionName,
     sender,
   }: {
     abi: Abi
     args: any
     address?: Address
+    docsPath?: string
     functionName: string
     sender?: Address
   },
 ) {
-  const { code, message } =
-    ((err as Error).cause as { code?: number; message?: string }) || {}
+  const { code, data, message } = (
+    err instanceof RawContractError ? err : err.cause || {}
+  ) as RawContractError
 
-  const abiItem = getAbiItem({ abi, name: functionName })
+  const abiItem = getAbiItem({ abi, args, name: functionName })
   const formattedArgs = abiItem
     ? formatAbiItemWithArgs({
         abiItem,
@@ -39,28 +49,26 @@ export function getContractError(
     ? formatAbiItem(abiItem, { includeName: true })
     : undefined
 
-  if (err instanceof AbiDecodingZeroDataError) {
-    return new ContractMethodZeroDataError({
+  let cause = err
+  if (err instanceof AbiDecodingZeroDataError || data === '0x') {
+    cause = new ContractFunctionZeroDataError({ functionName })
+  } else if (code === EXECUTION_REVERTED_ERROR_CODE && (data || message)) {
+    cause = new ContractFunctionRevertedError({
       abi,
-      args,
-      cause: err as Error,
-      contractAddress: address,
+      data,
       functionName,
-      functionWithParams,
+      message,
     })
   }
-  if (code === 3 || message?.includes('execution reverted')) {
-    const message_ = message?.replace('execution reverted: ', '')
-    return new ContractMethodExecutionError(message_, {
-      abi,
-      args,
-      cause: err as Error,
-      contractAddress: address,
-      formattedArgs,
-      functionName,
-      functionWithParams,
-      sender,
-    })
-  }
-  return err
+
+  return new ContractFunctionExecutionError(cause, {
+    abi,
+    args,
+    contractAddress: address,
+    docsPath,
+    formattedArgs,
+    functionName,
+    functionWithParams,
+    sender,
+  })
 }

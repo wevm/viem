@@ -1,9 +1,11 @@
 import { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
+import { BaseError } from '../../errors'
 import type {
   Address,
   Chain,
+  ContractConfig,
   ExtractArgsFromAbi,
   ExtractResultFromAbi,
   ExtractFunctionNameFromAbi,
@@ -14,6 +16,7 @@ import {
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
+  DecodeFunctionResultArgs,
 } from '../../utils'
 import { WriteContractArgs } from '../wallet'
 import { call, CallArgs } from './call'
@@ -22,16 +25,10 @@ export type SimulateContractArgs<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
-> = Omit<CallArgs<TChain>, 'to' | 'data' | 'value'> & {
-  address: Address
-  abi: TAbi
-  functionName: ExtractFunctionNameFromAbi<
-    TAbi,
-    TFunctionName,
-    'payable' | 'nonpayable'
-  >
-  value?: GetValue<TAbi, TFunctionName, CallArgs<TChain>['value']>
-} & ExtractArgsFromAbi<TAbi, TFunctionName>
+> = Omit<CallArgs<TChain>, 'to' | 'data' | 'value'> &
+  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
+    value?: GetValue<TAbi, TFunctionName, CallArgs<TChain>['value']>
+  }
 
 export type SimulateContractResponse<
   TChain extends Chain = Chain,
@@ -73,9 +70,10 @@ export async function simulateContract<
     } as unknown as CallArgs<TChain>)
     const result = decodeFunctionResult({
       abi,
+      args,
       functionName,
       data: data || '0x',
-    })
+    } as DecodeFunctionResultArgs)
     return {
       result,
       request: {
@@ -87,10 +85,11 @@ export async function simulateContract<
       },
     } as unknown as SimulateContractResponse<TChain, TAbi, TFunctionName>
   } catch (err) {
-    throw getContractError(err, {
+    throw getContractError(err as BaseError, {
       abi,
       address,
       args,
+      docsPath: '/docs/contract/simulateContract',
       functionName,
       sender: callRequest.from,
     })

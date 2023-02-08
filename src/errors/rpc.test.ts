@@ -21,8 +21,7 @@ test('RpcError', () => {
     Request body: {"foo":"bar"}
 
     Details: Error
-    Version: viem@1.0.2
-    Internal Error: {"code":420,"message":"Error"}]
+    Version: viem@1.0.2]
   `)
 })
 

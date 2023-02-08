@@ -1,25 +1,26 @@
 import { Abi } from 'abitype'
-import { Address } from '../types'
+import { Address, Hex } from '../types'
+import { DecodeErrorResultResponse, decodeErrorResult } from '../utils'
 import { BaseError } from './base'
 
-export class ContractMethodExecutionError extends BaseError {
+export class ContractFunctionExecutionError extends BaseError {
   abi?: Abi
   args?: unknown[]
+  cause: BaseError
   contractAddress?: Address
   formattedArgs?: string
   functionName?: string
-  reason?: string
   sender?: Address
 
-  name = 'ContractMethodExecutionError'
+  name = 'ContractFunctionExecutionError'
 
   constructor(
-    message?: string,
+    cause: BaseError,
     {
       abi,
       args,
-      cause,
       contractAddress,
+      docsPath,
       formattedArgs,
       functionName,
       functionWithParams,
@@ -27,99 +28,104 @@ export class ContractMethodExecutionError extends BaseError {
     }: {
       abi?: Abi
       args?: any
-      cause?: Error
       contractAddress?: Address
+      docsPath?: string
       formattedArgs?: string
       functionName?: string
       functionWithParams?: string
       sender?: Address
-    } = {},
+    },
   ) {
     super(
-      [
-        message,
-        ' ',
-        sender && `Sender:    ${sender}`,
-        contractAddress &&
-          `Contract:  ${
-            /* c8 ignore start */
-            process.env.TEST
-              ? '0x0000000000000000000000000000000000000000'
-              : contractAddress
-            /* c8 ignore end */
-          }`,
-        functionWithParams && `Function:  ${functionWithParams}`,
-        formattedArgs &&
-          `Arguments: ${[...Array(functionName?.length ?? 0).keys()]
-            .map(() => ' ')
-            .join('')}${formattedArgs}`,
-      ]
-        .filter(Boolean)
-        .join('\n'),
+      cause.shortMessage ||
+        `An unknown error occurred while executing the contract function "${functionName}".`,
       {
         cause,
+        docsPath,
+        metaMessages: [
+          ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
+          contractAddress &&
+            `Contract:  ${
+              /* c8 ignore start */
+              process.env.TEST
+                ? '0x0000000000000000000000000000000000000000'
+                : contractAddress
+              /* c8 ignore end */
+            }`,
+          functionWithParams && `Function:  ${functionWithParams}`,
+          formattedArgs &&
+            formattedArgs !== '()' &&
+            `Arguments: ${[...Array(functionName?.length ?? 0).keys()]
+              .map(() => ' ')
+              .join('')}${formattedArgs}`,
+          sender && `Sender:    ${sender}`,
+        ].filter(Boolean) as string[],
       },
     )
-    if (message) this.reason = message
     this.abi = abi
     this.args = args
+    this.cause = cause
     this.contractAddress = contractAddress
     this.functionName = functionName
     this.sender = sender
   }
 }
 
-export class ContractMethodZeroDataError extends BaseError {
-  abi?: Abi
-  args?: unknown[]
-  contractAddress?: Address
-  functionName?: string
-  functionWithParams?: string
+export class ContractFunctionRevertedError extends BaseError {
+  name = 'ContractFunctionRevertedError'
 
-  name = 'ContractMethodZeroDataError'
+  data?: DecodeErrorResultResponse
+  reason?: string
 
   constructor({
     abi,
-    args,
-    cause,
-    contractAddress,
+    data,
     functionName,
-    functionWithParams,
-  }: {
-    abi?: Abi
-    args?: any
-    cause?: Error
-    contractAddress?: Address
-    functionName?: string
-    functionWithParams?: string
-  } = {}) {
+    message,
+  }: { abi: Abi; data?: Hex; functionName: string; message?: string }) {
+    let decodedData: DecodeErrorResultResponse | undefined = undefined
+    let reason
+    if (data) {
+      decodedData = decodeErrorResult({ abi, data })
+      const { errorName, args: errorArgs } = decodedData
+      if (errorName === 'Error') reason = (errorArgs as string[])[0]
+      // TODO: Support Panic(uint256) & custom errors.
+    } else if (message) reason = message
+
     super(
       [
-        `The contract method "${functionName}" returned no data ("0x"). This could be due to any of the following:`,
+        `The contract function "${functionName}" reverted with the following reason:`,
+        reason,
+      ].join('\n'),
+    )
+
+    this.reason = reason
+    this.data = decodedData
+  }
+}
+
+export class ContractFunctionZeroDataError extends BaseError {
+  name = 'ContractFunctionZeroDataError'
+  constructor({ functionName }: { functionName: string }) {
+    super(`The contract function "${functionName}" returned no data ("0x").`, {
+      metaMessages: [
+        'This could be due to any of the following:',
         `- The contract does not have the function "${functionName}",`,
         '- The parameters passed to the contract function may be invalid, or',
         '- The address is not a contract.',
-        ' ',
-        contractAddress &&
-          `Contract: ${
-            /* c8 ignore start */
-            process.env.TEST
-              ? '0x0000000000000000000000000000000000000000'
-              : contractAddress
-            /* c8 ignore end */
-          }`,
-        functionWithParams && `Function: ${functionWithParams}`,
-        functionWithParams && `        > "0x"`,
-      ]
-        .filter(Boolean)
-        .join('\n'),
-      {
-        cause,
-      },
-    )
-    this.abi = abi
-    this.args = args
-    this.contractAddress = contractAddress
-    this.functionName = functionName
+      ],
+    })
+  }
+}
+
+export class RawContractError extends BaseError {
+  code = 3
+  name = 'RawContractError'
+
+  data?: Hex
+
+  constructor({ data, message }: { data?: Hex; message?: string }) {
+    super(message || '')
+    this.data = data
   }
 }

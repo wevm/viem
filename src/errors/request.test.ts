@@ -27,7 +27,7 @@ test('RequestError', () => {
         error: { code: 1337, message: 'error details' },
       }),
       {
-        humanMessage: 'An internal error was received.',
+        shortMessage: 'An internal error was received.',
       },
     ),
   ).toMatchInlineSnapshot(`
@@ -46,7 +46,7 @@ test('RpcRequestError', () => {
         url: 'https://viem.sh',
         error: { code: 1337, message: 'error details' },
       }),
-      { humanMessage: 'An internal error was received.' },
+      { shortMessage: 'An internal error was received.' },
     ),
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
@@ -65,7 +65,7 @@ test('RpcRequestError', () => {
         error: { code: 1337, message: 'error details' },
       }),
       {
-        humanMessage: 'An internal error was received.',
+        shortMessage: 'An internal error was received.',
         docsPath: '/lol',
       },
     ),
@@ -73,7 +73,6 @@ test('RpcRequestError', () => {
     [RpcError: An internal error was received.
 
     Docs: https://viem.sh/lol
-
     Details: error details
     Version: viem@1.0.2]
   `)

@@ -134,7 +134,6 @@ test("errors: function doesn't exist", () => {
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeFunctionData
-
     Version: viem@1.0.2"
   `)
 })

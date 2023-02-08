@@ -1,15 +1,16 @@
-import { Abi, ExtractAbiFunctionNames } from 'abitype'
+import { Abi } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
 } from '../../errors'
-
 import {
+  ExtractArgsFromAbi,
   ExtractFunctionNameFromAbi,
   ExtractResultFromAbi,
   Hex,
 } from '../../types'
 import { decodeAbi } from './decodeAbi'
+import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 
@@ -20,7 +21,7 @@ export type DecodeFunctionResultArgs<
   abi: TAbi
   functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
   data: Hex
-}
+} & Partial<ExtractArgsFromAbi<TAbi, TFunctionName>>
 
 export type DecodeFunctionResultResponse<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -32,15 +33,18 @@ export function decodeFunctionResult<
   TFunctionName extends string = any,
 >({
   abi,
+  args,
   functionName,
   data,
 }: DecodeFunctionResultArgs<TAbi, TFunctionName>): DecodeFunctionResultResponse<
   TAbi,
   TFunctionName
 > {
-  const description = (abi as Abi).find(
-    (x) => 'name' in x && x.name === functionName,
-  )
+  const description = getAbiItem({
+    abi,
+    args,
+    name: functionName,
+  } as GetAbiItemArgs)
   if (!description)
     throw new AbiFunctionNotFoundError(functionName, { docsPath })
   if (!('outputs' in description))

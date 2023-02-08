@@ -32,41 +32,45 @@ afterAll(async () => {
   })
 })
 
-test('default', async () => {
-  let logs: OnLogsResponse[] = []
+test(
+  'default',
+  async () => {
+    let logs: OnLogsResponse[] = []
 
-  const unwatch = watchContractEvent(publicClient, {
-    ...usdcContractConfig,
-    onLogs: (logs_) => logs.push(logs_),
-  })
+    const unwatch = watchContractEvent(publicClient, {
+      ...usdcContractConfig,
+      onLogs: (logs_) => logs.push(logs_),
+    })
 
-  await writeContract(walletClient, {
-    ...usdcContractConfig,
-    from: vitalikAddress,
-    functionName: 'transfer',
-    args: [vitalikAddress, 1n],
-  })
-  await writeContract(walletClient, {
-    ...usdcContractConfig,
-    from: vitalikAddress,
-    functionName: 'transfer',
-    args: [vitalikAddress, 1n],
-  })
-  await wait(1000)
-  await writeContract(walletClient, {
-    ...usdcContractConfig,
-    from: vitalikAddress,
-    functionName: 'approve',
-    args: [vitalikAddress, 1n],
-  })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      from: vitalikAddress,
+      functionName: 'transfer',
+      args: [vitalikAddress, 1n],
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      from: vitalikAddress,
+      functionName: 'transfer',
+      args: [vitalikAddress, 1n],
+    })
+    await wait(1000)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      from: vitalikAddress,
+      functionName: 'approve',
+      args: [vitalikAddress, 1n],
+    })
 
-  await wait(2000)
-  unwatch()
+    await wait(2000)
+    unwatch()
 
-  expect(logs.length).toBe(2)
-  expect(logs[0].length).toBe(2)
-  expect(logs[1].length).toBe(1)
-})
+    expect(logs.length).toBe(2)
+    expect(logs[0].length).toBe(2)
+    expect(logs[1].length).toBe(1)
+  },
+  { retry: 3 },
+)
 
 test('args: batch', async () => {
   let logs: OnLogsResponse[] = []

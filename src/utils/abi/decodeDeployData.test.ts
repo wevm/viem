@@ -80,7 +80,6 @@ test('error: constructor not found', () => {
     Make sure you are using the correct ABI and that the constructor exists on it.
 
     Docs: https://viem.sh/docs/contract/decodeDeployData
-
     Version: viem@1.0.2"
   `)
 })
@@ -105,7 +104,6 @@ test('error: no inputs', () => {
     Make sure you are using the correct ABI, and that the \`inputs\` attribute on the constructor exists.
 
     Docs: https://viem.sh/docs/contract/decodeDeployData
-
     Version: viem@1.0.2"
   `,
   )
@@ -128,7 +126,6 @@ test('error: no inputs', () => {
     Make sure you are using the correct ABI, and that the \`inputs\` attribute on the constructor exists.
 
     Docs: https://viem.sh/docs/contract/decodeDeployData
-
     Version: viem@1.0.2"
   `,
   )
@@ -152,7 +149,6 @@ test('error: no inputs', () => {
     Make sure you are using the correct ABI, and that the \`inputs\` attribute on the constructor exists.
 
     Docs: https://viem.sh/docs/contract/decodeDeployData
-
     Version: viem@1.0.2"
   `,
   )
