@@ -191,7 +191,7 @@ export {
   webSocket,
 } from './clients'
 
-export { multicallAbi } from './constants'
+export { multicall3Abi } from './constants'
 
 export {
   AbiConstructorNotFoundError,

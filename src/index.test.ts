@@ -151,7 +151,7 @@ test('exports actions', () => {
       "isHex": [Function],
       "keccak256": [Function],
       "mine": [Function],
-      "multicallAbi": [
+      "multicall3Abi": [
         {
           "inputs": [
             {

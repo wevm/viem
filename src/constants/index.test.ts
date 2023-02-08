@@ -5,7 +5,7 @@ import * as clients from './index'
 test('exports clients', () => {
   expect(clients).toMatchInlineSnapshot(`
     {
-      "multicallAbi": [
+      "multicall3Abi": [
         {
           "inputs": [
             {

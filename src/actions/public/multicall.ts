@@ -1,5 +1,5 @@
 import { PublicClient } from '../../clients'
-import { multicallAbi } from '../../constants'
+import { multicall3Abi } from '../../constants'
 import { BaseError, RawContractError } from '../../errors'
 import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
 import { MulticallResults } from '../../types/multicall'
@@ -59,7 +59,7 @@ export async function multicall<
     }
   })
   const results = await readContract(client, {
-    abi: multicallAbi,
+    abi: multicall3Abi,
     address: multicallAddress,
     args: [calls],
     functionName: 'aggregate3',

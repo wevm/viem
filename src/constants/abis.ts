@@ -1,5 +1,5 @@
 /* [Multicall3](https://github.com/mds1/multicall) */
-export const multicallAbi = [
+export const multicall3Abi = [
   {
     inputs: [
       {

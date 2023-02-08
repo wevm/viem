@@ -5,7 +5,7 @@ import * as abis from './index'
 test('exports abis', () => {
   expect(abis).toMatchInlineSnapshot(`
     {
-      "multicallAbi": [
+      "multicall3Abi": [
         {
           "inputs": [
             {

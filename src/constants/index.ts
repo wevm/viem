@@ -1,1 +1,1 @@
-export { multicallAbi } from './abis'
+export { multicall3Abi } from './abis'
