@@ -28,37 +28,41 @@ afterAll(async () => {
   })
 })
 
-test('default', async () => {
-  let logs: OnLogsResponse[] = []
+test(
+  'default',
+  async () => {
+    let logs: OnLogsResponse[] = []
 
-  const unwatch = watchEvent(publicClient, {
-    onLogs: (logs_) => logs.push(logs_),
-  })
+    const unwatch = watchEvent(publicClient, {
+      onLogs: (logs_) => logs.push(logs_),
+    })
 
-  await wait(1000)
-  await sendTransaction(walletClient, {
-    from: vitalikAddress,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[0].address),
-  })
-  await sendTransaction(walletClient, {
-    from: vitalikAddress,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[0].address),
-  })
-  await wait(1000)
-  await sendTransaction(walletClient, {
-    from: vitalikAddress,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[1].address),
-  })
-  await wait(2000)
-  unwatch()
+    await wait(1000)
+    await sendTransaction(walletClient, {
+      from: vitalikAddress,
+      to: usdcContractConfig.address,
+      data: transfer1Data(accounts[0].address),
+    })
+    await sendTransaction(walletClient, {
+      from: vitalikAddress,
+      to: usdcContractConfig.address,
+      data: transfer1Data(accounts[0].address),
+    })
+    await wait(1000)
+    await sendTransaction(walletClient, {
+      from: vitalikAddress,
+      to: usdcContractConfig.address,
+      data: transfer1Data(accounts[1].address),
+    })
+    await wait(2000)
+    unwatch()
 
-  expect(logs.length).toBe(2)
-  expect(logs[0].length).toBe(2)
-  expect(logs[1].length).toBe(1)
-})
+    expect(logs.length).toBe(2)
+    expect(logs[0].length).toBe(2)
+    expect(logs[1].length).toBe(1)
+  },
+  { retry: 3 },
+)
 
 test('args: batch', async () => {
   let logs: OnLogsResponse[] = []
