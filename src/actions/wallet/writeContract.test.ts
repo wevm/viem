@@ -70,7 +70,7 @@ test('w/ simulateContract (overloaded)', async () => {
       args: [69421n],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"mint\\" reverted for the following reason:
+    "The contract function \\"mint\\" reverted with the following reason:
     Token ID is taken
 
     Contract:  0x0000000000000000000000000000000000000000

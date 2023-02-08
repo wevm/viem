@@ -9,7 +9,7 @@ import {
   vitalikAddress,
   walletClient,
 } from '../../_test'
-import { impersonateAccount, stopImpersonatingAccount } from '../test'
+import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
 import { sendTransaction } from '../wallet'
 import * as createEventFilter from './createEventFilter'
 import * as getFilterChanges from './getFilterChanges'
@@ -19,6 +19,7 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: vitalikAddress,
   })
+  await mine(testClient, { blocks: 1 })
 })
 
 afterAll(async () => {

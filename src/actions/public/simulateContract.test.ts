@@ -75,7 +75,7 @@ describe('wagmi', () => {
         from: accounts[0].address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"approve\\" reverted for the following reason:
+      "The contract function \\"approve\\" reverted with the following reason:
       ERC721: approval to current owner
 
       Contract:  0x0000000000000000000000000000000000000000
@@ -94,7 +94,7 @@ describe('wagmi', () => {
         from: accounts[0].address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"mint\\" reverted for the following reason:
+      "The contract function \\"mint\\" reverted with the following reason:
       Token ID is taken
 
       Contract:  0x0000000000000000000000000000000000000000
@@ -117,7 +117,7 @@ describe('wagmi', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"safeTransferFrom\\" reverted for the following reason:
+      "The contract function \\"safeTransferFrom\\" reverted with the following reason:
       ERC721: transfer caller is not owner nor approved
 
       Contract:  0x0000000000000000000000000000000000000000
@@ -194,7 +194,7 @@ describe('BAYC', () => {
           args: [1n],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "The contract function \\"mintApe\\" reverted for the following reason:
+        "The contract function \\"mintApe\\" reverted with the following reason:
         Sale must be active to mint Ape
 
         Contract:  0x0000000000000000000000000000000000000000

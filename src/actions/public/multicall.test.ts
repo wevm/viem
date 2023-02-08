@@ -9,6 +9,7 @@
 import { describe, expect, test } from 'vitest'
 import {
   accounts,
+  initialBlockNumber,
   publicClient,
   usdcContractConfig,
   vitalikAddress,
@@ -20,6 +21,7 @@ import { multicall } from './multicall'
 test('default', async () => {
   expect(
     await multicall(publicClient, {
+      blockNumber: initialBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -44,7 +46,7 @@ test('default', async () => {
         "status": "success",
       },
       {
-        "result": 231481998588n,
+        "result": 231481998602n,
         "status": "success",
       },
       {
@@ -60,6 +62,7 @@ describe('errors', async () => {
     test('function not found', async () => {
       expect(
         await multicall(publicClient, {
+          blockNumber: initialBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -96,7 +99,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998588n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -110,6 +113,7 @@ describe('errors', async () => {
     test('invalid params', async () => {
       expect(
         await multicall(publicClient, {
+          blockNumber: initialBlockNumber,
           // @ts-expect-error
           contracts: [
             {
@@ -149,7 +153,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998588n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -163,6 +167,7 @@ describe('errors', async () => {
     test('invalid contract address', async () => {
       expect(
         await multicall(publicClient, {
+          blockNumber: initialBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -202,7 +207,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998588n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -216,6 +221,7 @@ describe('errors', async () => {
     test('contract revert', async () => {
       expect(
         await multicall(publicClient, {
+          blockNumber: initialBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -247,15 +253,15 @@ describe('errors', async () => {
       ).toMatchInlineSnapshot(`
         [
           {
-            "result": 231481998588n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
-            "result": 231481998588n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
-            "error": [ContractFunctionExecutionError: The contract function "transferFrom" reverted for the following reason:
+            "error": [ContractFunctionExecutionError: The contract function "transferFrom" reverted with the following reason:
         ERC721: transfer caller is not owner nor approved
 
         Contract:  0x0000000000000000000000000000000000000000
@@ -272,7 +278,7 @@ describe('errors', async () => {
             "status": "success",
           },
           {
-            "error": [ContractFunctionExecutionError: The contract function "tokenOfOwnerByIndex" reverted for the following reason:
+            "error": [ContractFunctionExecutionError: The contract function "tokenOfOwnerByIndex" reverted with the following reason:
         EnumerableSet: index out of bounds
 
         Contract:  0x0000000000000000000000000000000000000000
@@ -433,7 +439,7 @@ describe('errors', async () => {
           multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).rejects.toMatchInlineSnapshot(`
-        [ContractFunctionExecutionError: The contract function "transferFrom" reverted for the following reason:
+        [ContractFunctionExecutionError: The contract function "transferFrom" reverted with the following reason:
         ERC721: transfer caller is not owner nor approved
 
         Contract:  0x0000000000000000000000000000000000000000

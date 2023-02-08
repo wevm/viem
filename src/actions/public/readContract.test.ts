@@ -123,7 +123,7 @@ describe('bayc', () => {
         args: [vitalikAddress, 5n],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"tokenOfOwnerByIndex\\" reverted for the following reason:
+      "The contract function \\"tokenOfOwnerByIndex\\" reverted with the following reason:
       EnumerableSet: index out of bounds
 
       Contract:  0x0000000000000000000000000000000000000000
@@ -143,7 +143,7 @@ describe('bayc', () => {
         args: [420213123123n],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"ownerOf\\" reverted for the following reason:
+      "The contract function \\"ownerOf\\" reverted with the following reason:
       ERC721: owner query for nonexistent token
 
       Contract:  0x0000000000000000000000000000000000000000

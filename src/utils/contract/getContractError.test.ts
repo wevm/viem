@@ -24,7 +24,7 @@ describe('getContractError', () => {
       },
     )
     expect(error).toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Function:  mintApe(uint256 numberOfTokens)
@@ -34,7 +34,7 @@ describe('getContractError', () => {
       Version: viem@1.0.2]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ContractFunctionRevertedError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Version: viem@1.0.2]
@@ -58,7 +58,7 @@ describe('getContractError', () => {
       },
     )
     expect(error).toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Function:  mintApe(uint256 numberOfTokens)
@@ -68,7 +68,7 @@ describe('getContractError', () => {
       Version: viem@1.0.2]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ContractFunctionRevertedError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Version: viem@1.0.2]
@@ -91,7 +91,7 @@ describe('getContractError', () => {
       },
     )
     expect(error).toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       ah no
 
       Function:  mintApe(uint256 numberOfTokens)
@@ -101,7 +101,7 @@ describe('getContractError', () => {
       Version: viem@1.0.2]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ContractFunctionRevertedError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       ah no
 
       Version: viem@1.0.2]
@@ -124,7 +124,7 @@ describe('getContractError', () => {
       },
     )
     expect(error).toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Function:  mintApe(uint256 numberOfTokens)
@@ -134,7 +134,7 @@ describe('getContractError', () => {
       Version: viem@1.0.2]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ContractFunctionRevertedError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Version: viem@1.0.2]
@@ -158,7 +158,7 @@ describe('getContractError', () => {
       },
     )
     expect(error).toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Function:  mintApe(uint256 numberOfTokens)
@@ -168,7 +168,7 @@ describe('getContractError', () => {
       Version: viem@1.0.2]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
-      [ContractFunctionRevertedError: The contract function "mintApe" reverted for the following reason:
+      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
       Version: viem@1.0.2]
