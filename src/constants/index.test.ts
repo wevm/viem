@@ -1,53 +1,14 @@
 import { expect, test } from 'vitest'
 
-import * as clients from './index'
+import * as index from './index'
 
-test('exports clients', () => {
-  expect(clients).toMatchInlineSnapshot(`
-    {
-      "multicall3Abi": [
-        {
-          "inputs": [
-            {
-              "components": [
-                {
-                  "name": "target",
-                  "type": "address",
-                },
-                {
-                  "name": "allowFailure",
-                  "type": "bool",
-                },
-                {
-                  "name": "callData",
-                  "type": "bytes",
-                },
-              ],
-              "name": "calls",
-              "type": "tuple[]",
-            },
-          ],
-          "name": "aggregate3",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "name": "success",
-                  "type": "bool",
-                },
-                {
-                  "name": "returnData",
-                  "type": "bytes",
-                },
-              ],
-              "name": "returnData",
-              "type": "tuple[]",
-            },
-          ],
-          "stateMutability": "view",
-          "type": "function",
-        },
-      ],
-    }
+test('exports index', () => {
+  expect(Object.keys(index)).toMatchInlineSnapshot(`
+    [
+      "multicall3Abi",
+      "panicReasons",
+      "solidityError",
+      "solidityPanic",
+    ]
   `)
 })

@@ -17,6 +17,8 @@ export {
 
 export {
   createHttpServer,
+  deploy,
+  deployBAYC,
   publicClient,
   testClient,
   walletClient,

@@ -16,36 +16,8 @@ jobs:
         pnpm-version: [7]
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: ${{ matrix.pnpm-version }}
-      - name: Set up Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          cache: 'pnpm'
-          node-version: ${{ matrix.node-version }}
-      - name: Cache pnpm
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: pnpm-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        id: cache-node-modules
-        with:
-          path: |
-            dist
-            node_modules
-            playgrounds/**/node_modules
-            site/node_modules
-          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install Dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm i
-      - name: Link Dependencies
-        if: steps.cache-node-modules.outputs.cache-hit == 'true'
-        run: pnpm dev
+      - name: Setup
+        uses: ./.github/actions/setup
 
   bench:
     name: Benchmark
@@ -57,40 +29,8 @@ jobs:
         pnpm-version: [7]
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: ${{ matrix.pnpm-version }}
-      - name: Set up Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          cache: 'pnpm'
-          node-version: ${{ matrix.node-version }}
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            dist
-            node_modules
-            playgrounds/**/node_modules
-            site/node_modules
-          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-          profile: minimal
-          override: true
-      - name: Install Anvil
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
-      - name: Launch Anvil
-        run: anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME &
-        env:
-          VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Bench
         run: pnpm bench:ci
         env:

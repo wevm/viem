@@ -6,12 +6,12 @@
  *        - Calls against blocks
  *        - Custom chain types
  *        - Custom nonce
- *        - More reverts (custom errors/Error(string)/Panic(uint256))
  */
 
 import { describe, expect, test } from 'vitest'
 import {
   accounts,
+  deployBAYC,
   publicClient,
   testClient,
   wagmiContractConfig,
@@ -22,9 +22,9 @@ import { encodeFunctionData } from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
 
-import { deployContract } from './deployContract'
-import { getTransactionReceipt } from './getTransactionReceipt'
 import { simulateContract } from './simulateContract'
+import { deployErrorExample } from '../../_test/utils'
+import { errorsExampleABI } from '../../_test/generated'
 
 describe('wagmi', () => {
   test('default', async () => {
@@ -209,6 +209,173 @@ describe('BAYC', () => {
   })
 })
 
+describe('contract errors', () => {
+  test('revert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'revertWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
+      This is a revert message
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  revertWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('assert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'assertWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
+      An \`assert\` condition failed.
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  assertWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('overflow', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'overflowWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
+      Arithmic operation resulted in underflow or overflow.
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  overflowWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('divide by zero', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'divideByZeroWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "divideByZeroWrite" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  divideByZeroWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('require', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'requireWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
+      execution reverted
+
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  requireWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('custom error: simple', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'simpleCustomWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "simpleCustomWrite" reverted.
+
+      Error:     SimpleError(string message)
+      Arguments:            (bugger)
+       
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  simpleCustomWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('custom error: complex', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'complexCustomWrite',
+        from: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "complexCustomWrite" reverted.
+
+      Error:     ComplexError((address sender, uint256 bar), string message, uint256 number)
+      Arguments:             ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
+       
+      Contract:  0x0000000000000000000000000000000000000000
+      Function:  complexCustomWrite()
+      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Version: viem@1.0.2]
+    `)
+  })
+})
+
 test('fake contract address', async () => {
   await expect(() =>
     simulateContract(publicClient, {
@@ -242,17 +409,3 @@ test('fake contract address', async () => {
     Version: viem@1.0.2"
   `)
 })
-
-// Deploy BAYC Contract
-async function deployBAYC() {
-  const hash = await deployContract(walletClient, {
-    ...baycContractConfig,
-    args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-    from: accounts[0].address,
-  })
-  await mine(testClient, { blocks: 1 })
-  const { contractAddress } = await getTransactionReceipt(publicClient, {
-    hash,
-  })
-  return { contractAddress }
-}

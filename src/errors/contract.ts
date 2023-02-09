@@ -1,15 +1,22 @@
 import { Abi } from 'abitype'
+import { panicReasons } from '../constants'
 import { Address, Hex } from '../types'
-import { DecodeErrorResultResponse, decodeErrorResult } from '../utils'
+import {
+  DecodeErrorResultResponse,
+  decodeErrorResult,
+  getAbiItem,
+  formatAbiItemWithArgs,
+  formatAbiItem,
+} from '../utils'
 import { BaseError } from './base'
 
 export class ContractFunctionExecutionError extends BaseError {
-  abi?: Abi
+  abi: Abi
   args?: unknown[]
   cause: BaseError
   contractAddress?: Address
   formattedArgs?: string
-  functionName?: string
+  functionName: string
   sender?: Address
 
   name = 'ContractFunctionExecutionError'
@@ -21,21 +28,30 @@ export class ContractFunctionExecutionError extends BaseError {
       args,
       contractAddress,
       docsPath,
-      formattedArgs,
       functionName,
-      functionWithParams,
       sender,
     }: {
-      abi?: Abi
+      abi: Abi
       args?: any
       contractAddress?: Address
       docsPath?: string
-      formattedArgs?: string
-      functionName?: string
-      functionWithParams?: string
+      functionName: string
       sender?: Address
     },
   ) {
+    const abiItem = getAbiItem({ abi, args, name: functionName })
+    const formattedArgs = abiItem
+      ? formatAbiItemWithArgs({
+          abiItem,
+          args,
+          includeFunctionName: false,
+          includeName: false,
+        })
+      : undefined
+    const functionWithParams = abiItem
+      ? formatAbiItem(abiItem, { includeName: true })
+      : undefined
+
     super(
       cause.shortMessage ||
         `An unknown error occurred while executing the contract function "${functionName}".`,
@@ -84,19 +100,50 @@ export class ContractFunctionRevertedError extends BaseError {
     message,
   }: { abi: Abi; data?: Hex; functionName: string; message?: string }) {
     let decodedData: DecodeErrorResultResponse | undefined = undefined
+    let metaMessages
     let reason
-    if (data) {
+    if (data && data !== '0x') {
       decodedData = decodeErrorResult({ abi, data })
-      const { errorName, args: errorArgs } = decodedData
-      if (errorName === 'Error') reason = (errorArgs as string[])[0]
-      // TODO: Support Panic(uint256) & custom errors.
+      const { abiItem, errorName, args: errorArgs } = decodedData
+      if (errorName === 'Error') {
+        reason = (errorArgs as [string])[0]
+      } else if (errorName === 'Panic') {
+        const [firstArg] = errorArgs as [number]
+        reason = panicReasons[firstArg as keyof typeof panicReasons]
+      } else if (errorArgs) {
+        const errorWithParams = abiItem
+          ? formatAbiItem(abiItem, { includeName: true })
+          : undefined
+        const formattedArgs = abiItem
+          ? formatAbiItemWithArgs({
+              abiItem,
+              args: errorArgs,
+              includeFunctionName: false,
+              includeName: false,
+            })
+          : undefined
+
+        metaMessages = [
+          errorWithParams ? `Error:     ${errorWithParams}` : '',
+          formattedArgs && formattedArgs !== '()'
+            ? `Arguments: ${[...Array(errorName?.length ?? 0).keys()]
+                .map(() => ' ')
+                .join('')}${formattedArgs}`
+            : '',
+        ]
+      }
     } else if (message) reason = message
 
     super(
-      [
-        `The contract function "${functionName}" reverted with the following reason:`,
-        reason,
-      ].join('\n'),
+      reason
+        ? [
+            `The contract function "${functionName}" reverted with the following reason:`,
+            reason,
+          ].join('\n')
+        : `The contract function "${functionName}" reverted.`,
+      {
+        metaMessages,
+      },
     )
 
     this.reason = reason
