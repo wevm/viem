@@ -435,7 +435,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeErrorResult',
             },
             {
-              text: 'decodeEventTopics 🚧',
+              text: 'decodeEventTopics',
               link: '/docs/contract/decodeEventTopics',
             },
             {

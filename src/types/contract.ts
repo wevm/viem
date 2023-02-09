@@ -17,49 +17,107 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { Address } from './misc'
+import type { Address, Hex } from './misc'
 import type { TransactionRequest } from './transaction'
-import type { Trim } from './utils'
+import type { NoUndefined, Prettify, Trim } from './utils'
 
 //////////////////////////////////////////////////////////////////////
 // ABIs
 
 export type AbiItem = Abi[number]
 
+type HashedEventTypes = 'string' | 'bytes' | 'tuple' | `${string}[${string}]`
+
+type EventTopicParam<
+  TPrimitiveType = Hex,
+  TArg extends Hex | Hex[] | null = Hex | Hex[] | null,
+> = NoUndefined<
+  | (TArg extends Hex ? TPrimitiveType : undefined)
+  | (TArg extends Hex[] ? TPrimitiveType[] : undefined)
+  | (TArg extends null ? null : undefined)
+>
+
+export type AbiEventParameterToPrimitiveType<TParam extends AbiParameter> =
+  EventTopicParam<AbiParameterToPrimitiveType<TParam>>
+
 export type AbiEventParametersToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
   TBase = TAbiParameters[0] extends { name: string } ? {} : [],
-> = TAbiParameters extends readonly [infer Head, ...infer Tail]
-  ? Head extends { indexed: true }
-    ? Head extends AbiParameter
-      ? Head extends { name: infer Name }
-        ? Name extends string
-          ? {
-              [name in Name]?:
-                | AbiParameterToPrimitiveType<Head>
-                | AbiParameterToPrimitiveType<Head>[]
-                | null
-            } & (Tail extends readonly []
-              ? {}
-              : Tail extends readonly AbiParameter[]
-              ? AbiEventParametersToPrimitiveTypes<Tail>
-              : {})
-          : never
-        : [
-            (
-              | AbiParameterToPrimitiveType<Head>
-              | AbiParameterToPrimitiveType<Head>[]
-              | null
-            ),
-            ...(Tail extends readonly []
-              ? []
-              : Tail extends readonly AbiParameter[]
-              ? AbiEventParametersToPrimitiveTypes<Tail>
-              : []),
-          ]
+> = Prettify<
+  TAbiParameters extends readonly [infer Head, ...infer Tail]
+    ? Head extends { indexed: true }
+      ? Head extends AbiParameter
+        ? Head extends { name: infer Name }
+          ? Name extends string
+            ? {
+                [name in Name]?: AbiEventParameterToPrimitiveType<Head>
+              } & (Tail extends readonly []
+                ? {}
+                : Tail extends readonly AbiParameter[]
+                ? AbiEventParametersToPrimitiveTypes<Tail>
+                : {})
+            : never
+          : [
+              AbiEventParameterToPrimitiveType<Head>,
+              ...(Tail extends readonly []
+                ? []
+                : Tail extends readonly AbiParameter[]
+                ? AbiEventParametersToPrimitiveTypes<Tail>
+                : []),
+            ]
+        : TBase
       : TBase
     : TBase
-  : TBase
+>
+
+export type AbiEventTopicToPrimitiveType<
+  TParam extends AbiParameter,
+  TArg extends Hex | Hex[] | null,
+  TPrimitiveType = TParam['type'] extends HashedEventTypes
+    ? TArg
+    : AbiParameterToPrimitiveType<TParam>,
+> = EventTopicParam<TPrimitiveType, TArg>
+
+export type AbiEventTopicsToPrimitiveTypes<
+  TAbiParameters extends readonly AbiParameter[],
+  TTopics extends (Hex | Hex[] | null)[] = (Hex | Hex[] | null)[],
+  TBase = TAbiParameters[0] extends { name: string } ? {} : [],
+> = Prettify<
+  TAbiParameters extends readonly [infer Head, ...infer Tail]
+    ? TTopics extends readonly [infer TopicHead, ...infer TopicTail]
+      ? Head extends { indexed: true }
+        ? Head extends AbiParameter
+          ? Head extends { name: infer Name }
+            ? Name extends string
+              ? {
+                  [name in Name]: TopicHead extends Hex | Hex[] | null
+                    ? AbiEventTopicToPrimitiveType<Head, TopicHead>
+                    : never
+                } & (Tail extends readonly []
+                  ? {}
+                  : Tail extends readonly AbiParameter[]
+                  ? TopicTail extends (Hex | Hex[] | null)[]
+                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail>
+                    : {}
+                  : {})
+              : never
+            : [
+                TopicHead extends Hex | Hex[] | null
+                  ? AbiEventTopicToPrimitiveType<Head, TopicHead>
+                  : never,
+                ...(Tail extends readonly []
+                  ? []
+                  : Tail extends readonly AbiParameter[]
+                  ? TopicTail extends (Hex | Hex[] | null)[]
+                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail>
+                    : []
+                  : []),
+              ]
+          : TBase
+        : TBase
+      : TBase
+    : TBase
+>
 
 export type ExtractArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
@@ -163,6 +221,32 @@ export type ExtractEventArgsFromAbi<
   ? { args?: never }
   : {
       args?: TArgs
+    }
+
+export type ExtractEventArgsFromTopics<
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string,
+  TTopics extends (Hex | Hex[] | null)[],
+  TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
+    ? ExtractAbiEvent<TAbi, TEventName>
+    : AbiEvent & { type: 'event' },
+  TArgs = AbiEventTopicsToPrimitiveTypes<TAbiEvent['inputs'], TTopics>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? {
+      /**
+       * Arguments to pass contract method
+       *
+       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
+       */
+      args?: readonly unknown[]
+    }
+  : TTopics extends readonly []
+  ? { args?: never }
+  : {
+      args: TArgs
     }
 
 export type ExtractErrorNameFromAbi<

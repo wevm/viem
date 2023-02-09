@@ -76,10 +76,10 @@ import { encodeEventTopics } from 'viem/contract'
 const topics = encodeEventTopics({
   abi: wagmiAbi,
   eventName: 'Transfer'
-  args: [{
+  args: {
     from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
-  }]
+  }
 })
 // ["0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0", "0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266", "0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8"]
 ```
