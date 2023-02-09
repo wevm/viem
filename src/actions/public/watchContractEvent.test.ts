@@ -19,7 +19,7 @@ beforeAll(async () => {
     address: address.vitalik,
   })
   await impersonateAccount(testClient, {
-    address: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
+    address: address.usdcHolder,
   })
 })
 
@@ -28,7 +28,7 @@ afterAll(async () => {
     address: address.vitalik,
   })
   await stopImpersonatingAccount(testClient, {
-    address: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
+    address: address.usdcHolder,
   })
 })
 
@@ -231,14 +231,14 @@ test('args: args', async () => {
     ...usdcContractConfig,
     eventName: 'Transfer',
     args: {
-      from: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
+      from: address.usdcHolder,
     },
     onLogs: (logs_) => logs.push(logs_),
   })
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
+    from: address.usdcHolder,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })

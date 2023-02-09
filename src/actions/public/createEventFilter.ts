@@ -1,3 +1,4 @@
+import { Abi } from 'abitype'
 import type { PublicClient } from '../../clients'
 
 import type {
@@ -9,7 +10,14 @@ import type {
   Filter,
   LogTopic,
 } from '../../types'
-import { getEventSignature, numberToHex } from '../../utils'
+import {
+  EncodeEventTopicsArgs,
+  encodeEventTopics,
+  extractFunctionName,
+  extractFunctionParams,
+  numberToHex,
+  getAbiItem,
+} from '../../utils'
 
 export type EventFilterArgs<TEventDefinition extends EventDefinition> =
   ExtractArgsFromEventDefinition<TEventDefinition>
@@ -43,9 +51,7 @@ export async function createEventFilter<
   }: CreateEventFilterArgs<TEventDefinition> = {},
 ): Promise<CreateEventFilterResponse> {
   let topics: LogTopic[] = []
-  if (event) {
-    topics = buildFilterTopics({ event, args })
-  }
+  if (event) topics = buildFilterTopics({ event, args })
   const id = await client.request({
     method: 'eth_newFilter',
     params: [
@@ -61,16 +67,27 @@ export async function createEventFilter<
   return { id, type: 'event' }
 }
 
-export function buildFilterTopics<TEventDefinition extends EventDefinition,>({
+export function buildFilterTopics<TEventDefinition extends EventDefinition>({
   event,
-  args: _args,
+  args,
 }: {
   event: TEventDefinition
   args?: EventFilterArgs<TEventDefinition>
 }) {
-  const signature = getEventSignature(event)
+  const eventName = extractFunctionName(event)!
+  const abi = unstable_parseAbi(event)
+  return encodeEventTopics({ abi, eventName, args } as EncodeEventTopicsArgs)
+}
 
-  // TODO: support args
-
-  return [signature]
+// REFACTOR: Implement a full version of `parseAbi` that supports more types (functions, errors) & more complex arg types (structs & arrays).
+function unstable_parseAbi(definition: EventDefinition): Abi {
+  const name = extractFunctionName(definition)!
+  const params = extractFunctionParams(definition)
+  return [
+    {
+      type: 'event',
+      name,
+      inputs: params || [],
+    },
+  ]
 }
