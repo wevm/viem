@@ -28,9 +28,7 @@ jobs:
           cache: 'pnpm'
           node-version: ${{ matrix.node-version }}
       - name: Install Dependencies
-        run: pnpm i
-        env:
-          SKIP_WAGMI_CLI: true
+        run: pnpm i --ignore-scripts
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets

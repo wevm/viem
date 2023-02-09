@@ -18,7 +18,7 @@
     "lint:fix": "pnpm lint --apply-suggested",
     "playground": "pnpm --filter playground-dev dev",
     "playground:benchmark": "pnpm --filter playground-benchmark dev",
-    "postinstall": "pnpm dev && if [ -z $SKIP_WAGMI_CLI ]; then pnpm contracts:build; fi",
+    "postinstall": "pnpm dev && pnpm contracts:build",
     "preinstall": "npx only-allow pnpm",
     "prepublishOnly": "pnpm ts-node scripts/generate-package-json.ts",
     "prepare": "npx simple-git-hooks",

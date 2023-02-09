@@ -1,6 +1,10 @@
 import { PublicClient } from '../../clients'
 import { multicall3Abi } from '../../constants'
-import { AbiDecodingZeroDataError, BaseError, RawContractError } from '../../errors'
+import {
+  AbiDecodingZeroDataError,
+  BaseError,
+  RawContractError,
+} from '../../errors'
 import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
 import { MulticallResults } from '../../types/multicall'
 import {

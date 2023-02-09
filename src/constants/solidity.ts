@@ -16,7 +16,6 @@ export const panicReasons = {
 export const solidityError: AbiError = {
   inputs: [
     {
-      internalType: 'string',
       name: 'message',
       type: 'string',
     },
@@ -27,7 +26,6 @@ export const solidityError: AbiError = {
 export const solidityPanic: AbiError = {
   inputs: [
     {
-      internalType: 'uint256',
       name: 'reason',
       type: 'uint256',
     },
