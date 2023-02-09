@@ -30,6 +30,8 @@ export {
   waitForTransactionReceipt,
   watchBlockNumber,
   watchBlocks,
+  watchContractEvent,
+  watchEvent,
   watchPendingTransactions,
 } from './public'
 export type {
@@ -79,6 +81,8 @@ export type {
   OnBlockNumber,
   OnBlockNumberResponse,
   OnBlockResponse,
+  OnLogs,
+  OnLogsResponse,
   OnTransactions,
   OnTransactionsResponse,
   ReadContractArgs,
@@ -93,6 +97,8 @@ export type {
   WaitForTransactionReceiptResponse,
   WatchBlockNumberArgs,
   WatchBlocksArgs,
+  WatchContractEventArgs,
+  WatchEventArgs,
   WatchPendingTransactionsArgs,
 } from './public'
 

@@ -72,6 +72,8 @@ test('exports actions', () => {
       "watchAsset": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
+      "watchContractEvent": [Function],
+      "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
     }

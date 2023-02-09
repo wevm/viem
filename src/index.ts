@@ -50,6 +50,8 @@ export type {
   OnBlockNumber,
   OnBlockNumberResponse,
   OnBlockResponse,
+  OnLogs,
+  OnLogsResponse,
   OnTransactions,
   OnTransactionsResponse,
   ReadContractArgs,
@@ -87,6 +89,8 @@ export type {
   WatchBlockNumberArgs,
   WatchBlocksArgs,
   WatchPendingTransactionsArgs,
+  WatchContractEventArgs,
+  WatchEventArgs,
   WriteContractArgs,
   WriteContractResponse,
 } from './actions'
@@ -158,6 +162,8 @@ export {
   watchBlockNumber,
   watchBlocks,
   watchPendingTransactions,
+  watchContractEvent,
+  watchEvent,
   writeContract,
 } from './actions'
 
