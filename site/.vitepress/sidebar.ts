@@ -88,20 +88,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
-          text: 'ENS',
-          items: [
-            {
-              text: 'getEnsAddress 🚧',
-              link: '/docs/actions/public/getEnsAddress',
-            },
-            { text: 'getEnsName 🚧', link: '/docs/actions/public/getEnsName' },
-            {
-              text: 'getEnsResolver 🚧',
-              link: '/docs/actions/public/getEnsResolver',
-            },
-          ],
-        },
-        {
           text: 'Fee',
           items: [
             {
@@ -489,6 +475,36 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'ENS',
+      collapsible: true,
+      collapsed: true,
+      items: [
+        {
+          text: 'Actions',
+          items: [
+            {
+              text: 'getEnsAddress 🚧',
+              link: '/docs/ens/actions/getEnsAddress',
+            },
+            { text: 'getEnsName 🚧', link: '/docs/ens/actions/getEnsName' },
+            {
+              text: 'getEnsResolver 🚧',
+              link: '/docs/ens/actions/getEnsResolver',
+            },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            { text: 'labelhash', link: '/docs/ens/utilities/labelhash' },
+            { text: 'namehash', link: '/docs/ens/utilities/namehash' },
+
+            { text: 'normalize', link: '/docs/ens/utilities/normalize' },
+          ],
+        },
+      ],
+    },
+    {
       text: 'Utilities',
       collapsible: true,
       collapsed: true,
@@ -594,15 +610,6 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'encodeRlp',
               link: '/docs/utilities/encodeRlp',
             },
-          ],
-        },
-        {
-          text: 'ENS',
-          items: [
-            { text: 'labelhash', link: '/docs/utilities/labelhash' },
-            { text: 'namehash', link: '/docs/utilities/namehash' },
-
-            { text: 'normalize', link: '/docs/utilities/normalize' },
           ],
         },
         {
