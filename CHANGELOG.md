@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.24
+
+### Patch Changes
+
+- [#63](https://github.com/wagmi-dev/viem/pull/63) [`7473582`](https://github.com/wagmi-dev/viem/commit/7473582aff91c6c717ee112743c45dc4cf5dd543) Thanks [@tmm](https://github.com/tmm)! - Exported missing `watchContractEvent` and `watchEvent` actions.
+
 ## 0.0.1-alpha.23
 
 ### Patch Changes
