@@ -1,5 +1,15 @@
 # viem
 
+## 0.0.1-alpha.22
+
+### Patch Changes
+
+- [#57](https://github.com/wagmi-dev/viem/pull/57) [`40c76e3`](https://github.com/wagmi-dev/viem/commit/40c76e3ac4478ee1e5c739d8162eb2006e3679e0) Thanks [@jxom](https://github.com/jxom)! - support `Panic` & custom contract errors
+
+* [#56](https://github.com/wagmi-dev/viem/pull/56) [`3e90197`](https://github.com/wagmi-dev/viem/commit/3e90197bbac1ea571876d316a8667f4a00e84e9f) Thanks [@jxom](https://github.com/jxom)! - - **Breaking**: Renamed `humanMessage` to `shortMessage` in `BaseError`.
+  - Added `multicall`.
+  - Support overloaded contract functions.
+
 ## 0.0.1-alpha.21
 
 ### Patch Changes
