@@ -412,7 +412,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/getStorageAt',
             },
             {
-              text: 'multicall 🚧',
+              text: 'multicall',
               link: '/docs/contract/multicall',
             },
             {
