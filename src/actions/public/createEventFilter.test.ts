@@ -111,7 +111,7 @@ describe('buildFilterTopics', () => {
     ])
   })
 
-  test.skip('named args', () => {
+  test('named args', () => {
     expect(
       buildFilterTopics({
         event: 'Transfer(address indexed from, address indexed to)',
@@ -155,9 +155,43 @@ describe('buildFilterTopics', () => {
       '0x000000000000000000000000000000000000000000000000000000000000000c',
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     ])
+
+    expect(
+      buildFilterTopics({
+        event:
+          'Transfer(string indexed baz, uint indexed foo, bool indexed bar)',
+        args: {
+          baz: 'watermelon sugar high',
+          foo: 12,
+          bar: true,
+        },
+      }),
+    ).toEqual([
+      '0xd72ffe8f642f870a4e0b389d4e008752294ecfa2a379b4a9790c067aef635088',
+      '0xdb31e24017b555ff340729aa37fadedf910b5395e13a218e76e155c39527bf02',
+      '0x000000000000000000000000000000000000000000000000000000000000000c',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    ])
+
+    expect(
+      buildFilterTopics({
+        event:
+          'Transfer(bytes indexed baz, uint indexed foo, bool indexed bar)',
+        args: {
+          baz: '0x69420',
+          foo: 12,
+          bar: true,
+        },
+      }),
+    ).toEqual([
+      '0xd0ac01db7189fe6027705e6dda462153bf4aec72630a11dcec054ac78bac314d',
+      '0xd36b1a27d526376a81ba9b34292f4103e8340cc80a493e43aa00a14ebd0df4c5',
+      '0x000000000000000000000000000000000000000000000000000000000000000c',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    ])
   })
 
-  test.skip('unnamed args', () => {
+  test('unnamed args', () => {
     expect(
       buildFilterTopics({
         event: 'Transfer(address indexed, address indexed, uint indexed)',
@@ -240,6 +274,4 @@ describe('buildFilterTopics', () => {
       ],
     ])
   })
-
-  // TODO: more arg types
 })
