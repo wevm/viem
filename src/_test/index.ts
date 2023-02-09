@@ -8,11 +8,11 @@ export { ethersProvider, ethersV6Provider, web3Provider } from './bench'
 
 export {
   accounts,
+  address,
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
   transfer1Data,
-  vitalikAddress,
 } from './constants'
 
 export {

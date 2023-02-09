@@ -7,10 +7,10 @@
 import { describe, expect, test } from 'vitest'
 import {
   accounts,
+  address,
   initialBlockNumber,
   publicClient,
   usdcContractConfig,
-  vitalikAddress,
 } from '../../_test'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis'
 
@@ -28,7 +28,7 @@ test('default', async () => {
         {
           ...usdcContractConfig,
           functionName: 'balanceOf',
-          args: [vitalikAddress],
+          args: [address.vitalik],
         },
         {
           ...baycContractConfig,
@@ -70,7 +70,7 @@ describe('errors', async () => {
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...baycContractConfig,
@@ -117,12 +117,12 @@ describe('errors', async () => {
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress, 1n],
+              args: [address.vitalik, 1n],
             },
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...baycContractConfig,
@@ -171,12 +171,12 @@ describe('errors', async () => {
               ...usdcContractConfig,
               address: '0x0000000000000000000000000000000000000000',
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...baycContractConfig,
@@ -224,17 +224,17 @@ describe('errors', async () => {
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...wagmiContractConfig,
               functionName: 'transferFrom',
-              args: [vitalikAddress, accounts[0].address, 1n],
+              args: [address.vitalik, accounts[0].address, 1n],
             },
             {
               ...baycContractConfig,
@@ -243,7 +243,7 @@ describe('errors', async () => {
             {
               ...baycContractConfig,
               functionName: 'tokenOfOwnerByIndex',
-              args: [vitalikAddress, 1n],
+              args: [address.vitalik, 1n],
             },
           ] as const,
           multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
@@ -307,7 +307,7 @@ describe('errors', async () => {
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...baycContractConfig,
@@ -336,12 +336,12 @@ describe('errors', async () => {
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress, 1n],
+              args: [address.vitalik, 1n],
             },
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...baycContractConfig,
@@ -373,12 +373,12 @@ describe('errors', async () => {
               ...usdcContractConfig,
               address: '0x0000000000000000000000000000000000000000',
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...baycContractConfig,
@@ -412,17 +412,17 @@ describe('errors', async () => {
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
-              args: [vitalikAddress],
+              args: [address.vitalik],
             },
             {
               ...wagmiContractConfig,
               functionName: 'transferFrom',
-              args: [vitalikAddress, accounts[0].address, 1n],
+              args: [address.vitalik, accounts[0].address, 1n],
             },
             {
               ...baycContractConfig,
@@ -431,7 +431,7 @@ describe('errors', async () => {
             {
               ...baycContractConfig,
               functionName: 'tokenOfOwnerByIndex',
-              args: [vitalikAddress, 1n],
+              args: [address.vitalik, 1n],
             },
           ] as const,
           multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',

@@ -2,11 +2,11 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { wait } from '../../utils/wait'
 import {
   accounts,
+  address,
   publicClient,
   testClient,
   transfer1Data,
   usdcContractConfig,
-  vitalikAddress,
   walletClient,
 } from '../../_test'
 import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
@@ -17,14 +17,14 @@ import { OnLogsResponse, watchEvent } from './watchEvent'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {
-    address: vitalikAddress,
+    address: address.vitalik,
   })
   await mine(testClient, { blocks: 1 })
 })
 
 afterAll(async () => {
   await stopImpersonatingAccount(testClient, {
-    address: vitalikAddress,
+    address: address.vitalik,
   })
 })
 
@@ -39,18 +39,18 @@ test(
 
     await wait(1000)
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await wait(1000)
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })
@@ -74,18 +74,18 @@ test('args: batch', async () => {
 
   await wait(1000)
   await sendTransaction(walletClient, {
-    from: vitalikAddress,
+    from: address.vitalik,
     to: usdcContractConfig.address,
     data: transfer1Data(accounts[0].address),
   })
   await sendTransaction(walletClient, {
-    from: vitalikAddress,
+    from: address.vitalik,
     to: usdcContractConfig.address,
     data: transfer1Data(accounts[0].address),
   })
   await wait(1000)
   await sendTransaction(walletClient, {
-    from: vitalikAddress,
+    from: address.vitalik,
     to: usdcContractConfig.address,
     data: transfer1Data(accounts[1].address),
   })
@@ -113,7 +113,7 @@ test('args: address', async () => {
 
   await wait(1000)
   await sendTransaction(walletClient, {
-    from: vitalikAddress,
+    from: address.vitalik,
     to: usdcContractConfig.address,
     data: transfer1Data(accounts[0].address),
   })
@@ -142,7 +142,7 @@ test('args: address + event', async () => {
 
   await wait(1000)
   await sendTransaction(walletClient, {
-    from: vitalikAddress,
+    from: address.vitalik,
     to: usdcContractConfig.address,
     data: transfer1Data(accounts[0].address),
   })

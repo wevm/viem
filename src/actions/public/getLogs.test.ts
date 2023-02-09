@@ -2,11 +2,11 @@ import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
 import {
   accounts,
+  address,
   initialBlockNumber,
   publicClient,
   testClient,
   transfer1Data,
-  vitalikAddress,
   usdcContractConfig,
   walletClient,
 } from '../../_test'
@@ -25,14 +25,14 @@ import { getBlock } from './getBlock'
 beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })
   await impersonateAccount(testClient, {
-    address: vitalikAddress,
+    address: address.vitalik,
   })
 })
 
 afterAll(async () => {
   await setIntervalMining(testClient, { interval: 1 })
   await stopImpersonatingAccount(testClient, {
-    address: vitalikAddress,
+    address: address.vitalik,
   })
 })
 
@@ -44,12 +44,12 @@ test('default', async () => {
 describe('events', () => {
   test('no args', async () => {
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })
@@ -62,12 +62,12 @@ describe('events', () => {
 
   test('args: event', async () => {
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[0].address),
     })
     await sendTransaction(walletClient, {
-      from: vitalikAddress,
+      from: address.vitalik,
       to: usdcContractConfig.address,
       data: transfer1Data(accounts[1].address),
     })

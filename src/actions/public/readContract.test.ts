@@ -7,9 +7,9 @@
 
 import { describe, expect, test } from 'vitest'
 import {
+  address,
   initialBlockNumber,
   publicClient,
-  vitalikAddress,
   wagmiContractConfig,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
@@ -115,7 +115,7 @@ describe('bayc', () => {
       readContract(publicClient, {
         ...baycContractConfig,
         functionName: 'tokenOfOwnerByIndex',
-        args: [vitalikAddress, 5n],
+        args: [address.vitalik, 5n],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "The contract function \\"tokenOfOwnerByIndex\\" reverted with the following reason:

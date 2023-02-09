@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, vitalikAddress } from '../../_test'
+import { accounts, address, publicClient, testClient } from '../../_test'
 import { parseEther } from '../../utils'
 import { getBalance } from '../public/getBalance'
 import { mine, setBalance } from '../test'
@@ -8,7 +8,7 @@ import { mine, setBalance } from '../test'
 import { sendUnsignedTransaction } from './sendUnsignedTransaction'
 
 const sourceAccount = {
-  address: vitalikAddress,
+  address: address.vitalik,
 } as const
 const targetAccount = accounts[0]
 

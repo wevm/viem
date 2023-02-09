@@ -2,10 +2,10 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { wait } from '../../utils/wait'
 import {
   accounts,
+  address,
   publicClient,
   testClient,
   usdcContractConfig,
-  vitalikAddress,
   walletClient,
 } from '../../_test'
 import { impersonateAccount, stopImpersonatingAccount } from '../test'
@@ -16,7 +16,7 @@ import { OnLogsResponse, watchContractEvent } from './watchContractEvent'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {
-    address: vitalikAddress,
+    address: address.vitalik,
   })
   await impersonateAccount(testClient, {
     address: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
@@ -25,7 +25,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await stopImpersonatingAccount(testClient, {
-    address: vitalikAddress,
+    address: address.vitalik,
   })
   await stopImpersonatingAccount(testClient, {
     address: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
@@ -44,22 +44,22 @@ test(
 
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      from: vitalikAddress,
+      from: address.vitalik,
       functionName: 'transfer',
-      args: [vitalikAddress, 1n],
+      args: [address.vitalik, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      from: vitalikAddress,
+      from: address.vitalik,
       functionName: 'transfer',
-      args: [vitalikAddress, 1n],
+      args: [address.vitalik, 1n],
     })
     await wait(1000)
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      from: vitalikAddress,
+      from: address.vitalik,
       functionName: 'approve',
-      args: [vitalikAddress, 1n],
+      args: [address.vitalik, 1n],
     })
 
     await wait(2000)
@@ -83,22 +83,22 @@ test('args: batch', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'approve',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
 
   await wait(2000)
@@ -121,22 +121,22 @@ test('args: eventName', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'approve',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
 
   await wait(2000)
@@ -160,22 +160,22 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'approve',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
 
   await wait(2000)
@@ -199,22 +199,22 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'approve',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
 
   await wait(2000)
@@ -244,16 +244,16 @@ test('args: args', async () => {
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: vitalikAddress,
+    from: address.vitalik,
     functionName: 'approve',
-    args: [vitalikAddress, 1n],
+    args: [address.vitalik, 1n],
   })
 
   await wait(2000)

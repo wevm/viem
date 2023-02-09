@@ -43,6 +43,10 @@ export const accounts = [
   },
 ] as const
 
+export const address = {
+  vitalik: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+} as const
+
 export const initialBlockNumber = BigInt(
   Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
 )
@@ -55,6 +59,3 @@ export const transfer1Data = (address: string): Hex =>
   `0xa9059cbb000000000000000000000000${address
     .slice(2)
     .toLowerCase()}0000000000000000000000000000000000000000000000000000000000000001`
-
-// vitalik.eth
-export const vitalikAddress = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
