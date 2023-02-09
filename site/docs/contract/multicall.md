@@ -1,6 +1,6 @@
 # multicall
 
-Similar to [`readContract`](/docs/contract/readContract), but batches up & calls multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
+Similar to [`readContract`](/docs/contract/readContract), but batches up & contracts multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
 
 ## Import
 
@@ -23,7 +23,7 @@ const wagmiContract = {
 } as const
 
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       ...wagmiContract,
       functionName: 'totalSupply',
@@ -41,9 +41,9 @@ const results = await multicall(publicClient, {
 })
 /**
  * [
- *  { data: 424122n, status: 'success' },
- *  { data: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b', status: 'success' },
- *  { error: 'sold out', status: 'reverted' }
+ *  { result: 424122n, status: 'success' },
+ *  { result: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b', status: 'success' },
+ *  { error: [ContractFunctionExecutionError: ...], status: 'failure' }
  * ]
  */
 ```
@@ -104,7 +104,7 @@ The contract address.
 
 ```ts
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
       abi: wagmiAbi,
@@ -123,7 +123,7 @@ The contract ABI.
 
 ```ts
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi: wagmiAbi, // [!code focus]
@@ -142,7 +142,7 @@ The function name to call.
 
 ```ts
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi: wagmiAbi,
@@ -161,7 +161,7 @@ Arguments to pass to function call.
 
 ```ts
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi: wagmiAbi,
@@ -182,7 +182,7 @@ Whether or not the `multicall` function should throw if a call reverts. If set t
 
 ```ts
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi: wagmiAbi,
@@ -202,7 +202,7 @@ Optional sender override.
 
 ```ts
 const results = await multicall(publicClient, {
-  calls: [
+  contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       abi: wagmiAbi,
