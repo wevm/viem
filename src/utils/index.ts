@@ -68,8 +68,6 @@ export {
   trim,
 } from './data'
 
-export { labelhash, namehash, normalize } from './ens'
-
 export type {
   BlockFormatter,
   ExtractFormatter,
