@@ -1,4 +1,4 @@
-import { Abi } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 import { WalletClient } from '../../clients'
 
 import { Chain, ExtractConstructorArgsFromAbi, Hex } from '../../types'
@@ -11,18 +11,18 @@ import {
 
 export type DeployContractArgs<
   TChain extends Chain = Chain,
-  TAbi extends Abi = Abi,
+  TAbi extends Abi | readonly unknown[] = Abi,
 > = Omit<
   SendTransactionArgs<TChain>,
   'accessList' | 'to' | 'data' | 'value'
 > & {
-  abi: TAbi
+  abi: Narrow<TAbi>
   bytecode: Hex
 } & ExtractConstructorArgsFromAbi<TAbi>
 
 export type DeployContractResponse = SendTransactionResponse
 
-export function deployContract<TChain extends Chain, TAbi extends Abi = Abi>(
+export function deployContract<TChain extends Chain, TAbi extends Abi>(
   walletClient: WalletClient,
   { abi, args, bytecode, ...request }: DeployContractArgs<TChain, TAbi>,
 ): Promise<DeployContractResponse> {

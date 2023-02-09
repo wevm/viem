@@ -12,7 +12,7 @@ import {
 export type WriteContractArgs<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
+  TFunctionName extends string = string,
 > = Omit<SendTransactionArgs<TChain>, 'to' | 'data' | 'value'> & {
   value?: GetValue<TAbi, TFunctionName, SendTransactionArgs<TChain>['value']>
 } & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
@@ -21,8 +21,8 @@ export type WriteContractResponse = SendTransactionResponse
 
 export async function writeContract<
   TChain extends Chain,
-  TAbi extends Abi = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
 >(
   client: WalletClient,
   {

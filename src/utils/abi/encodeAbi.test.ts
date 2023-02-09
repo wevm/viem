@@ -745,7 +745,7 @@ describe('static', () => {
             { internalType: 'uint256[2]', name: 'xOut', type: 'uint256[2]' },
             { internalType: 'bool', name: 'yOut', type: 'bool' },
             { internalType: 'string[3]', name: 'zOut', type: 'string[3]' },
-          ] as any,
+          ],
           values: [[420n, 69n], true, ['wagmi', 'viem', 'lol']],
         }),
       ).toMatchInlineSnapshot(
@@ -885,7 +885,7 @@ describe('dynamic', () => {
               name: 'zIn',
               type: 'string',
             },
-          ] as const,
+          ],
           values: [[420n, 69n], true, 'wagmi'],
         }),
       ).toMatchInlineSnapshot(
@@ -1202,7 +1202,7 @@ describe('dynamic', () => {
               name: 'wagmiIn',
               type: 'tuple',
             },
-          ] as const,
+          ],
           values: [
             {
               foo: {

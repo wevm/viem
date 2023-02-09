@@ -30,7 +30,7 @@ test('returns ()', () => {
         },
       ],
       functionName: 'foo',
-      result: [undefined],
+      result: undefined,
     }),
   ).toEqual('0x')
   expect(
@@ -45,7 +45,6 @@ test('returns ()', () => {
         },
       ],
       functionName: 'foo',
-      result: [],
     }),
   ).toEqual('0x')
 })
@@ -67,7 +66,7 @@ test('returns (address)', () => {
           stateMutability: 'pure',
           type: 'function',
         },
-      ] as const,
+      ],
       functionName: 'foo',
       result: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
     }),
@@ -129,17 +128,15 @@ test('returns (Bar)', () => {
         },
       ],
       functionName: 'bar',
-      result: [
-        {
-          foo: {
-            sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-            x: 69420n,
-            y: true,
-          },
+      result: {
+        foo: {
           sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-          z: 69,
+          x: 69420n,
+          y: true,
         },
-      ],
+        sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        z: 69,
+      },
     }),
   ).toEqual(
     '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000045',
@@ -240,6 +237,7 @@ test("error: function doesn't exist", () => {
           type: 'function',
         },
       ],
+      // @ts-expect-error
       functionName: 'baz',
       result: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     }),
@@ -258,7 +256,6 @@ test("error: function doesn't exist", () => {
   expect(() =>
     encodeFunctionResult({
       abi: [
-        // @ts-expect-error
         {
           inputs: [],
           name: 'foo',

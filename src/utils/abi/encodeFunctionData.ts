@@ -1,4 +1,4 @@
-import { Abi, ExtractAbiFunctionNames } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 
 import {
   AbiEncodingLengthMismatchError,
@@ -12,16 +12,16 @@ import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
 export type EncodeFunctionDataArgs<
-  TAbi extends Abi = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = string,
 > = {
-  abi: TAbi
+  abi: Narrow<TAbi>
   functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
 } & ExtractArgsFromAbi<TAbi, TFunctionName>
 
 export function encodeFunctionData<
-  TAbi extends Abi = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
 >({ abi, args, functionName }: EncodeFunctionDataArgs<TAbi, TFunctionName>) {
   const description = getAbiItem({
     abi,

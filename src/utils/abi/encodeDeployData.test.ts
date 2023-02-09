@@ -11,7 +11,7 @@ test('constructor()', () => {
           stateMutability: 'nonpayable',
           type: 'constructor',
         },
-      ] as const,
+      ],
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
     }),
@@ -20,13 +20,12 @@ test('constructor()', () => {
   )
   expect(
     encodeDeployData({
-      // @ts-expect-error
       abi: [
         {
           stateMutability: 'nonpayable',
           type: 'constructor',
         },
-      ] as const,
+      ],
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
     }),
@@ -50,7 +49,7 @@ test('constructor(uint256)', () => {
           stateMutability: 'nonpayable',
           type: 'constructor',
         },
-      ] as const,
+      ],
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
       args: [69420n],
@@ -63,8 +62,7 @@ test('constructor(uint256)', () => {
 test('error: constructor not found', () => {
   expect(() =>
     encodeDeployData({
-      // @ts-expect-error
-      abi: [{}] as const,
+      abi: [{}],
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
       args: [69420n],
@@ -81,13 +79,12 @@ test('error: constructor not found', () => {
 test('error: no inputs', () => {
   expect(() =>
     encodeDeployData({
-      // @ts-expect-error
       abi: [
         {
           stateMutability: 'nonpayable',
           type: 'constructor',
         },
-      ] as const,
+      ],
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
       args: [69420n],
@@ -104,14 +101,13 @@ test('error: no inputs', () => {
 
   expect(() =>
     encodeDeployData({
-      // @ts-expect-error
       abi: [
         {
           inputs: undefined,
           stateMutability: 'nonpayable',
           type: 'constructor',
         },
-      ] as const,
+      ],
       bytecode:
         '0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220116554d4ba29ee08da9e97dc54ff9a2a65d67a648140d616fc225a25ff08c86364736f6c63430008070033',
       args: [69420n],

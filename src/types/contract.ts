@@ -12,9 +12,10 @@ import type {
   ExtractAbiFunction,
   ExtractAbiEvent,
   ExtractAbiEventNames,
-  ExtractAbiFunctionNames,
   ExtractAbiError,
   ExtractAbiErrorNames,
+  ExtractAbiFunctionNames,
+  Narrow,
 } from 'abitype'
 import type { Address } from './misc'
 import type { TransactionRequest } from './transaction'
@@ -163,6 +164,18 @@ export type ExtractEventArgsFromAbi<
   : {
       args?: TArgs
     }
+
+export type ExtractErrorNameFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TErrorName extends string = string,
+> = TAbi extends Abi
+  ? ExtractAbiErrorNames<TAbi> extends infer AbiErrorNames
+    ?
+        | AbiErrorNames
+        | (TErrorName extends AbiErrorNames ? TErrorName : never)
+        | (Abi extends TAbi ? string : never)
+    : never
+  : TErrorName
 
 export type ExtractEventNameFromAbi<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -355,7 +368,7 @@ export type ContractConfig<
   TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
 > = {
   /** Contract ABI */
-  abi: TAbi
+  abi: Narrow<TAbi>
   /** Contract address */
   address: Address
   /** Function to invoke on the contract */

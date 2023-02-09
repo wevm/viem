@@ -1,20 +1,20 @@
-import type { Abi, AbiParameter, Address } from 'abitype'
+import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
 import type { ExtractArgsFromAbi, ExtractNameFromAbi } from '../../types'
 import { isAddress } from '../address'
 
 export type GetAbiItemArgs<
-  TAbi extends Abi = Abi,
+  TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
 > = {
-  abi: TAbi
+  abi: Narrow<TAbi>
   name: ExtractNameFromAbi<TAbi, TFunctionName>
 } & Partial<ExtractArgsFromAbi<TAbi, TFunctionName>>
 
 export function getAbiItem<
-  TAbi extends Abi = Abi,
-  TFunctionName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
 >({ abi, args = [], name }: GetAbiItemArgs<TAbi, TFunctionName>) {
-  const abiItems = abi.filter((x) => 'name' in x && x.name === name)
+  const abiItems = (abi as Abi).filter((x) => 'name' in x && x.name === name)
 
   if (abiItems.length === 0) return undefined
   if (abiItems.length === 1) return abiItems[0]

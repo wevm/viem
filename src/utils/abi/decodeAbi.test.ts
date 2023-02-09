@@ -1603,7 +1603,7 @@ test('error: zero data', () => {
           stateMutability: 'pure',
           type: 'function',
         },
-      ] as const,
+      ],
       data: '0x',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`

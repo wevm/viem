@@ -47,10 +47,9 @@ test('overloads: no inputs', () => {
   expect(
     getAbiItem({
       abi: [
-        // @ts-expect-error
         {
           name: 'balanceOf',
-          outputs: [{ name: '', type: 'uint256' }],
+          outputs: [{ name: 'x', type: 'uint256' }],
           stateMutability: 'view',
           type: 'function',
         },
@@ -85,7 +84,6 @@ test('overloads: undefined inputs', () => {
     getAbiItem({
       abi: [
         {
-          // @ts-expect-error
           inputs: undefined,
           name: 'balanceOf',
           outputs: [{ name: '', type: 'uint256' }],
@@ -252,7 +250,7 @@ test('overload: different types', () => {
       stateMutability: 'nonpayable',
       type: 'function',
     },
-  ] as const
+  ]
 
   expect(
     getAbiItem({
@@ -366,7 +364,7 @@ test('overloads: tuple', () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
-      ] as const,
+      ],
       name: 'foo',
       args: [
         420n,

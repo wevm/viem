@@ -18,6 +18,7 @@ export type {
   ExtractArgsFromFunctionDefinition,
   ExtractConstructorArgsFromAbi,
   ExtractErrorArgsFromAbi,
+  ExtractErrorNameFromAbi,
   ExtractEventArgsFromAbi,
   ExtractEventNameFromAbi,
   ExtractFunctionNameFromAbi,
