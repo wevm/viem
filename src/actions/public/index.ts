@@ -105,6 +105,9 @@ export type {
   GetTransactionReceiptResponse,
 } from './getTransactionReceipt'
 
+export { multicall } from './multicall'
+export type { MulticallArgs } from './multicall'
+
 export { readContract } from './readContract'
 export type {
   ReadContractArgs,
