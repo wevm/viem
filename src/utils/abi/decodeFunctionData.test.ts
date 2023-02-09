@@ -19,7 +19,6 @@ test('foo()', () => {
   ).toEqual({ args: undefined, functionName: 'foo' })
   expect(
     decodeFunctionData({
-      // @ts-expect-error
       abi: [
         {
           name: 'foo',
@@ -131,7 +130,7 @@ test("errors: function doesn't exist", () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     "Encoded function signature \\"0xa3741467\\" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
-    You can look up the signature \\"0xa3741467\\" here: https://sig.eth.samczsun.com/.
+    You can look up the signature here: https://openchain.xyz/signatures?query=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionData
     Version: viem@1.0.2"

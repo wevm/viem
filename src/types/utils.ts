@@ -30,6 +30,15 @@ export type OptionalNullable<T> = {
 }
 
 /**
+ * @description Constructs a type by excluding `undefined` from `T`.
+ *
+ * @example
+ * NoUndefined<string | undefined>
+ * => string
+ */
+export type NoUndefined<T> = T extends undefined ? never : T
+
+/**
  * @description Creates a type that is a partial of T, but with the required keys K.
  *
  * @example
@@ -37,6 +46,18 @@ export type OptionalNullable<T> = {
  * => { a?: string, b: number }
  */
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+/**
+ * @description Combines members of an intersection into a readable type.
+ *
+ * @link https://twitter.com/mattpocockuk/status/1622730173446557697?s=20&t=NdpAcmEFXY01xkqU3KO0Mg
+ * @example
+ * Prettify<{ a: string } | { b: string } | { c: number, d: bigint }>
+ * => { a: string, b: string, c: number, d: bigint }
+ */
+export type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {}
 
 type TrimLeft<T, Chars extends string = ' '> = T extends `${Chars}${infer R}`
   ? TrimLeft<R>

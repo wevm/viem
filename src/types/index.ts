@@ -20,6 +20,7 @@ export type {
   ExtractErrorArgsFromAbi,
   ExtractErrorNameFromAbi,
   ExtractEventArgsFromAbi,
+  ExtractEventArgsFromTopics,
   ExtractEventNameFromAbi,
   ExtractFunctionNameFromAbi,
   ExtractNameFromAbi,

@@ -2,6 +2,8 @@ export type {
   DecodeAbiArgs,
   DecodeErrorResultArgs,
   DecodeErrorResultResponse,
+  DecodeEventTopicsArgs,
+  DecodeEventTopicsResponse,
   DecodeFunctionDataArgs,
   DecodeFunctionResultArgs,
   DecodeFunctionResultResponse,
@@ -16,6 +18,7 @@ export type {
 export {
   decodeAbi,
   decodeErrorResult,
+  decodeEventTopics,
   decodeFunctionData,
   decodeFunctionResult,
   encodeAbi,

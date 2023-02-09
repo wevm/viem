@@ -303,6 +303,8 @@ export type {
 export type {
   DecodeAbiArgs,
   DecodeErrorResultArgs,
+  DecodeEventTopicsArgs,
+  DecodeEventTopicsResponse,
   DecodeFunctionDataArgs,
   DecodeFunctionResultArgs,
   DecodeFunctionResultResponse,
@@ -332,6 +334,7 @@ export {
   decodeAbi,
   decodeBytes,
   decodeErrorResult,
+  decodeEventTopics,
   decodeFunctionData,
   decodeFunctionResult,
   decodeHex,
