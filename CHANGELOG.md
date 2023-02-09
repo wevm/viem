@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.23
+
+### Patch Changes
+
+- [#61](https://github.com/wagmi-dev/viem/pull/61) [`e4b2dbb`](https://github.com/wagmi-dev/viem/commit/e4b2dbb67e5b9f7f8d703191207931042127ebce) Thanks [@tmm](https://github.com/tmm)! - Exported multicall action
+
 ## 0.0.1-alpha.22
 
 ### Patch Changes
