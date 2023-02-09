@@ -174,7 +174,6 @@ test('Error(string)', () => {
     abiItem: {
       inputs: [
         {
-          internalType: 'string',
           name: 'message',
           type: 'string',
         },

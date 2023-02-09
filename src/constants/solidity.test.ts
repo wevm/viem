@@ -19,7 +19,6 @@ test('exports solidity constants', () => {
       "solidityError": {
         "inputs": [
           {
-            "internalType": "string",
             "name": "message",
             "type": "string",
           },
@@ -30,7 +29,6 @@ test('exports solidity constants', () => {
       "solidityPanic": {
         "inputs": [
           {
-            "internalType": "uint256",
             "name": "reason",
             "type": "uint256",
           },

@@ -69,7 +69,7 @@ test('overloads: no inputs', () => {
       "name": "balanceOf",
       "outputs": [
         {
-          "name": "",
+          "name": "x",
           "type": "uint256",
         },
       ],
