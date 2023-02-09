@@ -2,4 +2,4 @@ export {
   labelhash,
   namehash,
   normalize,
-} from './utils'
+} from './utils/ens'
