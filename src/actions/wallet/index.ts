@@ -1,5 +1,11 @@
 export { addChain } from './addChain'
 
+export { deployContract } from './deployContract'
+export type {
+  DeployContractArgs,
+  DeployContractResponse,
+} from './deployContract'
+
 export { getAccounts } from './getAccounts'
 
 export { getPermissions } from './getPermissions'

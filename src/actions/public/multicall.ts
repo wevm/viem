@@ -8,16 +8,16 @@ import {
 import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
 import { MulticallResults } from '../../types/multicall'
 import {
+  EncodeFunctionDataArgs,
   decodeFunctionResult,
   encodeFunctionData,
-  EncodeFunctionDataArgs,
   getContractError,
 } from '../../utils'
 import { CallArgs } from './call'
 import { readContract } from './readContract'
 
 export type MulticallArgs<
-  TContracts extends ContractConfig[],
+  TContracts extends ContractConfig[] = ContractConfig[],
   TAllowFailure extends boolean = true,
 > = Pick<CallArgs, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
@@ -25,13 +25,18 @@ export type MulticallArgs<
   multicallAddress: Address
 }
 
+export type MulticallResponse<
+  TContracts extends ContractConfig[] = ContractConfig[],
+  TAllowFailure extends boolean = true,
+> = MulticallResults<TContracts, TAllowFailure>
+
 export async function multicall<
   TContracts extends ContractConfig[],
   TAllowFailure extends boolean = true,
 >(
   client: PublicClient,
   args: MulticallArgs<TContracts, TAllowFailure>,
-): Promise<MulticallResults<TContracts, TAllowFailure>> {
+): Promise<MulticallResponse<TContracts, TAllowFailure>> {
   const {
     allowFailure = true,
     blockNumber,

@@ -6,6 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "addChain": [Function],
+      "deployContract": [Function],
       "getAccounts": [Function],
       "getPermissions": [Function],
       "requestAccounts": [Function],

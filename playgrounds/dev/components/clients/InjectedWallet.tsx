@@ -1,4 +1,4 @@
-import { createWalletClient, custom } from 'viem/clients'
+import { createWalletClient, custom } from 'viem'
 
 import { AddChain } from '../actions/AddChain'
 import { GetPermissions } from '../actions/GetPermissions'

@@ -1,5 +1,5 @@
 import type { WalletClient } from 'viem'
-import { parseEther } from 'viem'
+import { parseEther } from 'viem/utils'
 import { sendTransaction } from 'viem/wallet'
 
 export function SendTransaction({ client }: { client: WalletClient }) {

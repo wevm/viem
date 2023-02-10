@@ -9,7 +9,7 @@ export default defineConfig(
     entry: [
       'src/index.ts',
       'src/chains.ts',
-      'src/clients/index.ts',
+      'src/contract.ts',
       'src/ens.ts',
       'src/public.ts',
       'src/test.ts',

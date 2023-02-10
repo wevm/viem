@@ -5,8 +5,8 @@ import {
   DecodeErrorResultResponse,
   decodeErrorResult,
   getAbiItem,
-  formatAbiItemWithArgs,
   formatAbiItem,
+  formatAbiItemWithArgs,
 } from '../utils'
 import { BaseError } from './base'
 

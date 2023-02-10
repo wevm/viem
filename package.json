@@ -17,7 +17,6 @@
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply-suggested",
     "playground": "pnpm --filter playground-dev dev",
-    "playground:benchmark": "pnpm --filter playground-benchmark dev",
     "postinstall": "pnpm dev && pnpm contracts:build",
     "preinstall": "npx only-allow pnpm",
     "prepublishOnly": "pnpm ts-node scripts/generate-package-json.ts",
@@ -29,13 +28,14 @@
     "typecheck": "tsc --noEmit"
   },
   "files": [
-    "/actions",
     "/chains",
+    "/contract",
     "/dist",
-    "/clients",
+    "/ens",
     "/src",
     "/types",
     "/utils",
+    "/wallet",
     "/window"
   ],
   "exports": {
@@ -49,10 +49,10 @@
       "module": "./dist/chains.mjs",
       "default": "./dist/chains.js"
     },
-    "./clients": {
-      "types": "./dist/clients/index.d.ts",
-      "module": "./dist/clients/index.mjs",
-      "default": "./dist/clients/index.js"
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "module": "./dist/contract.mjs",
+      "default": "./dist/contract.js"
     },
     "./ens": {
       "types": "./dist/ens.d.ts",

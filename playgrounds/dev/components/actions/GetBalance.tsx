@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { PublicClient } from 'viem/clients'
+import type { PublicClient } from 'viem'
 import { getBalance } from 'viem/public'
 
 export function GetBalance({

@@ -1,5 +1,5 @@
+import { createPublicClient, http } from 'viem'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { createPublicClient, http } from 'viem/clients'
 
 import { GetBalance } from '../actions/GetBalance'
 import { GetBlock } from '../actions/GetBlock'
