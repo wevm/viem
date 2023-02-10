@@ -17,7 +17,7 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { Address, Hex } from './misc'
+import type { Address, Hex, LogTopic } from './misc'
 import type { TransactionRequest } from './transaction'
 import type { NoUndefined, Prettify, Trim } from './utils'
 
@@ -30,11 +30,11 @@ type HashedEventTypes = 'string' | 'bytes' | 'tuple' | `${string}[${string}]`
 
 type EventTopicParam<
   TPrimitiveType = Hex,
-  TArg extends Hex | Hex[] | null = Hex | Hex[] | null,
+  TTopic extends LogTopic = LogTopic,
 > = NoUndefined<
-  | (TArg extends Hex ? TPrimitiveType : undefined)
-  | (TArg extends Hex[] ? TPrimitiveType[] : undefined)
-  | (TArg extends null ? null : undefined)
+  | (TTopic extends Hex ? TPrimitiveType : undefined)
+  | (TTopic extends Hex[] ? TPrimitiveType[] : undefined)
+  | (TTopic extends null ? null : undefined)
 >
 
 export type AbiEventParameterToPrimitiveType<TParam extends AbiParameter> =
@@ -72,15 +72,15 @@ export type AbiEventParametersToPrimitiveTypes<
 
 export type AbiEventTopicToPrimitiveType<
   TParam extends AbiParameter,
-  TArg extends Hex | Hex[] | null,
+  TTopic extends LogTopic,
   TPrimitiveType = TParam['type'] extends HashedEventTypes
-    ? TArg
+    ? TTopic
     : AbiParameterToPrimitiveType<TParam>,
-> = EventTopicParam<TPrimitiveType, TArg>
+> = EventTopicParam<TPrimitiveType, TTopic>
 
 export type AbiEventTopicsToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
-  TTopics extends (Hex | Hex[] | null)[] = (Hex | Hex[] | null)[],
+  TTopics extends LogTopic[] = LogTopic[],
   TBase = TAbiParameters[0] extends { name: string } ? {} : [],
 > = Prettify<
   TAbiParameters extends readonly [infer Head, ...infer Tail]
@@ -90,25 +90,25 @@ export type AbiEventTopicsToPrimitiveTypes<
           ? Head extends { name: infer Name }
             ? Name extends string
               ? {
-                  [name in Name]: TopicHead extends Hex | Hex[] | null
+                  [name in Name]: TopicHead extends LogTopic
                     ? AbiEventTopicToPrimitiveType<Head, TopicHead>
                     : never
                 } & (Tail extends readonly []
                   ? {}
                   : Tail extends readonly AbiParameter[]
-                  ? TopicTail extends (Hex | Hex[] | null)[]
+                  ? TopicTail extends LogTopic[]
                     ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail>
                     : {}
                   : {})
               : never
             : [
-                TopicHead extends Hex | Hex[] | null
+                TopicHead extends LogTopic
                   ? AbiEventTopicToPrimitiveType<Head, TopicHead>
                   : never,
                 ...(Tail extends readonly []
                   ? []
                   : Tail extends readonly AbiParameter[]
-                  ? TopicTail extends (Hex | Hex[] | null)[]
+                  ? TopicTail extends LogTopic[]
                     ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail>
                     : []
                   : []),
@@ -226,7 +226,7 @@ export type ExtractEventArgsFromAbi<
 export type ExtractEventArgsFromTopics<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
-  TTopics extends (Hex | Hex[] | null)[],
+  TTopics extends LogTopic[],
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },

@@ -5,6 +5,7 @@ import {
   ExtractEventArgsFromTopics,
   ExtractEventNameFromAbi,
   Hex,
+  LogTopic,
 } from '../../types'
 import { getEventSignature } from '../hash'
 import { decodeAbi } from './decodeAbi'
@@ -13,7 +14,7 @@ import { formatAbiItem } from './formatAbiItem'
 export type DecodeEventTopicsArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string = string,
-  TTopics extends (Hex | Hex[] | null)[] = (Hex | Hex[] | null)[],
+  TTopics extends LogTopic[] = LogTopic[],
 > = {
   abi: Narrow<TAbi>
   eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
@@ -23,7 +24,7 @@ export type DecodeEventTopicsArgs<
 export type DecodeEventTopicsResponse<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string = string,
-  TTopics extends (Hex | Hex[] | null)[] = (Hex | Hex[] | null)[],
+  TTopics extends LogTopic[] = LogTopic[],
 > = {
   eventName: TEventName
 } & ExtractEventArgsFromTopics<TAbi, TEventName, TTopics>
@@ -31,7 +32,7 @@ export type DecodeEventTopicsResponse<
 export function decodeEventTopics<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
-  TTopics extends (Hex | Hex[] | null)[],
+  TTopics extends LogTopic[],
 >({
   abi,
   topics,
