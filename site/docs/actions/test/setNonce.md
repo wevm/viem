@@ -5,13 +5,13 @@ Modifies (overrides) the nonce of an account.
 ## Import 
 
 ```ts
-import { setNonce } from 'viem'
+import { setNonce } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setNonce } from 'viem'
+import { setNonce } from 'viem/test'
 import { testClient } from '.'
  
 await setNonce(testClient, { // [!code focus:4]

@@ -5,13 +5,13 @@ Remove a transaction from the mempool.
 ## Import 
 
 ```ts
-import { dropTransaction } from 'viem'
+import { dropTransaction } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { dropTransaction } from 'viem'
+import { dropTransaction } from 'viem/test'
 import { testClient } from '.'
  
 await dropTransaction(testClient, { // [!code focus:4]

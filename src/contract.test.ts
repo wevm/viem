@@ -13,6 +13,19 @@ test('exports contract actions', () => {
       "watchContractEvent",
       "deployContract",
       "writeContract",
+      "decodeAbi",
+      "decodeErrorResult",
+      "decodeFunctionData",
+      "decodeFunctionResult",
+      "encodeAbi",
+      "encodeDeployData",
+      "encodeErrorResult",
+      "encodeEventTopics",
+      "encodeFunctionData",
+      "encodeFunctionResult",
+      "formatAbiItemWithArgs",
+      "formatAbiItem",
+      "getAbiItem",
     ]
   `)
 })

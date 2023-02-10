@@ -5,13 +5,13 @@ Converts a string representation of gwei to numerical wei.
 ## Import
 
 ```ts
-import { parseGwei } from 'viem'
+import { parseGwei } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { parseGwei } from 'viem'
+import { parseGwei } from 'viem/utils'
 
 parseGwei('420') // [!code focus:2]
 // 420000000000n

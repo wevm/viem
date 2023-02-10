@@ -42,9 +42,10 @@ In a production app, it is highly recommended to pass through your authenticated
 
 Now that you have a Client set up, you can now interact with Ethereum and consume [Actions](/docs/actions/public/introduction)!
 
-```tsx {9}
-import { createPublicClient, http, getBlockNumber } from 'viem'
+```tsx {3,10}
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { getBlockNumber } from 'viem/public'
 
 const client = createPublicClient({
   chain: mainnet,

@@ -5,13 +5,13 @@ Returns the number of [Transactions](/docs/glossary/terms#TODO) an Account has b
 ## Import
 
 ```ts
-import { getTransactionCount } from 'viem'
+import { getTransactionCount } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getTransactionCount } from 'viem'
+import { getTransactionCount } from 'viem/public'
 import { publicClient } from '.'
  
 const block = await getTransactionCount(publicClient, {  // [!code focus:99]

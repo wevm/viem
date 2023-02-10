@@ -5,7 +5,7 @@ Encodes structured return data into ABI encoded data. It is the opposite of [`de
 ## Install
 
 ```ts
-import { encodeFunctionResult } from 'viem';
+import { encodeFunctionResult } from 'viem/contract';
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ Given an ABI (`abi`) and a function (`functionName`), pass through the values (`
 ::: code-group
 
 ```ts [example.ts]
-import { encodeFunctionResult } from 'viem';
+import { encodeFunctionResult } from 'viem/contract';
 
 const data = encodeFunctionResult({
   abi: wagmiAbi,
@@ -56,7 +56,7 @@ export const publicClient = createPublicClient({
 ::: code-group
 
 ```ts [example.ts]
-import { decodeFunctionResult } from 'viem'
+import { decodeFunctionResult } from 'viem/contract'
 
 const data = decodeFunctionResult({
   abi: wagmiAbi,

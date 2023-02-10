@@ -5,7 +5,7 @@ Encodes an event (with optional arguments) into filter topics.
 ## Install
 
 ```ts
-import { encodeEventTopics } from 'viem'
+import { encodeEventTopics } from 'viem/contract'
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ Below is a very basic example of how to encode event topics without arguments.
 ::: code-group
 
 ```ts [example.ts]
-import { encodeEventTopics } from 'viem'
+import { encodeEventTopics } from 'viem/contract'
 
 const topics = encodeEventTopics({
   abi: wagmiAbi,
@@ -71,7 +71,7 @@ For example, the `Transfer` event below accepts an **address** argument for the 
 ::: code-group
 
 ```ts [example.ts]
-import { encodeEventTopics } from 'viem'
+import { encodeEventTopics } from 'viem/contract'
 
 const topics = encodeEventTopics({
   abi: wagmiAbi,

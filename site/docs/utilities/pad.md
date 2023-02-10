@@ -5,7 +5,7 @@ Pads a hex value or byte array with leading or trailing zeros.
 ## Install
 
 ```ts
-import { pad } from 'viem'
+import { pad } from 'viem/utils'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { pad } from 'viem'
 By default, `pad` will pad a value with leading zeros up to 32 bytes (64 hex chars).
 
 ```ts
-import { pad } from 'viem'
+import { pad } from 'viem/utils'
 
 pad('0xa4e12a45')
 // 0x00000000000000000000000000000000000000000000000000000000a4e12a45

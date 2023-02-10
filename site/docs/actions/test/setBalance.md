@@ -5,13 +5,13 @@ Modifies the balance of an account.
 ## Import 
 
 ```ts
-import { setBalance } from 'viem'
+import { setBalance } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setBalance, parseEther } from 'viem'
+import { setBalance, parseEther } from 'viem/test'
 import { testClient } from '.'
  
 await setBalance(testClient, { // [!code focus:4]

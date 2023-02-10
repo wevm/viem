@@ -5,13 +5,13 @@ Returns the number of the most recent block seen.
 ## Import
 
 ```ts
-import { getBlockNumber } from 'viem'
+import { getBlockNumber } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getBlockNumber } from 'viem'
+import { getBlockNumber } from 'viem/public'
 import { publicClient } from '.'
  
 const block = await getBlockNumber(publicClient) // [!code focus:99]

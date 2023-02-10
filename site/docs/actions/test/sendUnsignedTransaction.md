@@ -5,13 +5,13 @@ Executes a transaction regardless of the signature.
 ## Import 
 
 ```ts
-import { sendUnsignedTransaction } from 'viem'
+import { sendUnsignedTransaction } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { sendUnsignedTransaction } from 'viem'
+import { sendUnsignedTransaction } from 'viem/test'
 import { testClient } from '.'
  
 const { hash } = await sendUnsignedTransaction(testClient, { // [!code focus:99]

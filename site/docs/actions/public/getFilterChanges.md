@@ -11,7 +11,7 @@ A Filter can be created from the following actions:
 ## Import
 
 ```ts
-import { getFilterChanges } from 'viem'
+import { getFilterChanges } from 'viem/public'
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ import { getFilterChanges } from 'viem'
 ### Blocks
 
 ```ts
-import { createBlockFilter, getFilterChanges } from 'viem'
+import { createBlockFilter, getFilterChanges } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createBlockFilter(publicClient) // [!code focus:99]
@@ -31,7 +31,7 @@ const hashes = await getFilterChanges(publicClient, { filter })
 ### Events
 
 ```ts
-import { createEventFilter, getFilterChanges } from 'viem'
+import { createEventFilter, getFilterChanges } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createEventFilter(publicClient, { // [!code focus:99]
@@ -46,7 +46,7 @@ const logs = await getFilterChanges(publicClient, { filter })
 ### Transactions
 
 ```ts
-import { createPendingTransactionFilter, getFilterChanges } from 'viem'
+import { createPendingTransactionFilter, getFilterChanges } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createPendingTransactionFilter(publicClient) // [!code focus:99]

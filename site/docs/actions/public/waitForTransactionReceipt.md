@@ -7,13 +7,13 @@ The `waitForTransactionReceipt` action additionally supports Replacement detecti
 ## Import
 
 ```ts
-import { waitForTransactionReceipt } from 'viem'
+import { waitForTransactionReceipt } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { waitForTransactionReceipt } from 'viem'
+import { waitForTransactionReceipt } from 'viem/public'
 import { publicClient } from '.'
  
 const transaction = await waitForTransactionReceipt( // [!code focus:99]

@@ -5,13 +5,13 @@ Returns the automatic mining status of the node.
 ## Import 
 
 ```ts
-import { getAutomine } from 'viem'
+import { getAutomine } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { getAutomine } from 'viem'
+import { getAutomine } from 'viem/test'
 import { testClient } from '.'
  
 const isAutomining = await getAutomine(testClient) // [!code focus]

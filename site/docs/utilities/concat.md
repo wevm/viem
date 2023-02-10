@@ -5,13 +5,13 @@ Concatenates a set of hex values or byte arrays.
 ## Install
 
 ```ts
-import { concat } from 'viem'
+import { concat } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { concat } from 'viem'
+import { concat } from 'viem/utils'
 
 concat(['0x00000069', '0x00000420'])
 // 0x0000006900000420

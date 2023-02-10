@@ -7,13 +7,13 @@ This Action will batch up all the pending transactions found within the [`pollin
 ## Import
 
 ```ts
-import { watchPendingTransactions } from 'viem'
+import { watchPendingTransactions } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { watchPendingTransactions } from 'viem'
+import { watchPendingTransactions } from 'viem/public'
 import { publicClient } from '.'
  
 const unwatch = watchPendingTransactions( // [!code focus:99]

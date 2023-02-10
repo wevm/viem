@@ -5,13 +5,13 @@ Returns the balance of an address in wei.
 ## Import
 
 ```ts
-import { getBalance } from 'viem'
+import { getBalance } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getBalance } from 'viem'
+import { getBalance } from 'viem/public'
 import { publicClient } from '.'
  
 const balance = await getBalance(publicClient, { // [!code focus:4]

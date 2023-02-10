@@ -5,13 +5,13 @@ Stop impersonating an account after having previously used [`impersonateAccount`
 ## Import 
 
 ```ts
-import { stopImpersonatingAccount } from 'viem'
+import { stopImpersonatingAccount } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { stopImpersonatingAccount } from 'viem'
+import { stopImpersonatingAccount } from 'viem/test'
 import { testClient } from '.'
  
 await stopImpersonatingAccount(testClient, { // [!code focus:4]

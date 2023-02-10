@@ -5,13 +5,13 @@ Requests that the user tracks the token in their wallet. Returns a boolean indic
 ## Usage
 
 ```ts
-import { watchAsset } from 'viem';
+import { watchAsset } from 'viem/wallet';
 ```
 
 ## Usage
 
 ```ts
-import { watchAsset } from 'viem';
+import { watchAsset } from 'viem/wallet';
 import { walletClient } from '.';
 
 await watchAsset(walletClient, {

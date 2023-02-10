@@ -5,13 +5,13 @@ Returns the details of all transactions currently pending for inclusion in the n
 ## Import 
 
 ```ts
-import { getTxpoolContent } from 'viem'
+import { getTxpoolContent } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { getTxpoolContent } from 'viem'
+import { getTxpoolContent } from 'viem/test'
 import { testClient } from '.'
  
 const content = await getTxpoolContent(testClient) // [!code focus]

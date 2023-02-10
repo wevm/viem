@@ -7,7 +7,7 @@ The opposite of [`encodeDeployData`](/docs/contract/encodeDeployData).
 ## Install
 
 ```ts
-import { decodeDeployData } from 'viem'
+import { decodeDeployData } from 'viem/contract'
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ import { decodeDeployData } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { decodeFunctionData } from 'viem'
+import { decodeFunctionData } from 'viem/contract'
 
 const { args } = decodeFunctionData({
   abi: wagmiAbi,

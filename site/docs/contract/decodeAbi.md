@@ -7,7 +7,7 @@ The `decodeAbi` function is used by the other contract decoding utilities (ie. `
 ## Install
 
 ```ts
-import { decodeAbi } from 'viem'
+import { decodeAbi } from 'viem/contract'
 ```
 
 ## Usage
@@ -18,7 +18,7 @@ The `decodeAbi` function accepts:
 - the ABI encoded data (`data`) that correspond to the given `params`.
 
 ```ts
-import { decodeAbi } from 'viem'
+import { decodeAbi } from 'viem/contract'
 
 const values = decodeAbi({
   data: '0x0000000000000000000000000000000000000000000000000000000000010f2c',

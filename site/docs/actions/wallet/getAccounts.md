@@ -5,13 +5,13 @@ Returns a list of addresses owned by the wallet or client.
 ## Usage
 
 ```ts
-import { getAccounts } from 'viem'
+import { getAccounts } from 'viem/wallet'
 ```
 
 ## Usage
 
 ```ts
-import { getAccounts } from 'viem'
+import { getAccounts } from 'viem/wallet'
 import { walletClient } from '.'
  
 const accounts = await getAccounts(walletClient) // [!code focus:99]

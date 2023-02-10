@@ -7,13 +7,13 @@ This function is a re-export of `keccak_256` from [`@noble/hashes`](https://gith
 ## Install
 
 ```ts
-import { keccak256 } from 'viem'
+import { keccak256 } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { keccak256 } from 'viem'
+import { keccak256 } from 'viem/utils'
 
 keccak256(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 // 0x3ea2f1d0abf3fc66cf29eebb70cbd4e7fe762ef8a09bcc06c8edf641230afec0
@@ -45,7 +45,7 @@ The byte array to hash.
 The output type.
 
 ```ts
-import { keccak256 } from 'viem'
+import { keccak256 } from 'viem/utils'
 
 keccak256(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33],

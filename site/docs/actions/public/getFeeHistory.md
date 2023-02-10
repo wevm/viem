@@ -5,13 +5,13 @@ Returns a collection of historical gas information.
 ## Import
 
 ```ts
-import { getFeeHistory } from 'viem'
+import { getFeeHistory } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getFeeHistory } from 'viem'
+import { getFeeHistory } from 'viem/public'
 import { publicClient } from '.'
  
 const feeHistory = await getFeeHistory(publicClient, { // [!code focus:4]

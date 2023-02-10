@@ -7,7 +7,7 @@ The opposite of [`encodeFunctionData`](/docs/contract/encodeFunctionData).
 ## Install
 
 ```ts
-import { decodeFunctionData } from 'viem'
+import { decodeFunctionData } from 'viem/contract'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ Below is a very basic example of how to encode a function to calldata.
 ::: code-group
 
 ```ts [example.ts]
-import { decodeFunctionData } from 'viem'
+import { decodeFunctionData } from 'viem/contract'
 
 const { functionName } = decodeFunctionData({
   abi: wagmiAbi,
@@ -59,7 +59,7 @@ If your calldata includes argument(s) after the 4byte function signature, you ca
 ::: code-group
 
 ```ts {7} [example.ts]
-import { decodeFunctionData } from 'viem'
+import { decodeFunctionData } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

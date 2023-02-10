@@ -5,13 +5,13 @@ Impersonate an account or contract address. This lets you send transactions from
 ## Import 
 
 ```ts
-import { impersonateAccount } from 'viem'
+import { impersonateAccount } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { impersonateAccount } from 'viem'
+import { impersonateAccount } from 'viem/test'
 import { testClient } from '.'
  
 await impersonateAccount(testClient, { // [!code focus:4]

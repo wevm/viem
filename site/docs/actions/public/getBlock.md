@@ -5,13 +5,13 @@ Returns information about a block at a block number, hash or tag.
 ## Import
 
 ```ts
-import { getBlock } from 'viem'
+import { getBlock } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getBlock } from 'viem'
+import { getBlock } from 'viem/public'
 import { publicClient } from '.'
  
 const block = await getBlock(publicClient) // [!code focus:99]

@@ -5,13 +5,13 @@ Estimates the gas necessary to complete a transaction without submitting it to t
 ## Import
 
 ```ts
-import { estimateGas } from 'viem'
+import { estimateGas } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { estimateGas } from 'viem'
+import { estimateGas } from 'viem/public'
 import { publicClient } from '.'
  
 const gasEstimate = await estimateGas(publicClient, { // [!code focus:7]

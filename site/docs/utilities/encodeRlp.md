@@ -5,13 +5,13 @@ Encodes a hex value or byte array into a [Recursive-Length Prefix (RLP)](https:/
 ## Import
 
 ```ts
-import { encodeRlp } from 'viem'
+import { encodeRlp } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { encodeRlp } from 'viem'
+import { encodeRlp } from 'viem/utils'
 
 encodeRlp('0x123456789')
 // "0x850123456789"

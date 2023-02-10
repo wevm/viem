@@ -5,13 +5,13 @@ Resets the fork back to its original state.
 ## Import 
 
 ```ts
-import { reset } from 'viem'
+import { reset } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { reset } from 'viem'
+import { reset } from 'viem/test'
 import { testClient } from '.'
  
 await reset(testClient) // [!code focus]

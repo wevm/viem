@@ -5,7 +5,7 @@ Deploys a contract to the network, given bytecode & constructor arguments.
 ## Install
 
 ```ts
-import { deployContract } from 'viem'
+import { deployContract } from 'viem/contract'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { deployContract } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { deployContract } from 'viem'
+import { deployContract } from 'viem/contract'
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 
@@ -52,7 +52,7 @@ export const walletClient = createWalletClient({
 ::: code-group
 
 ```ts {7} [example.ts]
-import { deployContract } from 'viem'
+import { deployContract } from 'viem/contract'
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 

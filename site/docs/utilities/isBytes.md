@@ -5,13 +5,13 @@ Checks whether the value is a byte array or not.
 ## Install
 
 ```ts
-import { isBytes } from 'viem'
+import { isBytes } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { isBytes } from 'viem'
+import { isBytes } from 'viem/utils'
 
 isBytes(new Uint8Array([1, 69, 420]))
 // true

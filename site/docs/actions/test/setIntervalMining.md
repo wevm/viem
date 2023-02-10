@@ -5,13 +5,13 @@ Sets the automatic mining interval (in seconds) of blocks. Setting the interval 
 ## Import 
 
 ```ts
-import { setIntervalMining } from 'viem'
+import { setIntervalMining } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setIntervalMining } from 'viem'
+import { setIntervalMining } from 'viem/test'
 import { testClient } from '.'
  
 await setIntervalMining(testClient, { // [!code focus:4]

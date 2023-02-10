@@ -5,13 +5,13 @@ Creates, signs, and sends a new transaction to the network.
 ## Usage
 
 ```ts
-import { sendTransaction } from 'viem'
+import { sendTransaction } from 'viem/wallet'
 ```
 
 ## Usage
 
 ```ts
-import { sendTransaction } from 'viem'
+import { sendTransaction } from 'viem/wallet'
 import { walletClient } from '.'
  
 const hash = await sendTransaction(walletClient, { // [!code focus:99]

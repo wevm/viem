@@ -5,13 +5,13 @@ Converts numerical wei to a string representation of ether.
 ## Import
 
 ```ts
-import { formatEther } from 'viem'
+import { formatEther } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { formatEther } from 'viem'
+import { formatEther } from 'viem/utils'
 
 formatEther(1000000000000000000n) // [!code focus:2]
 // '1'

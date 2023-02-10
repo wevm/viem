@@ -5,13 +5,13 @@ Executes a new message call immediately without submitting a transaction to the 
 ## Import
 
 ```ts
-import { call } from 'viem'
+import { call } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { call } from 'viem'
+import { call } from 'viem/public'
 import { publicClient } from '.'
  
 const data = await call(publicClient, { // [!code focus:7]

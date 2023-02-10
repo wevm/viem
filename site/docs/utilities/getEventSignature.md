@@ -5,13 +5,13 @@ Returns the event signature for a given event definition.
 ## Install
 
 ```ts
-import { getEventSignature } from 'viem'
+import { getEventSignature } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { getEventSignature } from 'viem'
+import { getEventSignature } from 'viem/utils'
 
 const signature = getEventSignature('Transfer(address,address,uint256)')
 // 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef

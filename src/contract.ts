@@ -32,3 +32,34 @@ export {
   deployContract,
   writeContract,
 } from './actions/wallet'
+
+export type {
+  DecodeAbiArgs,
+  DecodeErrorResultArgs,
+  DecodeErrorResultResponse,
+  DecodeFunctionDataArgs,
+  DecodeFunctionResultArgs,
+  DecodeFunctionResultResponse,
+  EncodeAbiArgs,
+  EncodeDeployDataArgs,
+  EncodeErrorResultArgs,
+  EncodeEventTopicsArgs,
+  EncodeFunctionDataArgs,
+  EncodeFunctionResultArgs,
+  GetAbiItemArgs,
+} from './utils'
+export {
+  decodeAbi,
+  decodeErrorResult,
+  decodeFunctionData,
+  decodeFunctionResult,
+  encodeAbi,
+  encodeDeployData,
+  encodeErrorResult,
+  encodeEventTopics,
+  encodeFunctionData,
+  encodeFunctionResult,
+  formatAbiItemWithArgs,
+  formatAbiItem,
+  getAbiItem,
+} from './utils'

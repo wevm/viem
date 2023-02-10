@@ -5,13 +5,13 @@ Returns information about a block at a block number, hash or tag.
 ## Import
 
 ```ts
-import { getBlockTransactionCount } from 'viem'
+import { getBlockTransactionCount } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getBlockTransactionCount } from 'viem'
+import { getBlockTransactionCount } from 'viem/public'
 import { publicClient } from '.'
  
 const count = await getBlockTransactionCount(publicClient) // [!code focus:99]

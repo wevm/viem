@@ -5,7 +5,7 @@ Retrieves the bytecode at an address.
 ## Install
 
 ```ts
-import { getBytecode } from 'viem'
+import { getBytecode } from 'viem/contract'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { getBytecode } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { getBytecode } from 'viem'
+import { getBytecode } from 'viem/contract'
 import { publicClient } from './client'
 
 const bytecode = await getBytecode(publicClient, {

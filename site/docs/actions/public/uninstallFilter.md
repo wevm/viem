@@ -9,13 +9,13 @@ Destroys a Filter that was created from one of the following actions:
 ## Import
 
 ```ts
-import { uninstallFilter } from 'viem'
+import { uninstallFilter } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { createPendingTransactionFilter, uninstallFilter } from 'viem'
+import { createPendingTransactionFilter, uninstallFilter } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createPendingTransactionFilter(publicClient)
