@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, initialBlockNumber, publicClient } from '../../_test'
 
@@ -8,8 +8,14 @@ import { buildFilterTopics, createEventFilter } from './createEventFilter'
 describe('default', () => {
   test('no args', async () => {
     const filter = await createEventFilter(publicClient)
+    assertType<typeof filter>({
+      id: '0x',
+      type: 'event',
+    })
     expect(filter.id).toBeDefined()
     expect(filter.type).toBe('event')
+    expect(filter.args).toBeUndefined()
+    expect(filter.event).toBeUndefined()
   })
 
   test('args: address', async () => {
@@ -19,14 +25,24 @@ describe('default', () => {
   })
 
   test('args: event', async () => {
-    await createEventFilter(publicClient, {
+    const filter = await createEventFilter(publicClient, {
       event:
         'Transfer(address indexed from, address indexed to, uint256 value)',
     })
+    assertType<typeof filter>({
+      event:
+        'Transfer(address indexed from, address indexed to, uint256 value)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter.args).toBeUndefined()
+    expect(filter.event).toEqual(
+      'Transfer(address indexed from, address indexed to, uint256 value)',
+    )
   })
 
   test('args: args (named)', async () => {
-    await createEventFilter(publicClient, {
+    const filter = await createEventFilter(publicClient, {
       event:
         'Transfer(address indexed from, address indexed to, uint256 value)',
       args: {
@@ -34,39 +50,129 @@ describe('default', () => {
         to: accounts[0].address,
       },
     })
-    await createEventFilter(publicClient, {
+    assertType<typeof filter>({
+      args: {
+        from: accounts[0].address,
+        to: accounts[0].address,
+      },
+      event:
+        'Transfer(address indexed from, address indexed to, uint256 value)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter.args).toEqual({
+      from: accounts[0].address,
+      to: accounts[0].address,
+    })
+    expect(filter.event).toEqual(
+      'Transfer(address indexed from, address indexed to, uint256 value)',
+    )
+
+    const filter2 = await createEventFilter(publicClient, {
       event:
         'Transfer(address indexed from, address indexed to, uint256 value)',
       args: {
         from: accounts[0].address,
       },
     })
-    await createEventFilter(publicClient, {
+    assertType<typeof filter2>({
+      args: {
+        from: accounts[0].address,
+      },
+      event:
+        'Transfer(address indexed from, address indexed to, uint256 value)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter2.args).toEqual({
+      from: accounts[0].address,
+    })
+    expect(filter2.event).toEqual(
+      'Transfer(address indexed from, address indexed to, uint256 value)',
+    )
+
+    const filter3 = await createEventFilter(publicClient, {
       event:
         'Transfer(address indexed from, address indexed to, uint256 value)',
       args: {
         to: [accounts[0].address, accounts[1].address],
       },
     })
+    assertType<typeof filter3>({
+      args: {
+        to: [accounts[0].address, accounts[1].address],
+      },
+      event:
+        'Transfer(address indexed from, address indexed to, uint256 value)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter3.args).toEqual({
+      to: [accounts[0].address, accounts[1].address],
+    })
+    expect(filter3.event).toEqual(
+      'Transfer(address indexed from, address indexed to, uint256 value)',
+    )
   })
 
   test('args: args (unnamed)', async () => {
-    await createEventFilter(publicClient, {
+    const filter1 = await createEventFilter(publicClient, {
       event: 'Transfer(address indexed, address indexed, uint256)',
       args: [accounts[0].address, accounts[1].address],
     })
-    await createEventFilter(publicClient, {
+    assertType<typeof filter1>({
+      args: [accounts[0].address, accounts[1].address],
+      event: 'Transfer(address indexed, address indexed, uint256)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter1.args).toEqual([accounts[0].address, accounts[1].address])
+    expect(filter1.event).toEqual(
+      'Transfer(address indexed, address indexed, uint256)',
+    )
+
+    const filter2 = await createEventFilter(publicClient, {
       event: 'Transfer(address indexed, address indexed, uint256)',
       args: [[accounts[0].address, accounts[1].address]],
     })
-    await createEventFilter(publicClient, {
+    assertType<typeof filter2>({
+      args: [[accounts[0].address, accounts[1].address]],
+      event: 'Transfer(address indexed, address indexed, uint256)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter2.args).toEqual([[accounts[0].address, accounts[1].address]])
+    expect(filter2.event).toEqual(
+      'Transfer(address indexed, address indexed, uint256)',
+    )
+
+    const filter3 = await createEventFilter(publicClient, {
       event: 'Transfer(address indexed, address indexed, uint256)',
       args: [null, accounts[0].address],
     })
-    await createEventFilter(publicClient, {
+    assertType<typeof filter3>({
+      args: [null, accounts[0].address],
+      event: 'Transfer(address indexed, address indexed, uint256)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter3.args).toEqual([null, accounts[0].address])
+    expect(filter3.event).toEqual(
+      'Transfer(address indexed, address indexed, uint256)',
+    )
+
+    const filter4 = await createEventFilter(publicClient, {
       event: 'Transfer(address,address,uint256)',
       args: [],
     })
+    assertType<typeof filter4>({
+      args: [],
+      event: 'Transfer(address,address,uint256)',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter4.args).toEqual([])
+    expect(filter4.event).toEqual('Transfer(address,address,uint256)')
   })
 
   test('args: fromBlock', async () => {

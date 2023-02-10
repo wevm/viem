@@ -36,7 +36,7 @@ export type {
   FeeValuesLegacy,
 } from './fee'
 
-export type { Filter, FilterType } from './filter'
+export type { EventFilterArgs, Filter, FilterType } from './filter'
 
 export type { Formatter, Formatters } from './formatter'
 

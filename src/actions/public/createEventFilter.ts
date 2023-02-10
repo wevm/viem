@@ -6,7 +6,7 @@ import type {
   BlockNumber,
   BlockTag,
   EventDefinition,
-  ExtractArgsFromEventDefinition,
+  EventFilterArgs,
   Filter,
   LogTopic,
 } from '../../types'
@@ -16,42 +16,48 @@ import {
   extractFunctionName,
   extractFunctionParams,
   numberToHex,
-  getAbiItem,
 } from '../../utils'
 
-export type EventFilterArgs<TEventDefinition extends EventDefinition> =
-  ExtractArgsFromEventDefinition<TEventDefinition>
-
-export type CreateEventFilterArgs<TEventDefinition extends EventDefinition> = {
+export type CreateEventFilterArgs<
+  TEventDefinition extends EventDefinition | undefined,
+  TArgs extends
+    | EventFilterArgs<TEventDefinition>
+    | undefined = EventFilterArgs<TEventDefinition>,
+> = {
   address?: Address | Address[]
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
 } & (
   | {
+      args?: TArgs
       event: TEventDefinition
-      args?: EventFilterArgs<TEventDefinition>
     }
   | {
-      event?: never
       args?: never
+      event?: never
     }
 )
-export type CreateEventFilterResponse = Filter<'event'>
+export type CreateEventFilterResponse<
+  TEventDefinition extends EventDefinition | undefined = undefined,
+  TArgs extends EventFilterArgs<TEventDefinition> | undefined = undefined,
+> = Filter<'event', TEventDefinition, TArgs>
 
 export async function createEventFilter<
-  TEventDefinition extends EventDefinition,
+  TEventDefinition extends EventDefinition | undefined = undefined,
+  TArgs extends EventFilterArgs<TEventDefinition> | undefined = undefined,
 >(
   client: PublicClient,
   {
     address,
-    event,
     args,
+    event,
     fromBlock,
     toBlock,
-  }: CreateEventFilterArgs<TEventDefinition> = {},
-): Promise<CreateEventFilterResponse> {
+  }: CreateEventFilterArgs<TEventDefinition, TArgs> = {},
+): Promise<CreateEventFilterResponse<TEventDefinition, TArgs>> {
   let topics: LogTopic[] = []
-  if (event) topics = buildFilterTopics({ event, args })
+  if (event)
+    topics = buildFilterTopics({ event, args } as BuildFilterTopicsArgs)
   const id = await client.request({
     method: 'eth_newFilter',
     params: [
@@ -64,16 +70,24 @@ export async function createEventFilter<
       },
     ],
   })
-  return { id, type: 'event' }
+  return {
+    args,
+    event,
+    id,
+    type: 'event',
+  } as unknown as CreateEventFilterResponse<TEventDefinition, TArgs>
 }
 
-export function buildFilterTopics<TEventDefinition extends EventDefinition>({
-  event,
-  args,
-}: {
-  event: TEventDefinition
+export type BuildFilterTopicsArgs<
+  TEventDefinition extends EventDefinition = EventDefinition,
+> = {
   args?: EventFilterArgs<TEventDefinition>
-}) {
+  event: TEventDefinition
+}
+export function buildFilterTopics<TEventDefinition extends EventDefinition>({
+  args,
+  event,
+}: BuildFilterTopicsArgs<TEventDefinition>) {
   const eventName = extractFunctionName(event)!
   const abi = unstable_parseAbi(event)
   return encodeEventTopics({ abi, eventName, args } as EncodeEventTopicsArgs)
