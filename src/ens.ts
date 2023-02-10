@@ -1,4 +1,4 @@
-export { getEnsName } from './actions/ens'
+export { getEnsAddress, getEnsName } from './actions/ens'
 
 export {
   labelhash,

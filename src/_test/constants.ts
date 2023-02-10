@@ -44,8 +44,9 @@ export const accounts = [
 ] as const
 
 export const address = {
-  vitalik: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  burn: '0x0000000000000000000000000000000000000000',
   usdcHolder: '0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
+  vitalik: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
 } as const
 
 export const initialBlockNumber = BigInt(

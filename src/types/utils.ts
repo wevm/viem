@@ -45,6 +45,9 @@ type TrimRight<T, Chars extends string = ' '> = T extends `${infer R}${Chars}`
   ? TrimRight<R>
   : T
 
+// h/t https://twitter.com/mattpocockuk/status/1622730173446557697
+export type Prettify<T> = { [K in keyof T]: T[K] } & {}
+
 /**
  * @description Trims empty space from type T.
  *

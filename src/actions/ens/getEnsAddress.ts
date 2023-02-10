@@ -1,65 +1,82 @@
 import { PublicClient } from '../../clients'
-import type { Address } from '../../types'
-import { readContract } from '../public'
+import type { Address, Hex, Prettify } from '../../types'
+import { decodeFunctionResult, encodeFunctionData } from '../../utils'
+import { namehash, packetToBuffer } from '../../utils/ens'
+import { readContract, ReadContractArgs } from '../public'
 
-export type GetEnsNameArgs = {
-  /** Address to get ENS name for. */
-  address: Address
-  // TODO: Add block number, etc.
-}
+export type GetEnsAddressArgs = Prettify<
+  Pick<ReadContractArgs, 'blockNumber' | 'blockTag'> & {
+    /** ENS name to get address. */
+    name: string
+    /** Address of ENS Universal Resolver Contract */
+    universalResolverAddress: Address
+  }
+>
 
 /**
- * @description Gets primary name for specified address.
+ * @description Gets address for ENS name.
+ *
+ * - Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+ *
+ * @example
+ * const ensAddress = await getEnsAddress(publicClient, {
+ *   name: 'wagmi-dev.eth',
+ *   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
+ * })
+ * console.log(ensAddress) // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
-export async function getEnsName(
+export async function getEnsAddress(
   client: PublicClient,
-  { address }: GetEnsNameArgs,
+  { blockNumber, blockTag, name, universalResolverAddress }: GetEnsAddressArgs,
 ) {
-  const abi = [
-    {
-      name: 'reverse',
-      type: 'function',
-      stateMutability: 'view',
-      inputs: [{ type: 'bytes', name: 'reverseName' }],
-      outputs: [
-        { type: 'string', name: 'resolvedName' },
-        { type: 'address', name: 'resolvedAddress' },
-        { type: 'address', name: 'reverseResolver' },
-        { type: 'address', name: 'resolver' },
-      ],
-    },
-  ] as const
-  const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
   const res = await readContract(client, {
-    abi,
-    address: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
-    functionName: 'reverse',
-    args: [`0x${encode(reverseNode).toString('hex')}`],
+    address: universalResolverAddress,
+    abi: [
+      {
+        name: 'resolve',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [
+          { name: 'name', type: 'bytes' },
+          { name: 'data', type: 'bytes' },
+        ],
+        outputs: [
+          { name: '', type: 'bytes' },
+          { name: 'address', type: 'address' },
+        ],
+      },
+    ],
+    functionName: 'resolve',
+    args: [
+      `0x${packetToBuffer(name).toString('hex')}`,
+      encodeFunctionData({
+        abi: [
+          {
+            name: 'addr',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [{ name: 'name', type: 'bytes32' }],
+            outputs: [],
+          },
+        ],
+        functionName: 'addr',
+        args: [namehash(name)],
+      }),
+    ],
+    blockNumber,
+    blockTag,
   })
-  return res[0]
-}
-
-// adapted from https://github.com/mafintosh/dns-packet
-function encode(str: string) {
-  function encodingLength(n: string) {
-    if (n === '.' || n === '..') return 1
-    return Buffer.byteLength(n.replace(/^\.|\.$/gm, '')) + 2
-  }
-
-  const buf = Buffer.alloc(encodingLength(str))
-  let offset = 0
-
-  // strip leading and trailing .
-  const n = str.replace(/^\.|\.$/gm, '')
-  if (n.length) {
-    const list = n.split('.')
-
-    for (let i = 0; i < list.length; i++) {
-      const len = buf.write(list[i], offset + 1)
-      buf[offset] = len
-      offset += len + 1
-    }
-  }
-
-  return buf
+  return decodeFunctionResult({
+    abi: [
+      {
+        name: 'addr',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [],
+        outputs: [{ name: 'name', type: 'address' }],
+      },
+    ],
+    functionName: 'addr',
+    data: res[0],
+  })
 }
