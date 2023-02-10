@@ -1,6 +1,7 @@
 import { PublicClient } from '../../clients'
 import type { Address, Prettify } from '../../types'
-import { packetToBuffer } from '../../utils/ens'
+import { encodeHex } from '../../utils'
+import { packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractArgs } from '../public'
 
 export type GetEnsNameArgs = Prettify<
@@ -47,7 +48,7 @@ export async function getEnsName(
         },
       ],
       functionName: 'reverse',
-      args: [`0x${packetToBuffer(reverseNode).toString('hex')}`],
+      args: [encodeHex(packetToBytes(reverseNode))],
       blockNumber,
       blockTag,
     })

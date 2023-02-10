@@ -1,7 +1,11 @@
 import { PublicClient } from '../../clients'
-import type { Address, Hex, Prettify } from '../../types'
-import { decodeFunctionResult, encodeFunctionData } from '../../utils'
-import { namehash, packetToBuffer } from '../../utils/ens'
+import type { Address, Prettify } from '../../types'
+import {
+  decodeFunctionResult,
+  encodeFunctionData,
+  encodeHex,
+} from '../../utils'
+import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractArgs } from '../public'
 
 export type GetEnsAddressArgs = Prettify<
@@ -48,7 +52,7 @@ export async function getEnsAddress(
     ],
     functionName: 'resolve',
     args: [
-      `0x${packetToBuffer(name).toString('hex')}`,
+      encodeHex(packetToBytes(name)),
       encodeFunctionData({
         abi: [
           {
