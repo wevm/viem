@@ -1,3 +1,4 @@
+// Adapted from https://github.com/mafintosh/dns-packet
 import { ByteArray } from '../../types'
 import { encodeBytes } from '../encoding'
 
@@ -5,7 +6,6 @@ import { encodeBytes } from '../encoding'
  * @description Encodes a DNS packet into a ByteArray containing a UDP payload.
  */
 export function packetToBytes(packet: string): ByteArray {
-  // Adapted from https://github.com/mafintosh/dns-packet
   function length(value: string) {
     if (value === '.' || value === '..') return 1
     return encodeBytes(value.replace(/^\.|\.$/gm, '')).length + 2

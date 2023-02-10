@@ -45,8 +45,17 @@ type TrimRight<T, Chars extends string = ' '> = T extends `${infer R}${Chars}`
   ? TrimRight<R>
   : T
 
-// h/t https://twitter.com/mattpocockuk/status/1622730173446557697
-export type Prettify<T> = { [K in keyof T]: T[K] } & {}
+/**
+ * @description Combines members of an intersection into a readable type.
+ *
+ * @link https://twitter.com/mattpocockuk/status/1622730173446557697?s=20&t=NdpAcmEFXY01xkqU3KO0Mg
+ * @example
+ * Prettify<{ a: string } | { b: string } | { c: number, d: bigint }>
+ * => { a: string, b: string, c: number, d: bigint }
+ */
+export type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {}
 
 /**
  * @description Trims empty space from type T.

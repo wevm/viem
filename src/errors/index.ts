@@ -24,6 +24,8 @@ export { BaseError } from './base'
 
 export { BlockNotFoundError } from './block'
 
+export { ChainDoesNotSupportContract } from './chain'
+
 export {
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,

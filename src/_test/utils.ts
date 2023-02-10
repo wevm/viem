@@ -7,7 +7,7 @@ import {
   getTransactionReceipt,
   mine,
 } from '../actions'
-import { Chain, localhost } from '../chains'
+import { Chain, localhost, mainnet } from '../chains'
 import {
   createPublicClient,
   createTestClient,
@@ -27,15 +27,20 @@ import type { AddressInfo } from 'net'
 import { baycContractConfig } from './abis'
 import { Hex } from '../types'
 
+const anvil = {
+  ...localhost,
+  contracts: mainnet.contracts,
+} as const satisfies Chain
+
 export const publicClient =
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
     ? createPublicClient({
-        chain: localhost,
+        chain: anvil,
         pollingInterval: 1_000,
         transport: webSocket(localWsUrl),
       })
     : createPublicClient({
-        chain: localhost,
+        chain: anvil,
         pollingInterval: 1_000,
         transport: http(),
       })
@@ -86,7 +91,7 @@ export const walletClient = createWalletClient({
           },
         ]
 
-      const { result } = await rpc.http(localhost.rpcUrls.default.http[0], {
+      const { result } = await rpc.http(anvil.rpcUrls.default.http[0], {
         body: {
           method,
           params,
@@ -98,7 +103,7 @@ export const walletClient = createWalletClient({
 })
 
 export const testClient = createTestClient({
-  chain: localhost,
+  chain: anvil,
   mode: 'anvil',
   transport: http(),
 })

@@ -10,7 +10,7 @@ export default defineConfig({
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: ['**/dist/**', '**/*.test.ts', '**/_test/**'],
     },
-    environment: 'jsdom',
+    environment: 'node',
     setupFiles: ['./src/_test/setup.ts'],
     globalSetup: ['./src/_test/globalSetup.ts'],
     testTimeout: 10_000,

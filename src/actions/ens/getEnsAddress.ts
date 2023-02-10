@@ -1,4 +1,5 @@
 import { PublicClient } from '../../clients'
+import { ChainDoesNotSupportContract } from '../../errors'
 import type { Address, Prettify } from '../../types'
 import {
   decodeFunctionResult,
@@ -13,7 +14,7 @@ export type GetEnsAddressArgs = Prettify<
     /** ENS name to get address. */
     name: string
     /** Address of ENS Universal Resolver Contract */
-    universalResolverAddress: Address
+    universalResolverAddress?: Address
   }
 >
 
@@ -27,12 +28,48 @@ export type GetEnsAddressArgs = Prettify<
  *   name: 'wagmi-dev.eth',
  *   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
  * })
- * console.log(ensAddress) // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+ * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
 export async function getEnsAddress(
   client: PublicClient,
-  { blockNumber, blockTag, name, universalResolverAddress }: GetEnsAddressArgs,
+  {
+    blockNumber,
+    blockTag,
+    name,
+    universalResolverAddress: universalResolverAddress_,
+  }: GetEnsAddressArgs,
 ) {
+  let universalResolverAddress = universalResolverAddress_
+  if (!universalResolverAddress) {
+    if (!client.chain)
+      throw new Error(
+        'client chain not configured. universalResolverAddress is required.',
+      )
+
+    const contract = client.chain?.contracts?.ensUniversalResolver
+    if (!contract)
+      throw new ChainDoesNotSupportContract({
+        chain: client.chain,
+        contract: { name: 'ensUniversalResolver' },
+      })
+
+    if (
+      blockNumber &&
+      contract.blockCreated &&
+      contract.blockCreated > blockNumber
+    )
+      throw new ChainDoesNotSupportContract({
+        blockNumber,
+        chain: client.chain,
+        contract: {
+          name: 'ensUniversalResolver',
+          blockCreated: contract.blockCreated,
+        },
+      })
+
+    universalResolverAddress = contract.address
+  }
+
   const res = await readContract(client, {
     address: universalResolverAddress,
     abi: [
