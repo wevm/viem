@@ -26,7 +26,6 @@ export type GetEnsAddressArgs = Prettify<
  * @example
  * const ensAddress = await getEnsAddress(publicClient, {
  *   name: 'wagmi-dev.eth',
- *   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
  * })
  * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */

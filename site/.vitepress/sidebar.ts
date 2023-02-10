@@ -483,14 +483,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Actions',
           items: [
             {
-              text: 'getEnsAddress 🚧',
+              text: 'getEnsAddress',
               link: '/docs/ens/actions/getEnsAddress',
             },
-            { text: 'getEnsName 🚧', link: '/docs/ens/actions/getEnsName' },
-            {
-              text: 'getEnsResolver 🚧',
-              link: '/docs/ens/actions/getEnsResolver',
-            },
+            { text: 'getEnsName', link: '/docs/ens/actions/getEnsName' },
           ],
         },
         {
