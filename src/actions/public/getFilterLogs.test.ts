@@ -90,6 +90,7 @@ describe('events', () => {
     await mine(testClient, { blocks: 1 })
 
     let logs = await getFilterLogs(publicClient, { filter })
+    console.log(logs[0])
     assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })

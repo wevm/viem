@@ -1,11 +1,11 @@
-# decodeEventTopics
+# decodeEventLog
 
-Decodes ABI encoded event topics into an event name and arguments.
+Decodes ABI encoded event topics & data (from an [Event Log](/docs/glossary/terms#TODO)) into an event name and structured arguments (both indexed & non-indexed).
 
 ## Install
 
 ```ts
-import { decodeEventTopics } from 'viem'
+import { decodeEventLog } from 'viem'
 ```
 
 ## Usage
@@ -13,10 +13,11 @@ import { decodeEventTopics } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { decodeEventTopics } from 'viem'
+import { decodeEventLog } from 'viem'
 
-const topics = decodeEventTopics({
+const topics = decodeEventLog({
   abi: wagmiAbi,
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001',
   topics: [
     '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
     '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
@@ -29,6 +30,7 @@ const topics = decodeEventTopics({
  *    args: {
  *      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
  *      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
+ *      value: 1n
  *    }
  *  }
  */
@@ -90,8 +92,9 @@ Decoded ABI event topics.
 The contract's ABI.
 
 ```ts
-const topics = decodeEventTopics({
+const topics = decodeEventLog({
   abi: wagmiAbi, // [!code focus]
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001',
   topics: [
     '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
     '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
@@ -104,12 +107,31 @@ const topics = decodeEventTopics({
 
 - **Type:** `[Hex, ...(Hex | Hex[] | null)[]]`
 
-A set of topics.
+A set of topics (encoded indexed args) from the [Event Log](/docs/glossary/terms#TODO).
 
 ```ts
-const topics = decodeEventTopics({
+const topics = decodeEventLog({
   abi: wagmiAbi,
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001',
   topics: [ // [!code focus:5]
+    '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
+    '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
+    '0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8'
+  ]
+})
+```
+
+### data (optional)
+
+- **Type:** `string`
+
+The data (encoded non-indexed args) from the [Event Log](/docs/glossary/terms#TODO).
+
+```ts
+const topics = decodeEventLog({
+  abi: wagmiAbi,
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+  topics: [
     '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
     '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
     '0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8'
@@ -121,12 +143,12 @@ const topics = decodeEventTopics({
 
 - **Type:** `string`
 
-An event name from the ABI. Provide an `eventName` to infer the return type of `decodeEventTopics`.
+An event name from the ABI. Provide an `eventName` to infer the return type of `decodeEventLog`.
 
 ```ts
-const topics = decodeEventTopics({
+const topics = decodeEventLog({
   abi: wagmiAbi,
-  eventName: 'Transfer', // [!code focus:5]
+  eventName: 'Transfer', // [!code focus]
   topics: [
     '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
     '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 

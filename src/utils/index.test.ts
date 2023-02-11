@@ -16,7 +16,7 @@ test('exports utils', () => {
       "decodeAbi": [Function],
       "decodeBytes": [Function],
       "decodeErrorResult": [Function],
-      "decodeEventTopics": [Function],
+      "decodeEventLog": [Function],
       "decodeFunctionData": [Function],
       "decodeFunctionResult": [Function],
       "decodeHex": [Function],

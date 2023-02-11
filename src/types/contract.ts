@@ -80,7 +80,8 @@ export type AbiEventTopicToPrimitiveType<
 
 export type AbiEventTopicsToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
-  TTopics extends LogTopic[] = LogTopic[],
+  TTopics extends LogTopic[] | undefined = undefined,
+  TData extends Hex | undefined = undefined,
   TBase = TAbiParameters[0] extends { name: string } ? {} : [],
 > = Prettify<
   TAbiParameters extends readonly [infer Head, ...infer Tail]
@@ -97,7 +98,7 @@ export type AbiEventTopicsToPrimitiveTypes<
                   ? {}
                   : Tail extends readonly AbiParameter[]
                   ? TopicTail extends LogTopic[]
-                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail>
+                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
                     : {}
                   : {})
               : never
@@ -109,14 +110,41 @@ export type AbiEventTopicsToPrimitiveTypes<
                   ? []
                   : Tail extends readonly AbiParameter[]
                   ? TopicTail extends LogTopic[]
-                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail>
+                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
                     : []
                   : []),
               ]
           : TBase
         : TBase
+      : TTopics extends readonly []
+      ? TData extends Hex
+        ? Head extends AbiParameter
+          ? Head extends { indexed: true }
+            ? Tail extends readonly AbiParameter[]
+              ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+              : TBase
+            : Head extends { name: infer Name }
+            ? Name extends string
+              ? {
+                  [name in Name]: AbiParameterToPrimitiveType<Head>
+                } & (Tail extends readonly []
+                  ? {}
+                  : Tail extends readonly AbiParameter[]
+                  ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+                  : {})
+              : never
+            : [
+                AbiParameterToPrimitiveType<Head>,
+                ...(Tail extends readonly []
+                  ? []
+                  : Tail extends readonly AbiParameter[]
+                  ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+                  : []),
+              ]
+          : TBase
+        : TBase
       : TBase
-    : TBase
+    : undefined
 >
 
 export type ExtractArgsFromAbi<
@@ -227,26 +255,17 @@ export type ExtractEventArgsFromTopics<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
   TTopics extends LogTopic[],
+  TData extends Hex | undefined,
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },
-  TArgs = AbiEventTopicsToPrimitiveTypes<TAbiEvent['inputs'], TTopics>,
-  FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
-> = true extends FailedToParseArgs
-  ? {
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
-       */
-      args?: readonly unknown[]
-    }
-  : TTopics extends readonly []
-  ? { args?: never }
+  TArgs = AbiEventTopicsToPrimitiveTypes<TAbiEvent['inputs'], TTopics, TData>,
+> = TTopics extends readonly []
+  ? TData extends undefined
+    ? { args?: never }
+    : { args?: TArgs }
   : {
-      args: TArgs
+      args?: TArgs
     }
 
 export type ExtractErrorNameFromAbi<
@@ -432,15 +451,16 @@ type ExtractArgsFromDefinition<
   : 'Error: Invalid definition was provided.'
 
 export type ExtractArgsFromEventDefinition<
-  TDef,
-  TConfig extends ExtractArgsFromDefinitionConfig = { indexedOnly: true },
-> = ExtractArgsFromDefinition<TDef, TConfig> extends [...args: any]
-  ? ExtractArgsFromDefinition<TDef, TConfig> | []
-  : ExtractArgsFromDefinition<TDef, TConfig>
-
-export type ExtractArgsFromFunctionDefinition<TDef> = ExtractArgsFromDefinition<
-  TDef,
-  { indexedOnly: false }
+  TDef extends EventDefinition | undefined,
+  TConfig extends ExtractArgsFromDefinitionConfig = {
+    indexedOnly: true
+  },
+> = Prettify<
+  TDef extends EventDefinition
+    ? ExtractArgsFromDefinition<TDef, TConfig> extends [...args: any]
+      ? ExtractArgsFromDefinition<TDef, TConfig> | []
+      : ExtractArgsFromDefinition<TDef, TConfig>
+    : undefined
 >
 
 //////////////////////////////////////////////////////////////////////

@@ -8,10 +8,10 @@ export type {
 export { decodeErrorResult } from './decodeErrorResult'
 
 export type {
-  DecodeEventTopicsArgs,
-  DecodeEventTopicsResponse,
-} from './decodeEventTopics'
-export { decodeEventTopics } from './decodeEventTopics'
+  DecodeEventLogArgs,
+  DecodeEventLogResponse,
+} from './decodeEventLog'
+export { decodeEventLog } from './decodeEventLog'
 
 export type { DecodeFunctionDataArgs } from './decodeFunctionData'
 export { decodeFunctionData } from './decodeFunctionData'
