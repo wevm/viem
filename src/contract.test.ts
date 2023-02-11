@@ -15,6 +15,7 @@ test('exports contract actions', () => {
       "writeContract",
       "decodeAbi",
       "decodeErrorResult",
+      "decodeEventLog",
       "decodeFunctionData",
       "decodeFunctionResult",
       "encodeAbi",
