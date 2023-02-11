@@ -1,5 +1,5 @@
 ---
-"@fake-scope/fake-pkg": patch
+"viem": patch
 ---
 
 Added `decodeEventLog`.
