@@ -1,3 +1,0 @@
-# getEnsAddress
-
-TODO

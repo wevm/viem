@@ -1,3 +1,0 @@
-# getEnsAvatar
-
-TODO

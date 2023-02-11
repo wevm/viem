@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import WebSocket from 'isomorphic-ws'
 
 import { createHttpServer, initialBlockNumber, localWsUrl } from '../_test'
 

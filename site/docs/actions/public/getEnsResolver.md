@@ -1,3 +1,0 @@
-# getEnsResolver
-
-TODO

@@ -1,6 +1,6 @@
 import { Abi } from 'abitype'
 import { panicReasons } from '../constants'
-import { Address, Hex } from '../types'
+import { Address, Chain, Hex } from '../types'
 import {
   DecodeErrorResultResponse,
   decodeErrorResult,

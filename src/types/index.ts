@@ -78,6 +78,7 @@ export type {
 
 export type {
   PartialBy,
+  Prettify,
   MergeIntersectionProperties,
   OptionalNullable,
 } from './utils'

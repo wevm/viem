@@ -1,9 +1,6 @@
 import { Abi, Narrow } from 'abitype'
 
-import {
-  AbiEncodingLengthMismatchError,
-  AbiFunctionNotFoundError,
-} from '../../errors'
+import { AbiFunctionNotFoundError } from '../../errors'
 import { ExtractArgsFromAbi, ExtractFunctionNameFromAbi } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSignature } from '../hash'
