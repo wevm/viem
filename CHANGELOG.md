@@ -1,5 +1,24 @@
 # viem
 
+## 0.0.1-alpha.25
+
+### Patch Changes
+
+- [`6c902f8`](https://github.com/wagmi-dev/viem/commit/6c902f86e2067dcd366434722429fe873c8d6089) Thanks [@jxom](https://github.com/jxom)! - Added `decodeEventLog`.
+
+* [#68](https://github.com/wagmi-dev/viem/pull/68) [`1be77b3`](https://github.com/wagmi-dev/viem/commit/1be77b3e7f454ae6085daefe1f24ca9f757334f8) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed all public/wallet/test actions & utils from the `viem` entrypoint to their respective entrypoints:
+
+  - `viem` = Clients & Transport exports
+  - `viem/chains` = Chains exports
+  - `viem/contract` = Contract Actions & Utils exports
+  - `viem/ens` = ENS Actions & Utils exports
+  - `viem/public` = Public Actions exports
+  - `viem/test` = Test Actions exports
+  - `viem/utils` = Utils exports
+  - `viem/wallet` = Wallet Actions exports
+
+- [#66](https://github.com/wagmi-dev/viem/pull/66) [`f19fc32`](https://github.com/wagmi-dev/viem/commit/f19fc329bd7bad7639824fcf65387be542facc83) Thanks [@tmm](https://github.com/tmm)! - Added ENS actions `getEnsAddress` and `getEnsName`.
+
 ## 0.0.1-alpha.24
 
 ### Patch Changes
