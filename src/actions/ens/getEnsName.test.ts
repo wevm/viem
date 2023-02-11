@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { localhost, mainnet, optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
-import { address, publicClient } from '../../_test'
+import { address, localHttpUrl, publicClient } from '../../_test'
 
 import { getEnsName } from './getEnsName'
 
@@ -29,6 +29,19 @@ test('custom universal resolver address', async () => {
       universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
     }),
   ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
+})
+
+test('chain not provided', async () => {
+  await expect(
+    getEnsName(
+      createPublicClient({
+        transport: http(localHttpUrl),
+      }),
+      { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' },
+    ),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '"client chain not configured. universalResolverAddress is required."',
+  )
 })
 
 test('universal resolver contract not configured for chain', async () => {

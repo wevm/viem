@@ -8,7 +8,7 @@ test('exports utils', () => {
       "labelhash": [Function],
       "namehash": [Function],
       "normalize": [Function],
-      "packetToBuffer": [Function],
+      "packetToBytes": [Function],
     }
   `)
 })

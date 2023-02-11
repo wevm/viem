@@ -7,7 +7,7 @@ Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" t
 ## Import
 
 ```ts
-import { getEnsName } from 'viem'
+import { getEnsName } from 'viem/ens'
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ import { getEnsName } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { getEnsName } from 'viem'
+import { getEnsName } from 'viem/ens'
 import { publicClient } from './client'
  
 const ensName = await getEnsName(publicClient, {

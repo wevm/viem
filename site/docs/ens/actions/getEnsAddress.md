@@ -7,7 +7,7 @@ Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract to resolve the 
 ## Import
 
 ```ts
-import { getEnsAddress } from 'viem'
+import { getEnsAddress } from 'viem/ens'
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ import { getEnsAddress } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { getEnsAddress } from 'viem'
+import { getEnsAddress } from 'viem/ens'
 import { publicClient } from './client'
  
 const ensAddress = await getEnsAddress(publicClient, {

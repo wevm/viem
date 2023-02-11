@@ -36,10 +36,10 @@ test('ChainDoesNotSupportContract', () => {
       contract: { name: 'ensUniversalResolver', blockCreated: 16172161 },
     }),
   ).toMatchInlineSnapshot(`
-    [ChainDoesNotSupportContract: Chain "Ethereum" does not support contract "ensUniversalResolver" on block 16172160.
+    [ChainDoesNotSupportContract: Chain "Ethereum" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The chain does not have the contract "ensUniversalResolver" configured.
+    - The contract "ensUniversalResolver" was not deployed until block 16172161 (current block 16172160).
 
     Version: viem@1.0.2]
   `)
