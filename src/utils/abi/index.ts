@@ -7,6 +7,12 @@ export type {
 } from './decodeErrorResult'
 export { decodeErrorResult } from './decodeErrorResult'
 
+export type {
+  DecodeEventLogArgs,
+  DecodeEventLogResponse,
+} from './decodeEventLog'
+export { decodeEventLog } from './decodeEventLog'
+
 export type { DecodeFunctionDataArgs } from './decodeFunctionData'
 export { decodeFunctionData } from './decodeFunctionData'
 

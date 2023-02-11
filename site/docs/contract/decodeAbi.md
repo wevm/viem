@@ -2,7 +2,7 @@
 
 Decodes ABI encoded data using the [ABI specification](https://solidity.readthedocs.io/en/latest/abi-spec.html), given a set of ABI parameters (`inputs`/`outputs`) and the encoded ABI data.
 
-The `decodeAbi` function is used by the other contract decoding utilities (ie. `decodeFunctionData`, `decodeEventTopics`, etc).
+The `decodeAbi` function is used by the other contract decoding utilities (ie. `decodeFunctionData`, `decodeEventLog`, etc).
 
 ## Install
 
