@@ -28,12 +28,12 @@
     "typecheck": "tsc --noEmit"
   },
   "files": [
+    "/dist",
     "/chains",
     "/contract",
-    "/dist",
     "/ens",
-    "/src",
-    "/types",
+    "/public",
+    "/test",
     "/utils",
     "/wallet",
     "/window"
