@@ -5,7 +5,7 @@ Creates a Filter to listen for new events that can be used with [`getFilterChang
 ## Import
 
 ```ts
-import { createEventFilter } from 'viem'
+import { createEventFilter } from 'viem/public'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { createEventFilter } from 'viem'
 By default, an Event Filter with no arguments will query for/listen to all events.
 
 ```ts
-import { createEventFilter } from 'viem'
+import { createEventFilter } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createEventFilter(publicClient)

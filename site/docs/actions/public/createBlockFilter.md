@@ -5,13 +5,13 @@ Creates a Filter to listen for new block hashes that can be used with [`getFilte
 ## Import
 
 ```ts
-import { createBlockFilter } from 'viem'
+import { createBlockFilter } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { createBlockFilter } from 'viem'
+import { createBlockFilter } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createBlockFilter(publicClient) // [!code focus:99]

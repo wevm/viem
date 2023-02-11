@@ -5,13 +5,13 @@ Mine a specified number of blocks.
 ## Import 
 
 ```ts
-import { mine } from 'viem'
+import { mine } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { mine } from 'viem'
+import { mine } from 'viem/test'
 import { testClient } from '.'
  
 await mine(testClient, { // [!code focus:4]

@@ -5,7 +5,7 @@ Watches and returns information for incoming blocks.
 ## Import
 
 ```ts
-import { watchBlocks } from 'viem'
+import { watchBlocks } from 'viem/public'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { watchBlocks } from 'viem'
 Pass through your Public Client, along with a listener.
 
 ```ts
-import { watchBlocks } from 'viem'
+import { watchBlocks } from 'viem/public'
 import { publicClient } from '.'
  
 const unwatch = watchBlocks( // [!code focus:99]

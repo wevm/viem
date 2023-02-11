@@ -5,13 +5,13 @@ Modifies the bytecode stored at an account's address.
 ## Import 
 
 ```ts
-import { setCode } from 'viem'
+import { setCode } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setCode } from 'viem'
+import { setCode } from 'viem/test'
 import { testClient } from '.'
  
 await setCode(testClient, { // [!code focus:4]

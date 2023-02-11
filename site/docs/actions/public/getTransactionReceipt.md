@@ -5,13 +5,13 @@ Returns the transaction receipt given a transaction hash.
 ## Import
 
 ```ts
-import { getTransactionReceipt } from 'viem'
+import { getTransactionReceipt } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getTransactionReceipt } from 'viem'
+import { getTransactionReceipt } from 'viem/public'
 import { publicClient } from '.'
  
 const transaction = await getTransactionReceipt(publicClient, { // [!code focus:99]

@@ -5,7 +5,7 @@ Decodes reverted error from a contract function call.
 ## Install
 
 ```ts
-import { decodeErrorResult } from 'viem'
+import { decodeErrorResult } from 'viem/contract'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { decodeErrorResult } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { decodeErrorResult } from 'viem'
+import { decodeErrorResult } from 'viem/contract'
 
 const value = decodeErrorResult({
   abi: wagmiAbi,

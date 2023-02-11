@@ -5,13 +5,13 @@ Multiplies a string representation of a number by a given exponent of base 10 (1
 ## Import
 
 ```ts
-import { parseUnit } from 'viem'
+import { parseUnit } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { parseUnit } from 'viem'
+import { parseUnit } from 'viem/utils'
 
 parseUnit('420', 9) // [!code focus:2]
 // 420000000000n

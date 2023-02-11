@@ -5,7 +5,7 @@ Similar to [`readContract`](/docs/contract/readContract), but batches up & contr
 ## Import
 
 ```ts
-import { multicall } from 'viem'
+import { multicall } from 'viem/contract'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { multicall } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { readContract } from 'viem'
+import { multicall } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

@@ -7,13 +7,13 @@ Takes a byte array or hex value as the `data` argument.
 ## Usage
 
 ```ts
-import { signMessage } from 'viem'
+import { signMessage } from 'viem/wallet'
 ```
 
 ## Usage
 
 ```ts
-import { signMessage } from 'viem'
+import { signMessage } from 'viem/wallet'
 import { walletClient } from '.'
  
 const message = await signMessage(walletClient, { // [!code focus:99]

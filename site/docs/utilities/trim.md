@@ -5,7 +5,7 @@ Trims the leading or trailing zeros from a hex value or byte array.
 ## Install
 
 ```ts
-import { trim } from 'viem'
+import { trim } from 'viem/utils'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { trim } from 'viem'
 By default, `trim` will trim the leading zeros from a hex value or byte array.
 
 ```ts
-import { trim } from 'viem'
+import { trim } from 'viem/utils'
 
 trim('0x00000000000000000000000000000000000000000000000000000000a4e12a45')
 // 0xa4e12a45

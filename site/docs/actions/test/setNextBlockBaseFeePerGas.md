@@ -5,13 +5,13 @@ Sets the next block's base fee per gas.
 ## Import 
 
 ```ts
-import { setNextBlockBaseFeePerGas } from 'viem'
+import { setNextBlockBaseFeePerGas } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setNextBlockBaseFeePerGas } from 'viem'
+import { setNextBlockBaseFeePerGas } from 'viem/test'
 import { testClient } from '.'
  
 await setNextBlockBaseFeePerGas(testClient, { // [!code focus:4]

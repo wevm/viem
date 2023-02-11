@@ -5,13 +5,13 @@ Creates a Filter to listen for new pending transaction hashes that can be used w
 ## Import
 
 ```ts
-import { createPendingTransactionFilter } from 'viem'
+import { createPendingTransactionFilter } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { createPendingTransactionFilter } from 'viem'
+import { createPendingTransactionFilter } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createPendingTransactionFilter(publicClient) // [!code focus:99]

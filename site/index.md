@@ -109,8 +109,9 @@ yarn add viem
 
 ```ts
 // 1. Import modules.
-import { createPublicClient, getBlockNumber, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { getBlockNumber } from 'viem/public'
 
 // 2. Set up your client with desired chain & transport.
 const client = createPublicClient({

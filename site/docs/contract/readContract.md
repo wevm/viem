@@ -9,7 +9,7 @@ Internally, `readContract` uses a [Public Client](/docs/clients/public) to call 
 ## Import
 
 ```ts
-import { readContract } from 'viem'
+import { readContract } from 'viem/contract'
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ Below is a very basic example of how to call a read-only function on a contract 
 ::: code-group
 
 ```ts [example.ts]
-import { readContract } from 'viem'
+import { readContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -68,7 +68,7 @@ For example, the `balanceOf` function name below requires an **address** argumen
 ::: code-group
 
 ```ts {9} [example.ts]
-import { readContract } from 'viem'
+import { readContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

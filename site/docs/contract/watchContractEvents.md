@@ -7,7 +7,7 @@ This Action will batch up all the event logs found within the [`pollingInterval`
 ## Import
 
 ```ts
-import { watchContractEvent } from 'viem'
+import { watchContractEvent } from 'viem/contract'
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ import { watchContractEvent } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { watchContractEvent } from 'viem'
+import { watchContractEvent } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -48,7 +48,7 @@ You can scope to an event on the given ABI.
 ::: code-group
 
 ```ts {8} [example.ts]
-import { watchContractEvent } from 'viem'
+import { watchContractEvent } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -110,7 +110,7 @@ In the example below, we want to filter out `Transfer`s that were sent by the ad
 ::: code-group
 
 ```ts {9} [example.ts]
-import { watchContractEvent } from 'viem'
+import { watchContractEvent } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

@@ -3,20 +3,17 @@ import { Abi, Narrow } from 'abitype'
 import type { PublicClient } from '../../clients'
 import { BaseError } from '../../errors'
 import type {
-  Address,
   Chain,
   ContractConfig,
-  ExtractArgsFromAbi,
   ExtractResultFromAbi,
-  ExtractFunctionNameFromAbi,
   GetValue,
 } from '../../types'
 import {
+  DecodeFunctionResultArgs,
   EncodeFunctionDataArgs,
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
-  DecodeFunctionResultArgs,
 } from '../../utils'
 import { WriteContractArgs } from '../wallet'
 import { call, CallArgs } from './call'

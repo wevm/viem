@@ -5,13 +5,13 @@ Returns a summary of all the transactions currently pending for inclusion in the
 ## Import 
 
 ```ts
-import { inspectTxpool } from 'viem'
+import { inspectTxpool } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { inspectTxpool } from 'viem'
+import { inspectTxpool } from 'viem/test'
 import { testClient } from '.'
  
 const data = await inspectTxpool(testClient) // [!code focus]

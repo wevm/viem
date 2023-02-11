@@ -9,7 +9,7 @@ Internally, `simulateContract` uses a [Public Client](/docs/clients/public) to c
 ## Import
 
 ```ts
-import { simulateContract } from 'viem'
+import { simulateContract } from 'viem/contract'
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ The `mint` function accepts no arguments, and returns a token ID.
 ::: code-group
 
 ```ts [example.ts]
-import { simulateContract } from 'viem'
+import { simulateContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -71,7 +71,7 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { simulateContract } from 'viem'
+import { simulateContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -120,7 +120,7 @@ In the example below, we are **validating** if the contract write will be succes
 ::: code-group
 
 ```ts [example.ts]
-import { simulateContract } from 'viem'
+import { simulateContract } from 'viem/contract'
 import { walletClient, publicClient } from './client'
 import { wagmiAbi } from './abi'
 

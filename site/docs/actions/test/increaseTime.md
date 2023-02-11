@@ -5,13 +5,13 @@ Jump forward in time by the given amount of time, in seconds.
 ## Import 
 
 ```ts
-import { increaseTime } from 'viem'
+import { increaseTime } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { increaseTime } from 'viem'
+import { increaseTime } from 'viem/test'
 import { testClient } from '.'
  
 await increaseTime(testClient, { // [!code focus:4]

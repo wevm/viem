@@ -4,7 +4,6 @@ export {
   createContractEventFilter,
   createEventFilter,
   createPendingTransactionFilter,
-  deployContract,
   estimateGas,
   getBalance,
   getBlock,
@@ -43,8 +42,6 @@ export type {
   CreateEventFilterArgs,
   CreateEventFilterResponse,
   CreatePendingTransactionFilterResponse,
-  DeployContractArgs,
-  DeployContractResponse,
   EstimateGasArgs,
   EstimateGasResponse,
   GetBalanceArgs,
@@ -156,6 +153,7 @@ export type {
 
 export {
   addChain,
+  deployContract,
   getAccounts,
   getPermissions,
   requestAccounts,
@@ -167,6 +165,8 @@ export {
   writeContract,
 } from './wallet'
 export type {
+  DeployContractArgs,
+  DeployContractResponse,
   FormattedTransactionRequest,
   GetPermissionsResponse,
   RequestPermissionsResponse,

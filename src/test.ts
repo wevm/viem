@@ -25,6 +25,7 @@ export {
   setNonce,
   setStorageAt,
   snapshot,
+  setRpcUrl,
   stopImpersonatingAccount,
 } from './actions/test'
 export type {

@@ -5,13 +5,13 @@ Adds an EVM chain to the wallet.
 ## Usage
 
 ```ts
-import { addChain } from 'viem'
+import { addChain } from 'viem/wallet'
 ```
 
 ## Usage
 
 ```ts
-import { addChain } from 'viem'
+import { addChain } from 'viem/wallet'
 import { avalanche } from 'viem/chains'
 import { walletClient } from '.'
  

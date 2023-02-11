@@ -5,13 +5,13 @@ Sets the coinbase address to be used in new blocks.
 ## Import 
 
 ```ts
-import { setCoinbase } from 'viem'
+import { setCoinbase } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setCoinbase } from 'viem'
+import { setCoinbase } from 'viem/test'
 import { testClient } from '.'
  
 await setCoinbase(testClient, { // [!code focus:99]

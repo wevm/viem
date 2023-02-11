@@ -15,7 +15,7 @@ The `writeContract` internally sends a transaction – it **does not** validate 
 ## Import
 
 ```ts
-import { writeContract } from 'viem'
+import { writeContract } from 'viem/contract'
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ While you can use `writeContract` [by itself](#standalone), it is highly recomme
 ::: code-group
 
 ```ts [example.ts]
-import { writeContract } from 'viem'
+import { writeContract } from 'viem/contract'
 import { publicClient, walletClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -76,7 +76,7 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { writeContract } from 'viem'
+import { writeContract } from 'viem/contract'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -122,7 +122,7 @@ If you don't need to perform validation on the contract write, you can also use 
 ::: code-group
 
 ```ts [example.ts]
-import { writeContract } from 'viem'
+import { writeContract } from 'viem/contract'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 

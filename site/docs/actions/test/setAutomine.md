@@ -5,13 +5,13 @@ Enables or disables the automatic mining of new blocks with each new transaction
 ## Import 
 
 ```ts
-import { setAutomine } from 'viem'
+import { setAutomine } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setAutomine } from 'viem'
+import { setAutomine } from 'viem/test'
 import { testClient } from '.'
  
 await setAutomine(testClient, true) // [!code focus]

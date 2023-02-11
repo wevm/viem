@@ -5,13 +5,13 @@ Returns the number of blocks passed (confirmations) since the transaction was pr
 ## Import
 
 ```ts
-import { getTransactionConfirmations } from 'viem'
+import { getTransactionConfirmations } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getTransactionConfirmations } from 'viem'
+import { getTransactionConfirmations } from 'viem/public'
 import { publicClient } from '.'
  
 const transactionReceipt = await getTransactionReceipt(publicClient, { hash: '...' })
@@ -25,7 +25,7 @@ const confirmations = await getTransactionConfirmations(publicClient, {  // [!co
 You can also fetch confirmations by Transaction hash:
 
 ```ts
-import { getTransactionConfirmations } from 'viem'
+import { getTransactionConfirmations } from 'viem/public'
 import { publicClient } from '.'
 
 const confirmations = await getTransactionConfirmations(publicClient, {  // [!code focus:99]

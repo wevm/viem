@@ -7,13 +7,13 @@ Note: `getFilterChanges` is only compatible with **events**.
 ## Import
 
 ```ts
-import { getFilterLogs } from 'viem'
+import { getFilterLogs } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { createEventFilter, getFilterLogs } from 'viem'
+import { createEventFilter, getFilterLogs } from 'viem/public'
 import { publicClient } from '.'
 
 const filter = await createEventFilter(publicClient, { // [!code focus:99]

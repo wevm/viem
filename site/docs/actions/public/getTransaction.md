@@ -5,13 +5,13 @@ Returns information about a transaction given a hash or block identifier.
 ## Import
 
 ```ts
-import { getTransaction } from 'viem'
+import { getTransaction } from 'viem/public'
 ```
 
 ## Usage
 
 ```ts
-import { getTransaction } from 'viem'
+import { getTransaction } from 'viem/public'
 import { publicClient } from '.'
  
 const transaction = await getTransaction(publicClient, { // [!code focus:99]

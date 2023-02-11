@@ -5,13 +5,13 @@ Converts a string representation of ether to numerical wei.
 ## Import
 
 ```ts
-import { parseEther } from 'viem'
+import { parseEther } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { parseEther } from 'viem'
+import { parseEther } from 'viem/utils'
 
 parseEther('420') // [!code focus:2]
 // 420000000000000000000n

@@ -7,7 +7,7 @@ The `encodeAbi` function is used by the other contract encoding utilities (ie. `
 ## Import
 
 ```ts
-import { encodeAbi } from 'viem'
+import { encodeAbi } from 'viem/contract'
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ The `encodeAbi` function accepts:
 
 
 ```ts
-import { encodeAbi } from 'viem'
+import { encodeAbi } from 'viem/contract'
 
 const encodedData = encodeAbi({
   params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }],

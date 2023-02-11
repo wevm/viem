@@ -5,13 +5,13 @@ Similar to [`increaseTime`](/docs/actions/test/increaseTime), but sets a block t
 ## Import 
 
 ```ts
-import { setBlockTimestampInterval } from 'viem'
+import { setBlockTimestampInterval } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setBlockTimestampInterval } from 'viem'
+import { setBlockTimestampInterval } from 'viem/test'
 import { testClient } from '.'
  
 await setBlockTimestampInterval(testClient, { // [!code focus:4]

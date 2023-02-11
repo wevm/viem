@@ -25,12 +25,6 @@ export type {
   CreateContractEventFilterResponse,
 } from './createContractEventFilter'
 
-export { deployContract } from './deployContract'
-export type {
-  DeployContractArgs,
-  DeployContractResponse,
-} from './deployContract'
-
 export { estimateGas } from './estimateGas'
 export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
 
@@ -106,7 +100,7 @@ export type {
 } from './getTransactionReceipt'
 
 export { multicall } from './multicall'
-export type { MulticallArgs } from './multicall'
+export type { MulticallArgs, MulticallResponse } from './multicall'
 
 export { readContract } from './readContract'
 export type {

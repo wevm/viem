@@ -7,7 +7,7 @@ This Action will batch up all the Event Logs found within the [`pollingInterval`
 ## Import
 
 ```ts
-import { watchEvent } from 'viem'
+import { watchEvent } from 'viem/public'
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ These events will be batched up into [Event Logs](/docs/glossary/terms#TODO) and
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem'
+import { watchEvent } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -32,7 +32,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http } from 'viem/public'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -54,7 +54,7 @@ You can also scope `watchEvent` to a set of given attributes (listed below).
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem'
+import { watchEvent } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -68,7 +68,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http } from 'viem/public'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -86,7 +86,7 @@ export const publicClient = createPublicClient({
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem'
+import { watchEvent } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -101,7 +101,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http } from 'viem/public'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -119,7 +119,7 @@ export const publicClient = createPublicClient({
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem'
+import { watchEvent } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -138,7 +138,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http } from 'viem/public'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({

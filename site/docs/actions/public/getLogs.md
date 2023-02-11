@@ -5,7 +5,7 @@ Returns a list of **event** logs matching the provided parameters.
 ## Import
 
 ```ts
-import { getLogs } from 'viem'
+import { getLogs } from 'viem/public'
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ import { getLogs } from 'viem'
 By default, `getLogs` returns all events. In practice, you must use scoping to filter for specific events.
 
 ```ts
-import { getLogs } from 'viem'
+import { getLogs } from 'viem/public'
 import { publicClient } from '.'
 
 const logs = await getLogs(publicClient)  // [!code focus:99]
@@ -25,7 +25,7 @@ const logs = await getLogs(publicClient)  // [!code focus:99]
 You can also scope to a set of given attributes.
 
 ```ts
-import { getLogs } from 'viem'
+import { getLogs } from 'viem/public'
 import { publicClient } from '.'
 
 const logs = await getLogs(publicClient, {  // [!code focus:99]

@@ -5,13 +5,13 @@ Writes to a slot of an account's storage.
 ## Import 
 
 ```ts
-import { setStorageAt } from 'viem'
+import { setStorageAt } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { setStorageAt } from 'viem'
+import { setStorageAt } from 'viem/test'
 import { testClient } from '.'
  
 await setStorageAt(testClient, { // [!code focus:99]

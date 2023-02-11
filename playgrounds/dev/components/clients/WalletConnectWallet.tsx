@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import WalletConnectProvider from '@walletconnect/ethereum-provider'
+import { createWalletClient, custom } from 'viem'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
-import { createWalletClient, custom } from 'viem/clients'
 
 import { SendTransaction } from '../actions/SendTransaction'
 

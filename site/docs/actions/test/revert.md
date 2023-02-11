@@ -5,13 +5,13 @@ Revert the state of the blockchain at the current block.
 ## Import 
 
 ```ts
-import { revert } from 'viem'
+import { revert } from 'viem/test'
 ```
 
 ## Usage
 
 ```ts
-import { revert } from 'viem'
+import { revert } from 'viem/test'
 import { testClient } from '.'
  
 await revert(testClient, { // [!code focus:99]

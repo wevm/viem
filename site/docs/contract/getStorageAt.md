@@ -5,7 +5,7 @@ Returns the value from a storage slot at a given address.
 ## Import
 
 ```ts
-import { getStorageAt } from 'viem'
+import { getStorageAt } from 'viem/contract'
 ```
 
 ## Usage
@@ -13,7 +13,8 @@ import { getStorageAt } from 'viem'
 ::: code-group
 
 ```ts [example.ts]
-import { encodeHex, getStorageAt } from 'viem'
+import { getStorageAt } from 'viem/contract'
+import { encodeHex } from 'viem/utils'
 import { wagmiAbi } from './abi'
 import { publicClient } from './client'
 

@@ -5,8 +5,7 @@ import { parseEther } from '../../utils'
 import { mine, setBalance } from '../test'
 
 import { deployContract } from './deployContract'
-import { getTransactionReceipt } from './getTransactionReceipt'
-import { simulateContract } from './simulateContract'
+import { getTransactionReceipt } from '../public'
 
 test('default', async () => {
   const hash = await deployContract(walletClient, {
