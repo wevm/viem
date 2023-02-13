@@ -12,9 +12,9 @@ export type CustomTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the transport. */
   name?: TransportConfig['name']
-  /** The base delay (in ms) between retries. */
-  retryCount?: TransportConfig['retryCount']
   /** The max number of times to retry. */
+  retryCount?: TransportConfig['retryCount']
+  /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay']
 }
 

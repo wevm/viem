@@ -64,3 +64,29 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   name: 'Alchemy HTTP Provider', // [!code focus]
 })
 ```
+
+### retryCount (optional)
+
+- **Type:** `number`
+- **Default:** `3`
+
+The max number of times to retry when a request fails.
+
+```ts
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+  retryCount: 5, // [!code focus]
+})
+```
+
+### retryDelay (optional)
+
+- **Type:** `number`
+- **Default:** `150`
+
+The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
+
+```ts
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+  retryDelay: 100, // [!code focus]
+})
+```

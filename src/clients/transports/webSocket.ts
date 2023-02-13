@@ -33,9 +33,9 @@ export type WebSocketTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the WebSocket transport. */
   name?: TransportConfig['name']
-  /** The base delay (in ms) between retries. */
-  retryCount?: TransportConfig['retryCount']
   /** The max number of times to retry. */
+  retryCount?: TransportConfig['retryCount']
+  /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay']
 }
 
