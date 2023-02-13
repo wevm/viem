@@ -58,6 +58,17 @@ test('args: gasPrice', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
+test('args: nonce', async () => {
+  expect(
+    await estimateGas(publicClient, {
+      from: accounts[0].address,
+      to: accounts[1].address,
+      nonce: 69,
+      value: parseEther('1'),
+    }),
+  ).toMatchInlineSnapshot('21000n')
+})
+
 test('args: maxFeePerGas', async () => {
   expect(
     await estimateGas(publicClient, {

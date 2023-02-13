@@ -1,4 +1,6 @@
 export type {
+  EstimateContractGasArgs,
+  EstimateContractGasResponse,
   GetBytecodeArgs,
   GetBytecodeResponse,
   GetStorageAtArgs,
@@ -14,6 +16,7 @@ export type {
   WatchContractEventArgs,
 } from './actions/public'
 export {
+  estimateContractGas,
   getBytecode,
   getStorageAt,
   multicall,

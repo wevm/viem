@@ -34,7 +34,6 @@ test('custom formatter', async () => {
   })
 
   const { data } = await call(client, {
-    chain: celo,
     gatewayFee: numberToHex(1n),
     data: name4bytes,
     from: sourceAccount.address,

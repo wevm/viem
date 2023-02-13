@@ -390,6 +390,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/deployContract',
             },
             {
+              text: 'estimateContractGas',
+              link: '/docs/contract/estimateContractGas',
+            },
+            {
               text: 'getBytecode',
               link: '/docs/contract/getBytecode',
             },

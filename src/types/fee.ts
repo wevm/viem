@@ -1,18 +1,3 @@
-import type { Address, Hex } from './misc'
-
-export type EstimateGasParameters<TQuantity = bigint> = {
-  /** Contract code or a hashed method call with encoded args */
-  data?: Hex
-  /** Gas provided for transaction execution */
-  gas?: TQuantity
-  /** Transaction sender */
-  from?: Address
-  /** Transaction recipient */
-  to?: Address
-  /** Value in wei sent with this transaction */
-  value?: TQuantity
-} & Partial<FeeValues<TQuantity>>
-
 export type FeeHistory<TQuantity = bigint> = {
   /**
    * An array of block base fees per gas (in wei). This includes the next block after

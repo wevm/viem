@@ -2,11 +2,7 @@ import { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
 import { BaseError } from '../../errors'
-import type {
-  ContractConfig,
-  ExtractResultFromAbi,
-  Formatter,
-} from '../../types'
+import type { ContractConfig, ExtractResultFromAbi } from '../../types'
 import {
   EncodeFunctionDataArgs,
   decodeFunctionResult,
@@ -14,11 +10,7 @@ import {
   getContractError,
   DecodeFunctionResultArgs,
 } from '../../utils'
-import { call, CallArgs, FormattedCall } from './call'
-
-export type FormattedReadContract<
-  TFormatter extends Formatter | undefined = Formatter,
-> = FormattedCall<TFormatter>
+import { call, CallArgs } from './call'
 
 export type ReadContractArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
