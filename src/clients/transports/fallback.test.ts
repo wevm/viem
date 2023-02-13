@@ -170,7 +170,7 @@ describe('request', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32000, message: 'sad times' } }))
+      res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
     const server2 = await createHttpServer((req, res) => {
       count++
@@ -221,14 +221,14 @@ describe('request', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32000, message: 'sad times' } }))
+      res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
     const server2 = await createHttpServer((req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32000, message: 'sad times' } }))
+      res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
     let transport = fallback([http(server1.url), http(server2.url)])({
@@ -342,7 +342,7 @@ describe('client', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32000, message: 'sad times' } }))
+      res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
     const server2 = await createHttpServer((req, res) => {
       count++
@@ -366,14 +366,14 @@ describe('client', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32000, message: 'sad times' } }))
+      res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
     const server2 = await createHttpServer((req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32000, message: 'sad times' } }))
+      res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
     let transport = fallback([http(server1.url), http(server2.url)])
@@ -382,8 +382,7 @@ describe('client', () => {
     await expect(
       getBlockNumber(client),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Missing or invalid parameters.
-      Double check you have provided the correct parameters.
+      "An internal error was received.
 
       Details: sad times
       Version: viem@1.0.2"

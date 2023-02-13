@@ -382,23 +382,6 @@ test('retries: InternalRpcError', async () => {
   expect(retryCount).toBe(3)
 })
 
-test('retries: InvalidInputRpcError', async () => {
-  let retryCount = -1
-  await expect(() =>
-    buildRequest(() => {
-      retryCount++
-      return Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32000, message: 'message' },
-        }),
-      )
-    })(),
-  ).rejects.toThrowError()
-  expect(retryCount).toBe(3)
-})
-
 test('retries: LimitExceededRpcError', async () => {
   let retryCount = -1
   await expect(() =>
