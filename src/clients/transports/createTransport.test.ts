@@ -20,8 +20,11 @@ test('default', () => {
         "key": "mock",
         "name": "Mock Transport",
         "request": [MockFunction spy],
+        "retryCount": 3,
+        "retryDelay": 150,
         "type": "mock",
       },
+      "request": [Function],
       "value": undefined,
     }
   `)
@@ -47,8 +50,11 @@ test('value', () => {
         "key": "mock",
         "name": "Mock Transport",
         "request": [MockFunction spy],
+        "retryCount": 3,
+        "retryDelay": 150,
         "type": "mock",
       },
+      "request": [Function],
       "value": {
         "baz": "foo",
         "foo": "bar",

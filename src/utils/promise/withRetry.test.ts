@@ -3,229 +3,152 @@ import { expect, test } from 'vitest'
 import { createHttpServer } from '../../_test'
 import { withRetry } from './withRetry'
 
-test('shouldRetryOnResponse: retries, and then errors', async () => {
+test('default', async () => {
   let retryTimes = -1
-
   const server = await createHttpServer((req, res) => {
+    retryTimes++
     res.writeHead(500)
     res.end()
   })
 
-  const res = await withRetry(
-    async () => {
-      retryTimes++
+  await expect(
+    withRetry(async () => {
       const response = await fetch(server.url)
+      if (response.status === 500) throw new Error('test')
       return response
-    },
-    {
-      retryCount: 3,
-      shouldRetryOnResponse: ({ data }) => data?.status === 500,
-    },
-  )
-
-  expect(res).toBeDefined()
-  expect(retryTimes).toBe(3)
-
-  server.close()
+    }),
+  ).rejects.toThrowError('test')
+  expect(retryTimes).toBe(2)
 })
 
-test('shouldRetryOnResponse: retries, and then succeeds', async () => {
+test('shouldRetry: retries, and then errors', async () => {
   let retryTimes = -1
-
   const server = await createHttpServer((req, res) => {
-    if (retryTimes === 2) {
-      res.writeHead(200)
-    } else {
-      res.writeHead(500)
-    }
+    retryTimes++
+    res.writeHead(500)
     res.end()
   })
 
-  const res = await withRetry(
-    async () => {
-      retryTimes++
-      const response = await fetch(server.url)
-      return response
-    },
-    {
-      retryCount: 3,
-      shouldRetryOnResponse: ({ data }) => data?.status === 500,
-    },
-  )
-
-  expect(res).toBeDefined()
-  expect(retryTimes).toBe(2)
-
-  server.close()
-})
-
-test('shouldRetryOnResponse (async): retries, and then errors', async () => {
-  let retryTimes = -1
-
-  const server = await createHttpServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'wagmi' }))
-  })
-
-  const res = await withRetry(
-    async () => {
-      retryTimes++
-      const response = await fetch(server.url)
-      return response
-    },
-    {
-      retryCount: 3,
-      shouldRetryOnResponse: async ({ data }) => (await data.json()).error,
-    },
-  )
-
-  expect(await res.json()).toMatchInlineSnapshot(`
-    {
-      "error": "wagmi",
-    }
-  `)
-  expect(retryTimes).toBe(3)
-
-  server.close()
-})
-
-test('shouldRetryOnResponse (async): retries, and then succeeds', async () => {
-  let retryTimes = -1
-
-  const server = await createHttpServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    if (retryTimes === 2) {
-      res.end(JSON.stringify({ message: 'wagmi' }))
-    } else {
-      res.end(JSON.stringify({ error: 'wagmi' }))
-    }
-  })
-
-  const res = await withRetry(
-    async () => {
-      retryTimes++
-      const response = await fetch(server.url)
-      return response
-    },
-    {
-      retryCount: 3,
-      shouldRetryOnResponse: async ({ data }) => (await data.json()).error,
-    },
-  )
-
-  expect(res).toBeDefined()
-  expect(retryTimes).toBe(2)
-
-  server.close()
-})
-
-test('shouldRetryOnError: retries, and then errors', async () => {
-  let retryTimes = -1
   await expect(
     withRetry(
       async () => {
-        retryTimes++
-        throw new Error('test')
+        const response = await fetch(server.url)
+        if (response.status === 500) throw new Error('test')
+        return response
       },
-      { shouldRetryOnError: ({ error }) => error.message === 'test' },
+      { shouldRetry: ({ error }) => error.message === 'test' },
     ),
   ).rejects.toThrowError('test')
   expect(retryTimes).toBe(2)
 })
 
-test('shouldRetryOnError: retries, and then succeeds', async () => {
+test('shouldRetry: retries, and then succeeds', async () => {
   let retryTimes = -1
+  const server = await createHttpServer((req, res) => {
+    retryTimes++
+    if (retryTimes === 2) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ message: 'success' }))
+    } else {
+      res.writeHead(500)
+      res.end()
+    }
+  })
+
   const res = await withRetry(
     async () => {
-      retryTimes++
-      if (retryTimes === 2) return 'success'
-      throw new Error('test')
+      const response = await fetch(server.url)
+      if (response.status === 500) throw new Error('test')
+      return (await response).json()
     },
     {
       retryCount: 3,
-      shouldRetryOnError: ({ error }) => error.message === 'test',
+      shouldRetry: ({ error }) => error.message === 'test',
     },
   )
-  expect(res).toBe('success')
+  expect(res).toEqual({ message: 'success' })
   expect(retryTimes).toBe(2)
 })
 
-test.skip('delay: custom delay', async () => {
-  let timestamps: Date[] = []
-
+test('retryCount', async () => {
+  let retryTimes = -1
   const server = await createHttpServer((req, res) => {
+    retryTimes++
     res.writeHead(500)
     res.end()
   })
 
-  await withRetry(
-    async () => {
-      timestamps.push(new Date())
-      const response = await fetch(server.url)
-      return response
-    },
-    {
-      delay: 1000,
-      retryCount: 3,
-      shouldRetryOnResponse: ({ data }) => data?.status === 500,
-    },
-  )
-
-  expect(
-    Math.floor((timestamps[1].getTime() - timestamps[0].getTime()) / 1000) *
-      1000,
-  ).toBe(1000)
-  expect(
-    Math.floor((timestamps[2].getTime() - timestamps[1].getTime()) / 1000) *
-      1000,
-  ).toBe(1000)
-  expect(
-    Math.floor((timestamps[3].getTime() - timestamps[2].getTime()) / 1000) *
-      1000,
-  ).toBe(1000)
-
-  server.close()
+  await expect(
+    withRetry(
+      async () => {
+        const response = await fetch(server.url)
+        if (response.status === 500) throw new Error('test')
+        return response
+      },
+      { retryCount: 1 },
+    ),
+  ).rejects.toThrowError('test')
+  expect(retryTimes).toBe(1)
 })
 
-test.skip('delay: custom delay fn', async () => {
-  let timestamps: Date[] = []
-
+test('delay: number', async () => {
+  const start = Date.now()
+  let end: number = 0
   const server = await createHttpServer((req, res) => {
+    end = Date.now() - start
+    res.writeHead(500)
+    res.end()
+  })
+
+  await expect(
+    withRetry(
+      async () => {
+        const response = await fetch(server.url)
+        if (response.status === 500) throw new Error('test')
+        return response
+      },
+      { retryCount: 1, delay: 500 },
+    ),
+  ).rejects.toThrowError('test')
+  expect(end > 500 && end < 520).toBe(true)
+})
+
+test('delay: fn', async () => {
+  const start = Date.now()
+  let end: number = 0
+  const server = await createHttpServer((req, res) => {
+    end = Date.now() - start
     res.writeHead(500, {
       'Retry-After': 1,
     })
     res.end()
   })
 
-  await withRetry(
-    async () => {
-      timestamps.push(new Date())
-      const response = await fetch(server.url)
-      return response
-    },
-    {
-      delay: ({ data }) => {
-        const retryAfter = data?.headers.get('Retry-After')
-        if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
-        return 100
+  await expect(
+    withRetry(
+      async () => {
+        const response = await fetch(server.url)
+        class TestError extends Error {
+          headers: Headers
+          constructor(headers: Headers) {
+            super('test')
+            this.headers = headers
+          }
+        }
+        if (response.status === 500) throw new TestError(response.headers)
+        return response
       },
-      retryCount: 3,
-      shouldRetryOnResponse: ({ data }) => data?.status === 500,
-    },
-  )
-
-  expect(
-    Math.floor((timestamps[1].getTime() - timestamps[0].getTime()) / 1000) *
-      1000,
-  ).toBe(1000)
-  expect(
-    Math.floor((timestamps[2].getTime() - timestamps[1].getTime()) / 1000) *
-      1000,
-  ).toBe(1000)
-  expect(
-    Math.floor((timestamps[3].getTime() - timestamps[2].getTime()) / 1000) *
-      1000,
-  ).toBe(1000)
-
-  server.close()
+      {
+        retryCount: 1,
+        delay: ({ error }) => {
+          const retryAfter = (error as any).headers.get('Retry-After')
+          if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
+          return 100
+        },
+      },
+    ),
+  ).rejects.toThrowError('test')
+  expect(end > 1000 && end < 1020).toBe(true)
 })

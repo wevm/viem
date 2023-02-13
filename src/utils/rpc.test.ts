@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import WebSocket from 'isomorphic-ws'
 
 import { createHttpServer, initialBlockNumber, localWsUrl } from '../_test'
-
+import * as withTimeout from '../utils/promise/withTimeout'
 import { localhost, mainnet } from '../chains'
-import { numberToHex } from './encoding'
 
+import { numberToHex } from './encoding'
 import type { RpcResponse } from './rpc'
 import { getSocket, rpc } from './rpc'
 import { wait } from './wait'
@@ -54,8 +54,16 @@ describe('http', () => {
       rpc.http(localhost.rpcUrls.default.http[0], {
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
       }),
-    ).rejects.toThrowError(
-      'invalid length 1, expected a (both 0x-prefixed or not) hex string',
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "RPC Request failed.
+
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_getBlockByHash\\",\\"params\\":[\\"0x0\\",false]}
+
+      Details: invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes
+      Version: viem@1.0.2"
+    `,
     )
   })
 
@@ -67,7 +75,7 @@ describe('http', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "RPC Request failed.
 
-      URL: http://127.0.0.1:8545
+      URL: http://localhost
       Request body: {\\"method\\":\\"eth_wagmi\\"}
 
       Details: Method not found
@@ -115,9 +123,7 @@ describe('http', () => {
   })
 
   test('http error', async () => {
-    let retryCount = -1
     const server = await createHttpServer((req, res) => {
-      retryCount++
       res.writeHead(500, {
         'Content-Type': 'application/json',
       })
@@ -130,20 +136,23 @@ describe('http', () => {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
         },
-        retryCount: 0,
       }),
-    ).rejects.toThrowError(`Details: "ngmi"`)
-    expect(retryCount).toBe(0)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+
+      Details: \\"ngmi\\"
+      Version: viem@1.0.2"
+    `)
   })
 
   test('http error', async () => {
-    let retryCount = -1
     const server = await createHttpServer((req, res) => {
-      retryCount++
-      res.writeHead(500, {
-        'Content-Type': 'application/json',
-      })
-      res.end(JSON.stringify({}))
+      res.writeHead(500)
+      res.end()
     })
 
     await expect(() =>
@@ -152,10 +161,19 @@ describe('http', () => {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
         },
-        retryCount: 0,
       }),
-    ).rejects.toThrowError('Details: Internal Server Error')
-    expect(retryCount).toBe(0)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}
+
+      Details: Internal Server Error
+      Version: viem@1.0.2"
+    `,
+    )
   })
 
   test('timeout', async () => {
@@ -172,7 +190,7 @@ describe('http', () => {
         `
         [TimeoutError: The request took too long to respond.
 
-        URL: https://cloudflare-eth.com
+        URL: http://localhost
         Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
         Details: The request timed out.
@@ -182,114 +200,29 @@ describe('http', () => {
     }
   })
 
-  test('retries (500 status code)', async () => {
-    let retryCount = -1
-
-    const server = await createHttpServer((req, res) => {
-      retryCount++
-      res.writeHead(500)
-      res.end('ngmi')
-    })
-
-    await expect(() =>
-      rpc.http(server.url, {
+  test('unknown', async () => {
+    vi.spyOn(withTimeout, 'withTimeout').mockRejectedValueOnce(new Error('foo'))
+    try {
+      await rpc.http(mainnet.rpcUrls.default.http[0], {
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
         },
-        retryCount: 2,
-      }),
-    ).rejects.toThrowError('HTTP request failed.')
-    expect(retryCount).toBe(2)
-  })
-
-  test('retries (408 status code)', async () => {
-    let retryCount = -1
-    const server = await createHttpServer((req, res) => {
-      retryCount++
-      res.writeHead(408, {
-        'Content-Type': 'application/json',
+        timeout: 10,
       })
-      res.end(JSON.stringify({ error: 'ngmi' }))
-    })
+    } catch (err) {
+      expect(err).toMatchInlineSnapshot(
+        `
+        [HttpRequestError: HTTP request failed.
 
-    await expect(() =>
-      rpc.http(server.url, {
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
-        },
-        retryCount: 2,
-      }),
-    ).rejects.toThrowError('HTTP request failed.')
-    expect(retryCount).toBe(2)
-  })
+        URL: http://localhost
+        Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
-  test('retries (408 status code)', async () => {
-    let retryCount = -1
-    const server = await createHttpServer((req, res) => {
-      retryCount++
-      res.writeHead(408, {
-        'Content-Type': 'application/json',
-      })
-      res.end(JSON.stringify({ error: 'ngmi' }))
-    })
-
-    await expect(() =>
-      rpc.http(server.url, {
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
-        },
-        retryCount: 2,
-      }),
-    ).rejects.toThrowError('HTTP request failed.')
-    expect(retryCount).toBe(2)
-  })
-
-  test('does not retry for 401', async () => {
-    let retryCount = -1
-    const server = await createHttpServer((req, res) => {
-      retryCount++
-      res.writeHead(401, {
-        'Content-Type': 'application/json',
-      })
-      res.end(JSON.stringify({ error: 'ngmi' }))
-    })
-
-    await expect(() =>
-      rpc.http(server.url, {
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
-        },
-        retryCount: 2,
-      }),
-    ).rejects.toThrowError('HTTP request failed.')
-    expect(retryCount).toBe(0)
-  })
-
-  test('retries (500 status code w/ Retry-After)', async () => {
-    let retryCount = -1
-
-    const server = await createHttpServer((req, res) => {
-      retryCount++
-      res.writeHead(500, {
-        'Retry-After': 1,
-      })
-      res.end('ngmi')
-    })
-
-    await expect(() =>
-      rpc.http(server.url, {
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
-        },
-        retryCount: 2,
-      }),
-    ).rejects.toThrowError('HTTP request failed.')
-    expect(retryCount).toBe(2)
+        Details: foo
+        Version: viem@1.0.2]
+      `,
+      )
+    }
   })
 })
 
@@ -524,8 +457,16 @@ describe('webSocket', () => {
             onError: reject,
           }),
         ),
-    ).rejects.toThrowError(
-      'data did not match any variant of untagged enum EthRpcCall',
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "RPC Request failed.
+
+      URL: http://localhost
+      Request body: {\\"method\\":\\"wagmi_lol\\"}
+
+      Details: data did not match any variant of untagged enum EthRpcCall
+      Version: viem@1.0.2"
+    `,
     )
     expect(socket.requests.size).toBe(0)
   })
@@ -549,7 +490,7 @@ describe('webSocket', () => {
       `
       "WebSocket request failed.
 
-      URL: ws://127.0.0.1:8545/
+      URL: http://localhost
       Request body: {\\"method\\":\\"wagmi_lol\\"}
 
       Details: Socket is closed.
@@ -578,7 +519,7 @@ describe('webSocket', () => {
       `
       "WebSocket request failed.
 
-      URL: ws://127.0.0.1:8545/
+      URL: http://localhost
       Request body: {\\"method\\":\\"wagmi_lol\\"}
 
       Details: Socket is closed.
@@ -702,7 +643,7 @@ describe('webSocket (subscription)', () => {
     expect(err_).toMatchInlineSnapshot(`
       [RpcError: RPC Request failed.
 
-      URL: ws://127.0.0.1:8545/
+      URL: http://localhost
       Request body: {"method":"eth_subscribe","params":["fakeHeadz"]}
 
       Details: data did not match any variant of untagged enum EthRpcCall
@@ -956,7 +897,7 @@ describe('webSocketAsync', () => {
       `
       "RPC Request failed.
 
-      URL: ws://127.0.0.1:8545/
+      URL: http://localhost
       Request body: {\\"method\\":\\"wagmi_lol\\"}
 
       Details: data did not match any variant of untagged enum EthRpcCall

@@ -8,6 +8,10 @@ export type HttpTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the HTTP transport. */
   name?: TransportConfig['name']
+  /** The base delay (in ms) between retries. */
+  retryCount?: TransportConfig['retryCount']
+  /** The max number of times to retry. */
+  retryDelay?: TransportConfig['retryDelay']
 }
 
 export type HttpTransport = Transport<
@@ -23,9 +27,11 @@ export type HttpTransport = Transport<
 export function http(
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string,
-  { key = 'http', name = 'HTTP JSON-RPC' }: HttpTransportConfig = {},
+  config: HttpTransportConfig = {},
 ): HttpTransport {
-  return ({ chain }) => {
+  const { key = 'http', name = 'HTTP JSON-RPC', retryDelay } = config
+  return ({ chain, retryCount: defaultRetryCount }) => {
+    const retryCount = config.retryCount ?? defaultRetryCount
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
     return createTransport(
@@ -41,6 +47,8 @@ export function http(
           })
           return result
         },
+        retryCount,
+        retryDelay,
         type: 'http',
       },
       {

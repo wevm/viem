@@ -5,23 +5,14 @@ export function withRetry<TData>(
   {
     delay: delay_ = 100,
     retryCount = 2,
-    shouldRetryOnResponse = () => false,
-    shouldRetryOnError = () => false,
+    shouldRetry = () => true,
   }: {
     // The delay (in ms) between retries.
-    delay?: ((config: { count: number; data?: TData }) => number) | number
+    delay?: ((config: { count: number; error: Error }) => number) | number
     // The max number of times to retry.
     retryCount?: number
-    // Whether or not to retry on a successful response.
-    shouldRetryOnResponse?: ({
-      count,
-      data,
-    }: {
-      count: number
-      data: TData
-    }) => Promise<boolean> | boolean
     // Whether or not to retry when an error is thrown.
-    shouldRetryOnError?: ({
+    shouldRetry?: ({
       count,
       error,
     }: {
@@ -32,27 +23,22 @@ export function withRetry<TData>(
 ) {
   return new Promise<TData>((resolve, reject) => {
     const attemptRetry = async ({ count = 0 } = {}) => {
-      const retry = async ({ data }: { data?: TData } = {}) => {
+      const retry = async ({ error }: { error: Error }) => {
         const delay =
-          typeof delay_ === 'function' ? delay_({ count, data }) : delay_
+          typeof delay_ === 'function' ? delay_({ count, error }) : delay_
         if (delay) await wait(delay)
         attemptRetry({ count: count + 1 })
       }
 
       try {
         const data = await fn()
-        if (
-          count < retryCount &&
-          (await shouldRetryOnResponse({ count, data }))
-        )
-          return retry({ data })
         resolve(data)
       } catch (err) {
         if (
           count < retryCount &&
-          (await shouldRetryOnError({ count, error: err as Error }))
+          (await shouldRetry({ count, error: err as Error }))
         )
-          return retry()
+          return retry({ error: err as Error })
         reject(err)
       }
     }

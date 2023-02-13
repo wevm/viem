@@ -1,411 +1,667 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
+import { LimitExceededRpcError } from '../../dist'
 
-import { BaseError, RpcError, TimeoutError } from '../errors'
-import { buildRequest } from './buildRequest'
+import {
+  BaseError,
+  HttpRequestError,
+  InternalRpcError,
+  RpcError,
+  TimeoutError,
+  UnknownRpcError,
+} from '../errors'
+import { createHttpServer } from '../_test'
+import { buildRequest, isNonDeterministicError } from './buildRequest'
+import { rpc } from './rpc'
 
-test('valid request', async () => {
+function request(url: string) {
+  return async ({ method, params }: any) => {
+    const { result } = await rpc.http(url, {
+      body: {
+        method,
+        params,
+      },
+    })
+    return result
+  }
+}
+
+test('default', async () => {
+  const server = await createHttpServer((req, res) => {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+    })
+    res.end(JSON.stringify({ result: '0x1' }))
+  })
+
   expect(
-    await buildRequest((args) => Promise.resolve({ ok: true, ...args }))({
-      foo: 'bar',
-    }),
-  ).toMatchInlineSnapshot(`
-    {
-      "foo": "bar",
-      "ok": true,
-    }
-  `)
+    await buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+  ).toMatchInlineSnapshot('"0x1"')
 })
 
-test('BaseError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(new BaseError('foo', { details: 'bar' })),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [ViemError: foo
-
-      Details: bar
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('ParseRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32700, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [ParseRpcError: Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('InvalidRpcRequestError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32600, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [InvalidRequestRpcError: JSON is not a valid request object.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('MethodNotFoundRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32601, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [MethodNotFoundRpcError: The method does not exist / is not available.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('InvalidParamsRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32602, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
-      Double check you have provided the correct parameters.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('InternalRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32603, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [InternalRpcError: An internal error was received.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('InvalidInputRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32000, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [InvalidInputRpcError: Missing or invalid parameters.
-      Double check you have provided the correct parameters.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('ResourceNotFoundRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32001, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [ResourceNotFoundRpcError: Requested resource not found.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('ResourceUnavailableRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32002, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [ResourceUnavailableRpcError: Requested resource not available.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('TransactionRejectedRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32003, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [TransactionRejectedRpcError: Transaction creation failed.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('MethodNotSupportedRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32004, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [MethodNotSupportedRpcError: Method is not implemented.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('LimitExceededRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32005, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [LimitExceededRpcError: Request exceeds defined limit.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('JsonRpcVersionUnsupportedError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32006, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [JsonRpcVersionUnsupportedError: Version of JSON-RPC protocol is not supported.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('InvalidParamsRpcError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32602, message: 'message' },
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
-      Double check you have provided the correct parameters.
-
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('Error', async () => {
-  await expect(() =>
-    buildRequest(() => Promise.reject(new Error('wat')))(),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "An unknown RPC error occurred.
-
-    Details: wat
-    Version: viem@1.0.2"
-  `)
-})
-
-test('TimeoutError', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new TimeoutError({
-          body: { foo: 'bar' },
-          url: 'http://localhost:8000',
-        }),
-      ),
-    )()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [TimeoutError: The request took too long to respond.
-
-      URL: http://localhost:8000
-      Request body: {"foo":"bar"}
-
-      Details: The request timed out.
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('Unknown error', async () => {
-  try {
-    await buildRequest(() => Promise.reject(new Error('wagmi')))()
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [UnknownRpcError: An unknown RPC error occurred.
-
-      Details: wagmi
-      Version: viem@1.0.2]
-    `)
-  }
-})
-
-test('retries: BaseError (should not retry)', async () => {
-  let retryCount = -1
-  await expect(() =>
-    buildRequest(() => {
+describe('args', () => {
+  test('retryCount', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
       retryCount++
-      return Promise.reject(new BaseError('foo', { details: 'bar' }))
-    })(),
-  ).rejects.toThrowError()
-  expect(retryCount).toBe(0)
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+    })
+
+    await expect(() =>
+      buildRequest(request(server.url), { retryCount: 1 })({
+        method: 'eth_blockNumber',
+      }),
+    ).rejects.toThrowError()
+    expect(retryCount).toBe(1)
+  })
+
+  test('retryDelay', async () => {
+    const start = Date.now()
+    let end: number = 0
+
+    const server = await createHttpServer((req, res) => {
+      end = Date.now() - start
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+    })
+
+    await expect(() =>
+      buildRequest(request(server.url), { retryDelay: 1000, retryCount: 1 })({
+        method: 'eth_blockNumber',
+      }),
+    ).rejects.toThrowError()
+    expect(end > 1000 && end < 1020).toBeTruthy()
+  })
 })
 
-test('retries: InternalRpcError', async () => {
-  let retryCount = -1
-  await expect(() =>
-    buildRequest(() => {
-      retryCount++
-      return Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32603, message: 'message' },
-        }),
+describe('behavior', () => {
+  describe('error types', () => {
+    test('BaseError', async () => {
+      try {
+        await buildRequest(() =>
+          Promise.reject(new BaseError('foo', { details: 'bar' })),
+        )()
+      } catch (err) {
+        expect(err).toMatchInlineSnapshot(`
+          [ViemError: foo
+
+          Details: bar
+          Version: viem@1.0.2]
+        `)
+      }
+    })
+
+    test('ParseRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32700, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('InvalidRpcRequestError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32600, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "JSON is not a valid request object.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('MethodNotFoundRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32601, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The method does not exist / is not available.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('InvalidParamsRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32602, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Invalid parameters were provided to the RPC method.
+        Double check you have provided the correct parameters.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('InternalRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "An internal error was received.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('InvalidInputRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32000, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Missing or invalid parameters.
+        Double check you have provided the correct parameters.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('ResourceNotFoundRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32001, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Requested resource not found.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('ResourceUnavailableRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32002, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Requested resource not available.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('TransactionRejectedRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32003, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
+        "Transaction creation failed.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `,
       )
-    })(),
-  ).rejects.toThrowError()
-  expect(retryCount).toBe(3)
+    })
+
+    test('MethodNotSupportedRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32004, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Method is not implemented.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('LimitExceededRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32005, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Request exceeds defined limit.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('JsonRpcVersionUnsupportedError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32006, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Version of JSON-RPC protocol is not supported.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('InvalidParamsRpcError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32602, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Invalid parameters were provided to the RPC method.
+        Double check you have provided the correct parameters.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('UnknownRpcError', async () => {
+      await expect(() =>
+        buildRequest(() => Promise.reject(new Error('wat')))(),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "An unknown RPC error occurred.
+
+        Details: wat
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('TimeoutError', async () => {
+      try {
+        await buildRequest(() =>
+          Promise.reject(
+            new TimeoutError({
+              body: { foo: 'bar' },
+              url: 'http://localhost:8000',
+            }),
+          ),
+        )()
+      } catch (err) {
+        expect(err).toMatchInlineSnapshot(`
+          [TimeoutError: The request took too long to respond.
+
+          URL: http://localhost
+          Request body: {"foo":"bar"}
+
+          Details: The request timed out.
+          Version: viem@1.0.2]
+        `)
+      }
+    })
+  })
+
+  describe('retry', () => {
+    test('non-deterministic InternalRpcError', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic LimitExceededRpcError', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32005, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic UnknownRpcError', async () => {
+      let retryCount = -1
+      await expect(() =>
+        buildRequest(() => {
+          retryCount++
+          return Promise.reject(new Error('wat'))
+        })(),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (500)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(500, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 500
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Internal Server Error
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (500 w/ Retry-After header)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(500, {
+          'Content-Type': 'application/json',
+          'Retry-After': 1,
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 500
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Internal Server Error
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (408)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(408, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 408
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Request Timeout
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (413)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(413, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 413
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Payload Too Large
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (408)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(408, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 408
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Request Timeout
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
+    test('deterministic HttpRequestError (401)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(401, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(0)
+    })
+
+    test('deterministic RpcError', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32602, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(0)
+    })
+  })
 })
 
-test('retries: LimitExceededRpcError', async () => {
-  let retryCount = -1
-  await expect(() =>
-    buildRequest(() => {
-      retryCount++
-      return Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: -32005, message: 'message' },
-        }),
-      )
-    })(),
-  ).rejects.toThrowError()
-  expect(retryCount).toBe(3)
-})
+describe('isNonDeterministicError', () => {
+  test('Error', () => {
+    expect(isNonDeterministicError(new Error('wat'))).toBe(false)
+  })
 
-test('retries: UnknownRpcError', async () => {
-  let retryCount = -1
-  await expect(() =>
-    buildRequest(() => {
-      retryCount++
-      return Promise.reject(new Error('wat'))
-    })(),
-  ).rejects.toThrowError()
-  expect(retryCount).toBe(3)
+  test('UnknownRpcError', () => {
+    expect(isNonDeterministicError(new UnknownRpcError(new Error('wat')))).toBe(
+      true,
+    )
+  })
+
+  test('HttpRequestError (500)', () => {
+    expect(
+      isNonDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 500, url: '' }),
+      ),
+    ).toBe(true)
+  })
+
+  test('HttpRequestError (429)', () => {
+    expect(
+      isNonDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 429, url: '' }),
+      ),
+    ).toBe(true)
+  })
+
+  test('HttpRequestError (408)', () => {
+    expect(
+      isNonDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 408, url: '' }),
+      ),
+    ).toBe(true)
+  })
+
+  test('HttpRequestError (413)', () => {
+    expect(
+      isNonDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 413, url: '' }),
+      ),
+    ).toBe(true)
+  })
+
+  test('InternalRpcError', () => {
+    expect(isNonDeterministicError(new InternalRpcError({} as any))).toBe(true)
+  })
+
+  test('LimitExceededRpcError', () => {
+    expect(isNonDeterministicError(new LimitExceededRpcError({} as any))).toBe(
+      true,
+    )
+  })
 })

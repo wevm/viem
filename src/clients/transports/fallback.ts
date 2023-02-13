@@ -1,4 +1,3 @@
-import { RpcError } from '../../errors'
 import { isNonDeterministicError } from '../../utils/buildRequest'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
@@ -8,6 +7,10 @@ export type FallbackTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the Fallback transport. */
   name?: TransportConfig['name']
+  /** The base delay (in ms) between retries. */
+  retryCount?: TransportConfig['retryCount']
+  /** The max number of times to retry. */
+  retryDelay?: TransportConfig['retryDelay']
 }
 
 export type FallbackTransport = Transport<
@@ -17,8 +20,9 @@ export type FallbackTransport = Transport<
 
 export function fallback(
   transports: Transport[],
-  { key = 'fallback', name = 'Fallback' }: FallbackTransportConfig = {},
+  config: FallbackTransportConfig = {},
 ): FallbackTransport {
+  const { key = 'fallback', name = 'Fallback', retryCount, retryDelay } = config
   return ({ chain }) =>
     createTransport(
       {
@@ -26,17 +30,16 @@ export function fallback(
         name,
         async request({ method, params }) {
           const fetch = async (i: number = 0): Promise<any> => {
-            const transport = transports[i]({ chain })
+            const transport = transports[i]({ chain, retryCount: 0 })
             try {
-              return await transport.config.request({
+              return await transport.request({
                 method,
                 params,
               } as any)
             } catch (err) {
               // If the error is deterministic, we don't need to fall back.
               // So throw the error.
-              if (err instanceof RpcError && !isNonDeterministicError(err))
-                throw err
+              if (!isNonDeterministicError(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
@@ -47,11 +50,13 @@ export function fallback(
           }
           return fetch()
         },
+        retryCount,
+        retryDelay,
         type: 'fallback',
       },
       {
         transports: transports.map(
-          (fn) => fn({ chain }) as unknown as Transport,
+          (fn) => fn({ chain, retryCount: 0 }) as unknown as Transport,
         ),
       },
     )

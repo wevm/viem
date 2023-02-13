@@ -28,8 +28,11 @@ test('default', () => {
         "key": "custom",
         "name": "Custom Provider",
         "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
         "type": "custom",
       },
+      "request": [Function],
       "value": undefined,
     }
   `)
@@ -45,8 +48,11 @@ describe('config', () => {
           "key": "custom",
           "name": "Custom Provider",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "type": "custom",
         },
+        "request": [Function],
         "value": undefined,
       }
     `)
@@ -66,8 +72,11 @@ describe('config', () => {
           "key": "mock",
           "name": "Custom Provider",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "type": "custom",
         },
+        "request": [Function],
         "value": undefined,
       }
     `)
@@ -89,8 +98,11 @@ describe('config', () => {
           "key": "custom",
           "name": "Mock Transport",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "type": "custom",
         },
+        "request": [Function],
         "value": undefined,
       }
     `)

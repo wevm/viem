@@ -4,11 +4,16 @@ import { RpcError } from './rpc'
 export class RequestError extends BaseError {
   constructor(
     err: Error,
-    { docsPath, shortMessage }: { docsPath?: string; shortMessage: string },
+    {
+      docsPath,
+      metaMessages,
+      shortMessage,
+    }: { docsPath?: string; metaMessages?: string[]; shortMessage: string },
   ) {
     super(shortMessage, {
       cause: err,
       docsPath,
+      metaMessages,
     })
     this.name = err.name
   }
@@ -21,7 +26,7 @@ export class RpcRequestError extends RequestError {
     err: RpcError,
     { docsPath, shortMessage }: { docsPath?: string; shortMessage: string },
   ) {
-    super(err, { docsPath, shortMessage })
+    super(err, { docsPath, metaMessages: err.metaMessages, shortMessage })
     this.code = err.code
     this.name = err.name
   }

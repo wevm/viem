@@ -17,7 +17,7 @@ test('RpcError', () => {
   expect(err).toMatchInlineSnapshot(`
     [RpcError: RPC Request failed.
 
-    URL: https://lol.com
+    URL: http://localhost
     Request body: {"foo":"bar"}
 
     Details: Error
@@ -39,7 +39,7 @@ test('HttpRequestError', () => {
     [HttpRequestError: HTTP request failed.
 
     Status: 500
-    URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+    URL: http://localhost
     Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
     Details: Some error
@@ -59,7 +59,7 @@ test('WebSocketRequestError', () => {
   expect(err).toMatchInlineSnapshot(`
     [WebSocketRequestError: WebSocket request failed.
 
-    URL: ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+    URL: http://localhost
     Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
     Details: Some error
@@ -78,7 +78,7 @@ test('TimeoutError', () => {
   expect(err).toMatchInlineSnapshot(`
     [TimeoutError: The request took too long to respond.
 
-    URL: https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC
+    URL: http://localhost
     Request body: {"method":"eth_getBlockByNumber","params":["0xf86cc2",false]}
 
     Details: The request timed out.

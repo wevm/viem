@@ -1,5 +1,6 @@
 import {
   BaseError,
+  HttpRequestError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -20,6 +21,13 @@ import { withRetry } from './promise'
 export const isNonDeterministicError = (error: Error) => {
   if (error instanceof UnknownRpcError) return true
   if ('code' in error) return error.code === -32603 || error.code === -32005
+  if (error instanceof HttpRequestError && error.status)
+    return (
+      error.status === 500 ||
+      error.status === 429 ||
+      error.status === 408 ||
+      error.status === 413
+    )
   return false
 }
 
@@ -61,9 +69,18 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         }
       },
       {
-        delay: ({ count }) => ~~(1 << count) * retryDelay,
+        delay: ({ count, error }) => {
+          // If we find a Retry-After header, let's retry after the given time.
+          if (error && error instanceof HttpRequestError) {
+            const retryAfter = error?.headers?.get('Retry-After')
+            if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
+          }
+
+          // Otherwise, let's retry with an exponential backoff.
+          return ~~(1 << count) * retryDelay
+        },
         retryCount,
-        shouldRetryOnError: ({ error }) => isNonDeterministicError(error),
+        shouldRetry: ({ error }) => isNonDeterministicError(error),
       },
     )) as TRequest
 }
