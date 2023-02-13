@@ -28,7 +28,6 @@ export const wagmiAbi = [
   {
 		inputs: [
 			{
-				internalType: "string",
 				name: "reason",
 				type: "string"
 			}

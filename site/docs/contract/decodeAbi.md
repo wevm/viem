@@ -22,7 +22,7 @@ import { decodeAbi } from 'viem/contract'
 
 const values = decodeAbi({
   data: '0x0000000000000000000000000000000000000000000000000000000000010f2c',
-  params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }],
+  params: [{ name: 'x', type: 'uint32' }],
 })
 // [69420]
 ```
@@ -42,7 +42,7 @@ The ABI encoded data.
 ```ts
 const values = decodeAbi({
   data: '0x0000000000000000000000000000000000000000000000000000000000010f2c', // [!code focus]
-  params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }],
+  params: [{ name: 'x', type: 'uint32' }],
 })
 ```
 
@@ -57,7 +57,7 @@ These parameters must include valid [ABI types](https://docs.soliditylang.org/en
 ```ts
 const values = decodeAbi({
   data: '0x0000000000000000000000000000000000000000000000000000000000010f2c',
-  params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }], // [!code focus]
+  params: [{ name: 'x', type: 'uint32' }], // [!code focus]
 })
 ```
 
@@ -85,22 +85,18 @@ export const abi = [
       {
         components: [
           {
-            internalType: 'uint256',
             name: 'x',
             type: 'uint256',
           },
           {
-            internalType: 'bool',
             name: 'y',
             type: 'bool',
           },
           {
-            internalType: 'address',
             name: 'z',
             type: 'address',
           },
         ],
-        internalType: 'struct Example.Foo',
         name: 'foo',
         type: 'tuple',
       },

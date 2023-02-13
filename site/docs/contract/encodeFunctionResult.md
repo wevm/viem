@@ -88,37 +88,30 @@ export const wagmiAbi = [
           {
             components: [
               {
-                internalType: 'address',
                 name: 'sender',
                 type: 'address',
               },
               {
-                internalType: 'uint256',
                 name: 'x',
                 type: 'uint256',
               },
               {
-                internalType: 'bool',
                 name: 'y',
                 type: 'bool',
               },
             ],
-            internalType: 'struct Example.Foo',
             name: 'foo',
             type: 'tuple',
           },
           {
-            internalType: 'address',
             name: 'sender',
             type: 'address',
           },
           {
-            internalType: 'uint32',
             name: 'z',
             type: 'uint32',
           },
         ],
-        internalType: 'struct Example.Bar',
         name: 'res',
         type: 'tuple',
       },

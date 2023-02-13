@@ -67,7 +67,7 @@ await deployContract(walletClient, {
 export const wagmiAbi = [
   ...
   {
-    inputs: [{ internalType: "uint32", name: "x", type: "uint32" }],
+    inputs: [{ name: "x", type: "uint32" }],
     stateMutability: "nonpayable",
     type: "constructor",
   },

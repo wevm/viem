@@ -92,32 +92,26 @@ test('default', () => {
           {
             components: [
               {
-                internalType: 'uint256[]',
                 name: 'x',
                 type: 'uint256[]',
               },
               {
-                internalType: 'bool',
                 name: 'y',
                 type: 'bool',
               },
               {
-                internalType: 'string[]',
                 name: 'z',
                 type: 'string[]',
               },
             ],
-            internalType: 'struct ABIExample.Baz',
             name: 'bar',
             type: 'tuple',
           },
           {
-            internalType: 'uint256',
             name: 'a',
             type: 'uint256',
           },
           {
-            internalType: 'string[]',
             name: 'b',
             type: 'string[]',
           },
@@ -148,32 +142,26 @@ test('default', () => {
           {
             components: [
               {
-                internalType: 'uint256[]',
                 name: 'x',
                 type: 'uint256[]',
               },
               {
-                internalType: 'bool',
                 name: 'y',
                 type: 'bool',
               },
               {
-                internalType: 'string[]',
                 name: 'z',
                 type: 'string[]',
               },
             ],
-            internalType: 'struct ABIExample.Baz',
             name: 'bar',
             type: 'tuple',
           },
           {
-            internalType: 'uint256',
             name: 'a',
             type: 'uint256',
           },
           {
-            internalType: 'string[]',
             name: 'b',
             type: 'string[]',
           },
@@ -205,32 +193,26 @@ test('default', () => {
           {
             components: [
               {
-                internalType: 'uint256[]',
                 name: 'x',
                 type: 'uint256[]',
               },
               {
-                internalType: 'bool',
                 name: 'y',
                 type: 'bool',
               },
               {
-                internalType: 'string[]',
                 name: 'z',
                 type: 'string[]',
               },
             ],
-            internalType: 'struct ABIExample.Baz',
             name: 'bar',
             type: 'tuple',
           },
           {
-            internalType: 'uint256',
             name: 'a',
             type: 'uint256',
           },
           {
-            internalType: 'string[]',
             name: 'b',
             type: 'string[]',
           },

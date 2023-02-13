@@ -41,7 +41,6 @@ test('constructor(uint256)', () => {
         {
           inputs: [
             {
-              internalType: 'uint256',
               name: 'a',
               type: 'uint256',
             },

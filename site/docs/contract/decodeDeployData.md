@@ -31,7 +31,6 @@ export const wagmiAbi = [
   {
     inputs: [
       {
-        internalType: 'uint256',
         name: 'a',
         type: 'uint256',
       },

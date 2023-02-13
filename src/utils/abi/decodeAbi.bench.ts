@@ -13,54 +13,47 @@ describe('ABI Decode (static struct)', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
+
               name: 'foo',
               type: 'tuple',
             },
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
+
               name: 'baz',
               type: 'tuple',
             },
             {
-              internalType: 'uint8[2]',
               name: 'x',
               type: 'uint8[2]',
             },
           ],
-          internalType: 'struct ABIExample.Bar',
+
           name: 'barOut',
           type: 'tuple',
         },
@@ -77,54 +70,47 @@ describe('ABI Decode (static struct)', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
+
               name: 'foo',
               type: 'tuple',
             },
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
+
               name: 'baz',
               type: 'tuple',
             },
             {
-              internalType: 'uint8[2]',
               name: 'x',
               type: 'uint8[2]',
             },
           ],
-          internalType: 'struct ABIExample.Bar',
+
           name: 'barOut',
           type: 'tuple',
         },

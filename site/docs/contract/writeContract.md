@@ -93,7 +93,7 @@ await writeContract(walletClient, request)
 export const wagmiAbi = [
   ...
   {
-    inputs: [{ internalType: "uint32", name: "tokenId", type: "uint32" }],
+    inputs: [{ name: "tokenId", type: "uint32" }],
     name: "mint",
     outputs: [],
     stateMutability: "nonpayable",

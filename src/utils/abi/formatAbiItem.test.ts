@@ -28,7 +28,6 @@ test('foo(uint256)', () => {
     formatAbiItem({
       inputs: [
         {
-          internalType: 'uint256',
           name: 'a',
           type: 'uint256',
         },
@@ -44,7 +43,6 @@ test('foo(uint256)', () => {
       {
         inputs: [
           {
-            internalType: 'uint256',
             name: 'a',
             type: 'uint256',
           },
@@ -66,37 +64,30 @@ test('getVoter((uint256,bool,address,uint256),string[],bytes)', () => {
         {
           components: [
             {
-              internalType: 'uint256',
               name: 'weight',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'voted',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: 'delegate',
               type: 'address',
             },
             {
-              internalType: 'uint256',
               name: 'vote',
               type: 'uint256',
             },
           ],
-          internalType: 'struct Ballot.Voter',
           name: 'voter',
           type: 'tuple',
         },
         {
-          internalType: 'string[]',
           name: 'foo',
           type: 'string[]',
         },
         {
-          internalType: 'bytes',
           name: 'bar',
           type: 'bytes',
         },
@@ -114,37 +105,30 @@ test('getVoter((uint256,bool,address,uint256),string[],bytes)', () => {
           {
             components: [
               {
-                internalType: 'uint256',
                 name: 'weight',
                 type: 'uint256',
               },
               {
-                internalType: 'bool',
                 name: 'voted',
                 type: 'bool',
               },
               {
-                internalType: 'address',
                 name: 'delegate',
                 type: 'address',
               },
               {
-                internalType: 'uint256',
                 name: 'vote',
                 type: 'uint256',
               },
             ],
-            internalType: 'struct Ballot.Voter',
             name: 'voter',
             type: 'tuple',
           },
           {
-            internalType: 'string[]',
             name: 'foo',
             type: 'string[]',
           },
           {
-            internalType: 'bytes',
             name: 'bar',
             type: 'bytes',
           },
@@ -168,37 +152,30 @@ test('VoterEvent((uint256,bool,address,uint256),string[],bytes)', () => {
         {
           components: [
             {
-              internalType: 'uint256',
               name: 'weight',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'voted',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: 'delegate',
               type: 'address',
             },
             {
-              internalType: 'uint256',
               name: 'vote',
               type: 'uint256',
             },
           ],
-          internalType: 'struct Ballot.Voter',
           name: 'voter',
           type: 'tuple',
         },
         {
-          internalType: 'string[]',
           name: 'foo',
           type: 'string[]',
         },
         {
-          internalType: 'bytes',
           name: 'bar',
           type: 'bytes',
         },
@@ -216,37 +193,30 @@ test('VoterEvent((uint256,bool,address,uint256),string[],bytes)', () => {
           {
             components: [
               {
-                internalType: 'uint256',
                 name: 'weight',
                 type: 'uint256',
               },
               {
-                internalType: 'bool',
                 name: 'voted',
                 type: 'bool',
               },
               {
-                internalType: 'address',
                 name: 'delegate',
                 type: 'address',
               },
               {
-                internalType: 'uint256',
                 name: 'vote',
                 type: 'uint256',
               },
             ],
-            internalType: 'struct Ballot.Voter',
             name: 'voter',
             type: 'tuple',
           },
           {
-            internalType: 'string[]',
             name: 'foo',
             type: 'string[]',
           },
           {
-            internalType: 'bytes',
             name: 'bar',
             type: 'bytes',
           },
@@ -270,37 +240,30 @@ test('VoterError((uint256,bool,address,uint256),string[],bytes)', () => {
         {
           components: [
             {
-              internalType: 'uint256',
               name: 'weight',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'voted',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: 'delegate',
               type: 'address',
             },
             {
-              internalType: 'uint256',
               name: 'vote',
               type: 'uint256',
             },
           ],
-          internalType: 'struct Ballot.Voter',
           name: 'voter',
           type: 'tuple',
         },
         {
-          internalType: 'string[]',
           name: 'foo',
           type: 'string[]',
         },
         {
-          internalType: 'bytes',
           name: 'bar',
           type: 'bytes',
         },
@@ -318,7 +281,6 @@ test('error: invalid type', () => {
     formatAbiItem({
       inputs: [
         {
-          internalType: 'bytes32[]',
           name: 'proposalNames',
           type: 'bytes32[]',
         },

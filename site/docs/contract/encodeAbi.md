@@ -22,7 +22,7 @@ The `encodeAbi` function accepts:
 import { encodeAbi } from 'viem/contract'
 
 const encodedData = encodeAbi({
-  params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }],
+  params: [{ name: 'x', type: 'uint32' }],
   values: [69420]
 })
 // 0x0000000000000000000000000000000000000000000000000000000000010f2c
@@ -46,7 +46,7 @@ These parameters must include valid [ABI types](https://docs.soliditylang.org/en
 
 ```ts
 encodeAbi({
-  params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }], // [!code focus]
+  params: [{ name: 'x', type: 'uint32' }], // [!code focus]
   values: [69420]
 })
 ```
@@ -59,7 +59,7 @@ The set of primitive values that correspond to the ABI types defined in `params`
 
 ```ts
 encodeAbi({
-  params: [{ internalType: 'uint32', name: 'x', type: 'uint32' }],
+  params: [{ name: 'x', type: 'uint32' }],
   values: [69420] // [!code focus]
 })
 ```
@@ -92,22 +92,18 @@ export const abi = [
       {
         components: [
           {
-            internalType: 'uint256',
             name: 'x',
             type: 'uint256',
           },
           {
-            internalType: 'bool',
             name: 'y',
             type: 'bool',
           },
           {
-            internalType: 'address',
             name: 'z',
             type: 'address',
           },
         ],
-        internalType: 'struct Example.Foo',
         name: 'foo',
         type: 'tuple',
       },

@@ -58,7 +58,6 @@ test('returns (address)', () => {
           name: 'foo',
           outputs: [
             {
-              internalType: 'address',
               name: 'sender',
               type: 'address',
             },
@@ -88,37 +87,30 @@ test('returns (Bar)', () => {
                 {
                   components: [
                     {
-                      internalType: 'address',
                       name: 'sender',
                       type: 'address',
                     },
                     {
-                      internalType: 'uint256',
                       name: 'x',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                   ],
-                  internalType: 'struct Example.Foo',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'address',
                   name: 'sender',
                   type: 'address',
                 },
                 {
-                  internalType: 'uint32',
                   name: 'z',
                   type: 'uint32',
                 },
               ],
-              internalType: 'struct Example.Bar',
               name: 'res',
               type: 'tuple',
             },
@@ -156,42 +148,34 @@ test('returns (Bar, string)', () => {
                 {
                   components: [
                     {
-                      internalType: 'address',
                       name: 'sender',
                       type: 'address',
                     },
                     {
-                      internalType: 'uint256',
                       name: 'x',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                   ],
-                  internalType: 'struct Example.Foo',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'address',
                   name: 'sender',
                   type: 'address',
                 },
                 {
-                  internalType: 'uint32',
                   name: 'z',
                   type: 'uint32',
                 },
               ],
-              internalType: 'struct Example.Bar',
               name: 'res',
               type: 'tuple',
             },
             {
-              internalType: 'string',
               name: 'bob',
               type: 'string',
             },
@@ -228,7 +212,6 @@ test("error: function doesn't exist", () => {
           name: 'foo',
           outputs: [
             {
-              internalType: 'address',
               name: 'sender',
               type: 'address',
             },

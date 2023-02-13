@@ -260,18 +260,15 @@ test('Foo((uint,string))', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'a',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'string',
                   name: 'b',
                   type: 'string',
                 },
               ],
               indexed: true,
-              internalType: 'struct Example.Foo',
               name: 'x',
               type: 'tuple',
             },

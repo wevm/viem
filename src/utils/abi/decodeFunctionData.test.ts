@@ -39,7 +39,6 @@ test('bar(uint256)', () => {
         {
           inputs: [
             {
-              internalType: 'uint256',
               name: 'a',
               type: 'uint256',
             },
@@ -67,27 +66,22 @@ test('getVoter((uint256,bool,address,uint256))', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'weight',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'voted',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'delegate',
                   type: 'address',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'vote',
                   type: 'uint256',
                 },
               ],
-              internalType: 'struct Ballot.Voter',
               name: 'voter',
               type: 'tuple',
             },

@@ -17,7 +17,6 @@ describe('static', () => {
       encodeAbi({
         params: [
           {
-            internalType: 'uint256',
             name: 'xIn',
             type: 'uint256',
           },
@@ -33,7 +32,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint8',
               name: 'xIn',
               type: 'uint8',
             },
@@ -50,7 +48,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint8',
               name: 'xIn',
               type: 'uint8',
             },
@@ -61,7 +58,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint8',
               name: 'xIn',
               type: 'uint8',
             },
@@ -79,7 +75,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint32',
               name: 'xIn',
               type: 'uint32',
             },
@@ -96,7 +91,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint32',
               name: 'xIn',
               type: 'uint32',
             },
@@ -107,7 +101,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint32',
               name: 'xIn',
               type: 'uint32',
             },
@@ -125,7 +118,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int256',
               name: 'xIn',
               type: 'int256',
             },
@@ -142,7 +134,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int256',
               name: 'xIn',
               type: 'int256',
             },
@@ -161,7 +152,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int8',
               name: 'xIn',
               type: 'int8',
             },
@@ -178,7 +168,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int8',
               name: 'xIn',
               type: 'int8',
             },
@@ -195,7 +184,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int8',
               name: 'xIn',
               type: 'int8',
             },
@@ -206,7 +194,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int8',
               name: 'xIn',
               type: 'int8',
             },
@@ -224,7 +211,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int32',
               name: 'xIn',
               type: 'int32',
             },
@@ -241,7 +227,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int8',
               name: 'xIn',
               type: 'int8',
             },
@@ -258,7 +243,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int32',
               name: 'xIn',
               type: 'int32',
             },
@@ -269,7 +253,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int32',
               name: 'xIn',
               type: 'int32',
             },
@@ -287,7 +270,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'address',
               name: 'xIn',
               type: 'address',
             },
@@ -306,7 +288,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bool',
               name: 'xIn',
               type: 'bool',
             },
@@ -320,7 +301,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bool',
               name: 'xIn',
               type: 'bool',
             },
@@ -339,7 +319,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes8',
               name: 'xIn',
               type: 'bytes8',
             },
@@ -356,7 +335,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes8',
               name: 'xIn',
               type: 'bytes8',
             },
@@ -379,7 +357,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes16',
               name: 'xIn',
               type: 'bytes16',
             },
@@ -396,7 +373,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes16',
               name: 'xIn',
               type: 'bytes16',
             },
@@ -419,7 +395,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[3]',
               name: 'xIn',
               type: 'uint256[3]',
             },
@@ -438,7 +413,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'int256[3]',
               name: 'xIn',
               type: 'int256[3]',
             },
@@ -457,7 +431,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'address[2]',
               name: 'xIn',
               type: 'address[2]',
             },
@@ -481,7 +454,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bool[2]',
               name: 'xIn',
               type: 'bool[2]',
             },
@@ -500,7 +472,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes8[2]',
               name: 'xIn',
               type: 'bytes8[2]',
             },
@@ -519,7 +490,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[3][2]',
               name: 'xIn',
               type: 'uint256[3][2]',
             },
@@ -543,7 +513,6 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[3][2][4]',
               name: 'xIn',
               type: 'uint256[3][2][4]',
             },
@@ -584,22 +553,18 @@ describe('static', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
               name: 'fooIn',
               type: 'tuple',
             },
@@ -627,19 +592,15 @@ describe('static', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
               name: 'fooOut',
               type: 'tuple',
             },
@@ -663,54 +624,44 @@ describe('static', () => {
                 {
                   components: [
                     {
-                      internalType: 'uint256',
                       name: 'x',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                     {
-                      internalType: 'address',
                       name: 'z',
                       type: 'address',
                     },
                   ],
-                  internalType: 'struct ABIExample.Foo',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
                   components: [
                     {
-                      internalType: 'uint256',
                       name: 'x',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                     {
-                      internalType: 'address',
                       name: 'z',
                       type: 'address',
                     },
                   ],
-                  internalType: 'struct ABIExample.Foo',
                   name: 'baz',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint8[2]',
                   name: 'x',
                   type: 'uint8[2]',
                 },
               ],
-              internalType: 'struct ABIExample.Bar',
               name: 'barIn',
               type: 'tuple',
             },
@@ -742,9 +693,9 @@ describe('static', () => {
       expect(
         encodeAbi({
           params: [
-            { internalType: 'uint256[2]', name: 'xOut', type: 'uint256[2]' },
-            { internalType: 'bool', name: 'yOut', type: 'bool' },
-            { internalType: 'string[3]', name: 'zOut', type: 'string[3]' },
+            { name: 'xOut', type: 'uint256[2]' },
+            { name: 'yOut', type: 'bool' },
+            { name: 'zOut', type: 'string[3]' },
           ],
           values: [[420n, 69n], true, ['wagmi', 'viem', 'lol']],
         }),
@@ -760,17 +711,14 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256',
               name: 'xIn',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'yIn',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: 'zIn',
               type: 'address',
             },
@@ -789,17 +737,14 @@ describe('static', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256',
               name: '',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: '',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: '',
               type: 'address',
             },
@@ -821,7 +766,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'string',
               name: 'xOut',
               type: 'string',
             },
@@ -841,17 +785,14 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'string',
               name: 'xIn',
               type: 'string',
             },
             {
-              internalType: 'uint256',
               name: 'yIn',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'zIn',
               type: 'bool',
             },
@@ -871,17 +812,14 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[2]',
               name: 'xIn',
               type: 'uint256[2]',
             },
             {
-              internalType: 'bool',
               name: 'yIn',
               type: 'bool',
             },
             {
-              internalType: 'string',
               name: 'zIn',
               type: 'string',
             },
@@ -901,7 +839,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes',
               name: 'xIn',
               type: 'bytes',
             },
@@ -916,7 +853,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes',
               name: 'xIn',
               type: 'bytes',
             },
@@ -933,7 +869,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'bytes',
               name: 'xIn',
               type: 'bytes',
             },
@@ -955,7 +890,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[]',
               name: 'xIn',
               type: 'uint256[]',
             },
@@ -973,7 +907,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[]',
               name: 'xIn',
               type: 'uint256[]',
             },
@@ -993,7 +926,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[][]',
               name: 'xIn',
               type: 'uint256[][]',
             },
@@ -1011,7 +943,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[][]',
               name: 'xIn',
               type: 'uint256[][]',
             },
@@ -1029,7 +960,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[][]',
               name: 'xIn',
               type: 'uint256[][]',
             },
@@ -1055,7 +985,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'uint256[][][]',
               name: 'xIn',
               type: 'uint256[][][]',
             },
@@ -1075,7 +1004,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'string[2]',
               name: 'xIn',
               type: 'string[2]',
             },
@@ -1095,7 +1023,6 @@ describe('dynamic', () => {
         encodeAbi({
           params: [
             {
-              internalType: 'string[2][3]',
               name: 'xIn',
               type: 'string[2][3]',
             },
@@ -1123,22 +1050,18 @@ describe('dynamic', () => {
             {
               components: [
                 {
-                  internalType: 'uint256[]',
                   name: 'x',
                   type: 'uint256[]',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'z',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Baz',
               name: 'bazIn',
               type: 'tuple',
             },
@@ -1168,37 +1091,30 @@ describe('dynamic', () => {
                 {
                   components: [
                     {
-                      internalType: 'uint256[]',
                       name: 'x',
                       type: 'uint256[]',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                     {
-                      internalType: 'string[]',
                       name: 'z',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Baz',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'a',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'b',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Wagmi',
               name: 'wagmiIn',
               type: 'tuple',
             },
@@ -1230,22 +1146,18 @@ describe('dynamic', () => {
             {
               components: [
                 {
-                  internalType: 'uint256[]',
                   name: 'x',
                   type: 'uint256[]',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'z',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Baz',
               name: 'bazIn',
               type: 'tuple',
             },
@@ -1256,37 +1168,30 @@ describe('dynamic', () => {
                     {
                       components: [
                         {
-                          internalType: 'uint256[]',
                           name: 'x',
                           type: 'uint256[]',
                         },
                         {
-                          internalType: 'bool',
                           name: 'y',
                           type: 'bool',
                         },
                         {
-                          internalType: 'string[]',
                           name: 'z',
                           type: 'string[]',
                         },
                       ],
-                      internalType: 'struct ABIExample.Baz',
                       name: 'foo',
                       type: 'tuple',
                     },
                     {
-                      internalType: 'uint256',
                       name: 'a',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'string[]',
                       name: 'b',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Wagmi',
                   name: 'foo',
                   type: 'tuple',
                 },
@@ -1295,52 +1200,42 @@ describe('dynamic', () => {
                     {
                       components: [
                         {
-                          internalType: 'uint256[]',
                           name: 'x',
                           type: 'uint256[]',
                         },
                         {
-                          internalType: 'bool',
                           name: 'y',
                           type: 'bool',
                         },
                         {
-                          internalType: 'string[]',
                           name: 'z',
                           type: 'string[]',
                         },
                       ],
-                      internalType: 'struct ABIExample.Baz',
                       name: 'foo',
                       type: 'tuple',
                     },
                     {
-                      internalType: 'uint256',
                       name: 'a',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'string[]',
                       name: 'b',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Wagmi',
                   name: 'bar',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'c',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'd',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Gmi',
               name: 'gmiIn',
               type: 'tuple',
             },

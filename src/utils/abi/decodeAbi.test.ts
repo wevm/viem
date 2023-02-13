@@ -18,7 +18,6 @@ describe('static', () => {
         data: '0x0000000000000000000000000000000000000000000000000000000000010f2c',
         params: [
           {
-            internalType: 'uint256',
             name: 'xIn',
             type: 'uint256',
           },
@@ -33,7 +32,6 @@ describe('static', () => {
         data: '0x0000000000000000000000000000000000000000000000000000000000000020',
         params: [
           {
-            internalType: 'uint8',
             name: 'foo',
             type: 'uint8',
           },
@@ -48,7 +46,6 @@ describe('static', () => {
         data: '0x0000000000000000000000000000000000000000000000000000000000010f2c',
         params: [
           {
-            internalType: 'uint32',
             name: 'foo',
             type: 'uint32',
           },
@@ -64,7 +61,6 @@ describe('static', () => {
           data: '0x0000000000000000000000000000000000000000000000000000000000010f2c',
           params: [
             {
-              internalType: 'int',
               name: 'foo',
               type: 'int',
             },
@@ -79,7 +75,6 @@ describe('static', () => {
           data: '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffef0d4',
           params: [
             {
-              internalType: 'int',
               name: 'foo',
               type: 'int',
             },
@@ -96,7 +91,6 @@ describe('static', () => {
           data: '0x000000000000000000000000000000000000000000000000000000000000007f',
           params: [
             {
-              internalType: 'int8',
               name: 'foo',
               type: 'int8',
             },
@@ -111,7 +105,6 @@ describe('static', () => {
           data: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80',
           params: [
             {
-              internalType: 'int8',
               name: 'foo',
               type: 'int8',
             },
@@ -128,7 +121,6 @@ describe('static', () => {
           data: '0x000000000000000000000000000000000000000000000000000000007fffffff',
           params: [
             {
-              internalType: 'int32',
               name: 'foo',
               type: 'int32',
             },
@@ -143,7 +135,6 @@ describe('static', () => {
           data: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff80000000',
           params: [
             {
-              internalType: 'int32',
               name: 'foo',
               type: 'int32',
             },
@@ -160,7 +151,6 @@ describe('static', () => {
           data: '0x00000000000000000000000014dc79964da2c08b23698b3d3cc7ca32193d9955',
           params: [
             {
-              internalType: 'address',
               name: 'foo',
               type: 'address',
             },
@@ -177,7 +167,6 @@ describe('static', () => {
           data: '0x0123456789abcdef000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'bytes8',
               name: 'xIn',
               type: 'bytes8',
             },
@@ -194,7 +183,6 @@ describe('static', () => {
           data: '0x0123456789abcdef0123456789abcdef00000000000000000000000000000000',
           params: [
             {
-              internalType: 'bytes16',
               name: 'xIn',
               type: 'bytes16',
             },
@@ -211,7 +199,6 @@ describe('static', () => {
           data: '0x0000000000000000000000000000000000000000000000000000000000010f2c000000000000000000000000000000000000000000000000000000000000a45500000000000000000000000000000000000000000000000000000000190f1b44',
           params: [
             {
-              internalType: 'uint256[3]',
               name: 'xIn',
               type: 'uint256[3]',
             },
@@ -228,7 +215,6 @@ describe('static', () => {
           data: '0x0000000000000000000000000000000000000000000000000000000000010f2cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5bab00000000000000000000000000000000000000000000000000000000190f1b44',
           params: [
             {
-              internalType: 'int256[3]',
               name: 'xIn',
               type: 'int256[3]',
             },
@@ -245,7 +231,6 @@ describe('static', () => {
           data: '0x000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
           params: [
             {
-              internalType: 'address[2]',
               name: 'xIn',
               type: 'address[2]',
             },
@@ -267,7 +252,6 @@ describe('static', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'bool[2]',
               name: 'xIn',
               type: 'bool[2]',
             },
@@ -284,7 +268,6 @@ describe('static', () => {
           data: '0x0000000000000000000000000000000000000000000000000000000000010f2c000000000000000000000000000000000000000000000000000000000000a45500000000000000000000000000000000000000000000000000000000190f1b4400000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000002c00000000000000000000000000000000000000000000000000000000000001a6',
           params: [
             {
-              internalType: 'uint256[3][2]',
               name: 'xIn',
               type: 'uint256[3][2]',
             },
@@ -306,7 +289,6 @@ describe('static', () => {
           data: '0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000700000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000b000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000d000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000f000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001300000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000015000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000170000000000000000000000000000000000000000000000000000000000000018',
           params: [
             {
-              internalType: 'uint256[3][2][4]',
               name: 'xIn',
               type: 'uint256[3][2][4]',
             },
@@ -344,22 +326,18 @@ describe('static', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
               name: 'fooOut',
               type: 'tuple',
             },
@@ -380,19 +358,15 @@ describe('static', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
               name: 'fooOut',
               type: 'tuple',
             },
@@ -411,21 +385,17 @@ describe('static', () => {
             {
               components: [
                 {
-                  internalType: 'uint256',
                   name: 'x',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'bool',
                   type: 'bool',
                 },
                 {
-                  internalType: 'address',
                   name: 'z',
                   type: 'address',
                 },
               ],
-              internalType: 'struct ABIExample.Foo',
               name: 'fooOut',
               type: 'tuple',
             },
@@ -443,7 +413,6 @@ describe('static', () => {
           params: [
             {
               components: [],
-              internalType: 'struct ABIExample.Foo',
               name: 'fooOut',
               type: 'tuple',
             },
@@ -464,54 +433,44 @@ describe('static', () => {
                 {
                   components: [
                     {
-                      internalType: 'uint256',
                       name: 'x',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                     {
-                      internalType: 'address',
                       name: 'z',
                       type: 'address',
                     },
                   ],
-                  internalType: 'struct ABIExample.Foo',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
                   components: [
                     {
-                      internalType: 'uint256',
                       name: 'x',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                     {
-                      internalType: 'address',
                       name: 'z',
                       type: 'address',
                     },
                   ],
-                  internalType: 'struct ABIExample.Foo',
                   name: 'baz',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint8[2]',
                   name: 'x',
                   type: 'uint8[2]',
                 },
               ],
-              internalType: 'struct ABIExample.Bar',
               name: 'barIn',
               type: 'tuple',
             },
@@ -542,17 +501,14 @@ describe('static', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000057761676d6900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000047669656d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036c6f6c0000000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'uint256[2]',
               name: 'xOut',
               type: 'uint256[2]',
             },
             {
-              internalType: 'bool',
               name: 'yOut',
               type: 'bool',
             },
             {
-              internalType: 'string[3]',
               name: 'zOut',
               type: 'string[3]',
             },
@@ -569,17 +525,14 @@ describe('static', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000057761676d6900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000047669656d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036c6f6c0000000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'uint256[2]',
               name: 'xOut',
               type: 'uint256[2]',
             },
             {
-              internalType: 'bool',
               name: 'yOut',
               type: 'bool',
             },
             {
-              internalType: 'string[3]',
               name: 'zOut',
               type: 'string[3]',
             },
@@ -596,17 +549,14 @@ describe('static', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b',
           params: [
             {
-              internalType: 'uint256',
               name: 'xIn',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'yIn',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: 'zIn',
               type: 'address',
             },
@@ -623,17 +573,14 @@ describe('static', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b',
           params: [
             {
-              internalType: 'uint256',
               name: '',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: '',
               type: 'bool',
             },
             {
-              internalType: 'address',
               name: '',
               type: 'address',
             },
@@ -652,7 +599,6 @@ describe('dynamic', () => {
           data: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'string',
               name: 'xOut',
               type: 'string',
             },
@@ -669,17 +615,14 @@ describe('dynamic', () => {
           data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'string',
               name: 'xIn',
               type: 'string',
             },
             {
-              internalType: 'uint256',
               name: 'yIn',
               type: 'uint256',
             },
             {
-              internalType: 'bool',
               name: 'zIn',
               type: 'bool',
             },
@@ -696,17 +639,14 @@ describe('dynamic', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000001a400000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'uint256[2]',
               name: 'xIn',
               type: 'uint256[2]',
             },
             {
-              internalType: 'bool',
               name: 'yIn',
               type: 'bool',
             },
             {
-              internalType: 'string',
               name: 'zIn',
               type: 'string',
             },
@@ -723,7 +663,6 @@ describe('dynamic', () => {
           data: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000030420690000000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'bytes',
               name: 'xIn',
               type: 'bytes',
             },
@@ -739,7 +678,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][2]',
               name: 'test',
               type: 'uint256[][2]',
             },
@@ -761,7 +699,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[2][][2]',
               name: 'test',
               type: 'uint256[2][][2]',
             },
@@ -789,7 +726,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][][2]',
               name: 'test',
               type: 'uint256[][][2]',
             },
@@ -814,7 +750,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][1][1]',
               name: 'test',
               type: 'uint256[][1][1]',
             },
@@ -831,7 +766,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][2][2]',
               name: 'test',
               type: 'uint256[][2][2]',
             },
@@ -856,7 +790,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][3][2]',
               name: 'test',
               type: 'uint256[][3][2]',
             },
@@ -882,7 +815,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][2][3]',
               name: 'test',
               type: 'uint256[][2][3]',
             },
@@ -914,7 +846,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][2][3][4]',
               name: 'test',
               type: 'uint256[][2][3][4]',
             },
@@ -1077,7 +1008,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[2][][2]',
               name: 'test',
               type: 'uint256[2][][2]',
             },
@@ -1106,7 +1036,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[]',
               name: 'xIn',
               type: 'uint256[]',
             },
@@ -1122,7 +1051,6 @@ describe('dynamic', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'uint256[]',
               name: 'xIn',
               type: 'uint256[]',
             },
@@ -1138,7 +1066,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][]',
               name: 'xIn',
               type: 'uint256[][]',
             },
@@ -1154,7 +1081,6 @@ describe('dynamic', () => {
           data: '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'uint256[][]',
               name: 'xIn',
               type: 'uint256[][]',
             },
@@ -1169,7 +1095,6 @@ describe('dynamic', () => {
         decodeAbi({
           params: [
             {
-              internalType: 'uint256[][]',
               name: 'xIn',
               type: 'uint256[][]',
             },
@@ -1193,7 +1118,6 @@ describe('dynamic', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000057761676d6900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000047669656d00000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'string[2]',
               name: 'xIn',
               type: 'string[2]',
             },
@@ -1210,7 +1134,6 @@ describe('dynamic', () => {
           data: '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000057761676d6900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000047669656d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000046a616b65000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003746f6d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000036c6f6c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000046861686100000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'string[2][3]',
               name: 'xIn',
               type: 'string[2][3]',
             },
@@ -1233,7 +1156,6 @@ describe('dynamic', () => {
           data: '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000002123400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044141414100000000000000000000000000000000000000000000000000000000',
           params: [
             {
-              internalType: 'bytes[2]',
               name: 'xOut',
               type: 'bytes[2]',
             },
@@ -1253,22 +1175,18 @@ describe('dynamic', () => {
             {
               components: [
                 {
-                  internalType: 'uint256[]',
                   name: 'x',
                   type: 'uint256[]',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'z',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Baz',
               name: 'bazIn',
               type: 'tuple',
             },
@@ -1295,37 +1213,30 @@ describe('dynamic', () => {
                 {
                   components: [
                     {
-                      internalType: 'uint256[]',
                       name: 'x',
                       type: 'uint256[]',
                     },
                     {
-                      internalType: 'bool',
                       name: 'y',
                       type: 'bool',
                     },
                     {
-                      internalType: 'string[]',
                       name: 'z',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Baz',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'a',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'b',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Wagmi',
               name: 'wagmiIn',
               type: 'tuple',
             },
@@ -1356,32 +1267,25 @@ describe('dynamic', () => {
                 {
                   components: [
                     {
-                      internalType: 'uint256[]',
                       type: 'uint256[]',
                     },
                     {
-                      internalType: 'bool',
                       type: 'bool',
                     },
                     {
-                      internalType: 'string[]',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Baz',
                   name: 'foo',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint256',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'string[]',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Wagmi',
               name: 'wagmiIn',
               type: 'tuple',
             },
@@ -1402,22 +1306,18 @@ describe('dynamic', () => {
             {
               components: [
                 {
-                  internalType: 'uint256[]',
                   name: 'x',
                   type: 'uint256[]',
                 },
                 {
-                  internalType: 'bool',
                   name: 'y',
                   type: 'bool',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'z',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Baz',
               name: 'bazIn',
               type: 'tuple',
             },
@@ -1428,37 +1328,30 @@ describe('dynamic', () => {
                     {
                       components: [
                         {
-                          internalType: 'uint256[]',
                           name: 'x',
                           type: 'uint256[]',
                         },
                         {
-                          internalType: 'bool',
                           name: 'y',
                           type: 'bool',
                         },
                         {
-                          internalType: 'string[]',
                           name: 'z',
                           type: 'string[]',
                         },
                       ],
-                      internalType: 'struct ABIExample.Baz',
                       name: 'foo',
                       type: 'tuple',
                     },
                     {
-                      internalType: 'uint256',
                       name: 'a',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'string[]',
                       name: 'b',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Wagmi',
                   name: 'foo',
                   type: 'tuple',
                 },
@@ -1467,52 +1360,42 @@ describe('dynamic', () => {
                     {
                       components: [
                         {
-                          internalType: 'uint256[]',
                           name: 'x',
                           type: 'uint256[]',
                         },
                         {
-                          internalType: 'bool',
                           name: 'y',
                           type: 'bool',
                         },
                         {
-                          internalType: 'string[]',
                           name: 'z',
                           type: 'string[]',
                         },
                       ],
-                      internalType: 'struct ABIExample.Baz',
                       name: 'foo',
                       type: 'tuple',
                     },
                     {
-                      internalType: 'uint256',
                       name: 'a',
                       type: 'uint256',
                     },
                     {
-                      internalType: 'string[]',
                       name: 'b',
                       type: 'string[]',
                     },
                   ],
-                  internalType: 'struct ABIExample.Wagmi',
                   name: 'bar',
                   type: 'tuple',
                 },
                 {
-                  internalType: 'uint256',
                   name: 'c',
                   type: 'uint256',
                 },
                 {
-                  internalType: 'string[]',
                   name: 'd',
                   type: 'string[]',
                 },
               ],
-              internalType: 'struct ABIExample.Gmi',
               name: 'gmiIn',
               type: 'tuple',
             },
@@ -1557,7 +1440,6 @@ test('invalid size', () => {
       data: '0x0000000000000000000000000000000000000000000000000000000000010fabababab',
       params: [
         {
-          internalType: 'uint256',
           name: 'xIn',
           type: 'uint256',
         },
@@ -1595,7 +1477,6 @@ test('error: zero data', () => {
           name: 'foo',
           outputs: [
             {
-              internalType: 'uint256',
               name: 'x',
               type: 'uint256',
             },
