@@ -19,10 +19,7 @@ import { withRetry } from './promise'
 
 export const isNonDeterministicError = (error: Error) => {
   if (error instanceof UnknownRpcError) return true
-  if ('code' in error)
-    return (
-      error.code === -32603 || error.code === -32000 || error.code === -32005
-    )
+  if ('code' in error) return error.code === -32603 || error.code === -32005
   return false
 }
 
