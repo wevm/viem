@@ -308,24 +308,14 @@ test('InvalidParamsRpcError', async () => {
 })
 
 test('Error', async () => {
-  try {
-    await buildRequest(() =>
-      Promise.reject(
-        new RpcError({
-          body: { foo: 'bar' },
-          url: 'https://viem.sh',
-          error: { code: 69, message: 'message' },
-        }),
-      ),
-    )
-  } catch (err) {
-    expect(err).toMatchInlineSnapshot(`
-      [UnknownRpcError: An unknown RPC error occurred.
+  await expect(() =>
+    buildRequest(() => Promise.reject(new Error('wat')))(),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "An unknown RPC error occurred.
 
-      Details: message
-      Version: viem@1.0.2]
-    `)
-  }
+    Details: wat
+    Version: viem@1.0.2"
+  `)
 })
 
 test('TimeoutError', async () => {
@@ -362,4 +352,77 @@ test('Unknown error', async () => {
       Version: viem@1.0.2]
     `)
   }
+})
+
+test('retries: BaseError (should not retry)', async () => {
+  let retryCount = -1
+  await expect(() =>
+    buildRequest(() => {
+      retryCount++
+      return Promise.reject(new BaseError('foo', { details: 'bar' }))
+    })(),
+  ).rejects.toThrowError()
+  expect(retryCount).toBe(0)
+})
+
+test('retries: InternalRpcError', async () => {
+  let retryCount = -1
+  await expect(() =>
+    buildRequest(() => {
+      retryCount++
+      return Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32603, message: 'message' },
+        }),
+      )
+    })(),
+  ).rejects.toThrowError()
+  expect(retryCount).toBe(3)
+})
+
+test('retries: InvalidInputRpcError', async () => {
+  let retryCount = -1
+  await expect(() =>
+    buildRequest(() => {
+      retryCount++
+      return Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32000, message: 'message' },
+        }),
+      )
+    })(),
+  ).rejects.toThrowError()
+  expect(retryCount).toBe(3)
+})
+
+test('retries: LimitExceededRpcError', async () => {
+  let retryCount = -1
+  await expect(() =>
+    buildRequest(() => {
+      retryCount++
+      return Promise.reject(
+        new RpcError({
+          body: { foo: 'bar' },
+          url: 'https://viem.sh',
+          error: { code: -32005, message: 'message' },
+        }),
+      )
+    })(),
+  ).rejects.toThrowError()
+  expect(retryCount).toBe(3)
+})
+
+test('retries: UnknownRpcError', async () => {
+  let retryCount = -1
+  await expect(() =>
+    buildRequest(() => {
+      retryCount++
+      return Promise.reject(new Error('wat'))
+    })(),
+  ).rejects.toThrowError()
+  expect(retryCount).toBe(3)
 })

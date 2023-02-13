@@ -58,8 +58,8 @@ async function http(
   url: string,
   {
     body,
-    retryDelay = 100,
-    retryCount = 2,
+    retryDelay = 150,
+    retryCount = 3,
     timeout = 0,
   }: {
     // The RPC request body.
@@ -99,7 +99,7 @@ async function http(
         if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
 
         // Otherwise, let's retry with an exponential backoff.
-        return ~~((Math.random() + 0.5) * (1 << count)) * retryDelay
+        return ~~(1 << count) * retryDelay
       },
       retryCount,
       shouldRetryOnResponse: async ({ data }) => {
