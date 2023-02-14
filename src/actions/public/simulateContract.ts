@@ -42,7 +42,7 @@ export async function simulateContract<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
 >(
-  client: PublicClient,
+  client: PublicClient<any, TChain>,
   {
     abi,
     address,

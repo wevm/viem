@@ -5,6 +5,7 @@ import * as contract from './contract'
 test('exports contract actions', () => {
   expect(Object.keys(contract)).toMatchInlineSnapshot(`
     [
+      "estimateContractGas",
       "getBytecode",
       "getStorageAt",
       "multicall",

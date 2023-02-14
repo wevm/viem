@@ -28,6 +28,12 @@ export type {
 export { estimateGas } from './estimateGas'
 export type { EstimateGasArgs, EstimateGasResponse } from './estimateGas'
 
+export { estimateContractGas } from './estimateContractGas'
+export type {
+  EstimateContractGasArgs,
+  EstimateContractGasResponse,
+} from './estimateContractGas'
+
 export { getBalance } from './getBalance'
 export type { GetBalanceArgs, GetBalanceResponse } from './getBalance'
 

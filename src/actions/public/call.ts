@@ -22,7 +22,6 @@ export type FormattedCall<
 export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
   TransactionRequestFormatter<TChain>
 > & {
-  chain?: TChain
   from?: Address
 } & (
     | {
@@ -40,11 +39,10 @@ export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
 export type CallResponse = { data: Hex | undefined }
 
 export async function call<TChain extends Chain>(
-  client: PublicClient,
+  client: PublicClient<any, TChain>,
   {
     blockNumber,
     blockTag = 'latest',
-    chain,
     from,
     accessList,
     data,
@@ -67,7 +65,7 @@ export async function call<TChain extends Chain>(
 
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
-  const formatter = chain?.formatters?.transactionRequest
+  const formatter = client.chain?.formatters?.transactionRequest
   const request_ = format(
     {
       from,

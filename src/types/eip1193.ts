@@ -4,7 +4,6 @@ import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
-  RpcEstimateGasParameters as EstimateGasParameters,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
   Quantity,
@@ -229,7 +228,7 @@ export type PublicRequests = {
      * // => '0x5208'
      * */
     method: 'eth_estimateGas'
-    params: [parameters: EstimateGasParameters, block: BlockNumber | BlockTag]
+    params: [parameters: TransactionRequest, block: BlockNumber | BlockTag]
   }): Promise<Quantity>
   request(args: {
     /**

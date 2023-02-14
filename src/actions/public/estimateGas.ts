@@ -1,33 +1,51 @@
 import type { PublicClient } from '../../clients'
 import type {
   BlockTag,
-  EstimateGasParameters,
-  RpcEstimateGasParameters,
+  Chain,
+  Formatter,
+  MergeIntersectionProperties,
+  TransactionRequest,
 } from '../../types'
-import { numberToHex } from '../../utils'
+import {
+  extract,
+  format,
+  Formatted,
+  formatTransactionRequest,
+  numberToHex,
+  TransactionRequestFormatter,
+} from '../../utils'
 
-export type EstimateGasArgs = EstimateGasParameters &
-  (
-    | {
-        /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
-      }
-    | {
-        blockNumber?: never
-        /** The balance of the account at a block tag. */
-        blockTag?: BlockTag
-      }
-  )
+export type FormattedEstimateGas<
+  TFormatter extends Formatter | undefined = Formatter,
+> = MergeIntersectionProperties<
+  Formatted<TFormatter, TransactionRequest, true>,
+  TransactionRequest
+>
+
+export type EstimateGasArgs<TChain extends Chain = Chain> =
+  FormattedEstimateGas<TransactionRequestFormatter<TChain>> &
+    (
+      | {
+          /** The balance of the account at a block number. */
+          blockNumber?: bigint
+          blockTag?: never
+        }
+      | {
+          blockNumber?: never
+          /** The balance of the account at a block tag. */
+          blockTag?: BlockTag
+        }
+    )
 
 export type EstimateGasResponse = bigint
 
 /**
  * @description Estimates the gas necessary to complete a transaction without submitting it to the network.
  */
-export async function estimateGas(
-  client: PublicClient,
+export async function estimateGas<TChain extends Chain>(
+  client: PublicClient<any, TChain>,
   {
+    accessList,
     blockNumber,
     blockTag = 'latest',
     data,
@@ -36,26 +54,38 @@ export async function estimateGas(
     gasPrice,
     maxFeePerGas,
     maxPriorityFeePerGas,
+    nonce,
     to,
     value,
+    ...rest
   }: EstimateGasArgs,
 ): Promise<EstimateGasResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
-  const parameters = {
-    data,
-    from,
-    gas: gas ? numberToHex(gas) : undefined,
-    gasPrice: gasPrice ? numberToHex(gasPrice) : undefined,
-    maxFeePerGas: maxFeePerGas ? numberToHex(maxFeePerGas) : undefined,
-    maxPriorityFeePerGas: maxPriorityFeePerGas
-      ? numberToHex(maxPriorityFeePerGas)
-      : undefined,
-    to,
-    value: value ? numberToHex(value) : undefined,
-  } as RpcEstimateGasParameters
+
+  const formatter = client.chain?.formatters?.transactionRequest
+  const request_ = format(
+    {
+      from,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter }),
+    } as TransactionRequest,
+    {
+      formatter: formatter || formatTransactionRequest,
+    },
+  )
+
   const balance = await client.request({
     method: 'eth_estimateGas',
-    params: [parameters, blockNumberHex || blockTag],
+    params: [request_, blockNumberHex || blockTag],
   })
   return BigInt(balance)
 }
