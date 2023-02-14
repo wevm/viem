@@ -18,17 +18,17 @@ import {
 } from '../errors'
 import { withRetry } from './promise'
 
-export const isNonDeterministicError = (error: Error) => {
-  if (error instanceof UnknownRpcError) return true
-  if ('code' in error) return error.code === -32603 || error.code === -32005
+export const isDeterministicError = (error: Error) => {
+  if (error instanceof UnknownRpcError) return false
+  if ('code' in error) return error.code !== -32603 && error.code !== -32005
   if (error instanceof HttpRequestError && error.status)
     return (
-      error.status === 500 ||
-      error.status === 429 ||
-      error.status === 408 ||
-      error.status === 413
+      error.status !== 408 &&
+      error.status !== 413 &&
+      error.status !== 429 &&
+      error.status !== 500
     )
-  return false
+  return true
 }
 
 export function buildRequest<TRequest extends (args: any) => Promise<any>>(
@@ -80,7 +80,7 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
           return ~~(1 << count) * retryDelay
         },
         retryCount,
-        shouldRetry: ({ error }) => isNonDeterministicError(error),
+        shouldRetry: ({ error }) => !isDeterministicError(error),
       },
     )) as TRequest
 }

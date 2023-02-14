@@ -5,12 +5,11 @@ import {
   BaseError,
   HttpRequestError,
   InternalRpcError,
-  RpcError,
   TimeoutError,
   UnknownRpcError,
 } from '../errors'
 import { createHttpServer } from '../_test'
-import { buildRequest, isNonDeterministicError } from './buildRequest'
+import { buildRequest, isDeterministicError } from './buildRequest'
 import { rpc } from './rpc'
 
 function request(url: string) {
@@ -612,56 +611,56 @@ describe('behavior', () => {
   })
 })
 
-describe('isNonDeterministicError', () => {
+describe('isDeterministicError', () => {
   test('Error', () => {
-    expect(isNonDeterministicError(new Error('wat'))).toBe(false)
+    expect(isDeterministicError(new Error('wat'))).toBe(true)
   })
 
   test('UnknownRpcError', () => {
-    expect(isNonDeterministicError(new UnknownRpcError(new Error('wat')))).toBe(
-      true,
+    expect(isDeterministicError(new UnknownRpcError(new Error('wat')))).toBe(
+      false,
     )
   })
 
   test('HttpRequestError (500)', () => {
     expect(
-      isNonDeterministicError(
+      isDeterministicError(
         new HttpRequestError({ body: {}, details: '', status: 500, url: '' }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   test('HttpRequestError (429)', () => {
     expect(
-      isNonDeterministicError(
+      isDeterministicError(
         new HttpRequestError({ body: {}, details: '', status: 429, url: '' }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   test('HttpRequestError (408)', () => {
     expect(
-      isNonDeterministicError(
+      isDeterministicError(
         new HttpRequestError({ body: {}, details: '', status: 408, url: '' }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   test('HttpRequestError (413)', () => {
     expect(
-      isNonDeterministicError(
+      isDeterministicError(
         new HttpRequestError({ body: {}, details: '', status: 413, url: '' }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   test('InternalRpcError', () => {
-    expect(isNonDeterministicError(new InternalRpcError({} as any))).toBe(true)
+    expect(isDeterministicError(new InternalRpcError({} as any))).toBe(false)
   })
 
   test('LimitExceededRpcError', () => {
-    expect(isNonDeterministicError(new LimitExceededRpcError({} as any))).toBe(
-      true,
+    expect(isDeterministicError(new LimitExceededRpcError({} as any))).toBe(
+      false,
     )
   })
 })

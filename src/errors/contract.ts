@@ -9,6 +9,7 @@ import {
   formatAbiItemWithArgs,
 } from '../utils'
 import { BaseError } from './base'
+import { getContractAddress } from './utils'
 
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
@@ -61,13 +62,7 @@ export class ContractFunctionExecutionError extends BaseError {
         metaMessages: [
           ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
           contractAddress &&
-            `Contract:  ${
-              /* c8 ignore start */
-              process.env.TEST
-                ? '0x0000000000000000000000000000000000000000'
-                : contractAddress
-              /* c8 ignore end */
-            }`,
+            `Contract:  ${getContractAddress(contractAddress)}`,
           functionWithParams && `Function:  ${functionWithParams}`,
           formattedArgs &&
             formattedArgs !== '()' &&

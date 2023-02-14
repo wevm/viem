@@ -1,7 +1,6 @@
 import { stringify } from '../utils'
 import { BaseError } from './base'
-
-const getUrl = (url: string) => (process.env.TEST ? 'http://localhost' : url)
+import { getUrl } from './utils'
 
 export class HttpRequestError extends BaseError {
   name = 'HttpRequestError'

@@ -1,4 +1,4 @@
-import { isNonDeterministicError } from '../../utils/buildRequest'
+import { isDeterministicError } from '../../utils/buildRequest'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
 
@@ -39,7 +39,7 @@ export function fallback(
             } catch (err) {
               // If the error is deterministic, we don't need to fall back.
               // So throw the error.
-              if (!isNonDeterministicError(err as Error)) throw err
+              if (isDeterministicError(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err

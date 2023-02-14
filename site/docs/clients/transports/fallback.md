@@ -34,7 +34,9 @@ const client = createPublicClient({
 - **Type:** `number`
 - **Default:** `3`
 
-The max number of times to retry when a request fails.
+The max number of times to retry when a request fails. 
+
+> Note: The fallback will first try all the Transports before retrying.
 
 ```ts
 const transport = fallback([alchemy, infura], {
