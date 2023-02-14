@@ -1,4 +1,5 @@
-import { HttpRequestError, RpcError } from '../../errors'
+import { RpcError } from '../../errors'
+import { isNonDeterministicError } from '../../utils/buildRequest'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
 
@@ -32,9 +33,16 @@ export function fallback(
                 params,
               } as any)
             } catch (err) {
-              if (!(err instanceof RpcError) && i < transports.length - 1)
-                return fetch(i + 1)
-              throw err
+              // If the error is deterministic, we don't need to fall back.
+              // So throw the error.
+              if (err instanceof RpcError && !isNonDeterministicError(err))
+                throw err
+
+              // If we've reached the end of the fallbacks, throw the error.
+              if (i === transports.length - 1) throw err
+
+              // Otherwise, try the next fallback.
+              return fetch(i + 1)
             }
           }
           return fetch()
