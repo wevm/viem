@@ -51,6 +51,9 @@ test('RpcRequestError', () => {
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: error details
     Version: viem@1.0.2]
   `)
@@ -71,6 +74,9 @@ test('RpcRequestError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Docs: https://viem.sh/lol
     Details: error details
@@ -93,6 +99,9 @@ test('ParseRpcError', () => {
   ).toMatchInlineSnapshot(`
     [ParseRpcError: Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -113,6 +122,9 @@ test('InvalidRequestRpcError', () => {
   ).toMatchInlineSnapshot(`
     [InvalidRequestRpcError: JSON is not a valid request object.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -132,6 +144,9 @@ test('MethodNotFoundRpcError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [MethodNotFoundRpcError: The method does not exist / is not available.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Details: message
     Version: viem@1.0.2]
@@ -154,6 +169,9 @@ test('InvalidParamsRpcError', () => {
     [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
     Double check you have provided the correct parameters.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -173,6 +191,9 @@ test('InternalRpcError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [InternalRpcError: An internal error was received.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Details: message
     Version: viem@1.0.2]
@@ -195,6 +216,9 @@ test('InvalidInputRpcError', () => {
     [InvalidInputRpcError: Missing or invalid parameters.
     Double check you have provided the correct parameters.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -214,6 +238,9 @@ test('ResourceNotFoundRpcError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [ResourceNotFoundRpcError: Requested resource not found.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Details: message
     Version: viem@1.0.2]
@@ -235,6 +262,9 @@ test('ResourceUnavailableRpcError', () => {
   ).toMatchInlineSnapshot(`
     [ResourceUnavailableRpcError: Requested resource not available.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -254,6 +284,9 @@ test('TransactionRejectedRpcError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [TransactionRejectedRpcError: Transaction creation failed.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Details: message
     Version: viem@1.0.2]
@@ -275,6 +308,9 @@ test('MethodNotSupportedRpcError', () => {
   ).toMatchInlineSnapshot(`
     [MethodNotSupportedRpcError: Method is not implemented.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -295,6 +331,9 @@ test('LimitExceededRpcError', () => {
   ).toMatchInlineSnapshot(`
     [LimitExceededRpcError: Request exceeds defined limit.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: message
     Version: viem@1.0.2]
   `)
@@ -314,6 +353,9 @@ test('JsonRpcVersionUnsupportedError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [JsonRpcVersionUnsupportedError: Version of JSON-RPC protocol is not supported.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Details: message
     Version: viem@1.0.2]

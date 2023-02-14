@@ -12,6 +12,10 @@ export type CustomTransportConfig = {
   key?: TransportConfig['key']
   /** The name of the transport. */
   name?: TransportConfig['name']
+  /** The max number of times to retry. */
+  retryCount?: TransportConfig['retryCount']
+  /** The base delay (in ms) between retries. */
+  retryDelay?: TransportConfig['retryDelay']
 }
 
 export type CustomTransport = Transport<'custom', EthereumProvider['request']>
@@ -22,13 +26,16 @@ export type CustomTransport = Transport<'custom', EthereumProvider['request']>
 export function custom<TProvider extends EthereumProvider>(
   /** An Ethereum provider with an EIP-1193 "request" attribute. */
   provider: TProvider,
-  { key = 'custom', name = 'Custom Provider' }: CustomTransportConfig = {},
+  config: CustomTransportConfig = {},
 ): CustomTransport {
-  return () =>
+  const { key = 'custom', name = 'Custom Provider', retryDelay } = config
+  return ({ retryCount: defaultRetryCount }) =>
     createTransport({
       key,
       name,
       request: provider.request.bind(provider),
+      retryCount: config.retryCount ?? defaultRetryCount,
+      retryDelay,
       type: 'custom',
     })
 }

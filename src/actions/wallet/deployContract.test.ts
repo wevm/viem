@@ -41,12 +41,7 @@ test('no funds', async () => {
       args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
       from: accounts[0].address,
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Transaction creation failed.
-
-    Details: Insufficient funds for gas * price + value
-    Version: viem@1.0.2"
-  `)
+  ).rejects.toThrowErrorMatchingSnapshot()
 
   await setBalance(testClient, {
     address: accounts[0].address,

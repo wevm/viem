@@ -21,8 +21,11 @@ test('default', () => {
         "key": "fallback",
         "name": "Fallback",
         "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
         "type": "fallback",
       },
+      "request": [Function],
       "value": {
         "transports": [
           {
@@ -30,8 +33,11 @@ test('default', () => {
               "key": "http",
               "name": "HTTP JSON-RPC",
               "request": [Function],
+              "retryCount": 0,
+              "retryDelay": 150,
               "type": "http",
             },
+            "request": [Function],
             "value": {
               "url": "https://alchemy.com/rpc",
             },
@@ -41,8 +47,11 @@ test('default', () => {
               "key": "http",
               "name": "HTTP JSON-RPC",
               "request": [Function],
+              "retryCount": 0,
+              "retryDelay": 150,
               "type": "http",
             },
+            "request": [Function],
             "value": {
               "url": "https://infura.com/rpc",
             },
@@ -65,9 +74,7 @@ describe('request', () => {
     const local = http(server.url)
     const transport = fallback([local])({ chain: localhost })
 
-    expect(await transport.config.request({ method: 'eth_blockNumber' })).toBe(
-      '0x1',
-    )
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
   })
 
   test('error', async () => {
@@ -93,12 +100,10 @@ describe('request', () => {
     let transport = fallback([http(server1.url), http(server3.url)])({
       chain: localhost,
     })
-    expect(await transport.config.request({ method: 'eth_blockNumber' })).toBe(
-      '0x1',
-    )
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
 
     // ensure `retryCount` on transport is adhered
-    expect(count).toBe(5)
+    expect(count).toBe(2)
 
     count = 0
     transport = fallback([
@@ -108,19 +113,17 @@ describe('request', () => {
     ])({
       chain: localhost,
     })
-    expect(await transport.config.request({ method: 'eth_blockNumber' })).toBe(
-      '0x1',
-    )
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
 
     // ensure `retryCount` on transport is adhered
-    expect(count).toBe(9)
+    expect(count).toBe(3)
 
     count = 0
     transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
-      transport.config.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowError()
 
     // ensure `retryCount` on transport is adhered
@@ -157,7 +160,7 @@ describe('request', () => {
       chain: localhost,
     })
     await expect(() =>
-      transport.config.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowError()
 
     expect(count).toBe(1)
@@ -184,7 +187,7 @@ describe('request', () => {
       chain: localhost,
     })
     expect(
-      await transport.config.request({ method: 'eth_blockNumber' }),
+      await transport.request({ method: 'eth_blockNumber' }),
     ).toMatchInlineSnapshot('"0x1"')
 
     expect(count).toBe(2)
@@ -207,14 +210,14 @@ describe('request', () => {
       chain: localhost,
     })
     await expect(() =>
-      transport.config.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowError()
 
     // ensure `retryCount` on transport is adhered
     expect(count).toBe(8)
   })
 
-  test.skip('all error (rpc - non deterministic)', async () => {
+  test('all error (rpc - non deterministic)', async () => {
     let count = 0
     const server1 = await createHttpServer((req, res) => {
       count++
@@ -235,10 +238,70 @@ describe('request', () => {
       chain: localhost,
     })
     await expect(() =>
-      transport.config.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowError()
 
     expect(count).toBe(8)
+  })
+
+  test('retryCount', async () => {
+    let count = 0
+    const server1 = await createHttpServer((req, res) => {
+      count++
+      res.writeHead(500)
+      res.end()
+    })
+    const server2 = await createHttpServer((req, res) => {
+      count++
+      res.writeHead(500)
+      res.end()
+    })
+
+    let transport = fallback([http(server1.url), http(server2.url)], {
+      retryCount: 1,
+    })({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowError()
+
+    // ensure `retryCount` on transport is adhered
+    expect(count).toBe(4)
+  })
+
+  test('retryCount (on child transport)', async () => {
+    let server1Count = 0
+    let server2Count = 0
+    const server1 = await createHttpServer((req, res) => {
+      server1Count++
+      res.writeHead(500)
+      res.end()
+    })
+    const server2 = await createHttpServer((req, res) => {
+      server2Count++
+      res.writeHead(500)
+      res.end()
+    })
+
+    let transport = fallback(
+      [
+        http(server1.url, { retryCount: 3 }),
+        http(server2.url, { retryCount: 2 }),
+      ],
+      {
+        retryCount: 0,
+      },
+    )({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowError()
+
+    // ensure `retryCount` on transport is adhered
+    expect(server1Count).toBe(4)
+    expect(server2Count).toBe(3)
   })
 })
 
@@ -263,14 +326,19 @@ describe('client', () => {
           "key": "fallback",
           "name": "Fallback",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "transports": [
             {
               "config": {
                 "key": "http",
                 "name": "HTTP JSON-RPC",
                 "request": [Function],
+                "retryCount": 0,
+                "retryDelay": 150,
                 "type": "http",
               },
+              "request": [Function],
               "value": {
                 "url": "https://alchemy.com/rpc",
               },
@@ -280,8 +348,11 @@ describe('client', () => {
                 "key": "http",
                 "name": "HTTP JSON-RPC",
                 "request": [Function],
+                "retryCount": 0,
+                "retryDelay": 150,
                 "type": "http",
               },
+              "request": [Function],
               "value": {
                 "url": "https://infura.com/rpc",
               },
@@ -383,6 +454,9 @@ describe('client', () => {
       getBlockNumber(client),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "An internal error was received.
+
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
       Details: sad times
       Version: viem@1.0.2"

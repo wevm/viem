@@ -1,8 +1,4 @@
-// @ts-ignore
-import pkg from '../../package.json'
-
-/* c8 ignore next */
-const version = process.env.TEST ? '1.0.2' : pkg.version
+import { getVersion } from './utils'
 
 type BaseErrorArgs = {
   docsPath?: string
@@ -43,7 +39,7 @@ export class BaseError extends Error {
       ...(args.metaMessages ? [...args.metaMessages, ''] : []),
       ...(docsPath ? [`Docs: https://viem.sh${docsPath}`] : []),
       ...(details ? [`Details: ${details}`] : []),
-      `Version: viem@${version}`,
+      `Version: ${getVersion()}`,
     ].join('\n')
 
     super(message)

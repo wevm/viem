@@ -69,6 +69,32 @@ const transport = custom(
 )
 ```
 
+### retryCount (optional)
+
+- **Type:** `number`
+- **Default:** `3`
+
+The max number of times to retry when a request fails.
+
+```ts
+const transport = custom(window.ethereum, {
+  retryCount: 5, // [!code focus]
+})
+```
+
+### retryDelay (optional)
+
+- **Type:** `number`
+- **Default:** `150`
+
+The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
+
+```ts
+const transport = custom(window.ethereum, {
+  retryDelay: 100, // [!code focus]
+})
+```
+
 ## Gotchas
 
 - If you are pairing the `custom` Transport with a [Public Client](/docs/clients/public), ensure that your provider supports [Public Actions](/docs/actions/public/introduction).

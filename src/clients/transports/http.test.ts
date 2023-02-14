@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { localhost } from '../../chains'
+import { createHttpServer } from '../../_test'
 
 import type { HttpTransport } from './http'
 import { http } from './http'
@@ -17,8 +18,11 @@ test('default', () => {
         "key": "http",
         "name": "HTTP JSON-RPC",
         "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
         "type": "http",
       },
+      "request": [Function],
       "value": {
         "url": "https://mockapi.com/rpc",
       },
@@ -38,8 +42,11 @@ describe('config', () => {
           "key": "mock",
           "name": "HTTP JSON-RPC",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "type": "http",
         },
+        "request": [Function],
         "value": {
           "url": "https://mockapi.com/rpc",
         },
@@ -58,8 +65,11 @@ describe('config', () => {
           "key": "http",
           "name": "Mock Transport",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "type": "http",
         },
+        "request": [Function],
         "value": {
           "url": "https://mockapi.com/rpc",
         },
@@ -76,8 +86,11 @@ describe('config', () => {
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
           "type": "http",
         },
+        "request": [Function],
         "value": {
           "url": "https://mockapi.com/rpc",
         },
@@ -86,15 +99,79 @@ describe('config', () => {
   })
 })
 
-test('request', async () => {
-  const transport = http(undefined, {
-    key: 'jsonRpc',
-    name: 'JSON RPC',
-  })({ chain: localhost })
+describe('request', () => {
+  test('default', async () => {
+    const transport = http(undefined, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+    })({ chain: localhost })
 
-  expect(
-    await transport.config.request({ method: 'eth_blockNumber' }),
-  ).toBeDefined()
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBeDefined()
+  })
+
+  test('behavior: retryCount', async () => {
+    let retryCount = -1
+    const server = await createHttpServer((req, res) => {
+      retryCount++
+      res.writeHead(500, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({}))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 1,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 500
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Internal Server Error
+        Version: viem@1.0.2"
+      `)
+    expect(retryCount).toBe(1)
+  })
+
+  test('behavior: retryCount', async () => {
+    const start = Date.now()
+    let end: number = 0
+    const server = await createHttpServer((req, res) => {
+      end = Date.now() - start
+      res.writeHead(500, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({}))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 1,
+      retryDelay: 500,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 500
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Internal Server Error
+        Version: viem@1.0.2"
+      `)
+    expect(end > 500 && end < 520).toBeTruthy()
+  })
 })
 
 test('no url', () => {

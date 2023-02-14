@@ -6,7 +6,6 @@ import {
   TimeoutError,
   WebSocketRequestError,
 } from '../errors'
-import { withRetry } from './promise'
 import { withTimeout } from './promise/withTimeout'
 import { stringify } from './stringify'
 
@@ -58,78 +57,65 @@ async function http(
   url: string,
   {
     body,
-    retryDelay = 150,
-    retryCount = 3,
     timeout = 0,
   }: {
     // The RPC request body.
     body: RpcRequest
-    // The base delay (in ms) between retries.
-    retryDelay?: number
-    // The max number of times to retry.
-    retryCount?: number
     // The timeout (in ms) for the request.
     timeout?: number
   },
 ) {
-  const response = await withRetry(
-    () =>
-      withTimeout(
-        async ({ signal }) => {
-          const response = await fetch(url, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: stringify({ jsonrpc: '2.0', id: id++, ...body }),
-            signal: timeout > 0 ? signal : undefined,
-          })
-          return response
-        },
-        {
-          errorInstance: new TimeoutError({ body, url }),
-          timeout,
-          signal: true,
-        },
-      ),
-    {
-      delay: ({ count, data }) => {
-        // If we find a Retry-After header, let's retry after the given time.
-        const retryAfter = data?.headers.get('Retry-After')
-        if (retryAfter?.match(/\d/)) return parseInt(retryAfter) * 1000
-
-        // Otherwise, let's retry with an exponential backoff.
-        return ~~(1 << count) * retryDelay
+  try {
+    const response = await withTimeout(
+      async ({ signal }) => {
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: stringify({ jsonrpc: '2.0', id: id++, ...body }),
+          signal: timeout > 0 ? signal : undefined,
+        })
+        return response
       },
-      retryCount,
-      shouldRetryOnResponse: async ({ data }) => {
-        if (data.status >= 500) return true
-        if ([408, 413, 429].includes(data.status)) return true
-        return false
+      {
+        errorInstance: new TimeoutError({ body, url }),
+        timeout,
+        signal: true,
       },
-    },
-  )
+    )
 
-  let data
-  if (response.headers.get('Content-Type')?.startsWith('application/json')) {
-    data = await response.json()
-  } else {
-    data = await response.text()
-  }
+    let data
+    if (response.headers.get('Content-Type')?.startsWith('application/json')) {
+      data = await response.json()
+    } else {
+      data = await response.text()
+    }
 
-  if (!response.ok) {
+    if (!response.ok) {
+      throw new HttpRequestError({
+        body,
+        details: stringify(data.error) || response.statusText,
+        headers: response.headers,
+        status: response.status,
+        url,
+      })
+    }
+
+    if (data.error) {
+      throw new RpcError({ body, error: data.error, url })
+    }
+    return data as RpcResponse
+  } catch (err) {
+    if (err instanceof HttpRequestError) throw err
+    if (err instanceof RpcError) throw err
+    if (err instanceof TimeoutError) throw err
     throw new HttpRequestError({
       body,
-      details: stringify(data.error) || response.statusText,
-      status: response.status,
+      details: (err as Error).message,
       url,
     })
   }
-
-  if (data.error) {
-    throw new RpcError({ body, error: data.error, url })
-  }
-  return data as RpcResponse
 }
 
 ///////////////////////////////////////////////////

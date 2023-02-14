@@ -23,6 +23,7 @@
     "prepublishOnly": "pnpm ts-node scripts/generate-package-json.ts",
     "prepare": "npx simple-git-hooks",
     "test": "vitest dev --no-threads",
+    "test:cov": "vitest dev --coverage --no-threads",
     "test:ci": "CI=true vitest --coverage --no-threads",
     "test:ui": "vitest dev --ui --no-threads",
     "ts-node": "node --loader esbuild-register/loader -r esbuild-register",
@@ -127,7 +128,7 @@
     "tsup": "^6.6.0",
     "typescript": "^4.9.4",
     "vite": "^3.2.5",
-    "vitest": "^0.25.8",
+    "vitest": "~0.25.8",
     "web3": "^1.8.1"
   },
   "license": "MIT",
