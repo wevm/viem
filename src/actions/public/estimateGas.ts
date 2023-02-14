@@ -42,7 +42,7 @@ export type EstimateGasResponse = bigint
 /**
  * @description Estimates the gas necessary to complete a transaction without submitting it to the network.
  */
-export async function estimateGas<TChain extends Chain = Chain>(
+export async function estimateGas<TChain extends Chain>(
   client: PublicClient<any, TChain>,
   {
     accessList,
