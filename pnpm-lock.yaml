@@ -24,6 +24,7 @@ importers:
       '@wagmi/chains': ~0.2.8
       '@wagmi/cli': ^0.1.6
       abitype: ~0.3.0
+      bun: ^0.5.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
       esbuild: ^0.16.17
@@ -65,6 +66,7 @@ importers:
       '@vitest/coverage-c8': 0.24.3_@vitest+ui@0.19.1
       '@vitest/ui': 0.19.1
       '@wagmi/cli': 0.1.6_typescript@4.9.5
+      bun: 0.5.6
       bundlewatch: 0.3.3
       dedent: 0.7.0
       esbuild: 0.16.17
@@ -1882,6 +1884,54 @@ packages:
       '@octokit/openapi-types': 12.11.0
     dev: true
 
+  /@oven/bun-darwin-aarch64/0.5.6:
+    resolution: {integrity: sha512-QaSQ0kZdnXU+s/MjzxheE4Rj2L0LuNdb+m0P+HZIiDFzvsEtOPZyObL7pAWw1zXNalRQeHVeWR7g3pWUH5CqZg==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-darwin-x64-baseline/0.5.6:
+    resolution: {integrity: sha512-HInWods1mG+RXaNisjn564vALytCal1oYtPy+snVRFhZKWuJgFeW4uRiOMf5iHcgst6svV6zZxjbM4I69UmcnA==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-darwin-x64/0.5.6:
+    resolution: {integrity: sha512-rUvUMPmEHWQVXYyh2jX0IKga2WyqY2W94iNaV3UziO1AC+7ZWKGCra6RrPweqlnUYrjzfi72MNa57PPOV0WCkg==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-aarch64/0.5.6:
+    resolution: {integrity: sha512-/nFibpC73QmUmDJb6MihyM3lNNzXKYaZIQ5eHRqoYeU2dE2LEAbkMpBVDOoL+y2ZEnE2z67+f1WuLTcTPmEwwA==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-x64-baseline/0.5.6:
+    resolution: {integrity: sha512-0tbproUyIrZ6VSGysHLr0Uwsy+v5Dc5Wj6Xx1cBUC/ylnP60eBQHc9U+Xjat3Vlk3rGp95mbIP4PIInSDIFQvw==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-x64/0.5.6:
+    resolution: {integrity: sha512-wjLAzC0TEv3oqZIFcSajzQV6Otj0Dcuf7EiOQjUYtfugsEFUEtHqXhMUivk0ryKGONjd0PqxIqK7gRJH6aOSkw==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /@pedrouid/environment/1.0.1:
     resolution: {integrity: sha512-HaW78NszGzRZd9SeoI3JD11JqY+lubnaOx7Pewj5pfjqWXOEATpeKIFb9Z4t2WBUK2iryiXX3lzWwmYWgUL0Ug==}
     dev: false
@@ -3142,6 +3192,21 @@ packages:
     requiresBuild: true
     dependencies:
       node-gyp-build: 4.5.0
+    dev: true
+
+  /bun/0.5.6:
+    resolution: {integrity: sha512-IzjJd/1l07ZqdgRgReZ6V1WvFs51+DsTmakjvuP7DXccpx3OXhxFaayRUsr+3rA+7dnre+P7j8e7sGB2gYad8g==}
+    cpu: [arm64, x64]
+    os: [darwin, linux]
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 0.5.6
+      '@oven/bun-darwin-x64': 0.5.6
+      '@oven/bun-darwin-x64-baseline': 0.5.6
+      '@oven/bun-linux-aarch64': 0.5.6
+      '@oven/bun-linux-x64': 0.5.6
+      '@oven/bun-linux-x64-baseline': 0.5.6
     dev: true
 
   /bundle-require/3.1.2_esbuild@0.15.13:

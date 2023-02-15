@@ -138,7 +138,7 @@ async function generateProxyPackages(exports: Exports) {
     await fs.outputFile(
       `${key}/package.json`,
       dedent`{
-        "module": "${entrypoint.replace('.js', '.mjs')}",
+        "module": "${entrypoint.replace('.js', '.mts')}",
         "main": "${entrypoint}"
       }`,
     )
