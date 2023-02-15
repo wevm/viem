@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
-import { LimitExceededRpcError } from '../../dist'
 
 import {
   BaseError,
   HttpRequestError,
   InternalRpcError,
+  LimitExceededRpcError,
   TimeoutError,
   UnknownRpcError,
 } from '../errors'
