@@ -47,10 +47,14 @@ export function getConfig({ dev, ...options }: GetConfig): Options {
             distSourceFile.replace(/\.js$/, '.d.ts'),
             `export * from '${srcTypesFile}'`,
           )
-          fs.copyFileSync(distSourceFile, distSourceFile.replace('.js', '.mjs'))
+          await fs.symlink(
+            filePath,
+            distSourceFile.replace('.js', '.mts'),
+            'file',
+          )
         }
-        const exports = await generateExports(entry)
-        await generateProxyPackages(exports)
+        const exports = await generateExports(entry, { dev: true })
+        await generateProxyPackages(exports, { dev: true })
       },
     }
 
@@ -80,7 +84,10 @@ type Exports = {
 /**
  * Generate exports from entry files
  */
-async function generateExports(entry: string[]) {
+export async function generateExports(
+  entry: string[],
+  { dev }: { dev?: boolean } = {},
+) {
   const exports: Exports = {}
   for (const file of entry) {
     const extension = path.extname(file)
@@ -95,7 +102,7 @@ async function generateExports(entry: string[]) {
     const distEsmFile = `${fileWithoutExtension.replace(
       /^src\//g,
       './dist/',
-    )}.mjs`
+    )}.${dev ? 'mts' : 'mjs'}`
     const distTypesFile = `${fileWithoutExtension.replace(
       /^src\//g,
       './dist/',
@@ -122,7 +129,10 @@ async function generateExports(entry: string[]) {
 /**
  * Generate proxy packages files for each export
  */
-async function generateProxyPackages(exports: Exports) {
+export async function generateProxyPackages(
+  exports: Exports,
+  { dev }: { dev?: boolean } = {},
+) {
   for (const [key, value] of Object.entries(exports)) {
     if (typeof value === 'string') continue
     if (key === '.') continue
@@ -138,7 +148,7 @@ async function generateProxyPackages(exports: Exports) {
     await fs.outputFile(
       `${key}/package.json`,
       dedent`{
-        "module": "${entrypoint.replace('.js', '.mts')}",
+        "module": "${entrypoint.replace('.js', dev ? '.mts' : '.mjs')}",
         "main": "${entrypoint}"
       }`,
     )

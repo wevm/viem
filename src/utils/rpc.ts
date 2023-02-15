@@ -1,4 +1,3 @@
-import fetch from 'isomorphic-unfetch'
 import WebSocket from 'isomorphic-ws'
 import {
   HttpRequestError,

@@ -14,13 +14,13 @@
     "contracts:build": "wagmi generate",
     "dev": "DEV=true tsup",
     "dev:docs": "pnpm -r --filter site dev",
-    "format": "rome format src/ test/ --write",
+    "format": "rome format src/ --write",
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply-suggested",
     "playground": "pnpm --filter playground-dev dev",
     "postinstall": "pnpm dev && pnpm contracts:build",
     "preinstall": "npx only-allow pnpm",
-    "prepublishOnly": "pnpm bun scripts/generate-package-json.ts",
+    "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",
     "prepare": "npx simple-git-hooks",
     "test": "vitest dev --no-threads",
     "test:cov": "vitest dev --coverage --no-threads",
@@ -28,6 +28,19 @@
     "test:ui": "vitest dev --ui --no-threads",
     "ts-node": "bun",
     "typecheck": "tsc --noEmit"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts",
+      "src/chains.ts",
+      "src/contract.ts",
+      "src/ens.ts",
+      "src/public.ts",
+      "src/test.ts",
+      "src/utils/index.ts",
+      "src/wallet.ts",
+      "src/window.ts"
+    ]
   },
   "files": [
     "/dist",
@@ -43,47 +56,47 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "module": "./dist/index.mjs",
+      "module": "./dist/index.mts",
       "default": "./dist/index.js"
     },
     "./chains": {
       "types": "./dist/chains.d.ts",
-      "module": "./dist/chains.mjs",
+      "module": "./dist/chains.mts",
       "default": "./dist/chains.js"
     },
     "./contract": {
       "types": "./dist/contract.d.ts",
-      "module": "./dist/contract.mjs",
+      "module": "./dist/contract.mts",
       "default": "./dist/contract.js"
     },
     "./ens": {
       "types": "./dist/ens.d.ts",
-      "module": "./dist/ens.mjs",
+      "module": "./dist/ens.mts",
       "default": "./dist/ens.js"
     },
     "./public": {
       "types": "./dist/public.d.ts",
-      "module": "./dist/public.mjs",
+      "module": "./dist/public.mts",
       "default": "./dist/public.js"
     },
     "./test": {
       "types": "./dist/test.d.ts",
-      "module": "./dist/test.mjs",
+      "module": "./dist/test.mts",
       "default": "./dist/test.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
-      "module": "./dist/utils/index.mjs",
+      "module": "./dist/utils/index.mts",
       "default": "./dist/utils/index.js"
     },
     "./wallet": {
       "types": "./dist/wallet.d.ts",
-      "module": "./dist/wallet.mjs",
+      "module": "./dist/wallet.mts",
       "default": "./dist/wallet.js"
     },
     "./window": {
       "types": "./dist/window.d.ts",
-      "module": "./dist/window.mjs",
+      "module": "./dist/window.mts",
       "default": "./dist/window.js"
     },
     "./package.json": "./package.json"
@@ -97,7 +110,6 @@
     "@wagmi/chains": "~0.2.8",
     "abitype": "~0.3.0",
     "idna-uts46-hx": "^4.1.2",
-    "isomorphic-unfetch": "^4.0.2",
     "isomorphic-ws": "^5.0.0",
     "ws": "^8.12.0"
   },
@@ -144,7 +156,7 @@
     "web3"
   ],
   "simple-git-hooks": {
-    "pre-commit": "pnpm format & pnpm lint:fix"
+    "pre-commit": "pnpm format && pnpm lint:fix"
   },
   "pnpm": {
     "patchedDependencies": {
