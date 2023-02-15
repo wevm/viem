@@ -1,57 +1,90 @@
-import { Abi } from 'abitype'
+import { Abi, AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
 
 import type {
   Address,
   BlockNumber,
   BlockTag,
-  EventDefinition,
-  ExtractArgsFromEventDefinition,
   Filter,
   LogTopic,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
 } from '../../types'
 import {
   EncodeEventTopicsArgs,
   encodeEventTopics,
-  extractFunctionName,
-  extractFunctionParams,
   numberToHex,
-  getAbiItem,
 } from '../../utils'
 
-export type EventFilterArgs<TEventDefinition extends EventDefinition> =
-  ExtractArgsFromEventDefinition<TEventDefinition>
-
-export type CreateEventFilterArgs<TEventDefinition extends EventDefinition> = {
+export type CreateEventFilterArgs<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TArgs extends
+    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+    | undefined = undefined,
+> = {
   address?: Address | Address[]
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
-} & (
-  | {
-      event: TEventDefinition
-      args?: EventFilterArgs<TEventDefinition>
-    }
-  | {
-      event?: never
+} & (MaybeExtractEventArgsFromAbi<
+  TAbi,
+  TEventName
+> extends infer TEventFilterArgs
+  ?
+      | {
+          args:
+            | TEventFilterArgs
+            | (TArgs extends TEventFilterArgs ? TArgs : never)
+          event: TAbiEvent
+        }
+      | {
+          args?: never
+          event?: TAbiEvent
+        }
+      | {
+          args?: never
+          event?: never
+        }
+  : {
       args?: never
-    }
-)
-export type CreateEventFilterResponse = Filter<'event'>
+      event?: never
+    })
+
+export type CreateEventFilterResponse<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TArgs extends
+    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+    | undefined = undefined,
+> = Filter<'event', TAbi, TEventName, TArgs>
 
 export async function createEventFilter<
-  TEventDefinition extends EventDefinition,
+  TAbiEvent extends AbiEvent | undefined,
+  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TArgs extends
+    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+    | undefined = undefined,
 >(
   client: PublicClient,
   {
     address,
-    event,
     args,
+    event,
     fromBlock,
     toBlock,
-  }: CreateEventFilterArgs<TEventDefinition> = {},
-): Promise<CreateEventFilterResponse> {
+  }: CreateEventFilterArgs<TAbiEvent, TAbi, TEventName, TArgs> = {} as any,
+): Promise<CreateEventFilterResponse<TAbiEvent, TAbi, TEventName, TArgs>> {
   let topics: LogTopic[] = []
-  if (event) topics = buildFilterTopics({ event, args })
+  if (event)
+    topics = encodeEventTopics({
+      abi: [event],
+      eventName: event.name,
+      args,
+    } as EncodeEventTopicsArgs)
+
   const id = await client.request({
     method: 'eth_newFilter',
     params: [
@@ -64,30 +97,11 @@ export async function createEventFilter<
       },
     ],
   })
-  return { id, type: 'event' }
-}
-
-export function buildFilterTopics<TEventDefinition extends EventDefinition>({
-  event,
-  args,
-}: {
-  event: TEventDefinition
-  args?: EventFilterArgs<TEventDefinition>
-}) {
-  const eventName = extractFunctionName(event)!
-  const abi = unstable_parseAbi(event)
-  return encodeEventTopics({ abi, eventName, args } as EncodeEventTopicsArgs)
-}
-
-// REFACTOR: Implement a full version of `parseAbi` that supports more types (functions, errors) & more complex arg types (structs & arrays).
-function unstable_parseAbi(definition: EventDefinition): Abi {
-  const name = extractFunctionName(definition)!
-  const params = extractFunctionParams(definition)
-  return [
-    {
-      type: 'event',
-      name,
-      inputs: params || [],
-    },
-  ]
+  return {
+    abi: event ? [event] : undefined,
+    args,
+    eventName: event ? event.name : undefined,
+    id,
+    type: 'event',
+  } as unknown as CreateEventFilterResponse<TAbiEvent, TAbi, TEventName, TArgs>
 }

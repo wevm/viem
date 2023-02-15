@@ -1,4 +1,4 @@
-import { Abi } from 'abitype'
+import { Abi, AbiEvent, ExtractAbiEvent, Narrow } from 'abitype'
 import type { PublicClient } from '../../clients'
 import type {
   Address,
@@ -16,17 +16,26 @@ import {
 import { getFilterChanges } from './getFilterChanges'
 import { uninstallFilter } from './uninstallFilter'
 
-export type OnLogsResponse = Log[]
-export type OnLogs = (logs: OnLogsResponse) => void
+export type OnLogsResponse<
+  TAbi extends Abi | readonly unknown[] = readonly unknown[],
+  TEventName extends string = string,
+> = TAbi extends Abi
+  ? Log<bigint, number, ExtractAbiEvent<TAbi, TEventName>>[]
+  : Log[]
+export type OnLogs<
+  TAbi extends Abi | readonly unknown[] = readonly unknown[],
+  TEventName extends string = string,
+> = (logs: OnLogsResponse<TAbi, TEventName>) => void
 
 export type WatchContractEventArgs<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = any,
+  TAbi extends Abi | readonly unknown[] = readonly unknown[],
+  TEventName extends string = string,
 > = {
   /** The address of the contract. */
-  address: Address | Address[]
+  address?: Address | Address[]
   /** Contract ABI. */
-  abi: TAbi
+  abi: Narrow<TAbi>
+  args?: ExtractEventArgsFromAbi<TAbi, TEventName>
   /** Whether or not the event logs should be batched on each invocation. */
   batch?: boolean
   /** Contract event. */
@@ -34,14 +43,14 @@ export type WatchContractEventArgs<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogs
+  onLogs: OnLogs<TAbi, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
-} & ExtractEventArgsFromAbi<TAbi, TEventName>
+}
 
 export function watchContractEvent<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string,
 >(
   client: PublicClient,
   {
@@ -66,19 +75,23 @@ export function watchContractEvent<
   ])
 
   return observe(observerId, { onLogs, onError }, (emit) => {
-    let filter: Filter<'event'>
+    let filter: Filter<'event', TAbi, TEventName>
 
     const unwatch = poll(
       async () => {
         try {
           if (!filter) {
             try {
-              filter = await createContractEventFilter(client, {
+              filter = (await createContractEventFilter(client, {
                 abi,
                 address,
                 args,
                 eventName,
-              } as unknown as CreateContractEventFilterArgs)
+              } as unknown as CreateContractEventFilterArgs)) as Filter<
+                'event',
+                TAbi,
+                TEventName
+              >
               return
             } catch (err) {
               unwatch()
@@ -88,8 +101,8 @@ export function watchContractEvent<
 
           const logs = await getFilterChanges(client, { filter })
           if (logs.length === 0) return
-          if (batch) emit.onLogs(logs)
-          else logs.forEach((log) => emit.onLogs([log]))
+          if (batch) emit.onLogs(logs as any)
+          else logs.forEach((log) => emit.onLogs([log] as any))
         } catch (err) {
           emit.onError?.(err as Error)
         }

@@ -1,15 +1,13 @@
-import { Abi } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 import type { PublicClient } from '../../clients'
 
 import type {
   Address,
   BlockNumber,
   BlockTag,
-  EventDefinition,
-  ExtractArgsFromEventDefinition,
-  ExtractEventArgsFromAbi,
   ExtractEventNameFromAbi,
   Filter,
+  MaybeExtractEventArgsFromAbi,
 } from '../../types'
 import {
   encodeEventTopics,
@@ -17,24 +15,45 @@ import {
   numberToHex,
 } from '../../utils'
 
-export type EventFilterArgs<TEventDefinition extends EventDefinition> =
-  ExtractArgsFromEventDefinition<TEventDefinition>
-
 export type CreateContractEventFilterArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = any,
+  TEventName extends string | undefined = undefined,
+  TArgs extends
+    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+    | undefined = undefined,
 > = {
   address?: Address | Address[]
-  abi: TAbi
-  eventName: ExtractEventNameFromAbi<TAbi, TEventName>
+  abi: Narrow<TAbi>
+  eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
-} & ExtractEventArgsFromAbi<TAbi, TEventName>
-export type CreateContractEventFilterResponse = Filter<'event'>
+} & (undefined extends TEventName
+  ? {
+      args?: never
+    }
+  : MaybeExtractEventArgsFromAbi<
+      TAbi,
+      TEventName
+    > extends infer TEventFilterArgs
+  ? {
+      args?: TEventFilterArgs | (TArgs extends TEventFilterArgs ? TArgs : never)
+    }
+  : {
+      args?: never
+    })
+
+export type CreateContractEventFilterResponse<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = undefined,
+  TArgs extends
+    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+    | undefined = undefined,
+> = Filter<'event', TAbi, TEventName, TArgs>
 
 export async function createContractEventFilter<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = any,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string | undefined,
+  TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
 >(
   client: PublicClient,
   {
@@ -44,8 +63,8 @@ export async function createContractEventFilter<
     eventName,
     fromBlock,
     toBlock,
-  }: CreateContractEventFilterArgs<TAbi, TEventName>,
-): Promise<CreateContractEventFilterResponse> {
+  }: CreateContractEventFilterArgs<TAbi, TEventName, TArgs>,
+): Promise<CreateContractEventFilterResponse<TAbi, TEventName, TArgs>> {
   const topics = eventName
     ? encodeEventTopics({
         abi,
@@ -65,5 +84,11 @@ export async function createContractEventFilter<
       },
     ],
   })
-  return { id, type: 'event' }
+  return {
+    abi,
+    args,
+    eventName,
+    id,
+    type: 'event',
+  } as unknown as CreateContractEventFilterResponse<TAbi, TEventName, TArgs>
 }

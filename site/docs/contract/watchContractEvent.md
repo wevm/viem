@@ -109,7 +109,7 @@ In the example below, we want to filter out `Transfer`s that were sent by the ad
 
 ::: code-group
 
-```ts {9} [example.ts]
+```ts {8-9} [example.ts]
 import { watchContractEvent } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
@@ -118,7 +118,7 @@ const unwatch = await watchContractEvent(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer',
-  args: ['0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b'],
+  args: { from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' },
   onLogs: logs => console.log(logs)
 })
 // > [{ ... }, { ... }, { ... }]
@@ -126,7 +126,7 @@ const unwatch = await watchContractEvent(publicClient, {
 // > [{ ... }, { ... }, { ... }, { ... }]
 ```
 
-```ts {6-7} [abi.ts]
+```ts {6-8} [abi.ts]
 export const wagmiAbi = [
   ...
   {
@@ -174,20 +174,6 @@ A function that can be invoked to stop watching for new event logs.
 
 ## Arguments
 
-### address
-
-- **Type:** `Address`
-
-The contract address.
-
-```ts
-const unwatch = await watchContractEvent(publicClient, {
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  abi: wagmiAbi,
-  onLogs: logs => console.log(logs)
-})
-```
-
 ### abi
 
 - **Type:** [`Abi`](/docs/glossary/types#TODO)
@@ -213,6 +199,20 @@ const unwatch = await watchContractEvent(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   onLogs: logs => console.log(logs) // [!code focus]
+})
+```
+
+### address (optional)
+
+- **Type:** `Address`
+
+The contract address. If no address is provided, then it will emit all events matching the event signatures on the ABI.
+
+```ts
+const unwatch = await watchContractEvent(publicClient, {
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  abi: wagmiAbi,
+  onLogs: logs => console.log(logs)
 })
 ```
 

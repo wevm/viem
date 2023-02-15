@@ -26,11 +26,12 @@ You can also scope to a set of given attributes.
 
 ```ts
 import { getLogs } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils'
 import { publicClient } from '.'
 
 const logs = await getLogs(publicClient, {  // [!code focus:99]
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
+  event: parseAbiEvent('Transfer(address indexed, address indexed, uint256)'),
   args: {
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
@@ -46,18 +47,24 @@ A Filter can be scoped to an **address**:
 
 ```ts
 const filter = await getLogs(publicClient, {
-  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2'
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
 
 ### Event
 
-A Filter can be scoped to an **event**:
+A Filter can be scoped to an **event**.
+
+The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
+import { getLogs } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { publicClient } from '.'
+
 const filter = await getLogs(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
 ```
 
@@ -68,8 +75,8 @@ A Filter can be scoped to given **_indexed_ arguments**:
 ```ts
 const filter = await getLogs(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  args: {
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
   }
@@ -83,8 +90,8 @@ A Filter Argument can also be an array to indicate that other values can exist i
 ```ts
 const filter = await getLogs(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  args: {
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus:8]
     // '0xd8da...' OR '0xa5cc...' OR '0xa152...'
     from: [
       '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', 
@@ -102,9 +109,9 @@ A Filter can be scoped to a **block range**:
 ```ts
 const filter = await getLogs(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  fromBlock: 16330000n,
-  toBlock: 16330050n
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  fromBlock: 16330000n, // [!code focus]
+  toBlock: 16330050n // [!code focus]
 })
 ```
 
@@ -130,25 +137,27 @@ const logs = await getLogs(publicClient, {
 
 ### event
 
-- **Type:** `string`
+- **Type:** [`AbiEvent`](/docs/glossary/types#TODO)
 
-The event definition.
+The event in ABI format.
+
+A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
 const logs = await getLogs(publicClient, {
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
 ```
 
 ### args
 
-- **Type:** `EventFilterArgs`
+- **Type:** Inferred.
 
 A list of _indexed_ event arguments.
 
 ```ts
 const logs = await getLogs(publicClient, {
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'

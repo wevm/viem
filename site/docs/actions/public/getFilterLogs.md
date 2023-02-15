@@ -2,7 +2,7 @@
 
 Returns a list of **event** logs since the filter was created. 
 
-Note: `getFilterChanges` is only compatible with **events**.
+Note: `getFilterChanges` is only compatible with **event filters**.
 
 ## Import
 
@@ -14,11 +14,12 @@ import { getFilterLogs } from 'viem/public'
 
 ```ts
 import { createEventFilter, getFilterLogs } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils'
 import { publicClient } from '.'
 
 const filter = await createEventFilter(publicClient, { // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address,address,uint256)',
+  event: parseAbiEvent('Transfer(address indexed, address indexed, uint256)'),
 })
 // ...
 const logs = await getFilterLogs(publicClient, { filter })

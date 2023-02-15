@@ -75,7 +75,7 @@ export function decodeEventLog<
   }
 
   // Decode data (non-indexed args).
-  if (data) {
+  if (data && data !== '0x') {
     const params = inputs.filter((x) => !('indexed' in x && x.indexed))
     const decodedData = decodeAbi({ params, data })
     if (decodedData) {
