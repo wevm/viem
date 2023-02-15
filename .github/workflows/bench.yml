@@ -40,6 +40,6 @@ jobs:
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
       - name: Report
-        run: node -r esbuild-register ./.github/scripts/bench.ts
+        run: pnpm bun ./.github/scripts/bench.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

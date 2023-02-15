@@ -17,7 +17,7 @@
     "format": "rome format src/ --write",
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply-suggested",
-    "playground": "pnpm --filter playground-dev dev",
+    "playground": "pnpm --filter playground-browser dev",
     "postinstall": "pnpm dev && pnpm contracts:build",
     "preinstall": "npx only-allow pnpm",
     "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",

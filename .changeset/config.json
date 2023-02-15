@@ -8,5 +8,5 @@
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
-  "ignore": ["playground-dev", "@viem/site"]
+  "ignore": ["playground-browser", "playground-bun", "@viem/site"]
 }

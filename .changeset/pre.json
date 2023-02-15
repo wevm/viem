@@ -3,7 +3,7 @@
   "tag": "alpha",
   "initialVersions": {
     "viem": "0.0.0",
-    "playground-dev": "0.1.0",
+    "playground-browser": "0.1.0",
     "@viem/site": "0.0.0"
   },
   "changesets": [
