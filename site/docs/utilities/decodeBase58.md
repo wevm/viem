@@ -1,3 +1,0 @@
-# decodeBase58
-
-TODO

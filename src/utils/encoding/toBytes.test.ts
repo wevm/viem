@@ -2,30 +2,30 @@ import { describe, expect, test } from 'vitest'
 
 import {
   boolToBytes,
-  encodeBytes,
+  toBytes,
   hexToBytes,
   numberToBytes,
   stringToBytes,
-} from './encodeBytes'
+} from './toBytes'
 
 describe('converts numbers to bytes', () => {
   test('default', () => {
-    expect(encodeBytes(0)).toMatchInlineSnapshot(`
+    expect(toBytes(0)).toMatchInlineSnapshot(`
       Uint8Array [
         0,
       ]
     `)
-    expect(encodeBytes(7)).toMatchInlineSnapshot(`
+    expect(toBytes(7)).toMatchInlineSnapshot(`
       Uint8Array [
         7,
       ]
     `)
-    expect(encodeBytes(69)).toMatchInlineSnapshot(`
+    expect(toBytes(69)).toMatchInlineSnapshot(`
       Uint8Array [
         69,
       ]
     `)
-    expect(encodeBytes(420)).toMatchInlineSnapshot(`
+    expect(toBytes(420)).toMatchInlineSnapshot(`
       Uint8Array [
         1,
         164,
@@ -54,7 +54,7 @@ describe('converts numbers to bytes', () => {
       ]
     `)
 
-    expect(() => encodeBytes(-69)).toThrowErrorMatchingInlineSnapshot(
+    expect(() => toBytes(-69)).toThrowErrorMatchingInlineSnapshot(
       '"Number \\"-69\\" is not in safe integer range (0 to 9007199254740991)"',
     )
   })
@@ -176,29 +176,29 @@ describe('converts numbers to bytes', () => {
 
 describe('converts bigints to bytes', () => {
   test('default', () => {
-    expect(encodeBytes(0n)).toMatchInlineSnapshot(`
+    expect(toBytes(0n)).toMatchInlineSnapshot(`
       Uint8Array [
         0,
       ]
     `)
-    expect(encodeBytes(7n)).toMatchInlineSnapshot(`
+    expect(toBytes(7n)).toMatchInlineSnapshot(`
       Uint8Array [
         7,
       ]
     `)
-    expect(encodeBytes(69n)).toMatchInlineSnapshot(`
+    expect(toBytes(69n)).toMatchInlineSnapshot(`
       Uint8Array [
         69,
       ]
     `)
-    expect(encodeBytes(420n)).toMatchInlineSnapshot(`
+    expect(toBytes(420n)).toMatchInlineSnapshot(`
       Uint8Array [
         1,
         164,
       ]
     `)
     expect(
-      encodeBytes(4206942069420694206942069420694206942069n),
+      toBytes(4206942069420694206942069420694206942069n),
     ).toMatchInlineSnapshot(`
         Uint8Array [
           12,
@@ -516,12 +516,12 @@ describe('converts bigints to bytes', () => {
 })
 
 test('converts boolean to bytes', () => {
-  expect(encodeBytes(true)).toMatchInlineSnapshot(`
+  expect(toBytes(true)).toMatchInlineSnapshot(`
     Uint8Array [
       1,
     ]
   `)
-  expect(encodeBytes(false)).toMatchInlineSnapshot(`
+  expect(toBytes(false)).toMatchInlineSnapshot(`
     Uint8Array [
       0,
     ]
@@ -540,20 +540,20 @@ test('converts boolean to bytes', () => {
 })
 
 test('converts hex to bytes', () => {
-  expect(encodeBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
-  expect(encodeBytes('0x61')).toMatchInlineSnapshot(`
+  expect(toBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
+  expect(toBytes('0x61')).toMatchInlineSnapshot(`
     Uint8Array [
       97,
     ]
   `)
-  expect(encodeBytes('0x616263')).toMatchInlineSnapshot(`
+  expect(toBytes('0x616263')).toMatchInlineSnapshot(`
     Uint8Array [
       97,
       98,
       99,
     ]
   `)
-  expect(encodeBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
+  expect(toBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
     `
     Uint8Array [
       72,
@@ -604,26 +604,26 @@ test('converts hex to bytes', () => {
       ]
     `)
 
-  expect(() => encodeBytes('0xgg')).toThrowErrorMatchingInlineSnapshot(
+  expect(() => toBytes('0xgg')).toThrowErrorMatchingInlineSnapshot(
     '"Invalid byte sequence"',
   )
 })
 
 test('converts string to bytes', () => {
-  expect(encodeBytes('')).toMatchInlineSnapshot('Uint8Array []')
-  expect(encodeBytes('a')).toMatchInlineSnapshot(`
+  expect(toBytes('')).toMatchInlineSnapshot('Uint8Array []')
+  expect(toBytes('a')).toMatchInlineSnapshot(`
     Uint8Array [
       97,
     ]
   `)
-  expect(encodeBytes('abc')).toMatchInlineSnapshot(`
+  expect(toBytes('abc')).toMatchInlineSnapshot(`
     Uint8Array [
       97,
       98,
       99,
     ]
   `)
-  expect(encodeBytes('Hello World!')).toMatchInlineSnapshot(
+  expect(toBytes('Hello World!')).toMatchInlineSnapshot(
     `
     Uint8Array [
       72,

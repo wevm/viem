@@ -1,36 +1,36 @@
 export {
   boolToBytes,
-  encodeBytes,
+  toBytes,
   hexToBytes,
   numberToBytes,
   stringToBytes,
-} from './encodeBytes'
+} from './toBytes'
 
 export {
   boolToHex,
   bytesToHex,
-  encodeHex,
+  toHex,
   numberToHex,
   stringToHex,
-} from './encodeHex'
+} from './toHex'
 
-export type { EncodeRlpResponse } from './encodeRlp'
-export { encodeRlp } from './encodeRlp'
+export type { toRlpResponse } from './toRlp'
+export { toRlp } from './toRlp'
 
 export {
   bytesToBigint,
   bytesToBool,
   bytesToNumber,
   bytesToString,
-  decodeBytes,
-} from './decodeBytes'
+  fromBytes,
+} from './fromBytes'
 
 export {
-  decodeHex,
+  fromHex,
   hexToBigInt,
   hexToBool,
   hexToNumber,
   hexToString,
-} from './decodeHex'
+} from './fromHex'
 
-export { decodeRlp } from './decodeRlp'
+export { fromRlp } from './fromRlp'

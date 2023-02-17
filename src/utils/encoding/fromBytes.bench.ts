@@ -3,7 +3,7 @@ import { hexlify, toUtf8String } from 'ethers/lib/utils'
 import { bench, describe } from 'vitest'
 import Web3 from 'web3'
 
-import { bytesToHex, bytesToString } from './decodeBytes'
+import { bytesToHex, bytesToString } from './fromBytes'
 
 describe('Bytes to Hex', () => {
   bench('viem: `bytesToHex`', () => {

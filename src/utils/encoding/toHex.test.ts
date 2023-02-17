@@ -1,19 +1,13 @@
 import { describe, expect, test } from 'vitest'
 
-import {
-  boolToHex,
-  bytesToHex,
-  encodeHex,
-  numberToHex,
-  stringToHex,
-} from './encodeHex'
+import { boolToHex, bytesToHex, toHex, numberToHex, stringToHex } from './toHex'
 
 describe('converts numbers to hex', () => {
   test('default', () => {
-    expect(encodeHex(0)).toMatchInlineSnapshot('"0x0"')
-    expect(encodeHex(7)).toMatchInlineSnapshot('"0x7"')
-    expect(encodeHex(69)).toMatchInlineSnapshot('"0x45"')
-    expect(encodeHex(420)).toMatchInlineSnapshot('"0x1a4"')
+    expect(toHex(0)).toMatchInlineSnapshot('"0x0"')
+    expect(toHex(7)).toMatchInlineSnapshot('"0x7"')
+    expect(toHex(69)).toMatchInlineSnapshot('"0x45"')
+    expect(toHex(420)).toMatchInlineSnapshot('"0x1a4"')
 
     expect(numberToHex(0)).toMatchInlineSnapshot('"0x0"')
     expect(numberToHex(7)).toMatchInlineSnapshot('"0x7"')
@@ -86,12 +80,12 @@ describe('converts numbers to hex', () => {
 
 describe('converts bigints to hex', () => {
   test('default', () => {
-    expect(encodeHex(0)).toMatchInlineSnapshot('"0x0"')
-    expect(encodeHex(7n)).toMatchInlineSnapshot('"0x7"')
-    expect(encodeHex(69n)).toMatchInlineSnapshot('"0x45"')
-    expect(encodeHex(420n)).toMatchInlineSnapshot('"0x1a4"')
+    expect(toHex(0)).toMatchInlineSnapshot('"0x0"')
+    expect(toHex(7n)).toMatchInlineSnapshot('"0x7"')
+    expect(toHex(69n)).toMatchInlineSnapshot('"0x45"')
+    expect(toHex(420n)).toMatchInlineSnapshot('"0x1a4"')
     expect(
-      encodeHex(4206942069420694206942069420694206942069n),
+      toHex(4206942069420694206942069420694206942069n),
     ).toMatchInlineSnapshot('"0xc5cf39211876fb5e5884327fa56fc0b75"')
 
     expect(numberToHex(0)).toMatchInlineSnapshot('"0x0"')
@@ -184,18 +178,18 @@ describe('converts bigints to hex', () => {
 })
 
 test('converts boolean to hex', () => {
-  expect(encodeHex(true)).toMatchInlineSnapshot('"0x1"')
-  expect(encodeHex(false)).toMatchInlineSnapshot('"0x0"')
+  expect(toHex(true)).toMatchInlineSnapshot('"0x1"')
+  expect(toHex(false)).toMatchInlineSnapshot('"0x0"')
 
   expect(boolToHex(true)).toMatchInlineSnapshot('"0x1"')
   expect(boolToHex(false)).toMatchInlineSnapshot('"0x0"')
 })
 
 test('converts string to hex', () => {
-  expect(encodeHex('')).toMatchInlineSnapshot('"0x"')
-  expect(encodeHex('a')).toMatchInlineSnapshot('"0x61"')
-  expect(encodeHex('abc')).toMatchInlineSnapshot('"0x616263"')
-  expect(encodeHex('Hello World!')).toMatchInlineSnapshot(
+  expect(toHex('')).toMatchInlineSnapshot('"0x"')
+  expect(toHex('a')).toMatchInlineSnapshot('"0x61"')
+  expect(toHex('abc')).toMatchInlineSnapshot('"0x616263"')
+  expect(toHex('Hello World!')).toMatchInlineSnapshot(
     '"0x48656c6c6f20576f726c6421"',
   )
 
@@ -208,13 +202,13 @@ test('converts string to hex', () => {
 })
 
 test('converts bytes to hex', () => {
-  expect(encodeHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
-  expect(encodeHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
-  expect(encodeHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
+  expect(toHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
+  expect(toHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
+  expect(toHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
     '"0x616263"',
   )
   expect(
-    encodeHex(
+    toHex(
       new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
     ),
   ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')

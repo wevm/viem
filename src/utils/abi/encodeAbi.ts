@@ -96,7 +96,7 @@ function prepareParam<TParam extends AbiParameter>({
     return encodeNumber(value as unknown as number, { signed })
   }
   if (param.type.startsWith('bytes')) {
-    return encodeBytes(value as unknown as Hex, { param })
+    return toBytes(value as unknown as Hex, { param })
   }
   if (param.type === 'string') {
     return encodeString(value as unknown as string)
@@ -187,7 +187,7 @@ function encodeArray<TParam extends AbiParameter>(
   }
 }
 
-function encodeBytes<TParam extends AbiParameter>(
+function toBytes<TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
 ): PreparedParam {

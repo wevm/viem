@@ -26,7 +26,7 @@ export function bytesToHex(value: ByteArray): Hex {
 /**
  * @description Encodes a string, number, bigint, or ByteArray into a hex string
  */
-export function encodeHex(
+export function toHex(
   value: string | number | bigint | boolean | ByteArray,
 ): Hex {
   if (typeof value === 'number' || typeof value === 'bigint')

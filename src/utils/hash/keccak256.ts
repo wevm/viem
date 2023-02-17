@@ -2,7 +2,7 @@ import { keccak_256 } from '@noble/hashes/sha3'
 
 import type { ByteArray, Hex } from '../../types'
 
-import { encodeHex } from '../encoding'
+import { toHex } from '../encoding'
 
 type To = 'hex' | 'bytes'
 
@@ -17,5 +17,5 @@ export function keccak256<TTo extends To = 'hex'>(
   const to = to_ || 'hex'
   const bytes = keccak_256(value)
   if (to === 'bytes') return bytes as Keccak256Hash<TTo>
-  return encodeHex(bytes) as Keccak256Hash<TTo>
+  return toHex(bytes) as Keccak256Hash<TTo>
 }

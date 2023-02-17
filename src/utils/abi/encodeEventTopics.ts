@@ -16,7 +16,7 @@ import {
   ExtractEventNameFromAbi,
   Hex,
 } from '../../types'
-import { encodeBytes } from '../encoding'
+import { toBytes } from '../encoding'
 import { keccak256, getEventSignature } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { formatAbiItem } from './formatAbiItem'
@@ -68,7 +68,7 @@ function encodeArg({
   value,
 }: { param: AbiParameter; value: AbiParameterToPrimitiveType<AbiParameter> }) {
   if (param.type === 'string' || param.type === 'bytes')
-    return keccak256(encodeBytes(value as string))
+    return keccak256(toBytes(value as string))
   if (param.type === 'tuple' || param.type.match(/^(.*)\[(\d+)?\]$/))
     throw new FilterTypeNotSupportedError(param.type)
   return encodeAbi({ params: [param], values: [value] })

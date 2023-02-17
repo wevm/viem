@@ -6,7 +6,7 @@ import {
   ContractFunctionRevertedError,
 } from '../../errors'
 import type { Address, Prettify } from '../../types'
-import { encodeHex } from '../../utils'
+import { toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractArgs } from '../public'
 
@@ -89,7 +89,7 @@ export async function getEnsName(
         },
       ],
       functionName: 'reverse',
-      args: [encodeHex(packetToBytes(reverseNode))],
+      args: [toHex(packetToBytes(reverseNode))],
       blockNumber,
       blockTag,
     })

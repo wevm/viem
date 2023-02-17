@@ -1,34 +1,34 @@
-# decodeBytes
+# fromBytes
 
 Decodes a byte array to a string, hex value, boolean or number.
 
 ## Import
 
 ```ts
-import { decodeBytes } from 'viem/utils'
+import { fromBytes } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { decodeBytes } from 'viem/utils'
+import { fromBytes } from 'viem/utils'
 
-decodeBytes(
+fromBytes(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]), 
   'string'
 )
 // 'Hello world'
 
-decodeBytes(
+fromBytes(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]), 
   'hex'
 )
 // '0x48656c6c6f20576f726c6421'
 
-decodeBytes(new Uint8Array([1, 164]), 'number')
+fromBytes(new Uint8Array([1, 164]), 'number')
 // 420
 
-decodeBytes(new Uint8Array([1]), 'boolean')
+fromBytes(new Uint8Array([1]), 'boolean')
 // true
 ```
 

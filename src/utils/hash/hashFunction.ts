@@ -1,8 +1,8 @@
-import { encodeBytes } from '../encoding'
+import { toBytes } from '../encoding'
 import { extractFunctionName, extractFunctionParams } from '../contract'
 import { keccak256 } from './keccak256'
 
-const hash = (value: string) => keccak256(encodeBytes(value))
+const hash = (value: string) => keccak256(toBytes(value))
 
 export function hashFunction(def: string) {
   const name = extractFunctionName(def)

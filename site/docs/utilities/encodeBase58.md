@@ -1,3 +1,0 @@
-# encodeBase58
-
-TODO

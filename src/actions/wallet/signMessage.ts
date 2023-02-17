@@ -1,7 +1,7 @@
 import type { WalletClient } from '../../clients'
 import { BaseError } from '../../errors'
 import type { Address, ByteArray, Hex } from '../../types'
-import { encodeHex } from '../../utils'
+import { toHex } from '../../utils'
 
 export type SignMessageArgs = {
   from: Address
@@ -18,14 +18,14 @@ export async function signMessage(
   if (typeof data_ === 'string') {
     if (!data_.startsWith('0x'))
       throw new BaseError(
-        `data ("${data_}") must be a hex value. Encode it first to a hex with the \`encodeHex\` util.`,
+        `data ("${data_}") must be a hex value. Encode it first to a hex with the \`toHex\` util.`,
         {
           docsPath: '/TODO',
         },
       )
     data = data_
   } else {
-    data = encodeHex(data_)
+    data = toHex(data_)
   }
   const signed = await client.request({
     method: 'personal_sign',

@@ -12,12 +12,9 @@ test('exports utils', () => {
       "bytesToHex": [Function],
       "bytesToNumber": [Function],
       "bytesToString": [Function],
-      "decodeBytes": [Function],
-      "decodeHex": [Function],
-      "decodeRlp": [Function],
-      "encodeBytes": [Function],
-      "encodeHex": [Function],
-      "encodeRlp": [Function],
+      "fromBytes": [Function],
+      "fromHex": [Function],
+      "fromRlp": [Function],
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],
@@ -27,6 +24,9 @@ test('exports utils', () => {
       "numberToHex": [Function],
       "stringToBytes": [Function],
       "stringToHex": [Function],
+      "toBytes": [Function],
+      "toHex": [Function],
+      "toRlp": [Function],
     }
   `)
 })

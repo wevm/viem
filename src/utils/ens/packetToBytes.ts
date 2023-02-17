@@ -1,6 +1,6 @@
 // Adapted from https://github.com/mafintosh/dns-packet
 import { ByteArray } from '../../types'
-import { encodeBytes } from '../encoding'
+import { toBytes } from '../encoding'
 
 /*
  * @description Encodes a DNS packet into a ByteArray containing a UDP payload.
@@ -8,7 +8,7 @@ import { encodeBytes } from '../encoding'
 export function packetToBytes(packet: string): ByteArray {
   function length(value: string) {
     if (value === '.' || value === '..') return 1
-    return encodeBytes(value.replace(/^\.|\.$/gm, '')).length + 2
+    return toBytes(value.replace(/^\.|\.$/gm, '')).length + 2
   }
 
   const bytes = new Uint8Array(length(packet))
@@ -19,7 +19,7 @@ export function packetToBytes(packet: string): ByteArray {
   let offset = 0
   const list = value.split('.')
   for (let i = 0; i < list.length; i++) {
-    const encoded = encodeBytes(list[i])
+    const encoded = toBytes(list[i])
     bytes[offset] = encoded.length
     bytes.set(encoded, offset + 1)
     offset += encoded.length + 1

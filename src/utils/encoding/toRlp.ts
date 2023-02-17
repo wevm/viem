@@ -1,31 +1,31 @@
 import type { ByteArray, Hex } from '../../types'
 import { concat } from '../data'
-import { encodeBytes } from './encodeBytes'
-import { bytesToHex } from './encodeHex'
+import { toBytes } from './toBytes'
+import { bytesToHex } from './toHex'
 
 export type RecursiveArray<T> = T | Array<RecursiveArray<T>>
 
 type To = 'hex' | 'bytes'
 
-export type EncodeRlpResponse<TTo extends To> = TTo extends 'bytes'
+export type toRlpResponse<TTo extends To> = TTo extends 'bytes'
   ? ByteArray
   : TTo extends 'hex'
   ? Hex
   : never
 
-export function encodeRlp<TTo extends To = 'hex'>(
+export function toRlp<TTo extends To = 'hex'>(
   hexOrBytes: RecursiveArray<Hex> | RecursiveArray<ByteArray>,
   to_?: TTo,
 ) {
   const to = to_ || ('hex' as const)
-  return format(bytesToRlp(parse(hexOrBytes)), to) as EncodeRlpResponse<TTo>
+  return format(bytesToRlp(parse(hexOrBytes)), to) as toRlpResponse<TTo>
 }
 
 function parse(
   hexOrBytes: RecursiveArray<Hex> | RecursiveArray<ByteArray>,
 ): RecursiveArray<ByteArray> {
   if (Array.isArray(hexOrBytes)) return hexOrBytes.map(parse)
-  return typeof hexOrBytes === 'string' ? encodeBytes(hexOrBytes) : hexOrBytes
+  return typeof hexOrBytes === 'string' ? toBytes(hexOrBytes) : hexOrBytes
 }
 
 function format(bytes: ByteArray, type: 'hex' | 'bytes' = 'bytes') {
@@ -44,5 +44,5 @@ export function bytesToRlp(bytes: RecursiveArray<ByteArray>): ByteArray {
 
 function encodeLength(length: number, offset: number) {
   if (length < 56) return [offset + length]
-  return [encodeBytes(length).length + offset + 55, ...encodeBytes(length)]
+  return [toBytes(length).length + offset + 55, ...toBytes(length)]
 }

@@ -68,7 +68,7 @@ getContractAddress({
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   opcode: 'CREATE2', // [!code focus:1]
-  salt: encodeBytes('wagmi'),
+  salt: toBytes('wagmi'),
 })
 ```
 
@@ -84,7 +84,7 @@ getContractAddress({
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus:1]
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   opcode: 'CREATE2',
-  salt: encodeBytes('wagmi'),
+  salt: toBytes('wagmi'),
 })
 ```
 
@@ -100,6 +100,6 @@ getContractAddress({
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   opcode: 'CREATE2',
-  salt: encodeBytes('wagmi'), // [!code focus:1]
+  salt: toBytes('wagmi'), // [!code focus:1]
 })
 ```

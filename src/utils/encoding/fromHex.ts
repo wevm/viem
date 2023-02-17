@@ -1,9 +1,9 @@
 import { InvalidHexBooleanError } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
 import { trim } from '../data'
-import { hexToBytes } from './encodeBytes'
+import { hexToBytes } from './toBytes'
 
-type DecodeHexResponse<TTo> = TTo extends 'string'
+type fromHexResponse<TTo> = TTo extends 'string'
   ? string
   : TTo extends 'bigint'
   ? bigint
@@ -18,14 +18,14 @@ type DecodeHexResponse<TTo> = TTo extends 'string'
 /**
  * @description Decodes a hex string into a string, number, bigint, boolean, or bytes32 array.
  */
-export function decodeHex<
+export function fromHex<
   TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
->(hex: Hex, to: TTo): DecodeHexResponse<TTo> {
-  if (to === 'number') return hexToNumber(hex) as DecodeHexResponse<TTo>
-  if (to === 'bigint') return hexToBigInt(hex) as DecodeHexResponse<TTo>
-  if (to === 'string') return hexToString(hex) as DecodeHexResponse<TTo>
-  if (to === 'boolean') return hexToBool(hex) as DecodeHexResponse<TTo>
-  return hexToBytes(hex) as DecodeHexResponse<TTo>
+>(hex: Hex, to: TTo): fromHexResponse<TTo> {
+  if (to === 'number') return hexToNumber(hex) as fromHexResponse<TTo>
+  if (to === 'bigint') return hexToBigInt(hex) as fromHexResponse<TTo>
+  if (to === 'string') return hexToString(hex) as fromHexResponse<TTo>
+  if (to === 'boolean') return hexToBool(hex) as fromHexResponse<TTo>
+  return hexToBytes(hex) as fromHexResponse<TTo>
 }
 
 export type HexToBigIntOpts = {

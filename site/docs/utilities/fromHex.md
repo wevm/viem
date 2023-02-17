@@ -1,31 +1,31 @@
-# decodeHex
+# fromHex
 
 Decodes a hex value to a string, number or byte array.
 
 ## Import
 
 ```ts
-import { decodeHex } from 'viem/utils'
+import { fromHex } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { decodeHex } from 'viem/utils'
+import { fromHex } from 'viem/utils'
 
-decodeHex('0x1a4', 'number')
+fromHex('0x1a4', 'number')
 // 420
 
-decodeHex('0xc5cf39211876fb5e5884327fa56fc0b75', 'bigint')
+fromHex('0xc5cf39211876fb5e5884327fa56fc0b75', 'bigint')
 // 4206942069420694206942069420694206942069n
 
-decodeHex('0x48656c6c6f20776f726c642e', 'string')
+fromHex('0x48656c6c6f20776f726c642e', 'string')
 // "Hello world"
 
-decodeHex('0x48656c6c6f20576f726c6421', 'bytes')
+fromHex('0x48656c6c6f20576f726c6421', 'bytes')
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 
-decodeHex('0x1', 'boolean')
+fromHex('0x1', 'boolean')
 // true
 ```
 

@@ -88,7 +88,7 @@ function decodeParam({
     return decodeString(data, { position })
   }
   if (param.type.startsWith('bytes')) {
-    return decodeBytes(data, { param, position })
+    return fromBytes(data, { param, position })
   }
 
   let value = slice(data, position, position + 32) as Hex
@@ -191,7 +191,7 @@ function decodeBool(value: Hex) {
   return { consumed: 32, value: hexToBool(value) }
 }
 
-function decodeBytes<TParam extends AbiParameter>(
+function fromBytes<TParam extends AbiParameter>(
   data: Hex,
   { param, position }: { param: TParam; position: number },
 ) {

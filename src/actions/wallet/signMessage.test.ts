@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, walletClient } from '../../_test'
-import { encodeBytes, encodeHex } from '../../utils'
+import { toBytes, toHex } from '../../utils'
 
 import { signMessage } from './signMessage'
 
@@ -18,7 +18,7 @@ test('hex', async () => {
   expect(
     await signMessage(walletClient!, {
       from: accounts[0].address,
-      data: encodeHex('hello world'),
+      data: toHex('hello world'),
     }),
   ).toMatchInlineSnapshot(
     '"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"',
@@ -32,7 +32,7 @@ test('hex', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-    "data (\\"deadbeaf\\") must be a hex value. Encode it first to a hex with the \`encodeHex\` util.
+    "data (\\"deadbeaf\\") must be a hex value. Encode it first to a hex with the \`toHex\` util.
 
     Docs: https://viem.sh/TODO
     Version: viem@1.0.2"
@@ -53,7 +53,7 @@ test('bytes', async () => {
   expect(
     await signMessage(walletClient!, {
       from: accounts[0].address,
-      data: encodeBytes('hello world'),
+      data: toBytes('hello world'),
     }),
   ).toMatchInlineSnapshot(
     '"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"',

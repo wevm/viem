@@ -1,30 +1,30 @@
-# encodeHex
+# toHex
 
 Encodes a string, number, boolean or byte array to a hex value value.
 
 ## Import
 
 ```ts
-import { encodeHex } from 'viem/utils'
+import { toHex } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { encodeHex } from 'viem/utils'
+import { toHex } from 'viem/utils'
 
-encodeHex(420)
+toHex(420)
 // "0x1a4"
 
-encodeHex('Hello world')
+toHex('Hello world')
 // "0x48656c6c6f20776f726c642e"
 
-encodeHex(
+toHex(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 )
 // "0x48656c6c6f20576f726c6421"
 
-encodeHex(true)
+toHex(true)
 // "0x1"
 ```
 

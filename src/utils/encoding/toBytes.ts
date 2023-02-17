@@ -1,6 +1,6 @@
 import type { ByteArray, Hex } from '../../types'
-import type { NumberToHexOpts } from './encodeHex'
-import { numberToHex } from './encodeHex'
+import type { NumberToHexOpts } from './toHex'
+import { numberToHex } from './toHex'
 
 const encoder = new TextEncoder()
 
@@ -14,7 +14,7 @@ export function boolToBytes(value: boolean) {
 }
 
 /** @description Encodes a UTF-8 string, hex value, bigint, number or boolean to a byte array. */
-export function encodeBytes(
+export function toBytes(
   value: string | bigint | number | boolean | Hex,
 ): ByteArray {
   if (typeof value === 'number' || typeof value === 'bigint')

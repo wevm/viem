@@ -6,21 +6,21 @@ import {
 } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
 import { trim } from '../data'
-import { bytesToNumber } from './decodeBytes'
-import { hexToBytes } from './encodeBytes'
-import { bytesToHex } from './encodeHex'
-import type { RecursiveArray } from './encodeRlp'
+import { bytesToNumber } from './fromBytes'
+import { hexToBytes } from './toBytes'
+import { bytesToHex } from './toHex'
+import type { RecursiveArray } from './toRlp'
 
-type DecodeRlpResponse<TTo> = TTo extends 'bytes'
+type fromRlpResponse<TTo> = TTo extends 'bytes'
   ? ByteArray
   : TTo extends 'hex'
   ? Hex
   : never
 
-export function decodeRlp<TTo extends 'bytes' | 'hex'>(
+export function fromRlp<TTo extends 'bytes' | 'hex'>(
   value: ByteArray | Hex,
   to: TTo,
-): RecursiveArray<DecodeRlpResponse<TTo>> {
+): RecursiveArray<fromRlpResponse<TTo>> {
   const bytes = parse(value)
   const [data, consumed] = rlpToBytes(bytes)
   if (consumed < bytes.length)
@@ -43,11 +43,11 @@ function parse(value: ByteArray | Hex) {
 function format<TTo extends 'bytes' | 'hex'>(
   bytes: RecursiveArray<ByteArray>,
   to: TTo,
-): RecursiveArray<DecodeRlpResponse<TTo>> {
+): RecursiveArray<fromRlpResponse<TTo>> {
   if (Array.isArray(bytes)) return bytes.map((b) => format(b, to))
   return (
     to === 'hex' ? trim(bytesToHex(bytes)) : bytes
-  ) as DecodeRlpResponse<TTo>
+  ) as fromRlpResponse<TTo>
 }
 
 function rlpToBytes(

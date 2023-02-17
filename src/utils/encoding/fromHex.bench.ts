@@ -1,7 +1,7 @@
 import { bench, describe } from 'vitest'
 import Web3 from 'web3'
 
-import { hexToNumber, hexToString } from './decodeHex'
+import { hexToNumber, hexToString } from './fromHex'
 
 describe('Hex to Number', () => {
   bench('viem: `hexToNumber`', () => {

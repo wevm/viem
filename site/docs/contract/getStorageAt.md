@@ -14,13 +14,13 @@ import { getStorageAt } from 'viem/contract'
 
 ```ts [example.ts]
 import { getStorageAt } from 'viem/contract'
-import { encodeHex } from 'viem/utils'
+import { toHex } from 'viem/utils'
 import { wagmiAbi } from './abi'
 import { publicClient } from './client'
 
 const data = await getStorageAt(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  slot: encodeHex(0)
+  slot: toHex(0)
 })
 ```
 
@@ -53,7 +53,7 @@ The contract address.
 ```ts
 const data = await getStorageAt(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  slot: encodeHex(0)
+  slot: toHex(0)
 })
 ```
 
@@ -66,7 +66,7 @@ The storage position (as a hex encoded value).
 ```ts
 const data = await getStorageAt(publicClient, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  slot: encodeHex(0) // [!code focus]
+  slot: toHex(0) // [!code focus]
 })
 ```
 

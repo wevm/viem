@@ -1,28 +1,28 @@
-# encodeBytes
+# toBytes
 
 Encodes a string, hex value, number or boolean to a byte array.
 
 ## Import
 
 ```ts
-import { encodeBytes } from 'viem/utils'
+import { toBytes } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts
-import { encodeBytes } from 'viem/utils'
+import { toBytes } from 'viem/utils'
 
-encodeBytes('Hello world')
+toBytes('Hello world')
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 
-encodeBytes('0x48656c6c6f20576f726c6421')
+toBytes('0x48656c6c6f20576f726c6421')
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
 
-encodeBytes(420)
+toBytes(420)
 // Uint8Array([1, 164])
 
-encodeBytes(true)
+toBytes(true)
 // Uint8Array([1])
 ```
 

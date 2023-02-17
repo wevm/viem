@@ -1,11 +1,7 @@
 import { PublicClient } from '../../clients'
 import { ChainDoesNotSupportContract } from '../../errors'
 import type { Address, Prettify } from '../../types'
-import {
-  decodeFunctionResult,
-  encodeFunctionData,
-  encodeHex,
-} from '../../utils'
+import { decodeFunctionResult, encodeFunctionData, toHex } from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractArgs } from '../public'
 
@@ -88,7 +84,7 @@ export async function getEnsAddress(
     ],
     functionName: 'resolve',
     args: [
-      encodeHex(packetToBytes(name)),
+      toHex(packetToBytes(name)),
       encodeFunctionData({
         abi: [
           {

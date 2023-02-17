@@ -1,7 +1,7 @@
 import { AbiParameter } from 'abitype'
 import { describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '../../_test'
-import { encodeBytes } from '../encoding'
+import { toBytes } from '../encoding'
 import { getAbiItem, isArgOfType } from './getAbiItem'
 
 test('default', () => {
@@ -466,7 +466,7 @@ describe.each([
   // bytes
   { arg: 'foo', abiParameter: { type: 'bytes' }, expected: true },
   { arg: 'foo', abiParameter: { type: 'bytes32' }, expected: true },
-  { arg: encodeBytes('foo'), abiParameter: { type: 'bytes' }, expected: true },
+  { arg: toBytes('foo'), abiParameter: { type: 'bytes' }, expected: true },
   { arg: 1, abiParameter: { type: 'bytes32' }, expected: false },
   // function
   { arg: 'foo', abiParameter: { type: 'function' }, expected: true },

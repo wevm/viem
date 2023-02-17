@@ -2,7 +2,7 @@ import { hexlify } from 'ethers/lib/utils'
 import { bench, describe } from 'vitest'
 import Web3 from 'web3'
 
-import { bytesToHex, numberToHex, stringToHex } from './encodeHex'
+import { bytesToHex, numberToHex, stringToHex } from './toHex'
 
 describe('Number to Hex', () => {
   bench('viem: `numberToHex`', () => {

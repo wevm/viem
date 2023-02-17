@@ -1,6 +1,6 @@
 import type { Address, ByteArray, Hex } from '../../types'
 import { concat, isBytes, pad, slice } from '../data'
-import { encodeBytes, encodeRlp } from '../encoding'
+import { toBytes, toRlp } from '../encoding'
 import { keccak256 } from '../hash'
 import { getAddress } from './getAddress'
 
@@ -27,33 +27,29 @@ export function getContractAddress(opts: GetContractAddressOptions) {
 }
 
 export function getCreateAddress(opts: GetCreateAddressOptions) {
-  const from = encodeBytes(getAddress(opts.from))
+  const from = toBytes(getAddress(opts.from))
 
-  let nonce = encodeBytes(opts.nonce)
+  let nonce = toBytes(opts.nonce)
   if (nonce[0] === 0) nonce = new Uint8Array([])
 
   return getAddress(
-    `0x${keccak256(encodeRlp([from, nonce], 'bytes')).slice(26)}` as Address,
+    `0x${keccak256(toRlp([from, nonce], 'bytes')).slice(26)}` as Address,
   )
 }
 
 export function getCreate2Address(opts: GetCreate2AddressOptions) {
-  const from = encodeBytes(getAddress(opts.from))
-  const salt = pad(
-    isBytes(opts.salt) ? opts.salt : encodeBytes(opts.salt as Hex),
-    { size: 32 },
-  ) as ByteArray
-  const bytecodeHash = encodeBytes(
+  const from = toBytes(getAddress(opts.from))
+  const salt = pad(isBytes(opts.salt) ? opts.salt : toBytes(opts.salt as Hex), {
+    size: 32,
+  }) as ByteArray
+  const bytecodeHash = toBytes(
     keccak256(
       (isBytes(opts.bytecode)
         ? opts.bytecode
-        : encodeBytes(opts.bytecode as Hex)) as ByteArray,
+        : toBytes(opts.bytecode as Hex)) as ByteArray,
     ),
   )
   return getAddress(
-    slice(
-      keccak256(concat([encodeBytes('0xff'), from, salt, bytecodeHash])),
-      12,
-    ),
+    slice(keccak256(concat([toBytes('0xff'), from, salt, bytecodeHash])), 12),
   )
 }
