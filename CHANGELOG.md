@@ -4,6 +4,16 @@
 
 ### Patch Changes
 
+**Breaking**: Renamed encoding utils.
+
+- `encodeBytes`/`decodeBytes` → `toBytes`/`fromBytes`
+- `encodeHex`/`decodeHex` → `toHex`/`fromHex`
+- `encodeRlp`/`decodeRlp` → `toRlp`/`fromRlp`
+
+## 0.0.1-alpha.26
+
+### Patch Changes
+
 - [`7d9a241`](https://github.com/wagmi-dev/viem/commit/7d9a2413805b142611d29d7e5faddd44ae3c047c) Thanks [@jxom](https://github.com/jxom)! - Added `estimateContractGas`.
 
 * [`7d9a241`](https://github.com/wagmi-dev/viem/commit/7d9a2413805b142611d29d7e5faddd44ae3c047c) Thanks [@jxom](https://github.com/jxom)! - Added `retryCount` and `retryDelay` config to Transports.
