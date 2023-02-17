@@ -4,6 +4,7 @@
   "initialVersions": {
     "viem": "0.0.0",
     "playground-browser": "0.1.0",
+    "playground-bun": "0.1.0",
     "@viem/site": "0.0.0"
   },
   "changesets": [
@@ -33,6 +34,7 @@
     "red-cougars-dream",
     "rich-fans-remember",
     "rich-poets-explain",
+    "rotten-flowers-cross",
     "rotten-islands-hug",
     "rude-phones-greet",
     "sharp-tables-destroy",
