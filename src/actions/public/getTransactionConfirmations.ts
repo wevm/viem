@@ -7,7 +7,7 @@ import type {
 import { getBlockNumber } from './getBlockNumber'
 import { getTransaction } from './getTransaction'
 
-export type GetTransactionConfirmationsArgs<TChain extends Chain> =
+export type GetTransactionConfirmationsArgs<TChain extends Chain = Chain> =
   | {
       /** The transaction hash. */
       hash: Hash

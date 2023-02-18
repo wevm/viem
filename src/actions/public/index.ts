@@ -56,6 +56,7 @@ export { getBytecode } from './getBytecode'
 export type { GetBytecodeArgs, GetBytecodeResponse } from './getBytecode'
 
 export { getChainId } from './getChainId'
+export type { GetChainIdResponse } from './getChainId'
 
 export { getFeeHistory } from './getFeeHistory'
 export type { GetFeeHistoryArgs, GetFeeHistoryResponse } from './getFeeHistory'

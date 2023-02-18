@@ -25,7 +25,7 @@ export type WatchBlockNumberArgs = {
 
 /** @description Watches and returns incoming block numbers. */
 export function watchBlockNumber(
-  client: PublicClient,
+  client: PublicClient<any, any, any>,
   {
     emitOnBegin = false,
     emitMissed = false,
