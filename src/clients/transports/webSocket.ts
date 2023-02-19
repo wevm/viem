@@ -37,6 +37,8 @@ export type WebSocketTransportConfig = {
   retryCount?: TransportConfig['retryCount']
   /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay']
+  /** The timeout (in ms) for async WebSocket requests. Default: 10_000 */
+  timeout?: TransportConfig['timeout']
 }
 
 export type WebSocketTransport = Transport<
@@ -55,7 +57,12 @@ export function webSocket(
   url?: string,
   config: WebSocketTransportConfig = {},
 ): WebSocketTransport {
-  const { key = 'webSocket', name = 'WebSocket JSON-RPC', retryDelay } = config
+  const {
+    key = 'webSocket',
+    name = 'WebSocket JSON-RPC',
+    retryDelay,
+    timeout = 10_000,
+  } = config
   return ({ chain, retryCount: defaultRetryCount }) => {
     const retryCount = config.retryCount ?? defaultRetryCount
     const url_ = url || chain?.rpcUrls.default.webSocket?.[0]
@@ -68,11 +75,13 @@ export function webSocket(
           const socket = await getSocket(url_)
           const { result } = await rpc.webSocketAsync(socket, {
             body: { method, params },
+            timeout,
           })
           return result
         },
         retryCount,
         retryDelay,
+        timeout,
         type: 'webSocket',
       },
       {

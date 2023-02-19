@@ -20,6 +20,8 @@ export type TransportConfig<
   retryDelay?: number
   /** The max number of times to retry. */
   retryCount?: number
+  /** The timeout (in ms) for requests. */
+  timeout?: number
   /** The type of the transport. */
   type: TType
 }
@@ -52,12 +54,13 @@ export function createTransport<
     request,
     retryCount = 3,
     retryDelay = 150,
+    timeout,
     type,
   }: TransportConfig<TType>,
   value?: TRpcAttributes,
 ): ReturnType<Transport<TType, TRpcAttributes>> {
   return {
-    config: { key, name, request, retryCount, retryDelay, type },
+    config: { key, name, request, retryCount, retryDelay, timeout, type },
     request: buildRequest(request, { retryCount, retryDelay }),
     value,
   }

@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { localhost } from '../../chains'
+import { wait } from '../../utils/wait'
 import { createHttpServer } from '../../_test'
 
 import type { HttpTransport } from './http'
@@ -20,6 +21,7 @@ test('default', () => {
         "request": [Function],
         "retryCount": 3,
         "retryDelay": 150,
+        "timeout": 10000,
         "type": "http",
       },
       "request": [Function],
@@ -44,6 +46,7 @@ describe('config', () => {
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
+          "timeout": 10000,
           "type": "http",
         },
         "request": [Function],
@@ -67,6 +70,7 @@ describe('config', () => {
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
+          "timeout": 10000,
           "type": "http",
         },
         "request": [Function],
@@ -88,6 +92,7 @@ describe('config', () => {
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
+          "timeout": 10000,
           "type": "http",
         },
         "request": [Function],
@@ -171,6 +176,34 @@ describe('request', () => {
         Version: viem@1.0.2"
       `)
     expect(end > 500 && end < 520).toBeTruthy()
+  })
+
+  test('behavior: timeout', async () => {
+    const server = await createHttpServer(async (req, res) => {
+      await wait(5000)
+      res.writeHead(500, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({}))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      timeout: 100,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+      Details: The request timed out.
+      Version: viem@1.0.2"
+    `)
   })
 })
 
