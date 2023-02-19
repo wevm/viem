@@ -630,6 +630,30 @@ describe('isDeterministicError', () => {
     ).toBe(false)
   })
 
+  test('HttpRequestError (502)', () => {
+    expect(
+      isDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 502, url: '' }),
+      ),
+    ).toBe(false)
+  })
+
+  test('HttpRequestError (503)', () => {
+    expect(
+      isDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 503, url: '' }),
+      ),
+    ).toBe(false)
+  })
+
+  test('HttpRequestError (504)', () => {
+    expect(
+      isDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 504, url: '' }),
+      ),
+    ).toBe(false)
+  })
+
   test('HttpRequestError (429)', () => {
     expect(
       isDeterministicError(
