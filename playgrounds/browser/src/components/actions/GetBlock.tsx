@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { PublicClient } from 'viem'
 import type { GetBlockResponse } from 'viem/public'
-import { getBlock } from 'viem/public'
 
 export function GetBlock({ client }: { client: PublicClient }) {
   const [latestBlock, setLatestBlock] = useState<GetBlockResponse>()
@@ -9,8 +8,8 @@ export function GetBlock({ client }: { client: PublicClient }) {
 
   useEffect(() => {
     ;(async () => {
-      setLatestBlock(await getBlock(client, { blockTag: 'latest' }))
-      setBlock(await getBlock(client, { blockNumber: 42069n }))
+      setLatestBlock(await client.getBlock({ blockTag: 'latest' }))
+      setBlock(await client.getBlock({ blockNumber: 42069n }))
     })()
   }, [client])
 

@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import type { PublicClient } from 'viem'
+import type { Address, PublicClient } from 'viem'
 import type { GetTransactionArgs, GetTransactionResponse } from 'viem/public'
-import { getTransaction } from 'viem/public'
-import type { Address } from 'viem'
 
 export function GetTransaction({ client }: { client: PublicClient }) {
   return (
@@ -24,7 +22,7 @@ function GetTransactionByHash({ client }: { client: PublicClient }) {
 
   const handleGetTransaction = async () => {
     if (hash) {
-      setTransaction(await getTransaction(client, { hash }))
+      setTransaction(await client.getTransaction({ hash }))
     }
   }
 
@@ -64,7 +62,7 @@ function GetTransactionByHashAndIndex({ client }: { client: PublicClient }) {
   const handleGetTransaction = async () => {
     if (blockHash && index) {
       setTransaction(
-        await getTransaction(client, { blockHash, index: parseInt(index) }),
+        await client.getTransaction({ blockHash, index: parseInt(index) }),
       )
     }
   }
@@ -108,7 +106,7 @@ function GetTransactionByNumberAndIndex({ client }: { client: PublicClient }) {
   const handleGetTransaction = async () => {
     if (blockNumber && index) {
       setTransaction(
-        await getTransaction(client, {
+        await client.getTransaction({
           blockNumber: BigInt(blockNumber),
           index: parseInt(index),
         }),
@@ -156,7 +154,7 @@ function GetTransactionByTagAndIndex({ client }: { client: PublicClient }) {
   const handleGetTransaction = async () => {
     if (blockTag && index) {
       setTransaction(
-        await getTransaction(client, {
+        await client.getTransaction({
           blockTag,
           index: parseInt(index),
         }),
