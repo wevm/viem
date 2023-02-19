@@ -107,7 +107,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
     args: CreateContractEventFilterArgs,
   ) => Promise<CreateContractEventFilterResponse>
   createEventFilter: (
-    args: CreateEventFilterArgs,
+    args?: CreateEventFilterArgs,
   ) => Promise<CreateEventFilterResponse>
   createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterResponse>
   estimateContractGas: (
@@ -116,9 +116,9 @@ export type PublicActions<TChain extends Chain = Chain> = {
   estimateGas: (args: EstimateGasArgs) => Promise<EstimateGasResponse>
   getBalance: (args: GetBalanceArgs) => Promise<GetBalanceResponse>
   getBlock: (args: GetBlockArgs) => Promise<GetBlockResponse<TChain>>
-  getBlockNumber: (args: GetBlockNumberArgs) => Promise<GetBlockNumberResponse>
+  getBlockNumber: (args?: GetBlockNumberArgs) => Promise<GetBlockNumberResponse>
   getBlockTransactionCount: (
-    args: GetBlockTransactionCountArgs,
+    args?: GetBlockTransactionCountArgs,
   ) => Promise<GetBlockTransactionCountResponse>
   getBytecode: (args: GetBytecodeArgs) => Promise<GetBytecodeResponse>
   getChainId: () => Promise<GetChainIdResponse>
@@ -130,7 +130,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
   ) => Promise<GetFilterChangesResponse>
   getFilterLogs: (args: GetFilterLogsArgs) => Promise<GetFilterLogsResponse>
   getGasPrice: () => Promise<GetGasPriceResponse>
-  getLogs: (args: GetLogsArgs) => Promise<GetLogsResponse>
+  getLogs: (args?: GetLogsArgs) => Promise<GetLogsResponse>
   getStorageAt: (args: GetStorageAtArgs) => Promise<GetStorageAtResponse>
   getTransaction: (
     args: GetTransactionArgs,

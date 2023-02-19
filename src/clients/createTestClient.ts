@@ -61,17 +61,19 @@ export function createTestClient<
   TMode,
   true
 > {
-  const client = createClient({
-    chain,
-    key,
-    name,
-    pollingInterval,
-    transport,
-    type: 'testClient',
-  })
+  const client = {
+    ...createClient({
+      chain,
+      key,
+      name,
+      pollingInterval,
+      transport,
+      type: 'testClient',
+    }),
+    mode,
+  }
   return {
     ...client,
     ...testActions(client as TestClient<any, any, any>),
-    mode,
   }
 }
