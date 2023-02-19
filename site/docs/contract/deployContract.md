@@ -2,22 +2,15 @@
 
 Deploys a contract to the network, given bytecode & constructor arguments.
 
-## Install
-
-```ts
-import { deployContract } from 'viem/contract'
-```
-
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { deployContract } from 'viem/contract'
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 
-await deployContract(walletClient, {
+await walletClient.deployContract({
   abi,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
@@ -56,7 +49,7 @@ import { deployContract } from 'viem/contract'
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 
-await deployContract(walletClient, {
+await walletClient.deployContract({
   abi,
   args: [69420],
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
@@ -96,7 +89,7 @@ export const walletClient = createWalletClient({
 The contract's ABI.
 
 ```ts
-await deployContract(walletClient, {
+await walletClient.deployContract({
   abi: wagmiAbi, // [!code focus]
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
@@ -109,7 +102,7 @@ await deployContract(walletClient, {
 The contract's bytecode.
 
 ```ts
-await deployContract(walletClient, {
+await walletClient.deployContract({
   abi: wagmiAbi,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus]
 })
@@ -122,7 +115,7 @@ await deployContract(walletClient, {
 Constructor arguments to call upon deployment.
 
 ```ts
-await deployContract(walletClient, {
+await walletClient.deployContract({
   abi: wagmiAbi,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   args: [69] // [!code focus]

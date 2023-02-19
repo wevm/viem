@@ -5,16 +5,9 @@ Requests permissions for a wallet.
 ## Usage
 
 ```ts
-import { requestPermissions } from 'viem/wallet'
-```
-
-## Usage
-
-```ts
-import { requestPermissions } from 'viem/wallet'
 import { walletClient } from '.'
  
-const permissions = await requestPermissions(walletClient, { eth_accounts: {} }) // [!code focus:99]
+const permissions = await walletClient.requestPermissions({ eth_accounts: {} }) // [!code focus:99]
 ```
 
 ## Returns

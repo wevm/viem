@@ -121,7 +121,7 @@ const { request } = await publicClient.simulateContract({
   functionName: 'mint',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
 })
-const hash = await writeContract(walletClient, request)
+const hash = await walletClient.writeContract(request)
 ```
 
 ```ts [abi.ts]
