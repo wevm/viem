@@ -4,5 +4,6 @@ export { getEnsAddress, getEnsName } from './actions/ens'
 export {
   labelhash,
   namehash,
-  normalize,
 } from './utils/ens'
+
+export { normalize } from './utils/ens/normalize'

@@ -1,7 +1,6 @@
 import { concat } from '../data'
 import { bytesToHex, stringToBytes } from '../encoding'
 import { keccak256 } from '../hash'
-import { normalize } from './normalize'
 
 /**
  * @description Hashes ENS name
@@ -17,7 +16,7 @@ export function namehash(name: string) {
   let result = new Uint8Array(32).fill(0)
   if (!name) return bytesToHex(result)
 
-  const labels = normalize(name).split('.')
+  const labels = name.split('.')
   // Iterate in reverse order building up hash
   for (let i = labels.length - 1; i >= 0; i -= 1) {
     const hashed = keccak256(stringToBytes(labels[i]), 'bytes')
