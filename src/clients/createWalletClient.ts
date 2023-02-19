@@ -3,6 +3,7 @@ import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 import { Chain } from '../types'
+import { WalletActions, walletActions } from './decorators'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
@@ -21,7 +22,9 @@ export type WalletClientConfig<
 export type WalletClient<
   TTransport extends Transport = Transport,
   TChain extends Chain = Chain,
-> = Client<TTransport, TChain, SignableRequests & WalletRequests>
+  TIncludeActions extends boolean = true,
+> = Client<TTransport, TChain, SignableRequests & WalletRequests> &
+  (TIncludeActions extends true ? WalletActions<TChain> : {})
 
 /**
  * @description Creates a wallet client with a given transport.
@@ -43,12 +46,20 @@ export function createWalletClient<
   key = 'wallet',
   name = 'Wallet Client',
   pollingInterval,
-}: WalletClientConfig<TTransport, TChain>): WalletClient<TTransport, TChain> {
-  return createClient({
+}: WalletClientConfig<TTransport, TChain>): WalletClient<
+  TTransport,
+  TChain,
+  true
+> {
+  const client = createClient({
     key,
     name,
     pollingInterval,
     transport,
     type: 'walletClient',
   })
+  return {
+    ...client,
+    ...(walletActions(client as any) as any),
+  }
 }

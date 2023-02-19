@@ -22,7 +22,10 @@ export type DeployContractArgs<
 
 export type DeployContractResponse = SendTransactionResponse
 
-export function deployContract<TChain extends Chain, TAbi extends Abi>(
+export function deployContract<
+  TChain extends Chain,
+  TAbi extends Abi | readonly unknown[],
+>(
   walletClient: WalletClient,
   { abi, args, bytecode, ...request }: DeployContractArgs<TChain, TAbi>,
 ): Promise<DeployContractResponse> {

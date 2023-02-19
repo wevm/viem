@@ -54,6 +54,6 @@ export function createPublicClient<
   })
   return {
     ...client,
-    ...publicActions(client as any),
+    ...publicActions(client as PublicClient<any, any>),
   }
 }

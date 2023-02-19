@@ -14,7 +14,10 @@ export type { GetPermissionsResponse } from './getPermissions'
 export { requestAccounts } from './requestAccounts'
 
 export { requestPermissions } from './requestPermissions'
-export type { RequestPermissionsResponse } from './requestPermissions'
+export type {
+  RequestPermissionsArgs,
+  RequestPermissionsResponse,
+} from './requestPermissions'
 
 export { sendTransaction } from './sendTransaction'
 export type {

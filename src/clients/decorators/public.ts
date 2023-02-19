@@ -1,3 +1,4 @@
+import { Abi } from 'abitype'
 import type {
   CallArgs,
   CallResponse,
@@ -131,28 +132,34 @@ export type PublicActions<TChain extends Chain = Chain> = {
   getGasPrice: () => Promise<GetGasPriceResponse>
   getLogs: (args: GetLogsArgs) => Promise<GetLogsResponse>
   getStorageAt: (args: GetStorageAtArgs) => Promise<GetStorageAtResponse>
-  getTransaction: (args: GetTransactionArgs) => Promise<GetTransactionResponse>
+  getTransaction: (
+    args: GetTransactionArgs,
+  ) => Promise<GetTransactionResponse<TChain>>
   getTransactionConfirmations: (
     args: GetTransactionConfirmationsArgs<TChain>,
   ) => Promise<GetTransactionConfirmationsResponse>
   getTransactionReceipt: (
     args: GetTransactionReceiptArgs,
-  ) => Promise<GetTransactionReceiptResponse>
+  ) => Promise<GetTransactionReceiptResponse<TChain>>
   multicall: (args: MulticallArgs) => Promise<MulticallResponse>
   readContract: (args: ReadContractArgs) => Promise<ReadContractResponse>
-  simulateContract: (
-    args: SimulateContractArgs,
-  ) => Promise<SimulateContractResponse<TChain>>
+  simulateContract: <
+    TChainOverride extends Chain = TChain,
+    TAbi extends Abi | readonly unknown[] = Abi,
+    TFunctionName extends string = any,
+  >(
+    args: SimulateContractArgs<TChainOverride, TAbi, TFunctionName>,
+  ) => Promise<SimulateContractResponse<TChainOverride, TAbi, TFunctionName>>
   uninstallFilter: (
     args: UninstallFilterArgs,
   ) => Promise<UninstallFilterResponse>
   waitForTransactionReceipt: (
-    args: WaitForTransactionReceiptArgs,
-  ) => Promise<WaitForTransactionReceiptResponse>
+    args: WaitForTransactionReceiptArgs<TChain>,
+  ) => Promise<WaitForTransactionReceiptResponse<TChain>>
   watchBlockNumber: (
     args: WatchBlockNumberArgs,
   ) => ReturnType<typeof watchBlockNumber>
-  watchBlocks: (args: WatchBlocksArgs) => ReturnType<typeof watchBlocks>
+  watchBlocks: (args: WatchBlocksArgs<TChain>) => ReturnType<typeof watchBlocks>
   watchContractEvent: (
     args: WatchContractEventArgs,
   ) => ReturnType<typeof watchContractEvent>
