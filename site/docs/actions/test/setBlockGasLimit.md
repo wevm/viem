@@ -2,19 +2,12 @@
 
 Sets the block's gas limit.
 
-## Import 
-
-```ts
-import { setBlockGasLimit } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setBlockGasLimit } from 'viem/test'
 import { testClient } from '.'
  
-await setBlockGasLimit(testClient, { // [!code focus:4]
+await testClient.setBlockGasLimit({ // [!code focus:4]
   gasLimit: 420_000n
 })
 ```
@@ -28,7 +21,7 @@ await setBlockGasLimit(testClient, { // [!code focus:4]
 The gas limit.
 
 ```ts
-await setBlockGasLimit(testClient, {
+await testClient.setBlockGasLimit({
   gasLimit: 420_000n // [!code focus]
 })
 ```

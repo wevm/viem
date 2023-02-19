@@ -2,19 +2,12 @@
 
 Sets the next block's timestamp.
 
-## Import 
-
-```ts
-import { setNextBlockTimestamp } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setNextBlockTimestamp } from 'viem/test'
 import { testClient } from '.'
  
-await setNextBlockTimestamp(testClient, { // [!code focus:4]
+await testClient.setNextBlockTimestamp({ // [!code focus:4]
   timestamp: 1671744314
 })
 ```
@@ -26,7 +19,7 @@ await setNextBlockTimestamp(testClient, { // [!code focus:4]
 - **Type:** `number`
 
 ```ts
-await setNextBlockTimestamp(testClient, {
+await testClient.setNextBlockTimestamp({
   timestamp: 1671744314 // [!code focus]
 })
 ```

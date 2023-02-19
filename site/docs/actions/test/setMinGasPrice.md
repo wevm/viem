@@ -4,19 +4,13 @@ Change the minimum gas price accepted by the network (in wei).
 
 > Note: `setMinGasPrice` can only be used on clients that do not have EIP-1559 enabled.
 
-## Import 
-
-```ts
-import { setMinGasPrice } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setMinGasPrice, parseGwei } from 'viem/test'
+import { parseGwei } from 'viem/utils'
 import { testClient } from '.'
  
-await setMinGasPrice(testClient, { // [!code focus:99]
+await testClient.setMinGasPrice({ // [!code focus:99]
   gasPrice: parseGwei('20'),
 })
 ```
@@ -30,7 +24,7 @@ await setMinGasPrice(testClient, { // [!code focus:99]
 The gas price (in wei).
 
 ```ts
-await setMinGasPrice(testClient, {
+await testClient.setMinGasPrice({
   gasPrice: parseGwei('20'), // [!code focus]
 })
 ```
