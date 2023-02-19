@@ -2,12 +2,6 @@
 
 Estimates the gas required to successfully execute a contract write function call. 
 
-## Import
-
-```ts
-import { estimateContractGas } from 'viem/contract'
-```
-
 ## Usage
 
 Below is a very basic example of how to estimate gas (with no arguments).
@@ -17,11 +11,10 @@ The `mint` function accepts no arguments, and returns a token ID.
 ::: code-group
 
 ```ts [example.ts]
-import { estimateGas } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const gas = await estimateContractGas(publicClient, {
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -67,11 +60,10 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { estimateGas } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const gas = await estimateGas(publicClient, {
+const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -122,7 +114,7 @@ The gas estimate.
 The contract address.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'mint',
@@ -137,7 +129,7 @@ const { result } = await estimateGas(publicClient, {
 The contract's ABI.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'mint',
@@ -152,7 +144,7 @@ const { result } = await estimateGas(publicClient, {
 A function to extract from the ABI.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint', // [!code focus]
@@ -167,7 +159,7 @@ const { result } = await estimateGas(publicClient, {
 The sender of the call.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -182,7 +174,7 @@ const { result } = await estimateGas(publicClient, {
 The access list.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -203,7 +195,7 @@ const { result } = await estimateGas(publicClient, {
 Arguments to pass to function call.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
   abi: wagmiAbi,
   functionName: 'balanceOf',
@@ -219,7 +211,7 @@ const { result } = await estimateGas(publicClient, {
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -236,7 +228,7 @@ const { result } = await estimateGas(publicClient, {
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -253,7 +245,7 @@ const { result } = await estimateGas(publicClient, {
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -271,7 +263,7 @@ const { result } = await estimateGas(publicClient, {
 Unique number identifying this transaction.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -288,7 +280,7 @@ const { result } = await estimateGas(publicClient, {
 Value in wei sent with this transaction.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -305,7 +297,7 @@ const { result } = await estimateGas(publicClient, {
 The block number to perform the read against.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -322,7 +314,7 @@ const { result } = await estimateGas(publicClient, {
 The block tag to perform the read against.
 
 ```ts
-const { result } = await estimateGas(publicClient, {
+const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',

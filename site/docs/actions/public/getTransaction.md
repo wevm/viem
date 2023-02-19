@@ -2,19 +2,12 @@
 
 Returns information about a transaction given a hash or block identifier.
 
-## Import
-
-```ts
-import { getTransaction } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { getTransaction } from 'viem/public'
 import { publicClient } from '.'
  
-const transaction = await getTransaction(publicClient, { // [!code focus:99]
+const transaction = await publicClient.getTransaction({ // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
 /**
@@ -42,7 +35,7 @@ The transaction information.
 Get information about a transaction given a transaction hash.
 
 ```ts
-const transaction = await getTransaction(publicClient, {
+const transaction = await publicClient.getTransaction({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
@@ -54,7 +47,7 @@ const transaction = await getTransaction(publicClient, {
 Get information about a transaction given a block hash (and index).
 
 ```ts
-const transaction = await getTransaction(publicClient, {
+const transaction = await publicClient.getTransaction({
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus:2]
   index: 0
 })
@@ -67,7 +60,7 @@ const transaction = await getTransaction(publicClient, {
 Get information about a transaction given a block number (and index).
 
 ```ts
-const transaction = await getTransaction(publicClient, {
+const transaction = await publicClient.getTransaction({
   blockNumber: 69420n, // [!code focus:2]
   index: 0
 })
@@ -80,7 +73,7 @@ const transaction = await getTransaction(publicClient, {
 Get information about a transaction given a block tag (and index).
 
 ```ts
-const transaction = await getTransaction(publicClient, {
+const transaction = await publicClient.getTransaction({
   blockTag: 'safe', // [!code focus:2]
   index: 0
 })
@@ -93,7 +86,7 @@ const transaction = await getTransaction(publicClient, {
 An index to be used with a block identifier (number, hash or tag).
 
 ```ts
-const transaction = await getTransaction(publicClient, {
+const transaction = await publicClient.getTransaction({
   blockTag: 'safe',
   index: 0 // [!code focus]
 })

@@ -2,19 +2,12 @@
 
 Returns the number of [Transactions](/docs/glossary/terms#TODO) an Account has broadcast / sent.
 
-## Import
-
-```ts
-import { getTransactionCount } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { getTransactionCount } from 'viem/public'
 import { publicClient } from '.'
  
-const block = await getTransactionCount(publicClient, {  // [!code focus:99]
+const block = await publicClient.getTransactionCount({  // [!code focus:99]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 420
@@ -35,7 +28,7 @@ The number of transactions an account has sent.
 The address of the account.
 
 ```ts
-const balance = await getTransactionCount(publicClient, {
+const balance = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
 ```
@@ -47,7 +40,7 @@ const balance = await getTransactionCount(publicClient, {
 Get the count at a block number.
 
 ```ts
-const balance = await getTransactionCount(publicClient, {
+const balance = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
 })
@@ -60,7 +53,7 @@ const balance = await getTransactionCount(publicClient, {
 Get the count at a block tag.
 
 ```ts
-const balance = await getTransactionCount(publicClient, {
+const balance = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
 })

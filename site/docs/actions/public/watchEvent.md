@@ -6,12 +6,6 @@ This Action will batch up all the Event Logs found within the [`pollingInterval`
 
 `watchEvent` will attempt to create an [Event Filter](/docs/actions/public/watchEvent) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
 
-## Import
-
-```ts
-import { watchEvent } from 'viem/public'
-```
-
 ## Usage
 
 By default, you can watch all broadcasted events to the blockchain by just passing `onLogs`. 
@@ -21,11 +15,10 @@ These events will be batched up into [Event Logs](/docs/glossary/terms#TODO) and
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await watchEvent(publicClient, {
+const unwatch = await publicClient.watchEvent({
   onLogs: logs => console.log(logs)
 })
 // > [{ ... }, { ... }, { ... }]
@@ -34,7 +27,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem/public'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -56,11 +49,10 @@ You can also scope `watchEvent` to a set of given attributes (listed below).
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await watchEvent(publicClient, {
+const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // [!code focus]
   onLogs: logs => console.log(logs)
 })
@@ -70,7 +62,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem/public'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -90,12 +82,11 @@ The `event` argument takes in an event in ABI format – we have a [`parseAbiEve
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem/public'
 import { parseAbiEvent } from 'viem/utils' // [!code focus]
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await watchEvent(publicClient, {
+const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
   onLogs: logs => console.log(logs)
@@ -106,7 +97,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem/public'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -145,12 +136,11 @@ const unwatch = await watchEvent(publicClient, {
 ::: code-group
 
 ```ts [example.ts]
-import { watchEvent } from 'viem/public'
 import { parseAbiEvent } from 'viem/utils'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await watchEvent(publicClient, {
+const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -165,7 +155,7 @@ const unwatch = await watchEvent(publicClient, {
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem/public'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -181,7 +171,7 @@ Only indexed arguments in `event` are candidates for `args`.
 These arguments can also be an array to indicate that other values can exist in the position:
 
 ```ts
-const unwatch = await watchEvent(publicClient, {
+const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:8]
@@ -211,8 +201,7 @@ A function that can be invoked to stop watching for new Event Logs.
 The new Event Logs.
 
 ```ts
-const unwatch = watchEvent(
-  publicClient,
+const unwatch = publicClient.watchEvent(
   { onLogs: logs => console.log(logs) } // [!code focus:1]
 )
 ```
@@ -224,8 +213,7 @@ const unwatch = watchEvent(
 The contract address or a list of addresses from which Logs should originate.
 
 ```ts
-const unwatch = watchEvent(
-  publicClient,
+const unwatch = publicClient.watchEvent(
   { 
     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
     onLogs: logs => console.log(logs) 
@@ -244,8 +232,7 @@ A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem 
 ```ts
 import { parseAbiEvent } from 'viem/utils' // [!code focus]
 
-const unwatch = watchEvent(
-  publicClient,
+const unwatch = publicClient.watchEvent(
   { 
     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
     event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
@@ -261,8 +248,7 @@ const unwatch = watchEvent(
 A list of _indexed_ event arguments.
 
 ```ts
-const unwatch = watchEvent(
-  publicClient,
+const unwatch = publicClient.watchEvent(
   { 
     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
     event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
@@ -282,8 +268,7 @@ const unwatch = watchEvent(
 Whether or not to batch the Event Logs between polling intervals.
 
 ```ts
-const unwatch = watchEvent(
-  publicClient,
+const unwatch = publicClient.watchEvent(
   { 
     batch: false, // [!code focus]
     onLogs: logs => console.log(logs),
@@ -298,8 +283,7 @@ const unwatch = watchEvent(
 Error thrown from listening for new Event Logs.
 
 ```ts
-const unwatch = watchEvent(
-  publicClient,
+const unwatch = publicClient.watchEvent(
   { 
     onError: error => console.log(error) // [!code focus:1]
     onLogs: logs => console.log(logs),
@@ -314,8 +298,7 @@ const unwatch = watchEvent(
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
 ```ts
-const unwatch = watchEvent(
-  client,
+const unwatch = publicClient.watchEvent(
   { 
     pollingInterval: 1_000, // [!code focus]
     onLogs: logs => console.log(logs),

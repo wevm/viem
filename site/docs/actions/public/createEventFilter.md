@@ -2,21 +2,14 @@
 
 Creates a Filter to listen for new events that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).
 
-## Import
-
-```ts
-import { createEventFilter } from 'viem/public'
-```
-
 ## Usage
 
 By default, an Event Filter with no arguments will query for/listen to all events.
 
 ```ts
-import { createEventFilter } from 'viem/public'
 import { publicClient } from '.'
 
-const filter = await createEventFilter(publicClient)
+const filter = await publicClient.createEventFilter()
 // { id: "0x345a6572337856574a76364e457a4366", type: 'event' }
 ```
 
@@ -29,10 +22,9 @@ You can also scope a Filter to a set of given attributes (listed below).
 A Filter can be scoped to an **address**:
 
 ```ts 
-import { createEventFilter } from 'viem/public'
 import { publicClient } from '.'
 
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
@@ -44,11 +36,10 @@ A Filter can be scoped to an **event**.
 The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
-import { createEventFilter } from 'viem/public'
 import { parseAbiEvent } from 'viem/utils' // [!code focus]
 import { publicClient } from '.'
 
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
@@ -79,7 +70,7 @@ const filter = await createEventFilter(publicClient, {
 A Filter can be scoped to given **_indexed_ arguments**:
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -94,7 +85,7 @@ Only indexed arguments in `event` are candidates for `args`.
 A Filter Argument can also be an array to indicate that other values can exist in the position:
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:8]
@@ -113,7 +104,7 @@ const filter = await createEventFilter(publicClient, {
 A Filter can be scoped to a **block range**:
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   fromBlock: 16330000n, // [!code focus]
@@ -134,7 +125,7 @@ const filter = await createEventFilter(publicClient, {
 The contract address or a list of addresses from which Logs should originate.
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
@@ -150,7 +141,7 @@ A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem 
 ```ts
 import { parseAbiEvent } from 'viem/utils' // [!code focus]
 
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
@@ -163,7 +154,7 @@ const filter = await createEventFilter(publicClient, {
 A list of _indexed_ event arguments.
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -180,7 +171,7 @@ const filter = await createEventFilter(publicClient, {
 Block to start querying/listening from.
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   fromBlock: 69420n // [!code focus]
 })
 ```
@@ -192,7 +183,7 @@ const filter = await createEventFilter(publicClient, {
 Block to query/listen until.
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   fromBlock: 70120n // [!code focus]
 })
 ```

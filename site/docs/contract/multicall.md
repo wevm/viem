@@ -2,18 +2,11 @@
 
 Similar to [`readContract`](/docs/contract/readContract), but batches up & contracts multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
 
-## Import
-
-```ts
-import { multicall } from 'viem/contract'
-```
-
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { multicall } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -22,7 +15,7 @@ const wagmiContract = {
   abi: wagmiAbi
 } as const
 
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       ...wagmiContract,
@@ -103,7 +96,7 @@ An array of results with accompanying status.
 The contract address.
 
 ```ts
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
@@ -122,7 +115,7 @@ const results = await multicall(publicClient, {
 The contract ABI.
 
 ```ts
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -141,7 +134,7 @@ const results = await multicall(publicClient, {
 The function name to call.
 
 ```ts
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -160,7 +153,7 @@ const results = await multicall(publicClient, {
 Arguments to pass to function call.
 
 ```ts
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -181,7 +174,7 @@ const results = await multicall(publicClient, {
 Whether or not the `multicall` function should throw if a call reverts. If set to `true` (default), and a call reverts, then `multicall` will fail silently and its error will be logged in the `results` array.
 
 ```ts
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -201,7 +194,7 @@ const results = await multicall(publicClient, {
 Optional sender override.
 
 ```ts
-const results = await multicall(publicClient, {
+const results = await publicClient.multicall({
   contracts: [
     {
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',

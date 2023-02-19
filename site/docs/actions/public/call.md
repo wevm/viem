@@ -2,19 +2,12 @@
 
 Executes a new message call immediately without submitting a transaction to the network.
 
-## Import
-
-```ts
-import { call } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { call } from 'viem/public'
 import { publicClient } from '.'
  
-const data = await call(publicClient, { // [!code focus:7]
+const data = await publicClient.call({ // [!code focus:7]
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -36,7 +29,7 @@ The call data.
 A contract hashed method call with encoded args.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -50,7 +43,7 @@ const data = await call(publicClient, {
 The sender.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -64,7 +57,7 @@ const data = await call(publicClient, {
 The contract address or recipient.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
@@ -78,7 +71,7 @@ const data = await call(publicClient, {
 The access list.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -98,7 +91,7 @@ const data = await call(publicClient, {
 The gas provided for transaction execution.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gas: 1_000_000n, // [!code focus]
@@ -113,7 +106,7 @@ const data = await call(publicClient, {
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gasPrice: parseGwei('20'), // [!code focus]
@@ -128,7 +121,7 @@ const data = await call(publicClient, {
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'), // [!code focus]
@@ -143,7 +136,7 @@ const data = await call(publicClient, {
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),
@@ -159,7 +152,7 @@ const data = await call(publicClient, {
 Unique number identifying this transaction.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   nonce: 420n, // [!code focus]
@@ -174,7 +167,7 @@ const data = await call(publicClient, {
 Value (in wei) sent with this transaction.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -189,7 +182,7 @@ const data = await call(publicClient, {
 The block number to perform the call against.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   blockNumber: 15121123n, // [!code focus]
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -205,7 +198,7 @@ const data = await call(publicClient, {
 The block tag to perform the call against.
 
 ```ts
-const data = await call(publicClient, {
+const data = await publicClient.call({
   blockTag: 'safe', // [!code focus]
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',

@@ -4,20 +4,13 @@ Watches and returns pending transaction hashes.
 
 This Action will batch up all the pending transactions found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onTransactions`](#ontransactions).
 
-## Import
-
-```ts
-import { watchPendingTransactions } from 'viem/public'
-```
 
 ## Usage
 
 ```ts
-import { watchPendingTransactions } from 'viem/public'
 import { publicClient } from '.'
  
-const unwatch = watchPendingTransactions( // [!code focus:99]
-  publicClient,
+const unwatch = publicClient.watchPendingTransactions( // [!code focus:99]
   { onTransactions: hashes => console.log(hashes) }
 )
 /**
@@ -42,8 +35,7 @@ A function that can be invoked to stop watching for new pending transaction hash
 The new pending transaction hashes.
 
 ```ts
-const unwatch = watchPendingTransactions(
-  publicClient,
+const unwatch = publicClient.watchPendingTransactions(
   { onTransactions: hashes => console.log(hashes) } // [!code focus:1]
 )
 ```
@@ -56,8 +48,7 @@ const unwatch = watchPendingTransactions(
 Whether or not to batch the transaction hashes between polling intervals.
 
 ```ts
-const unwatch = watchPendingTransactions(
-  publicClient,
+const unwatch = publicClient.watchPendingTransactions(
   { 
     batch: false, // [!code focus]
     onTransactions: hashes => console.log(hashes),
@@ -72,8 +63,7 @@ const unwatch = watchPendingTransactions(
 Error thrown from listening for new pending transactions.
 
 ```ts
-const unwatch = watchPendingTransactions(
-  publicClient,
+const unwatch = publicClient.watchPendingTransactions(
   { 
     onError: error => console.log(error) // [!code focus:1]
     onTransactions: hashes => console.log(hashes),
@@ -88,8 +78,7 @@ const unwatch = watchPendingTransactions(
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
 ```ts
-const unwatch = watchPendingTransactions(
-  client,
+const unwatch = publicClient..watchPendingTransactions(
   { 
     pollingInterval: 1_000, // [!code focus]
     onTransactions: hashes => console.log(hashes),

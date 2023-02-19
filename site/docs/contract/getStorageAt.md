@@ -2,23 +2,16 @@
 
 Returns the value from a storage slot at a given address.
 
-## Import
-
-```ts
-import { getStorageAt } from 'viem/contract'
-```
-
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { getStorageAt } from 'viem/contract'
-import { toHex } from 'viem/utils'
+import { toHex } from 'viem'
 import { wagmiAbi } from './abi'
 import { publicClient } from './client'
 
-const data = await getStorageAt(publicClient, {
+const data = await publicClient.getStorageAt({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   slot: toHex(0)
 })
@@ -51,7 +44,7 @@ The value of the storage slot.
 The contract address.
 
 ```ts
-const data = await getStorageAt(publicClient, {
+const data = await publicClient.getStorageAt({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   slot: toHex(0)
 })
@@ -64,7 +57,7 @@ const data = await getStorageAt(publicClient, {
 The storage position (as a hex encoded value).
 
 ```ts
-const data = await getStorageAt(publicClient, {
+const data = await publicClient.getStorageAt({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   slot: toHex(0) // [!code focus]
 })

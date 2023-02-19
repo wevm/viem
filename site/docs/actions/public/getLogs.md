@@ -2,21 +2,14 @@
 
 Returns a list of **event** logs matching the provided parameters. 
 
-## Import
-
-```ts
-import { getLogs } from 'viem/public'
-```
-
 ## Usage
 
 By default, `getLogs` returns all events. In practice, you must use scoping to filter for specific events.
 
 ```ts
-import { getLogs } from 'viem/public'
 import { publicClient } from '.'
 
-const logs = await getLogs(publicClient)  // [!code focus:99]
+const logs = await publicClient.getLogs()  // [!code focus:99]
 // [{ ... }, { ... }, { ... }]
 ```
 
@@ -25,11 +18,10 @@ const logs = await getLogs(publicClient)  // [!code focus:99]
 You can also scope to a set of given attributes.
 
 ```ts
-import { getLogs } from 'viem/public'
 import { parseAbiEvent } from 'viem/utils'
 import { publicClient } from '.'
 
-const logs = await getLogs(publicClient, {  // [!code focus:99]
+const logs = await publicClient.getLogs({  // [!code focus:99]
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   event: parseAbiEvent('Transfer(address indexed, address indexed, uint256)'),
   args: {
@@ -72,7 +64,7 @@ const filter = await getLogs(publicClient, {
 A Filter can be scoped to an **address**:
 
 ```ts
-const filter = await getLogs(publicClient, {
+const filter = await publicClient.getLogs({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
@@ -84,11 +76,10 @@ A Filter can be scoped to an **event**.
 The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
-import { getLogs } from 'viem/public'
 import { parseAbiEvent } from 'viem/utils' // [!code focus]
 import { publicClient } from '.'
 
-const filter = await getLogs(publicClient, {
+const filter = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
@@ -99,7 +90,7 @@ const filter = await getLogs(publicClient, {
 A Filter can be scoped to given **_indexed_ arguments**:
 
 ```ts
-const filter = await getLogs(publicClient, {
+const filter = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -114,7 +105,7 @@ Only indexed arguments in `event` are candidates for `args`.
 A Filter Argument can also be an array to indicate that other values can exist in the position:
 
 ```ts
-const filter = await getLogs(publicClient, {
+const filter = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:8]
@@ -133,7 +124,7 @@ const filter = await getLogs(publicClient, {
 A Filter can be scoped to a **block range**:
 
 ```ts
-const filter = await getLogs(publicClient, {
+const filter = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   fromBlock: 16330000n, // [!code focus]
@@ -156,7 +147,7 @@ A list of event logs.
 A contract address or a list of contract addresses. Only logs originating from the contract(s) will be included in the result.
 
 ```ts
-const logs = await getLogs(publicClient, {
+const logs = await publicClient.getLogs({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
 })
 ```
@@ -170,7 +161,7 @@ The event in ABI format.
 A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
-const logs = await getLogs(publicClient, {
+const logs = await publicClient.getLogs({
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
 ```
@@ -182,7 +173,7 @@ const logs = await getLogs(publicClient, {
 A list of _indexed_ event arguments.
 
 ```ts
-const logs = await getLogs(publicClient, {
+const logs = await publicClient.getLogs({
   event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
@@ -198,7 +189,7 @@ const logs = await getLogs(publicClient, {
 Block to start including logs from. Mutually exclusive with `blockHash`.
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   fromBlock: 69420n // [!code focus]
 })
 ```
@@ -210,7 +201,7 @@ const filter = await createEventFilter(publicClient, {
 Block to stop including logs from. Mutually exclusive with `blockHash`.
 
 ```ts
-const filter = await createEventFilter(publicClient, {
+const filter = await publicClient.createEventFilter({
   toBlock: 70120n // [!code focus]
 })
 ```
@@ -222,7 +213,7 @@ const filter = await createEventFilter(publicClient, {
 Block hash to include logs from. Mutually exclusive with `fromBlock`/`toBlock`.
 
 ```ts
-const logs = await getLogs(publicClient, {
+const logs = await publicClient.getLogs({
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```

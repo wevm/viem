@@ -66,7 +66,7 @@ const hash = await sendTransaction(walletClient, {
 The access list.
 
 ```ts
-const data = await sendTransaction(publicClient, {
+const data = await publicClient.sendTransaction({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',

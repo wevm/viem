@@ -12,12 +12,6 @@ The `writeContract` internally sends a transaction – it **does not** validate 
 
 :::
 
-## Import
-
-```ts
-import { writeContract } from 'viem/contract'
-```
-
 ## Usage
 
 Below is a very basic example of how to execute a write function on a contract (with no arguments).
@@ -27,16 +21,15 @@ While you can use `writeContract` [by itself](#standalone), it is highly recomme
 ::: code-group
 
 ```ts [example.ts]
-import { writeContract } from 'viem/contract'
 import { publicClient, walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { request } = await simulateContract(publicClient, {
+const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
 })
-await writeContract(walletClient, request)
+await walletClient.writeContract(request)
 ```
 
 ```ts [abi.ts]
@@ -76,17 +69,16 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { writeContract } from 'viem/contract'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { request } = await simulateContract(publicClient, {
+const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420]
 })
-await writeContract(walletClient, request)
+await walletClient.writeContract(request)
 ```
 
 ```ts [abi.ts]
@@ -122,7 +114,6 @@ If you don't need to perform validation on the contract write, you can also use 
 ::: code-group
 
 ```ts [example.ts]
-import { writeContract } from 'viem/contract'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 
