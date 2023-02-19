@@ -5,7 +5,7 @@ Modifies the balance of an account.
 ## Usage
 
 ```ts
-import { parseEther } from 'viem/utils'
+import { parseEther } from 'viem'
 import { testClient } from '.'
  
 await testClient.setBalance({ // [!code focus:4]

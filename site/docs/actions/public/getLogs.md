@@ -18,7 +18,7 @@ const logs = await publicClient.getLogs()  // [!code focus:99]
 You can also scope to a set of given attributes.
 
 ```ts
-import { parseAbiEvent } from 'viem/utils'
+import { parseAbiEvent } from 'viem'
 import { publicClient } from '.'
 
 const logs = await publicClient.getLogs({  // [!code focus:99]
@@ -76,7 +76,7 @@ A Filter can be scoped to an **event**.
 The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
-import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { parseAbiEvent } from 'viem' // [!code focus]
 import { publicClient } from '.'
 
 const filter = await publicClient.getLogs({

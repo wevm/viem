@@ -7,7 +7,7 @@ Note: `getFilterLogs` is only compatible with **event filters**.
 ## Usage
 
 ```ts
-import { parseAbiEvent } from 'viem/utils'
+import { parseAbiEvent } from 'viem'
 import { publicClient } from '.'
 
 const filter = await publicClient.createEventFilter({ // [!code focus:99]

@@ -5,13 +5,13 @@ Returns a section of the hex or byte array given a start/end bytes offset.
 ## Install
 
 ```ts
-import { slice } from 'viem/utils'
+import { slice } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { slice } from 'viem/utils'
+import { slice } from 'viem'
 
 sliceHex('0x0123456789', 1, 4)
 // 0x234567

@@ -7,7 +7,7 @@ Change the minimum gas price accepted by the network (in wei).
 ## Usage
 
 ```ts
-import { parseGwei } from 'viem/utils'
+import { parseGwei } from 'viem'
 import { testClient } from '.'
  
 await testClient.setMinGasPrice({ // [!code focus:99]

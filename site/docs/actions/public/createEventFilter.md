@@ -36,7 +36,7 @@ A Filter can be scoped to an **event**.
 The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
-import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { parseAbiEvent } from 'viem' // [!code focus]
 import { publicClient } from '.'
 
 const filter = await publicClient.createEventFilter({
@@ -139,7 +139,7 @@ The event in ABI format.
 A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
-import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { parseAbiEvent } from 'viem' // [!code focus]
 
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',

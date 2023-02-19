@@ -82,7 +82,7 @@ The `event` argument takes in an event in ABI format – we have a [`parseAbiEve
 ::: code-group
 
 ```ts [example.ts]
-import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { parseAbiEvent } from 'viem' // [!code focus]
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -136,7 +136,7 @@ const unwatch = await watchEvent(publicClient, {
 ::: code-group
 
 ```ts [example.ts]
-import { parseAbiEvent } from 'viem/utils'
+import { parseAbiEvent } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -230,7 +230,7 @@ The event in ABI format.
 A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
-import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { parseAbiEvent } from 'viem' // [!code focus]
 
 const unwatch = publicClient.watchEvent(
   { 
