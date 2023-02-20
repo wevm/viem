@@ -1,5 +1,31 @@
 # viem
 
+## 0.0.1-alpha.28
+
+### Patch Changes
+
+- [`8ef068b`](https://github.com/wagmi-dev/viem/commit/8ef068b024d90b1a62e34b6556268d6a38514eb3) Thanks [@jxom](https://github.com/jxom)! - Added `502`, `503` and `504` error codes as "non-deterministic" errors for `fallback` transport & retries.
+
+* [#79](https://github.com/wagmi-dev/viem/pull/79) [`db9caa9`](https://github.com/wagmi-dev/viem/commit/db9caa98fb7cf8592940c1c2e4d41b678b70240c) Thanks [@jxom](https://github.com/jxom)! - Added `timeout` as a config option to the `http` and `webSocket` Transports.
+
+- [#77](https://github.com/wagmi-dev/viem/pull/77) [`d6a29f5`](https://github.com/wagmi-dev/viem/commit/d6a29f5223324660cd98c2a6aaf345c207b2cd97) Thanks [@jxom](https://github.com/jxom)! - Decorated Clients with their respective Actions.
+
+  Example:
+
+  ```diff
+  import { createPublicClient, http } from 'viem'
+  import { mainnet } from 'viem/chains'
+  -import { getBlockNumber } from 'viem/public'
+
+  const client = createPublicClient({
+    chain: mainnet,
+    transport: http(),
+  })
+
+  - const blockNumber = await getBlockNumber(client)
+  + const blockNumber = await client.getBlockNumber()
+  ```
+
 ## 0.0.1-alpha.26
 
 ### Patch Changes
