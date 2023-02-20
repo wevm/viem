@@ -10,7 +10,9 @@ import type {
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import { createEventFilter, CreateEventFilterArgs } from './createEventFilter'
+import { getBlockNumber } from './getBlockNumber'
 import { getFilterChanges } from './getFilterChanges'
+import { getLogs } from './getLogs'
 import { uninstallFilter } from './uninstallFilter'
 
 export type OnLogsResponse<
@@ -73,30 +75,56 @@ export function watchEvent<
   ])
 
   return observe(observerId, { onLogs, onError }, (emit) => {
+    let currentBlockNumber: bigint
     let filter: Filter<'event', [TAbiEvent], TEventName, any>
+    let initialized = false
 
     const unwatch = poll(
       async () => {
+        if (!initialized) {
+          try {
+            filter = (await createEventFilter(client, {
+              address,
+              args,
+              event: event!,
+            } as unknown as CreateEventFilterArgs)) as unknown as Filter<
+              'event',
+              [TAbiEvent],
+              TEventName
+            >
+          } catch {}
+          initialized = true
+          return
+        }
+
         try {
-          if (!filter) {
-            try {
-              filter = (await createEventFilter(client, {
+          let logs: Log[]
+          if (filter) {
+            logs = await getFilterChanges(client, { filter })
+          } else {
+            // If the filter doesn't exist, we will fall back to use `getLogs`.
+            // The fall back exists because some RPC Providers do not support filters.
+
+            // Fetch the block number to use for `getLogs`.
+            const blockNumber = await getBlockNumber(client)
+
+            // If the block number has changed, we will need to fetch the logs.
+            // If the block number doesn't exist, we are yet to reach the first poll interval,
+            // so do not emit any logs.
+            if (currentBlockNumber && currentBlockNumber !== blockNumber) {
+              logs = await getLogs(client, {
                 address,
                 args,
-                event,
-              } as CreateEventFilterArgs)) as unknown as Filter<
-                'event',
-                [TAbiEvent],
-                TEventName
-              >
-              return
-            } catch (err) {
-              unwatch()
-              throw err
+                fromBlock: blockNumber,
+                toBlock: blockNumber,
+                event: event!,
+              })
+            } else {
+              logs = []
             }
+            currentBlockNumber = blockNumber
           }
 
-          const logs = await getFilterChanges(client, { filter })
           if (logs.length === 0) return
           if (batch) emit.onLogs(logs as any)
           else logs.forEach((log) => emit.onLogs([log] as any))

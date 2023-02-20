@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
 
+import { cleanupCache, listenersCache } from '../utils/observe'
 import { promiseCache, responseCache } from '../utils/promise/withCache'
 
 beforeAll(() => {
@@ -17,6 +18,8 @@ beforeAll(() => {
 beforeEach(() => {
   promiseCache.clear()
   responseCache.clear()
+  listenersCache.clear()
+  cleanupCache.clear()
 })
 
 afterAll(() => {

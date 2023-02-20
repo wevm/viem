@@ -7,13 +7,17 @@ import type {
   Filter,
   Log,
 } from '../../types'
+import type { GetAbiItemArgs } from '../../utils'
+import { getAbiItem } from '../../utils'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import {
   createContractEventFilter,
   CreateContractEventFilterArgs,
 } from './createContractEventFilter'
+import { getBlockNumber } from './getBlockNumber'
 import { getFilterChanges } from './getFilterChanges'
+import { getLogs, GetLogsArgs } from './getLogs'
 import { uninstallFilter } from './uninstallFilter'
 
 export type OnLogsResponse<
@@ -75,31 +79,60 @@ export function watchContractEvent<
   ])
 
   return observe(observerId, { onLogs, onError }, (emit) => {
-    let filter: Filter<'event', TAbi, TEventName>
+    let currentBlockNumber: bigint
+    let filter: Filter<'event', TAbi, TEventName> | undefined
+    let initialized = false
 
     const unwatch = poll(
       async () => {
+        if (!initialized) {
+          try {
+            filter = (await createContractEventFilter(client, {
+              abi,
+              address,
+              args,
+              eventName,
+            } as unknown as CreateContractEventFilterArgs)) as Filter<
+              'event',
+              TAbi,
+              TEventName
+            >
+          } catch {}
+          initialized = true
+          return
+        }
+
         try {
-          if (!filter) {
-            try {
-              filter = (await createContractEventFilter(client, {
-                abi,
+          let logs: Log[]
+          if (filter) {
+            logs = await getFilterChanges(client, { filter })
+          } else {
+            // If the filter doesn't exist, we will fall back to use `getLogs`.
+            // The fall back exists because some RPC Providers do not support filters.
+
+            // Fetch the block number to use for `getLogs`.
+            const blockNumber = await getBlockNumber(client)
+
+            // If the block number has changed, we will need to fetch the logs.
+            // If the block number doesn't exist, we are yet to reach the first poll interval,
+            // so do not emit any logs.
+            if (currentBlockNumber && currentBlockNumber !== blockNumber) {
+              logs = await getLogs(client, {
                 address,
                 args,
-                eventName,
-              } as unknown as CreateContractEventFilterArgs)) as Filter<
-                'event',
-                TAbi,
-                TEventName
-              >
-              return
-            } catch (err) {
-              unwatch()
-              throw err
+                fromBlock: blockNumber,
+                toBlock: blockNumber,
+                event: getAbiItem({
+                  abi,
+                  name: eventName,
+                } as unknown as GetAbiItemArgs),
+              } as unknown as GetLogsArgs)
+            } else {
+              logs = []
             }
+            currentBlockNumber = blockNumber
           }
 
-          const logs = await getFilterChanges(client, { filter })
           if (logs.length === 0) return
           if (batch) emit.onLogs(logs as any)
           else logs.forEach((log) => emit.onLogs([log] as any))
