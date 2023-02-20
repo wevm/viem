@@ -1,49 +1,58 @@
-import { AbiEvent } from 'abitype';
-import type { PublicClient } from '../../clients';
-import type { Address, Filter, Log, MaybeAbiEventName, MaybeExtractEventArgsFromAbi } from '../../types';
-import { observe } from '../../utils/observe';
-import { poll } from '../../utils/poll';
-import { createEventFilter, CreateEventFilterArgs } from './createEventFilter';
-import { getBlockNumber } from './getBlockNumber';
-import { getFilterChanges } from './getFilterChanges';
-import { getLogs } from './getLogs';
-import { uninstallFilter } from './uninstallFilter';
+import { AbiEvent } from 'abitype'
+import type { PublicClient } from '../../clients'
+import type {
+  Address,
+  Filter,
+  Log,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
+} from '../../types'
+import { observe } from '../../utils/observe'
+import { poll } from '../../utils/poll'
+import { createEventFilter, CreateEventFilterArgs } from './createEventFilter'
+import { getBlockNumber } from './getBlockNumber'
+import { getFilterChanges } from './getFilterChanges'
+import { getLogs } from './getLogs'
+import { uninstallFilter } from './uninstallFilter'
 
 export type OnLogsResponse<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>
-> = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[];
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
 export type OnLogs<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>
-> = (logs: OnLogsResponse<TAbiEvent, TEventName>) => void;
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = (logs: OnLogsResponse<TAbiEvent, TEventName>) => void
 
 export type WatchEventArgs<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** The address of the contract. */
-  address?: Address | Address[];
+  address?: Address | Address[]
   /** Whether or not the event logs should be batched on each invocation. */
-  batch?: boolean;
+  batch?: boolean
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void;
+  onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogs<TAbiEvent, TEventName>;
+  onLogs: OnLogs<TAbiEvent, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
-  pollingInterval?: number;
+  pollingInterval?: number
 } & (
   | {
-      event: TAbiEvent;
-      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>;
+      event: TAbiEvent
+      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
     }
   | {
-      event?: never;
-      args?: never;
+      event?: never
+      args?: never
     }
-);
+)
 
-export function watchEvent<TAbiEvent extends AbiEvent | undefined, TEventName extends string | undefined>(
+export function watchEvent<
+  TAbiEvent extends AbiEvent | undefined,
+  TEventName extends string | undefined,
+>(
   client: PublicClient,
   {
     address,
@@ -53,14 +62,22 @@ export function watchEvent<TAbiEvent extends AbiEvent | undefined, TEventName ex
     onError,
     onLogs,
     pollingInterval = client.pollingInterval,
-  }: WatchEventArgs<TAbiEvent>
+  }: WatchEventArgs<TAbiEvent>,
 ) {
-  const observerId = JSON.stringify(['watchEvent', address, args, batch, client.uid, event, pollingInterval]);
+  const observerId = JSON.stringify([
+    'watchEvent',
+    address,
+    args,
+    batch,
+    client.uid,
+    event,
+    pollingInterval,
+  ])
 
   return observe(observerId, { onLogs, onError }, (emit) => {
-    let currentBlockNumber: bigint;
-    let filter: Filter<'event', [TAbiEvent], TEventName, any>;
-    let initialized = false;
+    let currentBlockNumber: bigint
+    let filter: Filter<'event', [TAbiEvent], TEventName, any>
+    let initialized = false
 
     const unwatch = poll(
       async () => {
@@ -70,22 +87,26 @@ export function watchEvent<TAbiEvent extends AbiEvent | undefined, TEventName ex
               address,
               args,
               event: event!,
-            } as unknown as CreateEventFilterArgs)) as unknown as Filter<'event', [TAbiEvent], TEventName>;
+            } as unknown as CreateEventFilterArgs)) as unknown as Filter<
+              'event',
+              [TAbiEvent],
+              TEventName
+            >
           } catch {}
-          initialized = true;
-          return;
+          initialized = true
+          return
         }
 
         try {
-          let logs: Log[];
+          let logs: Log[]
           if (filter) {
-            logs = await getFilterChanges(client, { filter });
+            logs = await getFilterChanges(client, { filter })
           } else {
             // If the filter doesn't exist, we will fall back to use `getLogs`.
             // The fall back exists because some RPC Providers do not support filters.
 
             // Fetch the block number to use for `getLogs`.
-            const blockNumber = await getBlockNumber(client);
+            const blockNumber = await getBlockNumber(client)
 
             // If the block number has changed, we will need to fetch the logs.
             // If the block number doesn't exist, we are yet to reach the first poll interval,
@@ -97,29 +118,29 @@ export function watchEvent<TAbiEvent extends AbiEvent | undefined, TEventName ex
                 fromBlock: blockNumber,
                 toBlock: blockNumber,
                 event: event!,
-              });
+              })
             } else {
-              logs = [];
+              logs = []
             }
-            currentBlockNumber = blockNumber;
+            currentBlockNumber = blockNumber
           }
 
-          if (logs.length === 0) return;
-          if (batch) emit.onLogs(logs as any);
-          else logs.forEach((log) => emit.onLogs([log] as any));
+          if (logs.length === 0) return
+          if (batch) emit.onLogs(logs as any)
+          else logs.forEach((log) => emit.onLogs([log] as any))
         } catch (err) {
-          emit.onError?.(err as Error);
+          emit.onError?.(err as Error)
         }
       },
       {
         emitOnBegin: true,
         interval: pollingInterval,
-      }
-    );
+      },
+    )
 
     return async () => {
-      if (filter) await uninstallFilter(client, { filter });
-      unwatch();
-    };
-  });
+      if (filter) await uninstallFilter(client, { filter })
+      unwatch()
+    }
+  })
 }
