@@ -1137,7 +1137,7 @@ describe('dynamic', () => {
     })
   })
 
-  describe.only('(((uint256[],bool,string[]))[],uint256,string[])', () => {
+  describe('(((uint256[],bool,string[]))[],uint256,string[])', () => {
     test('default', () => {
       expect(
         // cast abi-encode "a((uint256[],bool,string[]),(((uint256[],bool,string),uint256,string[]),((uint256[],bool,string),uint256,string[]),uint256,string[]))" "([1,2,3,4],true,[hello, world])" "((([420,69],true,[nice,haha]),420,[wagmi,allday]),(([420,420],true,[this,is,a,param]),69420,[hello,there]),4204202,[lol,haha])"
