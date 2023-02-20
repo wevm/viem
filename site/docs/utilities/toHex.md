@@ -5,13 +5,13 @@ Encodes a string, number, boolean or byte array to a hex value value.
 ## Import
 
 ```ts
-import { toHex } from 'viem/utils'
+import { toHex } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { toHex } from 'viem/utils'
+import { toHex } from 'viem'
 
 toHex(420)
 // "0x1a4"
@@ -51,7 +51,7 @@ The value to hex encode.
 Encodes a number value to a hex value.
 
 ```ts
-import { numberToHex } from 'viem/utils'
+import { numberToHex } from 'viem'
 
 numberToHex(420)
 // "0x1a4"
@@ -67,7 +67,7 @@ numberToHex(4206942069420694206942069420694206942069n)
 Encodes a UTF-8 string value to a hex value.
 
 ```ts
-import { stringToHex } from 'viem/utils'
+import { stringToHex } from 'viem'
 
 stringToHex('Hello World!')
 // "0x48656c6c6f20576f726c6421"
@@ -80,7 +80,7 @@ stringToHex('Hello World!')
 Encodes a byte array to a hex value.
 
 ```ts
-import { stringToHex } from 'viem/utils'
+import { stringToHex } from 'viem'
 
 bytesToHex(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
@@ -95,7 +95,7 @@ bytesToHex(
 Encodes a boolean to a hex value.
 
 ```ts
-import { stringToHex } from 'viem/utils'
+import { stringToHex } from 'viem'
 
 bytesToHex(true)
 // "0x1"

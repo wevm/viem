@@ -9,68 +9,55 @@ A Filter can be created from the following actions:
 - [`createEventFilter`](/docs/actions/public/createEventFilter)
 - [`createPendingTransactionFilter`](/docs/actions/public/createPendingTransactionFilter)
 
-## Import
-
-```ts
-import { getFilterChanges } from 'viem/public'
-```
-
 ## Usage
 
 ### Blocks
 
 ```ts
-import { createBlockFilter, getFilterChanges } from 'viem/public'
 import { publicClient } from '.'
 
-const filter = await createBlockFilter(publicClient) // [!code focus:99]
-// ...
-const hashes = await getFilterChanges(publicClient, { filter })
+const filter = await publicClient.createBlockFilter() // [!code focus:99]
+const hashes = await publicClient.getFilterChanges({ filter })
 // ["0x10d86dc08ac2f18f00ef0daf7998dcc8673cbcf1f1501eeb2fac1afd2f851128", ...]
 ```
 
 ### Contract Events
 
 ```ts
-import { createContractEventFilter } from 'viem/contract'
-import { getFilterChanges } from 'viem/public'
 import { publicClient } from '.'
 
-const filter = await createContractEventFilter(publicClient, { // [!code focus:99]
+const filter = await publicClient.createContractEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   abi: wagmiAbi,
   eventName: 'Transfer'
 })
 // ...
-const logs = await getFilterChanges(publicClient, { filter })
+const logs = await publicClient.getFilterChanges({ filter })
 // [{ ... }, { ... }, { ... }]
 ```
 
 ### Raw Events
 
 ```ts
-import { createEventFilter, getFilterChanges } from 'viem/public'
-import { parseAbiEvent } from 'viem/utils'
+import { parseAbiEvent } from 'viem'
 import { publicClient } from '.'
 
-const filter = await createEventFilter(publicClient, { // [!code focus:99]
+const filter = await publicClient.createEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiEvent('Transfer(address indexed, address indexed, uint256)'),
 })
 // ...
-const logs = await getFilterChanges(publicClient, { filter })
+const logs = await publicClient.getFilterChanges({ filter })
 // [{ ... }, { ... }, { ... }]
 ```
 
 ### Transactions
 
 ```ts
-import { createPendingTransactionFilter, getFilterChanges } from 'viem/public'
 import { publicClient } from '.'
 
-const filter = await createPendingTransactionFilter(publicClient) // [!code focus:99]
-// ...
-const hashes = await getFilterChanges(publicClient, { filter })
+const filter = await publicClient.createPendingTransactionFilter() // [!code focus:99]
+const hashes = await publicClient.getFilterChanges({ filter })
 // ["0x89b3aa1c01ca4da5d15eca9fab459d062db5c0c9b76609acb0741901f01f6d19", ...]
 ```
 
@@ -101,8 +88,8 @@ If the filter was created with `createBlockFilter`, it returns a list of block h
 A created filter.
 
 ```ts
-const filter = await createPendingTransactionFilter(publicClient)
-const logs = await getFilterChanges(publicClient, {
+const filter = await publicClient.createPendingTransactionFilter()
+const logs = await publicClient.getFilterChanges({
   filter, // [!code focus]
 })
 ```

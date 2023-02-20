@@ -18,7 +18,7 @@ export function getBlockNumberCache(id: string) {
  * @description Returns the number of the most recent block seen.
  */
 export async function getBlockNumber(
-  client: PublicClient,
+  client: PublicClient<any, any, any>,
   { maxAge = client.pollingInterval }: GetBlockNumberArgs = {},
 ): Promise<GetBlockNumberResponse> {
   const blockNumberHex = await withCache(

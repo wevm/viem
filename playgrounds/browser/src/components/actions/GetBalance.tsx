@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import type { PublicClient } from 'viem'
-import { getBalance } from 'viem/public'
 
 export function GetBalance({
   address = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -13,7 +12,7 @@ export function GetBalance({
   useEffect(() => {
     ;(async () => {
       setBalance(
-        await getBalance(client, {
+        await client.getBalance({
           address,
         }),
       )

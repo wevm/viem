@@ -5,13 +5,13 @@ Decodes a [Recursive-Length Prefix (RLP)](https://ethereum.org/en/developers/doc
 ## Import
 
 ```ts
-import { fromRlp } from 'viem/utils'
+import { fromRlp } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fromRlp } from 'viem/utils'
+import { fromRlp } from 'viem'
 
 fromRlp('0x850123456789', 'hex')
 // "0x123456789"

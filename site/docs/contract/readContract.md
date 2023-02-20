@@ -6,12 +6,6 @@ A "read-only" function (constant function) on a Solidity contract is denoted by 
 
 Internally, `readContract` uses a [Public Client](/docs/clients/public) to call the [`call` action](/docs/actions/public/call) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 
-## Import
-
-```ts
-import { readContract } from 'viem/contract'
-```
-
 ## Usage
 
 Below is a very basic example of how to call a read-only function on a contract (with no arguments).
@@ -19,11 +13,10 @@ Below is a very basic example of how to call a read-only function on a contract 
 ::: code-group
 
 ```ts [example.ts]
-import { readContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply',
@@ -72,7 +65,7 @@ import { readContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'balanceOf',
@@ -119,7 +112,7 @@ The response from the contract. Type is inferred.
 The contract address.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'totalSupply',
@@ -133,7 +126,7 @@ const data = await readContract(publicClient, {
 The contract's ABI.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'totalSupply',
@@ -147,7 +140,7 @@ const data = await readContract(publicClient, {
 A function to extract from the ABI.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply', // [!code focus]
@@ -161,7 +154,7 @@ const data = await readContract(publicClient, {
 Arguments to pass to function call.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
   abi: wagmiAbi,
   functionName: 'balanceOf',
@@ -176,7 +169,7 @@ const data = await readContract(publicClient, {
 Optional sender override.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply',
@@ -191,7 +184,7 @@ const data = await readContract(publicClient, {
 The block number to perform the read against.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply',
@@ -207,7 +200,7 @@ const data = await readContract(publicClient, {
 The block tag to perform the read against.
 
 ```ts
-const data = await readContract(publicClient, {
+const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply',

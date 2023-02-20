@@ -19,6 +19,8 @@ export type GetEnsNameArgs = Prettify<
   }
 >
 
+export type GetEnsNameResponse = string | null
+
 /**
  * @description Gets primary name for specified address.
  *
@@ -38,7 +40,7 @@ export async function getEnsName(
     blockTag,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsNameArgs,
-) {
+): Promise<GetEnsNameResponse> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)

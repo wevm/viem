@@ -2,19 +2,13 @@
 
 Modifies the balance of an account.
 
-## Import 
-
-```ts
-import { setBalance } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setBalance, parseEther } from 'viem/test'
+import { parseEther } from 'viem'
 import { testClient } from '.'
  
-await setBalance(testClient, { // [!code focus:4]
+await testClient.setBalance({ // [!code focus:4]
   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   value: parseEther('1')
 })
@@ -29,7 +23,7 @@ await setBalance(testClient, { // [!code focus:4]
 The address of the target account.
 
 ```ts
-await setBalance(testClient, {
+await testClient.setBalance({
   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
   value: parseEther('1')
 })
@@ -42,7 +36,7 @@ await setBalance(testClient, {
 The value (in wei) to set.
 
 ```ts
-await setBalance(testClient, {
+await testClient.setBalance({
   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   value: 1000000000000000000n // [!code focus]
 })

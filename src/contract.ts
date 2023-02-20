@@ -1,4 +1,6 @@
 export type {
+  CreateContractEventFilterArgs,
+  CreateContractEventFilterResponse,
   EstimateContractGasArgs,
   EstimateContractGasResponse,
   GetBytecodeArgs,
@@ -16,6 +18,7 @@ export type {
   WatchContractEventArgs,
 } from './actions/public'
 export {
+  createContractEventFilter,
   estimateContractGas,
   getBytecode,
   getStorageAt,
@@ -31,10 +34,7 @@ export type {
   WriteContractArgs,
   WriteContractResponse,
 } from './actions/wallet'
-export {
-  deployContract,
-  writeContract,
-} from './actions/wallet'
+export { deployContract, writeContract } from './actions/wallet'
 
 export type {
   DecodeAbiArgs,

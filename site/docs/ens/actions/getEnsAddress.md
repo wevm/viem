@@ -4,22 +4,16 @@ Gets address for ENS name.
 
 Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract to resolve the ENS name to address.
 
-## Import
-
-```ts
-import { getEnsAddress } from 'viem/ens'
-```
-
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { getEnsAddress } from 'viem/ens'
+import { normalize } from 'viem/ens'
 import { publicClient } from './client'
  
-const ensAddress = await getEnsAddress(publicClient, {
-  name: 'wagmi-dev.eth',
+const ensAddress = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'),
 })
 // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
 ```
@@ -34,6 +28,11 @@ export const publicClient = createPublicClient({
 })
 ```
 
+:::
+
+::: warning
+A name must be [normalized via UTS-46 normalization](https://docs.ens.domains/contract-api-reference/name-processing) before being used with `getEnsAddress`. 
+This can be achieved by using the `normalize` utility.
 :::
 
 ## Returns
@@ -53,8 +52,8 @@ Returns `0x0000000000000000000000000000000000000000` if ENS name does not resolv
 Address to get primary ENS name for.
 
 ```ts
-const ensName = await getEnsAddress(publicClient, {
-  name: 'wagmi-dev.eth', // [!code focus]
+const ensName = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'), // [!code focus]
 })
 ```
 
@@ -65,8 +64,8 @@ const ensName = await getEnsAddress(publicClient, {
 The block number to perform the read against.
 
 ```ts
-const ensName = await getEnsAddress(publicClient, {
-  name: 'wagmi-dev.eth',
+const ensName = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'),
   blockNumber: 15121123n, // [!code focus]
 })
 ```
@@ -79,8 +78,8 @@ const ensName = await getEnsAddress(publicClient, {
 The block tag to perform the read against.
 
 ```ts
-const ensName = await getEnsAddress(publicClient, {
-  name: 'wagmi-dev.eth',
+const ensName = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'),
   blockTag: 'safe', // [!code focus]
 })
 ```
@@ -93,8 +92,8 @@ const ensName = await getEnsAddress(publicClient, {
 Address of ENS Universal Resolver Contract.
 
 ```ts
-const ensName = await getEnsAddress(publicClient, {
-  name: 'wagmi-dev.eth',
+const ensName = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'),
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })
 ```

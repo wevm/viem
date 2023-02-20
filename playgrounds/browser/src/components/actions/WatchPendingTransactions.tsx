@@ -1,26 +1,25 @@
-import { useEffect, useState } from 'react';
-import type { PublicClient } from 'viem';
-import type { OnTransactionsResponse } from 'viem/public';
-import { watchPendingTransactions } from 'viem/public';
+import { useEffect, useState } from 'react'
+import type { PublicClient } from 'viem'
+import type { OnTransactionsResponse } from 'viem/public'
 
 export function WatchPendingTransactions({ client }: { client: PublicClient }) {
-  const [transactions, setTransactions] = useState<OnTransactionsResponse>([]);
+  const [transactions, setTransactions] = useState<OnTransactionsResponse>([])
   useEffect(() => {
     try {
-      const unwatch = watchPendingTransactions(client, {
+      const unwatch = client.watchPendingTransactions({
         onError: (err) => console.log(client.transport.url),
         onTransactions: setTransactions,
-      });
-      return unwatch;
+      })
+      return unwatch
     } catch (err) {
-      console.log(err);
+      console.log(err)
     }
-  }, [client]);
+  }, [client])
   return (
     <div style={{ maxHeight: 300, overflow: 'scroll' }}>
       {transactions.map((hash, i) => (
         <div key={i}>{hash}</div>
       ))}
     </div>
-  );
+  )
 }

@@ -2,10 +2,13 @@ export { dropTransaction } from './dropTransaction'
 export type { DropTransactionArgs } from './dropTransaction'
 
 export { getAutomine } from './getAutomine'
+export type { GetAutomineResponse } from './getAutomine'
 
 export { getTxpoolContent } from './getTxpoolContent'
+export type { GetTxPoolContentResponse } from './getTxpoolContent'
 
 export { getTxpoolStatus } from './getTxpoolStatus'
+export type { GetTxPoolStatusResponse } from './getTxpoolStatus'
 
 export { impersonateAccount } from './impersonateAccount'
 export type { ImpersonateAccountArgs } from './impersonateAccount'
@@ -14,6 +17,7 @@ export { increaseTime } from './increaseTime'
 export type { IncreaseTimeArgs } from './increaseTime'
 
 export { inspectTxpool } from './inspectTxpool'
+export type { InspectTxpoolResponse } from './inspectTxpool'
 
 export { mine } from './mine'
 export type { MineArgs } from './mine'

@@ -2,19 +2,12 @@
 
 Sets the automatic mining interval (in seconds) of blocks. Setting the interval to `0` will disable automatic mining.
 
-## Import 
-
-```ts
-import { setIntervalMining } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setIntervalMining } from 'viem/test'
 import { testClient } from '.'
  
-await setIntervalMining(testClient, { // [!code focus:4]
+await testClient.setIntervalMining({ // [!code focus:4]
   interval: 5
 })
 ```
@@ -28,7 +21,7 @@ await setIntervalMining(testClient, { // [!code focus:4]
 The mining interval (in seconds). Setting the interval to `0` will disable automatic mining.
 
 ```ts
-await setIntervalMining(testClient, {
+await testClient.setIntervalMining({
   interval: 5 // [!code focus]
 })
 ```

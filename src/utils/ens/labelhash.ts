@@ -1,6 +1,5 @@
 import { bytesToHex, stringToBytes } from '../encoding'
 import { keccak256 } from '../hash'
-import { normalize } from './normalize'
 
 /**
  * @description Hashes ENS label
@@ -12,5 +11,5 @@ import { normalize } from './normalize'
 export function labelhash(label: string) {
   let result = new Uint8Array(32).fill(0)
   if (!label) return bytesToHex(result)
-  return keccak256(stringToBytes(normalize(label)))
+  return keccak256(stringToBytes(label))
 }

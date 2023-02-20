@@ -26,11 +26,20 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
+      "addChain": [Function],
       "chain": undefined,
+      "deployContract": [Function],
+      "getAccounts": [Function],
+      "getPermissions": [Function],
       "key": "wallet",
       "name": "Wallet Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "requestAccounts": [Function],
+      "requestPermissions": [Function],
+      "sendTransaction": [Function],
+      "signMessage": [Function],
+      "switchChain": [Function],
       "transport": {
         "key": "mock",
         "name": "Mock Transport",
@@ -40,6 +49,8 @@ test('creates', () => {
         "type": "mock",
       },
       "type": "walletClient",
+      "watchAsset": [Function],
+      "writeContract": [Function],
     }
   `)
 })
@@ -53,11 +64,20 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "addChain": [Function],
         "chain": undefined,
+        "deployContract": [Function],
+        "getAccounts": [Function],
+        "getPermissions": [Function],
         "key": "wallet",
         "name": "Wallet Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "requestAccounts": [Function],
+        "requestPermissions": [Function],
+        "sendTransaction": [Function],
+        "signMessage": [Function],
+        "switchChain": [Function],
         "transport": {
           "key": "custom",
           "name": "Custom Provider",
@@ -67,6 +87,8 @@ describe('transports', () => {
           "type": "custom",
         },
         "type": "walletClient",
+        "watchAsset": [Function],
+        "writeContract": [Function],
       }
     `)
   })
@@ -79,11 +101,20 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "addChain": [Function],
         "chain": undefined,
+        "deployContract": [Function],
+        "getAccounts": [Function],
+        "getPermissions": [Function],
         "key": "wallet",
         "name": "Wallet Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "requestAccounts": [Function],
+        "requestPermissions": [Function],
+        "sendTransaction": [Function],
+        "signMessage": [Function],
+        "switchChain": [Function],
         "transport": {
           "key": "http",
           "name": "HTTP JSON-RPC",
@@ -94,6 +125,8 @@ describe('transports', () => {
           "url": "https://mockapi.com/rpc",
         },
         "type": "walletClient",
+        "watchAsset": [Function],
+        "writeContract": [Function],
       }
     `)
   })
@@ -107,11 +140,20 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "addChain": [Function],
         "chain": undefined,
+        "deployContract": [Function],
+        "getAccounts": [Function],
+        "getPermissions": [Function],
         "key": "wallet",
         "name": "Wallet Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "requestAccounts": [Function],
+        "requestPermissions": [Function],
+        "sendTransaction": [Function],
+        "signMessage": [Function],
+        "switchChain": [Function],
         "transport": {
           "getSocket": [Function],
           "key": "webSocket",
@@ -123,6 +165,8 @@ describe('transports', () => {
           "type": "webSocket",
         },
         "type": "walletClient",
+        "watchAsset": [Function],
+        "writeContract": [Function],
       }
     `)
   })

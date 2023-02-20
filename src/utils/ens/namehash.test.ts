@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 
 import { namehash } from './namehash'
+import { normalize } from './normalize'
 
 test.each([
   {
@@ -29,7 +30,7 @@ test.each([
       '0x52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c',
   },
   {
-    name: 'awkw𝝣b.eth',
+    name: normalize('awkw𝝣b.eth'),
     expected:
       '0x4e372358e2e47fdbba39e5ca56d412e6dc4216a260a733b1b5d8df0001d28202',
   },

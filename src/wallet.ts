@@ -10,8 +10,11 @@ export {
   watchAsset,
 } from './actions/wallet'
 export type {
+  AddChainArgs,
   FormattedTransactionRequest,
   GetPermissionsResponse,
+  GetAccountsResponse,
+  RequestAccountsResponse,
   RequestPermissionsResponse,
   SendTransactionArgs,
   SendTransactionResponse,

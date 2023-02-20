@@ -4,20 +4,12 @@ Waits for the [Transaction](/docs/glossary/terms#TODO) to be included on a [Bloc
 
 The `waitForTransactionReceipt` action additionally supports Replacement detection (ie. sped up Transactions).
 
-## Import
-
-```ts
-import { waitForTransactionReceipt } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { waitForTransactionReceipt } from 'viem/public'
 import { publicClient } from '.'
  
-const transaction = await waitForTransactionReceipt( // [!code focus:99]
-  publicClient,
+const transaction = await publicClient.waitForTransactionReceipt( // [!code focus:99]
   { hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' }
 )
 /**
@@ -47,8 +39,7 @@ The transaction receipt.
 The number of confirmations (blocks that have passed) to wait before resolving.
 
 ```ts
-const transaction = await waitForTransactionReceipt(
-  publicClient,
+const transaction = await publicClient.waitForTransactionReceipt(
   { 
     confirmations: 5, // [!code focus:1]
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' 
@@ -63,8 +54,7 @@ const transaction = await waitForTransactionReceipt(
 Optional callback to emit if the transaction has been replaced.
 
 ```ts
-const transaction = await waitForTransactionReceipt(
-  publicClient,
+const transaction = await publicClient.waitForTransactionReceipt(
   { 
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
     onReplaced: replacement => console.log(replacement) // [!code focus:1]
@@ -79,8 +69,7 @@ const transaction = await waitForTransactionReceipt(
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
 ```ts
-const transaction = await waitForTransactionReceipt(
-  publicClient,
+const transaction = await publicClient.waitForTransactionReceipt(
   { 
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
     pollingInterval: 12_000, // [!code focus:1]
@@ -95,8 +84,7 @@ const transaction = await waitForTransactionReceipt(
 Optional timeout (in milliseconds) to wait before stopping polling.
 
 ```ts
-const transaction = await waitForTransactionReceipt(
-  publicClient,
+const transaction = await publicClient.waitForTransactionReceipt(
   { 
     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
     timeout: 60_000, // [!code focus:1]

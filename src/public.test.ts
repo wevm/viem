@@ -7,6 +7,7 @@ test('exports public actions', () => {
     [
       "call",
       "createBlockFilter",
+      "createEventFilter",
       "createPendingTransactionFilter",
       "estimateGas",
       "getBalance",

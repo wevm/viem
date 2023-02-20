@@ -14,6 +14,8 @@ export type GetEnsAddressArgs = Prettify<
   }
 >
 
+export type GetEnsAddressResponse = Address
+
 /**
  * @description Gets address for ENS name.
  *
@@ -33,7 +35,7 @@ export async function getEnsAddress(
     name,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsAddressArgs,
-) {
+): Promise<GetEnsAddressResponse> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)

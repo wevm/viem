@@ -2,19 +2,12 @@
 
 Sets the next block's base fee per gas.
 
-## Import 
-
-```ts
-import { setNextBlockBaseFeePerGas } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setNextBlockBaseFeePerGas } from 'viem/test'
 import { testClient } from '.'
  
-await setNextBlockBaseFeePerGas(testClient, { // [!code focus:4]
+await testClient.setNextBlockBaseFeePerGas({ // [!code focus:4]
   baseFeePerGas: parseGwei('20')
 })
 ```
@@ -28,7 +21,7 @@ await setNextBlockBaseFeePerGas(testClient, { // [!code focus:4]
 Base fee per gas.
 
 ```ts
-await setNextBlockBaseFeePerGas(testClient, {
+await testClient.setNextBlockBaseFeePerGas({
   baseFeePerGas: parseGwei('30') // [!code focus]
 })
 ```

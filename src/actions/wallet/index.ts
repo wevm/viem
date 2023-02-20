@@ -1,4 +1,5 @@
 export { addChain } from './addChain'
+export type { AddChainArgs } from './addChain'
 
 export { deployContract } from './deployContract'
 export type {
@@ -7,14 +8,19 @@ export type {
 } from './deployContract'
 
 export { getAccounts } from './getAccounts'
+export type { GetAccountsResponse } from './getAccounts'
 
 export { getPermissions } from './getPermissions'
 export type { GetPermissionsResponse } from './getPermissions'
 
 export { requestAccounts } from './requestAccounts'
+export type { RequestAccountsResponse } from './requestAccounts'
 
 export { requestPermissions } from './requestPermissions'
-export type { RequestPermissionsResponse } from './requestPermissions'
+export type {
+  RequestPermissionsArgs,
+  RequestPermissionsResponse,
+} from './requestPermissions'
 
 export { sendTransaction } from './sendTransaction'
 export type {

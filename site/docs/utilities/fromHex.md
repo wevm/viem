@@ -5,13 +5,13 @@ Decodes a hex value to a string, number or byte array.
 ## Import
 
 ```ts
-import { fromHex } from 'viem/utils'
+import { fromHex } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fromHex } from 'viem/utils'
+import { fromHex } from 'viem'
 
 fromHex('0x1a4', 'number')
 // 420
@@ -58,7 +58,7 @@ The output type.
 Decodes a hex value to a number.
 
 ```ts
-import { hexToNumber } from 'viem/utils'
+import { hexToNumber } from 'viem'
 
 hexToNumber('0x1a4')
 // 420
@@ -71,7 +71,7 @@ hexToNumber('0x1a4')
 Decodes a hex value to a bigint.
 
 ```ts
-import { hexToBigInt } from 'viem/utils'
+import { hexToBigInt } from 'viem'
 
 hexToBigInt('0xc5cf39211876fb5e5884327fa56fc0b75')
 // 4206942069420694206942069420694206942069n
@@ -84,7 +84,7 @@ hexToBigInt('0xc5cf39211876fb5e5884327fa56fc0b75')
 Decodes a hex value to a string.
 
 ```ts
-import { hexToString } from 'viem/utils'
+import { hexToString } from 'viem'
 
 hexToString('0x48656c6c6f20576f726c6421')
 // "Hello World!"
@@ -97,7 +97,7 @@ hexToString('0x48656c6c6f20576f726c6421')
 Decodes a hex value to a byte array.
 
 ```ts
-import { hexToBytes } from 'viem/utils'
+import { hexToBytes } from 'viem'
 
 hexToBytes('0x48656c6c6f20576f726c6421')
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
@@ -110,7 +110,7 @@ hexToBytes('0x48656c6c6f20576f726c6421')
 Decodes a hex value to a boolean.
 
 ```ts
-import { hexToBytes } from 'viem/utils'
+import { hexToBytes } from 'viem'
 
 hexToBytes('0x1')
 // true

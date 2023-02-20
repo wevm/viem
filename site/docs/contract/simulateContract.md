@@ -6,12 +6,6 @@ This function does not require gas to execute and _**does not**_ change the stat
 
 Internally, `simulateContract` uses a [Public Client](/docs/clients/public) to call the [`call` action](/docs/actions/public/call) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 
-## Import
-
-```ts
-import { simulateContract } from 'viem/contract'
-```
-
 ## Usage
 
 Below is a very basic example of how to simulate a write function on a contract (with no arguments).
@@ -21,11 +15,10 @@ The `mint` function accepts no arguments, and returns a token ID.
 ::: code-group
 
 ```ts [example.ts]
-import { simulateContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -71,11 +64,10 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { simulateContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -120,17 +112,16 @@ In the example below, we are **validating** if the contract write will be succes
 ::: code-group
 
 ```ts [example.ts]
-import { simulateContract } from 'viem/contract'
 import { walletClient, publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { request } = await simulateContract(publicClient, {
+const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
 })
-const hash = await writeContract(walletClient, request)
+const hash = await walletClient.writeContract(request)
 ```
 
 ```ts [abi.ts]
@@ -172,7 +163,7 @@ The response from the contract. Type is inferred.
 The contract address.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'mint',
@@ -187,7 +178,7 @@ const { result } = await simulateContract(publicClient, {
 The contract's ABI.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'mint',
@@ -202,7 +193,7 @@ const { result } = await simulateContract(publicClient, {
 A function to extract from the ABI.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint', // [!code focus]
@@ -217,7 +208,7 @@ const { result } = await simulateContract(publicClient, {
 The sender of the call.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -232,7 +223,7 @@ const { result } = await simulateContract(publicClient, {
 The access list.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -253,7 +244,7 @@ const { result } = await simulateContract(publicClient, {
 Arguments to pass to function call.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
   abi: wagmiAbi,
   functionName: 'balanceOf',
@@ -269,7 +260,7 @@ const { result } = await simulateContract(publicClient, {
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -286,7 +277,7 @@ const { result } = await simulateContract(publicClient, {
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -303,7 +294,7 @@ const { result } = await simulateContract(publicClient, {
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -321,7 +312,7 @@ const { result } = await simulateContract(publicClient, {
 Unique number identifying this transaction.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -338,7 +329,7 @@ const { result } = await simulateContract(publicClient, {
 Value in wei sent with this transaction.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -357,7 +348,7 @@ const { result } = await simulateContract(publicClient, {
 The block number to perform the read against.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -374,7 +365,7 @@ const { result } = await simulateContract(publicClient, {
 The block tag to perform the read against.
 
 ```ts
-const { result } = await simulateContract(publicClient, {
+const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',

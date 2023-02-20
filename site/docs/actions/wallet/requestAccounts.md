@@ -9,16 +9,9 @@ This API can be useful for dapps that need to access the user's accounts in orde
 ## Usage
 
 ```ts
-import { requestAccounts } from 'viem/wallet'
-```
-
-## Usage
-
-```ts
-import { requestAccounts } from 'viem/wallet'
 import { walletClient } from '.'
  
-const accounts = await requestAccounts(walletClient) // [!code focus:99]
+const accounts = await walletClient.requestAccounts() // [!code focus:99]
 // ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
 ```
 

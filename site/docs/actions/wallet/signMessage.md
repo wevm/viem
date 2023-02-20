@@ -7,16 +7,9 @@ Takes a byte array or hex value as the `data` argument.
 ## Usage
 
 ```ts
-import { signMessage } from 'viem/wallet'
-```
-
-## Usage
-
-```ts
-import { signMessage } from 'viem/wallet'
 import { walletClient } from '.'
  
-const message = await signMessage(walletClient, { // [!code focus:99]
+const message = await walletClient.signMessage({ // [!code focus:99]
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeaf',
 })
@@ -38,7 +31,7 @@ The signed message.
 Address to use for signing.
 
 ```ts
-const message = await signMessage(walletClient, {
+const message = await walletClient.signMessage({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus:1]
   data: '0xdeadbeaf',
 })
@@ -51,7 +44,7 @@ const message = await signMessage(walletClient, {
 Data to sign.
 
 ```ts
-const message = await signMessage(walletClient, {
+const message = await walletClient.signMessage({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeaf', // [!code focus:1]
 })

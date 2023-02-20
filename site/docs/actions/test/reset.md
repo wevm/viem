@@ -2,19 +2,12 @@
 
 Resets the fork back to its original state.
 
-## Import 
-
-```ts
-import { reset } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { reset } from 'viem/test'
 import { testClient } from '.'
  
-await reset(testClient) // [!code focus]
+await testClient.reset() // [!code focus]
 ```
 
 ## Parameters
@@ -26,7 +19,7 @@ await reset(testClient) // [!code focus]
 Resets the fork to a given block number.
 
 ```ts
-await reset(testClient, {
+await testClient.reset({
   blockNumber: 69420n,
   jsonRpcUrl: 'https://mainnet.g.alchemy.com/v2' // [!code focus]
 })
@@ -39,7 +32,7 @@ await reset(testClient, {
 Resets the fork with a given JSON RPC URL.
 
 ```ts
-await reset(testClient, {
+await testClient.reset({
   blockNumber: 69420n, // [!code focus]
   jsonRpcUrl: 'https://mainnet.g.alchemy.com/v2'
 })

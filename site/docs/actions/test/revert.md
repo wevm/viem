@@ -2,19 +2,12 @@
 
 Revert the state of the blockchain at the current block.
 
-## Import 
-
-```ts
-import { revert } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { revert } from 'viem/test'
 import { testClient } from '.'
  
-await revert(testClient, { // [!code focus:99]
+await testClient.revert({ // [!code focus:99]
   id: '0x...'
 })
 ```
@@ -28,7 +21,7 @@ await revert(testClient, { // [!code focus:99]
 The snapshot ID.
 
 ```ts
-await revert(testClient, {
+await testClient.revert({
   id: '0x...' // [!code focus]
 })
 ```
