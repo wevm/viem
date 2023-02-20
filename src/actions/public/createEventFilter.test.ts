@@ -1,15 +1,63 @@
-import { describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, initialBlockNumber, publicClient } from '../../_test'
 
-import { numberToHex, pad } from '../../utils'
-import { buildFilterTopics, createEventFilter } from './createEventFilter'
+import { createEventFilter } from './createEventFilter'
+
+const event = {
+  default: {
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  unnamed: {
+    inputs: [
+      {
+        indexed: true,
+        type: 'address',
+      },
+      {
+        indexed: true,
+        type: 'address',
+      },
+      {
+        indexed: true,
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+} as const
 
 describe('default', () => {
   test('no args', async () => {
     const filter = await createEventFilter(publicClient)
+    assertType<typeof filter>({
+      id: '0x',
+      type: 'event',
+    })
     expect(filter.id).toBeDefined()
     expect(filter.type).toBe('event')
+    expect(filter.args).toBeUndefined()
+    expect(filter.abi).toBeUndefined()
+    expect(filter.eventName).toBeUndefined()
   })
 
   test('args: address', async () => {
@@ -19,259 +67,154 @@ describe('default', () => {
   })
 
   test('args: event', async () => {
-    await createEventFilter(publicClient, {
-      event:
-        'Transfer(address indexed from, address indexed to, uint256 value)',
+    const filter = await createEventFilter(publicClient, {
+      event: event.default,
     })
+    assertType<typeof filter>({
+      abi: [event.default],
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter.args).toBeUndefined()
+    expect(filter.abi).toEqual([event.default])
+    expect(filter.eventName).toEqual('Transfer')
   })
 
   test('args: args (named)', async () => {
-    await createEventFilter(publicClient, {
-      event:
-        'Transfer(address indexed from, address indexed to, uint256 value)',
+    const filter = await createEventFilter(publicClient, {
+      event: event.default,
       args: {
         from: accounts[0].address,
         to: accounts[0].address,
       },
     })
-    await createEventFilter(publicClient, {
-      event:
-        'Transfer(address indexed from, address indexed to, uint256 value)',
+    assertType<typeof filter>({
+      abi: [event.default],
+      args: {
+        from: accounts[0].address,
+        to: accounts[0].address,
+      },
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter.args).toEqual({
+      from: accounts[0].address,
+      to: accounts[0].address,
+    })
+    expect(filter.abi).toEqual([event.default])
+    expect(filter.eventName).toEqual('Transfer')
+
+    const filter2 = await createEventFilter(publicClient, {
+      event: event.default,
       args: {
         from: accounts[0].address,
       },
     })
-    await createEventFilter(publicClient, {
-      event:
-        'Transfer(address indexed from, address indexed to, uint256 value)',
+    assertType<typeof filter2>({
+      abi: [event.default],
+      args: {
+        from: accounts[0].address,
+      },
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter2.args).toEqual({
+      from: accounts[0].address,
+    })
+    expect(filter2.abi).toEqual([event.default])
+    expect(filter2.eventName).toEqual('Transfer')
+
+    const filter3 = await createEventFilter(publicClient, {
+      event: event.default,
       args: {
         to: [accounts[0].address, accounts[1].address],
       },
     })
+    assertType<typeof filter3>({
+      abi: [event.default],
+      args: {
+        to: [accounts[0].address, accounts[1].address],
+      },
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter3.args).toEqual({
+      to: [accounts[0].address, accounts[1].address],
+    })
+    expect(filter3.abi).toEqual([event.default])
+    expect(filter3.eventName).toEqual('Transfer')
   })
 
   test('args: args (unnamed)', async () => {
-    await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+    const filter1 = await createEventFilter(publicClient, {
+      event: event.unnamed,
       args: [accounts[0].address, accounts[1].address],
     })
-    await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+    assertType<typeof filter1>({
+      abi: [event.unnamed],
+      args: [accounts[0].address, accounts[1].address],
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter1.args).toEqual([accounts[0].address, accounts[1].address])
+    expect(filter1.abi).toEqual([event.unnamed])
+    expect(filter1.eventName).toEqual('Transfer')
+
+    const filter2 = await createEventFilter(publicClient, {
+      event: event.unnamed,
       args: [[accounts[0].address, accounts[1].address]],
     })
-    await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+    assertType<typeof filter2>({
+      abi: [event.unnamed],
+      args: [[accounts[0].address, accounts[1].address]],
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
+    })
+    expect(filter2.args).toEqual([[accounts[0].address, accounts[1].address]])
+    expect(filter2.abi).toEqual([event.unnamed])
+    expect(filter2.eventName).toEqual('Transfer')
+
+    const filter3 = await createEventFilter(publicClient, {
+      event: event.unnamed,
       args: [null, accounts[0].address],
     })
-    await createEventFilter(publicClient, {
-      event: 'Transfer(address,address,uint256)',
-      args: [],
+    assertType<typeof filter3>({
+      abi: [event.unnamed],
+      args: [null, accounts[0].address],
+      eventName: 'Transfer',
+      id: '0x',
+      type: 'event',
     })
+    expect(filter3.args).toEqual([null, accounts[0].address])
+    expect(filter3.abi).toEqual([event.unnamed])
+    expect(filter3.eventName).toEqual('Transfer')
   })
 
   test('args: fromBlock', async () => {
     await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+      event: event.default,
       fromBlock: initialBlockNumber,
     })
     await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+      event: event.default,
       fromBlock: 'latest',
     })
   })
 
   test('args: toBlock', async () => {
     await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+      event: event.default,
       toBlock: initialBlockNumber,
     })
     await createEventFilter(publicClient, {
-      event: 'Transfer(address indexed, address indexed, uint256)',
+      event: event.default,
       toBlock: 'latest',
     })
-  })
-})
-
-describe('buildFilterTopics', () => {
-  test('no args', () => {
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed from, address indexed to)',
-      }),
-    ).toEqual([
-      '0x4853ae1b4d437c4255ac16cd3ceda3465975023f27cb141584cd9d44440fed82',
-    ])
-
-    expect(
-      buildFilterTopics({
-        event: 'NoArgs()',
-      }),
-    ).toEqual([
-      '0xd144d9e3e4304378a275ce8c55f48e681b2038a3792520b00766e2cecef576f5',
-    ])
-  })
-
-  test('named args', () => {
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed from, address indexed to)',
-        args: {
-          from: accounts[0].address,
-          to: accounts[1].address,
-        },
-      }),
-    ).toEqual([
-      '0x4853ae1b4d437c4255ac16cd3ceda3465975023f27cb141584cd9d44440fed82',
-      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-      '0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8',
-    ])
-
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed from, address indexed to)',
-        args: {
-          from: accounts[0].address,
-        },
-      }),
-    ).toEqual([
-      '0x4853ae1b4d437c4255ac16cd3ceda3465975023f27cb141584cd9d44440fed82',
-      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-      null,
-    ])
-
-    expect(
-      buildFilterTopics({
-        event:
-          'Transfer(address indexed from, uint indexed foo, bool indexed bar)',
-        args: {
-          from: accounts[0].address,
-          foo: 12,
-          bar: true,
-        },
-      }),
-    ).toEqual([
-      '0x053222ddc7d30875376c5627c53670e97f3b5741a004c9429ae150ba4def00da',
-      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-      '0x000000000000000000000000000000000000000000000000000000000000000c',
-      '0x0000000000000000000000000000000000000000000000000000000000000001',
-    ])
-
-    expect(
-      buildFilterTopics({
-        event:
-          'Transfer(string indexed baz, uint indexed foo, bool indexed bar)',
-        args: {
-          baz: 'watermelon sugar high',
-          foo: 12,
-          bar: true,
-        },
-      }),
-    ).toEqual([
-      '0xd72ffe8f642f870a4e0b389d4e008752294ecfa2a379b4a9790c067aef635088',
-      '0xdb31e24017b555ff340729aa37fadedf910b5395e13a218e76e155c39527bf02',
-      '0x000000000000000000000000000000000000000000000000000000000000000c',
-      '0x0000000000000000000000000000000000000000000000000000000000000001',
-    ])
-
-    expect(
-      buildFilterTopics({
-        event:
-          'Transfer(bytes indexed baz, uint indexed foo, bool indexed bar)',
-        args: {
-          baz: '0x69420',
-          foo: 12,
-          bar: true,
-        },
-      }),
-    ).toEqual([
-      '0xd0ac01db7189fe6027705e6dda462153bf4aec72630a11dcec054ac78bac314d',
-      '0xd36b1a27d526376a81ba9b34292f4103e8340cc80a493e43aa00a14ebd0df4c5',
-      '0x000000000000000000000000000000000000000000000000000000000000000c',
-      '0x0000000000000000000000000000000000000000000000000000000000000001',
-    ])
-  })
-
-  test('unnamed args', () => {
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed, address indexed, uint indexed)',
-        args: [accounts[0].address, accounts[1].address, 69420n],
-      }),
-    ).toEqual([
-      '0x930a61a57a70a73c2a503615b87e2e54fe5b9cdeacda518270b852296ab1a377',
-      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-      '0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8',
-      pad(numberToHex(69420n)),
-    ])
-
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed, address indexed)',
-        args: [null, accounts[0].address],
-      }),
-    ).toEqual([
-      '0x4853ae1b4d437c4255ac16cd3ceda3465975023f27cb141584cd9d44440fed82',
-      null,
-      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-    ])
-
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed, address indexed)',
-        args: [null, [accounts[0].address, accounts[1].address]],
-      }),
-    ).toEqual([
-      '0x4853ae1b4d437c4255ac16cd3ceda3465975023f27cb141584cd9d44440fed82',
-      null,
-      [
-        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-        '0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8',
-      ],
-    ])
-
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed, address indexed)',
-        args: [
-          [accounts[2].address, accounts[3].address],
-          [accounts[0].address, accounts[1].address],
-        ],
-      }),
-    ).toEqual([
-      '0x4853ae1b4d437c4255ac16cd3ceda3465975023f27cb141584cd9d44440fed82',
-      [
-        '0x0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc',
-        '0x00000000000000000000000090f79bf6eb2c4f870365e785982e1f101e93b906',
-      ],
-      [
-        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-        '0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8',
-      ],
-    ])
-
-    expect(
-      buildFilterTopics({
-        event: 'Transfer(address indexed, uint indexed, bool indexed)',
-        args: [
-          [accounts[2].address, accounts[3].address],
-          [23, 32],
-          [true, false],
-        ],
-      }),
-    ).toEqual([
-      '0x053222ddc7d30875376c5627c53670e97f3b5741a004c9429ae150ba4def00da',
-      [
-        '0x0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc',
-        '0x00000000000000000000000090f79bf6eb2c4f870365e785982e1f101e93b906',
-      ],
-      [
-        '0x0000000000000000000000000000000000000000000000000000000000000017',
-        '0x0000000000000000000000000000000000000000000000000000000000000020',
-      ],
-      [
-        '0x0000000000000000000000000000000000000000000000000000000000000001',
-        '0x0000000000000000000000000000000000000000000000000000000000000000',
-      ],
-    ])
   })
 })

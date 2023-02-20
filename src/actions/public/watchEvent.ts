@@ -1,15 +1,31 @@
+import { AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
-import type { Address, EventDefinition, Filter, Log } from '../../types'
+import type {
+  Address,
+  Filter,
+  Log,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
+} from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import { createEventFilter, EventFilterArgs } from './createEventFilter'
+import { createEventFilter, CreateEventFilterArgs } from './createEventFilter'
 import { getFilterChanges } from './getFilterChanges'
 import { uninstallFilter } from './uninstallFilter'
 
-export type OnLogsResponse = Log[]
-export type OnLogs = (logs: OnLogsResponse) => void
+export type OnLogsResponse<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
+export type OnLogs<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = (logs: OnLogsResponse<TAbiEvent, TEventName>) => void
 
-export type WatchEventArgs<TEventDefinition extends EventDefinition> = {
+export type WatchEventArgs<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = {
   /** The address of the contract. */
   address?: Address | Address[]
   /** Whether or not the event logs should be batched on each invocation. */
@@ -17,13 +33,13 @@ export type WatchEventArgs<TEventDefinition extends EventDefinition> = {
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogs
+  onLogs: OnLogs<TAbiEvent, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 } & (
   | {
-      event: TEventDefinition
-      args?: EventFilterArgs<TEventDefinition>
+      event: TAbiEvent
+      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
     }
   | {
       event?: never
@@ -31,7 +47,10 @@ export type WatchEventArgs<TEventDefinition extends EventDefinition> = {
     }
 )
 
-export function watchEvent<TEventDefinition extends EventDefinition>(
+export function watchEvent<
+  TAbiEvent extends AbiEvent | undefined,
+  TEventName extends string | undefined,
+>(
   client: PublicClient,
   {
     address,
@@ -41,7 +60,7 @@ export function watchEvent<TEventDefinition extends EventDefinition>(
     onError,
     onLogs,
     pollingInterval = client.pollingInterval,
-  }: WatchEventArgs<TEventDefinition>,
+  }: WatchEventArgs<TAbiEvent>,
 ) {
   const observerId = JSON.stringify([
     'watchEvent',
@@ -54,18 +73,22 @@ export function watchEvent<TEventDefinition extends EventDefinition>(
   ])
 
   return observe(observerId, { onLogs, onError }, (emit) => {
-    let filter: Filter<'event'>
+    let filter: Filter<'event', [TAbiEvent], TEventName, any>
 
     const unwatch = poll(
       async () => {
         try {
           if (!filter) {
             try {
-              filter = await createEventFilter(client, {
+              filter = (await createEventFilter(client, {
                 address,
                 args,
-                event: event!,
-              })
+                event,
+              } as CreateEventFilterArgs)) as unknown as Filter<
+                'event',
+                [TAbiEvent],
+                TEventName
+              >
               return
             } catch (err) {
               unwatch()
@@ -75,8 +98,8 @@ export function watchEvent<TEventDefinition extends EventDefinition>(
 
           const logs = await getFilterChanges(client, { filter })
           if (logs.length === 0) return
-          if (batch) emit.onLogs(logs)
-          else logs.forEach((log) => emit.onLogs([log]))
+          if (batch) emit.onLogs(logs as any)
+          else logs.forEach((log) => emit.onLogs([log] as any))
         } catch (err) {
           emit.onError?.(err as Error)
         }

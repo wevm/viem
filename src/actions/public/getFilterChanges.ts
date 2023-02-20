@@ -1,23 +1,57 @@
+import { Abi, AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
-import type { Filter, FilterType, Hash, Log } from '../../types'
+import type {
+  Filter,
+  FilterType,
+  Hash,
+  Log,
+  MaybeAbiEventName,
+} from '../../types'
+import { decodeEventLog } from '../../utils'
 
 import { formatLog } from '../../utils/formatters/log'
 
-export type GetFilterChangesArgs<TFilterType extends FilterType> = {
-  filter: Filter<TFilterType>
+export type GetFilterChangesArgs<
+  TFilterType extends FilterType = FilterType,
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = {
+  filter: Filter<TFilterType, TAbi, TEventName, any>
 }
-export type GetFilterChangesResponse<TFilterType extends FilterType> =
-  TFilterType extends 'event' ? Log[] : Hash[]
 
-export async function getFilterChanges<TFilterType extends FilterType>(
+export type GetFilterChangesResponse<
+  TFilterType extends FilterType = FilterType,
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = TFilterType extends 'event'
+  ? Log<bigint, number, TAbiEvent, TAbi, TEventName>[]
+  : Hash[]
+
+export async function getFilterChanges<
+  TFilterType extends FilterType,
+  TAbiEvent extends AbiEvent | undefined,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string | undefined,
+>(
   client: PublicClient,
-  { filter }: GetFilterChangesArgs<TFilterType>,
+  { filter }: GetFilterChangesArgs<TFilterType, TAbiEvent, TAbi, TEventName>,
 ) {
   const logs = await client.request({
     method: 'eth_getFilterChanges',
     params: [filter.id],
   })
-  return logs.map((log) =>
-    typeof log === 'string' ? log : formatLog(log),
-  ) as GetFilterChangesResponse<TFilterType>
+  return logs.map((log) => {
+    if (typeof log === 'string') return log
+    const { eventName, args } =
+      'abi' in filter && filter.abi
+        ? decodeEventLog({
+            abi: filter.abi,
+            data: log.data,
+            topics: log.topics as any,
+          })
+        : { eventName: undefined, args: undefined }
+    return formatLog(log, { args, eventName })
+  }) as GetFilterChangesResponse<TFilterType, TAbiEvent, TAbi, TEventName>
 }

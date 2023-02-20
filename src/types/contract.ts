@@ -3,8 +3,6 @@ import type {
   AbiError,
   AbiEvent,
   AbiFunction,
-  AbiType,
-  AbiTypeToPrimitiveType,
   AbiParameter,
   AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
@@ -19,12 +17,31 @@ import type {
 } from 'abitype'
 import type { Address, Hex, LogTopic } from './misc'
 import type { TransactionRequest } from './transaction'
-import type { NoUndefined, Prettify, Trim } from './utils'
+import type {
+  MaybeExcludeEmpty,
+  MaybeRequired,
+  NoUndefined,
+  Prettify,
+} from './utils'
+
+type EventParametersConfig = {
+  enableUnion: boolean
+  indexedOnly: boolean
+  required: boolean
+}
+
+type EventParametersDefaultConfig = {
+  enableUnion: true
+  indexedOnly: true
+  required: false
+}
 
 //////////////////////////////////////////////////////////////////////
 // ABIs
 
 export type AbiItem = Abi[number]
+
+export type EventDefinition = `${string}(${string})`
 
 type HashedEventTypes = 'string' | 'bytes' | 'tuple' | `${string}[${string}]`
 
@@ -37,11 +54,16 @@ type EventTopicParam<
   | (TTopic extends null ? null : undefined)
 >
 
-export type AbiEventParameterToPrimitiveType<TParam extends AbiParameter> =
-  EventTopicParam<AbiParameterToPrimitiveType<TParam>>
+export type AbiEventParameterToPrimitiveType<
+  TParam extends AbiParameter,
+  TConfig extends EventParametersConfig = EventParametersDefaultConfig,
+> = TConfig extends { enableUnion: true }
+  ? EventTopicParam<AbiParameterToPrimitiveType<TParam>>
+  : AbiParameterToPrimitiveType<TParam>
 
 export type AbiEventParametersToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
+  TConfig extends EventParametersConfig = EventParametersDefaultConfig,
   TBase = TAbiParameters[0] extends { name: string } ? {} : [],
 > = Prettify<
   TAbiParameters extends readonly [infer Head, ...infer Tail]
@@ -49,20 +71,54 @@ export type AbiEventParametersToPrimitiveTypes<
       ? Head extends AbiParameter
         ? Head extends { name: infer Name }
           ? Name extends string
+            ? MaybeRequired<
+                {
+                  [name in Name]?: AbiEventParameterToPrimitiveType<
+                    Head,
+                    TConfig
+                  >
+                },
+                TConfig['required']
+              > &
+                (Tail extends readonly []
+                  ? {}
+                  : Tail extends readonly AbiParameter[]
+                  ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
+                  : {})
+            : never
+          : MaybeExcludeEmpty<
+              | (TConfig extends { enableUnion: true }
+                  ? [AbiEventParameterToPrimitiveType<Head, TConfig>]
+                  : [])
+              | [
+                  AbiEventParameterToPrimitiveType<Head, TConfig>,
+                  ...(Tail extends readonly []
+                    ? []
+                    : Tail extends readonly AbiParameter[]
+                    ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
+                    : []),
+                ],
+              TConfig['required']
+            >
+        : TBase
+      : TConfig extends { indexedOnly: false }
+      ? Head extends AbiParameter
+        ? Head extends { name: infer Name }
+          ? Name extends string
             ? {
-                [name in Name]?: AbiEventParameterToPrimitiveType<Head>
+                [name in Name]: AbiParameterToPrimitiveType<Head>
               } & (Tail extends readonly []
                 ? {}
                 : Tail extends readonly AbiParameter[]
-                ? AbiEventParametersToPrimitiveTypes<Tail>
+                ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
                 : {})
             : never
           : [
-              AbiEventParameterToPrimitiveType<Head>,
+              AbiParameterToPrimitiveType<Head>,
               ...(Tail extends readonly []
                 ? []
                 : Tail extends readonly AbiParameter[]
-                ? AbiEventParametersToPrimitiveTypes<Tail>
+                ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
                 : []),
             ]
         : TBase
@@ -117,7 +173,9 @@ export type AbiEventTopicsToPrimitiveTypes<
           : TBase
         : TBase
       : TTopics extends readonly []
-      ? TData extends Hex
+      ? TData extends '0x'
+        ? TBase
+        : TData extends Hex
         ? Head extends AbiParameter
           ? Head extends { indexed: true }
             ? Tail extends readonly AbiParameter[]
@@ -229,27 +287,19 @@ export type ExtractErrorArgsFromAbi<
 export type ExtractEventArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
+  TConfig extends EventParametersConfig = EventParametersDefaultConfig,
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },
-  TArgs = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
+  TArgs = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs'], TConfig>,
   FailedToParseArgs =
     | ([TArgs] extends [never] ? true : false)
     | (readonly unknown[] extends TArgs ? true : false),
 > = true extends FailedToParseArgs
-  ? {
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
-       */
-      args?: readonly unknown[]
-    }
+  ? readonly unknown[]
   : TArgs extends readonly []
-  ? { args?: never }
-  : {
-      args?: TArgs
-    }
+  ? never
+  : TArgs
 
 export type ExtractEventArgsFromTopics<
   TAbi extends Abi | readonly unknown[],
@@ -282,13 +332,10 @@ export type ExtractErrorNameFromAbi<
 
 export type ExtractEventNameFromAbi<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = string,
+  TEventName extends string | undefined = string,
 > = TAbi extends Abi
   ? ExtractAbiEventNames<TAbi> extends infer AbiEventNames
-    ?
-        | AbiEventNames
-        | (TEventName extends AbiEventNames ? TEventName : never)
-        | (Abi extends TAbi ? string : never)
+    ? AbiEventNames | (TEventName extends AbiEventNames ? TEventName : never)
     : never
   : TEventName
 
@@ -345,123 +392,15 @@ export type ExtractResultFromAbi<
   ? Arg
   : TArgs
 
-//////////////////////////////////////////////////////////////////////
-// Event/Function Definitions
+export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
+  TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
 
-// REFACTOR: Remove below once we implement `ParseAbi`.
-// https://github.com/wagmi-dev/viem/issues/29
-
-export type EventDefinition = `${string}(${string})`
-
-type ExtractArgsFromDefinitionConfig = {
-  indexedOnly: unknown
-}
-
-type ExtractArgsFromDefinitionDefaultConfig = {
-  indexedOnly: false
-}
-
-type NamedArg<
-  TType extends string,
-  TName extends string,
-  TIndexed = false,
-> = `${TType}${TIndexed extends true ? ' indexed ' : ' '}${TName}`
-type UnnamedArg<TType extends string> = `${TType}`
-type IndexedArg<TType extends string> = `${TType} indexed`
-
-type ExtractTypeFromArg<
-  TArg,
-  TRest = unknown,
-  TConfig extends ExtractArgsFromDefinitionConfig = ExtractArgsFromDefinitionDefaultConfig,
-> = Trim<TArg> extends NamedArg<infer Type, infer Name, true>
-  ? Type extends AbiType
-    ? Name extends ''
-      ? TRest extends [...args: any]
-        ? [AbiTypeToPrimitiveType<Type>, ...TRest]
-        : never
-      : {
-          [name in Trim<Name>]?:
-            | AbiTypeToPrimitiveType<Type>
-            | AbiTypeToPrimitiveType<Type>[]
-        } & TRest
-    : never
-  : TConfig extends { indexedOnly: false }
-  ? TArg extends NamedArg<infer Type, infer Name, false>
-    ? Type extends AbiType
-      ? Name extends 'indexed'
-        ? TRest extends [...args: any]
-          ? [AbiTypeToPrimitiveType<Type>, ...TRest]
-          : never
-        : { [name in Trim<Name>]: AbiTypeToPrimitiveType<Type> } & TRest
-      : never
-    : TArg extends UnnamedArg<infer Type>
-    ? Type extends AbiType
-      ? TRest extends [...args: any]
-        ? [AbiTypeToPrimitiveType<Type>, ...TRest]
-        : never
-      : never
-    : never
-  : TArg extends NamedArg<infer Type, string, true>
-  ? Type extends AbiType
-    ? TRest extends [...args: any]
-      ? [AbiTypeToPrimitiveType<Type>, ...TRest]
-      : never
-    : TRest
-  : TArg extends IndexedArg<infer Type>
-  ? Type extends AbiType
-    ? TRest extends [...args: any]
-      ?
-          | [
-              | AbiTypeToPrimitiveType<Type>
-              | AbiTypeToPrimitiveType<Type>[]
-              | null,
-            ]
-          | [
-              (
-                | AbiTypeToPrimitiveType<Type>
-                | AbiTypeToPrimitiveType<Type>[]
-                | null
-              ),
-              ...TRest,
-            ]
-      : never
-    : TRest
-  : TRest
-
-type ExtractTypesFromArgs<
-  TArgs,
-  TConfig extends ExtractArgsFromDefinitionConfig = ExtractArgsFromDefinitionDefaultConfig,
-> = Trim<TArgs> extends `${infer Head},${infer Tail}`
-  ? ExtractTypeFromArg<Head, ExtractTypesFromArgs<Tail, TConfig>, TConfig>
-  : ExtractTypeFromArg<
-      Trim<TArgs>,
-      Trim<TArgs> extends NamedArg<string, string>
-        ? Trim<TArgs> extends IndexedArg<string>
-          ? []
-          : unknown
-        : [],
-      TConfig
-    >
-
-type ExtractArgsFromDefinition<
-  TDef,
-  TConfig extends ExtractArgsFromDefinitionConfig = ExtractArgsFromDefinitionDefaultConfig,
-> = TDef extends `${string}(${infer Args})`
-  ? ExtractTypesFromArgs<Args, TConfig>
-  : 'Error: Invalid definition was provided.'
-
-export type ExtractArgsFromEventDefinition<
-  TDef extends EventDefinition | undefined,
-  TConfig extends ExtractArgsFromDefinitionConfig = {
-    indexedOnly: true
-  },
-> = Prettify<
-  TDef extends EventDefinition
-    ? ExtractArgsFromDefinition<TDef, TConfig> extends [...args: any]
-      ? ExtractArgsFromDefinition<TDef, TConfig> | []
-      : ExtractArgsFromDefinition<TDef, TConfig>
-    : undefined
->
+export type MaybeExtractEventArgsFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = undefined,
+> = TEventName extends string
+  ? ExtractEventArgsFromAbi<TAbi, TEventName>
+  : undefined
 
 //////////////////////////////////////////////////////////////////////
 // Args

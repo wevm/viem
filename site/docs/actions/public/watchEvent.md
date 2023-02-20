@@ -59,7 +59,7 @@ import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 const unwatch = await watchEvent(publicClient, {
-  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // [!code focus]
   onLogs: logs => console.log(logs)
 })
 // > [{ ... }, { ... }, { ... }]
@@ -81,18 +81,21 @@ export const publicClient = createPublicClient({
 
 ### Event
 
-`watchEvent` can be scoped to an **event**:
+`watchEvent` can be scoped to an **event**.
+
+The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ::: code-group
 
 ```ts [example.ts]
 import { watchEvent } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 const unwatch = await watchEvent(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
   onLogs: logs => console.log(logs)
 })
 // > [{ ... }, { ... }, { ... }]
@@ -112,21 +115,43 @@ export const publicClient = createPublicClient({
 
 :::
 
-### Event Arguments
+By default, `event` accepts the [`AbiEvent`] type:
 
-`watchEvnets` can be scoped to given **_indexed_ arguments** on the event:
+```ts
+import { watchEvent } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { publicClient } from '.'
+
+const unwatch = await watchEvent(publicClient, {
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: { // [!code focus:8]
+    name: 'Transfer', 
+    inputs: [
+      { type: 'address', indexed: true, name: 'from' },
+      { type: 'address', indexed: true, name: 'to' },
+      { type: 'uint256', indexed: false, name: 'value' }
+    ] 
+  },
+  onLogs: logs => console.log(logs)
+})
+```
+
+### Arguments
+
+`watchEvents` can be scoped to given **_indexed_ arguments** on the event:
 
 ::: code-group
 
 ```ts [example.ts]
 import { watchEvent } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 const unwatch = await watchEvent(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  args: {
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
   },
@@ -156,8 +181,8 @@ These arguments can also be an array to indicate that other values can exist in 
 ```ts
 const unwatch = await watchEvent(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  args: {
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus:8]
     // '0xd8da...' OR '0xa5cc...' OR '0xa152...'
     from: [
       '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', 
@@ -190,6 +215,63 @@ const unwatch = watchEvent(
 )
 ```
 
+### address (optional)
+
+- **Type:** `Address | Address[]`
+
+The contract address or a list of addresses from which Logs should originate.
+
+```ts
+const unwatch = watchEvent(
+  publicClient,
+  { 
+    address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
+    onLogs: logs => console.log(logs) 
+  }
+)
+```
+
+### event (optional)
+
+- **Type:** [`AbiEvent`](/docs/glossary/types#TODO)
+
+The event in ABI format.
+
+A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
+
+```ts
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+
+const unwatch = watchEvent(
+  publicClient,
+  { 
+    address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+    event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+    onLogs: logs => console.log(logs) 
+  }
+)
+```
+
+### args (optional)
+
+- **Type:** Inferred.
+
+A list of _indexed_ event arguments.
+
+```ts
+const unwatch = watchEvent(
+  publicClient,
+  { 
+    address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+    event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+    args: { // [!code focus:4]
+     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+      to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+    }
+    onLogs: logs => console.log(logs) 
+  }
+)
+```
 ### batch (optional)
 
 - **Type:** `boolean`

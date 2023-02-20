@@ -1,19 +1,64 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
+import { getAddress } from '../../utils'
 import { wait } from '../../utils/wait'
 import {
   accounts,
   address,
   publicClient,
   testClient,
-  transfer1Data,
   usdcContractConfig,
   walletClient,
 } from '../../_test'
 import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { sendTransaction } from '../wallet'
+import { sendTransaction, writeContract } from '../wallet'
 import * as createEventFilter from './createEventFilter'
 import * as getFilterChanges from './getFilterChanges'
 import { OnLogsResponse, watchEvent } from './watchEvent'
+
+const event = {
+  transfer: {
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  approval: {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
+} as const
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {
@@ -38,21 +83,24 @@ test(
     })
 
     await wait(1000)
-    await sendTransaction(walletClient, {
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
       from: address.vitalik,
-      to: usdcContractConfig.address,
-      data: transfer1Data(accounts[0].address),
     })
-    await sendTransaction(walletClient, {
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
       from: address.vitalik,
-      to: usdcContractConfig.address,
-      data: transfer1Data(accounts[0].address),
     })
     await wait(1000)
-    await sendTransaction(walletClient, {
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[1].address, 1n],
       from: address.vitalik,
-      to: usdcContractConfig.address,
-      data: transfer1Data(accounts[1].address),
     })
     await wait(2000)
     unwatch()
@@ -73,21 +121,24 @@ test('args: batch', async () => {
   })
 
   await wait(1000)
-  await sendTransaction(walletClient, {
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
     from: address.vitalik,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[0].address),
   })
-  await sendTransaction(walletClient, {
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
     from: address.vitalik,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[0].address),
   })
   await wait(1000)
-  await sendTransaction(walletClient, {
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[1].address, 1n],
     from: address.vitalik,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[1].address),
   })
   await wait(2000)
   unwatch()
@@ -112,10 +163,11 @@ test('args: address', async () => {
   })
 
   await wait(1000)
-  await sendTransaction(walletClient, {
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
     from: address.vitalik,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[0].address),
   })
   await wait(2000)
   unwatch()
@@ -126,25 +178,26 @@ test('args: address', async () => {
 })
 
 test('args: address + event', async () => {
-  let logs: OnLogsResponse[] = []
-  let logs2: OnLogsResponse[] = []
+  let logs: OnLogsResponse<typeof event.transfer>[] = []
+  let logs2: OnLogsResponse<typeof event.approval>[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
-    event: 'Transfer(address indexed, address indexed, uint256 indexed)',
+    event: event.transfer,
     onLogs: (logs_) => logs.push(logs_),
   })
   const unwatch2 = watchEvent(publicClient, {
     address: usdcContractConfig.address,
-    event: 'Approval(address indexed, address indexed)',
+    event: event.approval,
     onLogs: (logs_) => logs2.push(logs_),
   })
 
   await wait(1000)
-  await sendTransaction(walletClient, {
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
     from: address.vitalik,
-    to: usdcContractConfig.address,
-    data: transfer1Data(accounts[0].address),
   })
   await wait(2000)
   unwatch()
@@ -152,6 +205,13 @@ test('args: address + event', async () => {
 
   expect(logs.length).toBe(1)
   expect(logs2.length).toBe(0)
+
+  expect(logs[0][0].eventName).toEqual('Transfer')
+  expect(logs[0][0].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(accounts[0].address),
+    value: 1n,
+  })
 })
 
 test.todo('args: args')

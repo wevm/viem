@@ -12,7 +12,6 @@ export {
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
-  transfer1Data,
 } from './constants'
 
 export {

@@ -28,20 +28,49 @@ You can also scope a Filter to a set of given attributes (listed below).
 
 A Filter can be scoped to an **address**:
 
-```ts
+```ts 
+import { createEventFilter } from 'viem/public'
+import { publicClient } from '.'
+
 const filter = await createEventFilter(publicClient, {
-  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2'
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
 
 ### Event
 
-A Filter can be scoped to an **event**:
+A Filter can be scoped to an **event**.
+
+The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
+import { createEventFilter } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { publicClient } from '.'
+
 const filter = await createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+})
+```
+
+By default, `event` accepts the [`AbiEvent`] type:
+
+```ts
+import { createEventFilter } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { publicClient } from '.'
+
+const filter = await createEventFilter(publicClient, {
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: { // [!code focus:99]
+    name: 'Transfer', 
+    inputs: [
+      { type: 'address', indexed: true, name: 'from' },
+      { type: 'address', indexed: true, name: 'to' },
+      { type: 'uint256', indexed: false, name: 'value' }
+    ] 
+  }
 })
 ```
 
@@ -52,8 +81,8 @@ A Filter can be scoped to given **_indexed_ arguments**:
 ```ts
 const filter = await createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  args: {
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
   }
@@ -67,8 +96,8 @@ A Filter Argument can also be an array to indicate that other values can exist i
 ```ts
 const filter = await createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  args: {
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus:8]
     // '0xd8da...' OR '0xa5cc...' OR '0xa152...'
     from: [
       '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', 
@@ -86,9 +115,9 @@ A Filter can be scoped to a **block range**:
 ```ts
 const filter = await createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
-  fromBlock: 16330000n,
-  toBlock: 16330050n
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  fromBlock: 16330000n, // [!code focus]
+  toBlock: 16330050n // [!code focus]
 })
 ```
 
@@ -98,7 +127,7 @@ const filter = await createEventFilter(publicClient, {
 
 ## Parameters
 
-### address
+### address (optional)
 
 - **Type:** `Address | Address[]`
 
@@ -110,29 +139,33 @@ const filter = await createEventFilter(publicClient, {
 })
 ```
 
-### event
+### event (optional)
 
-- **Type:** `string`
+- **Type:** [`AbiEvent`](/docs/glossary/types#TODO)
 
-The event definition.
+The event in ABI format.
+
+A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+
 const filter = await createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
 ```
 
-### args
+### args (optional)
 
-- **Type:** `EventFilterArgs`
+- **Type:** Inferred.
 
 A list of _indexed_ event arguments.
 
 ```ts
 const filter = await createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address indexed from, address indexed to, uint256 value)',
+  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
@@ -140,7 +173,7 @@ const filter = await createEventFilter(publicClient, {
 })
 ```
 
-### fromBlock
+### fromBlock (optional)
 
 - **Type:** `bigint`
 
@@ -152,7 +185,7 @@ const filter = await createEventFilter(publicClient, {
 })
 ```
 
-### toBlock
+### toBlock (optional)
 
 - **Type:** `bigint`
 
@@ -163,5 +196,3 @@ const filter = await createEventFilter(publicClient, {
   fromBlock: 70120n // [!code focus]
 })
 ```
-
-## Example

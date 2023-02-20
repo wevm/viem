@@ -1,10 +1,4 @@
-import {
-  Abi,
-  AbiParameter,
-  AbiParameterToPrimitiveType,
-  ExtractAbiEventNames,
-  Narrow,
-} from 'abitype'
+import { Abi, AbiParameter, AbiParameterToPrimitiveType, Narrow } from 'abitype'
 
 import {
   AbiEventNotFoundError,
@@ -27,8 +21,9 @@ export type EncodeEventTopicsArgs<
   TEventName extends string = string,
 > = {
   abi: Narrow<TAbi>
+  args?: ExtractEventArgsFromAbi<TAbi, TEventName>
   eventName: ExtractEventNameFromAbi<TAbi, TEventName>
-} & ExtractEventArgsFromAbi<TAbi, TEventName>
+}
 
 export function encodeEventTopics<
   TAbi extends Abi | readonly unknown[],
