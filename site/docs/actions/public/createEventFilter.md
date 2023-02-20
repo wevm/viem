@@ -54,6 +54,26 @@ const filter = await createEventFilter(publicClient, {
 })
 ```
 
+By default, `event` accepts the [`AbiEvent`] type:
+
+```ts
+import { createEventFilter } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { publicClient } from '.'
+
+const filter = await createEventFilter(publicClient, {
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: { // [!code focus:99]
+    name: 'Transfer', 
+    inputs: [
+      { type: 'address', indexed: true, name: 'from' },
+      { type: 'address', indexed: true, name: 'to' },
+      { type: 'uint256', indexed: false, name: 'value' }
+    ] 
+  }
+})
+```
+
 ### Arguments
 
 A Filter can be scoped to given **_indexed_ arguments**:

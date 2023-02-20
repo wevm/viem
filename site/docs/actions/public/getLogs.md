@@ -41,6 +41,32 @@ const logs = await getLogs(publicClient, {  // [!code focus:99]
 })
 ```
 
+By default, `event` accepts the [`AbiEvent`] type:
+
+```ts
+import { createEventFilter } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils' // [!code focus]
+import { publicClient } from '.'
+
+const filter = await getLogs(publicClient, {
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: { // [!code focus:8]
+    name: 'Transfer', 
+    inputs: [
+      { type: 'address', indexed: true, name: 'from' },
+      { type: 'address', indexed: true, name: 'to' },
+      { type: 'uint256', indexed: false, name: 'value' }
+    ] 
+  },
+  args: {
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+  },
+  fromBlock: 16330000n,
+  toBlock: 16330050n
+})
+```
+
 ### Address
 
 A Filter can be scoped to an **address**:

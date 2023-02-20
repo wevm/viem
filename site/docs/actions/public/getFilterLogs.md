@@ -1,8 +1,8 @@
-# getFilterChanges
+# getFilterLogs
 
 Returns a list of **event** logs since the filter was created. 
 
-Note: `getFilterChanges` is only compatible with **event filters**.
+Note: `getFilterLogs` is only compatible with **event filters**.
 
 ## Import
 
@@ -42,7 +42,7 @@ An **event** filter.
 
 ```ts
 const filter = await createEventFilter(publicClient)
-const logs = await getFilterChanges(publicClient, {
+const logs = await getFilterLogs(publicClient, {
   filter, // [!code focus]
 })
 ```
