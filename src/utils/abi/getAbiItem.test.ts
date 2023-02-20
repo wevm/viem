@@ -456,7 +456,7 @@ describe.each([
   {
     arg: 'A0Cf798816D4b9b9866b5330EEa46a18382f251e',
     abiParameter: { type: 'address' },
-    expected: true,
+    expected: false,
   },
   { arg: 'test', abiParameter: { type: 'address' }, expected: false },
   // bool
