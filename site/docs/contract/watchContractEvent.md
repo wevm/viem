@@ -4,6 +4,8 @@ Watches and returns emitted contract event logs.
 
 This Action will batch up all the event logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onLogs).
 
+`watchContractEvent` will attempt to create an [Event Filter](/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
+
 ## Import
 
 ```ts
