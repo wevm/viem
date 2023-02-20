@@ -62,9 +62,11 @@ export type CreateEventFilterResponse<
 
 export async function createEventFilter<
   TAbiEvent extends AbiEvent | undefined,
-  TAbi extends Abi | readonly unknown[],
-  TEventName extends string | undefined,
-  TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TArgs extends
+    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+    | undefined = undefined,
 >(
   client: PublicClient,
   {

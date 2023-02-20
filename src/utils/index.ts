@@ -97,7 +97,7 @@ export {
   transactionType,
 } from './formatters'
 
-export type { toRlpResponse } from './encoding'
+export type { ToRlpResponse } from './encoding'
 export {
   boolToBytes,
   boolToHex,
