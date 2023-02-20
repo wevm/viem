@@ -426,7 +426,7 @@ test('args: args unnamed', async () => {
 test(
   'falls back to `getLogs` if `createContractEventFilter` throws',
   async () => {
-    // Something weird going on where the `getFilterChanges` spy is taking
+    // TODO: Something weird going on where the `getFilterChanges` spy is taking
     // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
     await wait(1)
     const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
