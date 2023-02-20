@@ -44,7 +44,7 @@ export function formatTransactionReceipt(
       ? BigInt(transactionReceipt.gasUsed)
       : null,
     logs: transactionReceipt.logs
-      ? transactionReceipt.logs.map(formatLog)
+      ? transactionReceipt.logs.map((log) => formatLog(log))
       : null,
     transactionIndex: transactionReceipt.transactionIndex
       ? hexToNumber(transactionReceipt.transactionIndex)

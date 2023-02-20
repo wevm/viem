@@ -1,3 +1,4 @@
+import { AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
 import type {
   Log,
@@ -5,19 +6,30 @@ import type {
   Address,
   BlockNumber,
   BlockTag,
-  EventDefinition,
   Hash,
   LogTopic,
+  MaybeExtractEventArgsFromAbi,
+  MaybeAbiEventName,
 } from '../../types'
-import { numberToHex } from '../../utils'
+import {
+  decodeEventLog,
+  encodeEventTopics,
+  EncodeEventTopicsArgs,
+  numberToHex,
+} from '../../utils'
 import { formatLog } from '../../utils/formatters/log'
-import { buildFilterTopics, EventFilterArgs } from './createEventFilter'
 
-export type GetLogsArgs<TEventDefinition extends EventDefinition> = {
+export type GetLogsArgs<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = {
   /** Address or list of addresses from which logs originated */
   address?: Address | Address[]
 } & (
-  | { event: TEventDefinition; args?: EventFilterArgs<TEventDefinition> }
+  | {
+      event: TAbiEvent
+      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
+    }
   | {
       event?: never
       args?: never
@@ -39,12 +51,15 @@ export type GetLogsArgs<TEventDefinition extends EventDefinition> = {
       }
   )
 
-export type GetLogsResponse = Log[]
+export type GetLogsResponse<
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
 
 /**
  * @description Returns a collection of event logs.
  */
-export async function getLogs<TEventDefinition extends EventDefinition,>(
+export async function getLogs<TAbiEvent extends AbiEvent | undefined>(
   client: PublicClient,
   {
     address,
@@ -53,12 +68,16 @@ export async function getLogs<TEventDefinition extends EventDefinition,>(
     toBlock,
     event,
     args,
-  }: GetLogsArgs<TEventDefinition> = {},
-): Promise<GetLogsResponse> {
+  }: GetLogsArgs<TAbiEvent> = {},
+): Promise<GetLogsResponse<TAbiEvent>> {
   let topics: LogTopic[] = []
-  if (event) {
-    topics = buildFilterTopics({ event, args })
-  }
+  if (event)
+    topics = encodeEventTopics({
+      abi: [event],
+      eventName: event.name,
+      args,
+    } as EncodeEventTopicsArgs)
+
   let logs: RpcLog[]
   if (blockHash) {
     logs = await client.request({
@@ -79,6 +98,14 @@ export async function getLogs<TEventDefinition extends EventDefinition,>(
       ],
     })
   }
-
-  return logs.map(formatLog)
+  return logs.map((log) => {
+    const { eventName, args } = event
+      ? decodeEventLog({
+          abi: [event],
+          data: log.data,
+          topics: log.topics as any,
+        })
+      : { eventName: undefined, args: undefined }
+    return formatLog(log, { args, eventName })
+  }) as unknown as GetLogsResponse<TAbiEvent>
 }

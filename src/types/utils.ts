@@ -1,4 +1,36 @@
+/**
+ * @description Excludes empty attributes from T if TMaybeExclude is true.
+ *
+ * @example
+ * MaybeExcludeEmpty<{ a: string, b: number, c: [] }, true>
+ * => { a: string, b: number }
+ *
+ * MaybeExcludeEmpty<{ a: string, b: number, c: [] }, false>
+ * => { a: string, b: number, c: [] }
+ *
+ * MaybeExcludeEmpty<{ a: string, b: number, c: undefined }, true>
+ * => { a: string, b: number }
+ */
+export type MaybeExcludeEmpty<
+  T,
+  TMaybeExclude extends boolean,
+> = TMaybeExclude extends true ? Exclude<T, [] | null | undefined> : T
+
 export type MaybePromise<T> = T | Promise<T>
+
+/**
+ * @description Makes attributes on the type T required if TRequired is true.
+ *
+ * @example
+ * MaybeRequired<{ a: string, b?: number }, true>
+ * => { a: string, b: number }
+ *
+ * MaybeRequired<{ a: string, b?: number }, false>
+ * => { a: string, b?: number }
+ */
+export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
+  ? Required<T>
+  : T
 
 /**
  * @description Merges the intersection properties of T and U.

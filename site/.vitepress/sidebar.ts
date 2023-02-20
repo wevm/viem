@@ -386,6 +386,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Actions',
           items: [
             {
+              text: 'createContractEventFilter',
+              link: '/docs/contract/createContractEventFilter',
+            },
+            {
               text: 'deployContract',
               link: '/docs/contract/deployContract',
             },

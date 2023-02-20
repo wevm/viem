@@ -5,6 +5,7 @@ Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#TODO) 
 A Filter can be created from the following actions:
 
 - [`createBlockFilter`](/docs/actions/public/createBlockFilter)
+- [`createContractEventFilter`](/docs/actions/public/createContractEventFilter)
 - [`createEventFilter`](/docs/actions/public/createEventFilter)
 - [`createPendingTransactionFilter`](/docs/actions/public/createPendingTransactionFilter)
 
@@ -28,15 +29,33 @@ const hashes = await getFilterChanges(publicClient, { filter })
 // ["0x10d86dc08ac2f18f00ef0daf7998dcc8673cbcf1f1501eeb2fac1afd2f851128", ...]
 ```
 
-### Events
+### Contract Events
+
+```ts
+import { createContractEventFilter } from 'viem/contract'
+import { getFilterChanges } from 'viem/public'
+import { publicClient } from '.'
+
+const filter = await createContractEventFilter(publicClient, { // [!code focus:99]
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  abi: wagmiAbi,
+  eventName: 'Transfer'
+})
+// ...
+const logs = await getFilterChanges(publicClient, { filter })
+// [{ ... }, { ... }, { ... }]
+```
+
+### Raw Events
 
 ```ts
 import { createEventFilter, getFilterChanges } from 'viem/public'
+import { parseAbiEvent } from 'viem/utils'
 import { publicClient } from '.'
 
 const filter = await createEventFilter(publicClient, { // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: 'Transfer(address,address,uint256)',
+  event: parseAbiEvent('Transfer(address indexed, address indexed, uint256)'),
 })
 // ...
 const logs = await getFilterChanges(publicClient, { filter })
@@ -59,7 +78,7 @@ const hashes = await getFilterChanges(publicClient, { filter })
 
 [`Log[]`](/docs/glossary/types#TODO)
 
-If the filter was created with `createEventFilter`, it returns a list of logs.
+If the filter was created with `createContractEventFilter` or `createEventFilter`, it returns a list of logs.
 
 **OR**
 

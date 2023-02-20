@@ -1,4 +1,14 @@
-import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
+import { Abi } from 'abitype'
+import {
+  afterAll,
+  assertType,
+  beforeAll,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
+import { getAddress } from '../../utils'
 import { wait } from '../../utils/wait'
 import {
   accounts,
@@ -35,11 +45,23 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsResponse[] = []
+    let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
 
     const unwatch = watchContractEvent(publicClient, {
-      ...usdcContractConfig,
-      onLogs: (logs_) => logs.push(logs_),
+      abi: usdcContractConfig.abi,
+      onLogs: (logs_) => {
+        assertType<typeof logs_[0]['args']>({
+          owner: '0x',
+          spender: '0x',
+          value: 0n,
+        })
+        assertType<typeof logs_[0]['args']>({
+          from: '0x',
+          to: '0x',
+          value: 0n,
+        })
+        logs.push(logs_)
+      },
     })
 
     await writeContract(walletClient, {
@@ -68,6 +90,25 @@ test(
     expect(logs.length).toBe(2)
     expect(logs[0].length).toBe(2)
     expect(logs[1].length).toBe(1)
+
+    expect(logs[0][0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][1].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[0][1].eventName).toEqual('Transfer')
+    expect(logs[1][0].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[1][0].eventName).toEqual('Approval')
   },
   { retry: 3 },
 )
@@ -111,12 +152,19 @@ test('args: batch', async () => {
 })
 
 test('args: eventName', async () => {
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
     eventName: 'Transfer',
-    onLogs: (logs_) => logs.push(logs_),
+    onLogs: (logs_) => {
+      assertType<typeof logs_[0]['args']>({
+        from: '0x',
+        to: '0x',
+        value: 0n,
+      })
+      logs.push(logs_)
+    },
   })
 
   await writeContract(walletClient, {
@@ -144,10 +192,23 @@ test('args: eventName', async () => {
 
   expect(logs.length).toBe(1)
   expect(logs[0].length).toBe(2)
+
+  expect(logs[0][0].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(address.vitalik),
+    value: 1n,
+  })
+  expect(logs[0][0].eventName).toEqual('Transfer')
+  expect(logs[0][1].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(address.vitalik),
+    value: 1n,
+  })
+  expect(logs[0][1].eventName).toEqual('Transfer')
 })
 
 test('args: args', async () => {
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -183,10 +244,17 @@ test('args: args', async () => {
 
   expect(logs.length).toBe(1)
   expect(logs[0].length).toBe(1)
+
+  expect(logs[0][0].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(accounts[0].address),
+    value: 1n,
+  })
+  expect(logs[0][0].eventName).toEqual('Transfer')
 })
 
 test('args: args', async () => {
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -222,10 +290,23 @@ test('args: args', async () => {
 
   expect(logs.length).toBe(1)
   expect(logs[0].length).toBe(2)
+
+  expect(logs[0][0].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(accounts[0].address),
+    value: 1n,
+  })
+  expect(logs[0][0].eventName).toEqual('Transfer')
+  expect(logs[0][1].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(accounts[1].address),
+    value: 1n,
+  })
+  expect(logs[0][1].eventName).toEqual('Transfer')
 })
 
 test('args: args', async () => {
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -261,6 +342,83 @@ test('args: args', async () => {
 
   expect(logs.length).toBe(1)
   expect(logs[0].length).toBe(1)
+
+  expect(logs[0][0].args).toEqual({
+    from: getAddress(address.usdcHolder),
+    to: getAddress(accounts[0].address),
+    value: 1n,
+  })
+  expect(logs[0][0].eventName).toEqual('Transfer')
+})
+
+test('args: args unnamed', async () => {
+  const unnamedAbi = [
+    {
+      type: 'event',
+      name: 'Transfer',
+      inputs: [
+        {
+          indexed: true,
+          type: 'address',
+        },
+        {
+          indexed: true,
+          type: 'address',
+        },
+        {
+          indexed: false,
+          type: 'uint256',
+        },
+      ],
+    },
+  ] as const
+  let logs: OnLogsResponse<typeof unnamedAbi>[] = []
+
+  const unwatch = watchContractEvent(publicClient, {
+    ...usdcContractConfig,
+    abi: unnamedAbi,
+    eventName: 'Transfer',
+    onLogs: (logs_) => logs.push(logs_),
+  })
+
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    from: address.vitalik,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
+  })
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    from: address.vitalik,
+    functionName: 'transfer',
+    args: [accounts[1].address, 1n],
+  })
+  await wait(1000)
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    from: address.vitalik,
+    functionName: 'approve',
+    args: [address.vitalik, 1n],
+  })
+
+  await wait(2000)
+  unwatch()
+
+  expect(logs.length).toBe(1)
+  expect(logs[0].length).toBe(2)
+
+  expect(logs[0][0].args).toEqual([
+    getAddress(address.vitalik),
+    getAddress(accounts[0].address),
+    1n,
+  ])
+  expect(logs[0][0].eventName).toEqual('Transfer')
+  expect(logs[0][1].args).toEqual([
+    getAddress(address.vitalik),
+    getAddress(accounts[1].address),
+    1n,
+  ])
+  expect(logs[0][1].eventName).toEqual('Transfer')
 })
 
 describe('errors', () => {

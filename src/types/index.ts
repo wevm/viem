@@ -14,7 +14,6 @@ export type {
   ContractConfig,
   EventDefinition,
   ExtractArgsFromAbi,
-  ExtractArgsFromEventDefinition,
   ExtractConstructorArgsFromAbi,
   ExtractErrorArgsFromAbi,
   ExtractErrorNameFromAbi,
@@ -25,6 +24,8 @@ export type {
   ExtractNameFromAbi,
   ExtractResultFromAbi,
   GetValue,
+  MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
 } from './contract'
 
 export type {

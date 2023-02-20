@@ -55,9 +55,3 @@ export const initialBlockNumber = BigInt(
 
 export const localHttpUrl = 'http://127.0.0.1:8545'
 export const localWsUrl = 'ws://127.0.0.1:8545'
-
-// ERC20 `transferFrom` method
-export const transfer1Data = (address: string): Hex =>
-  `0xa9059cbb000000000000000000000000${address
-    .slice(2)
-    .toLowerCase()}0000000000000000000000000000000000000000000000000000000000000001`
