@@ -23,6 +23,7 @@ test('default', () => {
         "request": [Function],
         "retryCount": 3,
         "retryDelay": 150,
+        "timeout": undefined,
         "type": "fallback",
       },
       "request": [Function],
@@ -35,6 +36,7 @@ test('default', () => {
               "request": [Function],
               "retryCount": 0,
               "retryDelay": 150,
+              "timeout": 10000,
               "type": "http",
             },
             "request": [Function],
@@ -49,6 +51,7 @@ test('default', () => {
               "request": [Function],
               "retryCount": 0,
               "retryDelay": 150,
+              "timeout": 10000,
               "type": "http",
             },
             "request": [Function],
@@ -328,6 +331,7 @@ describe('client', () => {
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
+          "timeout": undefined,
           "transports": [
             {
               "config": {
@@ -336,6 +340,7 @@ describe('client', () => {
                 "request": [Function],
                 "retryCount": 0,
                 "retryDelay": 150,
+                "timeout": 10000,
                 "type": "http",
               },
               "request": [Function],
@@ -350,6 +355,7 @@ describe('client', () => {
                 "request": [Function],
                 "retryCount": 0,
                 "retryDelay": 150,
+                "timeout": 10000,
                 "type": "http",
               },
               "request": [Function],

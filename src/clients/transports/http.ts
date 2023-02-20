@@ -12,6 +12,8 @@ export type HttpTransportConfig = {
   retryCount?: TransportConfig['retryCount']
   /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay']
+  /** The timeout (in ms) for the HTTP request. Default: 10_000 */
+  timeout?: TransportConfig['timeout']
 }
 
 export type HttpTransport = Transport<
@@ -29,7 +31,12 @@ export function http(
   url?: string,
   config: HttpTransportConfig = {},
 ): HttpTransport {
-  const { key = 'http', name = 'HTTP JSON-RPC', retryDelay } = config
+  const {
+    key = 'http',
+    name = 'HTTP JSON-RPC',
+    retryDelay,
+    timeout = 10_000,
+  } = config
   return ({ chain, retryCount: defaultRetryCount }) => {
     const retryCount = config.retryCount ?? defaultRetryCount
     const url_ = url || chain?.rpcUrls.default.http[0]
@@ -44,11 +51,13 @@ export function http(
               method,
               params,
             },
+            timeout,
           })
           return result
         },
         retryCount,
         retryDelay,
+        timeout,
         type: 'http',
       },
       {

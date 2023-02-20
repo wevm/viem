@@ -89,3 +89,16 @@ const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
   retryDelay: 100, // [!code focus]
 })
 ```
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `10_000`
+
+The timeout for async WebSocket requests.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  timeout: 60_000, // [!code focus]
+})
+```

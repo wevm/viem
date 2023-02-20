@@ -56,7 +56,7 @@ async function http(
   url: string,
   {
     body,
-    timeout = 0,
+    timeout = 10_000,
   }: {
     // The RPC request body.
     body: RpcRequest
@@ -246,7 +246,7 @@ async function webSocketAsync(
   socket: Socket,
   {
     body,
-    timeout = 0,
+    timeout = 10_000,
   }: {
     // The RPC request body.
     body: RpcRequest
