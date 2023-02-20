@@ -3,7 +3,7 @@ import type { Address } from '../../types'
 import { stringToBytes } from '../encoding'
 import { keccak256 } from '../hash'
 
-const addressRegex = /^(0x)?[a-fA-F0-9]{40}$/
+const addressRegex = /^0x[a-fA-F0-9]{40}$/
 
 export function checksumAddress(address_: Address): Address {
   const hexAddress = address_.substring(2).toLowerCase()
