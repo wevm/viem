@@ -58,7 +58,7 @@ export async function estimateGas<TChain extends Chain>(
     to,
     value,
     ...rest
-  }: EstimateGasArgs,
+  }: EstimateGasArgs<TChain>,
 ): Promise<EstimateGasResponse> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 

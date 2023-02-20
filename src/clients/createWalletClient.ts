@@ -4,6 +4,7 @@ import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 import { Chain } from '../types'
 import { WalletActions, walletActions } from './decorators'
+import { wagmiContractConfig } from '../_test'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,

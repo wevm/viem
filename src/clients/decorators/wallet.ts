@@ -1,8 +1,11 @@
 import { Abi } from 'abitype'
 import {
+  AddChainArgs,
   DeployContractArgs,
   DeployContractResponse,
+  GetAccountsResponse,
   GetPermissionsResponse,
+  RequestAccountsResponse,
   RequestPermissionsArgs,
   RequestPermissionsResponse,
   SendTransactionArgs,
@@ -28,35 +31,31 @@ import {
   signMessage,
   switchChain,
 } from '../../actions/wallet'
-import type { Address, Chain } from '../../types'
+import type { Chain } from '../../types'
 import type { WalletClient } from '../createWalletClient'
 
 export type WalletActions<TChain extends Chain = Chain> = {
-  addChain: (args: Chain) => Promise<void>
-  deployContract: <
-    TChainOverride extends Chain = TChain,
-    TAbi extends Abi | readonly unknown[] = Abi,
-  >(
-    args: DeployContractArgs<TChainOverride, TAbi>,
+  addChain: (args: AddChainArgs) => Promise<void>
+  deployContract: <TAbi extends Abi | readonly unknown[]>(
+    args: DeployContractArgs<TChain, TAbi>,
   ) => Promise<DeployContractResponse>
-  getAccounts: () => Promise<Address[]>
+  getAccounts: () => Promise<GetAccountsResponse>
   getPermissions: () => Promise<GetPermissionsResponse>
-  requestAccounts: () => Promise<Address[]>
+  requestAccounts: () => Promise<RequestAccountsResponse>
   requestPermissions: (
     args: RequestPermissionsArgs,
   ) => Promise<RequestPermissionsResponse>
-  sendTransaction: <TChainOverride extends Chain = TChain>(
-    args: SendTransactionArgs<TChainOverride>,
+  sendTransaction: (
+    args: SendTransactionArgs<TChain>,
   ) => Promise<SendTransactionResponse>
   signMessage: (args: SignMessageArgs) => Promise<SignMessageResponse>
   switchChain: (args: SwitchChainArgs) => Promise<void>
   watchAsset: (args: WatchAssetArgs) => Promise<WatchAssetResponse>
   writeContract: <
-    TChainOverride extends Chain = TChain,
-    TAbi extends Abi | readonly unknown[] = Abi,
-    TFunctionName extends string = string,
+    TAbi extends Abi | readonly unknown[],
+    TFunctionName extends string,
   >(
-    args: WriteContractArgs<TChainOverride, TAbi, TFunctionName>,
+    args: WriteContractArgs<TChain, TAbi, TFunctionName>,
   ) => Promise<WriteContractResponse>
 }
 

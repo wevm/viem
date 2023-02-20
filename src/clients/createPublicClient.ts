@@ -28,7 +28,7 @@ export type PublicClient<
  * @example
  * import { mainnet } from 'viem/chains'
  * import { createPublicClient, http } from 'viem/clients'
- * const client = createPublicClient(http({ chain: mainnet }))
+ * const client = createPublicClient({ transport: http('https://...') })
  */
 export function createPublicClient<
   TTransport extends Transport,

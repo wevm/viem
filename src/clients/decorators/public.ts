@@ -1,4 +1,4 @@
-import { Abi } from 'abitype'
+import { Abi, AbiEvent } from 'abitype'
 import type {
   CallArgs,
   CallResponse,
@@ -98,22 +98,40 @@ import type {
 } from '../../actions/ens'
 import { getEnsAddress, getEnsName } from '../../actions/ens'
 import type { PublicClient } from '../createPublicClient'
-import { Chain } from '../../types'
+import {
+  Chain,
+  ContractConfig,
+  FilterType,
+  MaybeExtractEventArgsFromAbi,
+} from '../../types'
 
 export type PublicActions<TChain extends Chain = Chain> = {
   call: (args: CallArgs<TChain>) => Promise<CallResponse>
   createBlockFilter: () => Promise<CreateBlockFilterResponse>
-  createContractEventFilter: (
-    args: CreateContractEventFilterArgs,
-  ) => Promise<CreateContractEventFilterResponse>
-  createEventFilter: (
-    args?: CreateEventFilterArgs,
-  ) => Promise<CreateEventFilterResponse>
+  createContractEventFilter: <
+    TAbi extends Abi | readonly unknown[],
+    TEventName extends string | undefined,
+    TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+  >(
+    args: CreateContractEventFilterArgs<TAbi, TEventName, TArgs>,
+  ) => Promise<CreateContractEventFilterResponse<TAbi, TEventName, TArgs>>
+  createEventFilter: <
+    TAbiEvent extends AbiEvent | undefined,
+    TAbi extends Abi | readonly unknown[],
+    TEventName extends string | undefined,
+    TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+  >(
+    args?: CreateEventFilterArgs<TAbiEvent, TAbi, TEventName, TArgs>,
+  ) => Promise<CreateEventFilterResponse<TAbiEvent, TAbi, TEventName, TArgs>>
   createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterResponse>
-  estimateContractGas: (
-    args: EstimateContractGasArgs,
+  estimateContractGas: <
+    TChain extends Chain,
+    TAbi extends Abi | readonly unknown[],
+    TFunctionName extends string,
+  >(
+    args: EstimateContractGasArgs<TChain, TAbi, TFunctionName>,
   ) => Promise<EstimateContractGasResponse>
-  estimateGas: (args: EstimateGasArgs) => Promise<EstimateGasResponse>
+  estimateGas: (args: EstimateGasArgs<TChain>) => Promise<EstimateGasResponse>
   getBalance: (args: GetBalanceArgs) => Promise<GetBalanceResponse>
   getBlock: (args: GetBlockArgs) => Promise<GetBlockResponse<TChain>>
   getBlockNumber: (args?: GetBlockNumberArgs) => Promise<GetBlockNumberResponse>
@@ -125,12 +143,27 @@ export type PublicActions<TChain extends Chain = Chain> = {
   getEnsAddress: (args: GetEnsAddressArgs) => Promise<GetEnsAddressResponse>
   getEnsName: (args: GetEnsNameArgs) => Promise<GetEnsNameResponse>
   getFeeHistory: (args: GetFeeHistoryArgs) => Promise<GetFeeHistoryResponse>
-  getFilterChanges: (
-    args: GetFilterChangesArgs,
-  ) => Promise<GetFilterChangesResponse>
-  getFilterLogs: (args: GetFilterLogsArgs) => Promise<GetFilterLogsResponse>
+  getFilterChanges: <
+    TFilterType extends FilterType,
+    TAbiEvent extends AbiEvent | undefined,
+    TAbi extends Abi | readonly unknown[],
+    TEventName extends string | undefined,
+  >(
+    args: GetFilterChangesArgs<TFilterType, TAbiEvent, TAbi, TEventName>,
+  ) => Promise<
+    GetFilterChangesResponse<TFilterType, TAbiEvent, TAbi, TEventName>
+  >
+  getFilterLogs: <
+    TAbiEvent extends AbiEvent | undefined,
+    TAbi extends Abi | readonly unknown[],
+    TEventName extends string | undefined,
+  >(
+    args: GetFilterLogsArgs<TAbiEvent, TAbi, TEventName>,
+  ) => Promise<GetFilterLogsResponse<TAbiEvent, TAbi, TEventName>>
   getGasPrice: () => Promise<GetGasPriceResponse>
-  getLogs: (args?: GetLogsArgs) => Promise<GetLogsResponse>
+  getLogs: <TAbiEvent extends AbiEvent | undefined>(
+    args?: GetLogsArgs<TAbiEvent>,
+  ) => Promise<GetLogsResponse<TAbiEvent>>
   getStorageAt: (args: GetStorageAtArgs) => Promise<GetStorageAtResponse>
   getTransaction: (
     args: GetTransactionArgs,
@@ -141,15 +174,24 @@ export type PublicActions<TChain extends Chain = Chain> = {
   getTransactionReceipt: (
     args: GetTransactionReceiptArgs,
   ) => Promise<GetTransactionReceiptResponse<TChain>>
-  multicall: (args: MulticallArgs) => Promise<MulticallResponse>
-  readContract: (args: ReadContractArgs) => Promise<ReadContractResponse>
+  multicall: <
+    TContracts extends ContractConfig[],
+    TAllowFailure extends boolean = true,
+  >(
+    args: MulticallArgs<TContracts, TAllowFailure>,
+  ) => Promise<MulticallResponse<TContracts, TAllowFailure>>
+  readContract: <
+    TAbi extends Abi | readonly unknown[],
+    TFunctionName extends string,
+  >(
+    args: ReadContractArgs<TAbi, TFunctionName>,
+  ) => Promise<ReadContractResponse>
   simulateContract: <
-    TChainOverride extends Chain = TChain,
     TAbi extends Abi | readonly unknown[] = Abi,
     TFunctionName extends string = any,
   >(
-    args: SimulateContractArgs<TChainOverride, TAbi, TFunctionName>,
-  ) => Promise<SimulateContractResponse<TChainOverride, TAbi, TFunctionName>>
+    args: SimulateContractArgs<TChain, TAbi, TFunctionName>,
+  ) => Promise<SimulateContractResponse<TChain, TAbi, TFunctionName>>
   uninstallFilter: (
     args: UninstallFilterArgs,
   ) => Promise<UninstallFilterResponse>
@@ -160,10 +202,18 @@ export type PublicActions<TChain extends Chain = Chain> = {
     args: WatchBlockNumberArgs,
   ) => ReturnType<typeof watchBlockNumber>
   watchBlocks: (args: WatchBlocksArgs<TChain>) => ReturnType<typeof watchBlocks>
-  watchContractEvent: (
-    args: WatchContractEventArgs,
+  watchContractEvent: <
+    TAbi extends Abi | readonly unknown[],
+    TEventName extends string,
+  >(
+    args: WatchContractEventArgs<TAbi, TEventName>,
   ) => ReturnType<typeof watchContractEvent>
-  watchEvent: (args: WatchEventArgs) => ReturnType<typeof watchEvent>
+  watchEvent: <
+    TAbiEvent extends AbiEvent | undefined,
+    TEventName extends string | undefined,
+  >(
+    args: WatchEventArgs<TAbiEvent>,
+  ) => ReturnType<typeof watchEvent>
   watchPendingTransactions: (
     args: WatchPendingTransactionsArgs,
   ) => ReturnType<typeof watchPendingTransactions>

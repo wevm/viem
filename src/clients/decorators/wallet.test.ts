@@ -25,7 +25,7 @@ test('default', async () => {
 
 describe('smoke test', () => {
   test('addChain', async () => {
-    await walletClient.addChain(avalanche)
+    await walletClient.addChain({ chain: avalanche })
   })
 
   test('deployContract', async () => {

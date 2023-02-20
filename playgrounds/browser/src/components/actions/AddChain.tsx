@@ -6,7 +6,7 @@ export function AddChain({ client }: { client: WalletClient }) {
     <div>
       <button
         onClick={async () => {
-          await client.addChain(celo)
+          await client.addChain({ chain: celo })
         }}
       >
         add chain
