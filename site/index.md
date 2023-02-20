@@ -22,6 +22,12 @@ import { VPButton } from 'vitepress/theme'
           src="https://img.shields.io/npm/v/viem?colorA=2B323B&colorB=1e2329&style=flat&label=Version"
         />
       </a>
+      <!-- TODO: uncomment when published <a aria-label="Bundle Size" href="https://bundlephobia.com/package/viem">
+        <img
+          alt="coverage"
+          src="https://badgen.net/bundlephobia/minzip/viem?icon=github"
+        />
+      </a> -->
       <a aria-label="Coverage" href="https://codecov.io/github/wagmi-dev/viem">
         <img
           alt="coverage"
@@ -80,7 +86,7 @@ yarn add viem
     <div class="card rounded-l sm:h-32 p-6 space-y-2">
       <span class="font-semibold">Lightweight</span>
       <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Tiny 14kB bundle – optimized for tree-shaking.
+        Tiny 22kB bundle – optimized for tree-shaking.
       </p>
     </div>
   </div>
