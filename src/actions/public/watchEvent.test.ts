@@ -12,6 +12,8 @@ import {
 import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
 import { sendTransaction, writeContract } from '../wallet'
 import * as createEventFilter from './createEventFilter'
+import * as getBlockNumber from './getBlockNumber'
+import * as getLogs from './getLogs'
 import * as getFilterChanges from './getFilterChanges'
 import { OnLogsResponse, watchEvent } from './watchEvent'
 
@@ -216,8 +218,57 @@ test('args: address + event', async () => {
 
 test.todo('args: args')
 
+test('falls back to `getLogs` if `createEventFilter` throws', async () => {
+  // Something weird going on where the `getFilterChanges` spy is taking
+  // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
+  await wait(1)
+  const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
+  const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
+  vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
+    new Error('foo'),
+  )
+
+  let logs: OnLogsResponse[] = []
+
+  const unwatch = watchEvent(publicClient, {
+    onLogs: (logs_) => logs.push(logs_),
+  })
+
+  await wait(1000)
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
+    from: address.vitalik,
+  })
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
+    from: address.vitalik,
+  })
+  await wait(1000)
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[1].address, 1n],
+    from: address.vitalik,
+  })
+  await wait(2000)
+  unwatch()
+
+  expect(logs.length).toBe(2)
+  expect(logs[0].length).toBe(2)
+  expect(logs[1].length).toBe(1)
+  expect(getFilterChangesSpy).toBeCalledTimes(0)
+  expect(getLogsSpy).toBeCalled()
+})
+
 describe('errors', () => {
   test('handles error thrown from creating filter', async () => {
+    vi.spyOn(getBlockNumber, 'getBlockNumber').mockRejectedValueOnce(
+      new Error('foo'),
+    )
     vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
       new Error('foo'),
     )

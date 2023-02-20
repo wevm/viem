@@ -3,8 +3,11 @@ import type { MaybePromise } from '../types/utils'
 type Callback = ((...args: any[]) => any) | undefined
 type Callbacks = Record<string, Callback>
 
-const listenersCache = new Map<string, { id: number; fns: Callbacks }[]>()
-const cleanupCache = new Map<string, () => void>()
+export const listenersCache = new Map<
+  string,
+  { id: number; fns: Callbacks }[]
+>()
+export const cleanupCache = new Map<string, () => void>()
 
 type EmitFunction<TCallbacks extends Callbacks> = (
   emit: TCallbacks,

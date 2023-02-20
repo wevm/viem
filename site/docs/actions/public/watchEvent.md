@@ -4,6 +4,8 @@ Watches and returns emitted [Event Logs](/docs/glossary/terms#TODO).
 
 This Action will batch up all the Event Logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onLogs).
 
+`watchEvent` will attempt to create an [Event Filter](/docs/actions/public/watchEvent) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
+
 ## Import
 
 ```ts
