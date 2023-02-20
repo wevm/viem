@@ -5,7 +5,6 @@ import {
   wagmiContractConfig,
 } from '../../_test'
 
-import { getBytecode } from './getBytecode'
 import { getStorageAt } from './getStorageAt'
 
 test('default', async () => {

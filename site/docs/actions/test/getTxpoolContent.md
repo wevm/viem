@@ -2,19 +2,12 @@
 
 Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only. [Read more](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool).
 
-## Import 
-
-```ts
-import { getTxpoolContent } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { getTxpoolContent } from 'viem/test'
 import { testClient } from '.'
  
-const content = await getTxpoolContent(testClient) // [!code focus]
+const content = await testClient.getTxpoolContent() // [!code focus]
 ```
 
 ## Returns

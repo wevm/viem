@@ -2,21 +2,14 @@
 
 Retrieves the bytecode at an address.
 
-## Install
-
-```ts
-import { getBytecode } from 'viem/contract'
-```
-
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { getBytecode } from 'viem/contract'
 import { publicClient } from './client'
 
-const bytecode = await getBytecode(publicClient, {
+const bytecode = await publicClient.getBytecode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
@@ -48,7 +41,7 @@ The contract's bytecode.
 The contract address.
 
 ```ts
-const bytecode = await getBytecode(publicClient, {
+const bytecode = await publicClient.getBytecode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
 })
 ```

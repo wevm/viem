@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 
 import { labelhash } from './labelhash'
+import { normalize } from './normalize'
 
 test.each([
   {
@@ -19,7 +20,7 @@ test.each([
       '0x7aaad03ddcacc63166440f59c14a1a2c97ee381014b59c58f55b49ab05f31a38',
   },
   {
-    label: 'awkw𝝣b',
+    label: normalize('awkw𝝣b'),
     expected:
       '0x064cfb20fc5f10bd727bd17232b9b0c8021cec89e596b1c966ff1c611420c72f',
   },

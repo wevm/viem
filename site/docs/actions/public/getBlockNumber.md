@@ -2,19 +2,12 @@
 
 Returns the number of the most recent block seen.
 
-## Import
-
-```ts
-import { getBlockNumber } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { getBlockNumber } from 'viem/public'
 import { publicClient } from '.'
  
-const block = await getBlockNumber(publicClient) // [!code focus:99]
+const block = await publicClient.getBlockNumber() // [!code focus:99]
 // 69420n
 ```
 
@@ -34,7 +27,7 @@ The number of the block.
 The maximum age (in ms) of the cached value. 
 
 ```ts
-const block = await getBlockNumber(publicClient, {
+const block = await publicClient.getBlockNumber({
   maxAge: 4_000 // [!code focus]
 })
 ```

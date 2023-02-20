@@ -2,7 +2,11 @@ import type { WalletClient } from '../../clients'
 import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
-export async function addChain(client: WalletClient, chain: Chain) {
+export type AddChainArgs = {
+  chain: Chain
+}
+
+export async function addChain(client: WalletClient, { chain }: AddChainArgs) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain
   await client.request({
     method: 'wallet_addEthereumChain',

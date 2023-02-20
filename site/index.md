@@ -111,7 +111,6 @@ yarn add viem
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { getBlockNumber } from 'viem/public'
 
 // 2. Set up your client with desired chain & transport.
 const client = createPublicClient({
@@ -120,7 +119,7 @@ const client = createPublicClient({
 })
 
 // 3. Consume an action!
-const blockNumber = await getBlockNumber(client)
+const blockNumber = await client.getBlockNumber()
 ```
 
 <style scoped>

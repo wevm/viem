@@ -2,19 +2,12 @@
 
 Returns the transaction receipt given a transaction hash.
 
-## Import
-
-```ts
-import { getTransactionReceipt } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { getTransactionReceipt } from 'viem/public'
 import { publicClient } from '.'
  
-const transaction = await getTransactionReceipt(publicClient, { // [!code focus:99]
+const transaction = await publicClient.getTransactionReceipt({ // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
 /**
@@ -43,7 +36,7 @@ The transaction receipt.
 A transaction hash.
 
 ```ts
-const transaction = await getTransactionReceipt(publicClient, {
+const transaction = await publicClient.getTransactionReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```

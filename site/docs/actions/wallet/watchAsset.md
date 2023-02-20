@@ -5,16 +5,9 @@ Requests that the user tracks the token in their wallet. Returns a boolean indic
 ## Usage
 
 ```ts
-import { watchAsset } from 'viem/wallet';
-```
-
-## Usage
-
-```ts
-import { watchAsset } from 'viem/wallet';
 import { walletClient } from '.';
 
-await watchAsset(walletClient, {
+await walletClient.watchAsset({
   // [!code focus:99]
   type: 'ERC20',
   options: {
@@ -40,7 +33,7 @@ Boolean indicating if the token was successfully added.
 Token type.
 
 ```ts
-await watchAsset(walletClient, {
+await walletClient.watchAsset({
   type: 'ERC20', // [!code focus]
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -57,7 +50,7 @@ await watchAsset(walletClient, {
 The address of the token contract.
 
 ```ts
-await watchAsset(walletClient, {
+await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
@@ -74,7 +67,7 @@ await watchAsset(walletClient, {
 The number of token decimals.
 
 ```ts
-await watchAsset(walletClient, {
+await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -91,7 +84,7 @@ await watchAsset(walletClient, {
 A ticker symbol or shorthand, up to 11 characters.
 
 ```ts
-await watchAsset(walletClient, {
+await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -108,7 +101,7 @@ await watchAsset(walletClient, {
 A string url of the token logo.
 
 ```ts
-await watchAsset(walletClient, {
+await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',

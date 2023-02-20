@@ -6,9 +6,11 @@ import { avalanche } from '../../chains'
 import { addChain } from './addChain'
 
 test('default', async () => {
-  await addChain(walletClient!, avalanche)
+  await addChain(walletClient!, { chain: avalanche })
 })
 
 test('no block explorer', async () => {
-  await addChain(walletClient!, { ...avalanche, blockExplorers: undefined })
+  await addChain(walletClient!, {
+    chain: { ...avalanche, blockExplorers: undefined },
+  })
 })

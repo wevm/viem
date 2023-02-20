@@ -1,12 +1,11 @@
 import type { WalletClient } from 'viem'
-import { getPermissions } from 'viem/wallet'
 
 export function GetPermissions({ client }: { client: WalletClient }) {
   return (
     <div>
       <button
         onClick={async () => {
-          console.log(await getPermissions(client))
+          console.log(await client.getPermissions())
         }}
       >
         get permissions

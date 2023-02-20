@@ -5,13 +5,13 @@ Decodes a byte array to a string, hex value, boolean or number.
 ## Import
 
 ```ts
-import { fromBytes } from 'viem/utils'
+import { fromBytes } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { fromBytes } from 'viem/utils'
+import { fromBytes } from 'viem'
 
 fromBytes(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]), 
@@ -61,7 +61,7 @@ The output type.
 Decodes a byte array to a hex value.
 
 ```ts
-import { numberToHex } from 'viem/utils'
+import { numberToHex } from 'viem'
 
 bytesToHex(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code focus:2]
 // '0x48656c6c6f20576f726c6421'
@@ -74,7 +74,7 @@ bytesToHex(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 3
 Decodes a byte array to a string.
 
 ```ts
-import { numberToHex } from 'viem/utils'
+import { numberToHex } from 'viem'
 
 bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code focus:2]
 // 'Hello world'
@@ -87,7 +87,7 @@ bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100
 Decodes a byte array to a number.
 
 ```ts
-import { bytesToNumber } from 'viem/utils'
+import { bytesToNumber } from 'viem'
 
 bytesToNumber(new Uint8Array([1, 164])) // [!code focus:2]
 // 420
@@ -100,7 +100,7 @@ bytesToNumber(new Uint8Array([1, 164])) // [!code focus:2]
 Decodes a byte array to a number.
 
 ```ts
-import { bytesToBigint } from 'viem/utils'
+import { bytesToBigint } from 'viem'
 
 bytesToBigint(new Uint8Array([12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11, 117])) // [!code focus:2]
 // 4206942069420694206942069420694206942069n
@@ -113,7 +113,7 @@ bytesToBigint(new Uint8Array([12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67,
 Decodes a byte array to a boolean.
 
 ```ts
-import { bytesToBool } from 'viem/utils'
+import { bytesToBool } from 'viem'
 
 bytesToBool(new Uint8Array([1])) // [!code focus:2]
 // true

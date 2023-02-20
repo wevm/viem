@@ -5,17 +5,24 @@ Hashes ENS label.
 ## Import
 
 ```ts
-import { labelhash } from 'viem/ens'
+import { labelhash, normalize } from 'viem/ens'
 ```
 
 ## Usage
 
 ```ts
-import { labelhash } from 'viem/ens'
+import { labelhash, normalize } from 'viem/ens'
 
-labelhash('eth') // [!code focus:2]
-// '0x4f5b812789fc606be1b3b16908db13fc7a9adf7ca72641f84d75b47069d3d7f0'
+labelhash(normalize('awkweb')) // [!code focus:2]
+// '0x7aaad03ddcacc63166440f59c14a1a2c97ee381014b59c58f55b49ab05f31a38'
 ```
+
+::: warning
+A label must be [normalized via UTS-46 normalization](https://docs.ens.domains/contract-api-reference/name-processing) before being hashed with labelhash. 
+This can be achieved by using the `normalize` utility.
+:::
+
+### 
 
 ## Returns
 

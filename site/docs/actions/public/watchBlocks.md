@@ -2,22 +2,14 @@
 
 Watches and returns information for incoming blocks.
 
-## Import
-
-```ts
-import { watchBlocks } from 'viem/public'
-```
-
 ## Usage
 
 Pass through your Public Client, along with a listener.
 
 ```ts
-import { watchBlocks } from 'viem/public'
 import { publicClient } from '.'
  
-const unwatch = watchBlocks( // [!code focus:99]
-  publicClient,
+const unwatch = publicClient.watchBlocks( // [!code focus:99]
   { onBlock: block => console.log(block) }
 )
 /**
@@ -52,8 +44,7 @@ A function that can be invoked to stop watching for new blocks.
 The block information.
 
 ```ts
-const unwatch = watchBlocks(
-  publicClient,
+const unwatch = publicClient.watchBlocks(
   { onBlock: block => console.log(block) } // [!code focus:1]
 )
 ```
@@ -65,8 +56,7 @@ const unwatch = watchBlocks(
 Error thrown from getting a block.
 
 ```ts
-const unwatch = watchBlocks(
-  publicClient,
+const unwatch = publicClient.watchBlocks(
   { 
     onBlock: block => console.log(block),
     onError: error => console.log(error) // [!code focus:1]
@@ -82,8 +72,7 @@ const unwatch = watchBlocks(
 Watch for new blocks on a given tag.
 
 ```ts
-const unwatch = watchBlocks(
-  client,
+const unwatch = publicClient.watchBlocks(
   { 
     blockTag: 'safe',
     onBlock: block => console.log(block), // [!code focus]
@@ -101,8 +90,7 @@ Whether or not to emit missed blocks to the callback.
 Missed blocks may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public.html#pollinginterval-optional) of the client.
 
 ```ts
-const unwatch = watchBlocks(
-  client,
+const unwatch = publicClient.watchBlocks(
   { 
     emitMissed: true, // [!code focus]
     onBlock: block => console.log(block),
@@ -118,8 +106,7 @@ const unwatch = watchBlocks(
 Whether or not to emit the block to the callback when the subscription opens.
 
 ```ts
-const unwatch = watchBlocks(
-  client,
+const unwatch = publicClient.watchBlocks(
   { 
     emitOnBegin: true, // [!code focus]
     onBlock: block => console.log(block),
@@ -134,8 +121,7 @@ const unwatch = watchBlocks(
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
 ```ts
-const unwatch = watchBlocks(
-  client,
+const unwatch = publicClient.watchBlocks(
   { 
     onBlock: block => console.log(block),
     pollingInterval: true, // [!code focus]

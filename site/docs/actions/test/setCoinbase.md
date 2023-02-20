@@ -2,19 +2,12 @@
 
 Sets the coinbase address to be used in new blocks.
 
-## Import 
-
-```ts
-import { setCoinbase } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { setCoinbase } from 'viem/test'
 import { testClient } from '.'
  
-await setCoinbase(testClient, { // [!code focus:99]
+await testClient.setCoinbase({ // [!code focus:99]
   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
 })
 ```
@@ -28,7 +21,7 @@ await setCoinbase(testClient, { // [!code focus:99]
 The coinbase address.
 
 ```ts
-await setCoinbase(testClient, {
+await testClient.setCoinbase({
   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79', // [!code focus]
 })
 ```

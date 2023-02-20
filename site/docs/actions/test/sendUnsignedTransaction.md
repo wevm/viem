@@ -2,19 +2,12 @@
 
 Executes a transaction regardless of the signature.
 
-## Import 
-
-```ts
-import { sendUnsignedTransaction } from 'viem/test'
-```
-
 ## Usage
 
 ```ts
-import { sendUnsignedTransaction } from 'viem/test'
 import { testClient } from '.'
  
-const { hash } = await sendUnsignedTransaction(testClient, { // [!code focus:99]
+const { hash } = await testClient.sendUnsignedTransaction({ // [!code focus:99]
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -37,7 +30,7 @@ The transaction hash.
 The Transaction sender.
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -51,7 +44,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 The transaction recipient or contract address.
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -66,7 +59,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 The access list.
 
 ```ts
-const data = await sendUnsignedTransaction(testClient, {
+const data = await testClient.sendUnsignedTransaction({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -85,7 +78,7 @@ const data = await sendUnsignedTransaction(testClient, {
 A contract hashed method call with encoded args.
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -100,7 +93,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -115,7 +108,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -130,7 +123,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
@@ -146,7 +139,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 Unique number identifying this transaction.
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -161,7 +154,7 @@ const hash = await sendUnsignedTransaction(testClient, {
 Value in wei sent with this transaction.
 
 ```ts
-const hash = await sendUnsignedTransaction(testClient, {
+const hash = await testClient.sendUnsignedTransaction({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]

@@ -45,12 +45,11 @@ Now that you have a Client set up, you can now interact with Ethereum and consum
 ```tsx {3,10}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { getBlockNumber } from 'viem/public'
 
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
 
-const blockNumber = await getBlockNumber(client)
+const blockNumber = await client.getBlockNumber()
 ```

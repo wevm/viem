@@ -1,6 +1,5 @@
 import { createPublicClient, http } from 'viem'
 import { mainnet, polygon } from 'viem/chains'
-import { getBlockNumber, getLogs, watchEvent } from 'viem/public'
 
 ////////////////////////////////////////////////////////////////////
 // Clients
@@ -19,17 +18,17 @@ export const publicClients = {
 ////////////////////////////////////////////////////////////////////
 // Blocks
 
-// const blockNumber = await getBlockNumber(publicClients.mainnet)
-// const blockNumber = await getBlockNumber(publicClients.polygon)
+// const blockNumber = await publicClients.mainnet.getBlockNumber()
+// const blockNumber = await publicClients.polygon.getBlockNumber()
 // console.log('blockNumber', blockNumber)
 
 ////////////////////////////////////////////////////////////////////
 // Events, Logs & Filters
 
-// const logs = await getLogs(publicClients.mainnet)
+// const logs = await publicClients.mainnet.getLogs()
 // console.log(logs)
 
-watchEvent(publicClients.mainnet, {
+publicClients.mainnet.watchEvent({
   onError(error) {
     console.log(error)
   },

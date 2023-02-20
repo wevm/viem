@@ -1,3 +1,11 @@
-export { getEnsAddress, type GetEnsAddressArgs } from './getEnsAddress'
+export {
+  getEnsAddress,
+  type GetEnsAddressArgs,
+  type GetEnsAddressResponse,
+} from './getEnsAddress'
 
-export { getEnsName, type GetEnsNameArgs } from './getEnsName'
+export {
+  getEnsName,
+  type GetEnsNameArgs,
+  type GetEnsNameResponse,
+} from './getEnsName'

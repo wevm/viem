@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { localhost, mainnet, optimism } from '../../chains'
+import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
 import { address, localHttpUrl, publicClient } from '../../_test'

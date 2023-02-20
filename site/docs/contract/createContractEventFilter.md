@@ -2,12 +2,6 @@
 
 Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges) or [`getFilterLogs`](/docs/actions/public/getFilterChanges).
 
-## Import
-
-```ts
-import { createContractEventFilter } from 'viem/public'
-```
-
 ## Usage
 
 By default, an Event Filter with an ABI (`abi`) will retrieve events defined on the ABI.
@@ -15,11 +9,10 @@ By default, an Event Filter with an ABI (`abi`) will retrieve events defined on 
 ::: code-group
 
 ```ts [example.ts]
-import { createContractEventFilter } from 'viem/public'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi
 })
 /**
@@ -76,7 +69,7 @@ You can also scope a Filter to a set of given attributes (listed below).
 A Filter can be scoped to an **address**:
 
 ```ts 
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
@@ -87,7 +80,7 @@ const filter = await createContractEventFilter(publicClient, {
 A Filter can be scoped to an **event**:
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
   eventName: 'Transfer' // [!code focus]
@@ -99,7 +92,7 @@ const filter = await createContractEventFilter(publicClient, {
 A Filter can be scoped to given **_indexed_ arguments**:
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
   eventName: 'Transfer',
@@ -115,7 +108,7 @@ Only indexed arguments in `event` are candidates for `args`.
 A Filter Argument can also be an array to indicate that other values can exist in the position:
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
   eventName: 'Transfer',
@@ -135,7 +128,7 @@ const filter = await createContractEventFilter(publicClient, {
 A Filter can be scoped to a **block range**:
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
   eventName: 'Transfer',
@@ -157,7 +150,7 @@ const filter = await createContractEventFilter(publicClient, {
 The contract's ABI.
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi, // [!code focus]
 })
 ```
@@ -169,7 +162,7 @@ const filter = await createContractEventFilter(publicClient, {
 The contract address or a list of addresses from which Logs should originate. If no addresses are provided, then it will query all events matching the event signatures on the ABI.
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
@@ -182,7 +175,7 @@ const filter = await createContractEventFilter(publicClient, {
 The event name.
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   eventName: 'Transfer' // [!code focus]
 })
@@ -195,7 +188,7 @@ const filter = await createContractEventFilter(publicClient, {
 A list of _indexed_ event arguments.
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   eventName: 'Transfer',
   args: { // [!code focus:4]
@@ -212,7 +205,7 @@ const filter = await createContractEventFilter(publicClient, {
 Block to start querying/listening from.
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   fromBlock: 69420n // [!code focus]
 })
@@ -225,7 +218,7 @@ const filter = await createContractEventFilter(publicClient, {
 Block to query/listen until.
 
 ```ts
-const filter = await createContractEventFilter(publicClient, {
+const filter = await publicClient.createContractEventFilter({
   abi: wagmiAbi,
   fromBlock: 70120n // [!code focus]
 })

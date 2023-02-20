@@ -5,13 +5,13 @@ Retrieves the size of the value (in bytes).
 ## Install
 
 ```ts
-import { size } from 'viem/utils'
+import { size } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { size } from 'viem/utils'
+import { size } from 'viem'
 
 size('0xa4') // 1
 size('0xa4e12a45') // 4

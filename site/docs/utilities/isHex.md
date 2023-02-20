@@ -5,13 +5,13 @@ Checks whether the value is a hex value or not.
 ## Install
 
 ```ts
-import { isHex } from 'viem/utils'
+import { isHex } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { isHex } from 'viem/utils'
+import { isHex } from 'viem'
 
 isHex('0x1a4')
 // true

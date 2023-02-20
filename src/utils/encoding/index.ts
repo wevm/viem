@@ -14,7 +14,7 @@ export {
   stringToHex,
 } from './toHex'
 
-export type { toRlpResponse } from './toRlp'
+export type { ToRlpResponse } from './toRlp'
 export { toRlp } from './toRlp'
 
 export {

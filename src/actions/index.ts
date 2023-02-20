@@ -165,10 +165,13 @@ export {
   writeContract,
 } from './wallet'
 export type {
+  AddChainArgs,
   DeployContractArgs,
   DeployContractResponse,
   FormattedTransactionRequest,
+  GetAccountsResponse,
   GetPermissionsResponse,
+  RequestAccountsResponse,
   RequestPermissionsResponse,
   SendTransactionArgs,
   SendTransactionResponse,

@@ -5,13 +5,13 @@ Divides a number by a given exponent of base 10 (10<sup>exponent</sup>), and for
 ## Import
 
 ```ts
-import { formatUnit } from 'viem/utils'
+import { formatUnit } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { formatUnit } from 'viem/utils'
+import { formatUnit } from 'viem'
 
 formatUnit(420000000000n, 9) // [!code focus:2]
 // '420'

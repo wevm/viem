@@ -6,20 +6,13 @@ Destroys a Filter that was created from one of the following actions:
 - [`createEventFilter`](/docs/actions/public/createEventFilter)
 - [`createPendingTransactionFilter`](/docs/actions/public/createPendingTransactionFilter)
 
-## Import
-
-```ts
-import { uninstallFilter } from 'viem/public'
-```
-
 ## Usage
 
 ```ts
-import { createPendingTransactionFilter, uninstallFilter } from 'viem/public'
 import { publicClient } from '.'
 
-const filter = await createPendingTransactionFilter(publicClient)
-const uninstalled = await uninstallFilter(publicClient, { filter }) // [!code focus:99]
+const filter = await publicClient.createPendingTransactionFilter()
+const uninstalled = await publicClient.uninstallFilter({ filter }) // [!code focus:99]
 // true
 ```
 
@@ -38,8 +31,8 @@ A boolean indicating if the Filter was successfully uninstalled.
 A created filter.
 
 ```ts
-const filter = await createPendingTransactionFilter(publicClient)
-const uninstalled = await uninstallFilter(publicClient, {
+const filter = await publicClient.createPendingTransactionFilter()
+const uninstalled = await publicClient.uninstallFilter({
   filter, // [!code focus]
 })
 ```

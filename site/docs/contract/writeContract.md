@@ -12,12 +12,6 @@ The `writeContract` internally sends a transaction – it **does not** validate 
 
 :::
 
-## Import
-
-```ts
-import { writeContract } from 'viem/contract'
-```
-
 ## Usage
 
 Below is a very basic example of how to execute a write function on a contract (with no arguments).
@@ -27,16 +21,15 @@ While you can use `writeContract` [by itself](#standalone), it is highly recomme
 ::: code-group
 
 ```ts [example.ts]
-import { writeContract } from 'viem/contract'
 import { publicClient, walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { request } = await simulateContract(publicClient, {
+const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
 })
-await writeContract(walletClient, request)
+await walletClient.writeContract(request)
 ```
 
 ```ts [abi.ts]
@@ -76,17 +69,16 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { writeContract } from 'viem/contract'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-const { request } = await simulateContract(publicClient, {
+const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420]
 })
-await writeContract(walletClient, request)
+await walletClient.writeContract(request)
 ```
 
 ```ts [abi.ts]
@@ -122,11 +114,10 @@ If you don't need to perform validation on the contract write, you can also use 
 ::: code-group
 
 ```ts [example.ts]
-import { writeContract } from 'viem/contract'
 import { walletClient } from './client'
 import { wagmiAbi } from './abi'
 
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -177,7 +168,7 @@ Unlike [`readContract`](/docs/contract/readContract), `writeContract` only retur
 The contract address.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'mint',
@@ -192,7 +183,7 @@ await writeContract(walletClient, {
 The contract's ABI.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'mint',
@@ -207,7 +198,7 @@ await writeContract(walletClient, {
 A function to extract from the ABI.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint', // [!code focus]
@@ -222,7 +213,7 @@ await writeContract(walletClient, {
 The access list.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -241,7 +232,7 @@ await writeContract(walletClient, {
 Arguments to pass to function call.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -256,7 +247,7 @@ await writeContract(walletClient, {
 Optional sender override.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -272,7 +263,7 @@ await writeContract(walletClient, {
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -288,7 +279,7 @@ await writeContract(walletClient, {
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -304,7 +295,7 @@ await writeContract(walletClient, {
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -321,7 +312,7 @@ await writeContract(walletClient, {
 Unique number identifying this transaction.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -337,7 +328,7 @@ await writeContract(walletClient, {
 Value in wei sent with this transaction.
 
 ```ts
-await writeContract(walletClient, {
+await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
