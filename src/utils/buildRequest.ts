@@ -19,7 +19,6 @@ import {
 import { withRetry } from './promise'
 
 export const isDeterministicError = (error: Error) => {
-  if (error instanceof UnknownRpcError) return false
   if ('code' in error) return error.code !== -32603 && error.code !== -32005
   if (error instanceof HttpRequestError && error.status)
     return (
@@ -31,7 +30,7 @@ export const isDeterministicError = (error: Error) => {
       error.status !== 503 &&
       error.status !== 504
     )
-  return true
+  return false
 }
 
 export function buildRequest<TRequest extends (args: any) => Promise<any>>(

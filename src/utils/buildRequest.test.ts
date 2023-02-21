@@ -5,6 +5,7 @@ import {
   HttpRequestError,
   InternalRpcError,
   LimitExceededRpcError,
+  ParseRpcError,
   TimeoutError,
   UnknownRpcError,
 } from '../errors'
@@ -613,7 +614,15 @@ describe('behavior', () => {
 
 describe('isDeterministicError', () => {
   test('Error', () => {
-    expect(isDeterministicError(new Error('wat'))).toBe(true)
+    expect(isDeterministicError(new BaseError('wat'))).toBe(false)
+  })
+
+  test('Error', () => {
+    expect(isDeterministicError(new ParseRpcError({} as any))).toBe(true)
+  })
+
+  test('Error', () => {
+    expect(isDeterministicError(new TimeoutError({} as any))).toBe(false)
   })
 
   test('UnknownRpcError', () => {
