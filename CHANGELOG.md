@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.29
+
+### Patch Changes
+
+- [`6bdee9c`](https://github.com/wagmi-dev/viem/commit/6bdee9c8dde1c06ebde769c50c1002b2cca0a0f9) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where fallback transport was not falling back on timeouts
+
 ## 0.0.1-alpha.28
 
 ### Patch Changes
