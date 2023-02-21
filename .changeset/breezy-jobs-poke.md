@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Improve transaction & contract error messaging & coalesce error messages from nodes.
+Improved transaction & contract error messaging & coalesce error messages from nodes.
