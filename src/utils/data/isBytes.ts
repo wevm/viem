@@ -1,4 +1,6 @@
-export function isBytes(value: any) {
+import { ByteArray } from '../../types'
+
+export function isBytes(value: any): value is ByteArray {
   if (!value) return false
   if (typeof value !== 'object') return false
   return (
