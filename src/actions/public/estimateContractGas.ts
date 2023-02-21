@@ -1,7 +1,7 @@
 import { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
-import { BaseError } from '../../errors'
+import { BaseError, EstimateGasExecutionError } from '../../errors'
 import type { Chain, ContractConfig, GetValue } from '../../types'
 import {
   EncodeFunctionDataArgs,

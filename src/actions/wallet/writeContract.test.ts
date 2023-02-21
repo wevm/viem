@@ -73,10 +73,11 @@ test('w/ simulateContract (overloaded)', async () => {
     "The contract function \\"mint\\" reverted with the following reason:
     Token ID is taken
 
-    Contract:  0x0000000000000000000000000000000000000000
-    Function:  mint(uint256 tokenId)
-    Arguments:     (69421)
-    Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  mint(uint256 tokenId)
+      args:          (69421)
+      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/simulateContract
     Version: viem@1.0.2"

@@ -4,5 +4,3 @@ export {
   extractFunctionParts,
   extractFunctionType,
 } from './extractFunctionParts'
-
-export { getContractError } from './getContractError'

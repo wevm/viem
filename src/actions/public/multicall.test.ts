@@ -85,11 +85,12 @@ describe('errors', async () => {
             "error": [ContractFunctionExecutionError: The contract function "lol" returned no data ("0x").
 
         This could be due to any of the following:
-        - The contract does not have the function "lol",
-        - The parameters passed to the contract function may be invalid, or
-        - The address is not a contract.
+          - The contract does not have the function "lol",
+          - The parameters passed to the contract function may be invalid, or
+          - The address is not a contract.
          
-        Contract:  0x0000000000000000000000000000000000000000
+        Contract Call:
+          address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2],
@@ -137,13 +138,14 @@ describe('errors', async () => {
             "error": [ContractFunctionExecutionError: The contract function "balanceOf" returned no data ("0x").
 
         This could be due to any of the following:
-        - The contract does not have the function "balanceOf",
-        - The parameters passed to the contract function may be invalid, or
-        - The address is not a contract.
+          - The contract does not have the function "balanceOf",
+          - The parameters passed to the contract function may be invalid, or
+          - The address is not a contract.
          
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  balanceOf(address account)
-        Arguments:          (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  balanceOf(address account)
+          args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2],
@@ -191,13 +193,14 @@ describe('errors', async () => {
             "error": [ContractFunctionExecutionError: The contract function "balanceOf" returned no data ("0x").
 
         This could be due to any of the following:
-        - The contract does not have the function "balanceOf",
-        - The parameters passed to the contract function may be invalid, or
-        - The address is not a contract.
+          - The contract does not have the function "balanceOf",
+          - The parameters passed to the contract function may be invalid, or
+          - The address is not a contract.
          
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  balanceOf(address account)
-        Arguments:          (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  balanceOf(address account)
+          args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2],
@@ -262,9 +265,10 @@ describe('errors', async () => {
             "error": [ContractFunctionExecutionError: The contract function "transferFrom" reverted with the following reason:
         ERC721: transfer caller is not owner nor approved
 
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  transferFrom(address from, address to, uint256 tokenId)
-        Arguments:             (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  transferFrom(address from, address to, uint256 tokenId)
+          args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2],
@@ -279,9 +283,10 @@ describe('errors', async () => {
             "error": [ContractFunctionExecutionError: The contract function "tokenOfOwnerByIndex" reverted with the following reason:
         EnumerableSet: index out of bounds
 
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  tokenOfOwnerByIndex(address owner, uint256 index)
-        Arguments:                    (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 1)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  tokenOfOwnerByIndex(address owner, uint256 index)
+          args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2],
@@ -320,7 +325,8 @@ describe('errors', async () => {
         [ContractFunctionExecutionError: Function "lol" not found on ABI.
         Make sure you are using the correct ABI and that the function exists on it.
 
-        Contract:  0x0000000000000000000000000000000000000000
+        Contract Call:
+          address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/encodeFunctionData
         Version: viem@1.0.2]
@@ -355,9 +361,10 @@ describe('errors', async () => {
         Expected length (params): 1
         Given length (values): 2
 
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  balanceOf(address account)
-        Arguments:          (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  balanceOf(address account)
+          args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2]
@@ -391,13 +398,14 @@ describe('errors', async () => {
         [ContractFunctionExecutionError: The contract function "balanceOf" returned no data ("0x").
 
         This could be due to any of the following:
-        - The contract does not have the function "balanceOf",
-        - The parameters passed to the contract function may be invalid, or
-        - The address is not a contract.
+          - The contract does not have the function "balanceOf",
+          - The parameters passed to the contract function may be invalid, or
+          - The address is not a contract.
          
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  balanceOf(address account)
-        Arguments:          (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  balanceOf(address account)
+          args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2]
@@ -440,9 +448,10 @@ describe('errors', async () => {
         [ContractFunctionExecutionError: The contract function "transferFrom" reverted with the following reason:
         ERC721: transfer caller is not owner nor approved
 
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  transferFrom(address from, address to, uint256 tokenId)
-        Arguments:             (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  transferFrom(address from, address to, uint256 tokenId)
+          args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@1.0.2]

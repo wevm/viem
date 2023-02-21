@@ -1,4 +1,5 @@
 import type { PublicClient } from '../../clients'
+import { BaseError } from '../../errors'
 import type {
   BlockTag,
   Chain,
@@ -7,10 +8,12 @@ import type {
   TransactionRequest,
 } from '../../types'
 import {
+  assertRequest,
   extract,
   format,
   Formatted,
   formatTransactionRequest,
+  getEstimateGasError,
   numberToHex,
   TransactionRequestFormatter,
 } from '../../utils'
@@ -44,7 +47,9 @@ export type EstimateGasResponse = bigint
  */
 export async function estimateGas<TChain extends Chain>(
   client: PublicClient<any, TChain>,
-  {
+  args: EstimateGasArgs<TChain>,
+): Promise<EstimateGasResponse> {
+  const {
     accessList,
     blockNumber,
     blockTag = 'latest',
@@ -58,34 +63,42 @@ export async function estimateGas<TChain extends Chain>(
     to,
     value,
     ...rest
-  }: EstimateGasArgs<TChain>,
-): Promise<EstimateGasResponse> {
-  const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+  } = args
+  try {
+    assertRequest(args)
 
-  const formatter = client.chain?.formatters?.transactionRequest
-  const request_ = format(
-    {
-      from,
-      accessList,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { formatter }),
-    } as TransactionRequest,
-    {
-      formatter: formatter || formatTransactionRequest,
-    },
-  )
+    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
-  const balance = await client.request({
-    method: 'eth_estimateGas',
-    params: [request_, blockNumberHex || blockTag],
-  })
-  return BigInt(balance)
+    const formatter = client.chain?.formatters?.transactionRequest
+    const request_ = format(
+      {
+        from,
+        accessList,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { formatter }),
+      } as TransactionRequest,
+      {
+        formatter: formatter || formatTransactionRequest,
+      },
+    )
+
+    const balance = await client.request({
+      method: 'eth_estimateGas',
+      params: [request_, blockNumberHex || blockTag],
+    })
+    return BigInt(balance)
+  } catch (err) {
+    throw getEstimateGasError(err as BaseError, {
+      ...args,
+      chain: client.chain,
+    })
+  }
 }

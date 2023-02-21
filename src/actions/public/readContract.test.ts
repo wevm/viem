@@ -121,9 +121,10 @@ describe('bayc', () => {
       "The contract function \\"tokenOfOwnerByIndex\\" reverted with the following reason:
       EnumerableSet: index out of bounds
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  tokenOfOwnerByIndex(address owner, uint256 index)
-      Arguments:                    (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  tokenOfOwnerByIndex(address owner, uint256 index)
+        args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2"
@@ -141,9 +142,10 @@ describe('bayc', () => {
       "The contract function \\"ownerOf\\" reverted with the following reason:
       ERC721: owner query for nonexistent token
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  ownerOf(uint256 tokenId)
-      Arguments:        (420213123123)
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  ownerOf(uint256 tokenId)
+        args:             (420213123123)
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2"
@@ -165,8 +167,9 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "revertRead" reverted with the following reason:
       This is a revert message
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  revertRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  revertRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -186,8 +189,9 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "assertRead" reverted with the following reason:
       An \`assert\` condition failed.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  assertRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  assertRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -207,8 +211,9 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
       Arithmic operation resulted in underflow or overflow.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  overflowRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  overflowRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -228,8 +233,9 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "divideByZeroRead" reverted with the following reason:
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  divideByZeroRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  divideByZeroRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -249,8 +255,9 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
       execution reverted
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  requireRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  requireRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -269,11 +276,12 @@ describe('contract errors', () => {
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted.
 
-      Error:     SimpleError(string message)
-      Arguments:            (bugger)
+      Error: SimpleError(string message)
+                        (bugger)
        
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  simpleCustomRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -292,11 +300,12 @@ describe('contract errors', () => {
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "complexCustomRead" reverted.
 
-      Error:     ComplexError((address sender, uint256 bar), string message, uint256 number)
-      Arguments:             ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
+      Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
+                         ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
        
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  complexCustomRead()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  complexCustomRead()
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@1.0.2]
@@ -315,12 +324,13 @@ test('fake contract address', async () => {
     "The contract function \\"totalSupply\\" returned no data (\\"0x\\").
 
     This could be due to any of the following:
-    - The contract does not have the function \\"totalSupply\\",
-    - The parameters passed to the contract function may be invalid, or
-    - The address is not a contract.
+      - The contract does not have the function \\"totalSupply\\",
+      - The parameters passed to the contract function may be invalid, or
+      - The address is not a contract.
      
-    Contract:  0x0000000000000000000000000000000000000000
-    Function:  totalSupply()
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  totalSupply()
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2"

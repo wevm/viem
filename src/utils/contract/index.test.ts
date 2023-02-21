@@ -9,7 +9,6 @@ test('exports utils', () => {
       "extractFunctionParams": [Function],
       "extractFunctionParts": [Function],
       "extractFunctionType": [Function],
-      "getContractError": [Function],
     }
   `)
 })

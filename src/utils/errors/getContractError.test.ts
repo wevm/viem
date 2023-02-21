@@ -27,9 +27,10 @@ describe('getContractError', () => {
       [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -61,9 +62,10 @@ describe('getContractError', () => {
       [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -94,9 +96,10 @@ describe('getContractError', () => {
       [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       ah no
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -127,9 +130,10 @@ describe('getContractError', () => {
       [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -161,9 +165,10 @@ describe('getContractError', () => {
       [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -190,9 +195,10 @@ describe('getContractError', () => {
     expect(error).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: An RPC error occurred
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Details: rarararar i am an error lmaoaoo
       Version: viem@1.0.2]
@@ -213,9 +219,10 @@ describe('getContractError', () => {
     expect(error2).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: An RPC error occurred
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -234,9 +241,10 @@ describe('getContractError', () => {
     expect(error3).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: An unknown error occurred while executing the contract function "mintApe".
 
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -258,13 +266,14 @@ describe('getContractError', () => {
       [ContractFunctionExecutionError: The contract function "mintApe" returned no data ("0x").
 
       This could be due to any of the following:
-      - The contract does not have the function "mintApe",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
+        - The contract does not have the function "mintApe",
+        - The parameters passed to the contract function may be invalid, or
+        - The address is not a contract.
        
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Version: viem@1.0.2]
     `)
@@ -272,9 +281,9 @@ describe('getContractError', () => {
       [ContractFunctionZeroDataError: The contract function "mintApe" returned no data ("0x").
 
       This could be due to any of the following:
-      - The contract does not have the function "mintApe",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
+        - The contract does not have the function "mintApe",
+        - The parameters passed to the contract function may be invalid, or
+        - The address is not a contract.
 
       Version: viem@1.0.2]
     `)

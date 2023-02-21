@@ -91,9 +91,10 @@ test('invalid universal resolver address', async () => {
     "The contract function \\"reverse\\" reverted with the following reason:
     execution reverted
 
-    Contract:  0x0000000000000000000000000000000000000000
-    Function:  reverse(bytes reverseName)
-    Arguments:        (0x28613063663739383831366434623962393836366235333330656561343661313833383266323531650461646472077265766572736500)
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  reverse(bytes reverseName)
+      args:             (0x28613063663739383831366434623962393836366235333330656561343661313833383266323531650461646472077265766572736500)
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@1.0.2"

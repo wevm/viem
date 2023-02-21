@@ -1,12 +1,165 @@
 import { describe, expect, test } from 'vitest'
+import { polygon } from '../chains'
+import { address } from '../_test'
 import { baycContractConfig } from '../_test/abis'
 import { errorsExampleABI } from '../_test/generated'
 import { BaseError } from './base'
 import {
+  CallExecutionError,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
-  RawContractError,
 } from './contract'
+
+describe('CallExecutionError', () => {
+  test('no args', async () => {
+    expect(
+      new CallExecutionError(new BaseError('error'), {
+        from: address.vitalik,
+      }),
+    ).toMatchInlineSnapshot(`
+      [CallExecutionError: error
+
+      Raw Call Arguments:
+        from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('w/ base args', async () => {
+    expect(
+      new CallExecutionError(new BaseError('error'), {
+        from: address.vitalik,
+        to: address.usdcHolder,
+        data: '0x123',
+        gas: 420n,
+        nonce: 69,
+        value: 420n,
+      }),
+    ).toMatchInlineSnapshot(`
+      [CallExecutionError: error
+
+      Raw Call Arguments:
+        from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+        to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
+        value:  0.00000000000000042 ETH
+        data:   0x123
+        gas:    420
+        nonce:  69
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('w/ eip1559 args', async () => {
+    expect(
+      new CallExecutionError(new BaseError('error'), {
+        from: address.vitalik,
+        to: address.usdcHolder,
+        data: '0x123',
+        gas: 420n,
+        nonce: 69,
+        maxFeePerGas: 420n,
+        maxPriorityFeePerGas: 69n,
+      }),
+    ).toMatchInlineSnapshot(`
+      [CallExecutionError: error
+
+      Raw Call Arguments:
+        from:                  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+        to:                    0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
+        data:                  0x123
+        gas:                   420
+        maxFeePerGas:          0.00000042 gwei
+        maxPriorityFeePerGas:  0.000000069 gwei
+        nonce:                 69
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('w/ legacy args', async () => {
+    expect(
+      new CallExecutionError(new BaseError('error'), {
+        from: address.vitalik,
+        to: address.usdcHolder,
+        data: '0x123',
+        gas: 420n,
+        nonce: 69,
+        gasPrice: 420n,
+      }),
+    ).toMatchInlineSnapshot(`
+      [CallExecutionError: error
+
+      Raw Call Arguments:
+        from:      0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+        to:        0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
+        data:      0x123
+        gas:       420
+        gasPrice:  0.00000042 gwei
+        nonce:     69
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('w/ chain', async () => {
+    expect(
+      new CallExecutionError(new BaseError('error'), {
+        chain: polygon,
+        from: address.vitalik,
+        to: address.usdcHolder,
+        data: '0x123',
+        gas: 420n,
+        nonce: 69,
+        value: 420n,
+      }),
+    ).toMatchInlineSnapshot(`
+      [CallExecutionError: error
+
+      Raw Call Arguments:
+        from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+        to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
+        value:  0.00000000000000042 MATIC
+        data:   0x123
+        gas:    420
+        nonce:  69
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('w/ metaMessages', async () => {
+    expect(
+      new CallExecutionError(
+        new BaseError('error', { metaMessages: ['omggg!'] }),
+        {
+          chain: polygon,
+          from: address.vitalik,
+          to: address.usdcHolder,
+          data: '0x123',
+          gas: 420n,
+          nonce: 69,
+          value: 420n,
+        },
+      ),
+    ).toMatchInlineSnapshot(`
+      [CallExecutionError: error
+
+      omggg!
+       
+      Raw Call Arguments:
+        from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+        to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
+        value:  0.00000000000000042 MATIC
+        data:   0x123
+        gas:    420
+        nonce:  69
+
+      Version: viem@1.0.2]
+    `)
+  })
+})
 
 describe('ContractFunctionExecutionError', () => {
   test('default', () => {
@@ -18,7 +171,8 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Function:  totalSupply()
+      Contract Call:
+        function:  totalSupply()
 
       Version: viem@1.0.2]
     `)
@@ -34,8 +188,9 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  totalSupply()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  totalSupply()
 
       Version: viem@1.0.2]
     `)
@@ -52,9 +207,10 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
 
       Version: viem@1.0.2]
     `)
@@ -72,9 +228,10 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
 
       Docs: https://viem.sh/docs
       Version: viem@1.0.2]
@@ -93,10 +250,11 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  mintApe(uint256 numberOfTokens)
-      Arguments:        (1)
-      Sender:    0x0000000000000000000000000000000000000000
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mintApe(uint256 numberOfTokens)
+        args:             (1)
+        sender:    0x0000000000000000000000000000000000000000
 
       Version: viem@1.0.2]
     `)
@@ -118,8 +276,9 @@ describe('ContractFunctionExecutionError', () => {
       foo
       bar
        
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  totalSupply()
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  totalSupply()
 
       Version: viem@1.0.2]
     `)
@@ -134,6 +293,7 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: An unknown error occurred while executing the contract function "foo".
 
+      Contract Call:
 
       Version: viem@1.0.2]
     `)
@@ -148,6 +308,7 @@ describe('ContractFunctionExecutionError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: Internal error.
 
+      Contract Call:
 
       Version: viem@1.0.2]
     `)
@@ -210,8 +371,8 @@ describe('ContractFunctionRevertedError', () => {
     ).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "customComplexError" reverted.
 
-      Error:     ComplexError((address sender, uint256 bar), string message, uint256 number)
-      Arguments:             ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
+      Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
+                         ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
 
       Version: viem@1.0.2]
     `)
