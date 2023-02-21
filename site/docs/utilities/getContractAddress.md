@@ -22,7 +22,7 @@ getContractAddress({ // [!code focus:99]
 
 ## Returns
 
-`Hex`
+`Address`
 
 The contract address.
 

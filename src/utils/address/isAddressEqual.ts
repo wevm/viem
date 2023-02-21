@@ -1,6 +1,9 @@
 import type { Address } from '../../types'
-import { getAddress } from './getAddress'
+import { InvalidAddressError } from '../../errors'
+import { isAddress } from './isAddress'
 
 export function isAddressEqual(a: Address, b: Address) {
-  return getAddress(a) === getAddress(b)
+  if (!isAddress(a)) throw new InvalidAddressError({ address: a })
+  if (!isAddress(b)) throw new InvalidAddressError({ address: b })
+  return a.toLowerCase() === b.toLowerCase()
 }

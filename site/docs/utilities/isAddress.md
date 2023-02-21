@@ -27,6 +27,6 @@ Whether or not the address is valid.
 
 ### address
 
-- **Type:** `Address`
+- **Type:** `string`
 
 An Ethereum address.
