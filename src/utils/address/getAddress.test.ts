@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { getAddress } from './getAddress'
-import type { Address } from 'abitype'
 
 test('checksums address', () => {
   expect(
@@ -44,7 +43,7 @@ describe('errors', () => {
       Version: viem@1.0.2"
     `)
     expect(() =>
-      getAddress('a5cc3c03994db5b0d9a5eEdD10Cabab0813678ac' as Address),
+      getAddress('a5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'),
     ).toThrowErrorMatchingInlineSnapshot(`
       "Address \\"a5cc3c03994db5b0d9a5eEdD10Cabab0813678ac\\" is invalid.
 

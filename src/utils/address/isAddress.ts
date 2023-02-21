@@ -1,10 +1,7 @@
 import type { Address } from '../../types'
-import { getAddress } from './getAddress'
 
-export function isAddress(address: Address) {
-  try {
-    return Boolean(getAddress(address))
-  } catch {
-    return false
-  }
+const addressRegex = /^0x[a-fA-F0-9]{40}$/
+
+export function isAddress(address: string): address is Address {
+  return addressRegex.test(address)
 }
