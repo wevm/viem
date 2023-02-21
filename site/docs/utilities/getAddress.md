@@ -19,7 +19,7 @@ getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac') // [!code focus:2]
 
 ## Returns
 
-`string`
+`Address`
 
 The checksummed address.
 
@@ -27,6 +27,6 @@ The checksummed address.
 
 ### address
 
-- **Type:** `Address`
+- **Type:** `string`
 
 An Ethereum address.
