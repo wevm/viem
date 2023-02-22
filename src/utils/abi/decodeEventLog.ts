@@ -7,7 +7,7 @@ import {
   Hex,
   LogTopic,
 } from '../../types'
-import { getEventSignature } from '../hash'
+import { getEventSelector } from '../hash'
 import { decodeAbi } from './decodeAbi'
 import { formatAbiItem } from './formatAbiItem'
 
@@ -49,7 +49,7 @@ export function decodeEventLog<
 >): DecodeEventLogResponse<TAbi, TEventName, TTopics, TData> {
   const [signature, ...argTopics] = topics
   const abiItem = (abi as Abi).find(
-    (x) => signature === getEventSignature(formatAbiItem(x) as EventDefinition),
+    (x) => signature === getEventSelector(formatAbiItem(x) as EventDefinition),
   )
   if (!(abiItem && 'name' in abiItem))
     throw new AbiEventSignatureNotFoundError(signature, {

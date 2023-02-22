@@ -3,7 +3,7 @@ import { Abi, Narrow } from 'abitype'
 import { AbiFunctionNotFoundError } from '../../errors'
 import { ExtractArgsFromAbi, ExtractFunctionNameFromAbi } from '../../types'
 import { concatHex } from '../data'
-import { getFunctionSignature } from '../hash'
+import { getFunctionSelector } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
@@ -30,7 +30,7 @@ export function encodeFunctionData<
       docsPath: '/docs/contract/encodeFunctionData',
     })
   const definition = formatAbiItem(description)
-  const signature = getFunctionSignature(definition)
+  const signature = getFunctionSelector(definition)
   const data =
     'inputs' in description && description.inputs
       ? encodeAbi({
