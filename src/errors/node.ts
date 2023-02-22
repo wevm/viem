@@ -74,7 +74,7 @@ export class FeeCapTooLowError extends BaseError {
 }
 
 export class NonceTooHighError extends BaseError {
-  static nodeMessage = 'nonce too high'
+  static nodeMessage = /nonce too high/
   name = 'NonceTooHighError'
   constructor({ cause, nonce }: { cause?: BaseError; nonce?: number } = {}) {
     super(
@@ -103,7 +103,7 @@ export class NonceTooLowError extends BaseError {
 }
 
 export class NonceMaxValueError extends BaseError {
-  static nodeMessage = 'nonce has max value'
+  static nodeMessage = /nonce has max value/
   name = 'NonceMaxValueError'
   constructor({ cause, nonce }: { cause?: BaseError; nonce?: number } = {}) {
     super(
@@ -116,7 +116,7 @@ export class NonceMaxValueError extends BaseError {
 }
 
 export class InsufficientFundsError extends BaseError {
-  static nodeMessage = 'insufficient funds'
+  static nodeMessage = /insufficient funds/
   name = 'InsufficientFundsError'
   constructor({ cause }: { cause?: BaseError } = {}) {
     super(
@@ -156,7 +156,7 @@ export class IntrinsicGasTooHighError extends BaseError {
 }
 
 export class IntrinsicGasTooLowError extends BaseError {
-  static nodeMessage = 'intrinsic gas too low'
+  static nodeMessage = /intrinsic gas too low/
   name = 'IntrinsicGasTooLowError'
   constructor({ cause, gas }: { cause?: BaseError; gas?: bigint } = {}) {
     super(
@@ -171,7 +171,7 @@ export class IntrinsicGasTooLowError extends BaseError {
 }
 
 export class TransactionTypeNotSupportedError extends BaseError {
-  static nodeMessage = 'transaction type not valid'
+  static nodeMessage = /transaction type not valid/
   name = 'TransactionTypeNotSupportedError'
   constructor({ cause }: { cause?: BaseError }) {
     super('The transaction type is not supported for this chain.', {
