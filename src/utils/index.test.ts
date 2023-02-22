@@ -64,6 +64,7 @@ test('exports utils', () => {
       "getEventSignature": [Function],
       "getFunctionSignature": [Function],
       "getNodeError": [Function],
+      "getSocket": [Function],
       "getTransactionError": [Function],
       "gweiUnits": {
         "ether": -9,
