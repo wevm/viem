@@ -1,9 +1,15 @@
 import { UrlRequiredError } from '../../errors'
-import { rpc } from '../../utils/rpc'
+import type { HttpOptions } from '../../utils'
+import { rpc } from '../../utils'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
 
 export type HttpTransportConfig = {
+  /**
+   * Request configuration to pass to `fetch`.
+   * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
+   */
+  fetchOptions?: HttpOptions['fetchOptions']
   /** The key of the HTTP transport. */
   key?: TransportConfig['key']
   /** The name of the HTTP transport. */
@@ -32,6 +38,7 @@ export function http(
   config: HttpTransportConfig = {},
 ): HttpTransport {
   const {
+    fetchOptions,
     key = 'http',
     name = 'HTTP JSON-RPC',
     retryDelay,
@@ -51,6 +58,7 @@ export function http(
               method,
               params,
             },
+            fetchOptions,
             timeout,
           })
           return result

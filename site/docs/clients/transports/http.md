@@ -39,6 +39,22 @@ URL of the JSON-RPC API.
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
 ```
 
+### fetchOptions (optional)
+
+- **Type:** [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+
+[Fetch options](https://developer.mozilla.org/en-US/docs/Web/API/fetch) to pass to the internal `fetch` function. Useful for passing auth headers or cache options.
+
+```ts
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+  fetchOptions: { // [!code focus:5]
+    headers: {
+      'Authorization': 'Bearer ...'
+    }
+  }
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`

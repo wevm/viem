@@ -52,28 +52,32 @@ export type RpcResponse<TResult = any, TError = any> = {
 ///////////////////////////////////////////////////
 // HTTP
 
+export type HttpOptions = {
+  // The RPC request body.
+  body: RpcRequest
+  // Request configuration to pass to `fetch`.
+  fetchOptions?: Omit<RequestInit, 'body'>
+  // The timeout (in ms) for the request.
+  timeout?: number
+}
+
 async function http(
   url: string,
-  {
-    body,
-    timeout = 10_000,
-  }: {
-    // The RPC request body.
-    body: RpcRequest
-    // The timeout (in ms) for the request.
-    timeout?: number
-  },
+  { body, fetchOptions = {}, timeout = 10_000 }: HttpOptions,
 ) {
+  const { headers, method, signal: signal_ } = fetchOptions
   try {
     const response = await withTimeout(
       async ({ signal }) => {
         const response = await fetch(url, {
+          ...fetchOptions,
+          body: stringify({ jsonrpc: '2.0', id: id++, ...body }),
           headers: {
+            ...headers,
             'Content-Type': 'application/json',
           },
-          method: 'POST',
-          body: stringify({ jsonrpc: '2.0', id: id++, ...body }),
-          signal: timeout > 0 ? signal : undefined,
+          method: method || 'POST',
+          signal: signal_ || (timeout > 0 ? signal : undefined),
         })
         return response
       },
