@@ -4,7 +4,7 @@ import { AbiFunctionSignatureNotFoundError } from '../../errors'
 import { Hex } from '../../types'
 import { slice } from '../data'
 import { getFunctionSelector } from '../hash'
-import { decodeAbi } from './decodeAbi'
+import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
 export type DecodeFunctionDataArgs = {
@@ -26,7 +26,7 @@ export function decodeFunctionData({ abi, data }: DecodeFunctionDataArgs) {
     args: ('inputs' in description &&
     description.inputs &&
     description.inputs.length > 0
-      ? decodeAbi({ data: slice(data, 4), params: description.inputs })
+      ? decodeAbiParameters(description.inputs, slice(data, 4))
       : undefined) as readonly unknown[] | undefined,
   }
 }

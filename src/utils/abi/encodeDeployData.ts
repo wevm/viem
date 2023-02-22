@@ -6,7 +6,7 @@ import {
 } from '../../errors'
 import { ExtractConstructorArgsFromAbi, Hex } from '../../types'
 import { concatHex } from '../data'
-import { encodeAbi } from './encodeAbi'
+import { encodeAbiParameters } from './encodeAbiParameters'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
@@ -32,9 +32,9 @@ export function encodeDeployData<TAbi extends Abi | readonly unknown[]>({
   if (!description.inputs || description.inputs.length === 0)
     throw new AbiConstructorParamsNotFoundError({ docsPath })
 
-  const data = encodeAbi({
-    params: description.inputs,
-    values: args as any,
-  })
+  const data = encodeAbiParameters(
+    description.inputs,
+    args as readonly unknown[],
+  )
   return concatHex([bytecode, data!])
 }

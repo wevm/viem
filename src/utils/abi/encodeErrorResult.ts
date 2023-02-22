@@ -10,7 +10,7 @@ import {
 } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
-import { encodeAbi } from './encodeAbi'
+import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
@@ -41,7 +41,7 @@ export function encodeErrorResult<
   if (args && args.length > 0) {
     if (!('inputs' in description && description.inputs))
       throw new AbiErrorInputsNotFoundError(errorName, { docsPath })
-    data = encodeAbi({ params: description.inputs, values: args as any })
+    data = encodeAbiParameters(description.inputs, args as readonly unknown[])
   }
   return concatHex([signature, data])
 }

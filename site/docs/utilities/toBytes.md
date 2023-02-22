@@ -102,8 +102,8 @@ numberToBytes(420) // [!code focus:2]
 Encodes a boolean to a byte array.
 
 ```ts
-import { numberToHex } from 'viem'
+import { boolToHex } from 'viem'
 
-numberToBytes(true) // [!code focus:2]
+boolToBytes(true) // [!code focus:2]
 // Uint8Array([1])
 ```

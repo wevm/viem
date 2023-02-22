@@ -37,7 +37,7 @@ export type {
 export { deployContract, writeContract } from './actions/wallet'
 
 export type {
-  DecodeAbiArgs,
+  DecodeAbiParametersResponse,
   DecodeErrorResultArgs,
   DecodeErrorResultResponse,
   DecodeEventLogArgs,
@@ -45,7 +45,7 @@ export type {
   DecodeFunctionDataArgs,
   DecodeFunctionResultArgs,
   DecodeFunctionResultResponse,
-  EncodeAbiArgs,
+  EncodeAbiParametersResponse,
   EncodeDeployDataArgs,
   EncodeErrorResultArgs,
   EncodeEventTopicsArgs,
@@ -54,12 +54,12 @@ export type {
   GetAbiItemArgs,
 } from './utils'
 export {
-  decodeAbi,
+  decodeAbiParameters,
   decodeErrorResult,
   decodeEventLog,
   decodeFunctionData,
   decodeFunctionResult,
-  encodeAbi,
+  encodeAbiParameters,
   encodeDeployData,
   encodeErrorResult,
   encodeEventTopics,

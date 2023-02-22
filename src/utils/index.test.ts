@@ -1,6 +1,6 @@
-import { expect, test } from 'vitest'
+import { expect, test } from 'vitest';
 
-import * as utils from './index'
+import * as utils from './index';
 
 test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
@@ -15,7 +15,7 @@ test('exports utils', () => {
       "bytesToNumber": [Function],
       "bytesToString": [Function],
       "containsNodeError": [Function],
-      "decodeAbi": [Function],
+      "decodeAbiParameters": [Function],
       "decodeErrorResult": [Function],
       "decodeEventLog": [Function],
       "decodeFunctionData": [Function],
@@ -26,7 +26,7 @@ test('exports utils', () => {
       "defineTransaction": [Function],
       "defineTransactionReceipt": [Function],
       "defineTransactionRequest": [Function],
-      "encodeAbi": [Function],
+      "encodeAbiParameters": [Function],
       "encodeDeployData": [Function],
       "encodeErrorResult": [Function],
       "encodeEventTopics": [Function],
@@ -114,5 +114,5 @@ test('exports utils', () => {
         "gwei": -9,
       },
     }
-  `)
-})
+  `);
+});

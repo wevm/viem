@@ -431,8 +431,8 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'decodeAbi',
-              link: '/docs/contract/decodeAbi',
+              text: 'decodeAbiParameters',
+              link: '/docs/contract/decodeAbiParameters',
             },
             {
               text: 'decodeDeployData',
@@ -455,8 +455,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/decodeFunctionResult',
             },
             {
-              text: 'encodeAbi',
-              link: '/docs/contract/encodeAbi',
+              text: 'encodeAbiParameters',
+              link: '/docs/contract/encodeAbiParameters',
             },
             {
               text: 'encodeDeployData',

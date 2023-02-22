@@ -5,7 +5,7 @@ import {
   AbiConstructorParamsNotFoundError,
 } from '../../errors'
 import { Hex } from '../../types'
-import { decodeAbi } from './decodeAbi'
+import { decodeAbiParameters } from './decodeAbiParameters'
 
 const docsPath = '/docs/contract/decodeDeployData'
 
@@ -36,9 +36,9 @@ export function decodeDeployData<TAbi extends Abi | readonly unknown[]>({
   if (!description.inputs || description.inputs.length === 0)
     throw new AbiConstructorParamsNotFoundError({ docsPath })
 
-  const args = decodeAbi({
-    data: `0x${data.replace(bytecode, '')}`,
-    params: description.inputs,
-  })
+  const args = decodeAbiParameters(
+    description.inputs,
+    `0x${data.replace(bytecode, '')}`,
+  )
   return { args, bytecode }
 }

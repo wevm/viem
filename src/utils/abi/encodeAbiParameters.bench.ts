@@ -2,12 +2,12 @@ import { AbiCoder } from 'ethers/lib/utils'
 import { bench, describe } from 'vitest'
 import { address } from '../../_test'
 
-import { encodeAbi } from './encodeAbi'
+import { encodeAbiParameters } from './encodeAbiParameters'
 
 describe('ABI Encode', () => {
-  bench('viem: `encodeAbi`', () => {
-    encodeAbi({
-      params: [
+  bench('viem: `encodeAbiParameters`', () => {
+    encodeAbiParameters(
+      [
         {
           components: [
             {
@@ -55,7 +55,7 @@ describe('ABI Encode', () => {
           type: 'tuple',
         },
       ],
-      values: [
+      [
         {
           foo: {
             x: 420n,
@@ -70,7 +70,7 @@ describe('ABI Encode', () => {
           x: [1, 2],
         },
       ],
-    })
+    )
   })
 
   bench('ethers: `AbiCoder.encode`', () => {

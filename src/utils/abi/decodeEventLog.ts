@@ -8,7 +8,7 @@ import {
   LogTopic,
 } from '../../types'
 import { getEventSelector } from '../hash'
-import { decodeAbi } from './decodeAbi'
+import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
 export type DecodeEventLogArgs<
@@ -77,7 +77,7 @@ export function decodeEventLog<
   // Decode data (non-indexed args).
   if (data && data !== '0x') {
     const params = inputs.filter((x) => !('indexed' in x && x.indexed))
-    const decodedData = decodeAbi({ params, data })
+    const decodedData = decodeAbiParameters(params, data)
     if (decodedData) {
       if (isUnnamed) args = [...args, ...decodedData]
       else {
@@ -102,6 +102,6 @@ function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {
     param.type.match(/^(.*)\[(\d+)?\]$/)
   )
     return value
-  const decodedArg = decodeAbi({ params: [param], data: value }) || []
+  const decodedArg = decodeAbiParameters([param], value) || []
   return decodedArg[0]
 }
