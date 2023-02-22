@@ -1,0 +1,14 @@
+{
+  "index_name": "viem",
+  "start_urls": ["https://viem.sh"],
+  "selectors": {
+    "lvl0": ".VPDoc .main h1",
+    "lvl1": ".VPDoc .main h2",
+    "lvl2": ".VPDoc .main h3",
+    "lvl3": ".VPDoc .main h4",
+    "lvl4": ".VPDoc .main h5",
+    "lvl5": ".VPDoc .main h6",
+    "text": ".VPDoc .main p, .VPDoc .main li, .VPDoc .main span, .VPDoc .main code"
+  },
+  "js_render": true
+}
