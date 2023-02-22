@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.30
+
+### Patch Changes
+
+- [#81](https://github.com/wagmi-dev/viem/pull/81) [`eb572b0`](https://github.com/wagmi-dev/viem/commit/eb572b0a431606f8c31abb011cef08ad36d0836c) Thanks [@jxom](https://github.com/jxom)! - Improved transaction & contract error messaging & coalesce error messages from nodes.
+
 ## 0.0.1-alpha.29
 
 ### Patch Changes
