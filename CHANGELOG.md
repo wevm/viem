@@ -1,5 +1,13 @@
 # viem
 
+## 0.0.1-alpha.31
+
+### Patch Changes
+
+- [#89](https://github.com/wagmi-dev/viem/pull/89) [`3e45853`](https://github.com/wagmi-dev/viem/commit/3e45853a2252e6a5496acae65c3cebecbdb4260f) Thanks [@jxom](https://github.com/jxom)! - Added `fetchOptions` to the `http` transport.
+
+* [#91](https://github.com/wagmi-dev/viem/pull/91) [`0ac32c2`](https://github.com/wagmi-dev/viem/commit/0ac32c2852dc470aaba560623a2e169927a546d5) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `getFunctionSignature` and `getEventSignature` to `getFunctionSelector` and `getEventSelector`.
+
 ## 0.0.1-alpha.30
 
 ### Patch Changes
