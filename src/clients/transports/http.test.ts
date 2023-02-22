@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders } from 'http'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { localhost } from '../../chains'
@@ -112,6 +113,29 @@ describe('request', () => {
     })({ chain: localhost })
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBeDefined()
+  })
+
+  test('behavior: fetchOptions', async () => {
+    let headers: IncomingHttpHeaders = {}
+    const server = await createHttpServer((req, res) => {
+      headers = req.headers
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      fetchOptions: {
+        headers: { 'x-wagmi': 'gm' },
+        cache: 'force-cache',
+        method: 'PATCH',
+        signal: null,
+      },
+    })({ chain: localhost })
+
+    await transport.request({ method: 'eth_blockNumber' })
+    expect(headers['x-wagmi']).toBeDefined()
+
+    await server.close()
   })
 
   test('behavior: retryCount', async () => {

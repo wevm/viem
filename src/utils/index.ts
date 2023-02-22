@@ -134,7 +134,8 @@ export {
 
 export { getEventSelector, getFunctionSelector, keccak256 } from './hash'
 
-export { rpc } from './rpc'
+export type { HttpOptions, RpcResponse, Socket } from './rpc'
+export { getSocket, rpc } from './rpc'
 
 export { stringify } from './stringify'
 

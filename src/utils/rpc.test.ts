@@ -9,6 +9,7 @@ import { numberToHex } from './encoding'
 import type { RpcResponse } from './rpc'
 import { getSocket, rpc } from './rpc'
 import { wait } from './wait'
+import { IncomingHttpHeaders } from 'http'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`
@@ -120,6 +121,29 @@ describe('http', () => {
       ),
     )
     await wait(500)
+  })
+
+  test('fetchOptions', async () => {
+    let headers: IncomingHttpHeaders = {}
+    const server = await createHttpServer((req, res) => {
+      headers = req.headers
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    expect(
+      await rpc.http(server.url, {
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: {
+          headers: { 'x-wagmi': 'gm' },
+          cache: 'force-cache',
+          method: 'PATCH',
+          signal: null,
+        },
+      }),
+    ).toBeDefined()
+    expect(headers['x-wagmi']).toBeDefined()
+
+    await server.close()
   })
 
   test('http error', async () => {
