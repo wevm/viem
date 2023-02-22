@@ -13,13 +13,7 @@ import {
 import { Hex } from '../../types'
 import { checksumAddress } from '../address'
 import { size, slice, trim } from '../data'
-import {
-  hexToBigInt,
-  hexToBool,
-  hexToBytes,
-  hexToNumber,
-  hexToString,
-} from '../encoding'
+import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
 import { getArrayComponents } from './encodeAbiParameters'
 
 export type DecodeAbiParametersResponse<
@@ -49,10 +43,7 @@ type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 function decodeParams<TParams extends readonly AbiParameter[]>({
   data,
   params,
-}: {
-  data: Hex
-  params: TParams
-}) {
+}: { data: Hex; params: TParams }) {
   let decodedValues: unknown[] = []
   let position = 0
 
