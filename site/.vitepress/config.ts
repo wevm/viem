@@ -29,8 +29,8 @@ export default defineConfig({
 
   themeConfig: {
     algolia: {
-      appId: 'todo',
-      apiKey: 'todo',
+      appId: 'B2GGTJJMD3',
+      apiKey: '42f4bd06fd3343c9a742128af056bdf5',
       indexName: 'viem',
     },
 

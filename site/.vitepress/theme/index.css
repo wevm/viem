@@ -3,27 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --vp-button-brand-bg: #ffc517;
-  --vp-button-brand-text: var(--vp-c-black);
-  --vp-button-brand-hover-text: var(--vp-c-black);
-
   --vp-c-brand: var(--vp-c-yellow);
   --vp-c-brand-light: var(--vp-c-yellow-light);
   --vp-c-brand-lighter: var(--vp-c-yellow-lighter);
   --vp-c-brand-dark: var(--vp-c-yellow-dark);
   --vp-c-brand-darker: var(--vp-c-yellow-darker);
   --vp-c-text-light-1: var(--vp-c-black-soft);
-
   --vp-c-yellow: #e0a800;
-
+  
+  
+  --vp-button-brand-bg: #ffc517;
+  --vp-button-brand-text: var(--vp-c-black);
+  --vp-button-brand-hover-text: var(--vp-c-black);
   --vp-code-line-highlight-color: rgb(255 197 22 / 8%);
   --vp-code-font-size: 15px;
-
+  --vp-code-tab-divider: var(--vp-c-mute-dark);
 }
 
 .dark {
   --vp-c-yellow: #ffc517;
   --vp-c-brand: var(--vp-c-yellow);
+}
+
+.dark .DocSearch {
+  --docsearch-highlight-color: #ffc51738;
+}
+
+.dark .DocSearch-Hit-source, .dark .DocSearch-Hit-title mark, .dark .DocSearch-Hit-path mark {
+  color: var(--docsearch-primary-color);
 }
 
 .VPNavBarTitle .VPImage {
@@ -32,4 +39,14 @@
 
 .shiki .highlighted {
   border-left: 2px solid var(--vp-c-brand);
+}
+
+.VPSidebarItem p {
+  line-height: 20px !important;
+}
+
+.VPSidebarItem .level-2 p {
+  font-size: 13px;
+  line-height: 18px !important;
+  font-weight: 400 !important;
 }

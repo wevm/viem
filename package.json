@@ -160,7 +160,7 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "vitepress@1.0.0-alpha.34": "patches/vitepress@1.0.0-alpha.34.patch"
+      "vitepress@1.0.0-alpha.47": "patches/vitepress@1.0.0-alpha.47.patch"
     }
   }
 }
