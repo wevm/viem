@@ -9,7 +9,7 @@ import {
   Hex,
 } from '../../types'
 import { concatHex } from '../data'
-import { getFunctionSignature } from '../hash'
+import { getFunctionSelector } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
@@ -35,7 +35,7 @@ export function encodeErrorResult<
   } as GetAbiItemArgs)
   if (!description) throw new AbiErrorNotFoundError(errorName, { docsPath })
   const definition = formatAbiItem(description)
-  const signature = getFunctionSignature(definition)
+  const signature = getFunctionSelector(definition)
 
   let data: Hex = '0x'
   if (args && args.length > 0) {

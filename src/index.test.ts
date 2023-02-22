@@ -126,8 +126,8 @@ test('exports actions', () => {
       "getContractError": [Function],
       "getCreate2Address": [Function],
       "getCreateAddress": [Function],
-      "getEventSignature": [Function],
-      "getFunctionSignature": [Function],
+      "getEventSelector": [Function],
+      "getFunctionSelector": [Function],
       "gweiUnits": {
         "ether": -9,
         "wei": 9,

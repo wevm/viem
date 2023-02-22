@@ -6,7 +6,7 @@ import {
 } from '../../errors'
 import { AbiItem, Hex } from '../../types'
 import { slice } from '../data'
-import { getFunctionSignature } from '../hash'
+import { getFunctionSelector } from '../hash'
 import { decodeAbi } from './decodeAbi'
 import { formatAbiItem } from './formatAbiItem'
 
@@ -28,8 +28,7 @@ export function decodeErrorResult({
   const abi_ = [...(abi || []), solidityError, solidityPanic]
   const abiItem = abi_.find(
     (x) =>
-      x.type === 'error' &&
-      signature === getFunctionSignature(formatAbiItem(x)),
+      x.type === 'error' && signature === getFunctionSelector(formatAbiItem(x)),
   )
   if (!abiItem)
     throw new AbiErrorSignatureNotFoundError(signature, {

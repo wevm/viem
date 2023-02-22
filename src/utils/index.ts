@@ -132,7 +132,7 @@ export {
   getTransactionError,
 } from './errors'
 
-export { getEventSignature, getFunctionSignature, keccak256 } from './hash'
+export { getEventSelector, getFunctionSelector, keccak256 } from './hash'
 
 export { rpc } from './rpc'
 

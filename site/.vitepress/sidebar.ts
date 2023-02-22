@@ -620,12 +620,12 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Hash',
           items: [
             {
-              text: 'getEventSignature',
-              link: '/docs/utilities/getEventSignature',
+              text: 'getEventSelector',
+              link: '/docs/utilities/getEventSelector',
             },
             {
-              text: 'getFunctionSignature',
-              link: '/docs/utilities/getFunctionSignature',
+              text: 'getFunctionSelector',
+              link: '/docs/utilities/getFunctionSelector',
             },
             {
               text: 'keccak256',

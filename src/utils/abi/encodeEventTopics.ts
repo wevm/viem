@@ -11,7 +11,7 @@ import {
   Hex,
 } from '../../types'
 import { toBytes } from '../encoding'
-import { keccak256, getEventSignature } from '../hash'
+import { keccak256, getEventSelector } from '../hash'
 import { encodeAbi } from './encodeAbi'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
@@ -35,7 +35,7 @@ export function encodeEventTopics<
       docsPath: '/docs/contract/encodeEventTopics',
     })
   const definition = formatAbiItem(abiItem)
-  const signature = getEventSignature(definition as EventDefinition)
+  const signature = getEventSelector(definition as EventDefinition)
 
   let topics: Hex[] = []
   if (args && 'inputs' in abiItem) {

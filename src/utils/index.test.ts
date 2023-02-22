@@ -61,8 +61,8 @@ test('exports utils', () => {
       "getCreate2Address": [Function],
       "getCreateAddress": [Function],
       "getEstimateGasError": [Function],
-      "getEventSignature": [Function],
-      "getFunctionSignature": [Function],
+      "getEventSelector": [Function],
+      "getFunctionSelector": [Function],
       "getNodeError": [Function],
       "getTransactionError": [Function],
       "gweiUnits": {

@@ -1,5 +1,5 @@
-export { getEventSignature } from './getEventSignature'
+export { getEventSelector } from './getEventSelector'
 
-export { getFunctionSignature } from './getFunctionSignature'
+export { getFunctionSelector } from './getFunctionSelector'
 
 export { keccak256 } from './keccak256'
