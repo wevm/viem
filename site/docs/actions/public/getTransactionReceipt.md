@@ -44,4 +44,4 @@ const transaction = await publicClient.getTransactionReceipt({
 
 ## Notes
 
-- A [Transaction Receipt](/docs/glossary/terms#TODO) is not to be confused with a [Transaction](/docs/glossary/terms#TODO).a Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain, whereas a Transaction is a **message** sent by an account that is broadcast to the network. You can get a Transaction using [`getTransaction`](/docs/actions/public/getTransaction).
+- A [Transaction Receipt](/docs/glossary/terms#TODO) is not to be confused with a [Transaction](/docs/glossary/terms#TODO). A Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain, whereas a Transaction is a **message** sent by an account that is broadcast to the network. You can get a Transaction using [`getTransaction`](/docs/actions/public/getTransaction).
