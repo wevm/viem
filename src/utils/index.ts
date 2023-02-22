@@ -55,7 +55,6 @@ export {
   extractFunctionParams,
   extractFunctionType,
   extractFunctionParts,
-  getContractError,
 } from './contract'
 
 export {
@@ -122,6 +121,16 @@ export {
   stringToBytes,
   stringToHex,
 } from './encoding'
+
+export {
+  assertRequest,
+  containsNodeError,
+  getCallError,
+  getContractError,
+  getEstimateGasError,
+  getNodeError,
+  getTransactionError,
+} from './errors'
 
 export { getEventSignature, getFunctionSignature, keccak256 } from './hash'
 

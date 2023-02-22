@@ -1,10 +1,73 @@
 import { BlockTag, Hash } from '../types'
+import { formatEther, formatGwei } from '../utils'
+import { SendTransactionArgs } from '../wallet'
 import { BaseError } from './base'
 
-export class InvalidGasArgumentsError extends BaseError {
-  name = 'InvalidGasArgumentsError'
-  constructor() {
-    super('`maxFeePerGas` cannot be less than `maxPriorityFeePerGas`')
+export function prettyPrint(
+  args: Record<string, bigint | number | string | undefined | false>,
+) {
+  const entries = Object.entries(args)
+    .map(([key, value]) => {
+      if (value === undefined || value === false) return null
+      return [key, value]
+    })
+    .filter(Boolean) as [string, string][]
+  const maxLength = entries.reduce((acc, [key]) => Math.max(acc, key.length), 0)
+  return entries
+    .map(([key, value]) => `  ${`${key}:`.padEnd(maxLength + 1)}  ${value}`)
+    .join('\n')
+}
+
+export class TransactionExecutionError extends BaseError {
+  cause: BaseError
+
+  name = 'TransactionExecutionError'
+
+  constructor(
+    cause: BaseError,
+    {
+      docsPath,
+      from,
+      chain,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+    }: SendTransactionArgs & { docsPath?: string },
+  ) {
+    const prettyArgs = prettyPrint({
+      from,
+      to,
+      value:
+        typeof value !== 'undefined' &&
+        `${formatEther(value)} ${chain?.nativeCurrency.symbol || 'ETH'}`,
+      data,
+      gas,
+      gasPrice:
+        typeof gasPrice !== 'undefined' && `${formatGwei(gasPrice)} gwei`,
+      maxFeePerGas:
+        typeof maxFeePerGas !== 'undefined' &&
+        `${formatGwei(maxFeePerGas)} gwei`,
+      maxPriorityFeePerGas:
+        typeof maxPriorityFeePerGas !== 'undefined' &&
+        `${formatGwei(maxPriorityFeePerGas)} gwei`,
+      nonce,
+    })
+
+    super(cause.shortMessage, {
+      cause,
+      docsPath,
+      metaMessages: [
+        ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
+        'Request Arguments:',
+        prettyArgs,
+      ].filter(Boolean) as string[],
+    })
+    this.cause = cause
   }
 }
 

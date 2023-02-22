@@ -69,10 +69,11 @@ describe('wagmi', () => {
       "The contract function \\"approve\\" reverted with the following reason:
       ERC721: approval to current owner
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  approve(address to, uint256 tokenId)
-      Arguments:        (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 420)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  approve(address to, uint256 tokenId)
+        args:             (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 420)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2"
@@ -88,10 +89,11 @@ describe('wagmi', () => {
       "The contract function \\"mint\\" reverted with the following reason:
       Token ID is taken
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  mint(uint256 tokenId)
-      Arguments:     (1)
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mint(uint256 tokenId)
+        args:          (1)
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2"
@@ -111,10 +113,11 @@ describe('wagmi', () => {
       "The contract function \\"safeTransferFrom\\" reverted with the following reason:
       ERC721: transfer caller is not owner nor approved
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  safeTransferFrom(address from, address to, uint256 tokenId)
-      Arguments:                 (0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6, 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 1)
-      Sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  safeTransferFrom(address from, address to, uint256 tokenId)
+        args:                      (0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6, 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 1)
+        sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2"
@@ -184,10 +187,11 @@ describe('BAYC', () => {
         "The contract function \\"mintApe\\" reverted with the following reason:
         Sale must be active to mint Ape
 
-        Contract:  0x0000000000000000000000000000000000000000
-        Function:  mintApe(uint256 numberOfTokens)
-        Arguments:        (1)
-        Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  mintApe(uint256 numberOfTokens)
+          args:             (1)
+          sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
         Docs: https://viem.sh/docs/contract/simulateContract
         Version: viem@1.0.2"
@@ -211,9 +215,10 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
       This is a revert message
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  revertWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  revertWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -234,9 +239,10 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
       An \`assert\` condition failed.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  assertWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  assertWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -257,9 +263,10 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
       Arithmic operation resulted in underflow or overflow.
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  overflowWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  overflowWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -280,9 +287,10 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "divideByZeroWrite" reverted with the following reason:
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  divideByZeroWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  divideByZeroWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -303,9 +311,10 @@ describe('contract errors', () => {
       [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
       execution reverted
 
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  requireWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  requireWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -325,12 +334,13 @@ describe('contract errors', () => {
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "simpleCustomWrite" reverted.
 
-      Error:     SimpleError(string message)
-      Arguments:            (bugger)
+      Error: SimpleError(string message)
+                        (bugger)
        
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  simpleCustomWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  simpleCustomWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]
@@ -350,12 +360,13 @@ describe('contract errors', () => {
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "complexCustomWrite" reverted.
 
-      Error:     ComplexError((address sender, uint256 bar), string message, uint256 number)
-      Arguments:             ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
+      Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
+                         ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
        
-      Contract:  0x0000000000000000000000000000000000000000
-      Function:  complexCustomWrite()
-      Sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  complexCustomWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@1.0.2]

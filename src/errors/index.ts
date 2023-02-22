@@ -28,6 +28,7 @@ export { BlockNotFoundError } from './block'
 export { ChainDoesNotSupportContract } from './chain'
 
 export {
+  CallExecutionError,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
@@ -45,7 +46,24 @@ export {
   OffsetOutOfBoundsError,
 } from './encoding'
 
+export { EstimateGasExecutionError } from './estimateGas'
+
 export { FilterTypeNotSupportedError } from './log'
+
+export {
+  ExecutionRevertedError,
+  FeeCapTooHighError,
+  FeeCapTooLowError,
+  InsufficientFundsError,
+  IntrinsicGasTooHighError,
+  IntrinsicGasTooLowError,
+  NonceMaxValueError,
+  NonceTooHighError,
+  NonceTooLowError,
+  TipAboveFeeCapError,
+  TransactionTypeNotSupportedError,
+  UnknownNodeError,
+} from './node'
 
 export {
   InternalRpcError,
@@ -73,7 +91,7 @@ export {
 } from './rpc'
 
 export {
-  InvalidGasArgumentsError,
+  TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,

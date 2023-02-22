@@ -1,4 +1,5 @@
 import { Abi } from 'abitype'
+import { CallArgs } from '../actions'
 import { panicReasons } from '../constants'
 import { Address, Chain, Hex } from '../types'
 import {
@@ -7,9 +8,65 @@ import {
   getAbiItem,
   formatAbiItem,
   formatAbiItemWithArgs,
+  formatEther,
+  formatGwei,
 } from '../utils'
 import { BaseError } from './base'
+import { prettyPrint } from './transaction'
 import { getContractAddress } from './utils'
+
+export class CallExecutionError extends BaseError {
+  cause: BaseError
+
+  name = 'CallExecutionError'
+
+  constructor(
+    cause: BaseError,
+    {
+      docsPath,
+      from,
+      chain,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+    }: CallArgs & { chain?: Chain; docsPath?: string },
+  ) {
+    const prettyArgs = prettyPrint({
+      from,
+      to,
+      value:
+        typeof value !== 'undefined' &&
+        `${formatEther(value)} ${chain?.nativeCurrency.symbol || 'ETH'}`,
+      data,
+      gas,
+      gasPrice:
+        typeof gasPrice !== 'undefined' && `${formatGwei(gasPrice)} gwei`,
+      maxFeePerGas:
+        typeof maxFeePerGas !== 'undefined' &&
+        `${formatGwei(maxFeePerGas)} gwei`,
+      maxPriorityFeePerGas:
+        typeof maxPriorityFeePerGas !== 'undefined' &&
+        `${formatGwei(maxPriorityFeePerGas)} gwei`,
+      nonce,
+    })
+
+    super(cause.shortMessage, {
+      cause,
+      docsPath,
+      metaMessages: [
+        ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
+        'Raw Call Arguments:',
+        prettyArgs,
+      ].filter(Boolean) as string[],
+    })
+    this.cause = cause
+  }
+}
 
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
@@ -53,6 +110,18 @@ export class ContractFunctionExecutionError extends BaseError {
       ? formatAbiItem(abiItem, { includeName: true })
       : undefined
 
+    const prettyArgs = prettyPrint({
+      address: contractAddress && getContractAddress(contractAddress),
+      function: functionWithParams,
+      args:
+        formattedArgs &&
+        formattedArgs !== '()' &&
+        `${[...Array(functionName?.length ?? 0).keys()]
+          .map(() => ' ')
+          .join('')}${formattedArgs}`,
+      sender,
+    })
+
     super(
       cause.shortMessage ||
         `An unknown error occurred while executing the contract function "${functionName}".`,
@@ -61,15 +130,8 @@ export class ContractFunctionExecutionError extends BaseError {
         docsPath,
         metaMessages: [
           ...(cause.metaMessages ? [...cause.metaMessages, ' '] : []),
-          contractAddress &&
-            `Contract:  ${getContractAddress(contractAddress)}`,
-          functionWithParams && `Function:  ${functionWithParams}`,
-          formattedArgs &&
-            formattedArgs !== '()' &&
-            `Arguments: ${[...Array(functionName?.length ?? 0).keys()]
-              .map(() => ' ')
-              .join('')}${formattedArgs}`,
-          sender && `Sender:    ${sender}`,
+          'Contract Call:',
+          prettyArgs,
         ].filter(Boolean) as string[],
       },
     )
@@ -119,9 +181,9 @@ export class ContractFunctionRevertedError extends BaseError {
           : undefined
 
         metaMessages = [
-          errorWithParams ? `Error:     ${errorWithParams}` : '',
+          errorWithParams ? `Error: ${errorWithParams}` : '',
           formattedArgs && formattedArgs !== '()'
-            ? `Arguments: ${[...Array(errorName?.length ?? 0).keys()]
+            ? `       ${[...Array(errorName?.length ?? 0).keys()]
                 .map(() => ' ')
                 .join('')}${formattedArgs}`
             : '',
@@ -152,9 +214,9 @@ export class ContractFunctionZeroDataError extends BaseError {
     super(`The contract function "${functionName}" returned no data ("0x").`, {
       metaMessages: [
         'This could be due to any of the following:',
-        `- The contract does not have the function "${functionName}",`,
-        '- The parameters passed to the contract function may be invalid, or',
-        '- The address is not a contract.',
+        `  - The contract does not have the function "${functionName}",`,
+        '  - The parameters passed to the contract function may be invalid, or',
+        '  - The address is not a contract.',
       ],
     })
   }

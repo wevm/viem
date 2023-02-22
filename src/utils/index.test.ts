@@ -5,6 +5,7 @@ import * as utils from './index'
 test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
+      "assertRequest": [Function],
       "boolToBytes": [Function],
       "boolToHex": [Function],
       "buildRequest": [Function],
@@ -13,6 +14,7 @@ test('exports utils', () => {
       "bytesToHex": [Function],
       "bytesToNumber": [Function],
       "bytesToString": [Function],
+      "containsNodeError": [Function],
       "decodeAbi": [Function],
       "decodeErrorResult": [Function],
       "decodeEventLog": [Function],
@@ -53,12 +55,16 @@ test('exports utils', () => {
       "fromRlp": [Function],
       "getAbiItem": [Function],
       "getAddress": [Function],
+      "getCallError": [Function],
       "getContractAddress": [Function],
       "getContractError": [Function],
       "getCreate2Address": [Function],
       "getCreateAddress": [Function],
+      "getEstimateGasError": [Function],
       "getEventSignature": [Function],
       "getFunctionSignature": [Function],
+      "getNodeError": [Function],
+      "getTransactionError": [Function],
       "gweiUnits": {
         "ether": -9,
         "wei": 9,

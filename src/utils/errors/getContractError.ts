@@ -3,9 +3,11 @@ import {
   AbiDecodingZeroDataError,
   BaseError,
   ContractFunctionExecutionError,
+  EstimateGasExecutionError,
   RawContractError,
 } from '../../errors'
 import {
+  CallExecutionError,
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
 } from '../../errors/contract'
@@ -32,7 +34,12 @@ export function getContractError(
   },
 ) {
   const { code, data, message } = (
-    err instanceof RawContractError ? err : err.cause || {}
+    err instanceof RawContractError
+      ? err
+      : err instanceof CallExecutionError ||
+        err instanceof EstimateGasExecutionError
+      ? ((err.cause as BaseError)?.cause as BaseError)?.cause || {}
+      : err.cause || {}
   ) as RawContractError
 
   let cause = err
