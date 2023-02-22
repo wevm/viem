@@ -1,6 +1,6 @@
 # getBlockTransactionCount
 
-Returns the number of Transactions at a block number, has or tag.
+Returns the number of Transactions at a block number, hash or tag.
 
 ## Usage
 
