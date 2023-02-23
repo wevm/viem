@@ -13,6 +13,26 @@ test('fee cap too high', () => {
   `)
 })
 
+test('invalid from address', () => {
+  expect(() =>
+    assertRequest({ from: '0x123' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Address \\"0x123\\" is invalid.
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('invalid to address', () => {
+  expect(() =>
+    assertRequest({ to: '0x123' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Address \\"0x123\\" is invalid.
+
+    Version: viem@1.0.2"
+  `)
+})
+
 test('tip higher than fee cap', () => {
   expect(() =>
     assertRequest({
