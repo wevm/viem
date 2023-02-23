@@ -372,7 +372,7 @@ describe('behavior', () => {
       `)
     })
 
-    test.only('SwitchChainError', async () => {
+    test('SwitchChainError', async () => {
       const server = await createHttpServer((req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
