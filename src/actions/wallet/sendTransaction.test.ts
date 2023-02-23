@@ -402,6 +402,18 @@ describe('args: chain', async () => {
     ).toBeDefined
   })
 
+  test('args: assertChain', async () => {
+    expect(
+      await sendTransaction(walletClient, {
+        assertChain: false,
+        chain: optimism,
+        from: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined
+  })
+
   test('chain mismatch', async () => {
     await expect(() =>
       sendTransaction(walletClient, {

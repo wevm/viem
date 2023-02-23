@@ -26,9 +26,17 @@ export type FormattedTransactionRequest<
 >
 
 export type SendTransactionArgs<TChain extends Chain = Chain> =
-  FormattedTransactionRequest<TransactionRequestFormatter<TChain>> & {
-    chain?: TChain
-  }
+  FormattedTransactionRequest<TransactionRequestFormatter<TChain>> &
+    (
+      | {
+          assertChain?: false
+          chain?: TChain
+        }
+      | {
+          assertChain: true
+          chain: TChain
+        }
+    )
 
 export type SendTransactionResponse = Hash
 
@@ -40,6 +48,7 @@ export async function sendTransaction<TChain extends Chain>(
     chain,
     from,
     accessList,
+    assertChain = true,
     data,
     gas,
     gasPrice,
@@ -54,7 +63,7 @@ export async function sendTransaction<TChain extends Chain>(
     assertRequest(args)
 
     const currentChainId = await getChainId(client)
-    if (chain && currentChainId !== chain?.id)
+    if (assertChain && chain && currentChainId !== chain?.id)
       throw new ChainMismatchError({ chain, currentChainId })
 
     const formatter = chain?.formatters?.transactionRequest
