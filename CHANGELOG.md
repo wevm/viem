@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.32
+
+### Patch Changes
+
+- [`7243744`](https://github.com/wagmi-dev/viem/commit/7243744ecd230532b8f11d1766318a75760229e5) Thanks [@jxom](https://github.com/jxom)! - Added support for `4001` & `4902` RPC error codes.
+
 ## 0.0.1-alpha.31
 
 ### Patch Changes
