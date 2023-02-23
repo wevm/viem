@@ -133,7 +133,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
   ) => Promise<EstimateContractGasResponse>
   estimateGas: (args: EstimateGasArgs<TChain>) => Promise<EstimateGasResponse>
   getBalance: (args: GetBalanceArgs) => Promise<GetBalanceResponse>
-  getBlock: (args: GetBlockArgs) => Promise<GetBlockResponse<TChain>>
+  getBlock: (args?: GetBlockArgs) => Promise<GetBlockResponse<TChain>>
   getBlockNumber: (args?: GetBlockNumberArgs) => Promise<GetBlockNumberResponse>
   getBlockTransactionCount: (
     args?: GetBlockTransactionCountArgs,
