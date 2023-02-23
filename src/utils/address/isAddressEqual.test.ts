@@ -43,8 +43,8 @@ describe('errors', () => {
     `)
     expect(() =>
       isAddressEqual(
-        '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff',
         '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac',
+        '0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff',
       ),
     ).toThrowErrorMatchingInlineSnapshot(`
       "Address \\"0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff\\" is invalid.

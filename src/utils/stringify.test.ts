@@ -11,3 +11,44 @@ test('default', () => {
     }),
   ).toEqual('{"foo":"bar","baz":{"value":"69"}}')
 })
+
+test('args: replacer', () => {
+  expect(
+    stringify(
+      {
+        foo: 'bar',
+        baz: {
+          value: 69n,
+        },
+      },
+      (key, value) => {
+        if (key === 'value') {
+          return `${value}!`
+        }
+        return value
+      },
+    ),
+  ).toEqual('{"foo":"bar","baz":{"value":"69!"}}')
+})
+
+test('args: space', () => {
+  expect(
+    stringify(
+      {
+        foo: 'bar',
+        baz: {
+          value: 69n,
+        },
+      },
+      null,
+      2,
+    ),
+  ).toMatchInlineSnapshot(`
+    "{
+      \\"foo\\": \\"bar\\",
+      \\"baz\\": {
+        \\"value\\": \\"69\\"
+      }
+    }"
+  `)
+})
