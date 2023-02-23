@@ -351,6 +351,48 @@ describe('behavior', () => {
       `)
     })
 
+    test('UserRejectedRequestError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4001, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "User rejected the request.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test.only('SwitchChainError', async () => {
+      const server = await createHttpServer((req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4902, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "An error occurred when attempting to switch chain.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
     test('InvalidParamsRpcError', async () => {
       const server = await createHttpServer((req, res) => {
         res.writeHead(200, {

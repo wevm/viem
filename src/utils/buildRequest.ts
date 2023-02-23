@@ -13,8 +13,10 @@ import {
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   RpcError,
+  SwitchChainError,
   TransactionRejectedRpcError,
   UnknownRpcError,
+  UserRejectedRequestError,
 } from '../errors'
 import { withRetry } from './promise'
 
@@ -64,8 +66,8 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
           if (err.code === -32004) throw new MethodNotSupportedRpcError(err)
           if (err.code === -32005) throw new LimitExceededRpcError(err)
           if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
-          // TODO: 4001 - user rejected
-          // TODO: 4902 - switch chain error
+          if (err.code === 4001) throw new UserRejectedRequestError(err)
+          if (err.code === 4902) throw new SwitchChainError(err)
           if (err_ instanceof BaseError) throw err_
           throw new UnknownRpcError(err as Error)
         }

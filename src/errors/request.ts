@@ -157,6 +157,28 @@ export class JsonRpcVersionUnsupportedError extends RpcRequestError {
   }
 }
 
+export class UserRejectedRequestError extends RpcRequestError {
+  name = 'UserRejectedRequestError'
+  code = 4001
+
+  constructor(err: RpcError) {
+    super(err, {
+      shortMessage: 'User rejected the request.',
+    })
+  }
+}
+
+export class SwitchChainError extends RpcRequestError {
+  name = 'SwitchChainError'
+  code = 4902
+
+  constructor(err: RpcError) {
+    super(err, {
+      shortMessage: 'An error occurred when attempting to switch chain.',
+    })
+  }
+}
+
 export class UnknownRpcError extends RequestError {
   name = 'UnknownRpcError'
 

@@ -79,7 +79,9 @@ export {
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   RpcRequestError,
+  SwitchChainError,
   TransactionRejectedRpcError,
+  UserRejectedRequestError,
   UnknownRpcError,
 } from './request'
 

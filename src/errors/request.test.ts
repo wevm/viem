@@ -13,8 +13,10 @@ import {
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   RpcRequestError,
+  SwitchChainError,
   TransactionRejectedRpcError,
   UnknownRpcError,
+  UserRejectedRequestError,
 } from './request'
 import { RpcError } from './rpc'
 
@@ -353,6 +355,52 @@ test('JsonRpcVersionUnsupportedError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [JsonRpcVersionUnsupportedError: Version of JSON-RPC protocol is not supported.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@1.0.2]
+  `)
+})
+
+test('UserRejectedRequestError', () => {
+  expect(
+    new UserRejectedRequestError(
+      new RpcError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 4001,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UserRejectedRequestError: User rejected the request.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@1.0.2]
+  `)
+})
+
+test('SwitchChainError', () => {
+  expect(
+    new SwitchChainError(
+      new RpcError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 4902,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [SwitchChainError: An error occurred when attempting to switch chain.
 
     URL: http://localhost
     Request body: {"foo":"bar"}
