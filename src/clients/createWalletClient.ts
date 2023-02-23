@@ -56,7 +56,7 @@ export function createWalletClient<
     key,
     name,
     pollingInterval,
-    transport,
+    transport: () => transport({ retryCount: 0 }),
     type: 'walletClient',
   })
   return {
