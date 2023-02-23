@@ -50,3 +50,9 @@
   line-height: 18px !important;
   font-weight: 400 !important;
 }
+
+.VPDoc iframe {
+  margin-left: -32px;
+  height: 500px;
+  width: calc(100% + 64px);
+}
