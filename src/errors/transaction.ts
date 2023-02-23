@@ -40,6 +40,7 @@ export class TransactionExecutionError extends BaseError {
     }: SendTransactionArgs & { docsPath?: string },
   ) {
     const prettyArgs = prettyPrint({
+      chain: chain && `${chain?.name} (id: ${chain?.id})`,
       from,
       to,
       value:

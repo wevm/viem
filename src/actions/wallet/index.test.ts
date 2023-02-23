@@ -8,6 +8,7 @@ test('exports actions', () => {
       "addChain": [Function],
       "deployContract": [Function],
       "getAccounts": [Function],
+      "getChainId": [Function],
       "getPermissions": [Function],
       "requestAccounts": [Function],
       "requestPermissions": [Function],

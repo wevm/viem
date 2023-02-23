@@ -31,3 +31,22 @@ export class ChainDoesNotSupportContract extends BaseError {
     )
   }
 }
+
+export class ChainMismatchError extends BaseError {
+  name = 'ChainMismatchError'
+
+  constructor({
+    chain,
+    currentChainId,
+  }: { chain: Chain; currentChainId: number }) {
+    super(
+      `The current chain (id: ${currentChainId}) does not match the chain passed to the request (id: ${chain.id} – ${chain.name}).`,
+      {
+        metaMessages: [
+          `Current Chain ID:  ${currentChainId}`,
+          `Expected Chain ID: ${chain.id} – ${chain.name}`,
+        ],
+      },
+    )
+  }
+}

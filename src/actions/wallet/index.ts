@@ -10,6 +10,9 @@ export type {
 export { getAccounts } from './getAccounts'
 export type { GetAccountsResponse } from './getAccounts'
 
+export { getChainId } from '../public/getChainId'
+export type { GetChainIdResponse } from '../public/getChainId'
+
 export { getPermissions } from './getPermissions'
 export type { GetPermissionsResponse } from './getPermissions'
 

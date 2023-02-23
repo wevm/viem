@@ -4,6 +4,8 @@ import {
   DeployContractArgs,
   DeployContractResponse,
   GetAccountsResponse,
+  getChainId,
+  GetChainIdResponse,
   GetPermissionsResponse,
   RequestAccountsResponse,
   RequestPermissionsArgs,
@@ -40,6 +42,7 @@ export type WalletActions<TChain extends Chain = Chain> = {
     args: DeployContractArgs<TChain, TAbi>,
   ) => Promise<DeployContractResponse>
   getAccounts: () => Promise<GetAccountsResponse>
+  getChainId: () => Promise<GetChainIdResponse>
   getPermissions: () => Promise<GetPermissionsResponse>
   requestAccounts: () => Promise<RequestAccountsResponse>
   requestPermissions: (
@@ -68,6 +71,7 @@ export const walletActions = <
   addChain: (args) => addChain(client, args),
   deployContract: (args) => deployContract(client, args),
   getAccounts: () => getAccounts(client),
+  getChainId: () => getChainId(client),
   getPermissions: () => getPermissions(client),
   requestAccounts: () => requestAccounts(client),
   requestPermissions: (args) => requestPermissions(client, args),

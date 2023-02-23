@@ -1,5 +1,5 @@
 import type { WalletClient } from '../../clients'
-import { BaseError } from '../../errors'
+import { BaseError, ChainMismatchError } from '../../errors'
 import type {
   Chain,
   Formatter,
@@ -16,6 +16,7 @@ import {
   formatTransactionRequest,
   getTransactionError,
 } from '../../utils'
+import { getChainId } from '../public'
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
@@ -51,6 +52,10 @@ export async function sendTransaction<TChain extends Chain>(
   } = args
   try {
     assertRequest(args)
+
+    const currentChainId = await getChainId(client)
+    if (chain && currentChainId !== chain?.id)
+      throw new ChainMismatchError({ chain, currentChainId })
 
     const formatter = chain?.formatters?.transactionRequest
     const request_ = format(

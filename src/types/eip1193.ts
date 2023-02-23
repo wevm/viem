@@ -971,6 +971,16 @@ export type WalletRequests = {
   }): Promise<Address[]>
   request(args: {
     /**
+     * @description Returns the current chain ID associated with the wallet.
+     * @example
+     * provider.request({ method: 'eth_chainId' })
+     * // => '1'
+     */
+    method: 'eth_chainId'
+    params?: never
+  }): Promise<Quantity>
+  request(args: {
+    /**
      * @description Requests that the user provides an Ethereum address to be identified by. Typically causes a browser extension popup to appear.
      * @link https://eips.ethereum.org/EIPS/eip-1102
      * @example
