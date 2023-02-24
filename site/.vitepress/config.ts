@@ -48,7 +48,10 @@ export default defineConfig({
 
     nav: [
       { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
-      { text: 'Examples', link: '/examples' },
+      {
+        text: 'Examples',
+        link: 'https://stackblitz.com/@jxom/collections/viem',
+      },
     ],
 
     outline: [2, 3],

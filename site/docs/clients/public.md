@@ -96,3 +96,10 @@ const client = createPublicClient({
   transport: http(),
 })
 ```
+
+## Live Example
+
+Check out the usage of `createPublicClient` in the live [Public Client Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients/public-client) below.
+
+<!-- TODO: Replace before launch: <iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients/public-client?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe> -->
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/edit/viem-public-client?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>

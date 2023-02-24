@@ -42,7 +42,7 @@ In a production app, it is highly recommended to pass through your authenticated
 
 Now that you have a Client set up, you can now interact with Ethereum and consume [Actions](/docs/actions/public/introduction)!
 
-```tsx {3,10}
+```tsx {9}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -53,3 +53,7 @@ const client = createPublicClient({
 
 const blockNumber = await client.getBlockNumber()
 ```
+
+### Live example
+
+<iframe class="mt-6" frameborder="0" src="https://stackblitz.com/edit/viem-getting-started?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=1&hideExplorer=1&devtoolsheight=1"></iframe>

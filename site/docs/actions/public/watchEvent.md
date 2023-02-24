@@ -305,3 +305,9 @@ const unwatch = publicClient.watchEvent(
   }
 )
 ```
+
+## Live Example
+
+Check out the usage of `watchEvent` in the live [Event Logs Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs) below.
+
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>

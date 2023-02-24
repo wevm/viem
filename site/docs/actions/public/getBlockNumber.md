@@ -41,4 +41,7 @@ By default, block numbers are cached for the period of the [Client's `pollingInt
 
 ## Example
 
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/getBlockNumber?embed=true"></iframe>
+Check out the usage of `getBlockNumber` in the live [Fetching Blocks Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks) below.
+
+<!-- TODO: Replace before launch: <iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe> -->
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/edit/viem-fetching-blocks?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
