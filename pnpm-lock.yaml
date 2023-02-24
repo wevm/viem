@@ -143,6 +143,28 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4
 
+  examples/filters-and-logs/block-event-logs:
+    specifiers:
+      typescript: ^4.9.3
+      viem: alpha
+      vite: ^4.1.4
+    dependencies:
+      viem: link:../../..
+    devDependencies:
+      typescript: 4.9.5
+      vite: 4.1.4
+
+  examples/filters-and-logs/event-logs:
+    specifiers:
+      typescript: ^4.9.3
+      viem: alpha
+      vite: ^4.1.4
+    dependencies:
+      viem: link:../../..
+    devDependencies:
+      typescript: 4.9.5
+      vite: 4.1.4
+
   examples/transactions/sending-transactions:
     specifiers:
       '@types/react': ^18.0.27
