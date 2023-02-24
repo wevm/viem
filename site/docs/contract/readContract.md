@@ -207,3 +207,9 @@ const data = await publicClient.readContract({
   blockTag: 'safe', // [!code focus]
 })
 ```
+
+## Live Example
+
+Check out the usage of `readContract` in the live [Reading Contracts Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/reading-contracts) below.
+
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/reading-contracts?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
