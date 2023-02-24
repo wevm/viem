@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.33
+
+### Patch Changes
+
+- [`1971e6a`](https://github.com/wagmi-dev/viem/commit/1971e6ad74df802bdbd988ddc5e6fc06fad66091) Thanks [@jxom](https://github.com/jxom)! - Added assertion to check if addresses are valid for `sendTransaction`, `estimateGas` & `call`.
+
 ## 0.0.1-alpha.32
 
 ### Patch Changes
