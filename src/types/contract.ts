@@ -122,6 +122,10 @@ export type AbiEventParametersToPrimitiveTypes<
                 : []),
             ]
         : TBase
+      : Tail extends readonly []
+      ? TBase
+      : Tail extends readonly AbiParameter[]
+      ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
       : TBase
     : TBase
 >
