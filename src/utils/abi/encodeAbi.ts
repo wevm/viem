@@ -7,11 +7,14 @@ import {
 
 import {
   AbiEncodingArrayLengthMismatchError,
+  AbiEncodingBytesSizeMismatchError,
   AbiEncodingLengthMismatchError,
   InvalidAbiEncodingTypeError,
+  InvalidAddressError,
   InvalidArrayError,
 } from '../../errors'
 import { Hex } from '../../types'
+import { isAddress } from '../address'
 import { concat, padHex, size, slice } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
@@ -139,6 +142,7 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
 /////////////////////////////////////////////////////////////////
 
 function encodeAddress(value: Hex): PreparedParam {
+  if (!isAddress(value)) throw new InvalidAddressError({ address: value })
   return { dynamic: false, encoded: padHex(value.toLowerCase() as Hex) }
 }
 
@@ -206,6 +210,11 @@ function toBytes<TParam extends AbiParameter>(
       ]),
     }
   }
+  if (size(value) !== parseInt(size_))
+    throw new AbiEncodingBytesSizeMismatchError({
+      expectedSize: parseInt(size_),
+      value,
+    })
   return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }
 }
 
@@ -249,7 +258,7 @@ function encodeTuple<
     const index = Array.isArray(value) ? i : param_.name
     const preparedParam = prepareParam({
       param: param_,
-      value: (value as any)[index!] as any,
+      value: (value as any)[index!] as readonly unknown[],
     })
     preparedParams.push(preparedParam)
     if (preparedParam.dynamic) dynamic = true

@@ -1,5 +1,6 @@
 import { AbiCoder } from 'ethers/lib/utils'
 import { bench, describe } from 'vitest'
+import { address } from '../../_test'
 
 import { encodeAbi } from './encodeAbi'
 
@@ -137,6 +138,393 @@ describe('ABI Encode', () => {
           },
           x: [1, 2],
         },
+      ],
+    )
+  })
+})
+
+describe('Seaport function', () => {
+  bench('viem: `encodeAbi`', () => {
+    encodeAbi({
+      params: [
+        {
+          components: [
+            { internalType: 'address', name: 'offerer', type: 'address' },
+            { internalType: 'address', name: 'zone', type: 'address' },
+            {
+              components: [
+                {
+                  internalType: 'enum ItemType',
+                  name: 'itemType',
+                  type: 'uint8',
+                },
+                { internalType: 'address', name: 'token', type: 'address' },
+                {
+                  internalType: 'uint256',
+                  name: 'identifierOrCriteria',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'uint256',
+                  name: 'startAmount',
+                  type: 'uint256',
+                },
+                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+              ],
+              internalType: 'struct OfferItem[]',
+              name: 'offer',
+              type: 'tuple[]',
+            },
+            {
+              components: [
+                {
+                  internalType: 'enum ItemType',
+                  name: 'itemType',
+                  type: 'uint8',
+                },
+                { internalType: 'address', name: 'token', type: 'address' },
+                {
+                  internalType: 'uint256',
+                  name: 'identifierOrCriteria',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'uint256',
+                  name: 'startAmount',
+                  type: 'uint256',
+                },
+                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+                {
+                  internalType: 'address payable',
+                  name: 'recipient',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ConsiderationItem[]',
+              name: 'consideration',
+              type: 'tuple[]',
+            },
+            {
+              internalType: 'enum OrderType',
+              name: 'orderType',
+              type: 'uint8',
+            },
+            { internalType: 'uint256', name: 'startTime', type: 'uint256' },
+            { internalType: 'uint256', name: 'endTime', type: 'uint256' },
+            { internalType: 'bytes32', name: 'zoneHash', type: 'bytes32' },
+            { internalType: 'uint256', name: 'salt', type: 'uint256' },
+            { internalType: 'bytes32', name: 'conduitKey', type: 'bytes32' },
+            { internalType: 'uint256', name: 'counter', type: 'uint256' },
+          ],
+          internalType: 'struct OrderComponents[]',
+          name: 'orders',
+          type: 'tuple[]',
+        },
+      ],
+      values: [
+        [
+          {
+            conduitKey:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+            consideration: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                recipient: address.vitalik,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 141n,
+                identifierOrCriteria: 55n,
+                itemType: 16,
+                recipient: address.vitalik,
+                startAmount: 15n,
+                token: address.burn,
+              },
+            ],
+            counter: 1234123123n,
+            endTime: 123123123123n,
+            offer: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 11n,
+                identifierOrCriteria: 515n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.usdcHolder,
+              },
+              {
+                endAmount: 123123n,
+                identifierOrCriteria: 55555511n,
+                itemType: 10,
+                startAmount: 111n,
+                token: address.vitalik,
+              },
+            ],
+            offerer: address.vitalik,
+            orderType: 10,
+            salt: 1234123123n,
+            startTime: 123123123123n,
+            zone: address.vitalik,
+            zoneHash:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+          },
+          {
+            conduitKey:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+            consideration: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                recipient: address.vitalik,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 141n,
+                identifierOrCriteria: 55n,
+                itemType: 16,
+                recipient: address.vitalik,
+                startAmount: 15n,
+                token: address.burn,
+              },
+            ],
+            counter: 1234123123n,
+            endTime: 123123123123n,
+            offer: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 11n,
+                identifierOrCriteria: 515n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.usdcHolder,
+              },
+              {
+                endAmount: 123123n,
+                identifierOrCriteria: 55555511n,
+                itemType: 10,
+                startAmount: 111n,
+                token: address.vitalik,
+              },
+            ],
+            offerer: address.vitalik,
+            orderType: 10,
+            salt: 1234123123n,
+            startTime: 123123123123n,
+            zone: address.vitalik,
+            zoneHash:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+          },
+        ],
+      ],
+    })
+  })
+
+  bench('ethers: `AbiCoder.encode`', () => {
+    const coder = new AbiCoder()
+    coder.encode(
+      [
+        {
+          components: [
+            { internalType: 'address', name: 'offerer', type: 'address' },
+            { internalType: 'address', name: 'zone', type: 'address' },
+            {
+              components: [
+                {
+                  internalType: 'enum ItemType',
+                  name: 'itemType',
+                  type: 'uint8',
+                },
+                { internalType: 'address', name: 'token', type: 'address' },
+                {
+                  internalType: 'uint256',
+                  name: 'identifierOrCriteria',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'uint256',
+                  name: 'startAmount',
+                  type: 'uint256',
+                },
+                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+              ],
+              internalType: 'struct OfferItem[]',
+              name: 'offer',
+              type: 'tuple[]',
+            },
+            {
+              components: [
+                {
+                  internalType: 'enum ItemType',
+                  name: 'itemType',
+                  type: 'uint8',
+                },
+                { internalType: 'address', name: 'token', type: 'address' },
+                {
+                  internalType: 'uint256',
+                  name: 'identifierOrCriteria',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'uint256',
+                  name: 'startAmount',
+                  type: 'uint256',
+                },
+                { internalType: 'uint256', name: 'endAmount', type: 'uint256' },
+                {
+                  internalType: 'address payable',
+                  name: 'recipient',
+                  type: 'address',
+                },
+              ],
+              internalType: 'struct ConsiderationItem[]',
+              name: 'consideration',
+              type: 'tuple[]',
+            },
+            {
+              internalType: 'enum OrderType',
+              name: 'orderType',
+              type: 'uint8',
+            },
+            { internalType: 'uint256', name: 'startTime', type: 'uint256' },
+            { internalType: 'uint256', name: 'endTime', type: 'uint256' },
+            { internalType: 'bytes32', name: 'zoneHash', type: 'bytes32' },
+            { internalType: 'uint256', name: 'salt', type: 'uint256' },
+            { internalType: 'bytes32', name: 'conduitKey', type: 'bytes32' },
+            { internalType: 'uint256', name: 'counter', type: 'uint256' },
+          ],
+          internalType: 'struct OrderComponents[]',
+          name: 'orders',
+          type: 'tuple[]',
+        },
+      ],
+      [
+        [
+          {
+            conduitKey:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+            consideration: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                recipient: address.vitalik,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 141n,
+                identifierOrCriteria: 55n,
+                itemType: 16,
+                recipient: address.vitalik,
+                startAmount: 15n,
+                token: address.burn,
+              },
+            ],
+            counter: 1234123123n,
+            endTime: 123123123123n,
+            offer: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 11n,
+                identifierOrCriteria: 515n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.usdcHolder,
+              },
+              {
+                endAmount: 123123n,
+                identifierOrCriteria: 55555511n,
+                itemType: 10,
+                startAmount: 111n,
+                token: address.vitalik,
+              },
+            ],
+            offerer: address.vitalik,
+            orderType: 10,
+            salt: 1234123123n,
+            startTime: 123123123123n,
+            zone: address.vitalik,
+            zoneHash:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+          },
+          {
+            conduitKey:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+            consideration: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                recipient: address.vitalik,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 141n,
+                identifierOrCriteria: 55n,
+                itemType: 16,
+                recipient: address.vitalik,
+                startAmount: 15n,
+                token: address.burn,
+              },
+            ],
+            counter: 1234123123n,
+            endTime: 123123123123n,
+            offer: [
+              {
+                endAmount: 420n,
+                identifierOrCriteria: 69n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.burn,
+              },
+              {
+                endAmount: 11n,
+                identifierOrCriteria: 515n,
+                itemType: 10,
+                startAmount: 6n,
+                token: address.usdcHolder,
+              },
+              {
+                endAmount: 123123n,
+                identifierOrCriteria: 55555511n,
+                itemType: 10,
+                startAmount: 111n,
+                token: address.vitalik,
+              },
+            ],
+            offerer: address.vitalik,
+            orderType: 10,
+            salt: 1234123123n,
+            startTime: 123123123123n,
+            zone: address.vitalik,
+            zoneHash:
+              '0x511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511aaa511a',
+          },
+        ],
       ],
     )
   })

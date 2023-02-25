@@ -1,4 +1,5 @@
 import { Hex } from '../types'
+import { size } from '../utils'
 import { BaseError } from './base'
 
 export class AbiConstructorNotFoundError extends BaseError {
@@ -63,6 +64,17 @@ export class AbiEncodingArrayLengthMismatchError extends BaseError {
         `Expected length: ${expectedLength}`,
         `Given length: ${givenLength}`,
       ].join('\n'),
+    )
+  }
+}
+
+export class AbiEncodingBytesSizeMismatchError extends BaseError {
+  name = 'AbiEncodingBytesSizeMismatchError'
+  constructor({ expectedSize, value }: { expectedSize: number; value: Hex }) {
+    super(
+      `Size of bytes "${value}" (bytes${size(
+        value,
+      )}) does not match expected size (bytes${expectedSize}).`,
     )
   }
 }

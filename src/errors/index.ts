@@ -4,6 +4,7 @@ export {
   AbiDecodingDataSizeInvalidError,
   AbiDecodingZeroDataError,
   AbiEncodingArrayLengthMismatchError,
+  AbiEncodingBytesSizeMismatchError,
   AbiEncodingLengthMismatchError,
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,

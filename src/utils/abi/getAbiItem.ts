@@ -4,25 +4,37 @@ import { isAddress } from '../address'
 
 export type GetAbiItemArgs<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
+  TItemName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  name: ExtractNameFromAbi<TAbi, TFunctionName>
-} & Partial<ExtractArgsFromAbi<TAbi, TFunctionName>>
+  name: ExtractNameFromAbi<TAbi, TItemName>
+} & Partial<ExtractArgsFromAbi<TAbi, TItemName>>
+
+export type GetAbiItemResponse<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TItemName extends string = string,
+> = Extract<
+  TAbi[number],
+  {
+    name: TItemName
+  }
+>
 
 export function getAbiItem<
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
->({ abi, args = [], name }: GetAbiItemArgs<TAbi, TFunctionName>) {
+  TItemName extends string,
+  TResponse = GetAbiItemResponse<TAbi, TItemName>,
+>({ abi, args = [], name }: GetAbiItemArgs<TAbi, TItemName>): TResponse {
   const abiItems = (abi as Abi).filter((x) => 'name' in x && x.name === name)
 
-  if (abiItems.length === 0) return undefined
-  if (abiItems.length === 1) return abiItems[0]
+  if (abiItems.length === 0) return undefined as unknown as TResponse
+  if (abiItems.length === 1) return abiItems[0] as unknown as TResponse
 
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
-      if (!abiItem.inputs || abiItem.inputs.length === 0) return abiItem
+      if (!abiItem.inputs || abiItem.inputs.length === 0)
+        return abiItem as unknown as TResponse
       continue
     }
     if (!abiItem.inputs) continue
@@ -32,9 +44,9 @@ export function getAbiItem<
       if (!abiParameter) return false
       return isArgOfType(arg, abiParameter as AbiParameter)
     })
-    if (matched) return abiItem
+    if (matched) return abiItem as unknown as TResponse
   }
-  return abiItems[0]
+  return abiItems[0] as unknown as TResponse
 }
 
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
