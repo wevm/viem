@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.34
+
+### Patch Changes
+
+- [`e1634b5`](https://github.com/wagmi-dev/viem/commit/e1634b5d110b1a39032eab9813f93244b04123ad) Thanks [@jxom](https://github.com/jxom)! - Fixed ABI encoding dynamic tuple child derivation
+
 ## 0.0.1-alpha.33
 
 ### Patch Changes
