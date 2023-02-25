@@ -252,7 +252,7 @@ function encodeTuple<
       value: (value as any)[index!] as any,
     })
     preparedParams.push(preparedParam)
-    dynamic = preparedParam.dynamic
+    if (preparedParam.dynamic) dynamic = true
   }
   return {
     dynamic,
