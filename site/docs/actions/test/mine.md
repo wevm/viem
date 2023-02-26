@@ -1,3 +1,18 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: mine
+  - - meta
+    - name: description
+      content: Mine a specified number of blocks.
+  - - meta
+    - property: og:description
+      content: Mine a specified number of blocks.
+
+---
+
+
 # mine
 
 Mine a specified number of blocks.

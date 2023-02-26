@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: createPendingTransactionFilter
+  - - meta
+    - name: description
+      content: An Action for creating a new pending transaction filter.
+  - - meta
+    - property: og:description
+      content: An Action for creating a new pending transaction filter.
+
+---
+
 # createPendingTransactionFilter
 
 Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).

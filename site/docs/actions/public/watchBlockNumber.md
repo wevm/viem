@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: watchBlockNumber
+  - - meta
+    - name: description
+      content: Watches and returns incoming block numbers.
+  - - meta
+    - property: og:description
+      content: Watches and returns incoming block numbers.
+
+---
+
 # watchBlockNumber
 
 Watches and returns incoming block numbers.

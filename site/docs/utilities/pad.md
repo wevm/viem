@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: pad
+  - - meta
+    - name: description
+      content: Pads a hex value or byte array with leading or trailing zeros.
+  - - meta
+    - property: og:description
+      content: Pads a hex value or byte array with leading or trailing zeros.
+
+---
+
 # pad
 
 Pads a hex value or byte array with leading or trailing zeros.

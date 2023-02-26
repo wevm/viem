@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Test Client
+  - - meta
+    - name: description
+      content: A function to create a Test Client.
+  - - meta
+    - property: og:description
+      content: A function to create a Test Client.
+
+---
+
 # Test Client
 
 The `createTestClient` function sets up a Test RPC Client with a given [Transport](/docs/clients/intro).

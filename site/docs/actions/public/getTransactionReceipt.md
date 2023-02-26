@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getTransactionReceipt
+  - - meta
+    - name: description
+      content: Returns the transaction receipt given a transaction hash.
+  - - meta
+    - property: og:description
+      content: Returns the transaction receipt given a transaction hash.
+
+---
+
 # getTransactionReceipt
 
 Returns the transaction receipt given a transaction hash.

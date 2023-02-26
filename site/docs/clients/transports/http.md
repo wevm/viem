@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: HTTP Transport
+  - - meta
+    - name: description
+      content: A function to create a HTTP Transport for a Client.
+  - - meta
+    - property: og:description
+      content: A function to create a HTTP Transport for a Client.
+
+---
+
 # HTTP Transport
 
 The `http` Transport connects to a JSON-RPC API via HTTP.

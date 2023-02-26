@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: readContract
+  - - meta
+    - name: description
+      content: Calls a read-only function on a contract, and returns the response.
+  - - meta
+    - property: og:description
+      content: Calls a read-only function on a contract, and returns the response.
+
+---
+
 # readContract
 
 Calls a read-only function on a contract, and returns the response.

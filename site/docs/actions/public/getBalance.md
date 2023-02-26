@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getBalance
+  - - meta
+    - name: description
+      content: Returns the balance of an address in wei.
+  - - meta
+    - property: og:description
+      content: Returns the balance of an address in wei.
+
+---
+
 # getBalance
 
 Returns the balance of an address in wei.

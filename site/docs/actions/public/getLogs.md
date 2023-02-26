@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getLogs
+  - - meta
+    - name: description
+      content: Returns a list of event logs matching the provided parameters. 
+  - - meta
+    - property: og:description
+      content: Returns a list of event logs matching the provided parameters. 
+
+---
+
 # getLogs
 
 Returns a list of **event** logs matching the provided parameters. 

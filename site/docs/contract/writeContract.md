@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: writeContract
+  - - meta
+    - name: description
+      content: Executes a write function on a contract.
+  - - meta
+    - property: og:description
+      content: Executes a write function on a contract.
+
+---
+
 # writeContract
 
 Executes a write function on a contract.

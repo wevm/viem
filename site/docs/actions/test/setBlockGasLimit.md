@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setBlockGasLimit
+  - - meta
+    - name: description
+      content: Sets the block's gas limit.
+  - - meta
+    - property: og:description
+      content: Sets the block's gas limit.
+
+---
+
 # setBlockGasLimit
 
 Sets the block's gas limit.

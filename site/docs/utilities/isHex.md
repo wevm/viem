@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: isHex
+  - - meta
+    - name: description
+      content: Checks whether the value is a hex value or not.
+  - - meta
+    - property: og:description
+      content: Checks whether the value is a hex value or not.
+
+---
+
 # isHex
 
 Checks whether the value is a hex value or not.

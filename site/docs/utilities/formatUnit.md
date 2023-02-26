@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: formatUnit
+  - - meta
+    - name: description
+      content: Divides a number by a given exponent of base 10, and formats it into a string representation of the number.
+  - - meta
+    - property: og:description
+      content: Divides a number by a given exponent of base 10, and formats it into a string representation of the number.
+
+---
+
 # formatUnit
 
 Divides a number by a given exponent of base 10 (10<sup>exponent</sup>), and formats it into a string representation of the number.

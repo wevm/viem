@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: estimateGas
+  - - meta
+    - name: description
+      content: An Action for estimating gas for a transaction.
+  - - meta
+    - property: og:description
+      content: An Action for estimating gas for a transaction.
+
+---
+
 # estimateGas
 
 Estimates the gas necessary to complete a transaction without submitting it to the network.

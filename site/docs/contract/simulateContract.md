@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: simulateContract
+  - - meta
+    - name: description
+      content: Simulates & validates a contract interaction.
+  - - meta
+    - property: og:description
+      content: Simulates & validates a contract interaction.
+
+---
+
 # simulateContract
 
 The `simulateContract` function **simulates**/**validates** a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.

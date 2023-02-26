@@ -1,6 +1,20 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: uninstallFilter
+  - - meta
+    - name: description
+      content: Destroys a Filter.
+  - - meta
+    - property: og:description
+      content: Destroys a Filter.
+
+---
+
 # uninstallFilter
 
-Destroys a Filter that was created from one of the following actions:
+Destroys a Filter that was created from one of the following Actions:
 
 - [`createBlockFilter`](/docs/actions/public/createBlockFilter)
 - [`createEventFilter`](/docs/actions/public/createEventFilter)

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Public Client
+  - - meta
+    - name: description
+      content: A function to create a Public Client.
+  - - meta
+    - property: og:description
+      content: A function to create a Public Client.
+
+---
+
 # Public Client
 
 The `createPublicClient` function sets up a Public Client with a given [Transport](/docs/clients/intro) configured for a [Chain](/docs/clients/chains).

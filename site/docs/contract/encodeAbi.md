@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: encodeAbi
+  - - meta
+    - name: description
+      content: Generates ABI encoded data.
+  - - meta
+    - property: og:description
+      content: Generates ABI encoded data.
+
+---
+
 # encodeAbi
 
 Generates ABI encoded data using the [ABI specification](https://solidity.readthedocs.io/en/latest/abi-spec.html), given a set of ABI parameters (`inputs`/`outputs`) and their corresponding values.

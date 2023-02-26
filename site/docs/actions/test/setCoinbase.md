@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setCoinbase
+  - - meta
+    - name: description
+      content: Sets the coinbase address to be used in new blocks.
+  - - meta
+    - property: og:description
+      content: Sets the coinbase address to be used in new blocks.
+
+---
+
 # setCoinbase
 
 Sets the coinbase address to be used in new blocks.

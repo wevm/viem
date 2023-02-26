@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: encodeDeployData
+  - - meta
+    - name: description
+      content: Encodes a reverted error from a function call.
+  - - meta
+    - property: og:description
+      content: Encodes a reverted error from a function call.
+
+---
+
 # encodeErrorResult
 
 Encodes a reverted error from a function call. The opposite of [`decodeErrorResult`](/docs/contract/decodeErrorResult).

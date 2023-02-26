@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getPermissions
+  - - meta
+    - name: description
+      content: Gets the wallets current permissions.
+  - - meta
+    - property: og:description
+      content: Gets the wallets current permissions.
+
+---
+
 # getPermissions
 
 Gets the wallets current permissions.

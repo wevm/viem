@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setNextBlockTimestamp
+  - - meta
+    - name: description
+      content: Sets the next block's timestamp.
+  - - meta
+    - property: og:description
+      content: Sets the next block's timestamp.
+
+---
+
 # setNextBlockTimestamp
 
 Sets the next block's timestamp.

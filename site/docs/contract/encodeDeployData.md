@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: encodeDeployData
+  - - meta
+    - name: description
+      content: Encodes deploy data (bytecode & constructor args) into an ABI encoded value.
+  - - meta
+    - property: og:description
+      content: Encodes deploy data (bytecode & constructor args) into an ABI encoded value.
+
+---
+
 # encodeDeployData
 
 Encodes deploy data (bytecode & constructor args) into an ABI encoded value.

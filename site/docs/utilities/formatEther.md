@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: formatEther
+  - - meta
+    - name: description
+      content: Converts numerical wei to a string representation of ether.
+  - - meta
+    - property: og:description
+      content: Converts numerical wei to a string representation of ether.
+
+---
+
 # formatEther
 
 Converts numerical wei to a string representation of ether.

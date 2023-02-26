@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: dropTransaction
+  - - meta
+    - name: description
+      content: Removes a transaction from the mempool.
+  - - meta
+    - property: og:description
+      content: Removes a transaction from the mempool.
+
+---
+
 # dropTransaction
 
 Remove a transaction from the mempool.

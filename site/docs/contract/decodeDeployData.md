@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: decodeDeployData
+  - - meta
+    - name: description
+      content: Decodes ABI encoded deploy data (bytecode & arguments).
+  - - meta
+    - property: og:description
+      content: Decodes ABI encoded deploy data (bytecode & arguments).
+
+---
+
 # decodeDeployData
 
 Decodes ABI encoded deploy data (bytecode & arguments).

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: revert
+  - - meta
+    - name: description
+      content: Revert the state of the blockchain at the current block.
+  - - meta
+    - property: og:description
+      content: Revert the state of the blockchain at the current block.
+
+---
+
 # revert
 
 Revert the state of the blockchain at the current block.

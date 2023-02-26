@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getTransaction
+  - - meta
+    - name: description
+      content: Returns information about a transaction given a hash or block identifier.
+  - - meta
+    - property: og:description
+      content: Returns information about a transaction given a hash or block identifier.
+
+---
+
 # getTransaction
 
 Returns information about a transaction given a hash or block identifier.

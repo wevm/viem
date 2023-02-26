@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getBytecode
+  - - meta
+    - name: description
+      content: Retrieves the bytecode at an address.
+  - - meta
+    - property: og:description
+      content: Retrieves the bytecode at an address.
+
+---
+
 # getBytecode
 
 Retrieves the bytecode at an address.

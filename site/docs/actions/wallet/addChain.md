@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: addChain
+  - - meta
+    - name: description
+      content: Adds an EVM chain to the wallet.
+  - - meta
+    - property: og:description
+      content: Adds an EVM chain to the wallet.
+
+---
+
 # addChain
 
 Adds an EVM chain to the wallet.

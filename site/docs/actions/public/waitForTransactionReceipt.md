@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: waitForTransactionReceipt
+  - - meta
+    - name: description
+      content: Retrieves a Transaction Receipt for a given Transaction hash.
+  - - meta
+    - property: og:description
+      content: Retrieves a Transaction Receipt for a given Transaction hash.
+
+---
+
 # waitForTransactionReceipt
 
 Waits for the [Transaction](/docs/glossary/terms#TODO) to be included on a [Block](/docs/glossary/terms#TODO) (one confirmation), and then returns the [Transaction Receipt](/docs/glossary/terms#TODO). If the Transaction reverts, then the action will throw an error.

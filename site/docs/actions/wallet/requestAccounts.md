@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: requestAccounts
+  - - meta
+    - name: description
+      content: Requests a list of accounts managed by a wallet.
+  - - meta
+    - property: og:description
+      content: Requests a list of accounts managed by a wallet.
+
+---
+
 # requestAccounts
 
 Requests a list of accounts managed by a wallet.

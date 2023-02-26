@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: watchEvent
+  - - meta
+    - name: description
+      content: Watches and returns emitted Event Logs.
+  - - meta
+    - property: og:description
+      content: Watches and returns emitted Event Logs.
+
+---
+
 # watchEvent
 
 Watches and returns emitted [Event Logs](/docs/glossary/terms#TODO).

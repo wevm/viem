@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Fallback Transport
+  - - meta
+    - name: description
+      content: A function to create a Fallback Transport for a Client.
+  - - meta
+    - property: og:description
+      content: A function to create a Fallback Transport for a Client.
+
+---
+
 # Fallback Transport
 
 The `fallback` Transport consumes **multiple** Transports. If a Transport request fails, it will fall back to the next one in the list.

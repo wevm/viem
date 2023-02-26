@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getChainId
+  - - meta
+    - name: description
+      content: Returns the chain ID associated with the current network
+  - - meta
+    - property: og:description
+      content: Returns the chain ID associated with the current network
+
+---
+
 # getChainId
 
 Returns the chain ID associated with the current network

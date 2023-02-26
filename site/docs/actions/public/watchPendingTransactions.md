@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: watchPendingTransactions
+  - - meta
+    - name: description
+      content: Watches and returns pending transaction hashes.
+  - - meta
+    - property: og:description
+      content: Watches and returns pending transaction hashes.
+
+---
+
 # watchPendingTransactions
 
 Watches and returns pending transaction hashes.

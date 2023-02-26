@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: watchAsset
+  - - meta
+    - name: description
+      content: Requests that the user tracks the token in their wallet.
+  - - meta
+    - property: og:description
+      content: Requests that the user tracks the token in their wallet.
+
+---
+
 # watchAsset
 
 Requests that the user tracks the token in their wallet. Returns a boolean indicating if the token was successfully added.

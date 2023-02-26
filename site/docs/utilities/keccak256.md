@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: keccak256
+  - - meta
+    - name: description
+      content: Calculates the Keccak256 hash of a byte array.
+  - - meta
+    - property: og:description
+      content: Calculates the Keccak256 hash of a byte array.
+
+---
+
 # keccak256
 
 Calculates the [Keccak256](https://en.wikipedia.org/wiki/SHA-3) hash of a byte array.

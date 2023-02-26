@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: decodeErrorResult
+  - - meta
+    - name: description
+      content: Decodes reverted error from a contract function call.
+  - - meta
+    - property: og:description
+      content: Decodes reverted error from a contract function call.
+
+---
+
 # decodeErrorResult
 
 Decodes reverted error from a contract function call.

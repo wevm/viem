@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getEnsName
+  - - meta
+    - name: description
+      content: Gets primary name for specified address.
+  - - meta
+    - property: og:description
+      content: Gets primary name for specified address.
+
+---
+
 # getEnsName
 
 Gets primary name for specified address.

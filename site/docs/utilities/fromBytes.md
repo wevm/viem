@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: fromBytes
+  - - meta
+    - name: description
+      content: Decodes a byte array to a string, hex value, boolean or number.
+  - - meta
+    - property: og:description
+      content: Decodes a byte array to a string, hex value, boolean or number.
+
+---
+
 # fromBytes
 
 Decodes a byte array to a string, hex value, boolean or number.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getEventSelector
+  - - meta
+    - name: description
+      content: Returns the event selector for a given event definition.
+  - - meta
+    - property: og:description
+      content: Returns the event selector for a given event definition.
+
+---
+
 # getEventSelector
 
 Returns the event selector for a given event definition.

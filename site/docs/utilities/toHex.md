@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: toHex
+  - - meta
+    - name: description
+      content: Encodes a string, number, boolean or byte array to a hex value value.
+  - - meta
+    - property: og:description
+      content: Encodes a string, number, boolean or byte array to a hex value value.
+
+---
+
 # toHex
 
 Encodes a string, number, boolean or byte array to a hex value value.

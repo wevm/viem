@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Chains
+  - - meta
+    - name: description
+      content: A list of chains to use with viem.
+  - - meta
+    - property: og:description
+      content: A list of chains to use with viem.
+
+---
+
 # Chains
 
 The `viem/chains` entrypoint proxies the [`@wagmi/chains` NPM package](https://npm.im/@wagmi/chains), an official wagmi package which contains references to popular EVM-compatible chains such as: Polygon, Optimism, Avalanche, and more.

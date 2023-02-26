@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: createEventFilter
+  - - meta
+    - name: description
+      content: An Action for creating a new Event Filter.
+  - - meta
+    - property: og:description
+      content: An Action for creating a new Event Filter.
+
+---
+
 # createEventFilter
 
 Creates a Filter to listen for new events that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).

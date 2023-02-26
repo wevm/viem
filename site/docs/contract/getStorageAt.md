@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getStorageAt
+  - - meta
+    - name: description
+      content: Returns the value from a storage slot at a given address.
+  - - meta
+    - property: og:description
+      content: Returns the value from a storage slot at a given address.
+
+---
+
 # getStorageAt
 
 Returns the value from a storage slot at a given address.

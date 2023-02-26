@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: isAddress
+  - - meta
+    - name: description
+      content: Checks if the address is valid.
+  - - meta
+    - property: og:description
+      content: Checks if the address is valid.
+
+---
+
 # isAddress
 
 Checks if the address is valid.

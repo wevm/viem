@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Custom Transport
+  - - meta
+    - name: description
+      content: A function to create a Custom Transport for a Client.
+  - - meta
+    - property: og:description
+      content: A function to create a Custom Transport for a Client.
+
+---
+
 # Custom Transport
 
 The `custom` Transport accepts an [EIP-1193 Ethereum Provider](https://eips.ethereum.org/EIPS/eip-1193) (with at least a `request` attribute) as a parameter. This transport is useful for integrating with injected wallets, wallets that provide an EIP-1193 provider (eg. WalletConnect or Coinbase SDK), or even providing your own custom [EIP-1193 `request` function](https://eips.ethereum.org/EIPS/eip-1193#request-1).

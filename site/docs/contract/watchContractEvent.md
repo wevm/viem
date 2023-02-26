@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: watchContractEvent
+  - - meta
+    - name: description
+      content: Watches and returns emitted contract event logs.
+  - - meta
+    - property: og:description
+      content: Watches and returns emitted contract event logs.
+
+---
+
 # watchContractEvent
 
 Watches and returns emitted contract event logs.

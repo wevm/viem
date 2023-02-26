@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getAccounts
+  - - meta
+    - name: description
+      content: Returns a list of addresses owned by the wallet or client.
+  - - meta
+    - property: og:description
+      content: Returns a list of addresses owned by the wallet or client.
+
+---
+
 # getAccounts
 
 Returns a list of addresses owned by the wallet or client.

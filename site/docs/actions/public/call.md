@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: call
+  - - meta
+    - name: description
+      content: An Action for executing a new message call.
+  - - meta
+    - property: og:description
+      content: An Action for executing a new message call.
+
+---
+
 # call
 
 Executes a new message call immediately without submitting a transaction to the network.

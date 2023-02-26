@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getFeeHistory
+  - - meta
+    - name: description
+      content: Returns a collection of historical gas information.
+  - - meta
+    - property: og:description
+      content: Returns a collection of historical gas information.
+
+---
+
 # getFeeHistory
 
 Returns a collection of historical gas information.

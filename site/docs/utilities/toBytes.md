@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: toBytes
+  - - meta
+    - name: description
+      content: Encodes a string, hex value, number or boolean to a byte array.
+  - - meta
+    - property: og:description
+      content: Encodes a string, hex value, number or boolean to a byte array.
+
+---
+
 # toBytes
 
 Encodes a string, hex value, number or boolean to a byte array.

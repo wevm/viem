@@ -1,6 +1,20 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: multicall
+  - - meta
+    - name: description
+      content: Batches up multiple functions on a contract in a single call.
+  - - meta
+    - property: og:description
+      content: Batches up multiple functions on a contract in a single call.
+
+---
+
 # multicall
 
-Similar to [`readContract`](/docs/contract/readContract), but batches up & contracts multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
+Similar to [`readContract`](/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall). 
 
 ## Usage
 

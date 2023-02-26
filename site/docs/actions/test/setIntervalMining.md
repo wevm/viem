@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setIntervalMining
+  - - meta
+    - name: description
+      content: Sets the automatic mining interval (in seconds) of blocks.
+  - - meta
+    - property: og:description
+      content: Sets the automatic mining interval (in seconds) of blocks.
+
+---
+
 # setIntervalMining
 
 Sets the automatic mining interval (in seconds) of blocks. Setting the interval to `0` will disable automatic mining.

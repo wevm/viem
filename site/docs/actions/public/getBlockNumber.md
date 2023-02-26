@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getBlockNumber
+  - - meta
+    - name: description
+      content: Returns the number of the most recent block seen.
+  - - meta
+    - property: og:description
+      content: Returns the number of the most recent block seen.
+
+---
+
 # getBlockNumber
 
 Returns the number of the most recent block seen.

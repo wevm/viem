@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: parseGwei
+  - - meta
+    - name: description
+      content: Converts a string representation of gwei to numerical wei.
+  - - meta
+    - property: og:description
+      content: Converts a string representation of gwei to numerical wei.
+
+---
+
 # parseGwei
 
 Converts a string representation of gwei to numerical wei.

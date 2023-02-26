@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Introduction to Clients & Transports
+  - - meta
+    - name: description
+      content: A brief introduction to Clients & Transports.
+  - - meta
+    - property: og:description
+      content: A brief introduction to Clients & Transports.
+
+---
+
 # Introduction to Clients & Transports
 
 ## Clients

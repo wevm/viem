@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: size
+  - - meta
+    - name: description
+      content: Retrieves the size of the value (in bytes).
+  - - meta
+    - property: og:description
+      content: Retrieves the size of the value (in bytes).
+
+---
+
 # size
 
 Retrieves the size of the value (in bytes).

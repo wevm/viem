@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: createContractEventFilter
+  - - meta
+    - name: description
+      content: Creates a Filter to retrieve contract event logs.
+  - - meta
+    - property: og:description
+      content: Creates a Filter to retrieve contract event logs.
+
+---
+
 # createContractEventFilter
 
 Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges) or [`getFilterLogs`](/docs/actions/public/getFilterChanges).

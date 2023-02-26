@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Why viem
+  - - meta
+    - name: description
+      content: A brief preamble on why we built viem.
+  - - meta
+    - property: og:description
+      content: A brief preamble on why we built viem.
+
+---
+
 # Why viem
 
 The current state of low-level Ethereum interface abstractions lack in at least one of the following four areas: **developer experience**, **stability**, **bundle size** and/or **performance** – it's a quadrilemma.

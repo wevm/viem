@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getAutomine
+  - - meta
+    - name: description
+      content: Returns the automatic mining status of the node.
+  - - meta
+    - property: og:description
+      content: Returns the automatic mining status of the node.
+
+---
+
 # getAutomine
 
 Returns the automatic mining status of the node.

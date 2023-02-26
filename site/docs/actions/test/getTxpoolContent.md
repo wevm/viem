@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getTxpoolContent
+  - - meta
+    - name: description
+      content: Returns the details of all transactions currently pending for inclusion in the next block(s).
+  - - meta
+    - property: og:description
+      content: Returns the details of all transactions currently pending for inclusion in the next block(s).
+
+---
+
 # getTxpoolContent
 
 Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only. [Read more](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool).

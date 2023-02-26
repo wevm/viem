@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: fromRlp
+  - - meta
+    - name: description
+      content: Decodes a RLP value into a decoded hex value or byte array.
+  - - meta
+    - property: og:description
+      content: Decodes a RLP value into a decoded hex value or byte array.
+
+---
+
 # fromRlp
 
 Decodes a [Recursive-Length Prefix (RLP)](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/enc) value into a decoded hex value or byte array.

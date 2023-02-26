@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: estimateContractGas
+  - - meta
+    - name: description
+      content: Estimates the gas required to successfully execute a contract write function call. 
+  - - meta
+    - property: og:description
+      content: Estimates the gas required to successfully execute a contract write function call. 
+
+---
+
 # estimateContractGas
 
 Estimates the gas required to successfully execute a contract write function call. 

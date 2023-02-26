@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setStorageAt
+  - - meta
+    - name: description
+      content: Writes to a slot of an account's storage.
+  - - meta
+    - property: og:description
+      content: Writes to a slot of an account's storage.
+
+---
+
 # setStorageAt
 
 Writes to a slot of an account's storage.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: impersonateAccount
+  - - meta
+    - name: description
+      content: Impersonate an account or contract address.
+  - - meta
+    - property: og:description
+      content: Impersonate an account or contract address.
+
+---
+
 # impersonateAccount
 
 Impersonate an account or contract address. This lets you send transactions from that account even if you don't have access to its private key.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getEnsAddress
+  - - meta
+    - name: description
+      content: Gets address for ENS name.
+  - - meta
+    - property: og:description
+      content: Gets address for ENS name.
+
+---
+
 # getEnsAddress
 
 Gets address for ENS name.

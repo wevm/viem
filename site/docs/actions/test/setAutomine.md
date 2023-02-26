@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setAutomine
+  - - meta
+    - name: description
+      content: Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
+  - - meta
+    - property: og:description
+      content: Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
+
+---
+
 # setAutomine
 
 Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.

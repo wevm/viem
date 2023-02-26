@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: parseUnit
+  - - meta
+    - name: description
+      content: Multiplies a string representation of a number by a given exponent of base 10.
+  - - meta
+    - property: og:description
+      content: Multiplies a string representation of a number by a given exponent of base 10.
+
+---
+
 # parseUnit
 
 Multiplies a string representation of a number by a given exponent of base 10 (10<sup>exponent</sup>).

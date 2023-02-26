@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: toRlp
+  - - meta
+    - name: description
+      content: Encodes a hex value or byte array into a RLP encoded value.
+  - - meta
+    - property: og:description
+      content: Encodes a hex value or byte array into a RLP encoded value.
+
+---
+
 # toRlp
 
 Encodes a hex value or byte array into a [Recursive-Length Prefix (RLP)](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/enc) encoded value.

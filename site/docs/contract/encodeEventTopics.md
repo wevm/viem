@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: encodeEventTopics
+  - - meta
+    - name: description
+      content: Encodes an event (with optional arguments) into filter topics.
+  - - meta
+    - property: og:description
+      content: Encodes an event (with optional arguments) into filter topics.
+
+---
+
 # encodeEventTopics
 
 Encodes an event (with optional arguments) into filter topics.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: createBlockFilter
+  - - meta
+    - name: description
+      content: An Action for creating a new Block Filter.
+  - - meta
+    - property: og:description
+      content: An Action for creating a new Block Filter.
+
+---
+
 # createBlockFilter
 
 Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](/TODO).

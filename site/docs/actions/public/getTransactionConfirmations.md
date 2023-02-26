@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getTransactionConfirmations
+  - - meta
+    - name: description
+      content: Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
+  - - meta
+    - property: og:description
+      content: Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
+
+---
+
 # getTransactionConfirmations
 
 Returns the number of blocks passed (confirmations) since the transaction was processed on a block.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: switchChain
+  - - meta
+    - name: description
+      content: Switch the target chain in a wallet.
+  - - meta
+    - property: og:description
+      content: Switch the target chain in a wallet.
+
+---
+
 # switchChain
 
 Switch the target chain in a wallet.

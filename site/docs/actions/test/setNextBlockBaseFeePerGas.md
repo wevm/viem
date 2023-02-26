@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setNextBlockBaseFeePerGas
+  - - meta
+    - name: description
+      content: Sets the next block's base fee per gas.
+  - - meta
+    - property: og:description
+      content: Sets the next block's base fee per gas.
+
+---
+
 # setNextBlockBaseFeePerGas
 
 Sets the next block's base fee per gas.

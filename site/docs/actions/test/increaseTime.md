@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: increaseTime
+  - - meta
+    - name: description
+      content: Jump forward in time by the given amount of time, in seconds.
+  - - meta
+    - property: og:description
+      content: Jump forward in time by the given amount of time, in seconds.
+
+---
+
 # increaseTime
 
 Jump forward in time by the given amount of time, in seconds.

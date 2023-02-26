@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: encodeFunctionResult
+  - - meta
+    - name: description
+      content: Encodes structured return data into ABI encoded data.
+  - - meta
+    - property: og:description
+      content: Encodes structured return data into ABI encoded data.
+
+---
+
 # encodeFunctionResult
 
 Encodes structured return data into ABI encoded data. It is the opposite of [`decodeFunctionResult`](/docs/contract/decodeFunctionResult).

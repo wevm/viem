@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: requestPermissions
+  - - meta
+    - name: description
+      content: Requests permissions for a wallet.
+  - - meta
+    - property: og:description
+      content: Requests permissions for a wallet.
+
+---
+
 # requestPermissions
 
 Requests permissions for a wallet.

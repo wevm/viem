@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getFunctionSelector
+  - - meta
+    - name: description
+      content: Returns the function selector (4 byte encoding) for a given function definition.
+  - - meta
+    - property: og:description
+      content: Returns the function selector (4 byte encoding) for a given function definition.
+
+---
+
 # getFunctionSelector
 
 Returns the function selector (4 byte encoding) for a given function definition.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: isBytes
+  - - meta
+    - name: description
+      content: Checks whether the value is a byte array or not.
+  - - meta
+    - property: og:description
+      content: Checks whether the value is a byte array or not.
+
+---
+
 # isBytes
 
 Checks whether the value is a byte array or not.

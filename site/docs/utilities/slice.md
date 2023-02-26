@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: slice
+  - - meta
+    - name: description
+      content: Returns a section of the hex or byte array given a start/end bytes offset.
+  - - meta
+    - property: og:description
+      content: Returns a section of the hex or byte array given a start/end bytes offset.
+
+---
+
 # slice
 
 Returns a section of the hex or byte array given a start/end bytes offset.

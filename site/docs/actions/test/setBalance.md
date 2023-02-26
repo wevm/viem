@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setBalance
+  - - meta
+    - name: description
+      content: Modifies the balance of an account.
+  - - meta
+    - property: og:description
+      content: Modifies the balance of an account.
+
+---
+
 # setBalance
 
 Modifies the balance of an account.

@@ -1,6 +1,20 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getAddress
+  - - meta
+    - name: description
+      content: Converts an address into an address that is checksum encoded.
+  - - meta
+    - property: og:description
+      content: Converts an address into an address that is checksum encoded.
+
+---
+
 # getAddress
 
-Converts an address to an address that is [checksum encoded](https://eips.ethereum.org/EIPS/eip-55).
+Converts an address into an address that is [checksum encoded](https://eips.ethereum.org/EIPS/eip-55).
 
 ## Import
 

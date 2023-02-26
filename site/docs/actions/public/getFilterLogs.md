@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getFilterLogs
+  - - meta
+    - name: description
+      content: Returns a list of event logs since the filter was created. 
+  - - meta
+    - property: og:description
+      content: Returns a list of event logs since the filter was created. 
+
+---
+
 # getFilterLogs
 
 Returns a list of **event** logs since the filter was created. 

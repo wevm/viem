@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: labelhash
+  - - meta
+    - name: description
+      content: Hashes ENS label.
+  - - meta
+    - property: og:description
+      content: Hashes ENS label.
+
+---
+
 # labelhash
 
 Hashes ENS label.

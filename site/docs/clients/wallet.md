@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Wallet Client
+  - - meta
+    - name: description
+      content: A function to create a Wallet Client.
+  - - meta
+    - property: og:description
+      content: A function to create a Wallet Client.
+
+---
+
 # Wallet Client
 
 The `createWalletClient` function sets up a Wallet Client with a given [Transport](/docs/clients/intro).

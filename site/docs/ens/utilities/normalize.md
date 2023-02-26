@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: normalize
+  - - meta
+    - name: description
+      content: Normalizes ENS name to UTS46.
+  - - meta
+    - property: og:description
+      content: Normalizes ENS name to UTS46.
+
+---
+
 # normalize
 
 Normalizes ENS name to [UTS46](https://unicode.org/reports/tr46).

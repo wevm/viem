@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: fromHex
+  - - meta
+    - name: description
+      content: Decodes a hex value to a string, number or byte array.
+  - - meta
+    - property: og:description
+      content: Decodes a hex value to a string, number or byte array.
+
+---
+
 # fromHex
 
 Decodes a hex value to a string, number or byte array.

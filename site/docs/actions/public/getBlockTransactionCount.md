@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getBlockTransactionCount
+  - - meta
+    - name: description
+      content: Returns the number of Transactions at a block number, hash or tag.
+  - - meta
+    - property: og:description
+      content: Returns the number of Transactions at a block number, hash or tag.
+
+---
+
 # getBlockTransactionCount
 
 Returns the number of Transactions at a block number, hash or tag.

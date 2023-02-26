@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setCode
+  - - meta
+    - name: description
+      content: Modifies the bytecode stored at an account's address.
+  - - meta
+    - property: og:description
+      content: Modifies the bytecode stored at an account's address.
+
+---
+
 # setCode
 
 Modifies the bytecode stored at an account's address.

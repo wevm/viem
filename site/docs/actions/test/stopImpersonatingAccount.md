@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: stopImpersonatingAccount
+  - - meta
+    - name: description
+      content: Stop impersonating an account after having previously used `impersonateAccount`.
+  - - meta
+    - property: og:description
+      content: Stop impersonating an account after having previously used `impersonateAccount`.
+
+---
+
 # stopImpersonatingAccount
 
 Stop impersonating an account after having previously used [`impersonateAccount`](/docs/actions/test/impersonateAccount).

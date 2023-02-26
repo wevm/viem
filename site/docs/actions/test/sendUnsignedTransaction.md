@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: sendUnsignedTransaction
+  - - meta
+    - name: description
+      content: Executes a transaction regardless of the signature.
+  - - meta
+    - property: og:description
+      content: Executes a transaction regardless of the signature.
+
+---
+
 # sendUnsignedTransaction
 
 Executes a transaction regardless of the signature.

@@ -1,6 +1,20 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: decodeFunctionData
+  - - meta
+    - name: description
+      content: Decodes ABI encoded data (4 byte selector & arguments) into a function name and arguments.
+  - - meta
+    - property: og:description
+      content: Decodes ABI encoded data (4 byte selector & arguments) into a function name and arguments.
+
+---
+
 # decodeFunctionData
 
-Decodes ABI encoded data (4byte selector & arguments) into a function name and arguments.
+Decodes ABI encoded data (4 byte selector & arguments) into a function name and arguments.
 
 The opposite of [`encodeFunctionData`](/docs/contract/encodeFunctionData).
 

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getTransactionCount
+  - - meta
+    - name: description
+      content: Returns the number of Transactions an Account has broadcast / sent.
+  - - meta
+    - property: og:description
+      content: Returns the number of Transactions an Account has broadcast / sent.
+
+---
+
 # getTransactionCount
 
 Returns the number of [Transactions](/docs/glossary/terms#TODO) an Account has broadcast / sent.

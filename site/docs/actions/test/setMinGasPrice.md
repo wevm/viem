@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setMinGasPrice
+  - - meta
+    - name: description
+      content: Change the minimum gas price accepted by the network (in wei).
+  - - meta
+    - property: og:description
+      content: Change the minimum gas price accepted by the network (in wei).
+
+---
+
 # setMinGasPrice
 
 Change the minimum gas price accepted by the network (in wei).

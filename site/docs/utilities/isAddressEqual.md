@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: isAddressEqual
+  - - meta
+    - name: description
+      content: Checks if the given addresses (checksummed) are equal.
+  - - meta
+    - property: og:description
+      content: Checks if the given addresses (checksummed) are equal.
+
+---
+
 # isAddressEqual
 
 Checks if the given addresses (checksummed) are equal.

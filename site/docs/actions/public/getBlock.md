@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getBlock
+  - - meta
+    - name: description
+      content: Returns information about a block at a block number, hash or tag.
+  - - meta
+    - property: og:description
+      content: Returns information about a block at a block number, hash or tag.
+
+---
+
 # getBlock
 
 Returns information about a block at a block number, hash or tag.

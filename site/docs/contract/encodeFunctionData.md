@@ -1,6 +1,20 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: encodeFunctionData
+  - - meta
+    - name: description
+      content: Encodes the function name and parameters into an ABI encoded value (4 byte selector & arguments).
+  - - meta
+    - property: og:description
+      content: Encodes the function name and parameters into an ABI encoded value (4 byte selector & arguments).
+
+---
+
 # encodeFunctionData
 
-Encodes the function name and parameters into an ABI encoded value (4byte selector & arguments).
+Encodes the function name and parameters into an ABI encoded value (4 byte selector & arguments).
 
 ## Install
 

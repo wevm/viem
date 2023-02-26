@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: getGasPrice
+  - - meta
+    - name: description
+      content: Returns the current price of gas (in wei).
+  - - meta
+    - property: og:description
+      content: Returns the current price of gas (in wei).
+
+---
+
 # getGasPrice
 
 Returns the current price of gas (in wei).

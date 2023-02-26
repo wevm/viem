@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: concat
+  - - meta
+    - name: description
+      content: Concatenates a set of hex values or byte arrays.
+  - - meta
+    - property: og:description
+      content: Concatenates a set of hex values or byte arrays.
+
+---
+
 # concat
 
 Concatenates a set of hex values or byte arrays.

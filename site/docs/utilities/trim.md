@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: trim
+  - - meta
+    - name: description
+      content: Trims the leading or trailing zeros from a hex value or byte array.
+  - - meta
+    - property: og:description
+      content: Trims the leading or trailing zeros from a hex value or byte array.
+
+---
+
 # trim
 
 Trims the leading or trailing zeros from a hex value or byte array.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: decodeAbi
+  - - meta
+    - name: description
+      content: Decodes ABI encoded data.
+  - - meta
+    - property: og:description
+      content: Decodes ABI encoded data.
+
+---
+
 # decodeAbi
 
 Decodes ABI encoded data using the [ABI specification](https://solidity.readthedocs.io/en/latest/abi-spec.html), given a set of ABI parameters (`inputs`/`outputs`) and the encoded ABI data.

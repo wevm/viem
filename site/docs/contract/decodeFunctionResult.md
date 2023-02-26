@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: decodeFunctionResult
+  - - meta
+    - name: description
+      content: Decodes the result of a function call on a contract.
+  - - meta
+    - property: og:description
+      content: Decodes the result of a function call on a contract.
+
+---
+
 # decodeFunctionResult
 
 Decodes the result of a function call on a contract.

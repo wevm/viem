@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: deployContract
+  - - meta
+    - name: description
+      content: Deploys a contract to the network, given bytecode & constructor arguments.
+  - - meta
+    - property: og:description
+      content: Deploys a contract to the network, given bytecode & constructor arguments.
+
+---
+
 # deployContract
 
 Deploys a contract to the network, given bytecode & constructor arguments.

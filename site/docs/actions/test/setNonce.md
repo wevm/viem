@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: setNonce
+  - - meta
+    - name: description
+      content: Modifies (overrides) the nonce of an account.
+  - - meta
+    - property: og:description
+      content: Modifies (overrides) the nonce of an account.
+
+---
+
 # setNonce
 
 Modifies (overrides) the nonce of an account.

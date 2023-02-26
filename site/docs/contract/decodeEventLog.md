@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: decodeEventLog
+  - - meta
+    - name: description
+      content: Decodes ABI encoded event topics & data.
+  - - meta
+    - property: og:description
+      content: Decodes ABI encoded event topics & data.
+
+---
+
 # decodeEventLog
 
 Decodes ABI encoded event topics & data (from an [Event Log](/docs/glossary/terms#TODO)) into an event name and structured arguments (both indexed & non-indexed).

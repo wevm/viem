@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: WebSocket Transport
+  - - meta
+    - name: description
+      content: A function to create a WebSocket Transport for a Client.
+  - - meta
+    - property: og:description
+      content: A function to create a WebSocket Transport for a Client.
+
+---
+
 # WebSocket Transport
 
 The `webSocket` Transport connects to a JSON-RPC API via a WebSocket.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: reset
+  - - meta
+    - name: description
+      content: Resets the fork back to its original state.
+  - - meta
+    - property: og:description
+      content: Resets the fork back to its original state.
+
+---
+
 # reset
 
 Resets the fork back to its original state.

@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: signMessage
+  - - meta
+    - name: description
+      content: Calculates an Ethereum-specific signature.
+  - - meta
+    - property: og:description
+      content: Calculates an Ethereum-specific signature.
+
+---
+
 # signMessage
 
 Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
