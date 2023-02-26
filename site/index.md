@@ -2,7 +2,8 @@
 aside: false
 editLink: false
 title: viem
-titleTemplate: TypeScript Interface for Ethereum
+titleTemplate: :title · TypeScript Interface for Ethereum
+description: Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.
 ---
 
 <script setup lang="ts">
