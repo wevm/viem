@@ -14,9 +14,9 @@ head:
 
 # Public Client
 
-The `createPublicClient` function sets up a Public Client with a given [Transport](/docs/clients/intro) configured for a [Chain](/docs/clients/chains).
+A Public Client is an interface to "public" JSON-RPC methods such as retrieving block numbers, transactions, reading from smart contracts, etc through [Public Actions](/docs/actions/public/introduction).
 
-The Public Client provides access to [Public Actions](#supported-actions)
+The `createPublicClient` function sets up a Public Client with a given [Transport](/docs/clients/intro) configured for a [Chain](/docs/clients/chains).
 
 ## Import
 
@@ -36,6 +36,12 @@ const client = createPublicClient({
   chain: mainnet,
   transport: http()
 })
+```
+
+Then you can consume [Public Actions](/docs/actions/public/introduction):
+
+```ts
+const blockNumber = await client.getBlockNumber() // [!code focus:10]
 ```
 
 ## Parameters

@@ -14,9 +14,9 @@ head:
 
 # Test Client
 
-The `createTestClient` function sets up a Test RPC Client with a given [Transport](/docs/clients/intro).
+A Test Client is an interface to "test" JSON-RPC methods accessible through a local Ethereum test node such as [Anvil](https://book.getfoundry.sh/anvil/) or [Hardhat](https://hardhat.org/) such as mining blocks, impersonating accounts, setting fees, etc through [Test Actions](/docs/actions/test/introduction).
 
-The Test RPC Client provides access to [Test Actions](#supported-actions).
+The `createTestClient` function sets up a Test RPC Client with a given [Transport](/docs/clients/intro).
 
 ## Import
 
@@ -37,6 +37,12 @@ const client = createTestClient({
   mode: 'anvil',
   transport: http(), 
 })
+```
+
+Then you can consume [Test Actions](/docs/actions/test/introduction):
+
+```ts
+const mine = await client.mine({ blocks: 1 }) // [!code focus:10]
 ```
 
 ## Parameters
