@@ -11,6 +11,7 @@ test('default', async () => {
       "addChain": [Function],
       "deployContract": [Function],
       "getAccounts": [Function],
+      "getChainId": [Function],
       "getPermissions": [Function],
       "requestAccounts": [Function],
       "requestPermissions": [Function],
