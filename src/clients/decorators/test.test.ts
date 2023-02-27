@@ -19,8 +19,8 @@ test('default', async () => {
     {
       "dropTransaction": [Function],
       "getAutomine": [Function],
-      "getTxPoolContent": [Function],
-      "getTxPoolStatus": [Function],
+      "getTxpoolContent": [Function],
+      "getTxpoolStatus": [Function],
       "impersonateAccount": [Function],
       "increaseTime": [Function],
       "inspectTxpool": [Function],
@@ -64,12 +64,12 @@ describe('smoke test', () => {
     expect(await testClient.getAutomine()).toBeDefined()
   })
 
-  test('getTxPoolContent', async () => {
-    expect(await testClient.getTxPoolContent()).toBeDefined()
+  test('getTxpoolContent', async () => {
+    expect(await testClient.getTxpoolContent()).toBeDefined()
   })
 
-  test('getTxPoolStatus', async () => {
-    expect(await testClient.getTxPoolStatus()).toBeDefined()
+  test('getTxpoolStatus', async () => {
+    expect(await testClient.getTxpoolStatus()).toBeDefined()
   })
 
   test.skip('impersonateAccount', async () => {

@@ -5,10 +5,10 @@ export { getAutomine } from './getAutomine'
 export type { GetAutomineResponse } from './getAutomine'
 
 export { getTxpoolContent } from './getTxpoolContent'
-export type { GetTxPoolContentResponse } from './getTxpoolContent'
+export type { GetTxpoolContentResponse } from './getTxpoolContent'
 
 export { getTxpoolStatus } from './getTxpoolStatus'
-export type { GetTxPoolStatusResponse } from './getTxpoolStatus'
+export type { GetTxpoolStatusResponse } from './getTxpoolStatus'
 
 export { impersonateAccount } from './impersonateAccount'
 export type { ImpersonateAccountArgs } from './impersonateAccount'

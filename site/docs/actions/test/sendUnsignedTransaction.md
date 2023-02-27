@@ -21,12 +21,12 @@ Executes a transaction regardless of the signature.
 ```ts
 import { testClient } from '.'
  
-const { hash } = await testClient.sendUnsignedTransaction({ // [!code focus:99]
+const hash = await testClient.sendUnsignedTransaction({ // [!code focus:99]
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
-// { hash: '0x...' }
+// '0x...'
 ```
 
 ## Returns

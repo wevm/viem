@@ -1,8 +1,8 @@
 import type {
   DropTransactionArgs,
   GetAutomineResponse,
-  GetTxPoolContentResponse,
-  GetTxPoolStatusResponse,
+  GetTxpoolContentResponse,
+  GetTxpoolStatusResponse,
   ImpersonateAccountArgs,
   IncreaseTimeArgs,
   InspectTxpoolResponse,
@@ -60,8 +60,8 @@ import type { TestClient } from '../createTestClient'
 export type TestActions<TChain extends Chain = Chain> = {
   dropTransaction: (args: DropTransactionArgs) => Promise<void>
   getAutomine: () => Promise<GetAutomineResponse>
-  getTxPoolContent: () => Promise<GetTxPoolContentResponse>
-  getTxPoolStatus: () => Promise<GetTxPoolStatusResponse>
+  getTxpoolContent: () => Promise<GetTxpoolContentResponse>
+  getTxpoolStatus: () => Promise<GetTxpoolStatusResponse>
   impersonateAccount: (args: ImpersonateAccountArgs) => Promise<void>
   increaseTime: (args: IncreaseTimeArgs) => Promise<Quantity>
   inspectTxpool: () => Promise<InspectTxpoolResponse>
@@ -104,8 +104,8 @@ export const testActions = <
 ): TestActions<TChain> => ({
   dropTransaction: (args) => dropTransaction(client, args),
   getAutomine: () => getAutomine(client),
-  getTxPoolContent: () => getTxpoolContent(client),
-  getTxPoolStatus: () => getTxpoolStatus(client),
+  getTxpoolContent: () => getTxpoolContent(client),
+  getTxpoolStatus: () => getTxpoolStatus(client),
   impersonateAccount: (args) => impersonateAccount(client, args),
   increaseTime: (args) => increaseTime(client, args),
   inspectTxpool: () => inspectTxpool(client),
