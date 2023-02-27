@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest'
 
 import { accounts, address, testClient, walletClient } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { sendTransaction } from '../wallet/sendTransaction'
 import { impersonateAccount } from './impersonateAccount'
 
 test('impersonates account', async () => {
   await expect(
     sendTransaction(walletClient, {
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
       to: accounts[0].address,
       value: parseEther('1'),
     }),
@@ -18,7 +18,7 @@ test('impersonates account', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
       to: accounts[0].address,
       value: parseEther('1'),
     }),

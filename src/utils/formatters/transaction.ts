@@ -31,6 +31,7 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
     blockNumber: transaction.blockNumber
       ? BigInt(transaction.blockNumber)
       : null,
+    chainId: transaction.chainId ? hexToNumber(transaction.chainId) : undefined,
     gas: transaction.gas ? BigInt(transaction.gas) : undefined,
     gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
     maxFeePerGas: transaction.maxFeePerGas

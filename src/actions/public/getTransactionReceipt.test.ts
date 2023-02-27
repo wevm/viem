@@ -4,7 +4,7 @@ import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { celo } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { Address, TransactionReceipt } from '../../types'
-import { parseEther, parseGwei } from '../../utils'
+import { getAccount, parseEther, parseGwei } from '../../utils'
 import { wait } from '../../utils/wait'
 import { mine } from '../test'
 import { getBlock, sendTransaction } from '..'
@@ -118,7 +118,7 @@ describe('e2e', () => {
     const maxPriorityFeePerGas = parseGwei('10')
 
     const hash = await sendTransaction(walletClient, {
-      from: sourceAccount.address,
+      account: getAccount(sourceAccount.address),
       to: targetAccount.address,
       value: parseEther('1'),
       maxFeePerGas,

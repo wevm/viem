@@ -9,6 +9,9 @@ test('exports index', () => {
       "panicReasons",
       "solidityError",
       "solidityPanic",
+      "etherUnits",
+      "gweiUnits",
+      "weiUnits",
     ]
   `)
 })

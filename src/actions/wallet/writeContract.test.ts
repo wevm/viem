@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+import { getAccount } from '../../utils'
 import {
   accounts,
   publicClient,
@@ -15,7 +16,7 @@ test('default', async () => {
   expect(
     await writeContract(walletClient, {
       ...wagmiContractConfig,
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       functionName: 'mint',
     }),
   ).toBeDefined()
@@ -25,7 +26,7 @@ test('overloaded function', async () => {
   expect(
     await writeContract(walletClient, {
       ...wagmiContractConfig,
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       functionName: 'mint',
       args: [69420n],
     }),
@@ -35,7 +36,7 @@ test('overloaded function', async () => {
 test('w/ simulateContract', async () => {
   const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     functionName: 'mint',
   })
   expect(await writeContract(walletClient, request)).toBeDefined()
@@ -45,7 +46,7 @@ test('w/ simulateContract', async () => {
   expect(
     await simulateContract(publicClient, {
       ...wagmiContractConfig,
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       functionName: 'mint',
     }),
   ).toBeDefined()
@@ -54,7 +55,7 @@ test('w/ simulateContract', async () => {
 test('w/ simulateContract (overloaded)', async () => {
   const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     functionName: 'mint',
     args: [69421n],
   })
@@ -65,7 +66,7 @@ test('w/ simulateContract (overloaded)', async () => {
   await expect(() =>
     simulateContract(publicClient, {
       ...wagmiContractConfig,
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       functionName: 'mint',
       args: [69421n],
     }),

@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClient, WalletClient } from '../../clients'
 
 export type GetGasPriceResponse = bigint
 
@@ -6,7 +6,7 @@ export type GetGasPriceResponse = bigint
  * @description Returns the current price of gas (in wei).
  */
 export async function getGasPrice(
-  client: PublicClient,
+  client: PublicClient | WalletClient,
 ): Promise<GetGasPriceResponse> {
   const gasPrice = await client.request({
     method: 'eth_gasPrice',

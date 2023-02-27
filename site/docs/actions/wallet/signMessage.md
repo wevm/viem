@@ -53,13 +53,13 @@ const message = await walletClient.signMessage({
 
 ### data
 
-- **Type:** `0x${string}`
+- **Type:** `string`
 
-Data to sign.
+Message to sign.
 
 ```ts
 const message = await walletClient.signMessage({
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  data: '0xdeadbeaf', // [!code focus:1]
+  data: toHex('hello world'), // [!code focus:1]
 })
 ```

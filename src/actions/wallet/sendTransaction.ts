@@ -1,12 +1,15 @@
+import { prepareRequest } from '../../utils'
 import type { WalletClient } from '../../clients'
 import { BaseError, ChainMismatchError } from '../../errors'
 import type {
+  Address,
   Chain,
   Formatter,
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
+import { Account } from '../../types/account'
 import {
   Formatted,
   TransactionRequestFormatter,
@@ -21,13 +24,14 @@ import { getChainId } from '../public'
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,
 > = MergeIntersectionProperties<
-  Formatted<TFormatter, TransactionRequest, true>,
+  Omit<Formatted<TFormatter, TransactionRequest, true>, 'from'>,
   TransactionRequest
 >
 
 export type SendTransactionArgs<TChain extends Chain = Chain> =
-  FormattedTransactionRequest<TransactionRequestFormatter<TChain>> &
-    (
+  FormattedTransactionRequest<TransactionRequestFormatter<TChain>> & {
+    account: Account
+  } & (
       | {
           assertChain?: false
           chain?: TChain
@@ -45,8 +49,8 @@ export async function sendTransaction<TChain extends Chain>(
   args: SendTransactionArgs<TChain>,
 ): Promise<SendTransactionResponse> {
   const {
+    account,
     chain,
-    from,
     accessList,
     assertChain = true,
     data,
@@ -66,12 +70,41 @@ export async function sendTransaction<TChain extends Chain>(
     if (assertChain && chain && currentChainId !== chain?.id)
       throw new ChainMismatchError({ chain, currentChainId })
 
+    if (account.type === 'externally-owned') {
+      const chainId = chain?.id ?? currentChainId
+
+      // Prepare the request for signing (assign appropriate fees, etc.)
+      const request = await prepareRequest(client, {
+        account,
+        accessList,
+        chain,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+        ...rest,
+      })
+
+      const signedRequest = (await account.signTransaction({
+        chainId,
+        ...request,
+      })) as Hash
+      return await client.request({
+        method: 'eth_sendRawTransaction',
+        params: [signedRequest],
+      })
+    }
+
     const formatter = chain?.formatters?.transactionRequest
-    const request_ = format(
+    const request = format(
       {
-        from,
         accessList,
         data,
+        from: account.address,
         gas,
         gasPrice,
         maxFeePerGas,
@@ -86,12 +119,10 @@ export async function sendTransaction<TChain extends Chain>(
         formatter: formatter || formatTransactionRequest,
       },
     )
-
-    const hash = await client.request({
+    return await client.request({
       method: 'eth_sendTransaction',
-      params: [request_],
+      params: [request],
     })
-    return hash
   } catch (err) {
     throw getTransactionError(err as BaseError, args)
   }

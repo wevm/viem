@@ -7,14 +7,14 @@ import {
   publicClient,
   web3Provider,
 } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 
 import { estimateGas } from './estimateGas'
 
 describe('Estimate Gas', () => {
   bench('viem: `estimateGas`', async () => {
     await estimateGas(publicClient, {
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       to: accounts[1].address,
       value: parseEther('1'),
     })

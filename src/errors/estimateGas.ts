@@ -12,8 +12,8 @@ export class EstimateGasExecutionError extends BaseError {
   constructor(
     cause: BaseError,
     {
+      account,
       docsPath,
-      from,
       chain,
       data,
       gas,
@@ -26,7 +26,7 @@ export class EstimateGasExecutionError extends BaseError {
     }: EstimateGasArgs & { chain?: Chain; docsPath?: string },
   ) {
     const prettyArgs = prettyPrint({
-      from,
+      from: account.address,
       to,
       value:
         typeof value !== 'undefined' &&

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { polygon } from '../chains'
+import { getAccount } from '../utils'
 import { address } from '../_test'
 import { BaseError } from './base'
 import { EstimateGasExecutionError } from './estimateGas'
@@ -8,7 +9,7 @@ describe('EstimateGasExecutionError', () => {
   test('no args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
       }),
     ).toMatchInlineSnapshot(`
       [EstimateGasExecutionError: error
@@ -23,7 +24,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ base args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -48,7 +49,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ eip1559 args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -75,7 +76,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ legacy args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -101,7 +102,7 @@ describe('EstimateGasExecutionError', () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
         chain: polygon,
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -129,7 +130,7 @@ describe('EstimateGasExecutionError', () => {
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
           chain: polygon,
-          from: address.vitalik,
+          account: getAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',
           gas: 420n,

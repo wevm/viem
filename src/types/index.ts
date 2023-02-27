@@ -1,5 +1,7 @@
 import 'abitype.config'
 
+export type { Account } from './account'
+
 export type {
   Block,
   BlockIdentifier,

@@ -32,6 +32,8 @@ export {
   getAbiItem,
 } from './abi'
 
+export { getAccount } from './account'
+
 export type {
   GetContractAddressOptions,
   GetCreate2AddressOptions,
@@ -123,7 +125,6 @@ export {
 } from './encoding'
 
 export {
-  assertRequest,
   containsNodeError,
   getCallError,
   getContractError,
@@ -139,14 +140,13 @@ export { getSocket, rpc } from './rpc'
 
 export { stringify } from './stringify'
 
+export { assertRequest, prepareRequest } from './transaction'
+
 export {
-  etherUnits,
   formatEther,
   formatGwei,
   formatUnit,
-  gweiUnits,
   parseUnit,
   parseEther,
   parseGwei,
-  weiUnits,
 } from './unit'

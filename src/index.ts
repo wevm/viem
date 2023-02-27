@@ -30,7 +30,7 @@ export {
   webSocket,
 } from './clients'
 
-export { multicall3Abi } from './constants'
+export { multicall3Abi, etherUnits, gweiUnits, weiUnits } from './constants'
 
 export {
   AbiConstructorNotFoundError,
@@ -110,9 +110,10 @@ export {
 } from './errors'
 
 export type {
-  Address,
   AbiItem,
   AccessList,
+  Address,
+  Account,
   Block,
   BlockIdentifier,
   BlockNumber,
@@ -208,7 +209,6 @@ export {
   encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
-  etherUnits,
   formatBlock,
   formatEther,
   formatGwei,
@@ -219,6 +219,7 @@ export {
   fromHex,
   fromRlp,
   getAbiItem,
+  getAccount,
   getAddress,
   getContractAddress,
   getContractError,
@@ -226,7 +227,6 @@ export {
   getCreateAddress,
   getEventSelector,
   getFunctionSelector,
-  gweiUnits,
   hexToBigInt,
   hexToBool,
   hexToBytes,
@@ -257,5 +257,4 @@ export {
   toRlp,
   transactionType,
   trim,
-  weiUnits,
 } from './utils'

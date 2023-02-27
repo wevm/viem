@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { getBalance } from '../public/getBalance'
 import { sendTransaction } from '../wallet/sendTransaction'
 import { mine } from './mine'
@@ -18,7 +18,7 @@ test('drops transaction', async () => {
     address: sourceAccount.address,
   })
   const hash = await sendTransaction(walletClient, {
-    from: sourceAccount.address,
+    account: getAccount(sourceAccount.address),
     to: targetAccount.address,
     value: parseEther('2'),
   })

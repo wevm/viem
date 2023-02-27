@@ -8,7 +8,7 @@ import {
   test,
   vi,
 } from 'vitest'
-import { getAddress } from '../../utils'
+import { getAccount, getAddress } from '../../utils'
 import { wait } from '../../utils/wait'
 import {
   accounts,
@@ -68,20 +68,20 @@ test(
 
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
     await wait(1000)
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
@@ -126,20 +126,20 @@ test('args: batch', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -171,20 +171,20 @@ test('args: eventName', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -223,20 +223,20 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -269,20 +269,20 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -321,20 +321,20 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.usdcHolder,
+    account: getAccount(address.usdcHolder),
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -385,20 +385,20 @@ test('args: args unnamed', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -448,20 +448,20 @@ test(
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
     })
     await wait(1000)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
     })
     await wait(2000)
     unwatch()

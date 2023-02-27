@@ -7,7 +7,7 @@ import {
   testClient,
   walletClient,
 } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '..'
 import { getBlock } from './getBlock'
@@ -44,7 +44,7 @@ test('args: blockTag', async () => {
     }),
   ).toBe(0)
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })

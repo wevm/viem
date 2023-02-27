@@ -48,8 +48,8 @@ export type WalletActions<TChain extends Chain = Chain> = {
   requestPermissions: (
     args: RequestPermissionsArgs,
   ) => Promise<RequestPermissionsResponse>
-  sendTransaction: (
-    args: SendTransactionArgs<TChain>,
+  sendTransaction: <TChainOverride extends Chain>(
+    args: SendTransactionArgs<TChainOverride>,
   ) => Promise<SendTransactionResponse>
   signMessage: (args: SignMessageArgs) => Promise<SignMessageResponse>
   switchChain: (args: SwitchChainArgs) => Promise<void>
@@ -57,8 +57,9 @@ export type WalletActions<TChain extends Chain = Chain> = {
   writeContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
+    TChainOverride extends Chain,
   >(
-    args: WriteContractArgs<TChain, TAbi, TFunctionName>,
+    args: WriteContractArgs<TChainOverride, TAbi, TFunctionName>,
   ) => Promise<WriteContractResponse>
 }
 

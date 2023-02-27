@@ -1,5 +1,3 @@
-export { assertRequest } from './assertRequest'
-
 export { getCallError } from './getCallError'
 
 export { getContractError } from './getContractError'

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { polygon } from '../chains'
+import { getAccount } from '../utils'
 import { address } from '../_test'
 import { baycContractConfig } from '../_test/abis'
 import { errorsExampleABI } from '../_test/generated'
@@ -14,7 +15,7 @@ describe('CallExecutionError', () => {
   test('no args', async () => {
     expect(
       new CallExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
       }),
     ).toMatchInlineSnapshot(`
       [CallExecutionError: error
@@ -29,7 +30,7 @@ describe('CallExecutionError', () => {
   test('w/ base args', async () => {
     expect(
       new CallExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -54,7 +55,7 @@ describe('CallExecutionError', () => {
   test('w/ eip1559 args', async () => {
     expect(
       new CallExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -81,7 +82,7 @@ describe('CallExecutionError', () => {
   test('w/ legacy args', async () => {
     expect(
       new CallExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -107,7 +108,7 @@ describe('CallExecutionError', () => {
     expect(
       new CallExecutionError(new BaseError('error'), {
         chain: polygon,
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -135,7 +136,7 @@ describe('CallExecutionError', () => {
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
           chain: polygon,
-          from: address.vitalik,
+          account: getAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',
           gas: 420n,

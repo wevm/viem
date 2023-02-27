@@ -10,7 +10,7 @@ import { celo, Chain, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import { setIntervalMining } from '../test'
 import { sendTransaction } from '../wallet'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 
 test('watches for new blocks', async () => {
   const blocks: OnBlockResponse[] = []
@@ -40,12 +40,12 @@ test(
       },
     })
 
-    await sendTransaction(walletClient, {
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-    })
-    await wait(2000)
+  await sendTransaction(walletClient, {
+    account: getAccount(accounts[0].address),
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
+  await wait(2000)
 
     unwatch()
     expect(blocks.length).toBe(1)

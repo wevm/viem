@@ -1,5 +1,6 @@
 /* c8 ignore start */
 import { Abi } from 'abitype'
+import { Wallet } from 'ethers@6'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
   deployContract,
@@ -16,7 +17,8 @@ import {
   http,
   webSocket,
 } from '../clients'
-import { rpc } from '../utils'
+import { getAccount, rpc } from '../utils'
+import { getAccount as getEthersAccount } from '../ethers'
 import { RpcError } from '../types/eip1193'
 import { accounts, localWsUrl } from './constants'
 import { errorsExampleABI } from './generated'
@@ -109,6 +111,9 @@ export const testClient = createTestClient({
   transport: http(),
 })
 
+export const getEoaAccount = (privateKey: Hex) =>
+  getEthersAccount(new Wallet(privateKey))
+
 export function createHttpServer(
   handler: RequestListener,
 ): Promise<{ close: () => Promise<unknown>; url: string }> {
@@ -142,7 +147,7 @@ export async function deployBAYC() {
   return deploy({
     ...baycContractConfig,
     args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
   })
 }
 
@@ -150,7 +155,7 @@ export async function deployErrorExample() {
   return deploy({
     abi: errorsExampleABI,
     bytecode: errorsExample.bytecode.object as Hex,
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
   })
 }
 /* c8 ignore stop */

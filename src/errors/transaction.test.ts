@@ -1,19 +1,30 @@
 import { describe, expect, test } from 'vitest'
 import { polygon } from '../chains'
+import { getAccount } from '../utils'
 import { address } from '../_test'
 import { BaseError } from './base'
 import {
+  FeeConflictError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from './transaction'
 
+test('FeeConflictError', () => {
+  expect(new FeeConflictError()).toMatchInlineSnapshot(`
+    [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
+    Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
+
+    Version: viem@1.0.2]
+  `)
+})
+
 describe('TransactionExecutionError', () => {
   test('no args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
       }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
@@ -28,7 +39,7 @@ describe('TransactionExecutionError', () => {
   test('w/ base args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -53,7 +64,7 @@ describe('TransactionExecutionError', () => {
   test('w/ eip1559 args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -80,7 +91,7 @@ describe('TransactionExecutionError', () => {
   test('w/ legacy args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -106,7 +117,7 @@ describe('TransactionExecutionError', () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
         chain: polygon,
-        from: address.vitalik,
+        account: getAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -135,7 +146,7 @@ describe('TransactionExecutionError', () => {
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
           chain: polygon,
-          from: address.vitalik,
+          account: getAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',
           gas: 420n,

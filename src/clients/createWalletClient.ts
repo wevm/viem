@@ -1,10 +1,8 @@
-import type { SignableRequests, WalletRequests } from '../types/eip1193'
 import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 import { Chain } from '../types'
 import { WalletActions, walletActions } from './decorators'
-import { wagmiContractConfig } from '../_test'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
@@ -24,7 +22,7 @@ export type WalletClient<
   TTransport extends Transport = Transport,
   TChain extends Chain = Chain,
   TIncludeActions extends boolean = true,
-> = Client<TTransport, TChain, SignableRequests & WalletRequests> &
+> = Client<TTransport, TChain> &
   (TIncludeActions extends true ? WalletActions<TChain> : {})
 
 /**

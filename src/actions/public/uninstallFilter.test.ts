@@ -7,7 +7,7 @@ import { getFilterChanges } from './getFilterChanges'
 import { uninstallFilter } from './uninstallFilter'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import type { Hash } from '../../types'
 
 test('default', async () => {
@@ -19,12 +19,12 @@ test('pending txns', async () => {
   const filter = await createPendingTransactionFilter(publicClient)
 
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
@@ -41,7 +41,7 @@ test('pending txns', async () => {
   expect(await uninstallFilter(publicClient, { filter })).toBeTruthy()
 
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })

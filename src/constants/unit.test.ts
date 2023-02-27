@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
 
-import * as constants from './constants'
+import * as unit from './unit'
 
-test('exports constants', () => {
-  expect(constants).toMatchInlineSnapshot(`
+test('exports unit', () => {
+  expect(unit).toMatchInlineSnapshot(`
     {
       "etherUnits": {
         "gwei": 9,
