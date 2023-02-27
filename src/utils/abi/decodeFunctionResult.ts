@@ -9,7 +9,7 @@ import {
   ExtractResultFromAbi,
   Hex,
 } from '../../types'
-import { decodeAbi } from './decodeAbi'
+import { decodeAbiParameters } from './decodeAbiParameters'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
@@ -50,7 +50,7 @@ export function decodeFunctionResult<
   if (!('outputs' in description))
     throw new AbiFunctionOutputsNotFoundError(functionName, { docsPath })
 
-  const values = decodeAbi({ data, params: description.outputs })
+  const values = decodeAbiParameters(description.outputs, data)
   if (values && values.length > 1) return values as any
   if (values && values.length === 1) return values[0] as any
   return undefined as any

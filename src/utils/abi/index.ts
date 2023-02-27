@@ -1,5 +1,5 @@
-export type { DecodeAbiArgs } from './decodeAbi'
-export { decodeAbi } from './decodeAbi'
+export type { DecodeAbiParametersResponse } from './decodeAbiParameters'
+export { decodeAbiParameters } from './decodeAbiParameters'
 
 export type {
   DecodeErrorResultArgs,
@@ -22,8 +22,8 @@ export type {
 } from './decodeFunctionResult'
 export { decodeFunctionResult } from './decodeFunctionResult'
 
-export type { EncodeAbiArgs } from './encodeAbi'
-export { encodeAbi } from './encodeAbi'
+export type { EncodeAbiParametersResponse } from './encodeAbiParameters'
+export { encodeAbiParameters } from './encodeAbiParameters'
 
 export type { EncodeDeployDataArgs } from './encodeDeployData'
 export { encodeDeployData } from './encodeDeployData'

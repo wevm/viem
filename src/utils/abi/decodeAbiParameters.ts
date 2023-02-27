@@ -14,29 +14,26 @@ import { Hex } from '../../types'
 import { checksumAddress } from '../address'
 import { size, slice, trim } from '../data'
 import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
-import { getArrayComponents } from './encodeAbi'
+import { getArrayComponents } from './encodeAbiParameters'
 
-export type DecodeAbiArgs<
+export type DecodeAbiParametersResponse<
   TParams extends
     | readonly AbiParameter[]
     | readonly unknown[] = readonly AbiParameter[],
-> = {
-  data: Hex
-  params: Narrow<TParams>
-}
+> = AbiParametersToPrimitiveTypes<
+  TParams extends readonly AbiParameter[] ? TParams : AbiParameter[]
+>
 
-export function decodeAbi<
+export function decodeAbiParameters<
   TParams extends readonly AbiParameter[] | readonly unknown[],
->({ data, params }: DecodeAbiArgs<TParams>) {
+>(params: Narrow<TParams>, data: Hex): DecodeAbiParametersResponse<TParams> {
   if (data === '0x' && params.length > 0) throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
     throw new AbiDecodingDataSizeInvalidError(size(data))
-  const values = decodeParams({
+  return decodeParams({
     data,
     params: params as readonly AbiParameter[],
-  })
-  if (values.length === 0) return undefined
-  return values
+  }) as unknown as DecodeAbiParametersResponse<TParams>
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -46,10 +43,7 @@ type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 function decodeParams<TParams extends readonly AbiParameter[]>({
   data,
   params,
-}: {
-  data: Hex
-  params: TParams
-}) {
+}: { data: Hex; params: TParams }) {
   let decodedValues: unknown[] = []
   let position = 0
 
@@ -88,7 +82,7 @@ function decodeParam({
     return decodeString(data, { position })
   }
   if (param.type.startsWith('bytes')) {
-    return fromBytes(data, { param, position })
+    return decodeBytes(data, { param, position })
   }
 
   let value = slice(data, position, position + 32) as Hex
@@ -102,7 +96,7 @@ function decodeParam({
     return decodeBool(value)
   }
   throw new InvalidAbiDecodingTypeError(param.type, {
-    docsPath: '/docs/contract/decodeAbi',
+    docsPath: '/docs/contract/decodeAbiParameters',
   })
 }
 
@@ -191,7 +185,7 @@ function decodeBool(value: Hex) {
   return { consumed: 32, value: hexToBool(value) }
 }
 
-function fromBytes<TParam extends AbiParameter>(
+function decodeBytes<TParam extends AbiParameter>(
   data: Hex,
   { param, position }: { param: TParam; position: number },
 ) {

@@ -1,3 +1,5 @@
+import 'abitype.config'
+
 export type {
   Block,
   BlockIdentifier,

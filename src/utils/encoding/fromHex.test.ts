@@ -159,7 +159,11 @@ test('converts hex to bytes', () => {
     ]
   `)
 
-  expect(() => fromHex('0xgg', 'bytes')).toThrowErrorMatchingInlineSnapshot(
-    '"Invalid byte sequence"',
-  )
+  expect(() =>
+    fromHex('0x420fggf11a', 'bytes'),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Invalid byte sequence (\\"gg\\" in \\"420fggf11a\\").
+
+    Version: viem@1.0.2"
+  `)
 })

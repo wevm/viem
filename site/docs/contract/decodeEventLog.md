@@ -19,7 +19,7 @@ Decodes ABI encoded event topics & data (from an [Event Log](/docs/glossary/term
 ## Install
 
 ```ts
-import { decodeEventLog } from 'viem/contract'
+import { decodeEventLog } from 'viem'
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ import { decodeEventLog } from 'viem/contract'
 ::: code-group
 
 ```ts [example.ts]
-import { decodeEventLog } from 'viem/contract'
+import { decodeEventLog } from 'viem'
 
 const topics = decodeEventLog({
   abi: wagmiAbi,

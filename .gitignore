@@ -21,6 +21,7 @@ bench
 # @wagmi/cli
 generated.ts
 
+abi/**
 chains/**
 contract/**
 ens/**

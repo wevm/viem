@@ -59,7 +59,7 @@ export const walletClient = createWalletClient({
 ::: code-group
 
 ```ts {7} [example.ts]
-import { deployContract } from 'viem/contract'
+import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 

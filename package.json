@@ -32,6 +32,7 @@
   "tsup": {
     "entry": [
       "src/index.ts",
+      "src/abi.ts",
       "src/chains.ts",
       "src/contract.ts",
       "src/ens.ts",
@@ -43,6 +44,7 @@
     ]
   },
   "files": [
+    "/abi",
     "/dist",
     "/chains",
     "/contract",
@@ -58,6 +60,11 @@
       "types": "./dist/index.d.ts",
       "module": "./dist/index.mts",
       "default": "./dist/index.js"
+    },
+    "./abi": {
+      "types": "./dist/abi.d.ts",
+      "module": "./dist/abi.mts",
+      "default": "./dist/abi.js"
     },
     "./chains": {
       "types": "./dist/chains.d.ts",
@@ -108,7 +115,7 @@
   "dependencies": {
     "@noble/hashes": "^1.1.2",
     "@wagmi/chains": "~0.2.8",
-    "abitype": "~0.3.0",
+    "abitype": "~0.5.0",
     "idna-uts46-hx": "^4.1.2",
     "isomorphic-ws": "^5.0.0",
     "ws": "^8.12.0"

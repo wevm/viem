@@ -1,17 +1,9 @@
+import { BaseError } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
 import type { NumberToHexOpts } from './toHex'
 import { numberToHex } from './toHex'
 
 const encoder = new TextEncoder()
-
-/**
- * @description Encodes a boolean into a byte array.
- */
-export function boolToBytes(value: boolean) {
-  const bytes = new Uint8Array(1)
-  bytes[0] = Number(value)
-  return bytes
-}
 
 /** @description Encodes a UTF-8 string, hex value, bigint, number or boolean to a byte array. */
 export function toBytes(
@@ -22,6 +14,15 @@ export function toBytes(
   if (typeof value === 'boolean') return boolToBytes(value)
   if (value.startsWith('0x')) return hexToBytes(value as Hex)
   return stringToBytes(value)
+}
+
+/**
+ * @description Encodes a boolean into a byte array.
+ */
+export function boolToBytes(value: boolean) {
+  const bytes = new Uint8Array(1)
+  bytes[0] = Number(value)
+  return bytes
 }
 
 /**
@@ -37,7 +38,8 @@ export function hexToBytes(hex_: Hex): ByteArray {
     const start = index * 2
     const hexByte = hex.slice(start, start + 2)
     const byte = Number.parseInt(hexByte, 16)
-    if (Number.isNaN(byte) || byte < 0) throw new Error('Invalid byte sequence')
+    if (Number.isNaN(byte) || byte < 0)
+      throw new BaseError(`Invalid byte sequence ("${hexByte}" in "${hex}").`)
     bytes[index] = byte
   }
   return bytes

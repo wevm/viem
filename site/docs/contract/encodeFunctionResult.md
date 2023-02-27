@@ -19,7 +19,7 @@ Encodes structured return data into ABI encoded data. It is the opposite of [`de
 ## Install
 
 ```ts
-import { encodeFunctionResult } from 'viem/contract';
+import { encodeFunctionResult } from 'viem';
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ Given an ABI (`abi`) and a function (`functionName`), pass through the values (`
 ::: code-group
 
 ```ts [example.ts]
-import { encodeFunctionResult } from 'viem/contract';
+import { encodeFunctionResult } from 'viem';
 
 const data = encodeFunctionResult({
   abi: wagmiAbi,
@@ -70,7 +70,7 @@ export const publicClient = createPublicClient({
 ::: code-group
 
 ```ts [example.ts]
-import { decodeFunctionResult } from 'viem/contract'
+import { decodeFunctionResult } from 'viem'
 
 const data = decodeFunctionResult({
   abi: wagmiAbi,

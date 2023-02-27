@@ -19,7 +19,7 @@ Decodes the result of a function call on a contract.
 ## Install
 
 ```ts
-import { decodeFunctionResult } from 'viem/contract'
+import { decodeFunctionResult } from 'viem'
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ Given an ABI (`abi`) and a function (`functionName`), pass through the encoded c
 ::: code-group
 
 ```ts [example.ts]
-import { decodeFunctionResult } from 'viem/contract'
+import { decodeFunctionResult } from 'viem'
 
 const value = decodeFunctionResult({
   abi: wagmiAbi,
@@ -70,7 +70,7 @@ export const publicClient = createPublicClient({
 ::: code-group
 
 ```ts [example.ts]
-import { decodeFunctionResult } from 'viem/contract'
+import { decodeFunctionResult } from 'viem'
 
 const value = decodeFunctionResult({
   abi: wagmiAbi,

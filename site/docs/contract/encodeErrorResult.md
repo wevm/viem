@@ -19,7 +19,7 @@ Encodes a reverted error from a function call. The opposite of [`decodeErrorResu
 ## Install
 
 ```ts
-import { encodeErrorResult } from 'viem/contract'
+import { encodeErrorResult } from 'viem'
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ import { encodeErrorResult } from 'viem/contract'
 ::: code-group
 
 ```ts [example.ts]
-import { decodeErrorResult } from 'viem/contract'
+import { decodeErrorResult } from 'viem'
 
 const value = decodeErrorResult({
   abi: wagmiAbi,

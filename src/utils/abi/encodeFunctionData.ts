@@ -4,7 +4,7 @@ import { AbiFunctionNotFoundError } from '../../errors'
 import { ExtractArgsFromAbi, ExtractFunctionNameFromAbi } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
-import { encodeAbi } from './encodeAbi'
+import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
@@ -33,10 +33,10 @@ export function encodeFunctionData<
   const signature = getFunctionSelector(definition)
   const data =
     'inputs' in description && description.inputs
-      ? encodeAbi({
-          params: description.inputs,
-          values: (args ?? []) as any,
-        })
+      ? encodeAbiParameters(
+          description.inputs,
+          (args ?? []) as readonly unknown[],
+        )
       : undefined
   return concatHex([signature, data ?? '0x'])
 }

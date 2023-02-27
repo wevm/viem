@@ -7,7 +7,7 @@ import {
 import { AbiItem, Hex } from '../../types'
 import { slice } from '../data'
 import { getFunctionSelector } from '../hash'
-import { decodeAbi } from './decodeAbi'
+import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
 export type DecodeErrorResultArgs = { abi?: Abi; data: Hex }
@@ -37,7 +37,7 @@ export function decodeErrorResult({
   return {
     abiItem,
     args: ('inputs' in abiItem && abiItem.inputs && abiItem.inputs.length > 0
-      ? decodeAbi({ data: slice(data, 4), params: abiItem.inputs })
+      ? decodeAbiParameters(abiItem.inputs, slice(data, 4))
       : undefined) as readonly unknown[] | undefined,
     errorName: (abiItem as { name: string }).name,
   }

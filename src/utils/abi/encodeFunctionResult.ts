@@ -5,7 +5,7 @@ import {
 } from '../../errors'
 
 import { ExtractFunctionNameFromAbi, ExtractResultFromAbi } from '../../types'
-import { encodeAbi } from './encodeAbi'
+import { encodeAbiParameters } from './encodeAbiParameters'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
 
@@ -37,5 +37,5 @@ export function encodeFunctionResult<
   let values = Array.isArray(result) ? result : [result]
   if (description.outputs.length === 0 && !values[0]) values = []
 
-  return encodeAbi({ params: description.outputs, values })
+  return encodeAbiParameters(description.outputs, values)
 }

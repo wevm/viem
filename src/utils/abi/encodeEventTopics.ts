@@ -12,7 +12,7 @@ import {
 } from '../../types'
 import { toBytes } from '../encoding'
 import { keccak256, getEventSelector } from '../hash'
-import { encodeAbi } from './encodeAbi'
+import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
 
@@ -66,5 +66,5 @@ function encodeArg({
     return keccak256(toBytes(value as string))
   if (param.type === 'tuple' || param.type.match(/^(.*)\[(\d+)?\]$/))
     throw new FilterTypeNotSupportedError(param.type)
-  return encodeAbi({ params: [param], values: [value] })
+  return encodeAbiParameters([param], [value])
 }

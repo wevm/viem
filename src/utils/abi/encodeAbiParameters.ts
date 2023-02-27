@@ -16,25 +16,21 @@ import {
 import { Hex } from '../../types'
 import { isAddress } from '../address'
 import { concat, padHex, size, slice } from '../data'
-import { boolToHex, numberToHex, stringToHex } from '../encoding'
+import { boolToHex, bytesToHex, numberToHex, stringToHex } from '../encoding'
 
-export type EncodeAbiArgs<
-  TParams extends
-    | readonly AbiParameter[]
-    | readonly unknown[] = readonly AbiParameter[],
-> = {
-  params: Narrow<TParams>
-  values: TParams extends readonly AbiParameter[]
-    ? AbiParametersToPrimitiveTypes<TParams>
-    : never
-}
+export type EncodeAbiParametersResponse = Hex
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
  */
-export function encodeAbi<
+export function encodeAbiParameters<
   TParams extends readonly AbiParameter[] | readonly unknown[],
->({ params, values }: EncodeAbiArgs<TParams>) {
+>(
+  params: Narrow<TParams>,
+  values: TParams extends readonly AbiParameter[]
+    ? AbiParametersToPrimitiveTypes<TParams>
+    : never,
+): EncodeAbiParametersResponse {
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: params.length as number,
@@ -99,13 +95,13 @@ function prepareParam<TParam extends AbiParameter>({
     return encodeNumber(value as unknown as number, { signed })
   }
   if (param.type.startsWith('bytes')) {
-    return toBytes(value as unknown as Hex, { param })
+    return encodeBytes(value as unknown as Hex, { param })
   }
   if (param.type === 'string') {
     return encodeString(value as unknown as string)
   }
   throw new InvalidAbiEncodingTypeError(param.type, {
-    docsPath: '/docs/contract/encodeAbi',
+    docsPath: '/docs/contract/encodeAbiParameters',
   })
 }
 
@@ -191,7 +187,7 @@ function encodeArray<TParam extends AbiParameter>(
   }
 }
 
-function toBytes<TParam extends AbiParameter>(
+function encodeBytes<TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
 ): PreparedParam {
@@ -200,7 +196,11 @@ function toBytes<TParam extends AbiParameter>(
     const partsLength = Math.floor(size(value) / 32)
     const parts: Hex[] = []
     for (let i = 0; i < partsLength + 1; i++) {
-      parts.push(padHex(slice(value, i * 32, (i + 1) * 32), { dir: 'right' }))
+      parts.push(
+        padHex(slice(value, i * 32, (i + 1) * 32), {
+          dir: 'right',
+        }),
+      )
     }
     return {
       dynamic: true,
