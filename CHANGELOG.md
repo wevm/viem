@@ -1,5 +1,29 @@
 # viem
 
+## 0.0.1-alpha.35
+
+### Patch Changes
+
+- [`057e01e`](https://github.com/wagmi-dev/viem/commit/057e01e9fff7346304e787d93053d84a09278335) Thanks [@jxom](https://github.com/jxom)! - - `testClient.getTxPoolContent` → `testClient.getTxpoolContent`
+  - `testClient.getTxPoolStatus` → `testClient.getTxpoolStatus`
+
+* [#85](https://github.com/wagmi-dev/viem/pull/85) [`2350d1a`](https://github.com/wagmi-dev/viem/commit/2350d1af1ff67d725ff3563538b9886a405ab8bd) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `encodeAbi` & `decodeAbi` to `encodeAbiParameters` & `decodeAbiParameters`, and modified API from named arguments to inplace arguments:
+
+  ```diff
+  import {
+  - encodeAbi,
+  - decodeAbi,
+  + encodeAbiParameters,
+  + decodeAbiParameters,
+  } from 'viem'
+
+  -const result = encodeAbi({ params, values })
+  +const result = encodeAbiParameters(params, values)
+
+  -const result = decodeAbi({ params, data })
+  +const result = decodeAbiParameters(params, data)
+  ```
+
 ## 0.0.1-alpha.34
 
 ### Patch Changes
