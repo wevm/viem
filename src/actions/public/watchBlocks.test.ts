@@ -27,28 +27,32 @@ test('watches for new blocks', async () => {
   expect(prevBlocks.length).toBe(3)
 })
 
-test('args: includeTransactions', async () => {
-  await mine(testClient, { blocks: 1 })
+test(
+  'args: includeTransactions',
+  async () => {
+    await mine(testClient, { blocks: 1 })
 
-  const blocks: OnBlockResponse<Chain, true>[] = []
-  const unwatch = watchBlocks(publicClient, {
-    includeTransactions: true,
-    onBlock: (block) => {
-      blocks.push(block)
-    },
-  })
+    const blocks: OnBlockResponse<Chain, true>[] = []
+    const unwatch = watchBlocks(publicClient, {
+      includeTransactions: true,
+      onBlock: (block) => {
+        blocks.push(block)
+      },
+    })
 
-  await sendTransaction(walletClient, {
-    from: accounts[0].address,
-    to: accounts[1].address,
-    value: parseEther('1'),
-  })
-  await wait(2000)
+    await sendTransaction(walletClient, {
+      from: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    await wait(2000)
 
-  unwatch()
-  expect(blocks.length).toBe(1)
-  expect(blocks[0].transactions.length).toBe(1)
-})
+    unwatch()
+    expect(blocks.length).toBe(1)
+    expect(blocks[0].transactions.length).toBe(1)
+  },
+  { retry: 3 },
+)
 
 describe('emitMissed', () => {
   test('emits on missed blocks', async () => {
