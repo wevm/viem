@@ -19,7 +19,7 @@ Encodes the function name and parameters into an ABI encoded value (4 byte selec
 ## Install
 
 ```ts
-import { encodeFunctionData } from 'viem/contract'
+import { encodeFunctionData } from 'viem'
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ Below is a very basic example of how to encode a function to calldata.
 ::: code-group
 
 ```ts [example.ts]
-import { encodeFunctionData } from 'viem/contract'
+import { encodeFunctionData } from 'viem'
 
 const data = encodeFunctionData({
   abi: wagmiAbi,
@@ -74,7 +74,7 @@ For example, the `balanceOf` function name below requires an **address** argumen
 ::: code-group
 
 ```ts {8} [example.ts]
-import { encodeFunctionData } from 'viem/contract'
+import { encodeFunctionData } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

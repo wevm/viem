@@ -19,7 +19,7 @@ Encodes deploy data (bytecode & constructor args) into an ABI encoded value.
 ## Install
 
 ```ts
-import { encodeDeployData } from 'viem/contract'
+import { encodeDeployData } from 'viem'
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ Below is a very basic example of how to encode deploy data.
 ::: code-group
 
 ```ts [example.ts]
-import { encodeDeployData } from 'viem/contract'
+import { encodeDeployData } from 'viem'
 
 const data = encodeDeployData({
   abi: wagmiAbi,
@@ -73,7 +73,7 @@ For example, the `constructor` below requires an **address** argument, and it is
 ::: code-group
 
 ```ts {8} [example.ts]
-import { encodeFunctionData } from 'viem/contract'
+import { encodeFunctionData } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

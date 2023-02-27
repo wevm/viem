@@ -75,7 +75,6 @@ For example, the `balanceOf` function name below requires an **address** argumen
 ::: code-group
 
 ```ts {9} [example.ts]
-import { readContract } from 'viem/contract'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 

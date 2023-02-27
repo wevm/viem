@@ -19,13 +19,13 @@ Retrieves an item from the ABI.
 ## Import
 
 ```ts
-import { getAbiItem } from 'viem/abi'
+import { getAbiItem } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { getAbiItem } from 'viem/abi'
+import { getAbiItem } from 'viem'
 
 const encodedData = getAbiItem({
   abi: [
