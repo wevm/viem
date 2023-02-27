@@ -42,7 +42,6 @@ export const sidebar: DefaultTheme.Sidebar = {
     },
     {
       text: 'Public Actions',
-      collapsible: true,
       collapsed: true,
       items: [
         { text: 'Introduction 🚧', link: '/docs/actions/public/introduction' },
@@ -179,7 +178,6 @@ export const sidebar: DefaultTheme.Sidebar = {
     },
     {
       text: 'Wallet Actions',
-      collapsible: true,
       collapsed: true,
       items: [
         { text: 'Introduction', link: '/docs/actions/wallet/introduction' },
@@ -261,7 +259,6 @@ export const sidebar: DefaultTheme.Sidebar = {
     },
     {
       text: 'Test Actions',
-      collapsible: true,
       collapsed: true,
       items: [
         { text: 'Introduction', link: '/docs/actions/test/introduction' },
@@ -378,7 +375,6 @@ export const sidebar: DefaultTheme.Sidebar = {
     },
     {
       text: 'Contract',
-      collapsible: true,
       collapsed: true,
       items: [
         { text: 'Introduction', link: '/docs/contract/introduction' },
@@ -484,7 +480,6 @@ export const sidebar: DefaultTheme.Sidebar = {
     },
     {
       text: 'ENS',
-      collapsible: true,
       collapsed: true,
       items: [
         {
@@ -509,8 +504,37 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'ABI',
+      collapsed: true,
+      items: [
+        {
+          text: 'decodeAbiParameters',
+          link: '/docs/abi/decodeAbiParameters',
+        },
+        {
+          text: 'encodeAbiParameters',
+          link: '/docs/abi/encodeAbiParameters',
+        },
+        {
+          text: 'getAbiItem',
+          link: '/docs/abi/getAbiItem'
+        },
+        {
+          text: 'parseAbiItem 🚧',
+          link: '/docs/abi/parseAbiItem'
+        },
+        {
+          text: 'parseAbiParameter 🚧',
+          link: '/docs/abi/parseAbiParameter'
+        },
+        {
+          text: 'parseAbiParameters 🚧',
+          link: '/docs/abi/parseAbiParameters'
+        }
+      ],
+    },
+    {
       text: 'Utilities',
-      collapsible: true,
       collapsed: true,
       items: [
         {
@@ -666,7 +690,6 @@ export const sidebar: DefaultTheme.Sidebar = {
     },
     {
       text: 'Glossary',
-      collapsible: true,
       collapsed: true,
       items: [
         { text: 'Terms', link: '/docs/glossary/terms' },

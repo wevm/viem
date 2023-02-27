@@ -21,7 +21,7 @@ The `decodeAbiParameters` function is used by the other contract decoding utilit
 ## Install
 
 ```ts
-import { decodeAbiParameters } from 'viem/contract'
+import { decodeAbiParameters } from 'viem/abi'
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ The `decodeAbiParameters` function takes in two parameters:
 - the ABI encoded data (`data`) that correspond to the given `params`.
 
 ```ts
-import { decodeAbiParameters } from 'viem/contract'
+import { decodeAbiParameters } from 'viem/abi'
 
 const values = decodeAbiParameters(
   [{ name: 'x', type: 'uint32' }],

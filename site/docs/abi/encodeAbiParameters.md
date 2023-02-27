@@ -21,7 +21,7 @@ The `encodeAbiParameters` function is used by the other contract encoding utilit
 ## Import
 
 ```ts
-import { encodeAbiParameters } from 'viem/contract'
+import { encodeAbiParameters } from 'viem/abi'
 ```
 
 ## Usage
@@ -33,7 +33,7 @@ The `encodeAbiParameters` function takes in two parameters:
 
 
 ```ts
-import { encodeAbiParameters } from 'viem/contract'
+import { encodeAbiParameters } from 'viem/abi'
 
 const encodedData = encodeAbiParameters(
   [{ name: 'x', type: 'uint32' }],
