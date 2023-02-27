@@ -22,13 +22,6 @@ export type PublicClient<
 
 /**
  * @description Creates a public client with a given transport.
- *
- * - Only has access to "public" EIP-1474 RPC methods (ie. `eth_blockNumber`, etc).
- *
- * @example
- * import { mainnet } from 'viem/chains'
- * import { createPublicClient, http } from 'viem/clients'
- * const client = createPublicClient({ transport: http('https://...') })
  */
 export function createPublicClient<
   TTransport extends Transport,

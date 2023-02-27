@@ -24,7 +24,6 @@ export type CustomTransport = Transport<'custom', EthereumProvider['request']>
  * @description Creates a custom transport given an EIP-1193 compliant `request` attribute.
  */
 export function custom<TProvider extends EthereumProvider>(
-  /** An Ethereum provider with an EIP-1193 "request" attribute. */
   provider: TProvider,
   config: CustomTransportConfig = {},
 ): CustomTransport {

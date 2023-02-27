@@ -14,7 +14,7 @@ head:
 
 # Custom Transport
 
-The `custom` Transport accepts an [EIP-1193 Ethereum Provider](https://eips.ethereum.org/EIPS/eip-1193) (with at least a `request` attribute) as a parameter. This transport is useful for integrating with injected wallets, wallets that provide an EIP-1193 provider (eg. WalletConnect or Coinbase SDK), or even providing your own custom [EIP-1193 `request` function](https://eips.ethereum.org/EIPS/eip-1193#request-1).
+The `custom` Transport accepts an [EIP-1193 `request` function](https://eips.ethereum.org/EIPS/eip-1193#request-1) as a parameter. This transport is useful for integrating with injected wallets, wallets that provide an EIP-1193 provider (eg. WalletConnect or Coinbase SDK), or even providing your own custom `request` function.
 
 ## Import
 
@@ -24,11 +24,29 @@ import { custom } from 'viem'
 
 ## Usage
 
+You can use any [EIP-1193 compatible](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider with the `custom` Transport:
+
 ```ts
 import { createWalletClient, custom } from 'viem'
 
 const client = createWalletClient({ 
   transport: custom(window.ethereum)
+})
+```
+
+Or you can define your own:
+
+```ts
+import { createWalletClient, custom } from 'viem'
+import { customRpc } from './rpc'
+
+const client = createWalletClient({ 
+  transport: custom({
+    async request({ method, params }) {
+      const response = await customRpc.request(method, params)
+      return response
+    }
+  })
 })
 ```
 
@@ -38,7 +56,7 @@ const client = createWalletClient({
 
 - **Type:** `custom`
 
-An [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) or equivalent provider with at least an [EIP-1193 `request`](https://eips.ethereum.org/EIPS/eip-1193#request) function.
+An [EIP-1193 `request` function](https://eips.ethereum.org/EIPS/eip-1193#request) function.
 
 ```ts
 import { customRpc } from './rpc'

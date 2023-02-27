@@ -27,15 +27,6 @@ export type WalletClient<
 
 /**
  * @description Creates a wallet client with a given transport.
- *
- * - Only has access to "wallet" & "signable" EIP-1474 RPC methods
- * (ie. `eth_sendTransaction`, `eth_requestAccounts`, etc).
- *
- * @example
- * import { createWalletClient, custom } from 'viem'
- * const client = createWalletClient(
- *  custom(window.ethereum)
- * )
  */
 export function createWalletClient<
   TTransport extends Transport,

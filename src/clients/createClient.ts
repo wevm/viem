@@ -41,15 +41,7 @@ export type ClientConfig<
 }
 
 /**
- * @description Creates a base RPC client with the given transport.
- *
- * - Intended to be used as a base for other RPC clients.
- * - Has access to _all_ EIP-1474 RPC methods.
- *
- * @example
- * import { mainnet } from 'viem/chains'
- * import { createClient, http } from 'viem/clients'
- * const client = createClient(http({ chain: mainnet }))
+ * @description Creates a base client with the given transport.
  */
 export function createClient<
   TTransport extends Transport,

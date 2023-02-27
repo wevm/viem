@@ -35,14 +35,6 @@ export type TestClient<
 
 /**
  * @description Creates a test client with a given transport.
- *
- * - Only has access to "test" RPC methods (ie. `anvil_setBalance`,
- * `evm_mine`, etc).
- *
- * @example
- * import { createTestClient, http } from 'viem'
- * import { local } from 'viem/chains'
- * const client = createTestClient({ chain: local, mode: 'anvil', transport: http() })
  */
 export function createTestClient<
   TTransport extends Transport,
