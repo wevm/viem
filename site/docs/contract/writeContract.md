@@ -220,6 +220,22 @@ await walletClient.writeContract({
 })
 ```
 
+### account
+
+- **Type:** `Address`
+
+The Account sender. [Read more](/docs/clients/wallet).
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266') // [!code focus]
+})
+```
+
 ### accessList (optional)
 
 - **Type:** [`AccessList`](/docs/glossary/types#TODO)
@@ -251,22 +267,6 @@ await walletClient.writeContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420] // [!code focus]
-})
-```
-
-### from (optional)
-
-- **Type:** `Address`
-
-Optional sender override.
-
-```ts
-await walletClient.writeContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  functionName: 'mint',
-  args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
 })
 ```
 

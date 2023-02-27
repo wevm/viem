@@ -33,7 +33,7 @@ function Example() {
   const valueInput = React.createRef<HTMLInputElement>()
 
   const connect = async () => {
-    const [address] = await walletClient.requestAccounts()
+    const [address] = await walletClient.requestAddresses()
     setAccount(getAccount(address))
   }
 

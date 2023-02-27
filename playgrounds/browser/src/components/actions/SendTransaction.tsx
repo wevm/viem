@@ -6,7 +6,7 @@ export function SendTransaction({ client }: { client: WalletClient }) {
     <div>
       <button
         onClick={async () => {
-          const [address] = await client.getAccounts()
+          const [address] = await client.getAddresses()
           const account = getAccount(address)
           await client.sendTransaction({
             account,

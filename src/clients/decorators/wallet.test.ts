@@ -10,10 +10,10 @@ test('default', async () => {
     {
       "addChain": [Function],
       "deployContract": [Function],
-      "getAccounts": [Function],
+      "getAddresses": [Function],
       "getChainId": [Function],
       "getPermissions": [Function],
-      "requestAccounts": [Function],
+      "requestAddresses": [Function],
       "requestPermissions": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],
@@ -39,16 +39,16 @@ describe('smoke test', () => {
     ).toBeDefined()
   })
 
-  test('getAccounts', async () => {
-    expect(await walletClient.getAccounts()).toBeDefined()
+  test('getAddresses', async () => {
+    expect(await walletClient.getAddresses()).toBeDefined()
   })
 
   test('getPermissions', async () => {
     expect(await walletClient.getPermissions()).toBeDefined()
   })
 
-  test('requestAccounts', async () => {
-    expect(await walletClient.requestAccounts()).toBeDefined()
+  test('requestAddresses', async () => {
+    expect(await walletClient.requestAddresses()).toBeDefined()
   })
 
   test('requestPermissions', async () => {

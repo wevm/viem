@@ -185,12 +185,12 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account',
           items: [
             {
-              text: 'getAccounts',
-              link: '/docs/actions/wallet/getAccounts',
+              text: 'getAddresses',
+              link: '/docs/actions/wallet/getAddresses',
             },
             {
-              text: 'requestAccounts',
-              link: '/docs/actions/wallet/requestAccounts',
+              text: 'requestAddresses',
+              link: '/docs/actions/wallet/requestAddresses',
             },
           ],
         },

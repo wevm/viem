@@ -175,18 +175,18 @@ const data = await publicClient.readContract({
 })
 ```
 
-### from (optional)
+### account (optional)
 
-- **Type:** `Address`
+- **Type:** `Account`
 
-Optional sender override.
+Optional Account sender override. [Read more](/docs/clients/wallet).
 
 ```ts
 const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266') // [!code focus]
 })
 ```
 

@@ -3,11 +3,11 @@ import {
   AddChainArgs,
   DeployContractArgs,
   DeployContractResponse,
-  GetAccountsResponse,
+  GetAddressesResponse,
   getChainId,
   GetChainIdResponse,
   GetPermissionsResponse,
-  RequestAccountsResponse,
+  RequestAddressesResponse,
   RequestPermissionsArgs,
   RequestPermissionsResponse,
   SendTransactionArgs,
@@ -25,9 +25,9 @@ import {
 import {
   addChain,
   deployContract,
-  getAccounts,
+  getAddresses,
   getPermissions,
-  requestAccounts,
+  requestAddresses,
   requestPermissions,
   sendTransaction,
   signMessage,
@@ -41,10 +41,10 @@ export type WalletActions<TChain extends Chain = Chain> = {
   deployContract: <TAbi extends Abi | readonly unknown[]>(
     args: DeployContractArgs<TChain, TAbi>,
   ) => Promise<DeployContractResponse>
-  getAccounts: () => Promise<GetAccountsResponse>
+  getAddresses: () => Promise<GetAddressesResponse>
   getChainId: () => Promise<GetChainIdResponse>
   getPermissions: () => Promise<GetPermissionsResponse>
-  requestAccounts: () => Promise<RequestAccountsResponse>
+  requestAddresses: () => Promise<RequestAddressesResponse>
   requestPermissions: (
     args: RequestPermissionsArgs,
   ) => Promise<RequestPermissionsResponse>
@@ -71,10 +71,10 @@ export const walletActions = <
 ): WalletActions<TChain> => ({
   addChain: (args) => addChain(client, args),
   deployContract: (args) => deployContract(client, args),
-  getAccounts: () => getAccounts(client),
+  getAddresses: () => getAddresses(client),
   getChainId: () => getChainId(client),
   getPermissions: () => getPermissions(client),
-  requestAccounts: () => requestAccounts(client),
+  requestAddresses: () => requestAddresses(client),
   requestPermissions: (args) => requestPermissions(client, args),
   sendTransaction: (args) => sendTransaction(client, args),
   signMessage: (args) => signMessage(client, args),

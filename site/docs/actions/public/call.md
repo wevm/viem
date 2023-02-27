@@ -19,11 +19,14 @@ Executes a new message call immediately without submitting a transaction to the 
 ## Usage
 
 ```ts
+import { getAccount } from 'viem' 
 import { publicClient } from '.'
+
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
  
 const data = await publicClient.call({ // [!code focus:7]
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
@@ -36,6 +39,22 @@ The call data.
 
 ## Parameters
 
+### account
+
+- **Type:** `Account`
+
+The Account sender. [Read more](/docs/clients/wallet).
+
+```ts
+import { getAccount } from 'viem' 
+
+const data = await publicClient.call({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus)]
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
 ### data
 
 - **Type:** `0x${string}`
@@ -44,22 +63,8 @@ A contract hashed method call with encoded args.
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-})
-```
-
-### from
-
-- **Type:** `Address`
-
-The sender.
-
-```ts
-const data = await publicClient.call({
-  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
@@ -72,8 +77,8 @@ The contract address or recipient.
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
 })
 ```
@@ -86,14 +91,15 @@ The access list.
 
 ```ts
 const data = await publicClient.call({
+  account,
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
+      import { getAccount } from 'viem' 
       storageKeys: ['0x1'],
     },
   ],
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
@@ -106,8 +112,8 @@ The gas provided for transaction execution.
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gas: 1_000_000n, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -121,8 +127,8 @@ The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/g
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -136,8 +142,8 @@ Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -151,8 +157,8 @@ Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -167,8 +173,8 @@ Unique number identifying this transaction.
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   nonce: 420n, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
@@ -182,8 +188,8 @@ Value (in wei) sent with this transaction.
 
 ```ts
 const data = await publicClient.call({
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
 })
@@ -198,8 +204,8 @@ The block number to perform the call against.
 ```ts
 const data = await publicClient.call({
   blockNumber: 15121123n, // [!code focus]
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
@@ -214,8 +220,8 @@ The block tag to perform the call against.
 ```ts
 const data = await publicClient.call({
   blockTag: 'safe', // [!code focus]
+  account,
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```

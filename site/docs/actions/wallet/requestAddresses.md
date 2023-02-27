@@ -2,7 +2,7 @@
 head:
   - - meta
     - property: og:title
-      content: requestAccounts
+      content: requestAddresses
   - - meta
     - name: description
       content: Requests a list of accounts managed by a wallet.
@@ -12,11 +12,11 @@ head:
 
 ---
 
-# requestAccounts
+# requestAddresses
 
 Requests a list of accounts managed by a wallet.
 
-`requestAccounts` sends a request to the wallet, asking for permission to access the user's accounts. After the user accepts the request, it will return a list of accounts (addresses).
+`requestAddresses` sends a request to the wallet, asking for permission to access the user's accounts. After the user accepts the request, it will return a list of accounts (addresses).
 
 This API can be useful for dapps that need to access the user's accounts in order to execute transactions or interact with smart contracts.
 
@@ -25,7 +25,7 @@ This API can be useful for dapps that need to access the user's accounts in orde
 ```ts
 import { walletClient } from '.'
  
-const accounts = await walletClient.requestAccounts() // [!code focus:99]
+const accounts = await walletClient.requestAddresses() // [!code focus:99]
 // ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
 ```
 

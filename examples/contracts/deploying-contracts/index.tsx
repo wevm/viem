@@ -29,7 +29,7 @@ function Example() {
   const [receipt, setReceipt] = useState<TransactionReceipt>()
 
   const connect = async () => {
-    const [address] = await walletClient.requestAccounts()
+    const [address] = await walletClient.requestAddresses()
     setAccount(getAccount(address))
   }
 

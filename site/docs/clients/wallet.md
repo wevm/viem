@@ -58,8 +58,11 @@ const client = createWalletClient({
 })
 
 const [address] = await client.getAddresses() // [!code focus:10]
+// or: const [address] = await client.requestAddresses() // [!code focus:10]
 const account = getAccount(address)
 ```
+
+> Note: Some Wallets (like MetaMask) may require you to request access to Account addresses via [`client.requestAddresses`](/docs/actions/wallet/requestAddresses) first.
 
 #### Consume [Wallet Actions](/docs/actions/wallet/introduction)
 
@@ -127,7 +130,7 @@ const account = getAccount(new Wallet(privateKey)) // [!code focus]
 
 #### Consume [Wallet Actions](/docs/actions/wallet/introduction)
 
-Now you can use that Account within Wallet Actions that require a signature from the user:
+Now you can use that Account within Wallet Actions that need a signature from the user:
 
 ```ts
 import { createWalletClient, http, getAccount } from 'viem'
@@ -159,6 +162,9 @@ import { getAddress, signTransaction } from './custom-signer'
 const privateKey = '0x...'
 const account = getAccount({
   address: getAddress(privateKey),
+  signMessage(message) {
+    return signMessage(message, privateKey)
+  },
   signTransaction(transaction) {
     return signTransaction(transaction, privateKey)
   }

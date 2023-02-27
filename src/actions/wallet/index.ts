@@ -7,8 +7,8 @@ export type {
   DeployContractResponse,
 } from './deployContract'
 
-export { getAccounts } from './getAccounts'
-export type { GetAccountsResponse } from './getAccounts'
+export { getAddresses } from './getAddresses'
+export type { GetAddressesResponse } from './getAddresses'
 
 export { getChainId } from '../public/getChainId'
 export type { GetChainIdResponse } from '../public/getChainId'
@@ -16,8 +16,8 @@ export type { GetChainIdResponse } from '../public/getChainId'
 export { getPermissions } from './getPermissions'
 export type { GetPermissionsResponse } from './getPermissions'
 
-export { requestAccounts } from './requestAccounts'
-export type { RequestAccountsResponse } from './requestAccounts'
+export { requestAddresses } from './requestAddresses'
+export type { RequestAddressesResponse } from './requestAddresses'
 
 export { requestPermissions } from './requestPermissions'
 export type {
