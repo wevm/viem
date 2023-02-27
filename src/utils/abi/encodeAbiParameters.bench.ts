@@ -145,8 +145,8 @@ describe('ABI Encode', () => {
 
 describe('Seaport function', () => {
   bench('viem: `encodeAbi`', () => {
-    encodeAbi({
-      params: [
+    encodeAbiParameters(
+      [
         {
           components: [
             { internalType: 'address', name: 'offerer', type: 'address' },
@@ -221,7 +221,7 @@ describe('Seaport function', () => {
           type: 'tuple[]',
         },
       ],
-      values: [
+      [
         [
           {
             conduitKey:
@@ -333,7 +333,7 @@ describe('Seaport function', () => {
           },
         ],
       ],
-    })
+    )
   })
 
   bench('ethers: `AbiCoder.encode`', () => {
