@@ -2,13 +2,15 @@ import 'viem/window'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
+  Account,
   Address,
   Hash,
   TransactionReceipt,
   createWalletClient,
   createPublicClient,
-  http,
   custom,
+  getAccount,
+  http,
   parseEther,
   stringify,
 } from 'viem'
@@ -23,7 +25,7 @@ const walletClient = createWalletClient({
 })
 
 function Example() {
-  const [account, setAccount] = useState<Address>()
+  const [account, setAccount] = useState<Account>()
   const [hash, setHash] = useState<Hash>()
   const [receipt, setReceipt] = useState<TransactionReceipt>()
 
@@ -31,14 +33,15 @@ function Example() {
   const valueInput = React.createRef<HTMLInputElement>()
 
   const connect = async () => {
-    const accounts = await walletClient.requestAccounts()
-    setAccount(accounts[0])
+    const [address] = await walletClient.requestAccounts()
+    setAccount(getAccount(address))
   }
 
   const sendTransaction = async () => {
+    if (!account) return
     const hash = await walletClient.sendTransaction({
+      account,
       chain: goerli,
-      from: account!,
       to: addressInput.current!.value as Address,
       value: parseEther(valueInput.current!.value as `${number}`),
     })
@@ -57,7 +60,7 @@ function Example() {
   if (account)
     return (
       <>
-        <div>Connected: {account}</div>
+        <div>Connected: {account.address}</div>
         <input ref={addressInput} placeholder="address" />
         <input ref={valueInput} placeholder="value (ether)" />
         <button onClick={sendTransaction}>Send</button>
