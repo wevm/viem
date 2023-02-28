@@ -14,7 +14,7 @@ head:
 
 # Wallet Client
 
-A Wallet Client is an interface to interact with [Ethereum Account(s)](/docs/glossary/terms#TODO) and provides the ability to retrieve accounts, execute transactions, sign messages, etc through [Wallet Actions](/docs/actions/wallet/introduction).
+A Wallet Client is an interface to interact with [Ethereum Account(s)](https://ethereum.org/en/glossary/#account) and provides the ability to retrieve accounts, execute transactions, sign messages, etc through [Wallet Actions](/docs/actions/wallet/introduction).
 
 The `createWalletClient` function sets up a Wallet Client with a given [Transport](/docs/clients/intro).
 

@@ -8,6 +8,89 @@ description: Build reliable Ethereum apps & libraries with lightweight, composab
 
 <script setup lang="ts">
 import { VPButton } from 'vitepress/theme'
+
+const sponsors = [
+  {
+    id: 'family',
+    name: 'Family',
+    href: 'https://twitter.com/family',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/family-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/family-light.svg',
+    },
+  },
+  {
+    id: 'context',
+    name: 'Context',
+    href: 'https://twitter.com/context',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/context-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/context-light.svg',
+    },
+  },
+  {
+    id: 'walletconnect',
+    name: 'WalletConnect',
+    href: 'https://walletconnect.com',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/walletconnect-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/walletconnect-light.svg',
+    },
+  },
+  {
+    id: 'looksrare',
+    name: 'LooksRare',
+    href: 'https://looksrare.org',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/looksrare-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/looksrare-light.svg',
+    },
+  },
+  {
+    id: 'partydao',
+    name: 'PartyDAO',
+    href: 'https://twitter.com/prtyDAO',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/partydao-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/partydao-light.svg',
+    },
+  },
+  {
+    id: 'dynamic',
+    name: 'Dynamic',
+    href: 'https://www.dynamic.xyz',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/dynamic-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/dynamic-light.svg',
+    },
+  },
+  {
+    id: 'sushi',
+    name: 'Sushi',
+    href: 'https://www.sushi.com',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/sushi-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/sushi-light.svg',
+    },
+  },
+  {
+    id: 'stripe',
+    name: 'Stripe',
+    href: 'https://www.stripe.com',
+    logo: {
+      dark: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/stripe-dark.svg',
+      light:
+        'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/stripe-light.svg',
+    },
+  },
+] as const
 </script>
 
 <div class="flex justify-center mx-auto text-center">
@@ -129,7 +212,75 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 
+<div class="h-8" />
+<h1>Features</h1>
+<hr class="h-2" />
+
+viem supports all these features out-of-the-box:
+
+- Abstractions over the [JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) to make your life easier
+- First-class APIs for interacting with [Smart Contracts](https://ethereum.org/en/glossary/#smart-contract)
+- Language closely aligned to official [Ethereum terminology](https://ethereum.org/en/glossary/)
+- Import your Browser Extension, WalletConnect or Private Key Wallet
+- Browser native [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt),instead of large BigNumber libraries
+- Utilities for working with [ABIs](https://ethereum.org/en/glossary/#abi) (encoding/decoding/inspection)
+- TypeScript ready ([infer types](/docs/typescript) from ABIs and EIP-712 Typed Data)
+- First-class support for [Anvil](https://book.getfoundry.sh/) & [Hardhat](https://hardhat.org/)
+- Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
+
+<div class="h-8" />
+<h1>Community</h1>
+<hr class="h-2" />
+
+Check out the following places for more wagmi-related content:
+
+- Follow [@wagmi_sh](https://twitter.com/wagmi_sh), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Join the [discussions on GitHub](https://github.com/wagmi-dev/viem/discussions)
+- [Share your project/organization](https://github.com/wagmi-dev/viem/discussions/104) that uses viem
+
+<div class="h-8" />
+<h1>Support</h1>
+<hr class="h-2" />
+
+Help support future development and make wagmi a sustainable open-source project:
+
+- [GitHub Sponsors](https://github.com/sponsors/wagmi-dev?metadata_campaign=docs_support)
+- [Gitcoin Grant](https://wagmi.sh/gitcoin)
+- [wagmi-dev.eth](https://etherscan.io/enslookup-search?search=wagmi-dev.eth)
+
+<div class="h-8" />
+<h1>Sponsors</h1>
+<hr class="h-2" />
+
+<div class="my-5">
+  <a href="https://paradigm.xyz" class="inline-block">
+    <img
+      alt="Paradigm"
+      src="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/paradigm-dark.svg"
+      class="h-24 dark"
+    />
+    <img
+      alt="Paradigm"
+      src="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/paradigm-light.svg"
+      class="h-24 light"
+    />
+  </a>
+  <div class="flex flex-wrap items-center">
+    <a v-for="sponsor in sponsors">
+      <img :src="sponsor.logo.dark" class="h-12 dark" />
+      <img :src="sponsor.logo.light" class="h-12 light" />
+    </a>
+  </div>
+</div>
+
 <style scoped>
+  html:not(.dark) img.dark {
+    display: none;
+  }
+  .dark img.light {
+    display: none;
+  }
+
   .dark .logo {
     filter: invert(1);
   }
