@@ -93,11 +93,7 @@ Externally Owned Accounts are currently experimental. Use with caution.
 
 An Externally Owned Account performs signing of transactions & messages with a private key **before** executing a method over JSON-RPC.
 
-viem currently does not support client-side signing (coming soon!). For now, you can pass in an Ethers Wallet, or your own definition of an Externally Owned Account.
-
-### Ethers Wallet
-
-Below are the steps to integrate an Ethers `Wallet` into viem.
+Below are the steps to integrate an Externally Owned Account into viem.
 
 #### Initialize a Wallet Client
 
@@ -113,20 +109,31 @@ const client = createWalletClient({
 
 #### Set up your Externally Owned Account
 
-Next, we will instantiate a viem Account using an Ethers `Wallet`:
+Next, we will instantiate a viem Account using `getAccount`.
+
+viem currently **does not have client-side signing utilities** (coming soon!). For now, you will have to bring your own signing utilities and pass them through to the `getAccount` function:
 
 ```ts
 import { createWalletClient, http, getAccount } from 'viem'
-import { getAccount } from 'viem/ethers' // [!code focus]
-import { Wallet } from 'ethers' // [!code focus]
+import { getAddress, signMessage, signTransaction } from './sign-utils' // [!code focus]
 
 const client = createWalletClient({
   transport: http()
 })
 
-const privateKey = '0x...' // [!code focus]
-const account = getAccount(new Wallet(privateKey)) // [!code focus]
+const privateKey = '0x...' // [!code focus:10]
+const account = getAccount({
+  address: getAddress(privateKey),
+  signMessage(message) {
+    return signMessage(message, privateKey)
+  },
+  signTransaction(transaction) {
+    return signTransaction(transaction, privateKey)
+  }
+})
 ```
+
+> Tip: Instead of building private key signing utilities yourself, you can plug in a third-party signer into the `getAccount` interface. We have an [Ethers.js Wallet Adapter](#ethers-js-wallet) if you are coming from Ethers.js, but you could also hook up a [web3.js Wallet](https://web3js.readthedocs.io/en/v1.8.2/web3-eth-accounts.html#wallet-add), [micro-eth-signer](https://github.com/paulmillr/micro-eth-signer), etc to the `getAccount` interface.
 
 #### Consume [Wallet Actions](/docs/actions/wallet/introduction)
 
@@ -134,30 +141,11 @@ Now you can use that Account within Wallet Actions that need a signature from th
 
 ```ts
 import { createWalletClient, http, getAccount } from 'viem'
-import { getAccount } from 'viem/ethers'
-import { Wallet } from 'ethers'
+import { getAddress, signMessage, signTransaction } from './sign-utils'
 
 const client = createWalletClient({
   transport: http()
 })
-
-const privateKey = '0x...'
-const account = getAccount(new Wallet(privateKey))
-
-const hash = await client.sendTransaction({ // [!code focus:5]
-  account,
-  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-  value: parseEther('0.001')
-})
-```
-
-### Custom
-
-You can also pass in your own definition of an Externally Owned Account through the `getAccount` function:
-
-```ts
-import { getAccount } from 'viem'
-import { getAddress, signTransaction } from './custom-signer'
 
 const privateKey = '0x...'
 const account = getAccount({
@@ -168,6 +156,12 @@ const account = getAccount({
   signTransaction(transaction) {
     return signTransaction(transaction, privateKey)
   }
+})
+
+const hash = await client.sendTransaction({ // [!code focus:5]
+  account,
+  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+  value: parseEther('0.001')
 })
 ```
 
@@ -218,5 +212,30 @@ import { createWalletClient, custom } from 'viem'
 const client = createWalletClient({
   pollingInterval: 10_000, // [!code focus]
   transport: custom(window.ethereum)
+})
+```
+
+## Ethers.js Wallet
+
+::: warning
+Externally Owned Accounts are currently experimental. Use with caution.
+:::
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { getAccount } from 'viem/ethers' // [!code focus:2]
+import { Wallet } from 'ethers'
+
+const client = createWalletClient({
+  transport: http()
+})
+
+const privateKey = '0x...' // [!code focus:2]
+const account = getAccount(new Wallet(privateKey))
+
+const hash = await client.sendTransaction({ 
+  account,
+  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+  value: parseEther('0.001')
 })
 ```
