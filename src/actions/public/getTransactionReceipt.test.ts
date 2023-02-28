@@ -160,7 +160,7 @@ describe('e2e', () => {
         "status": "success",
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "transactionIndex": 0,
-        "type": null,
+        "type": "eip1559",
       }
     `)
   })
