@@ -2,7 +2,7 @@ import { createWalletClient, custom } from 'viem'
 
 import { AddChain } from '../actions/AddChain'
 import { GetPermissions } from '../actions/GetPermissions'
-import { RequestAccountAddresses } from '../actions/RequestAccountAddresses'
+import { RequestAddresses } from '../actions/RequestAddresses'
 import { RequestPermissions } from '../actions/RequestPermissions'
 import { SendTransaction } from '../actions/SendTransaction'
 import { SwitchChain } from '../actions/SwitchChain'
@@ -20,8 +20,8 @@ export function InjectedWallet() {
   return (
     <div>
       <hr />
-      <h3>requestAccounts</h3>
-      <RequestAccountAddresses client={client} />
+      <h3>requestAddresses</h3>
+      <RequestAddresses client={client} />
       <hr />
       <h3>sendTransaction</h3>
       <SendTransaction client={client} />

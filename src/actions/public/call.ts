@@ -1,7 +1,6 @@
 import type { PublicClient } from '../../clients'
 import { BaseError } from '../../errors'
 import type {
-  Address,
   BlockTag,
   Chain,
   Formatter,
@@ -9,6 +8,7 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
+import { Account } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -21,14 +21,14 @@ import { format, formatTransactionRequest, numberToHex } from '../../utils'
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,
 > = MergeIntersectionProperties<
-  Formatted<TFormatter, TransactionRequest, true>,
+  Omit<Formatted<TFormatter, TransactionRequest, true>, 'from'>,
   TransactionRequest
 >
 
 export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
   TransactionRequestFormatter<TChain>
 > & {
-  from?: Address
+  account?: Account
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -49,9 +49,9 @@ export async function call<TChain extends Chain>(
   args: CallArgs<TChain>,
 ): Promise<CallResponse> {
   const {
+    account,
     blockNumber,
     blockTag = 'latest',
-    from,
     accessList,
     data,
     gas,
@@ -70,7 +70,7 @@ export async function call<TChain extends Chain>(
     const formatter = client.chain?.formatters?.transactionRequest
     const request_ = format(
       {
-        from,
+        from: account?.address,
         accessList,
         data,
         gas,

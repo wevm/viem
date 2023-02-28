@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClient, WalletClient } from '../../clients'
 import { BaseError } from '../../errors'
 import type {
   BlockTag,
@@ -7,6 +7,7 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
+import { Account } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -15,19 +16,21 @@ import {
   formatTransactionRequest,
   getEstimateGasError,
   numberToHex,
+  prepareRequest,
   TransactionRequestFormatter,
 } from '../../utils'
 
 export type FormattedEstimateGas<
   TFormatter extends Formatter | undefined = Formatter,
 > = MergeIntersectionProperties<
-  Formatted<TFormatter, TransactionRequest, true>,
+  Omit<Formatted<TFormatter, TransactionRequest, true>, 'from'>,
   TransactionRequest
 >
 
 export type EstimateGasArgs<TChain extends Chain = Chain> =
-  FormattedEstimateGas<TransactionRequestFormatter<TChain>> &
-    (
+  FormattedEstimateGas<TransactionRequestFormatter<TChain>> & {
+    account: Account
+  } & (
       | {
           /** The balance of the account at a block number. */
           blockNumber?: bigint
@@ -46,33 +49,36 @@ export type EstimateGasResponse = bigint
  * @description Estimates the gas necessary to complete a transaction without submitting it to the network.
  */
 export async function estimateGas<TChain extends Chain>(
-  client: PublicClient<any, TChain>,
+  client: PublicClient<any, TChain> | WalletClient,
   args: EstimateGasArgs<TChain>,
 ): Promise<EstimateGasResponse> {
-  const {
-    accessList,
-    blockNumber,
-    blockTag = 'latest',
-    data,
-    from,
-    gas,
-    gasPrice,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    nonce,
-    to,
-    value,
-    ...rest
-  } = args
   try {
-    assertRequest(args)
+    const {
+      account,
+      accessList,
+      blockNumber,
+      blockTag = 'latest',
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+      ...rest
+    } = args.account.type === 'externally-owned'
+      ? await prepareRequest(client, args)
+      : args
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
+    assertRequest(args)
+
     const formatter = client.chain?.formatters?.transactionRequest
-    const request_ = format(
+    const request = format(
       {
-        from,
+        from: account.address,
         accessList,
         data,
         gas,
@@ -92,7 +98,7 @@ export async function estimateGas<TChain extends Chain>(
 
     const balance = await client.request({
       method: 'eth_estimateGas',
-      params: [request_, blockNumberHex || blockTag],
+      params: [request, blockNumberHex || blockTag],
     })
     return BigInt(balance)
   } catch (err) {

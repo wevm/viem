@@ -7,7 +7,7 @@ import {
   testClient,
   walletClient,
 } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import type { Address, Transaction } from '../../types'
 import { createPublicClient, http } from '../../clients'
 import { celo } from '../../chains'
@@ -29,7 +29,7 @@ test('gets transaction', async () => {
       "accessList": [],
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
-      "chainId": "0x1",
+      "chainId": 1,
       "from": "0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e",
       "gas": 100000n,
       "gasPrice": 11789405161n,
@@ -58,6 +58,7 @@ test('gets transaction (legacy)', async () => {
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
+      "chainId": undefined,
       "from": "0x47a6b2f389cf4bb6e4b69411c87ae82371daf87e",
       "gas": 200000n,
       "gasPrice": 57000000000n,
@@ -85,7 +86,7 @@ test('gets transaction (eip2930)', async () => {
 
   const hash = await sendTransaction(walletClient, {
     accessList: [{ address: targetAccount.address, storageKeys: [] }],
-    from: sourceAccount.address,
+    account: getAccount(sourceAccount.address),
     to: targetAccount.address,
     value: parseEther('1'),
     gasPrice: BigInt(block.baseFeePerGas ?? 0),
@@ -148,6 +149,7 @@ test('chain w/ custom block type', async () => {
     {
       "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",
       "blockNumber": 16628100n,
+      "chainId": undefined,
       "ethCompatible": false,
       "feeCurrency": null,
       "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
@@ -179,7 +181,7 @@ describe('args: hash', () => {
         "accessList": [],
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
-        "chainId": "0x1",
+        "chainId": 1,
         "from": "0x0926218bdafe613a4152628d14a762b6718741b9",
         "gas": 70000n,
         "gasPrice": 10939430701n,
@@ -221,6 +223,7 @@ describe('args: blockHash', () => {
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
+        "chainId": undefined,
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
         "gasPrice": 21000000000n,
@@ -263,6 +266,7 @@ describe('args: blockNumber', () => {
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
+        "chainId": undefined,
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
         "gasPrice": 21000000000n,
@@ -295,7 +299,7 @@ describe('args: blockNumber', () => {
 describe('args: blockTag', () => {
   test('gets transaction by block tag & index', async () => {
     await sendTransaction(walletClient, {
-      from: sourceAccount.address,
+      account: getAccount(sourceAccount.address),
       to: targetAccount.address,
       value: parseEther('1'),
     })

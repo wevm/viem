@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import {
   accounts,
   address,
@@ -57,7 +57,7 @@ describe('smoke test', () => {
   test('call', async () => {
     const { data } = await publicClient.call({
       data: '0x06fdde03',
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       to: wagmiContractConfig.address,
     })
     expect(data).toMatchInlineSnapshot(
@@ -89,7 +89,7 @@ describe('smoke test', () => {
     expect(
       await publicClient.estimateContractGas({
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
       }),
@@ -99,7 +99,7 @@ describe('smoke test', () => {
   test('estimateGas', async () => {
     expect(
       await publicClient.estimateGas({
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
         to: accounts[1].address,
         value: parseEther('1'),
       }),
@@ -202,7 +202,7 @@ describe('smoke test', () => {
 
   test('getTransactionConfirmations', async () => {
     const hash = await walletClient.sendTransaction({
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       to: accounts[1].address,
       value: parseEther('1'),
     })
@@ -259,7 +259,7 @@ describe('smoke test', () => {
     expect(
       await publicClient.simulateContract({
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
       }),
@@ -273,7 +273,7 @@ describe('smoke test', () => {
 
   test('waitForTransactionReceipt', async () => {
     const hash = await walletClient.sendTransaction({
-      from: accounts[6].address,
+      account: getAccount(accounts[6].address),
       to: accounts[7].address,
       value: parseEther('1'),
     })

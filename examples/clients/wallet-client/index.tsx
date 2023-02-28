@@ -1,23 +1,30 @@
 import 'viem/window'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { Address, createWalletClient, custom, parseEther } from 'viem'
+import {
+  Account,
+  createWalletClient,
+  custom,
+  getAccount,
+  parseEther,
+} from 'viem'
 
 const walletClient = createWalletClient({
   transport: custom(window.ethereum!),
 })
 
 function Example() {
-  const [account, setAccount] = useState<Address>()
+  const [account, setAccount] = useState<Account>()
 
   const connect = async () => {
-    const accounts = await walletClient.requestAccounts()
-    setAccount(accounts[0])
+    const [address] = await walletClient.requestAddresses()
+    setAccount(getAccount(address))
   }
 
   const sendTransaction = async () => {
+    if (!account) return
     await walletClient.sendTransaction({
-      from: account!,
+      account,
       to: '0x0000000000000000000000000000000000000000',
       value: parseEther('0.000001'),
     })
@@ -26,7 +33,7 @@ function Example() {
   if (account)
     return (
       <>
-        <div>Connected: {account}</div>
+        <div>Connected: {account.address}</div>
         <button onClick={sendTransaction}>Send Transaction</button>
       </>
     )

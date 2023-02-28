@@ -201,11 +201,11 @@ const results = await publicClient.multicall({
 })
 ```
 
-### from (optional)
+### account (optional)
 
-- **Type:** `Address`
+- **Type:** `Account`
 
-Optional sender override.
+Optional Account sender override. [Read more](/docs/clients/wallet).
 
 ```ts
 const results = await publicClient.multicall({
@@ -217,6 +217,6 @@ const results = await publicClient.multicall({
     },
     ...
   ],
-  from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' // [!code focus]
+  account: getAccount('0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b') // [!code focus]
 })
 ```

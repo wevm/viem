@@ -7,10 +7,10 @@ test('exports actions', () => {
     {
       "addChain": [Function],
       "deployContract": [Function],
-      "getAccounts": [Function],
+      "getAddresses": [Function],
       "getChainId": [Function],
       "getPermissions": [Function],
-      "requestAccounts": [Function],
+      "requestAddresses": [Function],
       "requestPermissions": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],

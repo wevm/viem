@@ -1,35 +1,21 @@
 import type { WalletClient } from '../../clients'
-import { BaseError } from '../../errors'
-import type { Address, ByteArray, Hex } from '../../types'
+import type { Account, Hex } from '../../types'
 import { toHex } from '../../utils'
 
 export type SignMessageArgs = {
-  from: Address
-  data: Hex | ByteArray
+  account: Account
+  data: string
 }
 
 export type SignMessageResponse = Hex
 
 export async function signMessage(
   client: WalletClient,
-  { from, data: data_ }: SignMessageArgs,
+  { account, data }: SignMessageArgs,
 ): Promise<SignMessageResponse> {
-  let data
-  if (typeof data_ === 'string') {
-    if (!data_.startsWith('0x'))
-      throw new BaseError(
-        `data ("${data_}") must be a hex value. Encode it first to a hex with the \`toHex\` util.`,
-        {
-          docsPath: '/TODO',
-        },
-      )
-    data = data_
-  } else {
-    data = toHex(data_)
-  }
-  const signed = await client.request({
+  if (account.type === 'externally-owned') return account.signMessage(data)
+  return client.request({
     method: 'personal_sign',
-    params: [data, from],
+    params: [toHex(data), account.address],
   })
-  return signed
 }

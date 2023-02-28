@@ -1,6 +1,7 @@
 import { Contract } from 'ethers'
 import { Contract as ContractV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
+import { getAccount } from '../../utils'
 
 import {
   accounts,
@@ -17,7 +18,7 @@ describe('Simulate Contract', () => {
       ...wagmiContractConfig,
       functionName: 'mint',
       args: [1n],
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
     })
   })
 

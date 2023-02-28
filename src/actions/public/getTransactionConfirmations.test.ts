@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { mine } from '../test'
 import { getTransactionConfirmations } from './getTransactionConfirmations'
 import { getTransactionReceipt } from './getTransactionReceipt'
@@ -9,7 +9,7 @@ import { sendTransaction } from '..'
 
 test('default', async () => {
   const hash = await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
@@ -26,7 +26,7 @@ test('default', async () => {
 
 test('multiple confirmations', async () => {
   const hash = await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
@@ -43,7 +43,7 @@ test('multiple confirmations', async () => {
 
 test('args: hash', async () => {
   const hash = await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
@@ -57,7 +57,7 @@ test('args: hash', async () => {
 
 test('no confirmations', async () => {
   const hash = await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })

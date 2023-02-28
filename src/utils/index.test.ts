@@ -32,10 +32,6 @@ test('exports utils', () => {
       "encodeEventTopics": [Function],
       "encodeFunctionData": [Function],
       "encodeFunctionResult": [Function],
-      "etherUnits": {
-        "gwei": 9,
-        "wei": 18,
-      },
       "extract": [Function],
       "extractFunctionName": [Function],
       "extractFunctionParams": [Function],
@@ -54,6 +50,7 @@ test('exports utils', () => {
       "fromHex": [Function],
       "fromRlp": [Function],
       "getAbiItem": [Function],
+      "getAccount": [Function],
       "getAddress": [Function],
       "getCallError": [Function],
       "getContractAddress": [Function],
@@ -66,10 +63,6 @@ test('exports utils', () => {
       "getNodeError": [Function],
       "getSocket": [Function],
       "getTransactionError": [Function],
-      "gweiUnits": {
-        "ether": -9,
-        "wei": 9,
-      },
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],
@@ -88,6 +81,7 @@ test('exports utils', () => {
       "parseEther": [Function],
       "parseGwei": [Function],
       "parseUnit": [Function],
+      "prepareRequest": [Function],
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
@@ -109,10 +103,6 @@ test('exports utils', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
-      "weiUnits": {
-        "ether": -18,
-        "gwei": -9,
-      },
     }
   `)
 })

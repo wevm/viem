@@ -7,7 +7,7 @@ import {
   walletClient,
   web3Provider,
 } from '../../_test'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { getTransactionCount } from '../public'
 
 import { sendTransaction } from './sendTransaction'
@@ -23,7 +23,7 @@ beforeAll(async () => {
 describe('Send Transaction', () => {
   bench('viem: `sendTransaction`', async () => {
     await sendTransaction(walletClient, {
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       to: accounts[1].address,
       value: parseEther('1'),
       nonce: nonce++,

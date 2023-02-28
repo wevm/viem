@@ -2,7 +2,7 @@
 head:
   - - meta
     - property: og:title
-      content: getAccounts
+      content: getAddresses
   - - meta
     - name: description
       content: Returns a list of addresses owned by the wallet or client.
@@ -12,16 +12,16 @@ head:
 
 ---
 
-# getAccounts
+# getAddresses
 
-Returns a list of addresses owned by the wallet or client.
+Returns a list of account addresses owned by the wallet or client.
 
 ## Usage
 
 ```ts
 import { walletClient } from '.'
  
-const accounts = await walletClient.getAccounts() // [!code focus:99]
+const accounts = await walletClient.getAddresses() // [!code focus:99]
 // ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
 ```
 

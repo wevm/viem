@@ -6,9 +6,9 @@ test('exports wallet actions', () => {
   expect(Object.keys(wallet)).toMatchInlineSnapshot(`
     [
       "addChain",
-      "getAccounts",
+      "getAddresses",
       "getPermissions",
-      "requestAccounts",
+      "requestAddresses",
       "requestPermissions",
       "sendTransaction",
       "signMessage",

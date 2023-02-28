@@ -1,12 +1,13 @@
 import { expect, test } from 'vitest'
 import { BaseError, RpcError, TransactionRejectedRpcError } from '../../errors'
 import { address } from '../../_test'
+import { getAccount } from '../account'
 import { getCallError } from './getCallError'
 
 test('default', () => {
   const error = new BaseError('Unknown error')
   const result = getCallError(error, {
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   expect(result).toMatchInlineSnapshot(`
     [CallExecutionError: Unknown error
@@ -27,7 +28,7 @@ test('default', () => {
     }),
   )
   const result = getCallError(error, {
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   expect(result).toMatchInlineSnapshot(`
     [CallExecutionError: The fee cap (\`maxFeePerGas\`) cannot be higher than the maximum allowed value (2^256-1).

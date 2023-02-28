@@ -1,4 +1,3 @@
-export { etherUnits, gweiUnits, weiUnits } from './constants'
 export { formatEther } from './formatEther'
 export { formatGwei } from './formatGwei'
 export { formatUnit } from './formatUnit'

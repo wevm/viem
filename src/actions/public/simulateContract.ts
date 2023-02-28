@@ -85,7 +85,7 @@ export async function simulateContract<
       args,
       docsPath: '/docs/contract/simulateContract',
       functionName,
-      sender: callRequest.from,
+      sender: callRequest.account?.address,
     })
   }
 }

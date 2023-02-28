@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { mine, setBalance } from '../test'
 
 import { deployContract } from './deployContract'
@@ -11,7 +11,7 @@ test('default', async () => {
   const hash = await deployContract(walletClient, {
     ...baycContractConfig,
     args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
   })
   expect(hash).toBeDefined()
 
@@ -39,7 +39,7 @@ test('no funds', async () => {
     deployContract(walletClient, {
       ...baycContractConfig,
       args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
     }),
   ).rejects.toThrowErrorMatchingSnapshot()
 

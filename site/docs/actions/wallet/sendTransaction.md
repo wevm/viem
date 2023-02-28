@@ -19,10 +19,13 @@ Creates, signs, and sends a new transaction to the network.
 ## Usage
 
 ```ts
+import { getAccount } from 'viem'
 import { walletClient } from '.'
+
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
  
 const hash = await walletClient.sendTransaction({ // [!code focus:99]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -37,15 +40,15 @@ The [Transaction Hash](/docs/glossary/terms#TODO).
 
 ## Parameters
 
-### from
+### account
 
-- **Type:** `Address`
+- **Type:** `Account`
 
-The Transaction sender.
+The Account sender. [Read more](/docs/clients/wallet).
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -59,7 +62,7 @@ The transaction recipient or contract address.
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  account, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
   nonce: 69
@@ -80,7 +83,7 @@ const data = await publicClient.sendTransaction({
       storageKeys: ['0x1'],
     },
   ],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
@@ -100,7 +103,7 @@ import { optimism } from 'viem/chains' // [!code focus]
 const hash = await walletClient.sendTransaction({
   assertChain: false, // [!code focus]
   chain: optimism, // [!code focus]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -119,7 +122,7 @@ import { optimism } from 'viem/chains' // [!code focus]
 
 const hash = await walletClient.sendTransaction({
   chain: optimism, // [!code focus]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -134,7 +137,7 @@ A contract hashed method call with encoded args.
 ```ts
 const hash = await walletClient.sendTransaction({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -148,7 +151,7 @@ The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/g
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') 
@@ -163,7 +166,7 @@ Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -178,7 +181,7 @@ Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -194,7 +197,7 @@ Unique number identifying this transaction.
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
   nonce: 69 // [!code focus]
@@ -209,7 +212,7 @@ Value in wei sent with this transaction.
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
   nonce: 69
@@ -218,7 +221,7 @@ const hash = await walletClient.sendTransaction({
 
 ## Tips
 
-- For dapps: When using this action, it is assumed that the user has connected to their wallet (e.g. given permission for the dapp to access their accounts via [`requestAccounts`](/docs/actions/wallet/requestAccounts)). You can also check if the user has granted access to accounts via [`getAccounts`](/docs/actions/wallet/getAccounts)
+- For dapps: When using this action, it is assumed that the user has connected to their wallet (e.g. given permission for the dapp to access their accounts via [`requestAddresses`](/docs/actions/wallet/requestAddresses)). You can also check if the user has granted access to their accounts via [`getAddresses`](/docs/actions/wallet/getAddresses)
 
 ## Live Example
 

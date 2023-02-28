@@ -49,6 +49,8 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   blockHash: Hash | null
   /** Number of block containing this transaction or `null` if pending */
   blockNumber: TQuantity | null
+  /** Chain ID. */
+  chainId: TIndex
   /** Transaction sender */
   from: Address
   /** Gas provided for transaction execution */

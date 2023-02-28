@@ -1,10 +1,8 @@
-import type { SignableRequests, WalletRequests } from '../types/eip1193'
 import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 import { Chain } from '../types'
 import { WalletActions, walletActions } from './decorators'
-import { wagmiContractConfig } from '../_test'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
@@ -24,20 +22,11 @@ export type WalletClient<
   TTransport extends Transport = Transport,
   TChain extends Chain = Chain,
   TIncludeActions extends boolean = true,
-> = Client<TTransport, TChain, SignableRequests & WalletRequests> &
+> = Client<TTransport, TChain> &
   (TIncludeActions extends true ? WalletActions<TChain> : {})
 
 /**
  * @description Creates a wallet client with a given transport.
- *
- * - Only has access to "wallet" & "signable" EIP-1474 RPC methods
- * (ie. `eth_sendTransaction`, `eth_requestAccounts`, etc).
- *
- * @example
- * import { createWalletClient, custom } from 'viem'
- * const client = createWalletClient(
- *  custom(window.ethereum)
- * )
  */
 export function createWalletClient<
   TTransport extends Transport,

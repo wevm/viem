@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { sendTransaction } from '..'
 import { mine, setNonce } from '../test'
@@ -16,7 +16,7 @@ test('gets transaction count', async () => {
   ).toBe(0)
 
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[0].address,
     value: parseEther('1'),
   })

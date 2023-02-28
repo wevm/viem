@@ -18,7 +18,12 @@ import {
   walletClient,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
-import { encodeFunctionData, parseEther, parseGwei } from '../../utils'
+import {
+  encodeFunctionData,
+  getAccount,
+  parseEther,
+  parseGwei,
+} from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
 
@@ -32,7 +37,7 @@ describe('wagmi', () => {
       (
         await simulateContract(publicClient, {
           ...wagmiContractConfig,
-          from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+          account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
           functionName: 'mint',
           args: [69420n],
         })
@@ -43,7 +48,7 @@ describe('wagmi', () => {
         await simulateContract(publicClient, {
           ...wagmiContractConfig,
           functionName: 'safeTransferFrom',
-          from: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
+          account: getAccount('0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6'),
           args: [
             '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
             '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -59,7 +64,7 @@ describe('wagmi', () => {
       (
         await simulateContract(publicClient, {
           ...wagmiContractConfig,
-          from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+          account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
           functionName: 'mint',
         })
       ).result,
@@ -72,7 +77,7 @@ describe('wagmi', () => {
         ...wagmiContractConfig,
         functionName: 'approve',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 420n],
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "The contract function \\"approve\\" reverted with the following reason:
@@ -92,7 +97,7 @@ describe('wagmi', () => {
         ...wagmiContractConfig,
         functionName: 'mint',
         args: [1n],
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "The contract function \\"mint\\" reverted with the following reason:
@@ -111,7 +116,7 @@ describe('wagmi', () => {
       simulateContract(publicClient, {
         ...wagmiContractConfig,
         functionName: 'safeTransferFrom',
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         args: [
           '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
           '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -146,7 +151,7 @@ describe('BAYC', () => {
           abi: baycContractConfig.abi,
           functionName: 'flipSaleState',
         }),
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
         to: contractAddress!,
       })
       await mine(testClient, { blocks: 1 })
@@ -158,7 +163,7 @@ describe('BAYC', () => {
             abi: baycContractConfig.abi,
             address: contractAddress!,
             functionName: 'mintApe',
-            from: accounts[0].address,
+            account: getAccount(accounts[0].address),
             args: [1n],
             value: 1000000000000000000n,
           })
@@ -176,7 +181,7 @@ describe('BAYC', () => {
             abi: baycContractConfig.abi,
             address: contractAddress!,
             functionName: 'reserveApes',
-            from: accounts[0].address,
+            account: getAccount(accounts[0].address),
           })
         ).result,
       ).toBe(undefined)
@@ -193,7 +198,7 @@ describe('BAYC', () => {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
-          from: accounts[0].address,
+          account: getAccount(accounts[0].address),
           args: [1n],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -222,7 +227,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'revertWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
@@ -246,7 +251,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'assertWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
@@ -270,7 +275,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'overflowWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
@@ -294,7 +299,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'divideByZeroWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "divideByZeroWrite" reverted with the following reason:
@@ -318,7 +323,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'requireWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
@@ -342,7 +347,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'simpleCustomWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "simpleCustomWrite" reverted.
@@ -368,7 +373,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'complexCustomWrite',
-        from: accounts[0].address,
+        account: getAccount(accounts[0].address),
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "complexCustomWrite" reverted.
@@ -401,7 +406,7 @@ test('fake contract address', async () => {
       ],
       address: '0x0000000000000000000000000000000000000069',
       functionName: 'mint',
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     "The contract function \\"mint\\" returned no data (\\"0x\\").
@@ -426,7 +431,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         maxFeePerGas: 2n ** 256n - 1n + 1n,
@@ -456,7 +461,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         gas: 100n,
@@ -490,7 +495,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         gas: 100_000_000_000_000_000n,
@@ -503,7 +508,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         maxFeePerGas: 1n,
@@ -516,7 +521,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         nonce: 0,
@@ -529,7 +534,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         // @ts-expect-error
@@ -554,7 +559,7 @@ describe('node errors', () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
-        from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
         args: [69420n],
         maxFeePerGas: parseGwei('20'),

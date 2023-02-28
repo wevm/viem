@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-import { getAddress } from '../../utils'
+import { getAccount, getAddress } from '../../utils'
 import { wait } from '../../utils/wait'
 import {
   accounts,
@@ -89,20 +89,20 @@ test(
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
     })
     await wait(1000)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
-      from: address.vitalik,
+      account: getAccount(address.vitalik),
     })
     await wait(2000)
     unwatch()
@@ -127,20 +127,20 @@ test('args: batch', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await wait(2000)
   unwatch()
@@ -169,7 +169,7 @@ test('args: address', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await wait(2000)
   unwatch()
@@ -199,7 +199,7 @@ test('args: address + event', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await wait(2000)
   unwatch()
@@ -239,20 +239,20 @@ test('falls back to `getLogs` if `createEventFilter` throws', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
-    from: address.vitalik,
+    account: getAccount(address.vitalik),
   })
   await wait(2000)
   unwatch()

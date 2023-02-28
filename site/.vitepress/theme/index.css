@@ -56,3 +56,7 @@
   height: 500px;
   width: calc(100% + 64px);
 }
+
+.main h4 {
+  margin-top: 32px;
+}

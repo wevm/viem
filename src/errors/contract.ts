@@ -23,8 +23,8 @@ export class CallExecutionError extends BaseError {
   constructor(
     cause: BaseError,
     {
+      account,
       docsPath,
-      from,
       chain,
       data,
       gas,
@@ -37,7 +37,7 @@ export class CallExecutionError extends BaseError {
     }: CallArgs & { chain?: Chain; docsPath?: string },
   ) {
     const prettyArgs = prettyPrint({
-      from,
+      from: account?.address,
       to,
       value:
         typeof value !== 'undefined' &&

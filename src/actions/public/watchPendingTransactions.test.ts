@@ -7,7 +7,7 @@ import { watchPendingTransactions } from './watchPendingTransactions'
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { wait } from '../../utils/wait'
 import { sendTransaction } from '../wallet'
-import { parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils'
 import { mine, setIntervalMining } from '../test'
 
 test(
@@ -24,13 +24,13 @@ test(
     })
     await wait(1000)
     await sendTransaction(walletClient, {
-      from: accounts[0].address,
+      account: getAccount(accounts[0].address),
       to: accounts[1].address,
       value: parseEther('1'),
     })
     await wait(1000)
     await sendTransaction(walletClient, {
-      from: accounts[2].address,
+      account: getAccount(accounts[2].address),
       to: accounts[3].address,
       value: parseEther('1'),
     })
@@ -57,18 +57,18 @@ test('watches for pending transactions (unbatched)', async () => {
   })
   await wait(1000)
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
   await wait(1000)
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })
   await sendTransaction(walletClient, {
-    from: accounts[0].address,
+    account: getAccount(accounts[0].address),
     to: accounts[1].address,
     value: parseEther('1'),
   })

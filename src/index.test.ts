@@ -123,6 +123,7 @@ test('exports actions', () => {
       "fromHex": [Function],
       "fromRlp": [Function],
       "getAbiItem": [Function],
+      "getAccount": [Function],
       "getAddress": [Function],
       "getContractAddress": [Function],
       "getContractError": [Function],

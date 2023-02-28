@@ -18,6 +18,18 @@ export function prettyPrint(
     .join('\n')
 }
 
+export class FeeConflictError extends BaseError {
+  name = 'FeeConflictError'
+  constructor() {
+    super(
+      [
+        'Cannot specify both a `gasPrice` and a `maxFeePerGas`/`maxPriorityFeePerGas`.',
+        'Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks, and `gasPrice` for others.',
+      ].join('\n'),
+    )
+  }
+}
+
 export class TransactionExecutionError extends BaseError {
   cause: BaseError
 
@@ -26,8 +38,8 @@ export class TransactionExecutionError extends BaseError {
   constructor(
     cause: BaseError,
     {
+      account,
       docsPath,
-      from,
       chain,
       data,
       gas,
@@ -41,7 +53,7 @@ export class TransactionExecutionError extends BaseError {
   ) {
     const prettyArgs = prettyPrint({
       chain: chain && `${chain?.name} (id: ${chain?.id})`,
-      from,
+      from: account.address,
       to,
       value:
         typeof value !== 'undefined' &&

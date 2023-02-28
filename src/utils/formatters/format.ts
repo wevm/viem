@@ -31,12 +31,19 @@ export type Formatted<
   TFormatter,
   TFallback,
   TAllowOptional = false,
+  TUseParameters = false,
 > = TFormatter extends Formatter
   ? // If Formatter attributes exist, attach them; otherwise attach the Target type (e.g. Block).
     ReturnType<TFormatter> extends Record<string, never>
     ? TFallback
     : TAllowOptional extends true
-    ? OptionalNullable<ReturnType<TFormatter>>
+    ? OptionalNullable<
+        TUseParameters extends true
+          ? Parameters<TFormatter>[0]
+          : ReturnType<TFormatter>
+      >
+    : TUseParameters extends true
+    ? Parameters<TFormatter>[0]
     : ReturnType<TFormatter>
   : never
 

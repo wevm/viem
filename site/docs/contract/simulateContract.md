@@ -32,11 +32,13 @@ The `mint` function accepts no arguments, and returns a token ID.
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
 const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
 })
 // 69420
 ```
@@ -81,12 +83,14 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
 const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
 })
 // 69420
 ```
@@ -129,11 +133,13 @@ In the example below, we are **validating** if the contract write will be succes
 import { walletClient, publicClient } from './client'
 import { wagmiAbi } from './abi'
 
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
 const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account,
 })
 const hash = await walletClient.writeContract(request)
 ```
@@ -181,7 +187,7 @@ const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 })
 ```
 
@@ -196,7 +202,7 @@ const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 })
 ```
 
@@ -211,22 +217,22 @@ const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint', // [!code focus]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 })
 ```
 
-### from
+### account
 
-- **Type:** `Address`
+- **Type:** `Account`
 
-The sender of the call.
+The Account sender. [Read more](/docs/clients/wallet).
 
 ```ts
 const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266') // [!code focus]
 })
 ```
 
@@ -246,7 +252,7 @@ const { result } = await publicClient.simulateContract({
     address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
     storageKeys: ['0x1'],
   }], 
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 })
 ```
 
@@ -263,7 +269,7 @@ const { result } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'balanceOf',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'], // [!code focus]
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 })
 ```
 
@@ -279,7 +285,7 @@ const { result } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   gasPrice: parseGwei('20'), // [!code focus]
 })
 ```
@@ -296,7 +302,7 @@ const { result } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   maxFeePerGas: parseGwei('20'),  // [!code focus]
 })
 ```
@@ -313,7 +319,7 @@ const { result } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
 })
@@ -331,7 +337,7 @@ const { result } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   nonce: 69 // [!code focus]
 })
 ```
@@ -348,7 +354,7 @@ const { result } = await publicClient.simulateContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   value: parseEther('1') // [!code focus]
 })
 ```
@@ -366,7 +372,7 @@ const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   blockNumber: 15121123n, // [!code focus]
 })
 ```
@@ -383,7 +389,7 @@ const { result } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
   blockTag: 'safe', // [!code focus]
 })
 ```
