@@ -788,7 +788,128 @@ decodeAbiParameters(
 In viem, there is no concept of "fragments" & "interfaces". We want to stick as close to the wire as possible and not introduce middleware abstractions and extra layers over ABIs. Instead of working with "fragments", we encourage you to work with the ABI itself.
 We provide utilities such as `getAbiItem`, `inspectAbiItem`, `parseAbiItem`, `parseAbiParameters` and `parseAbiParameter` which covers the use cases of fragments.
 
-### 
+### Interface.format
+
+viem only supports Human Readable → Object format.
+
+#### Ethers
+
+```ts {3-10}
+import { utils } from 'ethers'
+
+const interface = new Interface([
+  'constructor(string symbol, string name)',
+  'function transferFrom(address from, address to, uint amount)',
+  'function transferFrom(address from, address to, uint amount, bool x)',
+  'function mint(uint amount) payable',
+  'function balanceOf(address owner) view returns (uint)'
+])
+const json = interface.format(utils.FormatTypes.json)
+```
+
+#### viem
+
+```ts {3-10}
+import { parseAbi } from 'viem'
+
+const json = parseAbi([
+  'constructor(string symbol, string name)',
+  'function transferFrom(address from, address to, uint amount)',
+  'function transferFrom(address from, address to, uint amount, bool x)',
+  'function mint(uint amount) payable',
+  'function balanceOf(address owner) view returns (uint)',
+  'event Transfer(address indexed from, address indexed to, uint256 amount)'
+])
+```
+
+### Fragment Access
+
+#### Ethers
+
+```ts {9-10}
+import { utils } from 'ethers'
+import { abi } from './abi'
+
+const interface = new Interface(abi)
+interface.getFunction('transferFrom')
+interface.getEvent('Transfer')
+```
+
+#### viem
+
+```ts {11-12}
+import { getAbiItem } from 'viem'
+import { abi } from './abi'
+
+getAbiItem({ abi, name: 'transferFrom' })
+getAbiItem({ abi, name: 'Transfer' })
+```
+
+### Interface.encodeDeploy
+
+#### Ethers
+
+```ts
+import { utils } from 'ethers'
+import { abi } from './abi'
+
+const iface = new utils.Interface(abi);
+const data = iface.encodeDeploy(['SYM', 'Some Name'])
+```
+
+#### viem
+
+```ts
+import { encodeDeployData } from 'viem'
+import { abi, bytecode } from './abi'
+
+const data = encodeDeployData({
+  abi,
+  bytecode,
+  args: ['SYM', 'Some Name']
+})
+```
+
+> Note: viem concatinates the contract bytecode onto the ABI encoded data.
+
+### Interface.encodeErrorResult
+
+#### Ethers
+
+```ts
+import { utils } from 'ethers'
+import { abi } from './abi'
+
+const iface = new utils.Interface(abi);
+const data = iface.encodeErrorResult('AccountLocked', [
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  utils.parseEther('1.0')
+]);
+```
+
+#### viem
+
+```ts
+import { encodeErrorResult, parseEther } from 'viem'
+import { abi } from './abi'
+
+const data = encodeErrorResult({
+  abi: wagmiAbi,
+  errorName: 'AccountLocked',
+  args: [
+    '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+    parseEther('1.0')
+  ]
+})
+```
+
+### Interface.encodeFilterTopics
+
+### Interface.encodeFunctionData
+
+### Interface.encodeFunctionResult
+
+### Decoding Data
 
 ## Address Utilities
 
