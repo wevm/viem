@@ -1,9 +1,9 @@
 lockfileVersion: 5.4
 
 patchedDependencies:
-  vitepress@1.0.0-alpha.47:
-    hash: 345q2tf6p7kfij6znk77nvj7ue
-    path: patches/vitepress@1.0.0-alpha.47.patch
+  vitepress@1.0.0-alpha.49:
+    hash: exyxdht77nuorjdyati55l5yja
+    path: patches/vitepress@1.0.0-alpha.49.patch
 
 importers:
 
@@ -84,7 +84,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -95,7 +95,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -106,7 +106,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -124,7 +124,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -145,7 +145,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -159,7 +159,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -170,7 +170,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -181,7 +181,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -192,7 +192,7 @@ importers:
       viem: alpha
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -210,7 +210,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.0.1-alpha.38_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -253,13 +253,13 @@ importers:
       autoprefixer: ^10.4.13
       postcss: ^8.4.19
       tailwindcss: ^3.2.4
-      vitepress: 1.0.0-alpha.47
+      vitepress: 1.0.0-alpha.49
       vue: ^3.2.45
     devDependencies:
       autoprefixer: 10.4.13_postcss@8.4.19
       postcss: 8.4.19
       tailwindcss: 3.2.4_postcss@8.4.19
-      vitepress: 1.0.0-alpha.47_345q2tf6p7kfij6znk77nvj7ue
+      vitepress: 1.0.0-alpha.49_rvimzegftapjbsjblbz3j2knfe
       vue: 3.2.45
 
 packages:
@@ -7618,6 +7618,22 @@ packages:
       extsprintf: 1.3.0
     dev: true
 
+  /viem/0.0.1-alpha.38_typescript@4.9.5:
+    resolution: {integrity: sha512-LkripIFTq1RKGpQbSqWCZM8TMAXMX34lOr/69VDFBcuI0sDtIVc4wJ63wEDbnvBaga+24HharIyXpDUxf4IGjA==}
+    dependencies:
+      '@noble/hashes': 1.1.2
+      '@wagmi/chains': 0.2.8_typescript@4.9.5
+      abitype: 0.5.0_typescript@4.9.5
+      idna-uts46-hx: 4.1.2
+      isomorphic-ws: 5.0.0_ws@8.12.0
+      ws: 8.12.0
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+    dev: false
+
   /vite/3.2.5_@types+node@17.0.45:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -7719,8 +7735,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress/1.0.0-alpha.47_345q2tf6p7kfij6znk77nvj7ue:
-    resolution: {integrity: sha512-vj+LOY0WJtKSk98HV4qqG6p4MofmF+C8yrWHiiw+GCMfr6C+610U5D7oD2OruroIafsON6F4nBDWGK8ZyGIpXQ==}
+  /vitepress/1.0.0-alpha.49_rvimzegftapjbsjblbz3j2knfe:
+    resolution: {integrity: sha512-3nUZJow4qL8NHRWYatqqVj45AJDxWst/TuOj+IbQRhxesEswa+Fpwayj9/FxzRzBl665fuiG5y+QeVhOeUm0OA==}
     hasBin: true
     dependencies:
       '@docsearch/css': 3.3.3

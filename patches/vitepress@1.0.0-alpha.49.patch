@@ -1,0 +1,31 @@
+diff --git a/dist/client/theme-default/index.js b/dist/client/theme-default/index.js
+index a26a11093aa91df0b9996443fe1d480249e0619f..ccaea5d00551422d01f5b46ba6486375f80be1f7 100644
+--- a/dist/client/theme-default/index.js
++++ b/dist/client/theme-default/index.js
+@@ -10,10 +10,13 @@ import './styles/components/vp-sponsor.css';
+ import VPBadge from './components/VPBadge.vue';
+ import Layout from './Layout.vue';
+ import NotFound from './NotFound.vue';
++export { default as VPButton } from './components/VPButton.vue';
+ export { default as VPHomeHero } from './components/VPHomeHero.vue';
+ export { default as VPHomeFeatures } from './components/VPHomeFeatures.vue';
+ export { default as VPHomeSponsors } from './components/VPHomeSponsors.vue';
++export { default as VPIconHeart } from './components/icons/VPIconHeart.vue';
+ export { default as VPDocAsideSponsors } from './components/VPDocAsideSponsors.vue';
++export { default as VPSponsors } from './components/VPSponsors.vue';
+ export { default as VPTeamPage } from './components/VPTeamPage.vue';
+ export { default as VPTeamPageTitle } from './components/VPTeamPageTitle.vue';
+ export { default as VPTeamPageSection } from './components/VPTeamPageSection.vue';
+diff --git a/jsconfig.json b/jsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9cffa9d0541a68d18ff74b0f53a8b4625f103e69
+--- /dev/null
++++ b/jsconfig.json
+@@ -0,0 +1,7 @@
++{
++  "typeAcquisition": {
++    "include": [
++      "wechat-miniprogram"
++    ]
++  }
++}

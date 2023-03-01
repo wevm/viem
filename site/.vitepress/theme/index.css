@@ -15,6 +15,8 @@
   --vp-button-brand-bg: #ffc517;
   --vp-button-brand-text: var(--vp-c-black);
   --vp-button-brand-hover-text: var(--vp-c-black);
+  --vp-button-sponsor-hover-border: var(--vp-c-brand);
+  --vp-button-sponsor-hover-text: var(--vp-c-brand);
   --vp-code-line-highlight-color: rgb(255 197 22 / 8%);
   --vp-code-font-size: 15px;
   --vp-code-tab-divider: var(--vp-c-mute-dark);
