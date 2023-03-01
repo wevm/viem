@@ -16,7 +16,7 @@ head:
 
 The current state of low-level Ethereum interface abstractions lack in at least one of the following four areas: **developer experience**, **stability**, **bundle size** and/or **performance** – a quadrilemma.
 
-As the authors of [wagmi](https://wagmi.sh), a popular React Hook library for Ethereum, we struggled working with the existing low-level TypeScript Ethereum libraries. We wanted to provide the users of wagmi with the best possible developer experience—but we were being limited by the underlying technologies wagmi was built on. We knew an _always_ stable, predictable implementation with a tiny bundle size and performant modules was paramount to interacting the world's largest blockhain ecosystem.
+As the authors of [wagmi](https://wagmi.sh), a popular React Hook library for Ethereum, we struggled working with the existing low-level TypeScript Ethereum libraries. We wanted to provide the users of wagmi with the best possible developer experience—but we were being limited by the underlying technologies wagmi was built on. We knew an _always_ stable, predictable implementation with a tiny bundle size and performant modules was paramount to interacting the world's largest blockchain ecosystem.
 
 So we created **viem**: a TypeScript Interface for Ethereum that provides low-level stateless primitives for interacting with Ethereum. An alternative to ethers.js and web3.js with a focus on reliability, efficiency and an excellent developer experience.
 
