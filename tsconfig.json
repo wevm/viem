@@ -8,7 +8,6 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "outDir": "dist",
-    "preserveSymlinks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

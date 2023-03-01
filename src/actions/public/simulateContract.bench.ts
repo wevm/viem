@@ -6,6 +6,7 @@ import { getAccount } from '../../utils'
 import {
   accounts,
   ethersProvider,
+  ethersV6Provider,
   publicClient,
   wagmiContractConfig,
 } from '../../_test'
@@ -35,7 +36,7 @@ describe('Simulate Contract', () => {
     const wagmi = new ContractV6(
       wagmiContractConfig.address,
       wagmiContractConfig.abi,
-      ethersProvider,
+      ethersV6Provider,
     )
     await wagmi.mint.staticCall(1)
   })

@@ -123,7 +123,7 @@ describe('ABI Encode', () => {
           name: 'barOut',
           type: 'tuple',
         },
-      ],
+      ] as any,
       [
         {
           foo: {
@@ -413,7 +413,7 @@ describe('Seaport function', () => {
           name: 'orders',
           type: 'tuple[]',
         },
-      ],
+      ] as any,
       [
         [
           {

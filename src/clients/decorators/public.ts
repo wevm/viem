@@ -189,9 +189,16 @@ export type PublicActions<TChain extends Chain = Chain> = {
   simulateContract: <
     TAbi extends Abi | readonly unknown[] = Abi,
     TFunctionName extends string = any,
+    TChainOverride extends Chain | undefined = undefined,
   >(
-    args: SimulateContractArgs<TChain, TAbi, TFunctionName>,
-  ) => Promise<SimulateContractResponse<TChain, TAbi, TFunctionName>>
+    args: SimulateContractArgs<TChain, TAbi, TFunctionName, TChainOverride>,
+  ) => Promise<
+    SimulateContractResponse<
+      TChainOverride extends Chain ? TChainOverride : TChain,
+      TAbi,
+      TFunctionName
+    >
+  >
   uninstallFilter: (
     args: UninstallFilterArgs,
   ) => Promise<UninstallFilterResponse>

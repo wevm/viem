@@ -22,8 +22,13 @@ export type SimulateContractArgs<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
-> = Omit<CallArgs<TChain>, 'to' | 'data' | 'value'> &
-  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
+  TChainOverride extends Chain | undefined = undefined,
+> = Omit<
+  CallArgs<TChainOverride extends Chain ? TChainOverride : TChain>,
+  'to' | 'data' | 'value'
+> & {
+  chain?: TChainOverride
+} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
     value?: GetValue<TAbi, TFunctionName, CallArgs<TChain>['value']>
   }
 
@@ -41,6 +46,7 @@ export async function simulateContract<
   TChain extends Chain,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
+  TChainOverride extends Chain | undefined,
 >(
   client: PublicClient<any, TChain>,
   {
@@ -49,8 +55,14 @@ export async function simulateContract<
     args,
     functionName,
     ...callRequest
-  }: SimulateContractArgs<TChain, TAbi, TFunctionName>,
-): Promise<SimulateContractResponse<TChain, TAbi, TFunctionName>> {
+  }: SimulateContractArgs<TChain, TAbi, TFunctionName, TChainOverride>,
+): Promise<
+  SimulateContractResponse<
+    TChainOverride extends Chain ? TChainOverride : TChain,
+    TAbi,
+    TFunctionName
+  >
+> {
   const calldata = encodeFunctionData({
     abi,
     args,
@@ -77,7 +89,11 @@ export async function simulateContract<
         functionName,
         ...callRequest,
       },
-    } as unknown as SimulateContractResponse<TChain, TAbi, TFunctionName>
+    } as unknown as SimulateContractResponse<
+      TChainOverride extends Chain ? TChainOverride : TChain,
+      TAbi,
+      TFunctionName
+    >
   } catch (err) {
     throw getContractError(err as BaseError, {
       abi: abi as Abi,
