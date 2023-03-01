@@ -66,6 +66,6 @@ Unlike other low-level interfaces that impose opinions on consumers, viem enable
 
 ---
 
-**viem** will help developers build with a higher level of accuracy and correctness through type safety & developer experience. It will also integrate extremely well with [wagmi](https://wagmi.sh) so folks can start using it without much upfront switching cost.
+**viem** will help developers build with a higher level of accuracy and correctness through type safety and developer experience. It will also integrate extremely well with [wagmi](https://wagmi.sh) so folks can start using it without much upfront switching cost.
 
 
