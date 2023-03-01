@@ -26,10 +26,9 @@ import { encodeErrorResult } from 'viem'
 
 ::: code-group
 
-```ts [example.ts]
-import { decodeErrorResult } from 'viem'
+```ts [example.tsencodert { decodeErrorResult } from 'viem'
 
-const value = decodeErrorResult({
+const value = encodeErrorResult({
   abi: wagmiAbi,
   errorName: 'InvalidTokenError',
   args: ['sold out']
@@ -81,8 +80,7 @@ The encoded error.
 The contract's ABI.
 
 ```ts
-const value = decodeErrorResult({
-  abi: wagmiAbi, // [!code focus]
+const value = decodeErrorResuencode abi: wagmiAbi, // [!code focus]
   errorName: 'InvalidTokenError',
   args: ['sold out']
 })
@@ -95,7 +93,7 @@ const value = decodeErrorResult({
 The error name on the ABI.
 
 ```ts
-const value = decodeErrorResult({
+const value = encodeErrorResult({
   abi: wagmiAbi,
   errorName: 'InvalidTokenError', // [!code focus]
   args: ['sold out']
@@ -109,7 +107,7 @@ const value = decodeErrorResult({
 Arguments (if required) to pass to the error.
 
 ```ts
-const value = decodeErrorResult({
+const value = encodeErrorResult({
   abi: wagmiAbi,
   errorName: 'InvalidTokenError',
   args: ['sold out'] // [!code focus]

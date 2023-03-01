@@ -222,7 +222,7 @@ viem supports all these features out-of-the-box:
 - First-class APIs for interacting with [Smart Contracts](https://ethereum.org/en/glossary/#smart-contract)
 - Language closely aligned to official [Ethereum terminology](https://ethereum.org/en/glossary/)
 - Import your Browser Extension, WalletConnect or Private Key Wallet
-- Browser native [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt),instead of large BigNumber libraries
+- Browser native [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt), instead of large BigNumber libraries
 - Utilities for working with [ABIs](https://ethereum.org/en/glossary/#abi) (encoding/decoding/inspection)
 - TypeScript ready ([infer types](/docs/typescript) from ABIs and EIP-712 Typed Data)
 - First-class support for [Anvil](https://book.getfoundry.sh/) & [Hardhat](https://hardhat.org/)

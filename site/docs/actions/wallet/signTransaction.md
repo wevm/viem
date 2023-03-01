@@ -14,4 +14,6 @@ head:
 
 # signTransaction
 
-TODO
+Coming soon.
+
+See [Tracking](https://github.com/orgs/wagmi-dev/projects/3/views/1?pane=issue&itemId=21304943).

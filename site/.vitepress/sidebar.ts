@@ -44,7 +44,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Public Actions',
       collapsed: true,
       items: [
-        { text: 'Introduction 🚧', link: '/docs/actions/public/introduction' },
+        { text: 'Introduction', link: '/docs/actions/public/introduction' },
         {
           text: 'Account',
           items: [
@@ -101,10 +101,6 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'getGasPrice',
               link: '/docs/actions/public/getGasPrice',
             },
-            {
-              text: 'watchGasPrice 🚧',
-              link: '/docs/actions/public/watchGasPrice',
-            },
           ],
         },
         {
@@ -159,10 +155,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'getTransactionReceipt',
               link: '/docs/actions/public/getTransactionReceipt',
-            },
-            {
-              text: 'sendRawTransaction 🚧',
-              link: '/docs/actions/public/sendRawTransaction',
             },
             {
               text: 'waitForTransactionReceipt',
@@ -226,6 +218,14 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'signTypedData 🚧',
               link: '/docs/actions/wallet/signTypedData',
+            },
+            {
+              text: 'verifyMessage 🚧',
+              link: '/docs/actions/wallet/verifyMessage',
+            },
+            {
+              text: 'verifyTypedData 🚧',
+              link: '/docs/actions/wallet/verifyTypedData',
             },
           ],
         },
@@ -517,20 +517,24 @@ export const sidebar: DefaultTheme.Sidebar = {
         },
         {
           text: 'getAbiItem',
-          link: '/docs/abi/getAbiItem'
+          link: '/docs/abi/getAbiItem',
+        },
+        {
+          text: 'parseAbi 🚧',
+          link: '/docs/abi/parseAbi',
         },
         {
           text: 'parseAbiItem 🚧',
-          link: '/docs/abi/parseAbiItem'
+          link: '/docs/abi/parseAbiItem',
         },
         {
           text: 'parseAbiParameter 🚧',
-          link: '/docs/abi/parseAbiParameter'
+          link: '/docs/abi/parseAbiParameter',
         },
         {
           text: 'parseAbiParameters 🚧',
-          link: '/docs/abi/parseAbiParameters'
-        }
+          link: '/docs/abi/parseAbiParameters',
+        },
       ],
     },
     {
@@ -654,6 +658,19 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
+            },
+          ],
+        },
+        {
+          text: 'Transaction',
+          items: [
+            {
+              text: 'parseTransaction',
+              link: '/docs/utilities/parseTransaction',
+            },
+            {
+              text: 'serializeTransaction',
+              link: '/docs/utilities/serializeTransaction',
             },
           ],
         },
