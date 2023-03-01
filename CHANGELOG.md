@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.37
+
+### Patch Changes
+
+- [`e07f212`](https://github.com/wagmi-dev/viem/commit/e07f212af5ef94b938939f0205056c29747bb919) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `formatUnit` and `parseUnit` to `formatUnits` and `parseUnits`.
+
 ## 0.0.1-alpha.36
 
 ### Patch Changes
