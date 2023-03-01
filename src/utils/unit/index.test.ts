@@ -7,10 +7,10 @@ test('exports value utils', () => {
     {
       "formatEther": [Function],
       "formatGwei": [Function],
-      "formatUnit": [Function],
+      "formatUnits": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],
-      "parseUnit": [Function],
+      "parseUnits": [Function],
     }
   `)
 })

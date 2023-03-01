@@ -1,6 +1,6 @@
 export { formatEther } from './formatEther'
 export { formatGwei } from './formatGwei'
-export { formatUnit } from './formatUnit'
-export { parseUnit } from './parseUnit'
+export { formatUnits } from './formatUnits'
+export { parseUnits } from './parseUnits'
 export { parseEther } from './parseEther'
 export { parseGwei } from './parseGwei'

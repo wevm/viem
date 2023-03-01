@@ -2,7 +2,7 @@
 head:
   - - meta
     - property: og:title
-      content: parseUnit
+      content: parseUnits
   - - meta
     - name: description
       content: Multiplies a string representation of a number by a given exponent of base 10.
@@ -12,22 +12,22 @@ head:
 
 ---
 
-# parseUnit
+# parseUnits
 
 Multiplies a string representation of a number by a given exponent of base 10 (10<sup>exponent</sup>).
 
 ## Import
 
 ```ts
-import { parseUnit } from 'viem'
+import { parseUnits } from 'viem'
 ```
 
 ## Usage
 
 ```ts
-import { parseUnit } from 'viem'
+import { parseUnits } from 'viem'
 
-parseUnit('420', 9) // [!code focus:2]
+parseUnits('420', 9) // [!code focus:2]
 // 420000000000n
 ```
 

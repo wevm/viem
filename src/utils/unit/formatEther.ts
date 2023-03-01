@@ -1,6 +1,6 @@
 import { etherUnits } from '../../constants'
-import { formatUnit } from './formatUnit'
+import { formatUnits } from './formatUnits'
 
 export function formatEther(wei: bigint, unit: 'wei' | 'gwei' = 'wei') {
-  return formatUnit(wei, etherUnits[unit])
+  return formatUnits(wei, etherUnits[unit])
 }

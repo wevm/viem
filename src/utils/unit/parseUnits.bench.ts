@@ -2,13 +2,13 @@ import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import Web3 from 'web3'
 
-import { parseUnit } from './parseUnit'
+import { parseUnits } from './parseUnits'
 
 const web3 = new Web3()
 
 describe('Parse Unit', () => {
-  bench('viem: `parseUnit`', () => {
-    parseUnit('40', 18)
+  bench('viem: `parseUnits`', () => {
+    parseUnits('40', 18)
   })
 
   bench('ethers: `parseUnits`', () => {

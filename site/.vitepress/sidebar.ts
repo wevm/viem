@@ -679,8 +679,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/formatGwei',
             },
             {
-              text: 'formatUnit',
-              link: '/docs/utilities/formatUnit',
+              text: 'formatUnits',
+              link: '/docs/utilities/formatUnits',
             },
             {
               text: 'parseEther',
@@ -691,8 +691,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/parseGwei',
             },
             {
-              text: 'parseUnit',
-              link: '/docs/utilities/parseUnit',
+              text: 'parseUnits',
+              link: '/docs/utilities/parseUnits',
             },
           ],
         },

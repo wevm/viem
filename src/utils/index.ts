@@ -145,8 +145,8 @@ export { assertRequest, prepareRequest } from './transaction'
 export {
   formatEther,
   formatGwei,
-  formatUnit,
-  parseUnit,
+  formatUnits,
+  parseUnits,
   parseEther,
   parseGwei,
 } from './unit'

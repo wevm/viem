@@ -45,7 +45,7 @@ test('exports utils', () => {
       "formatGwei": [Function],
       "formatTransaction": [Function],
       "formatTransactionRequest": [Function],
-      "formatUnit": [Function],
+      "formatUnits": [Function],
       "fromBytes": [Function],
       "fromHex": [Function],
       "fromRlp": [Function],
@@ -80,7 +80,7 @@ test('exports utils', () => {
       "padHex": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],
-      "parseUnit": [Function],
+      "parseUnits": [Function],
       "prepareRequest": [Function],
       "rpc": {
         "http": [Function],

@@ -1,6 +1,6 @@
 import { gweiUnits } from '../../constants'
-import { formatUnit } from './formatUnit'
+import { formatUnits } from './formatUnits'
 
 export function formatGwei(wei: bigint, unit: 'wei' = 'wei') {
-  return formatUnit(wei, gweiUnits[unit])
+  return formatUnits(wei, gweiUnits[unit])
 }
