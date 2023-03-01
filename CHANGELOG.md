@@ -1,5 +1,11 @@
 # viem
 
+## 0.0.1-alpha.38
+
+### Patch Changes
+
+- [`59a60cb`](https://github.com/wagmi-dev/viem/commit/59a60cb8cc7d0109c08fa5906a24c6eb8e48b183) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding zero data bytes
+
 ## 0.0.1-alpha.37
 
 ### Patch Changes
