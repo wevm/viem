@@ -40,6 +40,14 @@ export default defineConfig({
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:site', content: '@wagmi_sh' }],
     ['meta', { name: 'theme-color', content: '#1E1E20' }],
+    [
+      'script',
+      {
+        src: 'https://cdn.usefathom.com/script.js',
+        ['data-site']: 'BYCJMNBD',
+        defer: '',
+      },
+    ],
   ],
 
   markdown: {
