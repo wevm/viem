@@ -7,6 +7,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       items: [
         { text: 'Why viem', link: '/docs/introduction' },
         { text: 'Getting Started', link: '/docs/getting-started' },
+        { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
       ],
     },
     {

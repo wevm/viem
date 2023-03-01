@@ -75,7 +75,7 @@ The output type.
 Decodes a byte array to a hex value.
 
 ```ts
-import { numberToHex } from 'viem'
+import { bytesToHex } from 'viem'
 
 bytesToHex(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code focus:2]
 // '0x48656c6c6f20576f726c6421'
@@ -88,7 +88,7 @@ bytesToHex(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 3
 Decodes a byte array to a string.
 
 ```ts
-import { numberToHex } from 'viem'
+import { bytesToString } from 'viem'
 
 bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code focus:2]
 // 'Hello world'

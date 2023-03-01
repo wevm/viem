@@ -170,7 +170,7 @@ yarn add viem
     <div class="card rounded-l sm:h-32 p-6 space-y-2">
       <span class="font-semibold">Lightweight</span>
       <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Tiny 22kB bundle – optimized for tree-shaking.
+        Tiny 24kB bundle – optimized for tree-shaking.
       </p>
     </div>
   </div>
