@@ -1,6 +1,10 @@
+import { createRequire } from 'module'
 import { defineConfig } from 'vitepress'
 
 import { sidebar } from './sidebar'
+
+const require = createRequire(import.meta.url)
+const pkg = require('../../package.json')
 
 const title = 'viem'
 const description =
@@ -78,6 +82,19 @@ export default defineConfig({
       {
         text: 'Examples',
         link: 'https://github.com/wagmi-dev/viem/tree/main/examples',
+      },
+      {
+        text: pkg.version,
+        items: [
+          {
+            text: 'Changelog',
+            link: 'https://github.com/wagmi-dev/viem/blob/main/CHANGELOG.md',
+          },
+          {
+            text: 'Contributing',
+            link: 'https://github.com/wagmi-dev/viem/blob/main/.github/CONTRIBUTING.md',
+          },
+        ],
       },
     ],
 
