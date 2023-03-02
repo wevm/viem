@@ -91,7 +91,7 @@ describe('smoke test', () => {
         ...wagmiContractConfig,
         account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
-        args: [69420n],
+        args: [69436n],
       }),
     ).toEqual(57025n)
   })
@@ -261,7 +261,7 @@ describe('smoke test', () => {
         ...wagmiContractConfig,
         account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
         functionName: 'mint',
-        args: [69420n],
+        args: [69435n],
       }),
     ).toBeDefined()
   })

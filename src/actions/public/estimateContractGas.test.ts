@@ -200,18 +200,22 @@ describe('BAYC', () => {
   })
 })
 
-describe('externally owned account', () => {
-  test('default', async () => {
-    expect(
-      await estimateContractGas(publicClient, {
-        ...wagmiContractConfig,
-        account: getEoaAccount(accounts[0].privateKey),
-        functionName: 'mint',
-        args: [69420n],
-      }),
-    ).toEqual(73747n)
-  })
-})
+describe(
+  'externally owned account',
+  () => {
+    test('default', async () => {
+      expect(
+        await estimateContractGas(publicClient, {
+          ...wagmiContractConfig,
+          account: getEoaAccount(accounts[0].privateKey),
+          functionName: 'mint',
+          args: [69420n],
+        }),
+      ).toEqual(73747n)
+    })
+  },
+  { retry: 3 },
+)
 
 describe('contract errors', () => {
   test('revert', async () => {

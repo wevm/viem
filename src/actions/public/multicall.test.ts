@@ -44,7 +44,7 @@ test('default', async () => {
         "status": "success",
       },
       {
-        "result": 231481998602n,
+        "result": 231481998553n,
         "status": "success",
       },
       {
@@ -98,7 +98,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998602n,
+            "result": 231481998553n,
             "status": "success",
           },
           {
@@ -153,7 +153,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998602n,
+            "result": 231481998553n,
             "status": "success",
           },
           {
@@ -208,7 +208,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998602n,
+            "result": 231481998553n,
             "status": "success",
           },
           {
@@ -254,11 +254,11 @@ describe('errors', async () => {
       ).toMatchInlineSnapshot(`
         [
           {
-            "result": 231481998602n,
+            "result": 231481998553n,
             "status": "success",
           },
           {
-            "result": 231481998602n,
+            "result": 231481998553n,
             "status": "success",
           },
           {

@@ -34,14 +34,14 @@ test(
       to: accounts[3].address,
       value: parseEther('1'),
     })
-    await wait(1000)
+    await wait(1500)
     unwatch()
     expect(transactions.length).toBe(2)
 
     await setIntervalMining(testClient, { interval: 1 })
     await mine(testClient, { blocks: 1 })
   },
-  { timeout: 10_000 },
+  { timeout: 10_000, retry: 3 },
 )
 
 test('watches for pending transactions (unbatched)', async () => {

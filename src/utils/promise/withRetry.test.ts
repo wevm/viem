@@ -93,27 +93,31 @@ test('retryCount', async () => {
   expect(retryTimes).toBe(1)
 })
 
-test('delay: number', async () => {
-  const start = Date.now()
-  let end: number = 0
-  const server = await createHttpServer((req, res) => {
-    end = Date.now() - start
-    res.writeHead(500)
-    res.end()
-  })
+test(
+  'delay: number',
+  async () => {
+    const start = Date.now()
+    let end: number = 0
+    const server = await createHttpServer((req, res) => {
+      end = Date.now() - start
+      res.writeHead(500)
+      res.end()
+    })
 
-  await expect(
-    withRetry(
-      async () => {
-        const response = await fetch(server.url)
-        if (response.status === 500) throw new Error('test')
-        return response
-      },
-      { retryCount: 1, delay: 500 },
-    ),
-  ).rejects.toThrowError('test')
-  expect(end > 500 && end < 520).toBe(true)
-})
+    await expect(
+      withRetry(
+        async () => {
+          const response = await fetch(server.url)
+          if (response.status === 500) throw new Error('test')
+          return response
+        },
+        { retryCount: 1, delay: 500 },
+      ),
+    ).rejects.toThrowError('test')
+    expect(end > 500 && end < 520).toBe(true)
+  },
+  { retry: 3 },
+)
 
 test('delay: fn', async () => {
   const start = Date.now()

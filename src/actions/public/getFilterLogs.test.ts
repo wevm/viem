@@ -86,6 +86,7 @@ afterAll(async () => {
 })
 
 test('default', async () => {
+  await mine(testClient, { blocks: 1 })
   const filter = await createEventFilter(publicClient)
   expect(await getFilterLogs(publicClient, { filter })).toMatchInlineSnapshot(
     '[]',

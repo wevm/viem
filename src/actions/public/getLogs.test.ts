@@ -84,6 +84,7 @@ afterAll(async () => {
 })
 
 test('default', async () => {
+  await mine(testClient, { blocks: 1 })
   const logs = await getLogs(publicClient)
   expect(logs).toMatchInlineSnapshot('[]')
 })

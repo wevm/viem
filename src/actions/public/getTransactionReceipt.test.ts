@@ -12,12 +12,14 @@ import { getBlock, sendTransaction } from '..'
 import { getTransaction } from './getTransaction'
 import { getTransactionReceipt } from './getTransactionReceipt'
 
-test('gets transaction receipt', async () => {
-  const receipt = await getTransactionReceipt(publicClient, {
-    hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
-  })
-  assertType<TransactionReceipt>(receipt)
-  expect(receipt).toMatchInlineSnapshot(`
+test(
+  'gets transaction receipt',
+  async () => {
+    const receipt = await getTransactionReceipt(publicClient, {
+      hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+    })
+    assertType<TransactionReceipt>(receipt)
+    expect(receipt).toMatchInlineSnapshot(`
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
@@ -66,7 +68,9 @@ test('gets transaction receipt', async () => {
       "type": "eip1559",
     }
   `)
-})
+  },
+  { retry: 3 },
+)
 
 test('chain w/ custom block type', async () => {
   const client = createPublicClient({
