@@ -7,6 +7,7 @@
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
     "build": "tsup",
+    "build:wasm-wallet": "cd wasm && wasm-pack build",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",

@@ -1,0 +1,17 @@
+{
+  "name": "playground-wasm",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node -r esbuild-register index.ts"
+  },
+  "dependencies": {
+    "viem": "workspace:*",
+    "wasm-wallet": "workspace:*"
+  },
+  "devDependencies": {
+    "bun-types": "^0.5.0",
+    "esbuild": "^0.17.10",
+    "esbuild-register": "^3.4.2"
+  }
+}

@@ -4,3 +4,4 @@ packages:
   - 'examples/**/*'
   - 'playgrounds/*'
   - 'site'
+  - 'wasm/pkg'
