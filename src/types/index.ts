@@ -1,4 +1,33 @@
-import 'abitype.config'
+export type {
+  Abi,
+  AbiError,
+  AbiEvent,
+  AbiFunction,
+  AbiInternalType,
+  AbiParameter,
+  AbiParameterKind,
+  AbiStateMutability,
+  AbiType,
+  Address,
+  IsAbi,
+  IsTypedData,
+  SolidityAddress,
+  SolidityArray,
+  SolidityArrayWithTuple,
+  SolidityArrayWithoutTuple,
+  SolidityBool,
+  SolidityBytes,
+  SolidityFixedArrayRange,
+  SolidityFixedArraySizeLookup,
+  SolidityFunction,
+  SolidityInt,
+  SolidityString,
+  SolidityTuple,
+  TypedData,
+  TypedDataDomain,
+  TypedDataParameter,
+  TypedDataType,
+} from './abitype'
 
 export type { Account } from './account'
 
@@ -45,7 +74,7 @@ export type { Formatter, Formatters } from './formatter'
 
 export type { Log } from './log'
 
-export type { Address, ByteArray, Hex, Hash, LogTopic } from './misc'
+export type { ByteArray, Hex, Hash, LogTopic } from './misc'
 
 export type { MulticallContracts } from './multicall'
 

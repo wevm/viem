@@ -1,5 +1,5 @@
-import { Abi } from 'abitype'
-import { MaybeExtractEventArgsFromAbi } from './contract'
+import type { Abi } from 'abitype'
+import type { MaybeExtractEventArgsFromAbi } from './contract'
 import type { Hex } from './misc'
 
 export type FilterType = 'transaction' | 'block' | 'event'

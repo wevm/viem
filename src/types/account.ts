@@ -1,5 +1,6 @@
-import { Address, Hash } from './misc'
-import { TransactionRequest } from './transaction'
+import type { Address } from 'abitype'
+import type { Hash } from './misc'
+import type { TransactionRequest } from './transaction'
 
 export type Account = JsonRpcAccount | ExternallyOwnedAccount
 

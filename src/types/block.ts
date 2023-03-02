@@ -1,4 +1,5 @@
-import type { Address, Hash, Hex } from './misc'
+import type { Address } from 'abitype'
+import type { Hash, Hex } from './misc'
 import type { Transaction } from './transaction'
 
 export type Block<TQuantity = bigint, TTransaction = Transaction> = {

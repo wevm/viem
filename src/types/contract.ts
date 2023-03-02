@@ -7,6 +7,7 @@ import type {
   AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
   AbiStateMutability,
+  Address,
   ExtractAbiFunction,
   ExtractAbiEvent,
   ExtractAbiEventNames,
@@ -15,7 +16,7 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { Address, Hex, LogTopic } from './misc'
+import type { Hex, LogTopic } from './misc'
 import type { TransactionRequest } from './transaction'
 import type {
   MaybeExcludeEmpty,

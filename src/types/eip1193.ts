@@ -1,5 +1,6 @@
+import type { Address } from 'abitype'
 import type { BlockTag } from './block'
-import type { Address, Hash, Hex, LogTopic } from './misc'
+import type { Hash, Hex, LogTopic } from './misc'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
