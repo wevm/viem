@@ -1,5 +1,4 @@
 mod js_bindings;
-mod utils;
 
 use ethers::{
     prelude::{
@@ -7,19 +6,12 @@ use ethers::{
         rand::thread_rng,
     },
     signers::{LocalWallet, Wallet},
-    types::Address,
+    types::{transaction::eip2718::TypedTransaction, Address},
     utils::{hash_message, keccak256},
 };
 use hex::ToHex;
-use js_bindings::{JsTransaction};
-use serde::{Deserialize, Serialize};
+use js_bindings::JsTransaction;
 use wasm_bindgen::prelude::*;
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Transaction {
-    #[serde(deserialize_with = "utils::deserialize_stringified_address")]
-    pub from: Address, // TODO
-}
 
 #[wasm_bindgen]
 pub struct Account {
@@ -50,11 +42,13 @@ impl Account {
         hex
     }
 
-    pub fn signTransaction(&self, transaction: JsTransaction) {
+    pub fn signTransaction(&self, transaction: JsTransaction) -> String {
         let js_transaction: JsValue = transaction.into();
-        let transaction: Transaction = serde_wasm_bindgen::from_value(js_transaction).unwrap();
+        let transaction: TypedTransaction = serde_wasm_bindgen::from_value(js_transaction).unwrap();
+        let sig = self.wallet.sign_transaction_sync(&transaction);
+        let hex = format!("0x{}", sig.to_string());
 
-        // TODO
+        hex
     }
 }
 
