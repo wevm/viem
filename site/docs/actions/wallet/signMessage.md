@@ -63,3 +63,10 @@ const message = await walletClient.signMessage({
   data: 'hello world', // [!code focus:1]
 })
 ```
+
+## JSON-RPC Methods
+
+- JSON-RPC Accounts:
+  - [`personal_sign`](https://docs.metamask.io/guide/signing-data.html#personal-sign)
+- Local Accounts
+  - Signs locally. No JSON-RPC request.

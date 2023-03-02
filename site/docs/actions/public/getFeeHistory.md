@@ -89,3 +89,7 @@ const feeHistory = await publicClient.getFeeHistory({
   rewardPercentiles: [25, 75]
 })
 ```
+
+## JSON-RPC Method
+
+- Calls [`eth_feeHistory`](https://docs.alchemy.com/reference/eth-feehistory).

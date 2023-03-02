@@ -325,3 +325,14 @@ const unwatch = publicClient.watchEvent(
 Check out the usage of `watchEvent` in the live [Event Logs Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs) below.
 
 <iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
+
+## JSON-RPC Methods
+
+**RPC Provider supports `eth_newFilter`:**
+
+- Calls [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter) to create a filter (called on initialize).
+- On a polling interval, it will call [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges).
+
+**RPC Provider does not support `eth_newFilter`:**
+
+- Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) on a polling interval.

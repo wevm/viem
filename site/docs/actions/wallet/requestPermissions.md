@@ -30,4 +30,7 @@ const permissions = await walletClient.requestPermissions({ eth_accounts: {} }) 
 
 The wallet permissions.
 
+## JSON-RPC Methods
+
+[`wallet_requestPermissions`](https://eips.ethereum.org/EIPS/eip-2255)
 

@@ -80,3 +80,7 @@ const balance = await publicClient.getTransactionCount({
 ## Example
 
 <iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/getBlockNumber?embed=true"></iframe>
+
+## JSON-RPC Method
+
+[`eth_getTransactionCount`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount)

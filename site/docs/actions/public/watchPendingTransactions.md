@@ -99,3 +99,8 @@ const unwatch = publicClient..watchPendingTransactions(
   }
 )
 ```
+
+## JSON-RPC Methods
+
+- Calls [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter) to initialize the filter.
+- Calls [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getFilterChanges) on a polling interval.

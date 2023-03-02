@@ -29,3 +29,6 @@ const filter = await publicClient.createPendingTransactionFilter() // [!code foc
 
 [`Filter`](/docs/glossary/types#filter)
 
+## JSON-RPC Methods
+
+[`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter)

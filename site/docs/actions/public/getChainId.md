@@ -30,3 +30,7 @@ const block = await publicClient.getChainId() // [!code focus:99]
 `number`
 
 The current chain ID.
+
+## JSON-RPC Method
+
+- Calls [`eth_chainId`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_chainid).

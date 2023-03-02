@@ -142,3 +142,9 @@ const unwatch = publicClient.watchBlocks(
   }
 )
 ```
+
+## JSON-RPC Methods
+
+Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval. 
+
+Real-time subscriptions ([`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon)) coming shortly.

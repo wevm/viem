@@ -33,3 +33,6 @@ await walletClient.switchChain({ id: avalanche.id }) // [!code focus]
 
 The Chain ID.
 
+## JSON-RPC Methods
+
+[`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-3326)

@@ -28,3 +28,7 @@ const filter = await publicClient.createBlockFilter() // [!code focus:99]
 ## Returns
 
 [`Filter`](/docs/glossary/types#filter)
+
+## JSON-RPC Methods
+
+[`eth_newBlockFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newBlockFilter)

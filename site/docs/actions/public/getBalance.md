@@ -85,3 +85,7 @@ const balance = await publicClient.getBalance({
 const balanceAsEther = formatEther(balance) // [!code focus:2]
 // "6.942"
 ```
+
+## JSON-RPC Method
+
+[`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)

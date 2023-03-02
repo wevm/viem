@@ -201,3 +201,7 @@ const filter = await publicClient.createEventFilter({
   fromBlock: 70120n // [!code focus]
 })
 ```
+
+## JSON-RPC Methods
+
+[`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newFilter)

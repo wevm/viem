@@ -188,3 +188,7 @@ const gasEstimate = await publicClient.estimateGas({
   value: parseEther('1') 
 })
 ```
+
+## JSON-RPC Methods
+
+[`eth_estimateGas`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_estimategas)

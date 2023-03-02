@@ -54,3 +54,7 @@ const transaction = await publicClient.getTransactionReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+[`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt)

@@ -50,3 +50,7 @@ const uninstalled = await publicClient.uninstallFilter({
   filter, // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+[`eth_uninstallFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_uninstallFilter)

@@ -33,3 +33,6 @@ const accounts = await walletClient.requestAddresses() // [!code focus:99]
 
 `'0x${string}'[]`
 
+## JSON-RPC Methods
+
+[`eth_requestAccounts`](https://eips.ethereum.org/EIPS/eip-1102)

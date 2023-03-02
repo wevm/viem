@@ -69,3 +69,8 @@ const block = await publicClient.getBlockTransactionCount({
   blockTag: 'safe' // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+- Calls [`eth_getBlockTransactionCountByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbynumber) for `blockNumber` & `blockTag`.
+- Calls [`eth_getBlockTransactionCountByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbyhash) for `blockHash`.

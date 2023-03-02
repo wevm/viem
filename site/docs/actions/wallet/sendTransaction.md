@@ -228,3 +228,10 @@ const hash = await walletClient.sendTransaction({
 Check out the usage of `sendTransaction` in the live [Sending Transactions Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions) below.
 
 <iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/sending-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
+
+## JSON-RPC Methods
+
+- JSON-RPC Accounts:
+  - [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
+- Local Accounts:
+  - [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)

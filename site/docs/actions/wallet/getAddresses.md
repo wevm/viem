@@ -32,3 +32,6 @@ const accounts = await walletClient.getAddresses() // [!code focus:99]
 A list of checksummed addresses.
 
 
+## JSON-RPC Methods
+
+[`eth_accounts`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_accounts5)

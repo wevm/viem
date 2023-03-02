@@ -33,3 +33,6 @@ await walletClient.addChain(avalanche) // [!code focus]
 
 The chain to add to the wallet.
 
+## JSON-RPC Methods
+
+[`eth_addEthereumChain`](https://eips.ethereum.org/EIPS/eip-3085)

@@ -107,3 +107,7 @@ const logs = await publicClient.getFilterChanges({
   filter, // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+- Calls [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges).
