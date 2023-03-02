@@ -29,7 +29,7 @@ await walletClient.addChain(avalanche) // [!code focus]
 
 ### chain
 
-- **Type:** [`Chain`](/docs/glossary/types#TODO)
+- **Type:** [`Chain`](/docs/glossary/types#chain)
 
 The chain to add to the wallet.
 

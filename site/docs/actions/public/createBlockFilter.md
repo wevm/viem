@@ -14,7 +14,7 @@ head:
 
 # createBlockFilter
 
-Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](/TODO).
+Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges).
 
 ## Usage
 

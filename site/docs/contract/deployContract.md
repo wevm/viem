@@ -98,7 +98,7 @@ export const walletClient = createWalletClient({
 
 ### abi
 
-- **Type:** [`Abi`](/docs/glossary/types#TODO)
+- **Type:** [`Abi`](/docs/glossary/types#abi)
 
 The contract's ABI.
 
@@ -111,7 +111,7 @@ await walletClient.deployContract({
 
 ### bytecode
 
-- **Type:** [`Hex`](/docs/glossary/types#TODO)
+- **Type:** [`Hex`](/docs/glossary/types#hex)
 
 The contract's bytecode.
 

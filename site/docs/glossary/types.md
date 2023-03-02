@@ -56,8 +56,75 @@ Converts array of `AbiParameter` to corresponding TypeScript primitive types.
 
 [See more](https://abitype.dev/api/utilities.html#abiparameterstoprimitivetypes)
 
+## `AccessList`
+
+An access list.
+
+## `Address`
+
+An address.
+
+Re-exported from [ABIType](https://abitype.dev/api/types.html#address).
+
+
+## `Block`
+
+A type for a [Block](/docs/glossary/terms#block).
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/block.ts)
+
+## `Chain`
+
+A type for a [Chain](/docs/glossary/terms#chain).
+
+Re-exported from [@wagmi/chains](https://github.com/wagmi-dev/references/blob/main/packages/chains/src/types.ts)
+
+## `FeeHistory`
+
+A type for fee history.
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/fee.ts)
+
 ## `Filter`
 
 A type for a [Filter](/docs/glossary/terms#filter).
 
 [See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/filter.ts)
+
+## `Hex`
+
+Type for a hashed value – a "0x"-prefixed string: `"0x${string}"`
+
+## `Hex`
+
+Type for a hex value – a "0x"-prefixed string: `"0x${string}"`
+
+## `Log`
+
+A type for [Event Logs](/docs/glossary/terms#event-log).
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/log.ts)
+
+## `Transaction`
+
+A type for [Transactions](/docs/glossary/terms#transaction).
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/transaction.ts)
+
+## `TransactionReceipt`
+
+A type for [Transaction Receipts](/docs/glossary/terms#transaction-receipt).
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/transaction.ts)
+
+## `Transport`
+
+A type for [Transports](/docs/glossary/terms#transports).
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/clients/transports/createTransport.ts)
+
+## `WalletPermission`
+
+A type for wallet (JSON-RPC Account) permissions.
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/eip1193.ts)

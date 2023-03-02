@@ -26,7 +26,7 @@ const permissions = await walletClient.requestPermissions({ eth_accounts: {} }) 
 
 ## Returns
 
-[`WalletPermission[]`](/docs/glossary/types#TODO)
+[`WalletPermission[]`](/docs/glossary/types#walletpermission)
 
 The wallet permissions.
 

@@ -7,4 +7,4 @@ head:
 
 # fromBase58
 
-TODO
+Coming soon.

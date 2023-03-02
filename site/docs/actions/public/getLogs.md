@@ -148,7 +148,7 @@ const filter = await publicClient.getLogs({
 
 ## Returns
 
-[`Log[]`](/docs/glossary/types#TODO)
+[`Log[]`](/docs/glossary/types#log)
 
 A list of event logs.
 
@@ -156,7 +156,7 @@ A list of event logs.
 
 ### address
 
-- **Type:** [`Address | Address[]`](/docs/glossary/types#TODO)
+- **Type:** [`Address | Address[]`](/docs/glossary/types#address)
 
 A contract address or a list of contract addresses. Only logs originating from the contract(s) will be included in the result.
 
@@ -168,7 +168,7 @@ const logs = await publicClient.getLogs({
 
 ### event
 
-- **Type:** [`AbiEvent`](/docs/glossary/types#TODO)
+- **Type:** [`AbiEvent`](/docs/glossary/types#abievent)
 
 The event in ABI format.
 

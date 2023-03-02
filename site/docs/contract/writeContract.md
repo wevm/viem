@@ -169,9 +169,9 @@ export const walletClient = createWalletClient({
 
 `Hash`
 
-A [Transaction Hash](/docs/glossary/terms#TODO).
+A [Transaction Hash](/docs/glossary/terms#hash).
 
-Unlike [`readContract`](/docs/contract/readContract), `writeContract` only returns a [Transaction Hash](/docs/glossary/terms#TODO). If you would like to retrieve the return data of a write function, you can use the [`simulateContract` action](/docs/contract/simulateContract) – this action does not execute a transaction, and does not require gas (it is very similar to `readContract`).
+Unlike [`readContract`](/docs/contract/readContract), `writeContract` only returns a [Transaction Hash](/docs/glossary/terms#hash). If you would like to retrieve the return data of a write function, you can use the [`simulateContract` action](/docs/contract/simulateContract) – this action does not execute a transaction, and does not require gas (it is very similar to `readContract`).
 
 ## Parameters
 
@@ -192,7 +192,7 @@ await walletClient.writeContract({
 
 ### abi
 
-- **Type:** [`Abi`](/docs/glossary/types#TODO)
+- **Type:** [`Abi`](/docs/glossary/types#abi)
 
 The contract's ABI.
 
@@ -238,7 +238,7 @@ await walletClient.writeContract({
 
 ### accessList (optional)
 
-- **Type:** [`AccessList`](/docs/glossary/types#TODO)
+- **Type:** [`AccessList`](/docs/glossary/types#accesslist)
 
 The access list.
 

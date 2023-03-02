@@ -237,7 +237,7 @@ const unwatch = publicClient.watchEvent(
 
 ### event (optional)
 
-- **Type:** [`AbiEvent`](/docs/glossary/types#TODO)
+- **Type:** [`AbiEvent`](/docs/glossary/types#abievent)
 
 The event in ABI format.
 

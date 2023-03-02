@@ -73,7 +73,7 @@ The decoded error. Type is inferred from the ABI.
 
 ### abi
 
-- **Type:** [`Abi`](/docs/glossary/types#TODO)
+- **Type:** [`Abi`](/docs/glossary/types#abi)
 
 The contract's ABI.
 

@@ -37,7 +37,7 @@ const transaction = await publicClient.getTransactionReceipt({ // [!code focus:9
 
 ## Returns
 
-[`TransactionReceipt`](/docs/glossary/types#TODO)
+[`TransactionReceipt`](/docs/glossary/types#transaction-receipt)
 
 The transaction receipt.
 

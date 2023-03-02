@@ -36,7 +36,7 @@ const transaction = await publicClient.getTransaction({ // [!code focus:99]
 
 ## Returns
 
-[`Transaction`](/docs/glossary/types#TODO)
+[`Transaction`](/docs/glossary/types#transaction)
 
 The transaction information.
 

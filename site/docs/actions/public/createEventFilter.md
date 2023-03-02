@@ -128,7 +128,7 @@ const filter = await publicClient.createEventFilter({
 
 ## Returns
 
-[`Filter`](/docs/glossary/types#TODO)
+[`Filter`](/docs/glossary/types#filter)
 
 ## Parameters
 
@@ -146,7 +146,7 @@ const filter = await publicClient.createEventFilter({
 
 ### event (optional)
 
-- **Type:** [`AbiEvent`](/docs/glossary/types#TODO)
+- **Type:** [`AbiEvent`](/docs/glossary/types#abievent)
 
 The event in ABI format.
 

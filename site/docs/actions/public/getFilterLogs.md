@@ -35,7 +35,7 @@ const logs = await publicClient.getFilterLogs({ filter })
 
 ## Returns
 
-[`Log[]`](/docs/glossary/types#TODO)
+[`Log[]`](/docs/glossary/types#log)
 
 A list of event logs.
 
@@ -43,7 +43,7 @@ A list of event logs.
 
 ### filter
 
-- **Type:** [`Filter`](/docs/glossary/types#TODO)
+- **Type:** [`Filter`](/docs/glossary/types#filter)
 
 An **event** filter.
 

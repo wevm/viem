@@ -153,13 +153,13 @@ const filter = await publicClient.createContractEventFilter({
 
 ## Returns
 
-[`Filter`](/docs/glossary/types#TODO)
+[`Filter`](/docs/glossary/types#filter)
 
 ## Parameters
 
 ### abi
 
-- **Type:** [`Abi`](/docs/glossary/types#TODO)
+- **Type:** [`Abi`](/docs/glossary/types#abi)
 
 The contract's ABI.
 

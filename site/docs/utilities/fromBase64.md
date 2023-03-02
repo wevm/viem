@@ -7,4 +7,4 @@ head:
 
 # fromBase64
 
-TODO
+Coming soon.

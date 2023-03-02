@@ -77,7 +77,7 @@ const hashes = await publicClient.getFilterChanges({ filter })
 
 ## Returns
 
-[`Log[]`](/docs/glossary/types#TODO)
+[`Log[]`](/docs/glossary/types#log)
 
 If the filter was created with `createContractEventFilter` or `createEventFilter`, it returns a list of logs.
 
@@ -97,7 +97,7 @@ If the filter was created with `createBlockFilter`, it returns a list of block h
 
 ### filter
 
-- **Type:** [`Filter`](/docs/glossary/types#TODO)
+- **Type:** [`Filter`](/docs/glossary/types#filter)
 
 A created filter.
 

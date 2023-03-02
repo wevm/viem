@@ -26,7 +26,7 @@ const permissions = await walletClient.getPermissions() // [!code focus:99]
 
 ## Returns
 
-[`WalletPermission[]`](/docs/glossary/types#TODO)
+[`WalletPermission[]`](/docs/glossary/types#walletpermission)
 
 The wallet permissions.
 

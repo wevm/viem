@@ -63,7 +63,7 @@ const client = createTestClient({
 
 ### transport
 
-- **Type:** [Transport](/docs/glossary/types#TODO)
+- **Type:** [Transport](/docs/glossary/types#transport)
 
 [Transport](/docs/clients/intro) of the Test Client.
 
@@ -77,7 +77,7 @@ const client = createTestClient({
 
 ### chain (optional)
 
-- **Type:** [Chain](/docs/glossary/types#TODO)
+- **Type:** [Chain](/docs/glossary/types#chain)
 
 [Chain](/docs/clients/chains) of the Test Client.
 

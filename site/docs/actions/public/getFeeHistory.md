@@ -29,7 +29,7 @@ const feeHistory = await publicClient.getFeeHistory({ // [!code focus:4]
 
 ## Returns
 
-[`FeeHistory`](/docs/glossary/types#TODO)
+[`FeeHistory`](/docs/glossary/types#feehistory)
 
 The fee history.
 

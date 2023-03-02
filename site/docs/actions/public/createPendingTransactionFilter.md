@@ -27,5 +27,5 @@ const filter = await publicClient.createPendingTransactionFilter() // [!code foc
 
 ## Returns
 
-[`Filter`](/docs/glossary/types#TODO)
+[`Filter`](/docs/glossary/types#filter)
 
