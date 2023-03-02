@@ -21,7 +21,7 @@ describe('account', () => {
     `)
   })
 
-  test('externally owned account', () => {
+  test('local account', () => {
     expect(
       getAccount({
         address: accounts[0].address,
@@ -37,12 +37,12 @@ describe('account', () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "signMessage": [Function],
         "signTransaction": [Function],
-        "type": "externally-owned",
+        "type": "local",
       }
     `)
   })
 
-  test('externally owned account (invalid address)', () => {
+  test('local account (invalid address)', () => {
     expect(() =>
       getAccount({
         address: '0x1',

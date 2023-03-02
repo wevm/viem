@@ -18,9 +18,9 @@ A Wallet Client is an interface to interact with [Ethereum Account(s)](https://e
 
 The `createWalletClient` function sets up a Wallet Client with a given [Transport](/docs/clients/intro).
 
-The Wallet Client currently only supports signing over:
+The Wallet Client supports signing over:
 - a [JSON-RPC Account](#json-rpc-accounts) (ie. Browser Extension Wallets, WalletConnect, etc). 
-- an [Externally Owned Account](#externally-owned-accounts) (ie. private key).
+- a [Local Account](#local-accounts) (ie. local private key/mnemonic wallets).
 
 ## Import
 
@@ -85,15 +85,15 @@ const hash = await client.sendTransaction({ // [!code focus:10]
 })
 ```
 
-## Externally Owned Accounts (Experimental)
+## Local Accounts (Experimental)
 
 ::: warning
-Externally Owned Accounts are currently experimental. Use with caution.
+Local Accounts are currently experimental. Use with caution.
 :::
 
-An Externally Owned Account performs signing of transactions & messages with a private key **before** executing a method over JSON-RPC.
+A Local Account performs signing of transactions & messages with a private key **before** executing a method over JSON-RPC.
 
-Below are the steps to integrate an Externally Owned Account into viem.
+Below are the steps to integrate an Local Account into viem.
 
 #### Initialize a Wallet Client
 
@@ -107,7 +107,7 @@ const client = createWalletClient({
 })
 ```
 
-#### Set up your Externally Owned Account
+#### Set up your Local Account
 
 Next, we will instantiate a viem Account using `getAccount`.
 
@@ -218,7 +218,7 @@ const client = createWalletClient({
 ## Ethers.js Wallet
 
 ::: warning
-Externally Owned Accounts are currently experimental. Use with caution.
+Local Accounts are currently experimental. Use with caution.
 :::
 
 ```ts

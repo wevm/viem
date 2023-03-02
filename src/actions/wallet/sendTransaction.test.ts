@@ -441,7 +441,7 @@ describe('args: chain', async () => {
   })
 })
 
-describe('externally owned account', () => {
+describe('local account', () => {
   test('default', async () => {
     await setup()
 

@@ -70,7 +70,7 @@ export async function sendTransaction<TChain extends Chain>(
     if (assertChain && chain && currentChainId !== chain?.id)
       throw new ChainMismatchError({ chain, currentChainId })
 
-    if (account.type === 'externally-owned') {
+    if (account.type === 'local') {
       const chainId = chain?.id ?? currentChainId
 
       // Prepare the request for signing (assign appropriate fees, etc.)

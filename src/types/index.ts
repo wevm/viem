@@ -29,7 +29,7 @@ export type {
   TypedDataType,
 } from './abitype'
 
-export type { Account } from './account'
+export type { Account, LocalAccount, JsonRpcAccount } from './account'
 
 export type {
   Block,

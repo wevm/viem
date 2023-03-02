@@ -104,7 +104,7 @@ test('args: gas', async () => {
   ).toMatchInlineSnapshot('21000n')
 })
 
-describe('externally owned account', () => {
+describe('local account', () => {
   test('default', async () => {
     expect(
       await estimateGas(publicClient, {

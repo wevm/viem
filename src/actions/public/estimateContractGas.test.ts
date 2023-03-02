@@ -201,7 +201,7 @@ describe('BAYC', () => {
 })
 
 describe(
-  'externally owned account',
+  'local account',
   () => {
     test('default', async () => {
       expect(

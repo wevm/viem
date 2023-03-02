@@ -2,14 +2,14 @@ import type { Address } from 'abitype'
 import type { Hash } from './misc'
 import type { TransactionRequest } from './transaction'
 
-export type Account = JsonRpcAccount | ExternallyOwnedAccount
+export type Account = JsonRpcAccount | LocalAccount
 
 export type JsonRpcAccount = {
   address: Address
   type: 'json-rpc'
 }
 
-export type ExternallyOwnedAccount = {
+export type LocalAccount = {
   address: Address
   signMessage: (message: string) => Promise<Hash>
   signTransaction: (
@@ -18,5 +18,5 @@ export type ExternallyOwnedAccount = {
       from: Address
     },
   ) => Promise<Hash>
-  type: 'externally-owned'
+  type: 'local'
 }

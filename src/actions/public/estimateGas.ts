@@ -67,7 +67,7 @@ export async function estimateGas<TChain extends Chain>(
       to,
       value,
       ...rest
-    } = args.account.type === 'externally-owned'
+    } = args.account.type === 'local'
       ? await prepareRequest(client, args)
       : args
 

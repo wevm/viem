@@ -13,7 +13,7 @@ export async function signMessage(
   client: WalletClient,
   { account, data }: SignMessageArgs,
 ): Promise<SignMessageResponse> {
-  if (account.type === 'externally-owned') return account.signMessage(data)
+  if (account.type === 'local') return account.signMessage(data)
   return client.request({
     method: 'personal_sign',
     params: [toHex(data), account.address],

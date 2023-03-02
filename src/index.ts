@@ -127,6 +127,8 @@ export type {
   FeeValuesEIP1559,
   FeeValuesLegacy,
   Hash,
+  JsonRpcAccount,
+  LocalAccount,
   Log,
   RpcBlock,
   RpcBlockIdentifier,

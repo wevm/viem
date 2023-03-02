@@ -1,10 +1,10 @@
 import { InvalidAddressError } from '../errors'
 import { Address } from '../types'
-import { Account, ExternallyOwnedAccount } from '../types/account'
+import { Account, LocalAccount } from '../types/account'
 import { isAddress } from './address'
 
 export function getAccount(
-  account: Address | Omit<ExternallyOwnedAccount, 'type'>,
+  account: Address | Omit<LocalAccount, 'type'>,
 ): Account {
   if (typeof account === 'string') {
     if (!isAddress(account)) throw new InvalidAddressError({ address: account })
@@ -15,6 +15,6 @@ export function getAccount(
     throw new InvalidAddressError({ address: account.address })
   return {
     ...account,
-    type: 'externally-owned',
+    type: 'local',
   }
 }
