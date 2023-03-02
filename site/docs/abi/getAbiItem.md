@@ -51,8 +51,8 @@ const encodedData = getAbiItem({
       stateMutability: 'view'
     }
   ],
-  name: 'x'
-)
+  name: 'x',
+})
 /**
  * { 
  *  name: 'y', 
@@ -81,8 +81,8 @@ The contract's ABI.
 ```ts
 const encodedData = getAbiItem({
   abi: [...], // [!code focus]
-  name: 'x'
-)
+  name: 'x',
+})
 ```
 
 ### name
@@ -94,8 +94,8 @@ Name of the ABI item to extract.
 ```ts
 const encodedData = getAbiItem({
   abi: [...],
-  name: 'x' // [!code focus]
-)
+  name: 'x', // [!code focus]
+})
 ```
 
 ### args (optional)
@@ -108,6 +108,6 @@ Optional arguments to identify function overrides.
 const encodedData = getAbiItem({
   abi: [...],
   name: 'y',
-  args: ['0x0000000000000000000000000000000000000000'] // [!code focus]
-)
+  args: ['0x0000000000000000000000000000000000000000'], // [!code focus]
+})
 ```

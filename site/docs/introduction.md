@@ -14,17 +14,19 @@ head:
 
 # Why viem
 
-The current state of low-level Ethereum interface abstractions lack in at least one of the following four areas: **developer experience**, **stability**, **bundle size** and/or **performance** – a quadrilemma.
+## The Problems
 
-As the authors of [wagmi](https://wagmi.sh), a popular React Hook library for Ethereum, we struggled working with the existing low-level TypeScript Ethereum libraries. We wanted to provide the users of wagmi with the best possible developer experience – but we were being limited by the underlying technologies wagmi was built on. We knew an _always_ stable, predictable implementation with a tiny bundle size and performant modules was paramount to interacting the world's largest blockchain ecosystem.
+The current state of low-level Ethereum interface abstractions lack in at least one of the following four areas: **developer experience**, **stability**, **bundle size** and/or **performance** — a quadrilemma.
 
-So we created **viem**: a TypeScript Interface for Ethereum that provides low-level stateless primitives for interacting with Ethereum. An alternative to ethers.js and web3.js with a focus on reliability, efficiency and an excellent developer experience.
+As the authors of [wagmi](https://wagmi.sh), a popular React Hooks library for Ethereum, we struggled to work with the existing low-level TypeScript Ethereum libraries. We wanted to provide the users of wagmi with the best possible developer experience, but we were limited by the underlying technologies wagmi was built on. We knew an _always_ stable, predictable implementation with a tiny bundle size and performant modules was paramount to interacting the world's largest blockchain ecosystem.
+
+So we created **viem**: a TypeScript Interface for Ethereum that provides low-level stateless primitives for interacting with Ethereum. An alternative to ethers.js and web3.js with a focus on reliability, efficiency, and excellent developer experience.
 
 ## Developer Experience
 
-viem delivers a great developer experience through modular and composable APIs, comprehensive documentation, and type safety.
+viem delivers a great developer experience through modular and composable APIs, comprehensive documentation, and automatic type safety and inference.
 
-It provides consumers with intuitive building blocks to build their Ethereum apps and libraries. While viem's APIs may be more verbose than alternative libraries – we believe this is the right trade-off as it allows viem's modular building blocks to be easy to move around, change and remove. It also allows the consumer to better comprehend Ethereum concepts and understand _what_ and _why_ certain properties are being passed through. 
+It provides developers with intuitive building blocks to build their Ethereum apps and libraries. While viem's APIs may be more verbose than alternative libraries, we believe this is the right trade-off as it makes viem's modular building blocks extremely flexible. Easy to move around, change, and remove. It also allows the developers to better understand Ethereum concepts as well as understand _what_ and _why_ certain properties are being passed through. Learning how to use viem is a great way to learn how to interact with Ethereum in general.
 
 We aim to provide extensive API documentation and usage for _every_ module in viem. viem uses a [documentation](https://gist.github.com/zsup/9434452) and [test driven](https://en.wikipedia.org/wiki/Test-driven_development#:~:text=Test%2Ddriven%20development%20(TDD),software%20against%20all%20test%20cases.) development approach to building modules, which leads to predictable and stable APIs.
 

@@ -10,7 +10,7 @@
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
-    "clean": "rimraf dist chains contract ens public test utils wallet window",
+    "clean": "rimraf dist abi chains contract ens public test utils wallet window",
     "contracts:build": "wagmi generate",
     "dev": "DEV=true tsup",
     "dev:docs": "pnpm -r --filter site dev",

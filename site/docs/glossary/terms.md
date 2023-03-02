@@ -44,6 +44,10 @@ There are three types of filters in Ethereum:
 
 When a filter is created, it returns a filter ID, which can be used to retrieve the results of the filter at a later time. Users can then periodically poll the filter for new events or changes that match the filter criteria.
 
+## Human-Readable ABI
+
+Human-Readable ABIs compress JSON ABIs into signatures that are nicer to read and less verbose to write. For more info, check out the [ABIType](https://abitype.dev/api/human.html) docs.
+
 ## Legacy Transaction
 
 A Legacy Transaction in Ethereum refers to a transaction that was created using an older version of Ethereum's transaction format, known as "transaction type 0". This transaction format was used prior to the introduction of the EIP-1559 upgrade, which was implemented in August 2021.

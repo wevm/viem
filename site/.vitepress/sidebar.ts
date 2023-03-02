@@ -512,19 +512,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/docs/abi/getAbiItem',
         },
         {
-          text: 'parseAbi 🚧',
+          text: 'parseAbi',
           link: '/docs/abi/parseAbi',
         },
         {
-          text: 'parseAbiItem 🚧',
+          text: 'parseAbiItem',
           link: '/docs/abi/parseAbiItem',
         },
         {
-          text: 'parseAbiParameter 🚧',
+          text: 'parseAbiParameter',
           link: '/docs/abi/parseAbiParameter',
         },
         {
-          text: 'parseAbiParameters 🚧',
+          text: 'parseAbiParameters',
           link: '/docs/abi/parseAbiParameters',
         },
       ],
