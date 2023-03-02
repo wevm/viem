@@ -22,7 +22,7 @@ Sets the next block's timestamp.
 import { testClient } from '.'
  
 await testClient.setNextBlockTimestamp({ // [!code focus:4]
-  timestamp: 1671744314
+  timestamp: 1671744314n
 })
 ```
 
@@ -30,11 +30,11 @@ await testClient.setNextBlockTimestamp({ // [!code focus:4]
 
 ### timestamp
 
-- **Type:** `number`
+- **Type:** `bigint`
 
 ```ts
 await testClient.setNextBlockTimestamp({
-  timestamp: 1671744314 // [!code focus]
+  timestamp: 1671744314n // [!code focus]
 })
 ```
 
