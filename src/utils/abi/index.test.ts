@@ -19,6 +19,10 @@ test('exports utils', () => {
       "formatAbiItem": [Function],
       "formatAbiItemWithArgs": [Function],
       "getAbiItem": [Function],
+      "parseAbi": [Function],
+      "parseAbiItem": [Function],
+      "parseAbiParameter": [Function],
+      "parseAbiParameters": [Function],
     }
   `)
 })

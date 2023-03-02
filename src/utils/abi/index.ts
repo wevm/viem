@@ -1,3 +1,16 @@
+export type {
+  ParseAbi,
+  ParseAbiItem,
+  ParseAbiParameter,
+  ParseAbiParameters,
+} from 'abitype'
+export {
+  parseAbi,
+  parseAbiItem,
+  parseAbiParameter,
+  parseAbiParameters,
+} from 'abitype'
+
 export type { DecodeAbiParametersResponse } from './decodeAbiParameters'
 export { decodeAbiParameters } from './decodeAbiParameters'
 

@@ -14,6 +14,10 @@ export type {
   EncodeFunctionDataArgs,
   EncodeFunctionResultArgs,
   GetAbiItemArgs,
+  ParseAbi,
+  ParseAbiItem,
+  ParseAbiParameter,
+  ParseAbiParameters,
 } from './abi'
 export {
   decodeAbiParameters,
@@ -30,6 +34,10 @@ export {
   formatAbiItemWithArgs,
   formatAbiItem,
   getAbiItem,
+  parseAbi,
+  parseAbiItem,
+  parseAbiParameter,
+  parseAbiParameters,
 } from './abi'
 
 export { getAccount } from './account'
