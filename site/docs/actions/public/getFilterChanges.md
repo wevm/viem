@@ -14,7 +14,7 @@ head:
 
 # getFilterChanges
 
-Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#TODO) since the last time it was called.
+Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
 
 A Filter can be created from the following actions:
 

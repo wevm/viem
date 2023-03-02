@@ -27,4 +27,4 @@ const filter = await publicClient.createBlockFilter() // [!code focus:99]
 
 ## Returns
 
-[`Filter`](/docs/glossary/types#TODO)
+[`Filter`](/docs/glossary/types#filter)

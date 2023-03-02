@@ -123,7 +123,7 @@ const data = await publicClient.call({
 
 - **Type:** `bigint`
 
-The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
+The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
 const data = await publicClient.call({
@@ -138,7 +138,7 @@ const data = await publicClient.call({
 
 - **Type:** `bigint`
 
-Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO).
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction).
 
 ```ts
 const data = await publicClient.call({
@@ -153,7 +153,7 @@ const data = await publicClient.call({
 
 - **Type:** `bigint`
 
-Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO).
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction).
 
 ```ts
 const data = await publicClient.call({

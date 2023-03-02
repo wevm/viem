@@ -36,7 +36,7 @@ const hash = await walletClient.sendTransaction({ // [!code focus:99]
 
 `'0x${string}'[]`
 
-The [Transaction Hash](/docs/glossary/terms#TODO).
+The [Transaction](/docs/glossary/terms#transaction) hash.
 
 ## Parameters
 
@@ -147,7 +147,7 @@ const hash = await walletClient.sendTransaction({
 
 - **Type:** `bigint`
 
-The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#TODO).
+The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
 const hash = await walletClient.sendTransaction({
@@ -162,7 +162,7 @@ const hash = await walletClient.sendTransaction({
 
 - **Type:** `bigint`
 
-Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
 const hash = await walletClient.sendTransaction({
@@ -177,7 +177,7 @@ const hash = await walletClient.sendTransaction({
 
 - **Type:** `bigint`
 
-Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#TODO)
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
 const hash = await walletClient.sendTransaction({

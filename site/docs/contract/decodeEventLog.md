@@ -14,7 +14,7 @@ head:
 
 # decodeEventLog
 
-Decodes ABI encoded event topics & data (from an [Event Log](/docs/glossary/terms#TODO)) into an event name and structured arguments (both indexed & non-indexed).
+Decodes ABI encoded event topics & data (from an [Event Log](/docs/glossary/terms#event-log)) into an event name and structured arguments (both indexed & non-indexed).
 
 ## Install
 
@@ -121,7 +121,7 @@ const topics = decodeEventLog({
 
 - **Type:** `[Hex, ...(Hex | Hex[] | null)[]]`
 
-A set of topics (encoded indexed args) from the [Event Log](/docs/glossary/terms#TODO).
+A set of topics (encoded indexed args) from the [Event Log](/docs/glossary/terms#event-log).
 
 ```ts
 const topics = decodeEventLog({
@@ -139,7 +139,7 @@ const topics = decodeEventLog({
 
 - **Type:** `string`
 
-The data (encoded non-indexed args) from the [Event Log](/docs/glossary/terms#TODO).
+The data (encoded non-indexed args) from the [Event Log](/docs/glossary/terms#event-log).
 
 ```ts
 const topics = decodeEventLog({

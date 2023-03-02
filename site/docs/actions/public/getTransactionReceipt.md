@@ -14,7 +14,7 @@ head:
 
 # getTransactionReceipt
 
-Returns the transaction receipt given a transaction hash.
+Returns the [Transaction Receipt](/docs/glossary/terms#transaction-receipt) given a [Transaction](/docs/glossary/terms#transaction) hash.
 
 ## Usage
 
@@ -54,8 +54,3 @@ const transaction = await publicClient.getTransactionReceipt({
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
 })
 ```
-
-
-## Notes
-
-- A [Transaction Receipt](/docs/glossary/terms#TODO) is not to be confused with a [Transaction](/docs/glossary/terms#TODO). A Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain, whereas a Transaction is a **message** sent by an account that is broadcast to the network. You can get a Transaction using [`getTransaction`](/docs/actions/public/getTransaction).

@@ -14,7 +14,7 @@ head:
 
 # getTransaction
 
-Returns information about a transaction given a hash or block identifier.
+Returns information about a [Transaction](/docs/glossary/terms#transaction) given a hash or block identifier.
 
 ## Usage
 
@@ -105,11 +105,6 @@ const transaction = await publicClient.getTransaction({
   index: 0 // [!code focus]
 })
 ```
-
-
-## Notes
-
-- A [Transaction](#gettransaction) is not to be confused with a [Transaction Receipt](/docs/glossary/terms#TODO). A Transaction is a **message** sent by an account that is broadcast to the network, whereas a Transaction Receipt is the **confirmation** that the transaction has been processed and included in a block on the blockchain. You can get a Transaction Receipt using [`getTransactionReceipt`](/docs/actions/public/getTransactionReceipt).
 
 ## Example
 

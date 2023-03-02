@@ -40,7 +40,7 @@ A boolean indicating if the Filter was successfully uninstalled.
 
 ### filter
 
-- **Type:** [`Filter`](/docs/glossary/terms#TODO)
+- **Type:** [`Filter`](/docs/glossary/terms#filter)
 
 A created filter.
 

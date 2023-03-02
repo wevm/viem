@@ -378,7 +378,6 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Contract',
       collapsed: true,
       items: [
-        { text: 'Introduction', link: '/docs/contract/introduction' },
         {
           text: 'Actions',
           items: [

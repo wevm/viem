@@ -74,7 +74,7 @@ The ABI item.
 
 ### abi
 
-- **Type:** [`Abi`](/docs/glossary/types#TODO)
+- **Type:** [`Abi`](/docs/glossary/types.html#abi)
 
 The contract's ABI.
 

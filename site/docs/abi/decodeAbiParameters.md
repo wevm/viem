@@ -49,7 +49,7 @@ The decoded data. Type is inferred from the ABI.
 
 ### params
 
-- **Type**: [`AbiParameter[]`](/TODO)
+- **Type**: [`AbiParameter[]`](/docs/glossary/types.html#abiparameter)
 
 The set of ABI parameters to decode against `data`, in the shape of the `inputs` or `outputs` attribute of an ABI event/function.
 

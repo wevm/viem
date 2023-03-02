@@ -14,7 +14,7 @@ head:
 
 # getTransactionCount
 
-Returns the number of [Transactions](/docs/glossary/terms#TODO) an Account has broadcast / sent.
+Returns the number of [Transactions](/docs/glossary/terms#transaction) an Account has broadcast / sent.
 
 ## Usage
 

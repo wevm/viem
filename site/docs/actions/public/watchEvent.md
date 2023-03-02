@@ -14,7 +14,7 @@ head:
 
 # watchEvent
 
-Watches and returns emitted [Event Logs](/docs/glossary/terms#TODO).
+Watches and returns emitted [Event Logs](/docs/glossary/terms#event-log).
 
 This Action will batch up all the Event Logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onLogs).
 
@@ -24,7 +24,7 @@ This Action will batch up all the Event Logs found within the [`pollingInterval`
 
 By default, you can watch all broadcasted events to the blockchain by just passing `onLogs`. 
 
-These events will be batched up into [Event Logs](/docs/glossary/terms#TODO) and sent to `onLogs`:
+These events will be batched up into [Event Logs](/docs/glossary/terms#event-log) and sent to `onLogs`:
 
 ::: code-group
 
