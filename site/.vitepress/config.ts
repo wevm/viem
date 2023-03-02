@@ -77,7 +77,7 @@ export default defineConfig({
       { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
       {
         text: 'Examples',
-        link: 'https://stackblitz.com/@jxom/collections/viem',
+        link: 'https://github.com/wagmi-dev/viem/tree/main/examples',
       },
     ],
 
