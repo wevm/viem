@@ -67,7 +67,7 @@ export type TestActions<TChain extends Chain = Chain> = {
   inspectTxpool: () => Promise<InspectTxpoolResponse>
   mine: (args: MineArgs) => Promise<void>
   removeBlockTimestampInterval: () => Promise<void>
-  reset: (args: ResetArgs) => Promise<void>
+  reset: (args?: ResetArgs) => Promise<void>
   revert: (args: RevertArgs) => Promise<void>
   sendUnsignedTransaction: (
     args: SendUnsignedTransactionArgs,
