@@ -8,6 +8,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'Why viem', link: '/docs/introduction' },
         { text: 'Getting Started', link: '/docs/getting-started' },
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
+        { text: 'Platform Compatibility', link: '/docs/compatibility' },
       ],
     },
     {
