@@ -5,7 +5,6 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
-  web3Provider,
 } from '../../_test'
 import { getAccount, parseEther } from '../../utils'
 
@@ -20,7 +19,7 @@ describe.skip('Estimate Gas', () => {
     })
   })
 
-  bench('ethers: `estimateGas`', async () => {
+  bench('ethers@5: `estimateGas`', async () => {
     await ethersProvider.estimateGas({
       from: accounts[0].address,
       to: accounts[1].address,
@@ -33,14 +32,6 @@ describe.skip('Estimate Gas', () => {
       from: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
-    })
-  })
-
-  bench('web3.js: `estimateGas`', async () => {
-    await web3Provider.eth.estimateGas({
-      from: accounts[0].address,
-      to: accounts[1].address,
-      value: '1000000000000',
     })
   })
 })
