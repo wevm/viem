@@ -6,7 +6,7 @@ import { getFilterChanges } from './getFilterChanges'
 
 const filter = await createPendingTransactionFilter(publicClient)
 
-describe('Get Filter Changes', () => {
+describe.skip('Get Filter Changes', () => {
   bench('viem: `getFilterChanges`', async () => {
     await getFilterChanges(publicClient, { filter })
   })

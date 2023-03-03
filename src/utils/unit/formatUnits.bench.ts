@@ -1,21 +1,19 @@
 import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
-import Web3 from 'web3'
+import { formatUnits as formatUnitsV6 } from 'ethers@6'
 
 import { formatUnits } from './formatUnits'
-
-const web3 = new Web3()
 
 describe('Format Unit', () => {
   bench('viem: `formatUnits`', () => {
     formatUnits(40000000000000000000n, 18)
   })
 
-  bench('ethers: `formatUnits`', () => {
+  bench('ethers@5: `formatUnits`', () => {
     utils.formatUnits(40000000000000000000n, 18)
   })
 
-  bench('web3.js: `toWei`', () => {
-    web3.utils.toWei('40000000000000000000')
+  bench('ethers@6: `formatUnits`', () => {
+    formatUnitsV6(40000000000000000000n, 18)
   })
 })

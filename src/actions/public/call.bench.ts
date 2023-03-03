@@ -6,7 +6,6 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
-  web3Provider,
 } from '../../_test'
 
 import { call } from './call'
@@ -23,7 +22,7 @@ describe('Call', () => {
     })
   })
 
-  bench('ethers: `call`', async () => {
+  bench('ethers@5: `call`', async () => {
     await ethersProvider.call({
       data: name4bytes,
       from: accounts[0].address,
@@ -33,14 +32,6 @@ describe('Call', () => {
 
   bench('ethers@6: `call`', async () => {
     await ethersV6Provider.call({
-      data: name4bytes,
-      from: accounts[0].address,
-      to: wagmiContractAddress,
-    })
-  })
-
-  bench('web3.js: `call`', async () => {
-    await web3Provider.eth.call({
       data: name4bytes,
       from: accounts[0].address,
       to: wagmiContractAddress,

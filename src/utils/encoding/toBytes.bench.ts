@@ -1,24 +1,24 @@
 import { arrayify, toUtf8Bytes } from 'ethers/lib/utils'
+import { toBeArray } from 'ethers@6'
 import { bench, describe } from 'vitest'
-import Web3 from 'web3'
 
 import { hexToBytes, stringToBytes } from './toBytes'
 
-describe('Hex to Bytes', () => {
+describe.skip('Hex to Bytes', () => {
   bench('viem: `hexToBytes`', () => {
     hexToBytes('0x48656c6c6f20576f726c6421')
   })
 
-  bench('ethers: `arrayify`', () => {
+  bench('ethers@5: `arrayify`', () => {
     arrayify('0x48656c6c6f20576f726c6421')
   })
 
-  bench('web3.js: `hexToBytes`', () => {
-    Web3.utils.hexToBytes('0x48656c6c6f20576f726c6421')
+  bench('ethers@6: `toBeArray`', () => {
+    toBeArray('0x48656c6c6f20576f726c6421')
   })
 })
 
-describe('String to Bytes', () => {
+describe.skip('String to Bytes', () => {
   bench('viem: `stringToBytes`', () => {
     stringToBytes('Hello world')
   })

@@ -40,7 +40,7 @@ const block: RpcBlock = {
 
 const formatter = new providers.Formatter()
 
-describe('Format Block', () => {
+describe.skip('Format Block', () => {
   bench('viem: `formatBlock`', () => {
     formatBlock(block)
   })

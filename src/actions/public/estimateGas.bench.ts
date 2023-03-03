@@ -11,7 +11,7 @@ import { getAccount, parseEther } from '../../utils'
 
 import { estimateGas } from './estimateGas'
 
-describe('Estimate Gas', () => {
+describe.skip('Estimate Gas', () => {
   bench('viem: `estimateGas`', async () => {
     await estimateGas(publicClient, {
       account: getAccount(accounts[0].address),

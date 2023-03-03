@@ -1,7 +1,7 @@
 import { hexZeroPad, zeroPad } from 'ethers/lib/utils'
+import { zeroPadValue } from 'ethers@6'
 
 import { bench, describe } from 'vitest'
-import Web3 from 'web3'
 
 import { padBytes, padHex } from './pad'
 
@@ -10,12 +10,12 @@ describe('Pad Hex', () => {
     padHex('0xa4e12a45')
   })
 
-  bench('ethers: `hexZeroPad`', () => {
+  bench('ethers@5: `hexZeroPad`', () => {
     hexZeroPad('0xa4e12a45', 32)
   })
 
-  bench('web3.js: `padLeft`', () => {
-    Web3.utils.padLeft('0xa4e12a45', 32)
+  bench('ethers@6: `zeroPadValue`', () => {
+    zeroPadValue('0xa4e12a45', 32)
   })
 })
 
@@ -24,7 +24,11 @@ describe('Pad Bytes', () => {
     padBytes(new Uint8Array([1, 122, 51, 123]))
   })
 
-  bench('ethers: `zeroPad`', () => {
+  bench('ethers@5: `zeroPad`', () => {
     zeroPad(new Uint8Array([1, 122, 51, 123]), 32)
+  })
+
+  bench('ethers@6: `zeroPadValue`', () => {
+    zeroPadValue(new Uint8Array([1, 122, 51, 123]), 32)
   })
 })

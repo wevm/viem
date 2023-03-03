@@ -62,7 +62,7 @@ const receipt: RpcTransactionReceipt = {
 
 const formatter = new providers.Formatter()
 
-describe('Format Transaction Receipt', () => {
+describe.skip('Format Transaction Receipt', () => {
   bench('viem: `formatTransactionReceipt`', () => {
     formatTransactionReceipt(receipt)
   })

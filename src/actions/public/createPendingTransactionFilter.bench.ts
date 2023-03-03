@@ -4,7 +4,7 @@ import { publicClient } from '../../_test'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter'
 
-describe('Create Pending Transaction Filter', () => {
+describe.skip('Create Pending Transaction Filter', () => {
   bench('viem: `createPendingTransactionFilter`', async () => {
     await createPendingTransactionFilter(publicClient)
   })

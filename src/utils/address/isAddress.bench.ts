@@ -1,7 +1,6 @@
 import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
-
-import Web3 from 'web3'
+import { isAddress as isAddressV6 } from 'ethers@6'
 
 import { isAddress } from './isAddress'
 
@@ -10,11 +9,11 @@ describe('Is Address', () => {
     isAddress('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC')
   })
 
-  bench('ethers: isAddress', () => {
+  bench('ethers@5: isAddress', () => {
     utils.isAddress('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC')
   })
 
-  bench('web3.js: isAddress', () => {
-    Web3.utils.isAddress('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC')
+  bench('ethers@6: isAddress', () => {
+    isAddressV6('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC')
   })
 })

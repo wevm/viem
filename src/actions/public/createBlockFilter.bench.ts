@@ -4,7 +4,7 @@ import { publicClient } from '../../_test'
 
 import { createBlockFilter } from './createBlockFilter'
 
-describe('Create Block Filter', () => {
+describe.skip('Create Block Filter', () => {
   bench('viem: `createBlockFilter`', async () => {
     await createBlockFilter(publicClient)
   })

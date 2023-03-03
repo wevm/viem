@@ -18,7 +18,7 @@ const receipt: TransactionRequest = {
 
 const formatter = new providers.Formatter()
 
-describe('Format Transaction Request', () => {
+describe.skip('Format Transaction Request', () => {
   bench('viem: `formatTransactionReceipt`', () => {
     formatTransactionRequest(receipt)
   })

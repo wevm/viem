@@ -6,7 +6,7 @@ import { uninstallFilter } from './uninstallFilter'
 
 const filter = await createPendingTransactionFilter(publicClient)
 
-describe('Get Filter Changes', () => {
+describe.skip('Uninstall Filter', () => {
   bench('viem: `uninstallFilter`', async () => {
     await uninstallFilter(publicClient, { filter })
   })

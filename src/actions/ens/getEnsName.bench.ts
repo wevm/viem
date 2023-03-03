@@ -1,11 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import {
-  ethersProvider,
-  ethersV6Provider,
-  publicClient,
-  web3Provider,
-} from '../../_test'
+import { ethersProvider, ethersV6Provider, publicClient } from '../../_test'
 
 import { getEnsName } from './getEnsName'
 

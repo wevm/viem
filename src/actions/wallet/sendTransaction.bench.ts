@@ -1,24 +1,15 @@
-import { beforeAll, bench, describe } from 'vitest'
+import { bench, describe } from 'vitest'
 
 import {
   accounts,
   ethersProvider,
-  publicClient,
+  ethersV6Provider,
   walletClient,
-  web3Provider,
 } from '../../_test'
 import { getAccount, parseEther } from '../../utils'
-import { getTransactionCount } from '../public'
 
 import { sendTransaction } from './sendTransaction'
-
-let nonce: number
-
-beforeAll(async () => {
-  nonce = await getTransactionCount(publicClient, {
-    address: accounts[0].address,
-  })
-})
+import { JsonRpcSigner } from 'ethers@6'
 
 describe('Send Transaction', () => {
   bench('viem: `sendTransaction`', async () => {
@@ -26,32 +17,21 @@ describe('Send Transaction', () => {
       account: getAccount(accounts[0].address),
       to: accounts[1].address,
       value: parseEther('1'),
-      nonce: nonce++,
     })
   })
 
-  bench('ethers: `sendTransaction`', async () => {
-    await ethersProvider.getSigner(accounts[0].address).sendTransaction({
+  bench('ethers@5: `sendTransaction`', async () => {
+    await ethersProvider.getSigner(accounts[1].address).sendTransaction({
       to: accounts[1].address,
       value: parseEther('1'),
-      nonce: nonce++,
     })
   })
 
-  bench(
-    'web3.js: `sendTransaction`',
-    async () => {
-      await new Promise((resolve) => {
-        web3Provider.eth
-          .sendTransaction({
-            from: accounts[0].address,
-            to: accounts[1].address,
-            value: '1000000000000000',
-            nonce: nonce++,
-          })
-          .on('transactionHash', resolve)
-      })
-    },
-    { iterations: 10 },
-  )
+  bench('ethers@6: `sendTransaction`', async () => {
+    const signer = new JsonRpcSigner(ethersV6Provider, accounts[2].address)
+    await signer.sendTransaction({
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+  })
 })
