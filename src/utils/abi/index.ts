@@ -53,6 +53,8 @@ export { encodeFunctionData } from './encodeFunctionData'
 export type { EncodeFunctionResultArgs } from './encodeFunctionResult'
 export { encodeFunctionResult } from './encodeFunctionResult'
 
+export { encodePacked } from './encodePacked'
+
 export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
 
 export { formatAbiItem } from './formatAbiItem'

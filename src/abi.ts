@@ -10,6 +10,7 @@ export type {
 export {
   decodeAbiParameters,
   encodeAbiParameters,
+  encodePacked,
   getAbiItem,
   parseAbi,
   parseAbiItem,

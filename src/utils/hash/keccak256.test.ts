@@ -3,6 +3,10 @@ import { expect, test } from 'vitest'
 import { keccak256 } from './keccak256'
 
 test('to hex', () => {
+  expect(keccak256('0xdeadbeef')).toMatchInlineSnapshot(
+    '"0xd4fd4e189132273036449fc9e11198c739161b4c0116a9a2dccdfa1c492006f1"',
+  )
+
   expect(
     keccak256(
       new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
@@ -13,6 +17,45 @@ test('to hex', () => {
 })
 
 test('to bytes', () => {
+  expect(keccak256('0xdeadbeef', 'bytes')).toMatchInlineSnapshot(
+    `
+    Uint8Array [
+      212,
+      253,
+      78,
+      24,
+      145,
+      50,
+      39,
+      48,
+      54,
+      68,
+      159,
+      201,
+      225,
+      17,
+      152,
+      199,
+      57,
+      22,
+      27,
+      76,
+      1,
+      22,
+      169,
+      162,
+      220,
+      205,
+      250,
+      28,
+      73,
+      32,
+      6,
+      241,
+    ]
+  `,
+  )
+
   expect(
     keccak256(
       new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),

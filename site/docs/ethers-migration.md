@@ -1602,18 +1602,24 @@ toRlp('0x8412345678')
 
 #### Ethers
 
-```ts {3}
+```ts {3,5-6}
 import { utils } from 'ethers'
 
 utils.id('function ownerOf(uint256 tokenId)')
+
+// hash utf-8 data
+utils.id('hello world')
 ```
 
 #### viem
 
-```ts {3}
-import { getFunctionSelector } from 'viem'
+```ts {3,5-6}
+import { getFunctionSelector, keccak256, toHex } from 'viem'
 
 getFunctionSelector('function ownerOf(uint256 tokenId)')
+
+// hash utf-8 data
+keccak256(toHex('hello world'))
 ```
 
 ### keccak256
@@ -1652,21 +1658,25 @@ import { namehash } from 'viem'
 namehash('awkweb.eth')
 ```
 
-### solidityPack, soliditySha256 & solidityKeccak256
+### solidityPack & solidityKeccak256
 
 #### Ethers
 
-```ts {3-5}
+```ts {3,4}
 import { utils } from 'ethers'
 
 utils.solidityPack(['int16', 'uint48'], [-1, 12])
 utils.solidityKeccak256(['int16', 'uint48'], [-1, 12])
-utils.soliditySha256(['int16', 'uint48'], [-1, 12])
 ```
 
 #### viem
 
-Coming soon.
+```ts {3,4}
+import { encodePacked, keccak256 } from 'viem'
+
+encodePacked(['int16', 'uint48'], [-1, 12])
+keccak256(encodePacked(['int16', 'uint48'], [-1, 12]))
+```
 
 ## String Utilities
 

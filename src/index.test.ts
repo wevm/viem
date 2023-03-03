@@ -108,6 +108,7 @@ test('exports actions', () => {
       "encodeEventTopics": [Function],
       "encodeFunctionData": [Function],
       "encodeFunctionResult": [Function],
+      "encodePacked": [Function],
       "etherUnits": {
         "gwei": 9,
         "wei": 18,

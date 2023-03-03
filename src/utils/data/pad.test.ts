@@ -81,6 +81,10 @@ describe('hex', () => {
       '"0xa4e12a45"',
     )
 
+    expect(padHex('0xa4e12a45ab', { size: null })).toMatchInlineSnapshot(
+      '"0xa4e12a45ab"',
+    )
+
     expect(() =>
       padHex('0x1a4e12a45', { size: 4 }),
     ).toThrowErrorMatchingInlineSnapshot(
@@ -225,6 +229,21 @@ describe('bytes', () => {
         122,
         51,
         123,
+      ]
+    `,
+    )
+
+    expect(
+      padBytes(new Uint8Array([1, 122, 51, 123, 11, 23]), { size: null }),
+    ).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        1,
+        122,
+        51,
+        123,
+        11,
+        23,
       ]
     `,
     )

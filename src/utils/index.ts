@@ -31,6 +31,7 @@ export {
   encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
+  encodePacked,
   formatAbiItemWithArgs,
   formatAbiItem,
   getAbiItem,
@@ -142,6 +143,8 @@ export {
 } from './errors'
 
 export { getEventSelector, getFunctionSelector, keccak256 } from './hash'
+
+export { arrayRegex, bytesRegex, integerRegex } from './regex'
 
 export type { HttpOptions, RpcResponse, Socket } from './rpc'
 export { getSocket, rpc } from './rpc'

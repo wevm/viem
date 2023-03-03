@@ -3,7 +3,7 @@ import type { ByteArray, Hex } from '../../types'
 
 type PadOptions = {
   dir?: 'left' | 'right'
-  size?: number
+  size?: number | null
 }
 type PadResult<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex
@@ -19,6 +19,7 @@ export function pad<TValue extends ByteArray | Hex>(
 }
 
 export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
+  if (size === null) return hex_
   let hex = hex_.replace('0x', '')
   if (hex.length > size * 2)
     throw new SizeExceedsPaddingSizeError({
@@ -37,6 +38,7 @@ export function padBytes(
   bytes: ByteArray,
   { dir, size = 32 }: PadOptions = {},
 ) {
+  if (size === null) return bytes
   if (bytes.length > size)
     throw new SizeExceedsPaddingSizeError({
       size: bytes.length,

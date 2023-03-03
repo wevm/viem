@@ -215,6 +215,7 @@ export {
   encodeEventTopics,
   encodeFunctionData,
   encodeFunctionResult,
+  encodePacked,
   formatBlock,
   formatEther,
   formatGwei,

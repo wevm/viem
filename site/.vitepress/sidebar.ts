@@ -509,6 +509,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/docs/abi/encodeAbiParameters',
         },
         {
+          text: 'encodePacked',
+          link: '/docs/abi/encodePacked',
+        },
+        {
           text: 'getAbiItem',
           link: '/docs/abi/getAbiItem',
         },

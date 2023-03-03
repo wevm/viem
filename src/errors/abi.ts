@@ -220,6 +220,16 @@ export class AbiFunctionSignatureNotFoundError extends BaseError {
   }
 }
 
+export class BytesSizeMismatchError extends BaseError {
+  name = 'BytesSizeMismatchError'
+  constructor({
+    expectedSize,
+    givenSize,
+  }: { expectedSize: number; givenSize: number }) {
+    super(`Expected bytes${expectedSize}, got bytes${givenSize}.`)
+  }
+}
+
 export class InvalidAbiEncodingTypeError extends BaseError {
   name = 'InvalidAbiEncodingType'
   constructor(type: string, { docsPath }: { docsPath: string }) {
@@ -262,5 +272,12 @@ export class InvalidDefinitionTypeError extends BaseError {
         'Valid types: "function", "event", "error"',
       ].join('\n'),
     )
+  }
+}
+
+export class UnsupportedPackedAbiType extends BaseError {
+  name = 'UnsupportedPackedAbiType'
+  constructor(type: unknown) {
+    super(`Type "${type}" is not supported for packed encoding.`)
   }
 }

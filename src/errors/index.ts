@@ -14,10 +14,12 @@ export {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
   AbiFunctionSignatureNotFoundError,
+  BytesSizeMismatchError,
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,
   InvalidDefinitionTypeError,
+  UnsupportedPackedAbiType,
 } from './abi'
 
 export { InvalidAddressError } from './address'

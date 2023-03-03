@@ -16,6 +16,7 @@ test('exports utils', () => {
       "encodeEventTopics": [Function],
       "encodeFunctionData": [Function],
       "encodeFunctionResult": [Function],
+      "encodePacked": [Function],
       "formatAbiItem": [Function],
       "formatAbiItemWithArgs": [Function],
       "getAbiItem": [Function],
