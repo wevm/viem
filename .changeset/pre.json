@@ -15,7 +15,8 @@
     "template-example-ens": "0.0.0",
     "template-example-block-event-logs": "0.0.0",
     "template-example-event-logs": "0.0.0",
-    "viem-example-sending-transactions": "0.0.0"
+    "viem-example-sending-transactions": "0.0.0",
+    "viem-example-writing-contracts": "0.0.0"
   },
   "changesets": [
     "beige-pillows-report",
@@ -63,6 +64,7 @@
     "silver-starfishes-remain",
     "six-cows-think",
     "sour-turtles-switch",
+    "sour-wasps-move",
     "stale-ads-reply",
     "tame-flies-refuse",
     "tasty-ants-chew",
@@ -72,6 +74,7 @@
     "unlucky-poems-rush",
     "violet-humans-press",
     "violet-vans-attack",
+    "wet-ears-prove",
     "wet-moles-melt"
   ]
 }

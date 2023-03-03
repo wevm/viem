@@ -1,5 +1,13 @@
 # viem
 
+## 0.0.1-alpha.39
+
+### Patch Changes
+
+- [`68c3816`](https://github.com/wagmi-dev/viem/commit/68c3816c8c492aa0943b63438a13109e9ac682df) Thanks [@jxom](https://github.com/jxom)! - Added `encodePacked`.
+
+* [`68c3816`](https://github.com/wagmi-dev/viem/commit/68c3816c8c492aa0943b63438a13109e9ac682df) Thanks [@jxom](https://github.com/jxom)! - Made `keccak256` accept a hex value (as well as byte array).
+
 ## 0.0.1-alpha.38
 
 ### Patch Changes
