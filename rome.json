@@ -1,15 +1,24 @@
 {
   "files": {
     "ignore": [
+      ".next",
       "**/types/multicall.ts",
-      "cache",
-      "coverage",
-      "node_modules",
-      "dist",
-      "generated",
+      "**/node_modules",
       "CHANGELOG.md",
+      "abi",
+      "cache",
+      "chains",
+      "contract",
+      "coverage",
+      "dist",
+      "ens",
+      "generated.ts",
       "pnpm-lock.yaml",
-      ".next"
+      "public",
+      "test",
+      "utils",
+      "wallet",
+      "window"
     ]
   },
   "formatter": {

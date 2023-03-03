@@ -3,12 +3,12 @@
 .eslintcache
 .next
 .pnpm-debug.log*
+bench
 cache
+coverage
 dist
 node_modules
 tsconfig.tsbuildinfo
-coverage
-bench
 
 # local env files
 .env
@@ -21,12 +21,13 @@ bench
 # @wagmi/cli
 generated.ts
 
-abi/**
-chains/**
-contract/**
-ens/**
-public/**
-test/**
-utils/**
-wallet/**
-window/**
+# proxy packages
+abi
+chains
+contract
+ens
+public
+test
+utils
+wallet
+window
