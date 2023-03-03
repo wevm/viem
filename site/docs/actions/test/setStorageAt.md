@@ -46,7 +46,7 @@ await testClient.setStorageAt({
 
 ### index
 
-- **Type:** `number | `0x${string}``
+- **Type:** ``number | `0x${string}` ``
 
 The storage slot (index). Can either be a number or hash value.
 
