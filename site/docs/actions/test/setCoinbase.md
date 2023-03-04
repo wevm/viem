@@ -30,7 +30,7 @@ await testClient.setCoinbase({ // [!code focus:99]
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The coinbase address.
 

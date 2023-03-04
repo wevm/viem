@@ -33,7 +33,7 @@ const abiItem = parseAbiItem(
 
 ## Returns
 
-`Abi`
+[`Abi`](/docs/glossary/types#abi)
 
 Parsed ABI item.
 

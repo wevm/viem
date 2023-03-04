@@ -67,7 +67,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The encoded error.
 

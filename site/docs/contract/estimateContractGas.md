@@ -127,7 +127,7 @@ The gas estimate.
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address.
 

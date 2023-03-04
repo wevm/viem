@@ -35,7 +35,7 @@ The block transaction count.
 
 ### blockHash (optional)
 
-- **Type:** `'0x${string}'`
+- **Type:** [`Hash`](/docs/glossary/types#hash)
 
 Count at a given block hash.
 

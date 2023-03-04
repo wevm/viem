@@ -167,7 +167,7 @@ export const walletClient = createWalletClient({
 
 ## Return Value
 
-`Hash`
+[`Hash`](/docs/glossary/types#hash)
 
 A [Transaction Hash](/docs/glossary/terms#hash).
 
@@ -177,7 +177,7 @@ Unlike [`readContract`](/docs/contract/readContract), `writeContract` only retur
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address.
 
@@ -222,7 +222,7 @@ await walletClient.writeContract({
 
 ### account
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The Account sender. [Read more](/docs/clients/wallet).
 

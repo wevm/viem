@@ -105,7 +105,7 @@ An array of results with accompanying status.
 
 ### contracts.address
 
-- **Type**: `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address.
 
@@ -124,7 +124,7 @@ const results = await publicClient.multicall({
 
 ### contracts.abi
 
-- **Type**: `Abi`
+- **Type:** [`Abi`](/docs/glossary/types#abi)
 
 The contract ABI.
 

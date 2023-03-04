@@ -185,7 +185,7 @@ const data = encodeFunctionResult({
 
 ### values
 
-- **Type**: `Hex`
+- **Type**: [`Hex`](/docs/glossary/types#hex)
 
 Return values to encode.
 

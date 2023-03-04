@@ -150,7 +150,7 @@ const { functionName } = decodeFunctionData({
 
 ### data
 
-- **Type:** `Hex`
+- **Type:** [`Hex`](/docs/glossary/types#hex)
 
 The encoded calldata.
 

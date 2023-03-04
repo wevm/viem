@@ -42,7 +42,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The contract's bytecode.
 
@@ -50,7 +50,7 @@ The contract's bytecode.
 
 ### address
 
-- **Type**: `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address.
 

@@ -50,7 +50,7 @@ Since ENS names prohibit certain forbidden characters (e.g. underscore) and have
 
 ## Returns
 
-`Address`
+[`Address`](/docs/glossary/types#address)
 
 The address that resolves to provided ENS name.
 
@@ -60,7 +60,7 @@ Returns `0x0000000000000000000000000000000000000000` if ENS name does not resolv
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 Address to get primary ENS name for.
 
@@ -99,7 +99,7 @@ const ensName = await publicClient.getEnsAddress({
 
 ### universalResolverAddress (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
 
 Address of ENS Universal Resolver Contract.

@@ -37,7 +37,7 @@ The balance of the address in wei.
 
 ### address
 
-- **Type:** `'0x${string}'`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The address of the account.
 

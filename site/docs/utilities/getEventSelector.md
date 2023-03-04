@@ -36,7 +36,7 @@ const selector = getEventSelector('Transfer(address indexed from, address indexe
 
 ## Returns
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The selector as a hex value.
 

@@ -71,7 +71,7 @@ const data = await publicClient.call({
 
 ### to
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address or recipient.
 
@@ -85,7 +85,7 @@ const data = await publicClient.call({
 
 ### accessList (optional)
 
-- **Type:** `AccessList`
+- **Type:** [`AccessList`](/docs/glossary/types#accesslist)
 
 The access list.
 

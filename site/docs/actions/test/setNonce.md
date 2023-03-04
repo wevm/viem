@@ -31,7 +31,7 @@ await testClient.setNonce({ // [!code focus:4]
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The address of the target account.
 

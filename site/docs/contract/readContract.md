@@ -120,7 +120,7 @@ The response from the contract. Type is inferred.
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address.
 

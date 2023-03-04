@@ -36,7 +36,7 @@ const selector = getFunctionSelector('ownerOf(uint256)')
 
 ## Returns
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The selector as a hex value.
 

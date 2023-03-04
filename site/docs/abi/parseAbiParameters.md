@@ -33,7 +33,7 @@ const abiParameters = parseAbiParameters(
 
 ## Returns
 
-`Abi`
+[`Abi`](/docs/glossary/types#abi)
 
 Parsed ABI parameters.
 

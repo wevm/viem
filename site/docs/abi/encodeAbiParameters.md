@@ -62,7 +62,7 @@ const encodedData = encodeAbiParameters(
 
 ## Returns
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The ABI encoded data.
 

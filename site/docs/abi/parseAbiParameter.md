@@ -31,7 +31,7 @@ const abiParameter = parseAbiParameter('address from')
 
 ## Returns
 
-`Abi`
+[`Abi`](/docs/glossary/types#abi)
 
 Parsed ABI parameter.
 

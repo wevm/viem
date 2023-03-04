@@ -42,7 +42,7 @@ The size of the value (in bytes).
 
 ### value
 
-- **Type:** `Hex` | `ByteArray`
+- **Type:** [`Hex`](/docs/glossary/types#hex) | `ByteArray`
 
 The value (hex or byte array) to retrieve the size of.
 
