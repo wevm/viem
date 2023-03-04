@@ -36,7 +36,7 @@ getContractAddress({ // [!code focus:99]
 
 ## Returns
 
-`Address`
+[`Address`](/docs/glossary/types#address)
 
 The contract address.
 
@@ -44,7 +44,7 @@ The contract address.
 
 ### from (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The address the contract was deployed from.
 
@@ -57,7 +57,7 @@ getContractAddress({
 
 ### nonce (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The nonce of the transaction which deployed the contract.
 
@@ -88,7 +88,7 @@ getContractAddress({
 
 ### bytecode (optional)
 
-- **Type:** `ByteArray` | `Hex` 
+- **Type:** `ByteArray` | [`Hex`](/docs/glossary/types#hex)
 - **Only applicable for `opcode: 'CREATE2'` deployments**
 
 The to-be-deployed contract’s bytecode
@@ -104,7 +104,7 @@ getContractAddress({
 
 ### salt (optional)
 
-- **Type:** `ByteArray` | `Hex` 
+- **Type:** `ByteArray` | [`Hex`](/docs/glossary/types#hex)
 - **Only applicable for `opcode: 'CREATE2'` deployments**
 
 An arbitrary value provided by the sender.

@@ -71,7 +71,7 @@ const hash = await walletClient.sendTransaction({
 
 ### accessList (optional)
 
-- **Type:** `AccessList`
+- **Type:** [`AccessList`](/docs/glossary/types#accesslist)
 
 The access list.
 

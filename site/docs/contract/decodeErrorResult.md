@@ -86,7 +86,7 @@ const value = decodeErrorResult({
 
 ### data
 
-- **Type**: `Hex`
+- **Type:** [`Hex`](/docs/glossary/types#hex)
 
 The calldata.
 

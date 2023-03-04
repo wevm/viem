@@ -37,7 +37,7 @@ The number of transactions an account has sent.
 
 ### address
 
-- **Type:** `'0x${string}'`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The address of the account.
 

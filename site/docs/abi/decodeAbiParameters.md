@@ -82,7 +82,7 @@ const values = decodeAbiParameters(
 
 ### data
 
-- **Type**: `Hex`
+- **Type:** [`Hex`](/docs/glossary/types#hex)
 
 The ABI encoded data.
 

@@ -34,7 +34,7 @@ const abi = parseAbi([
 
 ## Returns
 
-`Abi`
+[`Abi`](/docs/glossary/types#abi)
 
 The JSON ABI.
 

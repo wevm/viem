@@ -211,7 +211,7 @@ const unwatch = await publicClient.watchContractEvent({
 
 ### address (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address. If no address is provided, then it will emit all events matching the event signatures on the ABI.
 

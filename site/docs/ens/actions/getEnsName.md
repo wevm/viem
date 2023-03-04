@@ -55,7 +55,7 @@ Returns `null` if address does not have primary name assigned.
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 Address to get primary ENS name for.
 
@@ -94,7 +94,7 @@ const ensName = await publicClient.getEnsName({
 
 ### universalResolverAddress (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
 
 Address of ENS Universal Resolver Contract.

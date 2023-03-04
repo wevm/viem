@@ -39,7 +39,7 @@ The transaction hash.
 
 ### from
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The Transaction sender.
 
@@ -68,7 +68,7 @@ const hash = await testClient.sendUnsignedTransaction({
 
 ### accessList (optional)
 
-- **Type:** `AccessList`
+- **Type:** [`AccessList`](/docs/glossary/types#accesslist)
 
 The access list.
 

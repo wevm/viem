@@ -31,7 +31,7 @@ await testClient.setCode({ // [!code focus:4]
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The account address.
 
@@ -44,7 +44,7 @@ await testClient.setCode({
 
 ### bytecode
 
-- **Type:** `Address`
+- **Type:** [`Hex`](/docs/glossary/types#hex)
 
 The stored bytecode.
 

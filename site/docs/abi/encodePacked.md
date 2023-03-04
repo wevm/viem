@@ -38,7 +38,7 @@ encodePacked(
 
 ## Returns
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The encoded packed data.
 

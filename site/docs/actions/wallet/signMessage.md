@@ -40,7 +40,7 @@ The signed message.
 
 ### account
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 Account to use for signing. [Read more](/docs/clients/wallet).
 

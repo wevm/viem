@@ -32,7 +32,7 @@ await testClient.setStorageAt({ // [!code focus:99]
 
 ### address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The account address.
 
