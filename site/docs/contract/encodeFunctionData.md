@@ -113,7 +113,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 ABI encoded data (4byte function selector & arguments).
 

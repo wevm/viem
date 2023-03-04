@@ -32,7 +32,7 @@ const message = await walletClient.signMessage({ // [!code focus:99]
 
 ## Returns
 
-`0x${string}`
+[`Hex`](/docs/glossary/types#hex)
 
 The signed message.
 
@@ -40,7 +40,7 @@ The signed message.
 
 ### account
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 Account to use for signing. [Read more](/docs/clients/wallet).
 

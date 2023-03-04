@@ -34,7 +34,7 @@ const hash = await walletClient.sendTransaction({ // [!code focus:99]
 
 ## Returns
 
-`'0x${string}'[]`
+[`Hash`](/docs/glossary/types#hash)
 
 The [Transaction](/docs/glossary/terms#transaction) hash.
 
@@ -71,7 +71,7 @@ const hash = await walletClient.sendTransaction({
 
 ### accessList (optional)
 
-- **Type:** `AccessList`
+- **Type:** [`AccessList`](/docs/glossary/types#accesslist)
 
 The access list.
 

@@ -42,7 +42,7 @@ Information about the block.
 
 ### blockHash (optional)
 
-- **Type:** `'0x${string}'`
+- **Type:** [`Hash`](/docs/glossary/types#hash)
 
 Information at a given block hash.
 

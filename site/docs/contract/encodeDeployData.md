@@ -111,7 +111,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 ABI encoded data (bytecode & constructor arguments).
 
@@ -133,7 +133,7 @@ const data = encodeFunctionData({
 
 ### bytecode
 
-- **Type:** `Hex`
+- **Type:** [`Hex`](/docs/glossary/types#hex)
 
 Contract bytecode.
 

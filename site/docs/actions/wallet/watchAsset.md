@@ -59,7 +59,7 @@ await walletClient.watchAsset({
 
 ### options.address
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The address of the token contract.
 

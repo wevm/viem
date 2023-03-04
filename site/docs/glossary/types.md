@@ -91,7 +91,7 @@ A type for a [Filter](/docs/glossary/terms#filter).
 
 [See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/filter.ts)
 
-## `Hex`
+## `Hash`
 
 Type for a hashed value – a "0x"-prefixed string: `"0x${string}"`
 

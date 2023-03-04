@@ -44,7 +44,7 @@ toHex(true)
 
 ## Returns
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The hex value.
 

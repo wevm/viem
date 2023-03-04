@@ -45,7 +45,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-`Hex`
+[`Hex`](/docs/glossary/types#hex)
 
 The value of the storage slot.
 
@@ -53,7 +53,7 @@ The value of the storage slot.
 
 ### address
 
-- **Type**: `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 The contract address.
 
@@ -66,7 +66,7 @@ const data = await publicClient.getStorageAt({
 
 ### slot
 
-- **Type**: `Hex`
+- **Type**: [`Hex`](/docs/glossary/types#hex)
 
 The storage position (as a hex encoded value).
 

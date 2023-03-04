@@ -56,7 +56,7 @@ const gasEstimate = await publicClient.estimateGas({
 
 ### from (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 Transaction sender.
 
@@ -124,7 +124,7 @@ const gasEstimate = await publicClient.estimateGas({
 
 ### to (optional)
 
-- **Type:** `Address`
+- **Type:** [`Address`](/docs/glossary/types#address)
 
 Transaction recipient.
 
