@@ -38,7 +38,7 @@ const data = encodeDeployData({
 // 0x608060405260405161083e38038061083e833981016040819052610...
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   { 

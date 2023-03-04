@@ -22,7 +22,6 @@ viem is designed to be as type-safe as possible! Things to keep in mind:
 
 To ensure everything works correctly, make sure that your `tsconfig.json` has [`strict`](https://www.typescriptlang.org/tsconfig#strict) mode set to `true`:
 
-::: code-group
 ```json [tsconfig.json]
 {
   "compilerOptions": {
@@ -30,7 +29,6 @@ To ensure everything works correctly, make sure that your `tsconfig.json` has [`
   }
 }
 ```
-:::
 
 ## Type Inference
 
@@ -59,15 +57,35 @@ Unfortunately [TypeScript doesn't support importing JSON as const](https://githu
 
 The following actions and utilities support type inference when you add a const assertion to `abi` or define `abi` inline:
 
-- [deployContract ](/docs/contract/deployContract)
-- [readContract](/docs/contract/readContract)
-- TODO: Add more links
+#### Actions
+
+- [`createEventFilter`](/docs/actions/public/createEventFilter)
+- [`watchEvent`](/docs/actions/public/watchEvent)
+- [`createContractEventFilter`](/docs/contract/createContractEventFilter)
+- [`deployContract`](/docs/contract/deployContract)
+- [`estimateContractGas`](/docs/contract/estimateContractGas)
+- [`multicall`](/docs/contract/multicall)
+- [`readContract`](/docs/contract/readContract)
+- [`simulateContract`](/docs/contract/simulateContract)
+- [`writeContract`](/docs/contract/writeContract)
+- [`watchContractEvent`](/docs/contract/watchContractEvent)
+
+#### Utilities
+
+- [`decodeEventLog` ](/docs/contract/decodeEventLog)
+- [`decodeFunctionResult` ](/docs/contract/decodeFunctionResult)
+- [`encodeDeployData` ](/docs/contract/encodeDeployData)
+- [`encodeErrorResult` ](/docs/contract/encodeErrorResult)
+- [`encodeEventTopics` ](/docs/contract/encodeEventTopics)
+- [`encodeFunctionData` ](/docs/contract/encodeFunctionData)
+- [`encodeFunctionResult` ](/docs/contract/encodeFunctionResult)
+- [`getAbiItem` ](/docs/abi/getAbiItem)
 
 For example, `readContract`:
 
 ```ts
 const result = client.readContract({
-  //    ^? const data: bigint | undefined
+  //  ^? const data: bigint | undefined
   address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
   abi: [
     {
@@ -154,6 +172,18 @@ const result = client.signTypedData({
   },
 })
 ```
+
+### Other
+
+The following utilities support type inference when you use const assertions or define arguments inline:
+
+- [`decodeAbiParameters` ](/docs/abi/decodeAbiParameters)
+- [`encodeAbiParameters` ](/docs/abi/encodeAbiParameters)
+- [`encodePacked` ](/docs/abi/encodePacked)
+- [`parseAbi` ](/docs/abi/parseAbi)
+- [`parseAbiItem` ](/docs/abi/parseAbiItem)
+- [`parseAbiParameter` ](/docs/abi/parseAbiParameter)
+- [`parseAbiParameters` ](/docs/abi/parseAbiParameters)
 
 ## Configuring Internal Types
 

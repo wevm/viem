@@ -40,7 +40,7 @@ const { functionName } = decodeFunctionData({
 // { functionName: 'totalSupply' }
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   {
