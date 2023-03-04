@@ -31,7 +31,7 @@ const accounts = await walletClient.requestAddresses() // [!code focus:99]
 
 ## Returns
 
-`Address[]`
+[`Address[]`](/docs/glossary/types#address)
 
 ## JSON-RPC Methods
 
