@@ -34,7 +34,7 @@ const hash = await walletClient.sendTransaction({ // [!code focus:99]
 
 ## Returns
 
-`'0x${string}'[]`
+`Hash`
 
 The [Transaction](/docs/glossary/terms#transaction) hash.
 

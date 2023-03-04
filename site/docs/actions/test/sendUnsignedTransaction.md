@@ -31,7 +31,7 @@ const hash = await testClient.sendUnsignedTransaction({ // [!code focus:99]
 
 ## Returns
 
-`'0x${string}'[]`
+`Hash`
 
 The transaction hash.
 

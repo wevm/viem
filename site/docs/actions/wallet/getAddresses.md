@@ -27,7 +27,7 @@ const accounts = await walletClient.getAddresses() // [!code focus:99]
 
 ## Returns
 
-`'0x${string}'[]`
+`Address[]`
 
 A list of checksummed addresses.
 
