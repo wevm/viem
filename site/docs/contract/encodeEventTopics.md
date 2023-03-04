@@ -38,7 +38,7 @@ const topics = encodeEventTopics({
 // ["0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0"]
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   {
@@ -98,7 +98,7 @@ const topics = encodeEventTopics({
 // ["0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0", "0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266", "0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8"]
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   {

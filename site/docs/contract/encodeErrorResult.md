@@ -80,7 +80,8 @@ The encoded error.
 The contract's ABI.
 
 ```ts
-const value = decodeErrorResuencode abi: wagmiAbi, // [!code focus]
+const value = decodeErrorResult({
+  abi: wagmiAbi, // [!code focus]
   errorName: 'InvalidTokenError',
   args: ['sold out']
 })

@@ -37,7 +37,7 @@ const data = encodeFunctionData({
 })
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   {

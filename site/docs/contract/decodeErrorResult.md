@@ -67,7 +67,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-The decoded error. Type is inferred from the ABI.
+The decoded error.
 
 ## Parameters
 

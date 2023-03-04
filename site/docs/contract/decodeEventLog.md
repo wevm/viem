@@ -50,7 +50,7 @@ const topics = decodeEventLog({
  */
 ```
 
-```ts
+```ts [abi.ts]
 export const wagmiAbi = [
   ...
   {
