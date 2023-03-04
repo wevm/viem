@@ -32,7 +32,7 @@ const message = await walletClient.signMessage({ // [!code focus:99]
 
 ## Returns
 
-`0x${string}`
+[`Hex`](/docs/glossary/types#hex)
 
 The signed message.
 
