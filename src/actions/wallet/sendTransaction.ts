@@ -2,7 +2,6 @@ import { prepareRequest } from '../../utils'
 import type { WalletClient } from '../../clients'
 import { BaseError, ChainMismatchError } from '../../errors'
 import type {
-  Address,
   Chain,
   Formatter,
   Hash,

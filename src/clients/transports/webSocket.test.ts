@@ -126,7 +126,7 @@ test('subscribe', async () => {
   })({})
   if (!transport.value) return
 
-  let blocks: any[] = []
+  const blocks: any[] = []
   const { subscriptionId, unsubscribe } = await transport.value.subscribe({
     params: ['newHeads'],
     onData: (data) => blocks.push(data),
@@ -154,7 +154,7 @@ test('throws on bogus subscription', async () => {
     name: 'JSON RPC',
   })
 
-  let errors: any[] = []
+  const errors: any[] = []
   await expect(() =>
     transport({}).value?.subscribe({
       // @ts-expect-error - testing

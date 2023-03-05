@@ -1,5 +1,4 @@
 import { assertType, expect, test } from 'vitest'
-import { getAbiItem } from '../../utils'
 
 import {
   accounts,

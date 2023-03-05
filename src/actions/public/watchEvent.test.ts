@@ -10,7 +10,7 @@ import {
   walletClient,
 } from '../../_test'
 import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { sendTransaction, writeContract } from '../wallet'
+import { writeContract } from '../wallet'
 import * as createEventFilter from './createEventFilter'
 import * as getBlockNumber from './getBlockNumber'
 import * as getLogs from './getLogs'

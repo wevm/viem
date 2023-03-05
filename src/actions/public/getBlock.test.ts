@@ -52,7 +52,7 @@ test('chain w/ custom block type', async () => {
       randomness: { committed: Hex; revealed: Hex }
     }
   >(block)
-  const { extraData, ...rest } = block
+  const { extraData: _extraData, ...rest } = block
   expect(rest).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": null,

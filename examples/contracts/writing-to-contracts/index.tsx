@@ -52,7 +52,7 @@ function Example() {
         setReceipt(receipt)
       }
     })()
-  }, [hash])
+  }, [hash, publicClient])
 
   if (account)
     return (

@@ -1,4 +1,4 @@
-import { Abi, AbiError } from 'abitype'
+import { Abi } from 'abitype'
 import { solidityError, solidityPanic } from '../../constants'
 import {
   AbiDecodingZeroDataError,

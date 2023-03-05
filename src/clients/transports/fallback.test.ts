@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { createHttpServer, localHttpUrl } from '../../_test'
+import { createHttpServer } from '../../_test'
 import { localhost } from '../../chains'
 import { createClient } from '../createClient'
 
@@ -314,7 +314,7 @@ describe('client', () => {
     const infura = http('https://infura.com/rpc')
     const transport = fallback([alchemy, infura])
 
-    const { uid, ...client } = createClient({
+    const { uid: _uid, ...client } = createClient({
       transport,
     })
 

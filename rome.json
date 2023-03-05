@@ -38,6 +38,9 @@
       "performance": {
         "noDelete": "off"
       },
+      "style": {
+        "useShorthandArrayType": "error"
+      },
       "suspicious": {
         "noArrayIndexKey": "off",
         "noExplicitAny": "off"

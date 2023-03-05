@@ -3,7 +3,7 @@ import { concat } from '../data'
 import { toBytes } from './toBytes'
 import { bytesToHex } from './toHex'
 
-export type RecursiveArray<T> = T | Array<RecursiveArray<T>>
+export type RecursiveArray<T> = T | RecursiveArray<T>[]
 
 type To = 'hex' | 'bytes'
 

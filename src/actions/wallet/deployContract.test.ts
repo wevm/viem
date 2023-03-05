@@ -1,11 +1,10 @@
 import { expect, test } from 'vitest'
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
+import { accounts, testClient, walletClient } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
 import { getAccount, parseEther } from '../../utils'
 import { mine, setBalance } from '../test'
 
 import { deployContract } from './deployContract'
-import { getTransactionReceipt } from '../public'
 
 test('default', async () => {
   const hash = await deployContract(walletClient, {
@@ -16,17 +15,6 @@ test('default', async () => {
   expect(hash).toBeDefined()
 
   await mine(testClient, { blocks: 1 })
-  const { contractAddress } = await getTransactionReceipt(publicClient, {
-    hash,
-  })
-
-  // expect(
-  //   await simulateContract(publicClient, {
-  //     abi: baycContractConfig.abi,
-  //     address: contractAddress!,
-  //     functionName: 'symbol',
-  //   }),
-  // ).toBe('BAYC')
 })
 
 test('no funds', async () => {

@@ -71,9 +71,9 @@ function getResultsTable(report: Report) {
     const [name, results] = testResults[i]
 
     table += `| **${name}** | **ops/s** | **Mean (ms)** | **Total Time (ms)** | **# Samples**  | |\n`
-    if (i === 0) table += "|:---|:---|:---|:---|:---|:---|\n"
+    if (i === 0) table += '|:---|:---|:---|:---|:---|:---|\n'
 
-    let maxHz = Math.max(...results.map((r) => r.hz))
+    const maxHz = Math.max(...results.map((r) => r.hz))
     for (const { name, hz, mean, samples, totalTime } of results) {
       let label = ''
       if (results.length > 1) {
@@ -85,7 +85,7 @@ function getResultsTable(report: Report) {
         3,
       )}\` | \`${totalTime.toFixed(3)}\` | ${samples.length} | ${label} |\n`
     }
-    table += "| | | | | | |\n"
+    table += '| | | | | | |\n'
   }
 
   return table

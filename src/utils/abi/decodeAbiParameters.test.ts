@@ -1,5 +1,4 @@
 import { Address } from 'abitype'
-import { AbiCoder } from 'ethers/lib/utils'
 import { assertType, describe, expect, test } from 'vitest'
 import { multicall3Abi } from '../../constants'
 import { Hex } from '../../types'

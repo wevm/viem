@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest'
-import { celo } from '../chains'
 import { defineChain } from './chain'
 
 describe('defineChain', () => {

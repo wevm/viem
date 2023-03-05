@@ -16,7 +16,7 @@ import {
 import { Hex } from '../../types'
 import { isAddress } from '../address'
 import { concat, padHex, size, slice } from '../data'
-import { boolToHex, bytesToHex, numberToHex, stringToHex } from '../encoding'
+import { boolToHex, numberToHex, stringToHex } from '../encoding'
 
 export type EncodeAbiParametersReturnType = Hex
 

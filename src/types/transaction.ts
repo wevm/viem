@@ -5,7 +5,7 @@ import type { Log } from './log'
 import type { Hash, Hex } from './misc'
 import type { ValueOf } from './utils'
 
-export type AccessList = Array<{ address: Address; storageKeys: Array<Hex> }>
+export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
 export type TransactionType = ValueOf<typeof transactionType>
 

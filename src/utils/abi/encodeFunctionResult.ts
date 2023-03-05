@@ -1,4 +1,4 @@
-import { Abi, ExtractAbiFunctionNames, Narrow } from 'abitype'
+import { Abi, Narrow } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,

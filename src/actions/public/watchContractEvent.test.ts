@@ -1,4 +1,3 @@
-import { Abi } from 'abitype'
 import {
   afterAll,
   assertType,
