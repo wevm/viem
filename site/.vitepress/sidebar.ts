@@ -598,14 +598,6 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Encoding',
           items: [
             {
-              text: 'fromBase58 🚧',
-              link: '/docs/utilities/fromBase58',
-            },
-            {
-              text: 'fromBase64 🚧',
-              link: '/docs/utilities/fromBase64',
-            },
-            {
               text: 'fromBytes',
               link: '/docs/utilities/fromBytes',
             },
@@ -618,24 +610,12 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/fromRlp',
             },
             {
-              text: 'toBase58 🚧',
-              link: '/docs/utilities/toBase58',
-            },
-            {
-              text: 'toBase64 🚧',
-              link: '/docs/utilities/toBase64',
-            },
-            {
               text: 'toBytes',
               link: '/docs/utilities/toBytes',
             },
             {
               text: 'toHex',
               link: '/docs/utilities/toHex',
-            },
-            {
-              text: 'toPacked 🚧',
-              link: '/docs/utilities/toPacked',
             },
             {
               text: 'toRlp',

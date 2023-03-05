@@ -1640,6 +1640,18 @@ import { keccak256, toBytes } from 'viem'
 keccak256(toBytes('hello world'))
 ```
 
+### encodeBase64/decodeBase58
+
+viem does not provide Base64 encoding utilities. 
+
+You can use browser native [`atob`](https://developer.mozilla.org/en-US/docs/Web/API/atob) and [`btoa`](https://developer.mozilla.org/en-US/docs/Web/API/btoa) instead.
+
+### encodeBase58/decodeBase58
+
+viem does not provide Base58 encoding utilities.
+
+You can use libraries such as [`base58-js`](https://www.npmjs.com/package/base58-js) or [`bs58`](https://github.com/cryptocoinjs/bs58) instead.
+
 ### namehash
 
 #### Ethers
