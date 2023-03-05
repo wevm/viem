@@ -46,7 +46,7 @@ viem takes the following steps to ensure stability:
 
 Maintaining a low bundle size is critical when building web applications. End users should not be required to download a module of over 100kB in order to interact with Ethereum. On a slow 3G mobile network loading a 100kB library would take at least **two seconds** (plus additional time to establish an HTTP connection).
 
-viem adopts a minimalist modular architecture to achieve a bundle size of 24kB (~300ms loading time on a slow 3G network). Furthermore, viem is tree-shakable, meaning only the modules you use are included in your final bundle.
+viem adopts a minimalist modular architecture to achieve a bundle size of [27kB](https://bundlephobia.com/package/viem). Furthermore, viem is tree-shakable, meaning only the modules you use are included in your final bundle.
 
 <div class="h-4"></div>
 <img src="/bundle-size.svg" />

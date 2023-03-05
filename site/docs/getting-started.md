@@ -18,8 +18,8 @@ head:
 viem is a TypeScript interface for Ethereum that provides low-level stateless primitives for interacting with Ethereum. viem is focused on developer experience, stability, bundle size, and performance:
 
 - **Developer experience** Automatic [type safety and inference](/docs/typescript), comprehensive documentation, composable APIs.
-- **Stability** Test suite runs against forked Ethereum networks, complete [test coverage](TODO).
-- **Bundle size** Modular, tree-shakable, [24kB](TODO) (~300ms loading time on a slow 3G network).
+- **Stability** Test suite runs against forked Ethereum networks, complete [test coverage](https://app.codecov.io/gh/wagmi-dev/viem).
+- **Bundle size** Modular, tree-shakable, [27kB](https://bundlephobia.com/package/viem) bundle.
 - **Performance** Optimized encoding/parsing, async tasks only when necessary, consistenty #1 in [benchmarks](/docs/benchmarks).
 
 You can learn more about the rationale behind the project in the [Why viem](/docs/introduction) section.
