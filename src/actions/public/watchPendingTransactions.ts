@@ -6,16 +6,16 @@ import { createPendingTransactionFilter } from './createPendingTransactionFilter
 import { getFilterChanges } from './getFilterChanges'
 import { uninstallFilter } from './uninstallFilter'
 
-export type OnTransactionsResponse = Hash[]
-export type OnTransactions = (transactions: OnTransactionsResponse) => void
+export type OnTransactionsParameter = Hash[]
+export type OnTransactionsFn = (transactions: OnTransactionsParameter) => void
 
-export type WatchPendingTransactionsArgs = {
+export type WatchPendingTransactionsParameters = {
   /** Whether or not the transaction hashes should be batched on each invocation. */
   batch?: boolean
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new transactions are received. */
-  onTransactions: OnTransactions
+  onTransactions: OnTransactionsFn
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 }
@@ -27,7 +27,7 @@ export function watchPendingTransactions(
     onError,
     onTransactions,
     pollingInterval = client.pollingInterval,
-  }: WatchPendingTransactionsArgs,
+  }: WatchPendingTransactionsParameters,
 ) {
   const observerId = JSON.stringify([
     'watchPendingTransactions',

@@ -27,7 +27,7 @@ export type FormattedEstimateGas<
   TransactionRequest
 >
 
-export type EstimateGasArgs<TChain extends Chain = Chain> =
+export type EstimateGasParameters<TChain extends Chain = Chain> =
   FormattedEstimateGas<TransactionRequestFormatter<TChain>> & {
     account: Account
   } & (
@@ -43,15 +43,15 @@ export type EstimateGasArgs<TChain extends Chain = Chain> =
         }
     )
 
-export type EstimateGasResponse = bigint
+export type EstimateGasReturnType = bigint
 
 /**
  * @description Estimates the gas necessary to complete a transaction without submitting it to the network.
  */
 export async function estimateGas<TChain extends Chain>(
   client: PublicClient<any, TChain> | WalletClient,
-  args: EstimateGasArgs<TChain>,
-): Promise<EstimateGasResponse> {
+  args: EstimateGasParameters<TChain>,
+): Promise<EstimateGasReturnType> {
   try {
     const {
       account,

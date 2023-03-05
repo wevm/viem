@@ -7,12 +7,15 @@ import { getFunctionSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
-export type DecodeFunctionDataArgs = {
+export type DecodeFunctionDataParameters = {
   abi: Abi | readonly unknown[]
   data: Hex
 }
 
-export function decodeFunctionData({ abi, data }: DecodeFunctionDataArgs) {
+export function decodeFunctionData({
+  abi,
+  data,
+}: DecodeFunctionDataParameters) {
   const signature = slice(data, 0, 4)
   const description = (abi as Abi).find(
     (x) => signature === getFunctionSelector(formatAbiItem(x)),

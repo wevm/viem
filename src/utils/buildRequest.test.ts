@@ -26,7 +26,7 @@ function request(url: string) {
 }
 
 test('default', async () => {
-  const server = await createHttpServer((req, res) => {
+  const server = await createHttpServer((_req, res) => {
     res.writeHead(200, {
       'Content-Type': 'application/json',
     })
@@ -41,7 +41,7 @@ test('default', async () => {
 describe('args', () => {
   test('retryCount', async () => {
     let retryCount = -1
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       retryCount++
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ describe('args', () => {
     const start = Date.now()
     let end: number = 0
 
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       end = Date.now() - start
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ describe('behavior', () => {
     })
 
     test('ParseRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -117,7 +117,7 @@ describe('behavior', () => {
     })
 
     test('InvalidRpcRequestError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -138,7 +138,7 @@ describe('behavior', () => {
     })
 
     test('MethodNotFoundRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -159,7 +159,7 @@ describe('behavior', () => {
     })
 
     test('InvalidParamsRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -181,7 +181,7 @@ describe('behavior', () => {
     })
 
     test('InternalRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -202,7 +202,7 @@ describe('behavior', () => {
     })
 
     test('InvalidInputRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -224,7 +224,7 @@ describe('behavior', () => {
     })
 
     test('ResourceNotFoundRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -245,7 +245,7 @@ describe('behavior', () => {
     })
 
     test('ResourceUnavailableRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -266,7 +266,7 @@ describe('behavior', () => {
     })
 
     test('TransactionRejectedRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -289,7 +289,7 @@ describe('behavior', () => {
     })
 
     test('MethodNotSupportedRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -310,7 +310,7 @@ describe('behavior', () => {
     })
 
     test('LimitExceededRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -331,7 +331,7 @@ describe('behavior', () => {
     })
 
     test('JsonRpcVersionUnsupportedError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -352,7 +352,7 @@ describe('behavior', () => {
     })
 
     test('UserRejectedRequestError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -373,7 +373,7 @@ describe('behavior', () => {
     })
 
     test('SwitchChainError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -394,7 +394,7 @@ describe('behavior', () => {
     })
 
     test('InvalidParamsRpcError', async () => {
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -453,7 +453,7 @@ describe('behavior', () => {
   describe('retry', () => {
     test('non-deterministic InternalRpcError', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(200, {
           'Content-Type': 'application/json',
@@ -469,7 +469,7 @@ describe('behavior', () => {
 
     test('non-deterministic LimitExceededRpcError', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(200, {
           'Content-Type': 'application/json',
@@ -496,7 +496,7 @@ describe('behavior', () => {
 
     test('non-deterministic HttpRequestError (500)', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(500, {
           'Content-Type': 'application/json',
@@ -521,7 +521,7 @@ describe('behavior', () => {
 
     test('non-deterministic HttpRequestError (500 w/ Retry-After header)', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(500, {
           'Content-Type': 'application/json',
@@ -547,7 +547,7 @@ describe('behavior', () => {
 
     test('non-deterministic HttpRequestError (408)', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(408, {
           'Content-Type': 'application/json',
@@ -572,7 +572,7 @@ describe('behavior', () => {
 
     test('non-deterministic HttpRequestError (413)', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(413, {
           'Content-Type': 'application/json',
@@ -597,7 +597,7 @@ describe('behavior', () => {
 
     test('non-deterministic HttpRequestError (408)', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(408, {
           'Content-Type': 'application/json',
@@ -622,7 +622,7 @@ describe('behavior', () => {
 
     test('deterministic HttpRequestError (401)', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(401, {
           'Content-Type': 'application/json',
@@ -638,7 +638,7 @@ describe('behavior', () => {
 
     test('deterministic RpcError', async () => {
       let retryCount = -1
-      const server = await createHttpServer((req, res) => {
+      const server = await createHttpServer((_req, res) => {
         retryCount++
         res.writeHead(200, {
           'Content-Type': 'application/json',

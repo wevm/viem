@@ -9,36 +9,36 @@ import type {
   GetValue,
 } from '../../types'
 import {
-  DecodeFunctionResultArgs,
-  EncodeFunctionDataArgs,
+  DecodeFunctionResultParameters,
+  EncodeFunctionDataParameters,
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
 } from '../../utils'
-import { WriteContractArgs } from '../wallet'
-import { call, CallArgs } from './call'
+import { WriteContractParameters } from '../wallet'
+import { call, CallParameters } from './call'
 
-export type SimulateContractArgs<
+export type SimulateContractParameters<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
   TChainOverride extends Chain | undefined = undefined,
 > = Omit<
-  CallArgs<TChainOverride extends Chain ? TChainOverride : TChain>,
+  CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
   'to' | 'data' | 'value'
 > & {
   chain?: TChainOverride
 } & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
-    value?: GetValue<TAbi, TFunctionName, CallArgs<TChain>['value']>
+    value?: GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
   }
 
-export type SimulateContractResponse<
+export type SimulateContractReturnType<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
 > = {
   result: ExtractResultFromAbi<TAbi, TFunctionName>
-  request: WriteContractArgs<TChain, TAbi, TFunctionName> &
+  request: WriteContractParameters<TChain, TAbi, TFunctionName> &
     ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
@@ -55,9 +55,9 @@ export async function simulateContract<
     args,
     functionName,
     ...callRequest
-  }: SimulateContractArgs<TChain, TAbi, TFunctionName, TChainOverride>,
+  }: SimulateContractParameters<TChain, TAbi, TFunctionName, TChainOverride>,
 ): Promise<
-  SimulateContractResponse<
+  SimulateContractReturnType<
     TChainOverride extends Chain ? TChainOverride : TChain,
     TAbi,
     TFunctionName
@@ -67,19 +67,19 @@ export async function simulateContract<
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataArgs<TAbi, TFunctionName>)
+  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   try {
     const { data } = await call(client, {
       data: calldata,
       to: address,
       ...callRequest,
-    } as unknown as CallArgs<TChain>)
+    } as unknown as CallParameters<TChain>)
     const result = decodeFunctionResult({
       abi,
       args,
       functionName,
       data: data || '0x',
-    } as DecodeFunctionResultArgs)
+    } as DecodeFunctionResultParameters)
     return {
       result,
       request: {
@@ -89,7 +89,7 @@ export async function simulateContract<
         functionName,
         ...callRequest,
       },
-    } as unknown as SimulateContractResponse<
+    } as unknown as SimulateContractReturnType<
       TChainOverride extends Chain ? TChainOverride : TChain,
       TAbi,
       TFunctionName

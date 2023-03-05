@@ -1,7 +1,7 @@
 import { pad } from '../data'
 import type { ByteArray, Hex } from '../../types'
 
-const hexes = Array.from({ length: 256 }, (v, i) =>
+const hexes = Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
 )
 

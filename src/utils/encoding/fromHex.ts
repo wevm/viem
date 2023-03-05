@@ -3,7 +3,7 @@ import type { ByteArray, Hex } from '../../types'
 import { trim } from '../data'
 import { hexToBytes } from './toBytes'
 
-type fromHexResponse<TTo> = TTo extends 'string'
+type FromHexReturnType<TTo> = TTo extends 'string'
   ? string
   : TTo extends 'bigint'
   ? bigint
@@ -20,12 +20,12 @@ type fromHexResponse<TTo> = TTo extends 'string'
  */
 export function fromHex<
   TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
->(hex: Hex, to: TTo): fromHexResponse<TTo> {
-  if (to === 'number') return hexToNumber(hex) as fromHexResponse<TTo>
-  if (to === 'bigint') return hexToBigInt(hex) as fromHexResponse<TTo>
-  if (to === 'string') return hexToString(hex) as fromHexResponse<TTo>
-  if (to === 'boolean') return hexToBool(hex) as fromHexResponse<TTo>
-  return hexToBytes(hex) as fromHexResponse<TTo>
+>(hex: Hex, to: TTo): FromHexReturnType<TTo> {
+  if (to === 'number') return hexToNumber(hex) as FromHexReturnType<TTo>
+  if (to === 'bigint') return hexToBigInt(hex) as FromHexReturnType<TTo>
+  if (to === 'string') return hexToString(hex) as FromHexReturnType<TTo>
+  if (to === 'boolean') return hexToBool(hex) as FromHexReturnType<TTo>
+  return hexToBytes(hex) as FromHexReturnType<TTo>
 }
 
 export type HexToBigIntOpts = {

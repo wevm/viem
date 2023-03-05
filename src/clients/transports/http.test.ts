@@ -140,7 +140,7 @@ describe('request', () => {
 
   test('behavior: retryCount', async () => {
     let retryCount = -1
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       retryCount++
       res.writeHead(500, {
         'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ describe('request', () => {
   test('behavior: retryCount', async () => {
     const start = Date.now()
     let end: number = 0
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       end = Date.now() - start
       res.writeHead(500, {
         'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ describe('request', () => {
   })
 
   test('behavior: timeout', async () => {
-    const server = await createHttpServer(async (req, res) => {
+    const server = await createHttpServer(async (_req, res) => {
       await wait(5000)
       res.writeHead(500, {
         'Content-Type': 'application/json',

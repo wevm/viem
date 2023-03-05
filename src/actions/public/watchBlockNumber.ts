@@ -1,22 +1,22 @@
 import type { PublicClient } from '../../clients'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import type { GetBlockNumberResponse } from './getBlockNumber'
+import type { GetBlockNumberReturnType } from './getBlockNumber'
 import { getBlockNumber } from './getBlockNumber'
 
-export type OnBlockNumberResponse = GetBlockNumberResponse
-export type OnBlockNumber = (
-  blockNumber: OnBlockNumberResponse,
-  prevBlockNumber: OnBlockNumberResponse | undefined,
+export type OnBlockNumberParameter = GetBlockNumberReturnType
+export type OnBlockNumberFn = (
+  blockNumber: OnBlockNumberParameter,
+  prevBlockNumber: OnBlockNumberParameter | undefined,
 ) => void
 
-export type WatchBlockNumberArgs = {
+export type WatchBlockNumberParameters = {
   /** Whether or not to emit the missed block numbers to the callback. */
   emitMissed?: boolean
   /** Whether or not to emit the latest block number to the callback when the subscription opens. */
   emitOnBegin?: boolean
   /** The callback to call when a new block number is received. */
-  onBlockNumber: OnBlockNumber
+  onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
@@ -32,7 +32,7 @@ export function watchBlockNumber(
     onBlockNumber,
     onError,
     pollingInterval = client.pollingInterval,
-  }: WatchBlockNumberArgs,
+  }: WatchBlockNumberParameters,
 ) {
   const observerId = JSON.stringify([
     'watchBlockNumber',
@@ -42,7 +42,7 @@ export function watchBlockNumber(
     pollingInterval,
   ])
 
-  let prevBlockNumber: GetBlockNumberResponse | undefined
+  let prevBlockNumber: GetBlockNumberReturnType | undefined
 
   return observe(observerId, { onBlockNumber, onError }, (emit) =>
     poll(

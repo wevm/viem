@@ -16,7 +16,7 @@ test('times out correctly', async () => {
 })
 
 test('times out correctly w/ signal', async () => {
-  const server = await createHttpServer((req, res) =>
+  const server = await createHttpServer((_req, res) =>
     setTimeout(() => res.end('wagmi'), 5000),
   )
 

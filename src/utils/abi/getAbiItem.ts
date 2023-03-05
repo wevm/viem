@@ -2,7 +2,7 @@ import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
 import type { ExtractArgsFromAbi, ExtractNameFromAbi } from '../../types'
 import { isAddress } from '../address'
 
-export type GetAbiItemArgs<
+export type GetAbiItemParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TItemName extends string = string,
 > = {
@@ -10,7 +10,7 @@ export type GetAbiItemArgs<
   name: ExtractNameFromAbi<TAbi, TItemName>
 } & Partial<ExtractArgsFromAbi<TAbi, TItemName>>
 
-export type GetAbiItemResponse<
+export type GetAbiItemReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TItemName extends string = string,
 > = Extract<
@@ -23,18 +23,22 @@ export type GetAbiItemResponse<
 export function getAbiItem<
   TAbi extends Abi | readonly unknown[],
   TItemName extends string,
-  TResponse = GetAbiItemResponse<TAbi, TItemName>,
->({ abi, args = [], name }: GetAbiItemArgs<TAbi, TItemName>): TResponse {
+  TReturnType = GetAbiItemReturnType<TAbi, TItemName>,
+>({
+  abi,
+  args = [],
+  name,
+}: GetAbiItemParameters<TAbi, TItemName>): TReturnType {
   const abiItems = (abi as Abi).filter((x) => 'name' in x && x.name === name)
 
-  if (abiItems.length === 0) return undefined as unknown as TResponse
-  if (abiItems.length === 1) return abiItems[0] as unknown as TResponse
+  if (abiItems.length === 0) return undefined as unknown as TReturnType
+  if (abiItems.length === 1) return abiItems[0] as unknown as TReturnType
 
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
       if (!abiItem.inputs || abiItem.inputs.length === 0)
-        return abiItem as unknown as TResponse
+        return abiItem as unknown as TReturnType
       continue
     }
     if (!abiItem.inputs) continue
@@ -44,9 +48,9 @@ export function getAbiItem<
       if (!abiParameter) return false
       return isArgOfType(arg, abiParameter as AbiParameter)
     })
-    if (matched) return abiItem as unknown as TResponse
+    if (matched) return abiItem as unknown as TReturnType
   }
-  return abiItems[0] as unknown as TResponse
+  return abiItems[0] as unknown as TReturnType
 }
 
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {

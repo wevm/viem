@@ -8,10 +8,10 @@ import {
 import type { Address, Prettify } from '../../types'
 import { toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
-import { readContract, ReadContractArgs } from '../public'
+import { readContract, ReadContractParameters } from '../public'
 
-export type GetEnsNameArgs = Prettify<
-  Pick<ReadContractArgs, 'blockNumber' | 'blockTag'> & {
+export type GetEnsNameParameters = Prettify<
+  Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** Address to get ENS name for. */
     address: Address
     /** Address of ENS Universal Resolver Contract. */
@@ -19,7 +19,7 @@ export type GetEnsNameArgs = Prettify<
   }
 >
 
-export type GetEnsNameResponse = string | null
+export type GetEnsNameReturnType = string | null
 
 /**
  * @description Gets primary name for specified address.
@@ -39,8 +39,8 @@ export async function getEnsName(
     blockNumber,
     blockTag,
     universalResolverAddress: universalResolverAddress_,
-  }: GetEnsNameArgs,
-): Promise<GetEnsNameResponse> {
+  }: GetEnsNameParameters,
+): Promise<GetEnsNameReturnType> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)

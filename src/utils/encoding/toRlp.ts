@@ -7,7 +7,7 @@ export type RecursiveArray<T> = T | Array<RecursiveArray<T>>
 
 type To = 'hex' | 'bytes'
 
-export type ToRlpResponse<TTo extends To> = TTo extends 'bytes'
+export type ToRlpReturnType<TTo extends To> = TTo extends 'bytes'
   ? ByteArray
   : TTo extends 'hex'
   ? Hex
@@ -18,7 +18,7 @@ export function toRlp<TTo extends To = 'hex'>(
   to_?: TTo,
 ) {
   const to = to_ || ('hex' as const)
-  return format(bytesToRlp(parse(hexOrBytes)), to) as ToRlpResponse<TTo>
+  return format(bytesToRlp(parse(hexOrBytes)), to) as ToRlpReturnType<TTo>
 }
 
 function parse(

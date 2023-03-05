@@ -11,11 +11,11 @@ import type {
 } from '../../types'
 import {
   encodeEventTopics,
-  EncodeEventTopicsArgs,
+  EncodeEventTopicsParameters,
   numberToHex,
 } from '../../utils'
 
-export type CreateContractEventFilterArgs<
+export type CreateContractEventFilterParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string | undefined = undefined,
   TArgs extends
@@ -42,7 +42,7 @@ export type CreateContractEventFilterArgs<
       args?: never
     })
 
-export type CreateContractEventFilterResponse<
+export type CreateContractEventFilterReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string | undefined = undefined,
   TArgs extends
@@ -63,14 +63,14 @@ export async function createContractEventFilter<
     eventName,
     fromBlock,
     toBlock,
-  }: CreateContractEventFilterArgs<TAbi, TEventName, TArgs>,
-): Promise<CreateContractEventFilterResponse<TAbi, TEventName, TArgs>> {
+  }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
+): Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>> {
   const topics = eventName
     ? encodeEventTopics({
         abi,
         args,
         eventName,
-      } as unknown as EncodeEventTopicsArgs)
+      } as unknown as EncodeEventTopicsParameters)
     : undefined
   const id = await client.request({
     method: 'eth_newFilter',
@@ -90,5 +90,5 @@ export async function createContractEventFilter<
     eventName,
     id,
     type: 'event',
-  } as unknown as CreateContractEventFilterResponse<TAbi, TEventName, TArgs>
+  } as unknown as CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>
 }

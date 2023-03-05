@@ -1,6 +1,5 @@
 import { Chain } from '../types'
 import type { Requests } from '../types/eip1193'
-import { buildRequest } from '../utils/buildRequest'
 import { uid } from '../utils/uid'
 import type { BaseRpcRequests, Transport } from './transports/createTransport'
 

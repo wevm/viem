@@ -5,7 +5,7 @@ import { withRetry } from './withRetry'
 
 test('default', async () => {
   let retryTimes = -1
-  const server = await createHttpServer((req, res) => {
+  const server = await createHttpServer((_req, res) => {
     retryTimes++
     res.writeHead(500)
     res.end()
@@ -23,7 +23,7 @@ test('default', async () => {
 
 test('shouldRetry: retries, and then errors', async () => {
   let retryTimes = -1
-  const server = await createHttpServer((req, res) => {
+  const server = await createHttpServer((_req, res) => {
     retryTimes++
     res.writeHead(500)
     res.end()
@@ -44,7 +44,7 @@ test('shouldRetry: retries, and then errors', async () => {
 
 test('shouldRetry: retries, and then succeeds', async () => {
   let retryTimes = -1
-  const server = await createHttpServer((req, res) => {
+  const server = await createHttpServer((_req, res) => {
     retryTimes++
     if (retryTimes === 2) {
       res.writeHead(200, {
@@ -74,7 +74,7 @@ test('shouldRetry: retries, and then succeeds', async () => {
 
 test('retryCount', async () => {
   let retryTimes = -1
-  const server = await createHttpServer((req, res) => {
+  const server = await createHttpServer((_req, res) => {
     retryTimes++
     res.writeHead(500)
     res.end()
@@ -98,7 +98,7 @@ test(
   async () => {
     const start = Date.now()
     let end: number = 0
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       end = Date.now() - start
       res.writeHead(500)
       res.end()
@@ -122,7 +122,7 @@ test(
 test('delay: fn', async () => {
   const start = Date.now()
   let end: number = 0
-  const server = await createHttpServer((req, res) => {
+  const server = await createHttpServer((_req, res) => {
     end = Date.now() - start
     res.writeHead(500, {
       'Retry-After': 1,

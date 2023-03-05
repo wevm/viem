@@ -1,4 +1,4 @@
-import { SendTransactionArgs } from '../../actions'
+import { SendTransactionParameters } from '../../actions'
 import {
   BaseError,
   ExecutionRevertedError,
@@ -28,7 +28,7 @@ export function containsNodeError(err: BaseError) {
 
 export function getNodeError(
   err: BaseError,
-  args: Partial<SendTransactionArgs<any>>,
+  args: Partial<SendTransactionParameters<any>>,
 ) {
   const message = err.details.toLowerCase()
   if (FeeCapTooHighError.nodeMessage.test(message))

@@ -18,7 +18,7 @@ import { isAddress } from '../address'
 import { concat, padHex, size, slice } from '../data'
 import { boolToHex, bytesToHex, numberToHex, stringToHex } from '../encoding'
 
-export type EncodeAbiParametersResponse = Hex
+export type EncodeAbiParametersReturnType = Hex
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
@@ -30,7 +30,7 @@ export function encodeAbiParameters<
   values: TParams extends readonly AbiParameter[]
     ? AbiParametersToPrimitiveTypes<TParams>
     : never,
-): EncodeAbiParametersResponse {
+): EncodeAbiParametersReturnType {
   if (params.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: params.length as number,

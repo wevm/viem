@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnBlockNumberResponse } from './watchBlockNumber'
+import type { OnBlockNumberParameter } from './watchBlockNumber'
 import { watchBlockNumber } from './watchBlockNumber'
 import { publicClient, testClient } from '../../_test'
 import { wait } from '../../utils/wait'
@@ -11,7 +11,7 @@ import * as getBlockNumber from './getBlockNumber'
 import { setIntervalMining } from '../test'
 
 test('watches for new block numbers', async () => {
-  const blockNumbers: OnBlockNumberResponse[] = []
+  const blockNumbers: OnBlockNumberParameter[] = []
   const unwatch = watchBlockNumber(publicClient, {
     onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
   })
@@ -23,7 +23,7 @@ test('watches for new block numbers', async () => {
 describe('emitMissed', () => {
   test('emits on missed blocks', async () => {
     await setIntervalMining(testClient, { interval: 0 })
-    const blockNumbers: OnBlockNumberResponse[] = []
+    const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(publicClient, {
       emitMissed: true,
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
@@ -41,7 +41,7 @@ describe('emitMissed', () => {
 
 describe('emitOnBegin', () => {
   test('watches for new block numbers', async () => {
-    const blockNumbers: OnBlockNumberResponse[] = []
+    const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(publicClient, {
       emitOnBegin: true,
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
@@ -60,7 +60,7 @@ describe('pollingInterval on client', () => {
       pollingInterval: 500,
     })
 
-    const blockNumbers: OnBlockNumberResponse[] = []
+    const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(client, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })
@@ -72,7 +72,7 @@ describe('pollingInterval on client', () => {
 
 describe('behavior', () => {
   test('does not emit when no new incoming blocks', async () => {
-    const blockNumbers: OnBlockNumberResponse[] = []
+    const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(publicClient, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       pollingInterval: 100,
@@ -83,7 +83,7 @@ describe('behavior', () => {
   })
 
   test('watch > unwatch > watch', async () => {
-    let blockNumbers: OnBlockNumberResponse[] = []
+    let blockNumbers: OnBlockNumberParameter[] = []
     let unwatch = watchBlockNumber(publicClient, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })
@@ -101,7 +101,7 @@ describe('behavior', () => {
   })
 
   test('multiple watchers', async () => {
-    let blockNumbers: OnBlockNumberResponse[] = []
+    let blockNumbers: OnBlockNumberParameter[] = []
 
     let unwatch1 = watchBlockNumber(publicClient, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
@@ -137,7 +137,7 @@ describe('behavior', () => {
   })
 
   test('immediately unwatch', async () => {
-    const blockNumbers: OnBlockNumberResponse[] = []
+    const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(publicClient, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
     })

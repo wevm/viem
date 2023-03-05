@@ -67,7 +67,7 @@ test('default', () => {
 
 describe('request', () => {
   test('default', async () => {
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
@@ -82,17 +82,17 @@ describe('request', () => {
 
   test('error', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
     })
-    const server3 = await createHttpServer((req, res) => {
+    const server3 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -135,19 +135,19 @@ describe('request', () => {
 
   test('error (rpc)', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
       res.end(JSON.stringify({ error: 'ngmi' }))
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
     })
-    const server3 = await createHttpServer((req, res) => {
+    const server3 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -171,14 +171,14 @@ describe('request', () => {
 
   test('error (rpc - non deterministic)', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -198,12 +198,12 @@ describe('request', () => {
 
   test('all error', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
@@ -222,14 +222,14 @@ describe('request', () => {
 
   test('all error (rpc - non deterministic)', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -249,12 +249,12 @@ describe('request', () => {
 
   test('retryCount', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(500)
       res.end()
@@ -276,12 +276,12 @@ describe('request', () => {
   test('retryCount (on child transport)', async () => {
     let server1Count = 0
     let server2Count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       server1Count++
       res.writeHead(500)
       res.end()
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       server2Count++
       res.writeHead(500)
       res.end()
@@ -372,7 +372,7 @@ describe('client', () => {
   })
 
   test('request', async () => {
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
@@ -387,15 +387,15 @@ describe('client', () => {
   })
 
   test('request (error)', async () => {
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       res.writeHead(500)
       res.end()
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       res.writeHead(500)
       res.end()
     })
-    const server3 = await createHttpServer((req, res) => {
+    const server3 = await createHttpServer((_req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
@@ -414,14 +414,14 @@ describe('client', () => {
 
   test('error (non deterministic)', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -438,14 +438,14 @@ describe('client', () => {
 
   test('all error (non deterministic)', async () => {
     let count = 0
-    const server1 = await createHttpServer((req, res) => {
+    const server1 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
-    const server2 = await createHttpServer((req, res) => {
+    const server2 = await createHttpServer((_req, res) => {
       count++
       res.writeHead(200, {
         'Content-Type': 'application/json',

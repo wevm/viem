@@ -1,6 +1,6 @@
 import type { TestClient } from '../../clients'
 
-export type ResetArgs = {
+export type ResetParameters = {
   /** The block number to reset from. */
   blockNumber?: bigint
   /** The JSON RPC URL. */
@@ -9,7 +9,7 @@ export type ResetArgs = {
 
 export async function reset(
   client: TestClient,
-  { blockNumber, jsonRpcUrl }: ResetArgs = {},
+  { blockNumber, jsonRpcUrl }: ResetParameters = {},
 ) {
   return await client.request({
     method: `${client.mode}_reset`,

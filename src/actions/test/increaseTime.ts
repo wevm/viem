@@ -1,14 +1,14 @@
 import type { TestClient } from '../../clients'
 import { numberToHex } from '../../utils'
 
-export type IncreaseTimeArgs = {
+export type IncreaseTimeParameters = {
   /** The amount of seconds to jump forward in time. */
   seconds: number
 }
 
 export async function increaseTime(
   client: TestClient,
-  { seconds }: IncreaseTimeArgs,
+  { seconds }: IncreaseTimeParameters,
 ) {
   return await client.request({
     method: 'evm_increaseTime',

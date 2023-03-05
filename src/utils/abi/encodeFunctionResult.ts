@@ -9,7 +9,7 @@ import { encodeAbiParameters } from './encodeAbiParameters'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
 
-export type EncodeFunctionResultArgs<
+export type EncodeFunctionResultParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
 > = {
@@ -25,7 +25,7 @@ export function encodeFunctionResult<
   abi,
   functionName,
   result,
-}: EncodeFunctionResultArgs<TAbi, TFunctionName>) {
+}: EncodeFunctionResultParameters<TAbi, TFunctionName>) {
   const description = (abi as Abi).find(
     (x) => 'name' in x && x.name === functionName,
   )

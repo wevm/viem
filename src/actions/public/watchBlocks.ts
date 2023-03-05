@@ -2,25 +2,25 @@ import type { PublicClient } from '../../clients'
 import type { BlockTag, Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import type { GetBlockResponse } from './getBlock'
+import type { GetBlockReturnType } from './getBlock'
 import { getBlock } from './getBlock'
 
-export type OnBlockResponse<
+export type OnBlockParameter<
   TChain extends Chain = Chain,
   TIncludeTransactions = false,
 > = Omit<
-  GetBlockResponse<TChain>,
+  GetBlockReturnType<TChain>,
   TIncludeTransactions extends false ? 'transactions' : ''
 >
 export type OnBlock<
   TChain extends Chain = Chain,
   TIncludeTransactions = false,
 > = (
-  block: OnBlockResponse<TChain, TIncludeTransactions>,
-  prevBlock: OnBlockResponse<TChain, TIncludeTransactions> | undefined,
+  block: OnBlockParameter<TChain, TIncludeTransactions>,
+  prevBlock: OnBlockParameter<TChain, TIncludeTransactions> | undefined,
 ) => void
 
-export type WatchBlocksArgs<TChain extends Chain = Chain> = {
+export type WatchBlocksParameters<TChain extends Chain = Chain> = {
   /** The block tag. Defaults to "latest". */
   blockTag?: BlockTag
   /** Whether or not to emit the missed blocks to the callback. */
@@ -49,7 +49,7 @@ export type WatchBlocksArgs<TChain extends Chain = Chain> = {
 /** @description Watches and returns information for incoming blocks. */
 export function watchBlocks<
   TChain extends Chain,
-  TWatchBlocksArgs extends WatchBlocksArgs<TChain>,
+  TWatchBlocksParameters extends WatchBlocksParameters<TChain>,
 >(
   client: PublicClient<any, TChain>,
   {
@@ -60,7 +60,7 @@ export function watchBlocks<
     onError,
     includeTransactions = false,
     pollingInterval = client.pollingInterval,
-  }: TWatchBlocksArgs,
+  }: TWatchBlocksParameters,
 ) {
   const observerId = JSON.stringify([
     'watchBlocks',
@@ -71,7 +71,7 @@ export function watchBlocks<
     pollingInterval,
   ])
 
-  let prevBlock: GetBlockResponse<TChain> | undefined
+  let prevBlock: GetBlockReturnType<TChain> | undefined
 
   return observe(observerId, { onBlock, onError }, (emit) =>
     poll(

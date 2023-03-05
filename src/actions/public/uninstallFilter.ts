@@ -1,15 +1,15 @@
 import type { PublicClient } from '../../clients'
 import type { Filter } from '../../types'
 
-export type UninstallFilterArgs = {
+export type UninstallFilterParameters = {
   filter: Filter<any>
 }
-export type UninstallFilterResponse = boolean
+export type UninstallFilterReturnType = boolean
 
 export async function uninstallFilter(
   client: PublicClient,
-  { filter }: UninstallFilterArgs,
-): Promise<UninstallFilterResponse> {
+  { filter }: UninstallFilterParameters,
+): Promise<UninstallFilterReturnType> {
   return client.request({
     method: 'eth_uninstallFilter',
     params: [filter.id],

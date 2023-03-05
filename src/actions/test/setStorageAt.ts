@@ -2,7 +2,7 @@ import type { TestClient } from '../../clients'
 import type { Address, Hash, Hex } from '../../types'
 import { numberToHex } from '../../utils'
 
-export type SetStorageAtArgs = {
+export type SetStorageAtParameters = {
   /** The account address. */
   address: Address
   /** The storage slot (index). Can either be a number or hash value. */
@@ -13,7 +13,7 @@ export type SetStorageAtArgs = {
 
 export async function setStorageAt(
   client: TestClient,
-  { address, index, value }: SetStorageAtArgs,
+  { address, index, value }: SetStorageAtParameters,
 ) {
   return await client.request({
     method: `${client.mode}_setStorageAt`,

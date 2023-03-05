@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnBlockResponse } from './watchBlocks'
+import type { OnBlockParameter } from './watchBlocks'
 import * as getBlock from './getBlock'
 import { watchBlocks } from './watchBlocks'
 import { mine } from '../test/mine'
@@ -13,8 +13,8 @@ import { sendTransaction } from '../wallet'
 import { getAccount, parseEther } from '../../utils'
 
 test('watches for new blocks', async () => {
-  const blocks: OnBlockResponse[] = []
-  const prevBlocks: OnBlockResponse[] = []
+  const blocks: OnBlockParameter[] = []
+  const prevBlocks: OnBlockParameter[] = []
   const unwatch = watchBlocks(publicClient, {
     onBlock: (block, prevBlock) => {
       blocks.push(block)
@@ -32,7 +32,7 @@ test(
   async () => {
     await mine(testClient, { blocks: 1 })
 
-    const blocks: OnBlockResponse<Chain, true>[] = []
+    const blocks: OnBlockParameter<Chain, true>[] = []
     const unwatch = watchBlocks(publicClient, {
       includeTransactions: true,
       onBlock: (block) => {
@@ -57,7 +57,7 @@ test(
 describe('emitMissed', () => {
   test('emits on missed blocks', async () => {
     await setIntervalMining(testClient, { interval: 0 })
-    const blocks: OnBlockResponse[] = []
+    const blocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
       emitMissed: true,
       onBlock: (block) => blocks.push(block),
@@ -75,7 +75,7 @@ describe('emitMissed', () => {
 
 describe('emitOnBegin', () => {
   test('watches for new blocks', async () => {
-    const blocks: OnBlockResponse[] = []
+    const blocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
       emitOnBegin: true,
       onBlock: (block) => blocks.push(block),
@@ -94,7 +94,7 @@ describe('pollingInterval on client', () => {
       pollingInterval: 500,
     })
 
-    const blocks: OnBlockResponse[] = []
+    const blocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(client, {
       onBlock: (block) => blocks.push(block),
     })
@@ -110,7 +110,7 @@ test('custom chain type', async () => {
     transport: http(),
   })
 
-  const blocks: OnBlockResponse<typeof celo>[] = []
+  const blocks: OnBlockParameter<typeof celo>[] = []
   const unwatch = watchBlocks(client, {
     emitOnBegin: true,
     onBlock: (block) => blocks.push(block),
@@ -122,7 +122,7 @@ test('custom chain type', async () => {
 
 describe('behavior', () => {
   test('does not emit when no new incoming blocks', async () => {
-    const blocks: OnBlockResponse[] = []
+    const blocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
       onBlock: (block) => blocks.push(block),
       pollingInterval: 100,
@@ -133,7 +133,7 @@ describe('behavior', () => {
   })
 
   test('watch > unwatch > watch', async () => {
-    let blocks: OnBlockResponse[] = []
+    let blocks: OnBlockParameter[] = []
     let unwatch = watchBlocks(publicClient, {
       onBlock: (block) => blocks.push(block),
     })
@@ -151,7 +151,7 @@ describe('behavior', () => {
   })
 
   test('multiple watchers', async () => {
-    let blocks: OnBlockResponse[] = []
+    let blocks: OnBlockParameter[] = []
 
     let unwatch1 = watchBlocks(publicClient, {
       onBlock: (block) => blocks.push(block),
@@ -187,7 +187,7 @@ describe('behavior', () => {
   })
 
   test('immediately unwatch', async () => {
-    const blocks: OnBlockResponse[] = []
+    const blocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
       onBlock: (block) => blocks.push(block),
     })

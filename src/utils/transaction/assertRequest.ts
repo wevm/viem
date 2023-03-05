@@ -1,4 +1,4 @@
-import { SendTransactionArgs } from '../../actions'
+import { SendTransactionParameters } from '../../actions'
 import {
   FeeCapTooHighError,
   InvalidAddressError,
@@ -8,7 +8,7 @@ import { FeeConflictError } from '../../errors/transaction'
 import { Chain } from '../../types'
 import { isAddress } from '../address'
 
-export function assertRequest(args: Partial<SendTransactionArgs<Chain>>) {
+export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {
   const { account, gasPrice, maxFeePerGas, maxPriorityFeePerGas, to } = args
   if (account && !isAddress(account.address))
     throw new InvalidAddressError({ address: account.address })

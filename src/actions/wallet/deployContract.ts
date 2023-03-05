@@ -5,37 +5,37 @@ import { Chain, ExtractConstructorArgsFromAbi, Hex } from '../../types'
 import { encodeDeployData } from '../../utils'
 import {
   sendTransaction,
-  SendTransactionArgs,
-  SendTransactionResponse,
+  SendTransactionParameters,
+  SendTransactionReturnType,
 } from '../wallet'
 
-export type DeployContractArgs<
+export type DeployContractParameters<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
 > = Omit<
-  SendTransactionArgs<TChain>,
+  SendTransactionParameters<TChain>,
   'accessList' | 'to' | 'data' | 'value'
 > & {
   abi: Narrow<TAbi>
   bytecode: Hex
 } & ExtractConstructorArgsFromAbi<TAbi>
 
-export type DeployContractResponse = SendTransactionResponse
+export type DeployContractReturnType = SendTransactionReturnType
 
 export function deployContract<
   TChain extends Chain,
   TAbi extends Abi | readonly unknown[],
 >(
   walletClient: WalletClient,
-  { abi, args, bytecode, ...request }: DeployContractArgs<TChain, TAbi>,
-): Promise<DeployContractResponse> {
+  { abi, args, bytecode, ...request }: DeployContractParameters<TChain, TAbi>,
+): Promise<DeployContractReturnType> {
   const calldata = encodeDeployData({
     abi,
     args,
     bytecode,
-  } as unknown as DeployContractArgs<TChain, TAbi>)
+  } as unknown as DeployContractParameters<TChain, TAbi>)
   return sendTransaction(walletClient, {
     ...request,
     data: calldata,
-  } as unknown as SendTransactionArgs<TChain>)
+  } as unknown as SendTransactionParameters<TChain>)
 }

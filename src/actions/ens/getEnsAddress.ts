@@ -3,10 +3,10 @@ import { ChainDoesNotSupportContract } from '../../errors'
 import type { Address, Prettify } from '../../types'
 import { decodeFunctionResult, encodeFunctionData, toHex } from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
-import { readContract, ReadContractArgs } from '../public'
+import { readContract, ReadContractParameters } from '../public'
 
-export type GetEnsAddressArgs = Prettify<
-  Pick<ReadContractArgs, 'blockNumber' | 'blockTag'> & {
+export type GetEnsAddressParameters = Prettify<
+  Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get address. */
     name: string
     /** Address of ENS Universal Resolver Contract */
@@ -14,7 +14,7 @@ export type GetEnsAddressArgs = Prettify<
   }
 >
 
-export type GetEnsAddressResponse = Address
+export type GetEnsAddressReturnType = Address
 
 /**
  * @description Gets address for ENS name.
@@ -24,7 +24,7 @@ export type GetEnsAddressResponse = Address
  *
  * @example
  * import { normalize } from 'viem/ens'
- * 
+ *
  * const ensAddress = await getEnsAddress(publicClient, {
  *   name: normalize('wagmi-dev.eth'),
  * })
@@ -37,8 +37,8 @@ export async function getEnsAddress(
     blockTag,
     name,
     universalResolverAddress: universalResolverAddress_,
-  }: GetEnsAddressArgs,
-): Promise<GetEnsAddressResponse> {
+  }: GetEnsAddressParameters,
+): Promise<GetEnsAddressReturnType> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)

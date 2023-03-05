@@ -1,4 +1,4 @@
-import { EstimateGasArgs } from '../../actions'
+import { EstimateGasParameters } from '../../actions'
 import { BaseError, EstimateGasExecutionError } from '../../errors'
 import { Chain } from '../../types'
 import { containsNodeError, getNodeError } from './getNodeError'
@@ -8,7 +8,7 @@ export function getEstimateGasError(
   {
     docsPath,
     ...args
-  }: EstimateGasArgs & {
+  }: EstimateGasParameters & {
     chain?: Chain
     docsPath?: string
   },

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import type { PublicClient } from 'viem'
-import type { OnTransactionsResponse } from 'viem/public'
+import type { OnTransactionsParameter } from 'viem/public'
 
 export function WatchPendingTransactions({ client }: { client: PublicClient }) {
-  const [transactions, setTransactions] = useState<OnTransactionsResponse>([])
+  const [transactions, setTransactions] = useState<OnTransactionsParameter>([])
   useEffect(() => {
     try {
       const unwatch = client.watchPendingTransactions({
-        onError: (err) => console.log(client.transport.url),
+        onError: (_err) => console.log(client.transport.url),
         onTransactions: setTransactions,
       })
       return unwatch

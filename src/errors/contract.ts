@@ -1,9 +1,9 @@
 import { Abi } from 'abitype'
-import { CallArgs } from '../actions'
+import { CallParameters } from '../actions'
 import { panicReasons } from '../constants'
 import { Address, Chain, Hex } from '../types'
 import {
-  DecodeErrorResultResponse,
+  DecodeErrorResultReturnType,
   decodeErrorResult,
   getAbiItem,
   formatAbiItem,
@@ -34,7 +34,7 @@ export class CallExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: CallArgs & { chain?: Chain; docsPath?: string },
+    }: CallParameters & { chain?: Chain; docsPath?: string },
   ) {
     const prettyArgs = prettyPrint({
       from: account?.address,
@@ -147,7 +147,7 @@ export class ContractFunctionExecutionError extends BaseError {
 export class ContractFunctionRevertedError extends BaseError {
   name = 'ContractFunctionRevertedError'
 
-  data?: DecodeErrorResultResponse
+  data?: DecodeErrorResultReturnType
   reason?: string
 
   constructor({
@@ -156,7 +156,7 @@ export class ContractFunctionRevertedError extends BaseError {
     functionName,
     message,
   }: { abi: Abi; data?: Hex; functionName: string; message?: string }) {
-    let decodedData: DecodeErrorResultResponse | undefined = undefined
+    let decodedData: DecodeErrorResultReturnType | undefined = undefined
     let metaMessages
     let reason
     if (data && data !== '0x') {

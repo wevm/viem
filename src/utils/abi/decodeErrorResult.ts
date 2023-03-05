@@ -10,9 +10,9 @@ import { getFunctionSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
-export type DecodeErrorResultArgs = { abi?: Abi; data: Hex }
+export type DecodeErrorResultParameters = { abi?: Abi; data: Hex }
 
-export type DecodeErrorResultResponse = {
+export type DecodeErrorResultReturnType = {
   abiItem: AbiItem
   errorName: string
   args?: readonly unknown[]
@@ -21,7 +21,7 @@ export type DecodeErrorResultResponse = {
 export function decodeErrorResult({
   abi,
   data,
-}: DecodeErrorResultArgs): DecodeErrorResultResponse {
+}: DecodeErrorResultParameters): DecodeErrorResultReturnType {
   const signature = slice(data, 0, 4)
   if (signature === '0x') throw new AbiDecodingZeroDataError()
 

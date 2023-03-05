@@ -7,8 +7,7 @@ import {
   setBalance,
   setNextBlockBaseFeePerGas,
 } from '../../actions'
-import { optimism } from '../../chains'
-import { getAccount, parseEther, parseGwei } from '../../utils'
+import { parseEther, parseGwei } from '../../utils'
 import * as publicActions from '../../actions/public'
 
 import { defaultTip, prepareRequest } from './prepareRequest'
@@ -39,14 +38,15 @@ describe('prepareRequest', () => {
     await setup()
 
     const block = await getBlock(publicClient)
-    const { maxFeePerGas, nonce, ...rest } = await prepareRequest(
-      walletClient,
-      {
-        account: getEoaAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
+    const {
+      maxFeePerGas,
+      nonce: _nonce,
+      ...rest
+    } = await prepareRequest(walletClient, {
+      account: getEoaAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(maxFeePerGas).toEqual(
       // 1.2x base fee + tip
       (block.baseFeePerGas! * 120n) / 100n + parseGwei('1.5'),
@@ -75,7 +75,7 @@ describe('prepareRequest', () => {
       baseFeePerGas: undefined,
     } as any)
 
-    const { nonce, ...request } = await prepareRequest(walletClient, {
+    const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
       account: getEoaAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
@@ -100,14 +100,15 @@ describe('prepareRequest', () => {
   test('args: chain', async () => {
     await setup()
 
-    const { maxFeePerGas, nonce, ...rest } = await prepareRequest(
-      walletClient,
-      {
-        account: getEoaAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
+    const {
+      maxFeePerGas: _maxFeePerGas,
+      nonce: _nonce,
+      ...rest
+    } = await prepareRequest(walletClient, {
+      account: getEoaAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -128,12 +129,15 @@ describe('prepareRequest', () => {
   test('args: nonce', async () => {
     await setup()
 
-    const { maxFeePerGas, ...rest } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      nonce: 5,
-      value: parseEther('1'),
-    })
+    const { maxFeePerGas: _maxFeePerGas, ...rest } = await prepareRequest(
+      walletClient,
+      {
+        account: getEoaAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        nonce: 5,
+        value: parseEther('1'),
+      },
+    )
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -157,7 +161,7 @@ describe('prepareRequest', () => {
 
     vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({} as any)
 
-    const { nonce, ...request } = await prepareRequest(walletClient, {
+    const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
       account: getEoaAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
@@ -200,7 +204,7 @@ describe('prepareRequest', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const { nonce, ...rest } = await prepareRequest(walletClient, {
+    const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
       account: getEoaAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
@@ -265,7 +269,7 @@ describe('prepareRequest', () => {
   test('args: maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce, ...rest } = await prepareRequest(walletClient, {
+    const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
       account: getEoaAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
@@ -313,7 +317,7 @@ describe('prepareRequest', () => {
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce, ...rest } = await prepareRequest(walletClient, {
+    const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
       account: getEoaAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),

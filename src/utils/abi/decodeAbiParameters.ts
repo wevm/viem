@@ -16,7 +16,7 @@ import { size, slice, trim } from '../data'
 import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
 import { getArrayComponents } from './encodeAbiParameters'
 
-export type DecodeAbiParametersResponse<
+export type DecodeAbiParametersReturnType<
   TParams extends
     | readonly AbiParameter[]
     | readonly unknown[] = readonly AbiParameter[],
@@ -26,14 +26,14 @@ export type DecodeAbiParametersResponse<
 
 export function decodeAbiParameters<
   TParams extends readonly AbiParameter[] | readonly unknown[],
->(params: Narrow<TParams>, data: Hex): DecodeAbiParametersResponse<TParams> {
+>(params: Narrow<TParams>, data: Hex): DecodeAbiParametersReturnType<TParams> {
   if (data === '0x' && params.length > 0) throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
     throw new AbiDecodingDataSizeInvalidError(size(data))
   return decodeParams({
     data,
     params: params as readonly AbiParameter[],
-  }) as unknown as DecodeAbiParametersResponse<TParams>
+  }) as unknown as DecodeAbiParametersReturnType<TParams>
 }
 
 ////////////////////////////////////////////////////////////////////

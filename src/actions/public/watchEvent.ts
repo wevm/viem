@@ -9,22 +9,25 @@ import type {
 } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import { createEventFilter, CreateEventFilterArgs } from './createEventFilter'
+import {
+  createEventFilter,
+  CreateEventFilterParameters,
+} from './createEventFilter'
 import { getBlockNumber } from './getBlockNumber'
 import { getFilterChanges } from './getFilterChanges'
 import { getLogs } from './getLogs'
 import { uninstallFilter } from './uninstallFilter'
 
-export type OnLogsResponse<
+export type OnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
-export type OnLogs<
+export type OnLogsFn<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = (logs: OnLogsResponse<TAbiEvent, TEventName>) => void
+> = (logs: OnLogsParameter<TAbiEvent, TEventName>) => void
 
-export type WatchEventArgs<
+export type WatchEventParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
@@ -35,7 +38,7 @@ export type WatchEventArgs<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogs<TAbiEvent, TEventName>
+  onLogs: OnLogsFn<TAbiEvent, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 } & (
@@ -62,7 +65,7 @@ export function watchEvent<
     onError,
     onLogs,
     pollingInterval = client.pollingInterval,
-  }: WatchEventArgs<TAbiEvent>,
+  }: WatchEventParameters<TAbiEvent>,
 ) {
   const observerId = JSON.stringify([
     'watchEvent',
@@ -87,7 +90,7 @@ export function watchEvent<
               address,
               args,
               event: event!,
-            } as unknown as CreateEventFilterArgs)) as unknown as Filter<
+            } as unknown as CreateEventFilterParameters)) as unknown as Filter<
               'event',
               [TAbiEvent],
               TEventName

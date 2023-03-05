@@ -11,15 +11,11 @@ import type {
   MaybeExtractEventArgsFromAbi,
   MaybeAbiEventName,
 } from '../../types'
-import {
-  decodeEventLog,
-  encodeEventTopics,
-  EncodeEventTopicsArgs,
-  numberToHex,
-} from '../../utils'
+import type { EncodeEventTopicsParameters } from '../../utils'
+import { decodeEventLog, encodeEventTopics, numberToHex } from '../../utils'
 import { formatLog } from '../../utils/formatters/log'
 
-export type GetLogsArgs<
+export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
@@ -51,7 +47,7 @@ export type GetLogsArgs<
       }
   )
 
-export type GetLogsResponse<
+export type GetLogsReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
@@ -68,15 +64,15 @@ export async function getLogs<TAbiEvent extends AbiEvent | undefined>(
     toBlock,
     event,
     args,
-  }: GetLogsArgs<TAbiEvent> = {},
-): Promise<GetLogsResponse<TAbiEvent>> {
+  }: GetLogsParameters<TAbiEvent> = {},
+): Promise<GetLogsReturnType<TAbiEvent>> {
   let topics: LogTopic[] = []
   if (event)
     topics = encodeEventTopics({
       abi: [event],
       eventName: event.name,
       args,
-    } as EncodeEventTopicsArgs)
+    } as EncodeEventTopicsParameters)
 
   let logs: RpcLog[]
   if (blockHash) {
@@ -107,5 +103,5 @@ export async function getLogs<TAbiEvent extends AbiEvent | undefined>(
         })
       : { eventName: undefined, args: undefined }
     return formatLog(log, { args, eventName })
-  }) as unknown as GetLogsResponse<TAbiEvent>
+  }) as unknown as GetLogsReturnType<TAbiEvent>
 }

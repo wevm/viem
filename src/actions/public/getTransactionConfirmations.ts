@@ -7,7 +7,9 @@ import type {
 import { getBlockNumber } from './getBlockNumber'
 import { getTransaction } from './getTransaction'
 
-export type GetTransactionConfirmationsArgs<TChain extends Chain = Chain> =
+export type GetTransactionConfirmationsParameters<
+  TChain extends Chain = Chain,
+> =
   | {
       /** The transaction hash. */
       hash: Hash
@@ -21,12 +23,12 @@ export type GetTransactionConfirmationsArgs<TChain extends Chain = Chain> =
       >
     }
 
-export type GetTransactionConfirmationsResponse = bigint
+export type GetTransactionConfirmationsReturnType = bigint
 
 export async function getTransactionConfirmations<TChain extends Chain>(
   client: PublicClient<any, TChain>,
-  { hash, transactionReceipt }: GetTransactionConfirmationsArgs<TChain>,
-): Promise<GetTransactionConfirmationsResponse> {
+  { hash, transactionReceipt }: GetTransactionConfirmationsParameters<TChain>,
+): Promise<GetTransactionConfirmationsReturnType> {
   const [blockNumber, transaction] = await Promise.all([
     getBlockNumber(client),
     hash ? getTransaction(client, { hash }) : undefined,

@@ -1,11 +1,11 @@
 export {
   getEnsAddress,
-  type GetEnsAddressArgs,
-  type GetEnsAddressResponse,
+  type GetEnsAddressParameters,
+  type GetEnsAddressReturnType,
 } from './getEnsAddress'
 
 export {
   getEnsName,
-  type GetEnsNameArgs,
-  type GetEnsNameResponse,
+  type GetEnsNameParameters,
+  type GetEnsNameReturnType,
 } from './getEnsName'

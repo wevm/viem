@@ -4,7 +4,7 @@ import { Wallet } from 'ethers@6'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
   deployContract,
-  DeployContractArgs,
+  DeployContractParameters,
   getTransactionReceipt,
   mine,
 } from '../actions'
@@ -133,7 +133,7 @@ export function createHttpServer(
 }
 
 export async function deploy<TAbi extends Abi = Abi>(
-  args: DeployContractArgs<Chain, TAbi>,
+  args: DeployContractParameters<Chain, TAbi>,
 ) {
   const hash = await deployContract(walletClient, args)
   await mine(testClient, { blocks: 1 })

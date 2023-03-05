@@ -11,7 +11,7 @@ import { hexToBytes } from './toBytes'
 import { bytesToHex } from './toHex'
 import type { RecursiveArray } from './toRlp'
 
-type fromRlpResponse<TTo> = TTo extends 'bytes'
+type FromRlpReturnType<TTo> = TTo extends 'bytes'
   ? ByteArray
   : TTo extends 'hex'
   ? Hex
@@ -20,7 +20,7 @@ type fromRlpResponse<TTo> = TTo extends 'bytes'
 export function fromRlp<TTo extends 'bytes' | 'hex'>(
   value: ByteArray | Hex,
   to: TTo,
-): RecursiveArray<fromRlpResponse<TTo>> {
+): RecursiveArray<FromRlpReturnType<TTo>> {
   const bytes = parse(value)
   const [data, consumed] = rlpToBytes(bytes)
   if (consumed < bytes.length)
@@ -43,11 +43,11 @@ function parse(value: ByteArray | Hex) {
 function format<TTo extends 'bytes' | 'hex'>(
   bytes: RecursiveArray<ByteArray>,
   to: TTo,
-): RecursiveArray<fromRlpResponse<TTo>> {
+): RecursiveArray<FromRlpReturnType<TTo>> {
   if (Array.isArray(bytes)) return bytes.map((b) => format(b, to))
   return (
     to === 'hex' ? trim(bytesToHex(bytes)) : bytes
-  ) as fromRlpResponse<TTo>
+  ) as FromRlpReturnType<TTo>
 }
 
 function rlpToBytes(

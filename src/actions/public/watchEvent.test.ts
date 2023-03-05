@@ -15,7 +15,7 @@ import * as createEventFilter from './createEventFilter'
 import * as getBlockNumber from './getBlockNumber'
 import * as getLogs from './getLogs'
 import * as getFilterChanges from './getFilterChanges'
-import { OnLogsResponse, watchEvent } from './watchEvent'
+import { OnLogsParameter, watchEvent } from './watchEvent'
 
 const event = {
   transfer: {
@@ -78,7 +78,7 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsResponse[] = []
+    let logs: OnLogsParameter[] = []
 
     const unwatch = watchEvent(publicClient, {
       onLogs: (logs_) => logs.push(logs_),
@@ -115,7 +115,7 @@ test(
 )
 
 test('args: batch', async () => {
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     batch: false,
@@ -152,8 +152,8 @@ test('args: batch', async () => {
 })
 
 test('args: address', async () => {
-  let logs: OnLogsResponse[] = []
-  let logs2: OnLogsResponse[] = []
+  let logs: OnLogsParameter[] = []
+  let logs2: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -180,8 +180,8 @@ test('args: address', async () => {
 })
 
 test('args: address + event', async () => {
-  let logs: OnLogsResponse<typeof event.transfer>[] = []
-  let logs2: OnLogsResponse<typeof event.approval>[] = []
+  let logs: OnLogsParameter<typeof event.transfer>[] = []
+  let logs2: OnLogsParameter<typeof event.approval>[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -228,7 +228,7 @@ test('falls back to `getLogs` if `createEventFilter` throws', async () => {
     new Error('foo'),
   )
 
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     onLogs: (logs_) => logs.push(logs_),

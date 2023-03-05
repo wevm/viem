@@ -5,20 +5,20 @@
       "**/types/multicall.ts",
       "**/node_modules",
       "CHANGELOG.md",
-      "abi",
       "cache",
-      "chains",
-      "contract",
       "coverage",
       "dist",
-      "ens",
       "generated.ts",
       "pnpm-lock.yaml",
-      "public",
-      "test",
-      "utils",
-      "wallet",
-      "window"
+      "./abi",
+      "./chains",
+      "./contract",
+      "./ens",
+      "./public",
+      "./test",
+      "./utils",
+      "./wallet",
+      "./window"
     ]
   },
   "formatter": {
@@ -32,6 +32,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "noUnusedVariables": "error"
+      },
       "performance": {
         "noDelete": "off"
       },

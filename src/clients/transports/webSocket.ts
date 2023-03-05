@@ -6,26 +6,26 @@ import { getSocket, rpc } from '../../utils/rpc'
 import type { Transport, TransportConfig } from './createTransport'
 import { createTransport } from './createTransport'
 
-type WebSocketTransportSubscribeArgs = {
+type WebSocketTransportSubscribeParameters = {
   onData: (data: RpcResponse) => void
   onError?: (error: any) => void
 }
 
-type WebSocketTransportSubscribeResponse = {
+type WebSocketTransportSubscribeReturnType = {
   subscriptionId: Hash
   unsubscribe: () => Promise<RpcResponse<boolean>>
 }
 
 type WebSocketTransportSubscribe = {
   subscribe(
-    args: WebSocketTransportSubscribeArgs & {
+    args: WebSocketTransportSubscribeParameters & {
       /**
        * @description Add information about compiled contracts
        * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
        */
       params: ['newHeads']
     },
-  ): Promise<WebSocketTransportSubscribeResponse>
+  ): Promise<WebSocketTransportSubscribeReturnType>
 }
 
 export type WebSocketTransportConfig = {

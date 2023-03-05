@@ -3,7 +3,7 @@ import {
   getBlock,
   getGasPrice,
   getTransactionCount,
-  SendTransactionArgs,
+  SendTransactionParameters,
 } from '../../actions'
 import { PublicClient, WalletClient } from '../../clients'
 import { BaseError } from '../../errors'
@@ -11,27 +11,29 @@ import { Address } from '../../types'
 import { parseGwei } from '../unit/parseGwei'
 import { assertRequest } from './assertRequest'
 
-export type PrepareRequestArgs<
-  TArgs extends SendTransactionArgs = SendTransactionArgs,
-> = TArgs
+export type PrepareRequestParameters<
+  TParameters extends SendTransactionParameters = SendTransactionParameters,
+> = TParameters
 
-export type PrepareRequestResponse<
-  TArgs extends SendTransactionArgs = SendTransactionArgs,
-> = TArgs & {
+export type PrepareRequestReturnType<
+  TParameters extends SendTransactionParameters = SendTransactionParameters,
+> = TParameters & {
   from: Address
-  gas: SendTransactionArgs['gas']
-  gasPrice?: SendTransactionArgs['gasPrice']
-  maxFeePerGas?: SendTransactionArgs['maxFeePerGas']
-  maxPriorityFeePerGas?: SendTransactionArgs['maxPriorityFeePerGas']
-  nonce: SendTransactionArgs['nonce']
+  gas: SendTransactionParameters['gas']
+  gasPrice?: SendTransactionParameters['gasPrice']
+  maxFeePerGas?: SendTransactionParameters['maxFeePerGas']
+  maxPriorityFeePerGas?: SendTransactionParameters['maxPriorityFeePerGas']
+  nonce: SendTransactionParameters['nonce']
 }
 
 export const defaultTip = parseGwei('1.5')
 
-export async function prepareRequest<TArgs extends SendTransactionArgs>(
+export async function prepareRequest<
+  TParameters extends SendTransactionParameters,
+>(
   client: WalletClient<any, any> | PublicClient<any, any>,
-  args: PrepareRequestArgs<TArgs>,
-): Promise<PrepareRequestResponse<TArgs>> {
+  args: PrepareRequestParameters<TParameters>,
+): Promise<PrepareRequestReturnType<TParameters>> {
   const { account, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce } =
     args
 
@@ -87,5 +89,5 @@ export async function prepareRequest<TArgs extends SendTransactionArgs>(
 
   assertRequest(request)
 
-  return request as PrepareRequestResponse<TArgs>
+  return request as PrepareRequestReturnType<TParameters>
 }

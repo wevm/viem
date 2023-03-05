@@ -1,10 +1,10 @@
 import type { TestClient } from '../../clients'
 
-export type GetAutomineResponse = boolean
+export type GetAutomineReturnType = boolean
 
 export async function getAutomine(
   client: TestClient,
-): Promise<GetAutomineResponse> {
+): Promise<GetAutomineReturnType> {
   return await client.request({
     method: `${client.mode}_getAutomine`,
   })

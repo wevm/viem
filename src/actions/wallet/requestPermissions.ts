@@ -1,16 +1,16 @@
 import type { WalletClient } from '../../clients'
 import type { WalletPermission } from '../../types/eip1193'
 
-export type RequestPermissionsArgs = {
+export type RequestPermissionsParameters = {
   eth_accounts: Record<string, any>
 } & {
   [key: string]: Record<string, any>
 }
-export type RequestPermissionsResponse = WalletPermission[]
+export type RequestPermissionsReturnType = WalletPermission[]
 
 export async function requestPermissions(
   client: WalletClient,
-  permissions: RequestPermissionsArgs,
+  permissions: RequestPermissionsParameters,
 ) {
   return client.request({
     method: 'wallet_requestPermissions',

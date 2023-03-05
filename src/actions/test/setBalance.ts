@@ -2,7 +2,7 @@ import type { TestClient } from '../../clients'
 import type { Address } from '../../types'
 import { numberToHex } from '../../utils'
 
-export type SetBalanceArgs = {
+export type SetBalanceParameters = {
   /** The account address. */
   address: Address
   /** Amount (in wei) to set */
@@ -11,7 +11,7 @@ export type SetBalanceArgs = {
 
 export async function setBalance(
   client: TestClient,
-  { address, value }: SetBalanceArgs,
+  { address, value }: SetBalanceParameters,
 ) {
   return await client.request({
     method: `${client.mode}_setBalance`,

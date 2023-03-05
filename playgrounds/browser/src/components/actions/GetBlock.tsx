@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { PublicClient } from 'viem'
-import type { GetBlockResponse } from 'viem/public'
+import type { GetBlockReturnType } from 'viem/public'
 
 export function GetBlock({ client }: { client: PublicClient }) {
-  const [latestBlock, setLatestBlock] = useState<GetBlockResponse>()
-  const [block, setBlock] = useState<GetBlockResponse>()
+  const [latestBlock, setLatestBlock] = useState<GetBlockReturnType>()
+  const [block, setBlock] = useState<GetBlockReturnType>()
 
   useEffect(() => {
     ;(async () => {

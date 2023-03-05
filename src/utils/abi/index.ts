@@ -11,46 +11,46 @@ export {
   parseAbiParameters,
 } from 'abitype'
 
-export type { DecodeAbiParametersResponse } from './decodeAbiParameters'
+export type { DecodeAbiParametersReturnType } from './decodeAbiParameters'
 export { decodeAbiParameters } from './decodeAbiParameters'
 
 export type {
-  DecodeErrorResultArgs,
-  DecodeErrorResultResponse,
+  DecodeErrorResultParameters,
+  DecodeErrorResultReturnType,
 } from './decodeErrorResult'
 export { decodeErrorResult } from './decodeErrorResult'
 
 export type {
-  DecodeEventLogArgs,
-  DecodeEventLogResponse,
+  DecodeEventLogParameters,
+  DecodeEventLogReturnType,
 } from './decodeEventLog'
 export { decodeEventLog } from './decodeEventLog'
 
-export type { DecodeFunctionDataArgs } from './decodeFunctionData'
+export type { DecodeFunctionDataParameters } from './decodeFunctionData'
 export { decodeFunctionData } from './decodeFunctionData'
 
 export type {
-  DecodeFunctionResultArgs,
-  DecodeFunctionResultResponse,
+  DecodeFunctionResultParameters,
+  DecodeFunctionResultReturnType,
 } from './decodeFunctionResult'
 export { decodeFunctionResult } from './decodeFunctionResult'
 
-export type { EncodeAbiParametersResponse } from './encodeAbiParameters'
+export type { EncodeAbiParametersReturnType } from './encodeAbiParameters'
 export { encodeAbiParameters } from './encodeAbiParameters'
 
-export type { EncodeDeployDataArgs } from './encodeDeployData'
+export type { EncodeDeployDataParameters } from './encodeDeployData'
 export { encodeDeployData } from './encodeDeployData'
 
-export type { EncodeErrorResultArgs } from './encodeErrorResult'
+export type { EncodeErrorResultParameters } from './encodeErrorResult'
 export { encodeErrorResult } from './encodeErrorResult'
 
-export type { EncodeEventTopicsArgs } from './encodeEventTopics'
+export type { EncodeEventTopicsParameters } from './encodeEventTopics'
 export { encodeEventTopics } from './encodeEventTopics'
 
-export type { EncodeFunctionDataArgs } from './encodeFunctionData'
+export type { EncodeFunctionDataParameters } from './encodeFunctionData'
 export { encodeFunctionData } from './encodeFunctionData'
 
-export type { EncodeFunctionResultArgs } from './encodeFunctionResult'
+export type { EncodeFunctionResultParameters } from './encodeFunctionResult'
 export { encodeFunctionResult } from './encodeFunctionResult'
 
 export { encodePacked } from './encodePacked'
@@ -59,5 +59,5 @@ export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
 
 export { formatAbiItem } from './formatAbiItem'
 
-export type { GetAbiItemArgs } from './getAbiItem'
+export type { GetAbiItemParameters } from './getAbiItem'
 export { getAbiItem } from './getAbiItem'

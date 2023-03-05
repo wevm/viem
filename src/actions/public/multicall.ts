@@ -8,24 +8,24 @@ import {
 import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
 import { MulticallResults } from '../../types/multicall'
 import {
-  EncodeFunctionDataArgs,
+  EncodeFunctionDataParameters,
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
 } from '../../utils'
-import { CallArgs } from './call'
+import { CallParameters } from './call'
 import { readContract } from './readContract'
 
-export type MulticallArgs<
+export type MulticallParameters<
   TContracts extends ContractConfig[] = ContractConfig[],
   TAllowFailure extends boolean = true,
-> = Pick<CallArgs, 'blockNumber' | 'blockTag'> & {
+> = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
   contracts: readonly [...MulticallContracts<TContracts>]
   multicallAddress: Address
 }
 
-export type MulticallResponse<
+export type MulticallReturnType<
   TContracts extends ContractConfig[] = ContractConfig[],
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
@@ -35,8 +35,8 @@ export async function multicall<
   TAllowFailure extends boolean = true,
 >(
   client: PublicClient,
-  args: MulticallArgs<TContracts, TAllowFailure>,
-): Promise<MulticallResponse<TContracts, TAllowFailure>> {
+  args: MulticallParameters<TContracts, TAllowFailure>,
+): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
   const {
     allowFailure = true,
     blockNumber,
@@ -51,7 +51,7 @@ export async function multicall<
         abi,
         args,
         functionName,
-      } as unknown as EncodeFunctionDataArgs)
+      } as unknown as EncodeFunctionDataParameters)
       return {
         allowFailure: true,
         callData,

@@ -28,7 +28,7 @@ export type FormattedTransactionRequest<
   TransactionRequest
 >
 
-export type SendTransactionArgs<TChain extends Chain = Chain> =
+export type SendTransactionParameters<TChain extends Chain = Chain> =
   FormattedTransactionRequest<TransactionRequestFormatter<TChain>> & {
     account: Account
   } & (
@@ -42,12 +42,12 @@ export type SendTransactionArgs<TChain extends Chain = Chain> =
         }
     )
 
-export type SendTransactionResponse = Hash
+export type SendTransactionReturnType = Hash
 
 export async function sendTransaction<TChain extends Chain>(
   client: WalletClient,
-  args: SendTransactionArgs<TChain>,
-): Promise<SendTransactionResponse> {
+  args: SendTransactionParameters<TChain>,
+): Promise<SendTransactionReturnType> {
   const {
     account,
     chain,

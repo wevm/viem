@@ -1,60 +1,60 @@
 import { Abi, AbiEvent } from 'abitype'
 import type {
-  CallArgs,
-  CallResponse,
-  CreateBlockFilterResponse,
-  CreateContractEventFilterArgs,
-  CreateContractEventFilterResponse,
-  CreateEventFilterArgs,
-  CreateEventFilterResponse,
-  CreatePendingTransactionFilterResponse,
-  EstimateGasArgs,
-  EstimateGasResponse,
-  EstimateContractGasArgs,
-  EstimateContractGasResponse,
-  GetBalanceArgs,
-  GetBalanceResponse,
-  GetBlockArgs,
-  GetBlockNumberArgs,
-  GetBlockNumberResponse,
-  GetBlockResponse,
-  GetBlockTransactionCountArgs,
-  GetBlockTransactionCountResponse,
-  GetBytecodeArgs,
-  GetBytecodeResponse,
-  GetChainIdResponse,
-  GetFeeHistoryArgs,
-  GetFeeHistoryResponse,
-  GetFilterChangesArgs,
-  GetFilterChangesResponse,
-  GetFilterLogsArgs,
-  GetFilterLogsResponse,
-  GetGasPriceResponse,
-  GetTransactionArgs,
-  GetTransactionConfirmationsArgs,
-  GetTransactionConfirmationsResponse,
-  GetTransactionReceiptArgs,
-  GetTransactionReceiptResponse,
-  GetTransactionResponse,
-  UninstallFilterArgs,
-  UninstallFilterResponse,
-  WaitForTransactionReceiptArgs,
-  WaitForTransactionReceiptResponse,
-  WatchBlockNumberArgs,
-  WatchBlocksArgs,
-  WatchPendingTransactionsArgs,
-  GetLogsArgs,
-  GetLogsResponse,
-  GetStorageAtArgs,
-  GetStorageAtResponse,
-  MulticallArgs,
-  MulticallResponse,
-  ReadContractArgs,
-  ReadContractResponse,
-  SimulateContractArgs,
-  SimulateContractResponse,
-  WatchContractEventArgs,
-  WatchEventArgs,
+  CallParameters,
+  CallReturnType,
+  CreateBlockFilterReturnType,
+  CreateContractEventFilterParameters,
+  CreateContractEventFilterReturnType,
+  CreateEventFilterParameters,
+  CreateEventFilterReturnType,
+  CreatePendingTransactionFilterReturnType,
+  EstimateGasParameters,
+  EstimateGasReturnType,
+  EstimateContractGasParameters,
+  EstimateContractGasReturnType,
+  GetBalanceParameters,
+  GetBalanceReturnType,
+  GetBlockParameters,
+  GetBlockNumberParameters,
+  GetBlockNumberReturnType,
+  GetBlockReturnType,
+  GetBlockTransactionCountParameters,
+  GetBlockTransactionCountReturnType,
+  GetBytecodeParameters,
+  GetBytecodeReturnType,
+  GetChainIdReturnType,
+  GetFeeHistoryParameters,
+  GetFeeHistoryReturnType,
+  GetFilterChangesParameters,
+  GetFilterChangesReturnType,
+  GetFilterLogsParameters,
+  GetFilterLogsReturnType,
+  GetGasPriceReturnType,
+  GetTransactionParameters,
+  GetTransactionConfirmationsParameters,
+  GetTransactionConfirmationsReturnType,
+  GetTransactionReceiptParameters,
+  GetTransactionReceiptReturnType,
+  GetTransactionReturnType,
+  UninstallFilterParameters,
+  UninstallFilterReturnType,
+  WaitForTransactionReceiptParameters,
+  WaitForTransactionReceiptReturnType,
+  WatchBlockNumberParameters,
+  WatchBlocksParameters,
+  WatchPendingTransactionsParameters,
+  GetLogsParameters,
+  GetLogsReturnType,
+  GetStorageAtParameters,
+  GetStorageAtReturnType,
+  MulticallParameters,
+  MulticallReturnType,
+  ReadContractParameters,
+  ReadContractReturnType,
+  SimulateContractParameters,
+  SimulateContractReturnType,
+  WatchContractEventParameters,
+  WatchEventParameters,
 } from '../../actions/public'
 import {
   call,
@@ -91,10 +91,10 @@ import {
   watchContractEvent,
 } from '../../actions/public'
 import type {
-  GetEnsAddressArgs,
-  GetEnsAddressResponse,
-  GetEnsNameArgs,
-  GetEnsNameResponse,
+  GetEnsAddressParameters,
+  GetEnsAddressReturnType,
+  GetEnsNameParameters,
+  GetEnsNameReturnType,
 } from '../../actions/ens'
 import { getEnsAddress, getEnsName } from '../../actions/ens'
 import type { PublicClient } from '../createPublicClient'
@@ -106,123 +106,140 @@ import {
 } from '../../types'
 
 export type PublicActions<TChain extends Chain = Chain> = {
-  call: (args: CallArgs<TChain>) => Promise<CallResponse>
-  createBlockFilter: () => Promise<CreateBlockFilterResponse>
+  call: (args: CallParameters<TChain>) => Promise<CallReturnType>
+  createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   createContractEventFilter: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
   >(
-    args: CreateContractEventFilterArgs<TAbi, TEventName, TArgs>,
-  ) => Promise<CreateContractEventFilterResponse<TAbi, TEventName, TArgs>>
+    args: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
+  ) => Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>>
   createEventFilter: <
     TAbiEvent extends AbiEvent | undefined,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
   >(
-    args?: CreateEventFilterArgs<TAbiEvent, TAbi, TEventName, TArgs>,
-  ) => Promise<CreateEventFilterResponse<TAbiEvent, TAbi, TEventName, TArgs>>
-  createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterResponse>
+    args?: CreateEventFilterParameters<TAbiEvent, TAbi, TEventName, TArgs>,
+  ) => Promise<CreateEventFilterReturnType<TAbiEvent, TAbi, TEventName, TArgs>>
+  createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterReturnType>
   estimateContractGas: <
     TChain extends Chain,
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
-    args: EstimateContractGasArgs<TChain, TAbi, TFunctionName>,
-  ) => Promise<EstimateContractGasResponse>
-  estimateGas: (args: EstimateGasArgs<TChain>) => Promise<EstimateGasResponse>
-  getBalance: (args: GetBalanceArgs) => Promise<GetBalanceResponse>
-  getBlock: (args?: GetBlockArgs) => Promise<GetBlockResponse<TChain>>
-  getBlockNumber: (args?: GetBlockNumberArgs) => Promise<GetBlockNumberResponse>
+    args: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+  ) => Promise<EstimateContractGasReturnType>
+  estimateGas: (
+    args: EstimateGasParameters<TChain>,
+  ) => Promise<EstimateGasReturnType>
+  getBalance: (args: GetBalanceParameters) => Promise<GetBalanceReturnType>
+  getBlock: (args?: GetBlockParameters) => Promise<GetBlockReturnType<TChain>>
+  getBlockNumber: (
+    args?: GetBlockNumberParameters,
+  ) => Promise<GetBlockNumberReturnType>
   getBlockTransactionCount: (
-    args?: GetBlockTransactionCountArgs,
-  ) => Promise<GetBlockTransactionCountResponse>
-  getBytecode: (args: GetBytecodeArgs) => Promise<GetBytecodeResponse>
-  getChainId: () => Promise<GetChainIdResponse>
-  getEnsAddress: (args: GetEnsAddressArgs) => Promise<GetEnsAddressResponse>
-  getEnsName: (args: GetEnsNameArgs) => Promise<GetEnsNameResponse>
-  getFeeHistory: (args: GetFeeHistoryArgs) => Promise<GetFeeHistoryResponse>
+    args?: GetBlockTransactionCountParameters,
+  ) => Promise<GetBlockTransactionCountReturnType>
+  getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
+  getChainId: () => Promise<GetChainIdReturnType>
+  getEnsAddress: (
+    args: GetEnsAddressParameters,
+  ) => Promise<GetEnsAddressReturnType>
+  getEnsName: (args: GetEnsNameParameters) => Promise<GetEnsNameReturnType>
+  getFeeHistory: (
+    args: GetFeeHistoryParameters,
+  ) => Promise<GetFeeHistoryReturnType>
   getFilterChanges: <
     TFilterType extends FilterType,
     TAbiEvent extends AbiEvent | undefined,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
   >(
-    args: GetFilterChangesArgs<TFilterType, TAbiEvent, TAbi, TEventName>,
+    args: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,
   ) => Promise<
-    GetFilterChangesResponse<TFilterType, TAbiEvent, TAbi, TEventName>
+    GetFilterChangesReturnType<TFilterType, TAbiEvent, TAbi, TEventName>
   >
   getFilterLogs: <
     TAbiEvent extends AbiEvent | undefined,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
   >(
-    args: GetFilterLogsArgs<TAbiEvent, TAbi, TEventName>,
-  ) => Promise<GetFilterLogsResponse<TAbiEvent, TAbi, TEventName>>
-  getGasPrice: () => Promise<GetGasPriceResponse>
+    args: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
+  ) => Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>>
+  getGasPrice: () => Promise<GetGasPriceReturnType>
   getLogs: <TAbiEvent extends AbiEvent | undefined>(
-    args?: GetLogsArgs<TAbiEvent>,
-  ) => Promise<GetLogsResponse<TAbiEvent>>
-  getStorageAt: (args: GetStorageAtArgs) => Promise<GetStorageAtResponse>
+    args?: GetLogsParameters<TAbiEvent>,
+  ) => Promise<GetLogsReturnType<TAbiEvent>>
+  getStorageAt: (
+    args: GetStorageAtParameters,
+  ) => Promise<GetStorageAtReturnType>
   getTransaction: (
-    args: GetTransactionArgs,
-  ) => Promise<GetTransactionResponse<TChain>>
+    args: GetTransactionParameters,
+  ) => Promise<GetTransactionReturnType<TChain>>
   getTransactionConfirmations: (
-    args: GetTransactionConfirmationsArgs<TChain>,
-  ) => Promise<GetTransactionConfirmationsResponse>
+    args: GetTransactionConfirmationsParameters<TChain>,
+  ) => Promise<GetTransactionConfirmationsReturnType>
   getTransactionReceipt: (
-    args: GetTransactionReceiptArgs,
-  ) => Promise<GetTransactionReceiptResponse<TChain>>
+    args: GetTransactionReceiptParameters,
+  ) => Promise<GetTransactionReceiptReturnType<TChain>>
   multicall: <
     TContracts extends ContractConfig[],
     TAllowFailure extends boolean = true,
   >(
-    args: MulticallArgs<TContracts, TAllowFailure>,
-  ) => Promise<MulticallResponse<TContracts, TAllowFailure>>
+    args: MulticallParameters<TContracts, TAllowFailure>,
+  ) => Promise<MulticallReturnType<TContracts, TAllowFailure>>
   readContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
-    args: ReadContractArgs<TAbi, TFunctionName>,
-  ) => Promise<ReadContractResponse>
+    args: ReadContractParameters<TAbi, TFunctionName>,
+  ) => Promise<ReadContractReturnType>
   simulateContract: <
     TAbi extends Abi | readonly unknown[] = Abi,
     TFunctionName extends string = any,
     TChainOverride extends Chain | undefined = undefined,
   >(
-    args: SimulateContractArgs<TChain, TAbi, TFunctionName, TChainOverride>,
+    args: SimulateContractParameters<
+      TChain,
+      TAbi,
+      TFunctionName,
+      TChainOverride
+    >,
   ) => Promise<
-    SimulateContractResponse<
+    SimulateContractReturnType<
       TChainOverride extends Chain ? TChainOverride : TChain,
       TAbi,
       TFunctionName
     >
   >
   uninstallFilter: (
-    args: UninstallFilterArgs,
-  ) => Promise<UninstallFilterResponse>
+    args: UninstallFilterParameters,
+  ) => Promise<UninstallFilterReturnType>
   waitForTransactionReceipt: (
-    args: WaitForTransactionReceiptArgs<TChain>,
-  ) => Promise<WaitForTransactionReceiptResponse<TChain>>
+    args: WaitForTransactionReceiptParameters<TChain>,
+  ) => Promise<WaitForTransactionReceiptReturnType<TChain>>
   watchBlockNumber: (
-    args: WatchBlockNumberArgs,
+    args: WatchBlockNumberParameters,
   ) => ReturnType<typeof watchBlockNumber>
-  watchBlocks: (args: WatchBlocksArgs<TChain>) => ReturnType<typeof watchBlocks>
+  watchBlocks: (
+    args: WatchBlocksParameters<TChain>,
+  ) => ReturnType<typeof watchBlocks>
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,
   >(
-    args: WatchContractEventArgs<TAbi, TEventName>,
+    args: WatchContractEventParameters<TAbi, TEventName>,
   ) => ReturnType<typeof watchContractEvent>
   watchEvent: <
     TAbiEvent extends AbiEvent | undefined,
     TEventName extends string | undefined,
   >(
-    args: WatchEventArgs<TAbiEvent>,
+    args: WatchEventParameters<TAbiEvent>,
   ) => ReturnType<typeof watchEvent>
   watchPendingTransactions: (
-    args: WatchPendingTransactionsArgs,
+    args: WatchPendingTransactionsParameters,
   ) => ReturnType<typeof watchPendingTransactions>
 }
 

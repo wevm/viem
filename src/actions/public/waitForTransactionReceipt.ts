@@ -8,33 +8,34 @@ import type { Chain, Hash, Transaction } from '../../types'
 import { observe } from '../../utils/observe'
 import { getBlock, watchBlockNumber } from '../public'
 
-import type { GetTransactionResponse } from './getTransaction'
+import type { GetTransactionReturnType } from './getTransaction'
 import { getTransaction } from './getTransaction'
-import type { GetTransactionReceiptResponse } from './getTransactionReceipt'
+import type { GetTransactionReceiptReturnType } from './getTransactionReceipt'
 import { getTransactionReceipt } from './getTransactionReceipt'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
-export type ReplacementResponse<TChain extends Chain = Chain> = {
+export type ReplacementReturnType<TChain extends Chain = Chain> = {
   reason: ReplacementReason
   replacedTransaction: Transaction
   transaction: Transaction
-  transactionReceipt: GetTransactionReceiptResponse<TChain>
+  transactionReceipt: GetTransactionReceiptReturnType<TChain>
 }
 
-export type WaitForTransactionReceiptResponse<TChain extends Chain = Chain> =
-  GetTransactionReceiptResponse<TChain>
+export type WaitForTransactionReceiptReturnType<TChain extends Chain = Chain> =
+  GetTransactionReceiptReturnType<TChain>
 
-export type WaitForTransactionReceiptArgs<TChain extends Chain = Chain> = {
-  /** The number of confirmations (blocks that have passed) to wait before resolving. */
-  confirmations?: number
-  /** The hash of the transaction. */
-  hash: Hash
-  onReplaced?: (response: ReplacementResponse<TChain>) => void
-  /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
-  pollingInterval?: number
-  /** Optional timeout (in milliseconds) to wait before stopping polling. */
-  timeout?: number
-}
+export type WaitForTransactionReceiptParameters<TChain extends Chain = Chain> =
+  {
+    /** The number of confirmations (blocks that have passed) to wait before resolving. */
+    confirmations?: number
+    /** The hash of the transaction. */
+    hash: Hash
+    onReplaced?: (response: ReplacementReturnType<TChain>) => void
+    /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
+    pollingInterval?: number
+    /** Optional timeout (in milliseconds) to wait before stopping polling. */
+    timeout?: number
+  }
 
 export async function waitForTransactionReceipt<TChain extends Chain>(
   client: PublicClient<any, TChain>,
@@ -44,17 +45,17 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
     onReplaced,
     pollingInterval = client.pollingInterval,
     timeout,
-  }: WaitForTransactionReceiptArgs<TChain>,
-): Promise<WaitForTransactionReceiptResponse<TChain>> {
+  }: WaitForTransactionReceiptParameters<TChain>,
+): Promise<WaitForTransactionReceiptReturnType<TChain>> {
   const observerId = JSON.stringify([
     'waitForTransactionReceipt',
     client.uid,
     hash,
   ])
 
-  let transaction: GetTransactionResponse<TChain> | undefined
-  let replacedTransaction: GetTransactionResponse<TChain> | undefined
-  let receipt: GetTransactionReceiptResponse<TChain>
+  let transaction: GetTransactionReturnType<TChain> | undefined
+  let replacedTransaction: GetTransactionReturnType<TChain> | undefined
+  let receipt: GetTransactionReceiptReturnType<TChain>
 
   return new Promise((resolve, reject) => {
     if (timeout)
@@ -63,7 +64,7 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
         timeout,
       )
 
-    const unobserve = observe(
+    const _unobserve = observe(
       observerId,
       { onReplaced, resolve, reject },
       (emit) => {
@@ -75,7 +76,7 @@ export async function waitForTransactionReceipt<TChain extends Chain>(
             const done = async (fn: () => void) => {
               unwatch()
               fn()
-              unobserve()
+              _unobserve()
             }
 
             try {

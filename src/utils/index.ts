@@ -1,19 +1,19 @@
 export type {
-  DecodeAbiParametersResponse,
-  DecodeErrorResultArgs,
-  DecodeErrorResultResponse,
-  DecodeEventLogArgs,
-  DecodeEventLogResponse,
-  DecodeFunctionDataArgs,
-  DecodeFunctionResultArgs,
-  DecodeFunctionResultResponse,
-  EncodeAbiParametersResponse,
-  EncodeDeployDataArgs,
-  EncodeErrorResultArgs,
-  EncodeEventTopicsArgs,
-  EncodeFunctionDataArgs,
-  EncodeFunctionResultArgs,
-  GetAbiItemArgs,
+  DecodeAbiParametersReturnType,
+  DecodeErrorResultParameters,
+  DecodeErrorResultReturnType,
+  DecodeEventLogParameters,
+  DecodeEventLogReturnType,
+  DecodeFunctionDataParameters,
+  DecodeFunctionResultParameters,
+  DecodeFunctionResultReturnType,
+  EncodeAbiParametersReturnType,
+  EncodeDeployDataParameters,
+  EncodeErrorResultParameters,
+  EncodeEventTopicsParameters,
+  EncodeFunctionDataParameters,
+  EncodeFunctionResultParameters,
+  GetAbiItemParameters,
   ParseAbi,
   ParseAbiItem,
   ParseAbiParameter,
@@ -107,7 +107,7 @@ export {
   transactionType,
 } from './formatters'
 
-export type { ToRlpResponse } from './encoding'
+export type { ToRlpReturnType } from './encoding'
 export {
   boolToBytes,
   boolToHex,

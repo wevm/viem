@@ -24,7 +24,7 @@ export function getCache<TData>(cacheKey: string) {
   }
 }
 
-export type WithCacheArgs = {
+export type WithCacheParameters = {
   /** The key to cache the data against. */
   cacheKey: string
   /** The maximum age (in ms) of the cached value. Default: Infinity (no expiry) */
@@ -37,7 +37,7 @@ export type WithCacheArgs = {
  */
 export async function withCache<TData>(
   fn: () => Promise<TData>,
-  { cacheKey, maxAge = Infinity }: WithCacheArgs,
+  { cacheKey, maxAge = Infinity }: WithCacheParameters,
 ) {
   const cache = getCache<TData>(cacheKey)
 

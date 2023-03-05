@@ -9,13 +9,14 @@ import { decodeAbiParameters } from './decodeAbiParameters'
 
 const docsPath = '/docs/contract/decodeDeployData'
 
-export type DecodeDeployDataArgs<TAbi extends Abi | readonly unknown[] = Abi> =
-  {
-    abi: TAbi
-    bytecode: Hex
-    data: Hex
-  }
-export type DecodeDeployDataResponse = {
+export type DecodeDeployDataParameters<
+  TAbi extends Abi | readonly unknown[] = Abi,
+> = {
+  abi: TAbi
+  bytecode: Hex
+  data: Hex
+}
+export type DecodeDeployDataReturnType = {
   args?: readonly unknown[] | undefined
   bytecode: Hex
 }
@@ -24,7 +25,7 @@ export function decodeDeployData<TAbi extends Abi | readonly unknown[]>({
   abi,
   bytecode,
   data,
-}: DecodeDeployDataArgs<TAbi>): DecodeDeployDataResponse {
+}: DecodeDeployDataParameters<TAbi>): DecodeDeployDataReturnType {
   if (data === bytecode) return { bytecode }
 
   const description = (abi as Abi).find(

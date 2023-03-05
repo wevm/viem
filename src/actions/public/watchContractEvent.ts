@@ -7,31 +7,31 @@ import type {
   Filter,
   Log,
 } from '../../types'
-import type { GetAbiItemArgs } from '../../utils'
+import type { GetAbiItemParameters } from '../../utils'
 import { getAbiItem } from '../../utils'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import {
   createContractEventFilter,
-  CreateContractEventFilterArgs,
+  CreateContractEventFilterParameters,
 } from './createContractEventFilter'
 import { getBlockNumber } from './getBlockNumber'
 import { getFilterChanges } from './getFilterChanges'
-import { getLogs, GetLogsArgs } from './getLogs'
+import { getLogs, GetLogsParameters } from './getLogs'
 import { uninstallFilter } from './uninstallFilter'
 
-export type OnLogsResponse<
+export type OnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
   TEventName extends string = string,
 > = TAbi extends Abi
   ? Log<bigint, number, ExtractAbiEvent<TAbi, TEventName>>[]
   : Log[]
-export type OnLogs<
+export type OnLogsFn<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
   TEventName extends string = string,
-> = (logs: OnLogsResponse<TAbi, TEventName>) => void
+> = (logs: OnLogsParameter<TAbi, TEventName>) => void
 
-export type WatchContractEventArgs<
+export type WatchContractEventParameters<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
   TEventName extends string = string,
 > = {
@@ -47,7 +47,7 @@ export type WatchContractEventArgs<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogs<TAbi, TEventName>
+  onLogs: OnLogsFn<TAbi, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 }
@@ -66,7 +66,7 @@ export function watchContractEvent<
     onError,
     onLogs,
     pollingInterval = client.pollingInterval,
-  }: WatchContractEventArgs<TAbi, TEventName>,
+  }: WatchContractEventParameters<TAbi, TEventName>,
 ) {
   const observerId = JSON.stringify([
     'watchContractEvent',
@@ -92,7 +92,7 @@ export function watchContractEvent<
               address,
               args,
               eventName,
-            } as unknown as CreateContractEventFilterArgs)) as Filter<
+            } as unknown as CreateContractEventFilterParameters)) as Filter<
               'event',
               TAbi,
               TEventName
@@ -125,8 +125,8 @@ export function watchContractEvent<
                 event: getAbiItem({
                   abi,
                   name: eventName,
-                } as unknown as GetAbiItemArgs),
-              } as unknown as GetLogsArgs)
+                } as unknown as GetAbiItemParameters),
+              } as unknown as GetLogsParameters)
             } else {
               logs = []
             }

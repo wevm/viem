@@ -5,14 +5,14 @@ import { decodeEventLog } from '../../utils'
 
 import { formatLog } from '../../utils/formatters/log'
 
-export type GetFilterLogsArgs<
+export type GetFilterLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   filter: Filter<'event', TAbi, TEventName, any>
 }
-export type GetFilterLogsResponse<
+export type GetFilterLogsReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
@@ -24,8 +24,8 @@ export async function getFilterLogs<
   TEventName extends string | undefined,
 >(
   client: PublicClient,
-  { filter }: GetFilterLogsArgs<TAbiEvent, TAbi, TEventName>,
-): Promise<GetFilterLogsResponse<TAbiEvent, TAbi, TEventName>> {
+  { filter }: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
+): Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>> {
   const logs = await client.request({
     method: 'eth_getFilterLogs',
     params: [filter.id],
@@ -40,5 +40,5 @@ export async function getFilterLogs<
           })
         : { eventName: undefined, args: undefined }
     return formatLog(log, { args, eventName })
-  }) as unknown as GetFilterLogsResponse<TAbiEvent, TAbi, TEventName>
+  }) as unknown as GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>
 }

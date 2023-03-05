@@ -1,4 +1,7 @@
-export type { GetEnsAddressArgs, GetEnsNameArgs } from './actions/ens'
+export type {
+  GetEnsAddressParameters,
+  GetEnsNameParameters,
+} from './actions/ens'
 export { getEnsAddress, getEnsName } from './actions/ens'
 
 export {

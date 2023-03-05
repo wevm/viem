@@ -25,7 +25,7 @@ export type FormattedCall<
   TransactionRequest
 >
 
-export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
+export type CallParameters<TChain extends Chain = Chain> = FormattedCall<
   TransactionRequestFormatter<TChain>
 > & {
   account?: Account
@@ -42,12 +42,12 @@ export type CallArgs<TChain extends Chain = Chain> = FormattedCall<
       }
   )
 
-export type CallResponse = { data: Hex | undefined }
+export type CallReturnType = { data: Hex | undefined }
 
 export async function call<TChain extends Chain>(
   client: PublicClient<any, TChain>,
-  args: CallArgs<TChain>,
-): Promise<CallResponse> {
+  args: CallParameters<TChain>,
+): Promise<CallReturnType> {
   const {
     account,
     blockNumber,

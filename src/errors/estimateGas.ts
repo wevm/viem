@@ -1,4 +1,4 @@
-import { EstimateGasArgs } from '../actions'
+import { EstimateGasParameters } from '../actions'
 import { Chain } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import { BaseError } from './base'
@@ -23,7 +23,7 @@ export class EstimateGasExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: EstimateGasArgs & { chain?: Chain; docsPath?: string },
+    }: EstimateGasParameters & { chain?: Chain; docsPath?: string },
   ) {
     const prettyArgs = prettyPrint({
       from: account.address,

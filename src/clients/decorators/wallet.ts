@@ -1,26 +1,26 @@
 import { Abi } from 'abitype'
 import {
-  AddChainArgs,
-  DeployContractArgs,
-  DeployContractResponse,
-  GetAddressesResponse,
+  AddChainParameters,
+  DeployContractParameters,
+  DeployContractReturnType,
+  GetAddressesReturnType,
   getChainId,
-  GetChainIdResponse,
-  GetPermissionsResponse,
-  RequestAddressesResponse,
-  RequestPermissionsArgs,
-  RequestPermissionsResponse,
-  SendTransactionArgs,
-  SendTransactionResponse,
-  SignMessageArgs,
-  SignMessageResponse,
-  SwitchChainArgs,
+  GetChainIdReturnType,
+  GetPermissionsReturnType,
+  RequestAddressesReturnType,
+  RequestPermissionsParameters,
+  RequestPermissionsReturnType,
+  SendTransactionParameters,
+  SendTransactionReturnType,
+  SignMessageParameters,
+  SignMessageReturnType,
+  SwitchChainParameters,
   watchAsset,
-  WatchAssetArgs,
-  WatchAssetResponse,
+  WatchAssetParameters,
+  WatchAssetReturnType,
   writeContract,
-  WriteContractArgs,
-  WriteContractResponse,
+  WriteContractParameters,
+  WriteContractReturnType,
 } from '../../actions/wallet'
 import {
   addChain,
@@ -37,30 +37,30 @@ import type { Chain } from '../../types'
 import type { WalletClient } from '../createWalletClient'
 
 export type WalletActions<TChain extends Chain = Chain> = {
-  addChain: (args: AddChainArgs) => Promise<void>
+  addChain: (args: AddChainParameters) => Promise<void>
   deployContract: <TAbi extends Abi | readonly unknown[]>(
-    args: DeployContractArgs<TChain, TAbi>,
-  ) => Promise<DeployContractResponse>
-  getAddresses: () => Promise<GetAddressesResponse>
-  getChainId: () => Promise<GetChainIdResponse>
-  getPermissions: () => Promise<GetPermissionsResponse>
-  requestAddresses: () => Promise<RequestAddressesResponse>
+    args: DeployContractParameters<TChain, TAbi>,
+  ) => Promise<DeployContractReturnType>
+  getAddresses: () => Promise<GetAddressesReturnType>
+  getChainId: () => Promise<GetChainIdReturnType>
+  getPermissions: () => Promise<GetPermissionsReturnType>
+  requestAddresses: () => Promise<RequestAddressesReturnType>
   requestPermissions: (
-    args: RequestPermissionsArgs,
-  ) => Promise<RequestPermissionsResponse>
+    args: RequestPermissionsParameters,
+  ) => Promise<RequestPermissionsReturnType>
   sendTransaction: <TChainOverride extends Chain>(
-    args: SendTransactionArgs<TChainOverride>,
-  ) => Promise<SendTransactionResponse>
-  signMessage: (args: SignMessageArgs) => Promise<SignMessageResponse>
-  switchChain: (args: SwitchChainArgs) => Promise<void>
-  watchAsset: (args: WatchAssetArgs) => Promise<WatchAssetResponse>
+    args: SendTransactionParameters<TChainOverride>,
+  ) => Promise<SendTransactionReturnType>
+  signMessage: (args: SignMessageParameters) => Promise<SignMessageReturnType>
+  switchChain: (args: SwitchChainParameters) => Promise<void>
+  watchAsset: (args: WatchAssetParameters) => Promise<WatchAssetReturnType>
   writeContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
     TChainOverride extends Chain,
   >(
-    args: WriteContractArgs<TChainOverride, TAbi, TFunctionName>,
-  ) => Promise<WriteContractResponse>
+    args: WriteContractParameters<TChainOverride, TAbi, TFunctionName>,
+  ) => Promise<WriteContractReturnType>
 }
 
 export const walletActions = <

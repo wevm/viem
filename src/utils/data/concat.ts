@@ -1,15 +1,14 @@
 import type { ByteArray, Hex } from '../../types'
 
-type ConcatResult<TValue extends Hex | ByteArray> = TValue extends Hex
-  ? Hex
-  : ByteArray
+export type ConcatReturnType<TValue extends Hex | ByteArray> =
+  TValue extends Hex ? Hex : ByteArray
 
 export function concat<TValue extends Hex | ByteArray>(
   values: TValue[],
-): ConcatResult<TValue> {
+): ConcatReturnType<TValue> {
   if (typeof values[0] === 'string')
-    return concatHex(values as Hex[]) as ConcatResult<TValue>
-  return concatBytes(values as ByteArray[]) as ConcatResult<TValue>
+    return concatHex(values as Hex[]) as ConcatReturnType<TValue>
+  return concatBytes(values as ByteArray[]) as ConcatReturnType<TValue>
 }
 
 export function concatBytes(values: ByteArray[]): ByteArray {

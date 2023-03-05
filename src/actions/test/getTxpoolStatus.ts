@@ -1,14 +1,14 @@
 import type { TestClient } from '../../clients'
 import { hexToNumber } from '../../utils'
 
-export type GetTxpoolStatusResponse = {
+export type GetTxpoolStatusReturnType = {
   pending: number
   queued: number
 }
 
 export async function getTxpoolStatus(
   client: TestClient,
-): Promise<GetTxpoolStatusResponse> {
+): Promise<GetTxpoolStatusReturnType> {
   const { pending, queued } = await client.request({
     method: 'txpool_status',
   })

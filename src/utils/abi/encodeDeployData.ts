@@ -10,17 +10,18 @@ import { encodeAbiParameters } from './encodeAbiParameters'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
-export type EncodeDeployDataArgs<TAbi extends Abi | readonly unknown[] = Abi> =
-  {
-    abi: Narrow<TAbi>
-    bytecode: Hex
-  } & ExtractConstructorArgsFromAbi<TAbi>
+export type EncodeDeployDataParameters<
+  TAbi extends Abi | readonly unknown[] = Abi,
+> = {
+  abi: Narrow<TAbi>
+  bytecode: Hex
+} & ExtractConstructorArgsFromAbi<TAbi>
 
 export function encodeDeployData<TAbi extends Abi | readonly unknown[]>({
   abi,
   args,
   bytecode,
-}: EncodeDeployDataArgs<TAbi>) {
+}: EncodeDeployDataParameters<TAbi>) {
   if (!args || args.length === 0) return bytecode
 
   const description = (abi as Abi).find(

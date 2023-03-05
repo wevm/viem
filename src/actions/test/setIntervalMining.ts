@@ -1,13 +1,13 @@
 import type { TestClient } from '../../clients'
 
-export type SetIntervalMiningArgs = {
+export type SetIntervalMiningParameters = {
   /** The mining interval. */
   interval: number
 }
 
 export async function setIntervalMining(
   client: TestClient,
-  { interval }: SetIntervalMiningArgs,
+  { interval }: SetIntervalMiningParameters,
 ) {
   return await client.request({
     method: 'evm_setIntervalMining',

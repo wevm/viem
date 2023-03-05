@@ -4,7 +4,7 @@ import type { BlockTag, FeeHistory } from '../../types'
 import { numberToHex } from '../../utils'
 import { formatFeeHistory } from '../../utils/formatters'
 
-export type GetFeeHistoryArgs = {
+export type GetFeeHistoryParameters = {
   blockCount: number
   rewardPercentiles: number[]
 } & (
@@ -17,7 +17,7 @@ export type GetFeeHistoryArgs = {
       blockTag?: never
     }
 )
-export type GetFeeHistoryResponse = FeeHistory
+export type GetFeeHistoryReturnType = FeeHistory
 
 /**
  * @description Returns a collection of historical gas information.
@@ -29,8 +29,8 @@ export async function getFeeHistory(
     blockNumber,
     blockTag = 'latest',
     rewardPercentiles,
-  }: GetFeeHistoryArgs,
-): Promise<GetFeeHistoryResponse> {
+  }: GetFeeHistoryParameters,
+): Promise<GetFeeHistoryReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
   const feeHistory = await client.request({
     method: 'eth_feeHistory',

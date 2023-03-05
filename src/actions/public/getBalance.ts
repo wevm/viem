@@ -2,7 +2,7 @@ import type { PublicClient } from '../../clients'
 import type { Address, BlockTag } from '../../types'
 import { numberToHex } from '../../utils'
 
-export type GetBalanceArgs = {
+export type GetBalanceParameters = {
   /** The address of the account. */
   address: Address
 } & (
@@ -18,15 +18,15 @@ export type GetBalanceArgs = {
     }
 )
 
-export type GetBalanceResponse = bigint
+export type GetBalanceReturnType = bigint
 
 /**
  * @description Returns the balance of an address in wei.
  */
 export async function getBalance(
   client: PublicClient,
-  { address, blockNumber, blockTag = 'latest' }: GetBalanceArgs,
-): Promise<GetBalanceResponse> {
+  { address, blockNumber, blockTag = 'latest' }: GetBalanceParameters,
+): Promise<GetBalanceReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
   const balance = await client.request({

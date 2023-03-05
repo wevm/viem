@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import type { Address, PublicClient } from 'viem'
-import type { GetTransactionArgs, GetTransactionResponse } from 'viem/public'
+import type {
+  GetTransactionParameters,
+  GetTransactionReturnType,
+} from 'viem/public'
 
 export function GetTransaction({ client }: { client: PublicClient }) {
   return (
@@ -14,7 +17,7 @@ export function GetTransaction({ client }: { client: PublicClient }) {
 }
 
 function GetTransactionByHash({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<GetTransactionResponse>()
+  const [transaction, setTransaction] = useState<GetTransactionReturnType>()
 
   const [hash, setHash] = useState<Address>(
     '0x43261d2aa0783f4648cec5c0552f69b6d94e5f1943dea60b9117f0d152a68f11',
@@ -52,7 +55,7 @@ function GetTransactionByHash({ client }: { client: PublicClient }) {
 }
 
 function GetTransactionByHashAndIndex({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<GetTransactionResponse>()
+  const [transaction, setTransaction] = useState<GetTransactionReturnType>()
 
   const [blockHash, setBlockHash] = useState<Address>(
     '0x5e57b4239379e3b03da75ddb8ef75effd8fb98e641a1177a8c146787f7c062ed',
@@ -98,7 +101,7 @@ function GetTransactionByHashAndIndex({ client }: { client: PublicClient }) {
 }
 
 function GetTransactionByNumberAndIndex({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<GetTransactionResponse>()
+  const [transaction, setTransaction] = useState<GetTransactionReturnType>()
 
   const [blockNumber, setBlockNumber] = useState<string>('15394198')
   const [index, setIndex] = useState<string>('0')
@@ -145,10 +148,10 @@ function GetTransactionByNumberAndIndex({ client }: { client: PublicClient }) {
 }
 
 function GetTransactionByTagAndIndex({ client }: { client: PublicClient }) {
-  const [transaction, setTransaction] = useState<GetTransactionResponse>()
+  const [transaction, setTransaction] = useState<GetTransactionReturnType>()
 
   const [blockTag, setBlockTag] =
-    useState<GetTransactionArgs['blockTag']>('latest')
+    useState<GetTransactionParameters['blockTag']>('latest')
   const [index, setIndex] = useState<string>('0')
 
   const handleGetTransaction = async () => {
@@ -170,7 +173,9 @@ function GetTransactionByTagAndIndex({ client }: { client: PublicClient }) {
           <input
             placeholder="block tag (latest)"
             onChange={(e) =>
-              setBlockTag(e.target.value as GetTransactionArgs['blockTag'])
+              setBlockTag(
+                e.target.value as GetTransactionParameters['blockTag'],
+              )
             }
             value={blockTag}
           />

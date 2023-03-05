@@ -4,21 +4,25 @@ import type { PublicClient } from '../../clients'
 import { BaseError } from '../../errors'
 import type { Chain, ContractConfig, GetValue } from '../../types'
 import {
-  EncodeFunctionDataArgs,
+  EncodeFunctionDataParameters,
   encodeFunctionData,
   getContractError,
 } from '../../utils'
-import { estimateGas, EstimateGasArgs } from './estimateGas'
+import { estimateGas, EstimateGasParameters } from './estimateGas'
 
-export type EstimateContractGasArgs<
+export type EstimateContractGasParameters<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
-> = Omit<EstimateGasArgs<TChain>, 'data' | 'to' | 'value'> &
+> = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
   ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
-    value?: GetValue<TAbi, TFunctionName, EstimateGasArgs<TChain>['value']>
+    value?: GetValue<
+      TAbi,
+      TFunctionName,
+      EstimateGasParameters<TChain>['value']
+    >
   }
-export type EstimateContractGasResponse = bigint
+export type EstimateContractGasReturnType = bigint
 
 export async function estimateContractGas<
   TChain extends Chain,
@@ -32,19 +36,19 @@ export async function estimateContractGas<
     args,
     functionName,
     ...request
-  }: EstimateContractGasArgs<TChain, TAbi, TFunctionName>,
-): Promise<EstimateContractGasResponse> {
+  }: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+): Promise<EstimateContractGasReturnType> {
   const data = encodeFunctionData({
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataArgs<TAbi, TFunctionName>)
+  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   try {
     const gas = await estimateGas(client, {
       data,
       to: address,
       ...request,
-    } as unknown as EstimateGasArgs<TChain>)
+    } as unknown as EstimateGasParameters<TChain>)
     return gas
   } catch (err) {
     throw getContractError(err as BaseError, {

@@ -147,7 +147,7 @@ describe('http', () => {
   })
 
   test('http error', async () => {
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       res.writeHead(500, {
         'Content-Type': 'application/json',
       })
@@ -174,7 +174,7 @@ describe('http', () => {
   })
 
   test('http error', async () => {
-    const server = await createHttpServer((req, res) => {
+    const server = await createHttpServer((_req, res) => {
       res.writeHead(500)
       res.end()
     })

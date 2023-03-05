@@ -1,28 +1,28 @@
 import type {
-  DropTransactionArgs,
-  GetAutomineResponse,
-  GetTxpoolContentResponse,
-  GetTxpoolStatusResponse,
-  ImpersonateAccountArgs,
-  IncreaseTimeArgs,
-  InspectTxpoolResponse,
-  MineArgs,
-  ResetArgs,
-  RevertArgs,
-  SendUnsignedTransactionArgs,
-  SendUnsignedTransactionResponse,
-  SetBalanceArgs,
-  SetBlockGasLimitArgs,
-  SetBlockTimestampIntervalArgs,
-  SetCodeArgs,
-  SetCoinbaseArgs,
-  SetIntervalMiningArgs,
-  SetMinGasPriceArgs,
-  SetNextBlockBaseFeePerGasArgs,
-  SetNextBlockTimestampArgs,
-  SetNonceArgs,
-  SetStorageAtArgs,
-  StopImpersonatingAccountArgs,
+  DropTransactionParameters,
+  GetAutomineReturnType,
+  GetTxpoolContentReturnType,
+  GetTxpoolStatusReturnType,
+  ImpersonateAccountParameters,
+  IncreaseTimeParameters,
+  InspectTxpoolReturnType,
+  MineParameters,
+  ResetParameters,
+  RevertParameters,
+  SendUnsignedTransactionParameters,
+  SendUnsignedTransactionReturnType,
+  SetBalanceParameters,
+  SetBlockGasLimitParameters,
+  SetBlockTimestampIntervalParameters,
+  SetCodeParameters,
+  SetCoinbaseParameters,
+  SetIntervalMiningParameters,
+  SetMinGasPriceParameters,
+  SetNextBlockBaseFeePerGasParameters,
+  SetNextBlockTimestampParameters,
+  SetNonceParameters,
+  SetStorageAtParameters,
+  StopImpersonatingAccountParameters,
 } from '../../actions/test'
 import {
   dropTransaction,
@@ -58,41 +58,43 @@ import { Chain, Quantity } from '../../types'
 import type { TestClient } from '../createTestClient'
 
 export type TestActions<TChain extends Chain = Chain> = {
-  dropTransaction: (args: DropTransactionArgs) => Promise<void>
-  getAutomine: () => Promise<GetAutomineResponse>
-  getTxpoolContent: () => Promise<GetTxpoolContentResponse>
-  getTxpoolStatus: () => Promise<GetTxpoolStatusResponse>
-  impersonateAccount: (args: ImpersonateAccountArgs) => Promise<void>
-  increaseTime: (args: IncreaseTimeArgs) => Promise<Quantity>
-  inspectTxpool: () => Promise<InspectTxpoolResponse>
-  mine: (args: MineArgs) => Promise<void>
+  dropTransaction: (args: DropTransactionParameters) => Promise<void>
+  getAutomine: () => Promise<GetAutomineReturnType>
+  getTxpoolContent: () => Promise<GetTxpoolContentReturnType>
+  getTxpoolStatus: () => Promise<GetTxpoolStatusReturnType>
+  impersonateAccount: (args: ImpersonateAccountParameters) => Promise<void>
+  increaseTime: (args: IncreaseTimeParameters) => Promise<Quantity>
+  inspectTxpool: () => Promise<InspectTxpoolReturnType>
+  mine: (args: MineParameters) => Promise<void>
   removeBlockTimestampInterval: () => Promise<void>
-  reset: (args?: ResetArgs) => Promise<void>
-  revert: (args: RevertArgs) => Promise<void>
+  reset: (args?: ResetParameters) => Promise<void>
+  revert: (args: RevertParameters) => Promise<void>
   sendUnsignedTransaction: (
-    args: SendUnsignedTransactionArgs,
-  ) => Promise<SendUnsignedTransactionResponse>
+    args: SendUnsignedTransactionParameters,
+  ) => Promise<SendUnsignedTransactionReturnType>
   setAutomine: (args: boolean) => Promise<void>
-  setBalance: (args: SetBalanceArgs) => Promise<void>
-  setBlockGasLimit: (args: SetBlockGasLimitArgs) => Promise<void>
+  setBalance: (args: SetBalanceParameters) => Promise<void>
+  setBlockGasLimit: (args: SetBlockGasLimitParameters) => Promise<void>
   setBlockTimestampInterval: (
-    args: SetBlockTimestampIntervalArgs,
+    args: SetBlockTimestampIntervalParameters,
   ) => Promise<void>
-  setCode: (args: SetCodeArgs) => Promise<void>
-  setCoinbase: (args: SetCoinbaseArgs) => Promise<void>
-  setIntervalMining: (args: SetIntervalMiningArgs) => Promise<void>
+  setCode: (args: SetCodeParameters) => Promise<void>
+  setCoinbase: (args: SetCoinbaseParameters) => Promise<void>
+  setIntervalMining: (args: SetIntervalMiningParameters) => Promise<void>
   setLoggingEnabled: (args: boolean) => Promise<void>
-  setMinGasPrice: (args: SetMinGasPriceArgs) => Promise<void>
+  setMinGasPrice: (args: SetMinGasPriceParameters) => Promise<void>
   setNextBlockBaseFeePerGas: (
-    args: SetNextBlockBaseFeePerGasArgs,
+    args: SetNextBlockBaseFeePerGasParameters,
   ) => Promise<void>
-  setNextBlockTimestamp: (args: SetNextBlockTimestampArgs) => Promise<void>
-  setNonce: (args: SetNonceArgs) => Promise<void>
+  setNextBlockTimestamp: (
+    args: SetNextBlockTimestampParameters,
+  ) => Promise<void>
+  setNonce: (args: SetNonceParameters) => Promise<void>
   setRpcUrl: (args: string) => Promise<void>
-  setStorageAt: (args: SetStorageAtArgs) => Promise<void>
+  setStorageAt: (args: SetStorageAtParameters) => Promise<void>
   snapshot: () => Promise<Quantity>
   stopImpersonatingAccount: (
-    args: StopImpersonatingAccountArgs,
+    args: StopImpersonatingAccountParameters,
   ) => Promise<void>
 }
 

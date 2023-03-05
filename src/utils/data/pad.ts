@@ -5,17 +5,17 @@ type PadOptions = {
   dir?: 'left' | 'right'
   size?: number | null
 }
-type PadResult<TValue extends ByteArray | Hex> = TValue extends Hex
+export type PadReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex
   : ByteArray
 
 export function pad<TValue extends ByteArray | Hex>(
   hexOrBytes: TValue,
   { dir, size = 32 }: PadOptions = {},
-): PadResult<TValue> {
+): PadReturnType<TValue> {
   if (typeof hexOrBytes === 'string')
-    return padHex(hexOrBytes, { dir, size }) as PadResult<TValue>
-  return padBytes(hexOrBytes, { dir, size }) as PadResult<TValue>
+    return padHex(hexOrBytes, { dir, size }) as PadReturnType<TValue>
+  return padBytes(hexOrBytes, { dir, size }) as PadReturnType<TValue>
 }
 
 export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {

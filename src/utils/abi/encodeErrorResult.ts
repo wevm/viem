@@ -12,11 +12,11 @@ import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
+import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 
-export type EncodeErrorResultArgs<
+export type EncodeErrorResultParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TErrorName extends string = string,
 > = {
@@ -27,12 +27,12 @@ export type EncodeErrorResultArgs<
 export function encodeErrorResult<
   TAbi extends Abi | readonly unknown[],
   TErrorName extends string,
->({ abi, errorName, args }: EncodeErrorResultArgs<TAbi, TErrorName>) {
+>({ abi, errorName, args }: EncodeErrorResultParameters<TAbi, TErrorName>) {
   const description = getAbiItem({
     abi,
     args,
     name: errorName,
-  } as GetAbiItemArgs)
+  } as GetAbiItemParameters)
   if (!description) throw new AbiErrorNotFoundError(errorName, { docsPath })
   const definition = formatAbiItem(description)
   const signature = getFunctionSelector(definition)

@@ -8,17 +8,17 @@ import type {
 } from '../../utils/formatters/transactionReceipt'
 import { formatTransactionReceipt } from '../../utils/formatters/transactionReceipt'
 
-export type GetTransactionReceiptArgs = {
+export type GetTransactionReceiptParameters = {
   /** The hash of the transaction. */
   hash: Hash
 }
 
-export type GetTransactionReceiptResponse<TChain extends Chain = Chain> =
+export type GetTransactionReceiptReturnType<TChain extends Chain = Chain> =
   FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
 
 export async function getTransactionReceipt<TChain extends Chain>(
   client: PublicClient<any, TChain>,
-  { hash }: GetTransactionReceiptArgs,
+  { hash }: GetTransactionReceiptParameters,
 ) {
   const receipt = await client.request({
     method: 'eth_getTransactionReceipt',
@@ -30,5 +30,5 @@ export async function getTransactionReceipt<TChain extends Chain>(
   return format(receipt, {
     formatter:
       client.chain?.formatters?.transactionReceipt || formatTransactionReceipt,
-  }) as GetTransactionReceiptResponse<TChain>
+  }) as GetTransactionReceiptReturnType<TChain>
 }

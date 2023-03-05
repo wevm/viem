@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnTransactionsResponse } from './watchPendingTransactions'
+import type { OnTransactionsParameter } from './watchPendingTransactions'
 import * as createPendingTransactionFilter from './createPendingTransactionFilter'
 import * as getFilterChanges from './getFilterChanges'
 import { watchPendingTransactions } from './watchPendingTransactions'
@@ -16,7 +16,7 @@ test(
     await setIntervalMining(testClient, { interval: 0 })
     await wait(1000)
 
-    let transactions: OnTransactionsResponse = []
+    let transactions: OnTransactionsParameter = []
     const unwatch = watchPendingTransactions(publicClient, {
       onTransactions: (transactions_) => {
         transactions = [...transactions, ...transactions_]
@@ -48,7 +48,7 @@ test('watches for pending transactions (unbatched)', async () => {
   await setIntervalMining(testClient, { interval: 0 })
   await wait(1000)
 
-  let transactions: OnTransactionsResponse = []
+  let transactions: OnTransactionsParameter = []
   const unwatch = watchPendingTransactions(publicClient, {
     batch: false,
     onTransactions: (transactions_) => {

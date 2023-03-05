@@ -2,7 +2,7 @@ import type { ByteArray, Hex } from '../../types'
 import { isHex } from './isHex'
 import { size } from './size'
 
-type SliceResult<TValue extends ByteArray | Hex> = TValue extends Hex
+export type SliceReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex
   : ByteArray
 
@@ -17,10 +17,10 @@ export function slice<TValue extends ByteArray | Hex>(
   value: TValue,
   start?: number,
   end?: number,
-): SliceResult<TValue> {
+): SliceReturnType<TValue> {
   if (isHex(value))
-    return sliceHex(value as Hex, start, end) as SliceResult<TValue>
-  return sliceBytes(value as ByteArray, start, end) as SliceResult<TValue>
+    return sliceHex(value as Hex, start, end) as SliceReturnType<TValue>
+  return sliceBytes(value as ByteArray, start, end) as SliceReturnType<TValue>
 }
 
 function assertStartOffset(value: Hex | ByteArray, start?: number) {

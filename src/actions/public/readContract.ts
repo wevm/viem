@@ -4,21 +4,21 @@ import type { PublicClient } from '../../clients'
 import { BaseError } from '../../errors'
 import type { ContractConfig, ExtractResultFromAbi } from '../../types'
 import {
-  EncodeFunctionDataArgs,
+  EncodeFunctionDataParameters,
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
-  DecodeFunctionResultArgs,
+  DecodeFunctionResultParameters,
 } from '../../utils'
-import { call, CallArgs } from './call'
+import { call, CallParameters } from './call'
 
-export type ReadContractArgs<
+export type ReadContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = Pick<CallArgs, 'blockNumber' | 'blockTag'> &
+> = Pick<CallParameters, 'blockNumber' | 'blockTag'> &
   ContractConfig<TAbi, TFunctionName, 'view' | 'pure'>
 
-export type ReadContractResponse<
+export type ReadContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
 > = ExtractResultFromAbi<TAbi, TFunctionName>
@@ -34,25 +34,25 @@ export async function readContract<
     args,
     functionName,
     ...callRequest
-  }: ReadContractArgs<TAbi, TFunctionName>,
-): Promise<ReadContractResponse<TAbi, TFunctionName>> {
+  }: ReadContractParameters<TAbi, TFunctionName>,
+): Promise<ReadContractReturnType<TAbi, TFunctionName>> {
   const calldata = encodeFunctionData({
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataArgs<TAbi, TFunctionName>)
+  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   try {
     const { data } = await call(client, {
       data: calldata,
       to: address,
       ...callRequest,
-    } as unknown as CallArgs)
+    } as unknown as CallParameters)
     return decodeFunctionResult({
       abi,
       args,
       functionName,
       data: data || '0x',
-    } as DecodeFunctionResultArgs<TAbi, TFunctionName>)
+    } as DecodeFunctionResultParameters<TAbi, TFunctionName>)
   } catch (err) {
     throw getContractError(err as BaseError, {
       abi: abi as Abi,

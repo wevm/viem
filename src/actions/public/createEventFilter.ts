@@ -11,12 +11,12 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
 import {
-  EncodeEventTopicsArgs,
+  EncodeEventTopicsParameters,
   encodeEventTopics,
   numberToHex,
 } from '../../utils'
 
-export type CreateEventFilterArgs<
+export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
@@ -51,7 +51,7 @@ export type CreateEventFilterArgs<
       event?: never
     })
 
-export type CreateEventFilterResponse<
+export type CreateEventFilterReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
@@ -75,15 +75,20 @@ export async function createEventFilter<
     event,
     fromBlock,
     toBlock,
-  }: CreateEventFilterArgs<TAbiEvent, TAbi, TEventName, TArgs> = {} as any,
-): Promise<CreateEventFilterResponse<TAbiEvent, TAbi, TEventName, TArgs>> {
+  }: CreateEventFilterParameters<
+    TAbiEvent,
+    TAbi,
+    TEventName,
+    TArgs
+  > = {} as any,
+): Promise<CreateEventFilterReturnType<TAbiEvent, TAbi, TEventName, TArgs>> {
   let topics: LogTopic[] = []
   if (event)
     topics = encodeEventTopics({
       abi: [event],
       eventName: event.name,
       args,
-    } as EncodeEventTopicsArgs)
+    } as EncodeEventTopicsParameters)
 
   const id = await client.request({
     method: 'eth_newFilter',
@@ -103,5 +108,10 @@ export async function createEventFilter<
     eventName: event ? event.name : undefined,
     id,
     type: 'event',
-  } as unknown as CreateEventFilterResponse<TAbiEvent, TAbi, TEventName, TArgs>
+  } as unknown as CreateEventFilterReturnType<
+    TAbiEvent,
+    TAbi,
+    TEventName,
+    TArgs
+  >
 }

@@ -1,7 +1,7 @@
 export type {
-  DecodeAbiParametersResponse,
-  EncodeAbiParametersResponse,
-  GetAbiItemArgs,
+  DecodeAbiParametersReturnType,
+  EncodeAbiParametersReturnType,
+  GetAbiItemParameters,
   ParseAbi,
   ParseAbiItem,
   ParseAbiParameter,

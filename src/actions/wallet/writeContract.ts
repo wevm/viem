@@ -2,22 +2,26 @@ import { Abi } from 'abitype'
 
 import type { WalletClient } from '../../clients'
 import type { Chain, ContractConfig, GetValue } from '../../types'
-import { EncodeFunctionDataArgs, encodeFunctionData } from '../../utils'
+import { EncodeFunctionDataParameters, encodeFunctionData } from '../../utils'
 import {
   sendTransaction,
-  SendTransactionArgs,
-  SendTransactionResponse,
+  SendTransactionParameters,
+  SendTransactionReturnType,
 } from './sendTransaction'
 
-export type WriteContractArgs<
+export type WriteContractParameters<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = Omit<SendTransactionArgs<TChain>, 'to' | 'data' | 'value'> & {
-  value?: GetValue<TAbi, TFunctionName, SendTransactionArgs<TChain>['value']>
+> = Omit<SendTransactionParameters<TChain>, 'to' | 'data' | 'value'> & {
+  value?: GetValue<
+    TAbi,
+    TFunctionName,
+    SendTransactionParameters<TChain>['value']
+  >
 } & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 
-export type WriteContractResponse = SendTransactionResponse
+export type WriteContractReturnType = SendTransactionReturnType
 
 export async function writeContract<
   TChain extends Chain,
@@ -31,17 +35,17 @@ export async function writeContract<
     args,
     functionName,
     ...request
-  }: WriteContractArgs<TChain, TAbi, TFunctionName>,
-): Promise<WriteContractResponse> {
+  }: WriteContractParameters<TChain, TAbi, TFunctionName>,
+): Promise<WriteContractReturnType> {
   const data = encodeFunctionData({
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataArgs<TAbi, TFunctionName>)
+  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   const hash = await sendTransaction(client, {
     data,
     to: address,
     ...request,
-  } as unknown as SendTransactionArgs<TChain>)
+  } as unknown as SendTransactionParameters<TChain>)
   return hash
 }

@@ -11,7 +11,7 @@ import { decodeEventLog } from '../../utils'
 
 import { formatLog } from '../../utils/formatters/log'
 
-export type GetFilterChangesArgs<
+export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
@@ -20,7 +20,7 @@ export type GetFilterChangesArgs<
   filter: Filter<TFilterType, TAbi, TEventName, any>
 }
 
-export type GetFilterChangesResponse<
+export type GetFilterChangesReturnType<
   TFilterType extends FilterType = FilterType,
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
@@ -36,7 +36,9 @@ export async function getFilterChanges<
   TEventName extends string | undefined,
 >(
   client: PublicClient,
-  { filter }: GetFilterChangesArgs<TFilterType, TAbiEvent, TAbi, TEventName>,
+  {
+    filter,
+  }: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,
 ) {
   const logs = await client.request({
     method: 'eth_getFilterChanges',
@@ -53,5 +55,5 @@ export async function getFilterChanges<
           })
         : { eventName: undefined, args: undefined }
     return formatLog(log, { args, eventName })
-  }) as GetFilterChangesResponse<TFilterType, TAbiEvent, TAbi, TEventName>
+  }) as GetFilterChangesReturnType<TFilterType, TAbiEvent, TAbi, TEventName>
 }

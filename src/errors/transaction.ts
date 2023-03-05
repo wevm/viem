@@ -1,6 +1,6 @@
 import { BlockTag, Hash } from '../types'
 import { formatEther, formatGwei } from '../utils'
-import { SendTransactionArgs } from '../wallet'
+import { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'
 
 export function prettyPrint(
@@ -49,7 +49,7 @@ export class TransactionExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: SendTransactionArgs & { docsPath?: string },
+    }: SendTransactionParameters & { docsPath?: string },
   ) {
     const prettyArgs = prettyPrint({
       chain: chain && `${chain?.name} (id: ${chain?.id})`,

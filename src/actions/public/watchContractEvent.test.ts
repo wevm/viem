@@ -24,7 +24,7 @@ import * as createContractEventFilter from './createContractEventFilter'
 import * as getBlockNumber from './getBlockNumber'
 import * as getFilterChanges from './getFilterChanges'
 import * as getLogs from './getLogs'
-import { OnLogsResponse, watchContractEvent } from './watchContractEvent'
+import { OnLogsParameter, watchContractEvent } from './watchContractEvent'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {
@@ -47,7 +47,7 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
+    let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
     const unwatch = watchContractEvent(publicClient, {
       abi: usdcContractConfig.abi,
@@ -116,7 +116,7 @@ test(
 )
 
 test('args: batch', async () => {
-  let logs: OnLogsResponse[] = []
+  let logs: OnLogsParameter[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -154,7 +154,7 @@ test('args: batch', async () => {
 })
 
 test('args: eventName', async () => {
-  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
+  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -210,7 +210,7 @@ test('args: eventName', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
+  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -256,7 +256,7 @@ test('args: args', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
+  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -308,7 +308,7 @@ test('args: args', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsResponse<typeof usdcContractConfig.abi>[] = []
+  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -374,7 +374,7 @@ test('args: args unnamed', async () => {
       ],
     },
   ] as const
-  let logs: OnLogsResponse<typeof unnamedAbi>[] = []
+  let logs: OnLogsParameter<typeof unnamedAbi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -436,7 +436,7 @@ test(
       'createContractEventFilter',
     ).mockRejectedValueOnce(new Error('foo'))
 
-    let logs: OnLogsResponse[] = []
+    let logs: OnLogsParameter[] = []
 
     const unwatch = watchContractEvent(publicClient, {
       abi: usdcContractConfig.abi,

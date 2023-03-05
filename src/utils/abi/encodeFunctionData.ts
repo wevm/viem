@@ -6,9 +6,9 @@ import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemArgs } from './getAbiItem'
+import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
 
-export type EncodeFunctionDataArgs<
+export type EncodeFunctionDataParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
 > = {
@@ -19,12 +19,16 @@ export type EncodeFunctionDataArgs<
 export function encodeFunctionData<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
->({ abi, args, functionName }: EncodeFunctionDataArgs<TAbi, TFunctionName>) {
+>({
+  abi,
+  args,
+  functionName,
+}: EncodeFunctionDataParameters<TAbi, TFunctionName>) {
   const description = getAbiItem({
     abi,
     args,
     name: functionName,
-  } as GetAbiItemArgs)
+  } as GetAbiItemParameters)
   if (!description)
     throw new AbiFunctionNotFoundError(functionName, {
       docsPath: '/docs/contract/encodeFunctionData',

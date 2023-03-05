@@ -1,7 +1,7 @@
 import type { TestClient } from '../../clients'
 import type { Address, Hex } from '../../types'
 
-export type SetCodeArgs = {
+export type SetCodeParameters = {
   /** The account address. */
   address: Address
   /** The bytecode to set */
@@ -10,7 +10,7 @@ export type SetCodeArgs = {
 
 export async function setCode(
   client: TestClient,
-  { address, bytecode }: SetCodeArgs,
+  { address, bytecode }: SetCodeParameters,
 ) {
   return await client.request({
     method: `${client.mode}_setCode`,

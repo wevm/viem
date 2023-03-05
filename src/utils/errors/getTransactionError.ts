@@ -1,5 +1,5 @@
 import { BaseError, TransactionExecutionError } from '../../errors'
-import { SendTransactionArgs } from '../../wallet'
+import { SendTransactionParameters } from '../../wallet'
 import { containsNodeError, getNodeError } from './getNodeError'
 
 export function getTransactionError(
@@ -7,7 +7,7 @@ export function getTransactionError(
   {
     docsPath,
     ...args
-  }: SendTransactionArgs & {
+  }: SendTransactionParameters & {
     docsPath?: string
   },
 ) {

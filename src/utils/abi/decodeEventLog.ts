@@ -11,7 +11,7 @@ import { getEventSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
-export type DecodeEventLogArgs<
+export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string = string,
   TTopics extends LogTopic[] = LogTopic[],
@@ -23,7 +23,7 @@ export type DecodeEventLogArgs<
   topics: [signature: Hex, ...args: TTopics]
 }
 
-export type DecodeEventLogResponse<
+export type DecodeEventLogReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string = string,
   TTopics extends LogTopic[] = LogTopic[],
@@ -41,12 +41,12 @@ export function decodeEventLog<
   abi,
   data,
   topics,
-}: DecodeEventLogArgs<
+}: DecodeEventLogParameters<
   TAbi,
   TEventName,
   TTopics,
   TData
->): DecodeEventLogResponse<TAbi, TEventName, TTopics, TData> {
+>): DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData> {
   const [signature, ...argTopics] = topics
   const abiItem = (abi as Abi).find(
     (x) => signature === getEventSelector(formatAbiItem(x) as EventDefinition),
@@ -91,7 +91,7 @@ export function decodeEventLog<
   return {
     eventName: name,
     args: Object.values(args).length > 0 ? args : undefined,
-  } as unknown as DecodeEventLogResponse<TAbi, TEventName, TTopics, TData>
+  } as unknown as DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData>
 }
 
 function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {

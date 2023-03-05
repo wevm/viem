@@ -2,7 +2,7 @@ import { PublicClient } from '../../clients'
 import { Address, BlockTag, Hex } from '../../types'
 import { numberToHex } from '../../utils'
 
-export type GetBytecodeArgs = {
+export type GetBytecodeParameters = {
   address: Address
 } & (
   | {
@@ -15,12 +15,12 @@ export type GetBytecodeArgs = {
     }
 )
 
-export type GetBytecodeResponse = Hex | undefined
+export type GetBytecodeReturnType = Hex | undefined
 
 export async function getBytecode(
   client: PublicClient,
-  { address, blockNumber, blockTag = 'latest' }: GetBytecodeArgs,
-): Promise<GetBytecodeResponse> {
+  { address, blockNumber, blockTag = 'latest' }: GetBytecodeParameters,
+): Promise<GetBytecodeReturnType> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
   const hex = await client.request({

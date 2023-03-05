@@ -1,6 +1,6 @@
 import { getVersion } from './utils'
 
-type BaseErrorArgs = {
+type BaseErrorParameters = {
   docsPath?: string
   metaMessages?: string[]
 } & (
@@ -22,7 +22,7 @@ export class BaseError extends Error {
 
   name = 'ViemError'
 
-  constructor(shortMessage: string, args: BaseErrorArgs = {}) {
+  constructor(shortMessage: string, args: BaseErrorParameters = {}) {
     const details =
       args.cause instanceof BaseError
         ? args.cause.details

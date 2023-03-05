@@ -4,7 +4,7 @@ import type { BlockTag, Chain, Hash, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { format, formatBlock, numberToHex } from '../../utils'
 
-export type GetBlockArgs = {
+export type GetBlockParameters = {
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: boolean
 } & (
@@ -28,7 +28,7 @@ export type GetBlockArgs = {
     }
 )
 
-export type GetBlockResponse<TChain extends Chain = Chain> = FormattedBlock<
+export type GetBlockReturnType<TChain extends Chain = Chain> = FormattedBlock<
   BlockFormatter<TChain>
 >
 
@@ -39,8 +39,8 @@ export async function getBlock<TChain extends Chain>(
     blockNumber,
     blockTag = 'latest',
     includeTransactions = false,
-  }: GetBlockArgs = {},
-): Promise<GetBlockResponse<TChain>> {
+  }: GetBlockParameters = {},
+): Promise<GetBlockReturnType<TChain>> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 

@@ -5,5 +5,8 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "[typescript]": {
     "editor.defaultFormatter": "rome.rome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "rome.rome"
   }
 }

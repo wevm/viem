@@ -2,7 +2,7 @@ import type { PublicClient } from '../../clients'
 import type { BlockTag, Chain, Hash, Quantity } from '../../types'
 import { hexToNumber, numberToHex } from '../../utils'
 
-export type GetBlockTransactionCountArgs =
+export type GetBlockTransactionCountParameters =
   | {
       /** Hash of the block. */
       blockHash?: Hash
@@ -22,7 +22,7 @@ export type GetBlockTransactionCountArgs =
       blockTag?: BlockTag
     }
 
-export type GetBlockTransactionCountResponse = number
+export type GetBlockTransactionCountReturnType = number
 
 export async function getBlockTransactionCount<TChain extends Chain>(
   client: PublicClient<any, TChain>,
@@ -30,8 +30,8 @@ export async function getBlockTransactionCount<TChain extends Chain>(
     blockHash,
     blockNumber,
     blockTag = 'latest',
-  }: GetBlockTransactionCountArgs = {},
-): Promise<GetBlockTransactionCountResponse> {
+  }: GetBlockTransactionCountParameters = {},
+): Promise<GetBlockTransactionCountReturnType> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
