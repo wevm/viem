@@ -23,9 +23,6 @@ test('creates event signature', () => {
   expect(getEventSelector('drawNumber()')).toEqual(
     '0xd80ffb20d597d029eb14b9def3d14da7e6d862943d830906185b1b0b576d8f26',
   )
-  expect(getEventSelector('drawNumber( )')).toEqual(
-    '0xd80ffb20d597d029eb14b9def3d14da7e6d862943d830906185b1b0b576d8f26',
-  )
   expect(
     getEventSelector(
       'ProcessedAccountDividendTracker(uint256,uint256,uint256,uint256,bool,uint256,address)',

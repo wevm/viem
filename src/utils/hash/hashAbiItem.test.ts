@@ -67,4 +67,34 @@ test('hashes functions', () => {
   expect(hashAbiItem('function ownerOf(uint256 tokenId)', 'function')).toBe(
     '0x6352211e6566aa027e75ac9dbf2423197fbd9b82b9d981a3ab367d355866aa1c',
   )
+
+  expect(
+    hashAbiItem(
+      'function getVoter((uint256 weight, bool voted, address delegate, uint256 vote) voter)',
+      'function',
+    ),
+  ).toBe('0x')
+
+  expect(() =>
+    hashAbiItem('error Foo(uint256 tokenId)', 'function'),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Failed to hash ABI function \\"error Foo(uint256 tokenId)\\"
+
+    Details: Unknown signature.
+
+    Details: function error Foo(uint256 tokenId)
+    Version: abitype@0.6.4
+    Version: viem@1.0.2"
+  `)
+  expect(() =>
+    hashAbiItem('error Foo(uint256 tokenId)', 'event'),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Failed to hash ABI event \\"error Foo(uint256 tokenId)\\"
+
+    Details: Unknown signature.
+
+    Details: event error Foo(uint256 tokenId)
+    Version: abitype@0.6.4
+    Version: viem@1.0.2"
+  `)
 })

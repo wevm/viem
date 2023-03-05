@@ -1,6 +1,12 @@
 import { toBytes } from '../encoding'
 import { keccak256 } from './keccak256'
-import { AbiEvent, AbiFunction, parseAbiItem } from 'abitype'
+import {
+  AbiEvent,
+  AbiFunction,
+  parseAbiItem,
+  BaseError as ABITypeError,
+} from 'abitype'
+import { BaseError } from '../../errors'
 
 const hash = (value: string) => keccak256(toBytes(value))
 
@@ -14,16 +20,19 @@ export function hashAbiItem(def: string, type: 'event' | 'function') {
       prefix = /^function /.test(def) ? '' : 'function '
       break
   }
-  const abiFunction = parseAbiItem(
-    `${prefix}${def}`,
-  ) as typeof type extends 'function'
+  let abiItem: typeof type extends 'function'
     ? AbiFunction & {
         type: 'function'
       }
     : AbiEvent
-  const params = abiFunction.inputs
+  try {
+    abiItem = parseAbiItem(`${prefix}${def}`) as any
+  } catch (error) {
+    throw new BaseError(`Failed to hash ABI ${type} "${def}"`, {
+      cause: error as ABITypeError,
+    })
+  }
+  const params = abiItem.inputs
   if (!params || params.length === 0) return hash(def.replace(/ /g, ''))
-  return hash(
-    `${abiFunction.name}(${params.map(({ type }) => type).join(',')})`,
-  )
+  return hash(`${abiItem.name}(${params.map(({ type }) => type).join(',')})`)
 }

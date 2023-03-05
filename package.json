@@ -115,7 +115,7 @@
   "dependencies": {
     "@noble/hashes": "^1.1.2",
     "@wagmi/chains": "~0.2.8",
-    "abitype": "~0.6.4",
+    "abitype": "~0.6.5",
     "idna-uts46-hx": "^4.1.2",
     "isomorphic-ws": "^5.0.0",
     "ws": "^8.12.0"
