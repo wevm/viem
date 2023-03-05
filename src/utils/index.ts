@@ -62,13 +62,6 @@ export { buildRequest } from './buildRequest'
 export { defineChain } from './chain'
 
 export {
-  extractFunctionName,
-  extractFunctionParams,
-  extractFunctionType,
-  extractFunctionParts,
-} from './contract'
-
-export {
   isBytes,
   isHex,
   pad,

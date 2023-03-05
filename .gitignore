@@ -22,12 +22,12 @@ tsconfig.tsbuildinfo
 generated.ts
 
 # proxy packages
-abi
-chains
-contract
-ens
-public
-test
-utils
-wallet
-window
+/abi
+/chains
+/contract
+/ens
+/public
+/test
+/utils
+/wallet
+/window

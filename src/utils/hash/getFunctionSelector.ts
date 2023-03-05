@@ -1,4 +1,5 @@
 import { slice } from '../data'
-import { hashFunction } from './hashFunction'
+import { hashAbiItem } from './hashAbiItem'
 
-export const getFunctionSelector = (fn: string) => slice(hashFunction(fn), 0, 4)
+export const getFunctionSelector = (fn: string) =>
+  slice(hashAbiItem(fn, 'function'), 0, 4)

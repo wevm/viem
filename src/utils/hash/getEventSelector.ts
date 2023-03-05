@@ -1,4 +1,5 @@
 import { EventDefinition } from '../../types'
-import { hashFunction } from './hashFunction'
+import { hashAbiItem } from './hashAbiItem'
 
-export const getEventSelector = (event: EventDefinition) => hashFunction(event)
+export const getEventSelector = (event: EventDefinition) =>
+  hashAbiItem(event, 'event')

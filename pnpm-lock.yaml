@@ -23,7 +23,7 @@ importers:
       '@vitest/ui': ^0.29.2
       '@wagmi/chains': ~0.2.8
       '@wagmi/cli': ^0.1.6
-      abitype: ~0.6.2
+      abitype: ~0.6.4
       bun: ^0.5.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
@@ -44,7 +44,7 @@ importers:
     dependencies:
       '@noble/hashes': 1.1.2
       '@wagmi/chains': 0.2.8_typescript@4.9.5
-      abitype: 0.6.2_typescript@4.9.5
+      abitype: 0.6.4_typescript@4.9.5
       idna-uts46-hx: 4.1.2
       isomorphic-ws: 5.0.0_ws@8.12.0
       ws: 8.12.0
@@ -2359,8 +2359,8 @@ packages:
       zod: 3.20.2
     dev: true
 
-  /abitype/0.6.2_typescript@4.9.5:
-    resolution: {integrity: sha512-ODDAFy/yXmRAdNpDOd6oTqVCG/P4c875E8NaUX/9s+7ewrykq0F7lTtsKrE0Rt8M6SNv+jDhOzyOh4lAucYztg==}
+  /abitype/0.6.4_typescript@4.9.5:
+    resolution: {integrity: sha512-0U7DqNDEbCJOtoJoJ2IIJY0AKCUbH7m1QKYJ+7e/OScNYvmXf9cQjIes/P9yr6yxQMbry12YpCvArBr54mbPOw==}
     peerDependencies:
       typescript: '>=4.9.4'
       zod: '>=3.19.1'
