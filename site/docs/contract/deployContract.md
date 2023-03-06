@@ -140,4 +140,4 @@ await walletClient.deployContract({
 
 Check out the usage of `deployContract` in the live [Deploying Contracts Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

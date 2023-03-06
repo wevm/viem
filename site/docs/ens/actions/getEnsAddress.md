@@ -115,4 +115,4 @@ const ensName = await publicClient.getEnsAddress({
 
 Check out the usage of `getEnsAddress` in the live [ENS Examples](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

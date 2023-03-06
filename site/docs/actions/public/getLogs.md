@@ -85,7 +85,7 @@ const filter = await publicClient.getLogs({
 
 A Filter can be scoped to an **event**.
 
-The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/contract/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
+The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/abi/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
 import { parseAbiItem } from 'viem' // [!code focus]
@@ -170,7 +170,7 @@ const logs = await publicClient.getLogs({
 
 The event in ABI format.
 
-A [`parseAbiItem` utility](/docs/contract/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
+A [`parseAbiItem` utility](/docs/abi/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
 const logs = await publicClient.getLogs({
@@ -234,7 +234,7 @@ const logs = await publicClient.getLogs({
 
 Check out the usage of `getLogs` in the live [Event Logs Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Method
 

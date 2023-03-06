@@ -47,7 +47,7 @@ const filter = await publicClient.createEventFilter({
 
 A Filter can be scoped to an **event**.
 
-The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/contract/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
+The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/abi/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
 
 ```ts
 import { parseAbiItem } from 'viem' // [!code focus]
@@ -148,7 +148,7 @@ const filter = await publicClient.createEventFilter({
 
 The event in ABI format.
 
-A [`parseAbiItem` utility](/docs/contract/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
+A [`parseAbiItem` utility](/docs/abi/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
 import { parseAbiItem } from 'viem' // [!code focus]

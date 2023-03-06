@@ -80,4 +80,4 @@ const blockNumber = await client.getBlockNumber()
 
 ### Live example
 
-<iframe class="mt-6" frameborder="0" src="https://stackblitz.com/edit/viem-getting-started?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=1&hideExplorer=1&devtoolsheight=1"></iframe>
+<iframe class="mt-6" frameborder="0" src="https://stackblitz.com/edit/viem-getting-started?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=1&hideExplorer=1&devtoolsheight=1&ctl=1"></iframe>
