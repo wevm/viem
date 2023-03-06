@@ -45,7 +45,7 @@ yarn add viem
   </div>
   <!-- TODO: Extract Bundle Size, Coverage badge data from respective APIs. -->
   <div class="flex justify-between space-x-2">
-  <a href="https://bundlephobia.com/package/viem@0.0.1-alpha.39" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+  <a href="https://bundlephobia.com/package/viem" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
     <div class="absolute flex z-0 p-[6px] h-full w-full">
       <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
         <span class="font-medium text-[15px] opacity-80 w-full text-center">size</span>

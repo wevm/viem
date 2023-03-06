@@ -79,10 +79,10 @@ importers:
   examples/_template:
     specifiers:
       typescript: ^4.9.3
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -90,10 +90,10 @@ importers:
   examples/blocks/fetching-blocks:
     specifiers:
       typescript: ^4.9.4
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -101,10 +101,10 @@ importers:
   examples/clients/public-client:
     specifiers:
       typescript: ^4.9.3
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -117,12 +117,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -138,12 +138,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -154,10 +154,10 @@ importers:
   examples/contracts/reading-contracts:
     specifiers:
       typescript: ^4.9.3
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -170,12 +170,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -186,10 +186,10 @@ importers:
   examples/ens:
     specifiers:
       typescript: ^4.9.3
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -197,10 +197,10 @@ importers:
   examples/filters-and-logs/block-event-logs:
     specifiers:
       typescript: ^4.9.3
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -208,10 +208,10 @@ importers:
   examples/filters-and-logs/event-logs:
     specifiers:
       typescript: ^4.9.3
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -224,12 +224,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: alpha
+      viem: latest
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.0_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -5786,6 +5786,22 @@ packages:
       spdx-correct: 3.1.1
       spdx-expression-parse: 3.0.1
     dev: true
+
+  /viem/0.1.0_typescript@4.9.5:
+    resolution: {integrity: sha512-jcpBSrVmihvR7OYn1MZKWDuUqMalej9k960KTBaharzVogOTCtQ6/3AycIegJWeVcvBXuK/s74eOG5SlTjlfIg==}
+    dependencies:
+      '@noble/hashes': 1.1.2
+      '@wagmi/chains': 0.2.8_typescript@4.9.5
+      abitype: 0.6.2_typescript@4.9.5
+      idna-uts46-hx: 4.1.2
+      isomorphic-ws: 5.0.0_ws@8.12.0
+      ws: 8.12.0
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+    dev: false
 
   /vite-node/0.29.2_@types+node@17.0.45:
     resolution: {integrity: sha512-5oe1z6wzI3gkvc4yOBbDBbgpiWiApvuN4P55E8OI131JGrSuo4X3SOZrNmZYo4R8Zkze/dhi572blX0zc+6SdA==}
