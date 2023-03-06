@@ -9,7 +9,6 @@ head:
   - - meta
     - property: og:description
       content: A brief preamble on why we built viem.
-
 ---
 
 # Why viem
@@ -28,9 +27,9 @@ viem delivers a great developer experience through modular and composable APIs, 
 
 It provides developers with intuitive building blocks to build their Ethereum apps and libraries. While viem's APIs may be more verbose than alternative libraries, we believe this is the right trade-off as it makes viem's modular building blocks extremely flexible. Easy to move around, change, and remove. It also allows the developers to better understand Ethereum concepts as well as understand _what_ and _why_ certain properties are being passed through. Learning how to use viem is a great way to learn how to interact with Ethereum in general.
 
-We aim to provide extensive API documentation and usage for _every_ module in viem. viem uses a [documentation](https://gist.github.com/zsup/9434452) and [test driven](https://en.wikipedia.org/wiki/Test-driven_development#:~:text=Test%2Ddriven%20development%20(TDD),software%20against%20all%20test%20cases.) development approach to building modules, which leads to predictable and stable APIs.
+We aim to provide extensive API documentation and usage for _every_ module in viem. viem uses a [documentation](https://gist.github.com/zsup/9434452) and [test driven](<https://en.wikipedia.org/wiki/Test-driven_development#:~:text=Test%2Ddriven%20development%20(TDD),software%20against%20all%20test%20cases.>) development approach to building modules, which leads to predictable and stable APIs.
 
-viem also provides consumers with [strongly typed APIs](/docs/typescript), allowing consumers to get the best possible experience through [autocomplete](https://twitter.com/awkweb/status/1555678944770367493), [type inference](https://twitter.com/jakemoxey/status/1570244174502588417?s=20), as well as static validation. 
+viem also provides consumers with [strongly typed APIs](/docs/typescript), allowing consumers to get the best possible experience through [autocomplete](https://twitter.com/awkweb/status/1555678944770367493), [type inference](https://twitter.com/jakemoxey/status/1570244174502588417?s=20), as well as static validation.
 
 ## Stability
 
@@ -49,7 +48,7 @@ Maintaining a low bundle size is critical when building web applications. End us
 viem adopts a minimalist modular architecture to achieve a bundle size of [27kB](https://bundlephobia.com/package/viem). Furthermore, viem is tree-shakable, meaning only the modules you use are included in your final bundle.
 
 <div class="h-4"></div>
-<img src="/bundle-size.svg" />
+<img src="/bench-bundlesize.svg" />
 
 ## Performance
 
@@ -61,7 +60,6 @@ In addition to the fast load times mentioned above, viem further tunes performan
   <img src="/bench-encodeabi.svg" />
 </div>
 
-
 ## Opinions & Escape Hatches
 
 Unlike other low-level interfaces that impose opinions on consumers, viem enables consumers to choose their opinions while still maintaining sensible and secure defaults. This allows consumers to create their own opinionated implementations, such as [wagmi](https://wagmi.sh), without the need for tedious workarounds.
@@ -69,5 +67,3 @@ Unlike other low-level interfaces that impose opinions on consumers, viem enable
 ---
 
 **viem** will help developers build with a higher level of accuracy and correctness through type safety and developer experience. It will also integrate extremely well with [wagmi](https://wagmi.sh) so folks can start using it without much upfront switching cost.
-
-

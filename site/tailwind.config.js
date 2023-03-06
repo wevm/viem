@@ -4,7 +4,11 @@ module.exports = {
   darkMode: 'class',
   important: true,
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        md: '848px',
+      },
+    },
   },
   plugins: [],
-}
+};

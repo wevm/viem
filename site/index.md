@@ -11,43 +11,20 @@ import { VPButton } from 'vitepress/theme'
 import HomeSponsors from './.vitepress/theme/components/HomeSponsors.vue'
 </script>
 
-<div class="flex justify-center mx-auto text-center">
-  <div class="flex space-y-6 flex-col items-center">
-    <div class="flex flex-col space-y-4 items-center">
-      <img class="h-14 w-min logo" src="/logo-light-hug.svg" alt="viem logo">
-      <span class="text-2xl opacity-80">TypeScript Interface for Ethereum</span>
+<div class="pt-[48px] max-sm:pt-0">
+  <div class="absolute -left-28 right-0 -top-10 bottom-0 bg-[url('/colosseum-light.svg')] dark:bg-[url('/colosseum.svg')] bg-no-repeat z-[-1] max-sm:w-[200%] max-sm:-left-[200px] max-sm:hidden" />
+  <div class="px-7 max-sm:px-0 flex justify-between z-0 max-md:justify-center">
+    <div class="space-y-8 max-w-[400px] flex flex-col max-md:items-center">
+      <img class="h-[72px] w-min logo max-sm:h-[60px]" src="/logo-light-hug.svg" alt="viem logo">
+      <div class="font-medium text-[21px] max-sm:text-[18px] text-[#919193] max-md:text-center">Build reliable apps & libraries with <span class="text-black dark:text-white">lightweight</span>, <span class="text-black dark:text-white">composable</span>, and <span class="text-black dark:text-white">type-safe</span> modules that interface with Ethereum</div>
+      <div class="flex justify-center space-x-2">
+        <VPButton tag="a" size="medium" theme="brand" href="/docs/getting-started" text="Get Started" />
+        <VPButton class="max-sm:hidden" tag="a" size="medium" theme="alt" href="/docs/introduction" text="Why viem?" />
+        <VPButton tag="a" size="medium" theme="alt" href="https://github.com/wagmi-dev/viem" text="View on GitHub" />
+      </div>
     </div>
-    <div class="flex gap-2 max-w-xl">
-      <a aria-label="Version" href="https://www.npmjs.com/package/viem">
-        <img
-          alt="version"
-          src="https://img.shields.io/npm/v/viem?colorA=2B323B&colorB=1e2329&style=flat&label=Version"
-        />
-      </a>
-      <!-- TODO: uncomment when published <a aria-label="Bundle Size" href="https://bundlephobia.com/package/viem">
-        <img
-          alt="coverage"
-          src="https://badgen.net/bundlephobia/minzip/viem?icon=github"
-        />
-      </a> -->
-      <a aria-label="Coverage" href="https://codecov.io/github/wagmi-dev/viem">
-        <img
-          alt="coverage"
-          src="https://codecov.io/github/wagmi-dev/viem/branch/main/graph/badge.svg?token=iUTN9R4Qfg"
-        />
-      </a>
-      <a aria-label="License" href="https://www.npmjs.com/package/viem">
-        <img
-          alt=""
-          src="https://img.shields.io/github/license/wagmi-dev/viem?colorA=2B323B&colorB=1e2329&style=flat&label=License"
-        />
-      </a>
-    </div>
-    <span class="text-xl max-w-xl">Build reliable Ethereum apps & libraries with <span class="text-yellow-500 dark:text-yellow-400 font-medium">lightweight</span>, <span class="text-yellow-500 dark:text-yellow-400 font-medium">composable</span>, & <span class="text-yellow-500 dark:text-yellow-400 font-medium">type-safe</span> modules from viem.</span>
-  </div>
-</div>
-
-<div class="install h-6" />
+    <div class="flex flex-col justify-between w-[440px] space-y-10 max-lg:w-[300px] max-md:hidden">
+      <div class="h-full">
 
 ::: code-group
 
@@ -65,69 +42,111 @@ yarn add viem
 
 :::
 
-<div class="h-4" />
-
-<div class="flex justify-center space-x-2">
-  <VPButton tag="a" size="medium" theme="brand" href="/docs/getting-started" text="Get Started" />
-  <VPButton class="max-lg:hidden" tag="a" size="medium" theme="alt" href="/docs/introduction" text="Why viem?" />
-  <VPButton tag="a" size="medium" theme="alt" href="https://github.com/wagmi-dev/viem" text="View on GitHub" />
+  </div>
+  <!-- TODO: Extract Bundle Size, Coverage badge data from respective APIs. -->
+  <div class="flex justify-between space-x-2">
+  <a href="https://bundlephobia.com/package/viem@0.0.1-alpha.39" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+    <div class="absolute flex z-0 p-[6px] h-full w-full">
+      <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
+        <span class="font-medium text-[15px] opacity-80 w-full text-center">size</span>
+      </div>
+      <div class="flex items-center h-full px-2">
+        <span class="font-medium text-[15px] text-center w-full text-black dark:text-white">27kB</span>
+      </div>
+    </div>
+    <div class="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/10 z-[-1]" />
+    <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[-1]" />
+  </a>
+  <a href="https://app.codecov.io/gh/wagmi-dev/viem" class="cursor-pointer h-10 max-w-[160px] flex-1 relative rounded-lg overflow-hidden border border-green-400/50" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+    <div class="absolute flex z-0 p-[6px] h-full w-full">
+      <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
+        <span class="font-medium text-[15px] opacity-80 w-full text-center">coverage</span>
+      </div>
+      <div class="flex items-center h-full px-2">
+        <span class="font-medium text-[15px] text-center w-full text-green-400">100%</span>
+      </div>
+    </div>
+    <div class="absolute left-0 right-0 top-0 bottom-0 bg-green-400 opacity-10 z-[-1]" />
+    <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[-1]" />
+  </a>
+  <a href="https://github.com/wagmi-dev/viem/blob/main/LICENSE" class="cursor-pointer h-10 max-w-[130px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20 max-lg:hidden" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+    <div class="absolute flex z-0 p-[6px] h-full w-full">
+      <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
+        <span class="font-medium text-[15px] opacity-80 w-full text-center">license</span>
+      </div>
+      <div class="flex items-center h-full px-2">
+        <span class="font-medium text-[15px] text-center w-full text-black dark:text-white">MIT</span>
+      </div>
+    </div>
+    <div class="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/10 z-[-1]" />
+    <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[-1]" />
+  </a>
+  </div>
+  </div>
+  </div>
+  <div class="flex justify-between flex-wrap mt-16 max-sm:hidden">
+    <div class="pr-2 w-1/4 max-lg:pb-3 max-sm:px-0 max-lg:w-1/2 max-sm:w-full">
+      <div class="relative w-full h-[168px] max-lg:h-[142px] overflow-hidden">
+        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+          <div class="text-xl font-medium text-black dark:text-white">Modular</div>
+          <div class="text-[17px] font-medium text-[#919193]">Composable modules to build apps & libraries with speed</div>
+        </div>
+        <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+        <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+      </div>
+    </div>
+    <div class="pl-2 pr-2 max-sm:px-0 max-lg:pb-3 max-lg:pr-0 w-1/4 max-lg:w-1/2 max-sm:w-full">
+      <div class="relative w-full h-[168px] max-lg:h-[142px]">
+        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+          <div class="text-xl font-medium text-black dark:text-white">Lightweight</div>
+          <div class="text-[17px] font-medium text-[#919193]">Tiny (only 27kb!) bundle size optimized for tree-shaking</div>
+        </div>
+        <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+        <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+      </div>
+    </div>
+    <div class="pl-2 pr-2 max-lg:pb-3 max-sm:px-0 max-lg:pl-0 w-1/4 max-lg:w-1/2 max-sm:w-full">
+      <div class="relative w-full h-[168px] max-lg:h-[142px]">
+        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+          <div class="text-xl font-medium text-black dark:text-white">Performant</div>
+          <div class="text-[17px] font-medium text-[#919193]">Optimized architecture compared to alternate libraries like Ethers.js</div>
+        </div>
+        <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+        <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+      </div>
+    </div>
+    <div class="pl-2 w-1/4 max-sm:px-0 max-lg:w-1/2 max-sm:w-full">
+      <div class="relative w-full h-[168px] max-lg:h-[142px]">
+        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+          <div class="text-xl font-medium text-black dark:text-white">Typed APIs</div>
+          <div class="text-[17px] font-medium text-[#919193]">Flexible programmatic APIs with extensive TypeScript typing</div>
+        </div>
+        <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+        <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="h-16" />
 
-<div class="flex flex-wrap lg:-mx-[190px]">
-  <div class="p-1 w-1/4 max-lg:w-1/2 max-sm:w-full">
-    <div class="card rounded-l sm:h-32 p-6 space-y-2">
-      <span class="font-semibold">Modular</span>
-      <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Composable modules to build apps & libraries with speed.
-      </p>
-    </div>
-  </div>
-  <div class="p-1 w-1/4 max-lg:w-1/2 max-sm:w-full">
-    <div class="card rounded-l sm:h-32 p-6 space-y-2">
-      <span class="font-semibold">Lightweight</span>
-      <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Tiny <a href="https://bundlephobia.com/package/viem" target="_blank" rel="noreferrer noopener">27kB</a> bundle – optimized for tree-shaking.
-      </p>
-    </div>
-  </div>
-  <div class="p-1 w-1/4 max-lg:w-1/2 max-sm:w-full">
-    <div class="card rounded-l sm:h-32 p-6 space-y-2">
-      <span class="font-semibold">Performant</span>
-      <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Optimized architecture compared to alternate libraries.
-      </p>
-    </div>
-  </div>
-  <div class="p-1 w-1/4 max-lg:w-1/2 max-sm:w-full">
-    <div class="card rounded-l sm:h-32 p-6 space-y-2">
-      <span class="font-semibold">Typed APIs</span>
-      <p class="text-[14px] font-medium leading-6" style="color: var(--vp-c-text-2)">
-        Flexible programmatic APIs with full TypeScript typing.
-      </p>
-    </div>
-  </div>
-</div>
-
-<div class="h-16" />
-
+<div class="max-w-2xl mx-auto">
 <h1>Overview</h1>
 <hr class="h-2" />
 
 ```ts
 // 1. Import modules.
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { createPublicClient, http } from 'viem';
+import { mainnet } from 'viem/chains';
 
 // 2. Set up your client with desired chain & transport.
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
-})
+});
 
 // 3. Consume an action!
-const blockNumber = await client.getBlockNumber()
+const blockNumber = await client.getBlockNumber();
 ```
 
 <div class="h-8" />
@@ -169,6 +188,19 @@ Help support future development and make wagmi a sustainable open-source project
 <div class="h-8" />
 
 <HomeSponsors />
+</div>
+
+<style>
+  .VPDoc .container {
+    max-width: 1120px !important;
+  }
+
+  .VPDoc .content {
+    max-width: 100% !important;
+    padding: 0px !important;
+    width: 100% !important;
+  }
+</style>
 
 <style scoped>
   html:not(.dark) img.dark {
@@ -190,24 +222,42 @@ Help support future development and make wagmi a sustainable open-source project
     overflow-y: hidden;
   }
 
+  .vp-code-group, .vp-code-group .language-bash {
+    height: 100%;
+  }
+
+  .vp-code-group .language-bash {
+    height: 100%;
+    margin-bottom: 0px;
+  }
+
+  .vp-code-group {
+    margin-top: 0px;
+  }
+
+  .vp-code-group .blocks {
+    height: calc(100% - 37px);
+  }
+
   .vp-code-group .tabs label {
-    line-height: 36px;
+    font-size: 16px;
   }
 
-  .install + .vp-code-group {
-    font-size: 18px;
-    margin: 0 auto;
-    max-width: 300px;
+  .vp-code-group .tabs {
+    justify-content: left;
   }
 
-  .install + .vp-code-group .vp-doc [class*='language-'] pre {
-    overflow: hidden;
+  .vp-code-group .shiki {
+    padding-top: 16px;
   }
 
-  .install + .vp-code-group [class*='language-'] code {
-    display: flex;
-    justify-content: center;
+  .vp-code-group code {
+    font-size: 22px;
   }
+  
+  /* .vp-code-group {
+    width: 100% !important;
+  } */
 
   .tabs {
     display: flex;
