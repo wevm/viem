@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.2
+
+### Patch Changes
+
+- [`637d252`](https://github.com/wagmi-dev/viem/commit/637d2523e3e259deb9538a0089c0c80bb37abf22) Thanks [@jxom](https://github.com/jxom)! - Bumped abitype to 0.6.7
+
 ## 0.1.1
 
 ### Patch Changes
