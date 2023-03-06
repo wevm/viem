@@ -1,4 +1,4 @@
-<a href="https://viem.sh" target="_blank" rel="noreferrer>
+<a href="https://viem.sh" target="_blank" rel="noreferrer">
   <p align="center">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-dark.svg">
