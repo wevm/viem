@@ -1553,7 +1553,7 @@ utils.parseEther('1.0')
 #### viem
 
 ```ts {3}
-import { parseUnits } from 'viem'
+import { parseEther } from 'viem'
 
 parseEther('1')
 ```
