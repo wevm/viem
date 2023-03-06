@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wagmi-dev/viem/blob/main/.github/viem-dark.svg">
-    <img alt="wagmi logo" src="https://github.com/wagmi-dev/viem/blob/main/.github/viem-light.svg" width="auto" height="60">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-dark.svg">
+    <img alt="viem logo" src="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-light.svg" width="auto" height="60">
   </picture>
 </p>
 
@@ -45,20 +45,20 @@
 
 ```ts
 // 1. Import modules.
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { createPublicClient, http } from 'viem';
+import { mainnet } from 'viem/chains';
 
 // 2. Set up your client with desired chain & transport.
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
-})
+});
 
 // 3. Consume an action!
-const blockNumber = await client.getBlockNumber()
+const blockNumber = await client.getBlockNumber();
 ```
 
-## Community 
+## Community
 
 Check out the following places for more viem-related content:
 
@@ -66,8 +66,7 @@ Check out the following places for more viem-related content:
 - Join the [discussions on GitHub](https://github.com/wagmi-dev/viem/discussions)
 - [Share your project/organization](https://github.com/wagmi-dev/viem/discussions/104) that uses viem
 
-
-## Support 
+## Support
 
 - [GitHub Sponsors](https://github.com/sponsors/wagmi-dev?metadata_campaign=docs_support)
 - [Gitcoin Grant](https://wagmi.sh/gitcoin)
@@ -145,4 +144,3 @@ If you're interested in contributing, please read the [contributing docs](/.gith
 ## License
 
 [MIT](/LICENSE) License
-
