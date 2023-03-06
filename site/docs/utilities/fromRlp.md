@@ -14,7 +14,7 @@ head:
 
 # fromRlp
 
-Decodes a [Recursive-Length Prefix (RLP)](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/enc) value into a decoded hex value or byte array.
+Decodes a [Recursive-Length Prefix (RLP)](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp) value into a decoded hex value or byte array.
 
 ## Import
 
