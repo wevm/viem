@@ -21,12 +21,12 @@ Note: `getFilterLogs` is only compatible with **event filters**.
 ## Usage
 
 ```ts
-import { parseAbiEvent } from 'viem'
+import { parseAbiItem } from 'viem'
 import { publicClient } from '.'
 
 const filter = await publicClient.createEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: parseAbiEvent('Transfer(address indexed, address indexed, uint256)'),
+  event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
 })
 // ...
 const logs = await publicClient.getFilterLogs({ filter })

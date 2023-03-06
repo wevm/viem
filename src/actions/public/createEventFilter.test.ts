@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, initialBlockNumber, publicClient } from '../../_test'
-
 import { createEventFilter } from './createEventFilter'
 
 const event = {

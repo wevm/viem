@@ -91,18 +91,18 @@ export const publicClient = createPublicClient({
 
 `watchEvent` can be scoped to an **event**.
 
-The `event` argument takes in an event in ABI format – we have a [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) that you can use to convert from a human-readable event signature → ABI.
+The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/contract/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
 
 ::: code-group
 
 ```ts [example.ts]
-import { parseAbiEvent } from 'viem' // [!code focus]
+import { parseAbiItem } from 'viem' // [!code focus]
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
 const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
   onLogs: logs => console.log(logs)
 })
 // > [{ ... }, { ... }, { ... }]
@@ -122,14 +122,12 @@ export const publicClient = createPublicClient({
 
 :::
 
-By default, `event` accepts the [`AbiEvent`] type:
+By default, `event` accepts the [`AbiEvent`](/docs/glossary/types.html#abievent) type:
 
 ```ts
-import { watchEvent } from 'viem/public'
-import { parseAbiEvent } from 'viem/utils' // [!code focus]
 import { publicClient } from '.'
 
-const unwatch = await watchEvent(publicClient, {
+const unwatch = await publicClient.watchEvent(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: { // [!code focus:8]
     name: 'Transfer', 
@@ -150,13 +148,12 @@ const unwatch = await watchEvent(publicClient, {
 ::: code-group
 
 ```ts [example.ts]
-import { parseAbiEvent } from 'viem'
+import { parseAbiItem } from 'viem'
 import { publicClient } from './client'
-import { wagmiAbi } from './abi'
 
 const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
@@ -187,7 +184,7 @@ These arguments can also be an array to indicate that other values can exist in 
 ```ts
 const unwatch = await publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:8]
     // '0xd8da...' OR '0xa5cc...' OR '0xa152...'
     from: [
@@ -241,15 +238,15 @@ const unwatch = publicClient.watchEvent(
 
 The event in ABI format.
 
-A [`parseAbiEvent` utility](/docs/contract/parseAbiEvent) is exported from viem that converts from a human-readable event signature → ABI.
+A [`parseAbiItem` utility](/docs/contract/parseAbiItem) is exported from viem that converts from a human-readable event signature → ABI.
 
 ```ts
-import { parseAbiEvent } from 'viem' // [!code focus]
+import { parseAbiItem } from 'viem' // [!code focus]
 
 const unwatch = publicClient.watchEvent(
   { 
     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-    event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
     onLogs: logs => console.log(logs) 
   }
 )
@@ -265,7 +262,7 @@ A list of _indexed_ event arguments.
 const unwatch = publicClient.watchEvent(
   { 
     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-    event: parseAbiEvent('Transfer(address indexed from, address indexed to, uint256 value)'),
+    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
     args: { // [!code focus:4]
      from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
       to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
