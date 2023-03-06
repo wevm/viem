@@ -1,5 +1,0 @@
----
-"viem": minor
----
-
-Initial release.
