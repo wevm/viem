@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.1
+
+### Patch Changes
+
+- [#128](https://github.com/wagmi-dev/viem/pull/128) [`ef51936`](https://github.com/wagmi-dev/viem/commit/ef519364c28a2ec6571b5e8d13aced0c9123dc46) Thanks [@tmm](https://github.com/tmm)! - Fixed internal type compilation error.
+
 ## 0.1.0
 
 ### Minor Changes
