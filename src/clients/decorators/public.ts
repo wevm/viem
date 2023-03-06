@@ -195,7 +195,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
     TFunctionName extends string,
   >(
     args: ReadContractParameters<TAbi, TFunctionName>,
-  ) => Promise<ReadContractReturnType>
+  ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
   simulateContract: <
     TAbi extends Abi | readonly unknown[] = Abi,
     TFunctionName extends string = any,

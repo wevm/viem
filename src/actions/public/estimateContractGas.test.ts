@@ -155,7 +155,7 @@ describe('BAYC', () => {
       ).toBe(172724n)
     })
 
-    test('get a free $100k', async () => {
+    test('reserveApes', async () => {
       const { contractAddress } = await deployBAYC()
 
       // Reserve apes
