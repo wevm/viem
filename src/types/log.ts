@@ -1,7 +1,8 @@
 import { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
-import { TopicFilter } from 'ethers@6/types/providers'
 import { ExtractEventArgsFromAbi } from './contract'
 import type { Hash, Hex } from './misc'
+
+type TopicFilter = (null | string | string[])[]
 
 type DecodedAbiEvent<
   TAbiEvent extends AbiEvent | undefined = undefined,
