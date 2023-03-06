@@ -1,5 +1,0 @@
----
-'viem': patch
----
-
-Alpha release
