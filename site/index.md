@@ -14,8 +14,8 @@ import HomeSponsors from './.vitepress/theme/components/HomeSponsors.vue'
 <div class="pt-[48px] max-sm:pt-0">
   <div class="absolute -left-28 right-0 -top-10 bottom-0 bg-[url('/colosseum-light.svg')] dark:bg-[url('/colosseum.svg')] bg-no-repeat z-[-1] max-sm:w-[200%] max-sm:-left-[200px] max-sm:hidden" />
   <div class="px-7 max-sm:px-0 flex justify-between z-0 max-md:justify-center">
-    <div class="space-y-8 max-w-[400px] flex flex-col max-md:items-center">
-      <img class="h-[72px] w-min logo max-sm:h-[60px]" src="/logo-light-hug.svg" alt="viem logo">
+    <div class="space-y-8 max-w-[400px] flex flex-col items-start max-md:items-center">
+      <img class="h-[72px] logo max-sm:h-[60px]" src="/logo-light-hug.svg" alt="viem logo">
       <div class="font-medium text-[21px] max-sm:text-[18px] text-[#919193] max-md:text-center">Build reliable apps & libraries with <span class="text-black dark:text-white">lightweight</span>, <span class="text-black dark:text-white">composable</span>, and <span class="text-black dark:text-white">type-safe</span> modules that interface with Ethereum</div>
       <div class="flex justify-center space-x-2">
         <VPButton tag="a" size="medium" theme="brand" href="/docs/getting-started" text="Get Started" />
