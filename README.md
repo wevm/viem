@@ -5,7 +5,7 @@
       <img alt="viem logo" src="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-light.svg" width="auto" height="60">
     </picture>
   </p>
-<a>
+</a>
 
 <p align="center">
   TypeScript Interface for Ethereum
