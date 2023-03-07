@@ -18,14 +18,28 @@ Returns a collection of historical gas information.
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const feeHistory = await publicClient.getFeeHistory({ // [!code focus:4]
   blockCount: 4,
   rewardPercentiles: [25, 75]
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

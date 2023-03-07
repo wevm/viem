@@ -20,9 +20,11 @@ Note: `getFilterLogs` is only compatible with **event filters**.
 
 ## Usage
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { parseAbiItem } from 'viem'
-import { publicClient } from '.'
+import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -32,6 +34,19 @@ const filter = await publicClient.createEventFilter({ // [!code focus:99]
 const logs = await publicClient.getFilterLogs({ filter })
 // [{ ... }, { ... }, { ... }]
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 
 ## Returns
 

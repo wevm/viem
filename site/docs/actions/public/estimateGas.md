@@ -18,16 +18,30 @@ Estimates the gas necessary to complete a transaction without submitting it to t
 
 ## Usage
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { getAccount } from 'viem'
-import { publicClient } from '.'
- 
+import { publicClient } from './client'
+
 const gasEstimate = await publicClient.estimateGas({ // [!code focus:7]
   account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

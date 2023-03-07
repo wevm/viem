@@ -18,14 +18,28 @@ Returns the number of [Transactions](/docs/glossary/terms#transaction) an Accoun
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const block = await publicClient.getTransactionCount({  // [!code focus:99]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 420
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

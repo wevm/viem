@@ -18,13 +18,28 @@ Similar to [`increaseTime`](/docs/actions/test/increaseTime), but sets a block t
 
 ## Usage
 
-```ts
-import { testClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
  
 await testClient.setBlockTimestampInterval({ // [!code focus:4]
   interval: 5
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

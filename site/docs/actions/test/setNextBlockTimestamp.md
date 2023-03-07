@@ -18,13 +18,28 @@ Sets the next block's timestamp.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
  
 await testClient.setNextBlockTimestamp({ // [!code focus:4]
   timestamp: 1671744314n
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

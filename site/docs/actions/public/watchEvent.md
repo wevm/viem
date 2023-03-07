@@ -124,8 +124,10 @@ export const publicClient = createPublicClient({
 
 By default, `event` accepts the [`AbiEvent`](/docs/glossary/types.html#abievent) type:
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const unwatch = await publicClient.watchEvent(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -140,6 +142,18 @@ const unwatch = await publicClient.watchEvent(publicClient, {
   onLogs: logs => console.log(logs)
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ### Arguments
 

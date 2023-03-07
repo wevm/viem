@@ -18,11 +18,26 @@ Returns the details of all transactions currently pending for inclusion in the n
 
 ## Usage
 
-```ts
-import { testClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
+
 const content = await testClient.getTxpoolContent() // [!code focus]
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Returns
 

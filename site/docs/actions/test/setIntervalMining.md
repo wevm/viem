@@ -18,13 +18,28 @@ Sets the automatic mining interval (in seconds) of blocks. Setting the interval 
 
 ## Usage
 
-```ts
-import { testClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
  
 await testClient.setIntervalMining({ // [!code focus:4]
   interval: 5
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

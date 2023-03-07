@@ -18,13 +18,28 @@ Sets the block's gas limit.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
  
 await testClient.setBlockGasLimit({ // [!code focus:4]
   gasLimit: 420_000n
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

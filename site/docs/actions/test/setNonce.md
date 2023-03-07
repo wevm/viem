@@ -18,14 +18,29 @@ Modifies (overrides) the nonce of an account.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
+
 await testClient.setNonce({ // [!code focus:4]
   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   nonce: 420
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

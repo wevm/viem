@@ -19,13 +19,28 @@ Mine a specified number of blocks.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
+
 await testClient.mine({ // [!code focus:4]
   blocks: 1
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

@@ -18,11 +18,25 @@ Returns the current price of gas (in wei).
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const gasPrice = await publicClient.getGasPrice() // [!code focus:4]
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

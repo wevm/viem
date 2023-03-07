@@ -18,15 +18,30 @@ Writes to a slot of an account's storage.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
+
 await testClient.setStorageAt({ // [!code focus:99]
   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
   index: 2,
   value: '0x0000000000000000000000000000000000000000000000000000000000000069'
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

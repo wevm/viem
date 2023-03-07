@@ -14,7 +14,7 @@ head:
 
 # Introduction to Wallet Actions
 
-Wallet Actions are actions that map one-to-one with a "wallet" or "signable" Ethereum RPC method (`eth_requestAccounts`, `eth_sendTransaction`, etc). They are used with a [Wallet Client](/docs/client/wallet).
+Wallet Actions are actions that map one-to-one with a "wallet" or "signable" Ethereum RPC method (`eth_requestAccounts`, `eth_sendTransaction`, etc). They are used with a [Wallet Client](/docs/clients/wallet).
 
 Wallet Actions require special permissions and provide signing capabilities. Examples of Wallet Actions include [retrieving the user's account addresses](/docs/actions/wallet/getAddresses), [sending a transaction](/docs/actions/wallet/sendTransaction), and [signing a message](/docs/actions/wallet/signMessage).
 

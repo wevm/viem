@@ -20,9 +20,11 @@ Watches and returns information for incoming blocks.
 
 Pass through your Public Client, along with a listener.
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const unwatch = publicClient.watchBlocks( // [!code focus:99]
   { onBlock: block => console.log(block) }
 )
@@ -42,6 +44,18 @@ const unwatch = publicClient.watchBlocks( // [!code focus:99]
  * }
  */
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

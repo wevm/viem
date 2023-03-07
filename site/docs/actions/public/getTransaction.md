@@ -18,9 +18,11 @@ Returns information about a [Transaction](/docs/glossary/terms#transaction) give
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const transaction = await publicClient.getTransaction({ // [!code focus:99]
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
@@ -33,6 +35,18 @@ const transaction = await publicClient.getTransaction({ // [!code focus:99]
  * }
  */
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

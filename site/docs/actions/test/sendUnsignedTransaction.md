@@ -18,9 +18,11 @@ Executes a transaction regardless of the signature.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { testClient } from './client'
+
 const hash = await testClient.sendUnsignedTransaction({ // [!code focus:99]
   from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -28,6 +30,19 @@ const hash = await testClient.sendUnsignedTransaction({ // [!code focus:99]
 })
 // '0x...'
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Returns
 

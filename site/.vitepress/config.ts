@@ -17,8 +17,6 @@ export default defineConfig({
   titleTemplate: `:title · ${title}`,
   description,
 
-  ignoreDeadLinks: true,
-
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/favicons/light.png' }],
     [

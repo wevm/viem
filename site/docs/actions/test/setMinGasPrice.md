@@ -20,14 +20,29 @@ Change the minimum gas price accepted by the network (in wei).
 
 ## Usage
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { parseGwei } from 'viem'
-import { testClient } from '.'
+import { testClient } from './client'
  
 await testClient.setMinGasPrice({ // [!code focus:99]
   gasPrice: parseGwei('20'),
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

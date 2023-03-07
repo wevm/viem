@@ -30,7 +30,7 @@ The `writeContract` internally sends a transaction – it **does not** validate 
 
 Below is a very basic example of how to execute a write function on a contract (with no arguments).
 
-While you can use `writeContract` [by itself](#standalone), it is highly recommended to pair it with [`simulateContract`](/docs/contracts/simulateContract) to validate that the contract write will execute without errors.
+While you can use `writeContract` [by itself](#standalone), it is highly recommended to pair it with [`simulateContract`](/docs/contract/simulateContract) to validate that the contract write will execute without errors.
 
 ::: code-group
 

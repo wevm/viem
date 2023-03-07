@@ -18,9 +18,11 @@ Executes a new message call immediately without submitting a transaction to the 
 
 ## Usage
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { getAccount } from 'viem' 
-import { publicClient } from '.'
+import { publicClient } from './client'
 
 const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
  
@@ -30,6 +32,18 @@ const data = await publicClient.call({ // [!code focus:7]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

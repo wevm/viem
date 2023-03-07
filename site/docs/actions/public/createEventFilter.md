@@ -20,12 +20,26 @@ Creates a Filter to listen for new events that can be used with [`getFilterChang
 
 By default, an Event Filter with no arguments will query for/listen to all events.
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter()
 // { id: "0x345a6572337856574a76364e457a4366", type: 'event' }
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Scoping
 
@@ -35,13 +49,27 @@ You can also scope a Filter to a set of given attributes (listed below).
 
 A Filter can be scoped to an **address**:
 
-```ts 
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ### Event
 
@@ -49,9 +77,11 @@ A Filter can be scoped to an **event**.
 
 The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/abi/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { parseAbiItem } from 'viem' // [!code focus]
-import { publicClient } from '.'
+import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -59,10 +89,24 @@ const filter = await publicClient.createEventFilter({
 })
 ```
 
-By default, `event` accepts the [`AbiEvent`]((/docs/glossary/types#abievent)) type:
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-```ts
-import { publicClient } from '.'
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+By default, `event` accepts the [`AbiEvent`](/docs/glossary/types#abievent) type:
+
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -76,6 +120,18 @@ const filter = await publicClient.createEventFilter(publicClient, {
   }
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ### Arguments
 

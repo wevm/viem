@@ -14,7 +14,7 @@ head:
 
 # createContractEventFilter
 
-Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges) or [`getFilterLogs`](/docs/actions/public/getFilterChanges).
+Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](/docs/actions/public/getFilterChanges) or [`getFilterLogs`](/docs/actions/public/getFilterLogs).
 
 ## Usage
 

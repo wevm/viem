@@ -18,10 +18,12 @@ Creates, signs, and sends a new transaction to the network.
 
 ## Usage
 
-```ts
-import { getAccount } from 'viem'
-import { walletClient } from '.'
+::: code-group
 
+```ts [example.ts]
+import { getAccount } from 'viem'
+import { walletClient } from './client'
+ 
 const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
  
 const hash = await walletClient.sendTransaction({ // [!code focus:99]
@@ -31,6 +33,16 @@ const hash = await walletClient.sendTransaction({ // [!code focus:99]
 })
 // '0x...'
 ```
+
+```ts [client.ts]
+import { createWalletClient, custom } from 'viem'
+
+export const walletClient = createWalletClient({
+  transport: custom(window.ethereum)
+})
+```
+
+:::
 
 ## Returns
 

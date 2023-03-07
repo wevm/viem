@@ -18,9 +18,11 @@ Returns information about a block at a block number, hash or tag.
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const block = await publicClient.getBlock() // [!code focus:99]
 /**
  * {
@@ -31,6 +33,18 @@ const block = await publicClient.getBlock() // [!code focus:99]
  * }
  */
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

@@ -20,20 +20,36 @@ Returns a list of **event** logs matching the provided parameters.
 
 By default, `getLogs` returns all events. In practice, you must use scoping to filter for specific events.
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const logs = await publicClient.getLogs()  // [!code focus:99]
 // [{ ... }, { ... }, { ... }]
 ```
 
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ## Scoping
 
 You can also scope to a set of given attributes.
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { parseAbiItem } from 'viem'
-import { publicClient } from '.'
+import { publicClient } from './client'
 
 const logs = await publicClient.getLogs({  // [!code focus:99]
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -47,10 +63,24 @@ const logs = await publicClient.getLogs({  // [!code focus:99]
 })
 ```
 
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 By default, `event` accepts the [`AbiEvent`](/docs/glossary/types#abievent) type:
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.getLogs(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -71,15 +101,43 @@ const filter = await publicClient.getLogs(publicClient, {
 })
 ```
 
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ### Address
 
 A Filter can be scoped to an **address**:
 
-```ts
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const filter = await publicClient.getLogs({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ### Event
 
@@ -87,15 +145,29 @@ A Filter can be scoped to an **event**.
 
 The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/abi/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { parseAbiItem } from 'viem' // [!code focus]
-import { publicClient } from '.'
+import { publicClient } from './client'
 
 const filter = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ### Arguments
 

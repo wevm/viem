@@ -50,7 +50,7 @@ const result = client.readContract({ abi })
 If type inference isn't working, it's likely you forgot to add a `const` assertion or define the configuration parameter inline.
 
 ::: tip
-Unfortunately [TypeScript doesn't support importing JSON as const](https://github.com/microsoft/TypeScript/issues/32063). Check out [`@wagmi/cli`](/cli) to help with this! It can automatically fetch ABIs from Etherscan, resolve ABIs from your Foundry/Hardhat projects, and much more.
+Unfortunately [TypeScript doesn't support importing JSON as const](https://github.com/microsoft/TypeScript/issues/32063). Check out [`@wagmi/cli`](https://wagmi.sh/cli) to help with this! It can automatically fetch ABIs from Etherscan, resolve ABIs from your Foundry/Hardhat projects, and much more.
 :::
 
 ### Contract ABIs

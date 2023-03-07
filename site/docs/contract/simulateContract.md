@@ -16,7 +16,7 @@ head:
 
 The `simulateContract` function **simulates**/**validates** a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
 
-This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](/docs/contracts/readContract), but also supports contract write functions.
+This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](/docs/contract/readContract), but also supports contract write functions.
 
 Internally, `simulateContract` uses a [Public Client](/docs/clients/public) to call the [`call` action](/docs/actions/public/call) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 

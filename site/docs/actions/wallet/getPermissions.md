@@ -18,11 +18,23 @@ Gets the wallets current permissions.
 
 ## Usage
 
-```ts
-import { walletClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { walletClient } from './client'
  
 const permissions = await walletClient.getPermissions() // [!code focus:99]
 ```
+
+```ts [client.ts]
+import { createWalletClient, custom } from 'viem'
+
+export const walletClient = createWalletClient({
+  transport: custom(window.ethereum)
+})
+```
+
+:::
 
 ## Returns
 

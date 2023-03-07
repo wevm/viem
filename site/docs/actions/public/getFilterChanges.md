@@ -19,7 +19,7 @@ Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter
 A Filter can be created from the following actions:
 
 - [`createBlockFilter`](/docs/actions/public/createBlockFilter)
-- [`createContractEventFilter`](/docs/actions/public/createContractEventFilter)
+- [`createContractEventFilter`](/docs/contract/createContractEventFilter)
 - [`createEventFilter`](/docs/actions/public/createEventFilter)
 - [`createPendingTransactionFilter`](/docs/actions/public/createPendingTransactionFilter)
 
@@ -27,18 +27,34 @@ A Filter can be created from the following actions:
 
 ### Blocks
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.createBlockFilter() // [!code focus:99]
 const hashes = await publicClient.getFilterChanges({ filter })
 // ["0x10d86dc08ac2f18f00ef0daf7998dcc8673cbcf1f1501eeb2fac1afd2f851128", ...]
 ```
 
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ### Contract Events
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.createContractEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -50,11 +66,25 @@ const logs = await publicClient.getFilterChanges({ filter })
 // [{ ... }, { ... }, { ... }]
 ```
 
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ### Raw Events
 
-```ts
+::: code-group
+
+```ts [example.ts]
 import { parseAbiItem } from 'viem'
-import { publicClient } from '.'
+import { publicClient } from './client'
 
 const filter = await publicClient.createEventFilter({ // [!code focus:99]
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -65,15 +95,41 @@ const logs = await publicClient.getFilterChanges({ filter })
 // [{ ... }, { ... }, { ... }]
 ```
 
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ### Transactions
 
-```ts
-import { publicClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
 
 const filter = await publicClient.createPendingTransactionFilter() // [!code focus:99]
 const hashes = await publicClient.getFilterChanges({ filter })
 // ["0x89b3aa1c01ca4da5d15eca9fab459d062db5c0c9b76609acb0741901f01f6d19", ...]
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

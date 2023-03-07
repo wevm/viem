@@ -21,9 +21,11 @@ This Action will batch up all the pending transactions found within the [`pollin
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const unwatch = publicClient.watchPendingTransactions( // [!code focus:99]
   { onTransactions: hashes => console.log(hashes) }
 )
@@ -33,6 +35,18 @@ const unwatch = publicClient.watchPendingTransactions( // [!code focus:99]
  * > ['0x...', '0x...', '0x...', ...]
  */
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

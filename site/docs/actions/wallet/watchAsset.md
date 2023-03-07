@@ -18,19 +18,30 @@ Requests that the user tracks the token in their wallet. Returns a boolean indic
 
 ## Usage
 
-```ts
-import { walletClient } from '.';
+::: code-group
 
-await walletClient.watchAsset({
-  // [!code focus:99]
+```ts [example.ts]
+import { walletClient } from './client'
+ 
+await walletClient.watchAsset({ // [!code focus:99]
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     decimals: 18,
     symbol: 'WETH',
   },
-});
+})
 ```
+
+```ts [client.ts]
+import { createWalletClient, custom } from 'viem'
+
+export const walletClient = createWalletClient({
+  transport: custom(window.ethereum)
+})
+```
+
+:::
 
 ## Returns
 

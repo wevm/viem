@@ -18,13 +18,29 @@ Sets the next block's base fee per gas.
 
 ## Usage
 
-```ts
-import { testClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { parseGwei } from 'viem'
+import { testClient } from './client'
  
 await testClient.setNextBlockBaseFeePerGas({ // [!code focus:4]
   baseFeePerGas: parseGwei('20')
 })
 ```
+
+```ts [client.ts]
+import { createTestClient, http } from 'viem'
+import { foundry } from 'viem/chains'
+
+export const testClient = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+```
+
+:::
 
 ## Parameters
 

@@ -18,14 +18,28 @@ Returns the balance of an address in wei.
 
 ## Usage
 
-```ts
-import { publicClient } from '.'
- 
+::: code-group
+
+```ts [example.ts]
+import { publicClient } from './client'
+
 const balance = await publicClient.getBalance({ // [!code focus:4]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 10000000000000000000000n (wei)
 ```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
 
 ## Returns
 

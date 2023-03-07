@@ -18,12 +18,24 @@ Returns a list of account addresses owned by the wallet or client.
 
 ## Usage
 
-```ts
-import { walletClient } from '.'
+::: code-group
+
+```ts [example.ts]
+import { walletClient } from './client'
  
 const accounts = await walletClient.getAddresses() // [!code focus:99]
 // ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
 ```
+
+```ts [client.ts]
+import { createWalletClient, custom } from 'viem'
+
+export const walletClient = createWalletClient({
+  transport: custom(window.ethereum)
+})
+```
+
+:::
 
 ## Returns
 
