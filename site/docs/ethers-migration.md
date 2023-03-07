@@ -301,7 +301,7 @@ import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
 
-const [address] = await provider.listAcconts()
+const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
 signer.sendTransaction({ ... })
@@ -431,41 +431,6 @@ client.signMessage({ account, ... })
 
 > There are API differences in all of these methods. Use the search bar at the top of the page to learn more about them.
 
-### Wallet
-
-#### Ethers
-
-```ts {7-9}
-import { providers, Wallet } from 'ethers'
-
-const provider = new providers.Web3Provider(window.ethereum)
-
-const wallet = new Wallet('0x...', provider)
-
-wallet.sendTransaction(...)
-wallet.signMessage(...)
-...
-```
-
-#### viem
-
-viem does not currently support client-side signing – until then, you can use an Ethers `Wallet`:
-
-```ts {10-12}
-import { Wallet } from 'ethers'
-import { createWalletClient, custom, getAccount } from 'viem'
-
-const client = createWalletClient({
-  transport: custom(window.ethereum)
-})
-
-const account = getAccount(new Wallet('0x...'))
-
-client.sendTransaction({ account, ... })
-client.signMessage({ account, ... })
-...
-```
-
 ## Contract Interaction
 
 ### Reading from Contracts
@@ -511,7 +476,7 @@ import { wagmiContractConfig } from './abi'
 
 const provider = new providers.Web3Provider(window.ethereum)
 
-const [address] = await provider.listAcconts()
+const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
 const { abi, address } = wagmiContractConfig
@@ -555,7 +520,7 @@ import { abi, bytecode } from './abi'
 
 const provider = new providers.Web3Provider(window.ethereum)
 
-const [address] = await provider.listAcconts()
+const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
 const contract = new ContractFactory(abi, bytecode, signer)
@@ -1640,7 +1605,7 @@ import { keccak256, toBytes } from 'viem'
 keccak256(toBytes('hello world'))
 ```
 
-### encodeBase64/decodeBase58
+### encodeBase64/decodeBase64
 
 viem does not provide Base64 encoding utilities. 
 
