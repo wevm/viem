@@ -30,7 +30,7 @@ await testClient.dropTransaction({ // [!code focus:4]
 
 ### hash
 
-- **Type:** ``"0x${string}"``
+- **Type:** [`Hash`](/docs/glossary/types#hash)
 
 The hash of the transaction.
 
