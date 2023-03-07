@@ -190,7 +190,7 @@ Help support future development and make wagmi a sustainable open-source project
 <HomeSponsors />
 </div>
 
-<style>
+<style scoped>
   .VPDoc .container {
     max-width: 1120px !important;
   }
