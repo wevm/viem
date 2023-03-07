@@ -4,6 +4,8 @@
 
 Added the following chains:
 
+- `baseGoerli`
+- `boba`
 - `filecoinCalibration`
 - `flare`
 - `flareTestnet`
