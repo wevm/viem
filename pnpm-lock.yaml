@@ -98,6 +98,17 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4
 
+  examples/blocks/watching-blocks:
+    specifiers:
+      typescript: ^4.9.3
+      viem: latest
+      vite: ^4.1.4
+    dependencies:
+      viem: link:../../..
+    devDependencies:
+      typescript: 4.9.5
+      vite: 4.1.4
+
   examples/clients/public-client:
     specifiers:
       typescript: ^4.9.3

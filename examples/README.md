@@ -8,7 +8,7 @@ The below list is not exhaustive, and is a work in progress. If you have an idea
 
 - Blocks
   - [x] Fetching Blocks
-  - [ ] Watching Blocks
+  - [x] Watching Blocks
 - Clients
   - [x] Public (w/ HTTP, WebSocket, Fallback)
   - [x] Wallet – JSON-RPC Account (`window.ethereum`)
