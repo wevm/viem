@@ -38,6 +38,7 @@ test('default', async () => {
       "getStorageAt": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
+      "getTransactionCount": [Function],
       "getTransactionReceipt": [Function],
       "multicall": [Function],
       "readContract": [Function],
@@ -215,6 +216,14 @@ describe('smoke test', () => {
         transactionReceipt,
       }),
     ).toBe(1n)
+  })
+
+  test('getTransactionCount', async () => {
+    expect(
+      await publicClient.getTransactionCount({
+        address: accounts[0].address,
+      }),
+    ).toBeDefined()
   })
 
   test('getTransactionReceipt', async () => {
