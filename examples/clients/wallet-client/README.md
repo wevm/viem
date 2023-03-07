@@ -1,3 +1,3 @@
-# Public Client Example
+# Wallet Client Example
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients/public-client)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients/wallet-client)
