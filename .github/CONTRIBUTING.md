@@ -87,7 +87,7 @@ After the install completes, pnpm links packages across the project for developm
 wagmi uses [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) to execute tests against a local Ethereum node. First, install Anvil via [Foundry](https://book.getfoundry.sh/getting-started/installation). Next, add the following to your environment (recommended to use [`direnv`](https://github.com/direnv/direnv)):
 
 ```bash
-VITE_ANVIL_FORK_URL=https://eth-mainnet.alchemyapi.io/v2/<apiKey>
+VITE_ANVIL_FORK_URL=https://eth-mainnet.g.alchemy.com/v2/<apiKey>
 VITE_ANVIL_BLOCK_TIME=1
 VITE_ANVIL_BLOCK_NUMBER=16280770
 VITE_NETWORK_TRANSPORT_MODE=http
