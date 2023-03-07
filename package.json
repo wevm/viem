@@ -167,6 +167,11 @@
   "pnpm": {
     "patchedDependencies": {
       "vitepress@1.0.0-alpha.49": "patches/vitepress@1.0.0-alpha.49.patch"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@algolia/client-search"
+      ]
     }
   }
 }
