@@ -73,6 +73,11 @@ export const sponsors = [
         url: 'https://www.dynamic.xyz',
         img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/dynamic-light.svg',
       },
+      {
+        name: 'BitKeep',
+        url: 'https://bitkeep.com',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/bitkeep-light.svg',
+      },
     ],
   },
 ] satisfies Sponsors
