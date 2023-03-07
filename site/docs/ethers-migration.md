@@ -135,7 +135,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http('https://eth-mainnet.alchemyapi.io/v2/<apiKey>')
+  transport: http('https://eth-mainnet.g.alchemy.com/v2/<apiKey>')
 })
 ```
 
@@ -231,7 +231,7 @@ const provider = new providers.FallbackProvider([alchemy, infura])
 import { createPublicClient, http, fallback } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const alchemy = http('https://eth-mainnet.alchemyapi.io/v2/<apiKey>')
+const alchemy = http('https://eth-mainnet.g.alchemy.com/v2/<apiKey>')
 const infura = http('https://mainnet.infura.io/v3/<apiKey>')
 
 const client = createPublicClient({
@@ -275,7 +275,7 @@ const client = createWalletClient({
 ```ts {3}
 import { providers } from 'ethers'
 
-const provider = new providers.WebSocketProvider('wss://eth-mainnet.alchemyapi.io/v2/<apiKey>')
+const provider = new providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/<apiKey>')
 ```
 
 #### viem
@@ -286,7 +286,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: webSocket('wss://eth-mainnet.alchemyapi.io/v2/<apiKey>')
+  transport: webSocket('wss://eth-mainnet.g.alchemy.com/v2/<apiKey>')
 })
 ```
 

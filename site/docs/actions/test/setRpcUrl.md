@@ -23,7 +23,7 @@ Sets the backend RPC URL.
 ```ts [example.ts]
 import { testClient } from './client'
 
-await testClient.setRpcUrl('https://eth-mainnet.alchemyapi.io/v2') // [!code focus]
+await testClient.setRpcUrl('https://eth-mainnet.g.alchemy.com/v2') // [!code focus]
 ```
 
 ```ts [client.ts]
