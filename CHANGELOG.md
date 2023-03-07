@@ -1,5 +1,13 @@
 # viem
 
+## 0.1.3
+
+### Patch Changes
+
+- [#136](https://github.com/wagmi-dev/viem/pull/136) [`dcca090`](https://github.com/wagmi-dev/viem/commit/dcca0900556d45a5795af4f60ef070a54a6f0306) Thanks [@jxom](https://github.com/jxom)! - Fixed ABI encoding for strings larger than 32 bytes.
+
+* [#136](https://github.com/wagmi-dev/viem/pull/136) [`dcca090`](https://github.com/wagmi-dev/viem/commit/dcca0900556d45a5795af4f60ef070a54a6f0306) Thanks [@jxom](https://github.com/jxom)! - Fixed emoji string encoding.
+
 ## 0.1.2
 
 ### Patch Changes
