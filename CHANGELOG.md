@@ -1,5 +1,29 @@
 # viem
 
+## 0.1.4
+
+### Patch Changes
+
+- [#139](https://github.com/wagmi-dev/viem/pull/139) [`304a436`](https://github.com/wagmi-dev/viem/commit/304a4365dba9aa7be191ae4436b952eea9cfe79e) Thanks [@jxom](https://github.com/jxom)! - Added the following chains:
+
+  - `baseGoerli`
+  - `boba`
+  - `filecoinCalibration`
+  - `flare`
+  - `flareTestnet`
+  - `harmonyOne`
+  - `moonbaseAlpha`
+  - `moonbeam`
+  - `moonriver`
+  - `okc`
+  - `polygonZkEvmTestnet`
+  - `shardeumSphinx`
+  - `songbird`
+  - `songbirdTestnet`
+  - `telos`
+  - `telosTestnet`
+  - `zhejiang`
+
 ## 0.1.3
 
 ### Patch Changes
