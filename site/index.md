@@ -4,12 +4,15 @@ editLink: false
 title: viem
 titleTemplate: :title · TypeScript Interface for Ethereum
 description: Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.
+layout: home
 ---
 
 <script setup lang="ts">
 import { VPButton } from 'vitepress/theme'
 import HomeSponsors from './.vitepress/theme/components/HomeSponsors.vue'
 </script>
+
+<div class="max-w-[1120px] mx-auto vp-doc relative px-[24px] mb-[96px] mt-[32px] md:px-0 md:mb-[64px]">
 
 <div class="pt-[48px] max-sm:pt-0">
   <div class="absolute -left-28 right-0 -top-10 bottom-0 bg-[url('/colosseum-light.svg')] dark:bg-[url('/colosseum.svg')] bg-no-repeat z-[-1] max-sm:w-[200%] max-sm:-left-[200px] max-sm:hidden" />
@@ -136,17 +139,17 @@ yarn add viem
 
 ```ts
 // 1. Import modules.
-import { createPublicClient, http } from 'viem';
-import { mainnet } from 'viem/chains';
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
-});
+})
 
 // 3. Consume an action!
-const blockNumber = await client.getBlockNumber();
+const blockNumber = await client.getBlockNumber()
 ```
 
 <div class="h-8" />
@@ -189,18 +192,6 @@ Help support future development and make wagmi a sustainable open-source project
 
 <HomeSponsors />
 </div>
-
-<style>
-  .VPDoc .container {
-    max-width: 1120px !important;
-  }
-
-  .VPDoc .content {
-    max-width: 100% !important;
-    padding: 0px !important;
-    width: 100% !important;
-  }
-</style>
 
 <style scoped>
   html:not(.dark) img.dark {
@@ -264,3 +255,5 @@ Help support future development and make wagmi a sustainable open-source project
     justify-content: center;
   }
 </style>
+
+</div>
