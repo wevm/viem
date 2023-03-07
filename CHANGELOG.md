@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.5
+
+### Patch Changes
+
+- [#141](https://github.com/wagmi-dev/viem/pull/141) [`450b612`](https://github.com/wagmi-dev/viem/commit/450b612289b832559ce11a9e2eba7dda68a7a981) Thanks [@unholypanda](https://github.com/unholypanda)! - Fixed `createPublicClient` to include `getTransactionCount`
+
 ## 0.1.4
 
 ### Patch Changes
