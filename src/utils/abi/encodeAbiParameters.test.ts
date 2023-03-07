@@ -777,6 +777,42 @@ describe('dynamic', () => {
         '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
       )
     })
+
+    // cast abi-encode "a(string)" "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc faucibus lorem a libero auctor condimentum. Donec ornare massa rhoncus lacus rutrum, eget pulvinar arcu elementum. Nunc mauris lorem, sodales eget viverra in, euismod quis mi. Praesent nec commodo leo. Phasellus condimentum mauris sed accumsan eleifend. Praesent ac blandit sem, et rutrum ipsum. Etiam in tellus ac enim facilisis ultrices. Fusce ac vestibulum quam. Duis sed purus scelerisque, sollicitudin erat ac, pulvinar nisi. Pellentesque eu purus nec sapien vehicula convallis ut vel elit. Suspendisse eget ex vitae enim volutpat scelerisque. Sed quis elit tristique erat luctus egestas a ac odio. Duis vehicula enim ac metus gravida, vel maximus nisi imperdiet."
+    test('> 32 bytes', () => {
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xOut',
+              type: 'string',
+            },
+          ],
+          [
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc faucibus lorem a libero auctor condimentum. Donec ornare massa rhoncus lacus rutrum, eget pulvinar arcu elementum. Nunc mauris lorem, sodales eget viverra in, euismod quis mi. Praesent nec commodo leo. Phasellus condimentum mauris sed accumsan eleifend. Praesent ac blandit sem, et rutrum ipsum. Etiam in tellus ac enim facilisis ultrices. Fusce ac vestibulum quam. Duis sed purus scelerisque, sollicitudin erat ac, pulvinar nisi. Pellentesque eu purus nec sapien vehicula convallis ut vel elit. Suspendisse eget ex vitae enim volutpat scelerisque. Sed quis elit tristique erat luctus egestas a ac odio. Duis vehicula enim ac metus gravida, vel maximus nisi imperdiet.',
+          ],
+        ),
+      ).toMatchInlineSnapshot(
+        '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002da4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742e204e756e63206661756369627573206c6f72656d2061206c696265726f20617563746f7220636f6e64696d656e74756d2e20446f6e6563206f726e617265206d617373612072686f6e637573206c616375732072757472756d2c20656765742070756c76696e6172206172637520656c656d656e74756d2e204e756e63206d6175726973206c6f72656d2c20736f64616c65732065676574207669766572726120696e2c20657569736d6f642071756973206d692e205072616573656e74206e656320636f6d6d6f646f206c656f2e2050686173656c6c757320636f6e64696d656e74756d206d61757269732073656420616363756d73616e20656c656966656e642e205072616573656e7420616320626c616e6469742073656d2c2065742072757472756d20697073756d2e20457469616d20696e2074656c6c757320616320656e696d20666163696c6973697320756c7472696365732e20467573636520616320766573746962756c756d207175616d2e204475697320736564207075727573207363656c657269737175652c20736f6c6c696369747564696e20657261742061632c2070756c76696e6172206e6973692e2050656c6c656e746573717565206575207075727573206e65632073617069656e207665686963756c6120636f6e76616c6c69732075742076656c20656c69742e2053757370656e6469737365206567657420657820766974616520656e696d20766f6c7574706174207363656c657269737175652e20536564207175697320656c6974207472697374697175652065726174206c756374757320656765737461732061206163206f64696f2e2044756973207665686963756c6120656e696d206163206d6574757320677261766964612c2076656c206d6178696d7573206e69736920696d706572646965742e000000000000"',
+      )
+    })
+
+    // cast abi-encode "a(string)" "👨‍👨‍👦‍👦🏴‍☠️"
+    test('emojis', () => {
+      expect(
+        encodeAbiParameters(
+          [
+            {
+              name: 'xOut',
+              type: 'string',
+            },
+          ],
+          ['👨‍👨‍👦‍👦🏴‍☠️'],
+        ),
+      ).toMatchInlineSnapshot(
+        '"0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000026f09f91a8e2808df09f91a8e2808df09f91a6e2808df09f91a6f09f8fb4e2808de298a0efb88f0000000000000000000000000000000000000000000000000000"',
+      )
+    })
   })
 
   describe('(string,uint,bool)', () => {
@@ -848,6 +884,22 @@ describe('dynamic', () => {
         ),
       ).toMatchInlineSnapshot(
         '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000030420690000000000000000000000000000000000000000000000000000000000"',
+      )
+      expect(
+        // cast abi-encode "a(bytes)" "0xd83ddc68200dd83ddc68200dd83ddc66200dd83ddc66d83cdff4200d2620fe0f"
+        encodeAbiParameters(
+          [
+            {
+              name: 'xIn',
+              type: 'bytes',
+            },
+          ],
+          [
+            '0xd83ddc68200dd83ddc68200dd83ddc66200dd83ddc66d83cdff4200d2620fe0f',
+          ],
+        ),
+      ).toMatchInlineSnapshot(
+        '"0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020d83ddc68200dd83ddc68200dd83ddc66200dd83ddc66d83cdff4200d2620fe0f"',
       )
       expect(
         // cast abi-encode "a(bytes)" "0x70a08231000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045"

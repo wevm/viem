@@ -92,13 +92,12 @@ export function numberToHex(
   return hex
 }
 
+const encoder = new TextEncoder()
+
 /**
  * @description Encodes a UTF-8 string into a hex string
  */
-export function stringToHex(value: string): Hex {
-  let hex = ''
-  for (let i = 0; i < value.length; i++) {
-    hex += value.charCodeAt(i).toString(16)
-  }
-  return `0x${hex}`
+export function stringToHex(value_: string): Hex {
+  const value = encoder.encode(value_)
+  return toHex(value)
 }
