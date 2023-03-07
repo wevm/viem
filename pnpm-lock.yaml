@@ -21,7 +21,7 @@ importers:
       '@types/ws': ^8.5.4
       '@vitest/coverage-c8': ^0.29.2
       '@vitest/ui': ^0.29.2
-      '@wagmi/chains': ~0.2.8
+      '@wagmi/chains': ~0.2.11
       '@wagmi/cli': ^0.1.6
       abitype: ~0.6.7
       bun: ^0.5.5
@@ -43,7 +43,7 @@ importers:
       ws: ^8.12.0
     dependencies:
       '@noble/hashes': 1.1.2
-      '@wagmi/chains': 0.2.8_typescript@4.9.5
+      '@wagmi/chains': 0.2.11_typescript@4.9.5
       abitype: 0.6.7_typescript@4.9.5
       idna-uts46-hx: 4.1.2
       isomorphic-ws: 5.0.0_ws@8.12.0
@@ -2281,6 +2281,17 @@ packages:
       - vue
     dev: true
 
+  /@wagmi/chains/0.2.11_typescript@4.9.5:
+    resolution: {integrity: sha512-aMrI1zKKXdeAaiTxBiv+3Zfgd3IajCDpxBtPPvpjXuWVRe4ikwzbyZ1HARKj3V1+wNMPng8EJiWpN966PcvROg==}
+    peerDependencies:
+      typescript: '>=4.9.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.5
+    dev: false
+
   /@wagmi/chains/0.2.7_typescript@4.9.5:
     resolution: {integrity: sha512-Oqnkl5n9MTBdMzgIwwdSKEDfm0Vdv2CYBaDyTa5SiTjFNaIfT6MRATLg7KbI3JydfxqJphsVFL+TZZqFvkte/g==}
     peerDependencies:
@@ -2291,17 +2302,6 @@ packages:
     dependencies:
       typescript: 4.9.5
     dev: true
-
-  /@wagmi/chains/0.2.8_typescript@4.9.5:
-    resolution: {integrity: sha512-owGdAL75bE0JOzVTm5SOci458RrdD+FTJ6D238A+0VV9SQCz5N8vK9VBxhcEKXexjhzMM+CJZqFBTyxNsmNlLw==}
-    peerDependencies:
-      typescript: '>=4.9.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      typescript: 4.9.5
-    dev: false
 
   /@wagmi/cli/0.1.6_typescript@4.9.5:
     resolution: {integrity: sha512-4ri/QATYDnLNZKVbnulW1Skfu2K5Jc+O0joULoHC6Ag/8Z1QlMEHl9GRXhO+6q68tv382EnVxjIUm6VuzbWpqA==}

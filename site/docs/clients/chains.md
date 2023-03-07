@@ -41,6 +41,7 @@ const client = createPublicClient({
 - `avalanche`
 - `avalancheFuji`
 - `baseGoerli`
+- `boba`
 - `bronos`
 - `bronosTestnet`
 - `bsc`
@@ -56,6 +57,8 @@ const client = createPublicClient({
 - `filecoin`
 - `filecoinCalibration`
 - `filecoinHyperspace`
+- `flare`
+- `flareTestnet`
 - `gnosis`
 - `gnosisChiado`
 - `harmonyOne`
@@ -73,10 +76,14 @@ const client = createPublicClient({
 - `polygonMumbai`
 - `polygonZkEvmTestnet`
 - `sepolia`
+- `shardeumSphinx`
+- `songbird`
+- `songbirdTestnet`
 - `taraxa`
 - `taraxaTestnet`
 - `telos`
 - `telosTestnet`
+- `zhejiang`
 - `zkSync`
 - `zkSyncTestnet`
 - `foundry`
