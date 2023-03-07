@@ -221,7 +221,7 @@ const client = createPublicClient({
 import { providers } from 'ethers'
 
 const alchemy = new providers.AlchemyProvider('homestead', '<apiKey>')
-const infura = new providers.AlchemyProvider('homestead', '<apiKey>')
+const infura = new providers.InfuraProvider('homestead', '<apiKey>')
 const provider = new providers.FallbackProvider([alchemy, infura])
 ```
 
