@@ -33,6 +33,8 @@ import type {
   GetTransactionParameters,
   GetTransactionConfirmationsParameters,
   GetTransactionConfirmationsReturnType,
+  GetTransactionCountParameters,
+  GetTransactionCountReturnType,
   GetTransactionReceiptParameters,
   GetTransactionReceiptReturnType,
   GetTransactionReturnType,
@@ -77,6 +79,7 @@ import {
   getLogs,
   getTransaction,
   getTransactionConfirmations,
+  getTransactionCount,
   getTransactionReceipt,
   uninstallFilter,
   waitForTransactionReceipt,
@@ -181,6 +184,9 @@ export type PublicActions<TChain extends Chain = Chain> = {
   getTransactionConfirmations: (
     args: GetTransactionConfirmationsParameters<TChain>,
   ) => Promise<GetTransactionConfirmationsReturnType>
+  getTransactionCount: (
+    args: GetTransactionCountParameters,
+  ) => Promise<GetTransactionCountReturnType>
   getTransactionReceipt: (
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<TChain>>
@@ -273,6 +279,7 @@ export const publicActions = <
   getTransaction: (args) => getTransaction(client, args),
   getTransactionConfirmations: (args) =>
     getTransactionConfirmations(client, args),
+  getTransactionCount: (args) => getTransactionCount(client, args),
   getTransactionReceipt: (args) => getTransactionReceipt(client, args),
   multicall: (args) => multicall(client, args),
   readContract: (args) => readContract(client, args),
