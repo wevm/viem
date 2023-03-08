@@ -1,0 +1,16 @@
+{
+  "name": "fetching-transactions-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "viem": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "vite": "^4.1.4"
+  }
+}

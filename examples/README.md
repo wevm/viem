@@ -40,7 +40,7 @@ The below list is not exhaustive, and is a work in progress. If you have an idea
   - [ ] State (snapshot/revert)
   - [ ] Tx pools
 - Transactions
-  - [ ] Fetching Transactions & Receipts
+  - [x] Fetching Transactions & Receipts
   - [ ] Transaction Types (EIP-1559, Legacy, etc)
   - [ ] Simulating Transactions
   - [x] Sending Transactions (& Waiting for Receipt)

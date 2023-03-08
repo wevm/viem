@@ -227,6 +227,17 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4
 
+  examples/transactions/fetching-transactions:
+    specifiers:
+      typescript: ^4.9.4
+      viem: latest
+      vite: ^4.1.4
+    dependencies:
+      viem: link:../../..
+    devDependencies:
+      typescript: 4.9.5
+      vite: 4.1.4
+
   examples/transactions/sending-transactions:
     specifiers:
       '@types/react': ^18.0.27

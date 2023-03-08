@@ -101,7 +101,9 @@ const balance = await publicClient.getTransactionConfirmations({
 
 ## Example
 
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@jxom/getBlockNumber?embed=true"></iframe>
+Check out the usage of `getTransactionConfirmations` in the live [Fetching Transactions Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions) below.
+
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Method
 
