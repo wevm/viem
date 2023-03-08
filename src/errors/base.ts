@@ -37,7 +37,7 @@ export class BaseError extends Error {
       shortMessage || 'An error occurred.',
       '',
       ...(args.metaMessages ? [...args.metaMessages, ''] : []),
-      ...(docsPath ? [`Docs: https://viem.sh${docsPath}`] : []),
+      ...(docsPath ? [`Docs: https://viem.sh${docsPath}.html`] : []),
       ...(details ? [`Details: ${details}`] : []),
       `Version: ${getVersion()}`,
     ].join('\n')
