@@ -6,17 +6,17 @@ const client = createPublicClient({
   transport: http(),
 })
 
-const txHash = "0xfa76a53a1b816c30f98f5456982cd0ccbb2c88b24049c928dfe4db6c8ae89aed"
+const hash = '0xfa76a53a1b816c30f98f5456982cd0ccbb2c88b24049c928dfe4db6c8ae89aed'
 
 const [transaction, transactionReceipt, confirmations] =
   await Promise.all([
-    client.getTransaction({ hash: txHash }),
-    client.getTransactionReceipt({ hash: txHash }),
-    client.getTransactionConfirmations({ hash: txHash }),
+    client.getTransaction({ hash }),
+    client.getTransactionReceipt({ hash }),
+    client.getTransactionConfirmations({ hash }),
   ])
 
 export default [
-  `Total confirmations: ${confirmations}`,
+  `Current confirmations: ${confirmations}`,
   `Transaction: 
     <details>
       <summary>View</summary>
