@@ -6,8 +6,10 @@ export function formatLog(
 ) {
   return {
     ...log,
+    blockHash: log.blockHash ? log.blockHash : null,
     blockNumber: log.blockNumber ? BigInt(log.blockNumber) : null,
     logIndex: log.logIndex ? BigInt(log.logIndex) : null,
+    transactionHash: log.transactionHash ? log.transactionHash : null,
     transactionIndex: log.transactionIndex
       ? BigInt(log.transactionIndex)
       : null,

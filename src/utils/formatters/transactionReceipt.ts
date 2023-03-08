@@ -34,6 +34,9 @@ export function formatTransactionReceipt(
     blockNumber: transactionReceipt.blockNumber
       ? BigInt(transactionReceipt.blockNumber)
       : null,
+    contractAddress: transactionReceipt.contractAddress
+      ? transactionReceipt.contractAddress
+      : null,
     cumulativeGasUsed: transactionReceipt.cumulativeGasUsed
       ? BigInt(transactionReceipt.cumulativeGasUsed)
       : null,
@@ -46,6 +49,7 @@ export function formatTransactionReceipt(
     logs: transactionReceipt.logs
       ? transactionReceipt.logs.map((log) => formatLog(log))
       : null,
+    to: transactionReceipt.to ? transactionReceipt.to : null,
     transactionIndex: transactionReceipt.transactionIndex
       ? hexToNumber(transactionReceipt.transactionIndex)
       : null,
