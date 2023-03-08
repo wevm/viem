@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.7
+
+### Patch Changes
+
+- [#159](https://github.com/wagmi-dev/viem/pull/159) [`574ae22`](https://github.com/wagmi-dev/viem/commit/574ae2244c755519bda02b46d8767a365e1f4217) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where decoding error logs would break if constructor was in ABI.
+
 ## 0.1.6
 
 ### Patch Changes
