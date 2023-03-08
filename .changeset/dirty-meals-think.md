@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Formatted `undefined` values from RPC as `null` to confirm to EIP-1474.
+Formatted `undefined` values from RPC as `null` to conform to EIP-1474.
