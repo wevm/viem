@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { VPButton, VPIconHeart, VPSponsors } from 'vitepress/theme';
+import { VPButton, VPIconHeart, VPSponsors } from 'vitepress/theme'
 import { sponsors } from '../sponsors'
 </script>
 
@@ -28,6 +28,7 @@ import { sponsors } from '../sponsors'
 
 <style scoped>
 .VPHomeSponsors {
+  margin-top: 0 !important;
   padding-top: 40px;
   background-color: var(--vp-c-bg);
 }
