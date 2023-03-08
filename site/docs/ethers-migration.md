@@ -403,7 +403,7 @@ import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
 
-const [address] = await provider.listAcconts()
+const [address] = await provider.listAccounts()
 const signer = provider.getSigner(address)
 
 signer.sendTransaction(...)
