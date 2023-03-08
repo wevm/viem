@@ -75,7 +75,7 @@ describe('wagmi', () => {
         args:             (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 420)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2"
     `)
     await expect(() =>
@@ -95,7 +95,7 @@ describe('wagmi', () => {
         args:          (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2"
     `)
     await expect(() =>
@@ -119,7 +119,7 @@ describe('wagmi', () => {
         args:                      (0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6, 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 1)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2"
     `)
   })
@@ -193,7 +193,7 @@ describe('BAYC', () => {
           args:             (1)
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-        Docs: https://viem.sh/docs/contract/simulateContract
+        Docs: https://viem.sh/docs/contract/simulateContract.html
         Version: viem@1.0.2"
       `)
     })
@@ -237,7 +237,7 @@ describe('contract errors', () => {
         function:  revertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })
@@ -261,7 +261,7 @@ describe('contract errors', () => {
         function:  assertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })
@@ -285,7 +285,7 @@ describe('contract errors', () => {
         function:  overflowWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })
@@ -309,7 +309,7 @@ describe('contract errors', () => {
         function:  divideByZeroWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })
@@ -333,7 +333,7 @@ describe('contract errors', () => {
         function:  requireWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })
@@ -359,7 +359,7 @@ describe('contract errors', () => {
         function:  simpleCustomWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })
@@ -385,7 +385,7 @@ describe('contract errors', () => {
         function:  complexCustomWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/simulateContract
+      Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2]
     `)
   })

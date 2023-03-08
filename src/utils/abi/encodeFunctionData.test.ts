@@ -126,7 +126,7 @@ test("errors: function doesn't exist", () => {
     "Function \\"bar\\" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeFunctionData
+    Docs: https://viem.sh/docs/contract/encodeFunctionData.html
     Version: viem@1.0.2"
   `)
 })

@@ -92,7 +92,7 @@ describe('errors', async () => {
         Contract Call:
           address:  0x0000000000000000000000000000000000000000
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2],
             "result": undefined,
             "status": "failure",
@@ -147,7 +147,7 @@ describe('errors', async () => {
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2],
             "result": undefined,
             "status": "failure",
@@ -202,7 +202,7 @@ describe('errors', async () => {
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2],
             "result": undefined,
             "status": "failure",
@@ -270,7 +270,7 @@ describe('errors', async () => {
           function:  transferFrom(address from, address to, uint256 tokenId)
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2],
             "result": undefined,
             "status": "failure",
@@ -288,7 +288,7 @@ describe('errors', async () => {
           function:  tokenOfOwnerByIndex(address owner, uint256 index)
           args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 1)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2],
             "result": undefined,
             "status": "failure",
@@ -328,7 +328,7 @@ describe('errors', async () => {
         Contract Call:
           address:  0x0000000000000000000000000000000000000000
 
-        Docs: https://viem.sh/docs/contract/encodeFunctionData
+        Docs: https://viem.sh/docs/contract/encodeFunctionData.html
         Version: viem@1.0.2]
       `)
     })
@@ -366,7 +366,7 @@ describe('errors', async () => {
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2]
       `)
     })
@@ -407,7 +407,7 @@ describe('errors', async () => {
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2]
       `)
     })
@@ -453,7 +453,7 @@ describe('errors', async () => {
           function:  transferFrom(address from, address to, uint256 tokenId)
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
-        Docs: https://viem.sh/docs/contract/multicall
+        Docs: https://viem.sh/docs/contract/multicall.html
         Version: viem@1.0.2]
       `)
     })

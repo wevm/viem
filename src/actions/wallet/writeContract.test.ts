@@ -80,7 +80,7 @@ test('w/ simulateContract (overloaded)', async () => {
       args:          (69421)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/simulateContract
+    Docs: https://viem.sh/docs/contract/simulateContract.html
     Version: viem@1.0.2"
   `)
 })

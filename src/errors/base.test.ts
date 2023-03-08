@@ -35,7 +35,7 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
-    Docs: https://viem.sh/lol
+    Docs: https://viem.sh/lol.html
     Details: details
     Version: viem@1.0.2]
   `)
@@ -46,7 +46,7 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
-    Docs: https://viem.sh/docs
+    Docs: https://viem.sh/docs.html
     Version: viem@1.0.2]
   `)
   expect(
@@ -57,7 +57,7 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [ViemError: An error occurred.
 
-    Docs: https://viem.sh/lol
+    Docs: https://viem.sh/lol.html
     Version: viem@1.0.2]
   `)
 })
@@ -91,7 +91,7 @@ test('inherited BaseError', () => {
   ).toMatchInlineSnapshot(`
     [ViemError: An internal error occurred.
 
-    Docs: https://viem.sh/lol
+    Docs: https://viem.sh/lol.html
     Details: details
     Version: viem@1.0.2]
   `)
@@ -107,7 +107,7 @@ test('inherited Error', () => {
   ).toMatchInlineSnapshot(`
     [ViemError: An internal error occurred.
 
-    Docs: https://viem.sh/lol
+    Docs: https://viem.sh/lol.html
     Details: details
     Version: viem@1.0.2]
   `)

@@ -234,7 +234,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  mintApe(uint256 numberOfTokens)
         args:             (1)
 
-      Docs: https://viem.sh/docs
+      Docs: https://viem.sh/docs.html
       Version: viem@1.0.2]
     `)
   })

@@ -124,7 +124,7 @@ test("errors: error doesn't exist", () => {
     "Error \\"AccessDeniedError\\" not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    Docs: https://viem.sh/docs/contract/encodeErrorResult.html
     Version: viem@1.0.2"
   `)
 })
@@ -153,7 +153,7 @@ test('errors: no inputs', () => {
     Cannot encode error result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the inputs exist on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    Docs: https://viem.sh/docs/contract/encodeErrorResult.html
     Version: viem@1.0.2"
   `)
   expect(() =>
@@ -180,7 +180,7 @@ test('errors: no inputs', () => {
     Cannot encode error result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the inputs exist on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    Docs: https://viem.sh/docs/contract/encodeErrorResult.html
     Version: viem@1.0.2"
   `)
 })

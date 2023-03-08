@@ -24,7 +24,7 @@ test('InvalidAbiDecodingTypeError', () => {
     [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
-    Docs: https://viem.sh/lol
+    Docs: https://viem.sh/lol.html
     Version: viem@1.0.2]
   `)
 })
@@ -67,7 +67,7 @@ test('InvalidAbiEncodingTypeError', () => {
     [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
-    Docs: https://viem.sh/lol
+    Docs: https://viem.sh/lol.html
     Version: viem@1.0.2]
   `)
 })

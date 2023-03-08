@@ -1964,7 +1964,7 @@ test('invalid type', () => {
     "Type \\"lol\\" is not a valid decoding type.
     Please provide a valid ABI type.
 
-    Docs: https://viem.sh/docs/contract/decodeAbiParameters
+    Docs: https://viem.sh/docs/contract/decodeAbiParameters.html
     Version: viem@1.0.2"
   `)
 })
