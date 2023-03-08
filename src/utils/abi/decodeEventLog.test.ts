@@ -7,6 +7,11 @@ test('Transfer()', () => {
     abi: [
       {
         inputs: [],
+        stateMutability: 'nonpayable',
+        type: 'constructor',
+      },
+      {
+        inputs: [],
         name: 'Transfer',
         type: 'event',
       },

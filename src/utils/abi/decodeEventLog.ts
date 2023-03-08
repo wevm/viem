@@ -49,7 +49,9 @@ export function decodeEventLog<
 >): DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData> {
   const [signature, ...argTopics] = topics
   const abiItem = (abi as Abi).find(
-    (x) => signature === getEventSelector(formatAbiItem(x) as EventDefinition),
+    (x) =>
+      x.type === 'event' &&
+      signature === getEventSelector(formatAbiItem(x) as EventDefinition),
   )
   if (!(abiItem && 'name' in abiItem))
     throw new AbiEventSignatureNotFoundError(signature, {
