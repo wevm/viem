@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VPButton, VPIconHeart, VPSponsors } from 'vitepress/theme'
 import { sponsors } from '../sponsors'
 </script>
 
