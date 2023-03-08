@@ -226,7 +226,7 @@ test('nullish values', () => {
           storageKeys: ['0x1'],
         },
       ],
-      blockHash: '0x1',
+      blockHash: undefined,
       blockNumber: '0x10f2c',
       from: '0x1',
       gas: undefined,
@@ -237,7 +237,7 @@ test('nullish values', () => {
       nonce: undefined,
       r: '0x1',
       s: '0x1',
-      to: '0x1',
+      to: undefined,
       transactionIndex: '0x1',
       type: undefined,
       v: undefined,
@@ -253,7 +253,7 @@ test('nullish values', () => {
           ],
         },
       ],
-      "blockHash": "0x1",
+      "blockHash": null,
       "blockNumber": 69420n,
       "chainId": undefined,
       "from": "0x1",
@@ -266,11 +266,53 @@ test('nullish values', () => {
       "nonce": undefined,
       "r": "0x1",
       "s": "0x1",
-      "to": "0x1",
+      "to": null,
       "transactionIndex": 1,
       "type": undefined,
       "v": undefined,
       "value": undefined,
+    }
+  `)
+})
+
+test('contract deployment transaction', () => {
+  expect(
+    formatTransaction({
+      accessList: undefined,
+      blockHash: '0x1',
+      blockNumber: '0x10f2c',
+      from: '0x1',
+      gas: '0x4234584',
+      gasPrice: '0x45',
+      hash: '0x1',
+      input: '0x1',
+      nonce: '0x1',
+      r: '0x1',
+      s: '0x1',
+      to: undefined,
+      transactionIndex: '0x1',
+      type: '0x0',
+      v: '0x1',
+      value: '0x1',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blockHash": "0x1",
+      "blockNumber": 69420n,
+      "chainId": undefined,
+      "from": "0x1",
+      "gas": 69420420n,
+      "gasPrice": 69n,
+      "hash": "0x1",
+      "input": "0x1",
+      "nonce": 1,
+      "r": "0x1",
+      "s": "0x1",
+      "to": null,
+      "transactionIndex": 1,
+      "type": "legacy",
+      "v": 1n,
+      "value": 1n,
     }
   `)
 })

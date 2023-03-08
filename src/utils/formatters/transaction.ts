@@ -28,6 +28,7 @@ export const transactionType = {
 export function formatTransaction(transaction: Partial<RpcTransaction>) {
   const transaction_ = {
     ...transaction,
+    blockHash: transaction.blockHash ? transaction.blockHash : null,
     blockNumber: transaction.blockNumber
       ? BigInt(transaction.blockNumber)
       : null,
@@ -41,6 +42,7 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
       ? BigInt(transaction.maxPriorityFeePerGas)
       : undefined,
     nonce: transaction.nonce ? hexToNumber(transaction.nonce) : undefined,
+    to: transaction.to ? transaction.to : null,
     transactionIndex: transaction.transactionIndex
       ? Number(transaction.transactionIndex)
       : null,
