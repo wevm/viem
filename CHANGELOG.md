@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.6
+
+### Patch Changes
+
+- [#153](https://github.com/wagmi-dev/viem/pull/153) [`bbb998a`](https://github.com/wagmi-dev/viem/commit/bbb998a6a1c2ce97a76e6275e1f07b6e2767b248) Thanks [@jxom](https://github.com/jxom)! - Formatted `undefined` values from RPC as `null` to conform to EIP-1474.
+
 ## 0.1.5
 
 ### Patch Changes
