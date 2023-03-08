@@ -41,6 +41,7 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
       ? BigInt(transaction.maxPriorityFeePerGas)
       : undefined,
     nonce: transaction.nonce ? hexToNumber(transaction.nonce) : undefined,
+    to: transaction.to ? transaction.to : null,
     transactionIndex: transaction.transactionIndex
       ? Number(transaction.transactionIndex)
       : null,
