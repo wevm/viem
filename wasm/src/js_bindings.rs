@@ -4,9 +4,9 @@ use wasm_bindgen::prelude::*;
 const TRANSACTION: &'static str = r#"
 type Address = `0x${string}`;
 type Hex = `0x${string}`;
-type AccessList = Array<{ address: Address; storageKeys: Array<Hex> }>
+type AccessList = { address: Address; storageKeys: Hex[] }[]
 
-type Legacy = {
+type LegacyTransaction = {
     from?: Address;
     to?: Address;
     gas?: Hex;
@@ -17,11 +17,11 @@ type Legacy = {
     chainId?: Hex;
 }
 
-type EIP1559 = Legacy & {
+type EIP1559Transaction = Legacy & {
     accessList?: AccessList;
 }
 
-type EIP2930 = {
+type EIP2930Transaction = {
     from?: Address;
     to?: Address;
     gas?: Hex;
@@ -34,7 +34,27 @@ type EIP2930 = {
     chainId?: Hex;
 }
 
-type Transaction = Legacy | EIP1559 | EIP2930;
+// TODO: Use types from src/types/transaction.ts
+type Transaction = LegacyTransaction | EIP1559Transaction | EIP2930Transaction;
+
+// TODO: Use types from src/types/typedData.ts
+type TypedData = {
+    types: Record<string, Record<string, { name: string; type: string }[]>>;
+    domain: {
+        name?: string;
+        version?: string;
+        chainId?: number;
+        verifyingContract?: string;
+        salt?: string;
+    };
+    primaryType: string;
+    message: Record<string, unknown>;
+};
+
+type FromMnemonicOptions = {
+    index?: number,
+    password?: string,
+}
 "#;
 
 #[wasm_bindgen]
@@ -44,6 +64,12 @@ extern "C" {
 
     #[wasm_bindgen(typescript_type = "Transaction")]
     pub type JsTransaction;
+
+    #[wasm_bindgen(typescript_type = "TypedData")]
+    pub type JsTypedData;
+
+    #[wasm_bindgen(typescript_type = "FromMnemonicOptions")]
+    pub type JsFromMnemonicOptions;
 }
 
 #[wasm_bindgen]
