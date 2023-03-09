@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import { signTypedData } from '../wallet'
 import { accounts } from '../_test'
 import { getAccount } from './account'
 
@@ -30,6 +31,9 @@ describe('account', () => {
         async signTransaction() {
           return '0x'
         },
+        async signTypedData() {
+          return '0x'
+        },
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -49,6 +53,9 @@ describe('account', () => {
           return '0x'
         },
         async signTransaction() {
+          return '0x'
+        },
+        async signTypedData() {
           return '0x'
         },
       }),
