@@ -6,6 +6,7 @@ export {
   requestPermissions,
   sendTransaction,
   signMessage,
+  signTypedData,
   switchChain,
   watchAsset,
 } from './actions/wallet'
@@ -20,6 +21,8 @@ export type {
   SendTransactionReturnType,
   SignMessageParameters,
   SignMessageReturnType,
+  SignTypedDataParameters,
+  SignTypedDataReturnType,
   SwitchChainParameters,
   WatchAssetParameters,
   WatchAssetReturnType,

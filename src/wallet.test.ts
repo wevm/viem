@@ -12,6 +12,7 @@ test('exports wallet actions', () => {
       "requestPermissions",
       "sendTransaction",
       "signMessage",
+      "signTypedData",
       "switchChain",
       "watchAsset",
     ]

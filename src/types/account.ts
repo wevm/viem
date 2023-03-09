@@ -1,4 +1,5 @@
-import type { Address } from 'abitype'
+import type { Address, TypedData } from 'abitype'
+import { SignTypedDataParameters } from '../actions/wallet'
 import type { Hash } from './misc'
 import type { TransactionRequest } from './transaction'
 
@@ -17,6 +18,9 @@ export type LocalAccount = {
       chainId: number
       from: Address
     },
+  ) => Promise<Hash>
+  signTypedData: <TTypedData extends TypedData | { [key: string]: unknown }>(
+    typedData: Omit<SignTypedDataParameters<TTypedData>, 'account'>,
   ) => Promise<Hash>
   type: 'local'
 }

@@ -1,10 +1,9 @@
-import { Abi } from 'abitype'
-import {
+import { Abi, TypedData } from 'abitype'
+import type {
   AddChainParameters,
   DeployContractParameters,
   DeployContractReturnType,
   GetAddressesReturnType,
-  getChainId,
   GetChainIdReturnType,
   GetPermissionsReturnType,
   RequestAddressesReturnType,
@@ -14,11 +13,11 @@ import {
   SendTransactionReturnType,
   SignMessageParameters,
   SignMessageReturnType,
+  SignTypedDataParameters,
+  SignTypedDataReturnType,
   SwitchChainParameters,
-  watchAsset,
   WatchAssetParameters,
   WatchAssetReturnType,
-  writeContract,
   WriteContractParameters,
   WriteContractReturnType,
 } from '../../actions/wallet'
@@ -26,12 +25,16 @@ import {
   addChain,
   deployContract,
   getAddresses,
+  getChainId,
   getPermissions,
   requestAddresses,
   requestPermissions,
   sendTransaction,
   signMessage,
+  signTypedData,
   switchChain,
+  watchAsset,
+  writeContract,
 } from '../../actions/wallet'
 import type { Chain } from '../../types'
 import type { WalletClient } from '../createWalletClient'
@@ -52,6 +55,9 @@ export type WalletActions<TChain extends Chain = Chain> = {
     args: SendTransactionParameters<TChainOverride>,
   ) => Promise<SendTransactionReturnType>
   signMessage: (args: SignMessageParameters) => Promise<SignMessageReturnType>
+  signTypedData: <TTypedData extends TypedData | { [key: string]: unknown }>(
+    args: SignTypedDataParameters<TTypedData>,
+  ) => Promise<SignTypedDataReturnType>
   switchChain: (args: SwitchChainParameters) => Promise<void>
   watchAsset: (args: WatchAssetParameters) => Promise<WatchAssetReturnType>
   writeContract: <
@@ -78,6 +84,7 @@ export const walletActions = <
   requestPermissions: (args) => requestPermissions(client, args),
   sendTransaction: (args) => sendTransaction(client, args),
   signMessage: (args) => signMessage(client, args),
+  signTypedData: (args) => signTypedData(client, args),
   switchChain: (args) => switchChain(client, args),
   watchAsset: (args) => watchAsset(client, args),
   writeContract: (args) => writeContract(client, args),
