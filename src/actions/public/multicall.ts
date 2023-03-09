@@ -3,6 +3,7 @@ import { multicall3Abi } from '../../constants'
 import {
   AbiDecodingZeroDataError,
   BaseError,
+  ChainDoesNotSupportContract,
   RawContractError,
 } from '../../errors'
 import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
@@ -22,7 +23,7 @@ export type MulticallParameters<
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
   contracts: readonly [...MulticallContracts<TContracts>]
-  multicallAddress: Address
+  multicallAddress?: Address
 }
 
 export type MulticallReturnType<
@@ -42,8 +43,39 @@ export async function multicall<
     blockNumber,
     blockTag,
     contracts,
-    multicallAddress,
+    multicallAddress: multicallAddress_,
   } = args
+
+  let multicallAddress = multicallAddress_
+  if (!multicallAddress) {
+    if (!client.chain)
+      throw new Error(
+        'client chain not configured. multicallAddress is required.',
+      )
+
+    const contract = client.chain?.contracts?.multicall3
+    if (!contract)
+      throw new ChainDoesNotSupportContract({
+        chain: client.chain,
+        contract: { name: 'multicall3' },
+      })
+
+    if (
+      blockNumber &&
+      contract.blockCreated &&
+      contract.blockCreated > blockNumber
+    )
+      throw new ChainDoesNotSupportContract({
+        blockNumber,
+        chain: client.chain,
+        contract: {
+          name: 'multicall3',
+          blockCreated: contract.blockCreated,
+        },
+      })
+
+    multicallAddress = contract.address
+  }
 
   const calls = contracts.map(({ abi, address, args, functionName }) => {
     try {
