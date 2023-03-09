@@ -57,6 +57,45 @@ test('default', async () => {
   `)
 })
 
+test('args: multicallAddress', async () => {
+  expect(
+    await multicall(publicClient, {
+      blockNumber: initialBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+      multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 41119586940119550n,
+        "status": "success",
+      },
+      {
+        "result": 231481998553n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 describe('errors', async () => {
   describe('allowFailure is truthy', async () => {
     test('function not found', async () => {
