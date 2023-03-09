@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.8
+
+### Patch Changes
+
+- [`36c908c`](https://github.com/wagmi-dev/viem/commit/36c908c65dcbca1a68841dfa8eb89963561431b1) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where empty strings were not being decoded properly in `decodeAbiParameters`.
+
 ## 0.1.7
 
 ### Patch Changes
