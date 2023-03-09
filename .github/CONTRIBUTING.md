@@ -18,11 +18,12 @@ This guide is intended to help you get started with contributing. By following t
 
 1. [Cloning the repository](#cloning-the-repository)
 2. [Installing Node.js and pnpm](#installing-nodejs-and-pnpm)
-3. [Installing dependencies](#installing-dependencies)
-4. [Running the test suite](#running-the-test-suite)
-5. [Writing documentation](#writing-documentation)
-6. [Submitting a pull request](#submitting-a-pull-request)
-7. [Versioning](#versioning)
+3. [Installing Foundry](#installing-foundry)
+4. [Installing dependencies](#installing-dependencies)
+5. [Running the test suite](#running-the-test-suite)
+6. [Writing documentation](#writing-documentation)
+7. [Submitting a pull request](#submitting-a-pull-request)
+8. [Versioning](#versioning)
 
 <br>
 
@@ -68,6 +69,16 @@ If the versions are not correct or you don't have Node.js or pnpm installed, dow
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
 
+## Installing Foundry
+
+viem uses [Foundry](https://book.getfoundry.sh/) for testing. We run a local [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) instance against a forked Ethereum node, where we can also use tools like [Forge](https://book.getfoundry.sh/forge/) to deploy test contracts to it. 
+
+Install Foundry using the following command:
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+```
+
 ## Installing dependencies
 
 Once in the project's root directory, run the following command to install the project's dependencies:
@@ -84,7 +95,7 @@ After the install completes, pnpm links packages across the project for developm
 
 ## Running the test suite
 
-wagmi uses [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) to execute tests against a local Ethereum node. First, install Anvil via [Foundry](https://book.getfoundry.sh/getting-started/installation). Next, add the following to your environment (recommended to use [`direnv`](https://github.com/direnv/direnv)):
+First, add the following to your environment (recommended to use [`direnv`](https://github.com/direnv/direnv)):
 
 ```bash
 VITE_ANVIL_FORK_URL=https://eth-mainnet.g.alchemy.com/v2/<apiKey>
