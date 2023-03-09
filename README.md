@@ -20,7 +20,7 @@
       <img src="https://img.shields.io/npm/v/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="Version">
     </picture>
   </a>
-  <a href="https://www.npmjs.com/package/viem">
+  <a href="https://app.codecov.io/gh/wagmi-dev/viem">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/codecov/c/github/wagmi-dev/viem?colorA=21262d&colorB=21262d&style=flat">
       <img src="https://img.shields.io/codecov/c/github/wagmi-dev/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="Code coverage">
@@ -30,6 +30,12 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/l/viem?colorA=21262d&colorB=21262d&style=flat">
       <img src="https://img.shields.io/npm/l/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="MIT License">
+    </picture>
+  </a>
+  <a href="https://bestofjs.org/projects/viem">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/endpoint?colorA=21262d&colorB=21262d&style=flat&url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=wagmi-dev%2Fviem%26since=daily">
+      <img src="https://img.shields.io/endpoint?colorA=f6f8fa&colorB=f6f8fa&style=flat&url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=wagmi-dev%2Fviem%26since=daily" alt="Best of JS">
     </picture>
   </a>
 </p>
