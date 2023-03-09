@@ -59,7 +59,7 @@ export {
 
 export { buildRequest } from './buildRequest'
 
-export { defineChain } from './chain'
+export { defineChain, getChainContractAddress } from './chain'
 
 export {
   extractFunctionName,

@@ -1,12 +1,11 @@
 import { PublicClient } from '../../clients'
 import { panicReasons } from '../../constants'
 import {
-  ChainDoesNotSupportContract,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
 } from '../../errors'
 import type { Address, Prettify } from '../../types'
-import { toHex } from '../../utils'
+import { getChainContractAddress, toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
 
@@ -48,28 +47,11 @@ export async function getEnsName(
         'client chain not configured. universalResolverAddress is required.',
       )
 
-    const contract = client.chain?.contracts?.ensUniversalResolver
-    if (!contract)
-      throw new ChainDoesNotSupportContract({
-        chain: client.chain,
-        contract: { name: 'ensUniversalResolver' },
-      })
-
-    if (
-      blockNumber &&
-      contract.blockCreated &&
-      contract.blockCreated > blockNumber
-    )
-      throw new ChainDoesNotSupportContract({
-        blockNumber,
-        chain: client.chain,
-        contract: {
-          name: 'ensUniversalResolver',
-          blockCreated: contract.blockCreated,
-        },
-      })
-
-    universalResolverAddress = contract.address
+    universalResolverAddress = getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'ensUniversalResolver',
+    })
   }
 
   const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
