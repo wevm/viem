@@ -1,4 +1,4 @@
-import { assertType, expect, test } from 'vitest'
+import { assertType, describe, expect, test } from 'vitest'
 import { getAddress } from '../address'
 import { decodeEventLog } from './decodeEventLog'
 
@@ -512,6 +512,70 @@ test('args: data', () => {
       getAddress('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
       1n,
     ],
+  })
+})
+
+describe('GitHub repros', () => {
+  describe('https://github.com/wagmi-dev/viem/issues/168', () => {
+    test('zero data string', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: false,
+                internalType: 'address',
+                name: 'voter',
+                type: 'address',
+              },
+              {
+                indexed: false,
+                internalType: 'bytes32',
+                name: 'proposalId',
+                type: 'bytes32',
+              },
+              {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'support',
+                type: 'uint256',
+              },
+              {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'weight',
+                type: 'uint256',
+              },
+              {
+                indexed: false,
+                internalType: 'string',
+                name: 'reason',
+                type: 'string',
+              },
+            ],
+            name: 'VoteCast',
+            type: 'event',
+          },
+        ],
+        data: '0x000000000000000000000000d1d1d4e36117ab794ec5d4c78cbd3a8904e691d04bdc559e89b88b73d8edeea6a767041d448d8076d070facc8340621555be3ac40000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000',
+        topics: [
+          '0x0c165c85edbf8f9b99d51793c9429beb9dc2b608a7f81e64623052f829657af3',
+        ],
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "proposalId": "0x4bdc559e89b88b73d8edeea6a767041d448d8076d070facc8340621555be3ac4",
+            "reason": "",
+            "support": 1n,
+            "voter": "0xd1d1D4e36117aB794ec5d4c78cBD3a8904E691D0",
+            "weight": 1n,
+          },
+          "eventName": "VoteCast",
+        }
+      `)
+    })
   })
 })
 

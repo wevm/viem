@@ -689,6 +689,20 @@ describe('dynamic', () => {
       expect(result).toEqual(['wagmi'])
     })
 
+    test('empty', () => {
+      const result = decodeAbiParameters(
+        [
+          {
+            name: 'xOut',
+            type: 'string',
+          },
+        ],
+        '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+      )
+      assertType<[string]>(result)
+      expect(result).toEqual([''])
+    })
+
     test('default', () => {
       expect(
         decodeAbiParameters(

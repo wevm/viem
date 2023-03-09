@@ -195,9 +195,9 @@ function decodeBytes<TParam extends AbiParameter>(
     // so we need to read the offset of the data part first.
     const offset = hexToNumber(slice(data, position, position + 32))
     const length = hexToNumber(slice(data, offset, offset + 32))
-    const value =
-      // If there is no length, we have zero data.
-      length === 0 ? '0x' : slice(data, offset + 32, offset + 32 + length)
+    // If there is no length, we have zero data.
+    if (length === 0) return { consumed: 32, value: '0x' }
+    const value = slice(data, offset + 32, offset + 32 + length)
     return { consumed: 32, value }
   }
 
@@ -223,6 +223,8 @@ function decodeNumber<TParam extends AbiParameter>(
 function decodeString(data: Hex, { position }: { position: number }) {
   const offset = hexToNumber(slice(data, position, position + 32))
   const length = hexToNumber(slice(data, offset, offset + 32))
+  // If there is no length, we have zero data (empty string).
+  if (length === 0) return { consumed: 32, value: '' }
   const value = hexToString(
     trim(slice(data, offset + 32, offset + 32 + length)),
   )
