@@ -1,31 +1,36 @@
-<a href="https://viem.sh">
-  <p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-dark.svg">
-      <img alt="viem logo" src="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-light.svg" width="auto" height="60">
-    </picture>
-  </p>
+<br/>
+
+<p align="center">
+  <a href="https://viem.sh">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-dark.svg">
+        <img alt="viem logo" src="https://github.com/wagmi-dev/viem/blob/main/.github/gh-logo-light.svg" width="auto" height="60">
+      </picture>
 </a>
+</p>
 
 <p align="center">
   TypeScript Interface for Ethereum
 <p>
 
 <p align="center">
-  <a aria-label="Version" href="https://www.npmjs.com/package/viem">
-    <img
-      alt="version"
-      src="https://img.shields.io/npm/v/viem?colorA=2B323B&colorB=1e2329&style=flat&label=Version"
-    />
+  <a href="https://www.npmjs.com/package/viem">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/v/viem?colorA=21262d&colorB=21262d&style=flat">
+      <img src="https://img.shields.io/npm/v/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="Version">
+    </picture>
   </a>
-  <a href="https://codecov.io/github/wagmi-dev/viem" >
-    <img src="https://codecov.io/github/wagmi-dev/viem/branch/main/graph/badge.svg?token=iUTN9R4Qfg"/>
+  <a href="https://www.npmjs.com/package/viem">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/codecov/c/github/wagmi-dev/viem?colorA=21262d&colorB=21262d&style=flat">
+      <img src="https://img.shields.io/codecov/c/github/wagmi-dev/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="Code coverage">
+    </picture>
   </a>
-  <a aria-label="License" href="https://www.npmjs.com/package/viem">
-    <img
-      alt=""
-      src="https://img.shields.io/github/license/wagmi-dev/viem?colorA=2B323B&colorB=1e2329&style=flat&label=License"
-    />
+  <a href="https://github.com/wagmi-dev/viem/blob/main/LICENSE">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/l/viem?colorA=21262d&colorB=21262d&style=flat">
+      <img src="https://img.shields.io/npm/l/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="MIT License">
+    </picture>
   </a>
 </p>
 
