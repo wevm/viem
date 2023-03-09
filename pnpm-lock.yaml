@@ -227,6 +227,27 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4
 
+  examples/signing/typed-data:
+    specifiers:
+      '@types/react': ^18.0.27
+      '@types/react-dom': ^18.0.10
+      '@vitejs/plugin-react': ^3.1.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^4.9.4
+      viem: workspace:*
+      vite: ^4.1.4
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      viem: link:../../..
+    devDependencies:
+      '@types/react': 18.0.28
+      '@types/react-dom': 18.0.11
+      '@vitejs/plugin-react': 3.1.0_vite@4.1.4
+      typescript: 4.9.5
+      vite: 4.1.4
+
   examples/transactions/fetching-transactions:
     specifiers:
       typescript: ^4.9.4
