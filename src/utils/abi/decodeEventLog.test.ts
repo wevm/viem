@@ -517,7 +517,7 @@ test('args: data', () => {
 
 describe('GitHub repros', () => {
   describe('https://github.com/wagmi-dev/viem/issues/168', () => {
-    test('(address,bytes32,uint256,uint256,string): zero data string', () => {
+    test('zero data string', () => {
       const result = decodeEventLog({
         abi: [
           {
