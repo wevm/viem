@@ -39,7 +39,7 @@ export type {
   Uncle,
 } from './block'
 
-export type { Chain } from './chain'
+export type { Chain, ChainContract } from './chain'
 
 export type {
   AbiItem,

@@ -6,7 +6,7 @@ export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
   formatters?: TFormatters
 }
 
-export type Contract = {
+export type ChainContract = {
   address: Address
   blockCreated?: number
 }

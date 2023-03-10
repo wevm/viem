@@ -1,6 +1,5 @@
-import { Chain, Formatters } from '../types'
+import { Chain, ChainContract, Formatters } from '../types'
 import { ChainDoesNotSupportContract } from '../errors'
-import { Contract } from '../types/chain'
 
 export function defineChain<
   TFormatters extends Formatters = Formatters,
@@ -18,7 +17,7 @@ export function getChainContractAddress({
   chain: Chain
   contract: string
 }) {
-  const contract = (chain?.contracts as Record<string, Contract>)?.[name]
+  const contract = (chain?.contracts as Record<string, ChainContract>)?.[name]
   if (!contract)
     throw new ChainDoesNotSupportContract({
       chain,
