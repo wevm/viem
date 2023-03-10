@@ -2,8 +2,6 @@ import { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
 import { ExtractEventArgsFromAbi } from './contract'
 import type { Hash, Hex } from './misc'
 
-type TopicFilter = (null | string | string[])[]
-
 type DecodedAbiEvent<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
@@ -56,7 +54,7 @@ export type Log<
   /** Index of the transaction that created this log or `null` if pending */
   transactionIndex: TIndex | null
   /** List of order-dependent topics */
-  topics: TopicFilter
+  topics: Hex[]
   /** `true` if this filter has been destroyed and is invalid */
   removed: boolean
 } & DecodedAbiEvent<TAbiEvent, TAbi, TEventName>
