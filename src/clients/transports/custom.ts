@@ -7,16 +7,7 @@ import { createTransport } from './createTransport'
 
 type EthereumProvider = { request: BaseRpcRequests['request'] }
 
-export type CustomTransportConfig = {
-  /** The key of the transport. */
-  key?: TransportConfig['key']
-  /** The name of the transport. */
-  name?: TransportConfig['name']
-  /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
-  /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
-}
+export type CustomTransportConfig = Partial<Pick<TransportConfig, 'key' | 'name' | 'retryCount' | 'retryDelay'>>
 
 export type CustomTransport = Transport<'custom', EthereumProvider['request']>
 
