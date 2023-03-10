@@ -18,6 +18,7 @@ export {
   createHttpServer,
   deploy,
   deployBAYC,
+  getLocalAccount,
   publicClient,
   testClient,
   walletClient,

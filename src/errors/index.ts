@@ -43,6 +43,7 @@ export { SizeExceedsPaddingSizeError } from './data'
 export {
   DataLengthTooLongError,
   DataLengthTooShortError,
+  IntegerOutOfRangeError,
   InvalidBytesBooleanError,
   InvalidHexBooleanError,
   InvalidHexValueError,

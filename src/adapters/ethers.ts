@@ -39,7 +39,8 @@ export const getAccount = (wallet: EthersWallet) =>
         gasLimit: txn.gas,
       })) as Hash
     },
-    async signTypedData({ domain, types, message }) {
+    async signTypedData({ domain, types: types_, message }) {
+      const { EIP712Domain: _, ...types } = types_ as any
       return (await wallet.signTypedData(
         domain ?? {},
         types as Record<string, TypedDataField[]>,

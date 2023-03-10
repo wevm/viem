@@ -11,7 +11,7 @@ import { parseEther, parseGwei } from '../../utils'
 import * as publicActions from '../../actions/public'
 
 import { defaultTip, prepareRequest } from './prepareRequest'
-import { getEoaAccount } from '../../_test/utils'
+import { getLocalAccount } from '../../_test/utils'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -43,7 +43,7 @@ describe('prepareRequest', () => {
       nonce: _nonce,
       ...rest
     } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -76,7 +76,7 @@ describe('prepareRequest', () => {
     } as any)
 
     const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -105,7 +105,7 @@ describe('prepareRequest', () => {
       nonce: _nonce,
       ...rest
     } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -132,7 +132,7 @@ describe('prepareRequest', () => {
     const { maxFeePerGas: _maxFeePerGas, ...rest } = await prepareRequest(
       walletClient,
       {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         nonce: 5,
         value: parseEther('1'),
@@ -162,7 +162,7 @@ describe('prepareRequest', () => {
     vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({} as any)
 
     const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
       value: parseEther('1'),
@@ -189,7 +189,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
         value: parseEther('1'),
@@ -205,7 +205,7 @@ describe('prepareRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       value: parseEther('1'),
@@ -233,7 +233,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('1'),
         value: parseEther('1'),
@@ -254,7 +254,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('10'),
         value: parseEther('1'),
@@ -270,7 +270,7 @@ describe('prepareRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
@@ -302,7 +302,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('5'),
         value: parseEther('1'),
@@ -318,7 +318,7 @@ describe('prepareRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       maxPriorityFeePerGas: parseGwei('5'),

@@ -42,6 +42,7 @@ export { signTypedData } from './signTypedData'
 export type {
   SignTypedDataParameters,
   SignTypedDataReturnType,
+  TypedDataDefinition,
 } from './signTypedData'
 
 export { switchChain } from './switchChain'

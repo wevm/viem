@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest'
-import { signTypedData } from '../wallet'
 import { accounts } from '../_test'
 import { getAccount } from './account'
 
