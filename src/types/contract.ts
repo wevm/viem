@@ -214,7 +214,7 @@ export type AbiEventTopicsToPrimitiveTypes<
 export type ExtractArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TAbiFunction extends AbiFunction  = TAbi extends Abi
+  TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
@@ -239,10 +239,7 @@ export type ExtractArgsFromAbi<
 export type ExtractConstructorArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
   TAbiFunction extends AbiConstructor = TAbi extends Abi
-    ? Extract<
-        TAbi[number],
-        { type: 'constructor' }
-      >
+    ? Extract<TAbi[number], { type: 'constructor' }>
     : AbiConstructor,
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   FailedToParseArgs =
@@ -381,9 +378,7 @@ export type ExtractResultFromAbi<
   TFunctionName extends string = string,
   TAbiFunction extends AbiFunction & {
     type: 'function'
-  } = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
-    : AbiFunction,
+  } = TAbi extends Abi ? ExtractAbiFunction<TAbi, TFunctionName> : AbiFunction,
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['outputs']>,
   FailedToParseArgs =
     | ([TArgs] extends [never] ? true : false)
@@ -430,7 +425,7 @@ export type GetValue<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TValueType = TransactionRequest['value'],
-  TAbiFunction extends AbiFunction  = TAbi extends Abi
+  TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
 > = TAbiFunction['stateMutability'] extends 'payable'
