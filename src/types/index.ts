@@ -1,33 +1,4 @@
-export type {
-  Abi,
-  AbiError,
-  AbiEvent,
-  AbiFunction,
-  AbiInternalType,
-  AbiParameter,
-  AbiParameterKind,
-  AbiStateMutability,
-  AbiType,
-  Address,
-  IsAbi,
-  IsTypedData,
-  SolidityAddress,
-  SolidityArray,
-  SolidityArrayWithTuple,
-  SolidityArrayWithoutTuple,
-  SolidityBool,
-  SolidityBytes,
-  SolidityFixedArrayRange,
-  SolidityFixedArraySizeLookup,
-  SolidityFunction,
-  SolidityInt,
-  SolidityString,
-  SolidityTuple,
-  TypedData,
-  TypedDataDomain,
-  TypedDataParameter,
-  TypedDataType,
-} from './abitype'
+export type { Address } from 'abitype'
 
 export type { Account, LocalAccount, JsonRpcAccount } from './account'
 

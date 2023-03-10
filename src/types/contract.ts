@@ -15,6 +15,7 @@ import type {
   ExtractAbiErrorNames,
   ExtractAbiFunctionNames,
   Narrow,
+  AbiConstructor,
 } from 'abitype'
 import type { Hex, LogTopic } from './misc'
 import type { TransactionRequest } from './transaction'
@@ -213,9 +214,9 @@ export type AbiEventTopicsToPrimitiveTypes<
 export type ExtractArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TAbiFunction extends AbiFunction & { type: 'function' } = TAbi extends Abi
+  TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
-    : AbiFunction & { type: 'function' },
+    : AbiFunction,
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   FailedToParseArgs =
     | ([TArgs] extends [never] ? true : false)
@@ -237,14 +238,9 @@ export type ExtractArgsFromAbi<
 
 export type ExtractConstructorArgsFromAbi<
   TAbi extends Abi | readonly unknown[],
-  TAbiFunction extends AbiFunction & { type: 'constructor' } = TAbi extends Abi
-    ? Extract<
-        TAbi[number],
-        {
-          type: 'constructor'
-        }
-      >
-    : AbiFunction & { type: 'constructor' },
+  TAbiFunction extends AbiConstructor = TAbi extends Abi
+    ? Extract<TAbi[number], { type: 'constructor' }>
+    : AbiConstructor,
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   FailedToParseArgs =
     | ([TArgs] extends [never] ? true : false)
@@ -382,9 +378,7 @@ export type ExtractResultFromAbi<
   TFunctionName extends string = string,
   TAbiFunction extends AbiFunction & {
     type: 'function'
-  } = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
-    : AbiFunction & { type: 'function' },
+  } = TAbi extends Abi ? ExtractAbiFunction<TAbi, TFunctionName> : AbiFunction,
   TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['outputs']>,
   FailedToParseArgs =
     | ([TArgs] extends [never] ? true : false)
@@ -431,9 +425,9 @@ export type GetValue<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TValueType = TransactionRequest['value'],
-  TAbiFunction extends AbiFunction & { type: 'function' } = TAbi extends Abi
+  TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
-    : AbiFunction & { type: 'function' },
+    : AbiFunction,
 > = TAbiFunction['stateMutability'] extends 'payable'
   ? TValueType
   : TAbiFunction['payable'] extends true
