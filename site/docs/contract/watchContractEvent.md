@@ -28,7 +28,7 @@ This Action will batch up all the event logs found within the [`pollingInterval`
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   onLogs: logs => console.log(logs)
@@ -60,7 +60,7 @@ You can scope to an event on the given ABI.
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer',
@@ -121,7 +121,7 @@ In the example below, we want to filter out `Transfer`s that were sent by the ad
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer',
@@ -188,7 +188,7 @@ A function that can be invoked to stop watching for new event logs.
 The contract's ABI.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
   onLogs: logs => console.log(logs)
@@ -202,7 +202,7 @@ const unwatch = await publicClient.watchContractEvent({
 The new event logs.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   onLogs: logs => console.log(logs) // [!code focus]
@@ -216,7 +216,7 @@ const unwatch = await publicClient.watchContractEvent({
 The contract address. If no address is provided, then it will emit all events matching the event signatures on the ABI.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
   onLogs: logs => console.log(logs)
@@ -230,7 +230,7 @@ const unwatch = await publicClient.watchContractEvent({
 Event arguments to filter logs.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer', // [!code focus]
@@ -246,7 +246,7 @@ const unwatch = await publicClient.watchContractEvent({
 An event name to filter logs.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer', // [!code focus]
@@ -262,7 +262,7 @@ const unwatch = await publicClient.watchContractEvent({
 Whether or not to batch logs between polling intervals.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   batch: false, // [!code focus]
@@ -277,7 +277,7 @@ const unwatch = await publicClient.watchContractEvent({
 Error thrown from listening for new event logs.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   onError: error => console.log(error), // [!code focus]
@@ -292,7 +292,7 @@ const unwatch = await publicClient.watchContractEvent({
 Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 
 ```ts
-const unwatch = await publicClient.watchContractEvent({
+const unwatch = publicClient.watchContractEvent({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   pollingInterval: 1_000, // [!code focus]

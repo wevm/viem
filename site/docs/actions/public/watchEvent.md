@@ -32,7 +32,7 @@ These events will be batched up into [Event Logs](/docs/glossary/terms#event-log
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await publicClient.watchEvent({
+const unwatch = publicClient.watchEvent({
   onLogs: logs => console.log(logs)
 })
 // > [{ ... }, { ... }, { ... }]
@@ -66,7 +66,7 @@ You can also scope `watchEvent` to a set of given attributes (listed below).
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await publicClient.watchEvent({
+const unwatch = publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // [!code focus]
   onLogs: logs => console.log(logs)
 })
@@ -100,7 +100,7 @@ import { parseAbiItem } from 'viem' // [!code focus]
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const unwatch = await publicClient.watchEvent({
+const unwatch = publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
   onLogs: logs => console.log(logs)
@@ -129,7 +129,7 @@ By default, `event` accepts the [`AbiEvent`](/docs/glossary/types.html#abievent)
 ```ts [example.ts]
 import { publicClient } from './client'
 
-const unwatch = await publicClient.watchEvent(publicClient, {
+const unwatch = publicClient.watchEvent(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: { // [!code focus:8]
     name: 'Transfer', 
@@ -165,7 +165,7 @@ export const publicClient = createPublicClient({
 import { parseAbiItem } from 'viem'
 import { publicClient } from './client'
 
-const unwatch = await publicClient.watchEvent({
+const unwatch = publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -196,7 +196,7 @@ Only indexed arguments in `event` are candidates for `args`.
 These arguments can also be an array to indicate that other values can exist in the position:
 
 ```ts
-const unwatch = await publicClient.watchEvent({
+const unwatch = publicClient.watchEvent({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:8]
