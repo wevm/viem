@@ -10,16 +10,36 @@ import { toHex } from '../../utils'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TSchema = TTypedData extends TypedData
-    ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
-  TMessage = TSchema[keyof TSchema],
+  TPrimaryType extends string = string,
 > = {
   account: Account
   domain?: TypedDataDomain
   types: Narrow<TTypedData>
-  primaryType: keyof TTypedData
-} & ({ [key: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
+  primaryType: GetPrimaryType<TTypedData, TPrimaryType>
+} & GetMessage<TTypedData, TPrimaryType>
+
+type GetPrimaryType<
+  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
+  TPrimaryType extends string = string,
+> = TTypedData extends TypedData
+  ? keyof TTypedData extends infer AbiFunctionNames
+    ?
+        | AbiFunctionNames
+        | (TPrimaryType extends AbiFunctionNames ? TPrimaryType : never)
+        | (TypedData extends TTypedData ? string : never)
+    : never
+  : TPrimaryType
+
+type GetMessage<
+  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
+  TPrimaryType extends string = string,
+  TSchema = TTypedData extends TypedData
+    ? TypedDataToPrimitiveTypes<TTypedData>
+    : { [key: string]: any },
+  TMessage = TSchema[TPrimaryType extends keyof TSchema
+    ? TPrimaryType
+    : keyof TSchema],
+> = { [key: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
   ? {
       /**
        * Data to sign
@@ -31,11 +51,13 @@ export type SignTypedDataParameters<
   : {
       /** Data to sign */
       message: TMessage
-    })
+    }
+
 export type SignTypedDataReturnType = Hex
 
 export async function signTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
+  TPrimaryType extends string = string,
 >(
   client: WalletClient,
   {
@@ -44,7 +66,7 @@ export async function signTypedData<
     message,
     primaryType,
     types,
-  }: SignTypedDataParameters<TTypedData>,
+  }: SignTypedDataParameters<TTypedData, TPrimaryType>,
 ): Promise<SignTypedDataReturnType> {
   if (account.type === 'local')
     return account.signTypedData({
