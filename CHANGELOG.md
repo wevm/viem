@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.9
+
+### Patch Changes
+
+- [#170](https://github.com/wagmi-dev/viem/pull/170) [`35a7508`](https://github.com/wagmi-dev/viem/commit/35a750839ae5ac41427e84922315ce3e360ee58a) Thanks [@jxom](https://github.com/jxom)! - Added inference for multicall address from client chain.
+
 ## 0.1.8
 
 ### Patch Changes
