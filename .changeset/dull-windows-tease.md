@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed type of `topics` field on `Log`.
+Fixed type of `topics` field on the `Log` type.
