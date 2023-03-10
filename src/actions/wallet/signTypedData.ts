@@ -133,8 +133,10 @@ export function validateTypedData<
   domain,
   message,
   primaryType,
-  types,
+  types: types_,
 }: TypedDataDefinition<TTypedData, TPrimaryType>) {
+  const types = types_ as TypedData
+
   const validateData = (
     struct: readonly TypedDataParameter[],
     value_: Record<string, unknown>,
@@ -171,7 +173,7 @@ export function validateTypedData<
           })
       }
 
-      const struct = (types as TypedData)[type]
+      const struct = types[type]
       if (struct) validateData(struct, value as Record<string, unknown>)
     }
   }
@@ -181,6 +183,6 @@ export function validateTypedData<
     validateData(types['EIP712Domain'], domain)
 
   // Validate message types.
-  const type = (types as TypedData)[primaryType as keyof TypedData]
+  const type = types[primaryType]
   validateData(type, message as Record<string, unknown>)
 }
