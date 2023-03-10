@@ -23,7 +23,7 @@ importers:
       '@vitest/ui': ^0.29.2
       '@wagmi/chains': ~0.2.11
       '@wagmi/cli': ^0.1.6
-      abitype: ^0.7.1
+      abitype: ~0.7.1
       bun: ^0.5.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
@@ -44,6 +44,7 @@ importers:
     dependencies:
       '@noble/hashes': 1.1.2
       '@wagmi/chains': 0.2.11_typescript@4.9.5
+      abitype: 0.7.1_typescript@4.9.5
       idna-uts46-hx: 4.1.2
       isomorphic-ws: 5.0.0_ws@8.12.0
       ws: 8.12.0
@@ -60,7 +61,6 @@ importers:
       '@vitest/coverage-c8': 0.29.2_vitest@0.29.2
       '@vitest/ui': 0.29.2
       '@wagmi/cli': 0.1.6_typescript@4.9.5
-      abitype: 0.7.1_typescript@4.9.5
       bun: 0.5.6
       bundlewatch: 0.3.3
       dedent: 0.7.0
@@ -2394,7 +2394,7 @@ packages:
         optional: true
     dependencies:
       typescript: 4.9.5
-    dev: true
+    dev: false
 
   /abort-controller/3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
