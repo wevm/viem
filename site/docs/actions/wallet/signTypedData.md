@@ -183,7 +183,7 @@ const signature = await walletClient.signTypedData({
 
 ### message
 
-***Type:** Inferred from `types` & `primaryType`.
+**Type:** Inferred from `types` & `primaryType`.
 
 ```ts
 const signature = await walletClient.signTypedData({
