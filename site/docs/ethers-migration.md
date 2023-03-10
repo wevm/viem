@@ -583,7 +583,7 @@ const client = createPublicClient({
   transport: http()
 })
 
-const unwatch = await client.watchContractEvent({
+const unwatch = client.watchContractEvent({
   ...wagmiContractConfig,
   eventName: 'Transfer',
   onLogs: logs => {
