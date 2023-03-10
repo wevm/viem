@@ -23,7 +23,7 @@ importers:
       '@vitest/ui': ^0.29.2
       '@wagmi/chains': ~0.2.11
       '@wagmi/cli': ^0.1.6
-      abitype: ~0.6.7
+      abitype: ^0.7.1
       bun: ^0.5.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
@@ -44,7 +44,6 @@ importers:
     dependencies:
       '@noble/hashes': 1.1.2
       '@wagmi/chains': 0.2.11_typescript@4.9.5
-      abitype: 0.6.7_typescript@4.9.5
       idna-uts46-hx: 4.1.2
       isomorphic-ws: 5.0.0_ws@8.12.0
       ws: 8.12.0
@@ -61,6 +60,7 @@ importers:
       '@vitest/coverage-c8': 0.29.2_vitest@0.29.2
       '@vitest/ui': 0.29.2
       '@wagmi/cli': 0.1.6_typescript@4.9.5
+      abitype: 0.7.1_typescript@4.9.5
       bun: 0.5.6
       bundlewatch: 0.3.3
       dedent: 0.7.0
@@ -2384,17 +2384,17 @@ packages:
       zod: 3.20.2
     dev: true
 
-  /abitype/0.6.7_typescript@4.9.5:
-    resolution: {integrity: sha512-PFiyVoR09ZYqOG8/LJg9T1CTsYzfBRcyp5sNQYq7PRZ4oZ+c3yp22GFIeP99pTrMEQxuoA3pq4f0kEjWyVqOSQ==}
+  /abitype/0.7.1_typescript@4.9.5:
+    resolution: {integrity: sha512-VBkRHTDZf9Myaek/dO3yMmOzB/y2s3Zo6nVU7yaw1G+TvCHAjwaJzNGN9yo4K5D8bU/VZXKP1EJpRhFr862PlQ==}
     peerDependencies:
       typescript: '>=4.9.4'
-      zod: '>=3.19.1'
+      zod: ^3 >=3.19.1
     peerDependenciesMeta:
       zod:
         optional: true
     dependencies:
       typescript: 4.9.5
-    dev: false
+    dev: true
 
   /abort-controller/3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
