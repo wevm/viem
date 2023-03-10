@@ -69,6 +69,6 @@ Size (in bytes) of the targeted value.
 pad('0xa4e12a45', {
   size: 16
 })
-// 0xa4e12a45000000000000000000000000
+// 0x000000000000000000000000a4e12a45
 ```
 
