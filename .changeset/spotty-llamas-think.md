@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Infer multicall address from client chain
+Added inference for multicall address from client chain.
