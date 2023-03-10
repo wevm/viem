@@ -12,6 +12,7 @@ import {
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
+  getChainContractAddress,
 } from '../../utils'
 import { CallParameters } from './call'
 import { readContract } from './readContract'
@@ -22,7 +23,7 @@ export type MulticallParameters<
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
   contracts: readonly [...MulticallContracts<TContracts>]
-  multicallAddress: Address
+  multicallAddress?: Address
 }
 
 export type MulticallReturnType<
@@ -42,8 +43,22 @@ export async function multicall<
     blockNumber,
     blockTag,
     contracts,
-    multicallAddress,
+    multicallAddress: multicallAddress_,
   } = args
+
+  let multicallAddress = multicallAddress_
+  if (!multicallAddress) {
+    if (!client.chain)
+      throw new Error(
+        'client chain not configured. multicallAddress is required.',
+      )
+
+    multicallAddress = getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'multicall3',
+    })
+  }
 
   const calls = contracts.map(({ abi, address, args, functionName }) => {
     try {

@@ -56,6 +56,7 @@ test('exports utils', () => {
       "getAccount": [Function],
       "getAddress": [Function],
       "getCallError": [Function],
+      "getChainContractAddress": [Function],
       "getContractAddress": [Function],
       "getContractError": [Function],
       "getCreate2Address": [Function],

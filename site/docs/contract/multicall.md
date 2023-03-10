@@ -220,3 +220,24 @@ const results = await publicClient.multicall({
   account: getAccount('0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b') // [!code focus]
 })
 ```
+
+### multicallAddress (optional)
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+- **Default:** `client.chain.contracts.multicall3.address`
+
+Address of Multicall Contract.
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11' // [!code focus]
+})
+```

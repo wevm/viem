@@ -4,11 +4,14 @@
  *        - Complex return types (tuple/structs)
  */
 
+import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
+import { createPublicClient, http } from '../../clients'
 import {
   accounts,
   address,
   initialBlockNumber,
+  localHttpUrl,
   publicClient,
   usdcContractConfig,
 } from '../../_test'
@@ -17,6 +20,44 @@ import { baycContractConfig, wagmiContractConfig } from '../../_test/abis'
 import { multicall } from './multicall'
 
 test('default', async () => {
+  expect(
+    await multicall(publicClient, {
+      blockNumber: initialBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 41119586940119550n,
+        "status": "success",
+      },
+      {
+        "result": 231481998553n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('args: multicallAddress', async () => {
   expect(
     await multicall(publicClient, {
       blockNumber: initialBlockNumber,
@@ -77,7 +118,6 @@ describe('errors', async () => {
               functionName: 'totalSupply',
             },
           ],
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).toMatchInlineSnapshot(`
         [
@@ -130,7 +170,6 @@ describe('errors', async () => {
               functionName: 'totalSupply',
             },
           ] as const,
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).toMatchInlineSnapshot(`
         [
@@ -185,7 +224,6 @@ describe('errors', async () => {
               functionName: 'totalSupply',
             },
           ] as const,
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).toMatchInlineSnapshot(`
         [
@@ -249,7 +287,6 @@ describe('errors', async () => {
               args: [address.vitalik, 1n],
             },
           ] as const,
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).toMatchInlineSnapshot(`
         [
@@ -319,7 +356,6 @@ describe('errors', async () => {
               functionName: 'totalSupply',
             },
           ],
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: Function "lol" not found on ABI.
@@ -354,7 +390,6 @@ describe('errors', async () => {
               functionName: 'totalSupply',
             },
           ] as const,
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: ABI encoding params/values length mismatch.
@@ -392,7 +427,6 @@ describe('errors', async () => {
               functionName: 'totalSupply',
             },
           ] as const,
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "balanceOf" returned no data ("0x").
@@ -442,7 +476,6 @@ describe('errors', async () => {
               args: [address.vitalik, 1n],
             },
           ] as const,
-          multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
         }),
       ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "transferFrom" reverted with the following reason:
@@ -458,4 +491,103 @@ describe('errors', async () => {
       `)
     })
   })
+})
+
+test('chain not provided', async () => {
+  await expect(() =>
+    multicall(
+      createPublicClient({
+        transport: http(localHttpUrl),
+      }),
+      {
+        blockNumber: initialBlockNumber,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      },
+    ),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '"client chain not configured. multicallAddress is required."',
+  )
+})
+
+test('multicall contract not configured for chain', async () => {
+  await expect(() =>
+    multicall(
+      createPublicClient({
+        chain: {
+          ...mainnet,
+          contracts: {},
+        },
+        transport: http(localHttpUrl),
+      }),
+      {
+        blockNumber: initialBlockNumber,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      },
+    ),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "Chain \\"Ethereum\\" does not support contract \\"multicall3\\".
+
+    This could be due to any of the following:
+    - The chain does not have the contract \\"multicall3\\" configured.
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('multicall contract deployed on later block', async () => {
+  await expect(() =>
+    multicall(publicClient, {
+      blockNumber: 69420n,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "Chain \\"Localhost\\" does not support contract \\"multicall3\\".
+
+    This could be due to any of the following:
+    - The contract \\"multicall3\\" was not deployed until block 14353601 (current block 69420).
+
+    Version: viem@1.0.2"
+  `)
 })
