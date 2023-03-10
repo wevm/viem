@@ -1,3 +1,3 @@
-# _REPLACE ME_ Example
+# Sign Typed Data Example
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/PATH/TO/EXAMPLE/DIR)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/signing/typed-data)
