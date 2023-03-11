@@ -7,6 +7,7 @@ export {
   sendTransaction,
   signMessage,
   switchChain,
+  verifyMessage,
   watchAsset,
 } from './actions/wallet'
 export type {
@@ -21,6 +22,8 @@ export type {
   SignMessageParameters,
   SignMessageReturnType,
   SwitchChainParameters,
+  VerifyMessageParameters,
+  VerifyMessageReturnType,
   WatchAssetParameters,
   WatchAssetReturnType,
 } from './actions/wallet'

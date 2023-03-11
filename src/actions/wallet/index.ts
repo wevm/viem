@@ -41,6 +41,12 @@ export type {
 export { switchChain } from './switchChain'
 export type { SwitchChainParameters } from './switchChain'
 
+export { verifyMessage } from './verifyMessage'
+export type {
+  VerifyMessageParameters,
+  VerifyMessageReturnType,
+} from './verifyMessage'
+
 export { watchAsset } from './watchAsset'
 export type { WatchAssetParameters, WatchAssetReturnType } from './watchAsset'
 

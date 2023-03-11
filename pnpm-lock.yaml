@@ -15,6 +15,7 @@ importers:
       '@changesets/changelog-github': ^0.4.5
       '@changesets/cli': ^2.23.2
       '@noble/hashes': ^1.1.2
+      '@noble/secp256k1': ^1.7.1
       '@types/dedent': ^0.7.0
       '@types/fs-extra': ^9.0.13
       '@types/node': ^17.0.45
@@ -43,6 +44,7 @@ importers:
       ws: ^8.12.0
     dependencies:
       '@noble/hashes': 1.1.2
+      '@noble/secp256k1': 1.7.1
       '@wagmi/chains': 0.2.11_typescript@4.9.5
       abitype: 0.7.1_typescript@4.9.5
       idna-uts46-hx: 4.1.2
@@ -1738,7 +1740,6 @@ packages:
 
   /@noble/secp256k1/1.7.1:
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
-    dev: true
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
