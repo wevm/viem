@@ -16,6 +16,7 @@ test('exports actions', () => {
       "signMessage": [Function],
       "signTypedData": [Function],
       "switchChain": [Function],
+      "verifyMessage": [Function],
       "watchAsset": [Function],
       "writeContract": [Function],
     }
