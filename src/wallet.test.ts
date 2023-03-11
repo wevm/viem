@@ -13,6 +13,7 @@ test('exports wallet actions', () => {
       "sendTransaction",
       "signMessage",
       "switchChain",
+      "verifyMessage",
       "watchAsset",
     ]
   `)
