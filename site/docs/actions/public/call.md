@@ -109,7 +109,6 @@ const data = await publicClient.call({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
-      import { getAccount } from 'viem' 
       storageKeys: ['0x1'],
     },
   ],
