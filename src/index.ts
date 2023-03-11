@@ -256,6 +256,7 @@ export {
   parseEther,
   parseGwei,
   parseUnits,
+  recoverAddress,
   size,
   slice,
   sliceBytes,

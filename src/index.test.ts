@@ -204,6 +204,7 @@ test('exports actions', () => {
       "parseEther": [Function],
       "parseGwei": [Function],
       "parseUnits": [Function],
+      "recoverAddress": [Function],
       "size": [Function],
       "slice": [Function],
       "sliceBytes": [Function],
