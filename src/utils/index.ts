@@ -55,6 +55,7 @@ export {
   getCreate2Address,
   isAddress,
   isAddressEqual,
+  recoverAddress,
 } from './address'
 
 export { buildRequest } from './buildRequest'

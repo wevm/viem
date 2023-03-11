@@ -94,6 +94,7 @@ test('exports utils', () => {
       "parseGwei": [Function],
       "parseUnits": [Function],
       "prepareRequest": [Function],
+      "recoverAddress": [Function],
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
