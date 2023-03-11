@@ -1,5 +1,13 @@
 # viem
 
+## 0.1.10
+
+### Patch Changes
+
+- [#178](https://github.com/wagmi-dev/viem/pull/178) [`eda1827`](https://github.com/wagmi-dev/viem/commit/eda182754ed2727bc652225e327760ab0a14a962) Thanks [@0xOlias](https://github.com/0xOlias)! - Fixed type of `topics` field on the `Log` type.
+
+* [#181](https://github.com/wagmi-dev/viem/pull/181) [`8213be3`](https://github.com/wagmi-dev/viem/commit/8213be3676283ec80d0d5cbcee4864fe4d9c6b6e) Thanks [@tmm](https://github.com/tmm)! - Bumped abitype version.
+
 ## 0.1.9
 
 ### Patch Changes
