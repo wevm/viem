@@ -12,6 +12,7 @@ test('exports address', () => {
       "getCreateAddress": [Function],
       "isAddress": [Function],
       "isAddressEqual": [Function],
+      "recoverAddress": [Function],
     }
   `)
 })
