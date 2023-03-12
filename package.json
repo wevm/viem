@@ -36,6 +36,7 @@
       "src/chains.ts",
       "src/contract.ts",
       "src/ens.ts",
+      "src/ethers.ts",
       "src/public.ts",
       "src/test.ts",
       "src/utils/index.ts",
@@ -49,6 +50,7 @@
     "/chains",
     "/contract",
     "/ens",
+    "/ethers",
     "/public",
     "/test",
     "/utils",
@@ -80,6 +82,11 @@
       "types": "./dist/ens.d.ts",
       "module": "./dist/ens.mts",
       "default": "./dist/ens.js"
+    },
+    "./ethers": {
+      "types": "./dist/ethers.d.ts",
+      "module": "./dist/ethers.mts",
+      "default": "./dist/ethers.js"
     },
     "./public": {
       "types": "./dist/public.d.ts",
