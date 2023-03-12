@@ -14,9 +14,8 @@
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
   "ignore": [
-    "playground-browser",
-    "playground-bun",
     "@viem/site",
-    "example-*"
+    "example-*",
+    "playground-*"
   ]
 }
