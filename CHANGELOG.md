@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.11
+
+### Patch Changes
+
+- [#88](https://github.com/wagmi-dev/viem/pull/88) [`5456490`](https://github.com/wagmi-dev/viem/commit/545649093422fb14a39418a7199766d033c9e175) Thanks [@jxom](https://github.com/jxom)! - Added `signTypedData`.
+
 ## 0.1.10
 
 ### Patch Changes
