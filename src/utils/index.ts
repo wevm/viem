@@ -146,7 +146,7 @@ export {
   getTransactionError,
 } from './errors'
 
-export { getEventSelector, getFunctionSelector, keccak256 } from './hash'
+export { getEventSelector, getFunctionSelector, hashMessage, keccak256 } from './hash'
 
 export { arrayRegex, bytesRegex, integerRegex } from './regex'
 

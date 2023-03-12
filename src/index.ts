@@ -237,6 +237,7 @@ export {
   getCreateAddress,
   getEventSelector,
   getFunctionSelector,
+  hashMessage,
   hexToBigInt,
   hexToBool,
   hexToBytes,

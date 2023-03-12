@@ -70,6 +70,7 @@ test('exports utils', () => {
       "getNodeError": [Function],
       "getSocket": [Function],
       "getTransactionError": [Function],
+      "hashMessage": [Function],
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],

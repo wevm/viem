@@ -1,8 +1,7 @@
 import { expect, test } from 'vitest'
-import { getAccount } from '../../utils'
+import { getAccount, hashMessage } from '../../utils'
 import { accounts, walletClient } from '../../_test'
 
-import { hashMessage } from 'ethers@6'
 import { signMessage } from './signMessage'
 import { verifyMessage } from './verifyMessage'
 import { Hex } from '../../types'
