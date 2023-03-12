@@ -70,6 +70,7 @@ const verify = await walletClient.verifyMessage({
 - **Type:** `string`
 
 The original message hashed in the form of `keccak256('\x19Ethereum Signed Message:\n' + len(message) + message)`
+See also [`signMessage`](/docs/utilities/hashMessage)
 
 ```ts
 const verify = await walletClient.verifyMessage({ 
