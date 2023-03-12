@@ -69,6 +69,9 @@ export {
 } from './contract'
 
 export {
+  concat,
+  concatBytes,
+  concatHex,
   isBytes,
   isHex,
   pad,
