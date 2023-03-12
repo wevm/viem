@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.14
+
+### Patch Changes
+
+- [#198](https://github.com/wagmi-dev/viem/pull/198) [`e805e7e`](https://github.com/wagmi-dev/viem/commit/e805e7ebaa7c15ea21a49ac0759bf4ebe5284f72) Thanks [@wighawag](https://github.com/wighawag)! - Added an assertion in `decodeEventLog` to check for a mismatch between topics + indexed event parameters.
+
 ## 0.1.13
 
 ### Patch Changes
