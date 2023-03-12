@@ -16,7 +16,7 @@ head:
 
 Recovers the original signing address from a messageHash and signature. 
 
-This can be useful for recovering the signining address for a signed transactions or a signed message. 
+This can be useful for recovering the signining address for a signed message. 
 
 ## Usage
 
@@ -37,4 +37,4 @@ const address = await recoverAddress( // [!code focus:4]
 
 [`Address`](/docs/glossary/types#address)
 
-The signing address of the signed message or transaction.
+The signing address of the signed message.
