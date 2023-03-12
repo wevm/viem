@@ -224,7 +224,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/wallet/signTypedData',
             },
             {
-              text: 'verifyMessage 🚧',
+              text: 'verifyMessage',
               link: '/docs/actions/wallet/verifyMessage',
             },
             {
@@ -559,6 +559,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'isAddressEqual',
               link: '/docs/utilities/isAddressEqual',
             },
+            {
+              text: 'recoverAddress',
+              link: '/docs/utilities/recoverAddress',
+            },
           ],
         },
         {
@@ -633,6 +637,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'getFunctionSelector',
               link: '/docs/utilities/getFunctionSelector',
+            },
+            {
+              text: 'hashMessage',
+              link: '/docs/utilities/hashMessage',
             },
             {
               text: 'keccak256',
