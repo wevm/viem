@@ -1,5 +1,5 @@
 {
-  "name": "public-client-example",
+  "name": "example-public-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",

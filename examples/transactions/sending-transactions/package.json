@@ -1,5 +1,5 @@
 {
-  "name": "viem-example-sending-transactions",
+  "name": "example-sending-transactions",
   "private": true,
   "version": "0.0.0",
   "type": "module",
