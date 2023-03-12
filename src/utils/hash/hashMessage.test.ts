@@ -1,4 +1,3 @@
-
 import { expect, test } from 'vitest'
 import { hashMessage } from './hashMessage'
 
@@ -12,7 +11,7 @@ test('to hex', () => {
 })
 
 test('to bytes', () => {
-  expect(hashMessage('Some data', "bytes")).toMatchInlineSnapshot(
+  expect(hashMessage('Some data', 'bytes')).toMatchInlineSnapshot(
     `
     Uint8Array [
       29,
@@ -50,7 +49,7 @@ test('to bytes', () => {
     ]
   `,
   )
-  expect(hashMessage('🤗', "bytes")).toMatchInlineSnapshot(
+  expect(hashMessage('🤗', 'bytes')).toMatchInlineSnapshot(
     `
     Uint8Array [
       113,
