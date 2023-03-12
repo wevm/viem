@@ -7,6 +7,7 @@ test('exports utils', () => {
     {
       "getEventSelector": [Function],
       "getFunctionSelector": [Function],
+      "hashMessage": [Function],
       "keccak256": [Function],
     }
   `)
