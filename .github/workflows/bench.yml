@@ -34,10 +34,10 @@ jobs:
       - name: Bench
         run: pnpm bench:ci
         env:
-          ALCHEMY_ID: ${{ secrets.ALCHEMY_ID }}
-          VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          ALCHEMY_ID: ${{ vars.ALCHEMY_ID }}
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
+          VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
       - name: Report
         run: pnpm bun ./.github/scripts/bench.ts

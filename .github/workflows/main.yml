@@ -85,9 +85,9 @@ jobs:
       - name: Launch Anvil
         run: anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME &
         env:
-          VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
+          VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
       - name: Test
         uses: nick-fields/retry@v2
         with:
@@ -95,10 +95,10 @@ jobs:
           max_attempts: 3
           command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
-          ALCHEMY_ID: ${{ secrets.ALCHEMY_ID }}
-          VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          ALCHEMY_ID: ${{ vars.ALCHEMY_ID }}
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
+          VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -124,16 +124,16 @@ jobs:
       - name: Launch Anvil
         run: anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME &
         env:
-          VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
+          VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
       - name: Bench
         run: pnpm bench:ci --changed
         env:
-          ALCHEMY_ID: ${{ secrets.ALCHEMY_ID }}
-          VITE_ANVIL_BLOCK_NUMBER: ${{ secrets.VITE_ANVIL_BLOCK_NUMBER }}
-          VITE_ANVIL_BLOCK_TIME: ${{ secrets.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          ALCHEMY_ID: ${{ vars.ALCHEMY_ID }}
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
+          VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
       - name: Report
         run: pnpm bun ./.github/scripts/bench.ts
