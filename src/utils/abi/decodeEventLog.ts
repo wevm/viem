@@ -64,11 +64,17 @@ export function decodeEventLog<
   let args: any = isUnnamed ? [] : {}
 
   // Decode topics (indexed args).
-  for (let i = 0; i < inputs.length; i++) {
-    const param = inputs[i]
+  const indexedInputs = inputs.filter((x) => ('indexed' in x && x.indexed))
+  for (let i = 0; i < indexedInputs.length; i++) {
+    const param = indexedInputs[i]
     const topic = argTopics[i]
-    if (topic === null) args[param.name || i] = null
-    if (!topic) continue
+    if (topic === null) {
+      args[param.name || i] = null
+      continue;
+    }
+    if (!topic) {
+      throw new Error(`expected a topic for the indexed input ${i}`)
+    }
     if (Array.isArray(topic)) {
       args[param.name || i] = topic.map((t) => decodeTopic({ param, value: t }))
     } else {
