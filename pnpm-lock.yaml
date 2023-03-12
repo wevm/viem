@@ -162,6 +162,17 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4
 
+  examples/contracts/multicall:
+    specifiers:
+      typescript: ^4.9.3
+      viem: latest
+      vite: ^4.1.4
+    dependencies:
+      viem: link:../../..
+    devDependencies:
+      typescript: 4.9.5
+      vite: 4.1.4
+
   examples/contracts/reading-contracts:
     specifiers:
       typescript: ^4.9.3

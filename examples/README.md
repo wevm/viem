@@ -20,7 +20,7 @@ The below list is not exhaustive, and is a work in progress. If you have an idea
   - [x] Deploying
   - [x] Reading
   - [x] Writing
-  - [ ] Multicall
+  - [x] Multicall
   - [ ] Call
   - [ ] Events
   - [ ] Simulating Method Calls
