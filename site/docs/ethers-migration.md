@@ -47,7 +47,7 @@ const client = createPublicClient({
 
 #### Ethers
 
-This is also interchangable with `StaticJsonRpcProvider`.
+This is also interchangeable with `StaticJsonRpcProvider`.
 
 ```ts {3}
 import { providers } from 'ethers'
