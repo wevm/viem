@@ -11,7 +11,11 @@ export function recoverAddress(
 ): Address {
   const signatureHex = isHex(signature) ? signature : toHex(signature)
   const messageHashHex = isHex(messageHash) ? messageHash : toHex(messageHash)
-  const v = hexToNumber(`0x${signature.slice(130)}`)
+
+  // Derive v = recoveryId + 27 from end of the signature (27 is added when signing the message)
+  // The recoveryId represents the y-coordinate on the secp256k1 elliptic curve and can have a value [0, 1].
+  const v = hexToNumber(`0x${signature.slice(130)}`) 
+
   const publicKey = toHex(
     recoverPublicKey(
       messageHashHex.substring(2),
