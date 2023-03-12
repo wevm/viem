@@ -19,7 +19,7 @@ import { encodeFunctionData, getAccount } from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
 
-import { deployErrorExample, getEoaAccount } from '../../_test/utils'
+import { deployErrorExample, getLocalAccount } from '../../_test/utils'
 import { errorsExampleABI } from '../../_test/generated'
 import { estimateContractGas } from './estimateContractGas'
 
@@ -207,7 +207,7 @@ describe(
       expect(
         await estimateContractGas(publicClient, {
           ...wagmiContractConfig,
-          account: getEoaAccount(accounts[0].privateKey),
+          account: getLocalAccount(accounts[0].privateKey),
           functionName: 'mint',
           args: [69420n],
         }),

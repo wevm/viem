@@ -17,10 +17,18 @@ describe('converts numbers to hex', () => {
     expect(() =>
       numberToHex(420182738912731283712937129),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"4.2018273891273126e+26\\" is not in safe integer range (0 to 9007199254740991)"',
+      `
+      "Number \\"4.2018273891273126e+26\\" is not in safe integer range (0 to 9007199254740991)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() => numberToHex(-69)).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"-69\\" is not in safe integer range (0 to 9007199254740991)"',
+      `
+      "Number \\"-69\\" is not in safe integer range (0 to 9007199254740991)
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 
@@ -32,17 +40,29 @@ describe('converts numbers to hex', () => {
     expect(() =>
       numberToHex(-7, { size: 1 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"-7\\" is not in safe 8-bit unsigned integer range (0 to 255)"',
+      `
+      "Number \\"-7\\" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(256, { size: 1 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"256\\" is not in safe 8-bit unsigned integer range (0 to 255)"',
+      `
+      "Number \\"256\\" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(65536, { size: 2 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"65536\\" is not in safe 16-bit unsigned integer range (0 to 65535)"',
+      `
+      "Number \\"65536\\" is not in safe 16-bit unsigned integer range (0 to 65535)
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 
@@ -68,12 +88,20 @@ describe('converts numbers to hex', () => {
     expect(() =>
       numberToHex(32768, { size: 2, signed: true }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"32768\\" is not in safe 16-bit signed integer range (-32768 to 32767)"',
+      `
+      "Number \\"32768\\" is not in safe 16-bit signed integer range (-32768 to 32767)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(-32769, { size: 2, signed: true }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"-32769\\" is not in safe 16-bit signed integer range (-32768 to 32767)"',
+      `
+      "Number \\"-32769\\" is not in safe 16-bit signed integer range (-32768 to 32767)
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 })
@@ -97,7 +125,11 @@ describe('converts bigints to hex', () => {
     ).toMatchInlineSnapshot('"0xc5cf39211876fb5e5884327fa56fc0b75"')
 
     expect(() => numberToHex(-69n)).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"-69n\\" is not in safe integer range (above 0)"',
+      `
+      "Number \\"-69n\\" is not in safe integer range (above 0n)
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 
@@ -112,22 +144,38 @@ describe('converts bigints to hex', () => {
     expect(() =>
       numberToHex(-7n, { size: 1 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"-7n\\" is not in safe 8-bit unsigned integer range (0n to 255n)"',
+      `
+      "Number \\"-7n\\" is not in safe 8-bit unsigned integer range (0n to 255n)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(256n, { size: 1 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"256n\\" is not in safe 8-bit unsigned integer range (0n to 255n)"',
+      `
+      "Number \\"256n\\" is not in safe 8-bit unsigned integer range (0n to 255n)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(65536n, { size: 2 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"65536n\\" is not in safe 16-bit unsigned integer range (0n to 65535n)"',
+      `
+      "Number \\"65536n\\" is not in safe 16-bit unsigned integer range (0n to 65535n)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(18446744073709551616n, { size: 8 }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"18446744073709551616n\\" is not in safe 64-bit unsigned integer range (0n to 18446744073709551615n)"',
+      `
+      "Number \\"18446744073709551616n\\" is not in safe 64-bit unsigned integer range (0n to 18446744073709551615n)
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 
@@ -164,7 +212,11 @@ describe('converts bigints to hex', () => {
         signed: true,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"170141183460469231731687303715884105728n\\" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)"',
+      `
+      "Number \\"170141183460469231731687303715884105728n\\" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)
+
+      Version: viem@1.0.2"
+    `,
     )
     expect(() =>
       numberToHex(-170141183460469231731687303715884105729n, {
@@ -172,7 +224,11 @@ describe('converts bigints to hex', () => {
         signed: true,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Number \\"-170141183460469231731687303715884105729n\\" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)"',
+      `
+      "Number \\"-170141183460469231731687303715884105729n\\" is not in safe 128-bit signed integer range (-170141183460469231731687303715884105728n to 170141183460469231731687303715884105727n)
+
+      Version: viem@1.0.2"
+    `,
     )
   })
 })

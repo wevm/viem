@@ -918,15 +918,15 @@ export type SignableRequests = {
      * @description Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`
      * @link https://eips.ethereum.org/EIPS/eip-1474
      * @example
-     * provider.request({ method: 'eth_signTypedData', params: [{ from: '0x...', data: [{ type: 'string', name: 'message', value: 'hello world' }] }] })
+     * provider.request({ method: 'eth_signTypedData_v4', params: [{ from: '0x...', data: [{ type: 'string', name: 'message', value: 'hello world' }] }] })
      * // => '0x...'
      * */
-    method: 'eth_signTypedData'
+    method: 'eth_signTypedData_v4'
     params: [
       /** Address to use for signing */
       address: Address,
       /** Message to sign containing type information, a domain separator, and data */
-      message: Hex,
+      message: string,
     ]
   }): Promise<Hex>
   request(args: {

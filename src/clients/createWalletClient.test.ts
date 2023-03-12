@@ -40,6 +40,7 @@ test('creates', () => {
       "requestPermissions": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],
+      "signTypedData": [Function],
       "switchChain": [Function],
       "transport": {
         "key": "mock",
@@ -80,6 +81,7 @@ describe('transports', () => {
         "requestPermissions": [Function],
         "sendTransaction": [Function],
         "signMessage": [Function],
+        "signTypedData": [Function],
         "switchChain": [Function],
         "transport": {
           "key": "custom",
@@ -119,6 +121,7 @@ describe('transports', () => {
         "requestPermissions": [Function],
         "sendTransaction": [Function],
         "signMessage": [Function],
+        "signTypedData": [Function],
         "switchChain": [Function],
         "transport": {
           "key": "http",
@@ -160,6 +163,7 @@ describe('transports', () => {
         "requestPermissions": [Function],
         "sendTransaction": [Function],
         "signMessage": [Function],
+        "signTypedData": [Function],
         "switchChain": [Function],
         "transport": {
           "getSocket": [Function],

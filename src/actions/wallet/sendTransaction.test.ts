@@ -7,7 +7,7 @@ import { getBalance, getBlock, getTransaction } from '..'
 import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test'
 
 import { sendTransaction } from './sendTransaction'
-import { anvilChain, getEoaAccount } from '../../_test/utils'
+import { anvilChain, getLocalAccount } from '../../_test/utils'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -448,7 +448,7 @@ describe('local account', () => {
     const block = await getBlock(publicClient)
 
     const hash = await sendTransaction(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -483,7 +483,7 @@ describe('local account', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
       }),
     ).toBeDefined()
@@ -509,7 +509,7 @@ describe('local account', () => {
     await setup()
 
     const hash = await sendTransaction(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
       gas: 1_000_000n,
@@ -539,7 +539,7 @@ describe('local account', () => {
     await setup()
 
     const hash = await sendTransaction(walletClient, {
-      account: getEoaAccount(sourceAccount.privateKey),
+      account: getLocalAccount(sourceAccount.privateKey),
       chain: mainnet,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -572,7 +572,7 @@ describe('local account', () => {
       const block = await getBlock(publicClient)
 
       const hash = await sendTransaction(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
@@ -606,7 +606,7 @@ describe('local account', () => {
 
       await expect(() =>
         sendTransaction(walletClient, {
-          account: getEoaAccount(sourceAccount.privateKey),
+          account: getLocalAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
           maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
@@ -642,7 +642,7 @@ describe('local account', () => {
       await setup()
 
       const hash = await sendTransaction(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('5'),
@@ -675,7 +675,7 @@ describe('local account', () => {
       const block = await getBlock(publicClient)
 
       const hash = await sendTransaction(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('10'),
@@ -717,7 +717,7 @@ describe('local account', () => {
       }))!
 
       const hash = await sendTransaction(walletClient, {
-        account: getEoaAccount(sourceAccount.privateKey),
+        account: getLocalAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         nonce: hexToNumber(transactionCount),
