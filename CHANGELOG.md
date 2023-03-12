@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.13
+
+### Patch Changes
+
+- [`56f2e03`](https://github.com/wagmi-dev/viem/commit/56f2e03837d64a9156766f0ef785ac50ba27380f) Thanks [@jxom](https://github.com/jxom)! - Added export for `concat`.
+
 ## 0.1.12
 
 ### Patch Changes
