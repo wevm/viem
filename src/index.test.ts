@@ -28,6 +28,7 @@ test('exports actions', () => {
       "ContractFunctionZeroDataError": [Function],
       "DataLengthTooLongError": [Function],
       "DataLengthTooShortError": [Function],
+      "DecodeLogTopicsMismatch": [Function],
       "EstimateGasExecutionError": [Function],
       "ExecutionRevertedError": [Function],
       "FeeCapTooHighError": [Function],

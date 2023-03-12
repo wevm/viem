@@ -1,11 +1,13 @@
 import { Abi, AbiParameter, Narrow } from 'abitype'
-import { AbiEventSignatureNotFoundError } from '../../errors'
+import {
+  AbiEventSignatureNotFoundError,
+  DecodeLogTopicsMismatch,
+} from '../../errors'
 import {
   EventDefinition,
   ExtractEventArgsFromTopics,
   ExtractEventNameFromAbi,
   Hex,
-  LogTopic,
 } from '../../types'
 import { getEventSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'
@@ -14,7 +16,7 @@ import { formatAbiItem } from './formatAbiItem'
 export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string = string,
-  TTopics extends LogTopic[] = LogTopic[],
+  TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
 > = {
   abi: Narrow<TAbi>
@@ -26,7 +28,7 @@ export type DecodeEventLogParameters<
 export type DecodeEventLogReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string = string,
-  TTopics extends LogTopic[] = LogTopic[],
+  TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
 > = {
   eventName: TEventName
@@ -35,7 +37,7 @@ export type DecodeEventLogReturnType<
 export function decodeEventLog<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
-  TTopics extends LogTopic[],
+  TTopics extends Hex[],
   TData extends Hex | undefined = undefined,
 >({
   abi,
@@ -64,20 +66,16 @@ export function decodeEventLog<
   let args: any = isUnnamed ? [] : {}
 
   // Decode topics (indexed args).
-  const indexedInputs = inputs.filter((x) => 'indexed' in x && x.indexed)
-  for (let i = 0; i < indexedInputs.length; i++) {
-    const param = indexedInputs[i]
-    const topic = argTopics[i]
-    if (topic === null) {
-      args[param.name || i] = null
-      continue
-    }
-    if (!topic) {
-      throw new Error(`expected a topic for the indexed input ${i}`)
-    }
-    if (Array.isArray(topic)) {
-      args[param.name || i] = topic.map((t) => decodeTopic({ param, value: t }))
-    } else {
+  if (argTopics.length > 0) {
+    const indexedInputs = inputs.filter((x) => 'indexed' in x && x.indexed)
+    for (let i = 0; i < indexedInputs.length; i++) {
+      const param = indexedInputs[i]
+      const topic = argTopics[i]
+      if (!topic)
+        throw new DecodeLogTopicsMismatch({
+          abiItem,
+          param: param as AbiParameter & { indexed: boolean },
+        })
       args[param.name || i] = decodeTopic({ param, value: topic })
     }
   }
