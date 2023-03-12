@@ -14,3 +14,5 @@ export {
 export { isAddress } from './isAddress'
 
 export { isAddressEqual } from './isAddressEqual'
+
+export { recoverAddress } from './recoverAddress'
