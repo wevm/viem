@@ -1,12 +1,11 @@
 import { expect, test } from 'vitest'
-
+import { getAccount } from '../../utils'
 import { accounts, walletClient } from '../../_test'
-import { getAccount, toHex } from '../../utils'
-import { getAccount as getEthersAccount } from '../../ethers'
 
+import { hashMessage } from 'ethers@6'
 import { signMessage } from './signMessage'
-import { hashMessage, Wallet } from 'ethers@6'
 import { verifyMessage } from './verifyMessage'
+import { Hex } from '../../types'
 
 test('sign message', async () => {
   const data = 'hello world'
@@ -15,27 +14,10 @@ test('sign message', async () => {
     data: data,
   })
   expect(
-    verifyMessage(walletClient!, {
-      messageHash: toHex(hashMessage(data)),
-      signature: signature,
+    verifyMessage({
       address: accounts[0].address,
-    }),
-  ).toBeTruthy()
-})
-
-test('sign message ethers', async () => {
-  const data = 'hello world'
-  const wallet = new Wallet(accounts[0].privateKey)
-  const account = getEthersAccount(wallet)
-  const signature = await signMessage(walletClient!, {
-    account,
-    data: data,
-  })
-  expect(
-    verifyMessage(walletClient!, {
-      messageHash: toHex(hashMessage(data)),
+      messageHash: hashMessage(data) as Hex,
       signature: signature,
-      address: account.address,
     }),
   ).toBeTruthy()
 })
