@@ -26,6 +26,7 @@ generated.ts
 /chains
 /contract
 /ens
+/ethers
 /public
 /test
 /utils

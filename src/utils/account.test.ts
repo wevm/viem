@@ -30,12 +30,16 @@ describe('account', () => {
         async signTransaction() {
           return '0x'
         },
+        async signTypedData() {
+          return '0x'
+        },
       }),
     ).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "signMessage": [Function],
         "signTransaction": [Function],
+        "signTypedData": [Function],
         "type": "local",
       }
     `)
@@ -49,6 +53,9 @@ describe('account', () => {
           return '0x'
         },
         async signTransaction() {
+          return '0x'
+        },
+        async signTypedData() {
           return '0x'
         },
       }),

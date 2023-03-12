@@ -1,5 +1,23 @@
 # viem
 
+## 0.1.13
+
+### Patch Changes
+
+- [`56f2e03`](https://github.com/wagmi-dev/viem/commit/56f2e03837d64a9156766f0ef785ac50ba27380f) Thanks [@jxom](https://github.com/jxom)! - Added export for `concat`.
+
+## 0.1.12
+
+### Patch Changes
+
+- [`c0e3617`](https://github.com/wagmi-dev/viem/commit/c0e3617b639ba84c03011430d69d72173da00466) Thanks [@jxom](https://github.com/jxom)! - Fixed `viem/ethers` entrypoint.
+
+## 0.1.11
+
+### Patch Changes
+
+- [#88](https://github.com/wagmi-dev/viem/pull/88) [`5456490`](https://github.com/wagmi-dev/viem/commit/545649093422fb14a39418a7199766d033c9e175) Thanks [@jxom](https://github.com/jxom)! - Added `signTypedData`.
+
 ## 0.1.10
 
 ### Patch Changes

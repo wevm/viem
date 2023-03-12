@@ -220,7 +220,7 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/wallet/signMessage',
             },
             {
-              text: 'signTypedData 🚧',
+              text: 'signTypedData',
               link: '/docs/actions/wallet/signTypedData',
             },
             {

@@ -1,5 +1,6 @@
 import { pad } from '../data'
 import type { ByteArray, Hex } from '../../types'
+import { IntegerOutOfRangeError } from '../../errors'
 
 const hexes = Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
@@ -73,15 +74,13 @@ export function numberToHex(
 
   if ((maxValue && value > maxValue) || value < minValue) {
     const suffix = typeof value_ === 'bigint' ? 'n' : ''
-    throw new Error(
-      `Number "${value_}${suffix}" is not in safe ${
-        size ? `${size * 8}-bit ${signed ? 'signed' : 'unsigned'} ` : ''
-      }integer range ${
-        maxValue
-          ? `(${minValue}${suffix} to ${maxValue}${suffix})`
-          : `(above ${minValue})`
-      }`,
-    )
+    throw new IntegerOutOfRangeError({
+      max: maxValue ? `${maxValue}${suffix}` : undefined,
+      min: `${minValue}${suffix}`,
+      signed,
+      size,
+      value: `${value_}${suffix}`,
+    })
   }
 
   const hex = `0x${(signed && value < 0

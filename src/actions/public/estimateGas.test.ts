@@ -10,7 +10,7 @@ import {
 import { getAccount, parseEther, parseGwei } from '../../utils'
 import { reset } from '../test'
 import { estimateGas } from './estimateGas'
-import { getEoaAccount } from '../../_test/utils'
+import { getLocalAccount } from '../../_test/utils'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
@@ -108,7 +108,7 @@ describe('local account', () => {
   test('default', async () => {
     expect(
       await estimateGas(publicClient, {
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: accounts[1].address,
         value: parseEther('1'),
       }),
@@ -119,7 +119,7 @@ describe('local account', () => {
     expect(
       await estimateGas(publicClient, {
         data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: wethContractAddress,
       }),
     ).toMatchInlineSnapshot('26064n')
@@ -128,7 +128,7 @@ describe('local account', () => {
   test('args: gasPrice (on eip1559)', async () => {
     await expect(() =>
       estimateGas(publicClient, {
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gasPrice: parseGwei('33'),
         value: parseEther('1'),
@@ -153,7 +153,7 @@ describe('local account', () => {
 
     expect(
       await estimateGas(publicClient, {
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gasPrice: parseGwei('33'),
         value: parseEther('1'),
@@ -164,7 +164,7 @@ describe('local account', () => {
   test('args: maxFeePerGas (on eip1559)', async () => {
     expect(
       await estimateGas(publicClient, {
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: accounts[1].address,
         maxFeePerGas: parseGwei('33'),
         value: parseEther('1'),
@@ -179,7 +179,7 @@ describe('local account', () => {
 
     await expect(() =>
       estimateGas(publicClient, {
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: accounts[1].address,
         maxFeePerGas: parseGwei('33'),
         value: parseEther('1'),
@@ -200,7 +200,7 @@ describe('local account', () => {
   test('args: gas', async () => {
     expect(
       await estimateGas(publicClient, {
-        account: getEoaAccount(accounts[0].privateKey),
+        account: getLocalAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gas: parseGwei('2'),
         value: parseEther('1'),

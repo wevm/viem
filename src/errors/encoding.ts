@@ -23,6 +23,29 @@ export class DataLengthTooShortError extends BaseError {
   }
 }
 
+export class IntegerOutOfRangeError extends BaseError {
+  name = 'IntegerOutOfRangeError'
+  constructor({
+    max,
+    min,
+    signed,
+    size,
+    value,
+  }: {
+    max?: string
+    min: string
+    signed?: boolean
+    size?: number
+    value: string
+  }) {
+    super(
+      `Number "${value}" is not in safe ${
+        size ? `${size * 8}-bit ${signed ? 'signed' : 'unsigned'} ` : ''
+      }integer range ${max ? `(${min} to ${max})` : `(above ${min})`}`,
+    )
+  }
+}
+
 export class InvalidBytesBooleanError extends BaseError {
   name = 'InvalidBytesBooleanError'
   constructor(bytes: ByteArray) {

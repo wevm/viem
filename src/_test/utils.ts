@@ -111,7 +111,7 @@ export const testClient = createTestClient({
   transport: http(),
 })
 
-export const getEoaAccount = (privateKey: Hex) =>
+export const getLocalAccount = (privateKey: Hex) =>
   getEthersAccount(new Wallet(privateKey))
 
 export function createHttpServer(

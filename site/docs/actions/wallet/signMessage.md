@@ -28,7 +28,7 @@ import { walletClient } from './client'
  
 const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
  
-const message = await walletClient.signMessage({ // [!code focus:99]
+const signature = await walletClient.signMessage({ // [!code focus:99]
   account,
   data: '0xdeadbeaf',
 })
@@ -60,7 +60,7 @@ The signed message.
 Account to use for signing. [Read more](/docs/clients/wallet).
 
 ```ts
-const message = await walletClient.signMessage({
+const signature = await walletClient.signMessage({
   account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus:1]
   data: '0xdeadbeaf',
 })
@@ -73,7 +73,7 @@ const message = await walletClient.signMessage({
 Message to sign.
 
 ```ts
-const message = await walletClient.signMessage({
+const signature = await walletClient.signMessage({
   account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   data: 'hello world', // [!code focus:1]
 })

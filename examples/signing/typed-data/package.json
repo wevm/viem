@@ -1,7 +1,7 @@
 {
-  "name": "example-wallet-client",
+  "name": "example-event-logs",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite"
@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "viem": "latest"
+    "viem": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
