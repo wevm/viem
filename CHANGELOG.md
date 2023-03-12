@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.12
+
+### Patch Changes
+
+- [`c0e3617`](https://github.com/wagmi-dev/viem/commit/c0e3617b639ba84c03011430d69d72173da00466) Thanks [@jxom](https://github.com/jxom)! - Fixed `viem/ethers` entrypoint.
+
 ## 0.1.11
 
 ### Patch Changes
