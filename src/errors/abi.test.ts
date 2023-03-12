@@ -1,8 +1,9 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import {
   AbiDecodingDataSizeInvalidError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
+  DecodeLogTopicsMismatch,
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,
@@ -58,6 +59,78 @@ test('AbiEncodingLengthMismatchError', () => {
 
     Version: viem@1.0.2]
   `)
+})
+
+describe('DecodeLogTopicsMismatch', () => {
+  test('default', () => {
+    expect(
+      new DecodeLogTopicsMismatch({
+        abiItem: {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+        param: {
+          indexed: true,
+          name: 'id',
+          type: 'uint256',
+        },
+      }),
+    ).toMatchInlineSnapshot(`
+      [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "id" on event "Transfer(address from, address to, uint256 id)".
+
+      Version: viem@1.0.2]
+    `)
+  })
+
+  test('unnamed', () => {
+    expect(
+      new DecodeLogTopicsMismatch({
+        abiItem: {
+          inputs: [
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: true,
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+        param: {
+          indexed: true,
+          type: 'uint256',
+        },
+      }),
+    ).toMatchInlineSnapshot(`
+      [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter on event "Transfer(address, address, uint256)".
+
+      Version: viem@1.0.2]
+    `)
+  })
 })
 
 test('InvalidAbiEncodingTypeError', () => {

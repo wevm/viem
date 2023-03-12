@@ -31,41 +31,6 @@ test('Transfer()', () => {
   })
 })
 
-test('no args: Transfer(address,address,uint256)', () => {
-  const event = decodeEventLog({
-    abi: [
-      {
-        inputs: [
-          {
-            indexed: true,
-            name: 'from',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            name: 'to',
-            type: 'address',
-          },
-          {
-            indexed: false,
-            name: 'tokenId',
-            type: 'uint256',
-          },
-        ],
-        name: 'Transfer',
-        type: 'event',
-      },
-    ],
-    topics: [
-      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-    ],
-  })
-  assertType<typeof event>({ eventName: 'Transfer' })
-  expect(event).toEqual({
-    eventName: 'Transfer',
-  })
-})
-
 test('named args: Transfer(address,address,uint256)', () => {
   const event = decodeEventLog({
     abi: [
@@ -94,155 +59,22 @@ test('named args: Transfer(address,address,uint256)', () => {
     topics: [
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-    ],
-  })
-  assertType<typeof event>({ eventName: 'Transfer', args: { from: '0x' } })
-  expect(event).toEqual({
-    eventName: 'Transfer',
-    args: {
-      from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-    },
-  })
-})
-
-test('named args: Transfer(address,address,uint256)', () => {
-  const event = decodeEventLog({
-    abi: [
-      {
-        inputs: [
-          {
-            indexed: true,
-            name: 'from',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            name: 'to',
-            type: 'address',
-          },
-          {
-            indexed: false,
-            name: 'tokenId',
-            type: 'uint256',
-          },
-        ],
-        name: 'Transfer',
-        type: 'event',
-      },
-    ],
-    topics: [
-      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-      [],
-    ],
-  })
-  assertType<typeof event>({
-    eventName: 'Transfer',
-    args: { from: '0x', to: [] },
-  })
-  expect(event).toEqual({
-    eventName: 'Transfer',
-    args: {
-      from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-      to: [],
-    },
-  })
-})
-
-test('named args: Transfer(address,address,uint256)', () => {
-  const event = decodeEventLog({
-    abi: [
-      {
-        inputs: [
-          {
-            indexed: true,
-            name: 'from',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            name: 'to',
-            type: 'address',
-          },
-          {
-            indexed: false,
-            name: 'tokenId',
-            type: 'uint256',
-          },
-        ],
-        name: 'Transfer',
-        type: 'event',
-      },
-    ],
-    topics: [
-      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-      null,
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     ],
   })
   assertType<typeof event>({
     eventName: 'Transfer',
-    args: { from: null, to: '0x' },
+    args: { from: '0x', to: '0x' },
   })
   expect(event).toEqual({
     eventName: 'Transfer',
     args: {
-      from: null,
+      from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
       to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
     },
   })
 })
 
-test('named args: Transfer(address,address,uint256)', () => {
-  const event = decodeEventLog({
-    abi: [
-      {
-        inputs: [
-          {
-            indexed: true,
-            name: 'from',
-            type: 'address',
-          },
-          {
-            indexed: true,
-            name: 'to',
-            type: 'address',
-          },
-          {
-            indexed: false,
-            name: 'tokenId',
-            type: 'uint256',
-          },
-        ],
-        name: 'Transfer',
-        type: 'event',
-      },
-    ],
-    topics: [
-      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-      null,
-      [
-        '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-        '0x000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b',
-      ],
-    ],
-  })
-  assertType<typeof event>({
-    eventName: 'Transfer',
-    args: { from: null, to: ['0x', '0x'] },
-  })
-  expect(event).toEqual({
-    args: {
-      from: null,
-      to: [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-        '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
-      ],
-    },
-    eventName: 'Transfer',
-  })
-})
-
 test('unnamed args: Transfer(address,address,uint256)', () => {
   const event = decodeEventLog({
     abi: [
@@ -267,59 +99,15 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
     ],
     topics: [
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-      null,
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     ],
   })
-  assertType<typeof event>({ eventName: 'Transfer', args: [null, '0x'] })
-  expect(event).toEqual({
-    args: [null, '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
-    eventName: 'Transfer',
-  })
-})
-
-test('unnamed args: Transfer(address,address,uint256)', () => {
-  const event = decodeEventLog({
-    abi: [
-      {
-        inputs: [
-          {
-            indexed: true,
-            type: 'address',
-          },
-          {
-            indexed: true,
-            type: 'address',
-          },
-          {
-            indexed: false,
-            type: 'uint256',
-          },
-        ],
-        name: 'Transfer',
-        type: 'event',
-      },
-    ],
-    topics: [
-      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-      null,
-      [
-        '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-        '0x000000000000000000000000c961145a54c96e3ae9baa048c4f4d6b04c13916b',
-      ],
-    ],
-  })
-  assertType<typeof event>({
-    eventName: 'Transfer',
-    args: [null, ['0x', '0x']],
-  })
+  assertType<typeof event>({ eventName: 'Transfer', args: ['0x', '0x'] })
   expect(event).toEqual({
     args: [
-      null,
-      [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-        '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
-      ],
+      '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
     ],
     eventName: 'Transfer',
   })
@@ -416,7 +204,7 @@ test('args: eventName', () => {
   })
 })
 
-test('args: data', () => {
+test('args: data – named (address,address,uint256)', () => {
   const event = decodeEventLog({
     abi: [
       {
@@ -467,7 +255,7 @@ test('args: data', () => {
   })
 })
 
-test('args: data', () => {
+test('args: data – unnamed (address,address,uint256)', () => {
   const event = decodeEventLog({
     abi: [
       {
@@ -513,6 +301,83 @@ test('args: data', () => {
       1n,
     ],
   })
+})
+
+test('named: topics + event params mismatch', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Expected a topic for indexed event parameter \\"id\\" on event \\"Transfer(address from, address to, uint256 id)\\".
+
+    Version: viem@1.0.2"
+  `,
+  )
+})
+
+test('unnamed: topics + event params mismatch', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: false,
+              type: 'address',
+            },
+            {
+              indexed: true,
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Expected a topic for indexed event parameter on event \\"Transfer(address, address, uint256)\\".
+
+    Version: viem@1.0.2"
+  `,
+  )
 })
 
 describe('GitHub repros', () => {
@@ -575,6 +440,54 @@ describe('GitHub repros', () => {
           "eventName": "VoteCast",
         }
       `)
+    })
+  })
+
+  describe('https://github.com/wagmi-dev/viem/issues/197', () => {
+    test('topics + event params mismatch', () => {
+      expect(() =>
+        decodeEventLog({
+          abi: [
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: 'address',
+                  name: 'from',
+                  type: 'address',
+                },
+                {
+                  indexed: true,
+                  internalType: 'address',
+                  name: 'to',
+                  type: 'address',
+                },
+                {
+                  indexed: true,
+                  internalType: 'uint256',
+                  name: 'id',
+                  type: 'uint256',
+                },
+              ],
+              name: 'Transfer',
+              type: 'event',
+            },
+          ],
+          data: '0x0000000000000000000000000000000000000000000000000000000023c34600',
+          topics: [
+            '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+            '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+            '0x00000000000000000000000070e8a65d014918798ba424110d5df658cde1cc58',
+          ],
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        "Expected a topic for indexed event parameter \\"id\\" on event \\"Transfer(address from, address to, uint256 id)\\".
+
+        Version: viem@1.0.2"
+      `,
+      )
     })
   })
 })

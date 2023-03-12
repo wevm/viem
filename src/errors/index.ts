@@ -15,6 +15,7 @@ export {
   AbiFunctionOutputsNotFoundError,
   AbiFunctionSignatureNotFoundError,
   BytesSizeMismatchError,
+  DecodeLogTopicsMismatch,
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,
