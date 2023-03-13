@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.15
+
+### Patch Changes
+
+- [#205](https://github.com/wagmi-dev/viem/pull/205) [`36fa97a`](https://github.com/wagmi-dev/viem/commit/36fa97a595670825f1dee008ebf44abbc1402f2e) Thanks [@jxom](https://github.com/jxom)! - Added an assertion to check for existence of an event signature on `topics` for `decodeEventLog`
+
 ## 0.1.14
 
 ### Patch Changes
