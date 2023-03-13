@@ -1,5 +1,6 @@
-import { Hex } from '../types'
-import { size } from '../utils'
+import { AbiParameter } from 'abitype'
+import { AbiItem, Hex } from '../types'
+import { formatAbiItem, size } from '../utils'
 import { BaseError } from './base'
 
 export class AbiConstructorNotFoundError extends BaseError {
@@ -227,6 +228,25 @@ export class BytesSizeMismatchError extends BaseError {
     givenSize,
   }: { expectedSize: number; givenSize: number }) {
     super(`Expected bytes${expectedSize}, got bytes${givenSize}.`)
+  }
+}
+
+export class DecodeLogTopicsMismatch extends BaseError {
+  name = 'DecodeLogTopicsMismatch'
+  constructor({
+    abiItem,
+    param,
+  }: {
+    abiItem: AbiItem
+    param: AbiParameter & { indexed: boolean }
+  }) {
+    super(
+      [
+        `Expected a topic for indexed event parameter${
+          param.name ? ` "${param.name}"` : ''
+        } on event "${formatAbiItem(abiItem, { includeName: true })}".`,
+      ].join('\n'),
+    )
   }
 }
 

@@ -241,3 +241,9 @@ const results = await publicClient.multicall({
   multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11' // [!code focus]
 })
 ```
+
+## Live Example
+
+Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/multicall) below.
+
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/multicall?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

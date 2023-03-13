@@ -56,6 +56,7 @@ export {
   ContractFunctionZeroDataError,
   DataLengthTooLongError,
   DataLengthTooShortError,
+  DecodeLogTopicsMismatch,
   EstimateGasExecutionError,
   ExecutionRevertedError,
   FeeCapTooHighError,
