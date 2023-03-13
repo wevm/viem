@@ -34,6 +34,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
 
       - name: Set version
         run: |
