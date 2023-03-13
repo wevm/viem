@@ -119,6 +119,8 @@ jobs:
         uses: ./.github/actions/setup
       - name: Build
         run: pnpm test:typecheck
+        env:
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
 
   bench:
     name: Benchmark
