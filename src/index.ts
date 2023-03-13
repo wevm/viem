@@ -43,6 +43,7 @@ export {
   AbiErrorNotFoundError,
   AbiErrorSignatureNotFoundError,
   AbiEventNotFoundError,
+  AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,

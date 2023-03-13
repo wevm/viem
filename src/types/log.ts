@@ -54,7 +54,7 @@ export type Log<
   /** Index of the transaction that created this log or `null` if pending */
   transactionIndex: TIndex | null
   /** List of order-dependent topics */
-  topics: Hex[]
+  topics: [Hex, ...Hex[]] | []
   /** `true` if this filter has been destroyed and is invalid */
   removed: boolean
 } & DecodedAbiEvent<TAbiEvent, TAbi, TEventName>

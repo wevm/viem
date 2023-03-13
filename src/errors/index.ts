@@ -9,6 +9,7 @@ export {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
   AbiErrorSignatureNotFoundError,
+  AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
   AbiEventNotFoundError,
   AbiFunctionNotFoundError,

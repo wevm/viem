@@ -1,5 +1,6 @@
 import { Abi, AbiParameter, Narrow } from 'abitype'
 import {
+  AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
   DecodeLogTopicsMismatch,
 } from '../../errors'
@@ -22,7 +23,7 @@ export type DecodeEventLogParameters<
   abi: Narrow<TAbi>
   data?: TData
   eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
-  topics: [signature: Hex, ...args: TTopics]
+  topics: [signature: Hex, ...args: TTopics] | []
 }
 
 export type DecodeEventLogReturnType<
@@ -33,6 +34,8 @@ export type DecodeEventLogReturnType<
 > = {
   eventName: TEventName
 } & ExtractEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+
+const docsPath = '/docs/contract/decodeEventLog'
 
 export function decodeEventLog<
   TAbi extends Abi | readonly unknown[],
@@ -50,6 +53,10 @@ export function decodeEventLog<
   TData
 >): DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData> {
   const [signature, ...argTopics] = topics
+  if (!signature)
+    throw new AbiEventSignatureEmptyTopicsError({
+      docsPath,
+    })
   const abiItem = (abi as Abi).find(
     (x) =>
       x.type === 'event' &&
@@ -57,7 +64,7 @@ export function decodeEventLog<
   )
   if (!(abiItem && 'name' in abiItem))
     throw new AbiEventSignatureNotFoundError(signature, {
-      docsPath: '/docs/contract/decodeEventLog',
+      docsPath,
     })
 
   const { name, inputs } = abiItem
