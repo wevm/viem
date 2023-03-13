@@ -143,6 +143,15 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
   }
 }
 
+export class AbiEventSignatureEmptyTopicsError extends BaseError {
+  name = 'AbiEventSignatureEmptyTopicsError'
+  constructor({ docsPath }: { docsPath: string }) {
+    super('Cannot extract event signature from empty topics.', {
+      docsPath,
+    })
+  }
+}
+
 export class AbiEventSignatureNotFoundError extends BaseError {
   name = 'AbiEventSignatureNotFoundError'
   constructor(signature: Hex, { docsPath }: { docsPath: string }) {

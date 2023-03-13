@@ -3,6 +3,7 @@ import {
   AbiDecodingDataSizeInvalidError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
+  AbiEventSignatureEmptyTopicsError,
   DecodeLogTopicsMismatch,
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
@@ -57,6 +58,17 @@ test('AbiEncodingLengthMismatchError', () => {
     Expected length (params): 69
     Given length (values): 420
 
+    Version: viem@1.0.2]
+  `)
+})
+
+test('AbiEventSignatureEmptyTopicsError', () => {
+  expect(
+    new AbiEventSignatureEmptyTopicsError({ docsPath: '/test' }),
+  ).toMatchInlineSnapshot(`
+    [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
+
+    Docs: https://viem.sh/test.html
     Version: viem@1.0.2]
   `)
 })

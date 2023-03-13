@@ -522,3 +522,29 @@ test("errors: event doesn't exist", () => {
     Version: viem@1.0.2"
   `)
 })
+
+test('errors: no topics', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'message',
+              type: 'string',
+            },
+          ],
+          name: 'Bar',
+          type: 'event',
+        },
+      ],
+      topics: [],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Cannot extract event signature from empty topics.
+
+    Docs: https://viem.sh/docs/contract/decodeEventLog.html
+    Version: viem@1.0.2"
+  `)
+})
