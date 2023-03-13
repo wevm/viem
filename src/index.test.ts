@@ -15,6 +15,7 @@ test('exports actions', () => {
       "AbiErrorNotFoundError": [Function],
       "AbiErrorSignatureNotFoundError": [Function],
       "AbiEventNotFoundError": [Function],
+      "AbiEventSignatureEmptyTopicsError": [Function],
       "AbiEventSignatureNotFoundError": [Function],
       "AbiFunctionNotFoundError": [Function],
       "AbiFunctionOutputsNotFoundError": [Function],
