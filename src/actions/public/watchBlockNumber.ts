@@ -64,8 +64,13 @@ export function watchBlockNumber(
               }
             }
           }
-          prevBlockNumber = blockNumber
-          emit.onBlockNumber(blockNumber, prevBlockNumber)
+
+          // If the next block number is greater than the previous,
+          // it is not in the past, and we can emit the new block number.
+          if (!prevBlockNumber || blockNumber > prevBlockNumber) {
+            emit.onBlockNumber(blockNumber, prevBlockNumber)
+            prevBlockNumber = blockNumber
+          }
         } catch (err) {
           emit.onError?.(err as Error)
         }

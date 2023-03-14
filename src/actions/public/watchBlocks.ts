@@ -99,8 +99,19 @@ export function watchBlocks<
               }
             }
           }
-          emit.onBlock(block, prevBlock)
-          prevBlock = block
+
+          if (
+            // If no previous block exists, emit.
+            !prevBlock?.number ||
+            // If the block tag is "pending" with no block number, emit.
+            (blockTag === 'pending' && !block?.number) ||
+            // If the next block number is greater than the previous block number, emit.
+            // We don't want to emit blocks in the past.
+            (block.number && block.number > prevBlock.number)
+          ) {
+            emit.onBlock(block, prevBlock)
+            prevBlock = block
+          }
         } catch (err) {
           emit.onError?.(err as Error)
         }
