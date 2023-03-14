@@ -16,7 +16,7 @@ head:
 
 Recovers the original signing address from a message & signature.
 
-Useful for obtaining the address of a message that was signed with [`signMessage`](/docs/actions/wallets/signMessage).
+Useful for obtaining the address of a message that was signed with [`signMessage`](/docs/actions/wallet/signMessage).
 
 ## Usage
 
