@@ -1,5 +1,13 @@
 # viem
 
+## 0.1.16
+
+### Patch Changes
+
+- [#207](https://github.com/wagmi-dev/viem/pull/207) [`8e5768f`](https://github.com/wagmi-dev/viem/commit/8e5768ffa1d813810b99f5ed06a00bfe830b2a35) Thanks [@jxom](https://github.com/jxom)! - Added assertion in `watchBlocks` and `watchBlockNumber` to check that the next block number is higher than the previously seen block number.
+
+* [#209](https://github.com/wagmi-dev/viem/pull/209) [`ae3e0b6`](https://github.com/wagmi-dev/viem/commit/ae3e0b62a21671bd749e20ec5d65d80fa7475adc) Thanks [@jxom](https://github.com/jxom)! - Added `verifyMessage`, `recoverAddress`, `recoverMessageAddress`, and `hashMessage`.
+
 ## 0.1.15
 
 ### Patch Changes
