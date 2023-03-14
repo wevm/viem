@@ -16,8 +16,6 @@ head:
 
 Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
 
-Takes a byte array or hex value as the `data` argument.
-
 ## Usage
 
 ::: code-group

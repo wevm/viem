@@ -223,14 +223,6 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'signTypedData',
               link: '/docs/actions/wallet/signTypedData',
             },
-            {
-              text: 'verifyMessage',
-              link: '/docs/actions/wallet/verifyMessage',
-            },
-            {
-              text: 'verifyTypedData 🚧',
-              link: '/docs/actions/wallet/verifyTypedData',
-            },
           ],
         },
         {
@@ -639,12 +631,29 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getFunctionSelector',
             },
             {
+              text: 'keccak256',
+              link: '/docs/utilities/keccak256',
+            },
+          ],
+        },
+        {
+          text: 'Signature',
+          items: [
+            {
               text: 'hashMessage',
               link: '/docs/utilities/hashMessage',
             },
             {
-              text: 'keccak256',
-              link: '/docs/utilities/keccak256',
+              text: 'recoverMessageAddress',
+              link: '/docs/utilities/recoverMessageAddress',
+            },
+            {
+              text: 'verifyMessage',
+              link: '/docs/utilities/verifyMessage',
+            },
+            {
+              text: 'verifyTypedData 🚧',
+              link: '/docs/utilities/verifyTypedData',
             },
           ],
         },

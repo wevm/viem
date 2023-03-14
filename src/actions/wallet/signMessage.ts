@@ -4,18 +4,28 @@ import { toHex } from '../../utils'
 
 export type SignMessageParameters = {
   account: Account
-  data: string
-}
+} & (
+  | {
+      /** @deprecated – `data` will be removed in 0.2.0; use `message` instead. */
+      data: string
+      message?: never
+    }
+  | {
+      data?: never
+      message: string
+    }
+)
 
 export type SignMessageReturnType = Hex
 
 export async function signMessage(
   client: WalletClient,
-  { account, data }: SignMessageParameters,
+  { account, data, message }: SignMessageParameters,
 ): Promise<SignMessageReturnType> {
-  if (account.type === 'local') return account.signMessage(data)
+  const message_ = message || data
+  if (account.type === 'local') return account.signMessage(message_!)
   return client.request({
     method: 'personal_sign',
-    params: [toHex(data), account.address],
+    params: [toHex(message_!), account.address],
   })
 }

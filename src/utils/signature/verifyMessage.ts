@@ -1,10 +1,10 @@
 import { Address } from 'abitype'
 import { Hex, ByteArray } from '../../types'
-import { getAddress, isAddressEqual, recoverAddress } from '../../utils'
+import { getAddress, isAddressEqual, recoverMessageAddress } from '../../utils'
 
 export type VerifyMessageParameters = {
   address: Address
-  messageHash: Hex | ByteArray
+  message: string
   signature: Hex | ByteArray
 }
 
@@ -12,11 +12,11 @@ export type VerifyMessageReturnType = boolean
 
 export function verifyMessage({
   address,
-  messageHash,
+  message,
   signature,
 }: VerifyMessageParameters): VerifyMessageReturnType {
   return isAddressEqual(
     getAddress(address),
-    recoverAddress(messageHash, signature),
+    recoverMessageAddress({ message, signature }),
   )
 }

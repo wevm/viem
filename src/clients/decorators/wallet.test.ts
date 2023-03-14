@@ -72,7 +72,7 @@ describe('smoke test', () => {
     expect(
       await walletClient.signMessage({
         account: getAccount(accounts[0].address),
-        data: '0xdeadbeaf',
+        message: '0xdeadbeaf',
       }),
     ).toBeDefined()
   })
