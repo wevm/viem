@@ -68,7 +68,6 @@ test('exports actions', () => {
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
       "uninstallFilter": [Function],
-      "verifyMessage": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],
       "watchBlockNumber": [Function],

@@ -96,6 +96,7 @@ test('exports utils', () => {
       "parseUnits": [Function],
       "prepareRequest": [Function],
       "recoverAddress": [Function],
+      "recoverMessageAddress": [Function],
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
@@ -117,6 +118,7 @@ test('exports utils', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
+      "verifyMessage": [Function],
     }
   `)
 })
