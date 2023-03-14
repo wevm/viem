@@ -81,7 +81,7 @@ test('args: allowFailure', async () => {
   ).toMatchInlineSnapshot(`
     [
       41119586940119550n,
-      231481998602n,
+      231481998553n,
       10000n,
     ]
   `)
