@@ -84,7 +84,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -95,7 +95,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -106,7 +106,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -117,7 +117,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -135,7 +135,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -156,7 +156,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -181,7 +181,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -199,7 +199,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -213,7 +213,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -224,7 +224,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -235,7 +235,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -267,7 +267,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -285,7 +285,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.15_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -5844,22 +5844,6 @@ packages:
       spdx-correct: 3.1.1
       spdx-expression-parse: 3.0.1
     dev: true
-
-  /viem/0.1.15_typescript@4.9.5:
-    resolution: {integrity: sha512-5uXRQl5VCysmRhi1iEbt0bvmXdYCtwotC96DK1txBxsBJNzqrw2TdlRn8dTHRUq/t0tDricYM4phLNlHjD8CuQ==}
-    dependencies:
-      '@noble/hashes': 1.1.2
-      '@wagmi/chains': 0.2.11_typescript@4.9.5
-      abitype: 0.7.1_typescript@4.9.5
-      idna-uts46-hx: 4.1.2
-      isomorphic-ws: 5.0.0_ws@8.12.0
-      ws: 8.12.0
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-    dev: false
 
   /vite-node/0.29.2_@types+node@17.0.45:
     resolution: {integrity: sha512-5oe1z6wzI3gkvc4yOBbDBbgpiWiApvuN4P55E8OI131JGrSuo4X3SOZrNmZYo4R8Zkze/dhi572blX0zc+6SdA==}
