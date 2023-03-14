@@ -43,9 +43,12 @@ export async function multicall<
     allowFailure = true,
     blockNumber,
     blockTag,
-    contracts,
+    contracts: contracts_,
     multicallAddress: multicallAddress_,
   } = args
+
+  // Fix type cast from `Narrow` in type definition.
+  const contracts = contracts_ as readonly [...MulticallContracts<TContracts>]
 
   let multicallAddress = multicallAddress_
   if (!multicallAddress) {
