@@ -20,12 +20,24 @@ type EthersWallet = {
   address: string
   signMessage(message: Uint8Array): Promise<string>
   signTransaction(txn: any): Promise<string>
-  signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, TypedDataField[]>,
-    value: Record<string, any>,
-  ): Promise<string>
-}
+} & (
+  | {
+      signTypedData(
+        domain: TypedDataDomain,
+        types: Record<string, TypedDataField[]>,
+        value: Record<string, any>,
+      ): Promise<string>
+      _signTypedData?: never
+    }
+  | {
+      signTypedData?: never
+      _signTypedData(
+        domain: TypedDataDomain,
+        types: Record<string, TypedDataField[]>,
+        value: Record<string, any>,
+      ): Promise<string>
+    }
+)
 
 export const getAccount = (wallet: EthersWallet) =>
   getAccount_({
@@ -41,7 +53,8 @@ export const getAccount = (wallet: EthersWallet) =>
     },
     async signTypedData({ domain, types: types_, message }) {
       const { EIP712Domain: _, ...types } = types_ as any
-      return (await wallet.signTypedData(
+      const signTypedData = wallet.signTypedData || wallet._signTypedData
+      return (await signTypedData(
         domain ?? {},
         types as Record<string, TypedDataField[]>,
         message,
