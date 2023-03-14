@@ -1,5 +1,15 @@
 # viem
 
+## 0.1.17
+
+### Patch Changes
+
+- [#213](https://github.com/wagmi-dev/viem/pull/213) [`46f823a`](https://github.com/wagmi-dev/viem/commit/46f823afd017b1421c66162d832080f8dc7711e1) Thanks [@jxom](https://github.com/jxom)! - Fixed return type for `allowFailure: false` on `multicall`
+
+* [`1339b20`](https://github.com/wagmi-dev/viem/commit/1339b20f735cb18b397aa1910cdb288609612f14) Thanks [@jxom](https://github.com/jxom)! - Exported `Extract*FromAbi` types
+
+- [`c3d932a`](https://github.com/wagmi-dev/viem/commit/c3d932ad69a0c54fb204d7878a1a96916d1193df) Thanks [@jxom](https://github.com/jxom)! - Fixed `signTypedData` support for Ethers.js v5 Wallets
+
 ## 0.1.16
 
 ### Patch Changes
