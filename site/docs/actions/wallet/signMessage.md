@@ -16,6 +16,10 @@ head:
 
 Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
 
+With the calculated signature, you can:
+- use [`verifyMessage`](/docs/utilities/verifyMessage) to verify the signature,
+- use [`recoverMessageAddress`](/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
+
 ## Usage
 
 ::: code-group

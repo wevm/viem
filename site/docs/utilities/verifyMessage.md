@@ -14,7 +14,7 @@ head:
 
 # verifyMessage
 
-Verify that the message was signed by the given Ethereum address.
+Verify that a message was signed by the provided address.
 
 ## Usage
 
