@@ -1,3 +1,4 @@
+import { Narrow } from 'abitype'
 import { PublicClient } from '../../clients'
 import { multicall3Abi } from '../../constants'
 import {
@@ -22,7 +23,7 @@ export type MulticallParameters<
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
-  contracts: readonly [...MulticallContracts<TContracts>]
+  contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
   multicallAddress?: Address
 }
 
@@ -107,7 +108,7 @@ export async function multicall<
         data: returnData,
         functionName: functionName,
       })
-      return { result, status: 'success' }
+      return allowFailure ? { result, status: 'success' } : result
     } catch (err) {
       const error = getContractError(err as BaseError, {
         abi,

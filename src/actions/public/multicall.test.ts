@@ -57,6 +57,36 @@ test('default', async () => {
   `)
 })
 
+test('args: allowFailure', async () => {
+  expect(
+    await multicall(publicClient, {
+      allowFailure: false,
+      blockNumber: initialBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      41119586940119550n,
+      231481998602n,
+      10000n,
+    ]
+  `)
+})
+
 test('args: multicallAddress', async () => {
   expect(
     await multicall(publicClient, {
