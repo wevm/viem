@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.18
+
+### Patch Changes
+
+- [`9c45397`](https://github.com/wagmi-dev/viem/commit/9c4539756d138f196b368fd1ac8e1a926d9bace0) Thanks [@jxom](https://github.com/jxom)! - Fixed `signTypedData` support for Ethers.js v5 wallets
+
 ## 0.1.17
 
 ### Patch Changes
