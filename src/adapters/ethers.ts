@@ -53,7 +53,9 @@ export const getAccount = (wallet: EthersWallet) =>
     },
     async signTypedData({ domain, types: types_, message }) {
       const { EIP712Domain: _, ...types } = types_ as any
-      const signTypedData = wallet.signTypedData || wallet._signTypedData
+      const signTypedData = wallet.signTypedData
+        ? wallet.signTypedData.bind(wallet)
+        : wallet._signTypedData.bind(wallet)
       return (await signTypedData(
         domain ?? {},
         types as Record<string, TypedDataField[]>,
