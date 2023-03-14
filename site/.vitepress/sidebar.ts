@@ -551,10 +551,6 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'isAddressEqual',
               link: '/docs/utilities/isAddressEqual',
             },
-            {
-              text: 'recoverAddress',
-              link: '/docs/utilities/recoverAddress',
-            },
           ],
         },
         {
