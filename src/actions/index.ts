@@ -161,7 +161,6 @@ export {
   sendTransaction,
   signMessage,
   switchChain,
-  verifyMessage,
   watchAsset,
   writeContract,
 } from './wallet'
@@ -179,8 +178,6 @@ export type {
   SignMessageParameters,
   SignMessageReturnType,
   SwitchChainParameters,
-  VerifyMessageParameters,
-  VerifyMessageReturnType,
   WatchAssetParameters,
   WatchAssetReturnType,
   WriteContractParameters,

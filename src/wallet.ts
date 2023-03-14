@@ -8,7 +8,6 @@ export {
   signMessage,
   signTypedData,
   switchChain,
-  verifyMessage,
   watchAsset,
 } from './actions/wallet'
 export type {
@@ -25,8 +24,6 @@ export type {
   SignTypedDataParameters,
   SignTypedDataReturnType,
   SwitchChainParameters,
-  VerifyMessageParameters,
-  VerifyMessageReturnType,
   WatchAssetParameters,
   WatchAssetReturnType,
 } from './actions/wallet'
