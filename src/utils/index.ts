@@ -145,12 +145,31 @@ export {
   getTransactionError,
 } from './errors'
 
-export { getEventSelector, getFunctionSelector, keccak256 } from './hash'
+export {
+  getEventSelector,
+  getFunctionSelector,
+  keccak256,
+} from './hash'
 
 export { arrayRegex, bytesRegex, integerRegex } from './regex'
 
 export type { HttpOptions, RpcResponse, Socket } from './rpc'
 export { getSocket, rpc } from './rpc'
+
+export type {
+  RecoverAddressParameters,
+  RecoverAddressReturnType,
+  RecoverMessageAddressParameters,
+  RecoverMessageAddressReturnType,
+  VerifyMessageParameters,
+  VerifyMessageReturnType,
+} from './signature'
+export {
+  hashMessage,
+  recoverAddress,
+  recoverMessageAddress,
+  verifyMessage,
+} from './signature'
 
 export { stringify } from './stringify'
 

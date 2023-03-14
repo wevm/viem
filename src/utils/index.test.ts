@@ -70,6 +70,7 @@ test('exports utils', () => {
       "getNodeError": [Function],
       "getSocket": [Function],
       "getTransactionError": [Function],
+      "hashMessage": [Function],
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],
@@ -94,6 +95,8 @@ test('exports utils', () => {
       "parseGwei": [Function],
       "parseUnits": [Function],
       "prepareRequest": [Function],
+      "recoverAddress": [Function],
+      "recoverMessageAddress": [Function],
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
@@ -115,6 +118,7 @@ test('exports utils', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
+      "verifyMessage": [Function],
     }
   `)
 })

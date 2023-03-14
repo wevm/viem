@@ -14,9 +14,11 @@ head:
 
 # signMessage
 
-Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
+Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
 
-Takes a byte array or hex value as the `data` argument.
+With the calculated signature, you can:
+- use [`verifyMessage`](/docs/utilities/verifyMessage) to verify the signature,
+- use [`recoverMessageAddress`](/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
 
 ## Usage
 
@@ -30,9 +32,9 @@ const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
  
 const signature = await walletClient.signMessage({ // [!code focus:99]
   account,
-  data: '0xdeadbeaf',
+  message: 'hello world',
 })
-// "0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b"
+// "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 ```
 
 ```ts [client.ts]
@@ -62,7 +64,7 @@ Account to use for signing. [Read more](/docs/clients/wallet).
 ```ts
 const signature = await walletClient.signMessage({
   account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus:1]
-  data: '0xdeadbeaf',
+  message: 'hello world',
 })
 ```
 
@@ -75,7 +77,7 @@ Message to sign.
 ```ts
 const signature = await walletClient.signMessage({
   account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
-  data: 'hello world', // [!code focus:1]
+  message: 'hello world', // [!code focus:1]
 })
 ```
 
