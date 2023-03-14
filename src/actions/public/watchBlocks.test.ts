@@ -11,6 +11,7 @@ import { createPublicClient, http } from '../../clients'
 import { setIntervalMining } from '../test'
 import { sendTransaction } from '../wallet'
 import { getAccount, parseEther } from '../../utils'
+import { Block } from '../../types'
 
 test('watches for new blocks', async () => {
   const blocks: OnBlockParameter[] = []
@@ -194,6 +195,279 @@ describe('behavior', () => {
     unwatch()
     await wait(3000)
     expect(blocks.length).toBe(0)
+  })
+
+  test('out of order blocks', async () => {
+    vi.spyOn(getBlock, 'getBlock')
+      .mockResolvedValueOnce({ number: 420n } as Block)
+      .mockResolvedValueOnce({ number: 421n } as Block)
+      .mockResolvedValueOnce({ number: 419n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 426n } as Block)
+      .mockResolvedValueOnce({ number: 423n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 429n } as Block)
+      .mockResolvedValueOnce({ number: 430n } as Block)
+
+    const blocks: [OnBlockParameter, OnBlockParameter | undefined][] = []
+    const unwatch = watchBlocks(publicClient, {
+      pollingInterval: 100,
+      onBlock: (block, prevBlock) => blocks.push([block, prevBlock]),
+    })
+    await wait(1000)
+    unwatch()
+    expect(blocks).toMatchInlineSnapshot(`
+      [
+        [
+          {
+            "number": 420n,
+          },
+          undefined,
+        ],
+        [
+          {
+            "number": 421n,
+          },
+          {
+            "number": 420n,
+          },
+        ],
+        [
+          {
+            "number": 424n,
+          },
+          {
+            "number": 421n,
+          },
+        ],
+        [
+          {
+            "number": 426n,
+          },
+          {
+            "number": 424n,
+          },
+        ],
+        [
+          {
+            "number": 429n,
+          },
+          {
+            "number": 426n,
+          },
+        ],
+      ]
+    `)
+  })
+
+  test('out of order blocks (emitMissed)', async () => {
+    vi.spyOn(getBlock, 'getBlock')
+      .mockResolvedValueOnce({ number: 420n } as Block)
+      .mockResolvedValueOnce({ number: 421n } as Block)
+      .mockResolvedValueOnce({ number: 419n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 422n } as Block)
+      .mockResolvedValueOnce({ number: 423n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 426n } as Block)
+      .mockResolvedValueOnce({ number: 425n } as Block)
+      .mockResolvedValueOnce({ number: 423n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 429n } as Block)
+      .mockResolvedValueOnce({ number: 427n } as Block)
+      .mockResolvedValueOnce({ number: 428n } as Block)
+      .mockResolvedValueOnce({ number: 429n } as Block)
+
+    const blocks: [OnBlockParameter, OnBlockParameter | undefined][] = []
+    const unwatch = watchBlocks(publicClient, {
+      emitMissed: true,
+      pollingInterval: 100,
+      onBlock: (block, prevBlock) => blocks.push([block, prevBlock]),
+    })
+    await wait(1000)
+    unwatch()
+    expect(blocks).toMatchInlineSnapshot(`
+      [
+        [
+          {
+            "number": 420n,
+          },
+          undefined,
+        ],
+        [
+          {
+            "number": 421n,
+          },
+          {
+            "number": 420n,
+          },
+        ],
+        [
+          {
+            "number": 422n,
+          },
+          {
+            "number": 421n,
+          },
+        ],
+        [
+          {
+            "number": 423n,
+          },
+          {
+            "number": 422n,
+          },
+        ],
+        [
+          {
+            "number": 424n,
+          },
+          {
+            "number": 423n,
+          },
+        ],
+        [
+          {
+            "number": 425n,
+          },
+          {
+            "number": 424n,
+          },
+        ],
+        [
+          {
+            "number": 426n,
+          },
+          {
+            "number": 425n,
+          },
+        ],
+        [
+          {
+            "number": 427n,
+          },
+          {
+            "number": 426n,
+          },
+        ],
+        [
+          {
+            "number": 428n,
+          },
+          {
+            "number": 427n,
+          },
+        ],
+        [
+          {
+            "number": 429n,
+          },
+          {
+            "number": 428n,
+          },
+        ],
+      ]
+    `)
+  })
+
+  test('pending blocks (no number)', async () => {
+    vi.spyOn(getBlock, 'getBlock')
+      .mockResolvedValueOnce({ number: 420n } as Block)
+      .mockResolvedValueOnce({ number: 424n } as Block)
+      .mockResolvedValueOnce({ number: 428n } as Block)
+      .mockResolvedValueOnce({ number: 431n } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+      .mockResolvedValueOnce({ number: 433n } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+      .mockResolvedValueOnce({ number: null } as Block)
+
+    const blocks: [OnBlockParameter, OnBlockParameter | undefined][] = []
+    const unwatch = watchBlocks(publicClient, {
+      pollingInterval: 100,
+      blockTag: 'pending',
+      onBlock: (block, prevBlock) => blocks.push([block, prevBlock]),
+    })
+    await wait(1000)
+    unwatch()
+    expect(blocks).toMatchInlineSnapshot(`
+      [
+        [
+          {
+            "number": 420n,
+          },
+          undefined,
+        ],
+        [
+          {
+            "number": 424n,
+          },
+          {
+            "number": 420n,
+          },
+        ],
+        [
+          {
+            "number": 428n,
+          },
+          {
+            "number": 424n,
+          },
+        ],
+        [
+          {
+            "number": 431n,
+          },
+          {
+            "number": 428n,
+          },
+        ],
+        [
+          {
+            "number": null,
+          },
+          {
+            "number": 431n,
+          },
+        ],
+        [
+          {
+            "number": 433n,
+          },
+          {
+            "number": null,
+          },
+        ],
+        [
+          {
+            "number": null,
+          },
+          {
+            "number": 433n,
+          },
+        ],
+        [
+          {
+            "number": null,
+          },
+          {
+            "number": null,
+          },
+        ],
+        [
+          {
+            "number": null,
+          },
+          {
+            "number": null,
+          },
+        ],
+      ]
+    `)
   })
 })
 

@@ -145,6 +145,127 @@ describe('behavior', () => {
     await wait(3000)
     expect(blockNumbers.length).toBe(0)
   })
+
+  test('out of order blocks', async () => {
+    vi.spyOn(getBlockNumber, 'getBlockNumber')
+      .mockResolvedValueOnce(420n)
+      .mockResolvedValueOnce(421n)
+      .mockResolvedValueOnce(419n)
+      .mockResolvedValueOnce(424n)
+      .mockResolvedValueOnce(424n)
+      .mockResolvedValueOnce(426n)
+      .mockResolvedValueOnce(423n)
+      .mockResolvedValueOnce(424n)
+      .mockResolvedValueOnce(429n)
+      .mockResolvedValueOnce(430n)
+
+    const blockNumbers: [
+      OnBlockNumberParameter,
+      OnBlockNumberParameter | undefined,
+    ][] = []
+    const unwatch = watchBlockNumber(publicClient, {
+      pollingInterval: 100,
+      onBlockNumber: (blockNumber, prevBlockNumber) =>
+        blockNumbers.push([blockNumber, prevBlockNumber]),
+    })
+    await wait(1000)
+    unwatch()
+    expect(blockNumbers).toMatchInlineSnapshot(`
+      [
+        [
+          420n,
+          undefined,
+        ],
+        [
+          421n,
+          420n,
+        ],
+        [
+          424n,
+          421n,
+        ],
+        [
+          426n,
+          424n,
+        ],
+        [
+          429n,
+          426n,
+        ],
+      ]
+    `)
+  })
+
+  test('out of order blocks (emitMissed)', async () => {
+    vi.spyOn(getBlockNumber, 'getBlockNumber')
+      .mockResolvedValueOnce(420n)
+      .mockResolvedValueOnce(421n)
+      .mockResolvedValueOnce(419n)
+      .mockResolvedValueOnce(424n)
+      .mockResolvedValueOnce(424n)
+      .mockResolvedValueOnce(426n)
+      .mockResolvedValueOnce(423n)
+      .mockResolvedValueOnce(424n)
+      .mockResolvedValueOnce(429n)
+      .mockResolvedValueOnce(430n)
+
+    const blockNumbers: [
+      OnBlockNumberParameter,
+      OnBlockNumberParameter | undefined,
+    ][] = []
+    const unwatch = watchBlockNumber(publicClient, {
+      emitMissed: true,
+      pollingInterval: 100,
+      onBlockNumber: (blockNumber, prevBlockNumber) =>
+        blockNumbers.push([blockNumber, prevBlockNumber]),
+    })
+    await wait(1000)
+    unwatch()
+    expect(blockNumbers).toMatchInlineSnapshot(`
+      [
+        [
+          420n,
+          undefined,
+        ],
+        [
+          421n,
+          420n,
+        ],
+        [
+          422n,
+          421n,
+        ],
+        [
+          423n,
+          422n,
+        ],
+        [
+          424n,
+          423n,
+        ],
+        [
+          425n,
+          424n,
+        ],
+        [
+          426n,
+          425n,
+        ],
+        [
+          427n,
+          426n,
+        ],
+        [
+          428n,
+          427n,
+        ],
+        [
+          429n,
+          428n,
+        ],
+      ]
+    `)
+  })
 })
 
 describe('errors', () => {
