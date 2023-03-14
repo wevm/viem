@@ -18,17 +18,36 @@ Verify that a message was signed by the provided address.
 
 ## Usage
 
-```ts
-import { verifyMessage } from 'viem'
+::: code-group
 
-const valid = verifyMessage({ 
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+```ts [example.ts]
+import { getAccount } from 'viem'
+import { account, walletClient } from './client'
+ 
+const signature = await walletClient.signMessage({
+  account,
   message: 'hello world',
-  signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c'
+})
+
+const valid = verifyMessage({ // [!code focus:99]
+  address: account.address,
+  message: 'hello world',
+  signature
 })
 // true
-
 ```
+
+```ts [client.ts]
+import { createWalletClient, custom, getAccount } from 'viem'
+
+export const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
+export const walletClient = createWalletClient({
+  transport: custom(window.ethereum)
+})
+```
+
+:::
 
 ## Returns
 
