@@ -644,6 +644,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/hashMessage',
             },
             {
+              text: 'recoverAddress',
+              link: '/docs/utilities/recoverAddress',
+            },
+            {
               text: 'recoverMessageAddress',
               link: '/docs/utilities/recoverMessageAddress',
             },
