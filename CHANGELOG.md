@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.20
+
+### Patch Changes
+
+- [#220](https://github.com/wagmi-dev/viem/pull/220) [`9a80fca`](https://github.com/wagmi-dev/viem/commit/9a80fca116417f77d4a305a59ec0c3ecf3e0fdfa) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `watchEvent` would not emit events on missed blocks for the `getLogs` fallback.
+
 ## 0.1.19
 
 ### Patch Changes
