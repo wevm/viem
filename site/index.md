@@ -54,7 +54,7 @@ yarn add viem
         <span class="font-medium text-[15px] opacity-80 w-full text-center">size</span>
       </div>
       <div class="flex items-center h-full px-2">
-        <span class="font-medium text-[15px] text-center w-full text-black dark:text-white">27kB</span>
+        <span class="font-medium text-[15px] text-center w-full text-black dark:text-white">35kB</span>
       </div>
     </div>
     <div class="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/10 z-[-1]" />
@@ -102,7 +102,7 @@ yarn add viem
       <div class="relative w-full h-[168px] max-lg:h-[142px]">
         <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
           <div class="text-xl font-medium text-black dark:text-white">Lightweight</div>
-          <div class="text-[17px] font-medium text-[#919193]">Tiny (only 27kb!) bundle size optimized for tree-shaking</div>
+          <div class="text-[17px] font-medium text-[#919193]">Tiny (only 35kB!) bundle size optimized for tree-shaking</div>
         </div>
         <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
         <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
