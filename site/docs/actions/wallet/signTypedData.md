@@ -24,7 +24,10 @@ Signs typed data and calculates an Ethereum-specific signature in [EIP-191 forma
 import { walletClient } from './client'
 import { domain, types } from './data'
 
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
 const signature = await walletClient.signTypedData({
+  account,
   domain,
   types,
   primaryType: 'Mail',
@@ -83,6 +86,37 @@ The signed data.
 
 ## Parameters
 
+### account
+
+- **Type:** `Account`
+
+The Account sender. [Read more](/docs/clients/wallet).
+
+```ts
+const signature = await walletClient.signTypedData({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus]
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
+  types,
+  primaryType: 'Mail',
+  message: {
+    from: {
+      name: 'Cow',
+      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+    },
+    to: {
+      name: 'Bob',
+      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+    },
+    contents: 'Hello, Bob!',
+  },
+})
+```
+
 ### domain
 
 **Type:** `TypedDataDomain`
@@ -91,6 +125,7 @@ The typed data domain.
 
 ```ts
 const signature = await walletClient.signTypedData({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   domain: { // [!code focus:6]
     name: 'Ether Mail',
     version: '1',
@@ -119,6 +154,7 @@ The type definitions for the typed data.
 
 ```ts
 const signature = await walletClient.signTypedData({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   domain,
   types: { // [!code focus:11]
     Person: [
@@ -154,6 +190,7 @@ The primary type to extract from `types` and use in `value`.
 
 ```ts
 const signature = await walletClient.signTypedData({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   domain,
   types: {
     Person: [
@@ -187,6 +224,7 @@ const signature = await walletClient.signTypedData({
 
 ```ts
 const signature = await walletClient.signTypedData({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   domain,
   types: {
     Person: [

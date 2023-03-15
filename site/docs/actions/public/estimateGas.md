@@ -51,6 +51,22 @@ The gas estimate (in wei).
 
 ## Parameters
 
+### account (optional)
+
+- **Type:** `Account`
+
+The Account sender. [Read more](/docs/clients/wallet).
+
+```ts
+import { getAccount } from 'viem'
+
+const gasEstimate = await publicClient.estimateGas({
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus)]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1')
+})
+```
+
 ### data (optional)
 
 - **Type:** `0x${string}`
@@ -63,22 +79,6 @@ import { getAccount } from 'viem'
 const gasEstimate = await publicClient.estimateGas({
   data: '0x...', // [!code focus]
   account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: parseEther('1')
-})
-```
-
-### from (optional)
-
-- **Type:** [`Address`](/docs/glossary/types#address)
-
-Transaction sender.
-
-```ts
-import { getAccount } from 'viem'
-
-const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus)]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })

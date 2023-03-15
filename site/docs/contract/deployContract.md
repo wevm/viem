@@ -24,8 +24,11 @@ Deploys a contract to the network, given bytecode & constructor arguments.
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
 await walletClient.deployContract({
   abi,
+  account,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
 ```
@@ -63,8 +66,11 @@ import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
 import { walletClient } from './client'
 
+const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
 await walletClient.deployContract({
   abi,
+  account,
   args: [69420],
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
@@ -105,6 +111,21 @@ The contract's ABI.
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi, // [!code focus]
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
+})
+```
+
+### account
+
+- **Type:** `Account`
+
+The Account to deploy the contract from. [Read more](/docs/clients/wallet).
+
+```ts
+await walletClient.deployContract({
+  abi: wagmiAbi, 
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus]
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
 ```
@@ -118,6 +139,7 @@ The contract's bytecode.
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi,
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus]
 })
 ```
@@ -131,6 +153,7 @@ Constructor arguments to call upon deployment.
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi,
+  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   args: [69] // [!code focus]
 })
