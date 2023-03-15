@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.19
+
+### Patch Changes
+
+- [`0fc8182`](https://github.com/wagmi-dev/viem/commit/0fc818260b67cb61910a79b8b6055d63b40a1e15) Thanks [@jxom](https://github.com/jxom)! - Upgraded from `@noble/secp256k1` to `@noble/curves`.
+
 ## 0.1.18
 
 ### Patch Changes
