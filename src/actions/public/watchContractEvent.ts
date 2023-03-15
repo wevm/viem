@@ -120,9 +120,7 @@ export function watchContractEvent<
               logs = await getLogs(client, {
                 address,
                 args,
-                fromBlock: previousBlockNumber
-                  ? previousBlockNumber + 1n
-                  : undefined,
+                fromBlock: previousBlockNumber + 1n,
                 toBlock: blockNumber,
                 event: getAbiItem({
                   abi,
