@@ -14,8 +14,8 @@ importers:
       '@adraffy/ens-normalize': ^1.8.9
       '@changesets/changelog-github': ^0.4.5
       '@changesets/cli': ^2.23.2
+      '@noble/curves': ^0.8.2
       '@noble/hashes': ^1.1.2
-      '@noble/secp256k1': ^1.7.1
       '@types/dedent': ^0.7.0
       '@types/fs-extra': ^9.0.13
       '@types/node': ^17.0.45
@@ -43,8 +43,8 @@ importers:
       vitest: ~0.29.2
       ws: ^8.12.0
     dependencies:
+      '@noble/curves': 0.8.2
       '@noble/hashes': 1.1.2
-      '@noble/secp256k1': 1.7.1
       '@wagmi/chains': 0.2.11_typescript@4.9.5
       abitype: 0.7.1_typescript@4.9.5
       idna-uts46-hx: 4.1.2
@@ -84,7 +84,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -95,7 +95,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -106,7 +106,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -117,7 +117,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -135,7 +135,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -156,7 +156,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -170,7 +170,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -181,7 +181,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -199,7 +199,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -213,7 +213,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -224,7 +224,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -235,7 +235,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -267,7 +267,7 @@ importers:
       viem: latest
       vite: ^4.1.4
     dependencies:
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -285,7 +285,7 @@ importers:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: link:../../..
+      viem: 0.1.18_typescript@4.9.5
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -1767,8 +1767,18 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
+  /@noble/curves/0.8.2:
+    resolution: {integrity: sha512-LTJ6aF/60/JmWwX4SNPovCklHKMO7jZ5cnHxqxt34GUTedj3rPDfN8iZG6ceuiwlanY7ZOWd6bmsejoqQ8Cccg==}
+    dependencies:
+      '@noble/hashes': 1.2.0
+    dev: false
+
   /@noble/hashes/1.1.2:
     resolution: {integrity: sha512-KYRCASVTv6aeUi1tsF8/vpyR7zpfs3FUzy2Jqm+MU+LmUKhQ0y2FpfwqkCcxSg2ua4GALJd8k2R76WxwZGbQpA==}
+
+  /@noble/hashes/1.2.0:
+    resolution: {integrity: sha512-FZfhjEDbT5GRswV3C6uvLPHMiVD6lQBmpoX5+eSiPaMTXte/IKqI5dykDxzZB/WBeK/CDuQRBWarPdi3FNY2zQ==}
+    dev: false
 
   /@noble/secp256k1/1.7.1:
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
@@ -5844,6 +5854,23 @@ packages:
       spdx-correct: 3.1.1
       spdx-expression-parse: 3.0.1
     dev: true
+
+  /viem/0.1.18_typescript@4.9.5:
+    resolution: {integrity: sha512-LLCT+D1VlWLTo/orH/gSsjM85jFAIWnLBJ0UzhGGrv45pL86lMv+0rC1QHSe33iGuUHSbMYnkOXL9oI210N5Zw==}
+    dependencies:
+      '@noble/hashes': 1.2.0
+      '@noble/secp256k1': 1.7.1
+      '@wagmi/chains': 0.2.11_typescript@4.9.5
+      abitype: 0.7.1_typescript@4.9.5
+      idna-uts46-hx: 4.1.2
+      isomorphic-ws: 5.0.0_ws@8.12.0
+      ws: 8.12.0
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+    dev: false
 
   /vite-node/0.29.2_@types+node@17.0.45:
     resolution: {integrity: sha512-5oe1z6wzI3gkvc4yOBbDBbgpiWiApvuN4P55E8OI131JGrSuo4X3SOZrNmZYo4R8Zkze/dhi572blX0zc+6SdA==}

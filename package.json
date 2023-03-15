@@ -122,7 +122,7 @@
   "sideEffects": false,
   "dependencies": {
     "@noble/hashes": "^1.1.2",
-    "@noble/secp256k1": "^1.7.1",
+    "@noble/curves": "^0.8.2",
     "@wagmi/chains": "~0.2.11",
     "abitype": "~0.7.1",
     "idna-uts46-hx": "^4.1.2",

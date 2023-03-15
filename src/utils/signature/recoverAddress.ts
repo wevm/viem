@@ -1,4 +1,4 @@
-import { recoverPublicKey } from '@noble/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 import type { Address, ByteArray, Hex } from '../../types'
 import { checksumAddress } from '../address'
 import { isHex } from '../data'
@@ -22,13 +22,13 @@ export function recoverAddress({
   // The recoveryId represents the y-coordinate on the secp256k1 elliptic curve and can have a value [0, 1].
   const v = hexToNumber(`0x${signatureHex.slice(130)}`)
 
-  const publicKey = toHex(
-    recoverPublicKey(
-      hashHex.substring(2),
-      signatureHex.substring(2, 130),
-      v - 27,
-    ),
+  const publicKey = secp256k1.Signature.fromCompact(
+    signatureHex.substring(2, 130),
   )
-  const address = keccak256(`0x${publicKey.substring(4)}`).substring(26)
+    .addRecoveryBit(v - 27)
+    .recoverPublicKey(hashHex.substring(2))
+    .toHex(false)
+
+  const address = keccak256(`0x${publicKey.substring(2)}`).substring(26)
   return checksumAddress(`0x${address}`) as Address
 }
