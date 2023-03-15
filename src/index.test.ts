@@ -211,6 +211,7 @@ test('exports actions', () => {
       "parseGwei": [Function],
       "parseUnits": [Function],
       "recoverAddress": [Function],
+      "recoverMessageAddress": [Function],
       "size": [Function],
       "slice": [Function],
       "sliceBytes": [Function],
@@ -227,6 +228,7 @@ test('exports actions', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
+      "verifyMessage": [Function],
       "webSocket": [Function],
       "weiUnits": {
         "ether": -18,

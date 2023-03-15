@@ -273,6 +273,7 @@ export {
   parseGwei,
   parseUnits,
   recoverAddress,
+  recoverMessageAddress,
   size,
   slice,
   sliceBytes,
@@ -285,4 +286,5 @@ export {
   toRlp,
   transactionType,
   trim,
+  verifyMessage,
 } from './utils'
