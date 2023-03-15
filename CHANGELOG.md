@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.19
+
+### Patch Changes
+
+- [`74f8e1d`](https://github.com/wagmi-dev/viem/commit/74f8e1dfe1b86eba9453ede0b20babf8e150423a) Thanks [@jxom](https://github.com/jxom)! - Added missing `recoverMessageAddress` and `verifyMessage` exports.
+
 ## 0.1.18
 
 ### Patch Changes
