@@ -28,8 +28,10 @@ You can use any [EIP-1193 compatible](https://eips.ethereum.org/EIPS/eip-1193) E
 
 ```ts
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 
-const client = createWalletClient({ 
+const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 ```
@@ -38,9 +40,11 @@ Or you can define your own:
 
 ```ts
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 import { customRpc } from './rpc'
 
 const client = createWalletClient({ 
+  chain: mainnet,
   transport: custom({
     async request({ method, params }) {
       const response = await customRpc.request(method, params)

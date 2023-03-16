@@ -39,7 +39,6 @@ function Example() {
       ...wagmiContract,
       functionName: 'mint',
       account,
-      chain: goerli,
     })
     const hash = await walletClient.writeContract(request)
     setHash(hash)
