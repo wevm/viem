@@ -124,6 +124,7 @@ const hash = await walletClient.sendTransaction({
 ### chain (optional)
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
+- **Default:** `walletClient.chain`
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown if `assertChain` is truthy.
 

@@ -32,6 +32,7 @@ export function createWalletClient<
   TTransport extends Transport,
   TChain extends Chain,
 >({
+  chain,
   transport,
   key = 'wallet',
   name = 'Wallet Client',
@@ -42,6 +43,7 @@ export function createWalletClient<
   true
 > {
   const client = createClient({
+    chain,
     key,
     name,
     pollingInterval,

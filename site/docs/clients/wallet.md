@@ -167,6 +167,21 @@ const hash = await client.sendTransaction({ // [!code focus:5]
 
 ## Parameters
 
+### chain (optional)
+
+- **Type:** [Chain](/docs/glossary/types#chain)
+
+The [Chain](/docs/clients/chains) of the Wallet Client. 
+
+Used in the [`sendTransaction`](/docs/actions/wallet/sendTransaction) & [`writeContract`](/docs/contract/writeContract) Actions to assert that the chain matches the wallet's active chain.
+
+```ts
+const client = createWalletClient({
+  chain: mainnet, // [!code focus]
+  transport: custom(window.ethereum)
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`
