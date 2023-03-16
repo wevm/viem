@@ -1,4 +1,3 @@
-import { prepareRequest } from '../../utils'
 import type { WalletClient } from '../../clients'
 import { BaseError, ChainMismatchError } from '../../errors'
 import type {
@@ -8,15 +7,16 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import { Account } from '../../types/account'
+import type { Account } from '../../types/account'
 import {
-  Formatted,
-  TransactionRequestFormatter,
   assertRequest,
   extract,
   format,
+  Formatted,
   formatTransactionRequest,
   getTransactionError,
+  prepareRequest,
+  TransactionRequestFormatter,
 } from '../../utils'
 import { getChainId } from '../public'
 

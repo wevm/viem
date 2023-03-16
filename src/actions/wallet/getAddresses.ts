@@ -1,4 +1,5 @@
-import { Address } from 'abitype'
+import type { Address } from 'abitype'
+
 import type { WalletClient } from '../../clients'
 import { checksumAddress } from '../../utils/address'
 

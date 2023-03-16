@@ -1,4 +1,4 @@
-import { Address, Hash } from '../types'
+import type { Address, Hash } from '../types'
 import { getAccount as getAccount_, toBytes } from '../utils'
 
 type BigNumberish = string | number | bigint

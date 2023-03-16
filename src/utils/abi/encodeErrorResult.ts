@@ -1,9 +1,9 @@
-import { Abi, Narrow } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
 } from '../../errors'
-import {
+import type {
   ExtractErrorArgsFromAbi,
   ExtractErrorNameFromAbi,
   Hex,

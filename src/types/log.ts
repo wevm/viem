@@ -1,5 +1,5 @@
-import { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
-import { ExtractEventArgsFromAbi } from './contract'
+import type { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
+import type { ExtractEventArgsFromAbi } from './contract'
 import type { Hash, Hex } from './misc'
 
 type DecodedAbiEvent<

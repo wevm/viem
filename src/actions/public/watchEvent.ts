@@ -1,4 +1,4 @@
-import { AbiEvent } from 'abitype'
+import type { AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
 import type {
   Address,

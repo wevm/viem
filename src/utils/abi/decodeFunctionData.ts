@@ -1,7 +1,7 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 
 import { AbiFunctionSignatureNotFoundError } from '../../errors'
-import { Hex } from '../../types'
+import type { Hex } from '../../types'
 import { slice } from '../data'
 import { getFunctionSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'

@@ -1,4 +1,4 @@
-import { SendTransactionParameters } from '../../actions'
+import type { SendTransactionParameters } from '../../actions'
 import {
   BaseError,
   ExecutionRevertedError,

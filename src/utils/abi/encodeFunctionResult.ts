@@ -1,10 +1,13 @@
-import { Abi, Narrow } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
 } from '../../errors'
 
-import { ExtractFunctionNameFromAbi, ExtractResultFromAbi } from '../../types'
+import type {
+  ExtractFunctionNameFromAbi,
+  ExtractResultFromAbi,
+} from '../../types'
 import { encodeAbiParameters } from './encodeAbiParameters'
 
 const docsPath = '/docs/contract/encodeFunctionResult'

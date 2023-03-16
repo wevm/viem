@@ -1,5 +1,5 @@
 import type { Address, TypedData } from 'abitype'
-import { TypedDataDefinition } from '../actions/wallet'
+import type { TypedDataDefinition } from '../actions/wallet'
 import type { Hash } from './misc'
 import type { TransactionRequest } from './transaction'
 

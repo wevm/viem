@@ -1,6 +1,6 @@
-import { Address } from 'abitype'
+import type { Address } from 'abitype'
 import type { TestClient } from '../../clients'
-import { RpcTransaction } from '../../types'
+import type { RpcTransaction } from '../../types'
 
 export type GetTxpoolContentReturnType = {
   pending: Record<Address, Record<string, RpcTransaction>>

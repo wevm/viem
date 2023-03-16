@@ -1,10 +1,10 @@
-import { Abi, Narrow } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
 } from '../../errors'
-import { ExtractConstructorArgsFromAbi, Hex } from '../../types'
+import type { ExtractConstructorArgsFromAbi, Hex } from '../../types'
 import { concatHex } from '../data'
 import { encodeAbiParameters } from './encodeAbiParameters'
 

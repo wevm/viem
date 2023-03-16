@@ -1,5 +1,5 @@
-import { Address } from 'abitype'
-import { Hex, ByteArray } from '../../types'
+import type { Address } from 'abitype'
+import type { Hex, ByteArray } from '../../types'
 import { getAddress, isAddressEqual, recoverMessageAddress } from '../../utils'
 
 export type VerifyMessageParameters = {

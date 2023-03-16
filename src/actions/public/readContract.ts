@@ -1,14 +1,14 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
-import { BaseError } from '../../errors'
+import type { BaseError } from '../../errors'
 import type { ContractConfig, ExtractResultFromAbi } from '../../types'
 import {
-  EncodeFunctionDataParameters,
   decodeFunctionResult,
-  encodeFunctionData,
-  getContractError,
   DecodeFunctionResultParameters,
+  encodeFunctionData,
+  EncodeFunctionDataParameters,
+  getContractError,
 } from '../../utils'
 import { call, CallParameters } from './call'
 

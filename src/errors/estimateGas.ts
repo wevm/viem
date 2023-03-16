@@ -1,5 +1,5 @@
-import { EstimateGasParameters } from '../actions'
-import { Chain } from '../types'
+import type { EstimateGasParameters } from '../actions'
+import type { Chain } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import { BaseError } from './base'
 import { prettyPrint } from './transaction'

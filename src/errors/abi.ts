@@ -1,5 +1,5 @@
-import { AbiParameter } from 'abitype'
-import { AbiItem, Hex } from '../types'
+import type { AbiParameter } from 'abitype'
+import type { AbiItem, Hex } from '../types'
 import { formatAbiItem, size } from '../utils'
 import { BaseError } from './base'
 

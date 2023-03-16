@@ -1,5 +1,5 @@
 import { BaseError, TransactionExecutionError } from '../../errors'
-import { SendTransactionParameters } from '../../wallet'
+import type { SendTransactionParameters } from '../../wallet'
 import { containsNodeError, getNodeError } from './getNodeError'
 
 export function getTransactionError(

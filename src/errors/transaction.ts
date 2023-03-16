@@ -1,6 +1,6 @@
-import { BlockTag, Hash } from '../types'
+import type { BlockTag, Hash } from '../types'
 import { formatEther, formatGwei } from '../utils'
-import { SendTransactionParameters } from '../wallet'
+import type { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'
 
 export function prettyPrint(

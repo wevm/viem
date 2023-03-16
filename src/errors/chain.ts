@@ -1,4 +1,4 @@
-import { Chain } from '../types'
+import type { Chain } from '../types'
 import { BaseError } from './base'
 
 export class ChainDoesNotSupportContract extends BaseError {

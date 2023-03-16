@@ -1,4 +1,4 @@
-import {
+import type {
   AbiParameterToPrimitiveType,
   AbiType,
   Narrow,
@@ -15,7 +15,7 @@ import {
   InvalidAddressError,
   UnsupportedPackedAbiType,
 } from '../../errors'
-import { Address, Hex } from '../../types'
+import type { Address, Hex } from '../../types'
 import { isAddress } from '../address'
 import { concat, pad } from '../data'
 import { boolToHex, numberToHex, stringToHex } from '../encoding'

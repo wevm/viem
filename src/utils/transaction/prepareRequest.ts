@@ -5,9 +5,9 @@ import {
   getTransactionCount,
   SendTransactionParameters,
 } from '../../actions'
-import { PublicClient, WalletClient } from '../../clients'
+import type { PublicClient, WalletClient } from '../../clients'
 import { BaseError } from '../../errors'
-import { Address } from '../../types'
+import type { Address } from '../../types'
 import { parseGwei } from '../unit/parseGwei'
 import { assertRequest } from './assertRequest'
 

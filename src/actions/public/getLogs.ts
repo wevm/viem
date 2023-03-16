@@ -1,15 +1,15 @@
-import { AbiEvent } from 'abitype'
+import type { AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
 import type {
-  Log,
-  RpcLog,
   Address,
   BlockNumber,
   BlockTag,
   Hash,
+  Log,
   LogTopic,
-  MaybeExtractEventArgsFromAbi,
   MaybeAbiEventName,
+  MaybeExtractEventArgsFromAbi,
+  RpcLog,
 } from '../../types'
 import type { EncodeEventTopicsParameters } from '../../utils'
 import { decodeEventLog, encodeEventTopics, numberToHex } from '../../utils'

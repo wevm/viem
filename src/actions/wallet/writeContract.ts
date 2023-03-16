@@ -1,8 +1,8 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { WalletClient } from '../../clients'
 import type { Chain, ContractConfig, GetValue } from '../../types'
-import { EncodeFunctionDataParameters, encodeFunctionData } from '../../utils'
+import { encodeFunctionData, EncodeFunctionDataParameters } from '../../utils'
 import {
   sendTransaction,
   SendTransactionParameters,
