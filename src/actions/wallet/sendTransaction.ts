@@ -44,12 +44,12 @@ export type SendTransactionParameters<TChain extends Chain = Chain> =
 export type SendTransactionReturnType = Hash
 
 export async function sendTransaction<TChain extends Chain>(
-  client: WalletClient,
+  client: WalletClient<any, any>,
   args: SendTransactionParameters<TChain>,
 ): Promise<SendTransactionReturnType> {
   const {
     account,
-    chain,
+    chain = client.chain,
     accessList,
     assertChain = true,
     data,
@@ -62,6 +62,7 @@ export async function sendTransaction<TChain extends Chain>(
     value,
     ...rest
   } = args
+
   try {
     assertRequest(args)
 
