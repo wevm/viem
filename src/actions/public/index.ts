@@ -156,11 +156,15 @@ export type {
 } from './watchBlocks'
 
 export { watchContractEvent } from './watchContractEvent'
-export type { WatchContractEventParameters } from './watchContractEvent'
+export type {
+  WatchContractEventParameters,
+  WatchContractEventReturnType,
+} from './watchContractEvent'
 
 export { watchEvent } from './watchEvent'
 export type {
   WatchEventParameters,
+  WatchEventReturnType,
   OnLogsParameter,
   OnLogsFn,
 } from './watchEvent'

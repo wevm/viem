@@ -95,7 +95,9 @@ export type {
   WatchBlockNumberParameters,
   WatchBlocksParameters,
   WatchContractEventParameters,
+  WatchContractEventReturnType,
   WatchEventParameters,
+  WatchEventReturnType,
   WatchPendingTransactionsParameters,
 } from './public'
 

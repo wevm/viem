@@ -52,6 +52,8 @@ export type WatchContractEventParameters<
   pollingInterval?: number
 }
 
+export type WatchContractEventReturnType = () => void
+
 export function watchContractEvent<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
@@ -67,7 +69,7 @@ export function watchContractEvent<
     onLogs,
     pollingInterval = client.pollingInterval,
   }: WatchContractEventParameters<TAbi, TEventName>,
-) {
+): WatchContractEventReturnType {
   const observerId = JSON.stringify([
     'watchContractEvent',
     address,

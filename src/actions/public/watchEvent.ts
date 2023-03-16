@@ -52,6 +52,8 @@ export type WatchEventParameters<
     }
 )
 
+export type WatchEventReturnType = () => void
+
 export function watchEvent<
   TAbiEvent extends AbiEvent | undefined,
   TEventName extends string | undefined,
@@ -66,7 +68,7 @@ export function watchEvent<
     onLogs,
     pollingInterval = client.pollingInterval,
   }: WatchEventParameters<TAbiEvent>,
-) {
+): WatchEventReturnType {
   const observerId = JSON.stringify([
     'watchEvent',
     address,

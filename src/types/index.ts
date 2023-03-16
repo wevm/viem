@@ -1,5 +1,7 @@
 export type { Address } from 'abitype'
 
+export type { IsInferrableAbi } from './abi'
+
 export type { Account, LocalAccount, JsonRpcAccount } from './account'
 
 export type {
@@ -80,6 +82,7 @@ export type {
 } from './transaction'
 
 export type {
+  IsNever,
   PartialBy,
   Prettify,
   MergeIntersectionProperties,

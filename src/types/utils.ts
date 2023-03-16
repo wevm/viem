@@ -1,4 +1,13 @@
 /**
+ * @description Checks if {@link T} is `never`
+ * @param T - Type to check
+ * @example
+ * type Result = IsNever<never>
+ * //   ^? true
+ */
+export type IsNever<T> = [T] extends [never] ? true : false
+
+/**
  * @description Excludes empty attributes from T if TMaybeExclude is true.
  *
  * @example
