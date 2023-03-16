@@ -7,7 +7,7 @@ import {
   publicClient,
   testClient,
 } from '../../_test'
-import { getAccount, parseEther, parseGwei } from '../../utils'
+import { parseEther, parseGwei } from '../../utils'
 import { reset } from '../test'
 import { estimateGas } from './estimateGas'
 import { getLocalAccount } from '../../_test/utils'
@@ -17,7 +17,7 @@ const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 test('estimates gas', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     }),
@@ -32,7 +32,7 @@ test('args: blockNumber', async () => {
   expect(
     await estimateGas(publicClient, {
       blockNumber: initialBlockNumber,
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     }),
@@ -43,7 +43,7 @@ test('args: data', async () => {
   expect(
     await estimateGas(publicClient, {
       data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: wethContractAddress,
     }),
   ).toMatchInlineSnapshot('26145n')
@@ -52,7 +52,7 @@ test('args: data', async () => {
 test('args: gasPrice', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       gasPrice: parseGwei('33'),
       value: parseEther('1'),
@@ -63,7 +63,7 @@ test('args: gasPrice', async () => {
 test('args: nonce', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       nonce: 69,
       value: parseEther('1'),
@@ -74,7 +74,7 @@ test('args: nonce', async () => {
 test('args: maxFeePerGas', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       maxFeePerGas: parseGwei('33'),
       value: parseEther('1'),
@@ -85,7 +85,7 @@ test('args: maxFeePerGas', async () => {
 test('args: maxPriorityFeePerGas', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       maxPriorityFeePerGas: parseGwei('2'),
       value: parseEther('1'),
@@ -96,7 +96,7 @@ test('args: maxPriorityFeePerGas', async () => {
 test('args: gas', async () => {
   expect(
     await estimateGas(publicClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       gas: parseGwei('2'),
       value: parseEther('1'),
@@ -210,10 +210,27 @@ describe('local account', () => {
 })
 
 describe('errors', () => {
+  test('no account', async () => {
+    await expect(() =>
+      // @ts-expect-error
+      estimateGas(publicClient, {
+        to: accounts[1].address,
+        value: parseEther('1'),
+        maxFeePerGas: 2n ** 256n - 1n + 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+
+      Docs: https://viem.sh/docs/actions/public/estimateGas.html#account.html
+      Version: viem@1.0.2"
+    `)
+  })
+
   test('fee cap too high', async () => {
     await expect(() =>
       estimateGas(publicClient, {
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
         maxFeePerGas: 2n ** 256n - 1n + 1n,
@@ -234,7 +251,7 @@ describe('errors', () => {
   test('tip higher than fee cap', async () => {
     await expect(() =>
       estimateGas(publicClient, {
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('11'),

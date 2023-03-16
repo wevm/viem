@@ -19,7 +19,7 @@ describe('Simulate Contract', () => {
       ...wagmiContractConfig,
       functionName: 'mint',
       args: [42111n],
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
     })
   })
 

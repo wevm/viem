@@ -7,7 +7,7 @@ import { verifyMessage } from './verifyMessage'
 
 test('default', async () => {
   let signature = await signMessage(walletClient!, {
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     message: 'hello world',
   })
   expect(
@@ -19,7 +19,7 @@ test('default', async () => {
   ).toBeTruthy()
 
   signature = await signMessage(walletClient!, {
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     message: 'wagmi 🥵',
   })
   expect(

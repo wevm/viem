@@ -1,6 +1,7 @@
 import type { PublicClient } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
+  Address,
   BlockTag,
   Chain,
   Formatter,
@@ -17,6 +18,7 @@ import {
   formatTransactionRequest,
   getCallError,
   numberToHex,
+  parseAccount,
   TransactionRequestFormatter,
 } from '../../utils'
 
@@ -30,7 +32,7 @@ export type FormattedCall<
 export type CallParameters<TChain extends Chain = Chain> = FormattedCall<
   TransactionRequestFormatter<TChain>
 > & {
-  account?: Account
+  account?: Account | Address
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -51,7 +53,7 @@ export async function call<TChain extends Chain>(
   args: CallParameters<TChain>,
 ): Promise<CallReturnType> {
   const {
-    account,
+    account: account_,
     blockNumber,
     blockTag = 'latest',
     accessList,
@@ -65,6 +67,8 @@ export async function call<TChain extends Chain>(
     value,
     ...rest
   } = args
+  const account = account_ ? parseAccount(account_) : undefined
+
   try {
     assertRequest(args)
 
@@ -99,6 +103,7 @@ export async function call<TChain extends Chain>(
   } catch (err) {
     throw getCallError(err as BaseError, {
       ...args,
+      account,
       chain: client.chain,
     })
   }

@@ -1,5 +1,4 @@
 import { expect, test } from 'vitest'
-import { getAccount } from '../account'
 import { parseGwei } from '../unit'
 
 import { assertRequest } from './assertRequest'
@@ -26,7 +25,7 @@ test('fee cap too high', () => {
 
 test('invalid from address', () => {
   expect(() =>
-    assertRequest({ account: getAccount('0x123') }),
+    assertRequest({ account: '0x123' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     "Address \\"0x123\\" is invalid.
 

@@ -122,7 +122,7 @@ describe('e2e', () => {
     const maxPriorityFeePerGas = parseGwei('10')
 
     const hash = await sendTransaction(walletClient, {
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
       maxFeePerGas,

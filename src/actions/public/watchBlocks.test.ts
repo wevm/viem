@@ -42,7 +42,7 @@ test(
     })
 
     await sendTransaction(walletClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })

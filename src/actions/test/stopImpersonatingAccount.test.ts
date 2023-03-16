@@ -11,7 +11,7 @@ test('stops impersonating account', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),
@@ -21,7 +21,7 @@ test('stops impersonating account', async () => {
 
   await expect(
     sendTransaction(walletClient, {
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),

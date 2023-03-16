@@ -1,6 +1,12 @@
 export type { Address } from 'abitype'
 
-export type { Account, LocalAccount, JsonRpcAccount } from './account'
+export type {
+  Account,
+  GetAccountParameter,
+  LocalAccount,
+  JsonRpcAccount,
+  ParseAccount,
+} from './account'
 
 export type {
   Block,

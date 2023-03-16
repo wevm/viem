@@ -86,7 +86,7 @@ test('gets transaction (eip2930)', async () => {
 
   const hash = await sendTransaction(walletClient, {
     accessList: [{ address: targetAccount.address, storageKeys: [] }],
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
     gasPrice: BigInt(block.baseFeePerGas ?? 0),
@@ -299,7 +299,7 @@ describe('args: blockNumber', () => {
 describe('args: blockTag', () => {
   test('gets transaction by block tag & index', async () => {
     await sendTransaction(walletClient, {
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
     })
