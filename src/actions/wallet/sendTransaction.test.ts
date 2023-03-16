@@ -477,26 +477,10 @@ describe('args: chain', async () => {
     ).toBeDefined
   })
 
-  test('args: assertChain', async () => {
+  test('nullish', async () => {
     expect(
       await sendTransaction(walletClient, {
-        assertChain: false,
-        chain: optimism,
-        account: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-      }),
-    ).toBeDefined
-  })
-
-  test('args: assertChain', async () => {
-    const walletClient = createWalletClient({
-      chain: optimism,
-      transport: http(localHttpUrl),
-    })
-    expect(
-      await sendTransaction(walletClient, {
-        assertChain: false,
+        chain: null,
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),

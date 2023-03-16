@@ -15,5 +15,5 @@ export type GetChain<
   TChain extends Chain | undefined,
   TChainOverride extends Chain | undefined = TChain,
 > = TChain extends Chain
-  ? { chain?: TChainOverride }
-  : { chain: TChainOverride }
+  ? { chain?: TChainOverride | null }
+  : { chain: TChainOverride | null }
