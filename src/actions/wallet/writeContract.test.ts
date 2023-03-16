@@ -23,7 +23,7 @@ test('default', async () => {
   ).toBeDefined()
 })
 
-test.only('inferred account', async () => {
+test('inferred account', async () => {
   expect(
     await writeContract(walletClientWithAccount, {
       ...wagmiContractConfig,
