@@ -54,7 +54,7 @@ import {
   snapshot,
   stopImpersonatingAccount,
 } from '../../actions/test'
-import { Chain, Quantity } from '../../types'
+import type { Chain, Quantity } from '../../types'
 import type { TestClient } from '../createTestClient'
 
 export type TestActions<TChain extends Chain = Chain> = {

@@ -29,8 +29,10 @@ await walletClient.addChain(avalanche) // [!code focus]
 
 ```ts [client.ts]
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 ```

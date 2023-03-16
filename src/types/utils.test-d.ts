@@ -1,5 +1,5 @@
 import { test, expectTypeOf } from 'vitest'
-import { IsNever } from './utils'
+import type { IsNever } from './utils'
 
 test('IsNever', () => {
   expectTypeOf<IsNever<never>>().toEqualTypeOf<true>()

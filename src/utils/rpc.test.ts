@@ -9,7 +9,7 @@ import { numberToHex } from './encoding'
 import type { RpcResponse } from './rpc'
 import { getSocket, rpc } from './rpc'
 import { wait } from './wait'
-import { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'http'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`

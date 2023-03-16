@@ -1,8 +1,8 @@
-import type { Transport } from './transports/createTransport'
+import type { Chain } from '../types'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
-import { Chain } from '../types'
 import { WalletActions, walletActions } from './decorators'
+import type { Transport } from './transports/createTransport'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
@@ -32,6 +32,7 @@ export function createWalletClient<
   TTransport extends Transport,
   TChain extends Chain,
 >({
+  chain,
   transport,
   key = 'wallet',
   name = 'Wallet Client',
@@ -42,6 +43,7 @@ export function createWalletClient<
   true
 > {
   const client = createClient({
+    chain,
     key,
     name,
     pollingInterval,

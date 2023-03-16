@@ -1,4 +1,4 @@
-import { Abi, TypedData } from 'abitype'
+import type { Abi, TypedData } from 'abitype'
 import type {
   AddChainParameters,
   DeployContractParameters,

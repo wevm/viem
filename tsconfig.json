@@ -3,6 +3,7 @@
     "declaration": true,
     "declarationDir": "dist",
     "esModuleInterop": true,
+    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "jsx": "react-jsx",
     "module": "ESNext",

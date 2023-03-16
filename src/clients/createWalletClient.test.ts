@@ -150,7 +150,28 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "addChain": [Function],
-        "chain": undefined,
+        "chain": {
+          "id": 1337,
+          "name": "Localhost",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "network": "localhost",
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
+            },
+            "public": {
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
+            },
+          },
+        },
         "deployContract": [Function],
         "getAddresses": [Function],
         "getChainId": [Function],

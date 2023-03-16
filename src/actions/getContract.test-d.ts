@@ -1,4 +1,4 @@
-import { ExtractAbiEventNames, ExtractAbiFunctionNames } from 'abitype'
+import type { ExtractAbiEventNames, ExtractAbiFunctionNames } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 import { wagmiContractConfig, publicClient, walletClient } from '../_test'
 import { getContract } from './getContract'

@@ -1,7 +1,7 @@
 import { Abi, parseAbi } from 'abitype'
 import { seaportAbi, seaportHumanReadableAbi } from 'abitype/test'
 import { test, expectTypeOf } from 'vitest'
-import { IsInferrableAbi } from './abi'
+import type { IsInferrableAbi } from './abi'
 
 test('IsInferrableAbi', () => {
   expectTypeOf<IsInferrableAbi<typeof seaportAbi>>().toEqualTypeOf<true>()

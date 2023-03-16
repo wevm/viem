@@ -1,4 +1,4 @@
-import { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
 import type {
   Filter,

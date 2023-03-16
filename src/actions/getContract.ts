@@ -1,4 +1,4 @@
-import {
+import type {
   Abi,
   Address,
   ExtractAbiEventNames,
@@ -6,8 +6,8 @@ import {
   Narrow,
 } from 'abitype'
 import { wagmiMintExampleAbi } from 'abitype/test'
-import { Chain, IsInferrableAbi, IsNever, Prettify } from '../types'
-import { PublicClient, WalletClient } from '../clients'
+import type { Chain, IsInferrableAbi, IsNever, Prettify } from '../types'
+import type { PublicClient, WalletClient } from '../clients'
 import { publicClient, walletClient } from '../_test'
 import type { WriteContractParameters, WriteContractReturnType } from './wallet'
 import type {

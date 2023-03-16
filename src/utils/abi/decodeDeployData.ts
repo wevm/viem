@@ -1,10 +1,10 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
 } from '../../errors'
-import { Hex } from '../../types'
+import type { Hex } from '../../types'
 import { decodeAbiParameters } from './decodeAbiParameters'
 
 const docsPath = '/docs/contract/decodeDeployData'

@@ -1,7 +1,7 @@
-import { AbiParameter } from 'abitype'
+import type { AbiParameter } from 'abitype'
 
 import { InvalidDefinitionTypeError } from '../../errors'
-import { AbiItem } from '../../types'
+import type { AbiItem } from '../../types'
 
 export function formatAbiItem(
   abiItem: AbiItem,

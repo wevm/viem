@@ -3,7 +3,7 @@ import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 import { publicActions, PublicActions } from './decorators'
-import { Chain } from '../types'
+import type { Chain } from '../types'
 
 export type PublicClientConfig<
   TTransport extends Transport = Transport,

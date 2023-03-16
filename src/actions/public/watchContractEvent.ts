@@ -1,4 +1,4 @@
-import { Abi, ExtractAbiEvent, Narrow } from 'abitype'
+import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
 import type { PublicClient } from '../../clients'
 import type {
   Address,
@@ -81,7 +81,7 @@ export function watchContractEvent<
   ])
 
   return observe(observerId, { onLogs, onError }, (emit) => {
-    let currentBlockNumber: bigint
+    let previousBlockNumber: bigint
     let filter: Filter<'event', TAbi, TEventName> | undefined
     let initialized = false
 
@@ -118,11 +118,11 @@ export function watchContractEvent<
             // If the block number has changed, we will need to fetch the logs.
             // If the block number doesn't exist, we are yet to reach the first poll interval,
             // so do not emit any logs.
-            if (currentBlockNumber && currentBlockNumber !== blockNumber) {
+            if (previousBlockNumber && previousBlockNumber !== blockNumber) {
               logs = await getLogs(client, {
                 address,
                 args,
-                fromBlock: blockNumber,
+                fromBlock: previousBlockNumber + 1n,
                 toBlock: blockNumber,
                 event: getAbiItem({
                   abi,
@@ -132,7 +132,7 @@ export function watchContractEvent<
             } else {
               logs = []
             }
-            currentBlockNumber = blockNumber
+            previousBlockNumber = blockNumber
           }
 
           if (logs.length === 0) return

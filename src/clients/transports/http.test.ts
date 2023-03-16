@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders } from 'http'
+import type { IncomingHttpHeaders } from 'http'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { localhost } from '../../chains'

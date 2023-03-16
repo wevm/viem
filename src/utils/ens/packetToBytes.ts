@@ -1,5 +1,5 @@
 // Adapted from https://github.com/mafintosh/dns-packet
-import { ByteArray } from '../../types'
+import type { ByteArray } from '../../types'
 import { toBytes } from '../encoding'
 
 /*

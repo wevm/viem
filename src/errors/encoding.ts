@@ -1,4 +1,4 @@
-import { ByteArray, Hex } from '../types'
+import type { ByteArray, Hex } from '../types'
 import { BaseError } from './base'
 
 export class DataLengthTooLongError extends BaseError {

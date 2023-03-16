@@ -33,8 +33,10 @@ const accounts = await walletClient.requestAddresses() // [!code focus:99]
 
 ```ts [client.ts]
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 ```

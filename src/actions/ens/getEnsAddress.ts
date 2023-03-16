@@ -1,4 +1,4 @@
-import { PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients'
 import type { Address, Prettify } from '../../types'
 import {
   decodeFunctionResult,

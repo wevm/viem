@@ -1,4 +1,4 @@
-import WebSocket from 'isomorphic-ws'
+import type WebSocket from 'isomorphic-ws'
 import { UrlRequiredError } from '../../errors'
 import type { Hash } from '../../types'
 import type { RpcResponse } from '../../utils/rpc'

@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
+import {
+  accounts,
+  localHttpUrl,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test'
 import { celo, defineChain, localhost, mainnet, optimism } from '../../chains'
 import { getAccount, hexToNumber, parseEther, parseGwei } from '../../utils'
 import { getBalance, getBlock, getTransaction } from '..'
@@ -8,6 +14,7 @@ import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test'
 
 import { sendTransaction } from './sendTransaction'
 import { anvilChain, getLocalAccount } from '../../_test/utils'
+import { createWalletClient, http } from '../../clients'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -118,6 +125,32 @@ test.skip('sends transaction w/ no value', async () => {
   expect(
     await getBalance(publicClient, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
+})
+
+test('client chain mismatch', async () => {
+  const walletClient = createWalletClient({
+    chain: optimism,
+    transport: http(localHttpUrl),
+  })
+  await expect(() =>
+    sendTransaction(walletClient, {
+      account: getAccount(sourceAccount.address),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+
+    Current Chain ID:  1
+    Expected Chain ID: 10 – Optimism
+     
+    Request Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:  1 ETH
+
+    Version: viem@1.0.2"
+  `)
 })
 
 describe('args: gas', () => {
@@ -416,6 +449,21 @@ describe('args: chain', async () => {
     ).toBeDefined
   })
 
+  test('args: assertChain', async () => {
+    const walletClient = createWalletClient({
+      chain: optimism,
+      transport: http(localHttpUrl),
+    })
+    expect(
+      await sendTransaction(walletClient, {
+        assertChain: false,
+        account: getAccount(sourceAccount.address),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined
+  })
+
   test('chain mismatch', async () => {
     await expect(() =>
       sendTransaction(walletClient, {
@@ -425,7 +473,7 @@ describe('args: chain', async () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The current chain (id: 1) does not match the chain passed to the request (id: 10 – Optimism).
+      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
 
       Current Chain ID:  1
       Expected Chain ID: 10 – Optimism

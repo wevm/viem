@@ -1,4 +1,4 @@
-import { AbiParameter } from 'abitype'
+import type { AbiParameter } from 'abitype'
 import { describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '../../_test'
 import { toBytes } from '../encoding'
