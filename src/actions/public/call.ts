@@ -29,26 +29,25 @@ export type FormattedCall<
   TransactionRequest
 >
 
-export type CallParameters<TChain extends Chain = Chain> = FormattedCall<
-  TransactionRequestFormatter<TChain>
-> & {
-  account?: Account | Address
-} & (
-    | {
-        /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
-      }
-    | {
-        blockNumber?: never
-        /** The balance of the account at a block tag. */
-        blockTag?: BlockTag
-      }
-  )
+export type CallParameters<TChain extends Chain | undefined = Chain> =
+  FormattedCall<TransactionRequestFormatter<TChain>> & {
+    account?: Account | Address
+  } & (
+      | {
+          /** The balance of the account at a block number. */
+          blockNumber?: bigint
+          blockTag?: never
+        }
+      | {
+          blockNumber?: never
+          /** The balance of the account at a block tag. */
+          blockTag?: BlockTag
+        }
+    )
 
 export type CallReturnType = { data: Hex | undefined }
 
-export async function call<TChain extends Chain>(
+export async function call<TChain extends Chain | undefined>(
   client: PublicClient<any, TChain>,
   args: CallParameters<TChain>,
 ): Promise<CallReturnType> {

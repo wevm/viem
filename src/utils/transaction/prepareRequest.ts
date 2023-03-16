@@ -8,7 +8,7 @@ import {
 } from '../../actions'
 import type { PublicClient, WalletClient } from '../../clients'
 import { AccountNotFoundError, BaseError } from '../../errors'
-import type { Account, Address, GetAccountParameter } from '../../types'
+import type { Account, Address, Chain, GetAccountParameter } from '../../types'
 import { parseAccount } from '../account'
 import { parseGwei } from '../unit/parseGwei'
 import { assertRequest } from './assertRequest'
@@ -40,8 +40,9 @@ export const defaultTip = parseGwei('1.5')
 export async function prepareRequest<
   TAccount extends Account | undefined,
   TParameters extends PrepareRequestParameters<TAccount>,
+  TChain extends Chain | undefined,
 >(
-  client: WalletClient<any, any, TAccount> | PublicClient<any, any>,
+  client: WalletClient<any, TChain, TAccount> | PublicClient<any, TChain>,
   args: TParameters,
 ): Promise<PrepareRequestReturnType<TAccount, TParameters>> {
   const {

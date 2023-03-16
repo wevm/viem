@@ -9,7 +9,7 @@ export type RequestPermissionsParameters = {
 export type RequestPermissionsReturnType = WalletPermission[]
 
 export async function requestPermissions(
-  client: WalletClient,
+  client: WalletClient<any, any>,
   permissions: RequestPermissionsParameters,
 ) {
   return client.request({

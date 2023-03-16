@@ -54,10 +54,10 @@ import {
   snapshot,
   stopImpersonatingAccount,
 } from '../../actions/test'
-import type { Chain, Quantity } from '../../types'
+import type { Quantity } from '../../types'
 import type { TestClient } from '../createTestClient'
 
-export type TestActions<TChain extends Chain = Chain> = {
+export type TestActions = {
   dropTransaction: (args: DropTransactionParameters) => Promise<void>
   getAutomine: () => Promise<GetAutomineReturnType>
   getTxpoolContent: () => Promise<GetTxpoolContentReturnType>
@@ -98,12 +98,9 @@ export type TestActions<TChain extends Chain = Chain> = {
   ) => Promise<void>
 }
 
-export const testActions = <
-  TChain extends Chain,
-  TClient extends TestClient<any, any>,
->(
+export const testActions = <TClient extends TestClient<any, any>>(
   client: TClient,
-): TestActions<TChain> => ({
+): TestActions => ({
   dropTransaction: (args) => dropTransaction(client, args),
   getAutomine: () => getAutomine(client),
   getTxpoolContent: () => getTxpoolContent(client),

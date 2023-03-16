@@ -5,7 +5,7 @@ export type WatchAssetParameters = WatchAssetParams
 export type WatchAssetReturnType = boolean
 
 export async function watchAsset(
-  client: WalletClient,
+  client: WalletClient<any, any>,
   params: WatchAssetParameters,
 ): Promise<WatchAssetReturnType> {
   const added = await client.request({

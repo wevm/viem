@@ -108,7 +108,7 @@ import type {
 } from '../../types'
 import type { PublicClient } from '../createPublicClient'
 
-export type PublicActions<TChain extends Chain = Chain> = {
+export type PublicActions<TChain extends Chain | undefined = Chain> = {
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   createContractEventFilter: <
@@ -128,7 +128,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
   ) => Promise<CreateEventFilterReturnType<TAbiEvent, TAbi, TEventName, TArgs>>
   createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterReturnType>
   estimateContractGas: <
-    TChain extends Chain,
+    TChain extends Chain | undefined,
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
@@ -214,11 +214,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
       TChainOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<
-      TChainOverride extends Chain ? TChainOverride : TChain,
-      TAbi,
-      TFunctionName
-    >
+    SimulateContractReturnType<TChain, TAbi, TFunctionName, TChainOverride>
   >
   uninstallFilter: (
     args: UninstallFilterParameters,
@@ -250,7 +246,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
 }
 
 export const publicActions = <
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TClient extends PublicClient<any, any>,
 >(
   client: TClient,

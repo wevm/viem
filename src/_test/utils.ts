@@ -18,7 +18,7 @@ import {
   webSocket,
 } from '../clients'
 import { getAccount as getEthersAccount } from '../ethers'
-import type { Hex } from '../types'
+import type { Account, Hex } from '../types'
 import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
 import { baycContractConfig } from './abis'
@@ -104,11 +104,13 @@ export const publicClient =
       })
 
 export const walletClient = createWalletClient({
+  chain: anvilChain,
   transport: custom(provider),
 })
 
 export const walletClientWithAccount = createWalletClient({
   account: accounts[0].address,
+  chain: anvilChain,
   transport: custom(provider),
 })
 
@@ -140,9 +142,9 @@ export function createHttpServer(
 }
 
 export async function deploy<TAbi extends Abi = Abi>(
-  args: DeployContractParameters<Chain, TAbi>,
+  args: DeployContractParameters<any, TAbi>,
 ) {
-  const hash = await deployContract(walletClient, args)
+  const hash = await deployContract(walletClientWithAccount, args)
   await mine(testClient, { blocks: 1 })
   const { contractAddress } = await getTransactionReceipt(publicClient, {
     hash,

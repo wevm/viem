@@ -24,7 +24,9 @@ export type GetBlockTransactionCountParameters =
 
 export type GetBlockTransactionCountReturnType = number
 
-export async function getBlockTransactionCount<TChain extends Chain>(
+export async function getBlockTransactionCount<
+  TChain extends Chain | undefined,
+>(
   client: PublicClient<any, TChain>,
   {
     blockHash,

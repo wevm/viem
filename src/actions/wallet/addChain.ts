@@ -7,7 +7,7 @@ export type AddChainParameters = {
 }
 
 export async function addChain(
-  client: WalletClient,
+  client: WalletClient<any, any>,
   { chain }: AddChainParameters,
 ) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain

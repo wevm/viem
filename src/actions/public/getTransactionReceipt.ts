@@ -13,10 +13,11 @@ export type GetTransactionReceiptParameters = {
   hash: Hash
 }
 
-export type GetTransactionReceiptReturnType<TChain extends Chain = Chain> =
-  FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
+export type GetTransactionReceiptReturnType<
+  TChain extends Chain | undefined = Chain,
+> = FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
 
-export async function getTransactionReceipt<TChain extends Chain>(
+export async function getTransactionReceipt<TChain extends Chain | undefined>(
   client: PublicClient<any, TChain>,
   { hash }: GetTransactionReceiptParameters,
 ) {

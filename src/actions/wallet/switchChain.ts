@@ -5,7 +5,7 @@ import { numberToHex } from '../../utils'
 export type SwitchChainParameters = { id: Chain['id'] }
 
 export async function switchChain(
-  client: WalletClient,
+  client: WalletClient<any, any>,
   { id }: SwitchChainParameters,
 ) {
   await client.request({

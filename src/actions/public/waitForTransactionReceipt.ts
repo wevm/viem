@@ -14,30 +14,34 @@ import type { GetTransactionReceiptReturnType } from './getTransactionReceipt'
 import { getTransactionReceipt } from './getTransactionReceipt'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
-export type ReplacementReturnType<TChain extends Chain = Chain> = {
+export type ReplacementReturnType<TChain extends Chain | undefined = Chain> = {
   reason: ReplacementReason
   replacedTransaction: Transaction
   transaction: Transaction
   transactionReceipt: GetTransactionReceiptReturnType<TChain>
 }
 
-export type WaitForTransactionReceiptReturnType<TChain extends Chain = Chain> =
-  GetTransactionReceiptReturnType<TChain>
+export type WaitForTransactionReceiptReturnType<
+  TChain extends Chain | undefined = Chain,
+> = GetTransactionReceiptReturnType<TChain>
 
-export type WaitForTransactionReceiptParameters<TChain extends Chain = Chain> =
-  {
-    /** The number of confirmations (blocks that have passed) to wait before resolving. */
-    confirmations?: number
-    /** The hash of the transaction. */
-    hash: Hash
-    onReplaced?: (response: ReplacementReturnType<TChain>) => void
-    /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
-    pollingInterval?: number
-    /** Optional timeout (in milliseconds) to wait before stopping polling. */
-    timeout?: number
-  }
+export type WaitForTransactionReceiptParameters<
+  TChain extends Chain | undefined = Chain,
+> = {
+  /** The number of confirmations (blocks that have passed) to wait before resolving. */
+  confirmations?: number
+  /** The hash of the transaction. */
+  hash: Hash
+  onReplaced?: (response: ReplacementReturnType<TChain>) => void
+  /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
+  pollingInterval?: number
+  /** Optional timeout (in milliseconds) to wait before stopping polling. */
+  timeout?: number
+}
 
-export async function waitForTransactionReceipt<TChain extends Chain>(
+export async function waitForTransactionReceipt<
+  TChain extends Chain | undefined,
+>(
   client: PublicClient<any, TChain>,
   {
     confirmations = 1,

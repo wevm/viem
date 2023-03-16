@@ -9,7 +9,7 @@ type TestClientModes = 'anvil' | 'hardhat'
 
 export type TestClientConfig<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TMode extends TestClientModes = TestClientModes,
 > = {
   chain?: ClientConfig<TTransport, TChain>['chain']
@@ -26,19 +26,19 @@ export type TestClientConfig<
 
 export type TestClient<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TMode extends TestClientModes = TestClientModes,
   TIncludeActions extends boolean = true,
 > = Client<TTransport, TChain, TestRequests<TMode>> & {
   mode: TMode
-} & (TIncludeActions extends true ? TestActions<TChain> : {})
+} & (TIncludeActions extends true ? TestActions : {})
 
 /**
  * @description Creates a test client with a given transport.
  */
 export function createTestClient<
   TTransport extends Transport,
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TMode extends TestClientModes,
 >({
   chain,

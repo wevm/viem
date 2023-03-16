@@ -133,7 +133,7 @@ test.skip('sends transaction w/ no value', async () => {
 
 test('client chain mismatch', async () => {
   const walletClient = createWalletClient({
-    chain: optimism,
+    chain: celo,
     transport: http(localHttpUrl),
   })
   await expect(() =>
@@ -143,10 +143,10 @@ test('client chain mismatch', async () => {
       value: parseEther('1'),
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 42220 – Celo).
 
     Current Chain ID:  1
-    Expected Chain ID: 10 – Optimism
+    Expected Chain ID: 42220 – Celo
      
     Request Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -167,6 +167,30 @@ test('inferred account', async () => {
       gas: 1_000_000n,
     }),
   ).toBeDefined()
+})
+
+test('no chain', async () => {
+  const walletClient = createWalletClient({
+    transport: http(localHttpUrl),
+  })
+  await expect(() =>
+    // @ts-expect-error
+    sendTransaction(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "No chain was provided to the request.
+    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
+
+    Request Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:  1 ETH
+
+    Version: viem@1.0.2"
+  `)
 })
 
 describe('args: gas', () => {

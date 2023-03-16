@@ -28,12 +28,11 @@ export type GetBlockParameters = {
     }
 )
 
-export type GetBlockReturnType<TChain extends Chain = Chain> = FormattedBlock<
-  BlockFormatter<TChain>
->
+export type GetBlockReturnType<TChain extends Chain | undefined = Chain> =
+  FormattedBlock<BlockFormatter<TChain>>
 
 export async function getBlock<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
   client: PublicClient<any, TChain> | WalletClient<any, any, TAccount>,

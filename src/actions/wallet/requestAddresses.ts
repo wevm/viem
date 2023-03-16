@@ -6,7 +6,7 @@ import { getAddress } from '../../utils'
 export type RequestAddressesReturnType = Address[]
 
 export async function requestAddresses(
-  client: WalletClient,
+  client: WalletClient<any, any>,
 ): Promise<RequestAddressesReturnType> {
   const addresses = await client.request({ method: 'eth_requestAccounts' })
   return addresses.map((address) => getAddress(address))

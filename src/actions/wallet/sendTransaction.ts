@@ -3,10 +3,12 @@ import {
   AccountNotFoundError,
   BaseError,
   ChainMismatchError,
+  ChainNotFoundError,
 } from '../../errors'
 import type {
   Chain,
   Formatter,
+  GetChain,
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,
@@ -33,29 +35,23 @@ export type FormattedTransactionRequest<
 >
 
 export type SendTransactionParameters<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
-> = FormattedTransactionRequest<TransactionRequestFormatter<TChain>> &
-  GetAccountParameter<TAccount> &
-  (
-    | {
-        assertChain?: false
-        chain?: TChain
-      }
-    | {
-        assertChain: true
-        chain: TChain
-      }
-  )
+  TChainOverride extends Chain | undefined = TChain,
+> = FormattedTransactionRequest<TransactionRequestFormatter<TChainOverride>> & {
+  assertChain?: boolean
+} & GetAccountParameter<TAccount> &
+  GetChain<TChain, TChainOverride>
 
 export type SendTransactionReturnType = Hash
 
 export async function sendTransaction<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TAccount extends Account | undefined,
+  TChainOverride extends Chain | undefined = TChain,
 >(
-  client: WalletClient<any, any, TAccount>,
-  args: SendTransactionParameters<TChain, TAccount>,
+  client: WalletClient<any, TChain, TAccount>,
+  args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {
     account: account_ = client.account,
@@ -83,8 +79,10 @@ export async function sendTransaction<
     assertRequest(args)
 
     const currentChainId = await getChainId(client)
-    if (assertChain && chain && currentChainId !== chain?.id)
+    if (assertChain && currentChainId !== chain?.id) {
+      if (!chain) throw new ChainNotFoundError()
       throw new ChainMismatchError({ chain, currentChainId })
+    }
 
     if (account.type === 'local') {
       const chainId = chain?.id ?? currentChainId

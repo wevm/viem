@@ -7,11 +7,11 @@ import { parseAccount } from '../utils'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAccount extends Account | Address | undefined = undefined,
 > = {
   account?: TAccount
-  chain?: ClientConfig<TTransport, TChain>['chain']
+  chain?: TChain
   /** The key of the Wallet Client. */
   key?: ClientConfig['key']
   /** The name of the Wallet Client. */
@@ -23,7 +23,7 @@ export type WalletClientConfig<
 
 export type WalletClient<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
   TIncludeActions extends boolean = true,
 > = Client<TTransport, TChain> & {
@@ -35,7 +35,7 @@ export type WalletClient<
  */
 export function createWalletClient<
   TTransport extends Transport,
-  TChain extends Chain,
+  TChain extends Chain | undefined = undefined,
   TAccountOrAddress extends Account | Address | undefined = undefined,
   TAccount extends Account | undefined = ParseAccount<TAccountOrAddress>,
 >({
