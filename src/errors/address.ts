@@ -10,7 +10,7 @@ export class InvalidAddressError extends BaseError {
 export class InvalidHashError extends BaseError {
   name = 'InvalidHashError'
   constructor({ hash }: { hash: string | string[] }) {
-    super("Provided value contains invalid hash values", {
+    super('Provided value contains invalid hash values', {
       metaMessages: [...hash],
     })
   }
