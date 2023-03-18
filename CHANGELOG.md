@@ -1,5 +1,17 @@
 # viem
 
+## 0.1.21
+
+### Patch Changes
+
+- [#223](https://github.com/wagmi-dev/viem/pull/223) [`2e9c000`](https://github.com/wagmi-dev/viem/commit/2e9c0008c76939e54902569f8f8581a943914e4f) Thanks [@jxom](https://github.com/jxom)! - Added an assertion in `sendTransaction` & `writeContract` to check that the client chain matches the wallet's current chain.
+
+## 0.1.20
+
+### Patch Changes
+
+- [#220](https://github.com/wagmi-dev/viem/pull/220) [`9a80fca`](https://github.com/wagmi-dev/viem/commit/9a80fca116417f77d4a305a59ec0c3ecf3e0fdfa) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `watchEvent` would not emit events on missed blocks for the `getLogs` fallback.
+
 ## 0.1.19
 
 ### Patch Changes

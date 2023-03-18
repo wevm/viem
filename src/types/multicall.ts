@@ -1,5 +1,5 @@
-import { Abi } from 'abitype';
-import { ContractConfig, ExtractResultFromAbi } from './contract';
+import type { Abi } from 'abitype';
+import type { ContractConfig, ExtractResultFromAbi } from './contract';
 
 type MAXIMUM_DEPTH = 20
 

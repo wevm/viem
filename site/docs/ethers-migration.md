@@ -260,10 +260,12 @@ const provider = new providers.Web3Provider(window.ethereum)
 
 #### viem
 
-```ts {3-5}
+```ts {3-7}
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 ```
@@ -309,10 +311,12 @@ signer.sendTransaction({ ... })
 
 #### viem
 
-```ts {7-8}
+```ts {9-11}
 import { createWalletClient, custom, getAccount } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 
@@ -342,12 +346,14 @@ wallet.sendTransaction({ ... })
 
 viem does not currently support client-side signing (it's coming shortly!) – until then, you can use an Ethers `Wallet`:
 
-```ts {8}
+```ts {6-9}
 import { Wallet } from 'ethers'
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 import { getAccount } from 'viem/ethers'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 
@@ -415,8 +421,10 @@ signer.signMessage(...)
 
 ```ts {9-12}
 import { createWalletClient, custom, getAccount } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 
@@ -497,6 +505,7 @@ const publicClient = createPublicClient({
   transport: http()
 })
 const walletClient = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 
@@ -536,6 +545,7 @@ import { mainnet } from 'viem/chains'
 import { abi, bytecode } from './abi'
 
 const walletClient = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 

@@ -1,5 +1,5 @@
 import type { PublicClient, WalletClient } from '../../clients'
-import { BaseError } from '../../errors'
+import type { BaseError } from '../../errors'
 import type {
   BlockTag,
   Chain,
@@ -7,7 +7,7 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import { Account } from '../../types/account'
+import type { Account } from '../../types/account'
 import {
   assertRequest,
   extract,

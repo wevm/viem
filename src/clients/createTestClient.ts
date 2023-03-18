@@ -1,9 +1,9 @@
+import type { Chain } from '../types'
 import type { TestRequests } from '../types/eip1193'
-import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
-import { Chain } from '../types'
 import { testActions, TestActions } from './decorators'
+import type { Transport } from './transports/createTransport'
 
 type TestClientModes = 'anvil' | 'hardhat'
 

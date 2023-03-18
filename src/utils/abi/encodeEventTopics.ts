@@ -1,17 +1,22 @@
-import { Abi, AbiParameter, AbiParameterToPrimitiveType, Narrow } from 'abitype'
+import type {
+  Abi,
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  Narrow,
+} from 'abitype'
 
 import {
   AbiEventNotFoundError,
   FilterTypeNotSupportedError,
 } from '../../errors'
-import {
+import type {
   EventDefinition,
   ExtractEventArgsFromAbi,
   ExtractEventNameFromAbi,
   Hex,
 } from '../../types'
 import { toBytes } from '../encoding'
-import { keccak256, getEventSelector } from '../hash'
+import { getEventSelector, keccak256 } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 import { getAbiItem, GetAbiItemParameters } from './getAbiItem'

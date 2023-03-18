@@ -1,4 +1,4 @@
-import {
+import type {
   AbiParameter,
   AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
@@ -10,7 +10,7 @@ import {
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
 } from '../../errors'
-import { Hex } from '../../types'
+import type { Hex } from '../../types'
 import { checksumAddress } from '../address'
 import { size, slice, trim } from '../data'
 import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'

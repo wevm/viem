@@ -1,6 +1,6 @@
 import { InvalidAddressError } from '../errors'
-import { Address } from '../types'
-import { Account, LocalAccount } from '../types/account'
+import type { Address } from '../types'
+import type { Account, LocalAccount } from '../types/account'
 import { isAddress } from './address'
 
 export function getAccount(

@@ -346,4 +346,4 @@ Check out the usage of `watchEvent` in the live [Event Logs Example](https://sta
 
 **RPC Provider does not support `eth_newFilter`:**
 
-- Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) on a polling interval.
+- Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) for each block between the polling interval.

@@ -1,4 +1,4 @@
-import {
+import type {
   Narrow,
   TypedData,
   TypedDataDomain,
@@ -6,9 +6,9 @@ import {
   TypedDataToPrimitiveTypes,
   TypedDataType,
 } from 'abitype'
-import { WalletClient } from '../../clients'
+import type { WalletClient } from '../../clients'
 import { BytesSizeMismatchError, InvalidAddressError } from '../../errors'
-import { Account, Hex } from '../../types'
+import type { Account, Hex } from '../../types'
 import {
   bytesRegex,
   integerRegex,

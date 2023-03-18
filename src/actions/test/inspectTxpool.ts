@@ -1,5 +1,5 @@
 import type { TestClient } from '../../clients'
-import { Address } from '../../types'
+import type { Address } from '../../types'
 
 export type InspectTxpoolReturnType = {
   pending: Record<Address, Record<string, string>>

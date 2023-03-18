@@ -1,21 +1,26 @@
-import { Narrow } from 'abitype'
-import { PublicClient } from '../../clients'
+import type { Narrow } from 'abitype'
+import type { PublicClient } from '../../clients'
 import { multicall3Abi } from '../../constants'
 import {
   AbiDecodingZeroDataError,
   BaseError,
   RawContractError,
 } from '../../errors'
-import { Address, ContractConfig, Hex, MulticallContracts } from '../../types'
-import { MulticallResults } from '../../types/multicall'
+import type {
+  Address,
+  ContractConfig,
+  Hex,
+  MulticallContracts,
+} from '../../types'
+import type { MulticallResults } from '../../types/multicall'
 import {
-  EncodeFunctionDataParameters,
   decodeFunctionResult,
   encodeFunctionData,
-  getContractError,
+  EncodeFunctionDataParameters,
   getChainContractAddress,
+  getContractError,
 } from '../../utils'
-import { CallParameters } from './call'
+import type { CallParameters } from './call'
 import { readContract } from './readContract'
 
 export type MulticallParameters<

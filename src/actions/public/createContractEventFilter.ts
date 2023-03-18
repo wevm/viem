@@ -1,4 +1,4 @@
-import { Abi, Narrow } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 import type { PublicClient } from '../../clients'
 
 import type {

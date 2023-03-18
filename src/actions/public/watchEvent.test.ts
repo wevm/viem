@@ -66,12 +66,18 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.vitalik,
   })
+  await impersonateAccount(testClient, {
+    address: address.usdcHolder,
+  })
   await mine(testClient, { blocks: 1 })
 })
 
 afterAll(async () => {
   await stopImpersonatingAccount(testClient, {
     address: address.vitalik,
+  })
+  await stopImpersonatingAccount(testClient, {
+    address: address.usdcHolder,
   })
 })
 
@@ -218,50 +224,122 @@ test('args: address + event', async () => {
 
 test.todo('args: args')
 
-test('falls back to `getLogs` if `createEventFilter` throws', async () => {
-  // Something weird going on where the `getFilterChanges` spy is taking
-  // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
-  await wait(1)
-  const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
-  const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
-  vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
-    new Error('foo'),
+describe('`getLogs` fallback', () => {
+  test(
+    'falls back to `getLogs` if `createEventFilter` throws',
+    async () => {
+      // Something weird going on where the `getFilterChanges` spy is taking
+      // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
+      await wait(1)
+      const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
+      const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
+      vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
+        new Error('foo'),
+      )
+
+      let logs: OnLogsParameter[] = []
+
+      const unwatch = watchEvent(publicClient, {
+        onLogs: (logs_) => logs.push(logs_),
+      })
+
+      await wait(1000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await wait(2000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await wait(2000)
+      unwatch()
+
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+      expect(getFilterChangesSpy).toBeCalledTimes(0)
+      expect(getLogsSpy).toBeCalled()
+    },
+    { retry: 3 },
   )
 
-  let logs: OnLogsParameter[] = []
+  test(
+    'missed blocks',
+    async () => {
+      // Something weird going on where the `getFilterChanges` spy is taking
+      // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
+      await wait(1)
+      const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
+      const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
+      vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
+        new Error('foo'),
+      )
 
-  const unwatch = watchEvent(publicClient, {
-    onLogs: (logs_) => logs.push(logs_),
-  })
+      let logs: OnLogsParameter[] = []
 
-  await wait(1000)
-  await writeContract(walletClient, {
-    ...usdcContractConfig,
-    functionName: 'transfer',
-    args: [accounts[0].address, 1n],
-    account: getAccount(address.vitalik),
-  })
-  await writeContract(walletClient, {
-    ...usdcContractConfig,
-    functionName: 'transfer',
-    args: [accounts[0].address, 1n],
-    account: getAccount(address.vitalik),
-  })
-  await wait(1000)
-  await writeContract(walletClient, {
-    ...usdcContractConfig,
-    functionName: 'transfer',
-    args: [accounts[1].address, 1n],
-    account: getAccount(address.vitalik),
-  })
-  await wait(2000)
-  unwatch()
+      const unwatch = watchEvent(publicClient, {
+        onLogs: (logs_) => logs.push(logs_),
+      })
 
-  expect(logs.length).toBe(2)
-  expect(logs[0].length).toBe(2)
-  expect(logs[1].length).toBe(1)
-  expect(getFilterChangesSpy).toBeCalledTimes(0)
-  expect(getLogsSpy).toBeCalled()
+      await wait(1000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: getAccount(address.usdcHolder),
+      })
+      await wait(1000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[2].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await mine(testClient, { blocks: 2 })
+      await wait(1000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[2].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[2].address, 1n],
+        account: getAccount(address.vitalik),
+      })
+      await mine(testClient, { blocks: 5 })
+      await wait(2000)
+      unwatch()
+
+      expect(logs.length).toBe(3)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+      expect(logs[2].length).toBe(2)
+      expect(getFilterChangesSpy).toBeCalledTimes(0)
+      expect(getLogsSpy).toBeCalled()
+    },
+    { retry: 3 },
+  )
 })
 
 describe('errors', () => {

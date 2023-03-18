@@ -1,7 +1,10 @@
-import { Abi, Narrow } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 
 import { AbiFunctionNotFoundError } from '../../errors'
-import { ExtractArgsFromAbi, ExtractFunctionNameFromAbi } from '../../types'
+import type {
+  ExtractArgsFromAbi,
+  ExtractFunctionNameFromAbi,
+} from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'

@@ -1,10 +1,10 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 import { solidityError, solidityPanic } from '../../constants'
 import {
   AbiDecodingZeroDataError,
   AbiErrorSignatureNotFoundError,
 } from '../../errors'
-import { AbiItem, Hex } from '../../types'
+import type { AbiItem, Hex } from '../../types'
 import { slice } from '../data'
 import { getFunctionSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'

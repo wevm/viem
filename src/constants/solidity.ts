@@ -1,4 +1,4 @@
-import { AbiError } from 'abitype'
+import type { AbiError } from 'abitype'
 
 // https://docs.soliditylang.org/en/v0.8.16/control-structures.html#panic-via-assert-and-error-via-require
 export const panicReasons = {

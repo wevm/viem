@@ -1,5 +1,5 @@
-import { Chain, ChainContract, Formatters } from '../types'
 import { ChainDoesNotSupportContract } from '../errors'
+import type { Chain, ChainContract, Formatters } from '../types'
 
 export function defineChain<
   TFormatters extends Formatters = Formatters,

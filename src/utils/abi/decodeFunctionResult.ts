@@ -1,9 +1,9 @@
-import { Abi, Narrow } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
 } from '../../errors'
-import {
+import type {
   ExtractArgsFromAbi,
   ExtractFunctionNameFromAbi,
   ExtractResultFromAbi,

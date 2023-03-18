@@ -21,6 +21,7 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 const walletClient = createWalletClient({
+  chain: goerli,
   transport: custom(window.ethereum!),
 })
 
@@ -41,7 +42,6 @@ function Example() {
     if (!account) return
     const hash = await walletClient.sendTransaction({
       account,
-      chain: goerli,
       to: addressInput.current!.value as Address,
       value: parseEther(valueInput.current!.value as `${number}`),
     })

@@ -8,8 +8,10 @@ import {
   getAccount,
   parseEther,
 } from 'viem'
+import { goerli } from 'viem/chains'
 
 const walletClient = createWalletClient({
+  chain: goerli,
   transport: custom(window.ethereum!),
 })
 

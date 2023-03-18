@@ -1,6 +1,6 @@
-import { EstimateGasParameters } from '../../actions'
+import type { EstimateGasParameters } from '../../actions'
 import { BaseError, EstimateGasExecutionError } from '../../errors'
-import { Chain } from '../../types'
+import type { Chain } from '../../types'
 import { containsNodeError, getNodeError } from './getNodeError'
 
 export function getEstimateGasError(

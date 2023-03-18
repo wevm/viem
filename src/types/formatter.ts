@@ -1,11 +1,11 @@
-import { Block } from './block'
-import {
+import type { Block } from './block'
+import type {
   RpcBlock,
   RpcTransaction,
   RpcTransactionReceipt,
   RpcTransactionRequest,
 } from './rpc'
-import {
+import type {
   Transaction,
   TransactionReceipt,
   TransactionRequest,

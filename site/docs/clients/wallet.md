@@ -40,8 +40,10 @@ Before we set up our Account and start consuming Wallet Actions, we will need to
 
 ```ts
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 ```
@@ -52,8 +54,10 @@ We will want to retrieve a list of addresses we can access in our Wallet (e.g. M
 
 ```ts
 import { createWalletClient, custom, getAccount } from 'viem' // [!code focus]
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 
@@ -70,8 +74,10 @@ Now you can use that Account within Wallet Actions that require a signature from
 
 ```ts
 import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: custom(window.ethereum)
 })
 
@@ -101,8 +107,10 @@ Before we set up our Account and start consuming Wallet Actions, we will need to
 
 ```ts
 import { createWalletClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: http()
 })
 ```
@@ -115,9 +123,11 @@ viem currently **does not have client-side signing utilities** (coming soon!). F
 
 ```ts
 import { createWalletClient, http, getAccount } from 'viem'
+import { mainnet } from 'viem/chains'
 import { getAddress, signMessage, signTransaction } from './sign-utils' // [!code focus]
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: http()
 })
 
@@ -141,9 +151,11 @@ Now you can use that Account within Wallet Actions that need a signature from th
 
 ```ts
 import { createWalletClient, http, getAccount } from 'viem'
+import { mainnet } from 'viem/chains'
 import { getAddress, signMessage, signTransaction } from './sign-utils'
 
 const client = createWalletClient({
+  chain: mainnet,
   transport: http()
 })
 
@@ -166,6 +178,21 @@ const hash = await client.sendTransaction({ // [!code focus:5]
 ```
 
 ## Parameters
+
+### chain (optional)
+
+- **Type:** [Chain](/docs/glossary/types#chain)
+
+The [Chain](/docs/clients/chains) of the Wallet Client. 
+
+Used in the [`sendTransaction`](/docs/actions/wallet/sendTransaction) & [`writeContract`](/docs/contract/writeContract) Actions to assert that the chain matches the wallet's active chain.
+
+```ts
+const client = createWalletClient({
+  chain: mainnet, // [!code focus]
+  transport: custom(window.ethereum)
+})
+```
 
 ### key (optional)
 

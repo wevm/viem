@@ -20,6 +20,7 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 const walletClient = createWalletClient({
+  chain: goerli,
   transport: custom(window.ethereum!),
 })
 
@@ -37,7 +38,6 @@ function Example() {
     if (!account) return
     const hash = await walletClient.deployContract({
       ...wagmiContract,
-      chain: goerli,
       account,
     })
     setHash(hash)

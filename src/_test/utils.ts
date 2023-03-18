@@ -1,5 +1,5 @@
 /* c8 ignore start */
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 import { Wallet } from 'ethers@6'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
@@ -17,9 +17,11 @@ import {
   http,
   webSocket,
 } from '../clients'
-import { getAccount, rpc } from '../utils'
 import { getAccount as getEthersAccount } from '../ethers'
+import type { Hex } from '../types'
 import { RpcError } from '../types/eip1193'
+import { getAccount, rpc } from '../utils'
+import { baycContractConfig } from './abis'
 import { accounts, localWsUrl } from './constants'
 import { errorsExampleABI } from './generated'
 import { keccak256 } from '../utils/hash'
@@ -29,8 +31,6 @@ import { toHex } from '../utils/encoding'
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
-import { baycContractConfig } from './abis'
-import { Hex } from '../types'
 
 export const anvilChain = {
   ...localhost,

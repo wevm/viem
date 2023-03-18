@@ -1,5 +1,5 @@
-import { AbiParameter } from 'abitype'
-import { AbiItem } from '../../types'
+import type { AbiParameter } from 'abitype'
+import type { AbiItem } from '../../types'
 import { stringify } from '../../utils'
 
 export function formatAbiItemWithArgs({

@@ -1,4 +1,4 @@
-import { Formatter } from '../../types'
+import type { Formatter } from '../../types'
 
 /**
  * @description Picks out the keys from `value` that exist in the formatter.

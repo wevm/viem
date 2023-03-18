@@ -1,4 +1,4 @@
-import { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent } from 'abitype'
 import type { PublicClient } from '../../clients'
 
 import type {
@@ -11,8 +11,8 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
 import {
-  EncodeEventTopicsParameters,
   encodeEventTopics,
+  EncodeEventTopicsParameters,
   numberToHex,
 } from '../../utils'
 

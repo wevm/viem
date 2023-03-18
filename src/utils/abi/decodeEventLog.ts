@@ -1,10 +1,10 @@
-import { Abi, AbiParameter, Narrow } from 'abitype'
+import type { Abi, AbiParameter, Narrow } from 'abitype'
 import {
   AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
   DecodeLogTopicsMismatch,
 } from '../../errors'
-import {
+import type {
   EventDefinition,
   ExtractEventArgsFromTopics,
   ExtractEventNameFromAbi,

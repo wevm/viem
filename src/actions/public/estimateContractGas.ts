@@ -1,11 +1,11 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
-import { BaseError } from '../../errors'
+import type { BaseError } from '../../errors'
 import type { Chain, ContractConfig, GetValue } from '../../types'
 import {
-  EncodeFunctionDataParameters,
   encodeFunctionData,
+  EncodeFunctionDataParameters,
   getContractError,
 } from '../../utils'
 import { estimateGas, EstimateGasParameters } from './estimateGas'

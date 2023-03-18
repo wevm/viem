@@ -1,7 +1,7 @@
-import { Abi } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { PublicClient } from '../../clients'
-import { BaseError } from '../../errors'
+import type { BaseError } from '../../errors'
 import type {
   Chain,
   ContractConfig,
@@ -9,13 +9,13 @@ import type {
   GetValue,
 } from '../../types'
 import {
-  DecodeFunctionResultParameters,
-  EncodeFunctionDataParameters,
   decodeFunctionResult,
+  DecodeFunctionResultParameters,
   encodeFunctionData,
+  EncodeFunctionDataParameters,
   getContractError,
 } from '../../utils'
-import { WriteContractParameters } from '../wallet'
+import type { WriteContractParameters } from '../wallet'
 import { call, CallParameters } from './call'
 
 export type SimulateContractParameters<

@@ -1,4 +1,3 @@
-import { prepareRequest } from '../../utils'
 import type { WalletClient } from '../../clients'
 import { BaseError, ChainMismatchError } from '../../errors'
 import type {
@@ -8,15 +7,16 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import { Account } from '../../types/account'
+import type { Account } from '../../types/account'
 import {
-  Formatted,
-  TransactionRequestFormatter,
   assertRequest,
   extract,
   format,
+  Formatted,
   formatTransactionRequest,
   getTransactionError,
+  prepareRequest,
+  TransactionRequestFormatter,
 } from '../../utils'
 import { getChainId } from '../public'
 
@@ -44,12 +44,12 @@ export type SendTransactionParameters<TChain extends Chain = Chain> =
 export type SendTransactionReturnType = Hash
 
 export async function sendTransaction<TChain extends Chain>(
-  client: WalletClient,
+  client: WalletClient<any, any>,
   args: SendTransactionParameters<TChain>,
 ): Promise<SendTransactionReturnType> {
   const {
     account,
-    chain,
+    chain = client.chain,
     accessList,
     assertChain = true,
     data,
@@ -62,6 +62,7 @@ export async function sendTransaction<TChain extends Chain>(
     value,
     ...rest
   } = args
+
   try {
     assertRequest(args)
 

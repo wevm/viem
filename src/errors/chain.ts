@@ -1,4 +1,4 @@
-import { Chain } from '../types'
+import type { Chain } from '../types'
 import { BaseError } from './base'
 
 export class ChainDoesNotSupportContract extends BaseError {
@@ -43,7 +43,7 @@ export class ChainMismatchError extends BaseError {
     currentChainId: number
   }) {
     super(
-      `The current chain (id: ${currentChainId}) does not match the chain passed to the request (id: ${chain.id} – ${chain.name}).`,
+      `The current chain of the wallet (id: ${currentChainId}) does not match the target chain for the transaction (id: ${chain.id} – ${chain.name}).`,
       {
         metaMessages: [
           `Current Chain ID:  ${currentChainId}`,
