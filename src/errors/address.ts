@@ -1,17 +1,17 @@
-import { BaseError } from "./base";
+import { BaseError } from './base'
 
 export class InvalidAddressError extends BaseError {
-  name = "InvalidAddressError";
+  name = 'InvalidAddressError'
   constructor({ address }: { address: string }) {
-    super(`Address "${address}" is invalid.`);
+    super(`Address "${address}" is invalid.`)
   }
 }
 
 export class InvalidHashError extends BaseError {
-  name = "InvalidHashError";
+  name = 'InvalidHashError'
   constructor({ hash }: { hash: string | string[] }) {
-    super(`Provided value contains invalid hash values`, {
+    super("Provided value contains invalid hash values", {
       metaMessages: [...hash],
-    });
+    })
   }
 }
