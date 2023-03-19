@@ -39,6 +39,7 @@ const valid = await verifyMessage({ // [!code focus:99]
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 export const walletClient = createWalletClient({
   transport: custom(window.ethereum)
@@ -46,8 +47,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account 
+export const account = privateKeyToAccount(...)
 ```
 
 :::

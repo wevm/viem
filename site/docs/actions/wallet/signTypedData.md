@@ -68,6 +68,7 @@ export const types = {
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
@@ -77,8 +78,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount('0x...')
 ```
 
 :::
@@ -137,7 +138,7 @@ export const types = {
 ```
 
 ```ts {4-6,9} [config.ts (JSON-RPC Account)]
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
 
 // Retrieve Account from an EIP-1193 Provider.
 const [account] = await window.ethereum.request({ 
@@ -151,10 +152,11 @@ export const walletClient = createWalletClient({
 ```
 
 ```ts {4} [config.ts (Local Account)]
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 export const walletClient = createWalletClient({
-  account: getAccount(...),
+  account: privateKeyToAccount('0x...'),
   transport: custom(window.ethereum)
 })
 ```

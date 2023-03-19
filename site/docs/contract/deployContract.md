@@ -45,6 +45,7 @@ export const wagmiAbi = [
 
 ```ts [client.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
@@ -54,8 +55,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -91,6 +92,7 @@ export const wagmiAbi = [
 
 ```ts [client.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
@@ -100,8 +102,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::

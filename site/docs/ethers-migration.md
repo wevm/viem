@@ -312,7 +312,7 @@ signer.sendTransaction({ ... })
 #### viem
 
 ```ts {9-11}
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -346,15 +346,13 @@ wallet.sendTransaction({ ... })
 
 #### viem
 
-viem does not currently support client-side signing (it's coming shortly!) – until then, you can use an Ethers `Wallet`:
-
 ```ts {6-9}
 import { Wallet } from 'ethers'
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { getAccount } from 'viem/ethers'
 
-const account = getAccount(new Wallet('0x...'))
+const account = privateKeyToAccount('0x...')
 
 const client = createWalletClient({
   account,
