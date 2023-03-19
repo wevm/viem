@@ -1,4 +1,5 @@
 import type { Abi, TypedData } from 'abitype'
+import type { Account } from '../../accounts'
 import type {
   AddChainParameters,
   DeployContractParameters,
@@ -36,7 +37,7 @@ import {
   watchAsset,
   writeContract,
 } from '../../actions/wallet'
-import type { Account, Chain } from '../../types'
+import type { Chain } from '../../types'
 import type { WalletClient } from '../createWalletClient'
 
 export type WalletActions<

@@ -1,3 +1,4 @@
+import { Account, parseAccount } from '../../accounts'
 import type { PublicClientArg, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
@@ -9,7 +10,6 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -18,7 +18,6 @@ import {
   formatTransactionRequest,
   getCallError,
   numberToHex,
-  parseAccount,
   TransactionRequestFormatter,
 } from '../../utils'
 

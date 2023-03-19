@@ -1,5 +1,6 @@
+import type { Account } from '../accounts'
 import type { EstimateGasParameters } from '../actions'
-import type { Account, Chain } from '../types'
+import type { Chain } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import { BaseError } from './base'
 import { prettyPrint } from './transaction'

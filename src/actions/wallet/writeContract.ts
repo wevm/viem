@@ -1,13 +1,8 @@
 import type { Abi } from 'abitype'
 
+import type { Account } from '../../accounts'
 import type { WalletClientArg, Transport } from '../../clients'
-import type {
-  Account,
-  Chain,
-  ContractConfig,
-  GetChain,
-  GetValue,
-} from '../../types'
+import type { Chain, ContractConfig, GetChain, GetValue } from '../../types'
 import { encodeFunctionData, EncodeFunctionDataParameters } from '../../utils'
 import {
   sendTransaction,

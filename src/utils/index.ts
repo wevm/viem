@@ -41,8 +41,6 @@ export {
   parseAbiParameters,
 } from './abi'
 
-export { getAccount, parseAccount } from './account'
-
 export type {
   GetContractAddressOptions,
   GetCreate2AddressOptions,

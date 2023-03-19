@@ -17,7 +17,7 @@ import {
   http,
   webSocket,
 } from '../clients'
-import { getAccount as getEthersAccount } from '../ethers'
+import { ethersWalletToAccount } from '../ethers'
 import type { Hex } from '../types'
 import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
@@ -125,7 +125,7 @@ export const testClient = createTestClient({
 })
 
 export const getLocalAccount = (privateKey: Hex) =>
-  getEthersAccount(new Wallet(privateKey))
+  ethersWalletToAccount(new Wallet(privateKey))
 
 export function createHttpServer(
   handler: RequestListener,

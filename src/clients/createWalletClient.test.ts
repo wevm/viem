@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
+import type { JsonRpcAccount, LocalAccount } from '../accounts'
 import { localhost } from '../chains'
-import type { JsonRpcAccount, LocalAccount } from '../types'
 import type { SignableRequests, WalletRequests } from '../types/eip1193'
 import { accounts, getLocalAccount, localWsUrl } from '../_test'
 import { createWalletClient } from './createWalletClient'
@@ -127,6 +127,7 @@ describe('args: account', () => {
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "custom",
           "type": "local",
         },
         "addChain": [Function],

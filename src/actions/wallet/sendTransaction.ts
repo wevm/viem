@@ -1,3 +1,4 @@
+import { Account, parseAccount } from '../../accounts'
 import type { Transport, WalletClientArg } from '../../clients'
 import {
   AccountNotFoundError,
@@ -13,7 +14,7 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account, GetAccountParameter } from '../../types/account'
+import type { GetAccountParameter } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -21,7 +22,6 @@ import {
   Formatted,
   formatTransactionRequest,
   getTransactionError,
-  parseAccount,
   prepareRequest,
   TransactionRequestFormatter,
 } from '../../utils'

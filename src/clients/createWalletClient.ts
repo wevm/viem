@@ -1,9 +1,9 @@
+import { Account, parseAccount } from '../accounts'
+import type { Address, Chain, ParseAccount } from '../types'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
-import type { Transport } from './transports/createTransport'
-import type { Account, Address, Chain, ParseAccount } from '../types'
 import { WalletActions, walletActions } from './decorators'
-import { parseAccount } from '../utils'
+import type { Transport } from './transports/createTransport'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,

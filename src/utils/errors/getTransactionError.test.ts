@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest'
+import { parseAccount } from '../../accounts'
 import { BaseError, RpcError, TransactionRejectedRpcError } from '../../errors'
 import { address } from '../../_test'
-import { getAccount } from '../account'
 import { parseEther, parseGwei } from '../unit'
 import { getTransactionError } from './getTransactionError'
 
 test('default', () => {
   const error = new BaseError('Unknown error')
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
   })
   expect(result).toMatchInlineSnapshot(`
     [TransactionExecutionError: Unknown error
@@ -29,7 +29,7 @@ test('FeeCapTooHigh', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     nonce: 1,
     maxFeePerGas: parseGwei(
       '1231287389123781293712897312893791283921738912378912',
@@ -60,7 +60,7 @@ test('FeeCapTooLow', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     nonce: 1,
     maxFeePerGas: parseGwei('1'),
   })
@@ -89,7 +89,7 @@ test('NonceTooHigh', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     nonce: 1123123213,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -113,7 +113,7 @@ test('NonceTooLow', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     nonce: 1,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -138,7 +138,7 @@ test('NonceMaxValue', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     nonce: 12222222,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -162,7 +162,7 @@ test('InsufficientFundsError', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     nonce: 1,
     value: parseEther('10'),
   })
@@ -197,7 +197,7 @@ test('IntrinsicGasTooHigh', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     gas: 8912738912731289n,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -221,7 +221,7 @@ test('IntrinsicGasTooLowError', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     gas: 1n,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -245,7 +245,7 @@ test('TransactionTypeNotSupported', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     maxFeePerGas: parseGwei('10'),
   })
   expect(result).toMatchInlineSnapshot(`
@@ -272,7 +272,7 @@ test('TipAboveFeeCap', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     maxFeePerGas: parseGwei('10'),
     maxPriorityFeePerGas: parseGwei('11'),
   })
@@ -301,7 +301,7 @@ test('ExecutionRevertedError', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     maxFeePerGas: parseGwei('10'),
     maxPriorityFeePerGas: parseGwei('11'),
   })
@@ -330,7 +330,7 @@ test('ExecutionRevertedError', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
     maxFeePerGas: parseGwei('10'),
     maxPriorityFeePerGas: parseGwei('11'),
   })
@@ -356,7 +356,7 @@ test('Unknown node error', () => {
     }),
   )
   const result = getTransactionError(error, {
-    account: getAccount(address.vitalik),
+    account: parseAccount(address.vitalik),
   })
   expect(result).toMatchInlineSnapshot(`
     [TransactionExecutionError: An error occurred while executing: oh no

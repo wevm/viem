@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { parseAccount } from '../accounts'
 import { polygon } from '../chains'
-import { getAccount } from '../utils'
 import { address } from '../_test'
 import { BaseError } from './base'
 import { EstimateGasExecutionError } from './estimateGas'
@@ -9,7 +9,7 @@ describe('EstimateGasExecutionError', () => {
   test('no args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
       }),
     ).toMatchInlineSnapshot(`
       [EstimateGasExecutionError: error
@@ -24,7 +24,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ base args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -49,7 +49,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ eip1559 args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -76,7 +76,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ legacy args', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -102,7 +102,7 @@ describe('EstimateGasExecutionError', () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
         chain: polygon,
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -130,7 +130,7 @@ describe('EstimateGasExecutionError', () => {
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
           chain: polygon,
-          account: getAccount(address.vitalik),
+          account: parseAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',
           gas: 420n,

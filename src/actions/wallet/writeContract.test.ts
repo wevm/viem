@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { optimism } from '../../chains'
 import { createWalletClient, http } from '../../clients'
-import { getAccount } from '../../utils'
 import {
   walletClientWithAccount,
   accounts,
@@ -44,7 +43,7 @@ test('client chain mismatch', async () => {
   await expect(() =>
     writeContract(walletClient, {
       ...wagmiContractConfig,
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       functionName: 'mint',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -70,7 +69,7 @@ test('no chain', async () => {
     // @ts-expect-error
     writeContract(walletClient, {
       ...wagmiContractConfig,
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       functionName: 'mint',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -95,7 +94,7 @@ describe('args: chain', () => {
     expect(
       await writeContract(walletClient, {
         ...wagmiContractConfig,
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
         functionName: 'mint',
         chain: anvilChain,
       }),
@@ -106,7 +105,7 @@ describe('args: chain', () => {
     await expect(() =>
       writeContract(walletClient, {
         ...wagmiContractConfig,
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
         functionName: 'mint',
         chain: optimism,
       }),
@@ -193,7 +192,7 @@ test('w/ simulateContract (overloaded)', async () => {
 test('w/ simulateContract (args chain mismatch)', async () => {
   const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     functionName: 'mint',
     chain: optimism,
   })
@@ -222,7 +221,7 @@ test('w/ simulateContract (client chain mismatch)', async () => {
   })
   const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     functionName: 'mint',
   })
   await expect(() =>

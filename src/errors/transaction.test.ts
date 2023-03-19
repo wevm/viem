@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { parseAccount } from '../accounts'
 import { polygon } from '../chains'
-import { getAccount } from '../utils'
 import { address } from '../_test'
 import { BaseError } from './base'
 import {
@@ -24,7 +24,7 @@ describe('TransactionExecutionError', () => {
   test('no args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
       }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
@@ -39,7 +39,7 @@ describe('TransactionExecutionError', () => {
   test('w/ base args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -64,7 +64,7 @@ describe('TransactionExecutionError', () => {
   test('w/ eip1559 args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -91,7 +91,7 @@ describe('TransactionExecutionError', () => {
   test('w/ legacy args', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -117,7 +117,7 @@ describe('TransactionExecutionError', () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
         chain: polygon,
-        account: getAccount(address.vitalik),
+        account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
         gas: 420n,
@@ -146,7 +146,7 @@ describe('TransactionExecutionError', () => {
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
           chain: polygon,
-          account: getAccount(address.vitalik),
+          account: parseAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',
           gas: 420n,

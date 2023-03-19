@@ -1,4 +1,5 @@
 import type { Abi } from 'abitype'
+import { parseAccount } from '../accounts'
 import type { CallParameters } from '../actions'
 import { panicReasons } from '../constants'
 import type { Address, Chain, Hex } from '../types'
@@ -10,7 +11,6 @@ import {
   formatEther,
   formatGwei,
   getAbiItem,
-  parseAccount,
 } from '../utils'
 import { BaseError } from './base'
 import { prettyPrint } from './transaction'

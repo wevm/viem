@@ -1,7 +1,8 @@
+import { Account, parseAccount } from '../../accounts'
 import type { Transport, WalletClientArg } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
-import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
-import { parseAccount, toHex } from '../../utils'
+import type { Chain, GetAccountParameter, Hex } from '../../types'
+import { toHex } from '../../utils'
 
 export type SignMessageParameters<
   TAccount extends Account | undefined = undefined,
@@ -34,7 +35,8 @@ export async function signMessage<TAccount extends Account | undefined>(
     })
   const account = parseAccount(account_)
   const message_ = message || data
-  if (account.type === 'local') return account.signMessage(message_!)
+  if (account.type === 'local')
+    return account.signMessage({ message: message_! })
   return client.request({
     method: 'personal_sign',
     params: [toHex(message_!), account.address],

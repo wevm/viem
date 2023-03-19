@@ -1,6 +1,6 @@
 import type { PublicClientArg, WalletClientArg, Transport } from '../../clients'
 import { BlockNotFoundError } from '../../errors'
-import type { Account, BlockTag, Chain, Hash, RpcBlock } from '../../types'
+import type { BlockTag, Chain, Hash, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { format, formatBlock, numberToHex } from '../../utils'
 

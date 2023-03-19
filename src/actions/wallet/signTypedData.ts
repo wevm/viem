@@ -1,4 +1,6 @@
 import type { TypedData, TypedDataParameter, TypedDataType } from 'abitype'
+
+import { Account, parseAccount } from '../../accounts'
 import type { Transport, WalletClientArg } from '../../clients'
 import {
   AccountNotFoundError,
@@ -6,7 +8,6 @@ import {
   InvalidAddressError,
 } from '../../errors'
 import type {
-  Account,
   Chain,
   GetAccountParameter,
   Hex,
@@ -18,7 +19,6 @@ import {
   isAddress,
   isHex,
   numberToHex,
-  parseAccount,
   size,
   stringify,
 } from '../../utils'
