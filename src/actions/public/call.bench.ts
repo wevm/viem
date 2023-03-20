@@ -1,5 +1,4 @@
 import { bench, describe } from 'vitest'
-import { getAccount } from '../../utils'
 
 import {
   accounts,
@@ -17,7 +16,7 @@ describe('Call', () => {
   bench('viem: `call`', async () => {
     await call(publicClient, {
       data: name4bytes,
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: wagmiContractAddress,
     })
   })

@@ -1,11 +1,16 @@
 import { describe, expect, test } from 'vitest'
 import { getAccount } from '../../utils'
-import { accounts, getLocalAccount, walletClient } from '../../_test'
+import {
+  walletClientWithAccount,
+  accounts,
+  getLocalAccount,
+  walletClient,
+} from '../../_test'
 
 import { signTypedData, validateTypedData } from './signTypedData'
 
 const localAccount = getLocalAccount(accounts[0].privateKey)
-const jsonRpcAccount = getAccount(accounts[0].address)
+const jsonRpcAccount = accounts[0].address
 
 const basic = {
   domain: {
@@ -116,6 +121,17 @@ describe('default', async () => {
       '0x32f3d5975ba38d6c2fba9b95d5cbed1febaa68003d3d588d51f2de522ad54117760cfc249470a75232552e43991f53953a3d74edf6944553c6bef2469bb9e5921b',
     )
   })
+})
+
+test('inferred account', async () => {
+  expect(
+    await signTypedData(walletClientWithAccount, {
+      ...basic,
+      primaryType: 'Mail',
+    }),
+  ).toEqual(
+    '0x32f3d5975ba38d6c2fba9b95d5cbed1febaa68003d3d588d51f2de522ad54117760cfc249470a75232552e43991f53953a3d74edf6944553c6bef2469bb9e5921b',
+  )
 })
 
 describe('minimal', () => {
@@ -634,4 +650,20 @@ describe('validateTypedData', () => {
       Version: viem@1.0.2"
     `)
   })
+})
+
+test('no account', async () => {
+  await expect(() =>
+    // @ts-expect-error
+    signTypedData(walletClient, {
+      ...basic,
+      primaryType: 'Mail',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "Could not find an Account to execute with this Action.
+    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+
+    Docs: https://viem.sh/docs/actions/wallet/signTypedData.html#account
+    Version: viem@1.0.2"
+  `)
 })

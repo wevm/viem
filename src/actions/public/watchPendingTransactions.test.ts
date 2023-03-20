@@ -24,13 +24,13 @@ test(
     })
     await wait(1000)
     await sendTransaction(walletClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })
     await wait(1000)
     await sendTransaction(walletClient, {
-      account: getAccount(accounts[2].address),
+      account: accounts[2].address,
       to: accounts[3].address,
       value: parseEther('1'),
     })
@@ -57,18 +57,18 @@ test('watches for pending transactions (unbatched)', async () => {
   })
   await wait(1000)
   await sendTransaction(walletClient, {
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     to: accounts[1].address,
     value: parseEther('1'),
   })
   await wait(1000)
   await sendTransaction(walletClient, {
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     to: accounts[1].address,
     value: parseEther('1'),
   })
   await sendTransaction(walletClient, {
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     to: accounts[1].address,
     value: parseEther('1'),
   })

@@ -10,7 +10,7 @@ const targetAccount = accounts[1]
 
 test('snapshots', async () => {
   await sendTransaction(walletClient, {
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })

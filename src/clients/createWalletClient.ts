@@ -1,13 +1,16 @@
-import type { Chain } from '../types'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
-import { WalletActions, walletActions } from './decorators'
 import type { Transport } from './transports/createTransport'
+import type { Account, Address, Chain, ParseAccount } from '../types'
+import { WalletActions, walletActions } from './decorators'
+import { parseAccount } from '../utils'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
   TChain extends Chain = Chain,
+  TAccount extends Account | Address | undefined = undefined,
 > = {
+  account?: TAccount
   chain?: ClientConfig<TTransport, TChain>['chain']
   /** The key of the Wallet Client. */
   key?: ClientConfig['key']
@@ -21,9 +24,11 @@ export type WalletClientConfig<
 export type WalletClient<
   TTransport extends Transport = Transport,
   TChain extends Chain = Chain,
+  TAccount extends Account | undefined = undefined,
   TIncludeActions extends boolean = true,
-> = Client<TTransport, TChain> &
-  (TIncludeActions extends true ? WalletActions<TChain> : {})
+> = Client<TTransport, TChain> & {
+  account: TAccount
+} & (TIncludeActions extends true ? WalletActions<TChain, TAccount> : {})
 
 /**
  * @description Creates a wallet client with a given transport.
@@ -31,18 +36,22 @@ export type WalletClient<
 export function createWalletClient<
   TTransport extends Transport,
   TChain extends Chain,
+  TAccountOrAddress extends Account | Address | undefined = undefined,
+  TAccount extends Account | undefined = ParseAccount<TAccountOrAddress>,
 >({
+  account,
   chain,
   transport,
   key = 'wallet',
   name = 'Wallet Client',
   pollingInterval,
-}: WalletClientConfig<TTransport, TChain>): WalletClient<
+}: WalletClientConfig<TTransport, TChain, TAccountOrAddress>): WalletClient<
   TTransport,
   TChain,
+  TAccount,
   true
 > {
-  const client = createClient({
+  const baseClient = createClient({
     chain,
     key,
     name,
@@ -50,6 +59,10 @@ export function createWalletClient<
     transport: () => transport({ retryCount: 0 }),
     type: 'walletClient',
   })
+  const client = {
+    account: account ? parseAccount(account) : undefined,
+    ...baseClient,
+  }
   return {
     ...client,
     ...(walletActions(client as any) as any),

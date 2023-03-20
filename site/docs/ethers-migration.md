@@ -292,7 +292,7 @@ const client = createPublicClient({
 })
 ```
 
-## Signers → getAccount
+## Signers → Accounts
 
 ### JsonRpcSigner
 
@@ -315,15 +315,17 @@ signer.sendTransaction({ ... })
 import { createWalletClient, custom, getAccount } from 'viem'
 import { mainnet } from 'viem/chains'
 
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+
 const client = createWalletClient({
+  account,
   chain: mainnet,
   transport: custom(window.ethereum)
 })
 
 const [address] = await client.getAddresses()
-const account = getAccount(address)
 
-client.sendTransaction({ account, ... })
+client.sendTransaction({ ... })
 ```
 
 > viem uses the term ["Account"](https://ethereum.org/en/developers/docs/accounts/) rather than "Signer".
@@ -352,14 +354,15 @@ import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 import { getAccount } from 'viem/ethers'
 
+const account = getAccount(new Wallet('0x...'))
+
 const client = createWalletClient({
+  account,
   chain: mainnet,
   transport: custom(window.ethereum)
 })
 
-const account = getAccount(new Wallet('0x...'))
-
-client.sendTransaction({ account, ... })
+client.sendTransaction({ ... })
 ```
 
 > viem uses the term ["Account"](https://ethereum.org/en/developers/docs/accounts/) rather than "Signer".
@@ -420,19 +423,21 @@ signer.signMessage(...)
 #### viem
 
 ```ts {9-12}
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+
 const client = createWalletClient({
+  account,
   chain: mainnet,
   transport: custom(window.ethereum)
 })
 
 const [address] = await client.getAddresses()
-const account = getAccount(address)
 
-client.sendTransaction({ account, ... })
-client.signMessage({ account, ... })
+client.sendTransaction({ ... })
+client.signMessage({ ... })
 ...
 ```
 
@@ -510,12 +515,11 @@ const walletClient = createWalletClient({
 })
 
 const [address] = await walletClient.getAddresses()
-const account = getAccount(address)
 
 const request = await publicClient.simulateContract({
   ...wagmiContractConfig,
   functionName: 'mint',
-  account,
+  account: address,
 })
 const supply = await walletClient.writeContract(request)
 ```
@@ -550,11 +554,10 @@ const walletClient = createWalletClient({
 })
 
 const [address] = await walletClient.getAddresses()
-const account = getAccount(address)
 
 await walletClient.deployContract({
   abi,
-  account,
+  account: address,
   bytecode,
 })
 ```

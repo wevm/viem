@@ -23,8 +23,7 @@ Useful for obtaining the address of a message that was signed with [`signMessage
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount } from 'viem'
-import { account, walletClient } from './client'
+import { account, walletClient } from './config'
  
 const signature = await walletClient.signMessage({
   account,
@@ -37,14 +36,17 @@ const address = recoverMessageAddress({ // [!code focus:99]
 })
 ```
 
-```ts [client.ts]
-import { createWalletClient, custom, getAccount } from 'viem'
-
-export const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+```ts [config.ts]
+import { createWalletClient, custom } from 'viem'
 
 export const walletClient = createWalletClient({
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 ```
 
 :::

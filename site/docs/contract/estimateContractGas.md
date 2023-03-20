@@ -25,10 +25,8 @@ The `mint` function accepts no arguments, and returns a token ID.
 ::: code-group
 
 ```ts [example.ts]
-import { publicClient } from './client'
+import { account, publicClient } from './config'
 import { wagmiAbi } from './abi'
-
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 
 const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -53,9 +51,14 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+
+// JSON-RPC Account
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -76,10 +79,8 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { publicClient } from './client'
+import { account, publicClient } from './config'
 import { wagmiAbi } from './abi'
-
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 
 const gas = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -105,9 +106,14 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+
+// JSON-RPC Account
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -172,18 +178,18 @@ const { result } = await publicClient.estimateContractGas({
 
 ### account
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-The Account sender. [Read more](/docs/clients/wallet).
+The Account to estimate gas from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
 
 ```ts
-import { getAccount } from 'viem'
-
 const { result } = await publicClient.estimateContractGas({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266') // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
 })
 ```
 

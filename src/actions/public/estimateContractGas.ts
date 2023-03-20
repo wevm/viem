@@ -7,6 +7,7 @@ import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
+  parseAccount,
 } from '../../utils'
 import { estimateGas, EstimateGasParameters } from './estimateGas'
 
@@ -38,6 +39,7 @@ export async function estimateContractGas<
     ...request
   }: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
 ): Promise<EstimateContractGasReturnType> {
+  const account = parseAccount(request.account)
   const data = encodeFunctionData({
     abi,
     args,
@@ -57,7 +59,7 @@ export async function estimateContractGas<
       args,
       docsPath: '/docs/contract/simulateContract',
       functionName,
-      sender: request.account?.address,
+      sender: account?.address,
     })
   }
 }

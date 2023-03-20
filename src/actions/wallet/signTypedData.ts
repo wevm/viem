@@ -7,14 +7,19 @@ import type {
   TypedDataType,
 } from 'abitype'
 import type { WalletClient } from '../../clients'
-import { BytesSizeMismatchError, InvalidAddressError } from '../../errors'
-import type { Account, Hex } from '../../types'
+import {
+  AccountNotFoundError,
+  BytesSizeMismatchError,
+  InvalidAddressError,
+} from '../../errors'
+import type { Account, GetAccountParameter, Hex } from '../../types'
 import {
   bytesRegex,
   integerRegex,
   isAddress,
   isHex,
   numberToHex,
+  parseAccount,
   size,
   stringify,
 } from '../../utils'
@@ -22,9 +27,9 @@ import {
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
   TPrimaryType extends string = string,
-> = {
-  account: Account
-} & TypedDataDefinition<TTypedData, TPrimaryType>
+  TAccount extends Account | undefined = undefined,
+> = GetAccountParameter<TAccount> &
+  TypedDataDefinition<TTypedData, TPrimaryType>
 
 export type TypedDataDefinition<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
@@ -75,16 +80,23 @@ export type SignTypedDataReturnType = Hex
 export async function signTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
+  TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient,
+  client: WalletClient<any, any, TAccount>,
   {
-    account,
+    account: account_ = client.account,
     domain,
     message,
     primaryType,
     types: types_,
-  }: SignTypedDataParameters<TTypedData, TPrimaryType>,
+  }: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
 ): Promise<SignTypedDataReturnType> {
+  if (!account_)
+    throw new AccountNotFoundError({
+      docsPath: '/docs/actions/wallet/signTypedData',
+    })
+  const account = parseAccount(account_)
+
   const types = {
     EIP712Domain: [
       domain?.name && { name: 'name', type: 'string' },

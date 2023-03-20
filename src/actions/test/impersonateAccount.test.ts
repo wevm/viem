@@ -8,7 +8,7 @@ import { impersonateAccount } from './impersonateAccount'
 test('impersonates account', async () => {
   await expect(
     sendTransaction(walletClient, {
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),
@@ -18,7 +18,7 @@ test('impersonates account', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),

@@ -1,5 +1,5 @@
 import type { EstimateGasParameters } from '../actions'
-import type { Chain } from '../types'
+import type { Account, Chain } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import { BaseError } from './base'
 import { prettyPrint } from './transaction'
@@ -23,10 +23,14 @@ export class EstimateGasExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: EstimateGasParameters & { chain?: Chain; docsPath?: string },
+    }: Omit<EstimateGasParameters<any, any>, 'account'> & {
+      account?: Account
+      chain?: Chain
+      docsPath?: string
+    },
   ) {
     const prettyArgs = prettyPrint({
-      from: account.address,
+      from: account?.address,
       to,
       value:
         typeof value !== 'undefined' &&

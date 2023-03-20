@@ -349,4 +349,21 @@ describe('prepareRequest', () => {
       }
     `)
   })
+
+  test('no account', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareRequest(walletClient, {
+        // @ts-expect-error
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })

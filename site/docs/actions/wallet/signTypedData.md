@@ -21,10 +21,8 @@ Signs typed data and calculates an Ethereum-specific signature in [EIP-191 forma
 ::: code-group
 
 ```ts [example.ts]
-import { walletClient } from './client'
+import { account, walletClient } from './config'
 import { domain, types } from './data'
-
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
 
 const signature = await walletClient.signTypedData({
   account,
@@ -68,12 +66,95 @@ export const types = {
 } as const
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
+  transport: custom(window.ethereum)
+})
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
+```
+
+:::
+
+### Account Hoisting
+
+If you do not wish to pass an `account` to every `signTypedData`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+
+[Learn more](/docs/clients/wallet.html#withaccount).
+
+::: code-group
+
+```ts [example.ts]
+import { walletClient } from './config'
+import { domain, types } from './data'
+
+const signature = await walletClient.signTypedData({
+  domain,
+  types,
+  primaryType: 'Mail',
+  message: {
+    from: {
+      name: 'Cow',
+      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+    },
+    to: {
+      name: 'Bob',
+      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+    },
+    contents: 'Hello, Bob!',
+  },
+})
+```
+
+```ts [data.ts]
+// All properties on a domain are optional
+export const domain = {
+  name: 'Ether Mail',
+  version: '1',
+  chainId: 1,
+  verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+} as const
+ 
+// The named list of all type definitions
+export const types = {
+  Person: [
+    { name: 'name', type: 'string' },
+    { name: 'wallet', type: 'address' },
+  ],
+  Mail: [
+    { name: 'from', type: 'Person' },
+    { name: 'to', type: 'Person' },
+    { name: 'contents', type: 'string' },
+  ],
+} as const
+```
+
+```ts {4-6,9} [config.ts (JSON-RPC Account)]
+import { createWalletClient, custom, getAccount } from 'viem'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum)
+})
+```
+
+```ts {4} [config.ts (Local Account)]
+import { createWalletClient, custom, getAccount } from 'viem'
+
+export const walletClient = createWalletClient({
+  account: getAccount(...),
   transport: custom(window.ethereum)
 })
 ```
@@ -90,13 +171,15 @@ The signed data.
 
 ### account
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-The Account sender. [Read more](/docs/clients/wallet).
+The Account to use for signing.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
 
 ```ts
 const signature = await walletClient.signTypedData({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   domain: {
     name: 'Ether Mail',
     version: '1',
@@ -127,7 +210,7 @@ The typed data domain.
 
 ```ts
 const signature = await walletClient.signTypedData({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain: { // [!code focus:6]
     name: 'Ether Mail',
     version: '1',
@@ -156,7 +239,7 @@ The type definitions for the typed data.
 
 ```ts
 const signature = await walletClient.signTypedData({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: { // [!code focus:11]
     Person: [
@@ -192,7 +275,7 @@ The primary type to extract from `types` and use in `value`.
 
 ```ts
 const signature = await walletClient.signTypedData({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: {
     Person: [
@@ -226,7 +309,7 @@ const signature = await walletClient.signTypedData({
 
 ```ts
 const signature = await walletClient.signTypedData({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: {
     Person: [

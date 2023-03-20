@@ -18,7 +18,7 @@ test('drops transaction', async () => {
     address: sourceAccount.address,
   })
   const hash = await sendTransaction(walletClient, {
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('2'),
   })
