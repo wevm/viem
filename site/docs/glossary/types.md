@@ -99,6 +99,14 @@ Type for a hashed value – a "0x"-prefixed string: `"0x${string}"`
 
 Type for a hex value – a "0x"-prefixed string: `"0x${string}"`
 
+## `EIP1559Serialized`
+
+Type for a hex value – a "0x02"-prefixed string: `"0x02${string}"`
+
+## `EIP2930Serialized`
+
+Type for a hex value – a "0x02"-prefixed string: `"0x01${string}"`
+
 ## `Log`
 
 A type for [Event Logs](/docs/glossary/terms#event-log).
@@ -128,3 +136,13 @@ A type for [Transports](/docs/glossary/terms#transports).
 A type for wallet (JSON-RPC Account) permissions.
 
 [See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/eip1193.ts)
+
+## `TransactionType`
+
+All types of transactions. `eip1559 | eip2930 | legacy`
+
+## `TransactionRequest`
+
+A type for all transaction requests.
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/transaction.ts).

@@ -14,6 +14,57 @@ head:
 
 # parseTransaction
 
-Coming soon.
+Parses a previously serialized transaction object. Supports `EIP-1559`, `EIP-2930` and `Legacy` type transactions. Pre `EIP-155` transactions are not supported. Supports both signed, and unsigned serialized transactions.
 
-See [Tracking](https://github.com/orgs/wagmi-dev/projects/3/views/1?pane=issue&itemId=21682933).
+## Import
+```ts
+import { parseTransaction } from "viem"
+```
+
+## Usage
+```ts
+import { serializeTransaction, parseTransaction } from "viem"
+
+const serialized = serializeTransaction({
+  chainId: 1,
+  gas: 21001n,
+  maxFeePerGas: 2n,
+  maxPriorityFeePerGas: 2n,
+  value: 1n,
+  data: "0x",
+  nonce: 69,
+  to: "0x1234512345123451234512345123451234512345",
+  accessList:[]
+}, {
+  type: "eip1559"
+})
+
+const parsed = parseTransaction({
+  type: "eip1559", encodedTransaction: serialized
+})
+```
+
+## Returns
+
+`Omit<TransactionRequest, 'from'> & ({ chainId: number } | {chainId: number & Signature})`
+
+The parsed transaction object.
+
+## Parameters
+
+### transaction
+
+- **Type:** `{ type: TransactionType ; encodedTransaction: EIP1559Serialized | EIP2930Serialized | Hex  }`
+
+The transaction object to serialize.
+
+```ts
+import { parseTransaction } from "viem"
+
+const parseTransaction = parseTransaction({
+  type: "eip1559", // [!code focus]
+  encodedTransaction: serialized // [!code focus]
+})
+```
+
+The `type` property will infer the `encodedTransaction` type and vice-versa (e.g. the `type` `eip1559` will require that the `encodedTransaction` be of type `EIP1559Serialized`. 
