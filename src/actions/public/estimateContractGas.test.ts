@@ -15,7 +15,7 @@ import {
   walletClient,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
-import { encodeFunctionData, getAccount } from '../../utils'
+import { encodeFunctionData } from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
 
@@ -28,7 +28,7 @@ describe('wagmi', () => {
     expect(
       await estimateContractGas(publicClient, {
         ...wagmiContractConfig,
-        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
         args: [69420n],
       }),
@@ -36,7 +36,7 @@ describe('wagmi', () => {
     expect(
       await estimateContractGas(publicClient, {
         ...wagmiContractConfig,
-        account: getAccount('0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6'),
+        account: '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
         functionName: 'safeTransferFrom',
         args: [
           '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
@@ -51,7 +51,7 @@ describe('wagmi', () => {
     expect(
       await estimateContractGas(publicClient, {
         ...wagmiContractConfig,
-        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
       }),
     ).toEqual(61401n)
@@ -63,7 +63,7 @@ describe('wagmi', () => {
         ...wagmiContractConfig,
         functionName: 'approve',
         args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 420n],
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "The contract function \\"approve\\" reverted with the following reason:
@@ -83,7 +83,7 @@ describe('wagmi', () => {
         ...wagmiContractConfig,
         functionName: 'mint',
         args: [1n],
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "The contract function \\"mint\\" reverted with the following reason:
@@ -102,7 +102,7 @@ describe('wagmi', () => {
       estimateContractGas(publicClient, {
         ...wagmiContractConfig,
         functionName: 'safeTransferFrom',
-        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         args: [
           '0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6',
           '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -137,7 +137,7 @@ describe('BAYC', () => {
           abi: baycContractConfig.abi,
           functionName: 'flipSaleState',
         }),
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
         to: contractAddress!,
       })
       await mine(testClient, { blocks: 1 })
@@ -148,7 +148,7 @@ describe('BAYC', () => {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
-          account: getAccount(accounts[0].address),
+          account: accounts[0].address,
           args: [1n],
           value: 1000000000000000000n,
         }),
@@ -164,7 +164,7 @@ describe('BAYC', () => {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'reserveApes',
-          account: getAccount(accounts[0].address),
+          account: accounts[0].address,
         }),
       ).toBe(3607035n)
     })
@@ -180,7 +180,7 @@ describe('BAYC', () => {
           abi: baycContractConfig.abi,
           address: contractAddress!,
           functionName: 'mintApe',
-          account: getAccount(accounts[0].address),
+          account: accounts[0].address,
           args: [1n],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -226,7 +226,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'revertWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
@@ -250,7 +250,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'assertWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
@@ -274,7 +274,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'overflowWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
@@ -298,7 +298,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'divideByZeroWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "divideByZeroWrite" reverted with the following reason:
@@ -322,7 +322,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'requireWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
@@ -346,7 +346,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'simpleCustomWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "simpleCustomWrite" reverted.
@@ -372,7 +372,7 @@ describe('contract errors', () => {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'complexCustomWrite',
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "complexCustomWrite" reverted.

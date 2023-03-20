@@ -24,6 +24,8 @@ export {
   UnsupportedPackedAbiType,
 } from './abi'
 
+export { AccountNotFoundError } from './account'
+
 export { InvalidAddressError } from './address'
 
 export { BaseError } from './base'

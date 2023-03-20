@@ -1,6 +1,6 @@
 import type { PublicClient, WalletClient } from '../../clients'
 import { BlockNotFoundError } from '../../errors'
-import type { BlockTag, Chain, Hash, RpcBlock } from '../../types'
+import type { Account, BlockTag, Chain, Hash, RpcBlock } from '../../types'
 import type { BlockFormatter, FormattedBlock } from '../../utils'
 import { format, formatBlock, numberToHex } from '../../utils'
 
@@ -32,8 +32,11 @@ export type GetBlockReturnType<TChain extends Chain = Chain> = FormattedBlock<
   BlockFormatter<TChain>
 >
 
-export async function getBlock<TChain extends Chain>(
-  client: PublicClient<any, TChain> | WalletClient,
+export async function getBlock<
+  TChain extends Chain,
+  TAccount extends Account | undefined,
+>(
+  client: PublicClient<any, TChain> | WalletClient<any, any, TAccount>,
   {
     blockHash,
     blockNumber,

@@ -14,6 +14,7 @@ import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
+  parseAccount,
 } from '../../utils'
 import type { WriteContractParameters } from '../wallet'
 import { call, CallParameters } from './call'
@@ -63,6 +64,9 @@ export async function simulateContract<
     TFunctionName
   >
 > {
+  const account = callRequest.account
+    ? parseAccount(callRequest.account)
+    : undefined
   const calldata = encodeFunctionData({
     abi,
     args,
@@ -101,7 +105,7 @@ export async function simulateContract<
       args,
       docsPath: '/docs/contract/simulateContract',
       functionName,
-      sender: callRequest.account?.address,
+      sender: account?.address,
     })
   }
 }

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-import { getAccount, getAddress } from '../../utils'
+import { getAddress } from '../../utils'
 import { wait } from '../../utils/wait'
 import {
   accounts,
@@ -95,20 +95,20 @@ test(
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await wait(1000)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await wait(2000)
     unwatch()
@@ -133,20 +133,20 @@ test('args: batch', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
   })
   await wait(2000)
   unwatch()
@@ -175,7 +175,7 @@ test('args: address', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
   })
   await wait(2000)
   unwatch()
@@ -205,7 +205,7 @@ test('args: address + event', async () => {
     ...usdcContractConfig,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
   })
   await wait(2000)
   unwatch()
@@ -248,20 +248,20 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await wait(2000)
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await wait(2000)
       unwatch()
@@ -298,20 +298,20 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
-        account: getAccount(address.usdcHolder),
+        account: address.usdcHolder,
       })
       await wait(1000)
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await mine(testClient, { blocks: 2 })
       await wait(1000)
@@ -319,13 +319,13 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await mine(testClient, { blocks: 5 })
       await wait(2000)

@@ -21,7 +21,7 @@ Verify that a message was signed by the provided address.
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount } from 'viem'
+import { verifyMessage } from 'viem'
 import { account, walletClient } from './client'
  
 const signature = await walletClient.signMessage({
@@ -37,14 +37,17 @@ const valid = verifyMessage({ // [!code focus:99]
 // true
 ```
 
-```ts [client.ts]
-import { createWalletClient, custom, getAccount } from 'viem'
-
-export const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+```ts [config.ts]
+import { createWalletClient, custom } from 'viem'
 
 export const walletClient = createWalletClient({
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 ```
 
 :::
@@ -57,7 +60,7 @@ Whether the provided `address` generated the `signature`.
 
 ## Parameters
 
-### Address
+### address
 
 - **Type:** [`Address`](/docs/glossary/types#address)
 

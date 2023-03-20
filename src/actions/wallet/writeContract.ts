@@ -1,7 +1,7 @@
 import type { Abi } from 'abitype'
 
 import type { WalletClient } from '../../clients'
-import type { Chain, ContractConfig, GetValue } from '../../types'
+import type { Account, Chain, ContractConfig, GetValue } from '../../types'
 import { encodeFunctionData, EncodeFunctionDataParameters } from '../../utils'
 import {
   sendTransaction,
@@ -13,7 +13,11 @@ export type WriteContractParameters<
   TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = Omit<SendTransactionParameters<TChain>, 'to' | 'data' | 'value'> & {
+  TAccount extends Account | undefined = undefined,
+> = Omit<
+  SendTransactionParameters<TChain, TAccount>,
+  'to' | 'data' | 'value'
+> & {
   value?: GetValue<
     TAbi,
     TFunctionName,
@@ -27,15 +31,16 @@ export async function writeContract<
   TChain extends Chain,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
+  TAccount extends Account | undefined,
 >(
-  client: WalletClient,
+  client: WalletClient<any, any, TAccount>,
   {
     abi,
     address,
     args,
     functionName,
     ...request
-  }: WriteContractParameters<TChain, TAbi, TFunctionName>,
+  }: WriteContractParameters<TChain, TAbi, TFunctionName, TAccount>,
 ): Promise<WriteContractReturnType> {
   const data = encodeFunctionData({
     abi,
@@ -46,6 +51,6 @@ export async function writeContract<
     data,
     to: address,
     ...request,
-  } as unknown as SendTransactionParameters<TChain>)
+  } as unknown as SendTransactionParameters<TChain, TAccount>)
   return hash
 }

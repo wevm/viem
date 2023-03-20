@@ -71,6 +71,7 @@ test('exports utils', () => {
       "getSocket": [Function],
       "getTransactionError": [Function],
       "hashMessage": [Function],
+      "hashTypedData": [Function],
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],
@@ -91,6 +92,7 @@ test('exports utils', () => {
       "parseAbiItem": [Function],
       "parseAbiParameter": [Function],
       "parseAbiParameters": [Function],
+      "parseAccount": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],
       "parseTransaction": [Function],
@@ -98,6 +100,7 @@ test('exports utils', () => {
       "prepareRequest": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
+      "recoverTypedDataAddress": [Function],
       "rpc": {
         "http": [Function],
         "webSocket": [Function],
@@ -121,6 +124,7 @@ test('exports utils', () => {
       },
       "trim": [Function],
       "verifyMessage": [Function],
+      "verifyTypedData": [Function],
     }
   `)
 })

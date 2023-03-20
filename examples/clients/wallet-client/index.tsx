@@ -1,13 +1,7 @@
 import 'viem/window'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import {
-  Account,
-  createWalletClient,
-  custom,
-  getAccount,
-  parseEther,
-} from 'viem'
+import { Address, createWalletClient, custom, parseEther } from 'viem'
 import { goerli } from 'viem/chains'
 
 const walletClient = createWalletClient({
@@ -16,11 +10,11 @@ const walletClient = createWalletClient({
 })
 
 function Example() {
-  const [account, setAccount] = useState<Account>()
+  const [account, setAccount] = useState<Address>()
 
   const connect = async () => {
     const [address] = await walletClient.requestAddresses()
-    setAccount(getAccount(address))
+    setAccount(address)
   }
 
   const sendTransaction = async () => {
@@ -35,7 +29,7 @@ function Example() {
   if (account)
     return (
       <>
-        <div>Connected: {account.address}</div>
+        <div>Connected: {account}</div>
         <button onClick={sendTransaction}>Send Transaction</button>
       </>
     )

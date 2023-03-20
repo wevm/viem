@@ -12,6 +12,7 @@ export {
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
+  typedData,
 } from './constants'
 
 export {
@@ -19,6 +20,7 @@ export {
   deploy,
   deployBAYC,
   getLocalAccount,
+  walletClientWithAccount,
   publicClient,
   testClient,
   walletClient,

@@ -95,13 +95,13 @@ describe('events', () => {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await mine(testClient, { blocks: 1 })
 
@@ -115,13 +115,13 @@ describe('events', () => {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
     })
     await mine(testClient, { blocks: 1 })
 
@@ -181,25 +181,25 @@ describe('events', () => {
   test('args: singular `from`', async () => {
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.usdcHolder),
+      account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
@@ -247,25 +247,25 @@ describe('events', () => {
   test('args: multiple `from`', async () => {
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.usdcHolder),
+      account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
@@ -301,25 +301,25 @@ describe('events', () => {
   test('args: singular `to`', async () => {
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.usdcHolder),
+      account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
@@ -355,25 +355,25 @@ describe('events', () => {
   test('args: multiple `to`', async () => {
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.usdcHolder),
+      account: address.usdcHolder,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })

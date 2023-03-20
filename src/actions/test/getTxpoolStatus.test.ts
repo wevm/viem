@@ -20,12 +20,12 @@ test('gets txpool content (empty)', async () => {
 
 test('gets txpool content (pending)', async () => {
   await sendTransaction(walletClient, {
-    account: getAccount(accounts[0].address),
+    account: accounts[0].address,
     to: accounts[1].address,
     value: parseEther('2'),
   })
   await sendTransaction(walletClient, {
-    account: getAccount(accounts[2].address),
+    account: accounts[2].address,
     to: accounts[3].address,
     value: parseEther('3'),
   })

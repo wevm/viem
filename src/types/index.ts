@@ -1,6 +1,12 @@
 export type { Address } from 'abitype'
 
-export type { Account, LocalAccount, JsonRpcAccount } from './account'
+export type {
+  Account,
+  GetAccountParameter,
+  LocalAccount,
+  JsonRpcAccount,
+  ParseAccount,
+} from './account'
 
 export type {
   Block,
@@ -82,6 +88,14 @@ export type {
   EIP1559Serialized,
   EIP2930Serialized,
 } from './transaction'
+
+export type {
+  GetTypedDataDomain,
+  GetTypedDataMessage,
+  GetTypedDataPrimaryType,
+  GetTypedDataTypes,
+  TypedDataDefinition,
+} from './typedData'
 
 export type {
   PartialBy,

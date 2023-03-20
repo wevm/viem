@@ -1,20 +1,37 @@
 import { InvalidAddressError } from '../errors'
 import type { Address } from '../types'
-import type { Account, LocalAccount } from '../types/account'
+import type { Account, JsonRpcAccount, LocalAccount } from '../types/account'
 import { isAddress } from './address'
 
-export function getAccount(
-  account: Address | Omit<LocalAccount, 'type'>,
-): Account {
-  if (typeof account === 'string') {
-    if (!isAddress(account)) throw new InvalidAddressError({ address: account })
-    return { address: account, type: 'json-rpc' }
+type Source = Address | Omit<LocalAccount, 'type'>
+
+type GetAccountReturnType<TSource extends Source> =
+  | (TSource extends Address ? JsonRpcAccount : never)
+  | (TSource extends Omit<LocalAccount, 'type'> ? LocalAccount : never)
+
+export function getAccount<TSource extends Source>(
+  source: TSource,
+): GetAccountReturnType<TSource> {
+  if (typeof source === 'string') {
+    if (!isAddress(source)) throw new InvalidAddressError({ address: source })
+    return {
+      address: source,
+      type: 'json-rpc',
+    } as GetAccountReturnType<TSource>
   }
 
-  if (!isAddress(account.address))
-    throw new InvalidAddressError({ address: account.address })
+  if (!isAddress(source.address))
+    throw new InvalidAddressError({ address: source.address })
   return {
-    ...account,
+    address: source.address,
+    signMessage: source.signMessage,
+    signTransaction: source.signTransaction,
+    signTypedData: source.signTypedData,
     type: 'local',
-  }
+  } as GetAccountReturnType<TSource>
+}
+
+export function parseAccount(account: Address | Account): Account {
+  if (typeof account === 'string') return { address: account, type: 'json-rpc' }
+  return account
 }

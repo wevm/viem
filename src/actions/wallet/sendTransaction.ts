@@ -1,5 +1,9 @@
 import type { WalletClient } from '../../clients'
-import { BaseError, ChainMismatchError } from '../../errors'
+import {
+  AccountNotFoundError,
+  BaseError,
+  ChainMismatchError,
+} from '../../errors'
 import type {
   Chain,
   Formatter,
@@ -7,7 +11,7 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account } from '../../types/account'
+import type { Account, GetAccountParameter } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -15,6 +19,7 @@ import {
   Formatted,
   formatTransactionRequest,
   getTransactionError,
+  parseAccount,
   prepareRequest,
   TransactionRequestFormatter,
 } from '../../utils'
@@ -27,28 +32,33 @@ export type FormattedTransactionRequest<
   TransactionRequest
 >
 
-export type SendTransactionParameters<TChain extends Chain = Chain> =
-  FormattedTransactionRequest<TransactionRequestFormatter<TChain>> & {
-    account: Account
-  } & (
-      | {
-          assertChain?: false
-          chain?: TChain
-        }
-      | {
-          assertChain: true
-          chain: TChain
-        }
-    )
+export type SendTransactionParameters<
+  TChain extends Chain = Chain,
+  TAccount extends Account | undefined = undefined,
+> = FormattedTransactionRequest<TransactionRequestFormatter<TChain>> &
+  GetAccountParameter<TAccount> &
+  (
+    | {
+        assertChain?: false
+        chain?: TChain
+      }
+    | {
+        assertChain: true
+        chain: TChain
+      }
+  )
 
 export type SendTransactionReturnType = Hash
 
-export async function sendTransaction<TChain extends Chain>(
-  client: WalletClient<any, any>,
-  args: SendTransactionParameters<TChain>,
+export async function sendTransaction<
+  TChain extends Chain,
+  TAccount extends Account | undefined,
+>(
+  client: WalletClient<any, any, TAccount>,
+  args: SendTransactionParameters<TChain, TAccount>,
 ): Promise<SendTransactionReturnType> {
   const {
-    account,
+    account: account_ = client.account,
     chain = client.chain,
     accessList,
     assertChain = true,
@@ -62,6 +72,12 @@ export async function sendTransaction<TChain extends Chain>(
     value,
     ...rest
   } = args
+
+  if (!account_)
+    throw new AccountNotFoundError({
+      docsPath: '/docs/actions/wallet/sendTransaction',
+    })
+  const account = parseAccount(account_)
 
   try {
     assertRequest(args)
@@ -124,6 +140,6 @@ export async function sendTransaction<TChain extends Chain>(
       params: [request],
     })
   } catch (err) {
-    throw getTransactionError(err as BaseError, args)
+    throw getTransactionError(err as BaseError, { ...args, account })
   }
 }
