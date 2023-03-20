@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type SetNextBlockBaseFeePerGasParameters = {
@@ -7,7 +7,7 @@ export type SetNextBlockBaseFeePerGasParameters = {
 }
 
 export async function setNextBlockBaseFeePerGas(
-  client: TestClient,
+  client: TestClientArg,
   { baseFeePerGas }: SetNextBlockBaseFeePerGasParameters,
 ) {
   return await client.request({

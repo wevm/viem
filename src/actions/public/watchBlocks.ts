@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg, Transport } from '../../clients'
 import type { BlockTag, Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -51,7 +51,7 @@ export function watchBlocks<
   TChain extends Chain | undefined,
   TWatchBlocksParameters extends WatchBlocksParameters<TChain>,
 >(
-  client: PublicClient<any, TChain>,
+  client: PublicClientArg<Transport, TChain>,
   {
     blockTag = 'latest',
     emitMissed = false,

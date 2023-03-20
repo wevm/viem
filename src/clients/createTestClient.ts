@@ -33,6 +33,13 @@ export type TestClient<
   mode: TMode
 } & (TIncludeActions extends true ? TestActions : {})
 
+export type TestClientArg<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TMode extends TestClientModes = TestClientModes,
+  TIncludeActions extends boolean = boolean,
+> = TestClient<TTransport, TChain, TMode, TIncludeActions>
+
 /**
  * @description Creates a test client with a given transport.
  */

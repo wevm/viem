@@ -20,6 +20,12 @@ export type PublicClient<
 > = Client<TTransport, TChain, PublicRequests> &
   (TIncludeActions extends true ? PublicActions<TChain> : {})
 
+export type PublicClientArg<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TIncludeActions extends boolean = boolean,
+> = PublicClient<TTransport, TChain, TIncludeActions>
+
 /**
  * @description Creates a public client with a given transport.
  */
@@ -47,6 +53,6 @@ export function createPublicClient<
   })
   return {
     ...client,
-    ...publicActions(client as PublicClient<any, any>),
+    ...publicActions(client as PublicClient),
   }
 }

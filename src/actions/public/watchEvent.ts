@@ -1,5 +1,5 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import type {
   Address,
   Filter,
@@ -56,7 +56,7 @@ export function watchEvent<
   TAbiEvent extends AbiEvent | undefined,
   TEventName extends string | undefined,
 >(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     address,
     args,

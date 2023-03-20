@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Address } from '../../types'
 
 export type ImpersonateAccountParameters = {
@@ -7,7 +7,7 @@ export type ImpersonateAccountParameters = {
 }
 
 export async function impersonateAccount(
-  client: TestClient,
+  client: TestClientArg,
   { address }: ImpersonateAccountParameters,
 ) {
   return await client.request({

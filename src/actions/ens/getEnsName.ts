@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import { panicReasons } from '../../constants'
 import {
   ContractFunctionExecutionError,
@@ -32,7 +32,7 @@ export type GetEnsNameReturnType = string | null
  * // 'wagmi-dev.eth'
  */
 export async function getEnsName(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     address,
     blockNumber,

@@ -23,12 +23,19 @@ export type WalletClientConfig<
 
 export type WalletClient<
   TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = undefined,
   TAccount extends Account | undefined = undefined,
   TIncludeActions extends boolean = true,
 > = Client<TTransport, TChain> & {
   account: TAccount
 } & (TIncludeActions extends true ? WalletActions<TChain, TAccount> : {})
+
+export type WalletClientArg<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TIncludeActions extends boolean = boolean,
+> = WalletClient<TTransport, TChain, TAccount, TIncludeActions>
 
 /**
  * @description Creates a wallet client with a given transport.

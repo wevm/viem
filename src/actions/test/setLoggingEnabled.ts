@@ -1,6 +1,9 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 
-export async function setLoggingEnabled(client: TestClient, enabled: boolean) {
+export async function setLoggingEnabled(
+  client: TestClientArg,
+  enabled: boolean,
+) {
   return await client.request({
     method: `${client.mode}_setLoggingEnabled`,
     params: [enabled],

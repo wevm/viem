@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { WalletClient } from '../../clients'
+import type { WalletClientArg, Transport } from '../../clients'
 import type {
   Account,
   Chain,
@@ -42,7 +42,7 @@ export async function writeContract<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined = TChain,
 >(
-  client: WalletClient<any, TChain, TAccount>,
+  client: WalletClientArg<Transport, TChain, TAccount>,
   {
     abi,
     address,

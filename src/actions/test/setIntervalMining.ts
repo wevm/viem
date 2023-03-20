@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 
 export type SetIntervalMiningParameters = {
   /** The mining interval. */
@@ -6,7 +6,7 @@ export type SetIntervalMiningParameters = {
 }
 
 export async function setIntervalMining(
-  client: TestClient,
+  client: TestClientArg,
   { interval }: SetIntervalMiningParameters,
 ) {
   return await client.request({

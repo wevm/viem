@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type SetBlockGasLimitParameters = {
@@ -7,7 +7,7 @@ export type SetBlockGasLimitParameters = {
 }
 
 export async function setBlockGasLimit(
-  client: TestClient,
+  client: TestClientArg,
   { gasLimit }: SetBlockGasLimitParameters,
 ) {
   return await client.request({

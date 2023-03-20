@@ -1,4 +1,4 @@
-import type { WalletClient } from '../../clients'
+import type { WalletClientArg } from '../../clients'
 import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -7,7 +7,7 @@ export type AddChainParameters = {
 }
 
 export async function addChain(
-  client: WalletClient<any, any>,
+  client: WalletClientArg,
   { chain }: AddChainParameters,
 ) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain

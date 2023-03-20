@@ -1,6 +1,6 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 
-export async function snapshot(client: TestClient) {
+export async function snapshot(client: TestClientArg) {
   return await client.request({
     method: 'evm_snapshot',
   })

@@ -1,4 +1,4 @@
-import type { WalletClient } from '../../clients'
+import type { Transport, WalletClientArg } from '../../clients'
 import {
   AccountNotFoundError,
   BaseError,
@@ -49,7 +49,7 @@ export async function sendTransaction<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined = TChain,
 >(
-  client: WalletClient<any, TChain, TAccount>,
+  client: WalletClientArg<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {
@@ -134,6 +134,10 @@ export async function sendTransaction<
       params: [request],
     })
   } catch (err) {
-    throw getTransactionError(err as BaseError, { ...args, account })
+    throw getTransactionError(err as BaseError, {
+      ...args,
+      account,
+      chain: args.chain || undefined,
+    })
   }
 }

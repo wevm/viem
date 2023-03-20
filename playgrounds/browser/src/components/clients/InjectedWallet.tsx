@@ -1,4 +1,6 @@
+import { mainnet } from '@wagmi/chains'
 import { createWalletClient, custom } from 'viem'
+import { deployContract } from '../../../../../src/actions'
 
 import { AddChain } from '../actions/AddChain'
 import { GetPermissions } from '../actions/GetPermissions'

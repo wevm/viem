@@ -1,6 +1,6 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { WalletClient } from '../../clients'
+import type { WalletClientArg, Transport } from '../../clients'
 import type {
   Account,
   Chain,
@@ -16,7 +16,7 @@ import {
 } from '../wallet'
 
 export type DeployContractParameters<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
   TAccount extends Account | undefined = undefined,
   TChainOverride extends Chain | undefined = TChain,
@@ -26,7 +26,7 @@ export type DeployContractParameters<
 > & {
   abi: Narrow<TAbi>
   bytecode: Hex
-} & GetChain<TChain> &
+} & GetChain<TChain, TChainOverride> &
   ExtractConstructorArgsFromAbi<TAbi>
 
 export type DeployContractReturnType = SendTransactionReturnType
@@ -37,7 +37,7 @@ export function deployContract<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined = TChain,
 >(
-  walletClient: WalletClient<any, TChain, TAccount>,
+  walletClient: WalletClientArg<Transport, TChain, TAccount>,
   {
     abi,
     args,

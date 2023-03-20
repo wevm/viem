@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import type { Filter, Hash } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -21,7 +21,7 @@ export type WatchPendingTransactionsParameters = {
 }
 
 export function watchPendingTransactions(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     batch = true,
     onError,

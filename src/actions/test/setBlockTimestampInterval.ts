@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 
 export type SetBlockTimestampIntervalParameters = {
   /** The interval (in seconds). */
@@ -6,7 +6,7 @@ export type SetBlockTimestampIntervalParameters = {
 }
 
 export async function setBlockTimestampInterval(
-  client: TestClient,
+  client: TestClientArg,
   { interval }: SetBlockTimestampIntervalParameters,
 ) {
   return await client.request({

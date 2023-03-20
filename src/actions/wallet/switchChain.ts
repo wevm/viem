@@ -1,11 +1,11 @@
-import type { WalletClient } from '../../clients'
+import type { WalletClientArg } from '../../clients'
 import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SwitchChainParameters = { id: Chain['id'] }
 
 export async function switchChain(
-  client: WalletClient<any, any>,
+  client: WalletClientArg,
   { id }: SwitchChainParameters,
 ) {
   await client.request({

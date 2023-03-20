@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Address } from '../../types'
 
 export type StopImpersonatingAccountParameters = {
@@ -7,7 +7,7 @@ export type StopImpersonatingAccountParameters = {
 }
 
 export async function stopImpersonatingAccount(
-  client: TestClient,
+  client: TestClientArg,
   { address }: StopImpersonatingAccountParameters,
 ) {
   return await client.request({

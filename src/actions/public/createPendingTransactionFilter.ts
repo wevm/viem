@@ -1,11 +1,11 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 
 import type { Filter } from '../../types'
 
 export type CreatePendingTransactionFilterReturnType = Filter<'transaction'>
 
 export async function createPendingTransactionFilter(
-  client: PublicClient,
+  client: PublicClientArg,
 ): Promise<CreatePendingTransactionFilterReturnType> {
   const id = await client.request({
     method: 'eth_newPendingTransactionFilter',

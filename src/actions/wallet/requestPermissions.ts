@@ -1,4 +1,4 @@
-import type { WalletClient } from '../../clients'
+import type { WalletClientArg } from '../../clients'
 import type { WalletPermission } from '../../types/eip1193'
 
 export type RequestPermissionsParameters = {
@@ -9,7 +9,7 @@ export type RequestPermissionsParameters = {
 export type RequestPermissionsReturnType = WalletPermission[]
 
 export async function requestPermissions(
-  client: WalletClient<any, any>,
+  client: WalletClientArg,
   permissions: RequestPermissionsParameters,
 ) {
   return client.request({

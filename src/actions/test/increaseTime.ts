@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type IncreaseTimeParameters = {
@@ -7,7 +7,7 @@ export type IncreaseTimeParameters = {
 }
 
 export async function increaseTime(
-  client: TestClient,
+  client: TestClientArg,
   { seconds }: IncreaseTimeParameters,
 ) {
   return await client.request({
