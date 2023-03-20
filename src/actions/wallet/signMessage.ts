@@ -22,7 +22,11 @@ export type SignMessageReturnType = Hex
 
 export async function signMessage<TAccount extends Account | undefined>(
   client: WalletClientArg<Transport, Chain | undefined, TAccount>,
-  { account: account_, data, message }: SignMessageParameters<TAccount>,
+  {
+    account: account_ = client.account,
+    data,
+    message,
+  }: SignMessageParameters<TAccount>,
 ): Promise<SignMessageReturnType> {
   if (!account_)
     throw new AccountNotFoundError({
