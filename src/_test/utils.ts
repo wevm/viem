@@ -18,7 +18,7 @@ import {
   webSocket,
 } from '../clients'
 import { getAccount as getEthersAccount } from '../ethers'
-import type { Account, Hex } from '../types'
+import type { Hex } from '../types'
 import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
 import { baycContractConfig } from './abis'
@@ -111,6 +111,10 @@ export const walletClient = createWalletClient({
 export const walletClientWithAccount = createWalletClient({
   account: accounts[0].address,
   chain: anvilChain,
+  transport: custom(provider),
+})
+
+export const walletClientWithoutChain = createWalletClient({
   transport: custom(provider),
 })
 

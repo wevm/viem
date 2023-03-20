@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import {
   accounts,
   address,

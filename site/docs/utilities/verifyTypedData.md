@@ -21,7 +21,7 @@ Verify that typed data was signed by the provided address.
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount, verifyTypedData } from 'viem'
+import { verifyTypedData } from 'viem'
 import { account, walletClient } from './client'
 
 const message = {
@@ -79,9 +79,9 @@ export const types = {
 ```
 
 ```ts [client.ts]
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
 
-export const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 export const walletClient = createWalletClient({
   transport: custom(window.ethereum)

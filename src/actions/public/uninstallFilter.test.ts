@@ -7,7 +7,7 @@ import { getFilterChanges } from './getFilterChanges'
 import { uninstallFilter } from './uninstallFilter'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import type { Hash } from '../../types'
 
 test('default', async () => {

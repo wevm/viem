@@ -5,7 +5,6 @@ import {
   TransactionRejectedRpcError,
 } from '../../errors'
 import { address } from '../../_test'
-import { getAccount } from '../account'
 import { parseEther, parseGwei } from '../unit'
 import { containsNodeError, getNodeError } from './getNodeError'
 

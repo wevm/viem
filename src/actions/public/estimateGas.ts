@@ -2,7 +2,6 @@ import type { PublicClientArg, WalletClientArg, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import { AccountNotFoundError } from '../../errors'
 import type {
-  Address,
   BlockTag,
   Chain,
   Formatter,

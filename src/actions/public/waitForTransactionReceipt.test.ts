@@ -4,7 +4,7 @@ import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors'
 import { wait } from '../../utils/wait'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt'
-import { getAccount, hexToNumber, parseEther, parseGwei } from '../../utils'
+import { hexToNumber, parseEther, parseGwei } from '../../utils'
 import { sendTransaction } from '..'
 import { mine, setIntervalMining } from '../test'
 
