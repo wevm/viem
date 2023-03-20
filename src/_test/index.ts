@@ -12,6 +12,7 @@ export {
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
+  typedData,
 } from './constants'
 
 export {

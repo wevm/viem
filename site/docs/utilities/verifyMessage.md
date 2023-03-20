@@ -21,7 +21,8 @@ Verify that a message was signed by the provided address.
 ::: code-group
 
 ```ts [example.ts]
-import { account, walletClient } from './config'
+import { verifyMessage } from 'viem'
+import { account, walletClient } from './client'
  
 const signature = await walletClient.signMessage({
   account,
@@ -59,7 +60,7 @@ Whether the provided `address` generated the `signature`.
 
 ## Parameters
 
-### Address
+### address
 
 - **Type:** [`Address`](/docs/glossary/types#address)
 
