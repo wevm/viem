@@ -1,8 +1,8 @@
-import { expect, test } from "vitest";
+import { expect, test } from 'vitest'
 
-import * as utils from "./index";
+import * as utils from './index'
 
-test("exports utils", () => {
+test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "arrayRegex": /\\^\\(\\.\\*\\)\\\\\\[\\(\\[0-9\\]\\*\\)\\\\\\]\\$/,
@@ -122,5 +122,5 @@ test("exports utils", () => {
       "trim": [Function],
       "verifyMessage": [Function],
     }
-  `);
-});
+  `)
+})
