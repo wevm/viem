@@ -2,6 +2,7 @@ import { assertType, describe, expect, test } from 'vitest'
 import { createHttpServer } from '../../_test'
 import { localhost } from '../../chains'
 import { createClient } from '../createClient'
+import { createPublicClient } from '../createPublicClient'
 
 import { getBlockNumber } from '../../actions'
 import { fallback, FallbackTransport } from './fallback'
@@ -381,7 +382,7 @@ describe('client', () => {
 
     const local = http(server.url)
     const transport = fallback([local])
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
   })
@@ -407,7 +408,7 @@ describe('client', () => {
       http(server2.url),
       http(server3.url),
     ])
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
   })
@@ -430,7 +431,7 @@ describe('client', () => {
     })
 
     let transport = fallback([http(server1.url), http(server2.url)])
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
     expect(count).toBe(2)
@@ -454,7 +455,7 @@ describe('client', () => {
     })
 
     let transport = fallback([http(server1.url), http(server2.url)])
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     await expect(
       getBlockNumber(client),

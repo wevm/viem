@@ -40,12 +40,15 @@ import type { Account, Chain } from '../../types'
 import type { WalletClient } from '../createWalletClient'
 
 export type WalletActions<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
 > = {
   addChain: (args: AddChainParameters) => Promise<void>
-  deployContract: <TAbi extends Abi | readonly unknown[]>(
-    args: DeployContractParameters<TChain, TAbi, TAccount>,
+  deployContract: <
+    TAbi extends Abi | readonly unknown[],
+    TChainOverride extends Chain | undefined,
+  >(
+    args: DeployContractParameters<TChain, TAbi, TAccount, TChainOverride>,
   ) => Promise<DeployContractReturnType>
   getAddresses: () => Promise<GetAddressesReturnType>
   getChainId: () => Promise<GetChainIdReturnType>
@@ -54,8 +57,8 @@ export type WalletActions<
   requestPermissions: (
     args: RequestPermissionsParameters,
   ) => Promise<RequestPermissionsReturnType>
-  sendTransaction: <TChainOverride extends Chain>(
-    args: SendTransactionParameters<TChainOverride, TAccount>,
+  sendTransaction: <TChainOverride extends Chain | undefined>(
+    args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<SendTransactionReturnType>
   signMessage: (
     args: SignMessageParameters<TAccount>,
@@ -71,19 +74,20 @@ export type WalletActions<
   writeContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
-    TChainOverride extends Chain,
+    TChainOverride extends Chain | undefined,
   >(
     args: WriteContractParameters<
       TChainOverride,
       TAbi,
       TFunctionName,
-      TAccount
+      TAccount,
+      TChainOverride
     >,
   ) => Promise<WriteContractReturnType>
 }
 
 export const walletActions = <
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TClient extends WalletClient<any, any, any>,
 >(
   client: TClient,

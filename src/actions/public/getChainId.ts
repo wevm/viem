@@ -1,11 +1,10 @@
-import type { PublicClient, WalletClient } from '../../clients'
-import type { Account } from '../../types'
+import type { PublicClientArg, WalletClientArg } from '../../clients'
 import { hexToNumber } from '../../utils'
 
 export type GetChainIdReturnType = number
 
-export async function getChainId<TAccount extends Account | undefined>(
-  client: PublicClient | WalletClient<any, any, TAccount>,
+export async function getChainId(
+  client: PublicClientArg | WalletClientArg,
 ): Promise<GetChainIdReturnType> {
   const chainIdHex = await client.request({ method: 'eth_chainId' })
   return hexToNumber(chainIdHex)

@@ -1,7 +1,6 @@
 import { Contract } from 'ethers'
 import { Contract as ContractV6, Typed } from 'ethers@6'
 import { bench, describe } from 'vitest'
-import { getAccount } from '../../utils'
 
 import {
   accounts,

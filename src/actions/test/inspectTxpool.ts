@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Address } from '../../types'
 
 export type InspectTxpoolReturnType = {
@@ -7,7 +7,7 @@ export type InspectTxpoolReturnType = {
 }
 
 export async function inspectTxpool(
-  client: TestClient,
+  client: TestClientArg,
 ): Promise<InspectTxpoolReturnType> {
   return await client.request({
     method: 'txpool_inspect',

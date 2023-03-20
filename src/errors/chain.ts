@@ -50,3 +50,16 @@ export class ChainMismatchError extends BaseError {
     )
   }
 }
+
+export class ChainNotFoundError extends BaseError {
+  name = 'ChainNotFoundError'
+
+  constructor() {
+    super(
+      [
+        'No chain was provided to the request.',
+        'Please provide a chain with the `chain` argument on the Action, or by supplying a `chain` to WalletClient.',
+      ].join('\n'),
+    )
+  }
+}

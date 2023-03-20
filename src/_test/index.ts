@@ -20,8 +20,9 @@ export {
   deploy,
   deployBAYC,
   getLocalAccount,
-  walletClientWithAccount,
   publicClient,
   testClient,
   walletClient,
+  walletClientWithAccount,
+  walletClientWithoutChain,
 } from './utils'

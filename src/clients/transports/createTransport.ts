@@ -30,7 +30,7 @@ export type Transport<
   TType extends string = string,
   TRpcAttributes = Record<string, any>,
   TRequests extends BaseRpcRequests['request'] = Requests['request'],
-> = <TChain extends Chain = Chain>({
+> = <TChain extends Chain | undefined = Chain>({
   chain,
 }: {
   chain?: TChain

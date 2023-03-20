@@ -305,34 +305,12 @@ await walletClient.writeContract({
 })
 ```
 
-### assertChain (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Throws an error if `chain` does not match the current wallet chain.
-
-Defaults to `true`, but you can turn this off if your dapp is primarily multi-chain.
-
-```ts
-import { optimism } from 'viem/chains' // [!code focus]
-
-await walletClient.writeContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  functionName: 'mint',
-  args: [69420],
-  assertChain: false, // [!code focus]
-  chain: optimism, // [!code focus]
-})
-```
-
 ### chain (optional)
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
 - **Default:** `walletClient.chain`
 
-The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown if `assertChain` is truthy.
+The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
 The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
 

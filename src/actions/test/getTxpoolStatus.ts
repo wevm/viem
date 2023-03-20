@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { hexToNumber } from '../../utils'
 
 export type GetTxpoolStatusReturnType = {
@@ -7,7 +7,7 @@ export type GetTxpoolStatusReturnType = {
 }
 
 export async function getTxpoolStatus(
-  client: TestClient,
+  client: TestClientArg,
 ): Promise<GetTxpoolStatusReturnType> {
   const { pending, queued } = await client.request({
     method: 'txpool_status',

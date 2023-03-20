@@ -7,7 +7,7 @@ import { watchPendingTransactions } from './watchPendingTransactions'
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { wait } from '../../utils/wait'
 import { sendTransaction } from '../wallet'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import { mine, setIntervalMining } from '../test'
 
 test(

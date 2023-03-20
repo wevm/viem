@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Address, Hex } from '../../types'
 
 export type SetCodeParameters = {
@@ -9,7 +9,7 @@ export type SetCodeParameters = {
 }
 
 export async function setCode(
-  client: TestClient,
+  client: TestClientArg,
   { address, bytecode }: SetCodeParameters,
 ) {
   return await client.request({

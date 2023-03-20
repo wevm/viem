@@ -32,7 +32,11 @@ export { BaseError } from './base'
 
 export { BlockNotFoundError } from './block'
 
-export { ChainDoesNotSupportContract, ChainMismatchError } from './chain'
+export {
+  ChainDoesNotSupportContract,
+  ChainMismatchError,
+  ChainNotFoundError,
+} from './chain'
 
 export {
   CallExecutionError,

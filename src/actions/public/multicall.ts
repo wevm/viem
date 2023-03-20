@@ -1,5 +1,5 @@
 import type { Narrow } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import { multicall3Abi } from '../../constants'
 import {
   AbiDecodingZeroDataError,
@@ -41,7 +41,7 @@ export async function multicall<
   TContracts extends ContractConfig[],
   TAllowFailure extends boolean = true,
 >(
-  client: PublicClient,
+  client: PublicClientArg,
   args: MulticallParameters<TContracts, TAllowFailure>,
 ): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
   const {

@@ -6,7 +6,7 @@ import {
   ethersV6Provider,
   walletClient,
 } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 
 import { sendTransaction } from './sendTransaction'
 import { JsonRpcSigner } from 'ethers@6'

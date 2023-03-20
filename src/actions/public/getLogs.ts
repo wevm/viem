@@ -1,5 +1,5 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import type {
   Address,
   BlockNumber,
@@ -56,7 +56,7 @@ export type GetLogsReturnType<
  * @description Returns a collection of event logs.
  */
 export async function getLogs<TAbiEvent extends AbiEvent | undefined>(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     address,
     blockHash,

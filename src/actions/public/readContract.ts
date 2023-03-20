@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import type { BaseError } from '../../errors'
 import type { ContractConfig, ExtractResultFromAbi } from '../../types'
 import {
@@ -27,7 +27,7 @@ export async function readContract<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
 >(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     abi,
     address,

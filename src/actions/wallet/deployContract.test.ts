@@ -6,7 +6,7 @@ import {
   walletClient,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import { mine, setBalance } from '../test'
 
 import { deployContract } from './deployContract'

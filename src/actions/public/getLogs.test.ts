@@ -19,7 +19,7 @@ import { writeContract } from '../wallet'
 import type { Log } from '../../types'
 import { getLogs } from './getLogs'
 import { getBlock } from './getBlock'
-import { getAccount, getAddress } from '../../utils'
+import { getAddress } from '../../utils'
 
 const event = {
   default: {

@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg, Transport } from '../../clients'
 import type { BlockTag, Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -6,21 +6,21 @@ import type { GetBlockReturnType } from './getBlock'
 import { getBlock } from './getBlock'
 
 export type OnBlockParameter<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TIncludeTransactions = false,
 > = Omit<
   GetBlockReturnType<TChain>,
   TIncludeTransactions extends false ? 'transactions' : ''
 >
 export type OnBlock<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TIncludeTransactions = false,
 > = (
   block: OnBlockParameter<TChain, TIncludeTransactions>,
   prevBlock: OnBlockParameter<TChain, TIncludeTransactions> | undefined,
 ) => void
 
-export type WatchBlocksParameters<TChain extends Chain = Chain> = {
+export type WatchBlocksParameters<TChain extends Chain | undefined = Chain> = {
   /** The block tag. Defaults to "latest". */
   blockTag?: BlockTag
   /** Whether or not to emit the missed blocks to the callback. */
@@ -48,10 +48,10 @@ export type WatchBlocksParameters<TChain extends Chain = Chain> = {
 
 /** @description Watches and returns information for incoming blocks. */
 export function watchBlocks<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TWatchBlocksParameters extends WatchBlocksParameters<TChain>,
 >(
-  client: PublicClient<any, TChain>,
+  client: PublicClientArg<Transport, TChain>,
   {
     blockTag = 'latest',
     emitMissed = false,

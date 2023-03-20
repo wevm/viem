@@ -1,6 +1,6 @@
-import type { WalletClient } from '../../clients'
+import type { Transport, WalletClientArg } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
-import type { Account, GetAccountParameter, Hex } from '../../types'
+import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
 import { parseAccount, toHex } from '../../utils'
 
 export type SignMessageParameters<
@@ -21,7 +21,7 @@ export type SignMessageParameters<
 export type SignMessageReturnType = Hex
 
 export async function signMessage<TAccount extends Account | undefined>(
-  client: WalletClient<any, any, TAccount>,
+  client: WalletClientArg<Transport, Chain | undefined, TAccount>,
   {
     account: account_ = client.account,
     data,
