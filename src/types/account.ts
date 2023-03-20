@@ -35,8 +35,6 @@ export type LocalAccount = {
 }
 
 export type ParseAccount<TAccount extends Account | Address | undefined> =
-  TAccount extends Account
-    ? TAccount
-    : TAccount extends Address
-    ? JsonRpcAccount
-    : undefined
+  | (TAccount extends Account ? TAccount : never)
+  | (TAccount extends Address ? JsonRpcAccount : never)
+  | (TAccount extends undefined ? undefined : never)
