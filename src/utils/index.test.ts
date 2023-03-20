@@ -1,8 +1,8 @@
-import { expect, test } from 'vitest'
+import { expect, test } from "vitest";
 
-import * as utils from './index'
+import * as utils from "./index";
 
-test('exports utils', () => {
+test("exports utils", () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "arrayRegex": /\\^\\(\\.\\*\\)\\\\\\[\\(\\[0-9\\]\\*\\)\\\\\\]\\$/,
@@ -93,6 +93,7 @@ test('exports utils', () => {
       "parseAbiParameters": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],
+      "parseTransaction": [Function],
       "parseUnits": [Function],
       "prepareRequest": [Function],
       "recoverAddress": [Function],
@@ -102,6 +103,7 @@ test('exports utils', () => {
         "webSocket": [Function],
         "webSocketAsync": [Function],
       },
+      "serializeTransaction": [Function],
       "size": [Function],
       "slice": [Function],
       "sliceBytes": [Function],
@@ -120,5 +122,5 @@ test('exports utils', () => {
       "trim": [Function],
       "verifyMessage": [Function],
     }
-  `)
-})
+  `);
+});
