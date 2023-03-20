@@ -86,6 +86,14 @@ export type {
 } from './transaction'
 
 export type {
+  GetTypedDataDomain,
+  GetTypedDataMessage,
+  GetTypedDataPrimaryType,
+  GetTypedDataTypes,
+  TypedDataDefinition,
+} from './typedData'
+
+export type {
   PartialBy,
   Prettify,
   MergeIntersectionProperties,

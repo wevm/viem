@@ -641,6 +641,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/hashMessage',
             },
             {
+              text: 'hashTypedData',
+              link: '/docs/utilities/hashTypedData',
+            },
+            {
               text: 'recoverAddress',
               link: '/docs/utilities/recoverAddress',
             },
@@ -649,11 +653,15 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/recoverMessageAddress',
             },
             {
+              text: 'recoverTypedDataAddress',
+              link: '/docs/utilities/recoverTypedDataAddress',
+            },
+            {
               text: 'verifyMessage',
               link: '/docs/utilities/verifyMessage',
             },
             {
-              text: 'verifyTypedData 🚧',
+              text: 'verifyTypedData',
               link: '/docs/utilities/verifyTypedData',
             },
           ],

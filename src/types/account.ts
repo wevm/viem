@@ -1,7 +1,7 @@
 import type { Address, TypedData } from 'abitype'
-import type { TypedDataDefinition } from '../actions/wallet'
 import type { Hash } from './misc'
 import type { TransactionRequest } from './transaction'
+import type { TypedDataDefinition } from './typedData'
 
 export type Account = JsonRpcAccount | LocalAccount
 

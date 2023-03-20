@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
-import { getAccount } from '../../utils'
 import {
-  walletClientWithAccount,
   accounts,
   getLocalAccount,
+  typedData,
   walletClient,
+  walletClientWithAccount,
 } from '../../_test'
 
 import { signTypedData, validateTypedData } from './signTypedData'
@@ -12,96 +12,11 @@ import { signTypedData, validateTypedData } from './signTypedData'
 const localAccount = getLocalAccount(accounts[0].privateKey)
 const jsonRpcAccount = accounts[0].address
 
-const basic = {
-  domain: {
-    name: 'Ether Mail',
-    version: '1',
-    chainId: 1,
-    verifyingContract: '0x0000000000000000000000000000000000000000',
-  },
-  types: {
-    Person: [
-      { name: 'name', type: 'string' },
-      { name: 'wallet', type: 'address' },
-    ],
-    Mail: [
-      { name: 'from', type: 'Person' },
-      { name: 'to', type: 'Person' },
-      { name: 'contents', type: 'string' },
-    ],
-  },
-  message: {
-    from: {
-      name: 'Cow',
-      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-    },
-    to: {
-      name: 'Bob',
-      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-    },
-    contents: 'Hello, Bob!',
-  },
-} as const
-
-const complex = {
-  domain: {
-    name: 'Ether Mail 🥵',
-    version: '1.1.1',
-    chainId: 1,
-    verifyingContract: '0x0000000000000000000000000000000000000000',
-  },
-  types: {
-    Name: [
-      { name: 'first', type: 'string' },
-      { name: 'last', type: 'string' },
-    ],
-    Person: [
-      { name: 'name', type: 'Name' },
-      { name: 'wallet', type: 'address' },
-      { name: 'favoriteColors', type: 'string[3]' },
-      { name: 'foo', type: 'uint256' },
-      { name: 'age', type: 'uint8' },
-      { name: 'isCool', type: 'bool' },
-    ],
-    Mail: [
-      { name: 'timestamp', type: 'uint256' },
-      { name: 'from', type: 'Person' },
-      { name: 'to', type: 'Person' },
-      { name: 'contents', type: 'string' },
-      { name: 'hash', type: 'bytes' },
-    ],
-  },
-  message: {
-    timestamp: 1234567890n,
-    contents: 'Hello, Bob! 🖤',
-    hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-    from: {
-      name: {
-        first: 'Cow',
-        last: 'Burns',
-      },
-      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-      age: 69,
-      foo: 123123123123123123n,
-      favoriteColors: ['red', 'green', 'blue'],
-      isCool: false,
-    },
-    to: {
-      name: { first: 'Bob', last: 'Builder' },
-      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-      age: 70,
-      foo: 123123123123123123n,
-      favoriteColors: ['orange', 'yellow', 'green'],
-      isCool: true,
-    },
-  },
-} as const
-
 describe('default', async () => {
   test('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...basic,
+        ...typedData.basic,
         account: jsonRpcAccount,
         primaryType: 'Mail',
       }),
@@ -113,7 +28,7 @@ describe('default', async () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...basic,
+        ...typedData.basic,
         account: localAccount,
         primaryType: 'Mail',
       }),
@@ -126,7 +41,7 @@ describe('default', async () => {
 test('inferred account', async () => {
   expect(
     await signTypedData(walletClientWithAccount, {
-      ...basic,
+      ...typedData.basic,
       primaryType: 'Mail',
     }),
   ).toEqual(
@@ -143,6 +58,7 @@ describe('minimal', () => {
         },
         primaryType: 'EIP712Domain',
         domain: {},
+        // @ts-expect-error
         message: {},
         account: jsonRpcAccount,
       }),
@@ -161,7 +77,6 @@ describe('minimal', () => {
         },
         primaryType: 'EIP712Domain',
         domain: {},
-        message: {},
         account: localAccount,
       }),
     ).toEqual(
@@ -174,7 +89,7 @@ describe('complex', async () => {
   test('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         account: jsonRpcAccount,
         primaryType: 'Mail',
       }),
@@ -186,7 +101,7 @@ describe('complex', async () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         account: localAccount,
         primaryType: 'Mail',
       }),
@@ -200,7 +115,7 @@ describe('args: domain: empty', () => {
   test('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: undefined,
         account: jsonRpcAccount,
         primaryType: 'Mail',
@@ -213,7 +128,7 @@ describe('args: domain: empty', () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: undefined,
         account: localAccount,
         primaryType: 'Mail',
@@ -228,7 +143,7 @@ describe('args: domain: chainId', () => {
   test('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           chainId: 1,
         },
@@ -243,7 +158,7 @@ describe('args: domain: chainId', () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           chainId: 1,
         },
@@ -260,7 +175,7 @@ describe('args: domain: name', () => {
   test('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           name: 'Ether!',
         },
@@ -275,7 +190,7 @@ describe('args: domain: name', () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           name: 'Ether!',
         },
@@ -292,7 +207,7 @@ describe('args: domain: verifyingContract', () => {
   test('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         },
@@ -307,7 +222,7 @@ describe('args: domain: verifyingContract', () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         },
@@ -325,7 +240,7 @@ describe('args: domain: salt', () => {
   test.skip('json-rpc account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           salt: '0x123512315aaaa1231313b1231b23b13b123aa12312211b1b1b111bbbb1affafa',
         },
@@ -340,7 +255,7 @@ describe('args: domain: salt', () => {
   test('local account', async () => {
     expect(
       await signTypedData(walletClient, {
-        ...complex,
+        ...typedData.complex,
         domain: {
           salt: '0x123512315aaaa1231313b1231b23b13b123aa12312211b1b1b111bbbb1affafa',
         },
@@ -359,7 +274,7 @@ describe('validateTypedData', () => {
       domain: {
         name: 'Ether!',
         version: '1',
-        chainId: 1,
+        chainId: 1n,
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
       },
       primaryType: 'Mail',
@@ -565,7 +480,7 @@ describe('validateTypedData', () => {
         domain: {
           name: 'Ether!',
           version: '1',
-          chainId: -1,
+          chainId: -1n,
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         },
         primaryType: 'Mail',
@@ -599,7 +514,7 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Number \\"-1\\" is not in safe 256-bit unsigned integer range (0 to 115792089237316195423570985008687907853269984665640564039457584007913129639935)
+      "Number \\"-1n\\" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)
 
       Version: viem@1.0.2"
     `)
@@ -611,7 +526,7 @@ describe('validateTypedData', () => {
         domain: {
           name: 'Ether!',
           version: '1',
-          chainId: 1,
+          chainId: 1n,
           verifyingContract: '0xCczCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         },
         primaryType: 'Mail',
@@ -656,7 +571,7 @@ test('no account', async () => {
   await expect(() =>
     // @ts-expect-error
     signTypedData(walletClient, {
-      ...basic,
+      ...typedData.basic,
       primaryType: 'Mail',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`

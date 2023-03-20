@@ -2,26 +2,28 @@
 head:
   - - meta
     - property: og:title
-      content: verifyTypedData
+      content: recoverTypedDataAddress
   - - meta
     - name: description
-      content: Verifies a typed data signature
+      content: Recovers the signing address from EIP-712 typed data & signature.
   - - meta
     - property: og:description
-      content: Verifies a typed data signature
+      content: Recovers the signing address from EIP-712 typed data & signature.
 
 ---
 
-# verifyTypedData
+# recoverTypedDataAddress
 
-Verify that typed data was signed by the provided address.
+Recovers the original signing address from EIP-712 typed data & signature.
+
+Useful for obtaining the address of a message that was signed with [`signTypedData`](/docs/actions/wallet/signTypedData).
 
 ## Usage
 
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount, verifyTypedData } from 'viem'
+import { getAccount, recoverTypedDataAddress } from 'viem'
 import { account, walletClient } from './client'
 
 const message = {
@@ -44,15 +46,13 @@ const signature = await walletClient.signTypedData({
   message,
 })
 
-const valid = verifyTypedData({ // [!code focus:99]
-  address: account.address,
+const address = recoverTypedDataAddress({ // [!code focus:99]
   domain,
   types,
   primaryType: 'Mail',
   message,
   signature,
 })
-// true
 ```
 
 ```ts [data.ts]
@@ -92,43 +92,11 @@ export const walletClient = createWalletClient({
 
 ## Returns
 
-`boolean`
+[`Address`](/docs/glossary/types#address)
 
-Whether the provided `address` generated the `signature`.
+The signing address.
 
 ## Parameters
-
-### address
-
-- **Type:** [`Address`](/docs/glossary/types#address)
-
-The Ethereum address that signed the original message.
-
-```ts
-const valid = verifyTypedData({
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus:1]
-  domain: { 
-    name: 'Ether Mail',
-    version: '1',
-    chainId: 1,
-    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-  },
-  types,
-  primaryType: 'Mail',
-  message: {
-    from: {
-      name: 'Cow',
-      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-    },
-    to: {
-      name: 'Bob',
-      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-    },
-    contents: 'Hello, Bob!',
-  },
-  signature: '0x...'
-})
-```
 
 ### domain
 
@@ -137,8 +105,7 @@ const valid = verifyTypedData({
 The typed data domain.
 
 ```ts
-const valid = verifyTypedData({
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+const address = recoverTypedDataAddress({
   domain: { // [!code focus:6]
     name: 'Ether Mail',
     version: '1',
@@ -167,8 +134,7 @@ const valid = verifyTypedData({
 The type definitions for the typed data.
 
 ```ts
-const valid = verifyTypedData({
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+const address = recoverTypedDataAddress({
   domain,
   types: { // [!code focus:11]
     Person: [
@@ -204,8 +170,7 @@ const valid = verifyTypedData({
 The primary type to extract from `types` and use in `value`.
 
 ```ts
-const valid = verifyTypedData({
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+const address = recoverTypedDataAddress({
   domain,
   types: {
     Person: [
@@ -239,8 +204,7 @@ const valid = verifyTypedData({
 **Type:** Inferred from `types` & `primaryType`.
 
 ```ts
-const valid = verifyTypedData({
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+const address = recoverTypedDataAddress({
   domain,
   types: {
     Person: [
@@ -276,8 +240,7 @@ const valid = verifyTypedData({
 The signature of the typed data.
 
 ```ts
-const valid = verifyTypedData({
-  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+const address = recoverTypedDataAddress({
   domain,
   types: {
     Person: [

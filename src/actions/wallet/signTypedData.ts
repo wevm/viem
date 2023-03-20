@@ -1,18 +1,16 @@
-import type {
-  Narrow,
-  TypedData,
-  TypedDataDomain,
-  TypedDataParameter,
-  TypedDataToPrimitiveTypes,
-  TypedDataType,
-} from 'abitype'
+import type { TypedData, TypedDataParameter, TypedDataType } from 'abitype'
 import type { WalletClient } from '../../clients'
 import {
   AccountNotFoundError,
   BytesSizeMismatchError,
   InvalidAddressError,
 } from '../../errors'
-import type { Account, GetAccountParameter, Hex } from '../../types'
+import type {
+  Account,
+  GetAccountParameter,
+  Hex,
+  TypedDataDefinition,
+} from '../../types'
 import {
   bytesRegex,
   integerRegex,
@@ -30,50 +28,6 @@ export type SignTypedDataParameters<
   TAccount extends Account | undefined = undefined,
 > = GetAccountParameter<TAccount> &
   TypedDataDefinition<TTypedData, TPrimaryType>
-
-export type TypedDataDefinition<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = {
-  domain?: TypedDataDomain
-  types: Narrow<TTypedData>
-  primaryType: GetPrimaryType<TTypedData, TPrimaryType>
-} & GetMessage<TTypedData, TPrimaryType>
-
-type GetPrimaryType<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TTypedData extends TypedData
-  ? keyof TTypedData extends infer AbiFunctionNames
-    ?
-        | AbiFunctionNames
-        | (TPrimaryType extends AbiFunctionNames ? TPrimaryType : never)
-        | (TypedData extends TTypedData ? string : never)
-    : never
-  : TPrimaryType
-
-type GetMessage<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TSchema = TTypedData extends TypedData
-    ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
-  TMessage = TSchema[TPrimaryType extends keyof TSchema
-    ? TPrimaryType
-    : keyof TSchema],
-> = { [key: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
-  ? {
-      /**
-       * Data to sign
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
-       */
-      message: { [key: string]: unknown }
-    }
-  : {
-      /** Data to sign */
-      message: TMessage
-    }
 
 export type SignTypedDataReturnType = Hex
 
