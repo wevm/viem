@@ -5,12 +5,13 @@ export const sidebar: DefaultTheme.Sidebar = {
     {
       text: "Introduction",
       items: [
-        { text: "Why viem", link: "/docs/introduction" },
-        { text: "Getting Started", link: "/docs/getting-started" },
-        { text: "Ethers v5 → viem", link: "/docs/ethers-migration" },
-        { text: "TypeScript", link: "/docs/typescript" },
-        { text: "Benchmarks", link: "/docs/benchmarks" },
-        { text: "Platform Compatibility", link: "/docs/compatibility" },
+        { text: 'Why viem', link: '/docs/introduction' },
+        { text: 'Getting Started', link: '/docs/getting-started' },
+        { text: 'Migration Guide', link: '/docs/migration-guide' },
+        { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
+        { text: 'TypeScript', link: '/docs/typescript' },
+        { text: 'Benchmarks', link: '/docs/benchmarks' },
+        { text: 'Platform Compatibility', link: '/docs/compatibility' },
       ],
     },
     {
