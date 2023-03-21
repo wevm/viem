@@ -228,6 +228,7 @@ test('exports actions', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
+      "validateTypedData": [Function],
       "verifyMessage": [Function],
       "webSocket": [Function],
       "weiUnits": {
