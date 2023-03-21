@@ -12,6 +12,11 @@ type GetAccountReturnType<TAccountSource extends AccountSource> =
   | (TAccountSource extends Address ? JsonRpcAccount : never)
   | (TAccountSource extends CustomSource ? LocalAccount : never)
 
+/**
+ * @description Creates an Account from a custom signing implementation.
+ *
+ * @returns A Local Account.
+ */
 export function toAccount<TAccountSource extends AccountSource>(
   source: TAccountSource,
 ): GetAccountReturnType<TAccountSource> {

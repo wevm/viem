@@ -46,8 +46,11 @@ export type HDAccount = LocalAccount<'hd'> & {
 
 export type HDOptions =
   | {
+      /** The account index to use in the path (`"m/44'/60'/${accountIndex}'/0/0"`). */
       accountIndex?: number
+      /** The address index to use in the path (`"m/44'/60'/0'/0/${addressIndex}"`). */
       addressIndex?: number
+      /** The change index to use in the path (`"m/44'/60'/0'/${changeIndex}/0"`). */
       changeIndex?: number
       path?: never
     }
@@ -55,6 +58,7 @@ export type HDOptions =
       accountIndex?: never
       addressIndex?: never
       changeIndex?: never
+      /** The HD path. */
       path: `m/44'/60'/${string}`
     }
 

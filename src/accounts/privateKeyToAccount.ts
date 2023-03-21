@@ -6,6 +6,11 @@ import { publicKeyToAddress, signMessage, signTypedData } from './utils'
 import { toAccount } from './toAccount'
 import type { PrivateKeyAccount } from './types'
 
+/**
+ * @description Creates an Account from a private key.
+ *
+ * @returns A Private Key Account.
+ */
 export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
   const publicKey = toHex(getPublicKey(privateKey.slice(2)))
   const address = publicKeyToAddress(publicKey)

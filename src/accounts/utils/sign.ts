@@ -8,6 +8,14 @@ export type SignParameters = {
 }
 export type SignReturnType = Hex
 
+/**
+ * @description Signs a hash with a given private key.
+ *
+ * @param hash The hash to sign.
+ * @param privateKey The private key to sign with.
+ *
+ * @returns The signature.
+ */
 export async function sign({
   hash,
   privateKey,

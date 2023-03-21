@@ -4,6 +4,11 @@ import { hdKeyToAccount } from './hdKeyToAccount'
 
 import type { HDAccount, HDOptions } from './types'
 
+/**
+ * @description Creates an Account from a mnemonic phrase.
+ *
+ * @returns A HD Account.
+ */
 export function mnemonicToAccount(
   mnemonic: string,
   opts: HDOptions = {},
