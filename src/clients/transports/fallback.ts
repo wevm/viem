@@ -1,4 +1,4 @@
-import { Chain } from '../../types'
+import type { Chain } from '../../types'
 import { isDeterministicError } from '../../utils/buildRequest'
 import { wait } from '../../utils/wait'
 import type { Transport, TransportConfig } from './createTransport'

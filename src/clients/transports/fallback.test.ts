@@ -1,13 +1,13 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { createHttpServer } from '../../_test'
 import { localhost } from '../../chains'
+import { createHttpServer } from '../../_test'
 import { createClient } from '../createClient'
 
 import { getBlockNumber } from '../../actions'
-import { createTransportsRanker, fallback, FallbackTransport } from './fallback'
-import { http } from './http'
 import { wait } from '../../utils/wait'
-import { Transport } from './createTransport'
+import type { Transport } from './createTransport'
+import { fallback, FallbackTransport, rankTransports } from './fallback'
+import { http } from './http'
 
 test('default', () => {
   const alchemy = http('https://alchemy.com/rpc')
@@ -507,7 +507,7 @@ describe('client', () => {
   })
 })
 
-describe('createTransportsRanker', () => {
+describe('rankTransports', () => {
   const samples: [responseTime: number, success: boolean][][] = [
     [
       [100, true],
@@ -607,7 +607,7 @@ describe('createTransportsRanker', () => {
 
     let rankedTransports: Transport[][] = []
 
-    createTransportsRanker({
+    rankTransports({
       chain: localhost,
       interval: 10,
       sampleCount: 5,

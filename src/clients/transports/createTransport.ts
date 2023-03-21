@@ -1,7 +1,7 @@
 import type { Chain } from '../../types'
 import type { Requests } from '../../types/eip1193'
 import { buildRequest } from '../../utils'
-import { ClientConfig } from '../createClient'
+import type { ClientConfig } from '../createClient'
 
 export type BaseRpcRequests = {
   request(...args: any): Promise<any>
