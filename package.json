@@ -123,6 +123,8 @@
   "dependencies": {
     "@noble/hashes": "^1.1.2",
     "@noble/secp256k1": "^1.7.1",
+    "@scure/bip32": "^1.2.0",
+    "@scure/bip39": "^1.1.1",
     "@wagmi/chains": "~0.2.11",
     "abitype": "~0.7.1",
     "idna-uts46-hx": "^4.1.2",

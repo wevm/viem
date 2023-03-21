@@ -1,41 +1,12 @@
-import type { TypedData } from 'abitype'
 import { InvalidAddressError } from '../errors'
-import type {
-  Address,
-  Hash,
-  TransactionRequest,
-  TypedDataDefinition,
-} from '../types'
+import type { Address } from '../types'
 import { isAddress } from '../utils'
-
-export type AccountSource = Address | CustomSource
-export type CustomSource = {
-  address: Address
-  signMessage: ({ message }: { message: string }) => Promise<Hash>
-  signTransaction: (
-    transaction: Omit<TransactionRequest, 'from'> & {
-      chainId: number
-      from: Address
-    },
-  ) => Promise<Hash>
-  signTypedData: <
-    TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string = string,
-  >(
-    typedData: TypedDataDefinition<TTypedData, TPrimaryType>,
-  ) => Promise<Hash>
-}
-
-export type Account = JsonRpcAccount | LocalAccount
-export type JsonRpcAccount = {
-  address: Address
-  type: 'json-rpc'
-}
-export type LocalAccount<TSource = 'custom'> = CustomSource & {
-  address: Address
-  source: TSource
-  type: 'local'
-}
+import type {
+  AccountSource,
+  CustomSource,
+  JsonRpcAccount,
+  LocalAccount,
+} from './types'
 
 type GetAccountReturnType<TAccountSource extends AccountSource> =
   | (TAccountSource extends Address ? JsonRpcAccount : never)
