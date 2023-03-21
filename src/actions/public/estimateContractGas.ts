@@ -1,17 +1,18 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type { Chain, ContractConfig, GetValue } from '../../types'
 import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
+  parseAccount,
 } from '../../utils'
 import { estimateGas, EstimateGasParameters } from './estimateGas'
 
 export type EstimateContractGasParameters<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
 > = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
@@ -25,11 +26,11 @@ export type EstimateContractGasParameters<
 export type EstimateContractGasReturnType = bigint
 
 export async function estimateContractGas<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
 >(
-  client: PublicClient<any, TChain>,
+  client: PublicClientArg<Transport, TChain>,
   {
     abi,
     address,
@@ -38,6 +39,7 @@ export async function estimateContractGas<
     ...request
   }: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
 ): Promise<EstimateContractGasReturnType> {
+  const account = parseAccount(request.account)
   const data = encodeFunctionData({
     abi,
     args,
@@ -57,7 +59,7 @@ export async function estimateContractGas<
       args,
       docsPath: '/docs/contract/simulateContract',
       functionName,
-      sender: request.account?.address,
+      sender: account?.address,
     })
   }
 }

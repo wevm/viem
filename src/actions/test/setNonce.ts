@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Address } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -10,7 +10,7 @@ export type SetNonceParameters = {
 }
 
 export async function setNonce(
-  client: TestClient,
+  client: TestClientArg,
   { address, nonce }: SetNonceParameters,
 ) {
   return await client.request({

@@ -1,5 +1,5 @@
-import { getAccount, WalletClient } from 'viem'
-import { parseEther } from 'viem'
+import { parseEther, WalletClient } from 'viem'
+import { goerli } from 'viem/chains'
 
 export function SendTransaction({ client }: { client: WalletClient }) {
   return (
@@ -7,9 +7,9 @@ export function SendTransaction({ client }: { client: WalletClient }) {
       <button
         onClick={async () => {
           const [address] = await client.getAddresses()
-          const account = getAccount(address)
           await client.sendTransaction({
-            account,
+            account: address,
+            chain: goerli,
             to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
             value: parseEther('0.0001'),
           })

@@ -1,5 +1,5 @@
 import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import type {
   Address,
   ExtractEventArgsFromAbi,
@@ -65,7 +65,7 @@ export function watchContractEvent<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
 >(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     abi,
     address,

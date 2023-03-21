@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type MineParameters = {
@@ -9,7 +9,7 @@ export type MineParameters = {
 }
 
 export async function mine(
-  client: TestClient,
+  client: TestClientArg,
   { blocks, interval }: MineParameters,
 ) {
   return await client.request({

@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type SetMinGasPriceParameters = {
@@ -7,7 +7,7 @@ export type SetMinGasPriceParameters = {
 }
 
 export async function setMinGasPrice(
-  client: TestClient,
+  client: TestClientArg,
   { gasPrice }: SetMinGasPriceParameters,
 ) {
   return await client.request({

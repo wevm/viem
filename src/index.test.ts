@@ -142,6 +142,7 @@ test('exports actions', () => {
         "wei": 9,
       },
       "hashMessage": [Function],
+      "hashTypedData": [Function],
       "hexToBigInt": [Function],
       "hexToBool": [Function],
       "hexToBytes": [Function],

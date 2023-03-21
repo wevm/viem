@@ -4,9 +4,44 @@ import type {
   ExtractAbiFunctionNames,
   ResolvedConfig,
 } from 'abitype'
+import { wagmiMintExampleAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 import { wagmiContractConfig, publicClient, walletClient } from '../_test'
 import { getContract } from './getContract'
+
+const abi = wagmiMintExampleAbi
+const contract = getContract({
+  abi,
+  // abi: [
+  //   {
+  //     inputs: [],
+  //     name: 'mint',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  // ],
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  publicClient,
+  walletClient,
+})
+
+contract.write.mint()
+
+contract.write.safeTransferFrom(['0x', '0x', 1n])
+contract.read.totalSupply({ blockNumber: 1n })
+contract.read.balanceOf(['0x'], { blockNumber: 1n })
+contract.simulate.safeTransferFrom(['0x', '0x', 1n])
+contract.estimateGas.safeTransferFrom(['0x', '0x', 1n])
+contract.watchEvent.Transfer({
+  args: {
+    from: '0x',
+    to: '0x',
+  },
+  onLogs: () => {},
+})
+
+// -----------------------------------------------------------------------------
 
 type ReadFunctionNames = ExtractAbiFunctionNames<
   typeof wagmiContractConfig.abi,

@@ -5,19 +5,15 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import { wagmiMintExampleAbi } from 'abitype/test'
-import type { Chain, IsInferrableAbi, IsNever, Prettify } from '../types'
 import type { PublicClient, WalletClient } from '../clients'
-import { publicClient, walletClient } from '../_test'
-import type { WriteContractParameters, WriteContractReturnType } from './wallet'
+import type { Chain, IsInferrableAbi, IsNever, Prettify } from '../types'
 import type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
   ReadContractParameters,
   ReadContractReturnType,
-  CreateEventFilterParameters,
-  CreateEventFilterReturnType,
 } from './public'
+import type { WriteContractParameters, WriteContractReturnType } from './wallet'
 
 export type GetContractParameters<
   TAbi extends Abi | readonly unknown[],
@@ -160,38 +156,10 @@ export declare function getContract<
   TWalletClient
 >): GetContractReturnType<TAbi, TChain, TPublicClient, TWalletClient>
 
-const abi = wagmiMintExampleAbi
-const contract = getContract({
-  abi,
-  // abi: [
-  //   {
-  //     inputs: [],
-  //     name: 'mint',
-  //     outputs: [],
-  //     stateMutability: 'nonpayable',
-  //     type: 'function',
-  //   },
-  // ],
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  publicClient,
-  walletClient,
-})
-contract.write.safeTransferFrom(['0x', '0x', 1n])
-contract.read.totalSupply({ blockNumber: 1n })
-contract.read.balanceOf(['0x'], { blockNumber: 1n })
-contract.simulate.safeTransferFrom(['0x', '0x', 1n])
-contract.estimateGas.safeTransferFrom(['0x', '0x', 1n])
-contract.watchEvent.Transfer({
-  args: {
-    from: '0x',
-    to: '0x',
-  },
-  onLogs: () => {},
-})
-
 // TODO
 // - createEventFilter
 // - Payable turn on/off `value`
+// - `account`
 
 type GetReadFunction<
   TAbi extends Abi | readonly unknown[] = Abi,

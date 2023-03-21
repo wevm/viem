@@ -2,6 +2,7 @@ import { getVersion } from './utils'
 
 type BaseErrorParameters = {
   docsPath?: string
+  docsSlug?: string
   metaMessages?: string[]
 } & (
   | {
@@ -37,7 +38,13 @@ export class BaseError extends Error {
       shortMessage || 'An error occurred.',
       '',
       ...(args.metaMessages ? [...args.metaMessages, ''] : []),
-      ...(docsPath ? [`Docs: https://viem.sh${docsPath}.html`] : []),
+      ...(docsPath
+        ? [
+            `Docs: https://viem.sh${docsPath}.html${
+              args.docsSlug ? `#${args.docsSlug}` : ''
+            }`,
+          ]
+        : []),
       ...(details ? [`Details: ${details}`] : []),
       `Version: ${getVersion()}`,
     ].join('\n')

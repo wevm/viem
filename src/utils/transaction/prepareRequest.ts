@@ -1,22 +1,31 @@
 import {
   estimateGas,
+  EstimateGasParameters,
   getBlock,
   getGasPrice,
   getTransactionCount,
   SendTransactionParameters,
 } from '../../actions'
-import type { PublicClient, WalletClient } from '../../clients'
-import { BaseError } from '../../errors'
-import type { Address } from '../../types'
+import type { PublicClientArg, WalletClientArg, Transport } from '../../clients'
+import { AccountNotFoundError, BaseError } from '../../errors'
+import type { Account, Address, Chain, GetAccountParameter } from '../../types'
+import { parseAccount } from '../account'
 import { parseGwei } from '../unit/parseGwei'
 import { assertRequest } from './assertRequest'
 
 export type PrepareRequestParameters<
-  TParameters extends SendTransactionParameters = SendTransactionParameters,
-> = TParameters
+  TAccount extends Account | undefined = undefined,
+> = GetAccountParameter<TAccount> & {
+  gas?: SendTransactionParameters['gas']
+  gasPrice?: SendTransactionParameters['gasPrice']
+  maxFeePerGas?: SendTransactionParameters['maxFeePerGas']
+  maxPriorityFeePerGas?: SendTransactionParameters['maxPriorityFeePerGas']
+  nonce?: SendTransactionParameters['nonce']
+}
 
 export type PrepareRequestReturnType<
-  TParameters extends SendTransactionParameters = SendTransactionParameters,
+  TAccount extends Account | undefined = undefined,
+  TParameters extends PrepareRequestParameters<TAccount> = PrepareRequestParameters<TAccount>,
 > = TParameters & {
   from: Address
   gas: SendTransactionParameters['gas']
@@ -29,13 +38,25 @@ export type PrepareRequestReturnType<
 export const defaultTip = parseGwei('1.5')
 
 export async function prepareRequest<
-  TParameters extends SendTransactionParameters,
+  TAccount extends Account | undefined,
+  TParameters extends PrepareRequestParameters<TAccount>,
+  TChain extends Chain | undefined,
 >(
-  client: WalletClient<any, any> | PublicClient<any, any>,
-  args: PrepareRequestParameters<TParameters>,
-): Promise<PrepareRequestReturnType<TParameters>> {
-  const { account, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce } =
-    args
+  client:
+    | WalletClientArg<Transport, TChain, TAccount>
+    | PublicClientArg<Transport, TChain>,
+  args: TParameters,
+): Promise<PrepareRequestReturnType<TAccount, TParameters>> {
+  const {
+    account: account_,
+    gas,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    nonce,
+  } = args
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_)
 
   const block = await getBlock(client, { blockTag: 'latest' })
 
@@ -85,9 +106,9 @@ export async function prepareRequest<
     request.gas = await estimateGas(client, {
       ...request,
       account: { address: account.address, type: 'json-rpc' },
-    })
+    } as EstimateGasParameters)
 
   assertRequest(request)
 
-  return request as PrepareRequestReturnType<TParameters>
+  return request as PrepareRequestReturnType<TAccount, TParameters>
 }

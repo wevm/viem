@@ -1,8 +1,13 @@
 export type { Address } from 'abitype'
 
 export type { IsInferrableAbi } from './abi'
-
-export type { Account, LocalAccount, JsonRpcAccount } from './account'
+export type {
+  Account,
+  GetAccountParameter,
+  LocalAccount,
+  JsonRpcAccount,
+  ParseAccount,
+} from './account'
 
 export type {
   Block,
@@ -12,7 +17,7 @@ export type {
   Uncle,
 } from './block'
 
-export type { Chain, ChainContract } from './chain'
+export type { Chain, ChainContract, GetChain } from './chain'
 
 export type {
   AbiItem,
@@ -80,6 +85,14 @@ export type {
   TransactionEIP2930,
   TransactionLegacy,
 } from './transaction'
+
+export type {
+  GetTypedDataDomain,
+  GetTypedDataMessage,
+  GetTypedDataPrimaryType,
+  GetTypedDataTypes,
+  TypedDataDefinition,
+} from './typedData'
 
 export type {
   IsNever,

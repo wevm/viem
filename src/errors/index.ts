@@ -24,13 +24,19 @@ export {
   UnsupportedPackedAbiType,
 } from './abi'
 
+export { AccountNotFoundError } from './account'
+
 export { InvalidAddressError } from './address'
 
 export { BaseError } from './base'
 
 export { BlockNotFoundError } from './block'
 
-export { ChainDoesNotSupportContract, ChainMismatchError } from './chain'
+export {
+  ChainDoesNotSupportContract,
+  ChainMismatchError,
+  ChainNotFoundError,
+} from './chain'
 
 export {
   CallExecutionError,

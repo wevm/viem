@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import { getBalance } from '../public/getBalance'
 import { sendTransaction } from '../wallet/sendTransaction'
 import { mine } from './mine'
@@ -19,7 +19,7 @@ test('reverts', async () => {
   const id = await snapshot(testClient)
 
   await sendTransaction(walletClient, {
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('2'),
   })

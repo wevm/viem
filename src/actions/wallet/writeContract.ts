@@ -1,7 +1,13 @@
 import type { Abi } from 'abitype'
 
-import type { WalletClient } from '../../clients'
-import type { Chain, ContractConfig, GetValue } from '../../types'
+import type { WalletClientArg, Transport } from '../../clients'
+import type {
+  Account,
+  Chain,
+  ContractConfig,
+  GetChain,
+  GetValue,
+} from '../../types'
 import { encodeFunctionData, EncodeFunctionDataParameters } from '../../utils'
 import {
   sendTransaction,
@@ -10,16 +16,22 @@ import {
 } from './sendTransaction'
 
 export type WriteContractParameters<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = Omit<SendTransactionParameters<TChain>, 'to' | 'data' | 'value'> & {
+  TAccount extends Account | undefined = undefined,
+  TChainOverride extends Chain | undefined = TChain,
+> = Omit<
+  SendTransactionParameters<TChain, TAccount, TChainOverride>,
+  'chain' | 'to' | 'data' | 'value'
+> & {
   value?: GetValue<
     TAbi,
     TFunctionName,
     SendTransactionParameters<TChain>['value']
   >
-} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
+} & GetChain<TChain, TChainOverride> &
+  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 
 export type WriteContractReturnType = SendTransactionReturnType
 
@@ -33,18 +45,26 @@ export type WriteContractReturnType = SendTransactionReturnType
  * Warning: The `writeContract` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `simulateContract`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.
  */
 export async function writeContract<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
+  TAccount extends Account | undefined,
+  TChainOverride extends Chain | undefined = TChain,
 >(
-  client: WalletClient,
+  client: WalletClientArg<Transport, TChain, TAccount>,
   {
     abi,
     address,
     args,
     functionName,
     ...request
-  }: WriteContractParameters<TChain, TAbi, TFunctionName>,
+  }: WriteContractParameters<
+    TChain,
+    TAbi,
+    TFunctionName,
+    TAccount,
+    TChainOverride
+  >,
 ): Promise<WriteContractReturnType> {
   const data = encodeFunctionData({
     abi,
@@ -55,6 +75,6 @@ export async function writeContract<
     data,
     to: address,
     ...request,
-  } as unknown as SendTransactionParameters<TChain>)
+  } as unknown as SendTransactionParameters<TChain, TAccount, TChainOverride>)
   return hash
 }

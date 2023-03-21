@@ -35,10 +35,11 @@ While you can use `writeContract` [by itself](#standalone), it is highly recomme
 ::: code-group
 
 ```ts [example.ts]
-import { publicClient, walletClient } from './client'
+import { account, publicClient, walletClient } from './config'
 import { wagmiAbi } from './abi'
 
 const { request } = await publicClient.simulateContract({
+  account,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
@@ -60,14 +61,24 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 ```
 
 :::
@@ -83,14 +94,15 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 ::: code-group
 
 ```ts {9} [example.ts]
-import { walletClient } from './client'
+import { account, walletClient } from './client'
 import { wagmiAbi } from './abi'
 
 const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
-  args: [69420]
+  args: [69420],
+  account
 })
 await walletClient.writeContract(request)
 ```
@@ -109,14 +121,24 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 ```
 
 :::
@@ -128,13 +150,14 @@ If you don't need to perform validation on the contract write, you can also use 
 ::: code-group
 
 ```ts [example.ts]
-import { walletClient } from './client'
+import { account, walletClient } from './config'
 import { wagmiAbi } from './abi'
 
 await walletClient.writeContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'mint',
+  account,
 })
 ```
 
@@ -152,14 +175,24 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 ```
 
 :::
@@ -222,9 +255,11 @@ await walletClient.writeContract({
 
 ### account
 
-- **Type:** [`Address`](/docs/glossary/types#address)
+- **Type:** `Account | Address`
 
-The Account sender. [Read more](/docs/clients/wallet).
+The Account to write to the contract from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
 
 ```ts
 await walletClient.writeContract({
@@ -232,7 +267,7 @@ await walletClient.writeContract({
   abi: wagmiAbi,
   functionName: 'mint',
   args: [69420],
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266') // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
 })
 ```
 
@@ -270,34 +305,12 @@ await walletClient.writeContract({
 })
 ```
 
-### assertChain (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Throws an error if `chain` does not match the current wallet chain.
-
-Defaults to `true`, but you can turn this off if your dapp is primarily multi-chain.
-
-```ts
-import { optimism } from 'viem/chains' // [!code focus]
-
-await walletClient.writeContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  functionName: 'mint',
-  args: [69420],
-  assertChain: false, // [!code focus]
-  chain: optimism, // [!code focus]
-})
-```
-
 ### chain (optional)
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
 - **Default:** `walletClient.chain`
 
-The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown if `assertChain` is truthy.
+The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
 The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
 

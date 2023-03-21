@@ -21,10 +21,7 @@ Creates, signs, and sends a new transaction to the network.
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount } from 'viem'
-import { walletClient } from './client'
- 
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+import { account, walletClient } from './config'
  
 const hash = await walletClient.sendTransaction({ // [!code focus:99]
   account,
@@ -34,12 +31,60 @@ const hash = await walletClient.sendTransaction({ // [!code focus:99]
 // '0x...'
 ```
 
-```ts [client.ts]
-import { createWalletClient, custom } from 'viem'
+```ts [config.ts]
+import { createWalletClient, custom, getAccount } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
+  transport: custom(window.ethereum)
+})
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
+```
+
+:::
+
+### Account Hoisting
+
+If you do not wish to pass an `account` to every `sendTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+
+[Learn more](/docs/clients/wallet.html#account).
+
+::: code-group
+
+```ts [example.ts]
+import { walletClient } from './config'
+ 
+const hash = await walletClient.sendTransaction({ // [!code focus:99]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1000000000000000000n
+})
+// '0x...'
+```
+
+```ts {4-6,9} [config.ts (JSON-RPC Account)]
+import { createWalletClient, custom, getAccount } from 'viem'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum)
+})
+```
+
+```ts {4} [config.ts (Local Account)]
+import { createWalletClient, custom, getAccount } from 'viem'
+
+export const walletClient = createWalletClient({
+  account: getAccount(...),
   transport: custom(window.ethereum)
 })
 ```
@@ -56,13 +101,15 @@ The [Transaction](/docs/glossary/terms#transaction) hash.
 
 ### account
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-The Account sender. [Read more](/docs/clients/wallet).
+The Account to send the transaction from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
@@ -102,33 +149,12 @@ const data = await publicClient.sendTransaction({
 })
 ```
 
-### assertChain (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Throws an error if `chain` does not match the current wallet chain.
-
-Defaults to `true`, but you can turn this off if your dapp is primarily multi-chain.
-
-```ts
-import { optimism } from 'viem/chains' // [!code focus]
-
-const hash = await walletClient.sendTransaction({
-  assertChain: false, // [!code focus]
-  chain: optimism, // [!code focus]
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
-})
-```
-
 ### chain (optional)
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
 - **Default:** `walletClient.chain`
 
-The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown if `assertChain` is truthy.
+The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
 The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
 

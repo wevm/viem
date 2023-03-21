@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { celo, Chain, localhost } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 import type { Block } from '../../types'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import { wait } from '../../utils/wait'
 import { accounts, publicClient, testClient, walletClient } from '../../_test'
 import { setIntervalMining } from '../test'
@@ -42,7 +42,7 @@ test(
     })
 
     await sendTransaction(walletClient, {
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })

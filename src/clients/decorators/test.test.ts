@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getAccount, parseEther, parseGwei } from '../../utils'
+import { parseEther, parseGwei } from '../../utils'
 import {
   accounts,
   address,
@@ -51,7 +51,7 @@ test('default', async () => {
 describe('smoke test', () => {
   test('dropTransaction', async () => {
     const hash = await walletClient.sendTransaction({
-      account: getAccount(accounts[6].address),
+      account: accounts[6].address,
       to: accounts[7].address,
       value: parseEther('2'),
     })

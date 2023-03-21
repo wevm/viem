@@ -1,20 +1,24 @@
+import type { TypedData, TypedDataParameter, TypedDataType } from 'abitype'
+import type { Transport, WalletClientArg } from '../../clients'
+import {
+  AccountNotFoundError,
+  BytesSizeMismatchError,
+  InvalidAddressError,
+} from '../../errors'
 import type {
-  Narrow,
-  TypedData,
-  TypedDataDomain,
-  TypedDataParameter,
-  TypedDataToPrimitiveTypes,
-  TypedDataType,
-} from 'abitype'
-import type { WalletClient } from '../../clients'
-import { BytesSizeMismatchError, InvalidAddressError } from '../../errors'
-import type { Account, Hex } from '../../types'
+  Account,
+  Chain,
+  GetAccountParameter,
+  Hex,
+  TypedDataDefinition,
+} from '../../types'
 import {
   bytesRegex,
   integerRegex,
   isAddress,
   isHex,
   numberToHex,
+  parseAccount,
   size,
   stringify,
 } from '../../utils'
@@ -22,69 +26,32 @@ import {
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
   TPrimaryType extends string = string,
-> = {
-  account: Account
-} & TypedDataDefinition<TTypedData, TPrimaryType>
-
-export type TypedDataDefinition<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = {
-  domain?: TypedDataDomain
-  types: Narrow<TTypedData>
-  primaryType: GetPrimaryType<TTypedData, TPrimaryType>
-} & GetMessage<TTypedData, TPrimaryType>
-
-type GetPrimaryType<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TTypedData extends TypedData
-  ? keyof TTypedData extends infer AbiFunctionNames
-    ?
-        | AbiFunctionNames
-        | (TPrimaryType extends AbiFunctionNames ? TPrimaryType : never)
-        | (TypedData extends TTypedData ? string : never)
-    : never
-  : TPrimaryType
-
-type GetMessage<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TSchema = TTypedData extends TypedData
-    ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
-  TMessage = TSchema[TPrimaryType extends keyof TSchema
-    ? TPrimaryType
-    : keyof TSchema],
-> = { [key: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
-  ? {
-      /**
-       * Data to sign
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
-       */
-      message: { [key: string]: unknown }
-    }
-  : {
-      /** Data to sign */
-      message: TMessage
-    }
+  TAccount extends Account | undefined = undefined,
+> = GetAccountParameter<TAccount> &
+  TypedDataDefinition<TTypedData, TPrimaryType>
 
 export type SignTypedDataReturnType = Hex
 
 export async function signTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
+  TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient,
+  client: WalletClientArg<Transport, Chain | undefined, TAccount>,
   {
-    account,
+    account: account_ = client.account,
     domain,
     message,
     primaryType,
     types: types_,
-  }: SignTypedDataParameters<TTypedData, TPrimaryType>,
+  }: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
 ): Promise<SignTypedDataReturnType> {
+  if (!account_)
+    throw new AccountNotFoundError({
+      docsPath: '/docs/actions/wallet/signTypedData',
+    })
+  const account = parseAccount(account_)
+
   const types = {
     EIP712Domain: [
       domain?.name && { name: 'name', type: 'string' },

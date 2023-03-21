@@ -21,19 +21,23 @@ Estimates the gas necessary to complete a transaction without submitting it to t
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount } from 'viem'
-import { publicClient } from './client'
+import { account, publicClient } from './config'
 
 const gasEstimate = await publicClient.estimateGas({ // [!code focus:7]
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })
 ```
 
-```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+```ts [config.ts]
+import { createPublicClient, http, getAccount } from 'viem'
 import { mainnet } from 'viem/chains'
+
+// JSON-RPC Account
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+// Local Account (Private Key, etc)
+export const account = getAccount(...)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -53,15 +57,15 @@ The gas estimate (in wei).
 
 ### account (optional)
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-The Account sender. [Read more](/docs/clients/wallet).
+The Account to estimate gas from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus)]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus)]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })
@@ -74,11 +78,9 @@ const gasEstimate = await publicClient.estimateGas({
 Contract code or a hashed method call with encoded args.
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
   data: '0x...', // [!code focus]
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })
@@ -91,10 +93,8 @@ const gasEstimate = await publicClient.estimateGas({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') 
@@ -108,10 +108,8 @@ const gasEstimate = await publicClient.estimateGas({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
@@ -125,10 +123,8 @@ const gasEstimate = await publicClient.estimateGas({
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -143,10 +139,8 @@ const gasEstimate = await publicClient.estimateGas({
 Transaction recipient.
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: parseEther('1')
 })
@@ -159,10 +153,8 @@ const gasEstimate = await publicClient.estimateGas({
 Value (in wei) sent with this transaction.
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') // [!code focus]
 })
@@ -175,11 +167,9 @@ const gasEstimate = await publicClient.estimateGas({
 The block number to perform the gas estimate against.
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
   blockNumber: 15121123n, // [!code focus]
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') 
 })
@@ -193,11 +183,9 @@ const gasEstimate = await publicClient.estimateGas({
 The block tag to perform the gas estimate against.
 
 ```ts
-import { getAccount } from 'viem'
-
 const gasEstimate = await publicClient.estimateGas({
   blockTag: 'safe', // [!code focus]
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1') 
 })

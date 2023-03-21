@@ -1,27 +1,38 @@
-import type { WalletClient } from '../../clients'
-import type { Account, Hex } from '../../types'
-import { toHex } from '../../utils'
+import type { Transport, WalletClientArg } from '../../clients'
+import { AccountNotFoundError } from '../../errors'
+import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
+import { parseAccount, toHex } from '../../utils'
 
-export type SignMessageParameters = {
-  account: Account
-} & (
-  | {
-      /** @deprecated – `data` will be removed in 0.2.0; use `message` instead. */
-      data: string
-      message?: never
-    }
-  | {
-      data?: never
-      message: string
-    }
-)
+export type SignMessageParameters<
+  TAccount extends Account | undefined = undefined,
+> = GetAccountParameter<TAccount> &
+  (
+    | {
+        /** @deprecated – `data` will be removed in 0.2.0; use `message` instead. */
+        data: string
+        message?: never
+      }
+    | {
+        data?: never
+        message: string
+      }
+  )
 
 export type SignMessageReturnType = Hex
 
-export async function signMessage(
-  client: WalletClient,
-  { account, data, message }: SignMessageParameters,
+export async function signMessage<TAccount extends Account | undefined>(
+  client: WalletClientArg<Transport, Chain | undefined, TAccount>,
+  {
+    account: account_ = client.account,
+    data,
+    message,
+  }: SignMessageParameters<TAccount>,
 ): Promise<SignMessageReturnType> {
+  if (!account_)
+    throw new AccountNotFoundError({
+      docsPath: '/docs/actions/wallet/signMessage',
+    })
+  const account = parseAccount(account_)
   const message_ = message || data
   if (account.type === 'local') return account.signMessage(message_!)
   return client.request({

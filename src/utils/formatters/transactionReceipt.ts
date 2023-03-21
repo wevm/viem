@@ -10,12 +10,15 @@ import { defineFormatter, ExtractFormatter, Formatted } from './format'
 import { formatLog } from './log'
 import { transactionType } from './transaction'
 
-export type TransactionReceiptFormatter<TChain extends Chain = Chain> =
-  ExtractFormatter<
-    TChain,
-    'transactionReceipt',
-    NonNullable<Formatters['transactionReceipt']>
-  >
+export type TransactionReceiptFormatter<
+  TChain extends Chain | undefined = Chain,
+> = TChain extends Chain
+  ? ExtractFormatter<
+      TChain,
+      'transactionReceipt',
+      NonNullable<Formatters['transactionReceipt']>
+    >
+  : Formatters['transactionReceipt']
 
 export type FormattedTransactionReceipt<
   TFormatter extends Formatter | undefined = Formatter,

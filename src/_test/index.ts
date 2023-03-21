@@ -12,6 +12,7 @@ export {
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
+  typedData,
 } from './constants'
 
 export {
@@ -22,4 +23,6 @@ export {
   publicClient,
   testClient,
   walletClient,
+  walletClientWithAccount,
+  walletClientWithoutChain,
 } from './utils'

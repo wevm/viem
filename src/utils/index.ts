@@ -41,7 +41,7 @@ export {
   parseAbiParameters,
 } from './abi'
 
-export { getAccount } from './account'
+export { getAccount, parseAccount } from './account'
 
 export type {
   GetContractAddressOptions,
@@ -157,18 +157,27 @@ export type { HttpOptions, RpcResponse, Socket } from './rpc'
 export { getSocket, rpc } from './rpc'
 
 export type {
+  HashTypedDataParameters,
+  HashTypedDataReturnType,
   RecoverAddressParameters,
   RecoverAddressReturnType,
   RecoverMessageAddressParameters,
   RecoverMessageAddressReturnType,
+  RecoverTypedDataAddressParameters,
+  RecoverTypedDataAddressReturnType,
   VerifyMessageParameters,
   VerifyMessageReturnType,
+  VerifyTypedDataParameters,
+  VerifyTypedDataReturnType,
 } from './signature'
 export {
   hashMessage,
+  hashTypedData,
   recoverAddress,
   recoverMessageAddress,
+  recoverTypedDataAddress,
   verifyMessage,
+  verifyTypedData,
 } from './signature'
 
 export { stringify } from './stringify'

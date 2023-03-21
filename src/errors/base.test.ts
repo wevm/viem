@@ -60,6 +60,19 @@ test('BaseError (w/ docsPath)', () => {
     Docs: https://viem.sh/lol.html
     Version: viem@1.0.2]
   `)
+  expect(
+    new BaseError('An error occurred.', {
+      details: 'details',
+      docsPath: '/lol',
+      docsSlug: 'test',
+    }),
+  ).toMatchInlineSnapshot(`
+    [ViemError: An error occurred.
+
+    Docs: https://viem.sh/lol.html#test
+    Details: details
+    Version: viem@1.0.2]
+  `)
 })
 
 test('BaseError (w/ metaMessages)', () => {

@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import type { GetBlockNumberReturnType } from './getBlockNumber'
@@ -25,7 +25,7 @@ export type WatchBlockNumberParameters = {
 
 /** @description Watches and returns incoming block numbers. */
 export function watchBlockNumber(
-  client: PublicClient<any, any, any>,
+  client: PublicClientArg,
   {
     emitOnBegin = false,
     emitMissed = false,

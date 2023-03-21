@@ -1,4 +1,4 @@
-import type { BlockTag, Hash } from '../types'
+import type { Account, BlockTag, Chain, Hash } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import type { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'
@@ -49,11 +49,15 @@ export class TransactionExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: SendTransactionParameters & { docsPath?: string },
+    }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
+      account: Account
+      chain?: Chain
+      docsPath?: string
+    },
   ) {
     const prettyArgs = prettyPrint({
       chain: chain && `${chain?.name} (id: ${chain?.id})`,
-      from: account.address,
+      from: account?.address,
       to,
       value:
         typeof value !== 'undefined' &&
