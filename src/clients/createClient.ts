@@ -58,7 +58,7 @@ export function createClient<
   TChain,
   TRequests
 > {
-  const { config, request, value } = transport({ chain })
+  const { config, request, value } = transport({ chain, pollingInterval })
   return {
     chain,
     key,

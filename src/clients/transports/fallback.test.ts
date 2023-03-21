@@ -4,8 +4,10 @@ import { localhost } from '../../chains'
 import { createClient } from '../createClient'
 
 import { getBlockNumber } from '../../actions'
-import { fallback, FallbackTransport } from './fallback'
+import { createTransportsRanker, fallback, FallbackTransport } from './fallback'
 import { http } from './http'
+import { wait } from '../../utils/wait'
+import { Transport } from './createTransport'
 
 test('default', () => {
   const alchemy = http('https://alchemy.com/rpc')
@@ -100,7 +102,9 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server3.url)])({
+    let transport = fallback([http(server1.url), http(server3.url)], {
+      rank: false,
+    })({
       chain: localhost,
     })
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -109,11 +113,12 @@ describe('request', () => {
     expect(count).toBe(2)
 
     count = 0
-    transport = fallback([
-      http(server1.url),
-      http(server2.url),
-      http(server3.url),
-    ])({
+    transport = fallback(
+      [http(server1.url), http(server2.url), http(server3.url)],
+      {
+        rank: false,
+      },
+    )({
       chain: localhost,
     })
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -122,7 +127,9 @@ describe('request', () => {
     expect(count).toBe(3)
 
     count = 0
-    transport = fallback([http(server1.url), http(server2.url)])({
+    transport = fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    })({
       chain: localhost,
     })
     await expect(() =>
@@ -155,11 +162,12 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([
-      http(server1.url),
-      http(server2.url),
-      http(server3.url),
-    ])({
+    let transport = fallback(
+      [http(server1.url), http(server2.url), http(server3.url)],
+      {
+        rank: false,
+      },
+    )({
       chain: localhost,
     })
     await expect(() =>
@@ -186,7 +194,9 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])({
+    let transport = fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    })({
       chain: localhost,
     })
     expect(
@@ -209,7 +219,9 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])({
+    let transport = fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    })({
       chain: localhost,
     })
     await expect(() =>
@@ -237,7 +249,9 @@ describe('request', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])({
+    let transport = fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    })({
       chain: localhost,
     })
     await expect(() =>
@@ -262,6 +276,7 @@ describe('request', () => {
 
     let transport = fallback([http(server1.url), http(server2.url)], {
       retryCount: 1,
+      rank: false,
     })({
       chain: localhost,
     })
@@ -293,6 +308,7 @@ describe('request', () => {
         http(server2.url, { retryCount: 2 }),
       ],
       {
+        rank: false,
         retryCount: 0,
       },
     )({
@@ -305,6 +321,22 @@ describe('request', () => {
     // ensure `retryCount` on transport is adhered
     expect(server1Count).toBe(4)
     expect(server2Count).toBe(3)
+  })
+
+  test('rank', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const local = http(server.url)
+    const transport = fallback([local], { rank: { interval: 500 } })({
+      chain: localhost,
+    })
+
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
   })
 })
 
@@ -429,7 +461,9 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])
+    let transport = fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    })
     const client = createClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
@@ -453,7 +487,9 @@ describe('client', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])
+    let transport = fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    })
     const client = createClient({ chain: localhost, transport })
 
     await expect(
@@ -468,5 +504,183 @@ describe('client', () => {
       Version: viem@1.0.2"
     `)
     expect(count).toBe(8)
+  })
+})
+
+describe('createTransportsRanker', () => {
+  const samples: [responseTime: number, success: boolean][][] = [
+    [
+      [100, true],
+      [50, true],
+      [300, true],
+    ],
+    [
+      [200, false],
+      [20, true],
+      [200, true],
+    ],
+    [
+      [300, false],
+      [40, true],
+      [2000, true],
+    ],
+    [
+      [100, true],
+      [50, true],
+      [100, true],
+    ],
+    [
+      [300, false],
+      [90, true],
+      [300, true],
+    ],
+    [
+      [200, true],
+      [100, true],
+      [200, true],
+    ],
+    [
+      [100, true],
+      [120, true],
+      [300, false],
+    ],
+    [
+      [300, true],
+      [40, true],
+      [100, false],
+    ],
+    [
+      [200, true],
+      [50, true],
+      [300, true],
+    ],
+    [
+      [300, true],
+      [20, true],
+      [300, false],
+    ],
+  ]
+
+  test('default', async () => {
+    let count1 = 0
+    const server1 = await createHttpServer((_req, res) => {
+      if (count3 >= samples.length) return
+      const [responseTime, success] = samples[count1][0]
+      count1++
+      setTimeout(() => {
+        res.writeHead(success ? 200 : 500, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: true }))
+      }, responseTime)
+    })
+
+    let count2 = 0
+    const server2 = await createHttpServer((_req, res) => {
+      if (count2 >= samples.length) return
+      const [responseTime, success] = samples[count2][1]
+      count2++
+      setTimeout(() => {
+        res.writeHead(success ? 200 : 500, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: true }))
+      }, responseTime)
+    })
+
+    let count3 = 0
+    const server3 = await createHttpServer((_req, res) => {
+      if (count3 >= samples.length) return
+      const [responseTime, success] = samples[count3][2]
+      count3++
+      setTimeout(() => {
+        res.writeHead(success ? 200 : 500, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: true }))
+      }, responseTime)
+    })
+
+    const transport1 = http(server1.url, { key: '1' })
+    const transport2 = http(server2.url, { key: '2' })
+    const transport3 = http(server3.url, { key: '3' })
+
+    let rankedTransports: Transport[][] = []
+
+    createTransportsRanker({
+      chain: localhost,
+      interval: 10,
+      sampleCount: 5,
+      timeout: 500,
+      transports: [transport1, transport2, transport3],
+      onTransports(transports) {
+        rankedTransports.push(transports)
+      },
+    })
+
+    await wait(3900)
+
+    const rankedKeys = rankedTransports.map((transports) =>
+      transports.map((transport) => transport({ chain: undefined }).config.key),
+    )
+    expect(rankedKeys).toMatchInlineSnapshot(`
+      [
+        [
+          "2",
+          "1",
+          "3",
+        ],
+        [
+          "2",
+          "3",
+          "1",
+        ],
+        [
+          "2",
+          "3",
+          "1",
+        ],
+        [
+          "2",
+          "3",
+          "1",
+        ],
+        [
+          "2",
+          "3",
+          "1",
+        ],
+        [
+          "2",
+          "3",
+          "1",
+        ],
+        [
+          "2",
+          "1",
+          "3",
+        ],
+        [
+          "2",
+          "1",
+          "3",
+        ],
+        [
+          "2",
+          "1",
+          "3",
+        ],
+        [
+          "2",
+          "1",
+          "3",
+        ],
+        [
+          "2",
+          "1",
+          "3",
+        ],
+      ]
+    `)
   })
 })

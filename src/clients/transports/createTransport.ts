@@ -1,6 +1,7 @@
 import type { Chain } from '../../types'
 import type { Requests } from '../../types/eip1193'
 import { buildRequest } from '../../utils'
+import { ClientConfig } from '../createClient'
 
 export type BaseRpcRequests = {
   request(...args: any): Promise<any>
@@ -34,7 +35,9 @@ export type Transport<
   chain,
 }: {
   chain?: TChain
+  pollingInterval?: ClientConfig['pollingInterval']
   retryCount?: TransportConfig['retryCount']
+  timeout?: TransportConfig['timeout']
 }) => {
   config: TransportConfig<TType>
   request: TRequests
