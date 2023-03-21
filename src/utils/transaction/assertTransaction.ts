@@ -50,6 +50,7 @@ export function assertTransactionNonEIP1559<
   if (to && !isAddress(to)) {
     throw new InvalidAddressError({ address: to })
   }
+  
   if (maxPriorityFeePerGas || maxFeePerGas)
     throw new InvalidTransactionTypeError({ type: type })
 
