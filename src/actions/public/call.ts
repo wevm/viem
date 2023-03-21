@@ -1,7 +1,7 @@
-import { Account, parseAccount } from '../../accounts'
 import type { PublicClientArg, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
+  Account,
   Address,
   BlockTag,
   Chain,
@@ -18,6 +18,7 @@ import {
   formatTransactionRequest,
   getCallError,
   numberToHex,
+  parseAccount,
   TransactionRequestFormatter,
 } from '../../utils'
 

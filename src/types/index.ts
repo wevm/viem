@@ -1,8 +1,17 @@
 export type { Address } from 'abitype'
 
 export type {
+  Account,
+  AccountSource,
+  CustomSource,
   GetAccountParameter,
+  HDAccount,
+  HDKey,
+  HDOptions,
+  JsonRpcAccount,
+  LocalAccount,
   ParseAccount,
+  PrivateKeyAccount,
 } from './account'
 
 export type {

@@ -1,15 +1,15 @@
 import type { TypedData } from 'abitype'
 
-import { Account, parseAccount } from '../../accounts'
 import type { Transport, WalletClientArg } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
 import type {
+  Account,
   Chain,
   GetAccountParameter,
   Hex,
   TypedDataDefinition,
 } from '../../types'
-import { isHex, stringify, validateTypedData } from '../../utils'
+import { isHex, parseAccount, stringify, validateTypedData } from '../../utils'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

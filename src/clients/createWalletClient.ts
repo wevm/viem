@@ -1,5 +1,5 @@
-import { Account, parseAccount } from '../accounts'
-import type { Address, Chain, ParseAccount } from '../types'
+import type { Account, Address, Chain, ParseAccount } from '../types'
+import { parseAccount } from '../utils'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
 import { WalletActions, walletActions } from './decorators'

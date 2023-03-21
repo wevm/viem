@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { parseAccount } from '../../accounts'
+import { parseAccount } from '../../utils'
 import { BaseError, RpcError, TransactionRejectedRpcError } from '../../errors'
 import { address } from '../../_test'
 import { parseEther, parseGwei } from '../unit'

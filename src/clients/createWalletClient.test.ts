@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import type { JsonRpcAccount, LocalAccount } from '../accounts'
+import type { JsonRpcAccount, LocalAccount } from '../types'
 import { localhost } from '../chains'
 import type { SignableRequests, WalletRequests } from '../types/eip1193'
 import { accounts, getLocalAccount, localWsUrl } from '../_test'

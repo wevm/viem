@@ -1,4 +1,3 @@
-import { Account, parseAccount } from '../../accounts'
 import type { Transport, WalletClientArg } from '../../clients'
 import {
   AccountNotFoundError,
@@ -7,6 +6,7 @@ import {
   ChainNotFoundError,
 } from '../../errors'
 import type {
+  Account,
   Chain,
   Formatter,
   GetChain,
@@ -22,6 +22,7 @@ import {
   Formatted,
   formatTransactionRequest,
   getTransactionError,
+  parseAccount,
   prepareRequest,
   TransactionRequestFormatter,
 } from '../../utils'

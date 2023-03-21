@@ -1,6 +1,18 @@
 import type { Address } from 'abitype'
 import type { Account, JsonRpcAccount } from '../accounts'
 
+export type {
+  Account,
+  AccountSource,
+  CustomSource,
+  HDAccount,
+  HDKey,
+  HDOptions,
+  JsonRpcAccount,
+  LocalAccount,
+  PrivateKeyAccount,
+} from '../accounts'
+
 export type GetAccountParameter<
   TAccount extends Account | undefined = undefined,
 > = TAccount extends undefined

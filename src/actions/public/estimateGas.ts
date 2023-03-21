@@ -1,8 +1,8 @@
-import { Account, parseAccount } from '../../accounts'
 import type { PublicClientArg, WalletClientArg, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import { AccountNotFoundError } from '../../errors'
 import type {
+  Account,
   BlockTag,
   Chain,
   Formatter,
@@ -18,6 +18,7 @@ import {
   formatTransactionRequest,
   getEstimateGasError,
   numberToHex,
+  parseAccount,
   prepareRequest,
   TransactionRequestFormatter,
 } from '../../utils'

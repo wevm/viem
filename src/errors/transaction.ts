@@ -1,5 +1,4 @@
-import type { Account } from '../accounts'
-import type { BlockTag, Chain, Hash } from '../types'
+import type { Account, BlockTag, Chain, Hash } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import type { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'

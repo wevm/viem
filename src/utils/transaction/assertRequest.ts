@@ -1,4 +1,3 @@
-import { parseAccount } from '../../accounts'
 import type { SendTransactionParameters } from '../../actions'
 import {
   FeeCapTooHighError,
@@ -7,6 +6,7 @@ import {
 } from '../../errors'
 import { FeeConflictError } from '../../errors/transaction'
 import type { Chain } from '../../types'
+import { parseAccount } from '../accounts'
 import { isAddress } from '../address'
 
 export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {

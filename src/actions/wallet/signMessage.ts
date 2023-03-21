@@ -1,8 +1,7 @@
-import { Account, parseAccount } from '../../accounts'
 import type { Transport, WalletClientArg } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
-import type { Chain, GetAccountParameter, Hex } from '../../types'
-import { toHex } from '../../utils'
+import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
+import { parseAccount, toHex } from '../../utils'
 
 export type SignMessageParameters<
   TAccount extends Account | undefined = undefined,

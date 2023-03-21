@@ -1,8 +1,8 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { Account } from '../../accounts'
 import type { WalletClientArg, Transport } from '../../clients'
 import type {
+  Account,
   Chain,
   ExtractConstructorArgsFromAbi,
   GetChain,

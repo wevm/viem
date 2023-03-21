@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { parseAccount } from '../accounts'
+import { parseAccount } from '../utils'
 import { polygon } from '../chains'
 import { address } from '../_test'
 import { BaseError } from './base'

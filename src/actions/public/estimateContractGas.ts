@@ -1,5 +1,4 @@
 import type { Abi } from 'abitype'
-import { parseAccount } from '../../accounts'
 
 import type { PublicClientArg, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
@@ -8,6 +7,7 @@ import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
+  parseAccount,
 } from '../../utils'
 import { estimateGas, EstimateGasParameters } from './estimateGas'
 

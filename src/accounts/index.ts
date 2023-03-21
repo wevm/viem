@@ -17,5 +17,15 @@ export type {
   PrivateKeyAccount,
 } from './types'
 
-export type { SignMessageParameters, SignMessageReturnType } from './utils'
-export { parseAccount, publicKeyToAddress, signMessage } from './utils'
+export type {
+  SignMessageParameters,
+  SignMessageReturnType,
+  SignTypedDataParameters,
+  SignTypedDataReturnType,
+} from './utils'
+export {
+  parseAccount,
+  publicKeyToAddress,
+  signMessage,
+  signTypedData,
+} from './utils'
