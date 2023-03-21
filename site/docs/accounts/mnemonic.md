@@ -48,6 +48,28 @@ const client = createWalletClient({
 
 > Note: the above is a valid mnemonic, but it is not a "real" mnemonic. Please do not use it for anything other than testing.
 
+### Generating Mnemonics
+
+You can generate a random BIP-39 mnemonic using the `generateMnemonic` function with a wordlist:
+
+```ts
+import { english, generateMnemonic } from 'viem/accounts'
+
+const mnemonic = generateMnemonic(english)
+```
+
+Available wordlists:
+
+- `czech`
+- `english`
+- `french`
+- `italian`
+- `japanese`
+- `korean`
+- `simplifiedChinese`
+- `spanish`
+- `traditionalChinese`
+
 ## Parameters
 
 ### mnemonic

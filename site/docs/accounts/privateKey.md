@@ -46,6 +46,16 @@ const client = createWalletClient({
 
 > Note: the above is a valid private key, but it is not a "real" private key. Please do not use it for anything other than testing.
 
+### Generating Private Keys
+
+You can generate a random private key using the `generatePrivateKey` function:
+
+```ts
+import { generatePrivateKey } from 'viem/accounts'
+
+const privateKey = generatePrivateKey()
+```
+
 ## Parameters
 
 ### privateKey
