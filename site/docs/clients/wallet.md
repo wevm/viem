@@ -20,7 +20,7 @@ The `createWalletClient` function sets up a Wallet Client with a given [Transpor
 
 The Wallet Client supports signing over:
 - a [JSON-RPC Account](#json-rpc-accounts) (ie. Browser Extension Wallets, WalletConnect, etc). 
-- a [Local Account](#local-accounts-experimental) (ie. local private key/mnemonic wallets).
+- a [Local Account](#local-accounts-private-key-mnemonic-etc) (ie. private key/mnemonic wallets).
 
 ## Import
 
@@ -30,7 +30,7 @@ import { createWalletClient } from 'viem'
 
 ## JSON-RPC Accounts
 
-A JSON-RPC Account **defers** signing of transactions & messages to the target Wallet over JSON-RPC. An example could be sending a transaction via a Browser Extension Wallet (e.g. MetaMask) with the `window.ethereum` Provider.
+A [JSON-RPC Account](/docs/accounts/jsonRpc) **defers** signing of transactions & messages to the target Wallet over JSON-RPC. An example could be sending a transaction via a Browser Extension Wallet (e.g. MetaMask) with the `window.ethereum` Provider.
 
 Below is an example of how you can set up a JSON-RPC Account.
 
@@ -116,9 +116,13 @@ const hash = await client.sendTransaction({
 
 A Local Account performs signing of transactions & messages with a private key **before** executing a method over JSON-RPC.
 
-Below are the steps to integrate an Local Account (Private Key) into viem.
+There are three types of Local Accounts in viem:
 
-If you wish to use a mnemonic, you can use the [`mnemonicToAccount`](/docs/accounts/mnemonic#TODO) function instead of `privateKeyToAccount`.
+- [Private Key Account](/docs/accounts/privateKey)
+- [Mnemonic Account](/docs/accounts/mnemonic)
+- [Hierarchical Deterministic (HD) Account](/docs/accounts/hd)
+
+Below are the steps to integrate a **Private Key Account**, but the same steps can be applied to **Mnemonic & HD Accounts**.
 
 #### 1: Initialize a Wallet Client
 
@@ -206,7 +210,7 @@ const hash = await client.sendTransaction({
 
 The Account to use for the Wallet Client. This will be used for Actions that require an `account` as an argument.
 
-Accepts a [JSON-RPC Account](#json-rpc-accounts) or [Local Account (Private Key, etc)](#local-accounts-experimental).
+Accepts a [JSON-RPC Account](#json-rpc-accounts) or [Local Account (Private Key, etc)](#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 import { createWalletClient, custom } from 'viem'

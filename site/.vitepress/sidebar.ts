@@ -374,7 +374,6 @@ export const sidebar: DefaultTheme.Sidebar = {
       text: 'Accounts',
       collapsed: true,
       items: [
-        { text: 'Introduction', link: '/docs/accounts/introduction' },
         { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
         { text: 'Private Key', link: '/docs/accounts/privateKey' },
         { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },

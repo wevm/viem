@@ -311,7 +311,7 @@ signer.sendTransaction({ ... })
 
 #### viem
 
-```ts {9-11}
+```ts {4,7}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -322,8 +322,6 @@ const client = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
-
-const [address] = await client.getAddresses()
 
 client.sendTransaction({ ... })
 ```
@@ -346,7 +344,7 @@ wallet.sendTransaction({ ... })
 
 #### viem
 
-```ts {6-9}
+```ts {6,9}
 import { Wallet } from 'ethers'
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -420,7 +418,7 @@ signer.signMessage(...)
 
 #### viem
 
-```ts {9-12}
+```ts {4,7}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -431,8 +429,6 @@ const client = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
-
-const [address] = await client.getAddresses()
 
 client.sendTransaction({ ... })
 client.signMessage({ ... })
