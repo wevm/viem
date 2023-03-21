@@ -1,11 +1,10 @@
 import { getPublicKey } from '@noble/secp256k1'
+
 import type { Hex } from '../types'
 import { toHex } from '../utils'
 import { publicKeyToAddress, signMessage, signTypedData } from './utils'
 import { toAccount } from './toAccount'
-import type { LocalAccount } from './types'
-
-export type PrivateKeyAccount = LocalAccount<'privateKey'>
+import type { PrivateKeyAccount } from './types'
 
 export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
   const publicKey = toHex(getPublicKey(privateKey.slice(2)))

@@ -1,13 +1,17 @@
+import { HDKey } from './index'
 import { describe, expect, test } from 'vitest'
-import { getAddress } from '../utils'
+import { getAddress, toBytes } from '../utils'
 import { accounts, typedData } from '../_test'
-import { masterSeedToAccount } from './masterSeedToAccount'
+import { hdKeyToAccount } from './hdKeyToAccount'
 
-const seed =
-  '0x9dfc3c64c2f8bede1533b6a79f8570e5943e0b8fd1cf77107adf7b72cef42185d564a3aee24cab43f80e3c4538087d70fc824eabbad596a23c97b6ee8322ccc0'
+const hdKey = HDKey.fromMasterSeed(
+  toBytes(
+    '0x9dfc3c64c2f8bede1533b6a79f8570e5943e0b8fd1cf77107adf7b72cef42185d564a3aee24cab43f80e3c4538087d70fc824eabbad596a23c97b6ee8322ccc0',
+  ),
+)
 
 test('default', () => {
-  expect(masterSeedToAccount(seed)).toMatchInlineSnapshot(`
+  expect(hdKeyToAccount(hdKey)).toMatchInlineSnapshot(`
     {
       "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "getHdKey": [Function],
@@ -25,7 +29,7 @@ test('default', () => {
 describe('args: addressIndex', () => {
   Array.from({ length: 10 }).forEach((_, index) => {
     test(`addressIndex: ${index}`, () => {
-      const account = masterSeedToAccount(seed, {
+      const account = hdKeyToAccount(hdKey, {
         addressIndex: index,
       })
       expect(account.address).toEqual(getAddress(accounts[index].address))
@@ -36,7 +40,7 @@ describe('args: addressIndex', () => {
 describe('args: path', () => {
   Array.from({ length: 10 }).forEach((_, index) => {
     test(`path: m/44'/60'/0'/0/${index}`, () => {
-      const account = masterSeedToAccount(seed, {
+      const account = hdKeyToAccount(hdKey, {
         path: `m/44'/60'/0'/0/${index}`,
       })
       expect(account.address).toEqual(getAddress(accounts[index].address))
@@ -46,30 +50,30 @@ describe('args: path', () => {
 
 test('args: accountIndex', () => {
   expect(
-    masterSeedToAccount(seed, { accountIndex: 1 }).address,
+    hdKeyToAccount(hdKey, { accountIndex: 1 }).address,
   ).toMatchInlineSnapshot('"0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650"')
   expect(
-    masterSeedToAccount(seed, { accountIndex: 2 }).address,
+    hdKeyToAccount(hdKey, { accountIndex: 2 }).address,
   ).toMatchInlineSnapshot('"0x98e503f35D0a019cB0a251aD243a4cCFCF371F46"')
   expect(
-    masterSeedToAccount(seed, { accountIndex: 3 }).address,
+    hdKeyToAccount(hdKey, { accountIndex: 3 }).address,
   ).toMatchInlineSnapshot('"0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2"')
 })
 
 test('args: changeIndex', () => {
   expect(
-    masterSeedToAccount(seed, { changeIndex: 1 }).address,
+    hdKeyToAccount(hdKey, { changeIndex: 1 }).address,
   ).toMatchInlineSnapshot('"0x4b39F7b0624b9dB86AD293686bc38B903142dbBc"')
   expect(
-    masterSeedToAccount(seed, { changeIndex: 2 }).address,
+    hdKeyToAccount(hdKey, { changeIndex: 2 }).address,
   ).toMatchInlineSnapshot('"0xe0Ff44FDb999d485DCFe6B0840f0d14EEA8a08A0"')
   expect(
-    masterSeedToAccount(seed, { changeIndex: 3 }).address,
+    hdKeyToAccount(hdKey, { changeIndex: 3 }).address,
   ).toMatchInlineSnapshot('"0x4E0eBc370cAdc5d152505EA4FEbcf839E7E2D3F8"')
 })
 
 test('sign message', async () => {
-  const account = masterSeedToAccount(seed)
+  const account = hdKeyToAccount(hdKey)
   expect(
     await account.signMessage({ message: 'hello world' }),
   ).toMatchInlineSnapshot(
@@ -78,7 +82,7 @@ test('sign message', async () => {
 })
 
 test('sign typed data', async () => {
-  const account = masterSeedToAccount(seed)
+  const account = hdKeyToAccount(hdKey)
   expect(
     await account.signTypedData({ ...typedData.basic, primaryType: 'Mail' }),
   ).toMatchInlineSnapshot(

@@ -16,10 +16,14 @@ head:
 
 A Private Key Account is an interface that has the ability to sign transactions and messages with a given private key.
 
+::: info
+viem internally uses [`@noble/secp256k1`](https://github.com/paulmillr/noble-secp256k1), an **audited** implementation of [secp256k1](https://www.secg.org/sec2-v2.pdf), for our private key & signing implementation.
+:::
+
 ## Import
 
 ```ts
-import { privateKeyToAccount } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 ```
 
 ## Usage
@@ -27,11 +31,8 @@ import { privateKeyToAccount } from 'viem'
 To initialize a Private Key Account, you will need to pass a private key to `privateKeyToAccount`:
 
 ```ts
-import { 
-  createWalletClient,
-  custom,
-  privateKeyToAccount
-} from 'viem'
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80') // [!code focus]
@@ -39,7 +40,7 @@ const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478c
 const client = createWalletClient({
   account,
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: http()
 })
 ```
 

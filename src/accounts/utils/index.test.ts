@@ -1,0 +1,14 @@
+import { expect, test } from 'vitest'
+
+import * as utils from './index'
+
+test('exports utils', () => {
+  expect(utils).toMatchInlineSnapshot(`
+    {
+      "parseAccount": [Function],
+      "publicKeyToAddress": [Function],
+      "signMessage": [Function],
+      "signTypedData": [Function],
+    }
+  `)
+})

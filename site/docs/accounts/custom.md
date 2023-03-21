@@ -19,7 +19,7 @@ A Custom Account is an interface that has the ability to sign transactions and m
 ## Import
 
 ```ts
-import { toAccount } from 'viem'
+import { toAccount } from 'viem/accounts'
 ```
 
 ## Usage

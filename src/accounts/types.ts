@@ -1,3 +1,4 @@
+import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 import type {
   Hash,
@@ -5,6 +6,8 @@ import type {
   TransactionRequest,
   TypedDataDefinition,
 } from '../types'
+
+export type Account = JsonRpcAccount | LocalAccount
 
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
@@ -24,17 +27,21 @@ export type CustomSource = {
   ) => Promise<Hash>
 }
 
-export type Account = JsonRpcAccount | LocalAccount
 export type JsonRpcAccount = {
   address: Address
   type: 'json-rpc'
 }
+
 export type LocalAccount<TSource = 'custom'> = CustomSource & {
   address: Address
   publicKey: Hex
   getPrivateKey(): Hex
   source: TSource
   type: 'local'
+}
+
+export type HDAccount = LocalAccount<'hd'> & {
+  getHdKey(): HDKey
 }
 
 export type HDOptions =
@@ -50,3 +57,5 @@ export type HDOptions =
       changeIndex?: never
       path: `m/44'/60'/${string}`
     }
+
+export type PrivateKeyAccount = LocalAccount<'privateKey'>
