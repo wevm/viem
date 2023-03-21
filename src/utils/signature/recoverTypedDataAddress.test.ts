@@ -4,9 +4,9 @@ import { getAddress } from '../address'
 
 import { recoverTypedDataAddress } from './recoverTypedDataAddress'
 
-test('default', () => {
+test('default', async () => {
   expect(
-    recoverTypedDataAddress({
+    await recoverTypedDataAddress({
       ...typedData.basic,
       primaryType: 'Mail',
       signature:
@@ -15,7 +15,7 @@ test('default', () => {
   ).toEqual(getAddress(accounts[0].address))
 
   expect(
-    recoverTypedDataAddress({
+    await recoverTypedDataAddress({
       ...typedData.complex,
       primaryType: 'Mail',
       signature:
