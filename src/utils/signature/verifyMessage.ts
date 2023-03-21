@@ -10,13 +10,13 @@ export type VerifyMessageParameters = {
 
 export type VerifyMessageReturnType = boolean
 
-export function verifyMessage({
+export async function verifyMessage({
   address,
   message,
   signature,
-}: VerifyMessageParameters): VerifyMessageReturnType {
+}: VerifyMessageParameters): Promise<VerifyMessageReturnType> {
   return isAddressEqual(
     getAddress(address),
-    recoverMessageAddress({ message, signature }),
+    await recoverMessageAddress({ message, signature }),
   )
 }

@@ -30,7 +30,7 @@ const signature = await walletClient.signMessage({
   message: 'hello world',
 })
 
-const address = recoverMessageAddress({ // [!code focus:99]
+const address = await recoverMessageAddress({ // [!code focus:99]
   message: 'hello world',
   signature,
 })
@@ -66,7 +66,7 @@ The signing address.
 The message that was signed.
 
 ```ts
-const address = recoverMessageAddress({ 
+const address = await recoverMessageAddress({ 
   message: 'hello world', // [!code focus]
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c'
 })
@@ -79,7 +79,7 @@ const address = recoverMessageAddress({
 The signature of the message.
 
 ```ts
-const address = recoverMessageAddress({ 
+const address = await recoverMessageAddress({ 
   message: 'hello world',
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c' // [!code focus]
 })

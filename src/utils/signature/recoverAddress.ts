@@ -1,4 +1,3 @@
-import { recoverPublicKey } from '@noble/secp256k1'
 import type { Address, ByteArray, Hex } from '../../types'
 import { checksumAddress } from '../address'
 import { isHex } from '../data'
@@ -11,10 +10,10 @@ export type RecoverAddressParameters = {
 }
 export type RecoverAddressReturnType = Address
 
-export function recoverAddress({
+export async function recoverAddress({
   hash,
   signature,
-}: RecoverAddressParameters): RecoverAddressReturnType {
+}: RecoverAddressParameters): Promise<RecoverAddressReturnType> {
   const signatureHex = isHex(signature) ? signature : toHex(signature)
   const hashHex = isHex(hash) ? hash : toHex(hash)
 
@@ -22,6 +21,7 @@ export function recoverAddress({
   // The recoveryId represents the y-coordinate on the secp256k1 elliptic curve and can have a value [0, 1].
   const v = hexToNumber(`0x${signatureHex.slice(130)}`)
 
+  const { recoverPublicKey } = await import('@noble/secp256k1')
   const publicKey = toHex(
     recoverPublicKey(
       hashHex.substring(2),

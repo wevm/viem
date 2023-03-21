@@ -16,7 +16,7 @@ export type VerifyTypedDataParameters<
 
 export type VerifyTypedDataReturnType = boolean
 
-export function verifyTypedData<
+export async function verifyTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
@@ -29,10 +29,10 @@ export function verifyTypedData<
 }: VerifyTypedDataParameters<
   TTypedData,
   TPrimaryType
->): VerifyTypedDataReturnType {
+>): Promise<VerifyTypedDataReturnType> {
   return isAddressEqual(
     getAddress(address),
-    recoverTypedDataAddress({
+    await recoverTypedDataAddress({
       domain,
       message,
       primaryType,

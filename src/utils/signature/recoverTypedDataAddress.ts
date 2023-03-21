@@ -11,7 +11,7 @@ export type RecoverTypedDataAddressParameters<
 }
 export type RecoverTypedDataAddressReturnType = Address
 
-export function recoverTypedDataAddress<
+export async function recoverTypedDataAddress<
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
@@ -23,7 +23,7 @@ export function recoverTypedDataAddress<
 }: RecoverTypedDataAddressParameters<
   TTypedData,
   TPrimaryType
->): RecoverTypedDataAddressReturnType {
+>): Promise<RecoverTypedDataAddressReturnType> {
   return recoverAddress({
     hash: hashTypedData({
       domain,

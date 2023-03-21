@@ -46,7 +46,7 @@ const signature = await walletClient.signTypedData({
   message,
 })
 
-const address = recoverTypedDataAddress({ // [!code focus:99]
+const address = await recoverTypedDataAddress({ // [!code focus:99]
   domain,
   types,
   primaryType: 'Mail',
@@ -105,7 +105,7 @@ The signing address.
 The typed data domain.
 
 ```ts
-const address = recoverTypedDataAddress({
+const address = await recoverTypedDataAddress({
   domain: { // [!code focus:6]
     name: 'Ether Mail',
     version: '1',
@@ -134,7 +134,7 @@ const address = recoverTypedDataAddress({
 The type definitions for the typed data.
 
 ```ts
-const address = recoverTypedDataAddress({
+const address = await recoverTypedDataAddress({
   domain,
   types: { // [!code focus:11]
     Person: [
@@ -170,7 +170,7 @@ const address = recoverTypedDataAddress({
 The primary type to extract from `types` and use in `value`.
 
 ```ts
-const address = recoverTypedDataAddress({
+const address = await recoverTypedDataAddress({
   domain,
   types: {
     Person: [
@@ -204,7 +204,7 @@ const address = recoverTypedDataAddress({
 **Type:** Inferred from `types` & `primaryType`.
 
 ```ts
-const address = recoverTypedDataAddress({
+const address = await recoverTypedDataAddress({
   domain,
   types: {
     Person: [
@@ -240,7 +240,7 @@ const address = recoverTypedDataAddress({
 The signature of the typed data.
 
 ```ts
-const address = recoverTypedDataAddress({
+const address = await recoverTypedDataAddress({
   domain,
   types: {
     Person: [
