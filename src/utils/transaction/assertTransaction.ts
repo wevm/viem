@@ -19,12 +19,8 @@ export function assertTransactionEIP1559(
   const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to } =
     transaction
 
-  if (chainId <= 0) {
-    throw new InvalidChainIdError({ chainId })
-  }
-  if (to && !isAddress(to)) {
-    throw new InvalidAddressError({ address: to })
-  }
+  if (chainId <= 0) throw new InvalidChainIdError({ chainId })
+  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
   if (gasPrice) throw new InvalidTransactionTypeError({ type: 'eip1559' })
 
   if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
