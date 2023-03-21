@@ -1,4 +1,9 @@
-import type { ExtractAbiEventNames, ExtractAbiFunctionNames } from 'abitype'
+import type {
+  Abi,
+  ExtractAbiEventNames,
+  ExtractAbiFunctionNames,
+  ResolvedConfig,
+} from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 import { wagmiContractConfig, publicClient, walletClient } from '../_test'
 import { getContract } from './getContract'
@@ -94,4 +99,210 @@ test('no public client', () => {
       [_ in EventNames]: Function
     }
   }>()
+})
+
+test('without const assertion', () => {
+  const abi = [
+    {
+      inputs: [{ name: 'owner', type: 'address' }],
+      name: 'balanceOf',
+      outputs: [{ name: '', type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ]
+  const contract = getContract({
+    ...wagmiContractConfig,
+    abi,
+    publicClient,
+    walletClient,
+  })
+
+  expectTypeOf<typeof contract>().toMatchTypeOf<{
+    estimateGas: {
+      [_: string]: Function
+    }
+    read: {
+      [_: string]: Function
+    }
+    simulate: {
+      [_: string]: Function
+    }
+    watchEvent: {
+      [_: string]: Function
+    }
+    write: {
+      [_: string]: Function
+    }
+  }>()
+})
+
+test('declared as Abi type', () => {
+  const abi: Abi = []
+  const contract = getContract({
+    ...wagmiContractConfig,
+    abi,
+    publicClient,
+    walletClient,
+  })
+
+  expectTypeOf<typeof contract>().toMatchTypeOf<{
+    estimateGas: {
+      [_: string]: Function
+    }
+    read: {
+      [_: string]: Function
+    }
+    simulate: {
+      [_: string]: Function
+    }
+    watchEvent: {
+      [_: string]: Function
+    }
+    write: {
+      [_: string]: Function
+    }
+  }>()
+})
+
+test('defined inline', () => {
+  const contract = getContract({
+    ...wagmiContractConfig,
+    abi: [
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            name: 'from',
+            type: 'address',
+          },
+          { indexed: true, name: 'to', type: 'address' },
+          {
+            indexed: true,
+            name: 'tokenId',
+            type: 'uint256',
+          },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+      {
+        inputs: [{ name: 'owner', type: 'address' }],
+        name: 'balanceOf',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'from', type: 'address' },
+          { name: 'to', type: 'address' },
+          { name: 'tokenId', type: 'uint256' },
+        ],
+        name: 'safeTransferFrom',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ],
+    publicClient,
+    walletClient,
+  })
+  type Abi_ = [
+    {
+      anonymous: false
+      inputs: [
+        {
+          indexed: true
+          name: 'from'
+          type: 'address'
+        },
+        { indexed: true; name: 'to'; type: 'address' },
+        {
+          indexed: true
+          name: 'tokenId'
+          type: 'uint256'
+        },
+      ]
+      name: 'Transfer'
+      type: 'event'
+    },
+    {
+      inputs: [{ name: 'owner'; type: 'address' }]
+      name: 'balanceOf'
+      outputs: [{ name: ''; type: 'uint256' }]
+      stateMutability: 'view'
+      type: 'function'
+    },
+    {
+      inputs: [
+        { name: 'from'; type: 'address' },
+        { name: 'to'; type: 'address' },
+        { name: 'tokenId'; type: 'uint256' },
+      ]
+      name: 'safeTransferFrom'
+      outputs: []
+      stateMutability: 'nonpayable'
+      type: 'function'
+    },
+  ]
+  type ReadFunctionNames = ExtractAbiFunctionNames<Abi_, 'pure' | 'view'>
+  type WriteFunctionNames = ExtractAbiFunctionNames<
+    Abi_,
+    'nonpayable' | 'payable'
+  >
+  type EventNames = ExtractAbiEventNames<Abi_>
+
+  expectTypeOf<typeof contract>().toMatchTypeOf<{
+    estimateGas: {
+      [_ in WriteFunctionNames]: Function
+    }
+    read: {
+      [_ in ReadFunctionNames]: Function
+    }
+    simulate: {
+      [_ in WriteFunctionNames]: Function
+    }
+    watchEvent: {
+      [_ in EventNames]: Function
+    }
+    write: {
+      [_ in WriteFunctionNames]: Function
+    }
+  }>()
+})
+
+test('overloaded function', () => {
+  const contract = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient,
+  })
+  expectTypeOf(contract.write.safeTransferFrom)
+    .parameter(0)
+    .toEqualTypeOf<
+      | readonly [
+          ResolvedConfig['AddressType'],
+          ResolvedConfig['AddressType'],
+          ResolvedConfig['BigIntType'],
+        ]
+      | readonly [
+          ResolvedConfig['AddressType'],
+          ResolvedConfig['AddressType'],
+          ResolvedConfig['BigIntType'],
+          ResolvedConfig['AddressType'],
+        ]
+    >()
+  expectTypeOf(contract.write.safeTransferFrom).toBeCallableWith([
+    '0x…',
+    '0x…',
+    123n,
+  ])
+  expectTypeOf(contract.write.safeTransferFrom).toBeCallableWith([
+    '0x…',
+    '0x…',
+    123n,
+    '0x…',
+  ])
 })

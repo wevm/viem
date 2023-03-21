@@ -23,6 +23,13 @@ export type ReadContractReturnType<
   TFunctionName extends string = string,
 > = ExtractResultFromAbi<TAbi, TFunctionName>
 
+/**
+ * Calls a read-only function on a contract, and returns the response.
+ *
+ * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
+ *
+ * Internally, `readContract` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+ */
 export async function readContract<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,

@@ -42,6 +42,13 @@ export type SimulateContractReturnType<
     ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
+/**
+ * Simulates/validates a contract interaction. This is useful for retrieving return data and revert reasons of contract write functions.
+ *
+ * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
+ *
+ * Internally, `simulateContract` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+ */
 export async function simulateContract<
   TChain extends Chain,
   TAbi extends Abi | readonly unknown[],

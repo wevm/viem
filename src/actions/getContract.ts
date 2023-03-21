@@ -15,6 +15,8 @@ import type {
   WatchContractEventReturnType,
   ReadContractParameters,
   ReadContractReturnType,
+  CreateEventFilterParameters,
+  CreateEventFilterReturnType,
 } from './public'
 
 export type GetContractParameters<
@@ -28,7 +30,7 @@ export type GetContractParameters<
   address: Address
   /** Public client */
   publicClient?: TPublicClient
-  /** Public client */
+  /** Wallet client */
   walletClient?: TWalletClient
 }
 
@@ -59,6 +61,10 @@ export type GetContractReturnType<
         : {
             /**
              * Calls a read-only function on a contract, and returns the response.
+             *
+             * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
+             *
+             * Internally, `read` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
              */
             read: {
               [FunctionName in _ReadFunctionNames]: GetReadFunction<
@@ -70,6 +76,9 @@ export type GetContractReturnType<
         (IsNever<_WriteFunctionNames> extends true
           ? unknown
           : {
+              /**
+               * Estimates the gas necessary to complete a transaction without submitting it to the network.
+               */
               estimateGas: {
                 [FunctionName in _WriteFunctionNames]: GetWriteFunction<
                   TAbi,
@@ -77,6 +86,13 @@ export type GetContractReturnType<
                   FunctionName
                 >
               }
+              /**
+               * Simulates/validates a contract interaction. This is useful for retrieving return data and revert reasons of contract write functions.
+               *
+               * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
+               *
+               * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               */
               simulate: {
                 [FunctionName in _WriteFunctionNames]: GetWriteFunction<
                   TAbi,
@@ -88,13 +104,35 @@ export type GetContractReturnType<
         (IsNever<_EventNames> extends true
           ? unknown
           : {
+              /**
+               * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+               */
+              createEventFilter: {
+                [EventName in _EventNames]: unknown // GetEventFilter<TAbi, EventName>
+              }
+              /**
+               * Watches and returns emitted contract event logs.
+               *
+               * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
+               *
+               * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
+               */
               watchEvent: {
-                [EventName in _EventNames]: GetEvent<TAbi, EventName>
+                [EventName in _EventNames]: GetWatchEvent<TAbi, EventName>
               }
             })
     : unknown) &
     (TWalletClient extends WalletClient<any, any>
       ? {
+          /**
+           * Executes a write function on a contract.
+           *
+           * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
+           *
+           * Internally, `write` uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+           *
+           * Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.
+           */
           write: {
             [FunctionName in _WriteFunctionNames]: GetWriteFunction<
               TAbi,
@@ -105,61 +143,6 @@ export type GetContractReturnType<
         }
       : unknown)
 >
-
-type GetReadFunction<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-  _Parameters = Omit<
-    ReadContractParameters<TAbi, TFunctionName>,
-    'abi' | 'address' | 'functionName'
-  >,
-  _ReturnType = ReadContractReturnType<TAbi, TFunctionName>,
-> = IsInferrableAbi<TAbi> extends true
-  ? _Parameters extends { args: readonly unknown[] }
-    ? (
-        args: _Parameters['args'],
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => Promise<_ReturnType>
-    : (params?: Prettify<Omit<_Parameters, 'args'>>) => Promise<_ReturnType>
-  : (
-      args: readonly unknown[],
-      params?: Prettify<Omit<_Parameters, 'args'>>,
-    ) => Promise<unknown>
-
-type GetWriteFunction<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TChain extends Chain = Chain,
-  TFunctionName extends string = string,
-  _Parameters = Omit<
-    WriteContractParameters<TChain, TAbi, TFunctionName>,
-    'abi' | 'address' | 'functionName'
-  >,
-  _ReturnType = WriteContractReturnType,
-> = IsInferrableAbi<TAbi> extends true
-  ? _Parameters extends { args: readonly unknown[] }
-    ? (
-        args: _Parameters['args'],
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => Promise<_ReturnType>
-    : (params?: Prettify<Omit<_Parameters, 'args'>>) => Promise<_ReturnType>
-  : (
-      args: readonly unknown[],
-      params?: Prettify<Omit<_Parameters, 'args'>>,
-    ) => Promise<unknown>
-
-type GetEvent<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string = string,
-  _Parameters = Omit<
-    WatchContractEventParameters<TAbi, TEventName>,
-    'abi' | 'address' | 'eventName'
-  >,
-> = IsInferrableAbi<TAbi> extends true
-  ? (params?: Prettify<_Parameters>) => WatchContractEventReturnType
-  : (
-      args: object | undefined,
-      params?: Prettify<Omit<_Parameters, 'args'>>,
-    ) => WatchContractEventReturnType
 
 export declare function getContract<
   TAbi extends Abi | readonly unknown[],
@@ -207,9 +190,74 @@ contract.watchEvent.Transfer({
 })
 
 // TODO
+// - createEventFilter
 // - Payable turn on/off `value`
-// - Overloads
-// - TSDoc
-// - Prettify types
-// - Fix up contract event `args`
-// - Abi not inferrable
+
+type GetReadFunction<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = string,
+  _Parameters = Omit<
+    ReadContractParameters<TAbi, TFunctionName>,
+    'abi' | 'address' | 'functionName'
+  >,
+  _ReturnType = ReadContractReturnType<TAbi, TFunctionName>,
+> = IsInferrableAbi<TAbi> extends true
+  ? _Parameters extends { args: readonly unknown[] }
+    ? (
+        args: _Parameters['args'],
+        params?: Prettify<Omit<_Parameters, 'args'>>,
+      ) => Promise<_ReturnType>
+    : (params?: Prettify<Omit<_Parameters, 'args'>>) => Promise<_ReturnType>
+  : (
+      args: readonly unknown[],
+      params?: Prettify<Omit<_Parameters, 'args'>>,
+    ) => Promise<unknown>
+
+type GetWriteFunction<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TChain extends Chain = Chain,
+  TFunctionName extends string = string,
+  _Parameters = Omit<
+    WriteContractParameters<TChain, TAbi, TFunctionName>,
+    'abi' | 'address' | 'functionName'
+  >,
+  _ReturnType = WriteContractReturnType,
+> = IsInferrableAbi<TAbi> extends true
+  ? _Parameters extends { args: readonly unknown[] }
+    ? (
+        args: _Parameters['args'],
+        params?: Prettify<Omit<_Parameters, 'args'>>,
+      ) => Promise<_ReturnType>
+    : (params?: Prettify<Omit<_Parameters, 'args'>>) => Promise<_ReturnType>
+  : (
+      args: readonly unknown[],
+      params?: Prettify<Omit<_Parameters, 'args'>>,
+    ) => Promise<unknown>
+
+// type GetEventFilter<
+//   TAbi extends Abi | readonly unknown[] = readonly unknown[],
+//   TEventName extends string = string,
+//   _Parameters = Omit<
+//     CreateEventFilterParameters<TAbi, TEventName>,
+//     'abi' | 'address' | 'eventName'
+//   >,
+// > = IsInferrableAbi<TAbi> extends true
+//   ? (params?: Prettify<_Parameters>) => CreateEventFilterReturnType
+//   : (
+//       args: object | undefined,
+//       params?: Prettify<Omit<_Parameters, 'args'>>,
+//     ) => CreateEventFilterReturnType
+
+type GetWatchEvent<
+  TAbi extends Abi | readonly unknown[] = readonly unknown[],
+  TEventName extends string = string,
+  _Parameters = Omit<
+    WatchContractEventParameters<TAbi, TEventName>,
+    'abi' | 'address' | 'eventName'
+  >,
+> = IsInferrableAbi<TAbi> extends true
+  ? (params?: Prettify<_Parameters>) => WatchContractEventReturnType
+  : (
+      args: object | undefined,
+      params?: Prettify<Omit<_Parameters, 'args'>>,
+    ) => WatchContractEventReturnType

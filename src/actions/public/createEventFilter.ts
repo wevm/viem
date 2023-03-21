@@ -60,6 +60,9 @@ export type CreateEventFilterReturnType<
     | undefined = undefined,
 > = Filter<'event', TAbi, TEventName, TArgs>
 
+/**
+ * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+ */
 export async function createEventFilter<
   TAbiEvent extends AbiEvent | undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
