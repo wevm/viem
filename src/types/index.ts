@@ -96,6 +96,7 @@ export type {
 
 export type {
   IsNever,
+  IsUndefined,
   PartialBy,
   Prettify,
   MergeIntersectionProperties,

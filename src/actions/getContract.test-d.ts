@@ -1,13 +1,36 @@
 import type {
   Abi,
+  Address,
   ExtractAbiEventNames,
   ExtractAbiFunctionNames,
   ResolvedConfig,
 } from 'abitype'
 import { wagmiMintExampleAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
-import { wagmiContractConfig, publicClient, walletClient } from '../_test'
+
+import {
+  wagmiContractConfig,
+  publicClient,
+  localHttpUrl,
+  anvilChain,
+} from '../_test'
+import { createWalletClient, http } from '../clients'
 import { getContract } from './getContract'
+import type { Account } from '../types'
+
+const walletClient = createWalletClient({
+  account: '0x',
+  chain: anvilChain,
+  transport: http(localHttpUrl),
+})
+const walletClientWithoutAccount = createWalletClient({
+  chain: anvilChain,
+  transport: http(localHttpUrl),
+})
+const walletClientWithoutChain = createWalletClient({
+  account: '0x',
+  transport: http(localHttpUrl),
+})
 
 const abi = wagmiMintExampleAbi
 const contract = getContract({
@@ -23,7 +46,7 @@ const contract = getContract({
   // ],
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   publicClient,
-  walletClient,
+  walletClient: walletClient,
 })
 
 contract.write.mint()
@@ -178,7 +201,7 @@ test('declared as Abi type', () => {
     ...wagmiContractConfig,
     abi,
     publicClient,
-    walletClient,
+    walletClient: walletClient,
   })
 
   expectTypeOf<typeof contract>().toMatchTypeOf<{
@@ -340,4 +363,74 @@ test('overloaded function', () => {
     123n,
     '0x…',
   ])
+})
+
+test('with and without wallet client `account`', () => {
+  const contractWithAccount = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient,
+  })
+  const contractWithoutAccount = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient: walletClientWithoutAccount,
+  })
+
+  expectTypeOf(contractWithAccount.write.mint).parameters.toEqualTypeOf<
+    [params?: { account?: Account | Address }]
+  >()
+  expectTypeOf(contractWithoutAccount.write.mint).parameters.toEqualTypeOf<
+    [params: { account: Account | Address }]
+  >()
+
+  expectTypeOf(contractWithAccount.write.approve).parameters.toEqualTypeOf<
+    [
+      args: readonly [`0x${string}`, bigint],
+      params?: { account?: Account | Address },
+    ]
+  >()
+  expectTypeOf(contractWithoutAccount.write.approve).parameters.toEqualTypeOf<
+    [
+      args: readonly [`0x${string}`, bigint],
+      params: { account: Account | Address },
+    ]
+  >()
+})
+
+test('with and without wallet client `chain`', () => {
+  const contractWithChain = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient,
+  })
+  const contractWithoutChain = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient: walletClientWithoutChain,
+  })
+
+  contractWithChain.write.mint({
+    chain: '0x…',
+  })
+
+  // expectTypeOf(contractWithChain.write.mint).parameters.toEqualTypeOf<
+  //   [params?: { account?: Account | Address }]
+  // >()
+  // expectTypeOf(contractWithoutChain.write.mint).parameters.toEqualTypeOf<
+  //   [params: { chain: any }]
+  // >()
+
+  // expectTypeOf(contractWithChain.write.approve).parameters.toEqualTypeOf<
+  //   [
+  //     args: readonly [`0x${string}`, bigint],
+  //     params?: { account?: Account | Address },
+  //   ]
+  // >()
+  // expectTypeOf(contractWithoutChain.write.approve).parameters.toEqualTypeOf<
+  //   [
+  //     args: readonly [`0x${string}`, bigint],
+  //     params: { account: Account | Address },
+  //   ]
+  // >()
 })

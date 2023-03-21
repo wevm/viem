@@ -1,4 +1,4 @@
-import type { Chain } from '../types'
+import type { Chain, IsUndefined } from '../types'
 import type { Requests } from '../types/eip1193'
 import { uid } from '../utils/uid'
 import type { BaseRpcRequests, Transport } from './transports/createTransport'
@@ -39,6 +39,32 @@ export type ClientConfig<
   transport: TTransport
 }
 
+export type CreateClientReturnType<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain,
+  TRequests extends BaseRpcRequests = Requests,
+> = {
+  /** A key for the client. */
+  key: string
+  /** A name for the client. */
+  name: string
+  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  pollingInterval: number
+  /** Request function wrapped with friendly error handling */
+  request: TRequests['request']
+  /** The RPC transport (http, webSocket, custom, etc) */
+  transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
+  /** The type of client. */
+  type: string
+  /** A unique ID for the client. */
+  uid: string
+} & (IsUndefined<TChain> extends true
+  ? unknown
+  : {
+      /** Chain for the client. */
+      chain: TChain
+    })
+
 /**
  * @description Creates a base client with the given transport.
  */
@@ -53,7 +79,7 @@ export function createClient<
   pollingInterval = 4_000,
   transport,
   type = 'base',
-}: ClientConfig<TTransport, TChain, TRequests>): Client<
+}: ClientConfig<TTransport, TChain, TRequests>): CreateClientReturnType<
   TTransport,
   TChain,
   TRequests
@@ -68,5 +94,5 @@ export function createClient<
     transport: { ...config, ...value },
     type,
     uid: uid(),
-  }
+  } as CreateClientReturnType<TTransport, TChain, TRequests>
 }

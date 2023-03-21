@@ -8,6 +8,15 @@
 export type IsNever<T> = [T] extends [never] ? true : false
 
 /**
+ * @description Checks if {@link T} is `undefined`
+ * @param T - Type to check
+ * @example
+ * type Result = IsUndefined<undefined>
+ * //   ^? true
+ */
+export type IsUndefined<T> = [undefined] extends [T] ? true : false
+
+/**
  * @description Excludes empty attributes from T if TMaybeExclude is true.
  *
  * @example

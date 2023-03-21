@@ -5,8 +5,15 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { PublicClient, WalletClient } from '../clients'
-import type { Chain, IsInferrableAbi, IsNever, Prettify } from '../types'
+import type { PublicClientArg, WalletClientArg } from '../clients'
+import type {
+  Account,
+  Chain,
+  IsInferrableAbi,
+  IsNever,
+  IsUndefined,
+  Prettify,
+} from '../types'
 import type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
@@ -17,8 +24,8 @@ import type { WriteContractParameters, WriteContractReturnType } from './wallet'
 
 export type GetContractParameters<
   TAbi extends Abi | readonly unknown[],
-  TPublicClient extends PublicClient<any, any> | unknown = unknown,
-  TWalletClient extends WalletClient<any, any> | unknown = unknown,
+  TPublicClient extends PublicClientArg | unknown = unknown,
+  TWalletClient extends WalletClientArg | unknown = unknown,
 > = {
   /** Contract ABI */
   abi: Narrow<TAbi>
@@ -32,9 +39,8 @@ export type GetContractParameters<
 
 export type GetContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TChain extends Chain = Chain,
-  TPublicClient extends PublicClient<any, any> | unknown = unknown,
-  TWalletClient extends WalletClient<any, any> | unknown = unknown,
+  TPublicClient extends PublicClientArg | unknown = unknown,
+  TWalletClient extends WalletClientArg | unknown = unknown,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
@@ -50,8 +56,14 @@ export type GetContractReturnType<
       ? string
       : ExtractAbiFunctionNames<TAbi, 'nonpayable' | 'payable'>
     : string,
+  _Account extends Account | undefined = TWalletClient extends WalletClientArg
+    ? TWalletClient['account']
+    : undefined,
+  _Chain extends Chain | undefined = TWalletClient extends WalletClientArg
+    ? TWalletClient['chain']
+    : undefined,
 > = Prettify<
-  (TPublicClient extends PublicClient<any, any>
+  (TPublicClient extends PublicClientArg
     ? (IsNever<_ReadFunctionNames> extends true
         ? unknown
         : {
@@ -77,9 +89,10 @@ export type GetContractReturnType<
                */
               estimateGas: {
                 [FunctionName in _WriteFunctionNames]: GetWriteFunction<
+                  _Chain,
                   TAbi,
-                  TChain,
-                  FunctionName
+                  FunctionName,
+                  _Account
                 >
               }
               /**
@@ -91,9 +104,10 @@ export type GetContractReturnType<
                */
               simulate: {
                 [FunctionName in _WriteFunctionNames]: GetWriteFunction<
+                  _Chain,
                   TAbi,
-                  TChain,
-                  FunctionName
+                  FunctionName,
+                  _Account
                 >
               }
             }) &
@@ -118,7 +132,7 @@ export type GetContractReturnType<
               }
             })
     : unknown) &
-    (TWalletClient extends WalletClient<any, any>
+    (TWalletClient extends WalletClientArg
       ? {
           /**
            * Executes a write function on a contract.
@@ -131,9 +145,10 @@ export type GetContractReturnType<
            */
           write: {
             [FunctionName in _WriteFunctionNames]: GetWriteFunction<
+              _Chain,
               TAbi,
-              TChain,
-              FunctionName
+              FunctionName,
+              _Account
             >
           }
         }
@@ -142,9 +157,8 @@ export type GetContractReturnType<
 
 export declare function getContract<
   TAbi extends Abi | readonly unknown[],
-  TChain extends Chain,
-  TPublicClient extends PublicClient<any, any> | unknown,
-  TWalletClient extends WalletClient<any, any> | unknown,
+  TPublicClient extends PublicClientArg | unknown,
+  TWalletClient extends WalletClientArg | unknown,
 >({
   abi,
   address,
@@ -154,12 +168,12 @@ export declare function getContract<
   TAbi,
   TPublicClient,
   TWalletClient
->): GetContractReturnType<TAbi, TChain, TPublicClient, TWalletClient>
+>): GetContractReturnType<TAbi, TPublicClient, TWalletClient>
 
 // TODO
+// - `account` and `chain`
 // - createEventFilter
-// - Payable turn on/off `value`
-// - `account`
+// - turn on/off `value`
 
 type GetReadFunction<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -182,25 +196,32 @@ type GetReadFunction<
     ) => Promise<unknown>
 
 type GetWriteFunction<
+  TChain extends Chain | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TChain extends Chain = Chain,
   TFunctionName extends string = string,
+  TAccount extends Account | undefined = undefined,
+  TChainOverride extends Chain | undefined = TChain,
   _Parameters = Omit<
-    WriteContractParameters<TChain, TAbi, TFunctionName>,
+    WriteContractParameters<
+      TChain,
+      TAbi,
+      TFunctionName,
+      TAccount,
+      TChainOverride
+    >,
     'abi' | 'address' | 'functionName'
   >,
   _ReturnType = WriteContractReturnType,
+  _Params extends unknown[] = [IsUndefined<TAccount>, IsNever<TChain>] extends
+    | [true, false]
+    | [false, true]
+    ? [params: Prettify<Omit<_Parameters, 'args'>>]
+    : [params?: Prettify<Omit<_Parameters, 'args'>>],
 > = IsInferrableAbi<TAbi> extends true
   ? _Parameters extends { args: readonly unknown[] }
-    ? (
-        args: _Parameters['args'],
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => Promise<_ReturnType>
-    : (params?: Prettify<Omit<_Parameters, 'args'>>) => Promise<_ReturnType>
-  : (
-      args: readonly unknown[],
-      params?: Prettify<Omit<_Parameters, 'args'>>,
-    ) => Promise<unknown>
+    ? (args: _Parameters['args'], ...rest: _Params) => Promise<_ReturnType>
+    : (...rest: _Params) => Promise<_ReturnType>
+  : (args: readonly unknown[], ...rest: _Params) => Promise<unknown>
 
 // type GetEventFilter<
 //   TAbi extends Abi | readonly unknown[] = readonly unknown[],
