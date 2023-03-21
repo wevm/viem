@@ -139,7 +139,7 @@ A type for wallet (JSON-RPC Account) permissions.
 
 ## `TransactionType`
 
-All types of transactions. `eip1559 | eip2930 | legacy`
+All types of transactions. `"eip1559" | "eip2930" | "legacy"`
 
 ## `TransactionRequest`
 
