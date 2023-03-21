@@ -182,6 +182,8 @@ export { stringify } from './stringify'
 
 export { assertRequest, prepareRequest } from './transaction'
 
+export { validateTypedData } from './typedData'
+
 export {
   formatEther,
   formatGwei,

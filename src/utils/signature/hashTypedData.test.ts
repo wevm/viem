@@ -27,6 +27,27 @@ test('complex', () => {
   )
 })
 
+test('no domain', () => {
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: undefined,
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    '"0x14ed1dbbfecbe5de3919f7ea47daafdf3a29dfbb60dd88d85509f79773d503a5"',
+  )
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: {},
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    '"0x14ed1dbbfecbe5de3919f7ea47daafdf3a29dfbb60dd88d85509f79773d503a5"',
+  )
+})
+
 test('minimal valid typed message', function () {
   const hash = hashTypedData({
     types: {

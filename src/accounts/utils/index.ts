@@ -7,3 +7,9 @@ export type {
   SignMessageReturnType,
 } from './signMessage'
 export { signMessage } from './signMessage'
+
+export type {
+  SignTypedDataParameters,
+  SignTypedDataReturnType,
+} from './signTypedData'
+export { signTypedData } from './signTypedData'

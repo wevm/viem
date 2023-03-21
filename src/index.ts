@@ -295,5 +295,6 @@ export {
   toRlp,
   transactionType,
   trim,
+  validateTypedData,
   verifyMessage,
 } from './utils'

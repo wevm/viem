@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { accounts } from '../_test'
+import { accounts, typedData } from '../_test'
 import { privateKeyToAccount } from './privateKeyToAccount'
 
 test('default', () => {
@@ -22,6 +22,15 @@ test('sign message', async () => {
   expect(
     await account.signMessage({ message: 'hello world' }),
   ).toMatchInlineSnapshot(
-    '"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b"',
+    '"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"',
+  )
+})
+
+test('sign typed data', async () => {
+  const account = privateKeyToAccount(accounts[0].privateKey)
+  expect(
+    await account.signTypedData({ ...typedData.basic, primaryType: 'Mail' }),
+  ).toMatchInlineSnapshot(
+    '"0x32f3d5975ba38d6c2fba9b95d5cbed1febaa68003d3d588d51f2de522ad54117760cfc249470a75232552e43991f53953a3d74edf6944553c6bef2469bb9e5921b"',
   )
 })
