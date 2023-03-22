@@ -1,11 +1,11 @@
 import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'
 
-import { createClient } from './createClient'
+import { createPublicClient } from './createPublicClient'
 import { http } from './transports'
 
 test('with chain', () => {
-  const client = createClient({
+  const client = createPublicClient({
     chain: localhost,
     transport: http(),
   })
@@ -13,7 +13,7 @@ test('with chain', () => {
 })
 
 test('without chain', () => {
-  const client = createClient({
+  const client = createPublicClient({
     transport: http(),
   })
   expectTypeOf(client).not.toHaveProperty('chain')

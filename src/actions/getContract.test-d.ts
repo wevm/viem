@@ -84,7 +84,7 @@ test('basic', () => {
     walletClient,
   })
 
-  expectTypeOf<typeof contract>().toMatchTypeOf<{
+  expectTypeOf(contract).toMatchTypeOf<{
     estimateGas: {
       [_ in WriteFunctionNames]: Function
     }
@@ -110,7 +110,7 @@ test('no wallet client', () => {
     publicClient,
   })
 
-  expectTypeOf<typeof contract>().toMatchTypeOf<{
+  expectTypeOf(contract).toMatchTypeOf<{
     estimateGas: {
       [_ in WriteFunctionNames]: Function
     }
@@ -124,7 +124,7 @@ test('no wallet client', () => {
       [_ in EventNames]: Function
     }
   }>()
-  expectTypeOf<typeof contract>().not.toMatchTypeOf<{
+  expectTypeOf(contract).not.toMatchTypeOf<{
     write: {
       [_ in WriteFunctionNames]: Function
     }
@@ -138,12 +138,12 @@ test('no public client', () => {
     walletClient,
   })
 
-  expectTypeOf<typeof contract>().toMatchTypeOf<{
+  expectTypeOf(contract).toMatchTypeOf<{
     write: {
       [_ in WriteFunctionNames]: Function
     }
   }>()
-  expectTypeOf<typeof contract>().not.toMatchTypeOf<{
+  expectTypeOf(contract).not.toMatchTypeOf<{
     estimateGas: {
       [_ in WriteFunctionNames]: Function
     }
@@ -176,7 +176,7 @@ test('without const assertion', () => {
     walletClient,
   })
 
-  expectTypeOf<typeof contract>().toMatchTypeOf<{
+  expectTypeOf(contract).toMatchTypeOf<{
     estimateGas: {
       [_: string]: Function
     }
@@ -204,7 +204,7 @@ test('declared as Abi type', () => {
     walletClient: walletClient,
   })
 
-  expectTypeOf<typeof contract>().toMatchTypeOf<{
+  expectTypeOf(contract).toMatchTypeOf<{
     estimateGas: {
       [_: string]: Function
     }
@@ -312,7 +312,7 @@ test('defined inline', () => {
   >
   type EventNames = ExtractAbiEventNames<Abi_>
 
-  expectTypeOf<typeof contract>().toMatchTypeOf<{
+  expectTypeOf(contract).toMatchTypeOf<{
     estimateGas: {
       [_ in WriteFunctionNames]: Function
     }
@@ -411,6 +411,9 @@ test('with and without wallet client `chain`', () => {
   })
 
   contractWithChain.write.mint({
+    chain: '0x…',
+  })
+  contractWithoutChain.write.mint({
     chain: '0x…',
   })
 

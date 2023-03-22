@@ -22,6 +22,11 @@ import type {
 } from './public'
 import type { WriteContractParameters, WriteContractReturnType } from './wallet'
 
+// TODO
+// - `account` and `chain`
+// - createEventFilter
+// - turn on/off `value`
+
 export type GetContractParameters<
   TAbi extends Abi | readonly unknown[],
   TPublicClient extends PublicClientArg | unknown = unknown,
@@ -169,11 +174,6 @@ export declare function getContract<
   TPublicClient,
   TWalletClient
 >): GetContractReturnType<TAbi, TPublicClient, TWalletClient>
-
-// TODO
-// - `account` and `chain`
-// - createEventFilter
-// - turn on/off `value`
 
 type GetReadFunction<
   TAbi extends Abi | readonly unknown[] = Abi,

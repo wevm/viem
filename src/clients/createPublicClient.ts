@@ -1,17 +1,13 @@
 import type { PublicRequests } from '../types/eip1193'
 import type { Transport } from './transports/createTransport'
-import type { Client, ClientConfig } from './createClient'
+import type {
+  Client,
+  ClientConfig,
+  CreateClientReturnType,
+} from './createClient'
 import { createClient } from './createClient'
 import { publicActions, PublicActions } from './decorators'
 import type { Chain } from '../types'
-
-export type PublicClientConfig<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
-> = Pick<
-  ClientConfig<TTransport, TChain>,
-  'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
->
 
 export type PublicClient<
   TTransport extends Transport = Transport,
@@ -26,6 +22,21 @@ export type PublicClientArg<
   TIncludeActions extends boolean = boolean,
 > = PublicClient<TTransport, TChain, TIncludeActions>
 
+export type PublicClientConfig<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain,
+> = Pick<
+  ClientConfig<TTransport, TChain>,
+  'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+>
+
+export type CreatePublicClientReturnType<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain,
+  TIncludeActions extends boolean = true,
+> = CreateClientReturnType<TTransport, TChain, PublicRequests> &
+  (TIncludeActions extends true ? PublicActions<TChain> : {})
+
 /**
  * @description Creates a public client with a given transport.
  */
@@ -38,7 +49,7 @@ export function createPublicClient<
   name = 'Public Client',
   transport,
   pollingInterval,
-}: PublicClientConfig<TTransport, TChain>): PublicClient<
+}: PublicClientConfig<TTransport, TChain>): CreatePublicClientReturnType<
   TTransport,
   TChain,
   true
@@ -53,6 +64,6 @@ export function createPublicClient<
   })
   return {
     ...client,
-    ...publicActions(client as PublicClient),
+    ...publicActions(client as unknown as PublicClient),
   }
 }
