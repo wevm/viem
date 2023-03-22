@@ -22,10 +22,22 @@ export { createClient } from './createClient'
 export type { Client, ClientConfig } from './createClient'
 
 export { createPublicClient } from './createPublicClient'
-export type { PublicClient, PublicClientConfig } from './createPublicClient'
+export type {
+  PublicClient,
+  PublicClientArg,
+  PublicClientConfig,
+} from './createPublicClient'
 
 export { createTestClient } from './createTestClient'
-export type { TestClient, TestClientConfig } from './createTestClient'
+export type {
+  TestClient,
+  TestClientArg,
+  TestClientConfig,
+} from './createTestClient'
 
 export { createWalletClient } from './createWalletClient'
-export type { WalletClient, WalletClientConfig } from './createWalletClient'
+export type {
+  WalletClient,
+  WalletClientArg,
+  WalletClientConfig,
+} from './createWalletClient'

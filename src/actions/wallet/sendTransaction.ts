@@ -1,12 +1,14 @@
-import type { WalletClient } from '../../clients'
+import type { Transport, WalletClientArg } from '../../clients'
 import {
   AccountNotFoundError,
   BaseError,
   ChainMismatchError,
+  ChainNotFoundError,
 } from '../../errors'
 import type {
   Chain,
   Formatter,
+  GetChain,
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,
@@ -33,35 +35,27 @@ export type FormattedTransactionRequest<
 >
 
 export type SendTransactionParameters<
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
-> = FormattedTransactionRequest<TransactionRequestFormatter<TChain>> &
+  TChainOverride extends Chain | undefined = TChain,
+> = FormattedTransactionRequest<TransactionRequestFormatter<TChainOverride>> &
   GetAccountParameter<TAccount> &
-  (
-    | {
-        assertChain?: false
-        chain?: TChain
-      }
-    | {
-        assertChain: true
-        chain: TChain
-      }
-  )
+  GetChain<TChain, TChainOverride>
 
 export type SendTransactionReturnType = Hash
 
 export async function sendTransaction<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TAccount extends Account | undefined,
+  TChainOverride extends Chain | undefined = TChain,
 >(
-  client: WalletClient<any, any, TAccount>,
-  args: SendTransactionParameters<TChain, TAccount>,
+  client: WalletClientArg<Transport, TChain, TAccount>,
+  args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {
     account: account_ = client.account,
     chain = client.chain,
     accessList,
-    assertChain = true,
     data,
     gas,
     gasPrice,
@@ -82,13 +76,13 @@ export async function sendTransaction<
   try {
     assertRequest(args)
 
-    const currentChainId = await getChainId(client)
-    if (assertChain && chain && currentChainId !== chain?.id)
-      throw new ChainMismatchError({ chain, currentChainId })
+    const chainId = await getChainId(client)
+    if (chain !== null && chainId !== chain?.id) {
+      if (!chain) throw new ChainNotFoundError()
+      throw new ChainMismatchError({ chain, currentChainId: chainId })
+    }
 
     if (account.type === 'local') {
-      const chainId = chain?.id ?? currentChainId
-
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await prepareRequest(client, {
         account,
@@ -140,6 +134,10 @@ export async function sendTransaction<
       params: [request],
     })
   } catch (err) {
-    throw getTransactionError(err as BaseError, { ...args, account })
+    throw getTransactionError(err as BaseError, {
+      ...args,
+      account,
+      chain: args.chain || undefined,
+    })
   }
 }

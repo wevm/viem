@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest'
 import { accounts, walletClient } from '../../_test'
 import { signMessage } from '../../actions'
-import { getAccount } from '../../utils'
 
 import { verifyMessage } from './verifyMessage'
 
@@ -11,7 +10,7 @@ test('default', async () => {
     message: 'hello world',
   })
   expect(
-    verifyMessage({
+    await verifyMessage({
       address: accounts[0].address,
       message: 'hello world',
       signature,
@@ -23,7 +22,7 @@ test('default', async () => {
     message: 'wagmi 🥵',
   })
   expect(
-    verifyMessage({
+    await verifyMessage({
       address: accounts[0].address,
       message: 'wagmi 🥵',
       signature,

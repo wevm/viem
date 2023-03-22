@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Address } from '../../types'
 
 export type SetCoinbaseParameters = {
@@ -7,7 +7,7 @@ export type SetCoinbaseParameters = {
 }
 
 export async function setCoinbase(
-  client: TestClient,
+  client: TestClientArg,
   { address }: SetCoinbaseParameters,
 ) {
   return await client.request({

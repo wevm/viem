@@ -149,33 +149,12 @@ const data = await publicClient.sendTransaction({
 })
 ```
 
-### assertChain (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Throws an error if `chain` does not match the current wallet chain.
-
-Defaults to `true`, but you can turn this off if your dapp is primarily multi-chain.
-
-```ts
-import { optimism } from 'viem/chains' // [!code focus]
-
-const hash = await walletClient.sendTransaction({
-  assertChain: false, // [!code focus]
-  chain: optimism, // [!code focus]
-  account,
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1000000000000000000n
-})
-```
-
 ### chain (optional)
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
 - **Default:** `walletClient.chain`
 
-The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown if `assertChain` is truthy.
+The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
 The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
 

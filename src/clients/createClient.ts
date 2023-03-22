@@ -5,7 +5,7 @@ import type { BaseRpcRequests, Transport } from './transports/createTransport'
 
 export type Client<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TRequests extends BaseRpcRequests = Requests,
 > = {
   /** Chain for the client. */
@@ -28,7 +28,7 @@ export type Client<
 
 export type ClientConfig<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
+  TChain extends Chain | undefined = Chain,
   TRequests extends BaseRpcRequests = Requests,
 > = Partial<
   Pick<
@@ -44,7 +44,7 @@ export type ClientConfig<
  */
 export function createClient<
   TTransport extends Transport,
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TRequests extends BaseRpcRequests,
 >({
   chain,

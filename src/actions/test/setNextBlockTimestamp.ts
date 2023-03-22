@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type SetNextBlockTimestampParameters = {
@@ -7,7 +7,7 @@ export type SetNextBlockTimestampParameters = {
 }
 
 export async function setNextBlockTimestamp(
-  client: TestClient,
+  client: TestClientArg,
   { timestamp }: SetNextBlockTimestampParameters,
 ) {
   return await client.request({

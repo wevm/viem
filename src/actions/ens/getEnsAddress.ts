@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg } from '../../clients'
 import type { Address, Prettify } from '../../types'
 import {
   decodeFunctionResult,
@@ -35,7 +35,7 @@ export type GetEnsAddressReturnType = Address
  * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
 export async function getEnsAddress(
-  client: PublicClient,
+  client: PublicClientArg,
   {
     blockNumber,
     blockTag,

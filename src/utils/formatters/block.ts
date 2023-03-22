@@ -2,11 +2,10 @@ import type { Chain, Block, Formatter, Formatters, RpcBlock } from '../../types'
 import { defineFormatter, ExtractFormatter, Formatted } from './format'
 import { formatTransaction } from './transaction'
 
-export type BlockFormatter<TChain extends Chain = Chain> = ExtractFormatter<
-  TChain,
-  'block',
-  NonNullable<Formatters['block']>
->
+export type BlockFormatter<TChain extends Chain | undefined = Chain> =
+  TChain extends Chain
+    ? ExtractFormatter<TChain, 'block', NonNullable<Formatters['block']>>
+    : Formatters['block']
 
 export type FormattedBlock<
   TFormatter extends Formatter | undefined = Formatter,

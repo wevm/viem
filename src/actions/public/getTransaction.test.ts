@@ -7,7 +7,7 @@ import {
   testClient,
   walletClient,
 } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import type { Address, Transaction } from '../../types'
 import { createPublicClient, http } from '../../clients'
 import { celo } from '../../chains'

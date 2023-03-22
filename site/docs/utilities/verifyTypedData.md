@@ -21,7 +21,7 @@ Verify that typed data was signed by the provided address.
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount, verifyTypedData } from 'viem'
+import { verifyTypedData } from 'viem'
 import { account, walletClient } from './client'
 
 const message = {
@@ -44,7 +44,7 @@ const signature = await walletClient.signTypedData({
   message,
 })
 
-const valid = verifyTypedData({ // [!code focus:99]
+const valid = await verifyTypedData({ // [!code focus:99]
   address: account.address,
   domain,
   types,
@@ -79,9 +79,9 @@ export const types = {
 ```
 
 ```ts [client.ts]
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
 
-export const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 export const walletClient = createWalletClient({
   transport: custom(window.ethereum)
@@ -105,7 +105,7 @@ Whether the provided `address` generated the `signature`.
 The Ethereum address that signed the original message.
 
 ```ts
-const valid = verifyTypedData({
+const valid = await verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus:1]
   domain: { 
     name: 'Ether Mail',
@@ -137,7 +137,7 @@ const valid = verifyTypedData({
 The typed data domain.
 
 ```ts
-const valid = verifyTypedData({
+const valid = await verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain: { // [!code focus:6]
     name: 'Ether Mail',
@@ -167,7 +167,7 @@ const valid = verifyTypedData({
 The type definitions for the typed data.
 
 ```ts
-const valid = verifyTypedData({
+const valid = await verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: { // [!code focus:11]
@@ -204,7 +204,7 @@ const valid = verifyTypedData({
 The primary type to extract from `types` and use in `value`.
 
 ```ts
-const valid = verifyTypedData({
+const valid = await verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: {
@@ -239,7 +239,7 @@ const valid = verifyTypedData({
 **Type:** Inferred from `types` & `primaryType`.
 
 ```ts
-const valid = verifyTypedData({
+const valid = await verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: {
@@ -276,7 +276,7 @@ const valid = verifyTypedData({
 The signature of the typed data.
 
 ```ts
-const valid = verifyTypedData({
+const valid = await verifyTypedData({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   domain,
   types: {

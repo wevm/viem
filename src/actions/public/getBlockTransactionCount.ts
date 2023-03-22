@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClientArg, Transport } from '../../clients'
 import type { BlockTag, Chain, Hash, Quantity } from '../../types'
 import { hexToNumber, numberToHex } from '../../utils'
 
@@ -24,8 +24,10 @@ export type GetBlockTransactionCountParameters =
 
 export type GetBlockTransactionCountReturnType = number
 
-export async function getBlockTransactionCount<TChain extends Chain>(
-  client: PublicClient<any, TChain>,
+export async function getBlockTransactionCount<
+  TChain extends Chain | undefined,
+>(
+  client: PublicClientArg<Transport, TChain>,
   {
     blockHash,
     blockNumber,

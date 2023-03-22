@@ -19,6 +19,7 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 const walletClient = createWalletClient({
+  chain: goerli,
   transport: custom(window.ethereum!),
 })
 

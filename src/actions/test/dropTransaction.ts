@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { Hash } from '../../types'
 
 export type DropTransactionParameters = {
@@ -7,7 +7,7 @@ export type DropTransactionParameters = {
 }
 
 export async function dropTransaction(
-  client: TestClient,
+  client: TestClientArg,
   { hash }: DropTransactionParameters,
 ) {
   return await client.request({

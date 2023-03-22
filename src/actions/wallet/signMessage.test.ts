@@ -6,7 +6,6 @@ import {
   getLocalAccount,
   walletClient,
 } from '../../_test'
-import { getAccount } from '../../utils'
 import { signMessage } from './signMessage'
 
 test('default', async () => {

@@ -5,7 +5,7 @@ import { verifyTypedData } from './verifyTypedData'
 
 test('default', async () => {
   expect(
-    verifyTypedData({
+    await verifyTypedData({
       ...typedData.basic,
       address: accounts[0].address,
       primaryType: 'Mail',
@@ -15,7 +15,7 @@ test('default', async () => {
   ).toBeTruthy()
 
   expect(
-    verifyTypedData({
+    await verifyTypedData({
       ...typedData.complex,
       address: accounts[0].address,
       primaryType: 'Mail',

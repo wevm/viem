@@ -16,7 +16,7 @@ export type {
   Uncle,
 } from './block'
 
-export type { Chain, ChainContract } from './chain'
+export type { Chain, ChainContract, GetChain } from './chain'
 
 export type {
   AbiItem,

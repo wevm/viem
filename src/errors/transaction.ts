@@ -1,4 +1,4 @@
-import type { Account, BlockTag, Hash, TransactionType } from '../types'
+import type { Account, BlockTag, Hash, TransactionType, Chain } from '../types'
 import { formatEther, formatGwei } from '../utils'
 import type { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'
@@ -49,8 +49,9 @@ export class TransactionExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: Omit<SendTransactionParameters, 'account'> & {
+    }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
       account: Account
+      chain?: Chain
       docsPath?: string
     },
   ) {

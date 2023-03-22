@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { avalanche } from '../../chains'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import { accounts, walletClient } from '../../_test'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis'
 import { walletClientWithAccount } from '../../_test/utils'

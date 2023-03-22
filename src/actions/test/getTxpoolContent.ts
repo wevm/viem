@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { TestClient } from '../../clients'
+import type { TestClientArg } from '../../clients'
 import type { RpcTransaction } from '../../types'
 
 export type GetTxpoolContentReturnType = {
@@ -8,7 +8,7 @@ export type GetTxpoolContentReturnType = {
 }
 
 export async function getTxpoolContent(
-  client: TestClient,
+  client: TestClientArg,
 ): Promise<GetTxpoolContentReturnType> {
   return await client.request({
     method: 'txpool_content',
