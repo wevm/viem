@@ -1,5 +1,5 @@
-import type { TestClientArg } from '../../clients'
-import type { Address, Hex } from '../../types'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { Address, Chain, Hex } from '../../types'
 
 export type SetCodeParameters = {
   /** The account address. */
@@ -8,8 +8,8 @@ export type SetCodeParameters = {
   bytecode: Hex
 }
 
-export async function setCode(
-  client: TestClientArg,
+export async function setCode<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { address, bytecode }: SetCodeParameters,
 ) {
   return await client.request({

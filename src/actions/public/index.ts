@@ -143,26 +143,32 @@ export type {
 
 export { watchBlockNumber } from './watchBlockNumber'
 export type {
-  WatchBlockNumberParameters,
   OnBlockNumberFn,
   OnBlockNumberParameter,
+  WatchBlockNumberParameters,
+  WatchBlockNumberReturnType,
 } from './watchBlockNumber'
 
 export { watchBlocks } from './watchBlocks'
 export type {
-  WatchBlocksParameters,
   OnBlock,
   OnBlockParameter,
+  WatchBlocksParameters,
+  WatchBlocksReturnType,
 } from './watchBlocks'
 
 export { watchContractEvent } from './watchContractEvent'
-export type { WatchContractEventParameters } from './watchContractEvent'
+export type {
+  WatchContractEventParameters,
+  WatchContractEventReturnType,
+} from './watchContractEvent'
 
 export { watchEvent } from './watchEvent'
 export type {
-  WatchEventParameters,
   OnLogsParameter,
   OnLogsFn,
+  WatchEventParameters,
+  WatchEventReturnType,
 } from './watchEvent'
 
 export { watchPendingTransactions } from './watchPendingTransactions'
@@ -170,4 +176,5 @@ export type {
   OnTransactionsFn,
   OnTransactionsParameter,
   WatchPendingTransactionsParameters,
+  WatchPendingTransactionsReturnType,
 } from './watchPendingTransactions'

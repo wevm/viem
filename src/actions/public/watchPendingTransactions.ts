@@ -1,5 +1,5 @@
-import type { PublicClientArg } from '../../clients'
-import type { Filter, Hash } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { Chain, Filter, Hash } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter'
@@ -20,15 +20,17 @@ export type WatchPendingTransactionsParameters = {
   pollingInterval?: number
 }
 
-export function watchPendingTransactions(
-  client: PublicClientArg,
+export type WatchPendingTransactionsReturnType = () => void
+
+export function watchPendingTransactions<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   {
     batch = true,
     onError,
     onTransactions,
     pollingInterval = client.pollingInterval,
   }: WatchPendingTransactionsParameters,
-) {
+): WatchPendingTransactionsReturnType {
   const observerId = JSON.stringify([
     'watchPendingTransactions',
     client.uid,

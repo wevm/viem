@@ -94,6 +94,8 @@ export type {
 } from './typedData'
 
 export type {
+  IsNever,
+  IsUndefined,
   PartialBy,
   Prettify,
   MergeIntersectionProperties,

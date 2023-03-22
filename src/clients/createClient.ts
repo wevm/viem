@@ -1,15 +1,36 @@
-import type { Chain } from '../types'
+import type { Chain, IsUndefined } from '../types'
 import type { Requests } from '../types/eip1193'
 import { uid } from '../utils/uid'
 import type { BaseRpcRequests, Transport } from './transports/createTransport'
 
-export type Client<
+export type ClientConfig<
   TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
-  TRequests extends BaseRpcRequests = Requests,
+  TChain extends Chain | undefined = Chain | undefined,
 > = {
   /** Chain for the client. */
   chain?: TChain
+  /** A key for the client. */
+  key?: string
+  /** A name for the client. */
+  name?: string
+  /**
+   * Frequency (in ms) for polling enabled actions & events.
+   * @default 4_000
+   */
+  pollingInterval?: number
+  /** The RPC transport */
+  transport: TTransport
+  /** The type of client. */
+  type?: string
+}
+
+export type Client<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TRequests extends BaseRpcRequests = Requests,
+> = {
+  /** Chain for the client. */
+  chain: TChain & (IsUndefined<TChain> extends true ? undefined : TChain)
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -18,25 +39,12 @@ export type Client<
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
   request: TRequests['request']
-  /** The RPC transport (http, webSocket, custom, etc) */
+  /** The RPC transport */
   transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
   /** The type of client. */
   type: string
   /** A unique ID for the client. */
   uid: string
-}
-
-export type ClientConfig<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
-  TRequests extends BaseRpcRequests = Requests,
-> = Partial<
-  Pick<
-    Client<TTransport, TChain, TRequests>,
-    'chain' | 'key' | 'name' | 'pollingInterval' | 'type'
-  >
-> & {
-  transport: TTransport
 }
 
 /**
@@ -53,11 +61,7 @@ export function createClient<
   pollingInterval = 4_000,
   transport,
   type = 'base',
-}: ClientConfig<TTransport, TChain, TRequests>): Client<
-  TTransport,
-  TChain,
-  TRequests
-> {
+}: ClientConfig<TTransport, TChain>): Client<TTransport, TChain, TRequests> {
   const { config, request, value } = transport({ chain })
   return {
     chain,
@@ -68,5 +72,5 @@ export function createClient<
     transport: { ...config, ...value },
     type,
     uid: uid(),
-  }
+  } as Client<TTransport, TChain, TRequests>
 }

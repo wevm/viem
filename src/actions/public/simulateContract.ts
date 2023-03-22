@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClientArg, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
   Chain,
@@ -37,14 +37,14 @@ export type SimulateContractReturnType<
   TChain extends Chain | undefined = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-  TChainOverride extends Chain | undefined = TChain,
+  TChainOverride extends Chain | undefined = undefined,
 > = {
   result: ExtractResultFromAbi<TAbi, TFunctionName>
   request: Omit<
     WriteContractParameters<
-      TChain,
       TAbi,
       TFunctionName,
+      TChain,
       undefined,
       TChainOverride
     >,
@@ -60,7 +60,7 @@ export async function simulateContract<
   TFunctionName extends string,
   TChainOverride extends Chain | undefined,
 >(
-  client: PublicClientArg<Transport, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     abi,
     address,

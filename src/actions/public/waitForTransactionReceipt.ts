@@ -1,4 +1,4 @@
-import type { PublicClientArg, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
@@ -42,7 +42,7 @@ export type WaitForTransactionReceiptParameters<
 export async function waitForTransactionReceipt<
   TChain extends Chain | undefined,
 >(
-  client: PublicClientArg<Transport, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     confirmations = 1,
     hash,

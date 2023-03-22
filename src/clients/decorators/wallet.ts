@@ -38,9 +38,10 @@ import {
 } from '../../actions/wallet'
 import type { Account, Chain } from '../../types'
 import type { WalletClient } from '../createWalletClient'
+import type { Transport } from '../transports'
 
 export type WalletActions<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = undefined,
   TAccount extends Account | undefined = undefined,
 > = {
   addChain: (args: AddChainParameters) => Promise<void>
@@ -48,7 +49,7 @@ export type WalletActions<
     TAbi extends Abi | readonly unknown[],
     TChainOverride extends Chain | undefined,
   >(
-    args: DeployContractParameters<TChain, TAbi, TAccount, TChainOverride>,
+    args: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
   ) => Promise<DeployContractReturnType>
   getAddresses: () => Promise<GetAddressesReturnType>
   getChainId: () => Promise<GetChainIdReturnType>
@@ -74,12 +75,12 @@ export type WalletActions<
   writeContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
-    TChainOverride extends Chain | undefined,
+    TChainOverride extends Chain | undefined = undefined,
   >(
     args: WriteContractParameters<
-      TChainOverride,
       TAbi,
       TFunctionName,
+      TChain,
       TAccount,
       TChainOverride
     >,
@@ -87,11 +88,12 @@ export type WalletActions<
 }
 
 export const walletActions = <
+  TTransport extends Transport,
   TChain extends Chain | undefined,
-  TClient extends WalletClient<any, any, any>,
+  TAccount extends Account | undefined,
 >(
-  client: TClient,
-): WalletActions<TChain> => ({
+  client: WalletClient<TTransport, TChain, TAccount>,
+): WalletActions<TChain, TAccount> => ({
   addChain: (args) => addChain(client, args),
   deployContract: (args) => deployContract(client, args),
   getAddresses: () => getAddresses(client),

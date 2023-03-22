@@ -1,11 +1,15 @@
-import type { WalletClientArg } from '../../clients'
-import type { Chain } from '../../types'
+import type { Transport, WalletClient } from '../../clients'
+import type { Account, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SwitchChainParameters = { id: Chain['id'] }
 
-export async function switchChain(
-  client: WalletClientArg,
+export async function switchChain<
+  TTransport extends Transport,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined = undefined,
+>(
+  client: WalletClient<TTransport, TChain, TAccount>,
   { id }: SwitchChainParameters,
 ) {
   await client.request({

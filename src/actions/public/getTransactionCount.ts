@@ -1,5 +1,5 @@
-import type { PublicClientArg, WalletClientArg } from '../../clients'
-import type { Address, BlockTag } from '../../types'
+import type { PublicClient, Transport, WalletClient } from '../../clients'
+import type { Account, Address, BlockTag, Chain } from '../../types'
 import { hexToNumber, numberToHex } from '../../utils'
 
 export type GetTransactionCountParameters = {
@@ -22,8 +22,13 @@ export type GetTransactionCountReturnType = number
 /**
  * @description Returns the number of transactions an account has broadcast / sent.
  */
-export async function getTransactionCount(
-  client: PublicClientArg | WalletClientArg,
+export async function getTransactionCount<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client:
+    | PublicClient<Transport, TChain>
+    | WalletClient<Transport, TChain, TAccount>,
   { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
   const count = await client.request({

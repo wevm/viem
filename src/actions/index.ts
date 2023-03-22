@@ -93,10 +93,15 @@ export type {
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
   WatchBlockNumberParameters,
+  WatchBlockNumberReturnType,
   WatchBlocksParameters,
+  WatchBlocksReturnType,
   WatchContractEventParameters,
+  WatchContractEventReturnType,
   WatchEventParameters,
+  WatchEventReturnType,
   WatchPendingTransactionsParameters,
+  WatchPendingTransactionsReturnType,
 } from './public'
 
 export {

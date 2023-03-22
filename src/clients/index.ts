@@ -24,20 +24,18 @@ export type { Client, ClientConfig } from './createClient'
 export { createPublicClient } from './createPublicClient'
 export type {
   PublicClient,
-  PublicClientArg,
   PublicClientConfig,
 } from './createPublicClient'
 
 export { createTestClient } from './createTestClient'
 export type {
   TestClient,
-  TestClientArg,
   TestClientConfig,
+  TestClientMode,
 } from './createTestClient'
 
 export { createWalletClient } from './createWalletClient'
 export type {
   WalletClient,
-  WalletClientArg,
   WalletClientConfig,
 } from './createWalletClient'

@@ -25,7 +25,7 @@ test('creates', () => {
     client.request,
   )
   assertType<{
-    account: undefined
+    account?: undefined
   }>(client)
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`

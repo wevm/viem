@@ -1,11 +1,16 @@
-import type { WalletClientArg } from '../../clients'
+import type { Transport, WalletClient } from '../../clients'
+import type { Account, Chain } from '../../types'
 import type { WatchAssetParams } from '../../types/eip1193'
 
 export type WatchAssetParameters = WatchAssetParams
 export type WatchAssetReturnType = boolean
 
-export async function watchAsset(
-  client: WalletClientArg,
+export async function watchAsset<
+  TTransport extends Transport,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined = undefined,
+>(
+  client: WalletClient<TTransport, TChain, TAccount>,
   params: WatchAssetParameters,
 ): Promise<WatchAssetReturnType> {
   const added = await client.request({

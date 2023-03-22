@@ -1,4 +1,4 @@
-import type { PublicClientArg, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BlockTag, Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -46,12 +46,16 @@ export type WatchBlocksParameters<TChain extends Chain | undefined = Chain> = {
     }
 )
 
-/** @description Watches and returns information for incoming blocks. */
+export type WatchBlocksReturnType = () => void
+
+/**
+ * @description Watches and returns information for incoming blocks.
+ */
 export function watchBlocks<
   TChain extends Chain | undefined,
   TWatchBlocksParameters extends WatchBlocksParameters<TChain>,
 >(
-  client: PublicClientArg<Transport, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     blockTag = 'latest',
     emitMissed = false,
@@ -61,7 +65,7 @@ export function watchBlocks<
     includeTransactions = false,
     pollingInterval = client.pollingInterval,
   }: TWatchBlocksParameters,
-) {
+): WatchBlocksReturnType {
   const observerId = JSON.stringify([
     'watchBlocks',
     client.uid,

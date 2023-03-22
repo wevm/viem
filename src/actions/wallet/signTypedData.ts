@@ -1,5 +1,5 @@
 import type { TypedData, TypedDataParameter, TypedDataType } from 'abitype'
-import type { Transport, WalletClientArg } from '../../clients'
+import type { Transport, WalletClient } from '../../clients'
 import {
   AccountNotFoundError,
   BytesSizeMismatchError,
@@ -33,11 +33,13 @@ export type SignTypedDataParameters<
 export type SignTypedDataReturnType = Hex
 
 export async function signTypedData<
+  TTransport extends Transport,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
-  TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClientArg<Transport, Chain | undefined, TAccount>,
+  client: WalletClient<TTransport, TChain, TAccount>,
   {
     account: account_ = client.account,
     domain,

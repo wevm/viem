@@ -13,7 +13,7 @@ export type ChainContract = {
 
 export type GetChain<
   TChain extends Chain | undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChainOverride extends Chain | undefined = undefined,
 > = TChain extends Chain
   ? { chain?: TChainOverride | null }
   : { chain: TChainOverride | null }

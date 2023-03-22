@@ -7,7 +7,7 @@ import type { Chain } from '../types'
 
 export type PublicClientConfig<
   TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = undefined,
 > = Pick<
   ClientConfig<TTransport, TChain>,
   'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
@@ -15,16 +15,10 @@ export type PublicClientConfig<
 
 export type PublicClient<
   TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TIncludeActions extends boolean = true,
 > = Client<TTransport, TChain, PublicRequests> &
-  (TIncludeActions extends true ? PublicActions<TChain> : {})
-
-export type PublicClientArg<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TIncludeActions extends boolean = boolean,
-> = PublicClient<TTransport, TChain, TIncludeActions>
+  (TIncludeActions extends true ? PublicActions<TChain> : unknown)
 
 /**
  * @description Creates a public client with a given transport.
@@ -50,9 +44,9 @@ export function createPublicClient<
     pollingInterval,
     transport,
     type: 'publicClient',
-  })
+  }) as PublicClient<TTransport, TChain>
   return {
     ...client,
-    ...publicActions(client as PublicClient),
+    ...publicActions(client),
   }
 }
