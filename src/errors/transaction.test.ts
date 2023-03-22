@@ -1,8 +1,8 @@
-import { describe, expect, test } from "vitest";
-import { polygon } from "../chains";
-import { getAccount } from "../utils";
-import { address } from "../_test";
-import { BaseError } from "./base";
+import { describe, expect, test } from 'vitest'
+import { polygon } from '../chains'
+import { getAccount } from '../utils'
+import { address } from '../_test'
+import { BaseError } from './base'
 import {
   FeeConflictError,
   InvalidTransactionTypeError,
@@ -10,23 +10,23 @@ import {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
-} from "./transaction";
+} from './transaction'
 
-test("FeeConflictError", () => {
+test('FeeConflictError', () => {
   expect(new FeeConflictError()).toMatchInlineSnapshot(`
     [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
     Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
     Version: viem@1.0.2]
-  `);
-});
+  `)
+})
 
-describe("TransactionExecutionError", () => {
-  test("no args", async () => {
+describe('TransactionExecutionError', () => {
+  test('no args', async () => {
     expect(
-      new TransactionExecutionError(new BaseError("error"), {
+      new TransactionExecutionError(new BaseError('error'), {
         account: getAccount(address.vitalik),
-      })
+      }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
 
@@ -34,19 +34,19 @@ describe("TransactionExecutionError", () => {
         from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("w/ base args", async () => {
+  test('w/ base args', async () => {
     expect(
-      new TransactionExecutionError(new BaseError("error"), {
+      new TransactionExecutionError(new BaseError('error'), {
         account: getAccount(address.vitalik),
         to: address.usdcHolder,
-        data: "0x123",
+        data: '0x123',
         gas: 420n,
         nonce: 69,
         value: 420n,
-      })
+      }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
 
@@ -59,20 +59,20 @@ describe("TransactionExecutionError", () => {
         nonce:  69
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("w/ eip1559 args", async () => {
+  test('w/ eip1559 args', async () => {
     expect(
-      new TransactionExecutionError(new BaseError("error"), {
+      new TransactionExecutionError(new BaseError('error'), {
         account: getAccount(address.vitalik),
         to: address.usdcHolder,
-        data: "0x123",
+        data: '0x123',
         gas: 420n,
         nonce: 69,
         maxFeePerGas: 420n,
         maxPriorityFeePerGas: 69n,
-      })
+      }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
 
@@ -86,19 +86,19 @@ describe("TransactionExecutionError", () => {
         nonce:                 69
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("w/ legacy args", async () => {
+  test('w/ legacy args', async () => {
     expect(
-      new TransactionExecutionError(new BaseError("error"), {
+      new TransactionExecutionError(new BaseError('error'), {
         account: getAccount(address.vitalik),
         to: address.usdcHolder,
-        data: "0x123",
+        data: '0x123',
         gas: 420n,
         nonce: 69,
         gasPrice: 420n,
-      })
+      }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
 
@@ -111,20 +111,20 @@ describe("TransactionExecutionError", () => {
         nonce:     69
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("w/ chain", async () => {
+  test('w/ chain', async () => {
     expect(
-      new TransactionExecutionError(new BaseError("error"), {
+      new TransactionExecutionError(new BaseError('error'), {
         chain: polygon,
         account: getAccount(address.vitalik),
         to: address.usdcHolder,
-        data: "0x123",
+        data: '0x123',
         gas: 420n,
         nonce: 69,
         value: 420n,
-      })
+      }),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
 
@@ -138,23 +138,23 @@ describe("TransactionExecutionError", () => {
         nonce:  69
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("w/ metaMessages", async () => {
+  test('w/ metaMessages', async () => {
     expect(
       new TransactionExecutionError(
-        new BaseError("error", { metaMessages: ["omggg!"] }),
+        new BaseError('error', { metaMessages: ['omggg!'] }),
         {
           chain: polygon,
           account: getAccount(address.vitalik),
           to: address.usdcHolder,
-          data: "0x123",
+          data: '0x123',
           gas: 420n,
           nonce: 69,
           value: 420n,
-        }
-      )
+        },
+      ),
     ).toMatchInlineSnapshot(`
       [TransactionExecutionError: error
 
@@ -170,101 +170,108 @@ describe("TransactionExecutionError", () => {
         nonce:  69
 
       Version: viem@1.0.2]
-    `);
-  });
-});
+    `)
+  })
+})
 
-describe("TransactionNotFoundError", () => {
-  test("no args", async () => {
+describe('TransactionNotFoundError', () => {
+  test('no args', async () => {
     expect(new TransactionNotFoundError({})).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction could not be found.
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("blockHash", async () => {
-    expect(new TransactionNotFoundError({ blockHash: "0x123", index: 420 }))
-      .toMatchInlineSnapshot(`
+  test('blockHash', async () => {
+    expect(
+      new TransactionNotFoundError({ blockHash: '0x123', index: 420 }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block hash "0x123" at index "420" could not be found.
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("blockTag", async () => {
-    expect(new TransactionNotFoundError({ blockTag: "latest", index: 420 }))
-      .toMatchInlineSnapshot(`
+  test('blockTag', async () => {
+    expect(
+      new TransactionNotFoundError({ blockTag: 'latest', index: 420 }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block time "latest" at index "420" could not be found.
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("blockNumber", async () => {
-    expect(new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }))
-      .toMatchInlineSnapshot(`
+  test('blockNumber', async () => {
+    expect(
+      new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 
       Version: viem@1.0.2]
-    `);
-  });
+    `)
+  })
 
-  test("hash", async () => {
-    expect(new TransactionNotFoundError({ hash: "0x123" }))
-      .toMatchInlineSnapshot(`
+  test('hash', async () => {
+    expect(
+      new TransactionNotFoundError({ hash: '0x123' }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction with hash "0x123" could not be found.
 
       Version: viem@1.0.2]
-    `);
-  });
-});
+    `)
+  })
+})
 
-test("TransactionReceiptNotFoundError", () => {
+test('TransactionReceiptNotFoundError', () => {
   const error = new TransactionReceiptNotFoundError({
-    hash: "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a",
-  });
+    hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a',
+  })
 
   expect(error.message).toMatchInlineSnapshot(`
     "Transaction receipt with hash \\"0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98a\\" could not be found. The Transaction may not be processed on a block yet.
 
     Version: viem@1.0.2"
-  `);
-});
+  `)
+})
 
-test("WaitForTransactionReceiptTimeoutError", () => {
+test('WaitForTransactionReceiptTimeoutError', () => {
   expect(() => {
-    throw new WaitForTransactionReceiptTimeoutError({ hash: "0x123" });
-  }).toThrowError(WaitForTransactionReceiptTimeoutError);
-});
+    throw new WaitForTransactionReceiptTimeoutError({ hash: '0x123' })
+  }).toThrowError(WaitForTransactionReceiptTimeoutError)
+})
 
-test("InvalidTransactionType", () => {
-  expect(new InvalidTransactionTypeError({ type: "eip1559" }))
-    .toMatchInlineSnapshot(`
+test('InvalidTransactionType', () => {
+  expect(
+    new InvalidTransactionTypeError({ type: 'eip1559' }),
+  ).toMatchInlineSnapshot(`
       [InvalidTransactionType: Transaction object is not a valid "eip1559" type transaction.
 
       Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks.
 
       Version: viem@1.0.2]
-    `);
+    `)
 
-  expect(new InvalidTransactionTypeError({ type: "eip2930" }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new InvalidTransactionTypeError({ type: 'eip2930' }),
+  ).toMatchInlineSnapshot(`
       [InvalidTransactionType: Transaction object is not a valid "eip2930" type transaction.
 
       Use \`gasPrice\` and \`accessList\` for EIP-2930 compatible networks.
 
       Version: viem@1.0.2]
-    `);
+    `)
 
-  expect(new InvalidTransactionTypeError({ type: "legacy" }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new InvalidTransactionTypeError({ type: 'legacy' }),
+  ).toMatchInlineSnapshot(`
       [InvalidTransactionType: Transaction object is not a valid "legacy" type transaction.
 
       Use \`gasPrice\` for legacy transactions.
 
       Version: viem@1.0.2]
-    `);
+    `)
 
   expect(new InvalidTransactionTypeError({})).toMatchInlineSnapshot(`
       [InvalidTransactionType: Cannot infer transaction type from object.
@@ -272,5 +279,5 @@ test("InvalidTransactionType", () => {
       Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
       Version: viem@1.0.2]
-    `);
-});
+    `)
+})

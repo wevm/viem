@@ -1,57 +1,57 @@
-import { isAddress } from "../address";
+import { isAddress } from '../address'
 import {
   FeeCapTooHighError,
   InvalidAddressError,
   TipAboveFeeCapError,
-} from "../../errors";
+} from '../../errors'
 import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
-} from "../../types";
-import { InvalidTransactionTypeError } from "../../errors/transaction";
-import { PreEIP155NotSupportedError } from "../../errors/chain";
+} from '../../types'
+import { InvalidTransactionTypeError } from '../../errors/transaction'
+import { PreEIP155NotSupportedError } from '../../errors/chain'
 
 export function assertTransactionEIP1559(
-  transaction: Omit<TransactionRequestEIP1559, "from"> & { chainId: number }
+  transaction: Omit<TransactionRequestEIP1559, 'from'> & { chainId: number },
 ) {
   const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to } =
-    transaction;
+    transaction
 
-  if (chainId <= 0) throw new PreEIP155NotSupportedError({ chainId });
-  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to });
-  if (gasPrice) throw new InvalidTransactionTypeError({ type: "eip1559" });
+  if (chainId <= 0) throw new PreEIP155NotSupportedError({ chainId })
+  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
+  if (gasPrice) throw new InvalidTransactionTypeError({ type: 'eip1559' })
 
   if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
-    throw new FeeCapTooHighError({ maxFeePerGas });
+    throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     maxPriorityFeePerGas &&
     maxFeePerGas &&
     maxPriorityFeePerGas > maxFeePerGas
   )
-    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas });
+    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
 }
 
 export function assertTransactionEIP2930<
-  TTransactionType extends TransactionRequestEIP2930
->(transaction: Omit<TTransactionType, "from"> & { chainId: number }) {
+  TTransactionType extends TransactionRequestEIP2930,
+>(transaction: Omit<TTransactionType, 'from'> & { chainId: number }) {
   const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to } =
-    transaction;
+    transaction
 
-  if (chainId <= 0) throw new PreEIP155NotSupportedError({ chainId });
+  if (chainId <= 0) throw new PreEIP155NotSupportedError({ chainId })
 
-  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to });
+  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
 
   if (maxPriorityFeePerGas || maxFeePerGas)
-    throw new InvalidTransactionTypeError({ type: "eip2930" });
+    throw new InvalidTransactionTypeError({ type: 'eip2930' })
 
   if (gasPrice && gasPrice > 2n ** 256n - 1n)
-    throw new FeeCapTooHighError({ maxFeePerGas: gasPrice });
+    throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }
 
 export function assertTransactionLegacy<
-  TTransactionType extends TransactionRequestLegacy
->(transaction: Omit<TTransactionType, "from"> & { chainId?: number }) {
+  TTransactionType extends TransactionRequestLegacy,
+>(transaction: Omit<TTransactionType, 'from'> & { chainId?: number }) {
   const {
     chainId,
     maxPriorityFeePerGas,
@@ -59,18 +59,18 @@ export function assertTransactionLegacy<
     maxFeePerGas,
     to,
     accessList,
-  } = transaction;
+  } = transaction
 
   if (chainId !== undefined && chainId <= 0)
-    throw new PreEIP155NotSupportedError({ chainId });
+    throw new PreEIP155NotSupportedError({ chainId })
 
-  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to });
+  if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
 
   if (maxPriorityFeePerGas || maxFeePerGas)
-    throw new InvalidTransactionTypeError({ type: "legacy" });
+    throw new InvalidTransactionTypeError({ type: 'legacy' })
 
   if (gasPrice && gasPrice > 2n ** 256n - 1n)
-    throw new FeeCapTooHighError({ maxFeePerGas: gasPrice });
+    throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 
-  if (accessList) throw new InvalidTransactionTypeError({ type: "legacy" });
+  if (accessList) throw new InvalidTransactionTypeError({ type: 'legacy' })
 }
