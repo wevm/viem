@@ -10,11 +10,10 @@ export type RequestPermissionsParameters = {
 export type RequestPermissionsReturnType = WalletPermission[]
 
 export async function requestPermissions<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
   permissions: RequestPermissionsParameters,
 ) {
   return client.request({

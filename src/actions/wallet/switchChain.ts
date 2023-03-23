@@ -5,11 +5,10 @@ import { numberToHex } from '../../utils'
 export type SwitchChainParameters = { id: Chain['id'] }
 
 export async function switchChain<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
   { id }: SwitchChainParameters,
 ) {
   await client.request({

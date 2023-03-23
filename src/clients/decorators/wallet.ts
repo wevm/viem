@@ -41,15 +41,15 @@ import type { WalletClient } from '../createWalletClient'
 import type { Transport } from '../transports'
 
 export type WalletActions<
-  TChain extends Chain | undefined = undefined,
-  TAccount extends Account | undefined = undefined,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
 > = {
   addChain: (args: AddChainParameters) => Promise<void>
   deployContract: <
     TAbi extends Abi | readonly unknown[],
     TChainOverride extends Chain | undefined,
   >(
-    args: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
+    args: DeployContractParameters<TChain, TAccount, TAbi, TChainOverride>,
   ) => Promise<DeployContractReturnType>
   getAddresses: () => Promise<GetAddressesReturnType>
   getChainId: () => Promise<GetChainIdReturnType>
@@ -66,7 +66,7 @@ export type WalletActions<
   ) => Promise<SignMessageReturnType>
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string = string,
+    TPrimaryType extends string,
   >(
     args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
   ) => Promise<SignTypedDataReturnType>
@@ -75,7 +75,7 @@ export type WalletActions<
   writeContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
-    TChainOverride extends Chain | undefined = undefined,
+    TChainOverride extends Chain | undefined,
   >(
     args: WriteContractParameters<
       TAbi,
@@ -89,8 +89,8 @@ export type WalletActions<
 
 export const walletActions = <
   TTransport extends Transport,
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
 >(
   client: WalletClient<TTransport, TChain, TAccount>,
 ): WalletActions<TChain, TAccount> => ({

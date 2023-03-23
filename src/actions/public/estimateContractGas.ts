@@ -12,7 +12,7 @@ import {
 import { estimateGas, EstimateGasParameters } from './estimateGas'
 
 export type EstimateContractGasParameters<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
 > = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &

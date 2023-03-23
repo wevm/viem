@@ -28,8 +28,9 @@ export type GetBlockParameters = {
     }
 )
 
-export type GetBlockReturnType<TChain extends Chain | undefined = Chain> =
-  FormattedBlock<BlockFormatter<TChain>>
+export type GetBlockReturnType<
+  TChain extends Chain | undefined = Chain | undefined,
+> = FormattedBlock<BlockFormatter<TChain>>
 
 export async function getBlock<
   TChain extends Chain | undefined,

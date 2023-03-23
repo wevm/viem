@@ -14,7 +14,9 @@ import type { GetTransactionReceiptReturnType } from './getTransactionReceipt'
 import { getTransactionReceipt } from './getTransactionReceipt'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
-export type ReplacementReturnType<TChain extends Chain | undefined = Chain> = {
+export type ReplacementReturnType<
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
   reason: ReplacementReason
   replacedTransaction: Transaction
   transaction: Transaction
@@ -22,11 +24,11 @@ export type ReplacementReturnType<TChain extends Chain | undefined = Chain> = {
 }
 
 export type WaitForTransactionReceiptReturnType<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
 > = GetTransactionReceiptReturnType<TChain>
 
 export type WaitForTransactionReceiptParameters<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
 > = {
   /** The number of confirmations (blocks that have passed) to wait before resolving. */
   confirmations?: number

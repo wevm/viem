@@ -7,11 +7,10 @@ import { getAddress } from '../../utils'
 export type RequestAddressesReturnType = Address[]
 
 export async function requestAddresses<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
 ): Promise<RequestAddressesReturnType> {
   const addresses = await client.request({ method: 'eth_requestAccounts' })
   return addresses.map((address) => getAddress(address))

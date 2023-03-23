@@ -30,7 +30,7 @@ export type FormattedEstimateGas<
 >
 
 export type EstimateGasParameters<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = undefined,
 > = FormattedEstimateGas<TransactionRequestFormatter<TChain>> &
   GetAccountParameter<TAccount> &

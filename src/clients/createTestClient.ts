@@ -24,7 +24,7 @@ export type TestClient<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TIncludeActions extends boolean = true,
-> = Client<TTransport, TChain, TestRequests<TMode>> &
+> = Client<TTransport, TestRequests<TMode>, TChain> &
   (TIncludeActions extends true ? TestActions : unknown) & {
     mode: TMode
   }
@@ -35,7 +35,7 @@ export type TestClient<
 export function createTestClient<
   TMode extends TestClientMode,
   TTransport extends Transport,
-  TChain extends Chain | undefined,
+  TChain extends Chain | undefined = undefined,
 >({
   chain,
   key = 'test',

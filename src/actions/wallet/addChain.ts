@@ -7,11 +7,10 @@ export type AddChainParameters = {
 }
 
 export async function addChain<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
-  TAccount extends Account | undefined = undefined,
+  TAccount extends Account | undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
   { chain }: AddChainParameters,
 ) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain

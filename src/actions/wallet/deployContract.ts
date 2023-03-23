@@ -16,9 +16,9 @@ import {
 } from '../wallet'
 
 export type DeployContractParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TChain extends Chain | undefined = Chain,
-  TAccount extends Account | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
 > = Omit<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
@@ -32,28 +32,27 @@ export type DeployContractParameters<
 export type DeployContractReturnType = SendTransactionReturnType
 
 export function deployContract<
-  TAbi extends Abi | readonly unknown[],
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
+  TAbi extends Abi | readonly unknown[],
   TChainOverride extends Chain | undefined,
 >(
-  walletClient: WalletClient<TTransport, TChain, TAccount>,
+  walletClient: WalletClient<Transport, TChain, TAccount>,
   {
     abi,
     args,
     bytecode,
     ...request
-  }: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
+  }: DeployContractParameters<TChain, TAccount, TAbi, TChainOverride>,
 ): Promise<DeployContractReturnType> {
   const calldata = encodeDeployData({
     abi,
     args,
     bytecode,
   } as unknown as DeployContractParameters<
-    TAbi,
     TChain,
     TAccount,
+    TAbi,
     TChainOverride
   >)
   return sendTransaction(walletClient, {

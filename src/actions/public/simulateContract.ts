@@ -20,7 +20,7 @@ import type { WriteContractParameters } from '../wallet'
 import { call, CallParameters } from './call'
 
 export type SimulateContractParameters<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
   TChainOverride extends Chain | undefined = undefined,
@@ -34,7 +34,7 @@ export type SimulateContractParameters<
   }
 
 export type SimulateContractReturnType<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
   TChainOverride extends Chain | undefined = undefined,

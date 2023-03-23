@@ -7,11 +7,10 @@ import { checksumAddress } from '../../utils/address'
 export type GetAddressesReturnType = Address[]
 
 export async function getAddresses<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
 ): Promise<GetAddressesReturnType> {
   const addresses = await client.request({ method: 'eth_accounts' })
   return addresses.map((address) => checksumAddress(address))

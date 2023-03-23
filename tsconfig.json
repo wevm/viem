@@ -15,5 +15,5 @@
     "target": "ESNext",
     "types": ["node"]
   },
-  "exclude": ["node_modules", "playgrounds", "dist"]
+  "exclude": ["node_modules", "dist"]
 }

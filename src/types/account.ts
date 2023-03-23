@@ -2,12 +2,13 @@ import type { Address, TypedData } from 'abitype'
 import type { Hash } from './misc'
 import type { TransactionRequest } from './transaction'
 import type { TypedDataDefinition } from './typedData'
+import type { IsUndefined } from './utils'
 
 export type Account = JsonRpcAccount | LocalAccount
 
 export type GetAccountParameter<
-  TAccount extends Account | undefined = undefined,
-> = TAccount extends undefined
+  TAccount extends Account | undefined = Account | undefined,
+> = IsUndefined<TAccount> extends true
   ? { account: Account | Address }
   : { account?: Account | Address }
 
@@ -33,8 +34,3 @@ export type LocalAccount = {
   ) => Promise<Hash>
   type: 'local'
 }
-
-export type ParseAccount<TAccount extends Account | Address | undefined> =
-  | (TAccount extends Account ? TAccount : never)
-  | (TAccount extends Address ? JsonRpcAccount : never)
-  | (TAccount extends undefined ? undefined : never)

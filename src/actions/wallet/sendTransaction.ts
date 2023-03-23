@@ -36,8 +36,8 @@ export type FormattedTransactionRequest<
 >
 
 export type SendTransactionParameters<
-  TChain extends Chain | undefined = Chain,
-  TAccount extends Account | undefined = undefined,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain,
 > = FormattedTransactionRequest<TransactionRequestFormatter<TChainOverride>> &
   GetAccountParameter<TAccount> &
@@ -46,12 +46,11 @@ export type SendTransactionParameters<
 export type SendTransactionReturnType = Hash
 
 export async function sendTransaction<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {

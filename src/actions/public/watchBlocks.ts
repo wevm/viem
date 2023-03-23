@@ -6,21 +6,23 @@ import type { GetBlockReturnType } from './getBlock'
 import { getBlock } from './getBlock'
 
 export type OnBlockParameter<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TIncludeTransactions = false,
 > = Omit<
   GetBlockReturnType<TChain>,
   TIncludeTransactions extends false ? 'transactions' : ''
 >
 export type OnBlock<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TIncludeTransactions = false,
 > = (
   block: OnBlockParameter<TChain, TIncludeTransactions>,
   prevBlock: OnBlockParameter<TChain, TIncludeTransactions> | undefined,
 ) => void
 
-export type WatchBlocksParameters<TChain extends Chain | undefined = Chain> = {
+export type WatchBlocksParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
   /** The block tag. Defaults to "latest". */
   blockTag?: BlockTag
   /** Whether or not to emit the missed blocks to the callback. */

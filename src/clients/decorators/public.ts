@@ -114,7 +114,9 @@ import type {
 import type { PublicClient } from '../createPublicClient'
 import type { Transport } from '../transports'
 
-export type PublicActions<TChain extends Chain | undefined = undefined> = {
+export type PublicActions<
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   createContractEventFilter: <
@@ -248,7 +250,7 @@ export type PublicActions<TChain extends Chain | undefined = undefined> = {
 
 export const publicActions = <
   TTransport extends Transport,
-  TChain extends Chain | undefined,
+  TChain extends Chain | undefined = Chain | undefined,
 >(
   client: PublicClient<TTransport, TChain>,
 ): PublicActions<TChain> => ({

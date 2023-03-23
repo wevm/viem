@@ -5,7 +5,6 @@ export type {
   GetAccountParameter,
   LocalAccount,
   JsonRpcAccount,
-  ParseAccount,
 } from './account'
 
 export type {

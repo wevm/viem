@@ -1,4 +1,4 @@
-import type { Chain, IsUndefined } from '../types'
+import type { Chain } from '../types'
 import type { Requests } from '../types/eip1193'
 import { uid } from '../utils/uid'
 import type { BaseRpcRequests, Transport } from './transports/createTransport'
@@ -26,11 +26,11 @@ export type ClientConfig<
 
 export type Client<
   TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
   TRequests extends BaseRpcRequests = Requests,
+  TChain extends Chain | undefined = Chain | undefined,
 > = {
   /** Chain for the client. */
-  chain: TChain & (IsUndefined<TChain> extends true ? undefined : TChain)
+  chain: TChain
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -52,8 +52,8 @@ export type Client<
  */
 export function createClient<
   TTransport extends Transport,
-  TChain extends Chain | undefined,
   TRequests extends BaseRpcRequests,
+  TChain extends Chain | undefined = undefined,
 >({
   chain,
   key = 'base',
@@ -61,10 +61,10 @@ export function createClient<
   pollingInterval = 4_000,
   transport,
   type = 'base',
-}: ClientConfig<TTransport, TChain>): Client<TTransport, TChain, TRequests> {
+}: ClientConfig<TTransport, TChain>): Client<TTransport, TRequests, TChain> {
   const { config, request, value } = transport({ chain })
   return {
-    chain,
+    chain: chain as TChain,
     key,
     name,
     pollingInterval,
@@ -72,5 +72,5 @@ export function createClient<
     transport: { ...config, ...value },
     type,
     uid: uid(),
-  } as Client<TTransport, TChain, TRequests>
+  }
 }

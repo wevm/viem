@@ -36,10 +36,10 @@ export type WriteContractParameters<
 export type WriteContractReturnType = SendTransactionReturnType
 
 export async function writeContract<
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
   TChainOverride extends Chain | undefined = undefined,
 >(
   client: WalletClient<Transport, TChain, TAccount>,
