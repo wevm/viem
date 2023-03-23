@@ -51,7 +51,7 @@ const encodedData = getAbiItem({
       stateMutability: 'view'
     }
   ],
-  name: 'x',
+  name: 'y',
 })
 /**
  * { 
