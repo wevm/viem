@@ -23,6 +23,7 @@ export {
   publicClient,
   testClient,
   walletClient,
+  signTransaction,
   walletClientWithAccount,
   walletClientWithoutChain,
 } from './utils'

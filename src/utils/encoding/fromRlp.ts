@@ -5,7 +5,6 @@ import {
   OffsetOutOfBoundsError,
 } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
-import { trim } from '../data'
 import { bytesToNumber } from './fromBytes'
 import { hexToBytes } from './toBytes'
 import { bytesToHex } from './toHex'
@@ -45,9 +44,7 @@ function format<TTo extends 'bytes' | 'hex'>(
   to: TTo,
 ): RecursiveArray<FromRlpReturnType<TTo>> {
   if (Array.isArray(bytes)) return bytes.map((b) => format(b, to))
-  return (
-    to === 'hex' ? trim(bytesToHex(bytes)) : bytes
-  ) as FromRlpReturnType<TTo>
+  return (to === 'hex' ? bytesToHex(bytes) : bytes) as FromRlpReturnType<TTo>
 }
 
 function rlpToBytes(

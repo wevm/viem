@@ -7,6 +7,12 @@ import type { ValueOf } from './utils'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
+export type Signature<TQuantity = bigint> = {
+  r: Hex
+  s: Hex
+  v: TQuantity
+}
+
 export type TransactionType = ValueOf<typeof transactionType>
 
 export type TransactionReceipt<
@@ -146,3 +152,49 @@ export type TransactionRequest<TQuantity = bigint, TIndex = number> =
   | TransactionRequestLegacy<TQuantity, TIndex>
   | TransactionRequestEIP2930<TQuantity, TIndex>
   | TransactionRequestEIP1559<TQuantity, TIndex>
+
+export type TransactionSerializedEIP1559 = `0x02${string}`
+export type TransactionSerializedEIP2930 = `0x01${string}`
+export type TransactionSerializedLegacy = Hex
+export type TransactionSerialized<TType extends TransactionType = 'legacy'> =
+  | (TType extends 'eip1559' ? TransactionSerializedEIP1559 : never)
+  | (TType extends 'eip2930' ? TransactionSerializedEIP2930 : never)
+  | (TType extends 'legacy' ? TransactionSerializedLegacy : never)
+
+export type TransactionSerializableBase<
+  TQuantity = bigint,
+  TIndex = number,
+> = Omit<TransactionRequestBase<TQuantity, TIndex>, 'from'> & Partial<Signature>
+export type TransactionSerializableLegacy<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  Partial<FeeValuesLegacy<TQuantity>> & {
+    accessList?: never
+    chainId?: number
+    type?: 'legacy'
+  }
+export type TransactionSerializableEIP2930<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  Partial<FeeValuesLegacy<TQuantity>> & {
+    accessList?: AccessList
+    chainId: number
+    type?: 'eip2930'
+    yParity?: number
+  }
+export type TransactionSerializableEIP1559<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  Partial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: AccessList
+    chainId: number
+    type?: 'eip1559'
+    yParity?: number
+  }
+export type TransactionSerializable<TQuantity = bigint, TIndex = number> =
+  | TransactionSerializableLegacy<TQuantity, TIndex>
+  | TransactionSerializableEIP2930<TQuantity, TIndex>
+  | TransactionSerializableEIP1559<TQuantity, TIndex>

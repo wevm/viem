@@ -72,17 +72,28 @@ export type {
 
 export type {
   AccessList,
+  Signature,
   TransactionReceipt,
   TransactionRequest,
   TransactionRequestBase,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
+  TransactionSerializable,
+  TransactionSerializableBase,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
   Transaction,
   TransactionBase,
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionLegacy,
+  TransactionType,
+  TransactionSerialized,
+  TransactionSerializedEIP1559,
+  TransactionSerializedEIP2930,
+  TransactionSerializedLegacy,
 } from './transaction'
 
 export type {
