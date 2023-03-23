@@ -1,10 +1,17 @@
-import type { Account, BlockTag, Hash, TransactionType, Chain } from '../types'
+import type {
+  Account,
+  BlockTag,
+  Hash,
+  TransactionType,
+  Chain,
+  Hex,
+} from '../types'
 import { formatEther, formatGwei } from '../utils'
 import type { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'
 
 export function prettyPrint(
-  args: Record<string, bigint | number | string | undefined | false>,
+  args: Record<string, bigint | number | string | undefined | false | unknown>,
 ) {
   const entries = Object.entries(args)
     .map(([key, value]) => {
@@ -27,6 +34,77 @@ export class FeeConflictError extends BaseError {
         'Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks, and `gasPrice` for others.',
       ].join('\n'),
     )
+  }
+}
+
+export class InvalidLegacyVError extends BaseError {
+  name = 'InvalidLegacyVError'
+
+  constructor({ v }: { v: bigint }) {
+    super(`Invalid \`v\` value "${v}". Expected 27 or 28.`)
+  }
+}
+
+export class InvalidSerializableTransactionError extends BaseError {
+  name = 'InvalidSerializableTransactionError'
+
+  constructor({ transaction }: { transaction: Record<string, unknown> }) {
+    super('Cannot infer a transaction type from provided transaction.', {
+      metaMessages: [
+        'Provided Transaction:',
+        '{',
+        prettyPrint(transaction),
+        '}',
+        '',
+        'To infer the type, either provide:',
+        '- a `type` to the Transaction, or',
+        '- an EIP-1559 Transaction with `maxFeePerGas`, or',
+        '- an EIP-2930 Transaction with `gasPrice` & `accessList`, or',
+        '- a Legacy Transaction with `gasPrice`',
+      ],
+    })
+  }
+}
+
+export class InvalidSerializedTransactionTypeError extends BaseError {
+  name = 'InvalidSerializedTransactionType'
+
+  serializedType: Hex
+
+  constructor({ serializedType }: { serializedType: Hex }) {
+    super(`Serialized transaction type "${serializedType}" is invalid.`)
+
+    this.serializedType = serializedType
+  }
+}
+
+export class InvalidSerializedTransactionError extends BaseError {
+  name = 'InvalidSerializedTransactionError'
+
+  serializedTransaction: Hex
+  type: TransactionType
+
+  constructor({
+    attributes,
+    serializedTransaction,
+    type,
+  }: {
+    attributes: Record<string, unknown>
+    serializedTransaction: Hex
+    type: TransactionType
+  }) {
+    const missing = Object.entries(attributes)
+      .map(([key, value]) => (typeof value === 'undefined' ? key : undefined))
+      .filter(Boolean)
+    super(`Invalid serialized transaction of type "${type}" was provided.`, {
+      metaMessages: [
+        `Serialized Transaction: "${serializedTransaction}"`,
+        missing.length > 0 ? `Missing Attributes: ${missing.join(', ')}` : '',
+      ].filter(Boolean),
+    })
+
+    this.serializedTransaction = serializedTransaction
+    this.type = type
   }
 }
 
@@ -130,35 +208,5 @@ export class WaitForTransactionReceiptTimeoutError extends BaseError {
     super(
       `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
     )
-  }
-}
-
-export class InvalidTransactionTypeError extends BaseError {
-  name = 'InvalidTransactionType'
-  constructor({ type }: { type?: TransactionType }) {
-    let message =
-      'Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks, and `gasPrice` for others.'
-    let errorMessage = 'Cannot infer transaction type from object.'
-    if (type) {
-      errorMessage = `Transaction object is not a valid "${type}" type transaction.`
-    }
-
-    if (type === 'eip1559') {
-      message =
-        'Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks.'
-    }
-
-    if (type === 'eip2930') {
-      message =
-        'Use `gasPrice` and `accessList` for EIP-2930 compatible networks.'
-    }
-
-    if (type === 'legacy') {
-      message = 'Use `gasPrice` for legacy transactions.'
-    }
-
-    super(errorMessage, {
-      metaMessages: [message],
-    })
   }
 }

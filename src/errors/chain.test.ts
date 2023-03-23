@@ -1,9 +1,6 @@
 import { expect, test } from 'vitest'
 import { mainnet } from '../chains'
-import {
-  ChainDoesNotSupportContract,
-  PreEIP155NotSupportedError,
-} from './chain'
+import { ChainDoesNotSupportContract, InvalidChainIdError } from './chain'
 
 test('ChainDoesNotSupportContract', () => {
   expect(
@@ -46,12 +43,12 @@ test('ChainDoesNotSupportContract', () => {
 
     Version: viem@1.0.2]
   `)
+})
 
-  expect(new PreEIP155NotSupportedError({ chainId: 0 })).toMatchInlineSnapshot(`
-  [PreEIP155NotSupportedError: Pre EIP-155 transactions not supported.
-  
-  Chain ID: 0
-  
-  Version: viem@1.0.2]
-`)
+test('InvalidChainIdError', () => {
+  expect(new InvalidChainIdError({ chainId: -1 })).toMatchInlineSnapshot(`
+    [InvalidChainIdError: Chain ID "-1" is invalid.
+
+    Version: viem@1.0.2]
+  `)
 })

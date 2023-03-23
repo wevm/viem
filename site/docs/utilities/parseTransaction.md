@@ -14,57 +14,30 @@ head:
 
 # parseTransaction
 
-Parses a previously serialized transaction object. Supports `EIP-1559`, `EIP-2930` and `Legacy` type transactions. Pre `EIP-155` transactions are not supported. Supports both signed, and unsigned serialized transactions.
+Parses a serialized RLP-encoded transaction. Supports signed & unsigned EIP-1559, EIP-2930 and Legacy Transactions.
 
 ## Import
 ```ts
-import { parseTransaction } from "viem"
+import { parseTransaction } from 'viem'
 ```
 
 ## Usage
 ```ts
-import { serializeTransaction, parseTransaction } from "viem"
+import { parseTransaction } from 'viem'
 
-const serialized = serializeTransaction({
-  chainId: 1,
-  gas: 21001n,
-  maxFeePerGas: 2n,
-  maxPriorityFeePerGas: 2n,
-  value: 1n,
-  data: "0x",
-  nonce: 69,
-  to: "0x1234512345123451234512345123451234512345",
-  accessList:[]
-}, {
-  type: "eip1559"
-})
-
-const parsed = parseTransaction({
-  type: "eip1559", encodedTransaction: serialized
-})
+const transaction = parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
 ```
 
 ## Returns
 
-`Omit<TransactionRequest, 'from'> & ({ chainId: number } | {chainId: number & Signature})`
+`TransactionSerializable`
 
 The parsed transaction object.
 
 ## Parameters
 
-### transaction
+### serializedTransaction
 
-- **Type:** `{ type: TransactionType ; encodedTransaction: EIP1559Serialized | EIP2930Serialized | Hex  }`
+- **Type:** `Hex`
 
-The transaction object to serialize.
-
-```ts
-import { parseTransaction } from "viem"
-
-const parseTransaction = parseTransaction({
-  type: "eip1559", // [!code focus]
-  encodedTransaction: serialized // [!code focus]
-})
-```
-
-The `type` property will infer the `encodedTransaction` type and vice-versa (e.g. the `type` `eip1559` will require that the `encodedTransaction` be of type `EIP1559Serialized`. 
+The serialized transaction.

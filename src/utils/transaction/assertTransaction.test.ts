@@ -59,30 +59,24 @@ test('invalid chainId', () => {
   expect(() =>
     assertTransactionEIP1559({ chainId: 0 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Pre EIP-155 transactions not supported.
+    "Chain ID \\"0\\" is invalid.
 
-    Chain ID: 0
-    
     Version: viem@1.0.2"
   `)
 
   expect(() =>
     assertTransactionEIP2930({ chainId: 0 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Pre EIP-155 transactions not supported.
+    "Chain ID \\"0\\" is invalid.
 
-    Chain ID: 0
-    
     Version: viem@1.0.2"
   `)
 
   expect(() =>
     assertTransactionLegacy({ chainId: 0 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Pre EIP-155 transactions not supported.
+    "Chain ID \\"0\\" is invalid.
 
-    Chain ID: 0
-    
     Version: viem@1.0.2"
   `)
 })
@@ -120,9 +114,7 @@ test('invalid transaction type', () => {
       chainId: 1,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"eip1559\\" type transaction.
-
-    Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks.
+    "\`gasPrice\` is not a valid EIP-1559 Transaction attribute.
 
     Version: viem@1.0.2"
   `)
@@ -133,9 +125,7 @@ test('invalid transaction type', () => {
       maxPriorityFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"eip2930\\" type transaction.
-
-    Use \`gasPrice\` and \`accessList\` for EIP-2930 compatible networks.
+    "\`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid EIP-2930 Transaction attribute.
 
     Version: viem@1.0.2"
   `)
@@ -145,9 +135,7 @@ test('invalid transaction type', () => {
       maxFeePerGas: parseGwei('1') as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"legacy\\" type transaction.
-
-    Use \`gasPrice\` for legacy transactions.
+    "\`maxFeePerGas\`/\`maxPriorityFeePerGas\` is not a valid Legacy Transaction attribute.
 
     Version: viem@1.0.2"
   `)
@@ -157,9 +145,7 @@ test('invalid transaction type', () => {
       accessList: [] as unknown as undefined,
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"legacy\\" type transaction.
-
-    Use \`gasPrice\` for legacy transactions.
+    "\`accessList\` is not a valid Legacy Transaction attribute.
 
     Version: viem@1.0.2"
   `)

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { fromRlp } from './fromRlp'
-import { stringToBytes } from './toBytes'
+import { stringToBytes, toBytes } from './toBytes'
 import { toHex, stringToHex } from './toHex'
 
 test('single byte', () => {
@@ -9,21 +9,21 @@ test('single byte', () => {
   expect(fromRlp('0x00', 'bytes')).toStrictEqual(new Uint8Array([0]))
   expect(fromRlp('0x01', 'bytes')).toStrictEqual(new Uint8Array([1]))
 
-  expect(fromRlp('0x0', 'hex')).toBe('0x0')
-  expect(fromRlp('0x1', 'hex')).toBe('0x1')
+  expect(fromRlp('0x0', 'hex')).toBe('0x00')
+  expect(fromRlp('0x1', 'hex')).toBe('0x01')
   expect(fromRlp('0x42', 'hex')).toBe('0x42')
   expect(fromRlp('0x7f', 'hex')).toBe('0x7f')
 
-  expect(fromRlp('0x21', 'hex')).toBe(toHex('!'))
-  expect(fromRlp('0x61', 'hex')).toBe(toHex('a'))
-  expect(fromRlp('0x7e', 'hex')).toBe(toHex('~'))
+  expect(fromRlp('0x21', 'bytes')).toEqual(toBytes('!'))
+  expect(fromRlp('0x61', 'bytes')).toEqual(toBytes('a'))
+  expect(fromRlp('0x7e', 'bytes')).toEqual(toBytes('~'))
 
-  expect(fromRlp('0x1', 'hex')).toBe(toHex(true))
-  expect(fromRlp('0x0', 'hex')).toBe(toHex(false))
+  expect(fromRlp('0x01', 'bytes')).toEqual(toBytes(true))
+  expect(fromRlp('0x00', 'bytes')).toEqual(toBytes(false))
 
-  expect(fromRlp('0x0', 'hex')).toBe(toHex(0))
-  expect(fromRlp('0x45', 'hex')).toBe(toHex(69))
-  expect(fromRlp('0x7f', 'hex')).toBe(toHex(127))
+  expect(fromRlp('0x00', 'bytes')).toEqual(toBytes(0))
+  expect(fromRlp('0x45', 'bytes')).toEqual(toBytes(69))
+  expect(fromRlp('0x7f', 'bytes')).toEqual(toBytes(127))
 })
 
 test('single byte >= 0x80', () => {
@@ -57,7 +57,7 @@ test('multiple bytes < 56 bytes', () => {
   expect(fromRlp('0x820100', 'bytes')).toStrictEqual(new Uint8Array([1, 0]))
   expect(fromRlp('0x824000', 'bytes')).toStrictEqual(new Uint8Array([64, 0]))
 
-  expect(fromRlp('0x820100', 'hex')).toBe('0x100')
+  expect(fromRlp('0x820100', 'hex')).toBe('0x0100')
   expect(fromRlp('0x824000', 'hex')).toBe('0x4000')
   expect(
     fromRlp(
@@ -68,33 +68,33 @@ test('multiple bytes < 56 bytes', () => {
     '0x10000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000',
   )
 
-  expect(fromRlp('0x820100', 'hex')).toBe(toHex(256))
-  expect(fromRlp('0x871fffffffffffff', 'hex')).toBe(
-    toHex(Number.MAX_SAFE_INTEGER),
+  expect(fromRlp('0x820100', 'bytes')).toEqual(toBytes(256))
+  expect(fromRlp('0x871fffffffffffff', 'bytes')).toEqual(
+    toBytes(Number.MAX_SAFE_INTEGER),
   )
 
-  expect(fromRlp('0x820100', 'hex')).toBe(toHex(256n))
-  expect(fromRlp('0x871fffffffffffff', 'hex')).toBe(
-    toHex(BigInt(Number.MAX_SAFE_INTEGER)),
+  expect(fromRlp('0x820100', 'bytes')).toEqual(toBytes(256n))
+  expect(fromRlp('0x871fffffffffffff', 'bytes')).toEqual(
+    toBytes(BigInt(Number.MAX_SAFE_INTEGER)),
   )
   expect(
     fromRlp(
       '0xb7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-      'hex',
+      'bytes',
     ),
-  ).toBe(toHex(2n ** (55n * 8n) - 1n))
+  ).toEqual(toBytes(2n ** (55n * 8n) - 1n))
 
-  expect(fromRlp('0x826161', 'hex')).toBe(toHex('aa'))
-  expect(fromRlp('0x83646f67', 'hex')).toBe(toHex('dog'))
-  expect(fromRlp('0x8b68656c6c6f20776f726c64', 'hex')).toBe(
-    toHex('hello world'),
+  expect(fromRlp('0x826161', 'bytes')).toEqual(toBytes('aa'))
+  expect(fromRlp('0x83646f67', 'bytes')).toEqual(toBytes('dog'))
+  expect(fromRlp('0x8b68656c6c6f20776f726c64', 'bytes')).toEqual(
+    toBytes('hello world'),
   )
   expect(
     fromRlp(
       '0xb768656c6c6f20776f726c64206d79206e616d65206973206a616b6520616e64206920616d206120636f6f6c20677579206c6d616f206869',
-      'hex',
+      'bytes',
     ),
-  ).toBe(toHex('hello world my name is jake and i am a cool guy lmao hi'))
+  ).toEqual(toBytes('hello world my name is jake and i am a cool guy lmao hi'))
 
   expect(() =>
     fromRlp('0x871fffffffffff', 'hex'),
@@ -188,21 +188,21 @@ test('multiple bytes >= 56 bytes', () => {
   expect(
     fromRlp(
       '0xb8380100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-      'hex',
+      'bytes',
     ),
-  ).toBe(toHex(2n ** (55n * 8n)))
+  ).toEqual(toBytes(2n ** (55n * 8n)))
   expect(
     fromRlp(
       '0xb881010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-      'hex',
+      'bytes',
     ),
-  ).toBe(toHex(2n ** (128n * 8n)))
+  ).toEqual(toBytes(2n ** (128n * 8n)))
   expect(
     fromRlp(
       '0xb904010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-      'hex',
+      'bytes',
     ),
-  ).toBe(toHex(2n ** (1024n * 8n)))
+  ).toEqual(toBytes(2n ** (1024n * 8n)))
 
   expect(() =>
     fromRlp(

@@ -39,8 +39,6 @@ export type HexToBigIntOpts = {
 export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
   const { signed } = opts
 
-  if (hex === '0x') return BigInt(0)
-
   const value = BigInt(hex)
   if (!signed) return value
 

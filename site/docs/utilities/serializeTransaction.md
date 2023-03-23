@@ -5,120 +5,79 @@ head:
       content: serializeTransaction
   - - meta
     - name: description
-      content: Computes a serialized transaction.
+      content: Serializes a transaction object.
   - - meta
     - property: og:description
-      content: Computes a serialized transaction.
+      content: Serializes a transaction object.
 
 ---
 
 # serializeTransaction
 
-Serializes a transaction object. Support `EIP-1559`, `EIP-2930` and `Legacy` type transactions. Pre `EIP-155` transactions are not supported.
+Serializes a transaction object. Supports EIP-1559, EIP-2930, and Legacy transactions.
 
 ## Import
 ```ts
-import { serializeTransaction } from "viem"
+import { serializeTransaction } from 'viem'
 ```
 
 ## Usage
 ```ts
-import { serializeTransaction } from "viem"
+import { serializeTransaction } from 'viem'
 
 const serialized = serializeTransaction({
   chainId: 1,
   gas: 21001n,
-  maxFeePerGas: 2n,
-  maxPriorityFeePerGas: 2n,
-  value: 1n,
-  data: "0x",
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
   to: "0x1234512345123451234512345123451234512345",
-  accessList:[]
-}, {
-  type: "eip1559"
+  value: parseEther('0.01'),
 })
 ```
 
 ## Returns
 
-Based on the transaction type.
+Returns a template `Hex` value based on transaction type:
 
-- Type `eip1559` will return [EIP1559Serialized](/docs/glossary/types#EIP1559Serialized)
-- Type `eip2930` will return [EIP2930Serialized](/docs/glossary/types#EIP2930Serialized)
-- Type `legacy`  will return [Hex](/docs/glossary/types#hex) 
+- `eip1559`: [TransactionSerializedEIP1559](/docs/glossary/types#TransactionSerializedEIP1559)
+- `eip2930`: [TransactionSerializedEIP2930](/docs/glossary/types#TransactionSerializedEIP2930)
+- `legacy`: [TransactionSerializedLegacy](/docs/glossary/types#TransactionSerializedLegacy) 
 
 ## Parameters
 
 ### transaction
 
-- **Type:** `Omit<TransactionRequest, 'from'> & { chainId: number }`
+- **Type:** `TransactionSerializable`
 
 The transaction object to serialize.
 
 ```ts
-import { serializeTransaction } from "viem"
-
 const serialized = serializeTransaction({
   chainId: 1,
   gas: 21001n,
-  gasPrice: 2n
-  value: 1n,
-  data: "0x",
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
-  to: "0x1234512345123451234512345123451234512345",
-  accessList: []
-}, {
-  type: "eip2930"
+  to: '0x1234512345123451234512345123451234512345',
+  value: parseEther('0.01'),
 })
 ```
 
-### options
+### signature
 
-- **Type:** `{type: TransactionType, signature?: Signature}`
+- **Type:** `Hex`
 
-The transaction type and the optional parameter `signature` in case you want to serialize a transaction with a signature.
+Optional signature to include.
 
 ```ts
-import { serializeTransaction } from "viem"
-
 const serialized = serializeTransaction({
   chainId: 1,
   gas: 21001n,
-  gasPrice: 2n
-  value: 1n,
-  data: "0x",
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
-  to: "0x1234512345123451234512345123451234512345",
-  accessList: []
-}, {
-  type: "eip2930" // [!code focus]
-})
-```
-
-The transaction type will get infered based on the transaction object if it has specific properties (e.g. `gasPrice`, `accessList`, `maxFeePerGas`, `maxPriorityFeePerGas`). The default value is `TransactionType`.
-
-### Signature
-- Optional signature to serialize.
-
-```ts
-import { serializeTransaction } from "viem"
-
-const serialized = serializeTransaction({
-  chainId: 1,
-  gas: 21001n,
-  gasPrice: 2n
-  value: 1n,
-  data: "0x",
-  nonce: 69,
-  to: "0x1234512345123451234512345123451234512345",
-  accessList: []
-}, {
-  type: "eip2930" 
-  signature: { // [!code focus]
-    r: "0x123451234512345123451234512345123451234512345123451234512345" // [!code focus]
-    s: "0x123451234512345123451234512345123451234512345123451234512345" // [!code focus]
-    v: 28n // [!code focus]
-  } // [!code focus]
-})
+  to: '0x1234512345123451234512345123451234512345',
+  value: parseEther('0.01'),
+}, '0x...')
 ```

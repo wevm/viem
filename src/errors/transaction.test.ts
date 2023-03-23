@@ -5,12 +5,81 @@ import { address } from '../_test'
 import { BaseError } from './base'
 import {
   FeeConflictError,
-  InvalidTransactionTypeError,
+  InvalidLegacyVError,
+  InvalidSerializableTransactionError,
+  InvalidSerializedTransactionError,
+  InvalidSerializedTransactionTypeError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from './transaction'
+
+test('InvalidLegacyVError', () => {
+  expect(new InvalidLegacyVError({ v: 69n })).toMatchInlineSnapshot(`
+    [InvalidLegacyVError: Invalid \`v\` value "69". Expected 27 or 28.
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidSerializableTransactionError', () => {
+  expect(
+    new InvalidSerializableTransactionError({
+      transaction: {
+        chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
+
+    Provided Transaction:
+    {
+      chainId:  1
+      to:       0x0000000000000000000000000000000000000000
+    }
+
+    To infer the type, either provide:
+    - a \`type\` to the Transaction, or
+    - an EIP-1559 Transaction with \`maxFeePerGas\`, or
+    - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
+    - a Legacy Transaction with \`gasPrice\`
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidSerializedTransactionTypeError', () => {
+  expect(
+    new InvalidSerializedTransactionTypeError({
+      serializedType: '0x111',
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidSerializedTransactionType: Serialized transaction type "0x111" is invalid.
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidSerializedTransactionError', () => {
+  expect(
+    new InvalidSerializedTransactionError({
+      attributes: {
+        chainId: null,
+        to: null,
+      },
+      serializedTransaction: '0x02ce01',
+      type: 'eip1559',
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
+
+    Serialized Transaction: "0x02ce01"
+
+    Version: viem@1.0.2]
+  `)
+})
 
 test('FeeConflictError', () => {
   expect(new FeeConflictError()).toMatchInlineSnapshot(`
@@ -242,42 +311,10 @@ test('WaitForTransactionReceiptTimeoutError', () => {
   }).toThrowError(WaitForTransactionReceiptTimeoutError)
 })
 
-test('InvalidTransactionType', () => {
-  expect(
-    new InvalidTransactionTypeError({ type: 'eip1559' }),
-  ).toMatchInlineSnapshot(`
-      [InvalidTransactionType: Transaction object is not a valid "eip1559" type transaction.
+test.todo('InvalidSerializableTransactionError')
 
-      Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks.
+test.todo('InvalidSerializedTransactionTypeError')
 
-      Version: viem@1.0.2]
-    `)
+test.todo('InvalidSerializedTransactionError')
 
-  expect(
-    new InvalidTransactionTypeError({ type: 'eip2930' }),
-  ).toMatchInlineSnapshot(`
-      [InvalidTransactionType: Transaction object is not a valid "eip2930" type transaction.
-
-      Use \`gasPrice\` and \`accessList\` for EIP-2930 compatible networks.
-
-      Version: viem@1.0.2]
-    `)
-
-  expect(
-    new InvalidTransactionTypeError({ type: 'legacy' }),
-  ).toMatchInlineSnapshot(`
-      [InvalidTransactionType: Transaction object is not a valid "legacy" type transaction.
-
-      Use \`gasPrice\` for legacy transactions.
-
-      Version: viem@1.0.2]
-    `)
-
-  expect(new InvalidTransactionTypeError({})).toMatchInlineSnapshot(`
-      [InvalidTransactionType: Cannot infer transaction type from object.
-
-      Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
-
-      Version: viem@1.0.2]
-    `)
-})
+test.todo('InvalidLegacyVError')

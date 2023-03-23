@@ -54,15 +54,6 @@ export class ChainMismatchError extends BaseError {
   }
 }
 
-
-export class PreEIP155NotSupportedError extends BaseError {
-  name = 'PreEIP155NotSupportedError'
-
-  constructor({ chainId }: { chainId: number }) {
-    super('Pre EIP-155 transactions not supported.', {
-      metaMessages: [`Chain ID: ${chainId}`],
-    })
-
 export class ChainNotFoundError extends BaseError {
   name = 'ChainNotFoundError'
 
@@ -73,5 +64,13 @@ export class ChainNotFoundError extends BaseError {
         'Please provide a chain with the `chain` argument on the Action, or by supplying a `chain` to WalletClient.',
       ].join('\n'),
     )
+  }
+}
+
+export class InvalidChainIdError extends BaseError {
+  name = 'InvalidChainIdError'
+
+  constructor({ chainId }: { chainId: number }) {
+    super(`Chain ID "${chainId}" is invalid.`)
   }
 }

@@ -1,7 +1,6 @@
 import type { Hex } from '../../types'
-
-const hashRegex = /^0x[a-f0-9]{64}$/
+import { size } from '../data'
 
 export function isHash(hash: string): hash is Hex {
-  return hashRegex.test(hash)
+  return hash.startsWith('0x') && size(hash as Hex) === 32
 }

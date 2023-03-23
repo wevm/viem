@@ -145,7 +145,12 @@ export {
   getTransactionError,
 } from './errors'
 
-export { getEventSelector, getFunctionSelector, keccak256 } from './hash'
+export {
+  getEventSelector,
+  getFunctionSelector,
+  isHash,
+  keccak256,
+} from './hash'
 
 export { arrayRegex, bytesRegex, integerRegex } from './regex'
 
@@ -178,10 +183,19 @@ export {
 
 export { stringify } from './stringify'
 
+export type {
+  GetSerializedTransactionType,
+  GetTransactionType,
+} from './transaction'
 export {
   assertRequest,
-  prepareRequest,
+  assertTransactionEIP1559,
+  assertTransactionEIP2930,
+  assertTransactionLegacy,
+  getSerializedTransactionType,
+  getTransactionType,
   parseTransaction,
+  prepareRequest,
   serializeTransaction,
 } from './transaction'
 

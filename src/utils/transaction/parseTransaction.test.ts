@@ -1,46 +1,290 @@
-import { expect, test } from 'vitest'
+import { assertType, describe, expect, test } from 'vitest'
 import { accounts, signTransaction } from '../../_test'
 import { serializeTransaction } from './serializeTransaction'
 import { parseGwei, parseEther } from '../unit'
 import { parseTransaction } from './parseTransaction'
-import { serializeTransaction as serializeTransactionEthers } from 'ethers/lib/utils'
 import type {
-  EIP1559Serialized,
-  EIP2930Serialized,
-} from '../../types/transaction'
+  TransactionSerializableBase,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
+} from '../../types'
 import { toHex, toRlp } from '../encoding'
 
-const sourceAccount = accounts[0]
-const targetAccount = accounts[1]
-const data = '0x' as const
-
-const BaseTransaction = {
-  chainId: 1,
-  data,
-  to: targetAccount.address,
+const base = {
+  to: accounts[1].address,
   nonce: 785,
   value: parseEther('1'),
-}
+} satisfies TransactionSerializableBase
 
-test('parse transaction EIP1559', () => {
-  const serialized = serializeTransaction({
-    ...BaseTransaction,
-    gas: 21001n,
-    accessList: [
-      {
-        address: '0x1234512345123451234512345123451234512345',
-        storageKeys: [
-          '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-        ],
-      },
-    ],
+describe('eip1559', () => {
+  const baseEip1559 = {
+    ...base,
+    chainId: 1,
     maxFeePerGas: parseGwei('2'),
     maxPriorityFeePerGas: parseGwei('2'),
+  }
+
+  test('default', () => {
+    const serialized = serializeTransaction(baseEip1559)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP1559>(transaction)
+    expect(transaction).toEqual({ ...baseEip1559, type: 'eip1559' })
   })
 
-  expect(parseTransaction(serialized)).toEqual({
-    ...BaseTransaction,
-    gas: 21001n,
+  test('minimal', () => {
+    const args = {
+      chainId: 1,
+      maxFeePerGas: 1n,
+    }
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
+  })
+
+  test('args: gas', () => {
+    const args = {
+      ...baseEip1559,
+      gas: 21001n,
+    }
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
+  })
+
+  test('args: accessList', () => {
+    const args = {
+      ...baseEip1559,
+      accessList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          storageKeys: [
+            '0x1',
+            '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          ],
+        },
+      ],
+    } satisfies TransactionSerializableEIP1559
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
+  })
+
+  test('args: data', () => {
+    const args = {
+      ...baseEip1559,
+      data: '0x1234',
+    } satisfies TransactionSerializableEIP1559
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
+  })
+
+  test('signed', () => {
+    const signature = signTransaction(
+      serializeTransaction(baseEip1559),
+      accounts[0].privateKey,
+    )
+    const serialized = serializeTransaction(baseEip1559, signature)
+    expect(parseTransaction(serialized)).toEqual({
+      ...baseEip1559,
+      ...signature,
+      type: 'eip1559',
+      yParity: 1,
+    })
+  })
+
+  describe('raw', () => {
+    test('default', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        toHex(1), // maxPriorityFeePerGas
+        toHex(1), // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        toHex(0), // value
+        '0x', // data
+        '0x', // accessList
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "maxFeePerGas": 1n,
+          "maxPriorityFeePerGas": 1n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+          "value": 0n,
+        }
+      `)
+    })
+
+    test('empty sig', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        toHex(1), // maxPriorityFeePerGas
+        toHex(1), // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        toHex(0), // value
+        '0x', // data
+        '0x', // accessList
+        '0x', // r
+        '0x', // v
+        '0x', // s
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "maxFeePerGas": 1n,
+          "maxPriorityFeePerGas": 1n,
+          "nonce": 0,
+          "r": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "s": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+          "v": 27n,
+          "value": 0n,
+          "yParity": 0,
+        }
+      `)
+    })
+
+    test('low sig coords', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        toHex(1), // maxPriorityFeePerGas
+        toHex(1), // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        toHex(0), // value
+        '0x', // data
+        '0x', // accessList
+        '0x', // r
+        toHex(69), // v
+        toHex(420), // s
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "maxFeePerGas": 1n,
+          "maxPriorityFeePerGas": 1n,
+          "nonce": 0,
+          "r": "0x0000000000000000000000000000000000000000000000000000000000000045",
+          "s": "0x00000000000000000000000000000000000000000000000000000000000001a4",
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+          "v": 27n,
+          "value": 0n,
+          "yParity": 0,
+        }
+      `)
+    })
+  })
+
+  describe('errors', () => {
+    test('invalid access list (invalid address)', () => {
+      expect(() =>
+        parseTransaction(
+          `0x02${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            toHex(1), // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            toHex(0), // value
+            '0x', // data
+            [['0x', ['0x0']]], // accessList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Address \\"0x\\" is invalid.
+
+        Version: viem@1.0.2"
+      `)
+
+      expect(() =>
+        parseTransaction(
+          `0x02${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            toHex(1), // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            toHex(0), // value
+            '0x', // data
+            [['0x123456', ['0x0']]], // accessList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Address \\"0x123456\\" is invalid.
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (all missing)', () => {
+      expect(() =>
+        parseTransaction(`0x02${toRlp([]).slice(2)}`),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"eip1559\\" was provided.
+
+        Serialized Transaction: \\"0x02c0\\"
+        Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (some missing)', () => {
+      expect(() =>
+        parseTransaction(`0x02${toRlp(['0x0', '0x1']).slice(2)}`),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"eip1559\\" was provided.
+
+        Serialized Transaction: \\"0x02c20001\\"
+        Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (missing signature)', () => {
+      expect(() =>
+        parseTransaction(
+          `0x02${toRlp([
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"eip1559\\" was provided.
+
+        Serialized Transaction: \\"0x02ca80808080808080808080\\"
+        Missing Attributes: r, s
+
+        Version: viem@1.0.2"
+      `)
+    })
+  })
+})
+
+describe('eip2930', () => {
+  const baseEip2930 = {
+    ...base,
+    chainId: 1,
     accessList: [
       {
         address: '0x1234512345123451234512345123451234512345',
@@ -49,438 +293,387 @@ test('parse transaction EIP1559', () => {
         ],
       },
     ],
-    maxFeePerGas: parseGwei('2'),
-    maxPriorityFeePerGas: parseGwei('2'),
-  })
-})
-
-test('parse signed transaction EIP1559', () => {
-  const signature = signTransaction(
-    serializeTransaction({
-      ...BaseTransaction,
-      accessList: [],
-      gas: 21001n,
-      maxFeePerGas: parseGwei('2'),
-      maxPriorityFeePerGas: parseGwei('2'),
-    }),
-    sourceAccount.privateKey,
-  )
-
-  const serialized = serializeTransaction(
-    {
-      ...BaseTransaction,
-      accessList: [],
-      gas: 21001n,
-      maxFeePerGas: parseGwei('2'),
-      maxPriorityFeePerGas: parseGwei('2'),
-    },
-    signature,
-  )
-  expect(parseTransaction(serialized)).toEqual({
-    ...BaseTransaction,
-    accessList: [],
-    gas: 21001n,
-    maxFeePerGas: parseGwei('2'),
-    maxPriorityFeePerGas: parseGwei('2'),
-    ...signature,
-  })
-})
-
-test('parse transaction EIP2930', () => {
-  const serialized = serializeTransaction({
-    ...BaseTransaction,
-    accessList: [
-      {
-        address: '0x1234512345123451234512345123451234512345',
-        storageKeys: [
-          '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-        ],
-      },
-    ],
     gasPrice: parseGwei('2'),
-    gas: 21001n,
+  } as TransactionSerializableEIP2930
+
+  test('default', () => {
+    const serialized = serializeTransaction(baseEip2930)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP2930>(transaction)
+    expect(transaction).toEqual({ ...baseEip2930, type: 'eip2930' })
   })
 
-  expect(parseTransaction(serialized)).toEqual({
-    ...BaseTransaction,
-    accessList: [
-      {
-        address: '0x1234512345123451234512345123451234512345',
-        storageKeys: [
-          '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-        ],
-      },
-    ],
-    gasPrice: parseGwei('2'),
-    gas: 21001n,
+  test('minimal', () => {
+    const args = {
+      chainId: 1,
+      gasPrice: 1n,
+      accessList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          storageKeys: ['0x0'],
+        },
+      ],
+    } satisfies TransactionSerializableEIP2930
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
-})
 
-test('parse signed transaction EIP2930', () => {
-  const signature = signTransaction(
-    serializeTransaction({
-      ...BaseTransaction,
-      accessList: [],
-      gasPrice: parseGwei('2'),
+  test('args: gas', () => {
+    const args = {
+      ...baseEip2930,
       gas: 21001n,
-    }),
-    sourceAccount.privateKey,
-  )
+    } satisfies TransactionSerializableEIP2930
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
+  })
 
-  const serialized = serializeTransaction(
-    {
-      ...BaseTransaction,
-      accessList: [],
-      gasPrice: parseGwei('2'),
+  test('args: data', () => {
+    const args = {
+      ...baseEip2930,
+      data: '0x1234',
+    } satisfies TransactionSerializableEIP2930
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
+  })
+
+  test('args: data', () => {
+    const args = {
+      ...baseEip2930,
+      data: '0x1234',
+    } satisfies TransactionSerializableEIP2930
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
+  })
+
+  test('signed', () => {
+    const signature = signTransaction(
+      serializeTransaction(baseEip2930),
+      accounts[0].privateKey,
+    )
+    const serialized = serializeTransaction(baseEip2930, signature)
+    expect(parseTransaction(serialized)).toEqual({
+      ...baseEip2930,
+      ...signature,
+      type: 'eip2930',
+      yParity: 1,
+    })
+  })
+
+  describe('errors', () => {
+    test('invalid transaction (all missing)', () => {
+      expect(() =>
+        parseTransaction(`0x01${toRlp([]).slice(2)}`),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"eip2930\\" was provided.
+
+        Serialized Transaction: \\"0x01c0\\"
+        Missing Attributes: chainId, nonce, gasPrice, gas, to, value, data, accessList
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (some missing)', () => {
+      expect(() =>
+        parseTransaction(`0x01${toRlp(['0x0', '0x1']).slice(2)}`),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"eip2930\\" was provided.
+
+        Serialized Transaction: \\"0x01c20001\\"
+        Missing Attributes: gasPrice, gas, to, value, data, accessList
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (missing signature)', () => {
+      expect(() =>
+        parseTransaction(
+          `0x01${toRlp([
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+            '0x',
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"eip2930\\" was provided.
+
+        Serialized Transaction: \\"0x01c9808080808080808080\\"
+        Missing Attributes: r, s
+
+        Version: viem@1.0.2"
+      `)
+    })
+  })
+})
+
+describe('legacy', () => {
+  const baseLegacy = {
+    ...base,
+    gasPrice: parseGwei('2'),
+  }
+
+  test('default', () => {
+    const serialized = serializeTransaction(baseLegacy)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableLegacy>(transaction)
+    expect(transaction).toEqual({ ...baseLegacy, type: 'legacy' })
+  })
+
+  test('args: gas', () => {
+    const args = {
+      ...baseLegacy,
       gas: 21001n,
-    },
-    signature,
-  )
+    }
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
+  })
 
-  expect(parseTransaction(serialized)).toEqual({
-    ...BaseTransaction,
-    accessList: [],
-    gasPrice: parseGwei('2'),
-    gas: 21001n,
-    ...signature,
+  test('args: data', () => {
+    const args = {
+      ...baseLegacy,
+      data: '0x1234',
+    } satisfies TransactionSerializableLegacy
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
+  })
+
+  test('args: chainId', () => {
+    const args = {
+      ...baseLegacy,
+      chainId: 69,
+    } satisfies TransactionSerializableLegacy
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
+  })
+
+  test('signed', () => {
+    const signature = signTransaction(
+      serializeTransaction(baseLegacy),
+      accounts[0].privateKey,
+    )
+    const serialized = serializeTransaction(baseLegacy, signature)
+    expect(parseTransaction(serialized)).toEqual({
+      ...baseLegacy,
+      ...signature,
+      type: 'legacy',
+    })
+  })
+
+  test('signed w/ chainId', () => {
+    const args = {
+      ...baseLegacy,
+      chainId: 69,
+    }
+    const signature = signTransaction(
+      serializeTransaction(args),
+      accounts[0].privateKey,
+    )
+    const serialized = serializeTransaction(args, signature)
+    expect(parseTransaction(serialized)).toEqual({
+      ...args,
+      ...signature,
+      type: 'legacy',
+      v: 173n,
+    })
+  })
+
+  describe('raw', () => {
+    test('default', () => {
+      const serialized = toRlp([
+        toHex(0), // nonce
+        toHex(1), // gasPrice
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        toHex(0), // value
+        '0x', // data
+      ])
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "gas": 1n,
+          "gasPrice": 1n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "legacy",
+          "value": 0n,
+        }
+      `)
+    })
+
+    test('empty sig', () => {
+      const serialized = toRlp([
+        toHex(0), // nonce
+        toHex(1), // gasPrice
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        toHex(0), // value
+        '0x', // data
+        '0x', // v
+        '0x', // r
+        '0x', // s
+      ])
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "gas": 1n,
+          "gasPrice": 1n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "legacy",
+          "value": 0n,
+        }
+      `)
+    })
+
+    test('low sig coords', () => {
+      const serialized = toRlp([
+        toHex(0), // nonce
+        toHex(1), // gasPrice
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        toHex(0), // value
+        '0x', // data
+        '0x1b', // v
+        toHex(69), // r
+        toHex(420), // s
+      ])
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "gas": 1n,
+          "gasPrice": 1n,
+          "nonce": 0,
+          "r": "0x45",
+          "s": "0x01a4",
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "legacy",
+          "v": 27n,
+          "value": 0n,
+        }
+      `)
+    })
+  })
+
+  describe('errors', () => {
+    test('invalid transaction (all missing)', () => {
+      expect(() =>
+        parseTransaction(toRlp([])),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"legacy\\" was provided.
+
+        Serialized Transaction: \\"0xc0\\"
+        Missing Attributes: nonce, gasPrice, gas, to, value, data
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (some missing)', () => {
+      expect(() =>
+        parseTransaction(toRlp(['0x0', '0x1'])),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"legacy\\" was provided.
+
+        Serialized Transaction: \\"0xc20001\\"
+        Missing Attributes: gas, to, value, data
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (missing signature)', () => {
+      expect(() =>
+        parseTransaction(toRlp(['0x', '0x', '0x', '0x', '0x', '0x', '0x'])),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"legacy\\" was provided.
+
+        Serialized Transaction: \\"0xc780808080808080\\"
+        Missing Attributes: r, s
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid transaction (attribute overload)', () => {
+      expect(() =>
+        parseTransaction(
+          toRlp(['0x', '0x', '0x', '0x', '0x', '0x', '0x', '0x', '0x', '0x']),
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid serialized transaction of type \\"legacy\\" was provided.
+
+        Serialized Transaction: \\"0xca80808080808080808080\\"
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid v', () => {
+      expect(() =>
+        parseTransaction(
+          toRlp([
+            toHex(0), // nonce
+            toHex(1), // gasPrice
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            toHex(0), // value
+            '0x', // data
+            '0x', // v
+            toHex(69), // r
+            toHex(420), // s
+          ]),
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid \`v\` value \\"0\\". Expected 27 or 28.
+
+        Version: viem@1.0.2"
+      `)
+
+      expect(() =>
+        parseTransaction(
+          toRlp([
+            toHex(0), // nonce
+            toHex(1), // gasPrice
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            toHex(0), // value
+            '0x', // data
+            toHex(35), // v
+            toHex(69), // r
+            toHex(420), // s
+          ]),
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Invalid \`v\` value \\"35\\". Expected 27 or 28.
+
+        Version: viem@1.0.2"
+      `)
+    })
   })
 })
 
-test('parse legacy transaction', () => {
-  const serialized = serializeTransaction({
-    ...BaseTransaction,
-    gasPrice: parseGwei('2'),
-    gas: 21001n,
+describe('errors', () => {
+  test('invalid transaction', () => {
+    expect(() => parseTransaction('0x')).toThrowErrorMatchingInlineSnapshot(
+      `
+      "Serialized transaction type \\"0x\\" is invalid.
+
+      Version: viem@1.0.2"
+    `,
+    )
   })
 
-  expect(parseTransaction(serialized)).toEqual({
-    ...BaseTransaction,
-    gasPrice: parseGwei('2'),
-    gas: 21001n,
+  test('invalid transaction', () => {
+    expect(() => parseTransaction('0x03')).toThrowErrorMatchingInlineSnapshot(
+      `
+      "Serialized transaction type \\"0x03\\" is invalid.
+
+      Version: viem@1.0.2"
+    `,
+    )
   })
-})
-
-test('parse signed legacy transaction', () => {
-  const signature = signTransaction(
-    serializeTransaction({
-      ...BaseTransaction,
-      gasPrice: parseGwei('2'),
-      gas: 21001n,
-    }),
-    sourceAccount.privateKey,
-  )
-
-  const serialized = serializeTransaction(
-    {
-      ...BaseTransaction,
-      gasPrice: parseGwei('2'),
-      gas: 21001n,
-    },
-    signature,
-  )
-
-  expect(parseTransaction(serialized)).toEqual({
-    ...BaseTransaction,
-    gasPrice: parseGwei('2'),
-    gas: 21001n,
-    r: signature.r,
-    s: signature.s,
-    v: 37n,
-  })
-})
-
-test('default values', () => {
-  const serialized2930 = serializeTransaction({
-    chainId: 1,
-    gasPrice: 1n,
-    accessList: [],
-    to: '0x1234512345123451234512345123451234512345',
-  })
-  const serialized1559 = serializeTransaction({
-    chainId: 1,
-    maxFeePerGas: 1n,
-    to: '0x1234512345123451234512345123451234512345',
-  })
-
-  expect(parseTransaction(serialized1559)).toEqual({
-    chainId: 1,
-    maxFeePerGas: 1n,
-    to: '0x1234512345123451234512345123451234512345',
-    data: '0x',
-    maxPriorityFeePerGas: 0n,
-    value: 0n,
-    nonce: 0,
-    gas: 0n,
-    accessList: [],
-  })
-
-  expect(parseTransaction(serialized2930)).toEqual({
-    chainId: 1,
-    to: '0x1234512345123451234512345123451234512345',
-    data: '0x',
-    gasPrice: 1n,
-    value: 0n,
-    nonce: 0,
-    gas: 0n,
-    accessList: [],
-  })
-})
-
-test('invalied values', () => {
-  expect(() => parseTransaction('0x02')).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"eip1559\\" type transaction.
-
-    Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks.
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() => parseTransaction('0x01')).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"eip2930\\" type transaction.
-
-    Use \`gasPrice\` and \`accessList\` for EIP-2930 compatible networks.
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() => parseTransaction('0x')).toThrowErrorMatchingInlineSnapshot(`
-    "Transaction object is not a valid \\"legacy\\" type transaction.
-
-    Use \`gasPrice\` for legacy transactions.
-
-    Version: viem@1.0.2"
-  `)
-})
-
-test('invalid values access list', () => {
-  const serialized2930 =
-    '0x01e1018080809412345123451234512345123451234512345123458080c5c4820123c0'
-  const serialized2930InvalidKeys =
-    '0x01f6018080809412345123451234512345123451234512345123458080dad9941234512345123451234512345123451234512345c3820123'
-
-  const serialized1559 =
-    '0x02e201808080809412345123451234512345123451234512345123458080c5c4820123c0'
-  const serialized1559InvalidKeys =
-    '0x02f701808080809412345123451234512345123451234512345123458080dad9941234512345123451234512345123451234512345c3820123'
-
-  expect(() =>
-    parseTransaction(serialized1559),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0x123\\" is invalid.
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() =>
-    parseTransaction(serialized2930),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Address \\"0x123\\" is invalid.
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() =>
-    parseTransaction(serialized1559InvalidKeys),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Contains invalid hash values.
-
-    0x123
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() =>
-    parseTransaction(serialized2930InvalidKeys),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Contains invalid hash values.
-
-    0x123
-
-    Version: viem@1.0.2"
-  `)
-})
-
-test('parse legacy', () => {
-  const encoded = toRlp([
-    toHex(0),
-    toHex(parseGwei('2')),
-    toHex(21001n),
-    '0x1234512345123451234512345123451234512345',
-    toHex(parseEther('1')),
-    '0x',
-  ])
-
-  expect(parseTransaction(encoded)).toEqual({
-    nonce: 0,
-    gasPrice: 2000000000n,
-    gas: 21001n,
-    to: '0x1234512345123451234512345123451234512345',
-    value: 1000000000000000000n,
-    data: '0x',
-  })
-
-  const withChainId = toRlp([
-    toHex(0),
-    toHex(parseGwei('2')),
-    toHex(21001n),
-    '0x1234512345123451234512345123451234512345',
-    toHex(parseEther('1')),
-    '0x',
-    toHex(1),
-    '0x',
-    '0x',
-  ])
-
-  expect(parseTransaction(withChainId)).toEqual({
-    nonce: 0,
-    gasPrice: 2000000000n,
-    gas: 21001n,
-    to: '0x1234512345123451234512345123451234512345',
-    value: 1000000000000000000n,
-    data: '0x',
-    chainId: 1,
-  })
-
-  const withSignature = toRlp([
-    toHex(0),
-    toHex(parseGwei('2')),
-    toHex(21001n),
-    '0x1234512345123451234512345123451234512345',
-    toHex(parseEther('1')),
-    '0x',
-    toHex(37n),
-    '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-    '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-  ])
-
-  expect(parseTransaction(withSignature)).toEqual({
-    nonce: 0,
-    gasPrice: 2000000000n,
-    gas: 21001n,
-    to: '0x1234512345123451234512345123451234512345',
-    value: 1000000000000000000n,
-    data: '0x',
-    chainId: 1,
-    v: 37n,
-    r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-    s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-  })
-})
-
-test('invalid chainId', () => {
-  const encodedIncorrectChainId = toRlp([
-    toHex(0),
-    toHex(parseGwei('2')),
-    toHex(21001n),
-    '0x1234512345123451234512345123451234512345',
-    toHex(parseEther('1')),
-    '0x',
-    toHex(35n),
-    '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-    '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-  ])
-
-  expect(() =>
-    parseTransaction(encodedIncorrectChainId),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Pre EIP-155 transactions not supported.
-
-    Chain ID: 0
-    
-    Version: viem@1.0.2"
-  `)
-
-  const incorrectChainId = toRlp([
-    toHex(0),
-    toHex(parseGwei('2')),
-    toHex(21001n),
-    '0x1234512345123451234512345123451234512345',
-    toHex(parseEther('1')),
-    '0x',
-    toHex(0),
-    '0x',
-    '0x',
-  ])
-
-  expect(() =>
-    parseTransaction(incorrectChainId),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Pre EIP-155 transactions not supported.
-
-    Chain ID: 0
-    
-    Version: viem@1.0.2"
-  `)
-})
-
-test('invalid signature hash', () => {
-  const invalidS = toRlp([
-    toHex(0),
-    toHex(parseGwei('2')),
-    toHex(21001n),
-    '0x1234512345123451234512345123451234512345',
-    toHex(parseEther('1')),
-    '0x',
-    toHex(37n),
-    '0x123',
-    '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-  ])
-
-  expect(() => parseTransaction(invalidS)).toThrowErrorMatchingInlineSnapshot(`
-    "Contains invalid hash values.
-
-    0x123
-    0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe
-
-    Version: viem@1.0.2"
-  `)
-
-  const s = serializeTransactionEthers(
-    { chainId: 1, to: '0x1234512345123451234512345123451234512345', type: 1 },
-    {
-      r: '0x123',
-      s: '0x123',
-      v: 28,
-    },
-  )
-
-  const r = serializeTransactionEthers(
-    { chainId: 1, to: '0x1234512345123451234512345123451234512345', type: 2 },
-    {
-      r: '0x123',
-      s: '0x123',
-      v: 28,
-    },
-  )
-
-  expect(() => parseTransaction(invalidS)).toThrowErrorMatchingInlineSnapshot(`
-    "Contains invalid hash values.
-
-    0x123
-    0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() =>
-    parseTransaction(s as EIP2930Serialized),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Contains invalid hash values.
-
-    0x123
-    0x123
-
-    Version: viem@1.0.2"
-  `)
-
-  expect(() =>
-    parseTransaction(r as EIP1559Serialized),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Contains invalid hash values.
-
-    0x123
-    0x123
-
-    Version: viem@1.0.2"
-  `)
 })

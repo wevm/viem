@@ -1,74 +1,90 @@
 import { bench, describe } from 'vitest'
 import { serializeTransaction as serializeTransactionEthers } from 'ethers/lib/utils'
+import { Transaction } from 'ethers@6'
 import { serializeTransaction } from './serializeTransaction'
-import { parseGwei, parseEther } from '../unit'
+import { parseEther } from '../unit'
 import { accounts } from '../../_test'
+import type { TransactionSerializableBase } from '../../types'
 
-const targetAccount = accounts[1]
-const data = '0x' as const
-
-const BaseTransaction = {
-  chainId: 1,
-  data,
-  to: targetAccount.address,
+const base = {
+  to: accounts[1].address,
   nonce: 785,
   value: parseEther('1'),
-}
+} satisfies TransactionSerializableBase
 
-describe('Serialize Transaction', () => {
-  bench('viem: `serializeTransaction` EIP1559', () => {
-    serializeTransaction({
-      ...BaseTransaction,
-      gas: 21001n,
-      accessList: [],
-      maxFeePerGas: parseGwei('2'),
-      maxPriorityFeePerGas: parseGwei('2'),
-    })
+describe('Serialize Transaction (Legacy)', () => {
+  bench('viem: `serializeTransaction`', () => {
+    serializeTransaction(
+      { ...base, gasPrice: 1n },
+      { r: '0x1', s: '0x2', v: 28n },
+    )
   })
 
-  bench('ethers: `serializeTransactionEthers` EIP1559', () => {
-    serializeTransactionEthers({
-      ...BaseTransaction,
-      accessList: [],
-      gasLimit: 21001n,
-      maxFeePerGas: parseGwei('2'),
-      maxPriorityFeePerGas: parseGwei('2'),
+  bench('ethers@5: `serializeTransaction`', () => {
+    serializeTransactionEthers(
+      { ...base, gasPrice: 1n, type: 0 },
+      { r: '0x1', s: '0x2', v: 28 },
+    )
+  })
+
+  bench('ethers@6: `Transaction.serialized`', () => {
+    Transaction.from({
+      ...base,
+      gasPrice: 1n,
+      type: 0,
+      signature: { r: '0x1', s: '0x2', v: 28 },
+    }).serialized
+  })
+})
+
+describe('Serialize Transaction (EIP1559)', () => {
+  bench('viem: `serializeTransaction`', () => {
+    serializeTransaction(
+      { ...base, chainId: 1, maxFeePerGas: 1n },
+      { r: '0x1', s: '0x2', v: 28n },
+    )
+  })
+
+  bench('ethers@5: `serializeTransaction`', () => {
+    serializeTransactionEthers(
+      { ...base, chainId: 1, maxFeePerGas: 1n, type: 2 },
+      { r: '0x1', s: '0x2', v: 28 },
+    )
+  })
+
+  bench('ethers@6: `Transaction.serialized`', () => {
+    Transaction.from({
+      ...base,
+      chainId: 1,
+      maxFeePerGas: 1n,
       type: 2,
-    })
+      signature: { r: '0x1', s: '0x2', v: 28 },
+    }).serialized
+  })
+})
+
+describe('Serialize Transaction (EIP2930)', () => {
+  bench('viem: `serializeTransaction`', () => {
+    serializeTransaction(
+      { ...base, chainId: 1, gasPrice: 1n, accessList: [] },
+      { r: '0x1', s: '0x2', v: 28n },
+    )
   })
 
-  bench('viem: `serializeTransaction` EIP2930', () => {
-    serializeTransaction({
-      ...BaseTransaction,
-      gas: 21001n,
+  bench('ethers@5: `serializeTransaction`', () => {
+    serializeTransactionEthers(
+      { ...base, chainId: 1, gasPrice: 1n, accessList: [], type: 1 },
+      { r: '0x1', s: '0x2', v: 28 },
+    )
+  })
+
+  bench('ethers@6: `Transaction.serialized`', () => {
+    Transaction.from({
+      ...base,
+      chainId: 1,
+      gasPrice: 1n,
       accessList: [],
-      gasPrice: parseGwei('2'),
-    })
-  })
-
-  bench('ethers: `serializeTransactionEthers` EIP2930', () => {
-    serializeTransactionEthers({
-      ...BaseTransaction,
-      accessList: [],
-      gasLimit: 21001n,
-      gasPrice: parseGwei('2'),
-      type: 1,
-    })
-  })
-
-  bench('viem: `serializeTransaction` Legacy', () => {
-    serializeTransaction({
-      ...BaseTransaction,
-      gas: 21001n,
-      gasPrice: parseGwei('2'),
-    })
-  })
-
-  bench('ethers: `serializeTransactionEthers` Legacy', () => {
-    serializeTransactionEthers({
-      ...BaseTransaction,
-      gasLimit: 21001n,
-      gasPrice: parseGwei('2'),
-    })
+      signature: { r: '0x1', s: '0x2', v: 28 },
+    }).serialized
   })
 })
