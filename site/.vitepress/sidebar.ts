@@ -1,9 +1,9 @@
-import { DefaultTheme } from "vitepress";
+import { DefaultTheme } from 'vitepress'
 
 export const sidebar: DefaultTheme.Sidebar = {
-  "/docs/": [
+  '/docs/': [
     {
-      text: "Introduction",
+      text: 'Introduction',
       items: [
         { text: 'Why viem', link: '/docs/introduction' },
         { text: 'Getting Started', link: '/docs/getting-started' },
@@ -15,630 +15,630 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
-      text: "Clients & Transports",
+      text: 'Clients & Transports',
       items: [
-        { text: "Introduction", link: "/docs/clients/intro" },
-        { text: "Public Client", link: "/docs/clients/public" },
-        { text: "Wallet Client", link: "/docs/clients/wallet" },
-        { text: "Test Client", link: "/docs/clients/test" },
+        { text: 'Introduction', link: '/docs/clients/intro' },
+        { text: 'Public Client', link: '/docs/clients/public' },
+        { text: 'Wallet Client', link: '/docs/clients/wallet' },
+        { text: 'Test Client', link: '/docs/clients/test' },
         {
-          text: "Transports",
+          text: 'Transports',
           items: [
             {
-              text: "HTTP",
-              link: "/docs/clients/transports/http",
+              text: 'HTTP',
+              link: '/docs/clients/transports/http',
             },
             {
-              text: "WebSocket",
-              link: "/docs/clients/transports/websocket",
+              text: 'WebSocket',
+              link: '/docs/clients/transports/websocket',
             },
             {
-              text: "Custom (EIP-1193)",
-              link: "/docs/clients/transports/custom",
+              text: 'Custom (EIP-1193)',
+              link: '/docs/clients/transports/custom',
             },
             {
-              text: "Fallback",
-              link: "/docs/clients/transports/fallback",
+              text: 'Fallback',
+              link: '/docs/clients/transports/fallback',
             },
           ],
         },
-        { text: "Chains", link: "/docs/clients/chains" },
+        { text: 'Chains', link: '/docs/clients/chains' },
       ],
     },
     {
-      text: "Public Actions",
+      text: 'Public Actions',
       collapsed: true,
       items: [
-        { text: "Introduction", link: "/docs/actions/public/introduction" },
+        { text: 'Introduction', link: '/docs/actions/public/introduction' },
         {
-          text: "Account",
+          text: 'Account',
           items: [
             {
-              text: "getBalance",
-              link: "/docs/actions/public/getBalance",
+              text: 'getBalance',
+              link: '/docs/actions/public/getBalance',
             },
             {
-              text: "getTransactionCount",
-              link: "/docs/actions/public/getTransactionCount",
+              text: 'getTransactionCount',
+              link: '/docs/actions/public/getTransactionCount',
             },
           ],
         },
         {
-          text: "Block",
+          text: 'Block',
           items: [
-            { text: "getBlock", link: "/docs/actions/public/getBlock" },
+            { text: 'getBlock', link: '/docs/actions/public/getBlock' },
             {
-              text: "getBlockNumber",
-              link: "/docs/actions/public/getBlockNumber",
+              text: 'getBlockNumber',
+              link: '/docs/actions/public/getBlockNumber',
             },
             {
-              text: "getBlockTransactionCount",
-              link: "/docs/actions/public/getBlockTransactionCount",
+              text: 'getBlockTransactionCount',
+              link: '/docs/actions/public/getBlockTransactionCount',
             },
             {
-              text: "watchBlockNumber",
-              link: "/docs/actions/public/watchBlockNumber",
+              text: 'watchBlockNumber',
+              link: '/docs/actions/public/watchBlockNumber',
             },
             {
-              text: "watchBlocks",
-              link: "/docs/actions/public/watchBlocks",
+              text: 'watchBlocks',
+              link: '/docs/actions/public/watchBlocks',
             },
           ],
         },
         {
-          text: "Chain",
+          text: 'Chain',
           items: [
-            { text: "getChainId", link: "/docs/actions/public/getChainId" },
+            { text: 'getChainId', link: '/docs/actions/public/getChainId' },
           ],
         },
         {
-          text: "Fee",
+          text: 'Fee',
           items: [
             {
-              text: "estimateGas",
-              link: "/docs/actions/public/estimateGas",
+              text: 'estimateGas',
+              link: '/docs/actions/public/estimateGas',
             },
             {
-              text: "getFeeHistory",
-              link: "/docs/actions/public/getFeeHistory",
+              text: 'getFeeHistory',
+              link: '/docs/actions/public/getFeeHistory',
             },
             {
-              text: "getGasPrice",
-              link: "/docs/actions/public/getGasPrice",
-            },
-          ],
-        },
-        {
-          text: "Filters & Logs",
-          items: [
-            {
-              text: "createBlockFilter",
-              link: "/docs/actions/public/createBlockFilter",
-            },
-            {
-              text: "createEventFilter",
-              link: "/docs/actions/public/createEventFilter",
-            },
-            {
-              text: "createPendingTransactionFilter",
-              link: "/docs/actions/public/createPendingTransactionFilter",
-            },
-            {
-              text: "getFilterChanges",
-              link: "/docs/actions/public/getFilterChanges",
-            },
-            {
-              text: "getFilterLogs",
-              link: "/docs/actions/public/getFilterLogs",
-            },
-            {
-              text: "getLogs",
-              link: "/docs/actions/public/getLogs",
-            },
-            {
-              text: "watchEvent",
-              link: "/docs/actions/public/watchEvent",
-            },
-            {
-              text: "uninstallFilter",
-              link: "/docs/actions/public/uninstallFilter",
+              text: 'getGasPrice',
+              link: '/docs/actions/public/getGasPrice',
             },
           ],
         },
         {
-          text: "Transaction",
-          items: [
-            { text: "call", link: "/docs/actions/public/call" },
-            {
-              text: "getTransaction",
-              link: "/docs/actions/public/getTransaction",
-            },
-            {
-              text: "getTransactionConfirmations",
-              link: "/docs/actions/public/getTransactionConfirmations",
-            },
-            {
-              text: "getTransactionReceipt",
-              link: "/docs/actions/public/getTransactionReceipt",
-            },
-            {
-              text: "waitForTransactionReceipt",
-              link: "/docs/actions/public/waitForTransactionReceipt",
-            },
-            {
-              text: "watchPendingTransactions",
-              link: "/docs/actions/public/watchPendingTransactions",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      text: "Wallet Actions",
-      collapsed: true,
-      items: [
-        { text: "Introduction", link: "/docs/actions/wallet/introduction" },
-        {
-          text: "Account",
+          text: 'Filters & Logs',
           items: [
             {
-              text: "getAddresses",
-              link: "/docs/actions/wallet/getAddresses",
+              text: 'createBlockFilter',
+              link: '/docs/actions/public/createBlockFilter',
             },
             {
-              text: "requestAddresses",
-              link: "/docs/actions/wallet/requestAddresses",
+              text: 'createEventFilter',
+              link: '/docs/actions/public/createEventFilter',
+            },
+            {
+              text: 'createPendingTransactionFilter',
+              link: '/docs/actions/public/createPendingTransactionFilter',
+            },
+            {
+              text: 'getFilterChanges',
+              link: '/docs/actions/public/getFilterChanges',
+            },
+            {
+              text: 'getFilterLogs',
+              link: '/docs/actions/public/getFilterLogs',
+            },
+            {
+              text: 'getLogs',
+              link: '/docs/actions/public/getLogs',
+            },
+            {
+              text: 'watchEvent',
+              link: '/docs/actions/public/watchEvent',
+            },
+            {
+              text: 'uninstallFilter',
+              link: '/docs/actions/public/uninstallFilter',
             },
           ],
         },
         {
-          text: "Assets",
+          text: 'Transaction',
           items: [
+            { text: 'call', link: '/docs/actions/public/call' },
             {
-              text: "watchAsset",
-              link: "/docs/actions/wallet/watchAsset",
-            },
-          ],
-        },
-        {
-          text: "Chain",
-          items: [
-            {
-              text: "addChain",
-              link: "/docs/actions/wallet/addChain",
+              text: 'getTransaction',
+              link: '/docs/actions/public/getTransaction',
             },
             {
-              text: "switchChain",
-              link: "/docs/actions/wallet/switchChain",
-            },
-          ],
-        },
-        {
-          text: "Data",
-          items: [
-            {
-              text: "signMessage",
-              link: "/docs/actions/wallet/signMessage",
+              text: 'getTransactionConfirmations',
+              link: '/docs/actions/public/getTransactionConfirmations',
             },
             {
-              text: "signTypedData",
-              link: "/docs/actions/wallet/signTypedData",
-            },
-          ],
-        },
-        {
-          text: "Permissions",
-          items: [
-            {
-              text: "getPermissions",
-              link: "/docs/actions/wallet/getPermissions",
+              text: 'getTransactionReceipt',
+              link: '/docs/actions/public/getTransactionReceipt',
             },
             {
-              text: "requestPermissions",
-              link: "/docs/actions/wallet/requestPermissions",
-            },
-          ],
-        },
-        {
-          text: "Transaction",
-          items: [
-            {
-              text: "sendTransaction",
-              link: "/docs/actions/wallet/sendTransaction",
+              text: 'waitForTransactionReceipt',
+              link: '/docs/actions/public/waitForTransactionReceipt',
             },
             {
-              text: "signTransaction 🚧",
-              link: "/docs/actions/wallet/signTransaction",
+              text: 'watchPendingTransactions',
+              link: '/docs/actions/public/watchPendingTransactions',
             },
           ],
         },
       ],
     },
     {
-      text: "Test Actions",
+      text: 'Wallet Actions',
       collapsed: true,
       items: [
-        { text: "Introduction", link: "/docs/actions/test/introduction" },
+        { text: 'Introduction', link: '/docs/actions/wallet/introduction' },
         {
-          text: "Account",
+          text: 'Account',
           items: [
             {
-              text: "impersonateAccount",
-              link: "/docs/actions/test/impersonateAccount",
-            },
-            { text: "setBalance", link: "/docs/actions/test/setBalance" },
-            { text: "setCode", link: "/docs/actions/test/setCode" },
-            { text: "setNonce", link: "/docs/actions/test/setNonce" },
-            {
-              text: "setStorageAt",
-              link: "/docs/actions/test/setStorageAt",
+              text: 'getAddresses',
+              link: '/docs/actions/wallet/getAddresses',
             },
             {
-              text: "stopImpersonatingAccount",
-              link: "/docs/actions/test/stopImpersonatingAccount",
+              text: 'requestAddresses',
+              link: '/docs/actions/wallet/requestAddresses',
             },
           ],
         },
         {
-          text: "Block",
+          text: 'Assets',
           items: [
-            { text: "getAutomine", link: "/docs/actions/test/getAutomine" },
             {
-              text: "increaseTime",
-              link: "/docs/actions/test/increaseTime",
-            },
-            { text: "mine", link: "/docs/actions/test/mine" },
-            {
-              text: "removeBlockTimestampInterval",
-              link: "/docs/actions/test/removeBlockTimestampInterval",
-            },
-            { text: "setAutomine", link: "/docs/actions/test/setAutomine" },
-            {
-              text: "setIntervalMining",
-              link: "/docs/actions/test/setIntervalMining",
-            },
-            {
-              text: "setBlockTimestampInterval",
-              link: "/docs/actions/test/setBlockTimestampInterval",
-            },
-            {
-              text: "setBlockGasLimit",
-              link: "/docs/actions/test/setBlockGasLimit",
-            },
-            {
-              text: "setNextBlockBaseFeePerGas",
-              link: "/docs/actions/test/setNextBlockBaseFeePerGas",
-            },
-            {
-              text: "setNextBlockTimestamp",
-              link: "/docs/actions/test/setNextBlockTimestamp",
+              text: 'watchAsset',
+              link: '/docs/actions/wallet/watchAsset',
             },
           ],
         },
         {
-          text: "Node",
+          text: 'Chain',
           items: [
-            { text: "setCoinbase", link: "/docs/actions/test/setCoinbase" },
             {
-              text: "setMinGasPrice",
-              link: "/docs/actions/test/setMinGasPrice",
+              text: 'addChain',
+              link: '/docs/actions/wallet/addChain',
+            },
+            {
+              text: 'switchChain',
+              link: '/docs/actions/wallet/switchChain',
             },
           ],
         },
         {
-          text: "Settings",
+          text: 'Data',
           items: [
-            { text: "reset", link: "/docs/actions/test/reset" },
             {
-              text: "setLoggingEnabled",
-              link: "/docs/actions/test/setLoggingEnabled",
+              text: 'signMessage',
+              link: '/docs/actions/wallet/signMessage',
             },
-            { text: "setRpcUrl", link: "/docs/actions/test/setRpcUrl" },
+            {
+              text: 'signTypedData',
+              link: '/docs/actions/wallet/signTypedData',
+            },
           ],
         },
         {
-          text: "State",
+          text: 'Permissions',
           items: [
-            { text: "revert", link: "/docs/actions/test/revert" },
-            { text: "snapshot", link: "/docs/actions/test/snapshot" },
+            {
+              text: 'getPermissions',
+              link: '/docs/actions/wallet/getPermissions',
+            },
+            {
+              text: 'requestPermissions',
+              link: '/docs/actions/wallet/requestPermissions',
+            },
           ],
         },
         {
-          text: "Transaction",
+          text: 'Transaction',
           items: [
             {
-              text: "dropTransaction",
-              link: "/docs/actions/test/dropTransaction",
+              text: 'sendTransaction',
+              link: '/docs/actions/wallet/sendTransaction',
             },
             {
-              text: "getTxpoolContent",
-              link: "/docs/actions/test/getTxpoolContent",
-            },
-            {
-              text: "getTxpoolStatus",
-              link: "/docs/actions/test/getTxpoolStatus",
-            },
-            {
-              text: "inspectTxpool",
-              link: "/docs/actions/test/inspectTxpool",
-            },
-            {
-              text: "sendUnsignedTransaction",
-              link: "/docs/actions/test/sendUnsignedTransaction",
+              text: 'signTransaction 🚧',
+              link: '/docs/actions/wallet/signTransaction',
             },
           ],
         },
       ],
     },
     {
-      text: "Contract",
+      text: 'Test Actions',
       collapsed: true,
       items: [
+        { text: 'Introduction', link: '/docs/actions/test/introduction' },
         {
-          text: "Actions",
+          text: 'Account',
           items: [
             {
-              text: "createContractEventFilter",
-              link: "/docs/contract/createContractEventFilter",
+              text: 'impersonateAccount',
+              link: '/docs/actions/test/impersonateAccount',
+            },
+            { text: 'setBalance', link: '/docs/actions/test/setBalance' },
+            { text: 'setCode', link: '/docs/actions/test/setCode' },
+            { text: 'setNonce', link: '/docs/actions/test/setNonce' },
+            {
+              text: 'setStorageAt',
+              link: '/docs/actions/test/setStorageAt',
             },
             {
-              text: "deployContract",
-              link: "/docs/contract/deployContract",
-            },
-            {
-              text: "estimateContractGas",
-              link: "/docs/contract/estimateContractGas",
-            },
-            {
-              text: "getBytecode",
-              link: "/docs/contract/getBytecode",
-            },
-            {
-              text: "getStorageAt",
-              link: "/docs/contract/getStorageAt",
-            },
-            {
-              text: "multicall",
-              link: "/docs/contract/multicall",
-            },
-            {
-              text: "readContract",
-              link: "/docs/contract/readContract",
-            },
-            {
-              text: "simulateContract",
-              link: "/docs/contract/simulateContract",
-            },
-            {
-              text: "writeContract",
-              link: "/docs/contract/writeContract",
-            },
-            {
-              text: "watchContractEvent",
-              link: "/docs/contract/watchContractEvent",
+              text: 'stopImpersonatingAccount',
+              link: '/docs/actions/test/stopImpersonatingAccount',
             },
           ],
         },
         {
-          text: "Encoding",
+          text: 'Block',
+          items: [
+            { text: 'getAutomine', link: '/docs/actions/test/getAutomine' },
+            {
+              text: 'increaseTime',
+              link: '/docs/actions/test/increaseTime',
+            },
+            { text: 'mine', link: '/docs/actions/test/mine' },
+            {
+              text: 'removeBlockTimestampInterval',
+              link: '/docs/actions/test/removeBlockTimestampInterval',
+            },
+            { text: 'setAutomine', link: '/docs/actions/test/setAutomine' },
+            {
+              text: 'setIntervalMining',
+              link: '/docs/actions/test/setIntervalMining',
+            },
+            {
+              text: 'setBlockTimestampInterval',
+              link: '/docs/actions/test/setBlockTimestampInterval',
+            },
+            {
+              text: 'setBlockGasLimit',
+              link: '/docs/actions/test/setBlockGasLimit',
+            },
+            {
+              text: 'setNextBlockBaseFeePerGas',
+              link: '/docs/actions/test/setNextBlockBaseFeePerGas',
+            },
+            {
+              text: 'setNextBlockTimestamp',
+              link: '/docs/actions/test/setNextBlockTimestamp',
+            },
+          ],
+        },
+        {
+          text: 'Node',
+          items: [
+            { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
+            {
+              text: 'setMinGasPrice',
+              link: '/docs/actions/test/setMinGasPrice',
+            },
+          ],
+        },
+        {
+          text: 'Settings',
+          items: [
+            { text: 'reset', link: '/docs/actions/test/reset' },
+            {
+              text: 'setLoggingEnabled',
+              link: '/docs/actions/test/setLoggingEnabled',
+            },
+            { text: 'setRpcUrl', link: '/docs/actions/test/setRpcUrl' },
+          ],
+        },
+        {
+          text: 'State',
+          items: [
+            { text: 'revert', link: '/docs/actions/test/revert' },
+            { text: 'snapshot', link: '/docs/actions/test/snapshot' },
+          ],
+        },
+        {
+          text: 'Transaction',
           items: [
             {
-              text: "decodeDeployData",
-              link: "/docs/contract/decodeDeployData",
+              text: 'dropTransaction',
+              link: '/docs/actions/test/dropTransaction',
             },
             {
-              text: "decodeErrorResult",
-              link: "/docs/contract/decodeErrorResult",
+              text: 'getTxpoolContent',
+              link: '/docs/actions/test/getTxpoolContent',
             },
             {
-              text: "decodeEventLog",
-              link: "/docs/contract/decodeEventLog",
+              text: 'getTxpoolStatus',
+              link: '/docs/actions/test/getTxpoolStatus',
             },
             {
-              text: "decodeFunctionData",
-              link: "/docs/contract/decodeFunctionData",
+              text: 'inspectTxpool',
+              link: '/docs/actions/test/inspectTxpool',
             },
             {
-              text: "decodeFunctionResult",
-              link: "/docs/contract/decodeFunctionResult",
-            },
-            {
-              text: "encodeDeployData",
-              link: "/docs/contract/encodeDeployData",
-            },
-            {
-              text: "encodeErrorResult",
-              link: "/docs/contract/encodeErrorResult",
-            },
-            {
-              text: "encodeEventTopics",
-              link: "/docs/contract/encodeEventTopics",
-            },
-            {
-              text: "encodeFunctionData",
-              link: "/docs/contract/encodeFunctionData",
-            },
-            {
-              text: "encodeFunctionResult",
-              link: "/docs/contract/encodeFunctionResult",
+              text: 'sendUnsignedTransaction',
+              link: '/docs/actions/test/sendUnsignedTransaction',
             },
           ],
         },
       ],
     },
     {
-      text: "ENS",
+      text: 'Contract',
       collapsed: true,
       items: [
         {
-          text: "Actions",
+          text: 'Actions',
           items: [
             {
-              text: "getEnsAddress",
-              link: "/docs/ens/actions/getEnsAddress",
+              text: 'createContractEventFilter',
+              link: '/docs/contract/createContractEventFilter',
             },
-            { text: "getEnsName", link: "/docs/ens/actions/getEnsName" },
+            {
+              text: 'deployContract',
+              link: '/docs/contract/deployContract',
+            },
+            {
+              text: 'estimateContractGas',
+              link: '/docs/contract/estimateContractGas',
+            },
+            {
+              text: 'getBytecode',
+              link: '/docs/contract/getBytecode',
+            },
+            {
+              text: 'getStorageAt',
+              link: '/docs/contract/getStorageAt',
+            },
+            {
+              text: 'multicall',
+              link: '/docs/contract/multicall',
+            },
+            {
+              text: 'readContract',
+              link: '/docs/contract/readContract',
+            },
+            {
+              text: 'simulateContract',
+              link: '/docs/contract/simulateContract',
+            },
+            {
+              text: 'writeContract',
+              link: '/docs/contract/writeContract',
+            },
+            {
+              text: 'watchContractEvent',
+              link: '/docs/contract/watchContractEvent',
+            },
           ],
         },
         {
-          text: "Utilities",
+          text: 'Encoding',
           items: [
-            { text: "labelhash", link: "/docs/ens/utilities/labelhash" },
-            { text: "namehash", link: "/docs/ens/utilities/namehash" },
+            {
+              text: 'decodeDeployData',
+              link: '/docs/contract/decodeDeployData',
+            },
+            {
+              text: 'decodeErrorResult',
+              link: '/docs/contract/decodeErrorResult',
+            },
+            {
+              text: 'decodeEventLog',
+              link: '/docs/contract/decodeEventLog',
+            },
+            {
+              text: 'decodeFunctionData',
+              link: '/docs/contract/decodeFunctionData',
+            },
+            {
+              text: 'decodeFunctionResult',
+              link: '/docs/contract/decodeFunctionResult',
+            },
+            {
+              text: 'encodeDeployData',
+              link: '/docs/contract/encodeDeployData',
+            },
+            {
+              text: 'encodeErrorResult',
+              link: '/docs/contract/encodeErrorResult',
+            },
+            {
+              text: 'encodeEventTopics',
+              link: '/docs/contract/encodeEventTopics',
+            },
+            {
+              text: 'encodeFunctionData',
+              link: '/docs/contract/encodeFunctionData',
+            },
+            {
+              text: 'encodeFunctionResult',
+              link: '/docs/contract/encodeFunctionResult',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      text: 'ENS',
+      collapsed: true,
+      items: [
+        {
+          text: 'Actions',
+          items: [
+            {
+              text: 'getEnsAddress',
+              link: '/docs/ens/actions/getEnsAddress',
+            },
+            { text: 'getEnsName', link: '/docs/ens/actions/getEnsName' },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            { text: 'labelhash', link: '/docs/ens/utilities/labelhash' },
+            { text: 'namehash', link: '/docs/ens/utilities/namehash' },
 
-            { text: "normalize", link: "/docs/ens/utilities/normalize" },
+            { text: 'normalize', link: '/docs/ens/utilities/normalize' },
           ],
         },
       ],
     },
     {
-      text: "ABI",
+      text: 'ABI',
       collapsed: true,
       items: [
         {
-          text: "decodeAbiParameters",
-          link: "/docs/abi/decodeAbiParameters",
+          text: 'decodeAbiParameters',
+          link: '/docs/abi/decodeAbiParameters',
         },
         {
-          text: "encodeAbiParameters",
-          link: "/docs/abi/encodeAbiParameters",
+          text: 'encodeAbiParameters',
+          link: '/docs/abi/encodeAbiParameters',
         },
         {
-          text: "encodePacked",
-          link: "/docs/abi/encodePacked",
+          text: 'encodePacked',
+          link: '/docs/abi/encodePacked',
         },
         {
-          text: "getAbiItem",
-          link: "/docs/abi/getAbiItem",
+          text: 'getAbiItem',
+          link: '/docs/abi/getAbiItem',
         },
         {
-          text: "parseAbi",
-          link: "/docs/abi/parseAbi",
+          text: 'parseAbi',
+          link: '/docs/abi/parseAbi',
         },
         {
-          text: "parseAbiItem",
-          link: "/docs/abi/parseAbiItem",
+          text: 'parseAbiItem',
+          link: '/docs/abi/parseAbiItem',
         },
         {
-          text: "parseAbiParameter",
-          link: "/docs/abi/parseAbiParameter",
+          text: 'parseAbiParameter',
+          link: '/docs/abi/parseAbiParameter',
         },
         {
-          text: "parseAbiParameters",
-          link: "/docs/abi/parseAbiParameters",
+          text: 'parseAbiParameters',
+          link: '/docs/abi/parseAbiParameters',
         },
       ],
     },
     {
-      text: "Utilities",
+      text: 'Utilities',
       collapsed: true,
       items: [
         {
-          text: "Addresses",
+          text: 'Addresses',
           items: [
             {
-              text: "getAddress",
-              link: "/docs/utilities/getAddress",
+              text: 'getAddress',
+              link: '/docs/utilities/getAddress',
             },
             {
-              text: "getContractAddress",
-              link: "/docs/utilities/getContractAddress",
+              text: 'getContractAddress',
+              link: '/docs/utilities/getContractAddress',
             },
             {
-              text: "isAddress",
-              link: "/docs/utilities/isAddress",
+              text: 'isAddress',
+              link: '/docs/utilities/isAddress',
             },
             {
-              text: "isAddressEqual",
-              link: "/docs/utilities/isAddressEqual",
+              text: 'isAddressEqual',
+              link: '/docs/utilities/isAddressEqual',
             },
           ],
         },
         {
-          text: "Data",
+          text: 'Data',
           items: [
             {
-              text: "concat",
-              link: "/docs/utilities/concat",
+              text: 'concat',
+              link: '/docs/utilities/concat',
             },
             {
-              text: "isBytes",
-              link: "/docs/utilities/isBytes",
+              text: 'isBytes',
+              link: '/docs/utilities/isBytes',
             },
             {
-              text: "isHex",
-              link: "/docs/utilities/isHex",
+              text: 'isHex',
+              link: '/docs/utilities/isHex',
             },
             {
-              text: "pad",
-              link: "/docs/utilities/pad",
+              text: 'pad',
+              link: '/docs/utilities/pad',
             },
             {
-              text: "slice",
-              link: "/docs/utilities/slice",
+              text: 'slice',
+              link: '/docs/utilities/slice',
             },
             {
-              text: "size",
-              link: "/docs/utilities/size",
+              text: 'size',
+              link: '/docs/utilities/size',
             },
             {
-              text: "trim",
-              link: "/docs/utilities/trim",
+              text: 'trim',
+              link: '/docs/utilities/trim',
             },
           ],
         },
         {
-          text: "Encoding",
+          text: 'Encoding',
           items: [
             {
-              text: "fromBytes",
-              link: "/docs/utilities/fromBytes",
+              text: 'fromBytes',
+              link: '/docs/utilities/fromBytes',
             },
             {
-              text: "fromHex",
-              link: "/docs/utilities/fromHex",
+              text: 'fromHex',
+              link: '/docs/utilities/fromHex',
             },
             {
-              text: "fromRlp",
-              link: "/docs/utilities/fromRlp",
+              text: 'fromRlp',
+              link: '/docs/utilities/fromRlp',
             },
             {
-              text: "toBytes",
-              link: "/docs/utilities/toBytes",
+              text: 'toBytes',
+              link: '/docs/utilities/toBytes',
             },
             {
-              text: "toHex",
-              link: "/docs/utilities/toHex",
+              text: 'toHex',
+              link: '/docs/utilities/toHex',
             },
             {
-              text: "toRlp",
-              link: "/docs/utilities/toRlp",
+              text: 'toRlp',
+              link: '/docs/utilities/toRlp',
             },
           ],
         },
         {
-          text: "Hash",
+          text: 'Hash',
           items: [
             {
-              text: "getEventSelector",
-              link: "/docs/utilities/getEventSelector",
+              text: 'getEventSelector',
+              link: '/docs/utilities/getEventSelector',
             },
             {
-              text: "getFunctionSelector",
-              link: "/docs/utilities/getFunctionSelector",
+              text: 'getFunctionSelector',
+              link: '/docs/utilities/getFunctionSelector',
             },
             {
-              text: "keccak256",
-              link: "/docs/utilities/keccak256",
+              text: 'keccak256',
+              link: '/docs/utilities/keccak256',
             },
           ],
         },
         {
-          text: "Signature",
+          text: 'Signature',
           items: [
             {
-              text: "hashMessage",
-              link: "/docs/utilities/hashMessage",
+              text: 'hashMessage',
+              link: '/docs/utilities/hashMessage',
             },
             {
               text: 'hashTypedData',
@@ -649,8 +649,8 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/recoverAddress',
             },
             {
-              text: "recoverMessageAddress",
-              link: "/docs/utilities/recoverMessageAddress",
+              text: 'recoverMessageAddress',
+              link: '/docs/utilities/recoverMessageAddress',
             },
             {
               text: 'recoverTypedDataAddress',
@@ -667,56 +667,56 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
-          text: "Transaction",
+          text: 'Transaction',
           items: [
             {
-              text: "parseTransaction",
-              link: "/docs/utilities/parseTransaction",
+              text: 'parseTransaction',
+              link: '/docs/utilities/parseTransaction',
             },
             {
-              text: "serializeTransaction",
-              link: "/docs/utilities/serializeTransaction",
+              text: 'serializeTransaction',
+              link: '/docs/utilities/serializeTransaction',
             },
           ],
         },
         {
-          text: "Units",
+          text: 'Units',
           items: [
             {
-              text: "formatEther",
-              link: "/docs/utilities/formatEther",
+              text: 'formatEther',
+              link: '/docs/utilities/formatEther',
             },
             {
-              text: "formatGwei",
-              link: "/docs/utilities/formatGwei",
+              text: 'formatGwei',
+              link: '/docs/utilities/formatGwei',
             },
             {
-              text: "formatUnits",
-              link: "/docs/utilities/formatUnits",
+              text: 'formatUnits',
+              link: '/docs/utilities/formatUnits',
             },
             {
-              text: "parseEther",
-              link: "/docs/utilities/parseEther",
+              text: 'parseEther',
+              link: '/docs/utilities/parseEther',
             },
             {
-              text: "parseGwei",
-              link: "/docs/utilities/parseGwei",
+              text: 'parseGwei',
+              link: '/docs/utilities/parseGwei',
             },
             {
-              text: "parseUnits",
-              link: "/docs/utilities/parseUnits",
+              text: 'parseUnits',
+              link: '/docs/utilities/parseUnits',
             },
           ],
         },
       ],
     },
     {
-      text: "Glossary",
+      text: 'Glossary',
       collapsed: true,
       items: [
-        { text: "Terms", link: "/docs/glossary/terms" },
-        { text: "Types", link: "/docs/glossary/types" },
+        { text: 'Terms', link: '/docs/glossary/terms' },
+        { text: 'Types', link: '/docs/glossary/types' },
       ],
     },
   ],
-};
+}
