@@ -1569,7 +1569,7 @@ utils.RLP.decode('0x8412345678')
 ```ts {3}
 import { fromRlp } from 'viem'
 
-toRlp('0x8412345678')
+fromRlp('0x8412345678')
 ```
 
 ## Hashing Utilities
