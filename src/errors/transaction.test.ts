@@ -310,11 +310,3 @@ test('WaitForTransactionReceiptTimeoutError', () => {
     throw new WaitForTransactionReceiptTimeoutError({ hash: '0x123' })
   }).toThrowError(WaitForTransactionReceiptTimeoutError)
 })
-
-test.todo('InvalidSerializableTransactionError')
-
-test.todo('InvalidSerializedTransactionTypeError')
-
-test.todo('InvalidSerializedTransactionError')
-
-test.todo('InvalidLegacyVError')
