@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.22
+
+### Patch Changes
+
+- [`07000b6`](https://github.com/wagmi-dev/viem/commit/07000b650b6cce41c99a4ccf609f5fccce818244) Thanks [@jxom](https://github.com/jxom)! - Removed unnecessary trimming of decoded RLP hex value
+
 ## 0.1.21
 
 ### Patch Changes
