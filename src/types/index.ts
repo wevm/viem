@@ -1,5 +1,7 @@
 export type { Address } from 'abitype'
 
+export type { IsInferrableAbi } from './abi'
+
 export type {
   Account,
   GetAccountParameter,

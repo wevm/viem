@@ -188,3 +188,9 @@ export type {
   WriteContractParameters,
   WriteContractReturnType,
 } from './wallet'
+
+export { getContract } from './getContract'
+export type {
+  GetContractParameters,
+  GetContractReturnType,
+} from './getContract'
