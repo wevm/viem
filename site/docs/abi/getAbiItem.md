@@ -40,14 +40,14 @@ const encodedData = getAbiItem({
       name: 'y', 
       type: 'event', 
       inputs: [{ type: 'address' }], 
-      outputs: [{ type: 'uint256' }]
+      outputs: [{ type: 'uint256' }],
       stateMutability: 'view'
     },
     { 
       name: 'z', 
       type: 'function', 
       inputs: [{ type: 'string' }],
-      outputs: [{ type: 'uint256' }]
+      outputs: [{ type: 'uint256' }],
       stateMutability: 'view'
     }
   ],
@@ -58,7 +58,7 @@ const encodedData = getAbiItem({
  *  name: 'y', 
  *  type: 'event', 
  *  inputs: [{ type: 'address' }], 
- *  outputs: [{ type: 'uint256' }]
+ *  outputs: [{ type: 'uint256' }],
  *  stateMutability: 'view'
  * }
  */
