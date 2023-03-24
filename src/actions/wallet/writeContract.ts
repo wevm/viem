@@ -21,17 +21,13 @@ export type WriteContractParameters<
   TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
-> = Omit<
-  SendTransactionParameters<TChain, TAccount, TChainOverride>,
-  'chain' | 'to' | 'data' | 'value'
-> & {
-  value?: GetValue<
-    TAbi,
-    TFunctionName,
-    SendTransactionParameters<TChain>['value']
-  >
-} & GetChain<TChain, TChainOverride> &
-  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
+> = ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+  Omit<
+    SendTransactionParameters<TChain, TAccount, TChainOverride>,
+    'chain' | 'to' | 'data' | 'value'
+  > &
+  GetChain<TChain, TChainOverride> &
+  GetValue<TAbi, TFunctionName, SendTransactionParameters<TChain>['value']>
 
 export type WriteContractReturnType = SendTransactionReturnType
 

@@ -7,7 +7,7 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { PublicClient, WalletClient } from '../clients'
+import type { PublicClient, Transport, WalletClient } from '../clients'
 import type {
   Account,
   Chain,
@@ -16,26 +16,32 @@ import type {
   IsUndefined,
   Prettify,
 } from '../types'
-import type {
+import {
   WatchContractEventParameters,
   WatchContractEventReturnType,
   ReadContractParameters,
   ReadContractReturnType,
   CreateEventFilterParameters,
   CreateEventFilterReturnType,
+  SimulateContractParameters,
+  readContract,
+  simulateContract,
 } from './public'
-import type { WriteContractParameters, WriteContractReturnType } from './wallet'
-
-// TODO
-// - event `args`
-// - turn on/off `value`
-// - prettify types
-// - make sure protype names work as expected
+import {
+  WriteContractParameters,
+  WriteContractReturnType,
+  writeContract,
+} from './wallet'
 
 export type GetContractParameters<
-  TAbi extends Abi | readonly unknown[],
-  TPublicClient extends PublicClient | unknown = unknown,
-  TWalletClient extends WalletClient | unknown = unknown,
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TPublicClient extends PublicClient<TTransport, TChain> | unknown = unknown,
+  TWalletClient extends
+    | WalletClient<TTransport, TChain, TAccount>
+    | unknown = unknown,
 > = {
   /** Contract ABI */
   abi: Narrow<TAbi>
@@ -169,20 +175,161 @@ export type GetContractReturnType<
       : unknown)
 >
 
-export declare function getContract<
+export function getContract<
   TAbi extends Abi | readonly unknown[],
-  TPublicClient extends PublicClient | unknown,
-  TWalletClient extends WalletClient | unknown,
+  TTransport extends Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TPublicClient extends PublicClient<TTransport, TChain> | undefined =
+    | PublicClient<TTransport, TChain>
+    | undefined,
+  TWalletClient extends WalletClient<TTransport, TChain, TAccount> | undefined =
+    | WalletClient<TTransport, TChain, TAccount>
+    | undefined,
 >({
   abi,
   address,
   publicClient,
   walletClient,
 }: GetContractParameters<
+  TTransport,
+  TChain,
+  TAccount,
   TAbi,
   TPublicClient,
   TWalletClient
->): GetContractReturnType<TAbi, TPublicClient, TWalletClient>
+>): GetContractReturnType<TAbi, TPublicClient, TWalletClient> {
+  const hasPublicClient = publicClient !== undefined && publicClient !== null
+  const hasWalletClient = walletClient !== undefined && walletClient !== null
+
+  const contract: {
+    [_ in
+        | 'estimateGas'
+        | 'createEventFilter'
+        | 'read'
+        | 'simulate'
+        | 'watchEvent'
+        | 'write']?: unknown
+  } = {}
+
+  let hasReadFunction = false
+  let hasWriteFunction = false
+  let hasEvent = false
+  for (const item of abi as Abi) {
+    if (item.type === 'function')
+      if (item.stateMutability === 'view' || item.stateMutability === 'pure')
+        hasReadFunction = true
+      else hasWriteFunction = true
+    else if (item.type === 'event') hasEvent = true
+    // Exit early if all flags are `true`
+    if (hasReadFunction && hasWriteFunction && hasEvent) break
+  }
+
+  if (hasPublicClient) {
+    if (hasReadFunction)
+      contract.read = new Proxy(
+        {}, // TODO: Should we stick valid keys here with `() => {}` value?
+        {
+          get(_, functionName: string) {
+            return (
+              ...rest: [
+                args?: readonly unknown[],
+                params?: Omit<
+                  ReadContractParameters,
+                  'abi' | 'address' | 'functionName' | 'args'
+                >,
+              ]
+            ) => {
+              const { args, params } = getFunctionArgsAndParams(rest)
+              return readContract(publicClient, {
+                abi: abi as Abi,
+                address,
+                functionName,
+                args,
+                ...params,
+              })
+            }
+          },
+        },
+      )
+    if (hasWriteFunction) {
+      contract.simulate = new Proxy(
+        {},
+        {
+          get(_, functionName: string) {
+            return (
+              ...rest: [
+                args?: readonly unknown[],
+                params?: Omit<
+                  SimulateContractParameters,
+                  'abi' | 'address' | 'functionName' | 'args'
+                >,
+              ]
+            ) => {
+              const { args, params } = getFunctionArgsAndParams(rest)
+              return simulateContract(publicClient, {
+                abi: abi as Abi,
+                address,
+                functionName,
+                args,
+                ...params,
+              } as SimulateContractParameters)
+            }
+          },
+        },
+      )
+    }
+  }
+
+  if (hasWalletClient) {
+    if (hasWriteFunction)
+      contract.write = new Proxy(
+        {},
+        {
+          get(_, functionName: string) {
+            return (
+              ...rest: [
+                args?: readonly unknown[],
+                params?: Omit<
+                  WriteContractParameters,
+                  'abi' | 'address' | 'functionName' | 'args'
+                >,
+              ]
+            ) => {
+              const { args, params } = getFunctionArgsAndParams(rest)
+              return writeContract(walletClient, {
+                abi: abi as Abi,
+                address,
+                functionName,
+                args,
+                ...params,
+              } as WriteContractParameters<
+                TAbi,
+                typeof functionName,
+                TChain,
+                TAccount
+              >)
+            }
+          },
+        },
+      )
+  }
+
+  return contract as unknown as GetContractReturnType<
+    TAbi,
+    TPublicClient,
+    TWalletClient
+  >
+}
+
+function getFunctionArgsAndParams(
+  rest: [args?: readonly unknown[], params?: object],
+) {
+  const hasArgs = rest.length && Array.isArray(rest[0])
+  const args = hasArgs ? rest[0]! : []
+  const params = (hasArgs ? rest[1] : rest[0]) ?? {}
+  return { args, params }
+}
 
 type GetReadFunction<
   TAbi extends Abi | readonly unknown[] = Abi,

@@ -24,14 +24,14 @@ export type SimulateContractParameters<
   TFunctionName extends string = any,
   TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
-> = Omit<
-  CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
-  'to' | 'data' | 'value'
-> & {
+> = {
   chain?: TChainOverride
-} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
-    value?: GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
-  }
+} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+  Omit<
+    CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
+    'to' | 'data' | 'value'
+  > &
+  GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
 
 export type SimulateContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,

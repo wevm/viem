@@ -429,7 +429,7 @@ export type GetValue<
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
 > = TAbiFunction['stateMutability'] extends 'payable'
-  ? TValueType
+  ? { value?: TValueType }
   : TAbiFunction['payable'] extends true
-  ? TValueType
-  : never
+  ? { value?: TValueType }
+  : unknown
