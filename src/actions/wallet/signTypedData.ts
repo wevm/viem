@@ -33,10 +33,10 @@ export type SignTypedDataParameters<
 export type SignTypedDataReturnType = Hex
 
 export async function signTypedData<
+  TTypedData extends TypedData | { [key: string]: unknown },
+  TPrimaryType extends string,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
 >(
   client: WalletClient<Transport, TChain, TAccount>,
   {

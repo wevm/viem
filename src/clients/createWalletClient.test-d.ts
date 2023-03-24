@@ -28,7 +28,10 @@ test('with account', () => {
     transport: http(),
   })
   expectTypeOf(client).toMatchTypeOf<WalletClient>()
-  expectTypeOf(client.account).toEqualTypeOf<JsonRpcAccount>()
+  expectTypeOf(client.account).toEqualTypeOf<JsonRpcAccount<'0x'>>({
+    address: '0x',
+    type: 'json-rpc',
+  })
 })
 
 test('without account', () => {

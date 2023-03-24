@@ -147,9 +147,9 @@ export function createHttpServer(
 
 export async function deploy<TAbi extends Abi | readonly unknown[],>(
   args: DeployContractParameters<
+    TAbi,
     typeof walletClientWithAccount['chain'],
-    typeof walletClientWithAccount['account'],
-    TAbi
+    typeof walletClientWithAccount['account']
   >,
 ) {
   const hash = await deployContract(walletClientWithAccount, args)

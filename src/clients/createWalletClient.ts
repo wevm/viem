@@ -59,7 +59,9 @@ export function createWalletClient<
 }: WalletClientConfig<TTransport, TChain, TAccountOrAddress>): WalletClient<
   TTransport,
   TChain,
-  TAccountOrAddress extends Address ? JsonRpcAccount : TAccountOrAddress,
+  TAccountOrAddress extends Address
+    ? Prettify<JsonRpcAccount<TAccountOrAddress>>
+    : TAccountOrAddress,
   true
 > {
   const client = {
@@ -75,7 +77,9 @@ export function createWalletClient<
   } as WalletClient<
     TTransport,
     TChain,
-    TAccountOrAddress extends Address ? JsonRpcAccount : TAccountOrAddress
+    TAccountOrAddress extends Address
+      ? JsonRpcAccount<TAccountOrAddress>
+      : TAccountOrAddress
   >
   return {
     ...client,

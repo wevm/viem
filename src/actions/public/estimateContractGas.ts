@@ -12,9 +12,9 @@ import {
 import { estimateGas, EstimateGasParameters } from './estimateGas'
 
 export type EstimateContractGasParameters<
-  TChain extends Chain | undefined = Chain | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
+  TFunctionName extends string = string,
+  TChain extends Chain | undefined = Chain | undefined,
 > = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
   ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
     value?: GetValue<
@@ -26,9 +26,9 @@ export type EstimateContractGasParameters<
 export type EstimateContractGasReturnType = bigint
 
 export async function estimateContractGas<
-  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
+  TChain extends Chain | undefined,
 >(
   client: PublicClient<Transport, TChain>,
   {
@@ -37,7 +37,7 @@ export async function estimateContractGas<
     args,
     functionName,
     ...request
-  }: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+  }: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
 ): Promise<EstimateContractGasReturnType> {
   const account = parseAccount(request.account)
   const data = encodeFunctionData({

@@ -49,7 +49,7 @@ export type WalletActions<
     TAbi extends Abi | readonly unknown[],
     TChainOverride extends Chain | undefined,
   >(
-    args: DeployContractParameters<TChain, TAccount, TAbi, TChainOverride>,
+    args: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
   ) => Promise<DeployContractReturnType>
   getAddresses: () => Promise<GetAddressesReturnType>
   getChainId: () => Promise<GetChainIdReturnType>

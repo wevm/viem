@@ -11,9 +11,6 @@ test('with chain', () => {
   })
   expectTypeOf(client).toMatchTypeOf<PublicClient>()
   expectTypeOf(client.chain).toEqualTypeOf(localhost)
-
-  const foo = (c: PublicClient) => c
-  foo(client)
 })
 
 test('without chain', () => {

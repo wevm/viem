@@ -140,7 +140,7 @@ export type PublicActions<
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
-    args: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
   ) => Promise<EstimateContractGasReturnType>
   estimateGas: (
     args: EstimateGasParameters<TChain>,
@@ -216,13 +216,13 @@ export type PublicActions<
     TChainOverride extends Chain | undefined = undefined,
   >(
     args: SimulateContractParameters<
-      TChain,
       TAbi,
       TFunctionName,
+      TChain,
       TChainOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<TChain, TAbi, TFunctionName, TChainOverride>
+    SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
   >
   uninstallFilter: (
     args: UninstallFilterParameters,
