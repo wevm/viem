@@ -148,8 +148,12 @@ export function createHttpServer(
   })
 }
 
-export async function deploy<TAbi extends Abi = Abi>(
-  args: DeployContractParameters<any, TAbi>,
+export async function deploy<TAbi extends Abi | readonly unknown[],>(
+  args: DeployContractParameters<
+    TAbi,
+    typeof walletClientWithAccount['chain'],
+    typeof walletClientWithAccount['account']
+  >,
 ) {
   const hash = await deployContract(walletClientWithAccount, args)
   await mine(testClient, { blocks: 1 })

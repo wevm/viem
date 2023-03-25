@@ -1,8 +1,8 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClientArg } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
-import type { ContractConfig, ExtractResultFromAbi } from '../../types'
+import type { Chain, ContractConfig, ExtractResultFromAbi } from '../../types'
 import {
   decodeFunctionResult,
   DecodeFunctionResultParameters,
@@ -24,10 +24,11 @@ export type ReadContractReturnType<
 > = ExtractResultFromAbi<TAbi, TFunctionName>
 
 export async function readContract<
+  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
 >(
-  client: PublicClientArg,
+  client: PublicClient<Transport, TChain>,
   {
     abi,
     address,

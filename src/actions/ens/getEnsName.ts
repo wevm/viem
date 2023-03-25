@@ -1,10 +1,10 @@
-import type { PublicClientArg } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import { panicReasons } from '../../constants'
 import {
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
 } from '../../errors'
-import type { Address, Prettify } from '../../types'
+import type { Address, Chain, Prettify } from '../../types'
 import { getChainContractAddress, toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
@@ -31,8 +31,8 @@ export type GetEnsNameReturnType = string | null
  * })
  * // 'wagmi-dev.eth'
  */
-export async function getEnsName(
-  client: PublicClientArg,
+export async function getEnsName<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   {
     address,
     blockNumber,

@@ -1,4 +1,4 @@
-import type { PublicClientArg, WalletClientArg, Transport } from '../../clients'
+import type { PublicClient, WalletClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import { AccountNotFoundError } from '../../errors'
 import type {
@@ -30,7 +30,7 @@ export type FormattedEstimateGas<
 >
 
 export type EstimateGasParameters<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = undefined,
 > = FormattedEstimateGas<TransactionRequestFormatter<TChain>> &
   GetAccountParameter<TAccount> &
@@ -57,8 +57,8 @@ export async function estimateGas<
   TAccount extends Account | undefined = undefined,
 >(
   client:
-    | PublicClientArg<Transport, TChain>
-    | WalletClientArg<Transport, TChain, TAccount>,
+    | PublicClient<Transport, TChain>
+    | WalletClient<Transport, TChain, TAccount>,
   args: EstimateGasParameters<TChain, TAccount>,
 ): Promise<EstimateGasReturnType> {
   if (!args.account)

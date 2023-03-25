@@ -5,7 +5,6 @@ export type {
   GetAccountParameter,
   LocalAccount,
   JsonRpcAccount,
-  ParseAccount,
 } from './account'
 
 export type {
@@ -105,6 +104,8 @@ export type {
 } from './typedData'
 
 export type {
+  IsNever,
+  IsUndefined,
   PartialBy,
   Prettify,
   MergeIntersectionProperties,

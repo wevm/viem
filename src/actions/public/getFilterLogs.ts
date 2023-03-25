@@ -1,6 +1,6 @@
 import type { Abi, AbiEvent } from 'abitype'
-import type { PublicClientArg } from '../../clients'
-import type { Filter, Log, MaybeAbiEventName } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { Chain, Filter, Log, MaybeAbiEventName } from '../../types'
 import { decodeEventLog } from '../../utils'
 
 import { formatLog } from '../../utils/formatters/log'
@@ -19,11 +19,12 @@ export type GetFilterLogsReturnType<
 > = Log<bigint, number, TAbiEvent, TAbi, TEventName>[]
 
 export async function getFilterLogs<
+  TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClientArg,
+  client: PublicClient<Transport, TChain>,
   { filter }: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
 ): Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>> {
   const logs = await client.request({

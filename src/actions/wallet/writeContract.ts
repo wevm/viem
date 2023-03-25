@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { WalletClientArg, Transport } from '../../clients'
+import type { Transport, WalletClient } from '../../clients'
 import type {
   Account,
   Chain,
@@ -16,11 +16,11 @@ import {
 } from './sendTransaction'
 
 export type WriteContractParameters<
-  TChain extends Chain | undefined = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
+  TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChainOverride extends Chain | undefined = undefined,
 > = Omit<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
   'chain' | 'to' | 'data' | 'value'
@@ -37,12 +37,12 @@ export type WriteContractReturnType = SendTransactionReturnType
 
 export async function writeContract<
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChainOverride extends Chain | undefined = undefined,
 >(
-  client: WalletClientArg<Transport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
   {
     abi,
     address,
@@ -50,9 +50,9 @@ export async function writeContract<
     functionName,
     ...request
   }: WriteContractParameters<
-    TChain,
     TAbi,
     TFunctionName,
+    TChain,
     TAccount,
     TChainOverride
   >,

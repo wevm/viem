@@ -1,7 +1,8 @@
-import type { TestClientArg } from '../../clients'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { Chain } from '../../types'
 
-export async function setLoggingEnabled(
-  client: TestClientArg,
+export async function setLoggingEnabled<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   enabled: boolean,
 ) {
   return await client.request({

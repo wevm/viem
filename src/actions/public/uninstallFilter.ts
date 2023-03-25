@@ -1,13 +1,13 @@
-import type { PublicClientArg } from '../../clients'
-import type { Filter } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { Chain, Filter } from '../../types'
 
 export type UninstallFilterParameters = {
   filter: Filter<any>
 }
 export type UninstallFilterReturnType = boolean
 
-export async function uninstallFilter(
-  client: PublicClientArg,
+export async function uninstallFilter<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   { filter }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
   return client.request({

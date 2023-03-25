@@ -1,4 +1,4 @@
-import type { PublicClientArg, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BlockTag, Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
@@ -6,21 +6,23 @@ import type { GetBlockReturnType } from './getBlock'
 import { getBlock } from './getBlock'
 
 export type OnBlockParameter<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TIncludeTransactions = false,
 > = Omit<
   GetBlockReturnType<TChain>,
   TIncludeTransactions extends false ? 'transactions' : ''
 >
 export type OnBlock<
-  TChain extends Chain | undefined = Chain,
+  TChain extends Chain | undefined = Chain | undefined,
   TIncludeTransactions = false,
 > = (
   block: OnBlockParameter<TChain, TIncludeTransactions>,
   prevBlock: OnBlockParameter<TChain, TIncludeTransactions> | undefined,
 ) => void
 
-export type WatchBlocksParameters<TChain extends Chain | undefined = Chain> = {
+export type WatchBlocksParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
   /** The block tag. Defaults to "latest". */
   blockTag?: BlockTag
   /** Whether or not to emit the missed blocks to the callback. */
@@ -46,12 +48,16 @@ export type WatchBlocksParameters<TChain extends Chain | undefined = Chain> = {
     }
 )
 
-/** @description Watches and returns information for incoming blocks. */
+export type WatchBlocksReturnType = () => void
+
+/**
+ * @description Watches and returns information for incoming blocks.
+ */
 export function watchBlocks<
   TChain extends Chain | undefined,
   TWatchBlocksParameters extends WatchBlocksParameters<TChain>,
 >(
-  client: PublicClientArg<Transport, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     blockTag = 'latest',
     emitMissed = false,
@@ -61,7 +67,7 @@ export function watchBlocks<
     includeTransactions = false,
     pollingInterval = client.pollingInterval,
   }: TWatchBlocksParameters,
-) {
+): WatchBlocksReturnType {
   const observerId = JSON.stringify([
     'watchBlocks',
     client.uid,

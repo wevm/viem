@@ -1,10 +1,11 @@
 import type { Abi, AbiEvent } from 'abitype'
-import type { PublicClientArg } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 
 import type {
   Address,
   BlockNumber,
   BlockTag,
+  Chain,
   Filter,
   LogTopic,
   MaybeAbiEventName,
@@ -61,14 +62,15 @@ export type CreateEventFilterReturnType<
 > = Filter<'event', TAbi, TEventName, TArgs>
 
 export async function createEventFilter<
+  TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  TArgs extends
-    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+  _Abi extends Abi | readonly unknown[] = [TAbiEvent],
+  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  _Args extends
+    | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
     | undefined = undefined,
 >(
-  client: PublicClientArg,
+  client: PublicClient<Transport, TChain>,
   {
     address,
     args,
@@ -77,11 +79,11 @@ export async function createEventFilter<
     toBlock,
   }: CreateEventFilterParameters<
     TAbiEvent,
-    TAbi,
-    TEventName,
-    TArgs
+    _Abi,
+    _EventName,
+    _Args
   > = {} as any,
-): Promise<CreateEventFilterReturnType<TAbiEvent, TAbi, TEventName, TArgs>> {
+): Promise<CreateEventFilterReturnType<TAbiEvent, _Abi, _EventName, _Args>> {
   let topics: LogTopic[] = []
   if (event)
     topics = encodeEventTopics({
@@ -110,8 +112,8 @@ export async function createEventFilter<
     type: 'event',
   } as unknown as CreateEventFilterReturnType<
     TAbiEvent,
-    TAbi,
-    TEventName,
-    TArgs
+    _Abi,
+    _EventName,
+    _Args
   >
 }

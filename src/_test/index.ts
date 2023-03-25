@@ -16,6 +16,7 @@ export {
 } from './constants'
 
 export {
+  anvilChain,
   createHttpServer,
   deploy,
   deployBAYC,

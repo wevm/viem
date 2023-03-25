@@ -1,6 +1,6 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { WalletClientArg, Transport } from '../../clients'
+import type { WalletClient, Transport } from '../../clients'
 import type {
   Account,
   Chain,
@@ -16,10 +16,10 @@ import {
 } from '../wallet'
 
 export type DeployContractParameters<
-  TChain extends Chain | undefined = Chain | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TAccount extends Account | undefined = undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 > = Omit<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
   'accessList' | 'chain' | 'to' | 'data' | 'value'
@@ -32,26 +32,26 @@ export type DeployContractParameters<
 export type DeployContractReturnType = SendTransactionReturnType
 
 export function deployContract<
-  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
+  TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChainOverride extends Chain | undefined,
 >(
-  walletClient: WalletClientArg<Transport, TChain, TAccount>,
+  walletClient: WalletClient<Transport, TChain, TAccount>,
   {
     abi,
     args,
     bytecode,
     ...request
-  }: DeployContractParameters<TChain, TAbi, TAccount, TChainOverride>,
+  }: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
 ): Promise<DeployContractReturnType> {
   const calldata = encodeDeployData({
     abi,
     args,
     bytecode,
   } as unknown as DeployContractParameters<
-    TChain,
     TAbi,
+    TChain,
     TAccount,
     TChainOverride
   >)

@@ -29,12 +29,11 @@ type PackedAbiType =
   | SolidityString
   | SolidityArrayWithoutTuple
 
-type EncodePackedValues<TPackedAbiTypes extends PackedAbiType[] | unknown[],> =
-  {
-    [K in keyof TPackedAbiTypes]: TPackedAbiTypes[K] extends AbiType
-      ? AbiParameterToPrimitiveType<{ type: TPackedAbiTypes[K] }>
-      : unknown
-  }
+type EncodePackedValues<TPackedAbiTypes extends PackedAbiType[] | unknown[]> = {
+  [K in keyof TPackedAbiTypes]: TPackedAbiTypes[K] extends AbiType
+    ? AbiParameterToPrimitiveType<{ type: TPackedAbiTypes[K] }>
+    : unknown
+}
 
 export function encodePacked<
   TPackedAbiTypes extends PackedAbiType[] | unknown[],
