@@ -3,6 +3,7 @@ import type { TypedData } from 'abitype'
 import type { Hex, TypedDataDefinition } from '../../types'
 import { HashTypedDataParameters, hashTypedData } from '../../utils'
 import { sign } from './sign'
+import { signatureToHex } from './signatureToHex'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
@@ -30,8 +31,9 @@ export async function signTypedData<
   TTypedData,
   TPrimaryType
 >): Promise<SignTypedDataReturnType> {
-  return sign({
+  const signature = await sign({
     hash: hashTypedData(typedData as HashTypedDataParameters),
     privateKey,
   })
+  return signatureToHex(signature)
 }

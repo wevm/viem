@@ -1,5 +1,5 @@
 import { test, expectTypeOf } from 'vitest'
-import type { IsNever, IsUndefined } from './utils'
+import type { IsNever, IsUndefined, RequiredBy } from './utils'
 
 test('IsNever', () => {
   expectTypeOf<IsNever<never>>().toEqualTypeOf<true>()
@@ -25,4 +25,10 @@ test('IsUndefined', () => {
   expectTypeOf<IsUndefined<[]>>().toEqualTypeOf<false>()
   expectTypeOf<IsUndefined<{}>>().toEqualTypeOf<false>()
   expectTypeOf<IsUndefined<undefined[]>>().toEqualTypeOf<false>()
+})
+
+test('RequiredBy', () => {
+  expectTypeOf<
+    RequiredBy<{ a?: number; b?: string; c: boolean }, 'a' | 'c'>
+  >().toEqualTypeOf<{ a: number; b?: string; c: boolean }>()
 })

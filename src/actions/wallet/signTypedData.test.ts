@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
+import { privateKeyToAccount } from '../../accounts'
 import {
   accounts,
-  getLocalAccount,
   typedData,
   walletClient,
   walletClientWithAccount,
@@ -9,7 +9,7 @@ import {
 
 import { signTypedData } from './signTypedData'
 
-const localAccount = getLocalAccount(accounts[0].privateKey)
+const localAccount = privateKeyToAccount(accounts[0].privateKey)
 const jsonRpcAccount = accounts[0].address
 
 describe('default', async () => {

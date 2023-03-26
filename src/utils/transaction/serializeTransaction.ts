@@ -1,4 +1,8 @@
-import { InvalidAddressError, InvalidLegacyVError } from '../../errors'
+import {
+  InvalidAddressError,
+  InvalidLegacyVError,
+  InvalidStorageKeySizeError,
+} from '../../errors'
 import type {
   AccessList,
   Hex,
@@ -184,6 +188,12 @@ function serializeAccessList(accessList?: AccessList): RecursiveArray<Hex> {
   let serializedAccessList: RecursiveArray<Hex> = []
   for (let i = 0; i < accessList.length; i++) {
     const { address, storageKeys } = accessList[i]
+
+    for (let j = 0; j < storageKeys.length; j++) {
+      if (storageKeys[j].length - 2 !== 64) {
+        throw new InvalidStorageKeySizeError({ storageKey: storageKeys[j] })
+      }
+    }
 
     if (!isAddress(address)) {
       throw new InvalidAddressError({ address })

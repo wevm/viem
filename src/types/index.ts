@@ -57,7 +57,7 @@ export type { Formatter, Formatters } from './formatter'
 
 export type { Log } from './log'
 
-export type { ByteArray, Hex, Hash, LogTopic } from './misc'
+export type { ByteArray, Hex, Hash, LogTopic, Signature } from './misc'
 
 export type { MulticallContracts } from './multicall'
 
@@ -78,7 +78,6 @@ export type {
 
 export type {
   AccessList,
-  Signature,
   TransactionReceipt,
   TransactionRequest,
   TransactionRequestBase,

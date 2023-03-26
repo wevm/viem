@@ -97,6 +97,7 @@ test('exports utils', () => {
       "parseAbiItem": [Function],
       "parseAbiParameter": [Function],
       "parseAbiParameters": [Function],
+      "parseAccount": [Function],
       "parseEther": [Function],
       "parseGwei": [Function],
       "parseTransaction": [Function],

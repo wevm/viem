@@ -1,6 +1,7 @@
 import type { Hex } from '../../types'
 import { hashMessage } from '../../utils'
 import { sign } from './sign'
+import { signatureToHex } from './signatureToHex'
 
 export type SignMessageParameters = {
   /** The message to sign. */
@@ -20,5 +21,6 @@ export async function signMessage({
   message,
   privateKey,
 }: SignMessageParameters): Promise<SignMessageReturnType> {
-  return sign({ hash: hashMessage(message), privateKey })
+  const signature = await sign({ hash: hashMessage(message), privateKey })
+  return signatureToHex(signature)
 }

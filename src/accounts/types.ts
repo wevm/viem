@@ -3,7 +3,7 @@ import type { Address, TypedData } from 'abitype'
 import type {
   Hash,
   Hex,
-  TransactionRequest,
+  TransactionSerializable,
   TypedDataDefinition,
 } from '../types'
 
@@ -15,12 +15,7 @@ export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
   signMessage: ({ message }: { message: string }) => Promise<Hash>
-  signTransaction: (
-    transaction: Omit<TransactionRequest, 'from'> & {
-      chainId: number
-      from: Address
-    },
-  ) => Promise<Hash>
+  signTransaction: (transaction: TransactionSerializable) => Promise<Hash>
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string = string,
@@ -40,7 +35,6 @@ export type LocalAccount<
 > = CustomSource & {
   address: TAddress
   publicKey: Hex
-  getPrivateKey(): Hex
   source: TSource
   type: 'local'
 }

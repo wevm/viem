@@ -2,7 +2,12 @@ import { getPublicKey } from '@noble/secp256k1'
 
 import type { Hex } from '../types'
 import { toHex } from '../utils'
-import { publicKeyToAddress, signMessage, signTypedData } from './utils'
+import {
+  publicKeyToAddress,
+  signMessage,
+  signTransaction,
+  signTypedData,
+} from './utils'
 import { toAccount } from './toAccount'
 import type { PrivateKeyAccount } from './types'
 
@@ -20,9 +25,8 @@ export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
     async signMessage({ message }) {
       return signMessage({ message, privateKey })
     },
-    async signTransaction(_transaction) {
-      // TODO
-      return '0x'
+    async signTransaction(transaction) {
+      return signTransaction({ privateKey, transaction })
     },
     async signTypedData(typedData) {
       return signTypedData({ ...typedData, privateKey })
@@ -31,7 +35,6 @@ export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
 
   return {
     ...account,
-    getPrivateKey: () => privateKey,
     publicKey,
     source: 'privateKey',
   }

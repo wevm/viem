@@ -8,6 +8,8 @@ test('exports utils', () => {
       "parseAccount",
       "publicKeyToAddress",
       "signMessage",
+      "signatureToHex",
+      "signTransaction",
       "signTypedData",
     ]
   `)
