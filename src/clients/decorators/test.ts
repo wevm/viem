@@ -54,8 +54,9 @@ import {
   snapshot,
   stopImpersonatingAccount,
 } from '../../actions/test'
-import type { Quantity } from '../../types'
-import type { TestClient } from '../createTestClient'
+import type { Chain, Quantity } from '../../types'
+import type { TestClient, TestClientMode } from '../createTestClient'
+import type { Transport } from '../transports'
 
 export type TestActions = {
   dropTransaction: (args: DropTransactionParameters) => Promise<void>
@@ -98,35 +99,39 @@ export type TestActions = {
   ) => Promise<void>
 }
 
-export const testActions = <TClient extends TestClient<any, any>>(
-  client: TClient,
-): TestActions => ({
-  dropTransaction: (args) => dropTransaction(client, args),
-  getAutomine: () => getAutomine(client),
-  getTxpoolContent: () => getTxpoolContent(client),
-  getTxpoolStatus: () => getTxpoolStatus(client),
-  impersonateAccount: (args) => impersonateAccount(client, args),
-  increaseTime: (args) => increaseTime(client, args),
-  inspectTxpool: () => inspectTxpool(client),
-  mine: (args) => mine(client, args),
-  removeBlockTimestampInterval: () => removeBlockTimestampInterval(client),
-  reset: (args) => reset(client, args),
-  revert: (args) => revert(client, args),
-  sendUnsignedTransaction: (args) => sendUnsignedTransaction(client, args),
-  setAutomine: (args) => setAutomine(client, args),
-  setBalance: (args) => setBalance(client, args),
-  setBlockGasLimit: (args) => setBlockGasLimit(client, args),
-  setBlockTimestampInterval: (args) => setBlockTimestampInterval(client, args),
-  setCode: (args) => setCode(client, args),
-  setCoinbase: (args) => setCoinbase(client, args),
-  setIntervalMining: (args) => setIntervalMining(client, args),
-  setLoggingEnabled: (args) => setLoggingEnabled(client, args),
-  setMinGasPrice: (args) => setMinGasPrice(client, args),
-  setNextBlockBaseFeePerGas: (args) => setNextBlockBaseFeePerGas(client, args),
-  setNextBlockTimestamp: (args) => setNextBlockTimestamp(client, args),
-  setNonce: (args) => setNonce(client, args),
-  setRpcUrl: (args) => setRpcUrl(client, args),
-  setStorageAt: (args) => setStorageAt(client, args),
-  snapshot: () => snapshot(client),
-  stopImpersonatingAccount: (args) => stopImpersonatingAccount(client, args),
-})
+export function testActions<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
+): TestActions {
+  return {
+    dropTransaction: (args) => dropTransaction(client, args),
+    getAutomine: () => getAutomine(client),
+    getTxpoolContent: () => getTxpoolContent(client),
+    getTxpoolStatus: () => getTxpoolStatus(client),
+    impersonateAccount: (args) => impersonateAccount(client, args),
+    increaseTime: (args) => increaseTime(client, args),
+    inspectTxpool: () => inspectTxpool(client),
+    mine: (args) => mine(client, args),
+    removeBlockTimestampInterval: () => removeBlockTimestampInterval(client),
+    reset: (args) => reset(client, args),
+    revert: (args) => revert(client, args),
+    sendUnsignedTransaction: (args) => sendUnsignedTransaction(client, args),
+    setAutomine: (args) => setAutomine(client, args),
+    setBalance: (args) => setBalance(client, args),
+    setBlockGasLimit: (args) => setBlockGasLimit(client, args),
+    setBlockTimestampInterval: (args) =>
+      setBlockTimestampInterval(client, args),
+    setCode: (args) => setCode(client, args),
+    setCoinbase: (args) => setCoinbase(client, args),
+    setIntervalMining: (args) => setIntervalMining(client, args),
+    setLoggingEnabled: (args) => setLoggingEnabled(client, args),
+    setMinGasPrice: (args) => setMinGasPrice(client, args),
+    setNextBlockBaseFeePerGas: (args) =>
+      setNextBlockBaseFeePerGas(client, args),
+    setNextBlockTimestamp: (args) => setNextBlockTimestamp(client, args),
+    setNonce: (args) => setNonce(client, args),
+    setRpcUrl: (args) => setRpcUrl(client, args),
+    setStorageAt: (args) => setStorageAt(client, args),
+    snapshot: () => snapshot(client),
+    stopImpersonatingAccount: (args) => stopImpersonatingAccount(client, args),
+  }
+}

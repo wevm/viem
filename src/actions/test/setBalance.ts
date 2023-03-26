@@ -1,5 +1,5 @@
-import type { TestClientArg } from '../../clients'
-import type { Address } from '../../types'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { Address, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetBalanceParameters = {
@@ -9,8 +9,8 @@ export type SetBalanceParameters = {
   value: bigint
 }
 
-export async function setBalance(
-  client: TestClientArg,
+export async function setBalance<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { address, value }: SetBalanceParameters,
 ) {
   return await client.request({

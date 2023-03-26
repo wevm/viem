@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClientArg, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
   Chain,
@@ -20,9 +20,9 @@ import type { WriteContractParameters } from '../wallet'
 import { call, CallParameters } from './call'
 
 export type SimulateContractParameters<
-  TChain extends Chain | undefined = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
+  TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
 > = Omit<
   CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
@@ -34,17 +34,17 @@ export type SimulateContractParameters<
   }
 
 export type SimulateContractReturnType<
-  TChain extends Chain | undefined = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-  TChainOverride extends Chain | undefined = TChain,
+  TChain extends Chain | undefined = Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 > = {
   result: ExtractResultFromAbi<TAbi, TFunctionName>
   request: Omit<
     WriteContractParameters<
-      TChain,
       TAbi,
       TFunctionName,
+      TChain,
       undefined,
       TChainOverride
     >,
@@ -60,16 +60,16 @@ export async function simulateContract<
   TFunctionName extends string,
   TChainOverride extends Chain | undefined,
 >(
-  client: PublicClientArg<Transport, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     abi,
     address,
     args,
     functionName,
     ...callRequest
-  }: SimulateContractParameters<TChain, TAbi, TFunctionName, TChainOverride>,
+  }: SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>,
 ): Promise<
-  SimulateContractReturnType<TChain, TAbi, TFunctionName, TChainOverride>
+  SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
 > {
   const account = callRequest.account
     ? parseAccount(callRequest.account)
@@ -101,9 +101,9 @@ export async function simulateContract<
         ...callRequest,
       },
     } as unknown as SimulateContractReturnType<
-      TChain,
       TAbi,
       TFunctionName,
+      TChain,
       TChainOverride
     >
   } catch (err) {

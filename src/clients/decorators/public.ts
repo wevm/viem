@@ -60,10 +60,15 @@ import type {
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
   WatchBlockNumberParameters,
+  WatchBlockNumberReturnType,
   WatchBlocksParameters,
+  WatchBlocksReturnType,
   WatchContractEventParameters,
+  WatchContractEventReturnType,
   WatchEventParameters,
+  WatchEventReturnType,
   WatchPendingTransactionsParameters,
+  WatchPendingTransactionsReturnType,
 } from '../../actions/public'
 import {
   call,
@@ -107,8 +112,11 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
 import type { PublicClient } from '../createPublicClient'
+import type { Transport } from '../transports'
 
-export type PublicActions<TChain extends Chain | undefined = Chain> = {
+export type PublicActions<
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   createContractEventFilter: <
@@ -132,7 +140,7 @@ export type PublicActions<TChain extends Chain | undefined = Chain> = {
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
-    args: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
   ) => Promise<EstimateContractGasReturnType>
   estimateGas: (
     args: EstimateGasParameters<TChain>,
@@ -208,13 +216,13 @@ export type PublicActions<TChain extends Chain | undefined = Chain> = {
     TChainOverride extends Chain | undefined = undefined,
   >(
     args: SimulateContractParameters<
-      TChain,
       TAbi,
       TFunctionName,
+      TChain,
       TChainOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<TChain, TAbi, TFunctionName, TChainOverride>
+    SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
   >
   uninstallFilter: (
     args: UninstallFilterParameters,
@@ -224,32 +232,27 @@ export type PublicActions<TChain extends Chain | undefined = Chain> = {
   ) => Promise<WaitForTransactionReceiptReturnType<TChain>>
   watchBlockNumber: (
     args: WatchBlockNumberParameters,
-  ) => ReturnType<typeof watchBlockNumber>
-  watchBlocks: (
-    args: WatchBlocksParameters<TChain>,
-  ) => ReturnType<typeof watchBlocks>
+  ) => WatchBlockNumberReturnType
+  watchBlocks: (args: WatchBlocksParameters<TChain>) => WatchBlocksReturnType
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,
   >(
     args: WatchContractEventParameters<TAbi, TEventName>,
-  ) => ReturnType<typeof watchContractEvent>
-  watchEvent: <
-    TAbiEvent extends AbiEvent | undefined,
-    TEventName extends string | undefined,
-  >(
+  ) => WatchContractEventReturnType
+  watchEvent: <TAbiEvent extends AbiEvent | undefined>(
     args: WatchEventParameters<TAbiEvent>,
-  ) => ReturnType<typeof watchEvent>
+  ) => WatchEventReturnType
   watchPendingTransactions: (
     args: WatchPendingTransactionsParameters,
-  ) => ReturnType<typeof watchPendingTransactions>
+  ) => WatchPendingTransactionsReturnType
 }
 
 export const publicActions = <
-  TChain extends Chain | undefined,
-  TClient extends PublicClient<any, any>,
+  TTransport extends Transport,
+  TChain extends Chain | undefined = Chain | undefined,
 >(
-  client: TClient,
+  client: PublicClient<TTransport, TChain>,
 ): PublicActions<TChain> => ({
   call: (args) => call(client, args),
   createBlockFilter: () => createBlockFilter(client),

@@ -1,10 +1,10 @@
-import type { Transport, WalletClientArg } from '../../clients'
+import type { Transport, WalletClient } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
 import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
 import { parseAccount, toHex } from '../../utils'
 
 export type SignMessageParameters<
-  TAccount extends Account | undefined = undefined,
+  TAccount extends Account | undefined = Account | undefined,
 > = GetAccountParameter<TAccount> &
   (
     | {
@@ -20,8 +20,11 @@ export type SignMessageParameters<
 
 export type SignMessageReturnType = Hex
 
-export async function signMessage<TAccount extends Account | undefined>(
-  client: WalletClientArg<Transport, Chain | undefined, TAccount>,
+export async function signMessage<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: WalletClient<Transport, TChain, TAccount>,
   {
     account: account_ = client.account,
     data,

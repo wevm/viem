@@ -10,6 +10,7 @@ import { parseEther } from '../../utils'
 import { mine, setBalance } from '../test'
 
 import { deployContract } from './deployContract'
+import { arbitrum } from '../../chains'
 
 test('default', async () => {
   const hash = await deployContract(walletClient, {

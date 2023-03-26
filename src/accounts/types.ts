@@ -7,7 +7,9 @@ import type {
   TypedDataDefinition,
 } from '../types'
 
-export type Account = JsonRpcAccount | LocalAccount
+export type Account<TAddress extends Address = Address> =
+  | JsonRpcAccount<TAddress>
+  | LocalAccount<string, TAddress>
 
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
@@ -27,13 +29,16 @@ export type CustomSource = {
   ) => Promise<Hash>
 }
 
-export type JsonRpcAccount = {
-  address: Address
+export type JsonRpcAccount<TAddress extends Address = Address> = {
+  address: TAddress
   type: 'json-rpc'
 }
 
-export type LocalAccount<TSource = 'custom'> = CustomSource & {
-  address: Address
+export type LocalAccount<
+  TSource extends string = 'custom',
+  TAddress extends Address = Address,
+> = CustomSource & {
+  address: TAddress
   publicKey: Hex
   getPrivateKey(): Hex
   source: TSource

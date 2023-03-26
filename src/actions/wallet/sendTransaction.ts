@@ -1,4 +1,4 @@
-import type { Transport, WalletClientArg } from '../../clients'
+import type { Transport, WalletClient } from '../../clients'
 import {
   AccountNotFoundError,
   BaseError,
@@ -7,6 +7,7 @@ import {
 } from '../../errors'
 import type {
   Account,
+  GetAccountParameter,
   Chain,
   Formatter,
   GetChain,
@@ -14,7 +15,6 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { GetAccountParameter } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -36,9 +36,9 @@ export type FormattedTransactionRequest<
 >
 
 export type SendTransactionParameters<
-  TChain extends Chain | undefined = Chain,
-  TAccount extends Account | undefined = undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain,
 > = FormattedTransactionRequest<TransactionRequestFormatter<TChainOverride>> &
   GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride>
@@ -48,9 +48,9 @@ export type SendTransactionReturnType = Hash
 export async function sendTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined = TChain,
+  TChainOverride extends Chain | undefined,
 >(
-  client: WalletClientArg<Transport, TChain, TAccount>,
+  client: WalletClient<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {

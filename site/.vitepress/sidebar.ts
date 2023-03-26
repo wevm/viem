@@ -681,11 +681,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Transaction',
           items: [
             {
-              text: 'parseTransaction 🚧',
+              text: 'parseTransaction',
               link: '/docs/utilities/parseTransaction',
             },
             {
-              text: 'serializeTransaction 🚧',
+              text: 'serializeTransaction',
               link: '/docs/utilities/serializeTransaction',
             },
           ],

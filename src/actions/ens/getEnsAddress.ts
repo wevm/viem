@@ -1,5 +1,5 @@
-import type { PublicClientArg } from '../../clients'
-import type { Address, Prettify } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { Address, Chain, Prettify } from '../../types'
 import {
   decodeFunctionResult,
   encodeFunctionData,
@@ -25,17 +25,9 @@ export type GetEnsAddressReturnType = Address
  *
  * - Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  * - Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
- *
- * @example
- * import { normalize } from 'viem/ens'
- *
- * const ensAddress = await getEnsAddress(publicClient, {
- *   name: normalize('wagmi-dev.eth'),
- * })
- * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
-export async function getEnsAddress(
-  client: PublicClientArg,
+export async function getEnsAddress<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   {
     blockNumber,
     blockTag,

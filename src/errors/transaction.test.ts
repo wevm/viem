@@ -5,11 +5,81 @@ import { address } from '../_test'
 import { BaseError } from './base'
 import {
   FeeConflictError,
+  InvalidLegacyVError,
+  InvalidSerializableTransactionError,
+  InvalidSerializedTransactionError,
+  InvalidSerializedTransactionTypeError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from './transaction'
+
+test('InvalidLegacyVError', () => {
+  expect(new InvalidLegacyVError({ v: 69n })).toMatchInlineSnapshot(`
+    [InvalidLegacyVError: Invalid \`v\` value "69". Expected 27 or 28.
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidSerializableTransactionError', () => {
+  expect(
+    new InvalidSerializableTransactionError({
+      transaction: {
+        chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
+
+    Provided Transaction:
+    {
+      chainId:  1
+      to:       0x0000000000000000000000000000000000000000
+    }
+
+    To infer the type, either provide:
+    - a \`type\` to the Transaction, or
+    - an EIP-1559 Transaction with \`maxFeePerGas\`, or
+    - an EIP-2930 Transaction with \`gasPrice\` & \`accessList\`, or
+    - a Legacy Transaction with \`gasPrice\`
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidSerializedTransactionTypeError', () => {
+  expect(
+    new InvalidSerializedTransactionTypeError({
+      serializedType: '0x111',
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidSerializedTransactionType: Serialized transaction type "0x111" is invalid.
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidSerializedTransactionError', () => {
+  expect(
+    new InvalidSerializedTransactionError({
+      attributes: {
+        chainId: null,
+        to: null,
+      },
+      serializedTransaction: '0x02ce01',
+      type: 'eip1559',
+    }),
+  ).toMatchInlineSnapshot(`
+    [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
+
+    Serialized Transaction: "0x02ce01"
+
+    Version: viem@1.0.2]
+  `)
+})
 
 test('FeeConflictError', () => {
   expect(new FeeConflictError()).toMatchInlineSnapshot(`

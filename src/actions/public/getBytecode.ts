@@ -1,5 +1,5 @@
-import type { PublicClientArg } from '../../clients'
-import type { Address, BlockTag, Hex } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { Address, BlockTag, Chain, Hex } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type GetBytecodeParameters = {
@@ -17,8 +17,8 @@ export type GetBytecodeParameters = {
 
 export type GetBytecodeReturnType = Hex | undefined
 
-export async function getBytecode(
-  client: PublicClientArg,
+export async function getBytecode<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   { address, blockNumber, blockTag = 'latest' }: GetBytecodeParameters,
 ): Promise<GetBytecodeReturnType> {
   const blockNumberHex =

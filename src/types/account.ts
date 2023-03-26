@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account, JsonRpcAccount } from '../accounts'
+import type { IsUndefined } from './utils'
 
 export type {
   Account,
@@ -14,8 +15,8 @@ export type {
 } from '../accounts'
 
 export type GetAccountParameter<
-  TAccount extends Account | undefined = undefined,
-> = TAccount extends undefined
+  TAccount extends Account | undefined = Account | undefined,
+> = IsUndefined<TAccount> extends true
   ? { account: Account | Address }
   : { account?: Account | Address }
 

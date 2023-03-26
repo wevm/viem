@@ -1,4 +1,5 @@
-import type { PublicClientArg } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
+import type { Chain } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import type { GetBlockNumberReturnType } from './getBlockNumber'
@@ -23,9 +24,11 @@ export type WatchBlockNumberParameters = {
   pollingInterval?: number
 }
 
+export type WatchBlockNumberReturnType = () => void
+
 /** @description Watches and returns incoming block numbers. */
-export function watchBlockNumber(
-  client: PublicClientArg,
+export function watchBlockNumber<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   {
     emitOnBegin = false,
     emitMissed = false,
@@ -33,7 +36,7 @@ export function watchBlockNumber(
     onError,
     pollingInterval = client.pollingInterval,
   }: WatchBlockNumberParameters,
-) {
+): WatchBlockNumberReturnType {
   const observerId = JSON.stringify([
     'watchBlockNumber',
     client.uid,

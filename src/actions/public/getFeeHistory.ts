@@ -1,5 +1,5 @@
-import type { PublicClientArg } from '../../clients'
-import type { BlockTag, FeeHistory } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { BlockTag, Chain, FeeHistory } from '../../types'
 
 import { numberToHex } from '../../utils'
 import { formatFeeHistory } from '../../utils/formatters'
@@ -22,8 +22,8 @@ export type GetFeeHistoryReturnType = FeeHistory
 /**
  * @description Returns a collection of historical gas information.
  */
-export async function getFeeHistory(
-  client: PublicClientArg,
+export async function getFeeHistory<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   {
     blockCount,
     blockNumber,
