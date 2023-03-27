@@ -26,6 +26,10 @@ import {
   SimulateContractParameters,
   readContract,
   simulateContract,
+  EstimateContractGasParameters,
+  estimateContractGas,
+  createContractEventFilter,
+  CreateContractEventFilterParameters,
 } from './public'
 import {
   WriteContractParameters,
@@ -176,8 +180,8 @@ export type GetContractReturnType<
 >
 
 export function getContract<
-  TAbi extends Abi | readonly unknown[],
   TTransport extends Transport,
+  TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TPublicClient extends PublicClient<TTransport, TChain> | undefined =
@@ -204,8 +208,8 @@ export function getContract<
 
   const contract: {
     [_ in
-        | 'estimateGas'
         | 'createEventFilter'
+        | 'estimateGas'
         | 'read'
         | 'simulate'
         | 'watchEvent'
@@ -252,7 +256,33 @@ export function getContract<
           },
         },
       )
+
     if (hasWriteFunction) {
+      contract.estimateGas = new Proxy(
+        {},
+        {
+          get(_, functionName: string) {
+            return (
+              ...rest: [
+                args?: readonly unknown[],
+                params?: Omit<
+                  EstimateContractGasParameters,
+                  'abi' | 'address' | 'functionName' | 'args'
+                >,
+              ]
+            ) => {
+              const { args, params } = getFunctionArgsAndParams(rest)
+              return estimateContractGas(publicClient, {
+                abi: abi as Abi,
+                address,
+                functionName,
+                args,
+                ...params,
+              } as EstimateContractGasParameters)
+            }
+          },
+        },
+      )
       contract.simulate = new Proxy(
         {},
         {
@@ -274,6 +304,34 @@ export function getContract<
                 args,
                 ...params,
               } as SimulateContractParameters)
+            }
+          },
+        },
+      )
+    }
+
+    if (hasEvent) {
+      contract.createEventFilter = new Proxy(
+        {},
+        {
+          get(_, eventName: string) {
+            return (
+              ...rest: [
+                args?: object,
+                params?: Omit<
+                  CreateContractEventFilterParameters,
+                  'abi' | 'address' | 'eventName' | 'args'
+                >,
+              ]
+            ) => {
+              const { args, params } = getEventArgsAndParams(rest)
+              return createContractEventFilter(publicClient, {
+                abi: abi as Abi,
+                address,
+                eventName,
+                args,
+                ...params,
+              } as CreateContractEventFilterParameters)
             }
           },
         },
@@ -327,6 +385,13 @@ function getFunctionArgsAndParams(
 ) {
   const hasArgs = rest.length && Array.isArray(rest[0])
   const args = hasArgs ? rest[0]! : []
+  const params = (hasArgs ? rest[1] : rest[0]) ?? {}
+  return { args, params }
+}
+
+function getEventArgsAndParams(rest: [args?: object, params?: object]) {
+  const hasArgs = rest.length && Array.isArray(rest[0])
+  const args = hasArgs ? rest[0]! : undefined
   const params = (hasArgs ? rest[1] : rest[0]) ?? {}
   return { args, params }
 }
