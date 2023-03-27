@@ -98,7 +98,7 @@ const unwatch = publicClient.watchBlockNumber(
 ### poll (optional)
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket Clients, `true` for non-WebSocket Clients
+- **Default:** `false` for WebSocket Transports, `true` for non-WebSocket Transports
 
 Whether or not to use a polling mechanism to check for new block numbers instead of a WebSocket subscription.
 

@@ -235,7 +235,7 @@ export type PublicActions<
     args: WatchBlockNumberParameters,
   ) => WatchBlockNumberReturnType
   watchBlocks: (
-    args: WatchBlocksParameters<TChain, TTransport>,
+    args: WatchBlocksParameters<TTransport, TChain>,
   ) => WatchBlocksReturnType
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],

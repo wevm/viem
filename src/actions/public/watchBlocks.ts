@@ -8,7 +8,7 @@ import { getBlock } from './getBlock'
 export type OnBlockParameter<TChain extends Chain | undefined = Chain> =
   GetBlockReturnType<TChain>
 
-export type OnBlock<TChain extends Chain | undefined = Chain,> = (
+export type OnBlock<TChain extends Chain | undefined = Chain> = (
   block: OnBlockParameter<TChain>,
   prevBlock: OnBlockParameter<TChain> | undefined,
 ) => void
@@ -27,8 +27,8 @@ type PollOptions = {
 }
 
 export type WatchBlocksParameters<
-  TChain extends Chain | undefined = Chain,
   TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain,
 > = {
   /** The callback to call when a new block is received. */
   onBlock: OnBlock<TChain>
@@ -54,8 +54,8 @@ export type WatchBlocksReturnType = () => void
  * @description Watches and returns information for incoming blocks.
  */
 export function watchBlocks<
-  TChain extends Chain | undefined,
   TTransport extends Transport,
+  TChain extends Chain | undefined,
 >(
   client: PublicClient<TTransport, TChain>,
   {
@@ -67,7 +67,7 @@ export function watchBlocks<
     includeTransactions = false,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlocksParameters<TChain, TTransport>,
+  }: WatchBlocksParameters<TTransport, TChain>,
 ): WatchBlocksReturnType {
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'

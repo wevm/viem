@@ -26,4 +26,5 @@ export {
   signTransaction,
   walletClientWithAccount,
   walletClientWithoutChain,
+  webSocketClient,
 } from './utils'
