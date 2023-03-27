@@ -74,7 +74,7 @@ export type SignTypedDataReturnType = Hex
 
 export async function signTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
+  TPrimaryType extends string,
 >(
   client: WalletClient,
   {
