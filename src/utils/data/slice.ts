@@ -39,7 +39,11 @@ function assertStartOffset(value: Hex | ByteArray, start?: number) {
  * @param start The start offset (in bytes).
  * @param end The end offset (in bytes).
  */
-export function sliceBytes(value: ByteArray, start?: number, end?: number) {
+export function sliceBytes(
+  value: ByteArray,
+  start?: number,
+  end?: number,
+): ByteArray {
   assertStartOffset(value, start)
   return value.slice(start, end)
 }
@@ -51,7 +55,7 @@ export function sliceBytes(value: ByteArray, start?: number, end?: number) {
  * @param start The start offset (in bytes).
  * @param end The end offset (in bytes).
  */
-export function sliceHex(value_: Hex, start?: number, end?: number) {
+export function sliceHex(value_: Hex, start?: number, end?: number): Hex {
   assertStartOffset(value_, start)
   const value = value_
     .replace('0x', '')

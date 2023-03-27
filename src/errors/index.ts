@@ -9,9 +9,9 @@ export {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
   AbiErrorSignatureNotFoundError,
+  AbiEventNotFoundError,
   AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
-  AbiEventNotFoundError,
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
   AbiFunctionSignatureNotFoundError,
@@ -36,6 +36,7 @@ export {
   ChainDoesNotSupportContract,
   ChainMismatchError,
   ChainNotFoundError,
+  InvalidChainIdError,
 } from './chain'
 
 export {
@@ -93,8 +94,8 @@ export {
   RpcRequestError,
   SwitchChainError,
   TransactionRejectedRpcError,
-  UserRejectedRequestError,
   UnknownRpcError,
+  UserRejectedRequestError,
 } from './request'
 
 export {
@@ -105,6 +106,11 @@ export {
 } from './rpc'
 
 export {
+  FeeConflictError,
+  InvalidLegacyVError,
+  InvalidSerializedTransactionError,
+  InvalidSerializedTransactionTypeError,
+  InvalidSerializableTransactionError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,

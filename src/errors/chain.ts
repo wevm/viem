@@ -38,7 +38,10 @@ export class ChainMismatchError extends BaseError {
   constructor({
     chain,
     currentChainId,
-  }: { chain: Chain; currentChainId: number }) {
+  }: {
+    chain: Chain
+    currentChainId: number
+  }) {
     super(
       `The current chain of the wallet (id: ${currentChainId}) does not match the target chain for the transaction (id: ${chain.id} – ${chain.name}).`,
       {
@@ -61,5 +64,13 @@ export class ChainNotFoundError extends BaseError {
         'Please provide a chain with the `chain` argument on the Action, or by supplying a `chain` to WalletClient.',
       ].join('\n'),
     )
+  }
+}
+
+export class InvalidChainIdError extends BaseError {
+  name = 'InvalidChainIdError'
+
+  constructor({ chainId }: { chainId: number }) {
+    super(`Chain ID "${chainId}" is invalid.`)
   }
 }
