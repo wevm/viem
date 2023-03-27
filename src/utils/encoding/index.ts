@@ -4,7 +4,7 @@ export {
   hexToBytes,
   numberToBytes,
   stringToBytes,
-} from './toBytes'
+} from './toBytes.js'
 
 export {
   boolToHex,
@@ -12,10 +12,10 @@ export {
   toHex,
   numberToHex,
   stringToHex,
-} from './toHex'
+} from './toHex.js'
 
-export type { ToRlpReturnType } from './toRlp'
-export { toRlp } from './toRlp'
+export type { ToRlpReturnType } from './toRlp.js'
+export { toRlp } from './toRlp.js'
 
 export {
   bytesToBigint,
@@ -23,7 +23,7 @@ export {
   bytesToNumber,
   bytesToString,
   fromBytes,
-} from './fromBytes'
+} from './fromBytes.js'
 
 export {
   fromHex,
@@ -31,6 +31,6 @@ export {
   hexToBool,
   hexToNumber,
   hexToString,
-} from './fromHex'
+} from './fromHex.js'
 
-export { fromRlp } from './fromRlp'
+export { fromRlp } from './fromRlp.js'

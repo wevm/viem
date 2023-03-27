@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as contract from './contract'
+import * as contract from './contract.js'
 
 test('exports contract actions', () => {
   expect(Object.keys(contract)).toMatchInlineSnapshot(`

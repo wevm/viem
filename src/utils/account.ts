@@ -1,7 +1,7 @@
-import { InvalidAddressError } from '../errors'
-import type { Address } from '../types'
-import type { Account, LocalAccount } from '../types/account'
-import { isAddress } from './address'
+import { InvalidAddressError } from '../errors/index.js'
+import type { Address } from '../types/index.js'
+import type { Account, LocalAccount } from '../types/account.js'
+import { isAddress } from './address/index.js'
 
 export function getAccount(
   account: Address | Omit<LocalAccount, 'type'>,

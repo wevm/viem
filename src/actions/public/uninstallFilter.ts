@@ -1,5 +1,5 @@
-import type { PublicClient } from '../../clients'
-import type { Filter } from '../../types'
+import type { PublicClient } from '../../clients/index.js'
+import type { Filter } from '../../types/index.js'
 
 export type UninstallFilterParameters = {
   filter: Filter<any>

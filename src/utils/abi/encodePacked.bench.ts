@@ -1,9 +1,9 @@
 import { solidityPack } from 'ethers/lib/utils'
 import { solidityPacked } from 'ethers@6'
 import { bench, describe } from 'vitest'
-import { address } from '../../_test'
+import { address } from '../../_test.js'
 
-import { encodePacked } from './encodePacked'
+import { encodePacked } from './encodePacked.js'
 
 describe('Encode Packed ABI', () => {
   bench('viem: `encodePacked`', () => {

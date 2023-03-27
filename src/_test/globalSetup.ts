@@ -1,5 +1,5 @@
-import { testClient } from './utils'
-import { reset, setAutomine, setIntervalMining } from '../actions'
+import { testClient } from './utils.js'
+import { reset, setAutomine, setIntervalMining } from '../actions/index.js'
 
 export async function setup() {
   if (!process.env.SKIP_GLOBAL_SETUP) {

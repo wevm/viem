@@ -1,13 +1,13 @@
-import type { PublicClient } from '../../clients'
-import { panicReasons } from '../../constants'
+import type { PublicClient } from '../../clients/index.js'
+import { panicReasons } from '../../constants/index.js'
 import {
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
-} from '../../errors'
-import type { Address, Prettify } from '../../types'
-import { getChainContractAddress, toHex } from '../../utils'
-import { packetToBytes } from '../../utils/ens'
-import { readContract, ReadContractParameters } from '../public'
+} from '../../errors/index.js'
+import type { Address, Prettify } from '../../types/index.js'
+import { getChainContractAddress, toHex } from '../../utils/index.js'
+import { packetToBytes } from '../../utils/ens/index.js'
+import { readContract, ReadContractParameters } from '../public/index.js'
 
 export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

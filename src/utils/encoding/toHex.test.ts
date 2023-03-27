@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
-import { boolToHex, bytesToHex, toHex, numberToHex, stringToHex } from './toHex'
+import {
+  boolToHex,
+  bytesToHex,
+  toHex,
+  numberToHex,
+  stringToHex,
+} from './toHex.js'
 
 describe('converts numbers to hex', () => {
   test('default', () => {

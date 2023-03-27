@@ -8,18 +8,18 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
+} from '../../_test.js'
 import {
   impersonateAccount,
   mine,
   setIntervalMining,
   stopImpersonatingAccount,
-} from '../test'
-import { writeContract } from '../wallet'
-import type { Log } from '../../types'
-import { getLogs } from './getLogs'
-import { getBlock } from './getBlock'
-import { getAccount, getAddress } from '../../utils'
+} from '../test.js'
+import { writeContract } from '../wallet.js'
+import type { Log } from '../../types/index.js'
+import { getLogs } from './getLogs.js'
+import { getBlock } from './getBlock.js'
+import { getAccount, getAddress } from '../../utils/index.js'
 
 const event = {
   default: {

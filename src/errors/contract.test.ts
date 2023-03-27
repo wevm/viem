@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'vitest'
-import { polygon } from '../chains'
-import { getAccount } from '../utils'
-import { address } from '../_test'
-import { baycContractConfig } from '../_test/abis'
-import { errorsExampleABI } from '../_test/generated'
-import { BaseError } from './base'
+import { polygon } from '../chains.js'
+import { getAccount } from '../utils/index.js'
+import { address } from '../_test.js'
+import { baycContractConfig } from '../_test/abis.js'
+import { errorsExampleABI } from '../_test/generated.js'
+import { BaseError } from './base.js'
 import {
   CallExecutionError,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
-} from './contract'
+} from './contract.js'
 
 describe('CallExecutionError', () => {
   test('no args', async () => {

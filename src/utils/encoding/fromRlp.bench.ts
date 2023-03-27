@@ -2,7 +2,7 @@ import { RLP } from 'ethers/lib/utils'
 import { decodeRlp } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { fromRlp } from './fromRlp'
+import { fromRlp } from './fromRlp.js'
 
 describe('RLP Decoding (128 bytes)', () => {
   bench('viem: `fromRlp`', () => {

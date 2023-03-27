@@ -1,16 +1,16 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import * as publicActions from '../public'
+import * as publicActions from '../public.js'
 import {
   accounts,
   initialBlockNumber,
   publicClient,
   testClient,
-} from '../../_test'
-import { getAccount, parseEther, parseGwei } from '../../utils'
-import { reset } from '../test'
-import { estimateGas } from './estimateGas'
-import { getLocalAccount } from '../../_test/utils'
+} from '../../_test.js'
+import { getAccount, parseEther, parseGwei } from '../../utils/index.js'
+import { reset } from '../test.js'
+import { estimateGas } from './estimateGas.js'
+import { getLocalAccount } from '../../_test/utils.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 

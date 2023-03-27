@@ -1,5 +1,5 @@
-import type { TestClient } from '../../clients'
-import { hexToNumber } from '../../utils'
+import type { TestClient } from '../../clients/index.js'
+import { hexToNumber } from '../../utils/index.js'
 
 export type GetTxpoolStatusReturnType = {
   pending: number

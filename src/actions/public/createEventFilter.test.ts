@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { accounts, initialBlockNumber, publicClient } from '../../_test'
-import { createEventFilter } from './createEventFilter'
+import { accounts, initialBlockNumber, publicClient } from '../../_test.js'
+import { createEventFilter } from './createEventFilter.js'
 
 const event = {
   default: {

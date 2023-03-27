@@ -7,8 +7,8 @@ import {
   test,
   vi,
 } from 'vitest'
-import { getAccount, getAddress } from '../../utils'
-import { wait } from '../../utils/wait'
+import { getAccount, getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   accounts,
   address,
@@ -16,14 +16,14 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
-import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { writeContract } from '../wallet'
-import * as createContractEventFilter from './createContractEventFilter'
-import * as getBlockNumber from './getBlockNumber'
-import * as getFilterChanges from './getFilterChanges'
-import * as getLogs from './getLogs'
-import { OnLogsParameter, watchContractEvent } from './watchContractEvent'
+} from '../../_test.js'
+import { impersonateAccount, mine, stopImpersonatingAccount } from '../test.js'
+import { writeContract } from '../wallet.js'
+import * as createContractEventFilter from './createContractEventFilter.js'
+import * as getBlockNumber from './getBlockNumber.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import * as getLogs from './getLogs.js'
+import { OnLogsParameter, watchContractEvent } from './watchContractEvent.js'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {

@@ -20,7 +20,7 @@ import type {
   WatchAssetReturnType,
   WriteContractParameters,
   WriteContractReturnType,
-} from '../../actions/wallet'
+} from '../../actions/wallet/index.js'
 import {
   addChain,
   deployContract,
@@ -35,9 +35,9 @@ import {
   switchChain,
   watchAsset,
   writeContract,
-} from '../../actions/wallet'
-import type { Chain } from '../../types'
-import type { WalletClient } from '../createWalletClient'
+} from '../../actions/wallet/index.js'
+import type { Chain } from '../../types/index.js'
+import type { WalletClient } from '../createWalletClient.js'
 
 export type WalletActions<TChain extends Chain = Chain> = {
   addChain: (args: AddChainParameters) => Promise<void>

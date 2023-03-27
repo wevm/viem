@@ -1,17 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test.js'
 import {
   getBlock,
   mine,
   setBalance,
   setNextBlockBaseFeePerGas,
-} from '../../actions'
-import { parseEther, parseGwei } from '../../utils'
-import * as publicActions from '../../actions/public'
+} from '../../actions/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
+import * as publicActions from '../../actions/public/index.js'
 
-import { defaultTip, prepareRequest } from './prepareRequest'
-import { getLocalAccount } from '../../_test/utils'
+import { defaultTip, prepareRequest } from './prepareRequest.js'
+import { getLocalAccount } from '../../_test/utils.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

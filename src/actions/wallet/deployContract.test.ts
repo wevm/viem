@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
-import { accounts, testClient, walletClient } from '../../_test'
-import { baycContractConfig } from '../../_test/abis'
-import { getAccount, parseEther } from '../../utils'
-import { mine, setBalance } from '../test'
+import { accounts, testClient, walletClient } from '../../_test.js'
+import { baycContractConfig } from '../../_test/abis.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { mine, setBalance } from '../test.js'
 
-import { deployContract } from './deployContract'
+import { deployContract } from './deployContract.js'
 
 test('default', async () => {
   const hash = await deployContract(walletClient, {

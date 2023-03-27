@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
-import { optimism } from '../../chains'
-import { createPublicClient, http } from '../../clients'
+import { optimism } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
 
-import { address, localHttpUrl, publicClient } from '../../_test'
+import { address, localHttpUrl, publicClient } from '../../_test.js'
 
-import { getEnsName } from './getEnsName'
+import { getEnsName } from './getEnsName.js'
 
 test('gets primary name for address', async () => {
   await expect(

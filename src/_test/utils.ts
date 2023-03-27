@@ -1,14 +1,14 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 import { Wallet } from 'ethers@6'
-import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json.js'
 import {
   deployContract,
   DeployContractParameters,
   getTransactionReceipt,
   mine,
-} from '../actions'
-import { Chain, localhost, mainnet } from '../chains'
+} from '../actions/index.js'
+import { Chain, localhost, mainnet } from '../chains.js'
 import {
   createPublicClient,
   createTestClient,
@@ -16,14 +16,14 @@ import {
   custom,
   http,
   webSocket,
-} from '../clients'
-import { getAccount as getEthersAccount } from '../ethers'
-import type { Hex } from '../types'
-import { RpcError } from '../types/eip1193'
-import { getAccount, rpc } from '../utils'
-import { baycContractConfig } from './abis'
-import { accounts, localWsUrl } from './constants'
-import { errorsExampleABI } from './generated'
+} from '../clients/index.js'
+import { getAccount as getEthersAccount } from '../ethers.js'
+import type { Hex } from '../types/index.js'
+import { RpcError } from '../types/eip1193.js'
+import { getAccount, rpc } from '../utils/index.js'
+import { baycContractConfig } from './abis.js'
+import { accounts, localWsUrl } from '../constants/index.js'
+import { errorsExampleABI } from './generated.js'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'

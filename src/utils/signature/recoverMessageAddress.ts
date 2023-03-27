@@ -1,6 +1,6 @@
-import type { Address, ByteArray, Hex } from '../../types'
-import { hashMessage } from './hashMessage'
-import { recoverAddress } from './recoverAddress'
+import type { Address, ByteArray, Hex } from '../../types/index.js'
+import { hashMessage } from './hashMessage.js'
+import { recoverAddress } from './recoverAddress.js'
 
 export type RecoverMessageAddressParameters = {
   message: string

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { hashFunction } from './hashFunction'
+import { hashFunction } from './hashFunction.js'
 
 test('hashes functions', () => {
   expect(hashFunction('Transfer(address,address,uint256)')).toEqual(

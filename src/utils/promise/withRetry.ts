@@ -1,4 +1,4 @@
-import { wait } from '../wait'
+import { wait } from '../wait.js'
 
 export function withRetry<TData>(
   fn: () => Promise<TData>,

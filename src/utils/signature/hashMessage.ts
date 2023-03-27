@@ -1,7 +1,7 @@
-import type { ByteArray, Hex } from '../../types'
-import { concat } from '../data'
-import { toBytes } from '../encoding'
-import { keccak256 } from '../hash/keccak256'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { concat } from '../data/index.js'
+import { toBytes } from '../encoding/index.js'
+import { keccak256 } from '../hash/keccak256.js'
 
 type To = 'hex' | 'bytes'
 

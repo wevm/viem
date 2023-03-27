@@ -1,14 +1,19 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnTransactionsParameter } from './watchPendingTransactions'
-import * as createPendingTransactionFilter from './createPendingTransactionFilter'
-import * as getFilterChanges from './getFilterChanges'
-import { watchPendingTransactions } from './watchPendingTransactions'
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { wait } from '../../utils/wait'
-import { sendTransaction } from '../wallet'
-import { getAccount, parseEther } from '../../utils'
-import { mine, setIntervalMining } from '../test'
+import type { OnTransactionsParameter } from './watchPendingTransactions.js'
+import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import { watchPendingTransactions } from './watchPendingTransactions.js'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test.js'
+import { wait } from '../../utils/wait.js'
+import { sendTransaction } from '../wallet.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { mine, setIntervalMining } from '../test.js'
 
 test(
   'watches for pending transactions',

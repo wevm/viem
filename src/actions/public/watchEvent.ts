@@ -1,22 +1,22 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients/index.js'
 import type {
   Address,
   Filter,
   Log,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
-} from '../../types'
-import { observe } from '../../utils/observe'
-import { poll } from '../../utils/poll'
+} from '../../types/index.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
 import {
   createEventFilter,
   CreateEventFilterParameters,
-} from './createEventFilter'
-import { getBlockNumber } from './getBlockNumber'
-import { getFilterChanges } from './getFilterChanges'
-import { getLogs } from './getLogs'
-import { uninstallFilter } from './uninstallFilter'
+} from './createEventFilter.js'
+import { getBlockNumber } from './getBlockNumber.js'
+import { getFilterChanges } from './getFilterChanges.js'
+import { getLogs } from './getLogs.js'
+import { uninstallFilter } from './uninstallFilter.js'
 
 export type OnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,

@@ -3,7 +3,7 @@ import { hexlify as hexlifyV6, toUtf8String as toUtf8StringV6 } from 'ethers@6'
 
 import { bench, describe } from 'vitest'
 
-import { bytesToHex, bytesToString } from './fromBytes'
+import { bytesToHex, bytesToString } from './fromBytes.js'
 
 describe('Bytes to Hex', () => {
   bench('viem: `bytesToHex`', () => {

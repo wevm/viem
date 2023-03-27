@@ -1,13 +1,13 @@
-import type { WalletClient } from '../../clients'
-import { BaseError, ChainMismatchError } from '../../errors'
+import type { WalletClient } from '../../clients/index.js'
+import { BaseError, ChainMismatchError } from '../../errors/index.js'
 import type {
   Chain,
   Formatter,
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,
-} from '../../types'
-import type { Account } from '../../types/account'
+} from '../../types/index.js'
+import type { Account } from '../../types/account.js'
 import {
   assertRequest,
   extract,
@@ -17,8 +17,8 @@ import {
   getTransactionError,
   prepareRequest,
   TransactionRequestFormatter,
-} from '../../utils'
-import { getChainId } from '../public'
+} from '../../utils/index.js'
+import { getChainId } from '../public/index.js'
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,

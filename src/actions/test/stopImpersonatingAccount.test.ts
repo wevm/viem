@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { address, accounts, testClient, walletClient } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
-import { sendTransaction } from '../wallet/sendTransaction'
-import { impersonateAccount } from './impersonateAccount'
-import { stopImpersonatingAccount } from './stopImpersonatingAccount'
+import { address, accounts, testClient, walletClient } from '../../_test.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+import { impersonateAccount } from './impersonateAccount.js'
+import { stopImpersonatingAccount } from './stopImpersonatingAccount.js'
 
 test('stops impersonating account', async () => {
   await impersonateAccount(testClient, { address: address.vitalik })

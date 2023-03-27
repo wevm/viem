@@ -1,6 +1,6 @@
-import { BaseError, TransactionExecutionError } from '../../errors'
-import type { SendTransactionParameters } from '../../wallet'
-import { containsNodeError, getNodeError } from './getNodeError'
+import { BaseError, TransactionExecutionError } from '../../errors/index.js'
+import type { SendTransactionParameters } from '../../wallet.js'
+import { containsNodeError, getNodeError } from './getNodeError.js'
 
 export function getTransactionError(
   err: BaseError,

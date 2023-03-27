@@ -1,16 +1,16 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient } from '../../clients'
-import type { BaseError } from '../../errors'
-import type { ContractConfig, ExtractResultFromAbi } from '../../types'
+import type { PublicClient } from '../../clients/index.js'
+import type { BaseError } from '../../errors/index.js'
+import type { ContractConfig, ExtractResultFromAbi } from '../../types/index.js'
 import {
   decodeFunctionResult,
   DecodeFunctionResultParameters,
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
-} from '../../utils'
-import { call, CallParameters } from './call'
+} from '../../utils/index.js'
+import { call, CallParameters } from './call.js'
 
 export type ReadContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

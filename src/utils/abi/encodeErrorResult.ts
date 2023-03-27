@@ -2,17 +2,17 @@ import type { Abi, Narrow } from 'abitype'
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
-} from '../../errors'
+} from '../../errors/index.js'
 import type {
   ExtractErrorArgsFromAbi,
   ExtractErrorNameFromAbi,
   Hex,
-} from '../../types'
-import { concatHex } from '../data'
-import { getFunctionSelector } from '../hash'
-import { encodeAbiParameters } from './encodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+} from '../../types/index.js'
+import { concatHex } from '../data/index.js'
+import { getFunctionSelector } from '../hash/index.js'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
+import { getAbiItem, GetAbiItemParameters } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 

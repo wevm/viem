@@ -1,6 +1,6 @@
-import { pad } from '../data'
-import type { ByteArray, Hex } from '../../types'
-import { IntegerOutOfRangeError } from '../../errors'
+import { pad } from '../data/index.js'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { IntegerOutOfRangeError } from '../../errors/index.js'
 
 const hexes = Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),

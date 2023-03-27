@@ -1,5 +1,5 @@
-import type { WalletClient } from '../../clients'
-import type { WatchAssetParams } from '../../types/eip1193'
+import type { WalletClient } from '../../clients/index.js'
+import type { WatchAssetParams } from '../../types/eip1193.js'
 
 export type WatchAssetParameters = WatchAssetParams
 export type WatchAssetReturnType = boolean

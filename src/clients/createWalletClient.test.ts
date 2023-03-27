@@ -1,13 +1,13 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createWalletClient } from './createWalletClient'
-import { createTransport } from './transports/createTransport'
-import { http } from './transports/http'
-import { webSocket } from './transports/webSocket'
-import { localhost } from '../chains'
-import type { SignableRequests, WalletRequests } from '../types/eip1193'
-import { custom } from './transports/custom'
-import { localWsUrl } from '../_test'
+import { createWalletClient } from './createWalletClient.js'
+import { createTransport } from './transports/createTransport.js'
+import { http } from './transports/http.js'
+import { webSocket } from './transports/webSocket.js'
+import { localhost } from '../chains.js'
+import type { SignableRequests, WalletRequests } from '../types/eip1193.js'
+import { custom } from './transports/custom.js'
+import { localWsUrl } from '../_test.js'
 
 const mockTransport = () =>
   createTransport({

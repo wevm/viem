@@ -1,13 +1,13 @@
-import type { PublicClient } from '../../clients'
-import type { Address, Prettify } from '../../types'
+import type { PublicClient } from '../../clients/index.js'
+import type { Address, Prettify } from '../../types/index.js'
 import {
   decodeFunctionResult,
   encodeFunctionData,
   getChainContractAddress,
   toHex,
-} from '../../utils'
-import { namehash, packetToBytes } from '../../utils/ens'
-import { readContract, ReadContractParameters } from '../public'
+} from '../../utils/index.js'
+import { namehash, packetToBytes } from '../../utils/ens/index.js'
+import { readContract, ReadContractParameters } from '../public/index.js'
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

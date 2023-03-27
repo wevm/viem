@@ -1,7 +1,7 @@
 import { Contract } from 'ethers'
 import { Contract as ContractV6, Typed } from 'ethers@6'
 import { bench, describe } from 'vitest'
-import { getAccount } from '../../utils'
+import { getAccount } from '../../utils/index.js'
 
 import {
   accounts,
@@ -9,9 +9,9 @@ import {
   ethersV6Provider,
   publicClient,
   wagmiContractConfig,
-} from '../../_test'
+} from '../../_test.js'
 
-import { simulateContract } from './simulateContract'
+import { simulateContract } from './simulateContract.js'
 
 describe('Simulate Contract', () => {
   bench('viem: `simulateContract`', async () => {

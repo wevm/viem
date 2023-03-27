@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { accounts, getLocalAccount, walletClient } from '../../_test'
-import { getAccount } from '../../utils'
-import { signMessage } from './signMessage'
+import { accounts, getLocalAccount, walletClient } from '../../_test.js'
+import { getAccount } from '../../utils/index.js'
+import { signMessage } from './signMessage.js'
 
 test('default', async () => {
   expect(

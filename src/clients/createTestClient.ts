@@ -1,9 +1,9 @@
-import type { Chain } from '../types'
-import type { TestRequests } from '../types/eip1193'
-import type { Client, ClientConfig } from './createClient'
-import { createClient } from './createClient'
-import { testActions, TestActions } from './decorators'
-import type { Transport } from './transports/createTransport'
+import type { Chain } from '../types/index.js'
+import type { TestRequests } from '../types/eip1193.js'
+import type { Client, ClientConfig } from './createClient.js'
+import { createClient } from './createClient.js'
+import { testActions, TestActions } from './decorators/index.js'
+import type { Transport } from './transports/createTransport.js'
 
 type TestClientModes = 'anvil' | 'hardhat'
 

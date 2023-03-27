@@ -1,6 +1,6 @@
 import type { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
-import type { ExtractEventArgsFromAbi } from './contract'
-import type { Hash, Hex } from './misc'
+import type { ExtractEventArgsFromAbi } from './contract.js'
+import type { Hash, Hex } from './misc.js'
 
 type DecodedAbiEvent<
   TAbiEvent extends AbiEvent | undefined = undefined,

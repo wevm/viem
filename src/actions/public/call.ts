@@ -1,5 +1,5 @@
-import type { PublicClient } from '../../clients'
-import type { BaseError } from '../../errors'
+import type { PublicClient } from '../../clients/index.js'
+import type { BaseError } from '../../errors/index.js'
 import type {
   BlockTag,
   Chain,
@@ -7,8 +7,8 @@ import type {
   Hex,
   MergeIntersectionProperties,
   TransactionRequest,
-} from '../../types'
-import type { Account } from '../../types/account'
+} from '../../types/index.js'
+import type { Account } from '../../types/account.js'
 import {
   assertRequest,
   extract,
@@ -18,7 +18,7 @@ import {
   getCallError,
   numberToHex,
   TransactionRequestFormatter,
-} from '../../utils'
+} from '../../utils/index.js'
 
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,

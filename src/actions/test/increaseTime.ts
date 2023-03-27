@@ -1,5 +1,5 @@
-import type { TestClient } from '../../clients'
-import { numberToHex } from '../../utils'
+import type { TestClient } from '../../clients/index.js'
+import { numberToHex } from '../../utils/index.js'
 
 export type IncreaseTimeParameters = {
   /** The amount of seconds to jump forward in time. */

@@ -1,5 +1,5 @@
-import type { TestClient } from '../../clients'
-import type { Hash } from '../../types'
+import type { TestClient } from '../../clients/index.js'
+import type { Hash } from '../../types/index.js'
 
 export type DropTransactionParameters = {
   /** The hash of the transaction to drop. */

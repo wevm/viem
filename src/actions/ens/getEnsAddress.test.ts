@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
-import { optimism } from '../../chains'
-import { createPublicClient, http } from '../../clients'
+import { optimism } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
 
-import { localHttpUrl, publicClient } from '../../_test'
-import { getEnsAddress } from './getEnsAddress'
+import { localHttpUrl, publicClient } from '../../_test.js'
+import { getEnsAddress } from './getEnsAddress.js'
 
 test('gets address for name', async () => {
   await expect(

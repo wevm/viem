@@ -1,5 +1,5 @@
 import type { Abi, Narrow } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients/index.js'
 
 import type {
   Address,
@@ -8,12 +8,12 @@ import type {
   ExtractEventNameFromAbi,
   Filter,
   MaybeExtractEventArgsFromAbi,
-} from '../../types'
+} from '../../types/index.js'
 import {
   encodeEventTopics,
   EncodeEventTopicsParameters,
   numberToHex,
-} from '../../utils'
+} from '../../utils/index.js'
 
 export type CreateContractEventFilterParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

@@ -5,13 +5,13 @@ import {
   ContractFunctionExecutionError,
   EstimateGasExecutionError,
   RawContractError,
-} from '../../errors'
+} from '../../errors/index.js'
 import {
   CallExecutionError,
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
-} from '../../errors/contract'
-import type { Address } from '../../types'
+} from '../../errors/contract.js'
+import type { Address } from '../../types/index.js'
 
 const EXECUTION_REVERTED_ERROR_CODE = 3
 

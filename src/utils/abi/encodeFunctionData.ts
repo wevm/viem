@@ -1,15 +1,15 @@
 import type { Abi, Narrow } from 'abitype'
 
-import { AbiFunctionNotFoundError } from '../../errors'
+import { AbiFunctionNotFoundError } from '../../errors/index.js'
 import type {
   ExtractArgsFromAbi,
   ExtractFunctionNameFromAbi,
-} from '../../types'
-import { concatHex } from '../data'
-import { getFunctionSelector } from '../hash'
-import { encodeAbiParameters } from './encodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+} from '../../types/index.js'
+import { concatHex } from '../data/index.js'
+import { getFunctionSelector } from '../hash/index.js'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
+import { getAbiItem, GetAbiItemParameters } from './getAbiItem.js'
 
 export type EncodeFunctionDataParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

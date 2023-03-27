@@ -1,1 +1,1 @@
-export { getAccount } from './adapters/ethers'
+export { getAccount } from './adapters/ethers.js'

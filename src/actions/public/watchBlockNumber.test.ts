@@ -1,14 +1,14 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnBlockNumberParameter } from './watchBlockNumber'
-import { watchBlockNumber } from './watchBlockNumber'
-import { publicClient, testClient } from '../../_test'
-import { wait } from '../../utils/wait'
-import { localhost } from '../../chains'
-import { createPublicClient, http } from '../../clients'
-import { mine } from '../test/mine'
-import * as getBlockNumber from './getBlockNumber'
-import { setIntervalMining } from '../test'
+import type { OnBlockNumberParameter } from './watchBlockNumber.js'
+import { watchBlockNumber } from './watchBlockNumber.js'
+import { publicClient, testClient } from '../../_test.js'
+import { wait } from '../../utils/wait.js'
+import { localhost } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import { mine } from '../test/mine.js'
+import * as getBlockNumber from './getBlockNumber.js'
+import { setIntervalMining } from '../test.js'
 
 test('watches for new block numbers', async () => {
   const blockNumbers: OnBlockNumberParameter[] = []

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { normalize } from './normalize'
+import { normalize } from './normalize.js'
 
 test.each([
   { name: 'awkweb.eth', expected: 'awkweb.eth' },

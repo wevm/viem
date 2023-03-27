@@ -1,9 +1,9 @@
 import { recoverPublicKey } from '@noble/secp256k1'
-import type { Address, ByteArray, Hex } from '../../types'
-import { checksumAddress } from '../address'
-import { isHex } from '../data'
-import { hexToNumber, toHex } from '../encoding'
-import { keccak256 } from '../hash'
+import type { Address, ByteArray, Hex } from '../../types/index.js'
+import { checksumAddress } from '../address/index.js'
+import { isHex } from '../data/index.js'
+import { hexToNumber, toHex } from '../encoding/index.js'
+import { keccak256 } from '../hash/index.js'
 
 export type RecoverAddressParameters = {
   hash: Hex | ByteArray

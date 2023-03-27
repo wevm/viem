@@ -3,7 +3,7 @@ import { stripZerosLeft } from 'ethers@6'
 
 import { bench, describe } from 'vitest'
 
-import { trim } from './trim'
+import { trim } from './trim.js'
 
 describe.skip('Trim Hex', () => {
   bench('viem: `trimHex`', () => {

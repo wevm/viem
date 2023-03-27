@@ -1,13 +1,16 @@
 import type { Abi } from 'abitype'
 
-import type { WalletClient } from '../../clients'
-import type { Chain, ContractConfig, GetValue } from '../../types'
-import { encodeFunctionData, EncodeFunctionDataParameters } from '../../utils'
+import type { WalletClient } from '../../clients/index.js'
+import type { Chain, ContractConfig, GetValue } from '../../types/index.js'
+import {
+  encodeFunctionData,
+  EncodeFunctionDataParameters,
+} from '../../utils/index.js'
 import {
   sendTransaction,
   SendTransactionParameters,
   SendTransactionReturnType,
-} from './sendTransaction'
+} from './sendTransaction.js'
 
 export type WriteContractParameters<
   TChain extends Chain = Chain,

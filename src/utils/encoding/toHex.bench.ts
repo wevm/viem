@@ -6,7 +6,7 @@ import {
 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { bytesToHex, numberToHex, stringToHex } from './toHex'
+import { bytesToHex, numberToHex, stringToHex } from './toHex.js'
 
 describe.skip('Number to Hex', () => {
   bench('viem: `numberToHex`', () => {

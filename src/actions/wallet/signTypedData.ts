@@ -6,9 +6,12 @@ import type {
   TypedDataToPrimitiveTypes,
   TypedDataType,
 } from 'abitype'
-import type { WalletClient } from '../../clients'
-import { BytesSizeMismatchError, InvalidAddressError } from '../../errors'
-import type { Account, Hex } from '../../types'
+import type { WalletClient } from '../../clients/index.js'
+import {
+  BytesSizeMismatchError,
+  InvalidAddressError,
+} from '../../errors/index.js'
+import type { Account, Hex } from '../../types/index.js'
 import {
   bytesRegex,
   integerRegex,
@@ -17,7 +20,7 @@ import {
   numberToHex,
   size,
   stringify,
-} from '../../utils'
+} from '../../utils/index.js'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

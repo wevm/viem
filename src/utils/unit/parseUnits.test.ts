@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { parseUnits } from './parseUnits'
+import { parseUnits } from './parseUnits.js'
 
 test('converts number to unit of a given length', () => {
   expect(parseUnits('69', 1)).toMatchInlineSnapshot('690n')

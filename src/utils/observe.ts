@@ -1,4 +1,4 @@
-import type { MaybePromise } from '../types/utils'
+import type { MaybePromise } from '../types/utils.js'
 
 type Callback = ((...args: any[]) => any) | undefined
 type Callbacks = Record<string, Callback>

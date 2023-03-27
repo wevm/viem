@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as actions from './index'
+import * as actions from './index.js'
 
 test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`

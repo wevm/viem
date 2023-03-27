@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
 
-import { cleanupCache, listenersCache } from '../utils/observe'
-import { promiseCache, responseCache } from '../utils/promise/withCache'
+import { cleanupCache, listenersCache } from '../utils/observe.js'
+import { promiseCache, responseCache } from '../utils/promise/withCache.js'
 
 beforeAll(() => {
   vi.mock('../errors/utils.ts', async () => {

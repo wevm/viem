@@ -4,12 +4,12 @@ import {
   getGasPrice,
   getTransactionCount,
   SendTransactionParameters,
-} from '../../actions'
-import type { PublicClient, WalletClient } from '../../clients'
-import { BaseError } from '../../errors'
-import type { Address } from '../../types'
-import { parseGwei } from '../unit/parseGwei'
-import { assertRequest } from './assertRequest'
+} from '../../actions/index.js'
+import type { PublicClient, WalletClient } from '../../clients/index.js'
+import { BaseError } from '../../errors/index.js'
+import type { Address } from '../../types/index.js'
+import { parseGwei } from '../unit/parseGwei.js'
+import { assertRequest } from './assertRequest.js'
 
 export type PrepareRequestParameters<
   TParameters extends SendTransactionParameters = SendTransactionParameters,

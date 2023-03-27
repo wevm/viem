@@ -18,7 +18,7 @@ export type {
   ParseAbiItem,
   ParseAbiParameter,
   ParseAbiParameters,
-} from './abi'
+} from './abi/index.js'
 export {
   decodeAbiParameters,
   decodeErrorResult,
@@ -39,15 +39,15 @@ export {
   parseAbiItem,
   parseAbiParameter,
   parseAbiParameters,
-} from './abi'
+} from './abi/index.js'
 
-export { getAccount } from './account'
+export { getAccount } from './account.js'
 
 export type {
   GetContractAddressOptions,
   GetCreate2AddressOptions,
   GetCreateAddressOptions,
-} from './address'
+} from './address/index.js'
 export {
   getAddress,
   getContractAddress,
@@ -55,18 +55,18 @@ export {
   getCreate2Address,
   isAddress,
   isAddressEqual,
-} from './address'
+} from './address/index.js'
 
-export { buildRequest } from './buildRequest'
+export { buildRequest } from './buildRequest.js'
 
-export { defineChain, getChainContractAddress } from './chain'
+export { defineChain, getChainContractAddress } from './chain.js'
 
 export {
   extractFunctionName,
   extractFunctionParams,
   extractFunctionType,
   extractFunctionParts,
-} from './contract'
+} from './contract/index.js'
 
 export {
   concat,
@@ -82,7 +82,7 @@ export {
   sliceBytes,
   sliceHex,
   trim,
-} from './data'
+} from './data/index.js'
 
 export type {
   BlockFormatter,
@@ -95,7 +95,7 @@ export type {
   TransactionFormatter,
   TransactionReceiptFormatter,
   TransactionRequestFormatter,
-} from './formatters'
+} from './formatters/index.js'
 export {
   defineBlock,
   defineFormatter,
@@ -108,9 +108,9 @@ export {
   formatTransaction,
   formatTransactionRequest,
   transactionType,
-} from './formatters'
+} from './formatters/index.js'
 
-export type { ToRlpReturnType } from './encoding'
+export type { ToRlpReturnType } from './encoding/index.js'
 export {
   boolToBytes,
   boolToHex,
@@ -134,7 +134,7 @@ export {
   numberToHex,
   stringToBytes,
   stringToHex,
-} from './encoding'
+} from './encoding/index.js'
 
 export {
   containsNodeError,
@@ -143,18 +143,18 @@ export {
   getEstimateGasError,
   getNodeError,
   getTransactionError,
-} from './errors'
+} from './errors/index.js'
 
 export {
   getEventSelector,
   getFunctionSelector,
   keccak256,
-} from './hash'
+} from './hash/index.js'
 
-export { arrayRegex, bytesRegex, integerRegex } from './regex'
+export { arrayRegex, bytesRegex, integerRegex } from './regex.js'
 
-export type { HttpOptions, RpcResponse, Socket } from './rpc'
-export { getSocket, rpc } from './rpc'
+export type { HttpOptions, RpcResponse, Socket } from './rpc.js'
+export { getSocket, rpc } from './rpc.js'
 
 export type {
   RecoverAddressParameters,
@@ -163,17 +163,17 @@ export type {
   RecoverMessageAddressReturnType,
   VerifyMessageParameters,
   VerifyMessageReturnType,
-} from './signature'
+} from './signature/index.js'
 export {
   hashMessage,
   recoverAddress,
   recoverMessageAddress,
   verifyMessage,
-} from './signature'
+} from './signature/index.js'
 
-export { stringify } from './stringify'
+export { stringify } from './stringify.js'
 
-export { assertRequest, prepareRequest } from './transaction'
+export { assertRequest, prepareRequest } from './transaction/index.js'
 
 export {
   formatEther,
@@ -182,4 +182,4 @@ export {
   parseUnits,
   parseEther,
   parseGwei,
-} from './unit'
+} from './unit/index.js'

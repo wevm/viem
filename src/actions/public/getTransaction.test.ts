@@ -6,14 +6,14 @@ import {
   publicClient,
   testClient,
   walletClient,
-} from '../../_test'
-import { getAccount, parseEther } from '../../utils'
-import type { Address, Transaction } from '../../types'
-import { createPublicClient, http } from '../../clients'
-import { celo } from '../../chains'
-import { getBlock, sendTransaction } from '..'
-import { getTransaction } from './getTransaction'
-import { mine, setBalance } from '../test'
+} from '../../_test.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import type { Address, Transaction } from '../../types/index.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import { celo } from '../../chains.js'
+import { getBlock, sendTransaction } from '...js'
+import { getTransaction } from './getTransaction.js'
+import { mine, setBalance } from '../test.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { encodeDeployData } from './encodeDeployData'
+import { encodeDeployData } from './encodeDeployData.js'
 
 test('constructor()', () => {
   expect(

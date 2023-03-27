@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
-import { getAccount } from '../../utils'
-import { accounts, getLocalAccount, walletClient } from '../../_test'
+import { getAccount } from '../../utils/index.js'
+import { accounts, getLocalAccount, walletClient } from '../../_test.js'
 
-import { signTypedData, validateTypedData } from './signTypedData'
+import { signTypedData, validateTypedData } from './signTypedData.js'
 
 const localAccount = getLocalAccount(accounts[0].privateKey)
 const jsonRpcAccount = getAccount(accounts[0].address)

@@ -3,7 +3,7 @@ import { zeroPadValue } from 'ethers@6'
 
 import { bench, describe } from 'vitest'
 
-import { padBytes, padHex } from './pad'
+import { padBytes, padHex } from './pad.js'
 
 describe('Pad Hex', () => {
   bench('viem: `padHex`', () => {

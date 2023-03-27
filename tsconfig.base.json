@@ -18,7 +18,7 @@
 
     // Modules
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "NodeNext",
 
     // Emit
     "stripInternal": true,

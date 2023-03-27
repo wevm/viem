@@ -1,11 +1,16 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
-import { getBlockNumber, sendTransaction } from '..'
-import { mine, setBalance } from '../test'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { getBlockNumber, sendTransaction } from '...js'
+import { mine, setBalance } from '../test.js'
 
-import { getBalance } from './getBalance'
+import { getBalance } from './getBalance.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

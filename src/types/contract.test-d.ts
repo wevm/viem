@@ -2,7 +2,7 @@ import type { ResolvedConfig } from 'abitype'
 import type { seaportAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
-import type { ContractConfig, ExtractResultFromAbi } from './contract'
+import type { ContractConfig, ExtractResultFromAbi } from './contract.js'
 
 test('ContractConfig', async () => {
   type Result = ContractConfig<typeof seaportAbi, 'getOrderStatus'>

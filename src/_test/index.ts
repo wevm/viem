@@ -2,9 +2,9 @@ export {
   wagmiContractConfig,
   uniswapV3PositionsContractConfig,
   usdcContractConfig,
-} from './abis'
+} from './abis.js'
 
-export { ethersProvider, ethersV6Provider } from './bench'
+export { ethersProvider, ethersV6Provider } from './bench.js'
 
 export {
   accounts,
@@ -12,7 +12,7 @@ export {
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
-} from './constants'
+} from '../constants/index.js'
 
 export {
   createHttpServer,
@@ -22,4 +22,4 @@ export {
   publicClient,
   testClient,
   walletClient,
-} from './utils'
+} from './utils.js'

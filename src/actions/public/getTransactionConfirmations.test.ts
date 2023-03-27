@@ -1,11 +1,16 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
-import { mine } from '../test'
-import { getTransactionConfirmations } from './getTransactionConfirmations'
-import { getTransactionReceipt } from './getTransactionReceipt'
-import { sendTransaction } from '..'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { mine } from '../test.js'
+import { getTransactionConfirmations } from './getTransactionConfirmations.js'
+import { getTransactionReceipt } from './getTransactionReceipt.js'
+import { sendTransaction } from '...js'
 
 test('default', async () => {
   const hash = await sendTransaction(walletClient, {

@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { avalanche } from '../../chains'
-import { getAccount, parseEther } from '../../utils'
-import { accounts, walletClient } from '../../_test'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis'
-import { walletActions } from './wallet'
+import { avalanche } from '../../chains.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { accounts, walletClient } from '../../_test.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
+import { walletActions } from './wallet.js'
 
 test('default', async () => {
   expect(walletActions(walletClient as any)).toMatchInlineSnapshot(`

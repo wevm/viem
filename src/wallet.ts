@@ -9,7 +9,7 @@ export {
   signTypedData,
   switchChain,
   watchAsset,
-} from './actions/wallet'
+} from './actions/wallet/index.js'
 export type {
   AddChainParameters,
   FormattedTransactionRequest,
@@ -26,4 +26,4 @@ export type {
   SwitchChainParameters,
   WatchAssetParameters,
   WatchAssetReturnType,
-} from './actions/wallet'
+} from './actions/wallet/index.js'

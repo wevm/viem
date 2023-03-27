@@ -2,7 +2,7 @@ import { AbiCoder } from 'ethers/lib/utils'
 import { AbiCoder as AbiCoderV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { decodeAbiParameters } from './decodeAbiParameters'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
 
 describe('ABI Decode (static struct)', () => {
   bench('viem: `decodeAbiParameters`', () => {

@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { createHttpServer } from '../../_test'
-import { localhost } from '../../chains'
-import { createClient } from '../createClient'
+import { createHttpServer } from '../../_test.js'
+import { localhost } from '../../chains.js'
+import { createClient } from '../createClient.js'
 
-import { getBlockNumber } from '../../actions'
-import { fallback, FallbackTransport } from './fallback'
-import { http } from './http'
+import { getBlockNumber } from '../../actions/index.js'
+import { fallback, FallbackTransport } from './fallback.js'
+import { http } from './http.js'
 
 test('default', () => {
   const alchemy = http('https://alchemy.com/rpc')

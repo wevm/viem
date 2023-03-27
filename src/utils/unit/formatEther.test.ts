@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { formatEther } from './formatEther'
+import { formatEther } from './formatEther.js'
 
 test('converts wei to ether', () => {
   expect(formatEther(6942069420123456789123450000n)).toMatchInlineSnapshot(

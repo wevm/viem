@@ -26,7 +26,7 @@ export {
   watchBlocks,
   watchEvent,
   watchPendingTransactions,
-} from './actions/public'
+} from './actions/public/index.js'
 export type {
   CallParameters,
   CallReturnType,
@@ -78,4 +78,4 @@ export type {
   WatchBlockNumberParameters,
   WatchBlocksParameters,
   WatchPendingTransactionsParameters,
-} from './actions/public'
+} from './actions/public/index.js'

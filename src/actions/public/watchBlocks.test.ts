@@ -1,17 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { celo, Chain, localhost } from '../../chains'
-import { createPublicClient, http } from '../../clients'
-import type { Block } from '../../types'
-import { getAccount, parseEther } from '../../utils'
-import { wait } from '../../utils/wait'
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { setIntervalMining } from '../test'
-import { mine } from '../test/mine'
-import { sendTransaction } from '../wallet'
-import * as getBlock from './getBlock'
-import type { OnBlockParameter } from './watchBlocks'
-import { watchBlocks } from './watchBlocks'
+import { celo, Chain, localhost } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import type { Block } from '../../types/index.js'
+import { getAccount, parseEther } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test.js'
+import { setIntervalMining } from '../test.js'
+import { mine } from '../test/mine.js'
+import { sendTransaction } from '../wallet.js'
+import * as getBlock from './getBlock.js'
+import type { OnBlockParameter } from './watchBlocks.js'
+import { watchBlocks } from './watchBlocks.js'
 
 test('watches for new blocks', async () => {
   const blocks: OnBlockParameter[] = []

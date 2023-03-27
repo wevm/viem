@@ -1,13 +1,17 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { WalletClient } from '../../clients'
-import type { Chain, ExtractConstructorArgsFromAbi, Hex } from '../../types'
-import { encodeDeployData } from '../../utils'
+import type { WalletClient } from '../../clients/index.js'
+import type {
+  Chain,
+  ExtractConstructorArgsFromAbi,
+  Hex,
+} from '../../types/index.js'
+import { encodeDeployData } from '../../utils/index.js'
 import {
   sendTransaction,
   SendTransactionParameters,
   SendTransactionReturnType,
-} from '../wallet'
+} from '../wallet/index.js'
 
 export type DeployContractParameters<
   TChain extends Chain = Chain,

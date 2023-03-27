@@ -1,6 +1,6 @@
-import type { ByteArray, Hex } from '../../types'
-import { isHex } from './isHex'
-import { size } from './size'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { isHex } from './isHex.js'
+import { size } from './size.js'
 
 export type SliceReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex

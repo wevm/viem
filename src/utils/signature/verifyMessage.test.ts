@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
-import { accounts, walletClient } from '../../_test'
-import { signMessage } from '../../actions'
-import { getAccount } from '../../utils'
+import { accounts, walletClient } from '../../_test.js'
+import { signMessage } from '../../actions/index.js'
+import { getAccount } from '../../utils/index.js'
 
-import { verifyMessage } from './verifyMessage'
+import { verifyMessage } from './verifyMessage.js'
 
 test('default', async () => {
   let signature = await signMessage(walletClient!, {

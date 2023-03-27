@@ -1,5 +1,5 @@
-import type { TestClient } from '../../clients'
-import type { Address } from '../../types'
+import type { TestClient } from '../../clients/index.js'
+import type { Address } from '../../types/index.js'
 
 export type ImpersonateAccountParameters = {
   /** The account to impersonate. */

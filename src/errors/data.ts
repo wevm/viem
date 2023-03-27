@@ -1,4 +1,4 @@
-import { BaseError } from './base'
+import { BaseError } from './base.js'
 
 export class SizeExceedsPaddingSizeError extends BaseError {
   name = 'SizeExceedsPaddingSizeError'

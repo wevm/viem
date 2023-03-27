@@ -1,6 +1,6 @@
-import { isDeterministicError } from '../../utils/buildRequest'
-import type { Transport, TransportConfig } from './createTransport'
-import { createTransport } from './createTransport'
+import { isDeterministicError } from '../../utils/buildRequest.js'
+import type { Transport, TransportConfig } from './createTransport.js'
+import { createTransport } from './createTransport.js'
 
 export type FallbackTransportConfig = {
   /** The key of the Fallback transport. */

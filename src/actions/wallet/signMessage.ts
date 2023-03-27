@@ -1,6 +1,6 @@
-import type { WalletClient } from '../../clients'
-import type { Account, Hex } from '../../types'
-import { toHex } from '../../utils'
+import type { WalletClient } from '../../clients/index.js'
+import type { Account, Hex } from '../../types/index.js'
+import { toHex } from '../../utils/index.js'
 
 export type SignMessageParameters = {
   account: Account

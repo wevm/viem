@@ -1,19 +1,19 @@
-export { hashMessage } from './hashMessage'
+export { hashMessage } from './hashMessage.js'
 
 export type {
   RecoverAddressParameters,
   RecoverAddressReturnType,
-} from './recoverAddress'
-export { recoverAddress } from './recoverAddress'
+} from './recoverAddress.js'
+export { recoverAddress } from './recoverAddress.js'
 
 export type {
   RecoverMessageAddressParameters,
   RecoverMessageAddressReturnType,
-} from './recoverMessageAddress'
-export { recoverMessageAddress } from './recoverMessageAddress'
+} from './recoverMessageAddress.js'
+export { recoverMessageAddress } from './recoverMessageAddress.js'
 
-export { verifyMessage } from './verifyMessage'
+export { verifyMessage } from './verifyMessage.js'
 export type {
   VerifyMessageParameters,
   VerifyMessageReturnType,
-} from './verifyMessage'
+} from './verifyMessage.js'

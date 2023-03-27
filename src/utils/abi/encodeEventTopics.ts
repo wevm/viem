@@ -8,18 +8,18 @@ import type {
 import {
   AbiEventNotFoundError,
   FilterTypeNotSupportedError,
-} from '../../errors'
+} from '../../errors/index.js'
 import type {
   EventDefinition,
   ExtractEventArgsFromAbi,
   ExtractEventNameFromAbi,
   Hex,
-} from '../../types'
-import { toBytes } from '../encoding'
-import { getEventSelector, keccak256 } from '../hash'
-import { encodeAbiParameters } from './encodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+} from '../../types/index.js'
+import { toBytes } from '../encoding/index.js'
+import { getEventSelector, keccak256 } from '../hash/index.js'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
+import { getAbiItem, GetAbiItemParameters } from './getAbiItem.js'
 
 export type EncodeEventTopicsParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

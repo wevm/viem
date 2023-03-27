@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { toHex, stringToHex } from './toHex'
+import { toHex, stringToHex } from './toHex.js'
 
-import { bytesToRlp, toRlp } from './toRlp'
+import { bytesToRlp, toRlp } from './toRlp.js'
 
 test('single byte < 0x80', () => {
   expect(toRlp(new Uint8Array([0]))).toBe('0x00')

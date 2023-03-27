@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'vitest'
-import { polygon } from '../chains'
-import { getAccount } from '../utils'
-import { address } from '../_test'
-import { BaseError } from './base'
+import { polygon } from '../chains.js'
+import { getAccount } from '../utils/index.js'
+import { address } from '../_test.js'
+import { BaseError } from './base.js'
 import {
   FeeConflictError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
-} from './transaction'
+} from './transaction.js'
 
 test('FeeConflictError', () => {
   expect(new FeeConflictError()).toMatchInlineSnapshot(`

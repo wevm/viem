@@ -1,9 +1,9 @@
-export { getCallError } from './getCallError'
+export { getCallError } from './getCallError.js'
 
-export { getContractError } from './getContractError'
+export { getContractError } from './getContractError.js'
 
-export { getEstimateGasError } from './getEstimateGasError'
+export { getEstimateGasError } from './getEstimateGasError.js'
 
-export { containsNodeError, getNodeError } from './getNodeError'
+export { containsNodeError, getNodeError } from './getNodeError.js'
 
-export { getTransactionError } from './getTransactionError'
+export { getTransactionError } from './getTransactionError.js'

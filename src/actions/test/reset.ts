@@ -1,4 +1,4 @@
-import type { TestClient } from '../../clients'
+import type { TestClient } from '../../clients/index.js'
 
 export type ResetParameters = {
   /** The block number to reset from. */

@@ -1,15 +1,15 @@
 import type { Abi, AbiEvent } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients/index.js'
 import type {
   Filter,
   FilterType,
   Hash,
   Log,
   MaybeAbiEventName,
-} from '../../types'
-import { decodeEventLog } from '../../utils'
+} from '../../types/index.js'
+import { decodeEventLog } from '../../utils/index.js'
 
-import { formatLog } from '../../utils/formatters/log'
+import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,

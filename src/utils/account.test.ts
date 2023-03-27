@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { accounts } from '../_test'
-import { getAccount } from './account'
+import { accounts } from '../_test.js'
+import { getAccount } from './account.js'
 
 describe('account', () => {
   test('json-rpc account', () => {

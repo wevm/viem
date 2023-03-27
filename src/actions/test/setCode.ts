@@ -1,5 +1,5 @@
-import type { TestClient } from '../../clients'
-import type { Address, Hex } from '../../types'
+import type { TestClient } from '../../clients/index.js'
+import type { Address, Hex } from '../../types/index.js'
 
 export type SetCodeParameters = {
   /** The account address. */

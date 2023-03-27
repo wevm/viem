@@ -1,6 +1,6 @@
 export type { Address } from 'abitype'
 
-export type { Account, LocalAccount, JsonRpcAccount } from './account'
+export type { Account, LocalAccount, JsonRpcAccount } from './account.js'
 
 export type {
   Block,
@@ -8,9 +8,9 @@ export type {
   BlockNumber,
   BlockTag,
   Uncle,
-} from './block'
+} from './block.js'
 
-export type { Chain, ChainContract } from './chain'
+export type { Chain, ChainContract } from './chain.js'
 
 export type {
   AbiItem,
@@ -30,24 +30,24 @@ export type {
   GetValue,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
-} from './contract'
+} from './contract.js'
 
 export type {
   FeeHistory,
   FeeValues,
   FeeValuesEIP1559,
   FeeValuesLegacy,
-} from './fee'
+} from './fee.js'
 
-export type { Filter, FilterType } from './filter'
+export type { Filter, FilterType } from './filter.js'
 
-export type { Formatter, Formatters } from './formatter'
+export type { Formatter, Formatters } from './formatter.js'
 
-export type { Log } from './log'
+export type { Log } from './log.js'
 
-export type { ByteArray, Hex, Hash, LogTopic } from './misc'
+export type { ByteArray, Hex, Hash, LogTopic } from './misc.js'
 
-export type { MulticallContracts } from './multicall'
+export type { MulticallContracts } from './multicall.js'
 
 export type {
   Index,
@@ -62,7 +62,7 @@ export type {
   RpcTransactionRequest,
   RpcTransaction,
   RpcUncle,
-} from './rpc'
+} from './rpc.js'
 
 export type {
   AccessList,
@@ -77,11 +77,11 @@ export type {
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionLegacy,
-} from './transaction'
+} from './transaction.js'
 
 export type {
   PartialBy,
   Prettify,
   MergeIntersectionProperties,
   OptionalNullable,
-} from './utils'
+} from './utils.js'

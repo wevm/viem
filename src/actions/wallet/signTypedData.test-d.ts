@@ -1,6 +1,6 @@
 import { assertType, test } from 'vitest'
 
-import type { SignTypedDataParameters } from './signTypedData'
+import type { SignTypedDataParameters } from './signTypedData.js'
 
 test('SignTypedDataParameters', async () => {
   const types = {

@@ -32,7 +32,7 @@ export {
   watchContractEvent,
   watchEvent,
   watchPendingTransactions,
-} from './public'
+} from './public/index.js'
 export type {
   CallParameters,
   CallReturnType,
@@ -97,7 +97,7 @@ export type {
   WatchContractEventParameters,
   WatchEventParameters,
   WatchPendingTransactionsParameters,
-} from './public'
+} from './public/index.js'
 
 export {
   dropTransaction,
@@ -127,7 +127,7 @@ export {
   setStorageAt,
   snapshot,
   stopImpersonatingAccount,
-} from './test'
+} from './test/index.js'
 export type {
   DropTransactionParameters,
   ImpersonateAccountParameters,
@@ -149,7 +149,7 @@ export type {
   SetNonceParameters,
   SetStorageAtParameters,
   StopImpersonatingAccountParameters,
-} from './test'
+} from './test/index.js'
 
 export {
   addChain,
@@ -163,7 +163,7 @@ export {
   switchChain,
   watchAsset,
   writeContract,
-} from './wallet'
+} from './wallet/index.js'
 export type {
   AddChainParameters,
   DeployContractParameters,
@@ -182,4 +182,4 @@ export type {
   WatchAssetReturnType,
   WriteContractParameters,
   WriteContractReturnType,
-} from './wallet'
+} from './wallet/index.js'

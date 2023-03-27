@@ -6,15 +6,26 @@ import {
   publicClient,
   testClient,
   walletClient,
-} from '../../_test'
-import { celo, defineChain, localhost, mainnet, optimism } from '../../chains'
-import { getAccount, hexToNumber, parseEther, parseGwei } from '../../utils'
-import { getBalance, getBlock, getTransaction } from '..'
-import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test'
+} from '../../_test.js'
+import {
+  celo,
+  defineChain,
+  localhost,
+  mainnet,
+  optimism,
+} from '../../chains.js'
+import {
+  getAccount,
+  hexToNumber,
+  parseEther,
+  parseGwei,
+} from '../../utils/index.js'
+import { getBalance, getBlock, getTransaction } from '...js'
+import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test.js'
 
-import { sendTransaction } from './sendTransaction'
-import { anvilChain, getLocalAccount } from '../../_test/utils'
-import { createWalletClient, http } from '../../clients'
+import { sendTransaction } from './sendTransaction.js'
+import { anvilChain, getLocalAccount } from '../../_test/utils.js'
+import { createWalletClient, http } from '../../clients/index.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

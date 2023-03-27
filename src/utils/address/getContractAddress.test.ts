@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { toBytes, toHex } from '../encoding'
+import { toBytes, toHex } from '../encoding/index.js'
 
 import {
   getContractAddress,
   getCreate2Address,
   getCreateAddress,
-} from './getContractAddress'
+} from './getContractAddress.js'
 
 test('gets contract address (CREATE)', () => {
   expect(

@@ -4,8 +4,8 @@ import type {
   GetEnsAddressReturnType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
-} from '../../actions/ens'
-import { getEnsAddress, getEnsName } from '../../actions/ens'
+} from '../../actions/ens/index.js'
+import { getEnsAddress, getEnsName } from '../../actions/ens/index.js'
 import type {
   CallParameters,
   CallReturnType,
@@ -64,7 +64,7 @@ import type {
   WatchContractEventParameters,
   WatchEventParameters,
   WatchPendingTransactionsParameters,
-} from '../../actions/public'
+} from '../../actions/public/index.js'
 import {
   call,
   createBlockFilter,
@@ -99,14 +99,14 @@ import {
   watchContractEvent,
   watchEvent,
   watchPendingTransactions,
-} from '../../actions/public'
+} from '../../actions/public/index.js'
 import type {
   Chain,
   ContractConfig,
   FilterType,
   MaybeExtractEventArgsFromAbi,
-} from '../../types'
-import type { PublicClient } from '../createPublicClient'
+} from '../../types/index.js'
+import type { PublicClient } from '../createPublicClient.js'
 
 export type PublicActions<TChain extends Chain = Chain> = {
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getAccount, parseEther } from '../../utils'
+import { getAccount, parseEther } from '../../utils/index.js'
 import {
   accounts,
   address,
@@ -9,8 +9,8 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
   walletClient,
-} from '../../_test'
-import { publicActions } from './public'
+} from '../../_test.js'
+import { publicActions } from './public.js'
 
 test('default', async () => {
   expect(publicActions(publicClient as any)).toMatchInlineSnapshot(`

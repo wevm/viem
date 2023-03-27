@@ -14,12 +14,12 @@ import {
   BytesSizeMismatchError,
   InvalidAddressError,
   UnsupportedPackedAbiType,
-} from '../../errors'
-import type { Address, Hex } from '../../types'
-import { isAddress } from '../address'
-import { concat, pad } from '../data'
-import { boolToHex, numberToHex, stringToHex } from '../encoding'
-import { arrayRegex, bytesRegex, integerRegex } from '../regex'
+} from '../../errors/index.js'
+import type { Address, Hex } from '../../types/index.js'
+import { isAddress } from '../address/index.js'
+import { concat, pad } from '../data/index.js'
+import { boolToHex, numberToHex, stringToHex } from '../encoding/index.js'
+import { arrayRegex, bytesRegex, integerRegex } from '../regex.js'
 
 type PackedAbiType =
   | SolidityAddress

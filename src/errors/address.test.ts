@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { InvalidAddressError } from './address'
+import { InvalidAddressError } from './address.js'
 
 test('InvalidAddressError', () => {
   expect(

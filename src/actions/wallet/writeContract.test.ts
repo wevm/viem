@@ -1,16 +1,16 @@
 import { expect, test } from 'vitest'
-import { getAccount } from '../../utils'
+import { getAccount } from '../../utils/index.js'
 import {
   accounts,
   publicClient,
   testClient,
   wagmiContractConfig,
   walletClient,
-} from '../../_test'
-import { simulateContract } from '../public'
-import { mine } from '../test'
+} from '../../_test.js'
+import { simulateContract } from '../public.js'
+import { mine } from '../test.js'
 
-import { writeContract } from './writeContract'
+import { writeContract } from './writeContract.js'
 
 test('default', async () => {
   expect(

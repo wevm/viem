@@ -2,7 +2,7 @@ import { arrayify, toUtf8Bytes } from 'ethers/lib/utils'
 import { toBeArray } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { hexToBytes, stringToBytes } from './toBytes'
+import { hexToBytes, stringToBytes } from './toBytes.js'
 
 describe.skip('Hex to Bytes', () => {
   bench('viem: `hexToBytes`', () => {

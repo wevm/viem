@@ -1,5 +1,5 @@
-import type { PublicClient, WalletClient } from '../../clients'
-import { hexToNumber } from '../../utils'
+import type { PublicClient, WalletClient } from '../../clients/index.js'
+import { hexToNumber } from '../../utils/index.js'
 
 export type GetChainIdReturnType = number
 

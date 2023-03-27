@@ -1,6 +1,6 @@
-import type { PublicClient } from '../../clients'
-import type { Address, BlockTag, Hex } from '../../types'
-import { numberToHex } from '../../utils'
+import type { PublicClient } from '../../clients/index.js'
+import type { Address, BlockTag, Hex } from '../../types/index.js'
+import { numberToHex } from '../../utils/index.js'
 
 export type GetStorageAtParameters = {
   address: Address

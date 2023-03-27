@@ -1,8 +1,8 @@
-import type { PublicClient } from '../../clients'
-import { observe } from '../../utils/observe'
-import { poll } from '../../utils/poll'
-import type { GetBlockNumberReturnType } from './getBlockNumber'
-import { getBlockNumber } from './getBlockNumber'
+import type { PublicClient } from '../../clients/index.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
+import type { GetBlockNumberReturnType } from './getBlockNumber.js'
+import { getBlockNumber } from './getBlockNumber.js'
 
 export type OnBlockNumberParameter = GetBlockNumberReturnType
 export type OnBlockNumberFn = (

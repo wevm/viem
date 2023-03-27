@@ -1,4 +1,4 @@
-import type { PublicClient, WalletClient } from '../../clients'
+import type { PublicClient, WalletClient } from '../../clients/index.js'
 
 export type GetGasPriceReturnType = bigint
 

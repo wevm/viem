@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { mainnet } from '../chains'
-import { ChainDoesNotSupportContract } from './chain'
+import { mainnet } from '../chains.js'
+import { ChainDoesNotSupportContract } from './chain.js'
 
 test('ChainDoesNotSupportContract', () => {
   expect(

@@ -17,14 +17,14 @@ import type {
   Narrow,
   AbiConstructor,
 } from 'abitype'
-import type { Hex, LogTopic } from './misc'
-import type { TransactionRequest } from './transaction'
+import type { Hex, LogTopic } from './misc.js'
+import type { TransactionRequest } from './transaction.js'
 import type {
   MaybeExcludeEmpty,
   MaybeRequired,
   NoUndefined,
   Prettify,
-} from './utils'
+} from './utils.js'
 
 type EventParametersConfig = {
   enableUnion: boolean

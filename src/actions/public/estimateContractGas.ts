@@ -1,14 +1,14 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient } from '../../clients'
-import type { BaseError } from '../../errors'
-import type { Chain, ContractConfig, GetValue } from '../../types'
+import type { PublicClient } from '../../clients/index.js'
+import type { BaseError } from '../../errors/index.js'
+import type { Chain, ContractConfig, GetValue } from '../../types/index.js'
 import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
-} from '../../utils'
-import { estimateGas, EstimateGasParameters } from './estimateGas'
+} from '../../utils/index.js'
+import { estimateGas, EstimateGasParameters } from './estimateGas.js'
 
 export type EstimateContractGasParameters<
   TChain extends Chain = Chain,

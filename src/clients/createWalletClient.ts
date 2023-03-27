@@ -1,8 +1,8 @@
-import type { Chain } from '../types'
-import type { Client, ClientConfig } from './createClient'
-import { createClient } from './createClient'
-import { WalletActions, walletActions } from './decorators'
-import type { Transport } from './transports/createTransport'
+import type { Chain } from '../types/index.js'
+import type { Client, ClientConfig } from './createClient.js'
+import { createClient } from './createClient.js'
+import { WalletActions, walletActions } from './decorators/index.js'
+import type { Transport } from './transports/createTransport.js'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,
