@@ -1,7 +1,6 @@
-// @ts-ignore
 import { Address } from 'abitype'
-import pkg from '../../package.json'
+import { version } from './version'
 
 export const getContractAddress = (address: Address) => address
 export const getUrl = (url: string) => url
-export const getVersion = () => `${pkg.name}@${pkg.version}`
+export const getVersion = () => `viem@${version}`

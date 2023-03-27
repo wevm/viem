@@ -2,23 +2,91 @@
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
   "version": "0.1.22",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./abi": {
+      "types": "./dist/types/abi.d.ts",
+      "import": "./dist/esm/abi.js",
+      "require": "./dist/cjs/abi.js"
+    },
+    "./chains": {
+      "types": "./dist/types/chains.d.ts",
+      "import": "./dist/esm/chains.js",
+      "require": "./dist/cjs/chains.js"
+    },
+    "./contract": {
+      "types": "./dist/types/contract.d.ts",
+      "import": "./dist/esm/contract.js",
+      "require": "./dist/cjs/contract.js"
+    },
+    "./ens": {
+      "types": "./dist/types/ens.d.ts",
+      "import": "./dist/esm/ens.js",
+      "require": "./dist/cjs/ens.js"
+    },
+    "./ethers": {
+      "types": "./dist/types/ethers.d.ts",
+      "import": "./dist/esm/ethers.js",
+      "require": "./dist/cjs/ethers.js"
+    },
+    "./public": {
+      "types": "./dist/types/public.d.ts",
+      "import": "./dist/esm/public.js",
+      "require": "./dist/cjs/public.js"
+    },
+    "./test": {
+      "types": "./dist/types/test.d.ts",
+      "import": "./dist/esm/test.js",
+      "require": "./dist/cjs/test.js"
+    },
+    "./utils": {
+      "types": "./dist/types/utils/index.d.ts",
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
+    },
+    "./wallet": {
+      "types": "./dist/types/wallet.d.ts",
+      "import": "./dist/esm/wallet.js",
+      "require": "./dist/cjs/wallet.js"
+    },
+    "./window": {
+      "types": "./dist/types/window.d.ts",
+      "import": "./dist/esm/window.js",
+      "require": "./dist/cjs/window.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
-    "build": "tsup",
+    "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm+types",
+    "build:cjs": "tsc --project tsconfig.build.json --module commonjs --outDir ./dist/cjs && echo > ./dist/cjs/package.json '{\"type\":\"commonjs\"}'",
+    "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
-    "clean": "rimraf dist abi chains contract ens public test utils wallet window",
+    "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
-    "dev": "DEV=true tsup",
-    "dev:docs": "pnpm -r --filter site dev",
+    "docs": "pnpm --filter site dev",
     "format": "rome format src/ --write",
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply-suggested",
     "playground": "pnpm --filter playground-browser dev",
-    "postinstall": "pnpm dev && pnpm contracts:build",
+    "postinstall": "pnpm contracts:build",
     "preinstall": "npx only-allow pnpm",
     "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",
     "prepare": "npx simple-git-hooks",
@@ -30,96 +98,6 @@
     "ts-node": "bun",
     "typecheck": "tsc --noEmit"
   },
-  "tsup": {
-    "entry": [
-      "src/index.ts",
-      "src/abi.ts",
-      "src/chains.ts",
-      "src/contract.ts",
-      "src/ens.ts",
-      "src/ethers.ts",
-      "src/public.ts",
-      "src/test.ts",
-      "src/utils/index.ts",
-      "src/wallet.ts",
-      "src/window.ts"
-    ]
-  },
-  "files": [
-    "/abi",
-    "/dist",
-    "/chains",
-    "/contract",
-    "/ens",
-    "/ethers",
-    "/public",
-    "/test",
-    "/utils",
-    "/wallet",
-    "/window"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "module": "./dist/index.mts",
-      "default": "./dist/index.js"
-    },
-    "./abi": {
-      "types": "./dist/abi.d.ts",
-      "module": "./dist/abi.mts",
-      "default": "./dist/abi.js"
-    },
-    "./chains": {
-      "types": "./dist/chains.d.ts",
-      "module": "./dist/chains.mts",
-      "default": "./dist/chains.js"
-    },
-    "./contract": {
-      "types": "./dist/contract.d.ts",
-      "module": "./dist/contract.mts",
-      "default": "./dist/contract.js"
-    },
-    "./ens": {
-      "types": "./dist/ens.d.ts",
-      "module": "./dist/ens.mts",
-      "default": "./dist/ens.js"
-    },
-    "./ethers": {
-      "types": "./dist/ethers.d.ts",
-      "module": "./dist/ethers.mts",
-      "default": "./dist/ethers.js"
-    },
-    "./public": {
-      "types": "./dist/public.d.ts",
-      "module": "./dist/public.mts",
-      "default": "./dist/public.js"
-    },
-    "./test": {
-      "types": "./dist/test.d.ts",
-      "module": "./dist/test.mts",
-      "default": "./dist/test.js"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "module": "./dist/utils/index.mts",
-      "default": "./dist/utils/index.js"
-    },
-    "./wallet": {
-      "types": "./dist/wallet.d.ts",
-      "module": "./dist/wallet.mts",
-      "default": "./dist/wallet.js"
-    },
-    "./window": {
-      "types": "./dist/window.d.ts",
-      "module": "./dist/window.mts",
-      "default": "./dist/window.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "sideEffects": false,
   "dependencies": {
     "@noble/hashes": "^1.1.2",
     "@noble/secp256k1": "^1.7.1",
@@ -152,7 +130,6 @@
     "rimraf": "^4.1.2",
     "rome": "^11.0.0",
     "simple-git-hooks": "^2.8.1",
-    "tsup": "^6.6.0",
     "typescript": "^4.9.4",
     "vite": "^4.1.4",
     "vitest": "~0.29.2"

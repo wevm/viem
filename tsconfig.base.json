@@ -1,0 +1,42 @@
+{
+  "include": [],
+  "compilerOptions": {
+    // Incremental builds
+    "incremental": true,
+
+    // Type Checking
+    "strict": true,
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    // "exactOptionalPropertyTypes": true, // TODO: Consider enabling this in the future.
+    // "noImplicitOverride": true, // TODO: Consider enabling this in the future.
+    // "noUnusedLocals": true, // TODO: Consider enabling this in the future.
+    // "noUnusedParameters": true, // TODO: Consider enabling this in the future.
+    // "noUncheckedIndexedAccess": true, // TODO: Consider enabling this in the future.
+
+    // Modules
+    "module": "ESNext",
+    "moduleResolution": "Node",
+
+    // Emit
+    "stripInternal": true,
+
+    // JavaScript Support
+    "allowJs": false,
+    "checkJs": false,
+
+    // Interop Constraints
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+
+    // Language and Environment
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+
+    // Completeness
+    "skipLibCheck": true
+  }
+}

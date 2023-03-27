@@ -1,19 +1,10 @@
 {
+  "extends": "./tsconfig.base.json",
+  "include": ["src/**/*.ts"],
+  "exclude": [],
+  "references": [{ "path": "./tsconfig.node.json" }],
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "dist",
-    "esModuleInterop": true,
-    "importsNotUsedAsValues": "error",
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext",
-    "types": ["node"]
-  },
-  "exclude": ["node_modules", "dist"]
+    // Json import is used in `src/_test/utils.ts`
+    "resolveJsonModule": true
+  }
 }
