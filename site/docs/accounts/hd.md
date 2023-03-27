@@ -54,7 +54,7 @@ const account = hdKeyToAccount(hdKey) // [!code focus]
 const client = createWalletClient({
   account,
   chain: mainnet,
-  transport: custom(window.ethereum)
+  transport: http(),
 })
 ```
 
