@@ -4,8 +4,14 @@
   "version": "0.1.22",
   "files": [
     "dist/**/*.js",
+    "dist/**/*.js.map",
     "dist/**/*.d.ts",
-    "dist/**/*.d.ts.map"
+    "dist/**/*.d.ts.map",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-d.ts",
+    "!src/**/*.bench.ts",
+    "!src/_test/**/*"
   ],
   "type": "module",
   "main": "./dist/cjs/index.js",
