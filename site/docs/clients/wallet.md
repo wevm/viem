@@ -20,7 +20,7 @@ The `createWalletClient` function sets up a Wallet Client with a given [Transpor
 
 The Wallet Client supports signing over:
 - a [JSON-RPC Account](#json-rpc-accounts) (ie. Browser Extension Wallets, WalletConnect, etc). 
-- a [Local Account](#local-accounts-private-key-mnemonic-etc) (ie. private key/mnemonic wallets).
+- [Local Accounts](#local-accounts-private-key-mnemonic-etc) (ie. private key/mnemonic wallets).
 
 ## Import
 
