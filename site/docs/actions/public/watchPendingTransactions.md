@@ -99,6 +99,32 @@ const unwatch = publicClient.watchPendingTransactions(
 )
 ```
 
+### poll (optional)
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket Clients, `true` for non-WebSocket Clients
+
+Whether or not to use a polling mechanism to check for new pending transactions instead of a WebSocket subscription.
+
+This option is only configurable for Clients with a [WebSocket Transport](/docs/clients/transports/websocket).
+
+```ts
+import { createPublicClient, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: webSocket()
+})
+
+const unwatch = publicClient.watchPendingTransactions(
+  { 
+    onTransactions: transactions => console.log(transactions),
+    poll: true, // [!code focus]
+  }
+)
+```
+
 ### pollingInterval (optional)
 
 - **Type:** `number`
@@ -116,5 +142,7 @@ const unwatch = publicClient..watchPendingTransactions(
 
 ## JSON-RPC Methods
 
-- Calls [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter) to initialize the filter.
-- Calls [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getFilterChanges) on a polling interval.
+- When `poll: true`
+  - Calls [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter) to initialize the filter.
+  - Calls [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getFilterChanges) on a polling interval.
+- When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newPendingTransactions"` topic. 

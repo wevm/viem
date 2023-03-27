@@ -137,6 +137,7 @@ export type {
   ExtractFunctionNameFromAbi,
   ExtractNameFromAbi,
   ExtractResultFromAbi,
+  GetTransportConfig,
   HDAccount,
   HDKey,
   HDOptions,

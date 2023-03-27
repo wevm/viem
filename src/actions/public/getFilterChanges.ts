@@ -31,13 +31,14 @@ export type GetFilterChangesReturnType<
   : Hash[]
 
 export async function getFilterChanges<
+  TTransport extends Transport,
   TChain extends Chain | undefined,
   TFilterType extends FilterType,
   TAbiEvent extends AbiEvent | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TTransport, TChain>,
   {
     filter,
   }: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,

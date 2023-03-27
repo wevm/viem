@@ -115,6 +115,7 @@ import type { PublicClient } from '../createPublicClient'
 import type { Transport } from '../transports'
 
 export type PublicActions<
+  TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 > = {
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>
@@ -233,7 +234,9 @@ export type PublicActions<
   watchBlockNumber: (
     args: WatchBlockNumberParameters,
   ) => WatchBlockNumberReturnType
-  watchBlocks: (args: WatchBlocksParameters<TChain>) => WatchBlocksReturnType
+  watchBlocks: (
+    args: WatchBlocksParameters<TChain, TTransport>,
+  ) => WatchBlocksReturnType
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,
@@ -244,16 +247,16 @@ export type PublicActions<
     args: WatchEventParameters<TAbiEvent>,
   ) => WatchEventReturnType
   watchPendingTransactions: (
-    args: WatchPendingTransactionsParameters,
+    args: WatchPendingTransactionsParameters<TTransport>,
   ) => WatchPendingTransactionsReturnType
 }
 
 export const publicActions = <
-  TTransport extends Transport,
+  TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 >(
   client: PublicClient<TTransport, TChain>,
-): PublicActions<TChain> => ({
+): PublicActions<TTransport, TChain> => ({
   call: (args) => call(client, args),
   createBlockFilter: () => createBlockFilter(client),
   createContractEventFilter: (args) => createContractEventFilter(client, args),

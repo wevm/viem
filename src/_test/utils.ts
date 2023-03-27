@@ -91,18 +91,23 @@ const provider = {
   },
 }
 
-export const publicClient =
+export const httpClient = createPublicClient({
+  chain: anvilChain,
+  pollingInterval: 1_000,
+  transport: http(),
+})
+
+export const webSocketClient = createPublicClient({
+  chain: anvilChain,
+  pollingInterval: 1_000,
+  transport: webSocket(localWsUrl),
+})
+
+export const publicClient = (
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
-    ? createPublicClient({
-        chain: anvilChain,
-        pollingInterval: 1_000,
-        transport: webSocket(localWsUrl),
-      })
-    : createPublicClient({
-        chain: anvilChain,
-        pollingInterval: 1_000,
-        transport: http(),
-      })
+    ? webSocketClient
+    : httpClient
+) as typeof httpClient
 
 export const walletClient = createWalletClient({
   chain: anvilChain,
