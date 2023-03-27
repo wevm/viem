@@ -77,6 +77,7 @@ export async function waitForTransactionReceipt<
         const unwatch = watchBlockNumber(client, {
           emitMissed: true,
           emitOnBegin: true,
+          poll: true,
           pollingInterval,
           async onBlockNumber(blockNumber) {
             const done = async (fn: () => void) => {

@@ -101,6 +101,8 @@ export type {
   TransactionSerializedLegacy,
 } from './transaction'
 
+export type { GetTransportConfig } from './transport'
+
 export type {
   GetTypedDataDomain,
   GetTypedDataMessage,

@@ -6,8 +6,11 @@ export type UninstallFilterParameters = {
 }
 export type UninstallFilterReturnType = boolean
 
-export async function uninstallFilter<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+export async function uninstallFilter<
+  TTransport extends Transport,
+  TChain extends Chain | undefined,
+>(
+  client: PublicClient<TTransport, TChain>,
   { filter }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
   return client.request({

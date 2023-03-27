@@ -142,6 +142,32 @@ const unwatch = publicClient.watchBlocks(
 )
 ```
 
+### poll (optional)
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket Clients, `true` for non-WebSocket Clients
+
+Whether or not to use a polling mechanism to check for new blocks instead of a WebSocket subscription.
+
+This option is only configurable for Clients with a [WebSocket Transport](/docs/clients/transports/websocket).
+
+```ts
+import { createPublicClient, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: webSocket()
+})
+
+const unwatch = publicClient.watchBlocks(
+  { 
+    onBlock: block => console.log(block),
+    poll: true, // [!code focus]
+  }
+)
+```
+
 ### pollingInterval (optional)
 
 - **Type:** `number`
@@ -165,6 +191,5 @@ Check out the usage of `watchBlocks` in the live [Watch Blocks Example](https://
 
 ## JSON-RPC Methods
 
-Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval. 
-
-Real-time subscriptions ([`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon)) coming shortly.
+- When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
+- When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event. 
