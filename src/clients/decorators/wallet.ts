@@ -55,8 +55,11 @@ export type WalletActions<TChain extends Chain = Chain> = {
     args: SendTransactionParameters<TChainOverride>,
   ) => Promise<SendTransactionReturnType>
   signMessage: (args: SignMessageParameters) => Promise<SignMessageReturnType>
-  signTypedData: <TTypedData extends TypedData | { [key: string]: unknown }>(
-    args: SignTypedDataParameters<TTypedData>,
+  signTypedData: <
+    TTypedData extends TypedData | { [key: string]: unknown },
+    TPrimaryType extends string,
+  >(
+    args: SignTypedDataParameters<TTypedData, TPrimaryType>,
   ) => Promise<SignTypedDataReturnType>
   switchChain: (args: SwitchChainParameters) => Promise<void>
   watchAsset: (args: WatchAssetParameters) => Promise<WatchAssetReturnType>
