@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.23
+
+### Patch Changes
+
+- [#251](https://github.com/wagmi-dev/viem/pull/251) [`153e97e`](https://github.com/wagmi-dev/viem/commit/153e97ed0461c34fd75fa7cad3820e9960f6810a) Thanks [@tmm](https://github.com/tmm)! - Fixed `signTypedData` inference for `primaryType` field.
+
 ## 0.1.22
 
 ### Patch Changes
