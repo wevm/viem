@@ -1,5 +1,17 @@
 # viem
 
+## 0.1.23
+
+### Patch Changes
+
+- [#251](https://github.com/wagmi-dev/viem/pull/251) [`153e97e`](https://github.com/wagmi-dev/viem/commit/153e97ed0461c34fd75fa7cad3820e9960f6810a) Thanks [@tmm](https://github.com/tmm)! - Fixed `signTypedData` inference for `primaryType` field.
+
+## 0.1.22
+
+### Patch Changes
+
+- [`07000b6`](https://github.com/wagmi-dev/viem/commit/07000b650b6cce41c99a4ccf609f5fccce818244) Thanks [@jxom](https://github.com/jxom)! - Removed unnecessary trimming of decoded RLP hex value
+
 ## 0.1.21
 
 ### Patch Changes
