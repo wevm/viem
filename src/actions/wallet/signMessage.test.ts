@@ -1,11 +1,7 @@
 import { expect, test } from 'vitest'
 
-import {
-  walletClientWithAccount,
-  accounts,
-  getLocalAccount,
-  walletClient,
-} from '../../_test'
+import { privateKeyToAccount } from '../../accounts'
+import { walletClientWithAccount, accounts, walletClient } from '../../_test'
 import { signMessage } from './signMessage'
 
 test('default', async () => {
@@ -41,7 +37,7 @@ test('emoji', async () => {
 })
 
 test('local account', async () => {
-  const account = getLocalAccount(accounts[0].privateKey)
+  const account = privateKeyToAccount(accounts[0].privateKey)
   expect(
     await signMessage(walletClient!, {
       account,

@@ -31,13 +31,14 @@ const data = await publicClient.call({ // [!code focus:7]
 ```
 
 ```ts [config.ts]
-import { createPublicClient, http, getAccount } from 'viem'
+import { createPublicClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 // JSON-RPC Account
 export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount('0x...')
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -61,7 +62,7 @@ The call data.
 
 The Account to call from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 const data = await publicClient.call({

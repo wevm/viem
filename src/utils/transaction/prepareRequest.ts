@@ -1,3 +1,4 @@
+import { parseAccount } from '../accounts'
 import {
   estimateGas,
   EstimateGasParameters,
@@ -9,7 +10,6 @@ import {
 import type { PublicClient, Transport, WalletClient } from '../../clients'
 import { AccountNotFoundError, BaseError } from '../../errors'
 import type { Account, Address, Chain, GetAccountParameter } from '../../types'
-import { parseAccount } from '../account'
 import { parseGwei } from '../unit/parseGwei'
 import { assertRequest } from './assertRequest'
 

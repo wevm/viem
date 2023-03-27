@@ -1,14 +1,15 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
+import type { JsonRpcAccount } from '../types'
 import { localhost } from '../chains'
-import type { JsonRpcAccount, LocalAccount } from '../types'
 import type { SignableRequests, WalletRequests } from '../types/eip1193'
-import { accounts, getLocalAccount, localWsUrl } from '../_test'
+import { accounts, localWsUrl } from '../_test'
 import { createWalletClient } from './createWalletClient'
 import { createTransport } from './transports/createTransport'
 import { custom } from './transports/custom'
 import { http } from './transports/http'
 import { webSocket } from './transports/webSocket'
+import { PrivateKeyAccount, privateKeyToAccount } from '../accounts'
 
 const mockTransport = () =>
   createTransport({
@@ -113,20 +114,22 @@ describe('args: account', () => {
 
   test('local account', () => {
     const { uid, ...client } = createWalletClient({
-      account: getLocalAccount(accounts[0].privateKey),
+      account: privateKeyToAccount(accounts[0].privateKey),
       transport: mockTransport,
     })
     assertType<{
-      account: LocalAccount
+      account: PrivateKeyAccount
     }>(client)
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "addChain": [Function],

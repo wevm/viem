@@ -41,7 +41,7 @@ export {
   parseAbiParameters,
 } from './abi'
 
-export { getAccount, parseAccount } from './account'
+export { parseAccount } from './accounts'
 
 export type {
   GetContractAddressOptions,
@@ -198,6 +198,8 @@ export {
   prepareRequest,
   serializeTransaction,
 } from './transaction'
+
+export { validateTypedData } from './typedData'
 
 export {
   formatEther,

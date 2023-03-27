@@ -1,1 +1,1 @@
-export { getAccount } from './adapters/ethers'
+export { ethersWalletToAccount } from './adapters/ethers'

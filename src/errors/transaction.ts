@@ -108,6 +108,18 @@ export class InvalidSerializedTransactionError extends BaseError {
   }
 }
 
+export class InvalidStorageKeySizeError extends BaseError {
+  name = 'InvalidStorageKeySizeError'
+
+  constructor({ storageKey }: { storageKey: Hex }) {
+    super(
+      `Size for storage key "${storageKey}" is invalid. Expected 32 bytes. Got ${Math.floor(
+        (storageKey.length - 2) / 2,
+      )} bytes.`,
+    )
+  }
+}
+
 export class TransactionExecutionError extends BaseError {
   cause: BaseError
 

@@ -63,6 +63,7 @@ export const wagmiAbi = [
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -77,8 +78,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -123,6 +124,7 @@ export const wagmiAbi = [
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -137,8 +139,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount('0x...')
 ```
 
 :::
@@ -177,6 +179,7 @@ export const wagmiAbi = [
 
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
@@ -191,8 +194,8 @@ export const walletClient = createWalletClient({
 
 // JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount('0x...')
 ```
 
 :::
@@ -259,7 +262,7 @@ await walletClient.writeContract({
 
 The Account to write to the contract from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 await walletClient.writeContract({

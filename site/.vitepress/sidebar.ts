@@ -371,6 +371,17 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'Accounts',
+      collapsed: true,
+      items: [
+        { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
+        { text: 'Private Key', link: '/docs/accounts/privateKey' },
+        { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
+        { text: 'Hierarchical Deterministic (HD)', link: '/docs/accounts/hd' },
+        { text: 'Custom', link: '/docs/accounts/custom' },
+      ],
+    },
+    {
       text: 'Contract',
       collapsed: true,
       items: [

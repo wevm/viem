@@ -111,6 +111,7 @@ export {
   InvalidSerializedTransactionError,
   InvalidSerializedTransactionTypeError,
   InvalidSerializableTransactionError,
+  InvalidStorageKeySizeError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,

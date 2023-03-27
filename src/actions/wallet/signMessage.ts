@@ -37,7 +37,8 @@ export async function signMessage<
     })
   const account = parseAccount(account_)
   const message_ = message || data
-  if (account.type === 'local') return account.signMessage(message_!)
+  if (account.type === 'local')
+    return account.signMessage({ message: message_! })
   return client.request({
     method: 'personal_sign',
     params: [toHex(message_!), account.address],

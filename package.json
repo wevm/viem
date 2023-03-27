@@ -6,7 +6,7 @@
     "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
-    "build": "tsup",
+    "build": "tsup && size-limit",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
@@ -34,6 +34,7 @@
     "entry": [
       "src/index.ts",
       "src/abi.ts",
+      "src/accounts/index.ts",
       "src/chains.ts",
       "src/contract.ts",
       "src/ens.ts",
@@ -47,6 +48,7 @@
   },
   "files": [
     "/abi",
+    "/accounts",
     "/dist",
     "/chains",
     "/contract",
@@ -68,6 +70,11 @@
       "types": "./dist/abi.d.ts",
       "module": "./dist/abi.mts",
       "default": "./dist/abi.js"
+    },
+    "./accounts": {
+      "types": "./dist/accounts/index.d.ts",
+      "module": "./dist/accounts/index.mts",
+      "default": "./dist/accounts/index.js"
     },
     "./chains": {
       "types": "./dist/chains.d.ts",
@@ -123,6 +130,8 @@
   "dependencies": {
     "@noble/hashes": "^1.1.2",
     "@noble/secp256k1": "^1.7.1",
+    "@scure/bip32": "^1.2.0",
+    "@scure/bip39": "^1.1.1",
     "@wagmi/chains": "~0.2.11",
     "abitype": "~0.7.1",
     "idna-uts46-hx": "^4.1.2",
@@ -135,6 +144,7 @@
     "@adraffy/ens-normalize": "^1.8.9",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
+    "@size-limit/preset-big-lib": "^8.2.4",
     "@types/dedent": "^0.7.0",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^17.0.45",
@@ -152,6 +162,7 @@
     "rimraf": "^4.1.2",
     "rome": "^11.0.0",
     "simple-git-hooks": "^2.8.1",
+    "size-limit": "^8.2.4",
     "tsup": "^6.6.0",
     "typescript": "^4.9.4",
     "vite": "^4.1.4",
@@ -169,6 +180,11 @@
     "dapps",
     "wallet",
     "web3"
+  ],
+  "size-limit": [
+    {
+      "path": "dist/index.js"
+    }
   ],
   "simple-git-hooks": {
     "pre-commit": "pnpm format && pnpm lint:fix"

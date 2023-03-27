@@ -2,16 +2,10 @@ import type { Address } from 'abitype'
 import type { transactionType } from '../utils'
 import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee'
 import type { Log } from './log'
-import type { Hash, Hex } from './misc'
+import type { Hash, Hex, Signature } from './misc'
 import type { ValueOf } from './utils'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
-
-export type Signature<TQuantity = bigint> = {
-  r: Hex
-  s: Hex
-  v: TQuantity
-}
 
 export type TransactionType = ValueOf<typeof transactionType>
 

@@ -59,7 +59,6 @@ test('exports utils', () => {
       "fromHex": [Function],
       "fromRlp": [Function],
       "getAbiItem": [Function],
-      "getAccount": [Function],
       "getAddress": [Function],
       "getCallError": [Function],
       "getChainContractAddress": [Function],
@@ -129,6 +128,7 @@ test('exports utils', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
+      "validateTypedData": [Function],
       "verifyMessage": [Function],
       "verifyTypedData": [Function],
     }

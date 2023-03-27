@@ -2,13 +2,14 @@ import type { PublicClient, WalletClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import { AccountNotFoundError } from '../../errors'
 import type {
+  Account,
   BlockTag,
   Chain,
   Formatter,
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account, GetAccountParameter } from '../../types/account'
+import type { GetAccountParameter } from '../../types/account'
 import {
   assertRequest,
   extract,

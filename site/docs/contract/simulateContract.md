@@ -57,12 +57,13 @@ export const wagmiAbi = [
 
 ```ts [client.ts]
 import { createPublicClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 // JSON-RPC Account
 export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount(...)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -112,12 +113,13 @@ export const wagmiAbi = [
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 // JSON-RPC Account
 export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account 
+export const account = privateKeyToAccount(...)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -164,12 +166,13 @@ export const wagmiAbi = [
 
 ```ts [config.ts]
 import { createPublicClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 // JSON-RPC Account
 export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-// Local Account (Private Key, etc)
-export const account = getAccount(...)
+// Local Account
+export const account = privateKeyToAccount(...)
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -236,7 +239,7 @@ const { result } = await publicClient.simulateContract({
 
 The Account to simulate the contract method from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-experimental).
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 const { result } = await publicClient.simulateContract({

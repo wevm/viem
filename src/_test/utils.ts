@@ -1,6 +1,5 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
-import { Wallet } from 'ethers@6'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
   deployContract,
@@ -17,7 +16,6 @@ import {
   http,
   webSocket,
 } from '../clients'
-import { getAccount as getEthersAccount } from '../ethers'
 import type { Hex } from '../types'
 import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
@@ -126,9 +124,6 @@ export const testClient = createTestClient({
   mode: 'anvil',
   transport: http(),
 })
-
-export const getLocalAccount = (privateKey: Hex) =>
-  getEthersAccount(new Wallet(privateKey))
 
 export function createHttpServer(
   handler: RequestListener,
