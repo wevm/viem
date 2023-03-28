@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.24
+
+### Patch Changes
+
+- [#237](https://github.com/wagmi-dev/viem/pull/237) [`a92c4fa`](https://github.com/wagmi-dev/viem/commit/a92c4fa31eb4a71cb68edf6d50a58cf653419f86) Thanks [@jxom](https://github.com/jxom)! - Added automatic ranking to `fallback` Transport.
+
 ## 0.1.23
 
 ### Patch Changes
