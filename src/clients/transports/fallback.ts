@@ -11,25 +11,30 @@ type RankOptions = {
    */
   interval?: number
   /**
-   * The weight to apply to the latency score.
-   * @default 0.3
-   */
-  latencyWeight?: number
-  /**
    * The number of previous samples to perform ranking on.
    * @default 10
    */
   sampleCount?: number
   /**
-   * The weight to apply to the stability score.
-   * @default 0.7
-   */
-  stabilityWeight?: number
-  /**
    * Timeout when sampling transports.
    * @default 1_000
    */
   timeout?: number
+  /**
+   * Weights to apply to the scores. Weight values are proportional.
+   */
+  weights?: {
+    /**
+     * The weight to apply to the latency score.
+     * @default 0.3
+     */
+    latency?: number
+    /**
+     * The weight to apply to the stability score.
+     * @default 0.7
+     */
+    stability?: number
+  }
 }
 
 export type FallbackTransportConfig = {
@@ -102,48 +107,47 @@ export function fallback(
     )
 
     if (rank) {
-      const rankOptions = typeof rank === 'object' ? rank : {}
+      const rankOptions = (typeof rank === 'object' ? rank : {}) as RankOptions
       rankTransports({
         chain,
         interval: rankOptions.interval ?? pollingInterval,
-        latencyWeight: rankOptions.latencyWeight,
         onTransports: (transports_) => (transports = transports_),
         sampleCount: rankOptions.sampleCount,
-        stabilityWeight: rankOptions.stabilityWeight,
         timeout: rankOptions.timeout,
         transports,
+        weights: rankOptions.weights,
       })
     }
-
     return transport
   }
 }
 
-type SampleData = [latency: number, success: number]
-type Sample = SampleData[]
-
 export function rankTransports({
   chain,
   interval = 4_000,
-  latencyWeight = 0.3,
   onTransports,
   sampleCount = 10,
-  stabilityWeight = 0.7,
   timeout = 1_000,
   transports,
+  weights = {},
 }: {
   chain?: Chain
-  interval: number
-  latencyWeight?: number
+  interval: RankOptions['interval']
   onTransports: (transports: Transport[]) => void
-  sampleCount?: number
-  stabilityWeight?: number
-  timeout?: number
+  sampleCount?: RankOptions['sampleCount']
+  timeout?: RankOptions['timeout']
   transports: Transport[]
+  weights?: RankOptions['weights']
 }) {
+  const { stability: stabilityWeight = 0.7, latency: latencyWeight = 0.3 } =
+    weights
+
+  type SampleData = { latency: number; success: number }
+  type Sample = SampleData[]
   let samples: Sample[] = []
 
   const rankTransports_ = async () => {
+    // 1. Take a sample from each Transport.
     const sample: Sample = await Promise.all(
       transports.map(async (transport) => {
         const transport_ = transport({ chain, retryCount: 0, timeout })
@@ -160,28 +164,32 @@ export function rankTransports({
           end = Date.now()
         }
         const latency = end - start
-        return [latency, success]
+        return { latency, success }
       }),
     )
 
+    // 2. Store the sample. If we have more than `sampleCount` samples, remove
+    // the oldest sample.
     samples.push(sample)
     if (samples.length > sampleCount) samples.shift()
 
+    // 3. Calculate the max latency from samples.
     const maxLatency = Math.max(
       ...samples.map((sample) =>
-        Math.max(...sample.map(([latency]) => latency)),
+        Math.max(...sample.map(({ latency }) => latency)),
       ),
     )
 
+    // 4. Calculate the score for each Transport.
     const scores = transports
       .map((_, i) => {
-        const latencies = samples.map((sample) => sample[i][0])
+        const latencies = samples.map((sample) => sample[i].latency)
         const meanLatency =
           latencies.reduce((acc, latency) => acc + latency, 0) /
           latencies.length
         const latencyScore = 1 - meanLatency / maxLatency
 
-        const successes = samples.map((sample) => sample[i][1])
+        const successes = samples.map((sample) => sample[i].success)
         const stabilityScore =
           successes.reduce((acc, success) => acc + success, 0) /
           successes.length
@@ -194,8 +202,10 @@ export function rankTransports({
       })
       .sort((a, b) => b[0] - a[0])
 
+    // 5. Sort the Transports by score.
     onTransports(scores.map(([, i]) => transports[i]))
 
+    // 6. Wait, and then rank again.
     await wait(interval)
     rankTransports_()
   }

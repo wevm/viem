@@ -45,7 +45,7 @@ const client = createPublicClient({
 
 By default, each of the Transports passed to the `fallback` Transport are automatically ranked based on their **latency** & **stability** via a weighted moving score algorithm. 
 
-Every 10 seconds (`interval`), the `fallback` Transport will ping each transport in the list. For the past 10 pings (`sampleCount`), they will be ranked based on if they responded (stability) and how fast they responded (latency). The algorithm applies a weight of `0.7` to the stability score, and a weight of `0.3` to the latency score to derive the final score which it is ranked on.
+Every 10 seconds (`interval`), the `fallback` Transport will ping each transport in the list. For the past 10 pings (`sampleCount`), they will be ranked based on if they responded (stability) and how fast they responded (latency). The algorithm applies a weight of `0.7` to the stability score, and a weight of `0.3` to the latency score to derive the final score which it is ranked on. 
 
 The Transport that has the best latency & stability score over the sample period is prioritized first. 
 
@@ -59,10 +59,12 @@ const client = createPublicClient({
     { // [!code focus:9]
       rank: {
         interval: 60_000,
-        latencyWeight: 0.4,
         sampleCount: 5,
-        stabilityWeight: 0.6,
-        timeout: 500
+        timeout: 500,
+        weights: {
+          latency: 0.3,
+          stability: 0.7
+        }
       }
     }
   ),
@@ -88,6 +90,14 @@ const client = createPublicClient({
 - **Type:** `boolean | RankOptions`
 - **Default:** `true`
 
+Whether or not to automatically rank the Transports based on their latency & stability. Set to `false` to disable automatic ranking.
+
+```ts
+const transport = fallback([alchemy, infura], {
+  rank: false, // [!code focus]
+})
+```
+
 ### rank.interval (optional)
 
 - **Type:** `number`
@@ -99,21 +109,6 @@ The polling interval (in ms) at which the ranker should ping the RPC URL.
 const transport = fallback([alchemy, infura], {
   rank: { // [!code focus:3]
     interval: 5_000
-  },
-})
-```
-
-### rank.latencyWeight (optional)
-
-- **Type:** `number`
-- **Default:** `0.3`
-
-The weight to apply to the latency score.
-
-```ts
-const transport = fallback([alchemy, infura], {
-  rank: { // [!code focus:3]
-    latencyWeight: 0.4
   },
 })
 ```
@@ -133,21 +128,6 @@ const transport = fallback([alchemy, infura], {
 })
 ```
 
-### rank.stabilityWeight (optional)
-
-- **Type:** `number`
-- **Default:** `0.7`
-
-The weight to apply to the stability score.
-
-```ts
-const transport = fallback([alchemy, infura], {
-  rank: { // [!code focus:3]
-    stabilityWeight: 0.6
-  },
-})
-```
-
 ### rank.timeout (optional)
 
 - **Type:** `number`
@@ -159,6 +139,42 @@ Timeout when sampling transports.
 const transport = fallback([alchemy, infura], {
   rank: { // [!code focus:3]
     timeout: 500
+  },
+})
+```
+
+### rank.weights.latency (optional)
+
+- **Type:** `number`
+- **Default:** `0.3`
+
+The weight to apply to the latency score. The weight is proportional to the other values in the `weights` object.
+
+```ts
+const transport = fallback([alchemy, infura], {
+  rank: {
+    weights: {
+      latency: 0.4, // [!code focus:3]
+      stability: 0.6
+    }
+  },
+})
+```
+
+### rank.weights.stability (optional)
+
+- **Type:** `number`
+- **Default:** `0.7`
+
+The weight to apply to the stability score. The weight is proportional to the other values in the `weights` object.
+
+```ts
+const transport = fallback([alchemy, infura], {
+  rank: {
+    weights: {
+      latency: 0.4,
+      stability: 0.6 // [!code focus:3]
+    }
   },
 })
 ```
