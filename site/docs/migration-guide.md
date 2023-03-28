@@ -144,3 +144,13 @@ const client = createWalletClient({
 })
 ```
 
+### `data` renamed in `signMessage`
+
+Renamed the `data` parameter in `signMessage` to `message`.
+
+```ts
+walletClient.signMessage({
+  data: 'hello world', // [!code --]
+  message: 'hello world', // [!code ++]
+})
+```
