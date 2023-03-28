@@ -97,6 +97,7 @@ describe('poll', () => {
         unwatch = watchPendingTransactions(publicClient, {
           onTransactions: () => null,
           onError: resolve,
+          poll: true,
         })
       })
       expect(error).toMatchInlineSnapshot('[Error: foo]')
@@ -113,6 +114,7 @@ describe('poll', () => {
         unwatch = watchPendingTransactions(publicClient, {
           onTransactions: () => null,
           onError: resolve,
+          poll: true,
         })
       })
       expect(error).toMatchInlineSnapshot('[Error: bar]')
