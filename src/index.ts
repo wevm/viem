@@ -48,6 +48,7 @@ export type {
   IncreaseTimeParameters,
   MineParameters,
   MulticallParameters,
+  MulticallReturnType,
   OnBlock,
   OnBlockNumberFn,
   OnBlockNumberParameter,

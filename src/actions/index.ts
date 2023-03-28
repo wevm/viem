@@ -74,6 +74,7 @@ export type {
   GetTransactionReceiptReturnType,
   GetTransactionReturnType,
   MulticallParameters,
+  MulticallReturnType,
   OnBlock,
   OnBlockNumberFn,
   OnBlockNumberParameter,
