@@ -1,24 +1,9 @@
 {
   "files": {
     "ignore": [
-      ".next",
-      "**/types/multicall.ts",
-      "**/node_modules",
-      "CHANGELOG.md",
-      "cache",
-      "coverage",
-      "dist",
-      "generated.ts",
-      "pnpm-lock.yaml",
-      "./abi",
-      "./chains",
-      "./contract",
-      "./ens",
-      "./public",
-      "./test",
-      "./utils",
-      "./wallet",
-      "./window"
+      ".next", "**/node_modules", "CHANGELOG.md", "cache", "coverage", "dist",
+      "generated.ts", "pnpm-lock.yaml", "./abi", "./chains", "./contract",
+      "./ens", "./public", "./test", "./utils", "./wallet", "./window"
     ]
   },
   "formatter": {
@@ -39,6 +24,7 @@
         "noDelete": "off"
       },
       "style": {
+        "noNonNullAssertion": "off",
         "useShorthandArrayType": "error"
       },
       "suspicious": {

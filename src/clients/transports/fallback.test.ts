@@ -156,7 +156,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([
+    const transport = fallback([
       http(server1.url),
       http(server2.url),
       http(server3.url),
@@ -187,7 +187,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     expect(
@@ -210,7 +210,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -238,7 +238,7 @@ describe('request', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -261,7 +261,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       retryCount: 1,
     })({
       chain: localhost,
@@ -288,7 +288,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback(
+    const transport = fallback(
       [
         http(server1.url, { retryCount: 3 }),
         http(server2.url, { retryCount: 2 }),
@@ -430,7 +430,7 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])
+    const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
@@ -454,7 +454,7 @@ describe('client', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)])
+    const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
     await expect(

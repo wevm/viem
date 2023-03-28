@@ -2,7 +2,7 @@ import type { Abi } from 'abitype'
 
 import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
-import type { Chain, ContractConfig, GetValue } from '../../types'
+import type { Chain, ContractFunctionConfig, GetValue } from '../../types'
 import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
@@ -16,7 +16,7 @@ export type EstimateContractGasParameters<
   TFunctionName extends string = string,
   TChain extends Chain | undefined = Chain | undefined,
 > = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
-  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
+  ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
     value?: GetValue<
       TAbi,
       TFunctionName,

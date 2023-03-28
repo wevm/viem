@@ -4,7 +4,7 @@ import type { Transport, WalletClient } from '../../clients'
 import type {
   Account,
   Chain,
-  ContractConfig,
+  ContractFunctionConfig,
   GetChain,
   GetValue,
 } from '../../types'
@@ -31,7 +31,7 @@ export type WriteContractParameters<
     SendTransactionParameters<TChain>['value']
   >
 } & GetChain<TChain, TChainOverride> &
-  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
+  ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 
 export type WriteContractReturnType = SendTransactionReturnType
 
