@@ -223,6 +223,7 @@ test('exports actions', () => {
       "prepareRequest": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
+      "recoverTypedDataAddress": [Function],
       "serializeTransaction": [Function],
       "size": [Function],
       "slice": [Function],
@@ -242,6 +243,7 @@ test('exports actions', () => {
       "trim": [Function],
       "validateTypedData": [Function],
       "verifyMessage": [Function],
+      "verifyTypedData": [Function],
       "webSocket": [Function],
       "weiUnits": {
         "ether": -18,
