@@ -30,6 +30,7 @@ import {
   estimateContractGas,
   createContractEventFilter,
   CreateContractEventFilterParameters,
+  watchContractEvent,
 } from './public'
 import {
   WriteContractParameters,
@@ -235,7 +236,7 @@ export function getContract<
   if (hasPublicClient) {
     if (hasReadFunction)
       contract.read = new Proxy(
-        {}, // TODO: Should we stick valid keys here with `() => {}` value?
+        {},
         {
           get(_, functionName: string) {
             return (
@@ -249,12 +250,12 @@ export function getContract<
             ) => {
               const { args, params } = getFunctionArgsAndParams(rest)
               return readContract(publicClient, {
-                abi: abi as Abi,
+                abi,
                 address,
                 functionName,
                 args,
                 ...params,
-              })
+              } as ReadContractParameters)
             }
           },
         },
@@ -276,7 +277,7 @@ export function getContract<
             ) => {
               const { args, params } = getFunctionArgsAndParams(rest)
               return estimateContractGas(publicClient, {
-                abi: abi as Abi,
+                abi,
                 address,
                 functionName,
                 args,
@@ -301,7 +302,7 @@ export function getContract<
             ) => {
               const { args, params } = getFunctionArgsAndParams(rest)
               return simulateContract(publicClient, {
-                abi: abi as Abi,
+                abi,
                 address,
                 functionName,
                 args,
@@ -327,14 +328,37 @@ export function getContract<
                 >,
               ]
             ) => {
-              const { args, params } = getEventArgsAndParams(rest)
+              const abiEvent = (abi as readonly AbiEvent[]).find(
+                (x: AbiEvent) => x.type === 'event' && x.name === eventName,
+              )
+              const { args, params } = getEventArgsAndParams(rest, abiEvent!)
               return createContractEventFilter(publicClient, {
-                abi: abi as Abi,
+                abi,
                 address,
                 eventName,
                 args,
                 ...params,
               } as CreateContractEventFilterParameters)
+            }
+          },
+        },
+      )
+      contract.watchEvent = new Proxy(
+        {},
+        {
+          get(_, eventName: string) {
+            return (
+              params: Omit<
+                WatchContractEventParameters,
+                'abi' | 'address' | 'eventName'
+              >,
+            ) => {
+              return watchContractEvent(publicClient, {
+                abi,
+                address,
+                eventName,
+                ...params,
+              } as WatchContractEventParameters)
             }
           },
         },
@@ -359,7 +383,7 @@ export function getContract<
             ) => {
               const { args, params } = getFunctionArgsAndParams(rest)
               return writeContract(walletClient, {
-                abi: abi as Abi,
+                abi,
                 address,
                 functionName,
                 args,
@@ -392,8 +416,28 @@ function getFunctionArgsAndParams(
   return { args, params }
 }
 
-function getEventArgsAndParams(rest: [args?: object, params?: object]) {
-  const hasArgs = rest.length && Array.isArray(rest[0])
+/**
+ * @internal exporting for testing only
+ */
+export function getEventArgsAndParams(
+  rest: [args?: object | unknown[], params?: object],
+  abiEvent: AbiEvent,
+) {
+  let hasArgs = false
+  // If first item is array, must be `args`
+  if (Array.isArray(rest[0])) hasArgs = true
+  // Check if only item is `args` or `params`
+  else if (rest.length === 1) {
+    // check params against abi
+    // this won't work if the event has inputs with the same names as `params`
+    hasArgs = abiEvent.inputs.some(
+      (input) => input.name && input.name in rest[0]!,
+    )
+    // If there are two items in array, must have `args`
+  } else if (rest.length === 2) {
+    hasArgs = true
+  }
+
   const args = hasArgs ? rest[0]! : undefined
   const params = (hasArgs ? rest[1] : rest[0]) ?? {}
   return { args, params }
@@ -503,21 +547,10 @@ type GetWatchEvent<
     'abi' | 'address' | 'eventName'
   >,
 > = IsInferrableAbi<TAbi> extends true
-  ? _Parameters extends { args?: object }
-    ? (
-        /** Arguments to pass event */
-        args?: _Parameters['args'],
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => WatchContractEventReturnType
-    : (
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => WatchContractEventReturnType
+  ? (params?: _Parameters) => WatchContractEventReturnType
   : (
       /**
-       * Arguments to pass event
-       *
        * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on `getContract` `abi` for type inference.
        */
-      args?: object | undefined,
-      params?: Prettify<Omit<_Parameters, 'args'>>,
+      params?: _Parameters,
     ) => WatchContractEventReturnType

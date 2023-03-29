@@ -11,7 +11,6 @@
   --vp-c-text-light-1: var(--vp-c-black-soft);
   --vp-c-yellow: #e0a800;
   
-  
   --vp-button-brand-bg: #ffc517;
   --vp-button-brand-text: var(--vp-c-black);
   --vp-button-brand-hover-text: var(--vp-c-black);
@@ -61,4 +60,70 @@
 
 .main h4 {
   margin-top: 32px;
+}
+
+.vp-doc [class*="language-"] pre {
+  z-index: unset;
+}
+
+/**
+ * VitePress Twoslash
+ * -------------------------------------------------------------------------- */
+
+/* Dark/light theme */
+:root:not(.dark) {
+  --vp-code-block-bg: rgba(125,125,125,0.04);
+  --vp-code-copy-code-active-text: var(--vp-c-text-2);
+  --vp-code-copy-code-hover-bg: rgba(125,125,125,0.1);
+  --vp-code-tab-divider: var(--vp-c-mute-dark);
+  --vp-code-tab-hover-text-color: var(--vp-c-text-1);
+  /* fix contrast: lang name on gray code block */
+  --vp-c-text-dark-3: rgba(180, 180, 180, 0.7);
+}
+:root.dark {
+  --vp-code-block-bg: rgba(0,0,0,0.2);
+  /* fix lang name: check the same above (this is the default) */
+  --vp-c-text-dark-3: rgba(235, 235, 235, 0.38);
+}
+
+/* Hide block based on theme */
+html:not(.dark) pre.shiki[class*="dark"] {
+  display: none;
+}
+html:not(.dark) pre.shiki[class*="light"] {
+  display: block;
+}
+html.dark pre.shiki[class*="dark"] {
+    display: block;
+}
+html.dark pre.shiki[class*="light"] {
+  display: none;
+}
+
+/* VitePress Twoslash */
+:root {
+  --vp-twoslash-c-annotation-fg: var(--vp-c-text-1);
+
+  --vp-twoslash-c-brand: var(--vp-c-brand);
+
+  --vp-twoslash-c-error-bg: var(--vp-c-red-dimm-2);
+  --vp-twoslash-c-error-fg: var(--vp-c-text-1);
+
+  --vp-twoslash-c-logger-error-bg: var(--vp-c-red-dimm-2);
+  --vp-twoslash-c-logger-error-fg: var(--vp-c-red-dark);
+  --vp-twoslash-c-logger-fg: var(--vp-c-text-1);
+  --vp-twoslash-c-logger-log-bg: var(--vp-c-mute-dark);
+  --vp-twoslash-c-logger-log-fg: var(--vp-c-gray);
+  --vp-twoslash-c-logger-warn-bg: var(--vp-c-yellow-dimm-2);
+  --vp-twoslash-c-logger-warn-fg: var(--vp-c-yellow-dark);
+
+  --vp-twoslash-c-lsp-bg: var(--vp-c-bg-elv);
+  --vp-twoslash-c-lsp-border: var(--vp-c-divider);
+  --vp-twoslash-c-lsp-fg: var(--vp-c-text-1);
+  --vp-twoslash-c-lsp-underline: var(--vp-c-text-2);
+  --vp-twoslash-lsp-shadow: var(--vp-shadow-2);
+
+  --vp-twoslash-c-query-bg: var(--vp-c-mute-dark);
+  --vp-twoslash-c-query-fg-2: var(--vp-c-text-2);
+  --vp-twoslash-c-query-fg: var(--vp-c-text-1);
 }

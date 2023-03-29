@@ -15,3 +15,5 @@ head:
 # getContract
 
 Gets type-safe contract instance.
+
+twoslash (styles)

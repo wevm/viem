@@ -1,3 +1,4 @@
+import type { AbiEvent } from 'abitype'
 import { expect, test } from 'vitest'
 
 import {
@@ -6,11 +7,7 @@ import {
   walletClient,
   accounts,
 } from '../_test'
-import { getContract } from './getContract'
-
-// TODO
-// - runtime `createEventFilter` and `watchEvent` methods
-// - docs, twoslash
+import { getContract, getEventArgsAndParams } from './getContract'
 
 const contract = getContract({
   ...wagmiContractConfig,
@@ -23,6 +20,17 @@ test('createEventFilter', async () => {
     contract.createEventFilter.Transfer({
       from: accounts[0].address,
     }),
+  ).resolves.toBeDefined()
+
+  await expect(
+    contract.createEventFilter.Transfer(
+      {
+        from: accounts[0].address,
+      },
+      {
+        fromBlock: 10_000n,
+      },
+    ),
   ).resolves.toBeDefined()
 
   const contractNoIndexedEventArgs = getContract({
@@ -48,9 +56,9 @@ test('createEventFilter', async () => {
     publicClient,
   })
   await expect(
-    contractNoIndexedEventArgs.createEventFilter.Transfer({
-      from: accounts[0].address,
-    }),
+    contractNoIndexedEventArgs.createEventFilter.Transfer([
+      accounts[0].address,
+    ]),
   ).resolves.toBeDefined()
 })
 
@@ -116,7 +124,12 @@ test('simulate', async () => {
   `)
 })
 
-test.todo('watchEvent')
+test('watchEvent', async () => {
+  const unwatch = contract.watchEvent.Transfer({
+    onLogs: () => {},
+  })
+  unwatch()
+})
 
 test('write', async () => {
   await expect(
@@ -126,4 +139,114 @@ test('write', async () => {
   ).resolves.toBeDefined()
 })
 
-test.todo('js reserved keywords/prototype methods as abi item names')
+test('js reserved keywords/prototype methods as abi item names', async () => {
+  const contractNoIndexedEventArgs = getContract({
+    ...wagmiContractConfig,
+    abi: [
+      {
+        name: 'constructor',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [],
+        outputs: [{ type: 'address' }],
+      },
+      {
+        name: 'function',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [{ type: 'string', name: 'function' }],
+        outputs: [{ type: 'address' }],
+      },
+    ],
+    publicClient,
+  })
+  await expect(
+    contractNoIndexedEventArgs.read.constructor(),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "The contract function \\"constructor\\" reverted with the following reason:
+    execution reverted
+
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  constructor()
+
+    Docs: https://viem.sh/docs/contract/readContract.html
+    Version: viem@1.0.2"
+  `)
+  await expect(
+    contractNoIndexedEventArgs.read.function(['function']),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "The contract function \\"function\\" reverted with the following reason:
+    execution reverted
+
+    Contract Call:
+      address:   0x0000000000000000000000000000000000000000
+      function:  function(string function)
+      args:              (function)
+
+    Docs: https://viem.sh/docs/contract/readContract.html
+    Version: viem@1.0.2"
+  `)
+})
+
+test.each([
+  // without params
+  {
+    values: [['0x']],
+    abiEvent: { inputs: [{ type: 'address' }] },
+    expected: {
+      args: ['0x'],
+      params: {},
+    },
+  },
+  {
+    values: [{ from: '0x' }],
+    abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
+    expected: {
+      args: { from: '0x' },
+      params: {},
+    },
+  },
+  // with params
+  {
+    values: [['0x'], { fromBlock: 10_000n }],
+    abiEvent: { inputs: [{ type: 'address' }] },
+    expected: {
+      args: ['0x'],
+      params: { fromBlock: 10_000n },
+    },
+  },
+  {
+    values: [{ from: '0x' }, { fromBlock: 10_000n }],
+    abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
+    expected: {
+      args: { from: '0x' },
+      params: { fromBlock: 10_000n },
+    },
+  },
+  // only params
+  {
+    values: [{ fromBlock: 10_000n }],
+    abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
+    expected: {
+      args: undefined,
+      params: { fromBlock: 10_000n },
+    },
+  },
+  // no args
+  {
+    values: [],
+    abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
+    expected: {
+      args: undefined,
+      params: {},
+    },
+  },
+])(
+  'getEventArgsAndParams($values, $abiEvent) -> $expected',
+  async ({ values, abiEvent, expected }) => {
+    expect(
+      getEventArgsAndParams(values as any, abiEvent as unknown as AbiEvent),
+    ).toEqual(expected)
+  },
+)

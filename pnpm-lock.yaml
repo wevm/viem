@@ -343,7 +343,6 @@ importers:
       autoprefixer: ^10.4.13
       postcss: ^8.4.19
       tailwindcss: ^3.2.4
-      viem: workspace:*
       vitepress: 1.0.0-alpha.61
       vitepress-plugin-shiki-twoslash: ^0.0.4
       vue: ^3.2.45
@@ -351,7 +350,6 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.19
       postcss: 8.4.19
       tailwindcss: 3.2.4_postcss@8.4.19
-      viem: link:..
       vitepress: 1.0.0-alpha.61_bwgf4tbd2mw4gh6hee525znk3q
       vitepress-plugin-shiki-twoslash: 0.0.4_vitepress@1.0.0-alpha.61
       vue: 3.2.45

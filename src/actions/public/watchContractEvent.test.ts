@@ -46,7 +46,7 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+    const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
     const unwatch = watchContractEvent(publicClient, {
       abi: usdcContractConfig.abi,
@@ -115,7 +115,7 @@ test(
 )
 
 test('args: batch', async () => {
-  let logs: OnLogsParameter[] = []
+  const logs: OnLogsParameter[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -153,7 +153,7 @@ test('args: batch', async () => {
 })
 
 test('args: eventName', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -209,7 +209,7 @@ test('args: eventName', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -255,7 +255,7 @@ test('args: args', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -307,7 +307,7 @@ test('args: args', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -373,7 +373,7 @@ test('args: args unnamed', async () => {
       ],
     },
   ] as const
-  let logs: OnLogsParameter<typeof unnamedAbi>[] = []
+  const logs: OnLogsParameter<typeof unnamedAbi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -436,7 +436,7 @@ describe('`getLogs` fallback', () => {
         'createContractEventFilter',
       ).mockRejectedValueOnce(new Error('foo'))
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchContractEvent(publicClient, {
         abi: usdcContractConfig.abi,
@@ -488,7 +488,7 @@ describe('`getLogs` fallback', () => {
         'createContractEventFilter',
       ).mockRejectedValueOnce(new Error('foo'))
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchContractEvent(publicClient, {
         abi: usdcContractConfig.abi,

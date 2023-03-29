@@ -11,7 +11,6 @@
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.19",
     "tailwindcss": "^3.2.4",
-    "viem": "workspace:*",
     "vitepress": "1.0.0-alpha.61",
     "vitepress-plugin-shiki-twoslash": "^0.0.4",
     "vue": "^3.2.45"
