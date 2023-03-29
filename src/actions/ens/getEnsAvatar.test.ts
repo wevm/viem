@@ -12,7 +12,9 @@ test('gets avatar for address', async () => {
       name: 'kesar.eth',
       universalResolverAddress: '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41',
     }),
-  ).resolves.toMatchInlineSnapshot('"https://pbs.twimg.com/profile_images/1576892738389393408/Cu7lPQcl_400x400.jpg"')
+  ).resolves.toMatchInlineSnapshot(
+    '"https://pbs.twimg.com/profile_images/1576892738389393408/Cu7lPQcl_400x400.jpg"',
+  )
 })
 
 test('address with no avatar', async () => {

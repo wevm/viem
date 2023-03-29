@@ -5,7 +5,12 @@ import {
   ContractFunctionRevertedError,
 } from '../../errors'
 import type { Address, Prettify } from '../../types'
-import { decodeFunctionResult, encodeFunctionData, getChainContractAddress, toHex } from '../../utils'
+import {
+  decodeFunctionResult,
+  encodeFunctionData,
+  getChainContractAddress,
+  toHex,
+} from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
 
@@ -62,10 +67,11 @@ export async function getEnsAvatar(
           name: 'text',
           type: 'function',
           stateMutability: 'view',
-          inputs: [{ type: 'bytes32', name: 'node' }, { type: 'string', name: 'key' }],
-          outputs: [
-            { name: '', type: 'string' }
+          inputs: [
+            { type: 'bytes32', name: 'node' },
+            { type: 'string', name: 'key' },
           ],
+          outputs: [{ name: '', type: 'string' }],
         },
       ],
       functionName: 'text',
