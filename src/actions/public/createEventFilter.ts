@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, Narrow } from 'abitype'
 import type { PublicClient, Transport } from '../../clients'
 
 import type {
@@ -10,6 +10,7 @@ import type {
   LogTopic,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
+  Prettify,
 } from '../../types'
 import {
   encodeEventTopics,
@@ -37,11 +38,11 @@ export type CreateEventFilterParameters<
           args:
             | TEventFilterArgs
             | (TArgs extends TEventFilterArgs ? TArgs : never)
-          event: TAbiEvent
+          event: Narrow<TAbiEvent>
         }
       | {
           args?: never
-          event?: TAbiEvent
+          event?: Narrow<TAbiEvent>
         }
       | {
           args?: never
@@ -59,7 +60,7 @@ export type CreateEventFilterReturnType<
   TArgs extends
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
-> = Filter<'event', TAbi, TEventName, TArgs>
+> = Prettify<Filter<'event', TAbi, TEventName, TArgs>>
 
 export async function createEventFilter<
   TChain extends Chain | undefined,
@@ -88,7 +89,7 @@ export async function createEventFilter<
   if (event)
     topics = encodeEventTopics({
       abi: [event],
-      eventName: event.name,
+      eventName: (event as AbiEvent).name,
       args,
     } as EncodeEventTopicsParameters)
 
@@ -107,7 +108,7 @@ export async function createEventFilter<
   return {
     abi: event ? [event] : undefined,
     args,
-    eventName: event ? event.name : undefined,
+    eventName: event ? (event as AbiEvent).name : undefined,
     id,
     type: 'event',
   } as unknown as CreateEventFilterReturnType<

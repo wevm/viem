@@ -19,7 +19,7 @@ import type {
 } from 'abitype'
 import type { Hex, LogTopic } from './misc'
 import type { TransactionRequest } from './transaction'
-import type { MaybeExcludeEmpty, MaybeRequired, Prettify } from './utils'
+import type { Filter, MaybeRequired } from './utils'
 
 export type AbiItem = Abi[number]
 
@@ -56,16 +56,6 @@ export type ContractFunctionResult<
   ? Arg
   : TArgs
 
-// TODO
-export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
-  TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
-
-// TODO
-export type MaybeExtractEventArgsFromAbi<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = undefined,
-> = TEventName extends string ? GetEventArgs<TAbi, TEventName> : undefined
-
 export type GetValue<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
@@ -78,6 +68,14 @@ export type GetValue<
   : TAbiFunction['payable'] extends true
   ? TValueType
   : never
+
+export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
+  TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
+
+export type MaybeExtractEventArgsFromAbi<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = undefined,
+> = TEventName extends string ? GetEventArgs<TAbi, TEventName> : undefined
 
 //////////////////////////////////////////////////////////////////////
 // ABI item name
@@ -242,9 +240,7 @@ export type GetEventArgsFromTopics<
   ? TData extends undefined
     ? { args?: never }
     : { args?: TArgs }
-  : {
-      args?: TArgs
-    }
+  : { args?: TArgs }
 
 //////////////////////////////////////////////////////////////////////
 // ABI event types
@@ -254,8 +250,17 @@ type EventParametersConfig = {
   IndexedOnly: boolean
   Required: boolean
 }
-
 type EventParametersDefaultConfig = {
+  EnableUnion: true
+  IndexedOnly: true
+  Required: false
+}
+type EventParameterOptions = {
+  EnableUnion?: boolean
+  IndexedOnly?: boolean
+  Required?: boolean
+}
+type DefaultEventParameterOptions = {
   EnableUnion: true
   IndexedOnly: true
   Required: false
@@ -263,26 +268,41 @@ type EventParametersDefaultConfig = {
 
 type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
 
+// TODO: Speed up by returning immediately as soon as named parameter is found.
+type _HasUnnamedAbiParameter<TAbiParameters extends readonly AbiParameter[]> =
+  TAbiParameters extends readonly [
+    infer Head extends AbiParameter,
+    ...infer Tail extends readonly AbiParameter[],
+  ]
+    ? Head extends { name: string }
+      ? Head['name'] extends ''
+        ? true
+        : _HasUnnamedAbiParameter<Tail>
+      : true
+    : false
+
 /**
  * @internal
  */
-export type DistributeLogTopicType<
+export type LogTopicType<
   TPrimitiveType = Hex,
   TTopic extends LogTopic = LogTopic,
-> =
-  | (TTopic extends Hex ? TPrimitiveType : never)
-  | (TTopic extends Hex[] ? TPrimitiveType[] : never)
-  | (TTopic extends null ? null : never)
+> = TTopic extends Hex
+  ? TPrimitiveType
+  : TTopic extends Hex[]
+  ? TPrimitiveType[]
+  : TTopic extends null
+  ? null
+  : never
 
 /**
  * @internal
  */
 export type AbiEventParameterToPrimitiveType<
   TAbiParameter extends AbiParameter,
-  TConfig extends EventParametersConfig = EventParametersDefaultConfig,
-> = TConfig['EnableUnion'] extends true
-  ? DistributeLogTopicType<AbiParameterToPrimitiveType<TAbiParameter>>
-  : AbiParameterToPrimitiveType<TAbiParameter>
+  Options extends EventParameterOptions = DefaultEventParameterOptions,
+  _Type = AbiParameterToPrimitiveType<TAbiParameter>,
+> = Options['EnableUnion'] extends true ? LogTopicType<_Type> : _Type
 
 /**
  * @internal
@@ -293,133 +313,122 @@ export type AbiEventTopicToPrimitiveType<
   TPrimitiveType = TAbiParameter['type'] extends HashedEventTypes
     ? TTopic
     : AbiParameterToPrimitiveType<TAbiParameter>,
-> = DistributeLogTopicType<TPrimitiveType, TTopic>
+> = LogTopicType<TPrimitiveType, TTopic>
 
-// TODO
 export type AbiEventParametersToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
-  TConfig extends EventParametersConfig = EventParametersDefaultConfig,
+  Options extends EventParameterOptions = DefaultEventParameterOptions,
+  // Remove non-indexed parameters based on `Options['IndexedOnly']`
+> = TAbiParameters extends readonly []
+  ? readonly []
+  : Filter<
+      TAbiParameters,
+      Options['IndexedOnly'] extends true ? { indexed: true } : object
+    > extends infer Filtered extends readonly AbiParameter[]
+  ? _HasUnnamedAbiParameter<Filtered> extends true
+    ? // Has unnamed tuple parameters so return as array
+        | readonly [
+            ...{
+              [K in keyof Filtered]: AbiEventParameterToPrimitiveType<
+                Filtered[K],
+                Options
+              >
+            },
+          ]
+        | (Options['Required'] extends true
+            ? never
+            : // Distribute over tuple to represent optional parameters
+            Filtered extends readonly [
+                ...infer Head extends readonly AbiParameter[],
+                infer _,
+              ]
+            ? AbiEventParametersToPrimitiveTypes<
+                readonly [...{ [K in keyof Head]: Omit<Head[K], 'name'> }],
+                Options
+              >
+            : never)
+    : // All tuple parameters are named so return as object
+    {
+        [Parameter in
+          Filtered[number] as Parameter extends {
+            name: infer Name extends string
+          }
+            ? Name
+            : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
+      } extends infer Mapped
+    ? MaybeRequired<
+        Mapped,
+        Options['Required'] extends boolean ? Options['Required'] : false
+      >
+    : never
+  : never
+
+/**
+ * @internal
+ */
+// TODO(@tmm): Simplify this type
+export type AbiEventTopicsToPrimitiveTypes<
+  TAbiParameters extends readonly AbiParameter[],
+  TTopics extends LogTopic[] | undefined = undefined,
+  TData extends Hex | undefined = undefined,
   TBase = TAbiParameters[0] extends { name: string } ? {} : [],
-> = Prettify<
-  TAbiParameters extends readonly [infer Head, ...infer Tail]
+> = TAbiParameters extends readonly [
+  infer Head extends AbiParameter,
+  ...infer Tail,
+]
+  ? TTopics extends readonly [infer TopicHead, ...infer TopicTail]
     ? Head extends { indexed: true }
+      ? Head extends { name: infer Name extends string }
+        ? {
+            [_ in Name]: TopicHead extends LogTopic
+              ? AbiEventTopicToPrimitiveType<Head, TopicHead>
+              : never
+          } & (Tail extends readonly []
+            ? {}
+            : Tail extends readonly AbiParameter[]
+            ? TopicTail extends LogTopic[]
+              ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
+              : {}
+            : {})
+        : [
+            TopicHead extends LogTopic
+              ? AbiEventTopicToPrimitiveType<Head, TopicHead>
+              : never,
+            ...(Tail extends readonly []
+              ? []
+              : Tail extends readonly AbiParameter[]
+              ? TopicTail extends LogTopic[]
+                ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
+                : []
+              : []),
+          ]
+      : TBase
+    : TTopics extends readonly []
+    ? TData extends '0x'
+      ? TBase
+      : TData extends Hex
       ? Head extends AbiParameter
-        ? Head extends { name: infer Name extends string }
-          ? MaybeRequired<
-              { [_ in Name]?: AbiEventParameterToPrimitiveType<Head, TConfig> },
-              TConfig['Required']
-            > &
-              (Tail extends readonly []
-                ? {}
-                : Tail extends readonly AbiParameter[]
-                ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
-                : {})
-          : MaybeExcludeEmpty<
-              | (TConfig['EnableUnion'] extends true
-                  ? [AbiEventParameterToPrimitiveType<Head, TConfig>]
-                  : [])
-              | [
-                  AbiEventParameterToPrimitiveType<Head, TConfig>,
-                  ...(Tail extends readonly []
-                    ? []
-                    : Tail extends readonly AbiParameter[]
-                    ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
-                    : []),
-                ],
-              TConfig['Required']
-            >
-        : TBase
-      : TConfig['IndexedOnly'] extends false
-      ? Head extends AbiParameter
-        ? Head extends { name: infer Name extends string }
+        ? Head extends { indexed: true }
+          ? Tail extends readonly AbiParameter[]
+            ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+            : TBase
+          : Head extends { name: infer Name extends string }
           ? {
               [_ in Name]: AbiParameterToPrimitiveType<Head>
             } & (Tail extends readonly []
               ? {}
               : Tail extends readonly AbiParameter[]
-              ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
+              ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
               : {})
           : [
               AbiParameterToPrimitiveType<Head>,
               ...(Tail extends readonly []
                 ? []
                 : Tail extends readonly AbiParameter[]
-                ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
+                ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
                 : []),
             ]
         : TBase
-      : Tail extends readonly []
-      ? TBase
-      : Tail extends readonly AbiParameter[]
-      ? AbiEventParametersToPrimitiveTypes<Tail, TConfig>
       : TBase
     : TBase
->
-
-// TODO
-type AbiEventTopicsToPrimitiveTypes<
-  TAbiParameters extends readonly AbiParameter[],
-  TTopics extends LogTopic[] | undefined = undefined,
-  TData extends Hex | undefined = undefined,
-  TBase = TAbiParameters[0] extends { name: string } ? {} : [],
-> = Prettify<
-  TAbiParameters extends readonly [infer Head, ...infer Tail]
-    ? TTopics extends readonly [infer TopicHead, ...infer TopicTail]
-      ? Head extends { indexed: true }
-        ? Head extends AbiParameter
-          ? Head extends { name: infer Name extends string }
-            ? {
-                [_ in Name]: TopicHead extends LogTopic
-                  ? AbiEventTopicToPrimitiveType<Head, TopicHead>
-                  : never
-              } & (Tail extends readonly []
-                ? {}
-                : Tail extends readonly AbiParameter[]
-                ? TopicTail extends LogTopic[]
-                  ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
-                  : {}
-                : {})
-            : [
-                TopicHead extends LogTopic
-                  ? AbiEventTopicToPrimitiveType<Head, TopicHead>
-                  : never,
-                ...(Tail extends readonly []
-                  ? []
-                  : Tail extends readonly AbiParameter[]
-                  ? TopicTail extends LogTopic[]
-                    ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
-                    : []
-                  : []),
-              ]
-          : TBase
-        : TBase
-      : TTopics extends readonly []
-      ? TData extends '0x'
-        ? TBase
-        : TData extends Hex
-        ? Head extends AbiParameter
-          ? Head extends { indexed: true }
-            ? Tail extends readonly AbiParameter[]
-              ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
-              : TBase
-            : Head extends { name: infer Name extends string }
-            ? {
-                [_ in Name]: AbiParameterToPrimitiveType<Head>
-              } & (Tail extends readonly []
-                ? {}
-                : Tail extends readonly AbiParameter[]
-                ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
-                : {})
-            : [
-                AbiParameterToPrimitiveType<Head>,
-                ...(Tail extends readonly []
-                  ? []
-                  : Tail extends readonly AbiParameter[]
-                  ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
-                  : []),
-              ]
-          : TBase
-        : TBase
-      : TBase
-    : undefined
->
+  : undefined

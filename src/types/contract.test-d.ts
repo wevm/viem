@@ -15,9 +15,10 @@ import type {
   InferItemName,
   GetEventArgs,
   GetEventArgsFromTopics,
-  DistributeLogTopicType,
+  LogTopicType,
   AbiEventTopicToPrimitiveType,
   AbiEventParameterToPrimitiveType,
+  AbiEventParametersToPrimitiveTypes,
 } from './contract'
 import type { Hex } from './misc'
 
@@ -81,7 +82,6 @@ test('GetErrorArgs', () => {
 })
 
 test('GetEventArgs', () => {
-  // rome-ignore lint/correctness/noUnusedVariables: <explanation>
   type Result = GetEventArgs<
     [
       {
@@ -108,10 +108,10 @@ test('GetEventArgs', () => {
     ],
     'Transfer'
   >
-  // expectTypeOf<Result>().toEqualTypeOf<{
-  //   offerer?: `0x${string}` | `0x${string}`[] | null | undefined
-  //   zone?: `0x${string}` | `0x${string}`[] | null | undefined
-  // }>()
+  expectTypeOf<Result>().toEqualTypeOf<{
+    from?: `0x${string}` | `0x${string}`[] | null | undefined
+    to?: `0x${string}` | `0x${string}`[] | null | undefined
+  }>()
 })
 
 test('GetEventArgsFromTopics', () => {
@@ -336,16 +336,26 @@ test('InferItemName', () => {
 
 // -----------------------------------------------------------------------------------------------
 
-test('DistributeLogTopicType', () => {
-  expectTypeOf<DistributeLogTopicType<string, Hex>>().toEqualTypeOf<string>()
-  expectTypeOf<DistributeLogTopicType<string, Hex[]>>().toEqualTypeOf<
-    string[]
-  >()
-  expectTypeOf<DistributeLogTopicType<string, null>>().toEqualTypeOf<null>()
+test('LogTopicType', () => {
+  expectTypeOf<LogTopicType<string, Hex>>().toEqualTypeOf<string>()
+  expectTypeOf<LogTopicType<string, Hex[]>>().toEqualTypeOf<string[]>()
+  expectTypeOf<LogTopicType<string, null>>().toEqualTypeOf<null>()
 
-  expectTypeOf<DistributeLogTopicType<string, Hex | null>>().toEqualTypeOf<
+  expectTypeOf<LogTopicType<string, Hex | null>>().toEqualTypeOf<
     string | null
   >()
+})
+
+test('AbiEventParameterToPrimitiveType', () => {
+  expectTypeOf<
+    AbiEventParameterToPrimitiveType<{ name: 'foo'; type: 'string' }>
+  >().toEqualTypeOf<string | string[] | null>()
+  expectTypeOf<
+    AbiEventParameterToPrimitiveType<
+      { name: 'foo'; type: 'string' },
+      { EnableUnion: false }
+    >
+  >().toEqualTypeOf<string>()
 })
 
 test('AbiEventTopicToPrimitiveType', () => {
@@ -371,24 +381,162 @@ test('AbiEventTopicToPrimitiveType', () => {
   >().toEqualTypeOf<boolean[]>()
 })
 
-test('AbiEventParameterToPrimitiveType', () => {
+test('AbiEventParametersToPrimitiveTypes', () => {
+  // named parameters
   expectTypeOf<
-    AbiEventParameterToPrimitiveType<{ name: 'foo'; type: 'string' }>
-  >().toEqualTypeOf<string | string[] | null>()
-  expectTypeOf<
-    AbiEventParameterToPrimitiveType<
-      { name: 'foo'; type: 'string' },
-      {
-        EnableUnion: false
-        IndexedOnly: true
-        Required: false
-      }
+    AbiEventParametersToPrimitiveTypes<
+      [{ name: 'foo'; type: 'string'; indexed: true }]
     >
-  >().toEqualTypeOf<string>()
+  >().toEqualTypeOf<{
+    foo?: string | string[] | null | undefined
+  }>()
+  expectTypeOf<
+    AbiEventParametersToPrimitiveTypes<
+      [
+        { name: 'foo'; type: 'string'; indexed: true },
+        { name: 'bar'; type: 'uint8'; indexed: true },
+        { name: 'baz'; type: 'address'; indexed: false },
+      ]
+    >
+  >().toEqualTypeOf<{
+    foo?: string | string[] | null | undefined
+    bar?: number | number[] | null | undefined
+  }>()
+
+  type Named_AllowNonIndexed = AbiEventParametersToPrimitiveTypes<
+    [
+      { name: 'foo'; type: 'string'; indexed: true },
+      { name: 'bar'; type: 'uint8'; indexed: true },
+      { name: 'baz'; type: 'address'; indexed: false },
+    ],
+    {
+      EnableUnion: true
+      IndexedOnly: false
+      Required: false
+    }
+  >
+  expectTypeOf<Named_AllowNonIndexed>().toEqualTypeOf<{
+    foo?: string | string[] | null | undefined
+    bar?: number | number[] | null | undefined
+    baz?: `0x${string}` | `0x${string}`[] | null | undefined
+  }>()
+  type Named_Required = AbiEventParametersToPrimitiveTypes<
+    [
+      { name: 'foo'; type: 'string'; indexed: true },
+      { name: 'bar'; type: 'uint8'; indexed: true },
+      { name: 'baz'; type: 'address'; indexed: false },
+    ],
+    {
+      EnableUnion: true
+      IndexedOnly: true
+      Required: true
+    }
+  >
+  expectTypeOf<Named_Required>().toEqualTypeOf<{
+    foo: string | string[] | null
+    bar: number | number[] | null
+  }>()
+  type Named_DisableUnion = AbiEventParametersToPrimitiveTypes<
+    [
+      { name: 'foo'; type: 'string'; indexed: true },
+      { name: 'bar'; type: 'uint8'; indexed: true },
+      { name: 'baz'; type: 'address'; indexed: false },
+    ],
+    {
+      EnableUnion: false
+      IndexedOnly: true
+      Required: false
+    }
+  >
+  expectTypeOf<Named_DisableUnion>().toEqualTypeOf<{
+    foo?: string
+    bar?: number
+  }>()
+
+  // unnamed parameters
+  expectTypeOf<
+    AbiEventParametersToPrimitiveTypes<
+      [
+        { type: 'string'; indexed: true },
+        { type: 'uint8'; indexed: true },
+        {
+          type: 'address'
+          indexed: false
+        },
+      ]
+    >
+  >().toEqualTypeOf<
+    | readonly []
+    | readonly [string | string[] | null]
+    | readonly [string | string[] | null, number | number[] | null]
+  >()
+
+  type Unnamed_AllowNonIndexed = AbiEventParametersToPrimitiveTypes<
+    [
+      { type: 'string'; indexed: true },
+      { type: 'uint8'; indexed: true },
+      { type: 'address'; indexed: false },
+    ],
+    {
+      EnableUnion: true
+      IndexedOnly: false
+      Required: false
+    }
+  >
+  expectTypeOf<Unnamed_AllowNonIndexed>().toEqualTypeOf<
+    | readonly []
+    | readonly [string | string[] | null]
+    | readonly [string | string[] | null, number | number[] | null]
+    | readonly [
+        string | string[] | null,
+        number | number[] | null,
+        `0x${string}` | `0x${string}`[] | null,
+      ]
+  >()
+  type Unnamed_Required = AbiEventParametersToPrimitiveTypes<
+    [
+      { type: 'string'; indexed: true },
+      { type: 'uint8'; indexed: true },
+      { type: 'address'; indexed: false },
+    ],
+    {
+      EnableUnion: true
+      IndexedOnly: true
+      Required: true
+    }
+  >
+  expectTypeOf<Unnamed_Required>().toEqualTypeOf<
+    readonly [string | string[] | null, number | number[] | null]
+  >()
+  type Unnamed_DisableUnion = AbiEventParametersToPrimitiveTypes<
+    [
+      { type: 'string'; indexed: true },
+      { type: 'uint8'; indexed: true },
+      { type: 'address'; indexed: false },
+    ],
+    {
+      EnableUnion: false
+      IndexedOnly: true
+      Required: false
+    }
+  >
+  expectTypeOf<Unnamed_DisableUnion>().toEqualTypeOf<
+    readonly [] | readonly [string] | readonly [string, number]
+  >()
+
+  // mixed parameters (named and unnamed)
+  expectTypeOf<
+    AbiEventParametersToPrimitiveTypes<
+      [
+        { type: 'string'; indexed: true },
+        { named: 'bar'; type: 'uint8'; indexed: true },
+      ]
+    >
+  >().toEqualTypeOf<
+    | readonly []
+    | readonly [string | string[] | null]
+    | readonly [string | string[] | null, number | number[] | null]
+  >()
 })
 
-test('AbiEventParametersToPrimitiveTypes', () => {
-  // type Result = AbiEventParametersToPrimitiveTypes<
-  //   [{ name: 'foo'; type: 'string'; indexed: true }]
-  // >
-})
+test.todo('AbiEventTopicsToPrimitiveTypes')
