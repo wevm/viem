@@ -1,6 +1,5 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
-import { Wallet } from 'ethers@6'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
   deployContract,
@@ -17,7 +16,6 @@ import {
   http,
   webSocket,
 } from '../clients'
-import { getAccount as getEthersAccount } from '../ethers'
 import type { Hex } from '../types'
 import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
@@ -93,18 +91,23 @@ const provider = {
   },
 }
 
-export const publicClient =
+export const httpClient = createPublicClient({
+  chain: anvilChain,
+  pollingInterval: 1_000,
+  transport: http(),
+})
+
+export const webSocketClient = createPublicClient({
+  chain: anvilChain,
+  pollingInterval: 1_000,
+  transport: webSocket(localWsUrl),
+})
+
+export const publicClient = (
   process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket'
-    ? createPublicClient({
-        chain: anvilChain,
-        pollingInterval: 1_000,
-        transport: webSocket(localWsUrl),
-      })
-    : createPublicClient({
-        chain: anvilChain,
-        pollingInterval: 1_000,
-        transport: http(),
-      })
+    ? webSocketClient
+    : httpClient
+) as typeof httpClient
 
 export const walletClient = createWalletClient({
   chain: anvilChain,
@@ -126,9 +129,6 @@ export const testClient = createTestClient({
   mode: 'anvil',
   transport: http(),
 })
-
-export const getLocalAccount = (privateKey: Hex) =>
-  getEthersAccount(new Wallet(privateKey))
 
 export function createHttpServer(
   handler: RequestListener,

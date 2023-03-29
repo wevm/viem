@@ -2,7 +2,6 @@ import { assertType, expectTypeOf, test } from 'vitest'
 import { seaportAbi } from 'abitype/test'
 
 import type { WriteContractParameters } from './writeContract'
-import { getAccount } from '../../utils'
 
 test('WriteContractParameters', () => {
   type Result = WriteContractParameters<typeof seaportAbi, 'cancel'>
@@ -23,7 +22,7 @@ test('WriteContractParameters', () => {
   const address = '0x' as const
   assertType<WriteContractParameters<typeof seaportAbi, 'cancel'>>({
     abi: seaportAbi,
-    account: getAccount(address),
+    account: address,
     address,
     functionName: 'cancel',
     // ^?

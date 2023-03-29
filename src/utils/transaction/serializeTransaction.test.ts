@@ -78,7 +78,7 @@ describe('eip1559', () => {
         {
           address: '0x0000000000000000000000000000000000000000',
           storageKeys: [
-            '0x1',
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
             '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
           ],
         },
@@ -86,7 +86,7 @@ describe('eip1559', () => {
     } satisfies TransactionSerializableEIP1559
     const serialized = serializeTransaction(args)
     expect(serialized).toEqual(
-      '0x02f86a0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f83af838940000000000000000000000000000000000000000e201a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+      '0x02f88b0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080f85bf859940000000000000000000000000000000000000000f842a00000000000000000000000000000000000000000000000000000000000000001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
@@ -156,13 +156,37 @@ describe('eip1559', () => {
           ...baseEip1559,
           accessList: [
             {
-              address: '0x0',
-              storageKeys: ['0x0'],
+              address:
+                '0x0000000000000000000000000000000000000000000000000000000000000001',
+              storageKeys: [
+                '0x0000000000000000000000000000000000000000000000000000000000000001',
+              ],
             },
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
-        "Address \\"0x0\\" is invalid.
+        "Address \\"0x0000000000000000000000000000000000000000000000000000000000000001\\" is invalid.
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid access list (invalid storage key)', () => {
+      expect(() =>
+        serializeTransaction({
+          ...baseEip1559,
+          accessList: [
+            {
+              address:
+                '0x0000000000000000000000000000000000000000000000000000000000000001',
+              storageKeys: [
+                '0x00000000000000000000000000000000000000000000000000000000000001',
+              ],
+            },
+          ],
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Size for storage key \\"0x00000000000000000000000000000000000000000000000000000000000001\\" is invalid. Expected 32 bytes. Got 31 bytes.
 
         Version: viem@1.0.2"
       `)
@@ -203,14 +227,16 @@ describe('eip2930', () => {
       accessList: [
         {
           address: '0x0000000000000000000000000000000000000000',
-          storageKeys: ['0x0'],
+          storageKeys: [
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+          ],
         },
       ],
       gasPrice: parseGwei('2'),
     } satisfies TransactionSerializableEIP2930
     const serialized = serializeTransaction(args)
     expect(serialized).toEqual(
-      '0x01e40180847735940080808080d8d7940000000000000000000000000000000000000000c100',
+      '0x01f8450180847735940080808080f838f7940000000000000000000000000000000000000000e1a00000000000000000000000000000000000000000000000000000000000000001',
     )
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
@@ -303,12 +329,34 @@ describe('eip2930', () => {
           accessList: [
             {
               address: '0x0',
-              storageKeys: ['0x0'],
+              storageKeys: [
+                '0x0000000000000000000000000000000000000000000000000000000000000001',
+              ],
             },
           ],
         }),
       ).toThrowErrorMatchingInlineSnapshot(`
         "Address \\"0x0\\" is invalid.
+
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('invalid access list (invalid storage key)', () => {
+      expect(() =>
+        serializeTransaction({
+          ...baseEip2930,
+          accessList: [
+            {
+              address: '0x0',
+              storageKeys: [
+                '0x0000000000000000000000000000000000000000000000000000000000001',
+              ],
+            },
+          ],
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Size for storage key \\"0x0000000000000000000000000000000000000000000000000000000000001\\" is invalid. Expected 32 bytes. Got 30 bytes.
 
         Version: viem@1.0.2"
       `)

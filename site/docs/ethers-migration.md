@@ -312,7 +312,7 @@ signer.sendTransaction({ ... })
 #### viem
 
 ```ts {4,7}
-import { createWalletClient, custom, getAccount } from 'viem'
+import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -344,15 +344,12 @@ wallet.sendTransaction({ ... })
 
 #### viem
 
-viem does not currently support client-side signing (it's coming shortly!) – until then, you can use an Ethers `Wallet`:
-
-```ts {6-9}
-import { Wallet } from 'ethers'
+```ts {6,9}
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { getAccount } from 'viem/ethers'
 
-const account = getAccount(new Wallet('0x...'))
+const account = privateKeyToAccount('0x...')
 
 const client = createWalletClient({
   account,
@@ -1701,4 +1698,58 @@ utils.toUtf8String(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108
 import { bytesToString } from 'viem'
 
 bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]))
+```
+
+## Transaction Utilities
+
+### serializeTransaction
+
+#### Ethers
+
+```ts
+import { utils } from 'ethers'
+
+const serialized = utils.serializeTransaction({
+  chainId: 1,
+  maxFeePerGas: utils.parseGwei('20'),
+  maxPriorityFeePerGas: utils.parseGwei('2'),
+  nonce: 69,
+  to: "0x1234512345123451234512345123451234512345",
+  type: 2,
+  value: utils.parseEther('0.01'),
+})
+```
+
+#### viem
+
+```ts
+import { serializeTransaction, parseEther, parseGwei } from 'viem'
+
+const serialized = serializeTransaction({
+  chainId: 1,
+  gas: 21001n,
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('2'),
+  nonce: 69,
+  to: "0x1234512345123451234512345123451234512345",
+  value: parseEther('0.01'),
+})
+```
+
+### parseTransaction
+
+#### Ethers
+
+```ts
+import { utils } from 'ethers'
+
+const transaction = utils.parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
+```
+
+#### Ethers
+
+```ts
+import { parseTransaction } from 'viem'
+
+const transaction = parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
 ```

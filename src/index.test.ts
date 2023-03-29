@@ -135,7 +135,6 @@ test('exports actions', () => {
       "fromHex": [Function],
       "fromRlp": [Function],
       "getAbiItem": [Function],
-      "getAccount": [Function],
       "getAddress": [Function],
       "getContractAddress": [Function],
       "getContractError": [Function],
@@ -241,6 +240,7 @@ test('exports actions', () => {
         "0x2": "eip1559",
       },
       "trim": [Function],
+      "validateTypedData": [Function],
       "verifyMessage": [Function],
       "webSocket": [Function],
       "weiUnits": {

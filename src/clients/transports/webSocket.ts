@@ -57,14 +57,10 @@ export function webSocket(
   url?: string,
   config: WebSocketTransportConfig = {},
 ): WebSocketTransport {
-  const {
-    key = 'webSocket',
-    name = 'WebSocket JSON-RPC',
-    retryDelay,
-    timeout = 10_000,
-  } = config
-  return ({ chain, retryCount: defaultRetryCount }) => {
-    const retryCount = config.retryCount ?? defaultRetryCount
+  const { key = 'webSocket', name = 'WebSocket JSON-RPC', retryDelay } = config
+  return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
+    const retryCount = config.retryCount ?? retryCount_
+    const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.webSocket?.[0]
     if (!url_) throw new UrlRequiredError()
     return createTransport(
@@ -102,7 +98,8 @@ export function webSocket(
                     resolve(data)
                     return
                   }
-                  onData(data)
+                  if (data.method !== 'eth_subscription') return
+                  onData(data.params)
                 },
                 onError: (error) => {
                   reject(error)

@@ -13,7 +13,7 @@ import {
 import { publicActions } from './public'
 
 test('default', async () => {
-  expect(publicActions(publicClient as any)).toMatchInlineSnapshot(`
+  expect(publicActions(publicClient)).toMatchInlineSnapshot(`
     {
       "call": [Function],
       "createBlockFilter": [Function],

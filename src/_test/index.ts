@@ -20,11 +20,11 @@ export {
   createHttpServer,
   deploy,
   deployBAYC,
-  getLocalAccount,
   publicClient,
   testClient,
   walletClient,
   signTransaction,
   walletClientWithAccount,
   walletClientWithoutChain,
+  webSocketClient,
 } from './utils'

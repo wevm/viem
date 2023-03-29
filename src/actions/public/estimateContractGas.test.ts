@@ -15,11 +15,12 @@ import {
   walletClient,
 } from '../../_test'
 import { baycContractConfig } from '../../_test/abis'
+import { privateKeyToAccount } from '../../accounts'
 import { encodeFunctionData } from '../../utils'
 import { mine } from '../test'
 import { sendTransaction } from '../wallet'
 
-import { deployErrorExample, getLocalAccount } from '../../_test/utils'
+import { deployErrorExample } from '../../_test/utils'
 import { errorsExampleABI } from '../../_test/generated'
 import { estimateContractGas } from './estimateContractGas'
 
@@ -207,7 +208,7 @@ describe(
       expect(
         await estimateContractGas(publicClient, {
           ...wagmiContractConfig,
-          account: getLocalAccount(accounts[0].privateKey),
+          account: privateKeyToAccount(accounts[0].privateKey),
           functionName: 'mint',
           args: [69420n],
         }),

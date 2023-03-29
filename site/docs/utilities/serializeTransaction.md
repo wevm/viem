@@ -17,11 +17,13 @@ head:
 Serializes a transaction object. Supports EIP-1559, EIP-2930, and Legacy transactions.
 
 ## Import
+
 ```ts
 import { serializeTransaction } from 'viem'
 ```
 
 ## Usage
+
 ```ts
 import { serializeTransaction } from 'viem'
 

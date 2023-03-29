@@ -7,6 +7,7 @@ import { encodeAbiParameters } from '../abi'
 import { concat } from '../data'
 import { toHex } from '../encoding'
 import { keccak256 } from '../hash'
+import { validateTypedData } from '../typedData'
 
 type MessageTypeProperty = {
   name: string
@@ -24,11 +25,12 @@ export function hashTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
-  domain,
+  domain: domain_,
   message,
   primaryType,
   types: types_,
 }: HashTypedDataParameters<TTypedData, TPrimaryType>): HashTypedDataReturnType {
+  const domain: TypedDataDomain = typeof domain_ === 'undefined' ? {} : domain_
   const types = {
     EIP712Domain: [
       domain?.name && { name: 'name', type: 'string' },
@@ -42,6 +44,15 @@ export function hashTypedData<
     ].filter(Boolean),
     ...(types_ as TTypedData),
   }
+
+  // Need to do a runtime validation check on addresses, byte ranges, integer ranges, etc
+  // as we can't statically check this with TypeScript.
+  validateTypedData({
+    domain,
+    message,
+    primaryType,
+    types,
+  } as TypedDataDefinition)
 
   let parts: Hex[] = ['0x1901']
   if (domain)

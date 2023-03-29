@@ -1,6 +1,7 @@
 import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
+  Account,
   Address,
   BlockTag,
   Chain,
@@ -9,7 +10,6 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account } from '../../types/account'
 import {
   assertRequest,
   extract,

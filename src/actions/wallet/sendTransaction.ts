@@ -14,6 +14,7 @@ import type {
   Hash,
   MergeIntersectionProperties,
   TransactionRequest,
+  TransactionSerializable,
 } from '../../types'
 import {
   assertRequest,
@@ -103,7 +104,7 @@ export async function sendTransaction<
       const signedRequest = (await account.signTransaction({
         chainId,
         ...request,
-      })) as Hash
+      } as TransactionSerializable)) as Hash
       return await client.request({
         method: 'eth_sendRawTransaction',
         params: [signedRequest],

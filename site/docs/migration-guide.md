@@ -89,3 +89,68 @@ await walletClient.sendTransaction({
 })
 ```
 
+### `getAccount` removed
+
+Removed the `getAccount` function.
+
+**For JSON-RPC Accounts, use the address itself.**
+
+You can now pass the address directly to the `account` option.
+
+```ts
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const address = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+
+const client = createWalletClient({
+  account: getAccount(address), // [!code --]
+  account: address, // [!code ++]
+  chain: mainnet,
+  transport: custom(window.ethereum)
+})
+```
+
+**For Local Accounts, use `toAccount`.**
+
+If you are using a custom signing implementation, you can use the `toAccount` function.
+
+```ts
+import { createWalletClient, http, getAccount } from 'viem' // [!code --]
+import { createWalletClient, http } from 'viem' // [!code ++]
+import { toAccount } from 'viem/accounts' // [!code ++]
+import { mainnet } from 'viem/chains'
+import { getAddress, signMessage, signTransaction } from './sign-utils' 
+
+const privateKey = '0x...' 
+const account = getAccount({ // [!code --]
+const account = toAccount({ // [!code ++]
+  address: getAddress(privateKey),
+  signMessage(message) {
+    return signMessage(message, privateKey)
+  },
+  signTransaction(transaction) {
+    return signTransaction(transaction, privateKey)
+  },
+  signTypedData(typedData) {
+    return signTypedData(typedData, privateKey)
+  }
+})
+
+const client = createWalletClient({
+  account,
+  chain: mainnet,
+  transport: http()
+})
+```
+
+### `data` renamed in `signMessage`
+
+Renamed the `data` parameter in `signMessage` to `message`.
+
+```ts
+walletClient.signMessage({
+  data: 'hello world', // [!code --]
+  message: 'hello world', // [!code ++]
+})
+```

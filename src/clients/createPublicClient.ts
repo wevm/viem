@@ -19,7 +19,7 @@ export type PublicClient<
   TIncludeActions extends boolean = true,
 > = Prettify<
   Client<TTransport, PublicRequests, TChain> &
-    (TIncludeActions extends true ? PublicActions<TChain> : unknown)
+    (TIncludeActions extends true ? PublicActions<TTransport, TChain> : unknown)
 >
 
 /**

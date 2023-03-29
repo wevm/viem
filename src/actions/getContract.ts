@@ -208,12 +208,12 @@ export function getContract<
 
   const contract: {
     [_ in
-        | 'createEventFilter'
-        | 'estimateGas'
-        | 'read'
-        | 'simulate'
-        | 'watchEvent'
-        | 'write']?: unknown
+      | 'createEventFilter'
+      | 'estimateGas'
+      | 'read'
+      | 'simulate'
+      | 'watchEvent'
+      | 'write']?: unknown
   } = {}
 
   let hasReadFunction = false

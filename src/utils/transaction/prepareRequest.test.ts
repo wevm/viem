@@ -11,7 +11,7 @@ import { parseEther, parseGwei } from '../../utils'
 import * as publicActions from '../../actions/public'
 
 import { defaultTip, prepareRequest } from './prepareRequest'
-import { getLocalAccount } from '../../_test/utils'
+import { privateKeyToAccount } from '../../accounts'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -43,7 +43,7 @@ describe('prepareRequest', () => {
       nonce: _nonce,
       ...rest
     } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -55,9 +55,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -77,7 +79,7 @@ describe('prepareRequest', () => {
     } as any)
 
     const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -85,9 +87,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -107,7 +111,7 @@ describe('prepareRequest', () => {
       nonce: _nonce,
       ...rest
     } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -115,9 +119,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -135,7 +141,7 @@ describe('prepareRequest', () => {
     const { maxFeePerGas: _maxFeePerGas, ...rest } = await prepareRequest(
       walletClient,
       {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         nonce: 5,
         value: parseEther('1'),
@@ -145,9 +151,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -166,7 +174,7 @@ describe('prepareRequest', () => {
     vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({} as any)
 
     const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
       value: parseEther('1'),
@@ -175,9 +183,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -194,7 +204,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
         value: parseEther('1'),
@@ -210,7 +220,7 @@ describe('prepareRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       value: parseEther('1'),
@@ -219,9 +229,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -239,7 +251,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('1'),
         value: parseEther('1'),
@@ -260,7 +272,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('10'),
         value: parseEther('1'),
@@ -276,7 +288,7 @@ describe('prepareRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
@@ -285,9 +297,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -309,7 +323,7 @@ describe('prepareRequest', () => {
 
     await expect(() =>
       prepareRequest(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('5'),
         value: parseEther('1'),
@@ -325,7 +339,7 @@ describe('prepareRequest', () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       maxPriorityFeePerGas: parseGwei('5'),
@@ -335,9 +349,11 @@ describe('prepareRequest', () => {
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
           "signMessage": [Function],
           "signTransaction": [Function],
           "signTypedData": [Function],
+          "source": "privateKey",
           "type": "local",
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
