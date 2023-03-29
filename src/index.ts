@@ -259,6 +259,8 @@ export type {
   LocalAccount,
   Log,
   MulticallContracts,
+  MulticallResult,
+  MulticallResults,
   ParseAccount,
   RpcBlock,
   RpcBlockIdentifier,

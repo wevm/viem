@@ -59,7 +59,11 @@ export type { Log } from './log'
 
 export type { ByteArray, Hex, Hash, LogTopic, Signature } from './misc'
 
-export type { MulticallContracts } from './multicall'
+export type {
+  MulticallContracts,
+  MulticallResult,
+  MulticallResults,
+} from './multicall'
 
 export type {
   Index,
