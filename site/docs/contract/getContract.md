@@ -14,4 +14,4 @@ head:
 
 # getContract
 
-Returns type-safe contract instance.
+Gets type-safe contract instance.

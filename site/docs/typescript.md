@@ -84,6 +84,14 @@ The following actions and utilities support type inference when you add a const 
 For example, `readContract`:
 
 ```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+---cut---
 const result = client.readContract({
   //  ^? const data: bigint | undefined
   address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',

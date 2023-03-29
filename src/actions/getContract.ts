@@ -179,6 +179,9 @@ export type GetContractReturnType<
       : unknown)
 >
 
+/**
+ * Gets type-safe contract instance.
+ */
 export function getContract<
   TTransport extends Transport,
   TAbi extends Abi | readonly unknown[],
