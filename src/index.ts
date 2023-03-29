@@ -258,6 +258,7 @@ export type {
   JsonRpcAccount,
   LocalAccount,
   Log,
+  MulticallContracts,
   ParseAccount,
   RpcBlock,
   RpcBlockIdentifier,
