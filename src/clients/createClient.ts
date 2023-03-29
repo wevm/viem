@@ -62,7 +62,7 @@ export function createClient<
   transport,
   type = 'base',
 }: ClientConfig<TTransport, TChain>): Client<TTransport, TRequests, TChain> {
-  const { config, request, value } = transport({ chain })
+  const { config, request, value } = transport({ chain, pollingInterval })
   return {
     chain: chain as TChain,
     key,
