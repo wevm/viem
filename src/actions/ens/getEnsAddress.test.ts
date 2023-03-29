@@ -1,9 +1,22 @@
-import { expect, test } from 'vitest'
+import { afterAll, beforeAll, expect, test } from 'vitest'
 import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
-import { localHttpUrl, publicClient } from '../../_test'
+import {
+  initialBlockNumber,
+  localHttpUrl,
+  publicClient,
+  setBlockNumber,
+} from '../../_test'
 import { getEnsAddress } from './getEnsAddress'
+
+beforeAll(async () => {
+  await setBlockNumber(16773780n)
+})
+
+afterAll(async () => {
+  await setBlockNumber(initialBlockNumber)
+})
 
 test('gets address for name', async () => {
   await expect(
@@ -15,7 +28,7 @@ test('gets address for name', async () => {
 
 test('name without address', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'unregistered-name.eth' }),
+    getEnsAddress(publicClient, { name: 'another-unregistered-name.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0x0000000000000000000000000000000000000000"',
   )
@@ -71,7 +84,7 @@ test('universal resolver contract deployed on later block', async () => {
     "Chain \\"Localhost\\" does not support contract \\"ensUniversalResolver\\".
 
     This could be due to any of the following:
-    - The contract \\"ensUniversalResolver\\" was not deployed until block 16172161 (current block 14353601).
+    - The contract \\"ensUniversalResolver\\" was not deployed until block 16773775 (current block 14353601).
 
     Version: viem@1.0.2"
   `)

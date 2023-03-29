@@ -23,6 +23,7 @@ export {
   publicClient,
   testClient,
   walletClient,
+  setBlockNumber,
   signTransaction,
   walletClientWithAccount,
   walletClientWithoutChain,

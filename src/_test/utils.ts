@@ -6,6 +6,7 @@ import {
   DeployContractParameters,
   getTransactionReceipt,
   mine,
+  reset,
 } from '../actions'
 import { Chain, localhost, mainnet } from '../chains'
 import {
@@ -176,6 +177,13 @@ export async function deployErrorExample() {
     abi: errorsExampleABI,
     bytecode: errorsExample.bytecode.object as Hex,
     account: accounts[0].address,
+  })
+}
+
+export async function setBlockNumber(blockNumber: bigint) {
+  await reset(testClient, {
+    blockNumber,
+    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
   })
 }
 
