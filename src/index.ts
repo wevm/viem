@@ -431,6 +431,7 @@ export {
   prepareRequest,
   recoverAddress,
   recoverMessageAddress,
+  recoverTypedDataAddress,
   serializeTransaction,
   size,
   slice,
@@ -446,4 +447,5 @@ export {
   trim,
   validateTypedData,
   verifyMessage,
+  verifyTypedData,
 } from './utils'
