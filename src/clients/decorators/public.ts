@@ -107,7 +107,7 @@ import {
 } from '../../actions/public'
 import type {
   Chain,
-  ContractConfig,
+  ContractFunctionConfig,
   FilterType,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
@@ -200,7 +200,7 @@ export type PublicActions<
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<TChain>>
   multicall: <
-    TContracts extends ContractConfig[],
+    TContracts extends ContractFunctionConfig[],
     TAllowFailure extends boolean = true,
   >(
     args: MulticallParameters<TContracts, TAllowFailure>,

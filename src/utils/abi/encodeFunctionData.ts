@@ -1,10 +1,7 @@
 import type { Abi, Narrow } from 'abitype'
 
 import { AbiFunctionNotFoundError } from '../../errors'
-import type {
-  ExtractArgsFromAbi,
-  ExtractFunctionNameFromAbi,
-} from '../../types'
+import type { GetFunctionArgs, InferFunctionName } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
@@ -16,8 +13,8 @@ export type EncodeFunctionDataParameters<
   TFunctionName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
-} & ExtractArgsFromAbi<TAbi, TFunctionName>
+  functionName: InferFunctionName<TAbi, TFunctionName>
+} & GetFunctionArgs<TAbi, TFunctionName>
 
 export function encodeFunctionData<
   TAbi extends Abi | readonly unknown[],

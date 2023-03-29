@@ -9,7 +9,7 @@ import {
 import type {
   Address,
   Chain,
-  ContractConfig,
+  ContractFunctionConfig,
   Hex,
   MulticallContracts,
 } from '../../types'
@@ -25,7 +25,7 @@ import type { CallParameters } from './call'
 import { readContract } from './readContract'
 
 export type MulticallParameters<
-  TContracts extends ContractConfig[] = ContractConfig[],
+  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
@@ -34,13 +34,13 @@ export type MulticallParameters<
 }
 
 export type MulticallReturnType<
-  TContracts extends ContractConfig[] = ContractConfig[],
+  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
 
 export async function multicall<
   TChain extends Chain | undefined,
-  TContracts extends ContractConfig[],
+  TContracts extends ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 >(
   client: PublicClient<Transport, TChain>,

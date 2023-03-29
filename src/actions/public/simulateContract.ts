@@ -4,8 +4,8 @@ import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
   Chain,
-  ContractConfig,
-  ExtractResultFromAbi,
+  ContractFunctionConfig,
+  ContractFunctionResult,
   GetValue,
 } from '../../types'
 import {
@@ -26,7 +26,7 @@ export type SimulateContractParameters<
   TChainOverride extends Chain | undefined = undefined,
 > = {
   chain?: TChainOverride
-} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+} & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
     'to' | 'data' | 'value'
@@ -39,7 +39,7 @@ export type SimulateContractReturnType<
   TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
 > = {
-  result: ExtractResultFromAbi<TAbi, TFunctionName>
+  result: ContractFunctionResult<TAbi, TFunctionName>
   request: Omit<
     WriteContractParameters<
       TAbi,
@@ -51,7 +51,7 @@ export type SimulateContractReturnType<
     'chain'
   > & {
     chain: TChainOverride
-  } & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
+  } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
 export async function simulateContract<

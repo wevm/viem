@@ -4,7 +4,7 @@ import type { Transport, WalletClient } from '../../clients'
 import type {
   Account,
   Chain,
-  ContractConfig,
+  ContractFunctionConfig,
   GetChain,
   GetValue,
 } from '../../types'
@@ -21,7 +21,7 @@ export type WriteContractParameters<
   TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
-> = ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+> = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     SendTransactionParameters<TChain, TAccount, TChainOverride>,
     'chain' | 'to' | 'data' | 'value'
