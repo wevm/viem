@@ -1,9 +1,30 @@
 /**
+ * Filters out all members of {@link T} that are not {@link P}
+ *
+ * @param T - Items to filter
+ * @param P - Type to filter out
+ * @returns Filtered items
+ *
+ * @example
+ * type Result = Filter<['a', 'b', 'c'], 'b'>
+ * //   ^? type Result = ['a', 'c']
+ */
+export type Filter<
+  T extends readonly unknown[],
+  P,
+  Acc extends readonly unknown[] = [],
+> = T extends readonly [infer F, ...infer Rest extends readonly unknown[]]
+  ? [F] extends [P]
+    ? Filter<Rest, P, [...Acc, F]>
+    : Filter<Rest, P, Acc>
+  : readonly [...Acc]
+
+/**
  * @description Checks if {@link T} is `never`
  * @param T - Type to check
  * @example
  * type Result = IsNever<never>
- * //   ^? true
+ * //   ^? type Result = true
  */
 export type IsNever<T> = [T] extends [never] ? true : false
 
@@ -12,22 +33,22 @@ export type IsNever<T> = [T] extends [never] ? true : false
  * @param T - Type to check
  * @example
  * type Result = IsUndefined<undefined>
- * //   ^? true
+ * //   ^? type Result = true
  */
 export type IsUndefined<T> = [undefined] extends [T] ? true : false
 
 /**
- * @description Excludes empty attributes from T if TMaybeExclude is true.
+ * Excludes empty attributes from T if TMaybeExclude is true.
  *
  * @example
- * MaybeExcludeEmpty<{ a: string, b: number, c: [] }, true>
- * => { a: string, b: number }
- *
- * MaybeExcludeEmpty<{ a: string, b: number, c: [] }, false>
- * => { a: string, b: number, c: [] }
- *
- * MaybeExcludeEmpty<{ a: string, b: number, c: undefined }, true>
- * => { a: string, b: number }
+ * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: [] }, true>
+ * //   ^? type Result = { a: string, b: number }
+ * @example
+ * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: [] }, false>
+ * //   ^? type Result = { a: string, b: number, c: [] }
+ * @example
+ * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: undefined }, true>
+ * //   ^? type Result = { a: string, b: number }
  */
 export type MaybeExcludeEmpty<
   T,

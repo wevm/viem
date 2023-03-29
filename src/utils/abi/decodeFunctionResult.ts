@@ -4,9 +4,9 @@ import {
   AbiFunctionOutputsNotFoundError,
 } from '../../errors'
 import type {
-  ExtractArgsFromAbi,
-  ExtractFunctionNameFromAbi,
-  ExtractResultFromAbi,
+  GetFunctionArgs,
+  InferFunctionName,
+  ContractFunctionResult,
   Hex,
 } from '../../types'
 import { decodeAbiParameters } from './decodeAbiParameters'
@@ -19,14 +19,14 @@ export type DecodeFunctionResultParameters<
   TFunctionName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
+  functionName: InferFunctionName<TAbi, TFunctionName>
   data: Hex
-} & Partial<ExtractArgsFromAbi<TAbi, TFunctionName>>
+} & Partial<GetFunctionArgs<TAbi, TFunctionName>>
 
 export type DecodeFunctionResultReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = ExtractResultFromAbi<TAbi, TFunctionName>
+> = ContractFunctionResult<TAbi, TFunctionName>
 
 export function decodeFunctionResult<
   TAbi extends Abi | readonly unknown[],

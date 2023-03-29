@@ -163,7 +163,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback(
+    const transport = fallback(
       [http(server1.url), http(server2.url), http(server3.url)],
       {
         rank: false,
@@ -195,7 +195,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })({
       chain: localhost,
@@ -220,7 +220,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })({
       chain: localhost,
@@ -250,7 +250,7 @@ describe('request', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })({
       chain: localhost,
@@ -275,7 +275,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       retryCount: 1,
       rank: false,
     })({
@@ -303,7 +303,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback(
+    const transport = fallback(
       [
         http(server1.url, { retryCount: 3 }),
         http(server2.url, { retryCount: 2 }),
@@ -462,7 +462,7 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })
     const client = createPublicClient({ chain: localhost, transport })
@@ -488,7 +488,7 @@ describe('client', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })
     const client = createPublicClient({ chain: localhost, transport })
@@ -606,7 +606,7 @@ describe('rankTransports', () => {
     const transport2 = http(server2.url, { key: '2' })
     const transport3 = http(server3.url, { key: '3' })
 
-    let rankedTransports: Transport[][] = []
+    const rankedTransports: Transport[][] = []
 
     rankTransports({
       chain: localhost,

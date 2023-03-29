@@ -4,7 +4,7 @@ import type { WalletClient, Transport } from '../../clients'
 import type {
   Account,
   Chain,
-  ExtractConstructorArgsFromAbi,
+  GetConstructorArgs,
   GetChain,
   Hex,
 } from '../../types'
@@ -27,7 +27,7 @@ export type DeployContractParameters<
   abi: Narrow<TAbi>
   bytecode: Hex
 } & GetChain<TChain, TChainOverride> &
-  ExtractConstructorArgsFromAbi<TAbi>
+  GetConstructorArgs<TAbi>
 
 export type DeployContractReturnType = SendTransactionReturnType
 

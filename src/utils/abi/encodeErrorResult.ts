@@ -3,11 +3,7 @@ import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
 } from '../../errors'
-import type {
-  ExtractErrorArgsFromAbi,
-  ExtractErrorNameFromAbi,
-  Hex,
-} from '../../types'
+import type { GetErrorArgs, InferErrorName, Hex } from '../../types'
 import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
@@ -21,8 +17,8 @@ export type EncodeErrorResultParameters<
   TErrorName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  errorName: ExtractErrorNameFromAbi<TAbi, TErrorName>
-} & ExtractErrorArgsFromAbi<TAbi, TErrorName>
+  errorName: InferErrorName<TAbi, TErrorName>
+} & GetErrorArgs<TAbi, TErrorName>
 
 export function encodeErrorResult<
   TAbi extends Abi | readonly unknown[],

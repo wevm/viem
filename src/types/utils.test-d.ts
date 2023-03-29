@@ -1,5 +1,11 @@
 import { test, expectTypeOf } from 'vitest'
-import type { IsNever, IsUndefined, RequiredBy } from './utils'
+import type { Filter, IsNever, IsUndefined, RequiredBy } from './utils'
+
+test('Filter', () => {
+  expectTypeOf<Filter<[1, 'foo', false, 'baz'], 1 | boolean>>().toEqualTypeOf<
+    readonly [1, false]
+  >()
+})
 
 test('IsNever', () => {
   expectTypeOf<IsNever<never>>().toEqualTypeOf<true>()

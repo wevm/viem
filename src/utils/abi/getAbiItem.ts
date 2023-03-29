@@ -1,5 +1,5 @@
 import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
-import type { ExtractArgsFromAbi, ExtractNameFromAbi } from '../../types'
+import type { GetFunctionArgs, InferItemName } from '../../types'
 import { isAddress } from '../address'
 
 export type GetAbiItemParameters<
@@ -7,8 +7,8 @@ export type GetAbiItemParameters<
   TItemName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  name: ExtractNameFromAbi<TAbi, TItemName>
-} & Partial<ExtractArgsFromAbi<TAbi, TItemName>>
+  name: InferItemName<TAbi, TItemName>
+} & Partial<GetFunctionArgs<TAbi, TItemName>>
 
 export type GetAbiItemReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,

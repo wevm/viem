@@ -1,5 +1,5 @@
 import type { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
-import type { ExtractEventArgsFromAbi } from './contract'
+import type { GetEventArgs } from './contract'
 import type { Hash, Hex } from './misc'
 
 type DecodedAbiEvent<
@@ -11,19 +11,19 @@ type DecodedAbiEvent<
 > = TAbi extends Abi
   ? TEventName extends string
     ? {
-        args: ExtractEventArgsFromAbi<
+        args: GetEventArgs<
           TAbi,
           TEventName,
-          { enableUnion: false; indexedOnly: false; required: true }
+          { EnableUnion: false; IndexedOnly: false; Required: true }
         >
         /** The event name decoded from `topics`. */
         eventName: TEventName
       }
     : {
-        args: ExtractEventArgsFromAbi<
+        args: GetEventArgs<
           TAbi,
           string,
-          { enableUnion: false; indexedOnly: false; required: true }
+          { EnableUnion: false; IndexedOnly: false; Required: true }
         >
         /** The event name decoded from `topics`. */
         eventName: ExtractAbiEventNames<TAbi>

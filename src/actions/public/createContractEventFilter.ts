@@ -6,7 +6,7 @@ import type {
   BlockNumber,
   BlockTag,
   Chain,
-  ExtractEventNameFromAbi,
+  InferEventName,
   Filter,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
@@ -25,7 +25,7 @@ export type CreateContractEventFilterParameters<
 > = {
   address?: Address | Address[]
   abi: Narrow<TAbi>
-  eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
+  eventName?: InferEventName<TAbi, TEventName>
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
 } & (undefined extends TEventName

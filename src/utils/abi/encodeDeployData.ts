@@ -4,7 +4,7 @@ import {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
 } from '../../errors'
-import type { ExtractConstructorArgsFromAbi, Hex } from '../../types'
+import type { GetConstructorArgs, Hex } from '../../types'
 import { concatHex } from '../data'
 import { encodeAbiParameters } from './encodeAbiParameters'
 
@@ -15,7 +15,7 @@ export type EncodeDeployDataParameters<
 > = {
   abi: Narrow<TAbi>
   bytecode: Hex
-} & ExtractConstructorArgsFromAbi<TAbi>
+} & GetConstructorArgs<TAbi>
 
 export function encodeDeployData<TAbi extends Abi | readonly unknown[]>({
   abi,

@@ -6,8 +6,8 @@ import {
 } from '../../errors'
 import type {
   EventDefinition,
-  ExtractEventArgsFromTopics,
-  ExtractEventNameFromAbi,
+  GetEventArgsFromTopics,
+  InferEventName,
   Hex,
 } from '../../types'
 import { getEventSelector } from '../hash'
@@ -22,7 +22,7 @@ export type DecodeEventLogParameters<
 > = {
   abi: Narrow<TAbi>
   data?: TData
-  eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
+  eventName?: InferEventName<TAbi, TEventName>
   topics: [signature: Hex, ...args: TTopics] | []
 }
 
@@ -33,7 +33,7 @@ export type DecodeEventLogReturnType<
   TData extends Hex | undefined = undefined,
 > = {
   eventName: TEventName
-} & ExtractEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+} & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
 
 const docsPath = '/docs/contract/decodeEventLog'
 
