@@ -32,6 +32,7 @@ test('default', async () => {
       "getChainId": [Function],
       "getEnsAddress": [Function],
       "getEnsName": [Function],
+      "getEnsResolver": [Function],
       "getFeeHistory": [Function],
       "getFilterChanges": [Function],
       "getFilterLogs": [Function],
