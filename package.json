@@ -2,6 +2,118 @@
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
   "version": "0.1.23",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-d.ts",
+    "!src/**/*.bench.ts",
+    "!src/_test/**/*"
+  ],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./abi": {
+      "types": "./dist/types/abi.d.ts",
+      "import": "./dist/esm/abi.js",
+      "require": "./dist/cjs/abi.js"
+    },
+    "./accounts": {
+      "types": "./dist/types/accounts.d.ts",
+      "import": "./dist/esm/accounts.js",
+      "require": "./dist/cjs/accounts.js"
+    },
+    "./chains": {
+      "types": "./dist/types/chains.d.ts",
+      "import": "./dist/esm/chains.js",
+      "require": "./dist/cjs/chains.js"
+    },
+    "./contract": {
+      "types": "./dist/types/contract.d.ts",
+      "import": "./dist/esm/contract.js",
+      "require": "./dist/cjs/contract.js"
+    },
+    "./ens": {
+      "types": "./dist/types/ens.d.ts",
+      "import": "./dist/esm/ens.js",
+      "require": "./dist/cjs/ens.js"
+    },
+    "./ethers": {
+      "types": "./dist/types/ethers.d.ts",
+      "import": "./dist/esm/ethers.js",
+      "require": "./dist/cjs/ethers.js"
+    },
+    "./public": {
+      "types": "./dist/types/public.d.ts",
+      "import": "./dist/esm/public.js",
+      "require": "./dist/cjs/public.js"
+    },
+    "./test": {
+      "types": "./dist/types/test.d.ts",
+      "import": "./dist/esm/test.js",
+      "require": "./dist/cjs/test.js"
+    },
+    "./utils": {
+      "types": "./dist/types/utils/index.d.ts",
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
+    },
+    "./wallet": {
+      "types": "./dist/types/wallet.d.ts",
+      "import": "./dist/esm/wallet.js",
+      "require": "./dist/cjs/wallet.js"
+    },
+    "./window": {
+      "types": "./dist/types/window.d.ts",
+      "import": "./dist/esm/window.js",
+      "require": "./dist/cjs/window.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "abi": [
+        "./dist/types/abi.d.ts"
+      ],
+      "chains": [
+        "./dist/types/chains.d.ts"
+      ],
+      "contract": [
+        "./dist/types/contract.d.ts"
+      ],
+      "ens": [
+        "./dist/types/ens.d.ts"
+      ],
+      "ethers": [
+        "./dist/types/ethers.d.ts"
+      ],
+      "public": [
+        "./dist/types/public.d.ts"
+      ],
+      "test": [
+        "./dist/types/test.d.ts"
+      ],
+      "utils": [
+        "./dist/types/utils/index.d.ts"
+      ],
+      "wallet": [
+        "./dist/types/wallet.d.ts"
+      ],
+      "window": [
+        "./dist/types/window.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
     "bench": "vitest bench --no-threads",
