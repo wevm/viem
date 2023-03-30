@@ -5,7 +5,7 @@
   "module": "index.ts",
   "type": "module",
   "dependencies": {
-    "viem": "workspace:*"
+    "viem": "latest"
   },
   "devDependencies": {
     "bun-types": "^0.5.0"
