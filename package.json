@@ -81,7 +81,7 @@
   ],
   "size-limit": [
     {
-      "path": "dist/index.js"
+      "path": "./dist/cjs/index.js"
     }
   ],
   "simple-git-hooks": {
