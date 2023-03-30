@@ -7,6 +7,7 @@ test('exports ens', () => {
     {
       "getEnsAddress": [Function],
       "getEnsName": [Function],
+      "getEnsResolver": [Function],
       "labelhash": [Function],
       "namehash": [Function],
       "normalize": [Function],
