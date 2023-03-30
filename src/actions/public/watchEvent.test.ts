@@ -84,7 +84,7 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsParameter[] = []
+    const logs: OnLogsParameter[] = []
 
     const unwatch = watchEvent(publicClient, {
       onLogs: (logs_) => logs.push(logs_),
@@ -121,7 +121,7 @@ test(
 )
 
 test('args: batch', async () => {
-  let logs: OnLogsParameter[] = []
+  const logs: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     batch: false,
@@ -158,8 +158,8 @@ test('args: batch', async () => {
 })
 
 test('args: address', async () => {
-  let logs: OnLogsParameter[] = []
-  let logs2: OnLogsParameter[] = []
+  const logs: OnLogsParameter[] = []
+  const logs2: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -186,8 +186,8 @@ test('args: address', async () => {
 })
 
 test('args: address + event', async () => {
-  let logs: OnLogsParameter<typeof event.transfer>[] = []
-  let logs2: OnLogsParameter<typeof event.approval>[] = []
+  const logs: OnLogsParameter<typeof event.transfer>[] = []
+  const logs2: OnLogsParameter<typeof event.approval>[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -237,7 +237,7 @@ describe('`getLogs` fallback', () => {
         new Error('foo'),
       )
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),
@@ -287,7 +287,7 @@ describe('`getLogs` fallback', () => {
         new Error('foo'),
       )
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),

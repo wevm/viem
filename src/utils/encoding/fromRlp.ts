@@ -101,8 +101,8 @@ function rlpToBytes(
       dataLength: bytes.length,
     })
 
-  let consumed = 1 + lengthOfLength + length
-  let result = []
+  const consumed = 1 + lengthOfLength + length
+  const result = []
   while (nextOffset < offset + consumed) {
     const decoded = rlpToBytes(bytes, nextOffset)
     result.push(decoded[0])

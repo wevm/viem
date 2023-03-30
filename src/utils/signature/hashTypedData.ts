@@ -54,7 +54,7 @@ export function hashTypedData<
     types,
   } as TypedDataDefinition)
 
-  let parts: Hex[] = ['0x1901']
+  const parts: Hex[] = ['0x1901']
   if (domain)
     parts.push(
       hashDomain({
@@ -116,7 +116,7 @@ function encodeData({
   primaryType: string
   types: Record<string, MessageTypeProperty[]>
 }) {
-  let encodedTypes: AbiParameter[] = [{ type: 'bytes32' }]
+  const encodedTypes: AbiParameter[] = [{ type: 'bytes32' }]
   const encodedValues: unknown[] = [hashType({ primaryType, types })]
 
   for (const field of types[primaryType]) {

@@ -1,4 +1,4 @@
-let size = 256
+const size = 256
 let index = size
 let buffer: string
 

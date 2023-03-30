@@ -15,7 +15,7 @@ describe('converts numbers to hex', () => {
     expect(numberToHex(420)).toMatchInlineSnapshot('"0x1a4"')
 
     expect(() =>
-      numberToHex(420182738912731283712937129),
+      numberToHex(420182738912731283712937129n),
     ).toThrowErrorMatchingInlineSnapshot(
       `
       "Number \\"4.2018273891273126e+26\\" is not in safe integer range (0 to 9007199254740991)

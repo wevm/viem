@@ -60,7 +60,7 @@ function prepareParams<TParams extends readonly AbiParameter[]>({
   params: Narrow<TParams>
   values: AbiParametersToPrimitiveTypes<TParams>
 }) {
-  let preparedParams: PreparedParam[] = []
+  const preparedParams: PreparedParam[] = []
   for (let i = 0; i < params.length; i++) {
     preparedParams.push(prepareParam({ param: params[i], value: values[i] }))
   }
@@ -117,8 +117,8 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
   }
 
   // 2. Split the parameters into static and dynamic parts.
-  let staticParams: Hex[] = []
-  let dynamicParams: Hex[] = []
+  const staticParams: Hex[] = []
+  const dynamicParams: Hex[] = []
   let dynamicSize = 0
   for (let i = 0; i < preparedParams.length; i++) {
     const { dynamic, encoded } = preparedParams[i]
@@ -152,7 +152,7 @@ function encodeArray<TParam extends AbiParameter>(
     param: TParam
   },
 ): PreparedParam {
-  let dynamic = length === null
+  const dynamic = length === null
 
   if (!Array.isArray(value)) throw new InvalidArrayError(value)
   if (!dynamic && value.length !== length)
@@ -163,7 +163,7 @@ function encodeArray<TParam extends AbiParameter>(
     })
 
   let dynamicChild = false
-  let preparedParams: PreparedParam[] = []
+  const preparedParams: PreparedParam[] = []
   for (let i = 0; i < value.length; i++) {
     const preparedParam = prepareParam({ param, value: value[i] })
     if (preparedParam.dynamic) dynamicChild = true
@@ -262,7 +262,7 @@ function encodeTuple<
   { param }: { param: TParam },
 ): PreparedParam {
   let dynamic = false
-  let preparedParams: PreparedParam[] = []
+  const preparedParams: PreparedParam[] = []
   for (let i = 0; i < param.components.length; i++) {
     const param_ = param.components[i]
     const index = Array.isArray(value) ? i : param_.name

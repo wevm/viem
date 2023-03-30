@@ -119,7 +119,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterLogs(publicClient, {
       filter,
     })
 
@@ -173,7 +173,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -206,7 +206,7 @@ describe('contract events', () => {
       toBlock: initialBlockNumber,
     })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -248,7 +248,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -296,7 +296,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -350,7 +350,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -398,7 +398,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -443,7 +443,7 @@ describe('raw events', () => {
 
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })
@@ -468,7 +468,7 @@ describe('raw events', () => {
 
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(2)
     expect(logs[0].args).toEqual({
@@ -492,7 +492,7 @@ describe('raw events', () => {
       toBlock: initialBlockNumber,
     })
 
-    let logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterLogs(publicClient, { filter })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
   })
