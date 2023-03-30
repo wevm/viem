@@ -1,4 +1,4 @@
-import { sign as sign_, Signature as Signature_ } from '@noble/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { Hex, Signature } from '../../types'
 import { toHex } from '../../utils'
@@ -21,14 +21,10 @@ export async function sign({
   hash,
   privateKey,
 }: SignParameters): Promise<SignReturnType> {
-  const [sigBytes, recId] = await sign_(hash.slice(2), privateKey.slice(2), {
-    canonical: true,
-    recovered: true,
-  })
-  const sig = Signature_.fromHex(sigBytes)
+  const { r, s, recovery } = secp256k1.sign(hash.slice(2), privateKey.slice(2))
   return {
-    r: toHex(sig.r),
-    s: toHex(sig.s),
-    v: recId ? 28n : 27n,
+    r: toHex(r),
+    s: toHex(s),
+    v: recovery ? 28n : 27n,
   }
 }

@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { accounts, signTransaction } from '../../_test'
+import { accounts } from '../../_test'
 import { serializeTransaction } from './serializeTransaction'
 import { parseGwei, parseEther } from '../unit'
 import { parseTransaction } from './parseTransaction'
@@ -10,6 +10,8 @@ import type {
   TransactionSerializableLegacy,
 } from '../../types'
 import { toHex, toRlp } from '../encoding'
+import { sign } from '../../accounts/utils/sign'
+import { keccak256 } from '../hash'
 
 const base = {
   to: accounts[1].address,
@@ -76,11 +78,11 @@ describe('eip1559', () => {
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip1559' })
   })
 
-  test('signed', () => {
-    const signature = signTransaction(
-      serializeTransaction(baseEip1559),
-      accounts[0].privateKey,
-    )
+  test('signed', async () => {
+    const signature = await sign({
+      hash: keccak256(serializeTransaction(baseEip1559)),
+      privateKey: accounts[0].privateKey,
+    })
     const serialized = serializeTransaction(baseEip1559, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip1559,
@@ -354,11 +356,11 @@ describe('eip2930', () => {
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
   })
 
-  test('signed', () => {
-    const signature = signTransaction(
-      serializeTransaction(baseEip2930),
-      accounts[0].privateKey,
-    )
+  test('signed', async () => {
+    const signature = await sign({
+      hash: keccak256(serializeTransaction(baseEip2930)),
+      privateKey: accounts[0].privateKey,
+    })
     const serialized = serializeTransaction(baseEip2930, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseEip2930,
@@ -462,11 +464,11 @@ describe('legacy', () => {
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
 
-  test('signed', () => {
-    const signature = signTransaction(
-      serializeTransaction(baseLegacy),
-      accounts[0].privateKey,
-    )
+  test('signed', async () => {
+    const signature = await sign({
+      hash: keccak256(serializeTransaction(baseLegacy)),
+      privateKey: accounts[0].privateKey,
+    })
     const serialized = serializeTransaction(baseLegacy, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
@@ -475,15 +477,15 @@ describe('legacy', () => {
     })
   })
 
-  test('signed w/ chainId', () => {
+  test('signed w/ chainId', async () => {
     const args = {
       ...baseLegacy,
       chainId: 69,
     }
-    const signature = signTransaction(
-      serializeTransaction(args),
-      accounts[0].privateKey,
-    )
+    const signature = await sign({
+      hash: keccak256(serializeTransaction(args)),
+      privateKey: accounts[0].privateKey,
+    })
     const serialized = serializeTransaction(args, signature)
     expect(parseTransaction(serialized)).toEqual({
       ...args,

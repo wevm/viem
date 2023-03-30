@@ -103,6 +103,7 @@ test('exports utils', () => {
       "parseTransaction": [Function],
       "parseUnits": [Function],
       "prepareRequest": [Function],
+      "publicKeyToAddress": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
       "recoverTypedDataAddress": [Function],
