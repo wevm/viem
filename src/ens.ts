@@ -1,8 +1,12 @@
 export type {
   GetEnsAddressParameters,
+  GetEnsAddressReturnType,
   GetEnsNameParameters,
+  GetEnsNameReturnType,
+  GetEnsResolverParameters,
+  GetEnsResolverReturnType,
 } from './actions/ens'
-export { getEnsAddress, getEnsName } from './actions/ens'
+export { getEnsAddress, getEnsName, getEnsResolver } from './actions/ens'
 
 export {
   labelhash,

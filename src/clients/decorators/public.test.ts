@@ -165,6 +165,19 @@ describe('smoke test', () => {
     { timeout: 20_000 },
   )
 
+  test(
+    'getEnsResolver',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsResolver({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
   test('getFeeHistory', async () => {
     expect(
       await publicClient.getFeeHistory({

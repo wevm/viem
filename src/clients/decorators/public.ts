@@ -4,8 +4,10 @@ import type {
   GetEnsAddressReturnType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
+  GetEnsResolverParameters,
+  GetEnsResolverReturnType,
 } from '../../actions/ens'
-import { getEnsAddress, getEnsName } from '../../actions/ens'
+import { getEnsAddress, getEnsName, getEnsResolver } from '../../actions/ens'
 import type {
   CallParameters,
   CallReturnType,
@@ -160,6 +162,9 @@ export type PublicActions<
     args: GetEnsAddressParameters,
   ) => Promise<GetEnsAddressReturnType>
   getEnsName: (args: GetEnsNameParameters) => Promise<GetEnsNameReturnType>
+  getEnsResolver: (
+    args: GetEnsResolverParameters,
+  ) => Promise<GetEnsResolverReturnType>
   getFeeHistory: (
     args: GetFeeHistoryParameters,
   ) => Promise<GetFeeHistoryReturnType>
@@ -272,6 +277,7 @@ export const publicActions = <
   getChainId: () => getChainId(client),
   getEnsAddress: (args) => getEnsAddress(client, args),
   getEnsName: (args) => getEnsName(client, args),
+  getEnsResolver: (args) => getEnsResolver(client, args),
   getFeeHistory: (args) => getFeeHistory(client, args),
   getFilterChanges: (args) => getFilterChanges(client, args),
   getFilterLogs: (args) => getFilterLogs(client, args),
