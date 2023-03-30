@@ -18,7 +18,9 @@ export function decodeFunctionData({
 }: DecodeFunctionDataParameters) {
   const signature = slice(data, 0, 4)
   const description = (abi as Abi).find(
-    (x) => signature === getFunctionSelector(formatAbiItem(x)),
+    (x) =>
+      x.type === 'function' &&
+      signature === getFunctionSelector(formatAbiItem(x)),
   )
   if (!description)
     throw new AbiFunctionSignatureNotFoundError(signature, {
