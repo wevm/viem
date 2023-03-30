@@ -14,7 +14,7 @@ import {
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
 
-export type GetEnsTextParameters = Prettify<
+export type getEnsTextRecordParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get ENS Text for. */
     name: string
@@ -25,7 +25,7 @@ export type GetEnsTextParameters = Prettify<
   }
 >
 
-export type GetEnsTextReturnType = string | null
+export type getEnsTextRecordReturnType = string | null
 
 /**
  * @description Gets Text for specified address.
@@ -33,13 +33,13 @@ export type GetEnsTextReturnType = string | null
  * - Calls `resolve(bytes name, bytes data)` on ENS Universal Resolver Contract.
  *
  * @example
- * const ensText = await getEnsText(publicClient, {
+ * const ensText = await getEnsTextRecord(publicClient, {
  *   name: 'kesar.eth',
  *   key: 'avatar',
  * })
  * // 'https://....'
  */
-export async function getEnsText(
+export async function getEnsTextRecord(
   client: PublicClient,
   {
     name,
@@ -47,8 +47,8 @@ export async function getEnsText(
     blockNumber,
     blockTag,
     universalResolverAddress: universalResolverAddress_,
-  }: GetEnsTextParameters,
-): Promise<GetEnsTextReturnType> {
+  }: getEnsTextRecordParameters,
+): Promise<getEnsTextRecordReturnType> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)

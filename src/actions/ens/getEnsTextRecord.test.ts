@@ -4,11 +4,11 @@ import { createPublicClient, http } from '../../clients'
 
 import { localHttpUrl, publicClient } from '../../_test'
 
-import { getEnsText } from './getEnsText'
+import { getEnsTextRecord } from './getEnsTextRecord'
 
 test('gets Text for address', async () => {
   await expect(
-    getEnsText(publicClient, {
+    getEnsTextRecord(publicClient, {
       name: 'kesar.eth',
       key: 'avatar',
     }),
@@ -19,7 +19,7 @@ test('gets Text for address', async () => {
 
 test('address with no Text', async () => {
   await expect(
-    getEnsText(publicClient, {
+    getEnsTextRecord(publicClient, {
       name: 'nonenone.cafe',
       key: 'avatar',
     }),
@@ -28,7 +28,7 @@ test('address with no Text', async () => {
 
 test('chain not provided', async () => {
   await expect(
-    getEnsText(
+    getEnsTextRecord(
       createPublicClient({
         transport: http(localHttpUrl),
       }),
@@ -41,7 +41,7 @@ test('chain not provided', async () => {
 
 test('universal resolver contract not configured for chain', async () => {
   await expect(
-    getEnsText(
+    getEnsTextRecord(
       createPublicClient({
         chain: optimism,
         transport: http(),
@@ -63,7 +63,7 @@ test('universal resolver contract not configured for chain', async () => {
 
 test('universal resolver contract deployed on later block', async () => {
   await expect(
-    getEnsText(publicClient, {
+    getEnsTextRecord(publicClient, {
       name: 'kesar.eth',
       key: 'avatar',
       blockNumber: 14353601n,
@@ -80,7 +80,7 @@ test('universal resolver contract deployed on later block', async () => {
 
 test('invalid universal resolver address', async () => {
   await expect(
-    getEnsText(publicClient, {
+    getEnsTextRecord(publicClient, {
       name: 'kesar.eth',
       key: 'avatar',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',

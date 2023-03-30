@@ -5,10 +5,10 @@ export {
 } from './getEnsAddress'
 
 export {
-  getEnsText,
-  type GetEnsTextParameters,
-  type GetEnsTextReturnType,
-} from './getEnsText'
+  getEnsTextRecord,
+  type getEnsTextRecordParameters,
+  type getEnsTextRecordReturnType,
+} from './getEnsTextRecord'
 
 export {
   getEnsName,

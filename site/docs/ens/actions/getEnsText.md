@@ -2,19 +2,19 @@
 head:
   - - meta
     - property: og:title
-      content: getEnsText
+      content: getEnsTextRecord
   - - meta
     - name: description
-      content: Gets Text field for specified ENS name.
+      content: Gets Text record for specified ENS name.
   - - meta
     - property: og:description
-      content: Gets Text field for specified ENS name.
+      content: Gets Text record for specified ENS name.
 
 ---
 
-# getEnsText
+# getEnsTextRecord
 
-Gets Text field for specified ENS name.
+Gets Text record for specified ENS name.
 
 Calls `resolve(bytes name, bytes data)` on ENS Universal Resolver Contract to find Text record.
 
@@ -25,7 +25,7 @@ Calls `resolve(bytes name, bytes data)` on ENS Universal Resolver Contract to fi
 ```ts [example.ts]
 import { publicClient } from './client'
  
-const ensText = await publicClient.getEnsText({
+const ensText = await publicClient.getEnsTextRecord({
   name: 'wagmi-dev.eth',
   key: 'avatar',
 })
@@ -65,7 +65,7 @@ Returns `` if name does not have Text assigned.
 ENS name to get Text for.
 
 ```ts
-const ensText = await publicClient.getEnsText({
+const ensText = await publicClient.getEnsTextRecord({
   name: 'wagmi-dev.eth', // [!code focus]
   key: 'avatar',
 })
@@ -78,7 +78,7 @@ const ensText = await publicClient.getEnsText({
 ENS key to get Text for.
 
 ```ts
-const ensText = await publicClient.getEnsText({
+const ensText = await publicClient.getEnsTextRecord({
   name: 'wagmi-dev.eth', // [!code focus]
   key: 'avatar',
 })
@@ -91,7 +91,7 @@ const ensText = await publicClient.getEnsText({
 The block number to perform the read against.
 
 ```ts
-const ensText = await publicClient.getEnsText({
+const ensText = await publicClient.getEnsTextRecord({
   name: 'wagmi-dev.eth',
   key: 'avatar',
   blockNumber: 15121123n, // [!code focus]
@@ -106,7 +106,7 @@ const ensText = await publicClient.getEnsText({
 The block tag to perform the read against.
 
 ```ts
-const ensText = await publicClient.getEnsText({
+const ensText = await publicClient.getEnsTextRecord({
   name: 'wagmi-dev.eth',
   key: 'avatar',
   blockTag: 'safe', // [!code focus]
@@ -121,7 +121,7 @@ const ensText = await publicClient.getEnsText({
 Address of ENS Universal Resolver Contract.
 
 ```ts
-const ensText = await publicClient.getEnsText({
+const ensText = await publicClient.getEnsTextRecord({
   name: 'wagmi-dev.eth',
   key: 'avatar',
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
