@@ -41,7 +41,7 @@ export {
   parseAbiParameters,
 } from './abi'
 
-export { parseAccount } from './accounts'
+export { parseAccount, publicKeyToAddress } from './accounts'
 
 export type {
   GetContractAddressOptions,

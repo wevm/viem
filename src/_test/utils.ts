@@ -23,9 +23,6 @@ import { rpc } from '../utils'
 import { baycContractConfig } from './abis'
 import { accounts, localWsUrl } from './constants'
 import { errorsExampleABI } from './generated'
-import { keccak256 } from '../utils/hash'
-import { signSync, Signature } from '@noble/secp256k1'
-import { toHex } from '../utils/encoding'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
@@ -185,24 +182,5 @@ export async function setBlockNumber(blockNumber: bigint) {
     blockNumber,
     jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
   })
-}
-
-export function signTransaction(serializedTransaction: Hex, privateKey: Hex) {
-  const [bytesSig, recoverId] = signSync(
-    keccak256(serializedTransaction).slice(2),
-    privateKey.slice(2),
-    {
-      canonical: true,
-      recovered: true,
-    },
-  )
-
-  const sig = Signature.fromHex(bytesSig)
-
-  return {
-    r: toHex(sig.r),
-    s: toHex(sig.s),
-    v: recoverId ? 28n : 27n,
-  }
 }
 /* c8 ignore stop */

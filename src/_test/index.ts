@@ -24,7 +24,6 @@ export {
   testClient,
   walletClient,
   setBlockNumber,
-  signTransaction,
   walletClientWithAccount,
   walletClientWithoutChain,
   webSocketClient,
