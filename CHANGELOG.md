@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.25
+
+### Patch Changes
+
+- [#263](https://github.com/wagmi-dev/viem/pull/263) [`53fda1a`](https://github.com/wagmi-dev/viem/commit/53fda1a5366ff1122b951d8148c1a9f74f280578) Thanks [@fubhy](https://github.com/fubhy)! - Fixed issue where ABIs with constructors would throw for `decodeFunctionData`.
+
 ## 0.1.24
 
 ### Patch Changes
