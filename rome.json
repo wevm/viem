@@ -6,6 +6,8 @@
       "cache",
       "coverage",
       "dist",
+      "tsconfig.json",
+      "tsconfig.*.json",
       "generated.ts",
       "pnpm-lock.yaml"
     ]
