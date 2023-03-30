@@ -14,37 +14,41 @@ import {
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
 
-export type GetEnsAvatarParameters = Prettify<
+export type GetEnsTextParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** ENS name to get ENS avatar for. */
+    /** ENS name to get ENS Text for. */
     name: string
+    /** ENS key to get ENS Text for. */
+    key: string
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
 >
 
-export type GetEnsAvatarReturnType = string | null
+export type GetEnsTextReturnType = string | null
 
 /**
- * @description Gets avatar for specified address.
+ * @description Gets Text for specified address.
  *
- * - Calls `text(bytes, string)` on ENS Universal Resolver Contract.
+ * - Calls `resolve(bytes name, bytes data)` on ENS Universal Resolver Contract.
  *
  * @example
- * const ensAvatar = await getEnsAvatar(publicClient, {
+ * const ensText = await getEnsText(publicClient, {
  *   name: 'kesar.eth',
+ *   key: 'avatar',
  * })
- * // 'wagmi-dev.eth'
+ * // 'https://....'
  */
-export async function getEnsAvatar(
+export async function getEnsText(
   client: PublicClient,
   {
     name,
+    key,
     blockNumber,
     blockTag,
     universalResolverAddress: universalResolverAddress_,
-  }: GetEnsAvatarParameters,
-): Promise<GetEnsAvatarReturnType> {
+  }: GetEnsTextParameters,
+): Promise<GetEnsTextReturnType> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)
@@ -58,34 +62,66 @@ export async function getEnsAvatar(
       contract: 'ensUniversalResolver',
     })
   }
-
   try {
     const res = await readContract(client, {
       address: universalResolverAddress,
       abi: [
         {
-          name: 'text',
+          name: 'resolve',
           type: 'function',
           stateMutability: 'view',
           inputs: [
-            { type: 'bytes32', name: 'node' },
-            { type: 'string', name: 'key' },
+            { name: 'name', type: 'bytes' },
+            { name: 'data', type: 'bytes' },
           ],
+          outputs: [
+            { name: '', type: 'bytes' },
+            { name: 'address', type: 'address' },
+          ],
+        },
+      ],
+      functionName: 'resolve',
+      args: [
+        toHex(packetToBytes(name)),
+        encodeFunctionData({
+          abi: [
+            {
+              name: 'text',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [
+                { type: 'bytes32', name: 'node' },
+                { type: 'string', name: 'key' },
+              ],
+              outputs: [],
+            },
+          ],
+          functionName: 'text',
+          args: [namehash(name), key],
+        }),
+      ],
+      blockNumber,
+      blockTag,
+    })
+    return decodeFunctionResult({
+      abi: [
+        {
+          name: 'text',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
           outputs: [{ name: '', type: 'string' }],
         },
       ],
       functionName: 'text',
-      args: [namehash(name), 'avatar'],
-      blockNumber,
-      blockTag,
+      data: res[0],
     })
-    return res
   } catch (error) {
     if (
       error instanceof ContractFunctionExecutionError &&
       (error.cause as ContractFunctionRevertedError).reason === panicReasons[50]
     )
-      // No primary avatar set for ens name.
+      // No primary Text set for ens name.
       return null
     throw error
   }

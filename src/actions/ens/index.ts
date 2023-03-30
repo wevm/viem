@@ -5,10 +5,10 @@ export {
 } from './getEnsAddress'
 
 export {
-  getEnsAvatar,
-  type GetEnsAvatarParameters,
-  type GetEnsAvatarReturnType,
-} from './getEnsAvatar'
+  getEnsText,
+  type GetEnsTextParameters,
+  type GetEnsTextReturnType,
+} from './getEnsText'
 
 export {
   getEnsName,

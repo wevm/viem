@@ -4,35 +4,35 @@ import { createPublicClient, http } from '../../clients'
 
 import { localHttpUrl, publicClient } from '../../_test'
 
-import { getEnsAvatar } from './getEnsAvatar'
+import { getEnsText } from './getEnsText'
 
-test('gets avatar for address', async () => {
+test('gets Text for address', async () => {
   await expect(
-    getEnsAvatar(publicClient, {
+    getEnsText(publicClient, {
       name: 'kesar.eth',
-      universalResolverAddress: '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41',
+      key: 'avatar',
     }),
   ).resolves.toMatchInlineSnapshot(
     '"https://pbs.twimg.com/profile_images/1576892738389393408/Cu7lPQcl_400x400.jpg"',
   )
 })
 
-test('address with no avatar', async () => {
+test('address with no Text', async () => {
   await expect(
-    getEnsAvatar(publicClient, {
+    getEnsText(publicClient, {
       name: 'nonenone.cafe',
-      universalResolverAddress: '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41',
+      key: 'avatar',
     }),
-  ).resolves.toMatchInlineSnapshot('""')
+  ).resolves.toMatchInlineSnapshot('null')
 })
 
 test('chain not provided', async () => {
   await expect(
-    getEnsAvatar(
+    getEnsText(
       createPublicClient({
         transport: http(localHttpUrl),
       }),
-      { name: 'kesar.eth' },
+      { name: 'kesar.eth', key: 'avatar' },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"client chain not configured. universalResolverAddress is required."',
@@ -41,13 +41,14 @@ test('chain not provided', async () => {
 
 test('universal resolver contract not configured for chain', async () => {
   await expect(
-    getEnsAvatar(
+    getEnsText(
       createPublicClient({
         chain: optimism,
         transport: http(),
       }),
       {
         name: 'kesar.eth',
+        key: 'avatar',
       },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -62,8 +63,9 @@ test('universal resolver contract not configured for chain', async () => {
 
 test('universal resolver contract deployed on later block', async () => {
   await expect(
-    getEnsAvatar(publicClient, {
+    getEnsText(publicClient, {
       name: 'kesar.eth',
+      key: 'avatar',
       blockNumber: 14353601n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -78,18 +80,19 @@ test('universal resolver contract deployed on later block', async () => {
 
 test('invalid universal resolver address', async () => {
   await expect(
-    getEnsAvatar(publicClient, {
+    getEnsText(publicClient, {
       name: 'kesar.eth',
+      key: 'avatar',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"text\\" reverted with the following reason:
+    "The contract function \\"resolve\\" reverted with the following reason:
     execution reverted
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  text(bytes32 node, string key)
-      args:          (0xad23e4cc05a947a6fb54bcd02b082c2103b30ac7d60b17bfc5c494aa1403e33b, avatar)
+      function:  resolve(bytes name, bytes data)
+      args:             (0x056b657361720365746800, 0x59d1d43cad23e4cc05a947a6fb54bcd02b082c2103b30ac7d60b17bfc5c494aa1403e33b000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000066176617461720000000000000000000000000000000000000000000000000000)
 
     Docs: https://viem.sh/docs/contract/readContract.html
     Version: viem@1.0.2"

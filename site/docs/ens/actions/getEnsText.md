@@ -2,21 +2,21 @@
 head:
   - - meta
     - property: og:title
-      content: getEnsAvatar
+      content: getEnsText
   - - meta
     - name: description
-      content: Gets avatar for specified name.
+      content: Gets Text field for specified ENS name.
   - - meta
     - property: og:description
-      content: Gets avatar for specified name.
+      content: Gets Text field for specified ENS name.
 
 ---
 
-# getEnsAvatar
+# getEnsText
 
-Gets avatar for specified ENS.
+Gets Text field for specified ENS name.
 
-Calls `text(bytes, string)` on ENS Universal Resolver Contract to find avatar text record.
+Calls `resolve(bytes name, bytes data)` on ENS Universal Resolver Contract to find Text record.
 
 ## Usage
 
@@ -25,10 +25,11 @@ Calls `text(bytes, string)` on ENS Universal Resolver Contract to find avatar te
 ```ts [example.ts]
 import { publicClient } from './client'
  
-const ensAvatar = await publicClient.getEnsAvatar({
+const ensText = await publicClient.getEnsText({
   name: 'wagmi-dev.eth',
+  key: 'avatar',
 })
-// 'wagmi-dev.eth'
+// 'http://...'
 ```
 
 ```ts [client.ts]
@@ -51,9 +52,9 @@ Since ENS names prohibit certain forbidden characters (e.g. underscore) and have
 
 `string`
 
-The avatar for the ENS.
+The Text for the ENS.
 
-Returns `` if name does not have avatar assigned.
+Returns `` if name does not have Text assigned.
 
 ## Parameters
 
@@ -61,11 +62,25 @@ Returns `` if name does not have avatar assigned.
 
 - **Type:** string
 
-ENS name to get avatar for.
+ENS name to get Text for.
 
 ```ts
-const ensAvatar = await publicClient.getEnsAvatar({
+const ensText = await publicClient.getEnsText({
   name: 'wagmi-dev.eth', // [!code focus]
+  key: 'avatar',
+})
+```
+
+### key
+
+- **Type:** string
+
+ENS key to get Text for.
+
+```ts
+const ensText = await publicClient.getEnsText({
+  name: 'wagmi-dev.eth', // [!code focus]
+  key: 'avatar',
 })
 ```
 
@@ -76,8 +91,9 @@ const ensAvatar = await publicClient.getEnsAvatar({
 The block number to perform the read against.
 
 ```ts
-const ensAvatar = await publicClient.getEnsAvatar({
+const ensText = await publicClient.getEnsText({
   name: 'wagmi-dev.eth',
+  key: 'avatar',
   blockNumber: 15121123n, // [!code focus]
 })
 ```
@@ -90,8 +106,9 @@ const ensAvatar = await publicClient.getEnsAvatar({
 The block tag to perform the read against.
 
 ```ts
-const ensAvatar = await publicClient.getEnsAvatar({
+const ensText = await publicClient.getEnsText({
   name: 'wagmi-dev.eth',
+  key: 'avatar',
   blockTag: 'safe', // [!code focus]
 })
 ```
@@ -104,8 +121,9 @@ const ensAvatar = await publicClient.getEnsAvatar({
 Address of ENS Universal Resolver Contract.
 
 ```ts
-const ensAvatar = await publicClient.getEnsAvatar({
+const ensText = await publicClient.getEnsText({
   name: 'wagmi-dev.eth',
+  key: 'avatar',
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })
 ```
