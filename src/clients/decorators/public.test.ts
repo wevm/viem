@@ -32,6 +32,7 @@ test('default', async () => {
       "getChainId": [Function],
       "getEnsAddress": [Function],
       "getEnsName": [Function],
+      "getEnsResolver": [Function],
       "getFeeHistory": [Function],
       "getFilterChanges": [Function],
       "getFilterLogs": [Function],
@@ -159,6 +160,19 @@ describe('smoke test', () => {
       await setBlockNumber(16773780n)
       expect(
         await publicClient.getEnsName({ address: address.vitalik }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
+  test(
+    'getEnsResolver',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsResolver({ name: 'jxom.eth' }),
       ).toBeDefined()
       await setBlockNumber(blockNumber)
     },
