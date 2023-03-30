@@ -2,20 +2,18 @@ import { afterAll, beforeAll, expect, test } from 'vitest'
 import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
-import {
-  initialBlockNumber,
-  localHttpUrl,
-  publicClient,
-  setBlockNumber,
-} from '../../_test'
+import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
+import { getBlockNumber } from '../public'
 import { getEnsAddress } from './getEnsAddress'
 
+let blockNumber: bigint
 beforeAll(async () => {
+  blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
 })
 
 afterAll(async () => {
-  await setBlockNumber(initialBlockNumber)
+  await setBlockNumber(blockNumber)
 })
 
 test('gets address for name', async () => {

@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'vitest'
+import { getBlockNumber } from '../../actions'
 import { parseEther } from '../../utils'
 import {
   accounts,
   address,
   initialBlockNumber,
   publicClient,
+  setBlockNumber,
   testClient,
   usdcContractConfig,
   wagmiContractConfig,
@@ -137,15 +139,31 @@ describe('smoke test', () => {
     expect(await publicClient.getChainId()).toBeDefined()
   })
 
-  test('getEnsAddress', async () => {
-    expect(await publicClient.getEnsAddress({ name: 'jxom.eth' })).toBeDefined()
-  })
+  test(
+    'getEnsAddress',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsAddress({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
 
-  test('getEnsName', async () => {
-    expect(
-      await publicClient.getEnsName({ address: address.vitalik }),
-    ).toBeDefined()
-  })
+  test(
+    'getEnsName',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsName({ address: address.vitalik }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
 
   test('getFeeHistory', async () => {
     expect(
