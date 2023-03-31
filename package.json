@@ -29,9 +29,9 @@
       "require": "./dist/cjs/abi.js"
     },
     "./accounts": {
-      "types": "./dist/types/accounts.d.ts",
-      "import": "./dist/esm/accounts.js",
-      "require": "./dist/cjs/accounts.js"
+      "types": "./dist/types/accounts/index.d.ts",
+      "import": "./dist/esm/accounts/index.js",
+      "require": "./dist/cjs/accounts/index.js"
     },
     "./chains": {
       "types": "./dist/types/chains.d.ts",
@@ -84,6 +84,9 @@
     "*": {
       "abi": [
         "./dist/types/abi.d.ts"
+      ],
+      "accounts": [
+        "./dist/types/accounts/index.d.ts"
       ],
       "chains": [
         "./dist/types/chains.d.ts"
