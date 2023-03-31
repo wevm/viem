@@ -312,15 +312,6 @@ importers:
       vite: 4.1.4
       vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
-  playgrounds/bun:
-    specifiers:
-      bun-types: ^0.5.0
-      viem: workspace:*
-    dependencies:
-      viem: link:../..
-    devDependencies:
-      bun-types: 0.5.6
-
   site:
     specifiers:
       autoprefixer: ^10.4.13
@@ -3001,10 +2992,6 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-    dev: true
-
-  /bun-types/0.5.6:
-    resolution: {integrity: sha512-c4XXSAo4gA03XE3EIOB1bcLxUvWMzhiE9AQdoZi+3fplNLpyeOw7UJM3o1UCtk00NYZQIbgC/eJ88QrlSdxhxg==}
     dev: true
 
   /bun/0.5.6:
