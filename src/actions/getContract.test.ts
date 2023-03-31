@@ -192,7 +192,7 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
   `)
 })
 
-test.only.each([
+test.each([
   // without params
   {
     values: [['0x']],
