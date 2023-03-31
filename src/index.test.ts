@@ -136,6 +136,7 @@ test('exports actions', () => {
       "fromRlp": [Function],
       "getAbiItem": [Function],
       "getAddress": [Function],
+      "getContract": [Function],
       "getContractAddress": [Function],
       "getContractError": [Function],
       "getCreate2Address": [Function],

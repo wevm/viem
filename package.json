@@ -190,12 +190,7 @@
     "pre-commit": "pnpm format && pnpm lint:fix"
   },
   "pnpm": {
-    "overrides": {
-      "remark-shiki-twoslash>shiki": "^0.14.1",
-      "shiki-twoslash>shiki": "^0.14.1"
-    },
     "patchedDependencies": {
-      "shiki-twoslash@3.1.1": "patches/shiki-twoslash@3.1.1.patch",
       "vitepress@1.0.0-alpha.61": "patches/vitepress@1.0.0-alpha.61.patch"
     },
     "peerDependencyRules": {
