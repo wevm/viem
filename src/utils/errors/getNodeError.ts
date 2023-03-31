@@ -1,4 +1,4 @@
-import type { SendTransactionParameters } from '../../actions'
+import type { SendTransactionParameters } from '../../actions/index.js'
 import {
   BaseError,
   ExecutionRevertedError,
@@ -16,7 +16,7 @@ import {
   TransactionRejectedRpcError,
   TransactionTypeNotSupportedError,
   UnknownNodeError,
-} from '../../errors'
+} from '../../errors/index.js'
 
 export function containsNodeError(err: BaseError) {
   return (

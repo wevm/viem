@@ -7,9 +7,9 @@ import {
   ethersV6Provider,
   publicClient,
   wagmiContractConfig,
-} from '../_test'
+} from '../_test/index.js'
 
-import { getContract } from './getContract'
+import { getContract } from './getContract.js'
 
 describe('Create contract instance', () => {
   bench('viem: `getContract`', async () => {

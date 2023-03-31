@@ -1,9 +1,9 @@
 import type { TypedData } from 'abitype'
 
-import type { Hex, TypedDataDefinition } from '../../types'
-import { HashTypedDataParameters, hashTypedData } from '../../utils'
-import { sign } from './sign'
-import { signatureToHex } from './signatureToHex'
+import type { Hex, TypedDataDefinition } from '../../types/index.js'
+import { HashTypedDataParameters, hashTypedData } from '../../utils/index.js'
+import { sign } from './sign.js'
+import { signatureToHex } from './signatureToHex.js'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

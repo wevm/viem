@@ -22,22 +22,22 @@ export {
   InvalidArrayError,
   InvalidDefinitionTypeError,
   UnsupportedPackedAbiType,
-} from './abi'
+} from './abi.js'
 
-export { AccountNotFoundError } from './account'
+export { AccountNotFoundError } from './account.js'
 
-export { InvalidAddressError } from './address'
+export { InvalidAddressError } from './address.js'
 
-export { BaseError } from './base'
+export { BaseError } from './base.js'
 
-export { BlockNotFoundError } from './block'
+export { BlockNotFoundError } from './block.js'
 
 export {
   ChainDoesNotSupportContract,
   ChainMismatchError,
   ChainNotFoundError,
   InvalidChainIdError,
-} from './chain'
+} from './chain.js'
 
 export {
   CallExecutionError,
@@ -45,9 +45,9 @@ export {
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
   RawContractError,
-} from './contract'
+} from './contract.js'
 
-export { SizeExceedsPaddingSizeError } from './data'
+export { SizeExceedsPaddingSizeError } from './data.js'
 
 export {
   DataLengthTooLongError,
@@ -57,11 +57,11 @@ export {
   InvalidHexBooleanError,
   InvalidHexValueError,
   OffsetOutOfBoundsError,
-} from './encoding'
+} from './encoding.js'
 
-export { EstimateGasExecutionError } from './estimateGas'
+export { EstimateGasExecutionError } from './estimateGas.js'
 
-export { FilterTypeNotSupportedError } from './log'
+export { FilterTypeNotSupportedError } from './log.js'
 
 export {
   ExecutionRevertedError,
@@ -76,7 +76,7 @@ export {
   TipAboveFeeCapError,
   TransactionTypeNotSupportedError,
   UnknownNodeError,
-} from './node'
+} from './node.js'
 
 export {
   InternalRpcError,
@@ -96,14 +96,14 @@ export {
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
-} from './request'
+} from './request.js'
 
 export {
   HttpRequestError,
   RpcError,
   TimeoutError,
   WebSocketRequestError,
-} from './rpc'
+} from './rpc.js'
 
 export {
   FeeConflictError,
@@ -116,6 +116,6 @@ export {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
-} from './transaction'
+} from './transaction.js'
 
-export { UrlRequiredError } from './transport'
+export { UrlRequiredError } from './transport.js'

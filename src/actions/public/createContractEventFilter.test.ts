@@ -5,9 +5,9 @@ import {
   initialBlockNumber,
   publicClient,
   usdcContractConfig,
-} from '../../_test'
+} from '../../_test/index.js'
 
-import { createContractEventFilter } from './createContractEventFilter'
+import { createContractEventFilter } from './createContractEventFilter.js'
 
 test('default', async () => {
   const filter = await createContractEventFilter(publicClient, {

@@ -3,13 +3,13 @@ import type {
   TransactionSerializable,
   TransactionSerialized,
   TransactionType,
-} from '../../types'
+} from '../../types/index.js'
 import {
   GetTransactionType,
   keccak256,
   serializeTransaction,
-} from '../../utils'
-import { sign } from './sign'
+} from '../../utils/index.js'
+import { sign } from './sign.js'
 
 export type SignTransactionArgs<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,

@@ -15,7 +15,8 @@ export function withTimeout<TData>(
 ): Promise<TData> {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      let timeoutId!: NodeJS.Timeout
+      let timeoutId!: ReturnType<typeof setTimeout>
+
       try {
         const controller = new AbortController()
         if (timeout > 0) {

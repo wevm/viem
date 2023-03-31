@@ -2,13 +2,13 @@ import { HDKey } from '@scure/bip32'
 
 export { HDKey }
 
-export { generateMnemonic } from './generateMnemonic'
+export { generateMnemonic } from './generateMnemonic.js'
 
-export { generatePrivateKey } from './generatePrivateKey'
+export { generatePrivateKey } from './generatePrivateKey.js'
 
-export { privateKeyToAccount } from './privateKeyToAccount'
+export { privateKeyToAccount } from './privateKeyToAccount.js'
 
-export { toAccount } from './toAccount'
+export { toAccount } from './toAccount.js'
 
 export type {
   Account,
@@ -19,20 +19,20 @@ export type {
   LocalAccount,
   HDAccount,
   PrivateKeyAccount,
-} from './types'
+} from '../types/index.js'
 
 export type {
   SignMessageParameters,
   SignMessageReturnType,
   SignTypedDataParameters,
   SignTypedDataReturnType,
-} from './utils'
+} from '../actions/wallet/index.js'
 export {
   parseAccount,
   publicKeyToAddress,
   signMessage,
   signTypedData,
-} from './utils'
+} from '../accounts/utils/index.js'
 
 export {
   czech,
@@ -44,4 +44,4 @@ export {
   simplifiedChinese,
   spanish,
   traditionalChinese,
-} from './wordlists'
+} from './wordlists.js'

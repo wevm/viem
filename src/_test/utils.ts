@@ -7,8 +7,8 @@ import {
   getTransactionReceipt,
   mine,
   reset,
-} from '../actions'
-import { Chain, localhost, mainnet } from '../chains'
+} from '../actions/index.js'
+import { Chain, localhost, mainnet } from '../chains.js'
 import {
   createPublicClient,
   createTestClient,
@@ -16,13 +16,13 @@ import {
   custom,
   http,
   webSocket,
-} from '../clients'
-import type { Hex } from '../types'
-import { RpcError } from '../types/eip1193'
-import { rpc } from '../utils'
-import { baycContractConfig } from './abis'
-import { accounts, localWsUrl } from './constants'
-import { errorsExampleABI } from './generated'
+} from '../clients/index.js'
+import type { Hex } from '../types/index.js'
+import { RpcError } from '../types/eip1193.js'
+import { rpc } from '../utils/index.js'
+import { baycContractConfig } from './abis.js'
+import { accounts, localWsUrl } from './constants.js'
+import { errorsExampleABI } from './generated.js'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'

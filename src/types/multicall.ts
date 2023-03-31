@@ -1,5 +1,8 @@
 import type { Abi } from 'abitype'
-import type { ContractFunctionConfig, ContractFunctionResult } from './contract'
+import type {
+  ContractFunctionConfig,
+  ContractFunctionResult,
+} from './contract.js'
 
 type MAXIMUM_DEPTH = 20
 

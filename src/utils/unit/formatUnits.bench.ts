@@ -2,7 +2,7 @@ import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import { formatUnits as formatUnitsV6 } from 'ethers@6'
 
-import { formatUnits } from './formatUnits'
+import { formatUnits } from './formatUnits.js'
 
 describe('Format Unit', () => {
   bench('viem: `formatUnits`', () => {

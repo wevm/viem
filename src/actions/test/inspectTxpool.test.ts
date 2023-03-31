@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { accounts, testClient, walletClient } from '../../_test'
-import { parseEther } from '../../utils'
-import { sendTransaction } from '../wallet/sendTransaction'
+import { accounts, testClient, walletClient } from '../../_test/index.js'
+import { parseEther } from '../../utils/index.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 
-import { inspectTxpool } from './inspectTxpool'
-import { mine } from './mine'
+import { inspectTxpool } from './inspectTxpool.js'
+import { mine } from './mine.js'
 
 test('inspects txpool (empty)', async () => {
   await mine(testClient, { blocks: 1 })

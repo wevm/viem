@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { publicKeyToAddress } from './publicKeyToAddress'
+import { publicKeyToAddress } from './publicKeyToAddress.js'
 
 test('default', () => {
   expect(

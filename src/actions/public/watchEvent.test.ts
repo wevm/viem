@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-import { getAddress } from '../../utils'
-import { wait } from '../../utils/wait'
+import { getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   accounts,
   address,
@@ -8,14 +8,18 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
-import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { writeContract } from '../wallet'
-import * as createEventFilter from './createEventFilter'
-import * as getBlockNumber from './getBlockNumber'
-import * as getLogs from './getLogs'
-import * as getFilterChanges from './getFilterChanges'
-import { OnLogsParameter, watchEvent } from './watchEvent'
+} from '../../_test/index.js'
+import {
+  impersonateAccount,
+  mine,
+  stopImpersonatingAccount,
+} from '../test/index.js'
+import { writeContract } from '../wallet/index.js'
+import * as createEventFilter from './createEventFilter.js'
+import * as getBlockNumber from './getBlockNumber.js'
+import * as getLogs from './getLogs.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import { OnLogsParameter, watchEvent } from './watchEvent.js'
 
 const event = {
   transfer: {

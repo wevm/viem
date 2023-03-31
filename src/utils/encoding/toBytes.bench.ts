@@ -1,8 +1,8 @@
-import { arrayify, toUtf8Bytes } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { toBeArray } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { hexToBytes, stringToBytes } from './toBytes'
+import { hexToBytes, stringToBytes } from './toBytes.js'
 
 describe.skip('Hex to Bytes', () => {
   bench('viem: `hexToBytes`', () => {
@@ -10,7 +10,7 @@ describe.skip('Hex to Bytes', () => {
   })
 
   bench('ethers@5: `arrayify`', () => {
-    arrayify('0x48656c6c6f20576f726c6421')
+    ethersV5Utils.arrayify('0x48656c6c6f20576f726c6421')
   })
 
   bench('ethers@6: `toBeArray`', () => {
@@ -24,6 +24,6 @@ describe.skip('String to Bytes', () => {
   })
 
   bench('ethers: `toUtf8Bytes`', () => {
-    toUtf8Bytes('Hello world')
+    ethersV5Utils.toUtf8Bytes('Hello world')
   })
 })

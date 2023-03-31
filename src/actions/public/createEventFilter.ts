@@ -1,5 +1,5 @@
 import type { Abi, AbiEvent, Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients/index.js'
 
 import type {
   Address,
@@ -11,12 +11,12 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
   Prettify,
-} from '../../types'
+} from '../../types/index.js'
 import {
   encodeEventTopics,
   EncodeEventTopicsParameters,
   numberToHex,
-} from '../../utils'
+} from '../../utils/index.js'
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

@@ -5,7 +5,7 @@ import type {
   IsNever,
   IsUndefined,
   RequiredBy,
-} from './utils'
+} from './utils.js'
 
 test('Filter', () => {
   expectTypeOf<Filter<[1, 'foo', false, 'baz'], 1 | boolean>>().toEqualTypeOf<

@@ -6,8 +6,12 @@ import type {
   GetEnsNameReturnType,
   GetEnsResolverParameters,
   GetEnsResolverReturnType,
-} from '../../actions/ens'
-import { getEnsAddress, getEnsName, getEnsResolver } from '../../actions/ens'
+} from '../../actions/ens/index.js'
+import {
+  getEnsAddress,
+  getEnsName,
+  getEnsResolver,
+} from '../../actions/ens/index.js'
 import type {
   CallParameters,
   CallReturnType,
@@ -71,7 +75,7 @@ import type {
   WatchEventReturnType,
   WatchPendingTransactionsParameters,
   WatchPendingTransactionsReturnType,
-} from '../../actions/public'
+} from '../../actions/public/index.js'
 import {
   call,
   createBlockFilter,
@@ -106,15 +110,15 @@ import {
   watchContractEvent,
   watchEvent,
   watchPendingTransactions,
-} from '../../actions/public'
+} from '../../actions/public/index.js'
 import type {
   Chain,
   ContractFunctionConfig,
   FilterType,
   MaybeExtractEventArgsFromAbi,
-} from '../../types'
-import type { PublicClient } from '../createPublicClient'
-import type { Transport } from '../transports'
+} from '../../types/index.js'
+import type { PublicClient } from '../createPublicClient.js'
+import type { Transport } from '../transports/index.js'
 
 export type PublicActions<
   TTransport extends Transport = Transport,
@@ -256,7 +260,15 @@ export type PublicActions<
   ) => WatchPendingTransactionsReturnType
 }
 
-export const publicActions = <
+// NOTE: The explicit type annotation is necessary to work around a type inferrence issue with
+// `moduleResolution` set to `NodeNext`. It might be possible to remove it after bumping the
+// `abitype` package to `NodeNext` too.
+export const publicActions: <
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+>(
+  client: PublicClient<TTransport, TChain>,
+) => PublicActions<TTransport, TChain> = <
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 >(

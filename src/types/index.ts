@@ -12,7 +12,7 @@ export type {
   LocalAccount,
   ParseAccount,
   PrivateKeyAccount,
-} from './account'
+} from './account.js'
 
 export type {
   Block,
@@ -20,9 +20,9 @@ export type {
   BlockNumber,
   BlockTag,
   Uncle,
-} from './block'
+} from './block.js'
 
-export type { Chain, ChainContract, GetChain } from './chain'
+export type { Chain, ChainContract, GetChain } from './chain.js'
 
 export type {
   AbiItem,
@@ -42,28 +42,28 @@ export type {
   InferItemName,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
-} from './contract'
+} from './contract.js'
 
 export type {
   FeeHistory,
   FeeValues,
   FeeValuesEIP1559,
   FeeValuesLegacy,
-} from './fee'
+} from './fee.js'
 
-export type { Filter, FilterType } from './filter'
+export type { Filter, FilterType } from './filter.js'
 
-export type { Formatter, Formatters } from './formatter'
+export type { Formatter, Formatters } from './formatter.js'
 
-export type { Log } from './log'
+export type { Log } from './log.js'
 
-export type { ByteArray, Hex, Hash, LogTopic, Signature } from './misc'
+export type { ByteArray, Hex, Hash, LogTopic, Signature } from './misc.js'
 
 export type {
   MulticallContracts,
   MulticallResult,
   MulticallResults,
-} from './multicall'
+} from './multicall.js'
 
 export type {
   Index,
@@ -78,7 +78,7 @@ export type {
   RpcTransactionRequest,
   RpcTransaction,
   RpcUncle,
-} from './rpc'
+} from './rpc.js'
 
 export type {
   AccessList,
@@ -103,9 +103,9 @@ export type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedLegacy,
-} from './transaction'
+} from './transaction.js'
 
-export type { GetTransportConfig } from './transport'
+export type { GetTransportConfig } from './transport.js'
 
 export type {
   GetTypedDataDomain,
@@ -113,7 +113,7 @@ export type {
   GetTypedDataPrimaryType,
   GetTypedDataTypes,
   TypedDataDefinition,
-} from './typedData'
+} from './typedData.js'
 
 export type {
   IsNarrowable,
@@ -123,4 +123,4 @@ export type {
   Prettify,
   MergeIntersectionProperties,
   OptionalNullable,
-} from './utils'
+} from './utils.js'

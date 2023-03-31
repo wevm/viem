@@ -1,5 +1,5 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   BlockNumber,
@@ -11,10 +11,14 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
   RpcLog,
-} from '../../types'
-import type { EncodeEventTopicsParameters } from '../../utils'
-import { decodeEventLog, encodeEventTopics, numberToHex } from '../../utils'
-import { formatLog } from '../../utils/formatters/log'
+} from '../../types/index.js'
+import type { EncodeEventTopicsParameters } from '../../utils/index.js'
+import {
+  decodeEventLog,
+  encodeEventTopics,
+  numberToHex,
+} from '../../utils/index.js'
+import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

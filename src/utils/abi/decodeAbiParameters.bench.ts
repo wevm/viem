@@ -1,8 +1,8 @@
-import { AbiCoder } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { AbiCoder as AbiCoderV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { decodeAbiParameters } from './decodeAbiParameters'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
 
 describe('ABI Decode (static struct)', () => {
   bench('viem: `decodeAbiParameters`', () => {
@@ -63,7 +63,7 @@ describe('ABI Decode (static struct)', () => {
   })
 
   bench('ethers@5: `AbiCoder.decode`', () => {
-    const coder = new AbiCoder()
+    const coder = new ethersV5Utils.AbiCoder()
     coder.decode(
       [
         {

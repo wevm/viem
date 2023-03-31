@@ -1,7 +1,7 @@
 import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 
-import { getContractAddress } from './getContractAddress'
+import { getContractAddress } from './getContractAddress.js'
 
 describe.skip('Get Contract Address (CREATE)', () => {
   bench('viem: getContractAddress', () => {

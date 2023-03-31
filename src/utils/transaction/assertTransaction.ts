@@ -4,13 +4,13 @@ import {
   InvalidAddressError,
   InvalidChainIdError,
   TipAboveFeeCapError,
-} from '../../errors'
+} from '../../errors/index.js'
 import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableLegacy,
-} from '../../types'
-import { isAddress } from '../address'
+} from '../../types/index.js'
+import { isAddress } from '../address/index.js'
 
 export function assertTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,

@@ -1,8 +1,8 @@
-export { getContract } from './actions'
+export { getContract } from './actions/index.js'
 export type {
   GetContractParameters,
   GetContractReturnType,
-} from './actions'
+} from './actions/index.js'
 
 export type {
   AddChainParameters,
@@ -120,7 +120,7 @@ export type {
   WatchPendingTransactionsReturnType,
   WriteContractParameters,
   WriteContractReturnType,
-} from './actions'
+} from './actions/index.js'
 
 export type {
   Client,
@@ -141,7 +141,7 @@ export type {
   WalletClientConfig,
   WebSocketTransport,
   WebSocketTransportConfig,
-} from './clients'
+} from './clients/index.js'
 export {
   createClient,
   createPublicClient,
@@ -152,9 +152,14 @@ export {
   fallback,
   http,
   webSocket,
-} from './clients'
+} from './clients/index.js'
 
-export { multicall3Abi, etherUnits, gweiUnits, weiUnits } from './constants'
+export {
+  multicall3Abi,
+  etherUnits,
+  gweiUnits,
+  weiUnits,
+} from './constants/index.js'
 
 export {
   AbiConstructorNotFoundError,
@@ -235,7 +240,7 @@ export {
   WaitForTransactionReceiptTimeoutError,
   WebSocketRequestError,
   UnknownNodeError,
-} from './errors'
+} from './errors/index.js'
 
 export type {
   AbiItem,
@@ -310,9 +315,9 @@ export type {
   TransactionSerializedLegacy,
   TransactionType,
   Uncle,
-} from './types'
+} from './types/index.js'
 
-export { labelhash, namehash } from './utils/ens'
+export { labelhash, namehash } from './utils/ens/index.js'
 
 export type {
   BlockFormatter,
@@ -362,7 +367,7 @@ export type {
   VerifyMessageReturnType,
   VerifyTypedDataParameters,
   VerifyTypedDataReturnType,
-} from './utils'
+} from './utils/index.js'
 export {
   assertRequest,
   assertTransactionEIP1559,
@@ -460,4 +465,4 @@ export {
   validateTypedData,
   verifyMessage,
   verifyTypedData,
-} from './utils'
+} from './utils/index.js'

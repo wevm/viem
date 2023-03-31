@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { pad, padBytes, padHex } from './pad'
+import { pad, padBytes, padHex } from './pad.js'
 
 test('default', () => {
   expect(pad('0xa4e12a45')).toMatchInlineSnapshot(

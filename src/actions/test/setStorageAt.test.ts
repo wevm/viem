@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient } from '../../_test'
-import { setStorageAt } from './setStorageAt'
+import { accounts, publicClient, testClient } from '../../_test/index.js'
+import { setStorageAt } from './setStorageAt.js'
 
 const targetAccount = accounts[0]
 

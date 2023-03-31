@@ -10,7 +10,7 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { PublicClient, Transport, WalletClient } from '../clients'
+import type { PublicClient, Transport, WalletClient } from '../clients/index.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
   Account,
@@ -20,7 +20,7 @@ import type {
   IsUndefined,
   MaybeExtractEventArgsFromAbi,
   Prettify,
-} from '../types'
+} from '../types/index.js'
 import {
   WatchContractEventParameters,
   WatchContractEventReturnType,
@@ -37,12 +37,12 @@ import {
   CreateContractEventFilterReturnType,
   EstimateContractGasReturnType,
   SimulateContractReturnType,
-} from './public'
+} from './public/index.js'
 import {
   WriteContractParameters,
   WriteContractReturnType,
   writeContract,
-} from './wallet'
+} from './wallet/index.js'
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,

@@ -8,22 +8,22 @@ import {
   testClient,
   walletClient,
   usdcContractConfig,
-} from '../../_test'
+} from '../../_test/index.js'
 
 import {
   impersonateAccount,
   mine,
   setIntervalMining,
   stopImpersonatingAccount,
-} from '../test'
-import { sendTransaction, writeContract } from '../wallet'
-import { getAddress, parseEther } from '../../utils'
-import type { Hash, Log } from '../../types'
-import { createBlockFilter } from './createBlockFilter'
-import { createEventFilter } from './createEventFilter'
-import { createPendingTransactionFilter } from './createPendingTransactionFilter'
-import { getFilterChanges } from './getFilterChanges'
-import { createContractEventFilter } from './createContractEventFilter'
+} from '../test/index.js'
+import { sendTransaction, writeContract } from '../wallet/index.js'
+import { getAddress, parseEther } from '../../utils/index.js'
+import type { Hash, Log } from '../../types/index.js'
+import { createBlockFilter } from './createBlockFilter.js'
+import { createEventFilter } from './createEventFilter.js'
+import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
+import { getFilterChanges } from './getFilterChanges.js'
+import { createContractEventFilter } from './createContractEventFilter.js'
 
 const event = {
   default: {

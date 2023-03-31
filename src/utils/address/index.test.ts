@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as address from './index'
+import * as address from './index.js'
 
 test('exports address', () => {
   expect(address).toMatchInlineSnapshot(`

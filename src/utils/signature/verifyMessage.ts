@@ -1,6 +1,10 @@
 import type { Address } from 'abitype'
-import type { Hex, ByteArray } from '../../types'
-import { getAddress, isAddressEqual, recoverMessageAddress } from '../../utils'
+import type { Hex, ByteArray } from '../../types/index.js'
+import {
+  getAddress,
+  isAddressEqual,
+  recoverMessageAddress,
+} from '../../utils/index.js'
 
 export type VerifyMessageParameters = {
   address: Address

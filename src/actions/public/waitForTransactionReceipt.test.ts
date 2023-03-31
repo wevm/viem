@@ -1,12 +1,17 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { WaitForTransactionReceiptTimeoutError } from '../../errors'
-import { wait } from '../../utils/wait'
-import { waitForTransactionReceipt } from './waitForTransactionReceipt'
-import { hexToNumber, parseEther, parseGwei } from '../../utils'
-import { sendTransaction } from '..'
-import { mine, setIntervalMining } from '../test'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/index.js'
+import { WaitForTransactionReceiptTimeoutError } from '../../errors/index.js'
+import { wait } from '../../utils/wait.js'
+import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
+import { hexToNumber, parseEther, parseGwei } from '../../utils/index.js'
+import { sendTransaction } from '../index.js'
+import { mine, setIntervalMining } from '../test/index.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

@@ -11,53 +11,53 @@ export {
   parseAbiParameters,
 } from 'abitype'
 
-export type { DecodeAbiParametersReturnType } from './decodeAbiParameters'
-export { decodeAbiParameters } from './decodeAbiParameters'
+export type { DecodeAbiParametersReturnType } from './decodeAbiParameters.js'
+export { decodeAbiParameters } from './decodeAbiParameters.js'
 
 export type {
   DecodeErrorResultParameters,
   DecodeErrorResultReturnType,
-} from './decodeErrorResult'
-export { decodeErrorResult } from './decodeErrorResult'
+} from './decodeErrorResult.js'
+export { decodeErrorResult } from './decodeErrorResult.js'
 
 export type {
   DecodeEventLogParameters,
   DecodeEventLogReturnType,
-} from './decodeEventLog'
-export { decodeEventLog } from './decodeEventLog'
+} from './decodeEventLog.js'
+export { decodeEventLog } from './decodeEventLog.js'
 
-export type { DecodeFunctionDataParameters } from './decodeFunctionData'
-export { decodeFunctionData } from './decodeFunctionData'
+export type { DecodeFunctionDataParameters } from './decodeFunctionData.js'
+export { decodeFunctionData } from './decodeFunctionData.js'
 
 export type {
   DecodeFunctionResultParameters,
   DecodeFunctionResultReturnType,
-} from './decodeFunctionResult'
-export { decodeFunctionResult } from './decodeFunctionResult'
+} from './decodeFunctionResult.js'
+export { decodeFunctionResult } from './decodeFunctionResult.js'
 
-export type { EncodeAbiParametersReturnType } from './encodeAbiParameters'
-export { encodeAbiParameters } from './encodeAbiParameters'
+export type { EncodeAbiParametersReturnType } from './encodeAbiParameters.js'
+export { encodeAbiParameters } from './encodeAbiParameters.js'
 
-export type { EncodeDeployDataParameters } from './encodeDeployData'
-export { encodeDeployData } from './encodeDeployData'
+export type { EncodeDeployDataParameters } from './encodeDeployData.js'
+export { encodeDeployData } from './encodeDeployData.js'
 
-export type { EncodeErrorResultParameters } from './encodeErrorResult'
-export { encodeErrorResult } from './encodeErrorResult'
+export type { EncodeErrorResultParameters } from './encodeErrorResult.js'
+export { encodeErrorResult } from './encodeErrorResult.js'
 
-export type { EncodeEventTopicsParameters } from './encodeEventTopics'
-export { encodeEventTopics } from './encodeEventTopics'
+export type { EncodeEventTopicsParameters } from './encodeEventTopics.js'
+export { encodeEventTopics } from './encodeEventTopics.js'
 
-export type { EncodeFunctionDataParameters } from './encodeFunctionData'
-export { encodeFunctionData } from './encodeFunctionData'
+export type { EncodeFunctionDataParameters } from './encodeFunctionData.js'
+export { encodeFunctionData } from './encodeFunctionData.js'
 
-export type { EncodeFunctionResultParameters } from './encodeFunctionResult'
-export { encodeFunctionResult } from './encodeFunctionResult'
+export type { EncodeFunctionResultParameters } from './encodeFunctionResult.js'
+export { encodeFunctionResult } from './encodeFunctionResult.js'
 
-export { encodePacked } from './encodePacked'
+export { encodePacked } from './encodePacked.js'
 
-export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
+export { formatAbiItemWithArgs } from './formatAbiItemWithArgs.js'
 
-export { formatAbiItem } from './formatAbiItem'
+export { formatAbiItem } from './formatAbiItem.js'
 
-export type { GetAbiItemParameters } from './getAbiItem'
-export { getAbiItem } from './getAbiItem'
+export type { GetAbiItemParameters } from './getAbiItem.js'
+export { getAbiItem } from './getAbiItem.js'

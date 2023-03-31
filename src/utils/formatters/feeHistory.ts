@@ -1,4 +1,4 @@
-import type { FeeHistory, RpcFeeHistory } from '../../types'
+import type { FeeHistory, RpcFeeHistory } from '../../types/index.js'
 
 export function formatFeeHistory(feeHistory: RpcFeeHistory): FeeHistory {
   return {

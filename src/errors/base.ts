@@ -1,4 +1,4 @@
-import { getVersion } from './utils'
+import { getVersion } from '../errors/utils.js'
 
 type BaseErrorParameters = {
   docsPath?: string

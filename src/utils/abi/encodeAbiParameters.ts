@@ -12,11 +12,11 @@ import {
   InvalidAbiEncodingTypeError,
   InvalidAddressError,
   InvalidArrayError,
-} from '../../errors'
-import type { Hex } from '../../types'
-import { isAddress } from '../address'
-import { concat, padHex, size, slice } from '../data'
-import { boolToHex, numberToHex, stringToHex } from '../encoding'
+} from '../../errors/index.js'
+import type { Hex } from '../../types/index.js'
+import { isAddress } from '../address/index.js'
+import { concat, padHex, size, slice } from '../data/index.js'
+import { boolToHex, numberToHex, stringToHex } from '../encoding/index.js'
 
 export type EncodeAbiParametersReturnType = Hex
 

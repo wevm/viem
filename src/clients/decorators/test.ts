@@ -23,7 +23,7 @@ import type {
   SetNonceParameters,
   SetStorageAtParameters,
   StopImpersonatingAccountParameters,
-} from '../../actions/test'
+} from '../../actions/test/index.js'
 import {
   dropTransaction,
   getAutomine,
@@ -53,10 +53,10 @@ import {
   setStorageAt,
   snapshot,
   stopImpersonatingAccount,
-} from '../../actions/test'
-import type { Chain, Quantity } from '../../types'
-import type { TestClient, TestClientMode } from '../createTestClient'
-import type { Transport } from '../transports'
+} from '../../actions/test/index.js'
+import type { Chain, Quantity } from '../../types/index.js'
+import type { TestClient, TestClientMode } from '../createTestClient.js'
+import type { Transport } from '../transports/index.js'
 
 export type TestActions = {
   dropTransaction: (args: DropTransactionParameters) => Promise<void>

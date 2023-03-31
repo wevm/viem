@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test'
-import { wait } from '../../utils/wait'
+import { publicClient, testClient } from '../../_test/index.js'
+import { wait } from '../../utils/wait.js'
 
-import { getBlock } from '../public/getBlock'
-import { setNextBlockTimestamp } from './setNextBlockTimestamp'
+import { getBlock } from '../public/getBlock.js'
+import { setNextBlockTimestamp } from './setNextBlockTimestamp.js'
 
 test('sets block timestamp interval', async () => {
   const block1 = await getBlock(publicClient, {

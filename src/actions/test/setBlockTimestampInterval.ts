@@ -1,5 +1,9 @@
 import type { Chain } from '@wagmi/chains'
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type {
+  TestClient,
+  TestClientMode,
+  Transport,
+} from '../../clients/index.js'
 
 export type SetBlockTimestampIntervalParameters = {
   /** The interval (in seconds). */

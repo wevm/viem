@@ -1,13 +1,13 @@
-import type { Block, BlockIdentifier, BlockNumber, Uncle } from './block'
-import type { FeeHistory, FeeValues } from './fee'
-import type { Log } from './log'
+import type { Block, BlockIdentifier, BlockNumber, Uncle } from './block.js'
+import type { FeeHistory, FeeValues } from './fee.js'
+import type { Log } from './log.js'
 import type {
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequest,
-} from './transaction'
+} from './transaction.js'
 
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`

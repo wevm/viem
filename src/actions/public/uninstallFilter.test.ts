@@ -1,14 +1,19 @@
 import { assertType, expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/index.js'
 
-import { createPendingTransactionFilter } from './createPendingTransactionFilter'
-import { getFilterChanges } from './getFilterChanges'
-import { uninstallFilter } from './uninstallFilter'
-import { mine } from '../test'
-import { sendTransaction } from '../wallet'
-import { parseEther } from '../../utils'
-import type { Hash } from '../../types'
+import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
+import { getFilterChanges } from './getFilterChanges.js'
+import { uninstallFilter } from './uninstallFilter.js'
+import { mine } from '../test/index.js'
+import { sendTransaction } from '../wallet/index.js'
+import { parseEther } from '../../utils/index.js'
+import type { Hash } from '../../types/index.js'
 
 test('default', async () => {
   const filter = await createPendingTransactionFilter(publicClient)

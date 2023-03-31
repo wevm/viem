@@ -1,4 +1,4 @@
-import type { Address } from '../../types'
+import type { Address } from '../../types/index.js'
 
 const addressRegex = /^0x[a-fA-F0-9]{40}$/
 

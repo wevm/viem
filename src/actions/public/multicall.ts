@@ -1,28 +1,28 @@
 import type { Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
-import { multicall3Abi } from '../../constants'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import { multicall3Abi } from '../../constants/index.js'
 import {
   AbiDecodingZeroDataError,
   BaseError,
   RawContractError,
-} from '../../errors'
+} from '../../errors/index.js'
 import type {
   Address,
   Chain,
   ContractFunctionConfig,
   Hex,
   MulticallContracts,
-} from '../../types'
-import type { MulticallResults } from '../../types/multicall'
+} from '../../types/index.js'
+import type { MulticallResults } from '../../types/multicall.js'
 import {
   decodeFunctionResult,
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getChainContractAddress,
   getContractError,
-} from '../../utils'
-import type { CallParameters } from './call'
-import { readContract } from './readContract'
+} from '../../utils/index.js'
+import type { CallParameters } from './call.js'
+import { readContract } from './readContract.js'
 
 export type MulticallParameters<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],

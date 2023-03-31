@@ -1,4 +1,4 @@
-import type { Events, Requests } from './eip1193'
+import type { Events, Requests } from './eip1193.js'
 
 type WindowProvider = Requests & Events
 

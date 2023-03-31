@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { stringify } from './stringify'
+import { stringify } from './stringify.js'
 
 test('default', () => {
   expect(

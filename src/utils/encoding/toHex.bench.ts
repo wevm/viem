@@ -1,4 +1,4 @@
-import { hexlify, toUtf8Bytes } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import {
   toBeHex,
   hexlify as hexlifyV6,
@@ -6,7 +6,7 @@ import {
 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { bytesToHex, numberToHex, stringToHex } from './toHex'
+import { bytesToHex, numberToHex, stringToHex } from './toHex.js'
 
 describe.skip('Number to Hex', () => {
   bench('viem: `numberToHex`', () => {
@@ -14,7 +14,7 @@ describe.skip('Number to Hex', () => {
   })
 
   bench('ethers@5: `hexlify`', () => {
-    hexlify(52)
+    ethersV5Utils.hexlify(52)
   })
 
   bench('ethers@6: `hexlify`', () => {
@@ -28,7 +28,7 @@ describe('String to Hex', () => {
   })
 
   bench('ethers@5: `hexlify`', () => {
-    hexlify(toUtf8Bytes('Hello world.'))
+    ethersV5Utils.hexlify(ethersV5Utils.toUtf8Bytes('Hello world.'))
   })
 
   bench('ethers@6: `hexlify`', () => {
@@ -44,7 +44,7 @@ describe('Bytes to Hex', () => {
   })
 
   bench('ethers@5: `hexlify`', () => {
-    hexlify(
+    ethersV5Utils.hexlify(
       new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
     )
   })
