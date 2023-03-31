@@ -1,4 +1,4 @@
-import { getPublicKey } from '@noble/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { Hex } from '../types'
 import { toHex } from '../utils'
@@ -17,7 +17,7 @@ import type { PrivateKeyAccount } from './types'
  * @returns A Private Key Account.
  */
 export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
-  const publicKey = toHex(getPublicKey(privateKey.slice(2)))
+  const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
   const address = publicKeyToAddress(publicKey)
 
   const account = toAccount({

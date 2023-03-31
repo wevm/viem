@@ -1,3 +1,13 @@
+export { getEnsAddress, getEnsName, getEnsResolver } from './ens'
+export type {
+  GetEnsAddressParameters,
+  GetEnsAddressReturnType,
+  GetEnsNameParameters,
+  GetEnsNameReturnType,
+  GetEnsResolverParameters,
+  GetEnsResolverReturnType,
+} from './ens'
+
 export {
   call,
   createBlockFilter,

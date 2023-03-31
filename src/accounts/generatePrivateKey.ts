@@ -1,4 +1,4 @@
-import { utils } from '@noble/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { Hex } from '../types'
 import { toHex } from '../utils'
@@ -9,5 +9,5 @@ import { toHex } from '../utils'
  * @returns A randomly generated private key.
  */
 export function generatePrivateKey(): Hex {
-  return toHex(utils.randomPrivateKey())
+  return toHex(secp256k1.utils.randomPrivateKey())
 }

@@ -17,7 +17,7 @@ head:
 A Private Key Account is an interface that has the ability to sign transactions and messages with a given private key.
 
 ::: info
-viem internally uses [`@noble/secp256k1`](https://github.com/paulmillr/noble-secp256k1), an **audited** implementation of [secp256k1](https://www.secg.org/sec2-v2.pdf), for our private key & signing implementation.
+viem internally uses [`@noble/curves`](https://github.com/paulmillr/noble-curves), an **audited** implementation of [secp256k1](https://www.secg.org/sec2-v2.pdf), for our private key & signing implementation.
 :::
 
 ## Import

@@ -2,21 +2,21 @@
 head:
   - - meta
     - property: og:title
-      content: getEnsAddress
+      content: getEnsResolver
   - - meta
     - name: description
-      content: Gets address for ENS name.
+      content: Gets resolver for ENS name.
   - - meta
     - property: og:description
-      content: Gets address for ENS name.
+      content: Gets resolver for ENS name.
 
 ---
 
-# getEnsAddress
+# getEnsResolver
 
-Gets address for ENS name.
+Gets resolver for ENS name.
 
-Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract to resolve the ENS name to address.
+Calls `findResolver(bytes)` on ENS Universal Resolver Contract to retrieve the resolver of an ENS name.
 
 ## Usage
 
@@ -26,10 +26,10 @@ Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract to resolve the 
 import { normalize } from 'viem/ens'
 import { publicClient } from './client'
  
-const ensAddress = await publicClient.getEnsAddress({
+const resolverAddress = await publicClient.getEnsResolver({
   name: normalize('wagmi-dev.eth'),
 })
-// '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+// '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
 ```
 
 ```ts [client.ts]
@@ -45,16 +45,14 @@ export const publicClient = createPublicClient({
 :::
 
 ::: warning
-Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](/docs/ens/utilities/normalize) function for this.
+Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsResolver`. You can use the built-in [`normalize`](/docs/ens/utilities/normalize) function for this.
 :::
 
 ## Returns
 
 [`Address`](/docs/glossary/types#address)
 
-The address that resolves to provided ENS name.
-
-Returns `0x0000000000000000000000000000000000000000` if ENS name does not resolve to address.
+The address of the resolver.
 
 ## Parameters
 
@@ -65,7 +63,7 @@ Returns `0x0000000000000000000000000000000000000000` if ENS name does not resolv
 Name to get the address for.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensName = await publicClient.getEnsResolver({
   name: normalize('wagmi-dev.eth'), // [!code focus]
 })
 ```
@@ -77,7 +75,7 @@ const ensName = await publicClient.getEnsAddress({
 The block number to perform the read against.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensName = await publicClient.getEnsResolver({
   name: normalize('wagmi-dev.eth'),
   blockNumber: 15121123n, // [!code focus]
 })
@@ -91,7 +89,7 @@ const ensName = await publicClient.getEnsAddress({
 The block tag to perform the read against.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensName = await publicClient.getEnsResolver({
   name: normalize('wagmi-dev.eth'),
   blockTag: 'safe', // [!code focus]
 })
@@ -105,14 +103,8 @@ const ensName = await publicClient.getEnsAddress({
 Address of ENS Universal Resolver Contract.
 
 ```ts
-const ensName = await publicClient.getEnsAddress({
+const ensName = await publicClient.getEnsResolver({
   name: normalize('wagmi-dev.eth'),
   universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376', // [!code focus]
 })
 ```
-
-## Live Example
-
-Check out the usage of `getEnsAddress` in the live [ENS Examples](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens) below.
-
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

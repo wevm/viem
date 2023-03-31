@@ -1,57 +1,51 @@
 import { afterAll, beforeAll, expect, test } from 'vitest'
 import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
+import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
+import { getBlockNumber } from '../public'
+import { getEnsResolver } from './getEnsResolver'
 
-import {
-  address,
-  initialBlockNumber,
-  localHttpUrl,
-  publicClient,
-  setBlockNumber,
-} from '../../_test'
-
-import { getEnsName } from './getEnsName'
-
+let blockNumber: bigint
 beforeAll(async () => {
+  blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
 })
 
 afterAll(async () => {
-  await setBlockNumber(initialBlockNumber)
+  await setBlockNumber(blockNumber)
 })
 
-test('gets primary name for address', async () => {
-  await expect(
-    getEnsName(publicClient, {
-      address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+test('default', async () => {
+  expect(
+    await getEnsResolver(publicClient, {
+      name: 'jxom.eth',
     }),
-  ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
-})
-
-test('address with no primary name', async () => {
-  await expect(
-    getEnsName(publicClient, {
-      address: address.burn,
+  ).toMatchInlineSnapshot('"0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41"')
+  expect(
+    await getEnsResolver(publicClient, {
+      name: 'test.eth',
     }),
-  ).resolves.toMatchInlineSnapshot('null')
+  ).toMatchInlineSnapshot('"0x226159d592E2b063810a10Ebf6dcbADA94Ed68b8"')
 })
 
 test('custom universal resolver address', async () => {
   await expect(
-    getEnsName(publicClient, {
-      address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    getEnsResolver(publicClient, {
+      name: 'awkweb.eth',
       universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
     }),
-  ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
+  ).resolves.toMatchInlineSnapshot(
+    '"0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41"',
+  )
 })
 
 test('chain not provided', async () => {
   await expect(
-    getEnsName(
+    getEnsResolver(
       createPublicClient({
         transport: http(localHttpUrl),
       }),
-      { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' },
+      { name: 'awkweb.eth' },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"client chain not configured. universalResolverAddress is required."',
@@ -60,13 +54,13 @@ test('chain not provided', async () => {
 
 test('universal resolver contract not configured for chain', async () => {
   await expect(
-    getEnsName(
+    getEnsResolver(
       createPublicClient({
         chain: optimism,
         transport: http(),
       }),
       {
-        address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+        name: 'jxom.eth',
       },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -81,8 +75,8 @@ test('universal resolver contract not configured for chain', async () => {
 
 test('universal resolver contract deployed on later block', async () => {
   await expect(
-    getEnsName(publicClient, {
-      address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    getEnsResolver(publicClient, {
+      name: 'jxom.eth',
       blockNumber: 14353601n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -97,18 +91,18 @@ test('universal resolver contract deployed on later block', async () => {
 
 test('invalid universal resolver address', async () => {
   await expect(
-    getEnsName(publicClient, {
-      address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    getEnsResolver(publicClient, {
+      name: 'jxom.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"reverse\\" reverted with the following reason:
+    "The contract function \\"findResolver\\" reverted with the following reason:
     execution reverted
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  reverse(bytes reverseName)
-      args:             (0x28613063663739383831366434623962393836366235333330656561343661313833383266323531650461646472077265766572736500)
+      function:  findResolver(bytes)
+      args:                  (0x046a786f6d0365746800)
 
     Docs: https://viem.sh/docs/contract/readContract.html
     Version: viem@1.0.2"
