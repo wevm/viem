@@ -7,7 +7,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "viem": "latest"
+    "viem": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^4.9.4",
