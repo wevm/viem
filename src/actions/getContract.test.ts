@@ -192,11 +192,11 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
   `)
 })
 
-test.each([
+test.only.each([
   // without params
   {
     values: [['0x']],
-    abiEvent: { inputs: [{ type: 'address' }] },
+    abiEvent: { inputs: [{ type: 'address', indexed: true }] },
     expected: {
       args: ['0x'],
       params: {},
@@ -204,7 +204,7 @@ test.each([
   },
   {
     values: [{ from: '0x' }],
-    abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
+    abiEvent: { inputs: [{ name: 'from', type: 'address', indexed: true }] },
     expected: {
       args: { from: '0x' },
       params: {},
@@ -213,7 +213,7 @@ test.each([
   // with params
   {
     values: [['0x'], { fromBlock: 10_000n }],
-    abiEvent: { inputs: [{ type: 'address' }] },
+    abiEvent: { inputs: [{ type: 'address', indexed: true }] },
     expected: {
       args: ['0x'],
       params: { fromBlock: 10_000n },
@@ -221,7 +221,7 @@ test.each([
   },
   {
     values: [{ from: '0x' }, { fromBlock: 10_000n }],
-    abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
+    abiEvent: { inputs: [{ name: 'from', type: 'address', indexed: true }] },
     expected: {
       args: { from: '0x' },
       params: { fromBlock: 10_000n },

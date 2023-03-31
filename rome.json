@@ -2,8 +2,9 @@
   "files": {
     "ignore": [
       ".next", "**/node_modules", "CHANGELOG.md", "cache", "coverage", "dist",
-      "generated.ts", "pnpm-lock.yaml", "./abi", "./chains", "./contract",
-      "./ens", "./public", "./test", "./utils", "./wallet", "./window"
+      "generated.ts", "package.json", "pnpm-lock.yaml", "./abi", "./chains",
+      "./contract", "./ens", "./public", "./test", "./utils", "./wallet",
+      "./window"
     ]
   },
   "formatter": {

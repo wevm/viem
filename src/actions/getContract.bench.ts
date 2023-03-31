@@ -11,7 +11,7 @@ import {
 
 import { getContract } from './getContract'
 
-describe('Contract instance', () => {
+describe('Create contract instance', () => {
   bench('viem: `getContract`', async () => {
     const _contract = getContract({
       ...wagmiContractConfig,
@@ -32,6 +32,41 @@ describe('Contract instance', () => {
       wagmiContractConfig.address,
       wagmiContractConfig.abi,
       ethersV6Provider,
+    )
+  })
+})
+
+const viemContract = getContract({
+  ...wagmiContractConfig,
+  publicClient,
+})
+const ethersV5Contract = new Contract(
+  wagmiContractConfig.address,
+  wagmiContractConfig.abi,
+  ethersProvider,
+)
+const ethersV6Contract = new Contractv6(
+  wagmiContractConfig.address,
+  wagmiContractConfig.abi,
+  ethersV6Provider,
+)
+
+describe('Call contract read function', () => {
+  bench('viem: `contract.read.balanceOf`', async () => {
+    await viemContract.read.balanceOf([
+      '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    ])
+  })
+
+  bench('ethers@5: `contract.balanceOf`', async () => {
+    await ethersV5Contract.balanceOf(
+      '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    )
+  })
+
+  bench('ethers@6: `contract.balanceOf`', async () => {
+    await ethersV6Contract.balanceOf(
+      '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
     )
   })
 })

@@ -424,7 +424,10 @@ export function getContract<
   >
 }
 
-function getFunctionArgsAndParams(
+/**
+ * @internal exporting for testing only
+ */
+export function getFunctionArgsAndParams(
   rest: [args?: readonly unknown[], params?: object],
 ) {
   const hasArgs = rest.length && Array.isArray(rest[0])
@@ -443,13 +446,10 @@ export function getEventArgsAndParams(
   let hasArgs = false
   // If first item is array, must be `args`
   if (Array.isArray(rest[0])) hasArgs = true
-  // Check if only item is `args` or `params`
+  // Check if first item is `args` or `params`
   else if (rest.length === 1) {
-    // check params against abi
-    // this won't work if the event has inputs with the same names as `params`
-    hasArgs = abiEvent.inputs.some(
-      (input) => input.name && input.name in rest[0]!,
-    )
+    // if event has indexed inputs, must have `args`
+    hasArgs = abiEvent.inputs.some((x) => x.indexed)
     // If there are two items in array, must have `args`
   } else if (rest.length === 2) {
     hasArgs = true
