@@ -338,7 +338,7 @@ export function getContract<
           get(_, eventName: string) {
             return (
               ...rest: [
-                args?: object,
+                args?: readonly unknown[] | object,
                 params?: Omit<
                   CreateContractEventFilterParameters,
                   'abi' | 'address' | 'eventName' | 'args'
@@ -365,15 +365,23 @@ export function getContract<
         {
           get(_, eventName: string) {
             return (
-              params: Omit<
-                WatchContractEventParameters,
-                'abi' | 'address' | 'eventName'
-              >,
+              ...rest: [
+                args?: readonly unknown[] | object,
+                params?: Omit<
+                  WatchContractEventParameters,
+                  'abi' | 'address' | 'eventName'
+                >,
+              ]
             ) => {
+              const abiEvent = (abi as readonly AbiEvent[]).find(
+                (x: AbiEvent) => x.type === 'event' && x.name === eventName,
+              )
+              const { args, params } = getEventArgsAndParams(rest, abiEvent!)
               return watchContractEvent(publicClient, {
                 abi,
                 address,
                 eventName,
+                args,
                 ...params,
               } as WatchContractEventParameters)
             }
