@@ -1,4 +1,4 @@
-import { assertType, expect, test } from 'vitest'
+import { assertType, expect, expectTypeOf, test } from 'vitest'
 
 import {
   accounts,
@@ -46,6 +46,10 @@ test('args: args', async () => {
   })
   expect(filter.abi).toEqual(usdcContractConfig.abi)
   expect(filter.args).toEqual({
+    from: accounts[0].address,
+    to: accounts[0].address,
+  })
+  expectTypeOf(filter.args).toEqualTypeOf({
     from: accounts[0].address,
     to: accounts[0].address,
   })

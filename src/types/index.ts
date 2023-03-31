@@ -1,7 +1,5 @@
 export type { Address } from 'abitype'
 
-export type { IsInferrableAbi } from './abi'
-
 export type {
   Account,
   AccountSource,
@@ -118,6 +116,7 @@ export type {
 } from './typedData'
 
 export type {
+  IsNarrowable,
   IsNever,
   IsUndefined,
   PartialBy,

@@ -125,9 +125,12 @@ test('simulate', async () => {
 })
 
 test('watchEvent', async () => {
-  const unwatch = contract.watchEvent.Transfer({
-    onLogs: () => {},
-  })
+  const unwatch = contract.watchEvent.Transfer(
+    {},
+    {
+      onLogs: () => {},
+    },
+  )
   unwatch()
 })
 

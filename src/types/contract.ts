@@ -213,7 +213,7 @@ export type GetErrorArgs<
 export type GetEventArgs<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
-  TConfig extends EventParametersConfig = EventParametersDefaultConfig,
+  TConfig extends EventParameterOptions = DefaultEventParameterOptions,
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },
@@ -245,17 +245,6 @@ export type GetEventArgsFromTopics<
 //////////////////////////////////////////////////////////////////////
 // ABI event types
 
-// TODO: Consolidate these
-type EventParametersConfig = {
-  EnableUnion: boolean
-  IndexedOnly: boolean
-  Required: boolean
-}
-type EventParametersDefaultConfig = {
-  EnableUnion: true
-  IndexedOnly: true
-  Required: false
-}
 type EventParameterOptions = {
   EnableUnion?: boolean
   IndexedOnly?: boolean

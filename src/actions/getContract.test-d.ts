@@ -1,8 +1,9 @@
-import type {
+import {
   Abi,
   Address,
   ExtractAbiEventNames,
   ExtractAbiFunctionNames,
+  parseAbi,
   ResolvedConfig,
 } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
@@ -359,23 +360,16 @@ test('with and without wallet client `account`', () => {
     walletClient: walletClientWithoutAccount,
   })
 
-  expectTypeOf(contractWithAccount.write.mint).parameters.toEqualTypeOf<
-    [params?: { account?: Account | Address }]
-  >()
-  expectTypeOf(contractWithoutAccount.write.mint).parameters.toEqualTypeOf<
-    [params: { account: Account | Address }]
-  >()
-
   expectTypeOf(contractWithAccount.write.approve).parameters.toEqualTypeOf<
     [
       args: readonly [`0x${string}`, bigint],
-      params?: { account?: Account | Address },
+      options?: { account?: Account | Address },
     ]
   >()
   expectTypeOf(contractWithoutAccount.write.approve).parameters.toEqualTypeOf<
     [
       args: readonly [`0x${string}`, bigint],
-      params: { account: Account | Address },
+      options: { account: Account | Address },
     ]
   >()
 })
@@ -391,13 +385,6 @@ test('with and without wallet client `chain`', () => {
     publicClient,
     walletClient: walletClientWithoutChain,
   })
-
-  expectTypeOf(contractWithChain.write.mint).parameters.toEqualTypeOf<
-    [params?: { chain?: Chain | null }]
-  >()
-  expectTypeOf(contractWithoutChain.write.mint).parameters.toEqualTypeOf<
-    [params: { chain: Chain | null | undefined }]
-  >()
 
   expectTypeOf(contractWithChain.write.approve).parameters.toEqualTypeOf<
     [args: readonly [`0x${string}`, bigint], params?: { chain?: Chain | null }]
@@ -673,4 +660,178 @@ test('empty abi', () => {
     walletClient,
   })
   expectTypeOf(contract).toEqualTypeOf<{}>()
+})
+
+test('argument permutations', async () => {
+  const abi = parseAbi([
+    // functions
+    'function nonpayableWithoutArgs()',
+    'function nonpayableWithArgs(string x, uint256 y)',
+    'function payableWithoutArgs() payable',
+    'function payableWithArgs(string x, uint256 y) payable',
+    'function pureWithoutArgs() pure returns (string)',
+    'function pureWithArgs(string x, uint256 y) pure returns (string)',
+    'function viewWithoutArgs() view returns (string)',
+    'function viewWithArgs(string x, uint256 y) view returns (string)',
+
+    'function overloadedNonpayable()',
+    'function overloadedNonpayable(string x)',
+    'function overloadedNonpayable(string x, uint256 y)',
+    'function overloadedNonpayable2(string x)',
+    'function overloadedNonpayable2(string x, uint256 y)',
+
+    'function overloadedView() view returns (string)',
+    'function overloadedView(string x) view returns (string)',
+    'function overloadedView(string x, uint256 y) view returns (string)',
+    'function overloadedView2(string x) view returns (string)',
+    'function overloadedView2(string x, uint256 y) view returns (string)',
+
+    // events
+    'event WithoutInputs()',
+    'event WithIndexedNamedInputs(string indexed x, uint256 indexed y)',
+    'event WithIndexedUnnamedInputs(string indexed, uint256 indexed)',
+    'event WithUnindexedInputs(string x, uint256 y)',
+    'event WithMixedNamedInputs(string indexed x, uint256 y)',
+    'event WithMixedUnnamedInputs(string indexed, uint256 y)',
+  ])
+  const contract = getContract({
+    ...wagmiContractConfig,
+    abi,
+    publicClient,
+    walletClient,
+  })
+
+  // estimateGas
+  contract.estimateGas.nonpayableWithoutArgs({ account: '0x' })
+  contract.estimateGas.nonpayableWithArgs(['foo', 69n], { account: '0x' })
+  contract.estimateGas.payableWithoutArgs({ account: '0x' })
+  contract.estimateGas.payableWithArgs(['foo', 69n], { account: '0x' })
+
+  contract.estimateGas.overloadedNonpayable({ account: '0x' })
+  contract.estimateGas.overloadedNonpayable(['foo'], { account: '0x' })
+  contract.estimateGas.overloadedNonpayable2(['foo'], { account: '0x' })
+  contract.estimateGas.overloadedNonpayable2(['foo', 69n], { account: '0x' })
+
+  // read
+  contract.read.pureWithoutArgs()
+  contract.read.pureWithoutArgs({ blockNumber: 123n })
+  contract.read.pureWithArgs(['foo', 69n])
+  contract.read.pureWithArgs(['foo', 69n], { blockNumber: 123n })
+  contract.read.viewWithoutArgs()
+  contract.read.viewWithoutArgs({ blockNumber: 123n })
+  contract.read.viewWithArgs(['foo', 69n])
+  contract.read.viewWithArgs(['foo', 69n], { blockNumber: 123n })
+
+  contract.read.overloadedView()
+  contract.read.overloadedView(['foo'])
+  contract.read.overloadedView2(['foo'])
+  contract.read.overloadedView2(['foo', 69n])
+
+  const read_1 = await contract.read.viewWithArgs(['foo', 69n])
+  expectTypeOf(read_1).toEqualTypeOf<string>()
+
+  // simulate
+  contract.simulate.nonpayableWithoutArgs({ account: '0x' })
+  contract.simulate.nonpayableWithArgs(['foo', 69n], { account: '0x' })
+  contract.simulate.payableWithoutArgs({ account: '0x' })
+  contract.simulate.payableWithArgs(['foo', 69n], { account: '0x' })
+
+  contract.simulate.overloadedNonpayable({ account: '0x' })
+  contract.simulate.overloadedNonpayable(['foo'], { account: '0x' })
+  contract.simulate.overloadedNonpayable2(['foo'], { account: '0x' })
+  contract.simulate.overloadedNonpayable2(['foo', 69n], { account: '0x' })
+
+  // write
+  contract.write.nonpayableWithoutArgs()
+  contract.write.nonpayableWithoutArgs({ nonce: 123 })
+  contract.write.nonpayableWithArgs(['foo', 69n])
+  contract.write.nonpayableWithArgs(['foo', 69n], { nonce: 123 })
+  contract.write.payableWithoutArgs()
+  contract.write.payableWithoutArgs({ nonce: 123, value: 123n })
+  contract.write.payableWithArgs(['foo', 69n])
+  contract.write.payableWithArgs(['foo', 69n], {
+    nonce: 123,
+    value: 123n,
+  })
+
+  contract.write.overloadedNonpayable()
+  contract.write.overloadedNonpayable(['foo'])
+  contract.write.overloadedNonpayable2(['foo'])
+  contract.write.overloadedNonpayable2(['foo', 69n])
+
+  // createEventFilter
+  contract.createEventFilter.WithoutInputs()
+  contract.createEventFilter.WithoutInputs({ fromBlock: 123n })
+
+  contract.createEventFilter.WithIndexedNamedInputs({
+    x: 'foo',
+    y: null,
+  })
+  contract.createEventFilter.WithIndexedNamedInputs({ x: 'foo' })
+  contract.createEventFilter.WithIndexedNamedInputs(
+    { x: 'foo' },
+    { fromBlock: 123n },
+  )
+
+  contract.createEventFilter.WithIndexedUnnamedInputs([])
+  contract.createEventFilter.WithIndexedUnnamedInputs(['foo'])
+  contract.createEventFilter.WithIndexedUnnamedInputs(['foo'], {
+    fromBlock: 123n,
+  })
+
+  contract.createEventFilter.WithUnindexedInputs({
+    fromBlock: 123n,
+  })
+
+  contract.createEventFilter.WithMixedNamedInputs({})
+  contract.createEventFilter.WithMixedNamedInputs({ x: 'foo ' })
+  contract.createEventFilter.WithMixedNamedInputs(
+    { x: 'foo' },
+    { fromBlock: 123n },
+  )
+
+  contract.createEventFilter.WithMixedUnnamedInputs([])
+  contract.createEventFilter.WithMixedUnnamedInputs(['foo'])
+  contract.createEventFilter.WithMixedUnnamedInputs(['foo'], {
+    fromBlock: 123n,
+  })
+
+  const createEventFilter_1 =
+    await contract.createEventFilter.WithIndexedNamedInputs({
+      x: 'foo',
+      y: null,
+    })
+  expectTypeOf(createEventFilter_1.eventName)
+    .toEqualTypeOf<'WithIndexedNamedInputs'>
+  expectTypeOf(createEventFilter_1.args).toEqualTypeOf<{ x: 'foo'; y: null }>()
+  const createEventFilter_2 =
+    await contract.createEventFilter.WithIndexedUnnamedInputs(['foo'])
+  expectTypeOf(createEventFilter_2.eventName)
+    .toEqualTypeOf<'WithIndexedUnnamedInputs'>
+  expectTypeOf(createEventFilter_2.args).toEqualTypeOf<['foo']>()
+
+  // watchEvent
+  // @ts-expect-error
+  contract.watchEvent.WithoutInputs()
+  contract.watchEvent.WithoutInputs({ onLogs, pollingInterval: 4_000 })
+
+  contract.watchEvent.WithIndexedNamedInputs({}, { onLogs })
+  contract.watchEvent.WithIndexedNamedInputs({ x: 'foo' }, { onLogs })
+  contract.watchEvent.WithIndexedNamedInputs({ x: 'foo' }, { onLogs })
+
+  contract.watchEvent.WithIndexedUnnamedInputs([], { onLogs })
+  contract.watchEvent.WithIndexedUnnamedInputs(['foo'], { onLogs })
+  contract.watchEvent.WithIndexedUnnamedInputs(['foo'], { onLogs })
+
+  contract.watchEvent.WithUnindexedInputs({ onLogs })
+
+  contract.watchEvent.WithMixedNamedInputs({}, { onLogs })
+  contract.watchEvent.WithMixedNamedInputs({ x: 'foo ' }, { onLogs })
+  contract.watchEvent.WithMixedNamedInputs({ x: 'foo' }, { onLogs })
+
+  contract.watchEvent.WithMixedUnnamedInputs([], { onLogs })
+  contract.watchEvent.WithMixedUnnamedInputs(['foo'], { onLogs })
+  contract.watchEvent.WithMixedUnnamedInputs(['foo'], { onLogs })
+
+  function onLogs() {}
 })

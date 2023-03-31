@@ -1,19 +1,24 @@
 import type {
   Abi,
   AbiEvent,
+  AbiFunction,
+  AbiParametersToPrimitiveTypes,
   Address,
   ExtractAbiEvent,
   ExtractAbiEventNames,
+  ExtractAbiFunction,
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
 import type { PublicClient, Transport, WalletClient } from '../clients'
 import type {
+  AbiEventParametersToPrimitiveTypes,
   Account,
   Chain,
-  IsInferrableAbi,
+  IsNarrowable,
   IsNever,
   IsUndefined,
+  MaybeExtractEventArgsFromAbi,
   Prettify,
 } from '../types'
 import {
@@ -21,8 +26,6 @@ import {
   WatchContractEventReturnType,
   ReadContractParameters,
   ReadContractReturnType,
-  CreateEventFilterParameters,
-  CreateEventFilterReturnType,
   SimulateContractParameters,
   readContract,
   simulateContract,
@@ -31,6 +34,7 @@ import {
   createContractEventFilter,
   CreateContractEventFilterParameters,
   watchContractEvent,
+  CreateContractEventFilterReturnType,
 } from './public'
 import {
   WriteContractParameters,
@@ -77,12 +81,7 @@ export type GetContractReturnType<
       ? string
       : ExtractAbiFunctionNames<TAbi, 'nonpayable' | 'payable'>
     : string,
-  _Account extends Account | undefined = TWalletClient extends WalletClient
-    ? TWalletClient['account']
-    : undefined,
-  _Chain extends Chain | undefined = TWalletClient extends WalletClient
-    ? TWalletClient['chain']
-    : undefined,
+  _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = Prettify<
   (TPublicClient extends PublicClient
     ? (IsNever<_ReadFunctionNames> extends true
@@ -97,6 +96,7 @@ export type GetContractReturnType<
              */
             read: {
               [FunctionName in _ReadFunctionNames]: GetReadFunction<
+                _Narrowable,
                 TAbi,
                 FunctionName
               >
@@ -110,8 +110,11 @@ export type GetContractReturnType<
                */
               estimateGas: {
                 [FunctionName in _WriteFunctionNames]: GetWriteFunction<
-                  _Chain,
-                  _Account,
+                  _Narrowable,
+                  TPublicClient extends PublicClient
+                    ? TPublicClient['chain']
+                    : undefined,
+                  undefined,
                   TAbi,
                   FunctionName
                 >
@@ -125,8 +128,11 @@ export type GetContractReturnType<
                */
               simulate: {
                 [FunctionName in _WriteFunctionNames]: GetWriteFunction<
-                  _Chain,
-                  _Account,
+                  _Narrowable,
+                  TPublicClient extends PublicClient
+                    ? TPublicClient['chain']
+                    : undefined,
+                  undefined,
                   TAbi,
                   FunctionName
                 >
@@ -140,7 +146,9 @@ export type GetContractReturnType<
                */
               createEventFilter: {
                 [EventName in _EventNames]: GetEventFilter<
-                  ExtractAbiEvent<TAbi extends Abi ? TAbi : Abi, EventName>
+                  _Narrowable,
+                  TAbi,
+                  EventName
                 >
               }
               /**
@@ -151,7 +159,11 @@ export type GetContractReturnType<
                * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
                */
               watchEvent: {
-                [EventName in _EventNames]: GetWatchEvent<TAbi, EventName>
+                [EventName in _EventNames]: GetWatchEvent<
+                  _Narrowable,
+                  TAbi,
+                  EventName
+                >
               }
             })
     : unknown) &
@@ -170,8 +182,13 @@ export type GetContractReturnType<
              */
             write: {
               [FunctionName in _WriteFunctionNames]: GetWriteFunction<
-                _Chain,
-                _Account,
+                _Narrowable,
+                TWalletClient extends WalletClient
+                  ? TWalletClient['chain']
+                  : undefined,
+                TWalletClient extends WalletClient
+                  ? TWalletClient['account']
+                  : undefined,
                 TAbi,
                 FunctionName
               >
@@ -444,113 +461,143 @@ export function getEventArgsAndParams(
 }
 
 type GetReadFunction<
+  Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-  _Parameters = Omit<
-    ReadContractParameters<TAbi, TFunctionName>,
-    'abi' | 'address' | 'functionName'
+  TAbiFunction extends AbiFunction = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction,
+  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
+  Options = Prettify<
+    Omit<
+      ReadContractParameters<TAbi, TFunctionName>,
+      'abi' | 'address' | 'args' | 'functionName'
+    >
   >,
-  _ReturnType = ReadContractReturnType<TAbi, TFunctionName>,
-> = IsInferrableAbi<TAbi> extends true
-  ? _Parameters extends { args: readonly unknown[] }
-    ? (
-        /** Arguments to pass contract method */
-        args: _Parameters['args'],
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => Promise<_ReturnType>
-    : (params?: Prettify<Omit<_Parameters, 'args'>>) => Promise<_ReturnType>
+> = Narrowable extends true
+  ? (
+      ...parameters: Args extends readonly []
+        ? [options?: Options]
+        : [args: Args, options?: Options]
+    ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
   : (
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on `getContract` `abi` for type inference.
-       */
-      args?: readonly unknown[],
-      params?: Prettify<Omit<_Parameters, 'args'>>,
-    ) => Promise<unknown>
+      ...parameters:
+        | [options?: Options]
+        | [args: readonly unknown[], options?: Options]
+    ) => Promise<ReadContractReturnType>
 
 type GetWriteFunction<
+  Narrowable extends boolean,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
   TChainOverride extends Chain | undefined = Chain | undefined,
-  _Parameters = Omit<
-    WriteContractParameters<
-      TAbi,
-      TFunctionName,
-      TChain,
-      TAccount,
-      TChainOverride
-    >,
-    'abi' | 'address' | 'functionName'
+  TAbiFunction extends AbiFunction = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction,
+  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
+  Options = Prettify<
+    Omit<
+      WriteContractParameters<
+        TAbi,
+        TFunctionName,
+        TChain,
+        TAccount,
+        TChainOverride
+      >,
+      'abi' | 'address' | 'args' | 'functionName'
+    >
   >,
-  _ReturnType = WriteContractReturnType,
-  _Params extends unknown[] = [
-    IsUndefined<TAccount>,
-    IsUndefined<TChain>,
-  ] extends [true, false] | [false, true]
-    ? [params: Prettify<Omit<_Parameters, 'args'>>]
-    : [params?: Prettify<Omit<_Parameters, 'args'>>],
-> = IsInferrableAbi<TAbi> extends true
-  ? _Parameters extends { args: readonly unknown[] }
-    ? (
-        /** Arguments to pass contract method */
-        args: _Parameters['args'],
-        ...rest: _Params
-      ) => Promise<_ReturnType>
-    : (...rest: _Params) => Promise<_ReturnType>
+  // For making `options` parameter required if `TAccount` or `TChain` is undefined
+  Rest extends unknown[] = [IsUndefined<TAccount>, IsUndefined<TChain>] extends
+    | [true, false]
+    | [false, true]
+    ? [options: Options]
+    : [options?: Options],
+> = Narrowable extends true
+  ? (
+      ...parameters: Args extends readonly []
+        ? Rest
+        : [args: Args, ...rest: Rest]
+    ) => Promise<WriteContractReturnType>
   : (
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on `getContract` `abi` for type inference.
-       */
-      args?: readonly unknown[],
-      ...rest: _Params
-    ) => Promise<unknown>
+      ...parameters:
+        | [options?: Rest]
+        | [args: readonly unknown[], options?: Rest]
+    ) => Promise<WriteContractReturnType>
 
 type GetEventFilter<
-  TAbiEvent extends AbiEvent,
-  _Parameters = Omit<
-    CreateEventFilterParameters<TAbiEvent>,
-    'address' | 'event'
+  Narrowable extends boolean,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string,
+  TAbiEvent extends AbiEvent = TAbi extends Abi
+    ? ExtractAbiEvent<TAbi, TEventName>
+    : AbiEvent,
+  Args = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
+  Options = Prettify<
+    Omit<
+      CreateContractEventFilterParameters<TAbi, TEventName>,
+      'abi' | 'address' | 'args' | 'eventName'
+    >
   >,
-> = [
-  TAbiEvent extends AbiEvent ? true : false,
-  AbiEvent extends TAbiEvent ? true : false,
-] extends [true, false]
-  ? _Parameters extends { args?: object }
-    ? (
-        /** Arguments to pass event */
-        args?: _Parameters['args'],
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => CreateEventFilterReturnType
-    : (
-        params?: Prettify<Omit<_Parameters, 'args'>>,
-      ) => CreateEventFilterReturnType
+  IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
+> = Narrowable extends true
+  ? <TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined>(
+      ...parameters: IsNever<IndexedInputs> extends true
+        ? [options?: Options]
+        : [
+            args: Args | (Args extends Narrow<TArgs> ? Narrow<TArgs> : never),
+            options?: Options,
+          ]
+    ) => Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>>
   : (
-      /**
-       * Arguments to pass event
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on `getContract` `abi` for type inference.
-       */
-      args?: object | undefined,
-      params?: Prettify<Omit<_Parameters, 'args'>>,
-    ) => CreateEventFilterReturnType
+      ...parameters:
+        | [options?: Options]
+        | [
+            args: readonly unknown[] | CreateContractFilterOptions,
+            options?: Options,
+          ]
+    ) => Promise<CreateContractEventFilterReturnType>
 
 type GetWatchEvent<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string = string,
-  _Parameters = Omit<
-    WatchContractEventParameters<TAbi, TEventName>,
-    'abi' | 'address' | 'eventName'
+  Narrowable extends boolean,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends string,
+  TAbiEvent extends AbiEvent = TAbi extends Abi
+    ? ExtractAbiEvent<TAbi, TEventName>
+    : AbiEvent,
+  Args = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
+  Options = Prettify<
+    Omit<
+      WatchContractEventParameters<TAbi, TEventName>,
+      'abi' | 'address' | 'args' | 'eventName'
+    >
   >,
-> = IsInferrableAbi<TAbi> extends true
-  ? (params?: _Parameters) => WatchContractEventReturnType
-  : (
-      /**
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on `getContract` `abi` for type inference.
-       */
-      params?: _Parameters,
+  IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
+> = Narrowable extends true
+  ? (
+      ...parameters: IsNever<IndexedInputs> extends true
+        ? [options: Options]
+        : [args: Args, options: Options]
     ) => WatchContractEventReturnType
+  : (
+      ...parameters:
+        | [options?: Options]
+        | [
+            args: readonly unknown[] | WatchContractEventOptions,
+            options?: Options,
+          ]
+    ) => WatchContractEventReturnType
+
+type CreateContractFilterOptions =
+  RemoveProperties<CreateContractEventFilterParameters>
+type WatchContractEventOptions = RemoveProperties<WatchContractEventParameters>
+
+type RemoveProperties<T extends object> = Prettify<
+  {
+    [key: string]: unknown
+  } & {
+    [_ in keyof T]?: never
+  }
+>

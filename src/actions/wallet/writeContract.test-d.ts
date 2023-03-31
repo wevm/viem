@@ -3,7 +3,7 @@ import { seaportAbi } from 'abitype/test'
 
 import type { WriteContractParameters } from './writeContract'
 
-test('WriteContractParameters', () => {
+test('WriteContractParameters', async () => {
   type Result = WriteContractParameters<typeof seaportAbi, 'cancel'>
   expectTypeOf<Result['functionName']>().toEqualTypeOf<
     | 'cancel'
