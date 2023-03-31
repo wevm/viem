@@ -77,10 +77,10 @@ importers:
   examples/_template:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -88,10 +88,10 @@ importers:
   examples/blocks/fetching-blocks:
     specifiers:
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -99,10 +99,10 @@ importers:
   examples/blocks/watching-blocks:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -110,10 +110,10 @@ importers:
   examples/clients/public-client:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -126,12 +126,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -147,12 +147,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -163,10 +163,10 @@ importers:
   examples/contracts/multicall:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -174,10 +174,10 @@ importers:
   examples/contracts/reading-contracts:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -190,12 +190,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -206,10 +206,10 @@ importers:
   examples/ens:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -217,10 +217,10 @@ importers:
   examples/filters-and-logs/block-event-logs:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -228,10 +228,10 @@ importers:
   examples/filters-and-logs/event-logs:
     specifiers:
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -244,12 +244,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -260,10 +260,10 @@ importers:
   examples/transactions/fetching-transactions:
     specifiers:
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
@@ -276,12 +276,12 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.4
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -297,25 +297,36 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^4.9.3
-      viem: latest
+      viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      viem: 0.1.25_typescript@4.9.5
+      viem: link:../..
     devDependencies:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
       '@vitejs/plugin-react': 3.1.0_vite@4.1.4
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   playgrounds/bun:
     specifiers:
       bun-types: ^0.5.0
-      viem: latest
+      viem: workspace:*
     dependencies:
-      viem: 0.1.25
+      viem: link:../..
+    devDependencies:
+      bun-types: 0.5.6
+
+  playgrounds/cjs:
+    specifiers:
+      bun-types: ^0.5.0
+      viem: workspace:*
+    dependencies:
+      viem: link:../..
     devDependencies:
       bun-types: 0.5.6
 
@@ -1802,6 +1813,7 @@ packages:
 
   /@noble/secp256k1/1.7.1:
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
+    dev: true
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2485,15 +2497,6 @@ packages:
       - vue
     dev: true
 
-  /@wagmi/chains/0.2.15:
-    resolution: {integrity: sha512-yeNamxRmqq1/PirJqCpKHSJcetZ9ivZdJnCIvNvJifpCz1A2dLlD1+NON11saiyShH7tshS5Eaf0pm9Luna8JQ==}
-    peerDependencies:
-      typescript: '>=4.9.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dev: false
-
   /@wagmi/chains/0.2.15_typescript@4.9.5:
     resolution: {integrity: sha512-yeNamxRmqq1/PirJqCpKHSJcetZ9ivZdJnCIvNvJifpCz1A2dLlD1+NON11saiyShH7tshS5Eaf0pm9Luna8JQ==}
     peerDependencies:
@@ -2685,16 +2688,6 @@ packages:
       typescript: 4.9.5
       zod: 3.20.2
     dev: true
-
-  /abitype/0.7.1:
-    resolution: {integrity: sha512-VBkRHTDZf9Myaek/dO3yMmOzB/y2s3Zo6nVU7yaw1G+TvCHAjwaJzNGN9yo4K5D8bU/VZXKP1EJpRhFr862PlQ==}
-    peerDependencies:
-      typescript: '>=4.9.4'
-      zod: ^3 >=3.19.1
-    peerDependenciesMeta:
-      zod:
-        optional: true
-    dev: false
 
   /abitype/0.7.1_typescript@4.9.5:
     resolution: {integrity: sha512-VBkRHTDZf9Myaek/dO3yMmOzB/y2s3Zo6nVU7yaw1G+TvCHAjwaJzNGN9yo4K5D8bU/VZXKP1EJpRhFr862PlQ==}
@@ -4314,6 +4307,10 @@ packages:
       ignore: 5.2.0
       merge2: 1.4.1
       slash: 4.0.0
+    dev: true
+
+  /globrex/0.1.2:
+    resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
     dev: true
 
   /graceful-fs/4.2.10:
@@ -6211,6 +6208,19 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /tsconfck/2.1.1_typescript@4.9.5:
+    resolution: {integrity: sha512-ZPCkJBKASZBmBUNqGHmRhdhM8pJYDdOXp4nRgj/O0JwUwsMq50lCDRQP/M5GBNAA0elPrq4gAeu4dkaVCuKWww==}
+    engines: {node: ^14.13.1 || ^16 || >=18}
+    hasBin: true
+    peerDependencies:
+      typescript: ^4.3.5 || ^5.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.5
+    dev: true
+
   /tslib/2.4.0:
     resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
     dev: true
@@ -6351,40 +6361,6 @@ packages:
       spdx-expression-parse: 3.0.1
     dev: true
 
-  /viem/0.1.25:
-    resolution: {integrity: sha512-osRxFsoICgu6jE/377UXxUJ84XHqv+Cn8To+q1uw29C4ar2KQhMJmvwEfJwaYLIh47ee2KMT2hwALoucd5Qq8w==}
-    dependencies:
-      '@noble/hashes': 1.3.0
-      '@noble/secp256k1': 1.7.1
-      '@wagmi/chains': 0.2.15
-      abitype: 0.7.1
-      idna-uts46-hx: 4.1.2
-      isomorphic-ws: 5.0.0_ws@8.12.0
-      ws: 8.12.0
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-    dev: false
-
-  /viem/0.1.25_typescript@4.9.5:
-    resolution: {integrity: sha512-osRxFsoICgu6jE/377UXxUJ84XHqv+Cn8To+q1uw29C4ar2KQhMJmvwEfJwaYLIh47ee2KMT2hwALoucd5Qq8w==}
-    dependencies:
-      '@noble/hashes': 1.3.0
-      '@noble/secp256k1': 1.7.1
-      '@wagmi/chains': 0.2.15_typescript@4.9.5
-      abitype: 0.7.1_typescript@4.9.5
-      idna-uts46-hx: 4.1.2
-      isomorphic-ws: 5.0.0_ws@8.12.0
-      ws: 8.12.0
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-    dev: false
-
   /vite-node/0.29.2_@types+node@17.0.45:
     resolution: {integrity: sha512-5oe1z6wzI3gkvc4yOBbDBbgpiWiApvuN4P55E8OI131JGrSuo4X3SOZrNmZYo4R8Zkze/dhi572blX0zc+6SdA==}
     engines: {node: '>=v14.16.0'}
@@ -6404,6 +6380,23 @@ packages:
       - sugarss
       - supports-color
       - terser
+    dev: true
+
+  /vite-tsconfig-paths/4.0.7_vwvfc4ezh6jlf6pa67auy3eulu:
+    resolution: {integrity: sha512-MwIYaby6kcbQGZqMH+gAK6h0UYQGOkjsuAgw4q6bP/5vWkn8VKvnmLuCQHA2+IzHAJHnE8OFTO4lnJLFMf9+7Q==}
+    peerDependencies:
+      vite: '*'
+    peerDependenciesMeta:
+      vite:
+        optional: true
+    dependencies:
+      debug: 4.3.4
+      globrex: 0.1.2
+      tsconfck: 2.1.1_typescript@4.9.5
+      vite: 4.1.4
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
     dev: true
 
   /vite/4.1.4:

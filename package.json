@@ -127,7 +127,7 @@
     "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
     "dev:docs": "pnpm --filter site dev",
-    "format": "rome format src/ --write",
+    "format": "rome format . --write",
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply",
     "playground": "pnpm --filter playground-browser dev",
