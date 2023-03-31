@@ -2,7 +2,7 @@
 head:
   - - meta
     - property: og:title
-      content: getContract
+      content: Contract Instances
   - - meta
     - name: description
       content: Returns type-safe contract instance.
@@ -12,8 +12,9 @@ head:
 
 ---
 
-# getContract
+# Contract Instances
 
 Gets type-safe contract instance.
 
-twoslash (styles)
+- Type-safety and inference
+- WalletClient/PublicClient actions enabled/disabled

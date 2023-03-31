@@ -386,6 +386,10 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsed: true,
       items: [
         {
+          text: 'Contract Instances',
+          link: '/docs/contract/getContract',
+        },
+        {
           text: 'Actions',
           items: [
             {
@@ -403,10 +407,6 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'getBytecode',
               link: '/docs/contract/getBytecode',
-            },
-            {
-              text: 'getContract',
-              link: '/docs/contract/getContract',
             },
             {
               text: 'getStorageAt',

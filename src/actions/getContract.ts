@@ -35,6 +35,8 @@ import {
   CreateContractEventFilterParameters,
   watchContractEvent,
   CreateContractEventFilterReturnType,
+  EstimateContractGasReturnType,
+  SimulateContractReturnType,
 } from './public'
 import {
   WriteContractParameters,
@@ -109,12 +111,11 @@ export type GetContractReturnType<
                * Estimates the gas necessary to complete a transaction without submitting it to the network.
                */
               estimateGas: {
-                [FunctionName in _WriteFunctionNames]: GetWriteFunction<
+                [FunctionName in _WriteFunctionNames]: GetEstimateFunction<
                   _Narrowable,
                   TPublicClient extends PublicClient
                     ? TPublicClient['chain']
                     : undefined,
-                  undefined,
                   TAbi,
                   FunctionName
                 >
@@ -127,12 +128,11 @@ export type GetContractReturnType<
                * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
                */
               simulate: {
-                [FunctionName in _WriteFunctionNames]: GetWriteFunction<
+                [FunctionName in _WriteFunctionNames]: GetSimulateFunction<
                   _Narrowable,
                   TPublicClient extends PublicClient
                     ? TPublicClient['chain']
                     : undefined,
-                  undefined,
                   TAbi,
                   FunctionName
                 >
@@ -462,8 +462,8 @@ export function getEventArgsAndParams(
 
 type GetReadFunction<
   Narrowable extends boolean,
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
@@ -486,45 +486,140 @@ type GetReadFunction<
         | [args: readonly unknown[], options?: Options]
     ) => Promise<ReadContractReturnType>
 
-type GetWriteFunction<
+type GetEstimateFunction<
   Narrowable extends boolean,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     Omit<
-      WriteContractParameters<
-        TAbi,
-        TFunctionName,
-        TChain,
-        TAccount,
-        TChainOverride
-      >,
+      EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
-  // For making `options` parameter required if `TAccount` or `TChain` is undefined
-  Rest extends unknown[] = [IsUndefined<TAccount>, IsUndefined<TChain>] extends
-    | [true, false]
-    | [false, true]
-    ? [options: Options]
-    : [options?: Options],
 > = Narrowable extends true
   ? (
+      ...parameters: Args extends readonly []
+        ? [options?: Options]
+        : [args: Args, options?: Options]
+    ) => Promise<EstimateContractGasReturnType>
+  : (
+      ...parameters:
+        | [options?: Options]
+        | [args: readonly unknown[], options?: Options]
+    ) => Promise<EstimateContractGasReturnType>
+
+type GetSimulateFunction<
+  Narrowable extends boolean,
+  TChain extends Chain | undefined,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
+  TAbiFunction extends AbiFunction = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction,
+  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
+> = Narrowable extends true
+  ? <
+      TChainOverride extends Chain | undefined,
+      Options extends Prettify<
+        Omit<
+          SimulateContractParameters<
+            TAbi,
+            TFunctionName,
+            TChain,
+            TChainOverride
+          >,
+          'abi' | 'address' | 'args' | 'functionName'
+        >
+      >,
+    >(
+      ...parameters: Args extends readonly []
+        ? [options?: Options]
+        : [args: Args, options?: Options]
+    ) => Promise<
+      SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+    >
+  : <
+      TChainOverride extends Chain | undefined,
+      Options extends Prettify<
+        Omit<
+          SimulateContractParameters<
+            TAbi,
+            TFunctionName,
+            TChain,
+            TChainOverride
+          >,
+          'abi' | 'address' | 'args' | 'functionName'
+        >
+      >,
+    >(
+      ...parameters:
+        | [options?: Options]
+        | [args: readonly unknown[], options?: Options]
+    ) => Promise<SimulateContractReturnType>
+
+type GetWriteFunction<
+  Narrowable extends boolean,
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+  TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
+  TAbiFunction extends AbiFunction = TAbi extends Abi
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiFunction,
+  Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
+  // For making `options` parameter required if `TAccount` or `TChain` is undefined
+  IsOptionsRequired = [IsUndefined<TAccount>, IsUndefined<TChain>] extends
+    | [true, false]
+    | [false, true]
+    ? true
+    : false,
+> = Narrowable extends true
+  ? <
+      TChainOverride extends Chain | undefined,
+      Options extends Prettify<
+        Omit<
+          WriteContractParameters<
+            TAbi,
+            TFunctionName,
+            TChain,
+            TAccount,
+            TChainOverride
+          >,
+          'abi' | 'address' | 'args' | 'functionName'
+        >
+      >,
+      Rest extends IsOptionsRequired extends true
+        ? [options: Options]
+        : [options?: Options],
+    >(
       ...parameters: Args extends readonly []
         ? Rest
         : [args: Args, ...rest: Rest]
     ) => Promise<WriteContractReturnType>
-  : (
-      ...parameters:
-        | [options?: Rest]
-        | [args: readonly unknown[], options?: Rest]
+  : <
+      TChainOverride extends Chain | undefined,
+      Options extends Prettify<
+        Omit<
+          WriteContractParameters<
+            TAbi,
+            TFunctionName,
+            TChain,
+            TAccount,
+            TChainOverride
+          >,
+          'abi' | 'address' | 'args' | 'functionName'
+        >
+      >,
+      Rest extends unknown[] = IsOptionsRequired extends true
+        ? [options: Options]
+        : [options?: Options],
+    >(
+      ...parameters: Rest | [args: readonly unknown[], ...rest: Rest]
     ) => Promise<WriteContractReturnType>
 
 type GetEventFilter<
