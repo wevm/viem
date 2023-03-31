@@ -74,49 +74,44 @@ importers:
       vite: 4.1.4
       vitest: 0.29.2_@vitest+ui@0.29.2
 
-  examples/_template:
-    specifiers:
-      typescript: ^4.9.3
-      viem: workspace:*
-      vite: ^4.1.4
-    dependencies:
-      viem: link:../..
-    devDependencies:
-      typescript: 4.9.5
-      vite: 4.1.4
-
   examples/blocks/fetching-blocks:
     specifiers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/blocks/watching-blocks:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/clients/public-client:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/clients/wallet-client:
     specifiers:
@@ -128,6 +123,7 @@ importers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -138,6 +134,7 @@ importers:
       '@vitejs/plugin-react': 3.1.0_vite@4.1.4
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/contracts/deploying-contracts:
     specifiers:
@@ -149,6 +146,7 @@ importers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -159,28 +157,33 @@ importers:
       '@vitejs/plugin-react': 3.1.0_vite@4.1.4
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/contracts/multicall:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/contracts/reading-contracts:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/contracts/writing-to-contracts:
     specifiers:
@@ -192,6 +195,7 @@ importers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -202,39 +206,46 @@ importers:
       '@vitejs/plugin-react': 3.1.0_vite@4.1.4
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/ens:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/filters-and-logs/block-event-logs:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/filters-and-logs/event-logs:
     specifiers:
       typescript: ^4.9.3
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/signing/typed-data:
     specifiers:
@@ -246,6 +257,7 @@ importers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -256,17 +268,20 @@ importers:
       '@vitejs/plugin-react': 3.1.0_vite@4.1.4
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/transactions/fetching-transactions:
     specifiers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       viem: link:../../..
     devDependencies:
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   examples/transactions/sending-transactions:
     specifiers:
@@ -278,6 +293,7 @@ importers:
       typescript: ^4.9.4
       viem: workspace:*
       vite: ^4.1.4
+      vite-tsconfig-paths: ^4.0.7
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -288,6 +304,7 @@ importers:
       '@vitejs/plugin-react': 3.1.0_vite@4.1.4
       typescript: 4.9.5
       vite: 4.1.4
+      vite-tsconfig-paths: 4.0.7_vwvfc4ezh6jlf6pa67auy3eulu
 
   playgrounds/browser:
     specifiers:

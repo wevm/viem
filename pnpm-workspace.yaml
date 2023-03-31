@@ -1,6 +1,7 @@
 packages:
   - '.'
   - 'examples/**/*'
+  - '!examples/_template'
   - 'playgrounds/*'
   - '!playgrounds/bun' # Uses `bun install`
   - 'site'
