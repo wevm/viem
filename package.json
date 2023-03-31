@@ -127,7 +127,7 @@
     "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
-    "changeset:version": "changeset version && pnpm install --lockfile-only",
+    "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm bun scripts/updateVersion.ts",
     "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
     "dev:docs": "pnpm --filter site dev",
