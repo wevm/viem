@@ -257,21 +257,21 @@ export function getContract<
         {
           get(_, functionName: string) {
             return (
-              ...rest: [
+              ...parameters: [
                 args?: readonly unknown[],
-                params?: Omit<
+                options?: Omit<
                   ReadContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
               ]
             ) => {
-              const { args, params } = getFunctionArgsAndParams(rest)
+              const { args, options } = getFunctionParameters(parameters)
               return readContract(publicClient, {
                 abi,
                 address,
                 functionName,
                 args,
-                ...params,
+                ...options,
               } as ReadContractParameters)
             }
           },
@@ -284,21 +284,21 @@ export function getContract<
         {
           get(_, functionName: string) {
             return (
-              ...rest: [
+              ...parameters: [
                 args?: readonly unknown[],
-                params?: Omit<
+                options?: Omit<
                   EstimateContractGasParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
               ]
             ) => {
-              const { args, params } = getFunctionArgsAndParams(rest)
+              const { args, options } = getFunctionParameters(parameters)
               return estimateContractGas(publicClient, {
                 abi,
                 address,
                 functionName,
                 args,
-                ...params,
+                ...options,
               } as EstimateContractGasParameters)
             }
           },
@@ -309,21 +309,21 @@ export function getContract<
         {
           get(_, functionName: string) {
             return (
-              ...rest: [
+              ...parameters: [
                 args?: readonly unknown[],
-                params?: Omit<
+                options?: Omit<
                   SimulateContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
               ]
             ) => {
-              const { args, params } = getFunctionArgsAndParams(rest)
+              const { args, options } = getFunctionParameters(parameters)
               return simulateContract(publicClient, {
                 abi,
                 address,
                 functionName,
                 args,
-                ...params,
+                ...options,
               } as SimulateContractParameters)
             }
           },
@@ -337,9 +337,9 @@ export function getContract<
         {
           get(_, eventName: string) {
             return (
-              ...rest: [
+              ...parameters: [
                 args?: readonly unknown[] | object,
-                params?: Omit<
+                options?: Omit<
                   CreateContractEventFilterParameters,
                   'abi' | 'address' | 'eventName' | 'args'
                 >,
@@ -348,13 +348,16 @@ export function getContract<
               const abiEvent = (abi as readonly AbiEvent[]).find(
                 (x: AbiEvent) => x.type === 'event' && x.name === eventName,
               )
-              const { args, params } = getEventArgsAndParams(rest, abiEvent!)
+              const { args, options } = getEventParameters(
+                parameters,
+                abiEvent!,
+              )
               return createContractEventFilter(publicClient, {
                 abi,
                 address,
                 eventName,
                 args,
-                ...params,
+                ...options,
               } as CreateContractEventFilterParameters)
             }
           },
@@ -365,9 +368,9 @@ export function getContract<
         {
           get(_, eventName: string) {
             return (
-              ...rest: [
+              ...parameters: [
                 args?: readonly unknown[] | object,
-                params?: Omit<
+                options?: Omit<
                   WatchContractEventParameters,
                   'abi' | 'address' | 'eventName'
                 >,
@@ -376,13 +379,16 @@ export function getContract<
               const abiEvent = (abi as readonly AbiEvent[]).find(
                 (x: AbiEvent) => x.type === 'event' && x.name === eventName,
               )
-              const { args, params } = getEventArgsAndParams(rest, abiEvent!)
+              const { args, options } = getEventParameters(
+                parameters,
+                abiEvent!,
+              )
               return watchContractEvent(publicClient, {
                 abi,
                 address,
                 eventName,
                 args,
-                ...params,
+                ...options,
               } as WatchContractEventParameters)
             }
           },
@@ -398,21 +404,21 @@ export function getContract<
         {
           get(_, functionName: string) {
             return (
-              ...rest: [
+              ...parameters: [
                 args?: readonly unknown[],
-                params?: Omit<
+                options?: Omit<
                   WriteContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
               ]
             ) => {
-              const { args, params } = getFunctionArgsAndParams(rest)
+              const { args, options } = getFunctionParameters(parameters)
               return writeContract(walletClient, {
                 abi,
                 address,
                 functionName,
                 args,
-                ...params,
+                ...options,
               } as WriteContractParameters<
                 TAbi,
                 typeof functionName,
@@ -435,37 +441,37 @@ export function getContract<
 /**
  * @internal exporting for testing only
  */
-export function getFunctionArgsAndParams(
-  rest: [args?: readonly unknown[], params?: object],
+export function getFunctionParameters(
+  values: [args?: readonly unknown[], options?: object],
 ) {
-  const hasArgs = rest.length && Array.isArray(rest[0])
-  const args = hasArgs ? rest[0]! : []
-  const params = (hasArgs ? rest[1] : rest[0]) ?? {}
-  return { args, params }
+  const hasArgs = values.length && Array.isArray(values[0])
+  const args = hasArgs ? values[0]! : []
+  const options = (hasArgs ? values[1] : values[0]) ?? {}
+  return { args, options }
 }
 
 /**
  * @internal exporting for testing only
  */
-export function getEventArgsAndParams(
-  rest: [args?: object | unknown[], params?: object],
+export function getEventParameters(
+  values: [args?: object | unknown[], options?: object],
   abiEvent: AbiEvent,
 ) {
   let hasArgs = false
   // If first item is array, must be `args`
-  if (Array.isArray(rest[0])) hasArgs = true
-  // Check if first item is `args` or `params`
-  else if (rest.length === 1) {
+  if (Array.isArray(values[0])) hasArgs = true
+  // Check if first item is `args` or `options`
+  else if (values.length === 1) {
     // if event has indexed inputs, must have `args`
     hasArgs = abiEvent.inputs.some((x) => x.indexed)
     // If there are two items in array, must have `args`
-  } else if (rest.length === 2) {
+  } else if (values.length === 2) {
     hasArgs = true
   }
 
-  const args = hasArgs ? rest[0]! : undefined
-  const params = (hasArgs ? rest[1] : rest[0]) ?? {}
-  return { args, params }
+  const args = hasArgs ? values[0]! : undefined
+  const options = (hasArgs ? values[1] : values[0]) ?? {}
+  return { args, options }
 }
 
 type GetReadFunction<
@@ -607,7 +613,7 @@ type GetWriteFunction<
     >(
       ...parameters: Args extends readonly []
         ? Rest
-        : [args: Args, ...rest: Rest]
+        : [args: Args, ...parameters: Rest]
     ) => Promise<WriteContractReturnType>
   : <
       TChainOverride extends Chain | undefined,
@@ -627,7 +633,7 @@ type GetWriteFunction<
         ? [options: Options]
         : [options?: Options],
     >(
-      ...parameters: Rest | [args: readonly unknown[], ...rest: Rest]
+      ...parameters: Rest | [args: readonly unknown[], ...parameters: Rest]
     ) => Promise<WriteContractReturnType>
 
 type GetEventFilter<

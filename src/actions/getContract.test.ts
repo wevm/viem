@@ -7,7 +7,11 @@ import {
   walletClient,
   accounts,
 } from '../_test'
-import { getContract, getEventArgsAndParams } from './getContract'
+import {
+  getContract,
+  getEventParameters,
+  getFunctionParameters,
+} from './getContract'
 
 const contract = getContract({
   ...wagmiContractConfig,
@@ -193,13 +197,53 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
 })
 
 test.each([
-  // without params
+  // without options
+  {
+    values: [['0x']],
+    expected: {
+      args: ['0x'],
+      options: {},
+    },
+  },
+  // with options
+  {
+    values: [['0x'], { fromBlock: 10_000n }],
+    expected: {
+      args: ['0x'],
+      options: { fromBlock: 10_000n },
+    },
+  },
+  // only options
+  {
+    values: [{ fromBlock: 10_000n }],
+    expected: {
+      args: [],
+      options: { fromBlock: 10_000n },
+    },
+  },
+  // no args
+  {
+    values: [],
+    expected: {
+      args: [],
+      options: {},
+    },
+  },
+])(
+  'getFunctionParameters($values) -> $expected',
+  async ({ values, expected }) => {
+    expect(getFunctionParameters(values as any)).toEqual(expected)
+  },
+)
+
+test.each([
+  // without options
   {
     values: [['0x']],
     abiEvent: { inputs: [{ type: 'address', indexed: true }] },
     expected: {
       args: ['0x'],
-      params: {},
+      options: {},
     },
   },
   {
@@ -207,16 +251,16 @@ test.each([
     abiEvent: { inputs: [{ name: 'from', type: 'address', indexed: true }] },
     expected: {
       args: { from: '0x' },
-      params: {},
+      options: {},
     },
   },
-  // with params
+  // with options
   {
     values: [['0x'], { fromBlock: 10_000n }],
     abiEvent: { inputs: [{ type: 'address', indexed: true }] },
     expected: {
       args: ['0x'],
-      params: { fromBlock: 10_000n },
+      options: { fromBlock: 10_000n },
     },
   },
   {
@@ -224,16 +268,16 @@ test.each([
     abiEvent: { inputs: [{ name: 'from', type: 'address', indexed: true }] },
     expected: {
       args: { from: '0x' },
-      params: { fromBlock: 10_000n },
+      options: { fromBlock: 10_000n },
     },
   },
-  // only params
+  // only options
   {
     values: [{ fromBlock: 10_000n }],
     abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
     expected: {
       args: undefined,
-      params: { fromBlock: 10_000n },
+      options: { fromBlock: 10_000n },
     },
   },
   // no args
@@ -242,14 +286,14 @@ test.each([
     abiEvent: { inputs: [{ name: 'from', type: 'address' }] },
     expected: {
       args: undefined,
-      params: {},
+      options: {},
     },
   },
 ])(
-  'getEventArgsAndParams($values, $abiEvent) -> $expected',
+  'getEventParameters($values, $abiEvent) -> $expected',
   async ({ values, abiEvent, expected }) => {
     expect(
-      getEventArgsAndParams(values as any, abiEvent as unknown as AbiEvent),
+      getEventParameters(values as any, abiEvent as unknown as AbiEvent),
     ).toEqual(expected)
   },
 )
