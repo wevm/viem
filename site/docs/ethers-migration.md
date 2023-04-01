@@ -495,7 +495,7 @@ const hash = await contract.mint()
 
 #### viem
 
-```ts {15-21}
+```ts {17-22}
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -517,7 +517,7 @@ const request = await publicClient.simulateContract({
   functionName: 'mint',
   account,
 })
-const supply = await walletClient.writeContract(request)
+const hash = await walletClient.writeContract(request)
 ```
 
 ### Deploying Contracts
