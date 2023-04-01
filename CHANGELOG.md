@@ -1,5 +1,11 @@
 # viem
 
+## 0.1.26
+
+### Patch Changes
+
+- [`93e402d`](https://github.com/wagmi-dev/viem/commit/93e402d6fddabcb6966fd8f81d7176d71241e193) Thanks [@jxom](https://github.com/jxom)! - Fixed a `decodeAbiParameters` case where static arrays with a dynamic child would consume the size of the child instead of 32 bytes.
+
 ## 0.1.25
 
 ### Patch Changes
