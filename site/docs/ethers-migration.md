@@ -260,7 +260,7 @@ const provider = new providers.Web3Provider(window.ethereum)
 
 #### viem
 
-```ts {3-7}
+```ts {4-7}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -311,7 +311,7 @@ signer.sendTransaction({ ... })
 
 #### viem
 
-```ts {9-11}
+```ts {9-10}
 import { createWalletClient, custom, getAccount } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -404,7 +404,7 @@ client.getTransaction(...)
 
 #### Ethers
 
-```ts {7-10}
+```ts {8-10}
 import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
@@ -419,7 +419,7 @@ signer.signMessage(...)
 
 #### viem
 
-```ts {9-12}
+```ts {12-14}
 import { createWalletClient, custom, getAccount } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -459,7 +459,7 @@ const supply = await contract.totalSupply()
 
 #### viem
 
-```ts {9-13}
+```ts {10-13}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -539,7 +539,7 @@ await contract.deploy()
 
 #### viem
 
-```ts {12-16}
+```ts {13-17}
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { abi, bytecode } from './abi'
@@ -583,7 +583,7 @@ contract.off('Transfer', listener)
 
 #### viem
 
-```ts {9-20}
+```ts {10-20}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -625,7 +625,7 @@ const gas = contract.estimateGas.mint()
 
 #### viem
 
-```ts {9-13}
+```ts {10-13}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -658,7 +658,7 @@ await contract.callStatic.mint()
 
 #### viem
 
-```ts {9-13}
+```ts {10-13}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
