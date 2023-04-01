@@ -87,7 +87,7 @@ export const wagmiAbi = [
 ```
 :::
 
-Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properites every time you perform contract actions, e.g. [`readContract`](/docs/contract/readContract.html), [`writeContract`](/docs/contract/writeContract.html), [`estimateContractGas`](/docs/contract/estimateContractGas.html), etc. For example, you can convert the following individual calls:
+Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properites every time you perform contract actions, e.g. [`readContract`](/docs/contract/readContract.html), [`writeContract`](/docs/contract/writeContract.html), [`estimateContractGas`](/docs/contract/estimateContractGas.html), etc. Switch between the tabs below to see the difference between standalone Contract Actions and Contract Instance Actions:
 
 ::: code-group
 ```ts [contract-actions.ts]
