@@ -1,3 +1,9 @@
+export { getContract } from './actions'
+export type {
+  GetContractParameters,
+  GetContractReturnType,
+} from './actions'
+
 export type {
   AddChainParameters,
   CallParameters,

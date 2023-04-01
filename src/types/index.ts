@@ -116,6 +116,7 @@ export type {
 } from './typedData'
 
 export type {
+  IsNarrowable,
   IsNever,
   IsUndefined,
   PartialBy,

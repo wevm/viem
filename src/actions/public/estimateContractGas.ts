@@ -15,14 +15,10 @@ export type EstimateContractGasParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
   TChain extends Chain | undefined = Chain | undefined,
-> = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
-  ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
-    value?: GetValue<
-      TAbi,
-      TFunctionName,
-      EstimateGasParameters<TChain>['value']
-    >
-  }
+> = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+  Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
+  GetValue<TAbi, TFunctionName, EstimateGasParameters<TChain>['value']>
+
 export type EstimateContractGasReturnType = bigint
 
 export async function estimateContractGas<

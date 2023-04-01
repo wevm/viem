@@ -5,10 +5,26 @@ import {
   wagmiMintExampleHumanReadableAbi,
   writingEditionsFactoryAbi,
 } from 'abitype/test'
-import { assertType, test } from 'vitest'
+import { assertType, expectTypeOf, test } from 'vitest'
 
 import { publicClient } from '../../_test'
-import { readContract } from './readContract'
+import { readContract, ReadContractParameters } from './readContract'
+
+test('ReadContractParameters', () => {
+  type Result = ReadContractParameters<typeof wagmiMintExampleAbi, 'tokenURI'>
+  expectTypeOf<Result['functionName']>().toEqualTypeOf<
+    | 'symbol'
+    | 'name'
+    | 'balanceOf'
+    | 'getApproved'
+    | 'isApprovedForAll'
+    | 'ownerOf'
+    | 'supportsInterface'
+    | 'tokenURI'
+    | 'totalSupply'
+  >()
+  expectTypeOf<Result['args']>().toEqualTypeOf<readonly [bigint]>()
+})
 
 test('args', () => {
   test('zero', async () => {

@@ -23,6 +23,7 @@ test('exports actions', () => {
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
+      "getContract": [Function],
       "getEnsAddress": [Function],
       "getEnsName": [Function],
       "getEnsResolver": [Function],
