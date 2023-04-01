@@ -14,12 +14,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "viem": ["../../src"],
-      "viem/*": ["../../src/*"]
-    }
+    "jsx": "react-jsx"
   },
   "include": ["index.tsx", "contract.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]

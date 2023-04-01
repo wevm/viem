@@ -9,11 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "viem": "workspace:*"
+    "viem": "latest"
   },
   "devDependencies": {
     "typescript": "^4.9.3",
-    "vite": "^4.1.4",
-    "vite-tsconfig-paths": "^4.0.7"
+    "vite": "^4.1.4"
   }
 }

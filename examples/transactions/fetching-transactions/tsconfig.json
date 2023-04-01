@@ -13,12 +13,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "viem": ["../../src"],
-      "viem/*": ["../../src/*"]
-    }
+    "skipLibCheck": true
   },
   "include": ["index.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
