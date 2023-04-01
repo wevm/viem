@@ -38,6 +38,7 @@ const contract = getContract({
   abi: wagmiAbi,
   publicClient,
 })
+
 // 2. Call contract methods, listen to events, etc.
 const result = await contract.read.totalSupply()
 const unwatch = contract.watchEvent.Transfer(
