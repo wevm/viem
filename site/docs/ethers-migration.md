@@ -512,7 +512,7 @@ const walletClient = createWalletClient({
 const [address] = await walletClient.getAddresses()
 const account = getAccount(address)
 
-const request = await publicClient.simulateContract({
+const { request } = await publicClient.simulateContract({
   ...wagmiContractConfig,
   functionName: 'mint',
   account,
