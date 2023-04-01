@@ -106,14 +106,15 @@ const hash = await walletClient.writeContract({
   functionName: 'mint',
   args: [69420]
 })
-const filter = await publicClient.createContractEventFilter({
+const unwatch = publicClient.watchContractEvent({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
   abi: wagmiAbi,
   eventName: 'Transfer',
   args: {  
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-  }
+  },
+  onLogs: logs => console.log(logs)
 })
 ```
 ```ts [contract-instance.ts]
@@ -132,10 +133,13 @@ const balance = await contract.read.balanceOf([
   '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
 ])
 const hash = await contract.write.transferFrom([69420])
-const filter = await contract.createEventFilter.Transfer({
-  from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-  to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-})
+const unwatch = contract.watchEvent.Transfer(
+  {
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+  },
+  { onLogs: logs => console.log(logs) }
+)
 ```
 :::
 
@@ -147,6 +151,10 @@ While Contract Instances are great for reducing code duplication, they pull in m
 
 Contract instance object. Type is inferred.
 
+Depending on if you create a contract instance with a Public Client, Wallet Client, or both, the methods available on the contract instance will vary.
+
+#### With Public Client
+
 If you pass in a [`publicClient`](/docs/contract/getContract#publicclient), the following methods are available:
 
 - [`read`](/docs/contract/readContract.html)
@@ -154,6 +162,8 @@ If you pass in a [`publicClient`](/docs/contract/getContract#publicclient), the 
 - [`simulate`](/docs/contract/simulateContract.html)
 - [`createEventFilter`](/docs/contract/createContractEventFilter.html)
 - [`watchEvent`](/docs/contract/watchContractEvent.html)
+
+#### With Wallet Client
 
 If you pass in a [`walletClient`](/docs/contract/getContract#walletclient), the following methods are available:
 
@@ -167,16 +177,56 @@ If you pass in a [`walletClient`](/docs/contract/getContract#walletclient), the 
 
 The contract address.
 
+```ts
+const contract = getContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  abi: wagmiAbi,
+  publicClient,
+  walletClient,
+})
+```
+
 ### abi
 
 - **Type:** [`Abi`](/docs/glossary/types#abi)
 
 The contract's ABI.
 
-### publicClient
+```ts
+const contract = getContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi, // [!code focus]
+  publicClient,
+  walletClient,
+})
+```
 
-- **Type:**
+### publicClient (optional)
 
-### walletClient
+- **Type:** [`PublicClient`](/docs/clients/public.html)
 
-- **Type:**
+Public Client used for performing [public contract actions](/docs/contract/getContract.html#with-public-client).
+
+```ts
+const contract = getContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  publicClient, // [!code focus]
+  walletClient,
+})
+```
+
+### walletClient (optional)
+
+- **Type:** [`WalletClient`](/docs/clients/wallet.html)
+
+Wallet Client used for performing [wallet contract actions](/docs/contract/getContract.html#with-wallet-client).
+
+```ts
+const contract = getContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  publicClient,
+  walletClient, // [!code focus]
+})
+```
