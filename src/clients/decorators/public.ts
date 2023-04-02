@@ -2,12 +2,22 @@ import type { Abi, AbiEvent } from 'abitype'
 import type {
   GetEnsAddressParameters,
   GetEnsAddressReturnType,
+  GetEnsAvatarParameters,
+  GetEnsAvatarReturnType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
   GetEnsResolverParameters,
   GetEnsResolverReturnType,
+  GetEnsTextParameters,
+  GetEnsTextReturnType,
 } from '../../actions/ens'
-import { getEnsAddress, getEnsName, getEnsResolver } from '../../actions/ens'
+import {
+  getEnsAddress,
+  getEnsAvatar,
+  getEnsName,
+  getEnsResolver,
+  getEnsText,
+} from '../../actions/ens'
 import type {
   CallParameters,
   CallReturnType,
@@ -113,6 +123,7 @@ import type {
   FilterType,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
+import type { MulticoinRequest } from '../../utils/ens/multicoin'
 import type { PublicClient } from '../createPublicClient'
 import type { Transport } from '../transports'
 
@@ -158,13 +169,17 @@ export type PublicActions<
   ) => Promise<GetBlockTransactionCountReturnType>
   getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
   getChainId: () => Promise<GetChainIdReturnType>
-  getEnsAddress: (
-    args: GetEnsAddressParameters,
-  ) => Promise<GetEnsAddressReturnType>
+  getEnsAddress: <T extends MulticoinRequest | undefined>(
+    args: GetEnsAddressParameters<T>,
+  ) => Promise<GetEnsAddressReturnType<T>>
+  getEnsAvatar: (
+    args: GetEnsAvatarParameters,
+  ) => Promise<GetEnsAvatarReturnType>
   getEnsName: (args: GetEnsNameParameters) => Promise<GetEnsNameReturnType>
   getEnsResolver: (
     args: GetEnsResolverParameters,
   ) => Promise<GetEnsResolverReturnType>
+  getEnsText: (args: GetEnsTextParameters) => Promise<GetEnsTextReturnType>
   getFeeHistory: (
     args: GetFeeHistoryParameters,
   ) => Promise<GetFeeHistoryReturnType>
@@ -276,8 +291,10 @@ export const publicActions = <
   getBytecode: (args) => getBytecode(client, args),
   getChainId: () => getChainId(client),
   getEnsAddress: (args) => getEnsAddress(client, args),
+  getEnsAvatar: (args) => getEnsAvatar(client, args),
   getEnsName: (args) => getEnsName(client, args),
   getEnsResolver: (args) => getEnsResolver(client, args),
+  getEnsText: (args) => getEnsText(client, args),
   getFeeHistory: (args) => getFeeHistory(client, args),
   getFilterChanges: (args) => getFilterChanges(client, args),
   getFilterLogs: (args) => getFilterLogs(client, args),

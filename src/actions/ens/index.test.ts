@@ -6,6 +6,7 @@ test('exports actions', () => {
   expect(actions).toMatchInlineSnapshot(`
     {
       "getEnsAddress": [Function],
+      "getEnsAvatar": [Function],
       "getEnsName": [Function],
       "getEnsResolver": [Function],
       "getEnsText": [Function],

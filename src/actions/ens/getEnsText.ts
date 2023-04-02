@@ -1,6 +1,6 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import { textResolverAbi, universalResolverAbi } from '../../constants/abis'
-import type { Address, Prettify } from '../../types'
+import type { Address, Chain, Prettify } from '../../types'
 import {
   decodeFunctionResult,
   encodeFunctionData,
@@ -38,8 +38,8 @@ export type GetEnsTextReturnType = string | null
  * })
  * // 'wagmi_sh'
  */
-export async function getEnsText(
-  client: PublicClient,
+export async function getEnsText<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   {
     blockNumber,
     blockTag,
