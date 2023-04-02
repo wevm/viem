@@ -15,3 +15,9 @@ export {
   type GetEnsResolverParameters,
   type GetEnsResolverReturnType,
 } from './getEnsResolver'
+
+export {
+  getEnsText,
+  type GetEnsTextParameters,
+  type GetEnsTextReturnType,
+} from './getEnsText'

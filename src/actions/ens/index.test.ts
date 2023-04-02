@@ -8,6 +8,7 @@ test('exports actions', () => {
       "getEnsAddress": [Function],
       "getEnsName": [Function],
       "getEnsResolver": [Function],
+      "getEnsText": [Function],
     }
   `)
 })

@@ -1,74 +1,45 @@
-import { afterAll, beforeAll, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
-import { multicoinFromName } from '../../utils/ens/multicoin'
 
-import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
-import { getBlockNumber } from '../public'
-import { getEnsAddress } from './getEnsAddress'
+import { localHttpUrl, publicClient } from '../../_test'
+import { getEnsText } from './getEnsText'
 
-let blockNumber: bigint
-beforeAll(async () => {
-  blockNumber = await getBlockNumber(publicClient)
-  await setBlockNumber(16773780n)
-})
-
-afterAll(async () => {
-  await setBlockNumber(blockNumber)
-})
-
-test('gets address for name', async () => {
+test('gets text record for name', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth' }),
-  ).resolves.toMatchInlineSnapshot(
-    '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
-  )
+    getEnsText(publicClient, { name: 'wagmi-dev.eth', key: 'com.twitter' }),
+  ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
 })
 
-test('name without address', async () => {
+test('name without text record', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'another-unregistered-name.eth' }),
-  ).resolves.toMatchInlineSnapshot(
-    '"0x0000000000000000000000000000000000000000"',
-  )
-})
-
-test('gets multicoin address for name', async () => {
-  await expect(
-    getEnsAddress(publicClient, {
-      name: 'btcbtc.eth',
-      coin: multicoinFromName('BTC'),
-    }),
-  ).resolves.toMatchInlineSnapshot('"3Psjt14tnQoR3aq8mEKZ3EnbzdVdGRud1B"')
-})
-
-test('name without multicoin address', async () => {
-  await expect(
-    getEnsAddress(publicClient, {
+    getEnsText(publicClient, {
       name: 'unregistered-name.eth',
-      coin: multicoinFromName('BTC'),
+      key: 'com.twitter',
     }),
   ).resolves.toBeNull()
 })
 
 test('custom universal resolver address', async () => {
   await expect(
-    getEnsAddress(publicClient, {
-      name: 'awkweb.eth',
+    getEnsText(publicClient, {
+      name: 'wagmi-dev.eth',
+      key: 'com.twitter',
       universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
     }),
-  ).resolves.toMatchInlineSnapshot(
-    '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
-  )
+  ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
 })
 
 test('chain not provided', async () => {
   await expect(
-    getEnsAddress(
+    getEnsText(
       createPublicClient({
         transport: http(localHttpUrl),
       }),
-      { name: 'awkweb.eth' },
+      {
+        name: 'wagmi-dev.eth',
+        key: 'com.twitter',
+      },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"client chain not configured. universalResolverAddress is required."',
@@ -77,12 +48,15 @@ test('chain not provided', async () => {
 
 test('universal resolver contract not configured for chain', async () => {
   await expect(
-    getEnsAddress(
+    getEnsText(
       createPublicClient({
         chain: optimism,
         transport: http(),
       }),
-      { name: 'awkweb.eth' },
+      {
+        name: 'wagmi-dev.eth',
+        key: 'com.twitter',
+      },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     "Chain \\"Optimism\\" does not support contract \\"ensUniversalResolver\\".
@@ -96,12 +70,16 @@ test('universal resolver contract not configured for chain', async () => {
 
 test('universal resolver contract deployed on later block', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth', blockNumber: 14353601n }),
+    getEnsText(publicClient, {
+      name: 'wagmi-dev.eth',
+      key: 'com.twitter',
+      blockNumber: 14353601n,
+    }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     "Chain \\"Localhost\\" does not support contract \\"ensUniversalResolver\\".
 
     This could be due to any of the following:
-    - The contract \\"ensUniversalResolver\\" was not deployed until block 16773775 (current block 14353601).
+    - The contract \\"ensUniversalResolver\\" was not deployed until block 16172161 (current block 14353601).
 
     Version: viem@1.0.2"
   `)
@@ -109,8 +87,9 @@ test('universal resolver contract deployed on later block', async () => {
 
 test('invalid universal resolver address', async () => {
   await expect(
-    getEnsAddress(publicClient, {
-      name: 'awkweb.eth',
+    getEnsText(publicClient, {
+      name: 'wagmi-dev.eth',
+      key: 'com.twitter',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -120,7 +99,7 @@ test('invalid universal resolver address', async () => {
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  resolve(bytes name, bytes data)
-      args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c)
+      args:             (0x097761676d692d6465760365746800, 0x59d1d43cf246651c1b9a6b141d19c2604e9a58f567973833990f830d882534a7478013590000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000b636f6d2e74776974746572000000000000000000000000000000000000000000)
 
     Docs: https://viem.sh/docs/contract/readContract.html
     Version: viem@1.0.2"
