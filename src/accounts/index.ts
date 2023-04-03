@@ -1,10 +1,13 @@
 import { HDKey } from '@scure/bip32'
-
 export { HDKey }
 
 export { generateMnemonic } from './generateMnemonic'
 
 export { generatePrivateKey } from './generatePrivateKey'
+
+export { hdKeyToAccount } from './hdKeyToAccount'
+
+export { mnemonicToAccount } from './mnemonicToAccount'
 
 export { privateKeyToAccount } from './privateKeyToAccount'
 
