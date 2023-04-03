@@ -83,7 +83,7 @@ export const walletClient = createWalletClient({
 })
 ```
 
-```ts {4} [config.ts (Local Account)]
+```ts {5} [config.ts (Local Account)]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 

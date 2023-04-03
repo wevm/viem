@@ -93,7 +93,7 @@ await walletClient.sendTransaction({
 
 Removed the `getAccount` function.
 
-**For JSON-RPC Accounts, use the address itself.**
+#### For JSON-RPC Accounts, use the address itself.
 
 You can now pass the address directly to the `account` option.
 
@@ -111,7 +111,30 @@ const client = createWalletClient({
 })
 ```
 
-**For Local Accounts, use `toAccount`.**
+#### For Ethers Wallet Adapter, use `ethersWalletToAccount`.
+
+If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
+
+> Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
+
+```ts
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+import { getAccount } from 'viem/ethers' // [!code --]
+import { ethersWalletToAccount } from 'viem/ethers' // [!code ++]
+import { Wallet } from 'ethers'
+
+const account = getAccount(new Wallet('0x...')) // [!code --]
+const account = ethersWalletToAccount(new Wallet('0x...')) // [!code ++]
+
+const client = createWalletClient({
+  account,
+  chain: mainnet,
+  transport: custom(window.ethereum)
+})
+```
+
+#### For Local Accounts, use `toAccount`.
 
 If you are using a custom signing implementation, you can use the `toAccount` function.
 
