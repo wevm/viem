@@ -1,4 +1,5 @@
-import type { TestClient } from '../../clients'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetMinGasPriceParameters = {
@@ -6,8 +7,8 @@ export type SetMinGasPriceParameters = {
   gasPrice: bigint
 }
 
-export async function setMinGasPrice(
-  client: TestClient,
+export async function setMinGasPrice<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { gasPrice }: SetMinGasPriceParameters,
 ) {
   return await client.request({

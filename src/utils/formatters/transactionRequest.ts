@@ -8,12 +8,15 @@ import type {
 import { defineFormatter, ExtractFormatter, Formatted } from './format'
 import { numberToHex } from '../encoding'
 
-export type TransactionRequestFormatter<TChain extends Chain = Chain> =
-  ExtractFormatter<
-    TChain,
-    'transactionRequest',
-    NonNullable<Formatters['transactionRequest']>
-  >
+export type TransactionRequestFormatter<
+  TChain extends Chain | undefined = Chain,
+> = TChain extends Chain
+  ? ExtractFormatter<
+      TChain,
+      'transactionRequest',
+      NonNullable<Formatters['transactionRequest']>
+    >
+  : Formatters['transactionRequest']
 
 export type FormattedTransactionRequest<
   TFormatter extends Formatter | undefined = Formatter,

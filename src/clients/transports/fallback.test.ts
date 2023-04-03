@@ -2,6 +2,7 @@ import { assertType, describe, expect, test } from 'vitest'
 import { localhost } from '../../chains'
 import { createHttpServer } from '../../_test'
 import { createClient } from '../createClient'
+import { createPublicClient } from '../createPublicClient'
 
 import { getBlockNumber } from '../../actions'
 import { wait } from '../../utils/wait'
@@ -162,7 +163,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback(
+    const transport = fallback(
       [http(server1.url), http(server2.url), http(server3.url)],
       {
         rank: false,
@@ -194,7 +195,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })({
       chain: localhost,
@@ -219,7 +220,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })({
       chain: localhost,
@@ -249,7 +250,7 @@ describe('request', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })({
       chain: localhost,
@@ -274,7 +275,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       retryCount: 1,
       rank: false,
     })({
@@ -302,7 +303,7 @@ describe('request', () => {
       res.end()
     })
 
-    let transport = fallback(
+    const transport = fallback(
       [
         http(server1.url, { retryCount: 3 }),
         http(server2.url, { retryCount: 2 }),
@@ -413,7 +414,7 @@ describe('client', () => {
 
     const local = http(server.url)
     const transport = fallback([local])
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
   })
@@ -439,7 +440,7 @@ describe('client', () => {
       http(server2.url),
       http(server3.url),
     ])
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
   })
@@ -461,10 +462,10 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
     expect(count).toBe(2)
@@ -487,10 +488,10 @@ describe('client', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    let transport = fallback([http(server1.url), http(server2.url)], {
+    const transport = fallback([http(server1.url), http(server2.url)], {
       rank: false,
     })
-    const client = createClient({ chain: localhost, transport })
+    const client = createPublicClient({ chain: localhost, transport })
 
     await expect(
       getBlockNumber(client),
@@ -605,7 +606,7 @@ describe('rankTransports', () => {
     const transport2 = http(server2.url, { key: '2' })
     const transport3 = http(server3.url, { key: '3' })
 
-    let rankedTransports: Transport[][] = []
+    const rankedTransports: Transport[][] = []
 
     rankTransports({
       chain: localhost,

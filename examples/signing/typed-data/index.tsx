@@ -1,19 +1,21 @@
 import 'viem/window'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { Account, Hash, createWalletClient, custom, getAccount } from 'viem'
+import { Address, Hash, createWalletClient, custom } from 'viem'
+import { goerli } from 'viem/chains'
 
 const walletClient = createWalletClient({
+  chain: goerli,
   transport: custom(window.ethereum!),
 })
 
 function Example() {
-  const [account, setAccount] = useState<Account>()
+  const [account, setAccount] = useState<Address>()
   const [signature, setSignature] = useState<Hash>()
 
   const connect = async () => {
     const [address] = await walletClient.requestAddresses()
-    setAccount(getAccount(address))
+    setAccount(address)
   }
 
   const signTypedData = async () => {
@@ -56,7 +58,7 @@ function Example() {
   if (account)
     return (
       <>
-        <div>Connected: {account.address}</div>
+        <div>Connected: {account}</div>
         <button onClick={signTypedData}>Sign Typed Data</button>
         {signature && <div>Receipt: {signature}</div>}
       </>

@@ -1,4 +1,5 @@
 import { BaseError, TransactionExecutionError } from '../../errors'
+import type { Account, Chain } from '../../types'
 import type { SendTransactionParameters } from '../../wallet'
 import { containsNodeError, getNodeError } from './getNodeError'
 
@@ -7,7 +8,9 @@ export function getTransactionError(
   {
     docsPath,
     ...args
-  }: SendTransactionParameters & {
+  }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
+    account: Account
+    chain?: Chain
     docsPath?: string
   },
 ) {

@@ -2,10 +2,22 @@ import type { Abi, AbiEvent } from 'abitype'
 import type {
   GetEnsAddressParameters,
   GetEnsAddressReturnType,
+  GetEnsAvatarParameters,
+  GetEnsAvatarReturnType,
   GetEnsNameParameters,
   GetEnsNameReturnType,
+  GetEnsResolverParameters,
+  GetEnsResolverReturnType,
+  GetEnsTextParameters,
+  GetEnsTextReturnType,
 } from '../../actions/ens'
-import { getEnsAddress, getEnsName } from '../../actions/ens'
+import {
+  getEnsAddress,
+  getEnsAvatar,
+  getEnsName,
+  getEnsResolver,
+  getEnsText,
+} from '../../actions/ens'
 import type {
   CallParameters,
   CallReturnType,
@@ -60,10 +72,15 @@ import type {
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
   WatchBlockNumberParameters,
+  WatchBlockNumberReturnType,
   WatchBlocksParameters,
+  WatchBlocksReturnType,
   WatchContractEventParameters,
+  WatchContractEventReturnType,
   WatchEventParameters,
+  WatchEventReturnType,
   WatchPendingTransactionsParameters,
+  WatchPendingTransactionsReturnType,
 } from '../../actions/public'
 import {
   call,
@@ -102,13 +119,17 @@ import {
 } from '../../actions/public'
 import type {
   Chain,
-  ContractConfig,
+  ContractFunctionConfig,
   FilterType,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
 import type { PublicClient } from '../createPublicClient'
+import type { Transport } from '../transports'
 
-export type PublicActions<TChain extends Chain = Chain> = {
+export type PublicActions<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   createContractEventFilter: <
@@ -128,11 +149,11 @@ export type PublicActions<TChain extends Chain = Chain> = {
   ) => Promise<CreateEventFilterReturnType<TAbiEvent, TAbi, TEventName, TArgs>>
   createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterReturnType>
   estimateContractGas: <
-    TChain extends Chain,
+    TChain extends Chain | undefined,
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
-    args: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
   ) => Promise<EstimateContractGasReturnType>
   estimateGas: (
     args: EstimateGasParameters<TChain>,
@@ -150,7 +171,14 @@ export type PublicActions<TChain extends Chain = Chain> = {
   getEnsAddress: (
     args: GetEnsAddressParameters,
   ) => Promise<GetEnsAddressReturnType>
+  getEnsAvatar: (
+    args: GetEnsAvatarParameters,
+  ) => Promise<GetEnsAvatarReturnType>
   getEnsName: (args: GetEnsNameParameters) => Promise<GetEnsNameReturnType>
+  getEnsResolver: (
+    args: GetEnsResolverParameters,
+  ) => Promise<GetEnsResolverReturnType>
+  getEnsText: (args: GetEnsTextParameters) => Promise<GetEnsTextReturnType>
   getFeeHistory: (
     args: GetFeeHistoryParameters,
   ) => Promise<GetFeeHistoryReturnType>
@@ -191,7 +219,7 @@ export type PublicActions<TChain extends Chain = Chain> = {
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<TChain>>
   multicall: <
-    TContracts extends ContractConfig[],
+    TContracts extends ContractFunctionConfig[],
     TAllowFailure extends boolean = true,
   >(
     args: MulticallParameters<TContracts, TAllowFailure>,
@@ -208,17 +236,13 @@ export type PublicActions<TChain extends Chain = Chain> = {
     TChainOverride extends Chain | undefined = undefined,
   >(
     args: SimulateContractParameters<
-      TChain,
       TAbi,
       TFunctionName,
+      TChain,
       TChainOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<
-      TChainOverride extends Chain ? TChainOverride : TChain,
-      TAbi,
-      TFunctionName
-    >
+    SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
   >
   uninstallFilter: (
     args: UninstallFilterParameters,
@@ -228,33 +252,30 @@ export type PublicActions<TChain extends Chain = Chain> = {
   ) => Promise<WaitForTransactionReceiptReturnType<TChain>>
   watchBlockNumber: (
     args: WatchBlockNumberParameters,
-  ) => ReturnType<typeof watchBlockNumber>
+  ) => WatchBlockNumberReturnType
   watchBlocks: (
-    args: WatchBlocksParameters<TChain>,
-  ) => ReturnType<typeof watchBlocks>
+    args: WatchBlocksParameters<TTransport, TChain>,
+  ) => WatchBlocksReturnType
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,
   >(
     args: WatchContractEventParameters<TAbi, TEventName>,
-  ) => ReturnType<typeof watchContractEvent>
-  watchEvent: <
-    TAbiEvent extends AbiEvent | undefined,
-    TEventName extends string | undefined,
-  >(
+  ) => WatchContractEventReturnType
+  watchEvent: <TAbiEvent extends AbiEvent | undefined>(
     args: WatchEventParameters<TAbiEvent>,
-  ) => ReturnType<typeof watchEvent>
+  ) => WatchEventReturnType
   watchPendingTransactions: (
-    args: WatchPendingTransactionsParameters,
-  ) => ReturnType<typeof watchPendingTransactions>
+    args: WatchPendingTransactionsParameters<TTransport>,
+  ) => WatchPendingTransactionsReturnType
 }
 
 export const publicActions = <
-  TChain extends Chain,
-  TClient extends PublicClient<any, any>,
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
 >(
-  client: TClient,
-): PublicActions<TChain> => ({
+  client: PublicClient<TTransport, TChain>,
+): PublicActions<TTransport, TChain> => ({
   call: (args) => call(client, args),
   createBlockFilter: () => createBlockFilter(client),
   createContractEventFilter: (args) => createContractEventFilter(client, args),
@@ -269,7 +290,10 @@ export const publicActions = <
   getBytecode: (args) => getBytecode(client, args),
   getChainId: () => getChainId(client),
   getEnsAddress: (args) => getEnsAddress(client, args),
+  getEnsAvatar: (args) => getEnsAvatar(client, args),
   getEnsName: (args) => getEnsName(client, args),
+  getEnsResolver: (args) => getEnsResolver(client, args),
+  getEnsText: (args) => getEnsText(client, args),
   getFeeHistory: (args) => getFeeHistory(client, args),
   getFilterChanges: (args) => getFilterChanges(client, args),
   getFilterLogs: (args) => getFilterLogs(client, args),

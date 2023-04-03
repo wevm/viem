@@ -1,5 +1,5 @@
 import type { Narrow } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import { multicall3Abi } from '../../constants'
 import {
   AbiDecodingZeroDataError,
@@ -8,7 +8,8 @@ import {
 } from '../../errors'
 import type {
   Address,
-  ContractConfig,
+  Chain,
+  ContractFunctionConfig,
   Hex,
   MulticallContracts,
 } from '../../types'
@@ -24,7 +25,7 @@ import type { CallParameters } from './call'
 import { readContract } from './readContract'
 
 export type MulticallParameters<
-  TContracts extends ContractConfig[] = ContractConfig[],
+  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
@@ -33,15 +34,16 @@ export type MulticallParameters<
 }
 
 export type MulticallReturnType<
-  TContracts extends ContractConfig[] = ContractConfig[],
+  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
 
 export async function multicall<
-  TContracts extends ContractConfig[],
+  TChain extends Chain | undefined,
+  TContracts extends ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 >(
-  client: PublicClient,
+  client: PublicClient<Transport, TChain>,
   args: MulticallParameters<TContracts, TAllowFailure>,
 ): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
   const {

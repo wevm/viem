@@ -48,6 +48,75 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "singleAddressResolverAbi": [
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes32",
+            },
+          ],
+          "name": "addr",
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
+      "textResolverAbi": [
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes32",
+            },
+            {
+              "name": "key",
+              "type": "string",
+            },
+          ],
+          "name": "text",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
+      "universalResolverAbi": [
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes",
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+            },
+          ],
+          "name": "resolve",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes",
+            },
+            {
+              "name": "address",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
     }
   `)
 })

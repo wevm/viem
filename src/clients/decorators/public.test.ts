@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'vitest'
-import { getAccount, parseEther } from '../../utils'
+import { getBlockNumber } from '../../actions'
+import { parseEther } from '../../utils'
 import {
   accounts,
   address,
   initialBlockNumber,
   publicClient,
+  setBlockNumber,
   testClient,
   usdcContractConfig,
   wagmiContractConfig,
@@ -13,7 +15,7 @@ import {
 import { publicActions } from './public'
 
 test('default', async () => {
-  expect(publicActions(publicClient as any)).toMatchInlineSnapshot(`
+  expect(publicActions(publicClient)).toMatchInlineSnapshot(`
     {
       "call": [Function],
       "createBlockFilter": [Function],
@@ -29,7 +31,10 @@ test('default', async () => {
       "getBytecode": [Function],
       "getChainId": [Function],
       "getEnsAddress": [Function],
+      "getEnsAvatar": [Function],
       "getEnsName": [Function],
+      "getEnsResolver": [Function],
+      "getEnsText": [Function],
       "getFeeHistory": [Function],
       "getFilterChanges": [Function],
       "getFilterLogs": [Function],
@@ -58,7 +63,7 @@ describe('smoke test', () => {
   test('call', async () => {
     const { data } = await publicClient.call({
       data: '0x06fdde03',
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: wagmiContractConfig.address,
     })
     expect(data).toMatchInlineSnapshot(
@@ -90,7 +95,7 @@ describe('smoke test', () => {
     expect(
       await publicClient.estimateContractGas({
         ...wagmiContractConfig,
-        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
         args: [69436n],
       }),
@@ -100,7 +105,7 @@ describe('smoke test', () => {
   test('estimateGas', async () => {
     expect(
       await publicClient.estimateGas({
-        account: getAccount(accounts[0].address),
+        account: accounts[0].address,
         to: accounts[1].address,
         value: parseEther('1'),
       }),
@@ -137,15 +142,70 @@ describe('smoke test', () => {
     expect(await publicClient.getChainId()).toBeDefined()
   })
 
-  test('getEnsAddress', async () => {
-    expect(await publicClient.getEnsAddress({ name: 'jxom.eth' })).toBeDefined()
-  })
+  test(
+    'getEnsAddress',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsAddress({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
 
-  test('getEnsName', async () => {
-    expect(
-      await publicClient.getEnsName({ address: address.vitalik }),
-    ).toBeDefined()
-  })
+  test(
+    'getEnsAvatar',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsAvatar({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
+  test(
+    'getEnsName',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsName({ address: address.vitalik }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
+  test(
+    'getEnsResolver',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsResolver({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
+  test(
+    'getEnsText',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsText({ name: 'jxom.eth', key: 'com.twitter' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
 
   test('getFeeHistory', async () => {
     expect(
@@ -203,7 +263,7 @@ describe('smoke test', () => {
 
   test('getTransactionConfirmations', async () => {
     const hash = await walletClient.sendTransaction({
-      account: getAccount(accounts[0].address),
+      account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),
     })
@@ -268,7 +328,7 @@ describe('smoke test', () => {
     expect(
       await publicClient.simulateContract({
         ...wagmiContractConfig,
-        account: getAccount('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'),
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
         args: [69435n],
       }),
@@ -282,7 +342,7 @@ describe('smoke test', () => {
 
   test('waitForTransactionReceipt', async () => {
     const hash = await walletClient.sendTransaction({
-      account: getAccount(accounts[6].address),
+      account: accounts[6].address,
       to: accounts[7].address,
       value: parseEther('1'),
     })

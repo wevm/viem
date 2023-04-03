@@ -74,7 +74,7 @@ For example, the `balanceOf` function name below requires an **address** argumen
 
 ::: code-group
 
-```ts {9} [example.ts]
+```ts {8} [example.ts]
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
@@ -177,16 +177,18 @@ const data = await publicClient.readContract({
 
 ### account (optional)
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-Optional Account sender override. [Read more](/docs/clients/wallet).
+Optional Account sender override.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
   functionName: 'totalSupply',
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266') // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' // [!code focus]
 })
 ```
 

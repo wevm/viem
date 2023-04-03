@@ -2,13 +2,12 @@ import 'viem/window'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
-  Account,
+  Address,
   Hash,
   TransactionReceipt,
   createWalletClient,
   createPublicClient,
   custom,
-  getAccount,
   http,
   stringify,
 } from 'viem'
@@ -20,17 +19,18 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 const walletClient = createWalletClient({
+  chain: goerli,
   transport: custom(window.ethereum!),
 })
 
 function Example() {
-  const [account, setAccount] = useState<Account>()
+  const [account, setAccount] = useState<Address>()
   const [hash, setHash] = useState<Hash>()
   const [receipt, setReceipt] = useState<TransactionReceipt>()
 
   const connect = async () => {
     const [address] = await walletClient.requestAddresses()
-    setAccount(getAccount(address))
+    setAccount(address)
   }
 
   const mint = async () => {
@@ -56,7 +56,7 @@ function Example() {
   if (account)
     return (
       <>
-        <div>Connected: {account.address}</div>
+        <div>Connected: {account}</div>
         <button onClick={mint}>Mint</button>
         {receipt && (
           <>

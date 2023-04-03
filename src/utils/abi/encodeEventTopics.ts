@@ -11,8 +11,8 @@ import {
 } from '../../errors'
 import type {
   EventDefinition,
-  ExtractEventArgsFromAbi,
-  ExtractEventNameFromAbi,
+  GetEventArgs,
+  InferEventName,
   Hex,
 } from '../../types'
 import { toBytes } from '../encoding'
@@ -26,8 +26,8 @@ export type EncodeEventTopicsParameters<
   TEventName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  args?: ExtractEventArgsFromAbi<TAbi, TEventName>
-  eventName: ExtractEventNameFromAbi<TAbi, TEventName>
+  args?: GetEventArgs<TAbi, TEventName>
+  eventName: InferEventName<TAbi, TEventName>
 }
 
 export function encodeEventTopics<

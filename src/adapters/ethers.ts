@@ -1,5 +1,6 @@
+import { toAccount } from '../accounts/toAccount'
 import type { Address, Hash } from '../types'
-import { getAccount as getAccount_, toBytes } from '../utils'
+import { toBytes } from '../utils'
 
 type BigNumberish = string | number | bigint
 type BytesLike = string | Uint8Array
@@ -39,10 +40,10 @@ type EthersWallet = {
     }
 )
 
-export const getAccount = (wallet: EthersWallet) =>
-  getAccount_({
+export const ethersWalletToAccount = (wallet: EthersWallet) =>
+  toAccount({
     address: wallet.address as Address,
-    async signMessage(message) {
+    async signMessage({ message }) {
       return (await wallet.signMessage(toBytes(message))) as Hash
     },
     async signTransaction(txn) {

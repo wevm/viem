@@ -1,7 +1,8 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type {
   Address,
+  Chain,
   Filter,
   Log,
   MaybeAbiEventName,
@@ -52,11 +53,14 @@ export type WatchEventParameters<
     }
 )
 
+export type WatchEventReturnType = () => void
+
 export function watchEvent<
+  TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
   TEventName extends string | undefined,
 >(
-  client: PublicClient,
+  client: PublicClient<Transport, TChain>,
   {
     address,
     args,
@@ -66,7 +70,7 @@ export function watchEvent<
     onLogs,
     pollingInterval = client.pollingInterval,
   }: WatchEventParameters<TAbiEvent>,
-) {
+): WatchEventReturnType {
   const observerId = JSON.stringify([
     'watchEvent',
     address,

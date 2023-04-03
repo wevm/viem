@@ -1,5 +1,9 @@
-import type { PublicClient } from '../../clients'
-import type { Address, Prettify } from '../../types'
+import type { PublicClient, Transport } from '../../clients'
+import type { Address, Chain, Prettify } from '../../types'
+import {
+  singleAddressResolverAbi,
+  universalResolverAbi,
+} from '../../constants/abis'
 import {
   decodeFunctionResult,
   encodeFunctionData,
@@ -25,17 +29,9 @@ export type GetEnsAddressReturnType = Address
  *
  * - Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  * - Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
- *
- * @example
- * import { normalize } from 'viem/ens'
- *
- * const ensAddress = await getEnsAddress(publicClient, {
- *   name: normalize('wagmi-dev.eth'),
- * })
- * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
-export async function getEnsAddress(
-  client: PublicClient,
+export async function getEnsAddress<TChain extends Chain | undefined,>(
+  client: PublicClient<Transport, TChain>,
   {
     blockNumber,
     blockTag,
@@ -59,34 +55,12 @@ export async function getEnsAddress(
 
   const res = await readContract(client, {
     address: universalResolverAddress,
-    abi: [
-      {
-        name: 'resolve',
-        type: 'function',
-        stateMutability: 'view',
-        inputs: [
-          { name: 'name', type: 'bytes' },
-          { name: 'data', type: 'bytes' },
-        ],
-        outputs: [
-          { name: '', type: 'bytes' },
-          { name: 'address', type: 'address' },
-        ],
-      },
-    ],
+    abi: universalResolverAbi,
     functionName: 'resolve',
     args: [
       toHex(packetToBytes(name)),
       encodeFunctionData({
-        abi: [
-          {
-            name: 'addr',
-            type: 'function',
-            stateMutability: 'view',
-            inputs: [{ name: 'name', type: 'bytes32' }],
-            outputs: [],
-          },
-        ],
+        abi: singleAddressResolverAbi,
         functionName: 'addr',
         args: [namehash(name)],
       }),
@@ -95,15 +69,7 @@ export async function getEnsAddress(
     blockTag,
   })
   return decodeFunctionResult({
-    abi: [
-      {
-        name: 'addr',
-        type: 'function',
-        stateMutability: 'view',
-        inputs: [],
-        outputs: [{ name: 'name', type: 'address' }],
-      },
-    ],
+    abi: singleAddressResolverAbi,
     functionName: 'addr',
     data: res[0],
   })

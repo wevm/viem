@@ -144,7 +144,7 @@ export function rankTransports({
 
   type SampleData = { latency: number; success: number }
   type Sample = SampleData[]
-  let samples: Sample[] = []
+  const samples: Sample[] = []
 
   const rankTransports_ = async () => {
     // 1. Take a sample from each Transport.

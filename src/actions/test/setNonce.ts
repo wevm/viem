@@ -1,5 +1,5 @@
-import type { TestClient } from '../../clients'
-import type { Address } from '../../types'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { Address, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetNonceParameters = {
@@ -9,8 +9,8 @@ export type SetNonceParameters = {
   nonce: number
 }
 
-export async function setNonce(
-  client: TestClient,
+export async function setNonce<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { address, nonce }: SetNonceParameters,
 ) {
   return await client.request({

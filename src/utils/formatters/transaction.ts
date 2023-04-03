@@ -8,12 +8,14 @@ import type {
 import { hexToNumber } from '../encoding'
 import { defineFormatter, ExtractFormatter, Formatted } from './format'
 
-export type TransactionFormatter<TChain extends Chain = Chain> =
-  ExtractFormatter<
-    TChain,
-    'transaction',
-    NonNullable<Formatters['transaction']>
-  >
+export type TransactionFormatter<TChain extends Chain | undefined = Chain> =
+  TChain extends Chain
+    ? ExtractFormatter<
+        TChain,
+        'transaction',
+        NonNullable<Formatters['transaction']>
+      >
+    : Formatters['transaction']
 
 export type FormattedTransaction<
   TFormatter extends Formatter | undefined = Formatter,

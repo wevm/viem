@@ -1,10 +1,17 @@
-import type { BlockTag, Hash } from '../types'
+import type {
+  Account,
+  BlockTag,
+  Hash,
+  TransactionType,
+  Chain,
+  Hex,
+} from '../types'
 import { formatEther, formatGwei } from '../utils'
 import type { SendTransactionParameters } from '../wallet'
 import { BaseError } from './base'
 
 export function prettyPrint(
-  args: Record<string, bigint | number | string | undefined | false>,
+  args: Record<string, bigint | number | string | undefined | false | unknown>,
 ) {
   const entries = Object.entries(args)
     .map(([key, value]) => {
@@ -30,6 +37,89 @@ export class FeeConflictError extends BaseError {
   }
 }
 
+export class InvalidLegacyVError extends BaseError {
+  name = 'InvalidLegacyVError'
+
+  constructor({ v }: { v: bigint }) {
+    super(`Invalid \`v\` value "${v}". Expected 27 or 28.`)
+  }
+}
+
+export class InvalidSerializableTransactionError extends BaseError {
+  name = 'InvalidSerializableTransactionError'
+
+  constructor({ transaction }: { transaction: Record<string, unknown> }) {
+    super('Cannot infer a transaction type from provided transaction.', {
+      metaMessages: [
+        'Provided Transaction:',
+        '{',
+        prettyPrint(transaction),
+        '}',
+        '',
+        'To infer the type, either provide:',
+        '- a `type` to the Transaction, or',
+        '- an EIP-1559 Transaction with `maxFeePerGas`, or',
+        '- an EIP-2930 Transaction with `gasPrice` & `accessList`, or',
+        '- a Legacy Transaction with `gasPrice`',
+      ],
+    })
+  }
+}
+
+export class InvalidSerializedTransactionTypeError extends BaseError {
+  name = 'InvalidSerializedTransactionType'
+
+  serializedType: Hex
+
+  constructor({ serializedType }: { serializedType: Hex }) {
+    super(`Serialized transaction type "${serializedType}" is invalid.`)
+
+    this.serializedType = serializedType
+  }
+}
+
+export class InvalidSerializedTransactionError extends BaseError {
+  name = 'InvalidSerializedTransactionError'
+
+  serializedTransaction: Hex
+  type: TransactionType
+
+  constructor({
+    attributes,
+    serializedTransaction,
+    type,
+  }: {
+    attributes: Record<string, unknown>
+    serializedTransaction: Hex
+    type: TransactionType
+  }) {
+    const missing = Object.entries(attributes)
+      .map(([key, value]) => (typeof value === 'undefined' ? key : undefined))
+      .filter(Boolean)
+    super(`Invalid serialized transaction of type "${type}" was provided.`, {
+      metaMessages: [
+        `Serialized Transaction: "${serializedTransaction}"`,
+        missing.length > 0 ? `Missing Attributes: ${missing.join(', ')}` : '',
+      ].filter(Boolean),
+    })
+
+    this.serializedTransaction = serializedTransaction
+    this.type = type
+  }
+}
+
+export class InvalidStorageKeySizeError extends BaseError {
+  name = 'InvalidStorageKeySizeError'
+
+  constructor({ storageKey }: { storageKey: Hex }) {
+    super(
+      `Size for storage key "${storageKey}" is invalid. Expected 32 bytes. Got ${Math.floor(
+        (storageKey.length - 2) / 2,
+      )} bytes.`,
+    )
+  }
+}
+
 export class TransactionExecutionError extends BaseError {
   cause: BaseError
 
@@ -49,11 +139,15 @@ export class TransactionExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: SendTransactionParameters & { docsPath?: string },
+    }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
+      account: Account
+      chain?: Chain
+      docsPath?: string
+    },
   ) {
     const prettyArgs = prettyPrint({
       chain: chain && `${chain?.name} (id: ${chain?.id})`,
-      from: account.address,
+      from: account?.address,
       to,
       value:
         typeof value !== 'undefined' &&

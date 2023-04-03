@@ -41,7 +41,7 @@ export {
   parseAbiParameters,
 } from './abi'
 
-export { getAccount } from './account'
+export { parseAccount, publicKeyToAddress } from './accounts'
 
 export type {
   GetContractAddressOptions,
@@ -148,6 +148,7 @@ export {
 export {
   getEventSelector,
   getFunctionSelector,
+  isHash,
   keccak256,
 } from './hash'
 
@@ -157,23 +158,48 @@ export type { HttpOptions, RpcResponse, Socket } from './rpc'
 export { getSocket, rpc } from './rpc'
 
 export type {
+  HashTypedDataParameters,
+  HashTypedDataReturnType,
   RecoverAddressParameters,
   RecoverAddressReturnType,
   RecoverMessageAddressParameters,
   RecoverMessageAddressReturnType,
+  RecoverTypedDataAddressParameters,
+  RecoverTypedDataAddressReturnType,
   VerifyMessageParameters,
   VerifyMessageReturnType,
+  VerifyTypedDataParameters,
+  VerifyTypedDataReturnType,
 } from './signature'
 export {
   hashMessage,
+  hashTypedData,
   recoverAddress,
   recoverMessageAddress,
+  recoverTypedDataAddress,
   verifyMessage,
+  verifyTypedData,
 } from './signature'
 
 export { stringify } from './stringify'
 
-export { assertRequest, prepareRequest } from './transaction'
+export type {
+  GetSerializedTransactionType,
+  GetTransactionType,
+} from './transaction'
+export {
+  assertRequest,
+  assertTransactionEIP1559,
+  assertTransactionEIP2930,
+  assertTransactionLegacy,
+  getSerializedTransactionType,
+  getTransactionType,
+  parseTransaction,
+  prepareRequest,
+  serializeTransaction,
+} from './transaction'
+
+export { validateTypedData } from './typedData'
 
 export {
   formatEther,

@@ -1,12 +1,15 @@
-import type { TestClient } from '../../clients'
+import type { Chain } from '@wagmi/chains'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
 
 export type SetBlockTimestampIntervalParameters = {
   /** The interval (in seconds). */
   interval: number
 }
 
-export async function setBlockTimestampInterval(
-  client: TestClient,
+export async function setBlockTimestampInterval<
+  TChain extends Chain | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { interval }: SetBlockTimestampIntervalParameters,
 ) {
   return await client.request({

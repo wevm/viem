@@ -1,7 +1,13 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { WalletClient } from '../../clients'
-import type { Chain, ExtractConstructorArgsFromAbi, Hex } from '../../types'
+import type { WalletClient, Transport } from '../../clients'
+import type {
+  Account,
+  Chain,
+  GetConstructorArgs,
+  GetChain,
+  Hex,
+} from '../../types'
 import { encodeDeployData } from '../../utils'
 import {
   sendTransaction,
@@ -10,32 +16,47 @@ import {
 } from '../wallet'
 
 export type DeployContractParameters<
-  TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 > = Omit<
-  SendTransactionParameters<TChain>,
-  'accessList' | 'to' | 'data' | 'value'
+  SendTransactionParameters<TChain, TAccount, TChainOverride>,
+  'accessList' | 'chain' | 'to' | 'data' | 'value'
 > & {
   abi: Narrow<TAbi>
   bytecode: Hex
-} & ExtractConstructorArgsFromAbi<TAbi>
+} & GetChain<TChain, TChainOverride> &
+  GetConstructorArgs<TAbi>
 
 export type DeployContractReturnType = SendTransactionReturnType
 
 export function deployContract<
-  TChain extends Chain,
   TAbi extends Abi | readonly unknown[],
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+  TChainOverride extends Chain | undefined,
 >(
-  walletClient: WalletClient,
-  { abi, args, bytecode, ...request }: DeployContractParameters<TChain, TAbi>,
+  walletClient: WalletClient<Transport, TChain, TAccount>,
+  {
+    abi,
+    args,
+    bytecode,
+    ...request
+  }: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
 ): Promise<DeployContractReturnType> {
   const calldata = encodeDeployData({
     abi,
     args,
     bytecode,
-  } as unknown as DeployContractParameters<TChain, TAbi>)
+  } as unknown as DeployContractParameters<
+    TAbi,
+    TChain,
+    TAccount,
+    TChainOverride
+  >)
   return sendTransaction(walletClient, {
     ...request,
     data: calldata,
-  } as unknown as SendTransactionParameters<TChain>)
+  } as unknown as SendTransactionParameters<TChain, TAccount, TChainOverride>)
 }

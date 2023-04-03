@@ -1,11 +1,12 @@
 import type { Abi, Narrow } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 
 import type {
   Address,
   BlockNumber,
   BlockTag,
-  ExtractEventNameFromAbi,
+  Chain,
+  InferEventName,
   Filter,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
@@ -24,7 +25,7 @@ export type CreateContractEventFilterParameters<
 > = {
   address?: Address | Address[]
   abi: Narrow<TAbi>
-  eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
+  eventName?: InferEventName<TAbi, TEventName>
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
 } & (undefined extends TEventName
@@ -51,11 +52,12 @@ export type CreateContractEventFilterReturnType<
 > = Filter<'event', TAbi, TEventName, TArgs>
 
 export async function createContractEventFilter<
+  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
   TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
 >(
-  client: PublicClient,
+  client: PublicClient<Transport, TChain>,
   {
     address,
     abi,

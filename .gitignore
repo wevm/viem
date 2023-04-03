@@ -23,6 +23,7 @@ generated.ts
 
 # proxy packages
 /abi
+/accounts
 /chains
 /contract
 /ens

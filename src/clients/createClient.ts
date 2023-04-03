@@ -3,13 +3,34 @@ import type { Requests } from '../types/eip1193'
 import { uid } from '../utils/uid'
 import type { BaseRpcRequests, Transport } from './transports/createTransport'
 
-export type Client<
+export type ClientConfig<
   TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
-  TRequests extends BaseRpcRequests = Requests,
+  TChain extends Chain | undefined = Chain | undefined,
 > = {
   /** Chain for the client. */
   chain?: TChain
+  /** A key for the client. */
+  key?: string
+  /** A name for the client. */
+  name?: string
+  /**
+   * Frequency (in ms) for polling enabled actions & events.
+   * @default 4_000
+   */
+  pollingInterval?: number
+  /** The RPC transport */
+  transport: TTransport
+  /** The type of client. */
+  type?: string
+}
+
+export type Client<
+  TTransport extends Transport = Transport,
+  TRequests extends BaseRpcRequests = Requests,
+  TChain extends Chain | undefined = Chain | undefined,
+> = {
+  /** Chain for the client. */
+  chain: TChain
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -18,7 +39,7 @@ export type Client<
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
   request: TRequests['request']
-  /** The RPC transport (http, webSocket, custom, etc) */
+  /** The RPC transport */
   transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
   /** The type of client. */
   type: string
@@ -26,26 +47,13 @@ export type Client<
   uid: string
 }
 
-export type ClientConfig<
-  TTransport extends Transport = Transport,
-  TChain extends Chain = Chain,
-  TRequests extends BaseRpcRequests = Requests,
-> = Partial<
-  Pick<
-    Client<TTransport, TChain, TRequests>,
-    'chain' | 'key' | 'name' | 'pollingInterval' | 'type'
-  >
-> & {
-  transport: TTransport
-}
-
 /**
  * @description Creates a base client with the given transport.
  */
 export function createClient<
   TTransport extends Transport,
-  TChain extends Chain,
   TRequests extends BaseRpcRequests,
+  TChain extends Chain | undefined = undefined,
 >({
   chain,
   key = 'base',
@@ -53,14 +61,10 @@ export function createClient<
   pollingInterval = 4_000,
   transport,
   type = 'base',
-}: ClientConfig<TTransport, TChain, TRequests>): Client<
-  TTransport,
-  TChain,
-  TRequests
-> {
+}: ClientConfig<TTransport, TChain>): Client<TTransport, TRequests, TChain> {
   const { config, request, value } = transport({ chain, pollingInterval })
   return {
-    chain,
+    chain: chain as TChain,
     key,
     name,
     pollingInterval,

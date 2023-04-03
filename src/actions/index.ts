@@ -1,3 +1,13 @@
+export { getEnsAddress, getEnsName, getEnsResolver } from './ens'
+export type {
+  GetEnsAddressParameters,
+  GetEnsAddressReturnType,
+  GetEnsNameParameters,
+  GetEnsNameReturnType,
+  GetEnsResolverParameters,
+  GetEnsResolverReturnType,
+} from './ens'
+
 export {
   call,
   createBlockFilter,
@@ -74,6 +84,7 @@ export type {
   GetTransactionReceiptReturnType,
   GetTransactionReturnType,
   MulticallParameters,
+  MulticallReturnType,
   OnBlock,
   OnBlockNumberFn,
   OnBlockNumberParameter,
@@ -93,10 +104,15 @@ export type {
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
   WatchBlockNumberParameters,
+  WatchBlockNumberReturnType,
   WatchBlocksParameters,
+  WatchBlocksReturnType,
   WatchContractEventParameters,
+  WatchContractEventReturnType,
   WatchEventParameters,
+  WatchEventReturnType,
   WatchPendingTransactionsParameters,
+  WatchPendingTransactionsReturnType,
 } from './public'
 
 export {
@@ -170,16 +186,26 @@ export type {
   DeployContractReturnType,
   FormattedTransactionRequest,
   GetAddressesReturnType,
+  GetChainIdReturnType,
   GetPermissionsReturnType,
   RequestAddressesReturnType,
+  RequestPermissionsParameters,
   RequestPermissionsReturnType,
   SendTransactionParameters,
   SendTransactionReturnType,
   SignMessageParameters,
   SignMessageReturnType,
+  SignTypedDataParameters,
+  SignTypedDataReturnType,
   SwitchChainParameters,
   WatchAssetParameters,
   WatchAssetReturnType,
   WriteContractParameters,
   WriteContractReturnType,
 } from './wallet'
+
+export { getContract } from './getContract'
+export type {
+  GetContractParameters,
+  GetContractReturnType,
+} from './getContract'

@@ -9,9 +9,9 @@ export {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
   AbiErrorSignatureNotFoundError,
+  AbiEventNotFoundError,
   AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
-  AbiEventNotFoundError,
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
   AbiFunctionSignatureNotFoundError,
@@ -24,13 +24,20 @@ export {
   UnsupportedPackedAbiType,
 } from './abi'
 
+export { AccountNotFoundError } from './account'
+
 export { InvalidAddressError } from './address'
 
 export { BaseError } from './base'
 
 export { BlockNotFoundError } from './block'
 
-export { ChainDoesNotSupportContract, ChainMismatchError } from './chain'
+export {
+  ChainDoesNotSupportContract,
+  ChainMismatchError,
+  ChainNotFoundError,
+  InvalidChainIdError,
+} from './chain'
 
 export {
   CallExecutionError,
@@ -51,6 +58,13 @@ export {
   InvalidHexValueError,
   OffsetOutOfBoundsError,
 } from './encoding'
+
+export {
+  EnsAvatarInvalidMetadataError,
+  EnsAvatarInvalidNftUriError,
+  EnsAvatarUriResolutionError,
+  EnsAvatarUnsupportedNamespaceError,
+} from './ens'
 
 export { EstimateGasExecutionError } from './estimateGas'
 
@@ -87,8 +101,8 @@ export {
   RpcRequestError,
   SwitchChainError,
   TransactionRejectedRpcError,
-  UserRejectedRequestError,
   UnknownRpcError,
+  UserRejectedRequestError,
 } from './request'
 
 export {
@@ -99,6 +113,12 @@ export {
 } from './rpc'
 
 export {
+  FeeConflictError,
+  InvalidLegacyVError,
+  InvalidSerializedTransactionError,
+  InvalidSerializedTransactionTypeError,
+  InvalidSerializableTransactionError,
+  InvalidStorageKeySizeError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,

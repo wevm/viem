@@ -58,11 +58,11 @@ Returns `0x0000000000000000000000000000000000000000` if ENS name does not resolv
 
 ## Parameters
 
-### address
+### name
 
-- **Type:** [`Address`](/docs/glossary/types#address)
+- **Type:** `string`
 
-Address to get primary ENS name for.
+Name to get the address for.
 
 ```ts
 const ensName = await publicClient.getEnsAddress({

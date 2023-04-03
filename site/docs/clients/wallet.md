@@ -20,7 +20,7 @@ The `createWalletClient` function sets up a Wallet Client with a given [Transpor
 
 The Wallet Client supports signing over:
 - a [JSON-RPC Account](#json-rpc-accounts) (ie. Browser Extension Wallets, WalletConnect, etc). 
-- a [Local Account](#local-accounts) (ie. local private key/mnemonic wallets).
+- [Local Accounts](#local-accounts-private-key-mnemonic-etc) (ie. private key/mnemonic wallets).
 
 ## Import
 
@@ -30,11 +30,11 @@ import { createWalletClient } from 'viem'
 
 ## JSON-RPC Accounts
 
-A JSON-RPC Account **defers** signing of transactions & messages to the target Wallet over JSON-RPC. An example could be sending a transaction via a Browser Extension Wallet (e.g. MetaMask) with the `window.ethereum` Provider.
+A [JSON-RPC Account](/docs/accounts/jsonRpc) **defers** signing of transactions & messages to the target Wallet over JSON-RPC. An example could be sending a transaction via a Browser Extension Wallet (e.g. MetaMask) with the `window.ethereum` Provider.
 
 Below is an example of how you can set up a JSON-RPC Account.
 
-#### Initialize a Wallet Client
+#### 1: Initialize a Wallet Client
 
 Before we set up our Account and start consuming Wallet Actions, we will need to set up our Wallet Client with the [`custom` Transport](/docs/clients/transports/custom), where we will pass in the `window.ethereum` Provider:
 
@@ -48,12 +48,12 @@ const client = createWalletClient({
 })
 ```
 
-#### Set up your JSON-RPC Account
+#### 2: Set up your JSON-RPC Account
 
-We will want to retrieve a list of addresses we can access in our Wallet (e.g. MetaMask), and then use one of them to retrieve an Account:
+We will want to retrieve an address that we can access in our Wallet (e.g. MetaMask).
 
 ```ts
-import { createWalletClient, custom, getAccount } from 'viem' // [!code focus]
+import { createWalletClient, custom } from 'viem' // [!code focus]
 import { mainnet } from 'viem/chains'
 
 const client = createWalletClient({
@@ -63,14 +63,13 @@ const client = createWalletClient({
 
 const [address] = await client.getAddresses() // [!code focus:10]
 // or: const [address] = await client.requestAddresses() // [!code focus:10]
-const account = getAccount(address)
 ```
 
 > Note: Some Wallets (like MetaMask) may require you to request access to Account addresses via [`client.requestAddresses`](/docs/actions/wallet/requestAddresses) first.
 
-#### Consume [Wallet Actions](/docs/actions/wallet/introduction)
+#### 3: Consume [Wallet Actions](/docs/actions/wallet/introduction)
 
-Now you can use that Account within Wallet Actions that require a signature from the user:
+Now you can use that address within Wallet Actions that require a signature from the user:
 
 ```ts
 import { createWalletClient, custom } from 'viem'
@@ -82,26 +81,50 @@ const client = createWalletClient({
 })
 
 const [address] = await client.getAddresses()
-const account = getAccount(address)
 
 const hash = await client.sendTransaction({ // [!code focus:10]
-  account,
+  account: address,
   to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   value: parseEther('0.001')
 })
 ```
 
-## Local Accounts (Experimental)
+#### Optional: Hoist the Account
 
-::: warning
-Local Accounts are currently experimental. Use with caution.
-:::
+If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { mainnnet } from 'viem/chains'
+
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+
+const client = createWalletClient({ // [!code focus:99]
+  account, // [!code ++]
+  chain: mainnet,
+  transport: http()
+})
+
+const hash = await client.sendTransaction({
+  account, // [!code --]
+  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+  value: parseEther('0.001')
+})
+```
+
+## Local Accounts (Private Key, Mnemonic, etc)
 
 A Local Account performs signing of transactions & messages with a private key **before** executing a method over JSON-RPC.
 
-Below are the steps to integrate an Local Account into viem.
+There are three types of Local Accounts in viem:
 
-#### Initialize a Wallet Client
+- [Private Key Account](/docs/accounts/privateKey)
+- [Mnemonic Account](/docs/accounts/mnemonic)
+- [Hierarchical Deterministic (HD) Account](/docs/accounts/hd)
+
+Below are the steps to integrate a **Private Key Account**, but the same steps can be applied to **Mnemonic & HD Accounts**.
+
+#### 1: Initialize a Wallet Client
 
 Before we set up our Account and start consuming Wallet Actions, we will need to set up our Wallet Client with the [`http` Transport](/docs/clients/transports/http):
 
@@ -115,60 +138,38 @@ const client = createWalletClient({
 })
 ```
 
-#### Set up your Local Account
+#### 2: Set up your Local Account
 
-Next, we will instantiate a viem Account using `getAccount`.
-
-viem currently **does not have client-side signing utilities** (coming soon!). For now, you will have to bring your own signing utilities and pass them through to the `getAccount` function:
+Next, we will instantiate a Private Key Account using `privateKeyToAccount`:
 
 ```ts
-import { createWalletClient, http, getAccount } from 'viem'
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts' // [!code focus]
 import { mainnet } from 'viem/chains'
-import { getAddress, signMessage, signTransaction } from './sign-utils' // [!code focus]
 
 const client = createWalletClient({
   chain: mainnet,
   transport: http()
 })
 
-const privateKey = '0x...' // [!code focus:10]
-const account = getAccount({
-  address: getAddress(privateKey),
-  signMessage(message) {
-    return signMessage(message, privateKey)
-  },
-  signTransaction(transaction) {
-    return signTransaction(transaction, privateKey)
-  }
-})
+const account = privateKeyToAccount('0x...') // [!code focus:1]
 ```
 
-> Tip: Instead of building private key signing utilities yourself, you can plug in a third-party signer into the `getAccount` interface. We have an [Ethers.js Wallet Adapter](#ethers-js-wallet) if you are coming from Ethers.js, but you could also hook up a [web3.js Wallet](https://web3js.readthedocs.io/en/v1.8.2/web3-eth-accounts.html#wallet-add), [micro-eth-signer](https://github.com/paulmillr/micro-eth-signer), etc to the `getAccount` interface.
-
-#### Consume [Wallet Actions](/docs/actions/wallet/introduction)
+#### 3: Consume [Wallet Actions](/docs/actions/wallet/introduction)
 
 Now you can use that Account within Wallet Actions that need a signature from the user:
 
 ```ts
-import { createWalletClient, http, getAccount } from 'viem'
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { getAddress, signMessage, signTransaction } from './sign-utils'
 
 const client = createWalletClient({
   chain: mainnet,
   transport: http()
 })
 
-const privateKey = '0x...'
-const account = getAccount({
-  address: getAddress(privateKey),
-  signMessage(message) {
-    return signMessage(message, privateKey)
-  },
-  signTransaction(transaction) {
-    return signTransaction(transaction, privateKey)
-  }
-})
+const account = privateKeyToAccount('0x...')
 
 const hash = await client.sendTransaction({ // [!code focus:5]
   account,
@@ -177,7 +178,55 @@ const hash = await client.sendTransaction({ // [!code focus:5]
 })
 ```
 
+#### Optional: Hoist the Account
+
+If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+
+const account = privateKeyToAccount('0x...')
+
+const client = createWalletClient({ // [!code focus:99]
+  account, // [!code ++]
+  chain: mainnet,
+  transport: http()
+})
+
+const hash = await client.sendTransaction({
+  account, // [!code --]
+  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+  value: parseEther('0.001')
+})
+```
+
 ## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+The Account to use for the Wallet Client. This will be used for Actions that require an `account` as an argument.
+
+Accepts a [JSON-RPC Account](#json-rpc-accounts) or [Local Account (Private Key, etc)](#local-accounts-private-key-mnemonic-etc).
+
+```ts
+import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const client = createWalletClient({
+  account: privateKeyToAccount('0x...') // [!code focus]
+  key: 'foo', 
+  transport: custom(window.ethereum)
+})
+
+const hash = await client.sendTransaction({
+  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+  value: parseEther('0.001')
+})
+```
 
 ### chain (optional)
 
@@ -239,30 +288,5 @@ import { createWalletClient, custom } from 'viem'
 const client = createWalletClient({
   pollingInterval: 10_000, // [!code focus]
   transport: custom(window.ethereum)
-})
-```
-
-## Ethers.js Wallet
-
-::: warning
-Local Accounts are currently experimental. Use with caution.
-:::
-
-```ts
-import { createWalletClient, http } from 'viem'
-import { getAccount } from 'viem/ethers' // [!code focus:2]
-import { Wallet } from 'ethers'
-
-const client = createWalletClient({
-  transport: http()
-})
-
-const privateKey = '0x...' // [!code focus:2]
-const account = getAccount(new Wallet(privateKey))
-
-const hash = await client.sendTransaction({ 
-  account,
-  to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-  value: parseEther('0.001')
 })
 ```

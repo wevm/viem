@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { mainnet } from '../chains'
-import { ChainDoesNotSupportContract } from './chain'
+import { ChainDoesNotSupportContract, InvalidChainIdError } from './chain'
 
 test('ChainDoesNotSupportContract', () => {
   expect(
@@ -40,6 +40,14 @@ test('ChainDoesNotSupportContract', () => {
 
     This could be due to any of the following:
     - The contract "ensUniversalResolver" was not deployed until block 16172161 (current block 16172160).
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('InvalidChainIdError', () => {
+  expect(new InvalidChainIdError({ chainId: -1 })).toMatchInlineSnapshot(`
+    [InvalidChainIdError: Chain ID "-1" is invalid.
 
     Version: viem@1.0.2]
   `)
