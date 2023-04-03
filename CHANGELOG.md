@@ -1,6 +1,6 @@
 # viem
 
-## 0.2.0
+## 0.2.0 – [Migration Guide](https://viem.sh/docs/migration-guide.html)
 
 ### Minor Changes
 
