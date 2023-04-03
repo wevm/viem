@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.1
+
+### Patch Changes
+
+- [#285](https://github.com/wagmi-dev/viem/pull/285) [`ab9fd12`](https://github.com/wagmi-dev/viem/commit/ab9fd121fbe271ba9bee43aea2d7bba122dc4f03) Thanks [@tmm](https://github.com/tmm)! - Exported `hdKeyToAccount` and `mnemonicToAccount`.
+
 ## 0.2.0 – [Migration Guide](https://viem.sh/docs/migration-guide.html)
 
 ### Minor Changes
@@ -21,12 +27,12 @@
     transport: custom(window.ethereum)
   })
   ```
-  
+
   **For Ethers Wallet Adapter, use `ethersWalletToAccount`.**
-  
+
   If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
 
-  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You     probably do not need this adapter anymore. This adapter may be removed in a future version.
+  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You probably do not need this adapter anymore. This adapter may be removed in a future version.
 
   ```diff
   import { createWalletClient, custom } from 'viem'
@@ -36,7 +42,7 @@
   import { Wallet } from 'ethers'
 
   - const account = getAccount(new Wallet('0x...'))
-  + const account = ethersWalletToAccount(new Wallet('0x...')) 
+  + const account = ethersWalletToAccount(new Wallet('0x...'))
 
   const client = createWalletClient({
     account,
