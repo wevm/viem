@@ -1,5 +1,23 @@
 # viem
 
+## 0.1.26
+
+### Patch Changes
+
+- [`93e402d`](https://github.com/wagmi-dev/viem/commit/93e402d6fddabcb6966fd8f81d7176d71241e193) Thanks [@jxom](https://github.com/jxom)! - Fixed a `decodeAbiParameters` case where static arrays with a dynamic child would consume the size of the child instead of 32 bytes.
+
+## 0.1.25
+
+### Patch Changes
+
+- [#263](https://github.com/wagmi-dev/viem/pull/263) [`53fda1a`](https://github.com/wagmi-dev/viem/commit/53fda1a5366ff1122b951d8148c1a9f74f280578) Thanks [@fubhy](https://github.com/fubhy)! - Fixed issue where ABIs with constructors would throw for `decodeFunctionData`.
+
+## 0.1.24
+
+### Patch Changes
+
+- [#237](https://github.com/wagmi-dev/viem/pull/237) [`a92c4fa`](https://github.com/wagmi-dev/viem/commit/a92c4fa31eb4a71cb68edf6d50a58cf653419f86) Thanks [@jxom](https://github.com/jxom)! - Added automatic ranking to `fallback` Transport.
+
 ## 0.1.23
 
 ### Patch Changes

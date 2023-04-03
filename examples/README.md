@@ -39,6 +39,11 @@ The below list is not exhaustive, and is a work in progress. If you have an idea
   - [ ] Resetting Forks
   - [ ] State (snapshot/revert)
   - [ ] Tx pools
+- Signatures
+  - [ ] Sign typed data
+    - [ ] + verify/recover address
+  - [ ] Sign message (+ recover message address)
+    - [ ] + verify/recover address
 - Transactions
   - [x] Fetching Transactions & Receipts
   - [ ] Transaction Types (EIP-1559, Legacy, etc)

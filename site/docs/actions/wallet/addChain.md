@@ -24,7 +24,7 @@ Adds an EVM chain to the wallet.
 import { avalanche } from 'viem/chains'
 import { walletClient } from './client'
  
-await walletClient.addChain(avalanche) // [!code focus]
+await walletClient.addChain({ chain: avalanche }) // [!code focus]
 ```
 
 ```ts [client.ts]
