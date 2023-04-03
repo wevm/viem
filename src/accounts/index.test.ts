@@ -8,6 +8,8 @@ test('exports utils', () => {
       "HDKey",
       "generateMnemonic",
       "generatePrivateKey",
+      "hdKeyToAccount",
+      "mnemonicToAccount",
       "privateKeyToAccount",
       "toAccount",
       "parseAccount",
