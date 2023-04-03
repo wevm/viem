@@ -96,6 +96,21 @@ const ensText = await publicClient.getEnsAvatar({
 })
 ```
 
+### gatewayUrls
+
+- **Type:** `{ ipfs?: string; arweave?: string }`
+
+Gateway urls to resolve IPFS and/or Arweave assets.
+
+```ts
+const ensText = await publicClient.getEnsAvatar({
+  name: normalize('wagmi-dev.eth'),
+  gatewayUrls: { // [!code focus:3]
+    ipfs: 'https://cloudflare-ipfs.com'
+  }
+})
+```
+
 ### universalResolverAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)
