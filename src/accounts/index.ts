@@ -37,14 +37,5 @@ export {
   signTypedData,
 } from './utils'
 
-export {
-  czech,
-  english,
-  french,
-  italian,
-  japanese,
-  korean,
-  simplifiedChinese,
-  spanish,
-  traditionalChinese,
-} from './wordlists'
+export { czech } from './wordlists/czech'
+export { english } from './wordlists/english'
