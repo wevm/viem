@@ -616,7 +616,7 @@ const provider = getDefaultProvider()
 
 const { abi, address } = wagmiContractConfig
 const contract = new Contract(address, abi, provider)
-const gas = contract.estimateGas.mint()
+const gas = await contract.estimateGas.mint()
 ```
 
 #### viem
@@ -631,7 +631,7 @@ const client = createPublicClient({
   transport: http()
 })
 
-const gas = client.estimateContractGas({
+const gas = await client.estimateContractGas({
   ...wagmiContractConfig, 
   functionName: 'mint'
 })
@@ -668,6 +668,54 @@ await client.simulateContract({
   ...wagmiContractConfig, 
   functionName: 'mint'
 })
+```
+
+### Contract Instances
+
+#### Ethers
+
+```ts {6-7}
+import { getDefaultProvider } from 'ethers'
+import { wagmiContractConfig } from './abi'
+
+const provider = getDefaultProvider()
+
+const { abi, address } = wagmiContractConfig
+const contract = new Contract(address, abi, provider)
+
+const supply = await contract.totalSupply()
+const listener = (from, to, amount, event) => {
+  // ...
+}
+contract.on('Transfer', listener)
+contract.off('Transfer', listener)
+```
+
+#### viem
+
+```ts {10-13}
+import { createPublicClient, http, getContract } from 'viem'
+import { mainnet } from 'viem/chains'
+import { wagmiContractConfig } from './abi'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+const contract = getContract({
+  ...wagmiContractConfig,
+  publicClient: client,
+})
+
+const supply = await contract.read.totalSupply()
+const unwatch = contract.watchEvent.Transfer({
+  onLogs: logs => {
+    const { args: { from, to, amount }, eventName } = logs[0]
+    // ...
+  },
+})
+unwatch()
 ```
 
 ## ABI Utilities

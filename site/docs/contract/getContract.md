@@ -5,10 +5,10 @@ head:
       content: Contract Instances
   - - meta
     - name: description
-      content: Returns type-safe contract instance.
+      content: A Contract Instance is a type-safe interface for performing contract-related actions with specific ABI and address, created by the `getContract` function.
   - - meta
     - property: og:description
-      content: Returns type-safe contract instance.
+      content: A Contract Instance is a type-safe interface for performing contract-related actions with a specific ABI and address, created by the `getContract` function.
 
 ---
 
@@ -157,10 +157,10 @@ Depending on if you create a contract instance with a Public Client, Wallet Clie
 
 If you pass in a [`publicClient`](/docs/contract/getContract#publicclient), the following methods are available:
 
-- [`read`](/docs/contract/readContract.html)
-- [`estimateGas`](/docs/contract/estimateContractGas.html)
-- [`simulate`](/docs/contract/simulateContract.html)
 - [`createEventFilter`](/docs/contract/createContractEventFilter.html)
+- [`estimateGas`](/docs/contract/estimateContractGas.html)
+- [`read`](/docs/contract/readContract.html)
+- [`simulate`](/docs/contract/simulateContract.html)
 - [`watchEvent`](/docs/contract/watchContractEvent.html)
 
 #### With Wallet Client
@@ -168,6 +168,22 @@ If you pass in a [`publicClient`](/docs/contract/getContract#publicclient), the 
 If you pass in a [`walletClient`](/docs/contract/getContract#walletclient), the following methods are available:
 
 - [`write`](/docs/contract/writeContract.html)
+
+#### Calling methods
+
+If you are using [TypeScript](/docs/typescript.html) with viem, your editor will be able to provide autocomplete suggestions for the methods available on the contract instance, as well as the arguments and other options for each method.
+
+In general, contract instance methods follow the following format:
+
+```ts
+// function
+contract.(estimateGas|read|simulate|write).(functionName)(args, options)
+
+// event
+contract.(createEventFilter|watchEvent).(eventName)(args, options)
+```
+
+If the contract function/event you are using does not accept arguments (e.g. function has no inputs, event has no indexed inputs), then you can omit the `args` parameter so `options` is the first and only parameter.
 
 ## Parameters
 
