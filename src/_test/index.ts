@@ -1,4 +1,5 @@
 export {
+  ensPublicResolverConfig,
   wagmiContractConfig,
   uniswapV3PositionsContractConfig,
   usdcContractConfig,
@@ -20,6 +21,7 @@ export {
   createHttpServer,
   deploy,
   deployBAYC,
+  deployEnsAvatarTokenUri,
   publicClient,
   testClient,
   walletClient,

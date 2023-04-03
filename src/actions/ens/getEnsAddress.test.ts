@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, expect, test } from 'vitest'
 import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
-import { multicoinFromName } from '../../utils/ens/multicoin'
 
 import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
 import { getBlockNumber } from '../public'
@@ -31,24 +30,6 @@ test('name without address', async () => {
   ).resolves.toMatchInlineSnapshot(
     '"0x0000000000000000000000000000000000000000"',
   )
-})
-
-test('gets multicoin address for name', async () => {
-  await expect(
-    getEnsAddress(publicClient, {
-      name: 'btcbtc.eth',
-      coin: multicoinFromName('BTC'),
-    }),
-  ).resolves.toMatchInlineSnapshot('"3Psjt14tnQoR3aq8mEKZ3EnbzdVdGRud1B"')
-})
-
-test('name without multicoin address', async () => {
-  await expect(
-    getEnsAddress(publicClient, {
-      name: 'unregistered-name.eth',
-      coin: multicoinFromName('BTC'),
-    }),
-  ).resolves.toBeNull()
 })
 
 test('custom universal resolver address', async () => {

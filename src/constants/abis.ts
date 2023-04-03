@@ -81,16 +81,3 @@ export const singleAddressResolverAbi = [
     outputs: [{ name: '', type: 'address' }],
   },
 ] as const
-
-export const multiAddressResolverAbi = [
-  {
-    name: 'addr',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { name: 'name', type: 'bytes32' },
-      { name: 'coinType', type: 'uint256' },
-    ],
-    outputs: [{ name: '', type: 'bytes' }],
-  },
-] as const

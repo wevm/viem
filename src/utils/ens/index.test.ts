@@ -8,6 +8,7 @@ test('exports utils', () => {
       "labelhash": [Function],
       "namehash": [Function],
       "packetToBytes": [Function],
+      "parseAvatarRecord": [Function],
     }
   `)
 })

@@ -492,10 +492,18 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'getEnsAddress',
               link: '/docs/ens/actions/getEnsAddress',
             },
+            {
+              text: 'getEnsAvatar',
+              link: '/docs/ens/actions/getEnsAvatar',
+            },
             { text: 'getEnsName', link: '/docs/ens/actions/getEnsName' },
             {
               text: 'getEnsResolver',
               link: '/docs/ens/actions/getEnsResolver',
+            },
+            {
+              text: 'getEnsText',
+              link: '/docs/ens/actions/getEnsText',
             },
           ],
         },

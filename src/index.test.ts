@@ -30,6 +30,7 @@ test('exports actions', () => {
       "DataLengthTooLongError": [Function],
       "DataLengthTooShortError": [Function],
       "DecodeLogTopicsMismatch": [Function],
+      "EnsAvatarUriResolutionError": [Function],
       "EstimateGasExecutionError": [Function],
       "ExecutionRevertedError": [Function],
       "FeeCapTooHighError": [Function],

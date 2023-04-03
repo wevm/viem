@@ -1,2 +1,3 @@
-export { getAvatarMetadata } from './getAvatarMetadata'
-export { resolveAvatarURI, type Gateways } from './utils'
+export { parseAvatarRecord } from './parseAvatarRecord'
+
+export type { Gateways } from './utils'

@@ -1,22 +1,17 @@
 import { readContract } from '../../../actions'
 import type { PublicClient, Transport } from '../../../clients'
-import type { Address, Chain } from '../../../types'
+import {
+  EnsAvatarInvalidMetadataError,
+  EnsAvatarInvalidNftUriError,
+  EnsAvatarUnsupportedNamespaceError,
+  EnsAvatarUriResolutionError,
+} from '../../../errors'
+import type { Address, AssetGatewayUrls, Chain } from '../../../types'
 
-type Gateway = 'ipfs' | 'arweave'
-
-export type Gateways = {
-  [key in Gateway]?: string
-}
-
-export type URIItem = {
+type UriItem = {
   uri: string
   isOnChain: boolean
   isEncoded: boolean
-}
-
-export type AvatarData = {
-  type: 'image' | 'onchain' | 'nft'
-  uri: string
 }
 
 const networkRegex =
@@ -26,7 +21,7 @@ const ipfsHashRegex =
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
-export async function isImageURI(uri: string) {
+export async function isImageUri(uri: string) {
   try {
     const res = await fetch(uri, { method: 'HEAD' })
     // retrieve content type header to check if content is image
@@ -37,8 +32,9 @@ export async function isImageURI(uri: string) {
     return false
   } catch (error: any) {
     // if error is not cors related then fail
-    if (typeof error === 'object' && typeof error.response !== 'undefined')
+    if (typeof error === 'object' && typeof error.response !== 'undefined') {
       return false
+    }
     // fail in NodeJS, since the error is not cors but any other network issue
     if (!globalThis.hasOwnProperty('Image')) return false
     // in case of cors, use image api to validate if given url is an actual image
@@ -55,24 +51,24 @@ export async function isImageURI(uri: string) {
   }
 }
 
-export const getGateway = (
-  custom: string | undefined,
-  defaultGateway: string,
-) => {
+export function getGateway(custom: string | undefined, defaultGateway: string) {
   if (!custom) return defaultGateway
   if (custom.endsWith('/')) return custom.slice(0, -1)
   return custom
 }
 
-export function resolveAvatarURI(
-  uri: string,
-  gateways: Gateways | undefined,
-): URIItem {
+export function resolveAvatarUri({
+  uri,
+  gatewayUrls,
+}: {
+  uri: string
+  gatewayUrls?: AssetGatewayUrls | undefined
+}): UriItem {
   const isEncoded = base64Regex.test(uri)
   if (isEncoded) return { uri, isOnChain: true, isEncoded }
 
-  const ipfsGateway = getGateway(gateways?.ipfs, 'https://ipfs.io')
-  const arweaveGateway = getGateway(gateways?.arweave, 'https://arweave.net')
+  const ipfsGateway = getGateway(gatewayUrls?.ipfs, 'https://ipfs.io')
+  const arweaveGateway = getGateway(gatewayUrls?.arweave, 'https://arweave.net')
 
   const networkRegexMatch = uri.match(networkRegex)
   const {
@@ -88,8 +84,8 @@ export function resolveAvatarURI(
 
   if (uri.startsWith('http') && !isIPNS && !isIPFS) {
     let replacedUri = uri
-    if (gateways?.arweave)
-      replacedUri = uri.replace(/https:\/\/arweave.net/g, gateways?.arweave)
+    if (gatewayUrls?.arweave)
+      replacedUri = uri.replace(/https:\/\/arweave.net/g, gatewayUrls?.arweave)
     return { uri: replacedUri, isOnChain: false, isEncoded: false }
   }
 
@@ -107,11 +103,21 @@ export function resolveAvatarURI(
     }
   }
 
-  return {
-    uri: uri.replace(dataURIRegex, ''),
-    isOnChain: true,
-    isEncoded: false,
+  let parsedUri = uri.replace(dataURIRegex, '')
+  if (parsedUri.startsWith('<svg')) {
+    // if svg, base64 encode
+    parsedUri = `data:image/svg+xml;base64,${btoa(parsedUri)}`
   }
+
+  if (parsedUri.startsWith('data:') || parsedUri.startsWith('{')) {
+    return {
+      uri: parsedUri,
+      isOnChain: true,
+      isEncoded: false,
+    }
+  }
+
+  throw new EnsAvatarUriResolutionError({ uri })
 }
 
 export function getJsonImage(data: any) {
@@ -120,92 +126,91 @@ export function getJsonImage(data: any) {
     typeof data !== 'object' ||
     (!('image' in data) && !('image_url' in data) && !('image_data' in data))
   ) {
-    throw new Error('Invalid avatar data')
+    throw new EnsAvatarInvalidMetadataError({ data })
   }
 
   return data.image || data.image_url || data.image_data
 }
 
-export async function fetchOffchainData(uri: string): Promise<AvatarData> {
-  const res = await fetch(uri).then((res) => res.json())
-
-  return {
-    type: 'image',
-    uri: getJsonImage(res),
+export async function getMetadataAvatarUri({
+  gatewayUrls,
+  uri,
+}: {
+  gatewayUrls?: AssetGatewayUrls | undefined
+  uri: string
+}): Promise<string> {
+  try {
+    const res = await fetch(uri).then((res) => res.json())
+    const image = await parseAvatarUri({
+      gatewayUrls,
+      uri: getJsonImage(res),
+    })
+    return image
+  } catch {
+    throw new EnsAvatarUriResolutionError({ uri })
   }
 }
 
-export async function parseOnChainUri(
-  uri: string,
-  gateways: Gateways | undefined,
-): Promise<AvatarData> {
-  const { uri: resolvedURI, isOnChain } = resolveAvatarURI(uri, gateways)
-  if (isOnChain) {
-    return {
-      type: 'onchain',
-      uri: resolvedURI,
-    }
-  }
+export async function parseAvatarUri({
+  gatewayUrls,
+  uri,
+}: {
+  gatewayUrls?: AssetGatewayUrls | undefined
+  uri: string
+}): Promise<string> {
+  const { uri: resolvedURI, isOnChain } = resolveAvatarUri({ uri, gatewayUrls })
+  if (isOnChain) return resolvedURI
 
   // check if resolvedURI is an image, if it is return the url
-  const isImage = await isImageURI(resolvedURI)
-  if (isImage) {
-    return {
-      type: 'image',
-      uri: resolvedURI,
-    }
-  }
+  const isImage = await isImageUri(resolvedURI)
+  if (isImage) return resolvedURI
 
-  return fetchOffchainData(resolvedURI)
+  throw new EnsAvatarUriResolutionError({ uri })
 }
 
-type ParsedNFT = {
+type ParsedNft = {
   chainID: number
   namespace: string
   contractAddress: Address
   tokenID: string
 }
 
-export function parseNFT(uri: string): ParsedNFT {
-  try {
-    // parse valid nft spec (CAIP-22/CAIP-29)
-    // @see: https://github.com/ChainAgnostic/CAIPs/tree/master/CAIPs
-    if (uri.startsWith('did:nft:')) {
-      // convert DID to CAIP
-      uri = uri.replace('did:nft:', '').replace(/_/g, '/')
-    }
+export function parseNftUri(uri: string): ParsedNft {
+  // parse valid nft spec (CAIP-22/CAIP-29)
+  // @see: https://github.com/ChainAgnostic/CAIPs/tree/master/CAIPs
+  if (uri.startsWith('did:nft:')) {
+    // convert DID to CAIP
+    uri = uri.replace('did:nft:', '').replace(/_/g, '/')
+  }
 
-    const [reference, asset_namespace, tokenID] = uri.split('/')
-    const [eip_namespace, chainID] = reference.split(':')
-    const [erc_namespace, contractAddress] = asset_namespace.split(':')
+  const [reference, asset_namespace, tokenID] = uri.split('/')
+  const [eip_namespace, chainID] = reference.split(':')
+  const [erc_namespace, contractAddress] = asset_namespace.split(':')
 
-    if (!eip_namespace || eip_namespace.toLowerCase() !== 'eip155')
-      throw new Error('Only EIP-155 supported')
-    if (!chainID) throw new Error('Chain ID not found')
-    if (!contractAddress) throw new Error('Contract address not found')
-    if (!tokenID) throw new Error('Token ID not found')
-    if (!erc_namespace) throw new Error('ERC namespace not found')
+  if (!eip_namespace || eip_namespace.toLowerCase() !== 'eip155')
+    throw new EnsAvatarInvalidNftUriError({ reason: 'Only EIP-155 supported' })
+  if (!chainID)
+    throw new EnsAvatarInvalidNftUriError({ reason: 'Chain ID not found' })
+  if (!contractAddress)
+    throw new EnsAvatarInvalidNftUriError({
+      reason: 'Contract address not found',
+    })
+  if (!tokenID)
+    throw new EnsAvatarInvalidNftUriError({ reason: 'Token ID not found' })
+  if (!erc_namespace)
+    throw new EnsAvatarInvalidNftUriError({ reason: 'ERC namespace not found' })
 
-    return {
-      chainID: parseInt(chainID),
-      namespace: erc_namespace.toLowerCase(),
-      contractAddress: contractAddress as Address,
-      tokenID,
-    }
-  } catch (e: any) {
-    let message: string
-    if (e instanceof Error) {
-      message = e.message
-    } else {
-      message = 'Unknown error'
-    }
-    throw new Error(`Error parsing NFT URI: ${message}`)
+  return {
+    chainID: parseInt(chainID),
+    namespace: erc_namespace.toLowerCase(),
+    contractAddress: contractAddress as Address,
+    tokenID,
   }
 }
 
-export async function fetchNftTokenUri<TChain extends Chain | undefined>(
+export async function getNftTokenUri<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,
-  nft: ParsedNFT,
+  { nft }: { nft: ParsedNft },
 ) {
   if (nft.namespace === 'erc721') {
     return readContract(client, {
@@ -239,5 +244,5 @@ export async function fetchNftTokenUri<TChain extends Chain | undefined>(
       args: [BigInt(nft.tokenID)],
     })
   }
-  throw new Error('Only ERC721 and ERC1155 supported')
+  throw new EnsAvatarUnsupportedNamespaceError({ namespace: nft.namespace })
 }

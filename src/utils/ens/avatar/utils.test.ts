@@ -1,17 +1,17 @@
 import { describe, expect, test, vi } from 'vitest'
 import { createHttpServer, publicClient } from '../../../_test'
 import {
-  fetchNftTokenUri,
-  fetchOffchainData,
   getGateway,
   getJsonImage,
-  isImageURI,
-  parseNFT,
-  parseOnChainUri,
-  resolveAvatarURI,
+  getMetadataAvatarUri,
+  getNftTokenUri,
+  isImageUri,
+  parseAvatarUri,
+  parseNftUri,
+  resolveAvatarUri,
 } from './utils'
 
-describe('isImageURI()', () => {
+describe('isImageUri', () => {
   test('is image', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
@@ -20,8 +20,9 @@ describe('isImageURI()', () => {
       res.end()
     })
 
-    await expect(isImageURI(server.url)).resolves.toBe(true)
+    await expect(isImageUri(server.url)).resolves.toBe(true)
   })
+
   test('is not image', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
@@ -30,23 +31,37 @@ describe('isImageURI()', () => {
       res.end()
     })
 
-    await expect(isImageURI(server.url)).resolves.toBe(false)
+    await expect(isImageUri(server.url)).resolves.toBe(false)
   })
+
+  test('no content', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(204)
+      res.end()
+    })
+
+    await expect(isImageUri(server.url)).resolves.toBe(false)
+  })
+
   test('non-cors error', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(500)
       res.destroy()
     })
 
-    await expect(isImageURI(server.url)).resolves.toBe(false)
+    await expect(isImageUri(server.url)).resolves.toBe(false)
   })
+
   test('cors error, no image in global', async () => {
     vi.stubGlobal('fetch', () => {
       throw { response: undefined }
     })
 
-    await expect(isImageURI('http://123')).resolves.toBe(false)
+    await expect(isImageUri('http://123')).resolves.toBe(false)
+
+    vi.unstubAllGlobals()
   })
+
   test('cors error, image loads', async () => {
     vi.stubGlobal('fetch', () => {
       throw { response: undefined }
@@ -62,8 +77,11 @@ describe('isImageURI()', () => {
       },
     )
 
-    await expect(isImageURI('http://123')).resolves.toBe(true)
+    await expect(isImageUri('http://123')).resolves.toBe(true)
+
+    vi.unstubAllGlobals()
   })
+
   test('cors error, image fails to load', async () => {
     vi.stubGlobal('fetch', () => {
       throw { response: undefined }
@@ -79,23 +97,37 @@ describe('isImageURI()', () => {
       },
     )
 
-    await expect(isImageURI('http://123')).resolves.toBe(false)
+    await expect(isImageUri('http://123')).resolves.toBe(false)
+
+    vi.unstubAllGlobals()
+  })
+
+  test('cors error, defined response', async () => {
+    vi.stubGlobal('fetch', () => {
+      throw { response: 'abc' }
+    })
+
+    await expect(isImageUri('http://123')).resolves.toBe(false)
+
+    vi.unstubAllGlobals()
   })
 })
 
-describe('getGateway()', () => {
+describe('getGateway', () => {
   test('no custom', () => {
     expect(getGateway(undefined, 'default')).toBe('default')
   })
+
   test('custom with slash', () => {
     expect(getGateway('custom/', 'default')).toBe('custom')
   })
+
   test('custom without slash', () => {
     expect(getGateway('custom', 'default')).toBe('custom')
   })
 })
 
-describe('resolveAvatarURI()', () => {
+describe('resolveAvatarUri()', () => {
   test.each([
     {
       uri: 'ipfs://ipfs/QmZHKZDavkvNfA9gSAg7HALv8jF7BJaKjUc9U2LSuvUySB',
@@ -165,8 +197,8 @@ describe('resolveAvatarURI()', () => {
       expected:
         'https://ipfs.io/ipfs/QmZHKZDavkvNfA9gSAg7HALv8jF7BJaKjUc9U2LSuvUySB',
     },
-  ])('ipfs: resolveAvatarURI($uri) -> $expected', ({ uri, expected }) => {
-    expect(resolveAvatarURI(uri, undefined)).toStrictEqual({
+  ])('ipfs: resolveAvatarUri($uri) -> $expected', ({ uri, expected }) => {
+    expect(resolveAvatarUri({ uri })).toStrictEqual({
       uri: expected,
       isOnChain: false,
       isEncoded: false,
@@ -175,10 +207,10 @@ describe('resolveAvatarURI()', () => {
 
   test('ipfs custom gateway', () => {
     expect(
-      resolveAvatarURI(
-        'ipfs://ipfs/QmZHKZDavkvNfA9gSAg7HALv8jF7BJaKjUc9U2LSuvUySB',
-        { ipfs: 'https://example.com' },
-      ),
+      resolveAvatarUri({
+        uri: 'ipfs://ipfs/QmZHKZDavkvNfA9gSAg7HALv8jF7BJaKjUc9U2LSuvUySB',
+        gatewayUrls: { ipfs: 'https://example.com' },
+      }),
     ).toStrictEqual({
       uri: 'https://example.com/ipfs/QmZHKZDavkvNfA9gSAg7HALv8jF7BJaKjUc9U2LSuvUySB',
       isOnChain: false,
@@ -207,8 +239,8 @@ describe('resolveAvatarURI()', () => {
       expected:
         'https://arweave.net/tnLgkAg70wsn9fSr1sxJKG_qcka1gJtmUwXm_3_lDaI/1.png',
     },
-  ])('arweave: resolveAvatarURI($uri) -> $expected', ({ uri, expected }) => {
-    expect(resolveAvatarURI(uri, undefined)).toStrictEqual({
+  ])('arweave: resolveAvatarUri($uri) -> $expected', ({ uri, expected }) => {
+    expect(resolveAvatarUri({ uri })).toStrictEqual({
       uri: expected,
       isOnChain: false,
       isEncoded: false,
@@ -217,8 +249,11 @@ describe('resolveAvatarURI()', () => {
 
   test('arweave custom gateway', () => {
     expect(
-      resolveAvatarURI('ar://rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI', {
-        arweave: 'https://example.com',
+      resolveAvatarUri({
+        uri: 'ar://rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
+        gatewayUrls: {
+          arweave: 'https://example.com',
+        },
       }),
     ).toStrictEqual({
       uri: 'https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
@@ -229,10 +264,10 @@ describe('resolveAvatarURI()', () => {
 
   test('arweave replace default', () => {
     expect(
-      resolveAvatarURI(
-        'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
-        { arweave: 'https://example.com' },
-      ),
+      resolveAvatarUri({
+        uri: 'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
+        gatewayUrls: { arweave: 'https://example.com' },
+      }),
     ).toStrictEqual({
       uri: 'https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
       isOnChain: false,
@@ -268,64 +303,123 @@ describe('resolveAvatarURI()', () => {
     {
       uri: 'data:image/svg+xml;utf8,<svg></svg>',
       expected: {
-        uri: '<svg></svg>',
+        uri: 'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
         isOnChain: true,
         isEncoded: false,
       },
     },
   ])(
-    'http/data: resolveAvatarURI($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri',
+    'http/data: resolveAvatarUri($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri',
     ({ uri, expected }) => {
-      expect(resolveAvatarURI(uri, undefined)).toStrictEqual(expected)
+      expect(resolveAvatarUri({ uri })).toStrictEqual(expected)
     },
   )
+
+  test('invalid uri', () => {
+    expect(() =>
+      resolveAvatarUri({ uri: 'invalid' }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Unable to resolve ENS avatar URI \\"invalid\\". The URI may be malformed, invalid, or does not respond with a valid image.
+
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('empty uri', () => {
+    expect(() =>
+      resolveAvatarUri({ uri: '' }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Unable to resolve ENS avatar URI \\"\\". The URI may be malformed, invalid, or does not respond with a valid image.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })
 
-describe('getJsonImage()', () => {
+describe('getJsonImage', () => {
   test('image', () => {
     expect(getJsonImage({ image: 'test' })).toBe('test')
   })
+
   test('image_url', () => {
     expect(getJsonImage({ image_url: 'test' })).toBe('test')
   })
+
   test('image_data', () => {
     expect(getJsonImage({ image_data: 'test' })).toBe('test')
   })
+
   test('other property', () => {
-    expect(() => getJsonImage({ other: 'test' })).toThrowError(
-      'Invalid avatar data',
-    )
+    expect(() =>
+      getJsonImage({ other: 'test' }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Unable to extract image from metadata. The metadata may be malformed or invalid.
+
+      - Metadata must be a JSON object with at least an \`image\`, \`image_url\` or \`image_data\` property.
+
+      Provided data: {\\"other\\":\\"test\\"}
+
+      Version: viem@1.0.2"
+    `)
   })
+
   test('not an object', () => {
-    expect(() => getJsonImage('test')).toThrowError('Invalid avatar data')
+    expect(() => getJsonImage('test')).toThrowErrorMatchingInlineSnapshot(
+      `
+      "Unable to extract image from metadata. The metadata may be malformed or invalid.
+
+      - Metadata must be a JSON object with at least an \`image\`, \`image_url\` or \`image_data\` property.
+
+      Provided data: \\"test\\"
+
+      Version: viem@1.0.2"
+    `,
+    )
   })
 })
 
-describe('fetchOffchainData()', () => {
+describe('getMetadataAvatarUri', () => {
   test('default', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ image: 'test' }))
+      res.end(
+        JSON.stringify({
+          image:
+            'https://images2.minutemediacdn.com/image/upload/c_fill,w_1440,ar_16:9,f_auto,q_auto,g_auto/shape/cover/sport/62455-shout-factory1-869b74b647b88045caac956956bd1ff8.jpg',
+        }),
+      )
     })
 
-    await expect(fetchOffchainData(server.url)).resolves.toEqual({
-      type: 'image',
-      uri: 'test',
+    await expect(getMetadataAvatarUri({ uri: server.url })).resolves.toEqual(
+      'https://images2.minutemediacdn.com/image/upload/c_fill,w_1440,ar_16:9,f_auto,q_auto,g_auto/shape/cover/sport/62455-shout-factory1-869b74b647b88045caac956956bd1ff8.jpg',
+    )
+  })
+
+  test('error: invalid uri', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'text/html',
+      })
+      res.end(
+        '<html><head><title>Test</title></head><body><h1>Test</h1></body></html>',
+      )
     })
+
+    await expect(() =>
+      getMetadataAvatarUri({ uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
   })
 })
 
-describe('parseOnChainUri()', () => {
+describe('parseAvatarUri', () => {
   test('onchain', async () => {
     await expect(
-      parseOnChainUri('data:image/gif;base64,test', undefined),
-    ).resolves.toEqual({
-      type: 'onchain',
-      uri: 'data:image/gif;base64,test',
-    })
+      parseAvatarUri({ uri: 'data:image/gif;base64,test' }),
+    ).resolves.toEqual('data:image/gif;base64,test')
   })
+
   test('image', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
@@ -334,12 +428,12 @@ describe('parseOnChainUri()', () => {
       res.end()
     })
 
-    await expect(parseOnChainUri(server.url, undefined)).resolves.toEqual({
-      type: 'image',
-      uri: server.url,
-    })
+    await expect(parseAvatarUri({ uri: server.url })).resolves.toEqual(
+      server.url,
+    )
   })
-  test('other', async () => {
+
+  test('error: invalid uri', async () => {
     const server = await createHttpServer((_req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -347,104 +441,95 @@ describe('parseOnChainUri()', () => {
       res.end(JSON.stringify({ image: 'test' }))
     })
 
-    await expect(parseOnChainUri(server.url, undefined)).resolves.toEqual({
-      type: 'image',
-      uri: 'test',
-    })
-  })
-
-  test('gateways', async () => {
-    const server = await createHttpServer((_req, res) => {
-      res.writeHead(200, {
-        'Content-Type': 'application/json',
-      })
-      res.end(JSON.stringify({ image: 'test' }))
-    })
-
-    await expect(
-      parseOnChainUri('ipfs://QmZHKZDavkvNfA9gSAg7HALv8jF7BJaKjUc9U2LSuvUySB', {
-        ipfs: server.url,
-      }),
-    ).resolves.toEqual({
-      type: 'image',
-      uri: 'test',
-    })
+    await expect(() =>
+      parseAvatarUri({ uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
   })
 })
 
-describe('parseNFT()', () => {
+describe('parseNftUri', () => {
   test('erc721', () => {
-    expect(parseNFT('eip155:1/erc721:0x123/1')).toEqual({
+    expect(parseNftUri('eip155:1/erc721:0x123/1')).toEqual({
       chainID: 1,
       namespace: 'erc721',
       contractAddress: '0x123',
       tokenID: '1',
     })
   })
+
   test('erc1155', () => {
-    expect(parseNFT('eip155:1/erc1155:0x123/1')).toEqual({
+    expect(parseNftUri('eip155:1/erc1155:0x123/1')).toEqual({
       chainID: 1,
       namespace: 'erc1155',
       contractAddress: '0x123',
       tokenID: '1',
     })
   })
+
   test('parse DID NFT URI', () => {
-    expect(parseNFT('did:nft:eip155:1_erc721:0x123_1')).toEqual({
+    expect(parseNftUri('did:nft:eip155:1_erc721:0x123_1')).toEqual({
       chainID: 1,
       namespace: 'erc721',
       contractAddress: '0x123',
       tokenID: '1',
     })
   })
+
   test('invalid DID NFT URI', () => {
-    expect(() => parseNFT('did:nft:eip155:1_erc721:0x123')).toThrowError(
-      'Error parsing NFT URI: Token ID not found',
+    expect(() => parseNftUri('did:nft:eip155:1_erc721:0x123')).toThrowError(
+      'Token ID not found',
     )
   })
+
   test('invalid eip namespace', () => {
-    expect(() => parseNFT('eip156:1/erc721:0x123/1')).toThrowError(
-      'Error parsing NFT URI: Only EIP-155 supported',
+    expect(() => parseNftUri('eip156:1/erc721:0x123/1')).toThrowError(
+      'Only EIP-155 supported',
     )
   })
+
   test('uppercase eip namespace', () => {
-    expect(parseNFT('EIP155:1/erc721:0x123/1')).toEqual({
+    expect(parseNftUri('EIP155:1/erc721:0x123/1')).toEqual({
       chainID: 1,
       namespace: 'erc721',
       contractAddress: '0x123',
       tokenID: '1',
     })
   })
+
   test('no chain id', () => {
-    expect(() => parseNFT('eip155:/erc721:0x123/1')).toThrowError(
-      'Error parsing NFT URI: Chain ID not found',
+    expect(() => parseNftUri('eip155:/erc721:0x123/1')).toThrowError(
+      'Chain ID not found',
     )
   })
   test('no contract address', () => {
-    expect(() => parseNFT('eip155:1/erc721:/1')).toThrowError(
-      'Error parsing NFT URI: Contract address not found',
+    expect(() => parseNftUri('eip155:1/erc721:/1')).toThrowError(
+      'Contract address not found',
     )
   })
+
   test('no token id', () => {
-    expect(() => parseNFT('eip155:1/erc721:0x123/')).toThrowError(
-      'Error parsing NFT URI: Token ID not found',
+    expect(() => parseNftUri('eip155:1/erc721:0x123/')).toThrowError(
+      'Token ID not found',
     )
   })
+
   test('no erc namespace', () => {
-    expect(() => parseNFT('eip155:1/:0x123/1')).toThrowError(
-      'Error parsing NFT URI: ERC namespace not found',
+    expect(() => parseNftUri('eip155:1/:0x123/1')).toThrowError(
+      'ERC namespace not found',
     )
   })
 })
 
-describe('fetchNftTokenUri()', () => {
+describe('getNftTokenUri', () => {
   test('erc721', async () => {
     await expect(
-      fetchNftTokenUri(publicClient, {
-        chainID: 1,
-        contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
-        tokenID: '7816',
-        namespace: 'erc721',
+      getNftTokenUri(publicClient, {
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
+          tokenID: '7816',
+          namespace: 'erc721',
+        },
       }),
     ).resolves.toMatchInlineSnapshot(
       '"https://wrappedpunks.com:3000/api/punks/metadata/7816"',
@@ -452,12 +537,14 @@ describe('fetchNftTokenUri()', () => {
   })
   test('erc1155', async () => {
     await expect(
-      fetchNftTokenUri(publicClient, {
-        chainID: 1,
-        contractAddress: '0x495f947276749Ce646f68AC8c248420045cb7b5e',
-        tokenID:
-          '8112316025873927737505937898915153732580103913704334048512380490797008551937',
-        namespace: 'erc1155',
+      getNftTokenUri(publicClient, {
+        nft: {
+          chainID: 1,
+          contractAddress: '0x495f947276749Ce646f68AC8c248420045cb7b5e',
+          tokenID:
+            '8112316025873927737505937898915153732580103913704334048512380490797008551937',
+          namespace: 'erc1155',
+        },
       }),
     ).resolves.toMatchInlineSnapshot(
       '"https://api.opensea.io/api/v1/metadata/0x495f947276749Ce646f68AC8c248420045cb7b5e/0x{id}"',
@@ -465,12 +552,20 @@ describe('fetchNftTokenUri()', () => {
   })
   test('other', async () => {
     await expect(() =>
-      fetchNftTokenUri(publicClient, {
-        chainID: 1,
-        contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
-        tokenID: '1',
-        namespace: 'erc1',
+      getNftTokenUri(publicClient, {
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
+          tokenID: '1',
+          namespace: 'erc1',
+        },
       }),
-    ).rejects.toThrowError('Only ERC721 and ERC1155 supported')
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "ENS NFT avatar namespace \\"erc1\\" is not supported. Must be \\"erc721\\" or \\"erc1155\\".
+
+      Version: viem@1.0.2"
+    `,
+    )
   })
 })
