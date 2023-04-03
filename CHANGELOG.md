@@ -22,6 +22,8 @@
   })
   ```
   
+  **For Ethers Wallet Adapter, use `ethersWalletToAccount`.**
+  
   If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
 
   > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You     probably do not need this adapter anymore. This adapter may be removed in a future version.
