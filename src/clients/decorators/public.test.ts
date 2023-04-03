@@ -156,6 +156,19 @@ describe('smoke test', () => {
   )
 
   test(
+    'getEnsAvatar',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsAvatar({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
+  test(
     'getEnsName',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
@@ -175,6 +188,19 @@ describe('smoke test', () => {
       await setBlockNumber(16773780n)
       expect(
         await publicClient.getEnsResolver({ name: 'jxom.eth' }),
+      ).toBeDefined()
+      await setBlockNumber(blockNumber)
+    },
+    { timeout: 20_000 },
+  )
+
+  test(
+    'getEnsText',
+    async () => {
+      const blockNumber = await getBlockNumber(publicClient)
+      await setBlockNumber(16773780n)
+      expect(
+        await publicClient.getEnsText({ name: 'jxom.eth', key: 'com.twitter' }),
       ).toBeDefined()
       await setBlockNumber(blockNumber)
     },

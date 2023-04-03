@@ -123,7 +123,6 @@ import type {
   FilterType,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
-import type { MulticoinRequest } from '../../utils/ens/multicoin'
 import type { PublicClient } from '../createPublicClient'
 import type { Transport } from '../transports'
 
@@ -169,9 +168,9 @@ export type PublicActions<
   ) => Promise<GetBlockTransactionCountReturnType>
   getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
   getChainId: () => Promise<GetChainIdReturnType>
-  getEnsAddress: <T extends MulticoinRequest | undefined>(
-    args: GetEnsAddressParameters<T>,
-  ) => Promise<GetEnsAddressReturnType<T>>
+  getEnsAddress: (
+    args: GetEnsAddressParameters,
+  ) => Promise<GetEnsAddressReturnType>
   getEnsAvatar: (
     args: GetEnsAvatarParameters,
   ) => Promise<GetEnsAvatarReturnType>
