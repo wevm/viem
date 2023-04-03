@@ -3,7 +3,7 @@
   "description": "TypeScript Interface for Ethereum",
   "version": "0.2.0",
   "scripts": {
-    "anvil": "source .env && anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME",
+    "anvil": "dotenv -- sh -c 'anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME'",
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
     "build": "tsup && size-limit",
@@ -156,6 +156,7 @@
     "bun": "^0.5.5",
     "bundlewatch": "^0.3.3",
     "dedent": "^0.7.0",
+    "dotenv-cli": "^7.1.0",
     "ethers": "^5.7.2",
     "ethers@6": "npm:ethers@^6.0.2",
     "execa": "^6.1.0",

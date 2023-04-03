@@ -35,6 +35,7 @@ importers:
       bun: ^0.5.5
       bundlewatch: ^0.3.3
       dedent: ^0.7.0
+      dotenv-cli: ^7.1.0
       ethers: ^5.7.2
       ethers@6: npm:ethers@^6.0.2
       execa: ^6.1.0
@@ -78,6 +79,7 @@ importers:
       bun: 0.5.6
       bundlewatch: 0.3.3
       dedent: 0.7.0
+      dotenv-cli: 7.1.0
       ethers: 5.7.2
       ethers@6: /ethers/6.0.2
       execa: 6.1.0
@@ -3592,6 +3594,16 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.5.0
+    dev: true
+
+  /dotenv-cli/7.1.0:
+    resolution: {integrity: sha512-motytjZFQB3ZtGTIN4c0vnFgv4kuNZ2WxVnGY6PVFiygCzkm3IFBBguDUzezd9HgNA0OYYd6vNCWlozs0Q1Zxg==}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      dotenv: 16.0.3
+      dotenv-expand: 10.0.0
+      minimist: 1.2.6
     dev: true
 
   /dotenv-expand/10.0.0:
