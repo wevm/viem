@@ -1,5 +1,193 @@
 # viem
 
+## 0.2.0
+
+### Minor Changes
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed the `getAccount` function.
+
+  **For JSON-RPC Accounts, use the address itself.**
+
+  ```diff
+  import { createWalletClient, custom } from 'viem'
+  import { mainnet } from 'viem/chains'
+
+  const address = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+
+  const client = createWalletClient({
+  - account: getAccount(address),
+  + account: address,
+    chain: mainnet,
+    transport: custom(window.ethereum)
+  })
+  ```
+
+  **For Local Accounts, use `toAccount`.**
+
+  ```diff
+  - import { createWalletClient, http, getAccount } from 'viem'
+  + import { createWalletClient, http } from 'viem'
+  + import { toAccount } from 'viem/accounts'
+  import { mainnet } from 'viem/chains'
+  import { getAddress, signMessage, signTransaction } from './sign-utils'
+
+  const privateKey = '0x...'
+  - const account = getAccount({
+  + const account = toAccount({
+    address: getAddress(privateKey),
+    signMessage(message) {
+      return signMessage(message, privateKey)
+    },
+    signTransaction(transaction) {
+      return signTransaction(transaction, privateKey)
+    },
+    signTypedData(typedData) {
+      return signTypedData(typedData, privateKey)
+    }
+  })
+
+  const client = createWalletClient({
+    account,
+    chain: mainnet,
+    transport: http()
+  })
+  ```
+
+* [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `assertChain` argument on `sendTransaction`, `writeContract` & `deployContract`. If you wish to bypass the chain check (not recommended unless for testing purposes), you can pass `chain: null`.
+
+  ```diff
+  await walletClient.sendTransaction({
+  - assertChain: false,
+  + chain: null,
+    ...
+  })
+  ```
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** A chain is now required for the `sendTransaction`, `writeContract`, `deployContract` Actions.
+
+  You can hoist the Chain on the Client:
+
+  ```diff
+  import { createWalletClient, custom, getAccount } from 'viem'
+  import { mainnet } from 'viem/chains'
+
+  export const walletClient = createWalletClient({
+  + chain: mainnet,
+    transport: custom(window.ethereum)
+  })
+
+  const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
+  const hash = await walletClient.sendTransaction({
+    account,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: 1000000000000000000n
+  })
+  ```
+
+  Alternatively, you can pass the Chain directly to the Action:
+
+  ```diff
+  import { createWalletClient, custom, getAccount } from 'viem'
+  import { mainnet } from 'viem/chains'
+
+  export const walletClient = createWalletClient({
+  - chain: mainnet,
+    transport: custom(window.ethereum)
+  })
+
+  const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+
+  const hash = await walletClient.sendTransaction({
+    account,
+  + chain: mainnet,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: 1000000000000000000n
+  })
+  ```
+
+* [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated utility type names to reflect their purposes:
+
+  - `ExtractErrorNameFromAbi` is now `InferErrorName`
+  - `ExtractEventNameFromAbi` is now `InferEventName`
+  - `ExtractFunctionNameFromAbi` is now `InferFunctionName`
+  - `ExtractItemNameFromAbi` is now `InferItemName`
+  - `ExtractConstructorArgsFromAbi` is now `GetConstructorArgs`
+  - `ExtractErrorArgsFromAbi` is now `GetErrorArgs`
+  - `ExtractEventArgsFromAbi` is now `GetEventArgs`
+  - `ExtractEventArgsFromTopics` is now `GetEventArgsFromTopics`
+  - `ExtractArgsFromAbi` is now `GetFunctionArgs`
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** The following functions are now `async` functions instead of synchronous functions:
+
+  - `recoverAddress`
+  - `recoverMessageAddress`
+  - `verifyMessage`
+
+  ```diff
+  import { recoverMessageAddress } from 'viem'
+
+  - recoverMessageAddress({ message: 'hello world', signature: '0x...' })
+  + await recoverMessageAddress({ message: 'hello world', signature: '0x...' })
+  ```
+
+### Patch Changes
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added `getEnsText` & `getEnsAvatar`
+
+* [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added Local Account implementations:
+
+  - `privateKeyToAccount`
+  - `mnemonicToAccount`
+  - `hdKeyToAccount`
+
+  If you were previously relying on the `viem/ethers` wallet adapter, you no longer need to use this.
+
+  ```diff
+  - import { Wallet } from 'ethers'
+  - import { getAccount } from 'viem/ethers'
+  + import { privateKeyToAccount } from 'viem/accounts'
+
+  const privateKey = '0x...'
+  - const account = getAccount(new Wallet(privateKey))
+  + const account = privateKeyToAccount(privateKey)
+
+  const client = createWalletClient({
+    account,
+    chain: mainnet,
+    transport: http()
+  })
+  ```
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added WebSocket `eth_subscribe` support `watchBlocks`, `watchBlockNumber`, and `watchPendingTransactions`.
+
+* [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Updated Client types.
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added `verifyTypedData`, `hashTypedData`, `recoverTypedDataMessage`
+
+* [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added the ability to hoist an Account to the Wallet Client.
+
+  ```diff
+  import { createWalletClient, http } from 'viem'
+  import { mainnnet } from 'viem/chains'
+
+  const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+
+  const client = createWalletClient({
+  + account,
+    chain: mainnet,
+    transport: http()
+  })
+
+  const hash = await client.sendTransaction({
+  - account,
+    to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    value: parseEther('0.001')
+  })
+  ```
+
+- [#229](https://github.com/wagmi-dev/viem/pull/229) [`098f342`](https://github.com/wagmi-dev/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added getEnsResolver
+
 ## 0.1.26
 
 ### Patch Changes
