@@ -1,4 +1,3 @@
-export type { Gateways } from './avatar'
 export { parseAvatarRecord } from './avatar'
 
 export { labelhash } from './labelhash'
