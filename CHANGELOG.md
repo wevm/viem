@@ -21,6 +21,27 @@
     transport: custom(window.ethereum)
   })
   ```
+  
+  If you were using the Ethers Wallet adapter, you can use the `ethersWalletToAccount` function.
+
+  > Note: viem 0.2.0 now has a [Private Key](/docs/accounts/privateKey.html) & [Mnemonic Account](/docs/accounts/mnemonic.html) implementation. You     probably do not need this adapter anymore. This adapter may be removed in a future version.
+
+  ```diff
+  import { createWalletClient, custom } from 'viem'
+  import { mainnet } from 'viem/chains'
+  - import { getAccount } from 'viem/ethers'
+  + import { ethersWalletToAccount } from 'viem/ethers'
+  import { Wallet } from 'ethers'
+
+  - const account = getAccount(new Wallet('0x...'))
+  + const account = ethersWalletToAccount(new Wallet('0x...')) 
+
+  const client = createWalletClient({
+    account,
+    chain: mainnet,
+    transport: custom(window.ethereum)
+  })
+  ```
 
   **For Local Accounts, use `toAccount`.**
 
