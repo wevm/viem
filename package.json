@@ -191,6 +191,9 @@
     "pre-commit": "pnpm format && pnpm lint:fix"
   },
   "pnpm": {
+    "overrides": {
+      "viem": "workspace:*"
+    },
     "patchedDependencies": {
       "vitepress@1.0.0-alpha.61": "patches/vitepress@1.0.0-alpha.61.patch"
     },
