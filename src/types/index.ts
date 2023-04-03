@@ -44,6 +44,8 @@ export type {
   MaybeExtractEventArgsFromAbi,
 } from './contract'
 
+export type { AssetGateway, AssetGatewayUrls } from './ens'
+
 export type {
   FeeHistory,
   FeeValues,

@@ -128,8 +128,9 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "@noble/hashes": "^1.1.2",
+    "@ensdomains/address-encoder": "^0.2.21",
     "@noble/curves": "^0.9.0",
+    "@noble/hashes": "^1.1.2",
     "@scure/bip32": "^1.2.0",
     "@scure/bip39": "^1.1.1",
     "@wagmi/chains": "~0.2.15",

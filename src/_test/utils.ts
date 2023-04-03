@@ -1,6 +1,7 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import {
   deployContract,
   DeployContractParameters,
@@ -22,7 +23,7 @@ import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
 import { baycContractConfig } from './abis'
 import { accounts, localWsUrl } from './constants'
-import { errorsExampleABI } from './generated'
+import { errorsExampleABI, ensAvatarTokenUriABI } from './generated'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
@@ -173,6 +174,14 @@ export async function deployErrorExample() {
   return deploy({
     abi: errorsExampleABI,
     bytecode: errorsExample.bytecode.object as Hex,
+    account: accounts[0].address,
+  })
+}
+
+export async function deployEnsAvatarTokenUri() {
+  return deploy({
+    abi: ensAvatarTokenUriABI,
+    bytecode: ensAvatarTokenUri.bytecode.object as Hex,
     account: accounts[0].address,
   })
 }

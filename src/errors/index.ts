@@ -59,6 +59,13 @@ export {
   OffsetOutOfBoundsError,
 } from './encoding'
 
+export {
+  EnsAvatarInvalidMetadataError,
+  EnsAvatarInvalidNftUriError,
+  EnsAvatarUriResolutionError,
+  EnsAvatarUnsupportedNamespaceError,
+} from './ens'
+
 export { EstimateGasExecutionError } from './estimateGas'
 
 export { FilterTypeNotSupportedError } from './log'
