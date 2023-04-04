@@ -34,7 +34,7 @@ To initialize a Mnemonic Account, you will need to pass a mnemonic phrase to `mn
 
 ```ts
 import { createWalletClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { mnemonicToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 const account = mnemonicToAccount('legal winner thank year wave sausage worth useful legal winner thank yellow') // [!code focus]
