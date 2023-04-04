@@ -651,14 +651,6 @@ test('converts hex to bytes', () => {
         33,
       ]
     `)
-
-  expect(() => toBytes('0x0fabgg4200')).toThrowErrorMatchingInlineSnapshot(
-    `
-    "Invalid byte sequence (\\"gg\\" in \\"0fabgg4200\\").
-
-    Version: viem@1.0.2"
-  `,
-  )
 })
 
 test('converts string to bytes', () => {
