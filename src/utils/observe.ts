@@ -51,7 +51,7 @@ export function observe<TCallbacks extends Callbacks>(
 
   if (listeners && listeners.length > 0) return unwatch
 
-  let emit: TCallbacks = {} as TCallbacks
+  const emit: TCallbacks = {} as TCallbacks
   for (const key in callbacks) {
     emit[key] = ((
       ...args: Parameters<NonNullable<TCallbacks[keyof TCallbacks]>>

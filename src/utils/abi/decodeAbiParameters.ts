@@ -45,7 +45,7 @@ function decodeParams<TParams extends readonly AbiParameter[]>({
   data,
   params,
 }: { data: Hex; params: TParams }) {
-  let decodedValues: unknown[] = []
+  const decodedValues: unknown[] = []
   let position = 0
 
   for (let i = 0; i < params.length; i++) {
@@ -93,7 +93,7 @@ function decodeParam({
     return decodeBytes(data, { param, position })
   }
 
-  let value = slice(data, position, position + 32) as Hex
+  const value = slice(data, position, position + 32) as Hex
   if (param.type.startsWith('uint') || param.type.startsWith('int')) {
     return decodeNumber(value, { param })
   }
@@ -135,7 +135,7 @@ function decodeArray<TParam extends AbiParameter>(
     const length = hexToNumber(slice(data, offset, offset + 32))
 
     let consumed = 0
-    let value: AbiParameterToPrimitiveType<TParam>[] = []
+    const value: AbiParameterToPrimitiveType<TParam>[] = []
     for (let i = 0; i < length; ++i) {
       const decodedChild = decodeParam({
         data: slice(data, offset + 32),
@@ -158,7 +158,7 @@ function decodeArray<TParam extends AbiParameter>(
     const dynamicChild = !arrayComponents?.[0]
 
     let consumed = 0
-    let value: AbiParameterToPrimitiveType<TParam>[] = []
+    const value: AbiParameterToPrimitiveType<TParam>[] = []
     for (let i = 0; i < length; ++i) {
       const offset = hexToNumber(slice(data, position, position + 32))
       const decodedChild = decodeParam({
@@ -176,7 +176,7 @@ function decodeArray<TParam extends AbiParameter>(
   // and the length of each element in the array is known,
   // the array data is encoded contiguously after the array.
   let consumed = 0
-  let value: AbiParameterToPrimitiveType<TParam>[] = []
+  const value: AbiParameterToPrimitiveType<TParam>[] = []
   for (let i = 0; i < length; ++i) {
     const decodedChild = decodeParam({
       data,
@@ -251,7 +251,7 @@ function decodeTuple<
 
   // Initialize the value to an object or an array, depending on whether the
   // tuple is named or unnamed.
-  let value: any = hasUnnamedChild ? [] : {}
+  const value: any = hasUnnamedChild ? [] : {}
   let consumed = 0
 
   // If the tuple has a dynamic child, we must first decode the offset to the

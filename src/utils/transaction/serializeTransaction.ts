@@ -185,7 +185,7 @@ function serializeTransactionLegacy(
 function serializeAccessList(accessList?: AccessList): RecursiveArray<Hex> {
   if (!accessList || accessList.length === 0) return []
 
-  let serializedAccessList: RecursiveArray<Hex> = []
+  const serializedAccessList: RecursiveArray<Hex> = []
   for (let i = 0; i < accessList.length; i++) {
     const { address, storageKeys } = accessList[i]
 

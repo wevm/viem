@@ -8,7 +8,7 @@ export function checksumAddress(address_: Address): Address {
   const hexAddress = address_.substring(2).toLowerCase()
   const hash = keccak256(stringToBytes(hexAddress), 'bytes')
 
-  let address = hexAddress.split('')
+  const address = hexAddress.split('')
   for (let i = 0; i < 40; i += 2) {
     if (hash[i >> 1] >> 4 >= 8 && address[i]) {
       address[i] = address[i].toUpperCase()
