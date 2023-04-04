@@ -1,5 +1,13 @@
 # viem
 
+## 0.2.2
+
+### Patch Changes
+
+- [#289](https://github.com/wagmi-dev/viem/pull/289) [`8c51f93`](https://github.com/wagmi-dev/viem/commit/8c51f93cfbe304c88b018c679c4413e8874692e7) Thanks [@jxom](https://github.com/jxom)! - Pinned dependencies.
+
+* [#289](https://github.com/wagmi-dev/viem/pull/289) [`8c51f93`](https://github.com/wagmi-dev/viem/commit/8c51f93cfbe304c88b018c679c4413e8874692e7) Thanks [@jxom](https://github.com/jxom)! - Made `@scure/bip39/wordlists/*` & `idna-uts46-hx` exports ESM friendly.
+
 ## 0.2.1
 
 ### Patch Changes
