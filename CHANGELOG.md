@@ -1,5 +1,15 @@
 # viem
 
+## 0.2.6
+
+### Patch Changes
+
+- [#295](https://github.com/wagmi-dev/viem/pull/295) [`9a15a61`](https://github.com/wagmi-dev/viem/commit/9a15a612dd4a416f932c99519416665c0ffac214) Thanks [@fubhy](https://github.com/fubhy)! - Return discrimated union type from `decodeFunctionData`
+
+* [#304](https://github.com/wagmi-dev/viem/pull/304) [`8e1b712`](https://github.com/wagmi-dev/viem/commit/8e1b712efc256c16a98408d10557d5f55d8927d7) Thanks [@fubhy](https://github.com/fubhy)! - Fixed `getTransactionType` to honor `undefined` EIP-1559, EIP-2930 or Legacy attributes.
+
+- [#302](https://github.com/wagmi-dev/viem/pull/302) [`c00a459`](https://github.com/wagmi-dev/viem/commit/c00a459490ff283812e6847547149a8104a5c4d0) Thanks [@fubhy](https://github.com/fubhy)! - Fixed forwarding of options to transport for wallet client
+
 ## 0.2.5
 
 ### Patch Changes
