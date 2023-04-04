@@ -1,5 +1,6 @@
 import { BaseError } from '../../errors'
 import type { ByteArray, Hex } from '../../types'
+import { isHex } from '../data/isHex'
 import type { NumberToHexOpts } from './toHex'
 import { numberToHex } from './toHex'
 
@@ -12,7 +13,7 @@ export function toBytes(
   if (typeof value === 'number' || typeof value === 'bigint')
     return numberToBytes(value)
   if (typeof value === 'boolean') return boolToBytes(value)
-  if (value.startsWith('0x')) return hexToBytes(value as Hex)
+  if (isHex(value)) return hexToBytes(value)
   return stringToBytes(value)
 }
 
