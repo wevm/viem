@@ -23,7 +23,20 @@ describe('type', () => {
 
 describe('attributes', () => {
   test('eip1559', () => {
-    const type = getTransactionType({ chainId: 1, maxFeePerGas: 1n })
+    const type = getTransactionType({
+      chainId: 1,
+      maxFeePerGas: 1n,
+    })
+    assertType<'eip1559'>(type)
+    expect(type).toEqual('eip1559')
+  })
+
+  test('eip1559 with gasPrice undefined', () => {
+    const type = getTransactionType({
+      chainId: 1,
+      maxFeePerGas: 1n,
+      gasPrice: undefined,
+    })
     assertType<'eip1559'>(type)
     expect(type).toEqual('eip1559')
   })
@@ -38,8 +51,30 @@ describe('attributes', () => {
     expect(type).toEqual('eip2930')
   })
 
+  test('eip2930 with eip1559 properties undefined', () => {
+    const type = getTransactionType({
+      chainId: 1,
+      gasPrice: 1n,
+      maxFeePerGas: undefined,
+      maxPriorityFeePerGas: undefined,
+      accessList: [],
+    })
+    assertType<'eip2930'>(type)
+    expect(type).toEqual('eip2930')
+  })
+
   test('legacy', () => {
     const type = getTransactionType({ gasPrice: 1n })
+    assertType<'legacy'>(type)
+    expect(type).toEqual('legacy')
+  })
+
+  test('legacy with eip1559 properties undefined', () => {
+    const type = getTransactionType({
+      gasPrice: 1n,
+      maxFeePerGas: undefined,
+      maxPriorityFeePerGas: undefined,
+    })
     assertType<'legacy'>(type)
     expect(type).toEqual('legacy')
   })

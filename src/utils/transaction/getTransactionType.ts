@@ -27,11 +27,14 @@ export function getTransactionType<
   if (transaction.type)
     return transaction.type as GetTransactionType<TTransactionSerializable>
 
-  if ('maxFeePerGas' in transaction || 'maxPriorityFeePerGas' in transaction)
+  if (
+    typeof transaction.maxFeePerGas !== 'undefined' ||
+    typeof transaction.maxPriorityFeePerGas !== 'undefined'
+  )
     return 'eip1559' as GetTransactionType<TTransactionSerializable>
 
-  if ('gasPrice' in transaction) {
-    if ('accessList' in transaction)
+  if (typeof transaction.gasPrice !== 'undefined') {
+    if (typeof transaction.accessList !== 'undefined')
       return 'eip2930' as GetTransactionType<TTransactionSerializable>
     return 'legacy' as GetTransactionType<TTransactionSerializable>
   }
