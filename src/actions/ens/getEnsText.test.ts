@@ -3,6 +3,7 @@ import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
 import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
+import { setVitalikResolver } from '../../_test/utils'
 import { getBlockNumber } from '../public'
 import { getEnsText } from './getEnsText'
 
@@ -10,6 +11,7 @@ let blockNumber: bigint
 beforeAll(async () => {
   blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
+  await setVitalikResolver()
 })
 afterAll(async () => {
   await setBlockNumber(blockNumber)
@@ -25,6 +27,15 @@ test('name without text record', async () => {
   await expect(
     getEnsText(publicClient, {
       name: 'unregistered-name.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
+test('name with resolver that does not support text()', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'vitalik.eth',
       key: 'com.twitter',
     }),
   ).resolves.toBeNull()

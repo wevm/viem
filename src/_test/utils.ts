@@ -1,13 +1,16 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
-import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
+import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
   deployContract,
   DeployContractParameters,
   getTransactionReceipt,
+  impersonateAccount,
   mine,
   reset,
+  stopImpersonatingAccount,
+  writeContract,
 } from '../actions'
 import { Chain, localhost, mainnet } from '../chains'
 import {
@@ -21,13 +24,14 @@ import {
 import type { Hex } from '../types'
 import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
-import { baycContractConfig } from './abis'
-import { accounts, localWsUrl } from './constants'
-import { errorsExampleABI, ensAvatarTokenUriABI } from './generated'
+import { baycContractConfig, ensRegistryConfig } from './abis'
+import { accounts, address, localWsUrl } from './constants'
+import { ensAvatarTokenUriABI, errorsExampleABI } from './generated'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
+import { namehash } from '../ens'
 
 export const anvilChain = {
   ...localhost,
@@ -190,6 +194,22 @@ export async function setBlockNumber(blockNumber: bigint) {
   await reset(testClient, {
     blockNumber,
     jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
+  })
+}
+
+export async function setVitalikResolver() {
+  await impersonateAccount(testClient, {
+    address: address.vitalik,
+  })
+  await writeContract(walletClient, {
+    ...ensRegistryConfig,
+    account: address.vitalik,
+    functionName: 'setResolver',
+    args: [namehash('vitalik.eth'), ensRegistryConfig.address],
+  })
+  await mine(testClient, { blocks: 1 })
+  await stopImpersonatingAccount(testClient, {
+    address: address.vitalik,
   })
 }
 /* c8 ignore stop */
