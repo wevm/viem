@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.3
+
+### Patch Changes
+
+- [#290](https://github.com/wagmi-dev/viem/pull/290) [`ef2bbaf`](https://github.com/wagmi-dev/viem/commit/ef2bbafa2b372bfa8fa1b29ffabea75ca3ea1122) Thanks [@holic](https://github.com/holic)! - Fixed ENS address resolution for "0x"-prefixed names.
+
 ## 0.2.2
 
 ### Patch Changes
