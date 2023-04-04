@@ -1,0 +1,10 @@
+{
+  "include": ["vite.config.ts", "wagmi.config.ts", "scripts/**/*.ts"],
+  "compilerOptions": {
+    "strict": true,
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true
+  }
+}
