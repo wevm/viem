@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, expectTypeOf, test } from 'vitest'
 
 import { decodeFunctionData } from './decodeFunctionData'
 
@@ -58,43 +58,43 @@ test('bar(uint256)', () => {
 })
 
 test('getVoter((uint256,bool,address,uint256))', () => {
-  expect(
-    decodeFunctionData({
-      abi: [
-        {
-          inputs: [
-            {
-              components: [
-                {
-                  name: 'weight',
-                  type: 'uint256',
-                },
-                {
-                  name: 'voted',
-                  type: 'bool',
-                },
-                {
-                  name: 'delegate',
-                  type: 'address',
-                },
-                {
-                  name: 'vote',
-                  type: 'uint256',
-                },
-              ],
-              name: 'voter',
-              type: 'tuple',
-            },
-          ],
-          name: 'getVoter',
-          outputs: [],
-          stateMutability: 'nonpayable',
-          type: 'function',
-        },
-      ] as const,
-      data: '0xf37414670000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000029',
-    }),
-  ).toEqual({
+  const result = decodeFunctionData({
+    abi: [
+      {
+        inputs: [
+          {
+            components: [
+              {
+                name: 'weight',
+                type: 'uint256',
+              },
+              {
+                name: 'voted',
+                type: 'bool',
+              },
+              {
+                name: 'delegate',
+                type: 'address',
+              },
+              {
+                name: 'vote',
+                type: 'uint256',
+              },
+            ],
+            name: 'voter',
+            type: 'tuple',
+          },
+        ],
+        name: 'getVoter',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ] as const,
+    data: '0xf37414670000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000029',
+  })
+
+  expect(result).toEqual({
     args: [
       {
         delegate: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -105,6 +105,18 @@ test('getVoter((uint256,bool,address,uint256))', () => {
     ],
     functionName: 'getVoter',
   })
+
+  expectTypeOf(result).toMatchTypeOf<{
+    functionName: 'getVoter'
+    args: readonly [
+      {
+        delegate: `0x${string}`
+        vote: bigint
+        voted: boolean
+        weight: bigint
+      },
+    ]
+  }>()
 })
 
 test("errors: function doesn't exist", () => {
