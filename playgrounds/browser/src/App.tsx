@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import 'viem/window';
+import { useState } from 'react'
+import 'viem/window'
 
-import { HttpPublic } from './components/clients/HttpPublic';
-import { InjectedWallet } from './components/clients/InjectedWallet';
+import { HttpPublic } from './components/clients/HttpPublic'
+import { InjectedWallet } from './components/clients/InjectedWallet'
 
 export function App() {
-  const [rpc, setRpc] = useState('http-public');
+  const [rpc, setRpc] = useState('http-public')
   return (
     <div>
       <h1>viem alpha</h1>
@@ -34,5 +34,5 @@ export function App() {
       {rpc === 'http-public' && <HttpPublic />}
       {rpc === 'injected-wallet' && <InjectedWallet />}
     </div>
-  );
+  )
 }

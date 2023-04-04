@@ -14,7 +14,7 @@
     "contracts:build": "wagmi generate",
     "dev": "DEV=true tsup",
     "dev:docs": "pnpm -r --filter site dev",
-    "format": "rome format src/ --write",
+    "format": "rome format . --write",
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply",
     "playground": "pnpm --filter playground-browser dev",

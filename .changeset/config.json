@@ -13,9 +13,5 @@
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
-  "ignore": [
-    "@viem/site",
-    "example-*",
-    "playground-*"
-  ]
+  "ignore": ["@viem/site", "example-*", "playground-*"]
 }
