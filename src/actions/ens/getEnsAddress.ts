@@ -1,7 +1,7 @@
 import type { PublicClient, Transport } from '../../clients'
 import {
   singleAddressResolverAbi,
-  universalResolverAbi,
+  universalResolverAbi
 } from '../../constants/abis'
 import type { Address, Chain, Prettify } from '../../types'
 import {
@@ -9,7 +9,7 @@ import {
   encodeFunctionData,
   getChainContractAddress,
   toHex,
-  trim,
+  trim
 } from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
@@ -70,11 +70,11 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
     blockTag,
   })
 
-  if (trim(res[0]) === '0x') return null
-
-  return decodeFunctionResult({
+  const address = decodeFunctionResult({
     abi: singleAddressResolverAbi,
     functionName: 'addr',
     data: res[0],
   })
+
+  return trim(address) === '0x' ? null : address
 }
