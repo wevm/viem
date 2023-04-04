@@ -203,9 +203,11 @@ const results = await publicClient.multicall({
 
 ### account (optional)
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-Optional Account sender override. [Read more](/docs/clients/wallet).
+Optional Account sender override. 
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 const results = await publicClient.multicall({
@@ -217,7 +219,7 @@ const results = await publicClient.multicall({
     },
     ...
   ],
-  account: getAccount('0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b') // [!code focus]
+  account: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' // [!code focus]
 })
 ```
 

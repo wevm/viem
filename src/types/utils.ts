@@ -1,15 +1,68 @@
 /**
- * @description Excludes empty attributes from T if TMaybeExclude is true.
+ * Filters out all members of {@link T} that are not {@link P}
+ *
+ * @param T - Items to filter
+ * @param P - Type to filter out
+ * @returns Filtered items
  *
  * @example
- * MaybeExcludeEmpty<{ a: string, b: number, c: [] }, true>
- * => { a: string, b: number }
+ * type Result = Filter<['a', 'b', 'c'], 'b'>
+ * //   ^? type Result = ['a', 'c']
+ */
+export type Filter<
+  T extends readonly unknown[],
+  P,
+  Acc extends readonly unknown[] = [],
+> = T extends readonly [infer F, ...infer Rest extends readonly unknown[]]
+  ? [F] extends [P]
+    ? Filter<Rest, P, [...Acc, F]>
+    : Filter<Rest, P, Acc>
+  : readonly [...Acc]
+
+/**
+ * @description Checks if {@link T} can be narrowed further than {@link U}
+ * @param T - Type to check
+ * @param U - Type to against
+ * @example
+ * type Result = IsNarrowable<'foo', string>
+ * //   ^? true
+ */
+export type IsNarrowable<T, U> = IsNever<
+  (T extends U ? true : false) & (U extends T ? false : true)
+> extends true
+  ? false
+  : true
+
+/**
+ * @description Checks if {@link T} is `never`
+ * @param T - Type to check
+ * @example
+ * type Result = IsNever<never>
+ * //   ^? type Result = true
+ */
+export type IsNever<T> = [T] extends [never] ? true : false
+
+/**
+ * @description Checks if {@link T} is `undefined`
+ * @param T - Type to check
+ * @example
+ * type Result = IsUndefined<undefined>
+ * //   ^? type Result = true
+ */
+export type IsUndefined<T> = [undefined] extends [T] ? true : false
+
+/**
+ * Excludes empty attributes from T if TMaybeExclude is true.
  *
- * MaybeExcludeEmpty<{ a: string, b: number, c: [] }, false>
- * => { a: string, b: number, c: [] }
- *
- * MaybeExcludeEmpty<{ a: string, b: number, c: undefined }, true>
- * => { a: string, b: number }
+ * @example
+ * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: [] }, true>
+ * //   ^? type Result = { a: string, b: number }
+ * @example
+ * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: [] }, false>
+ * //   ^? type Result = { a: string, b: number, c: [] }
+ * @example
+ * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: undefined }, true>
+ * //   ^? type Result = { a: string, b: number }
  */
 export type MaybeExcludeEmpty<
   T,
@@ -97,6 +150,15 @@ type TrimLeft<T, Chars extends string = ' '> = T extends `${Chars}${infer R}`
 type TrimRight<T, Chars extends string = ' '> = T extends `${infer R}${Chars}`
   ? TrimRight<R>
   : T
+
+/**
+ * @description Creates a type with required keys K from T.
+ *
+ * @example
+ * type Result = RequiredBy<{ a?: string, b?: number, c: number }, 'a' | 'c'>
+ * //   ^? { a: string, b?: number, c: number }
+ */
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 /**
  * @description Trims empty space from type T.

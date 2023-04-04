@@ -98,7 +98,8 @@ export function webSocket(
                     resolve(data)
                     return
                   }
-                  onData(data)
+                  if (data.method !== 'eth_subscription') return
+                  onData(data.params)
                 },
                 onError: (error) => {
                   reject(error)

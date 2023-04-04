@@ -1,4 +1,6 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
+import type { Chain, GetTransportConfig } from '../../types'
+import { hexToBigInt } from '../../utils'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
 import type { GetBlockNumberReturnType } from './getBlockNumber'
@@ -10,75 +12,129 @@ export type OnBlockNumberFn = (
   prevBlockNumber: OnBlockNumberParameter | undefined,
 ) => void
 
-export type WatchBlockNumberParameters = {
+export type PollOptions = {
   /** Whether or not to emit the missed block numbers to the callback. */
   emitMissed?: boolean
   /** Whether or not to emit the latest block number to the callback when the subscription opens. */
   emitOnBegin?: boolean
-  /** The callback to call when a new block number is received. */
-  onBlockNumber: OnBlockNumberFn
-  /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 }
 
+export type WatchBlockNumberParameters<
+  TTransport extends Transport = Transport,
+> = {
+  /** The callback to call when a new block number is received. */
+  onBlockNumber: OnBlockNumberFn
+  /** The callback to call when an error occurred when trying to get for a new block. */
+  onError?: (error: Error) => void
+} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+  ?
+      | {
+          emitMissed?: never
+          emitOnBegin?: never
+          /** Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`. */
+          poll?: false
+          pollingInterval?: never
+        }
+      | (PollOptions & { poll: true })
+  : PollOptions & { poll?: true })
+
+export type WatchBlockNumberReturnType = () => void
+
 /** @description Watches and returns incoming block numbers. */
-export function watchBlockNumber(
-  client: PublicClient<any, any, any>,
+export function watchBlockNumber<
+  TChain extends Chain | undefined,
+  TTransport extends Transport,
+>(
+  client: PublicClient<TTransport, TChain>,
   {
     emitOnBegin = false,
     emitMissed = false,
     onBlockNumber,
     onError,
+    poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlockNumberParameters,
-) {
-  const observerId = JSON.stringify([
-    'watchBlockNumber',
-    client.uid,
-    emitOnBegin,
-    emitMissed,
-    pollingInterval,
-  ])
+  }: WatchBlockNumberParameters<TTransport>,
+): WatchBlockNumberReturnType {
+  const enablePolling =
+    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
 
   let prevBlockNumber: GetBlockNumberReturnType | undefined
 
-  return observe(observerId, { onBlockNumber, onError }, (emit) =>
-    poll(
-      async () => {
-        try {
-          const blockNumber = await getBlockNumber(client, { maxAge: 0 })
+  const pollBlockNumber = () => {
+    const observerId = JSON.stringify([
+      'watchBlockNumber',
+      client.uid,
+      emitOnBegin,
+      emitMissed,
+      pollingInterval,
+    ])
 
-          if (prevBlockNumber) {
-            // If the current block number is the same as the previous,
-            // we can skip.
-            if (blockNumber === prevBlockNumber) return
+    return observe(observerId, { onBlockNumber, onError }, (emit) =>
+      poll(
+        async () => {
+          try {
+            const blockNumber = await getBlockNumber(client, { maxAge: 0 })
 
-            // If we have missed out on some previous blocks, and the
-            // `emitMissed` flag is truthy, let's emit those blocks.
-            if (blockNumber - prevBlockNumber > 1 && emitMissed) {
-              for (let i = prevBlockNumber + 1n; i < blockNumber; i++) {
-                emit.onBlockNumber(i, prevBlockNumber)
-                prevBlockNumber = i
+            if (prevBlockNumber) {
+              // If the current block number is the same as the previous,
+              // we can skip.
+              if (blockNumber === prevBlockNumber) return
+
+              // If we have missed out on some previous blocks, and the
+              // `emitMissed` flag is truthy, let's emit those blocks.
+              if (blockNumber - prevBlockNumber > 1 && emitMissed) {
+                for (let i = prevBlockNumber + 1n; i < blockNumber; i++) {
+                  emit.onBlockNumber(i, prevBlockNumber)
+                  prevBlockNumber = i
+                }
               }
             }
-          }
 
-          // If the next block number is greater than the previous,
-          // it is not in the past, and we can emit the new block number.
-          if (!prevBlockNumber || blockNumber > prevBlockNumber) {
-            emit.onBlockNumber(blockNumber, prevBlockNumber)
-            prevBlockNumber = blockNumber
+            // If the next block number is greater than the previous,
+            // it is not in the past, and we can emit the new block number.
+            if (!prevBlockNumber || blockNumber > prevBlockNumber) {
+              emit.onBlockNumber(blockNumber, prevBlockNumber)
+              prevBlockNumber = blockNumber
+            }
+          } catch (err) {
+            emit.onError?.(err as Error)
           }
-        } catch (err) {
-          emit.onError?.(err as Error)
-        }
-      },
-      {
-        emitOnBegin,
-        interval: pollingInterval,
-      },
-    ),
-  )
+        },
+        {
+          emitOnBegin,
+          interval: pollingInterval,
+        },
+      ),
+    )
+  }
+
+  const subscribeBlockNumber = () => {
+    let active = true
+    let unsubscribe = () => (active = false)
+    ;(async () => {
+      try {
+        const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
+          params: ['newHeads'],
+          onData(data: any) {
+            if (!active) return
+            const blockNumber = hexToBigInt(data.result?.number)
+            onBlockNumber(blockNumber, prevBlockNumber)
+            prevBlockNumber = blockNumber
+          },
+          onError(error: Error) {
+            onError?.(error)
+          },
+        })
+        unsubscribe = unsubscribe_
+        if (!active) unsubscribe()
+      } catch (err) {
+        onError?.(err as Error)
+      }
+    })()
+    return unsubscribe
+  }
+
+  return enablePolling ? pollBlockNumber() : subscribeBlockNumber()
 }

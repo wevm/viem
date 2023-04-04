@@ -260,7 +260,7 @@ const provider = new providers.Web3Provider(window.ethereum)
 
 #### viem
 
-```ts {3-7}
+```ts {4-7}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -292,7 +292,7 @@ const client = createPublicClient({
 })
 ```
 
-## Signers → getAccount
+## Signers → Accounts
 
 ### JsonRpcSigner
 
@@ -311,19 +311,19 @@ signer.sendTransaction({ ... })
 
 #### viem
 
-```ts {9-11}
-import { createWalletClient, custom, getAccount } from 'viem'
+```ts {4,7}
+import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+
 const client = createWalletClient({
+  account,
   chain: mainnet,
   transport: custom(window.ethereum)
 })
 
-const [address] = await client.getAddresses()
-const account = getAccount(address)
-
-client.sendTransaction({ account, ... })
+client.sendTransaction({ ... })
 ```
 
 > viem uses the term ["Account"](https://ethereum.org/en/developers/docs/accounts/) rather than "Signer".
@@ -344,22 +344,20 @@ wallet.sendTransaction({ ... })
 
 #### viem
 
-viem does not currently support client-side signing (it's coming shortly!) – until then, you can use an Ethers `Wallet`:
-
-```ts {6-9}
-import { Wallet } from 'ethers'
+```ts {6,9}
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { getAccount } from 'viem/ethers'
+
+const account = privateKeyToAccount('0x...')
 
 const client = createWalletClient({
+  account,
   chain: mainnet,
   transport: custom(window.ethereum)
 })
 
-const account = getAccount(new Wallet('0x...'))
-
-client.sendTransaction({ account, ... })
+client.sendTransaction({ ... })
 ```
 
 > viem uses the term ["Account"](https://ethereum.org/en/developers/docs/accounts/) rather than "Signer".
@@ -404,7 +402,7 @@ client.getTransaction(...)
 
 #### Ethers
 
-```ts {7-10}
+```ts {8-10}
 import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
@@ -419,20 +417,20 @@ signer.signMessage(...)
 
 #### viem
 
-```ts {9-12}
-import { createWalletClient, custom, getAccount } from 'viem'
+```ts {4,7}
+import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+
 const client = createWalletClient({
+  account,
   chain: mainnet,
   transport: custom(window.ethereum)
 })
 
-const [address] = await client.getAddresses()
-const account = getAccount(address)
-
-client.sendTransaction({ account, ... })
-client.signMessage({ account, ... })
+client.sendTransaction({ ... })
+client.signMessage({ ... })
 ...
 ```
 
@@ -459,7 +457,7 @@ const supply = await contract.totalSupply()
 
 #### viem
 
-```ts {9-13}
+```ts {10-13}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -495,7 +493,7 @@ const hash = await contract.mint()
 
 #### viem
 
-```ts {15-21}
+```ts {17-22}
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -510,14 +508,13 @@ const walletClient = createWalletClient({
 })
 
 const [address] = await walletClient.getAddresses()
-const account = getAccount(address)
 
-const request = await publicClient.simulateContract({
+const { request } = await publicClient.simulateContract({
   ...wagmiContractConfig,
   functionName: 'mint',
-  account,
+  account: address,
 })
-const supply = await walletClient.writeContract(request)
+const hash = await walletClient.writeContract(request)
 ```
 
 ### Deploying Contracts
@@ -539,7 +536,7 @@ await contract.deploy()
 
 #### viem
 
-```ts {12-16}
+```ts {13-17}
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { abi, bytecode } from './abi'
@@ -550,11 +547,10 @@ const walletClient = createWalletClient({
 })
 
 const [address] = await walletClient.getAddresses()
-const account = getAccount(address)
 
 await walletClient.deployContract({
   abi,
-  account,
+  account: address,
   bytecode,
 })
 ```
@@ -583,7 +579,7 @@ contract.off('Transfer', listener)
 
 #### viem
 
-```ts {9-20}
+```ts {10-20}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -620,12 +616,12 @@ const provider = getDefaultProvider()
 
 const { abi, address } = wagmiContractConfig
 const contract = new Contract(address, abi, provider)
-const gas = contract.estimateGas.mint()
+const gas = await contract.estimateGas.mint()
 ```
 
 #### viem
 
-```ts {9-13}
+```ts {10-13}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -635,7 +631,7 @@ const client = createPublicClient({
   transport: http()
 })
 
-const gas = client.estimateContractGas({
+const gas = await client.estimateContractGas({
   ...wagmiContractConfig, 
   functionName: 'mint'
 })
@@ -658,7 +654,7 @@ await contract.callStatic.mint()
 
 #### viem
 
-```ts {9-13}
+```ts {10-13}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContractConfig } from './abi'
@@ -672,6 +668,54 @@ await client.simulateContract({
   ...wagmiContractConfig, 
   functionName: 'mint'
 })
+```
+
+### Contract Instances
+
+#### Ethers
+
+```ts {6-7}
+import { getDefaultProvider } from 'ethers'
+import { wagmiContractConfig } from './abi'
+
+const provider = getDefaultProvider()
+
+const { abi, address } = wagmiContractConfig
+const contract = new Contract(address, abi, provider)
+
+const supply = await contract.totalSupply()
+const listener = (from, to, amount, event) => {
+  // ...
+}
+contract.on('Transfer', listener)
+contract.off('Transfer', listener)
+```
+
+#### viem
+
+```ts {10-13}
+import { createPublicClient, http, getContract } from 'viem'
+import { mainnet } from 'viem/chains'
+import { wagmiContractConfig } from './abi'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+const contract = getContract({
+  ...wagmiContractConfig,
+  publicClient: client,
+})
+
+const supply = await contract.read.totalSupply()
+const unwatch = contract.watchEvent.Transfer({
+  onLogs: logs => {
+    const { args: { from, to, amount }, eventName } = logs[0]
+    // ...
+  },
+})
+unwatch()
 ```
 
 ## ABI Utilities
@@ -1702,4 +1746,58 @@ utils.toUtf8String(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108
 import { bytesToString } from 'viem'
 
 bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]))
+```
+
+## Transaction Utilities
+
+### serializeTransaction
+
+#### Ethers
+
+```ts
+import { utils } from 'ethers'
+
+const serialized = utils.serializeTransaction({
+  chainId: 1,
+  maxFeePerGas: utils.parseGwei('20'),
+  maxPriorityFeePerGas: utils.parseGwei('2'),
+  nonce: 69,
+  to: "0x1234512345123451234512345123451234512345",
+  type: 2,
+  value: utils.parseEther('0.01'),
+})
+```
+
+#### viem
+
+```ts
+import { serializeTransaction, parseEther, parseGwei } from 'viem'
+
+const serialized = serializeTransaction({
+  chainId: 1,
+  gas: 21001n,
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('2'),
+  nonce: 69,
+  to: "0x1234512345123451234512345123451234512345",
+  value: parseEther('0.01'),
+})
+```
+
+### parseTransaction
+
+#### Ethers
+
+```ts
+import { utils } from 'ethers'
+
+const transaction = utils.parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
+```
+
+#### Ethers
+
+```ts
+import { parseTransaction } from 'viem'
+
+const transaction = parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
 ```

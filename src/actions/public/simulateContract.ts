@@ -1,11 +1,11 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
   Chain,
-  ContractConfig,
-  ExtractResultFromAbi,
+  ContractFunctionConfig,
+  ContractFunctionResult,
   GetValue,
 } from '../../types'
 import {
@@ -14,55 +14,66 @@ import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
+  parseAccount,
 } from '../../utils'
 import type { WriteContractParameters } from '../wallet'
 import { call, CallParameters } from './call'
 
 export type SimulateContractParameters<
-  TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
+  TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
-> = Omit<
-  CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
-  'to' | 'data' | 'value'
-> & {
+> = {
   chain?: TChainOverride
-} & ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
-    value?: GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
-  }
+} & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+  Omit<
+    CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
+    'to' | 'data' | 'value'
+  > &
+  GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
 
 export type SimulateContractReturnType<
-  TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
+  TChain extends Chain | undefined = Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 > = {
-  result: ExtractResultFromAbi<TAbi, TFunctionName>
-  request: WriteContractParameters<TChain, TAbi, TFunctionName> &
-    ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
+  result: ContractFunctionResult<TAbi, TFunctionName>
+  request: Omit<
+    WriteContractParameters<
+      TAbi,
+      TFunctionName,
+      TChain,
+      undefined,
+      TChainOverride
+    >,
+    'chain'
+  > & {
+    chain: TChainOverride
+  } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
 export async function simulateContract<
-  TChain extends Chain,
+  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TChainOverride extends Chain | undefined,
 >(
-  client: PublicClient<any, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     abi,
     address,
     args,
     functionName,
     ...callRequest
-  }: SimulateContractParameters<TChain, TAbi, TFunctionName, TChainOverride>,
+  }: SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>,
 ): Promise<
-  SimulateContractReturnType<
-    TChainOverride extends Chain ? TChainOverride : TChain,
-    TAbi,
-    TFunctionName
-  >
+  SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
 > {
+  const account = callRequest.account
+    ? parseAccount(callRequest.account)
+    : undefined
   const calldata = encodeFunctionData({
     abi,
     args,
@@ -90,9 +101,10 @@ export async function simulateContract<
         ...callRequest,
       },
     } as unknown as SimulateContractReturnType<
-      TChainOverride extends Chain ? TChainOverride : TChain,
       TAbi,
-      TFunctionName
+      TFunctionName,
+      TChain,
+      TChainOverride
     >
   } catch (err) {
     throw getContractError(err as BaseError, {
@@ -101,7 +113,7 @@ export async function simulateContract<
       args,
       docsPath: '/docs/contract/simulateContract',
       functionName,
-      sender: callRequest.account?.address,
+      sender: account?.address,
     })
   }
 }

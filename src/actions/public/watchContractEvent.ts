@@ -1,9 +1,10 @@
 import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type {
   Address,
-  ExtractEventArgsFromAbi,
-  ExtractEventNameFromAbi,
+  Chain,
+  GetEventArgs,
+  InferEventName,
   Filter,
   Log,
 } from '../../types'
@@ -39,11 +40,11 @@ export type WatchContractEventParameters<
   address?: Address | Address[]
   /** Contract ABI. */
   abi: Narrow<TAbi>
-  args?: ExtractEventArgsFromAbi<TAbi, TEventName>
+  args?: GetEventArgs<TAbi, TEventName>
   /** Whether or not the event logs should be batched on each invocation. */
   batch?: boolean
   /** Contract event. */
-  eventName?: ExtractEventNameFromAbi<TAbi, TEventName>
+  eventName?: InferEventName<TAbi, TEventName>
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
@@ -52,11 +53,14 @@ export type WatchContractEventParameters<
   pollingInterval?: number
 }
 
+export type WatchContractEventReturnType = () => void
+
 export function watchContractEvent<
+  TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
 >(
-  client: PublicClient,
+  client: PublicClient<Transport, TChain>,
   {
     abi,
     address,
@@ -67,7 +71,7 @@ export function watchContractEvent<
     onLogs,
     pollingInterval = client.pollingInterval,
   }: WatchContractEventParameters<TAbi, TEventName>,
-) {
+): WatchContractEventReturnType {
   const observerId = JSON.stringify([
     'watchContractEvent',
     address,

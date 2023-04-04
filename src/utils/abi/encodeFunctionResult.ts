@@ -4,10 +4,7 @@ import {
   AbiFunctionOutputsNotFoundError,
 } from '../../errors'
 
-import type {
-  ExtractFunctionNameFromAbi,
-  ExtractResultFromAbi,
-} from '../../types'
+import type { InferFunctionName, ContractFunctionResult } from '../../types'
 import { encodeAbiParameters } from './encodeAbiParameters'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
@@ -17,8 +14,8 @@ export type EncodeFunctionResultParameters<
   TFunctionName extends string = string,
 > = {
   abi: Narrow<TAbi>
-  functionName: ExtractFunctionNameFromAbi<TAbi, TFunctionName>
-  result?: ExtractResultFromAbi<TAbi, TFunctionName>
+  functionName: InferFunctionName<TAbi, TFunctionName>
+  result?: ContractFunctionResult<TAbi, TFunctionName>
 }
 
 export function encodeFunctionResult<

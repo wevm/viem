@@ -7,6 +7,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       items: [
         { text: 'Why viem', link: '/docs/introduction' },
         { text: 'Getting Started', link: '/docs/getting-started' },
+        { text: 'Migration Guide', link: '/docs/migration-guide' },
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
         { text: 'TypeScript', link: '/docs/typescript' },
         { text: 'Benchmarks', link: '/docs/benchmarks' },
@@ -370,9 +371,24 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'Accounts',
+      collapsed: true,
+      items: [
+        { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
+        { text: 'Private Key', link: '/docs/accounts/privateKey' },
+        { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
+        { text: 'Hierarchical Deterministic (HD)', link: '/docs/accounts/hd' },
+        { text: 'Custom', link: '/docs/accounts/custom' },
+      ],
+    },
+    {
       text: 'Contract',
       collapsed: true,
       items: [
+        {
+          text: 'Contract Instances',
+          link: '/docs/contract/getContract',
+        },
         {
           text: 'Actions',
           items: [
@@ -476,7 +492,19 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'getEnsAddress',
               link: '/docs/ens/actions/getEnsAddress',
             },
+            {
+              text: 'getEnsAvatar',
+              link: '/docs/ens/actions/getEnsAvatar',
+            },
             { text: 'getEnsName', link: '/docs/ens/actions/getEnsName' },
+            {
+              text: 'getEnsResolver',
+              link: '/docs/ens/actions/getEnsResolver',
+            },
+            {
+              text: 'getEnsText',
+              link: '/docs/ens/actions/getEnsText',
+            },
           ],
         },
         {
@@ -640,6 +668,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/hashMessage',
             },
             {
+              text: 'hashTypedData',
+              link: '/docs/utilities/hashTypedData',
+            },
+            {
               text: 'recoverAddress',
               link: '/docs/utilities/recoverAddress',
             },
@@ -648,11 +680,15 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/recoverMessageAddress',
             },
             {
+              text: 'recoverTypedDataAddress',
+              link: '/docs/utilities/recoverTypedDataAddress',
+            },
+            {
               text: 'verifyMessage',
               link: '/docs/utilities/verifyMessage',
             },
             {
-              text: 'verifyTypedData 🚧',
+              text: 'verifyTypedData',
               link: '/docs/utilities/verifyTypedData',
             },
           ],
@@ -661,11 +697,11 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Transaction',
           items: [
             {
-              text: 'parseTransaction 🚧',
+              text: 'parseTransaction',
               link: '/docs/utilities/parseTransaction',
             },
             {
-              text: 'serializeTransaction 🚧',
+              text: 'serializeTransaction',
               link: '/docs/utilities/serializeTransaction',
             },
           ],

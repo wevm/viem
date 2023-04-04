@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { accounts, publicClient } from '../../_test'
 import { celo } from '../../chains'
 import { createPublicClient, http } from '../../clients'
-import { getAccount, numberToHex, parseEther, parseGwei } from '../../utils'
+import { numberToHex, parseEther, parseGwei } from '../../utils'
 
 import { call } from './call'
 
@@ -19,7 +19,7 @@ const sourceAccount = accounts[0]
 test('default', async () => {
   const { data } = await call(publicClient, {
     data: name4bytes,
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot(
@@ -36,7 +36,7 @@ test('custom formatter', async () => {
   const { data } = await call(client, {
     gatewayFee: numberToHex(1n),
     data: name4bytes,
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: wagmiContractAddress,
   })
   expect(data).toBeUndefined()
@@ -45,7 +45,7 @@ test('custom formatter', async () => {
 test('zero data', async () => {
   const { data } = await call(publicClient, {
     data: mint4bytes,
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
@@ -55,7 +55,7 @@ test('args: blockNumber', async () => {
   const { data } = await call(publicClient, {
     blockNumber: 15564164n,
     data: `${mintWithParams4bytes}${fourTwenty}`,
-    account: getAccount(sourceAccount.address),
+    account: sourceAccount.address,
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
@@ -66,7 +66,7 @@ describe('errors', () => {
     await expect(() =>
       call(publicClient, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: wagmiContractAddress,
         maxFeePerGas: 2n ** 256n - 1n + 1n,
       }),
@@ -88,7 +88,7 @@ describe('errors', () => {
     await expect(() =>
       call(publicClient, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: wagmiContractAddress,
         gas: 100n,
       }),
@@ -113,7 +113,7 @@ describe('errors', () => {
   test.skip('gas too high', async () => {
     await expect(() =>
       call(publicClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
         gas: 100_000_000_000_000_000n,
@@ -125,7 +125,7 @@ describe('errors', () => {
   test.skip('gas fee is less than block base fee', async () => {
     await expect(() =>
       call(publicClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
         maxFeePerGas: 1n,
@@ -137,7 +137,7 @@ describe('errors', () => {
   test.skip('nonce too low', async () => {
     await expect(() =>
       call(publicClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
         nonce: 0,
@@ -149,7 +149,7 @@ describe('errors', () => {
   test('insufficient funds', async () => {
     await expect(() =>
       call(publicClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: accounts[0].address,
         value: parseEther('100000'),
       }),
@@ -170,7 +170,7 @@ describe('errors', () => {
     await expect(
       call(publicClient, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: wagmiContractAddress,
         maxFeePerGas: parseGwei('20'),
         maxPriorityFeePerGas: parseGwei('22'),
@@ -193,7 +193,7 @@ describe('errors', () => {
     await expect(
       call(publicClient, {
         data: `${mintWithParams4bytes}${fourTwenty}`,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: wagmiContractAddress,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -215,7 +215,7 @@ describe('errors', () => {
     await expect(
       call(publicClient, {
         data: mintWithParams4bytes,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: wagmiContractAddress,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`

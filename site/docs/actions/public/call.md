@@ -21,10 +21,7 @@ Executes a new message call immediately without submitting a transaction to the 
 ::: code-group
 
 ```ts [example.ts]
-import { getAccount } from 'viem' 
-import { publicClient } from './client'
-
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+import { account, publicClient } from './config'
  
 const data = await publicClient.call({ // [!code focus:7]
   account,
@@ -33,9 +30,15 @@ const data = await publicClient.call({ // [!code focus:7]
 })
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createPublicClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
+
+// JSON-RPC Account
+export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+// Local Account
+export const account = privateKeyToAccount('0x...')
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -55,15 +58,15 @@ The call data.
 
 ### account
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-The Account sender. [Read more](/docs/clients/wallet).
+The Account to call from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-import { getAccount } from 'viem' 
-
 const data = await publicClient.call({
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus)]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })

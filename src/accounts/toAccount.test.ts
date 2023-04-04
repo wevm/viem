@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 import { accounts } from '../_test'
-import { getAccount } from './account'
+import { toAccount } from './toAccount'
 
-describe('account', () => {
+describe('toAccount', () => {
   test('json-rpc account', () => {
-    expect(getAccount(accounts[0].address)).toMatchInlineSnapshot(`
+    expect(toAccount(accounts[0].address)).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
@@ -13,7 +13,7 @@ describe('account', () => {
   })
 
   test('json-rpc account (invalid address)', () => {
-    expect(() => getAccount('0x1')).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => toAccount('0x1')).toThrowErrorMatchingInlineSnapshot(`
       "Address \\"0x1\\" is invalid.
 
       Version: viem@1.0.2"
@@ -22,7 +22,7 @@ describe('account', () => {
 
   test('local account', () => {
     expect(
-      getAccount({
+      toAccount({
         address: accounts[0].address,
         async signMessage() {
           return '0x'
@@ -40,6 +40,7 @@ describe('account', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "source": "custom",
         "type": "local",
       }
     `)
@@ -47,7 +48,7 @@ describe('account', () => {
 
   test('local account (invalid address)', () => {
     expect(() =>
-      getAccount({
+      toAccount({
         address: '0x1',
         async signMessage() {
           return '0x'

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { address, accounts, testClient, walletClient } from '../../_test'
-import { getAccount, parseEther } from '../../utils'
+import { parseEther } from '../../utils'
 import { sendTransaction } from '../wallet/sendTransaction'
 import { impersonateAccount } from './impersonateAccount'
 import { stopImpersonatingAccount } from './stopImpersonatingAccount'
@@ -11,7 +11,7 @@ test('stops impersonating account', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),
@@ -21,7 +21,7 @@ test('stops impersonating account', async () => {
 
   await expect(
     sendTransaction(walletClient, {
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       to: accounts[0].address,
       value: parseEther('1'),
     }),

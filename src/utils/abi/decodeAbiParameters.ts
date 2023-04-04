@@ -161,7 +161,7 @@ function decodeArray<TParam extends AbiParameter>(
       consumed += decodedChild.consumed
       value.push(decodedChild.value)
     }
-    return { value, consumed }
+    return { value, consumed: 32 }
   }
 
   // If the length of the array is known in advance,

@@ -1,9 +1,10 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type {
   Address,
   BlockNumber,
   BlockTag,
+  Chain,
   Hash,
   Log,
   LogTopic,
@@ -55,8 +56,11 @@ export type GetLogsReturnType<
 /**
  * @description Returns a collection of event logs.
  */
-export async function getLogs<TAbiEvent extends AbiEvent | undefined>(
-  client: PublicClient,
+export async function getLogs<
+  TChain extends Chain | undefined,
+  TAbiEvent extends AbiEvent | undefined,
+>(
+  client: PublicClient<Transport, TChain>,
   {
     address,
     blockHash,

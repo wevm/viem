@@ -22,9 +22,7 @@ Deploys a contract to the network, given bytecode & constructor arguments.
 
 ```ts [example.ts]
 import { wagmiAbi } from './abi'
-import { walletClient } from './client'
-
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+import { account, walletClient } from './config'
 
 await walletClient.deployContract({
   abi,
@@ -47,12 +45,18 @@ export const wagmiAbi = [
 
 ```ts [client.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -64,9 +68,7 @@ export const walletClient = createWalletClient({
 ```ts {7} [example.ts]
 import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
-import { walletClient } from './client'
-
-const account = getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+import { account, walletClient } from './config'
 
 await walletClient.deployContract({
   abi,
@@ -90,12 +92,18 @@ export const wagmiAbi = [
 
 ```ts [client.ts]
 import { createWalletClient, custom } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -111,21 +119,23 @@ The contract's ABI.
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi, // [!code focus]
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
 ```
 
 ### account
 
-- **Type:** `Account`
+- **Type:** `Account | Address`
 
-The Account to deploy the contract from. [Read more](/docs/clients/wallet).
+The Account to deploy the contract from.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi, 
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'), // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
 ```
@@ -139,7 +149,7 @@ The contract's bytecode.
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi,
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus]
 })
 ```
@@ -153,7 +163,7 @@ Constructor arguments to call upon deployment.
 ```ts
 await walletClient.deployContract({
   abi: wagmiAbi,
-  account: getAccount('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   args: [69] // [!code focus]
 })

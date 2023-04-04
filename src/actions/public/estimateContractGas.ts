@@ -1,43 +1,41 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
-import type { Chain, ContractConfig, GetValue } from '../../types'
+import type { Chain, ContractFunctionConfig, GetValue } from '../../types'
 import {
   encodeFunctionData,
   EncodeFunctionDataParameters,
   getContractError,
+  parseAccount,
 } from '../../utils'
 import { estimateGas, EstimateGasParameters } from './estimateGas'
 
 export type EstimateContractGasParameters<
-  TChain extends Chain = Chain,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
-> = Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
-  ContractConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> & {
-    value?: GetValue<
-      TAbi,
-      TFunctionName,
-      EstimateGasParameters<TChain>['value']
-    >
-  }
+  TFunctionName extends string = string,
+  TChain extends Chain | undefined = Chain | undefined,
+> = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+  Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
+  GetValue<TAbi, TFunctionName, EstimateGasParameters<TChain>['value']>
+
 export type EstimateContractGasReturnType = bigint
 
 export async function estimateContractGas<
-  TChain extends Chain,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
+  TChain extends Chain | undefined,
 >(
-  client: PublicClient<any, TChain>,
+  client: PublicClient<Transport, TChain>,
   {
     abi,
     address,
     args,
     functionName,
     ...request
-  }: EstimateContractGasParameters<TChain, TAbi, TFunctionName>,
+  }: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
 ): Promise<EstimateContractGasReturnType> {
+  const account = parseAccount(request.account)
   const data = encodeFunctionData({
     abi,
     args,
@@ -57,7 +55,7 @@ export async function estimateContractGas<
       args,
       docsPath: '/docs/contract/simulateContract',
       functionName,
-      sender: request.account?.address,
+      sender: account?.address,
     })
   }
 }

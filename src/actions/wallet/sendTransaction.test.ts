@@ -8,13 +8,14 @@ import {
   walletClient,
 } from '../../_test'
 import { celo, defineChain, localhost, mainnet, optimism } from '../../chains'
-import { getAccount, hexToNumber, parseEther, parseGwei } from '../../utils'
+import { hexToNumber, parseEther, parseGwei } from '../../utils'
 import { getBalance, getBlock, getTransaction } from '..'
 import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test'
 
 import { sendTransaction } from './sendTransaction'
-import { anvilChain, getLocalAccount } from '../../_test/utils'
 import { createWalletClient, http } from '../../clients'
+import { anvilChain, walletClientWithAccount } from '../../_test/utils'
+import { privateKeyToAccount } from '../../accounts'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -39,7 +40,7 @@ test('sends transaction', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
     }),
@@ -76,7 +77,7 @@ test('sends transaction (w/ formatter)', async () => {
   expect(
     await sendTransaction(walletClient, {
       chain,
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
     }),
@@ -105,7 +106,7 @@ test.skip('sends transaction w/ no value', async () => {
 
   expect(
     await sendTransaction(walletClient, {
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
     }),
   ).toBeDefined()
@@ -129,21 +130,57 @@ test.skip('sends transaction w/ no value', async () => {
 
 test('client chain mismatch', async () => {
   const walletClient = createWalletClient({
-    chain: optimism,
+    chain: celo,
     transport: http(localHttpUrl),
   })
   await expect(() =>
     sendTransaction(walletClient, {
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 42220 – Celo).
 
     Current Chain ID:  1
-    Expected Chain ID: 10 – Optimism
+    Expected Chain ID: 42220 – Celo
      
+    Request Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:  1 ETH
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('inferred account', async () => {
+  await setup()
+
+  expect(
+    await sendTransaction(walletClientWithAccount, {
+      to: targetAccount.address,
+      value: parseEther('1'),
+      gas: 1_000_000n,
+    }),
+  ).toBeDefined()
+})
+
+test('no chain', async () => {
+  const walletClient = createWalletClient({
+    transport: http(localHttpUrl),
+  })
+  await expect(() =>
+    // @ts-expect-error
+    sendTransaction(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "No chain was provided to the request.
+    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
+
     Request Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
@@ -159,7 +196,7 @@ describe('args: gas', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         gas: 1_000_000n,
@@ -192,7 +229,7 @@ describe('args: gasPrice', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         gasPrice: BigInt(block.baseFeePerGas ?? 0),
@@ -223,7 +260,7 @@ describe('args: gasPrice', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         gasPrice: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
@@ -261,7 +298,7 @@ describe('args: maxFeePerGas', () => {
     const block = await getBlock(publicClient)
 
     const hash = await sendTransaction(walletClient, {
-      account: getAccount(sourceAccount.address),
+      account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
       maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
@@ -295,7 +332,7 @@ describe('args: maxFeePerGas', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
@@ -332,7 +369,7 @@ describe('args: maxPriorityFeePerGas', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('1'),
@@ -363,7 +400,7 @@ describe('args: maxPriorityFeePerGas', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('10'),
@@ -400,7 +437,7 @@ describe('args: nonce', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         nonce: hexToNumber(transactionCount),
@@ -430,34 +467,18 @@ describe('args: chain', async () => {
     expect(
       await sendTransaction(walletClient, {
         chain: anvilChain,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
       }),
     ).toBeDefined
   })
 
-  test('args: assertChain', async () => {
+  test('nullish', async () => {
     expect(
       await sendTransaction(walletClient, {
-        assertChain: false,
-        chain: optimism,
-        account: getAccount(sourceAccount.address),
-        to: targetAccount.address,
-        value: parseEther('1'),
-      }),
-    ).toBeDefined
-  })
-
-  test('args: assertChain', async () => {
-    const walletClient = createWalletClient({
-      chain: optimism,
-      transport: http(localHttpUrl),
-    })
-    expect(
-      await sendTransaction(walletClient, {
-        assertChain: false,
-        account: getAccount(sourceAccount.address),
+        chain: null,
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
       }),
@@ -468,7 +489,7 @@ describe('args: chain', async () => {
     await expect(() =>
       sendTransaction(walletClient, {
         chain: optimism,
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
       }),
@@ -496,7 +517,7 @@ describe('local account', () => {
     const block = await getBlock(publicClient)
 
     const hash = await sendTransaction(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -531,7 +552,7 @@ describe('local account', () => {
 
     expect(
       await sendTransaction(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
       }),
     ).toBeDefined()
@@ -557,7 +578,7 @@ describe('local account', () => {
     await setup()
 
     const hash = await sendTransaction(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
       gas: 1_000_000n,
@@ -587,7 +608,7 @@ describe('local account', () => {
     await setup()
 
     const hash = await sendTransaction(walletClient, {
-      account: getLocalAccount(sourceAccount.privateKey),
+      account: privateKeyToAccount(sourceAccount.privateKey),
       chain: mainnet,
       to: targetAccount.address,
       value: parseEther('1'),
@@ -620,7 +641,7 @@ describe('local account', () => {
       const block = await getBlock(publicClient)
 
       const hash = await sendTransaction(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
@@ -654,7 +675,7 @@ describe('local account', () => {
 
       await expect(() =>
         sendTransaction(walletClient, {
-          account: getLocalAccount(sourceAccount.privateKey),
+          account: privateKeyToAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
           maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
@@ -690,7 +711,7 @@ describe('local account', () => {
       await setup()
 
       const hash = await sendTransaction(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('5'),
@@ -723,7 +744,7 @@ describe('local account', () => {
       const block = await getBlock(publicClient)
 
       const hash = await sendTransaction(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('10'),
@@ -765,7 +786,7 @@ describe('local account', () => {
       }))!
 
       const hash = await sendTransaction(walletClient, {
-        account: getLocalAccount(sourceAccount.privateKey),
+        account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
         nonce: hexToNumber(transactionCount),
@@ -795,12 +816,29 @@ describe('local account', () => {
 })
 
 describe('errors', () => {
+  test('no account', async () => {
+    await expect(() =>
+      // @ts-expect-error
+      sendTransaction(walletClient, {
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: 2n ** 256n - 1n + 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the WalletClient.
+
+      Docs: https://viem.sh/docs/actions/wallet/sendTransaction.html#account
+      Version: viem@1.0.2"
+    `)
+  })
+
   test('fee cap too high', async () => {
     await setup()
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         maxFeePerGas: 2n ** 256n - 1n + 1n,
@@ -823,7 +861,7 @@ describe('errors', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         gas: 100n,
@@ -847,7 +885,7 @@ describe('errors', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         gas: 100_000_000n,
@@ -871,7 +909,7 @@ describe('errors', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         maxFeePerGas: 1n,
@@ -895,7 +933,7 @@ describe('errors', () => {
   test('nonce too low', async () => {
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         nonce: 1,
@@ -920,7 +958,7 @@ describe('errors', () => {
 
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('100000'),
       }),
@@ -949,7 +987,7 @@ describe('errors', () => {
   test('tip higher than fee cap', async () => {
     await expect(() =>
       sendTransaction(walletClient, {
-        account: getAccount(sourceAccount.address),
+        account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
         maxPriorityFeePerGas: parseGwei('11'),

@@ -1,4 +1,5 @@
 export {
+  ensPublicResolverConfig,
   wagmiContractConfig,
   uniswapV3PositionsContractConfig,
   usdcContractConfig,
@@ -12,14 +13,20 @@ export {
   initialBlockNumber,
   localHttpUrl,
   localWsUrl,
+  typedData,
 } from './constants'
 
 export {
+  anvilChain,
   createHttpServer,
   deploy,
   deployBAYC,
-  getLocalAccount,
+  deployEnsAvatarTokenUri,
   publicClient,
   testClient,
   walletClient,
+  setBlockNumber,
+  walletClientWithAccount,
+  walletClientWithoutChain,
+  webSocketClient,
 } from './utils'

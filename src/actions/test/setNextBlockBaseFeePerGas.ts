@@ -1,4 +1,5 @@
-import type { TestClient } from '../../clients'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
 export type SetNextBlockBaseFeePerGasParameters = {
@@ -6,8 +7,10 @@ export type SetNextBlockBaseFeePerGasParameters = {
   baseFeePerGas: bigint
 }
 
-export async function setNextBlockBaseFeePerGas(
-  client: TestClient,
+export async function setNextBlockBaseFeePerGas<
+  TChain extends Chain | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { baseFeePerGas }: SetNextBlockBaseFeePerGasParameters,
 ) {
   return await client.request({

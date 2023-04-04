@@ -1,4 +1,5 @@
-import type { TestClient } from '../../clients'
+import type { Chain } from '@wagmi/chains'
+import type { TestClient, TestClientMode, Transport } from '../../clients'
 import { numberToHex } from '../../utils'
 
 export type IncreaseTimeParameters = {
@@ -6,8 +7,8 @@ export type IncreaseTimeParameters = {
   seconds: number
 }
 
-export async function increaseTime(
-  client: TestClient,
+export async function increaseTime<TChain extends Chain | undefined>(
+  client: TestClient<TestClientMode, Transport, TChain>,
   { seconds }: IncreaseTimeParameters,
 ) {
   return await client.request({

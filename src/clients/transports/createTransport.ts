@@ -31,7 +31,7 @@ export type Transport<
   TType extends string = string,
   TRpcAttributes = Record<string, any>,
   TRequests extends BaseRpcRequests['request'] = Requests['request'],
-> = <TChain extends Chain = Chain>({
+> = <TChain extends Chain | undefined = Chain>({
   chain,
 }: {
   chain?: TChain
@@ -48,8 +48,8 @@ export type Transport<
  * @description Creates an transport intended to be used with a client.
  */
 export function createTransport<
-  TType extends string = string,
-  TRpcAttributes = any,
+  TType extends string,
+  TRpcAttributes extends Record<string, any>,
 >(
   {
     key,

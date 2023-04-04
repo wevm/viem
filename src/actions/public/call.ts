@@ -1,6 +1,8 @@
-import type { PublicClient } from '../../clients'
+import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
+  Account,
+  Address,
   BlockTag,
   Chain,
   Formatter,
@@ -8,7 +10,6 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -17,6 +18,7 @@ import {
   formatTransactionRequest,
   getCallError,
   numberToHex,
+  parseAccount,
   TransactionRequestFormatter,
 } from '../../utils'
 
@@ -27,10 +29,10 @@ export type FormattedCall<
   TransactionRequest
 >
 
-export type CallParameters<TChain extends Chain = Chain> = FormattedCall<
-  TransactionRequestFormatter<TChain>
-> & {
-  account?: Account
+export type CallParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+> = FormattedCall<TransactionRequestFormatter<TChain>> & {
+  account?: Account | Address
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -46,12 +48,12 @@ export type CallParameters<TChain extends Chain = Chain> = FormattedCall<
 
 export type CallReturnType = { data: Hex | undefined }
 
-export async function call<TChain extends Chain>(
-  client: PublicClient<any, TChain>,
+export async function call<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
   args: CallParameters<TChain>,
 ): Promise<CallReturnType> {
   const {
-    account,
+    account: account_,
     blockNumber,
     blockTag = 'latest',
     accessList,
@@ -65,6 +67,8 @@ export async function call<TChain extends Chain>(
     value,
     ...rest
   } = args
+  const account = account_ ? parseAccount(account_) : undefined
+
   try {
     assertRequest(args)
 
@@ -99,6 +103,7 @@ export async function call<TChain extends Chain>(
   } catch (err) {
     throw getCallError(err as BaseError, {
       ...args,
+      account,
       chain: client.chain,
     })
   }

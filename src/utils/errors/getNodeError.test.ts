@@ -5,7 +5,6 @@ import {
   TransactionRejectedRpcError,
 } from '../../errors'
 import { address } from '../../_test'
-import { getAccount } from '../account'
 import { parseEther, parseGwei } from '../unit'
 import { containsNodeError, getNodeError } from './getNodeError'
 
@@ -29,7 +28,7 @@ test('FeeCapTooHigh', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     nonce: 1,
     maxFeePerGas: parseGwei(
       '1231287389123781293712897312893791283921738912378912',
@@ -55,7 +54,7 @@ test('FeeCapTooLow', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     nonce: 1,
     maxFeePerGas: parseGwei('1'),
   })
@@ -79,7 +78,7 @@ test('NonceTooHigh', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     nonce: 1123123213,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -99,7 +98,7 @@ test('NonceTooLow', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     nonce: 1,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -120,7 +119,7 @@ test('NonceMaxValue', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     nonce: 12222222,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -140,7 +139,7 @@ test('InsufficientFundsError', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     nonce: 1,
     value: parseEther('10'),
   })
@@ -170,7 +169,7 @@ test('IntrinsicGasTooHigh', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     gas: 8912738912731289n,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -190,7 +189,7 @@ test('IntrinsicGasTooLowError', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     gas: 1n,
   })
   expect(result).toMatchInlineSnapshot(`
@@ -210,7 +209,7 @@ test('TransactionTypeNotSupported', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     maxFeePerGas: parseGwei('10'),
   })
   expect(result).toMatchInlineSnapshot(`
@@ -233,7 +232,7 @@ test('TipAboveFeeCap', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     maxFeePerGas: parseGwei('10'),
     maxPriorityFeePerGas: parseGwei('11'),
   })
@@ -257,7 +256,7 @@ test('ExecutionRevertedError', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     maxFeePerGas: parseGwei('10'),
     maxPriorityFeePerGas: parseGwei('11'),
   })
@@ -281,7 +280,7 @@ test('ExecutionRevertedError', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     maxFeePerGas: parseGwei('10'),
     maxPriorityFeePerGas: parseGwei('11'),
   })
@@ -302,7 +301,7 @@ test('Unknown node error', () => {
     }),
   )
   const result = getNodeError(error, {
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
   })
   expect(result).toMatchInlineSnapshot(`
     [UnknownNodeError: An error occurred while executing: oh no

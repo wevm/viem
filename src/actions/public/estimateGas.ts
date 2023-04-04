@@ -1,13 +1,15 @@
-import type { PublicClient, WalletClient } from '../../clients'
+import type { PublicClient, WalletClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
+import { AccountNotFoundError } from '../../errors'
 import type {
+  Account,
   BlockTag,
   Chain,
   Formatter,
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types'
-import type { Account } from '../../types/account'
+import type { GetAccountParameter } from '../../types/account'
 import {
   assertRequest,
   extract,
@@ -16,6 +18,7 @@ import {
   formatTransactionRequest,
   getEstimateGasError,
   numberToHex,
+  parseAccount,
   prepareRequest,
   TransactionRequestFormatter,
 } from '../../utils'
@@ -27,34 +30,46 @@ export type FormattedEstimateGas<
   TransactionRequest
 >
 
-export type EstimateGasParameters<TChain extends Chain = Chain> =
-  FormattedEstimateGas<TransactionRequestFormatter<TChain>> & {
-    account: Account
-  } & (
-      | {
-          /** The balance of the account at a block number. */
-          blockNumber?: bigint
-          blockTag?: never
-        }
-      | {
-          blockNumber?: never
-          /** The balance of the account at a block tag. */
-          blockTag?: BlockTag
-        }
-    )
+export type EstimateGasParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = undefined,
+> = FormattedEstimateGas<TransactionRequestFormatter<TChain>> &
+  GetAccountParameter<TAccount> &
+  (
+    | {
+        /** The balance of the account at a block number. */
+        blockNumber?: bigint
+        blockTag?: never
+      }
+    | {
+        blockNumber?: never
+        /** The balance of the account at a block tag. */
+        blockTag?: BlockTag
+      }
+  )
 
 export type EstimateGasReturnType = bigint
 
 /**
  * @description Estimates the gas necessary to complete a transaction without submitting it to the network.
  */
-export async function estimateGas<TChain extends Chain>(
-  client: PublicClient<any, TChain> | WalletClient,
-  args: EstimateGasParameters<TChain>,
+export async function estimateGas<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined = undefined,
+>(
+  client:
+    | PublicClient<Transport, TChain>
+    | WalletClient<Transport, TChain, TAccount>,
+  args: EstimateGasParameters<TChain, TAccount>,
 ): Promise<EstimateGasReturnType> {
+  if (!args.account)
+    throw new AccountNotFoundError({
+      docsPath: '/docs/actions/public/estimateGas',
+    })
+  const account = parseAccount(args.account)
+
   try {
     const {
-      account,
       accessList,
       blockNumber,
       blockTag = 'latest',
@@ -67,9 +82,7 @@ export async function estimateGas<TChain extends Chain>(
       to,
       value,
       ...rest
-    } = args.account.type === 'local'
-      ? await prepareRequest(client, args)
-      : args
+    } = account.type === 'local' ? await prepareRequest(client, args) : args
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
 
@@ -104,6 +117,7 @@ export async function estimateGas<TChain extends Chain>(
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {
       ...args,
+      account,
       chain: client.chain,
     })
   }

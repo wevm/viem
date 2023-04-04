@@ -38,7 +38,7 @@ const domain = {
 test('SignTypedDataParameters', () => {
   type Result = SignTypedDataParameters<typeof types, 'Mail'>
   expectTypeOf<Result['primaryType']>().toEqualTypeOf<
-    'Mail' | 'Person' | 'Name'
+    'Mail' | 'Person' | 'Name' | 'EIP712Domain'
   >()
   expectTypeOf<Result['message']>().toEqualTypeOf<{
     timestamp: bigint

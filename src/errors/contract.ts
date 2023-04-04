@@ -10,6 +10,7 @@ import {
   formatEther,
   formatGwei,
   getAbiItem,
+  parseAccount,
 } from '../utils'
 import { BaseError } from './base'
 import { prettyPrint } from './transaction'
@@ -23,7 +24,7 @@ export class CallExecutionError extends BaseError {
   constructor(
     cause: BaseError,
     {
-      account,
+      account: account_,
       docsPath,
       chain,
       data,
@@ -36,6 +37,7 @@ export class CallExecutionError extends BaseError {
       value,
     }: CallParameters & { chain?: Chain; docsPath?: string },
   ) {
+    const account = account_ ? parseAccount(account_) : undefined
     const prettyArgs = prettyPrint({
       from: account?.address,
       to,

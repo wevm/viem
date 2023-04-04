@@ -6,10 +6,18 @@ import {
 } from '../../errors'
 import { FeeConflictError } from '../../errors/transaction'
 import type { Chain } from '../../types'
+import { parseAccount } from '../accounts'
 import { isAddress } from '../address'
 
 export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {
-  const { account, gasPrice, maxFeePerGas, maxPriorityFeePerGas, to } = args
+  const {
+    account: account_,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    to,
+  } = args
+  const account = account_ ? parseAccount(account_) : undefined
   if (account && !isAddress(account.address))
     throw new InvalidAddressError({ address: account.address })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })

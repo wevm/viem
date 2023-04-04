@@ -7,7 +7,7 @@ import {
   test,
   vi,
 } from 'vitest'
-import { getAccount, getAddress } from '../../utils'
+import { getAddress } from '../../utils'
 import { wait } from '../../utils/wait'
 import {
   accounts,
@@ -46,7 +46,7 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+    const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
     const unwatch = watchContractEvent(publicClient, {
       abi: usdcContractConfig.abi,
@@ -67,20 +67,20 @@ test(
 
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
     await wait(1000)
     await writeContract(walletClient, {
       ...usdcContractConfig,
-      account: getAccount(address.vitalik),
+      account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
@@ -115,7 +115,7 @@ test(
 )
 
 test('args: batch', async () => {
-  let logs: OnLogsParameter[] = []
+  const logs: OnLogsParameter[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -125,20 +125,20 @@ test('args: batch', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -153,7 +153,7 @@ test('args: batch', async () => {
 })
 
 test('args: eventName', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -170,20 +170,20 @@ test('args: eventName', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [address.vitalik, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -209,7 +209,7 @@ test('args: eventName', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -222,20 +222,20 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -255,7 +255,7 @@ test('args: args', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -268,20 +268,20 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -307,7 +307,7 @@ test('args: args', async () => {
 })
 
 test('args: args', async () => {
-  let logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
+  const logs: OnLogsParameter<typeof usdcContractConfig.abi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -320,20 +320,20 @@ test('args: args', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.usdcHolder),
+    account: address.usdcHolder,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -373,7 +373,7 @@ test('args: args unnamed', async () => {
       ],
     },
   ] as const
-  let logs: OnLogsParameter<typeof unnamedAbi>[] = []
+  const logs: OnLogsParameter<typeof unnamedAbi>[] = []
 
   const unwatch = watchContractEvent(publicClient, {
     ...usdcContractConfig,
@@ -384,20 +384,20 @@ test('args: args unnamed', async () => {
 
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[0].address, 1n],
   })
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'transfer',
     args: [accounts[1].address, 1n],
   })
   await wait(1000)
   await writeContract(walletClient, {
     ...usdcContractConfig,
-    account: getAccount(address.vitalik),
+    account: address.vitalik,
     functionName: 'approve',
     args: [address.vitalik, 1n],
   })
@@ -436,7 +436,7 @@ describe('`getLogs` fallback', () => {
         'createContractEventFilter',
       ).mockRejectedValueOnce(new Error('foo'))
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchContractEvent(publicClient, {
         abi: usdcContractConfig.abi,
@@ -448,20 +448,20 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await wait(1000)
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await wait(2000)
       unwatch()
@@ -488,7 +488,7 @@ describe('`getLogs` fallback', () => {
         'createContractEventFilter',
       ).mockRejectedValueOnce(new Error('foo'))
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchContractEvent(publicClient, {
         abi: usdcContractConfig.abi,
@@ -500,13 +500,13 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
-        account: getAccount(address.usdcHolder),
+        account: address.usdcHolder,
       })
       await mine(testClient, { blocks: 1 })
       await wait(1000)
@@ -514,7 +514,7 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await mine(testClient, { blocks: 2 })
       await wait(1000)
@@ -522,13 +522,13 @@ describe('`getLogs` fallback', () => {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await writeContract(walletClient, {
         ...usdcContractConfig,
         functionName: 'transfer',
         args: [accounts[2].address, 1n],
-        account: getAccount(address.vitalik),
+        account: address.vitalik,
       })
       await mine(testClient, { blocks: 5 })
       await wait(2000)
