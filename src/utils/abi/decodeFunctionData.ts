@@ -8,14 +8,14 @@ import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
 
 export type DecodeFunctionDataParameters<
-  TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[] = Abi,
 > = {
   abi: TAbi
   data: Hex
 }
 
 export type DecodeFunctionDataReturnType<
-  TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[] = Abi,
   _FunctionNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
