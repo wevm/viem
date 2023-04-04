@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.5
+
+### Patch Changes
+
+- [#297](https://github.com/wagmi-dev/viem/pull/297) [`96d072c`](https://github.com/wagmi-dev/viem/commit/96d072cac1ae09f85afcbbca63c99f10a80f1722) Thanks [@fubhy](https://github.com/fubhy)! - Fixed wordlists exports.
+
 ## 0.2.4
 
 ### Patch Changes
