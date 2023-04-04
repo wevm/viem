@@ -1,7 +1,7 @@
 import type { PublicClient, Transport } from '../../clients'
 import {
   singleAddressResolverAbi,
-  universalResolverAbi
+  universalResolverAbi,
 } from '../../constants/abis'
 import type { Address, Chain, Prettify } from '../../types'
 import {
@@ -9,7 +9,7 @@ import {
   encodeFunctionData,
   getChainContractAddress,
   toHex,
-  trim
+  trim,
 } from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'

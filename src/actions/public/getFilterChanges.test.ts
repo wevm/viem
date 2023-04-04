@@ -171,7 +171,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterChanges(publicClient, {
+    const logs = await getFilterChanges(publicClient, {
       filter,
     })
 
@@ -225,7 +225,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterChanges(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -258,7 +258,7 @@ describe('contract events', () => {
       toBlock: initialBlockNumber,
     })
 
-    let logs = await getFilterChanges(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -300,7 +300,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterChanges(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -348,7 +348,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterChanges(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -402,7 +402,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterChanges(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -450,7 +450,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getFilterChanges(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,

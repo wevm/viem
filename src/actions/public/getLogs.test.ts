@@ -105,7 +105,7 @@ describe('events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getLogs(publicClient)
+    const logs = await getLogs(publicClient)
     assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })
@@ -125,7 +125,7 @@ describe('events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getLogs(publicClient, {
+    const logs = await getLogs(publicClient, {
       event: event.default,
     })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
@@ -145,7 +145,7 @@ describe('events', () => {
   })
 
   test('args: fromBlock/toBlock', async () => {
-    let logs = await getLogs(publicClient, {
+    const logs = await getLogs(publicClient, {
       event: event.default,
       fromBlock: initialBlockNumber - 5n,
       toBlock: initialBlockNumber,
@@ -164,7 +164,7 @@ describe('events', () => {
     const block = await getBlock(publicClient, {
       blockNumber: initialBlockNumber - 1n,
     })
-    let logs = await getLogs(publicClient, {
+    const logs = await getLogs(publicClient, {
       event: event.default,
       blockHash: block.hash!,
     })
