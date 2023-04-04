@@ -1,2 +1,1 @@
-import pkg from '@scure/bip39/wordlists/czech.js'
-export const czech = pkg.wordlist
+export { wordlist as czech } from '@scure/bip39/wordlists/czech.js'
