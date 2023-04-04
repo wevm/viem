@@ -27,7 +27,6 @@
     "test:ci": "CI=true vitest --coverage --no-threads",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck",
     "test:ui": "vitest dev --ui --no-threads",
-    "ts-node": "bun",
     "typecheck": "tsc --noEmit"
   },
   "tsup": {
