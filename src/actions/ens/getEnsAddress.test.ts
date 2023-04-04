@@ -32,6 +32,19 @@ test('name without address', async () => {
   )
 })
 
+test('name that looks like a hex', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: '0xyoshi.eth' }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0xE332de3c84C305698675A73F366061941C78e3b4"',
+  )
+  await expect(
+    getEnsAddress(publicClient, { name: '0xdeadbeef.eth' }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0xA8cc612Ecb2E853d3A882b0F9cf5357C2D892aDb"',
+  )
+})
+
 test('custom universal resolver address', async () => {
   await expect(
     getEnsAddress(publicClient, {
