@@ -106,7 +106,7 @@ test('getVoter((uint256,bool,address,uint256))', () => {
     functionName: 'getVoter',
   })
 
-  expectTypeOf(result).toMatchTypeOf<{
+  expectTypeOf(result).toEqualTypeOf<{
     functionName: 'getVoter'
     args: readonly [
       {
@@ -117,6 +117,85 @@ test('getVoter((uint256,bool,address,uint256))', () => {
       },
     ]
   }>()
+})
+
+test('returns discrimated union type for abi with multiple abi items', () => {
+  const result = decodeFunctionData({
+    abi: [
+      {
+        inputs: [
+          {
+            components: [
+              {
+                name: 'weight',
+                type: 'uint256',
+              },
+              {
+                name: 'voted',
+                type: 'bool',
+              },
+              {
+                name: 'delegate',
+                type: 'address',
+              },
+              {
+                name: 'vote',
+                type: 'uint256',
+              },
+            ],
+            name: 'voter',
+            type: 'tuple',
+          },
+        ],
+        name: 'getVoter',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            name: 'a',
+            type: 'uint256',
+          },
+        ],
+        name: 'bar',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'foo',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ] as const,
+    data: '0x0423a1320000000000000000000000000000000000000000000000000000000000000001',
+  })
+
+  expectTypeOf(result).toEqualTypeOf<
+    | {
+        functionName: 'getVoter'
+        args: readonly [
+          {
+            delegate: `0x${string}`
+            vote: bigint
+            voted: boolean
+            weight: bigint
+          },
+        ]
+      }
+    | {
+        functionName: 'bar'
+        args: readonly [bigint]
+      }
+    | {
+        functionName: 'foo'
+        args: undefined
+      }
+  >()
 })
 
 test("errors: function doesn't exist", () => {
