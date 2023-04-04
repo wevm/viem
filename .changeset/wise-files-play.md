@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed ENS name resolution for "0x"-prefixed names.
+Fixed ENS address resolution for "0x"-prefixed names.
