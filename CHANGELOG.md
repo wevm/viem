@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.4
+
+### Patch Changes
+
+- [#293](https://github.com/wagmi-dev/viem/pull/293) [`859352c`](https://github.com/wagmi-dev/viem/commit/859352c38333ec22924b24242db8f583fc73d9fb) Thanks [@TateB](https://github.com/TateB)! - Fixed ENS address resolution for when resolver returns with a null address, or resolvers that do not support `addr`. `getEnsAddress` returns `null` for these cases.
+
 ## 0.2.3
 
 ### Patch Changes
