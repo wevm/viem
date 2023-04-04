@@ -15,9 +15,17 @@ test('gets address for name', async () => {
 
 test('name without address', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'unregistered-name.eth' }),
+    getEnsAddress(publicClient, { name: 'unregistered--name.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0x0000000000000000000000000000000000000000"',
+  )
+})
+
+test('name that looks like a hex', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: '0xyoshi.eth' }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0xE332de3c84C305698675A73F366061941C78e3b4"',
   )
 })
 
