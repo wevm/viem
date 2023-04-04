@@ -6,11 +6,13 @@
     "anvil": "dotenv -- sh -c 'anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME'",
     "bench": "vitest bench --no-threads",
     "bench:ci": "CI=true vitest bench --no-threads",
-    "build": "tsup && size-limit",
+    "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm+types && size-limit",
+    "build:cjs": "tsc --project tsconfig.build.json --module commonjs --outDir ./dist/cjs && echo > ./dist/cjs/package.json '{\"type\":\"commonjs\"}'",
+    "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
-    "changeset:version": "changeset version && pnpm install --lockfile-only",
-    "clean": "rimraf dist abi chains contract ens public test utils wallet window",
+    "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm bun scripts/updateVersion.ts",
+    "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
     "dev": "DEV=true tsup",
     "dev:docs": "pnpm -r --filter site dev",
@@ -18,7 +20,7 @@
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply",
     "playground": "pnpm --filter playground-browser dev",
-    "postinstall": "pnpm dev && pnpm contracts:build",
+    "postinstall": "pnpm contracts:build",
     "preinstall": "npx only-allow pnpm",
     "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",
     "prepare": "npx simple-git-hooks",
@@ -29,103 +31,122 @@
     "test:ui": "vitest dev --ui --no-threads",
     "typecheck": "tsc --noEmit"
   },
-  "tsup": {
-    "entry": [
-      "src/index.ts",
-      "src/abi.ts",
-      "src/accounts/index.ts",
-      "src/chains.ts",
-      "src/contract.ts",
-      "src/ens.ts",
-      "src/ethers.ts",
-      "src/public.ts",
-      "src/test.ts",
-      "src/utils/index.ts",
-      "src/wallet.ts",
-      "src/window.ts"
-    ]
-  },
   "files": [
-    "/abi",
-    "/accounts",
-    "/dist",
-    "/chains",
-    "/contract",
-    "/ens",
-    "/ethers",
-    "/public",
-    "/test",
-    "/utils",
-    "/wallet",
-    "/window"
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-d.ts",
+    "!src/**/*.bench.ts",
+    "!src/_test/**/*"
   ],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "module": "./dist/index.mts",
-      "default": "./dist/index.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     },
     "./abi": {
-      "types": "./dist/abi.d.ts",
-      "module": "./dist/abi.mts",
-      "default": "./dist/abi.js"
+      "types": "./dist/types/abi.d.ts",
+      "import": "./dist/esm/abi.js",
+      "require": "./dist/cjs/abi.js"
     },
     "./accounts": {
-      "types": "./dist/accounts/index.d.ts",
-      "module": "./dist/accounts/index.mts",
-      "default": "./dist/accounts/index.js"
+      "types": "./dist/types/accounts/index.d.ts",
+      "import": "./dist/esm/accounts/index.js",
+      "require": "./dist/cjs/accounts/index.js"
     },
     "./chains": {
-      "types": "./dist/chains.d.ts",
-      "module": "./dist/chains.mts",
-      "default": "./dist/chains.js"
+      "types": "./dist/types/chains.d.ts",
+      "import": "./dist/esm/chains.js",
+      "require": "./dist/cjs/chains.js"
     },
     "./contract": {
-      "types": "./dist/contract.d.ts",
-      "module": "./dist/contract.mts",
-      "default": "./dist/contract.js"
+      "types": "./dist/types/contract.d.ts",
+      "import": "./dist/esm/contract.js",
+      "require": "./dist/cjs/contract.js"
     },
     "./ens": {
-      "types": "./dist/ens.d.ts",
-      "module": "./dist/ens.mts",
-      "default": "./dist/ens.js"
+      "types": "./dist/types/ens.d.ts",
+      "import": "./dist/esm/ens.js",
+      "require": "./dist/cjs/ens.js"
     },
     "./ethers": {
-      "types": "./dist/ethers.d.ts",
-      "module": "./dist/ethers.mts",
-      "default": "./dist/ethers.js"
+      "types": "./dist/types/ethers.d.ts",
+      "import": "./dist/esm/ethers.js",
+      "require": "./dist/cjs/ethers.js"
     },
     "./public": {
-      "types": "./dist/public.d.ts",
-      "module": "./dist/public.mts",
-      "default": "./dist/public.js"
+      "types": "./dist/types/public.d.ts",
+      "import": "./dist/esm/public.js",
+      "require": "./dist/cjs/public.js"
     },
     "./test": {
-      "types": "./dist/test.d.ts",
-      "module": "./dist/test.mts",
-      "default": "./dist/test.js"
+      "types": "./dist/types/test.d.ts",
+      "import": "./dist/esm/test.js",
+      "require": "./dist/cjs/test.js"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "module": "./dist/utils/index.mts",
-      "default": "./dist/utils/index.js"
+      "types": "./dist/types/utils/index.d.ts",
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
     },
     "./wallet": {
-      "types": "./dist/wallet.d.ts",
-      "module": "./dist/wallet.mts",
-      "default": "./dist/wallet.js"
+      "types": "./dist/types/wallet.d.ts",
+      "import": "./dist/esm/wallet.js",
+      "require": "./dist/cjs/wallet.js"
     },
     "./window": {
-      "types": "./dist/window.d.ts",
-      "module": "./dist/window.mts",
-      "default": "./dist/window.js"
+      "types": "./dist/types/window.d.ts",
+      "import": "./dist/esm/window.js",
+      "require": "./dist/cjs/window.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "sideEffects": false,
+  "typesVersions": {
+    "*": {
+      "abi": [
+        "./dist/types/abi.d.ts"
+      ],
+      "accounts": [
+        "./dist/types/accounts/index.d.ts"
+      ],
+      "chains": [
+        "./dist/types/chains.d.ts"
+      ],
+      "contract": [
+        "./dist/types/contract.d.ts"
+      ],
+      "ens": [
+        "./dist/types/ens.d.ts"
+      ],
+      "ethers": [
+        "./dist/types/ethers.d.ts"
+      ],
+      "public": [
+        "./dist/types/public.d.ts"
+      ],
+      "test": [
+        "./dist/types/test.d.ts"
+      ],
+      "utils": [
+        "./dist/types/utils/index.d.ts"
+      ],
+      "wallet": [
+        "./dist/types/wallet.d.ts"
+      ],
+      "window": [
+        "./dist/types/window.d.ts"
+      ]
+    }
+  },
   "dependencies": {
     "@noble/curves": "0.9.0",
     "@noble/hashes": "1.3.0",
@@ -144,26 +165,20 @@
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
     "@size-limit/preset-big-lib": "^8.2.4",
-    "@types/dedent": "^0.7.0",
     "@types/fs-extra": "^9.0.13",
-    "@types/node": "^17.0.45",
     "@types/ws": "^8.5.4",
     "@vitest/coverage-c8": "^0.29.2",
     "@vitest/ui": "^0.29.2",
     "@wagmi/cli": "^0.1.6",
     "bun": "^0.5.5",
-    "bundlewatch": "^0.3.3",
-    "dedent": "^0.7.0",
     "dotenv-cli": "^7.1.0",
     "ethers": "^5.7.2",
     "ethers@6": "npm:ethers@^6.0.2",
-    "execa": "^6.1.0",
     "fs-extra": "^10.1.0",
     "rimraf": "^4.1.2",
     "rome": "^12.0.0",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
-    "tsup": "^6.6.0",
     "typescript": "^4.9.4",
     "vite": "^4.1.4",
     "vitest": "~0.29.2"
@@ -183,7 +198,7 @@
   ],
   "size-limit": [
     {
-      "path": "dist/index.js"
+      "path": "./dist/cjs/index.js"
     }
   ],
   "simple-git-hooks": {

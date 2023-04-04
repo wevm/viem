@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "src/**/*.test.ts", "src/**/*.test-d.ts", "src/**/*.bench.ts", "src/_test"
+  ],
+  "compilerOptions": {
+    "sourceMap": true,
+    "rootDir": "./src",
+    "outDir": "./dist"
+  }
+}
