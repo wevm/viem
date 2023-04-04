@@ -1,14 +1,15 @@
 import type { PublicClient, Transport } from '../../clients'
-import type { Address, Chain, Prettify } from '../../types'
 import {
   singleAddressResolverAbi,
-  universalResolverAbi,
+  universalResolverAbi
 } from '../../constants/abis'
+import type { Address, Chain, Prettify } from '../../types'
 import {
   decodeFunctionResult,
   encodeFunctionData,
   getChainContractAddress,
   toHex,
+  trim
 } from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
 import { readContract, ReadContractParameters } from '../public'
@@ -22,7 +23,7 @@ export type GetEnsAddressParameters = Prettify<
   }
 >
 
-export type GetEnsAddressReturnType = Address
+export type GetEnsAddressReturnType = Address | null
 
 /**
  * @description Gets address for ENS name.
@@ -68,9 +69,14 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
     blockNumber,
     blockTag,
   })
-  return decodeFunctionResult({
+
+  if (res[0] === '0x') return null
+
+  const address = decodeFunctionResult({
     abi: singleAddressResolverAbi,
     functionName: 'addr',
     data: res[0],
   })
+
+  return trim(address) === '0x0' ? null : address
 }

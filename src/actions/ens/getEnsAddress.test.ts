@@ -3,6 +3,7 @@ import { optimism } from '../../chains'
 import { createPublicClient, http } from '../../clients'
 
 import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
+import { setVitalikResolver } from '../../_test/utils'
 import { getBlockNumber } from '../public'
 import { getEnsAddress } from './getEnsAddress'
 
@@ -10,6 +11,7 @@ let blockNumber: bigint
 beforeAll(async () => {
   blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
+  await setVitalikResolver()
 })
 
 afterAll(async () => {
@@ -27,9 +29,13 @@ test('gets address for name', async () => {
 test('name without address', async () => {
   await expect(
     getEnsAddress(publicClient, { name: 'another-unregistered-name.eth' }),
-  ).resolves.toMatchInlineSnapshot(
-    '"0x0000000000000000000000000000000000000000"',
-  )
+  ).resolves.toBeNull()
+})
+
+test('name with resolver that does not support addr', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: 'vitalik.eth' }),
+  ).resolves.toBeNull()
 })
 
 test('name that looks like a hex', async () => {

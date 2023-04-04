@@ -78,6 +78,8 @@ export async function getEnsText<TChain extends Chain | undefined>(
     blockTag,
   })
 
+  if (res[0] === '0x') return null
+
   const record = decodeFunctionResult({
     abi: textResolverAbi,
     functionName: 'text',
