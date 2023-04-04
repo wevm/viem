@@ -1,6 +1,3 @@
 {
-  "recommendations": [
-    "orta.vscode-twoslash-queries",
-    "rome.rome"
-  ]
+  "recommendations": ["orta.vscode-twoslash-queries", "rome.rome"]
 }
