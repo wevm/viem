@@ -68,7 +68,7 @@ export async function prepareRequest<
       blockTag: 'pending',
     })
 
-  if (block.baseFeePerGas) {
+  if (typeof block.baseFeePerGas === 'undefined') {
     if (typeof gasPrice !== 'undefined')
       throw new BaseError('Chain does not support legacy `gasPrice`.')
 
