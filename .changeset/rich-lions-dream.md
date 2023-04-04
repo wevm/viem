@@ -1,5 +1,0 @@
----
-"viem": patch
----
-
-Pinned dependencies.
