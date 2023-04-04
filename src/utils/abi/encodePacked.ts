@@ -47,7 +47,7 @@ export function encodePacked<
       givenLength: values.length as number,
     })
 
-  let data: Hex[] = []
+  const data: Hex[] = []
   for (let i = 0; i < types.length; i++) {
     const type = types[i]
     const value = values[i]
@@ -62,7 +62,7 @@ function encode<TPackedAbiType extends PackedAbiType | unknown>(
   isArray: boolean = false,
 ): Hex {
   if (type === 'address') {
-    let address = value as Address
+    const address = value as Address
     if (!isAddress(address)) throw new InvalidAddressError({ address })
     return pad(address.toLowerCase() as Hex, {
       size: isArray ? 32 : null,
@@ -97,7 +97,7 @@ function encode<TPackedAbiType extends PackedAbiType | unknown>(
   const arrayMatch = (type as string).match(arrayRegex)
   if (arrayMatch && Array.isArray(value)) {
     const [_type, childType] = arrayMatch
-    let data: Hex[] = []
+    const data: Hex[] = []
     for (let i = 0; i < value.length; i++) {
       data.push(encode(childType, value[i], true))
     }

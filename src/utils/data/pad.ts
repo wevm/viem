@@ -20,7 +20,7 @@ export function pad<TValue extends ByteArray | Hex>(
 
 export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
   if (size === null) return hex_
-  let hex = hex_.replace('0x', '')
+  const hex = hex_.replace('0x', '')
   if (hex.length > size * 2)
     throw new SizeExceedsPaddingSizeError({
       size: Math.ceil(hex.length / 2),

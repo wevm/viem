@@ -4,7 +4,7 @@ import { poll } from './poll'
 import { wait } from './wait'
 
 test('polls on a given interval', async () => {
-  let items: string[] = []
+  const items: string[] = []
   poll(
     async () => {
       items.push('wagmi')
@@ -26,7 +26,7 @@ test('polls on a given interval', async () => {
 })
 
 test('emitOnBegin', async () => {
-  let items: string[] = []
+  const items: string[] = []
   poll(
     async () => {
       items.push('wagmi')
@@ -50,7 +50,7 @@ test('emitOnBegin', async () => {
 })
 
 test('initialWaitTime', async () => {
-  let items: string[] = []
+  const items: string[] = []
   poll(
     async () => {
       items.push('wagmi')
@@ -72,7 +72,7 @@ test('initialWaitTime', async () => {
 })
 
 test('stop polling', async () => {
-  let items: string[] = []
+  const items: string[] = []
   const unpoll = poll(
     async () => {
       items.push('wagmi')
@@ -106,7 +106,7 @@ test('stop polling', async () => {
 })
 
 test('stop polling via callback', async () => {
-  let items: string[] = []
+  const items: string[] = []
   poll(
     async ({ unpoll }) => {
       items.push('wagmi')

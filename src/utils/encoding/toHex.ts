@@ -60,7 +60,7 @@ export function numberToHex(
 ): Hex {
   const { signed, size } = opts
 
-  let value = BigInt(value_)
+  const value = BigInt(value_)
 
   let maxValue
   if (size) {

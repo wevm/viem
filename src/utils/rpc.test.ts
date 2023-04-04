@@ -85,7 +85,7 @@ describe('http', () => {
   })
 
   test('serial requests', async () => {
-    let response: any = []
+    const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await rpc.http(localhost.rpcUrls.default.http[0], {
@@ -556,7 +556,7 @@ describe('webSocket', () => {
 describe('webSocket (subscription)', () => {
   test('basic', async () => {
     const socket = await getSocket(localWsUrl)
-    let data_: RpcResponse[] = []
+    const data_: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -582,7 +582,7 @@ describe('webSocket (subscription)', () => {
 
   test('multiple', async () => {
     const socket = await getSocket(localWsUrl)
-    let s1: RpcResponse[] = []
+    const s1: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -591,7 +591,7 @@ describe('webSocket (subscription)', () => {
       onData: (data) => s1.push(data),
     })
 
-    let s2: RpcResponse[] = []
+    const s2: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -600,7 +600,7 @@ describe('webSocket (subscription)', () => {
       onData: (data) => s2.push(data),
     })
 
-    let s3: RpcResponse[] = []
+    const s3: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -868,7 +868,7 @@ describe('webSocketAsync', () => {
 
   test('serial requests', async () => {
     const socket = await getSocket(localWsUrl)
-    let response: any = []
+    const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await rpc.webSocketAsync(socket, {

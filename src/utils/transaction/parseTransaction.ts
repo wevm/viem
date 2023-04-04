@@ -107,7 +107,7 @@ function parseTransactionEIP1559(
       type: 'eip1559',
     })
 
-  let transaction: TransactionSerializableEIP1559 = {
+  const transaction: TransactionSerializableEIP1559 = {
     chainId: hexToNumber(chainId as Hex),
     type: 'eip1559',
   }
@@ -168,7 +168,7 @@ function parseTransactionEIP2930(
       type: 'eip2930',
     })
 
-  let transaction: TransactionSerializableEIP2930 = {
+  const transaction: TransactionSerializableEIP2930 = {
     chainId: hexToNumber(chainId as Hex),
     type: 'eip2930',
   }
@@ -222,7 +222,7 @@ function parseTransactionLegacy(
       type: 'legacy',
     })
 
-  let transaction: TransactionSerializableLegacy = {
+  const transaction: TransactionSerializableLegacy = {
     type: 'legacy',
   }
   if (isHex(to) && to !== '0x') transaction.to = to
@@ -249,7 +249,7 @@ function parseTransactionLegacy(
 
   const v = chainIdOrV
 
-  let chainId: number | undefined = Number((v - 35n) / 2n)
+  const chainId: number | undefined = Number((v - 35n) / 2n)
   if (chainId > 0) transaction.chainId = chainId
   else if (v !== 27n && v !== 28n) throw new InvalidLegacyVError({ v })
 
@@ -261,7 +261,7 @@ function parseTransactionLegacy(
 }
 
 function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
-  let accessList: AccessList = []
+  const accessList: AccessList = []
   for (let i = 0; i < accessList_.length; i++) {
     const [address, storageKeys] = accessList_[i] as [Hex, Hex[]]
 
