@@ -70,7 +70,7 @@ export function createWalletClient<
       key,
       name,
       pollingInterval,
-      transport: () => transport({ retryCount: 0 }),
+      transport: (opts) => transport({ ...opts, retryCount: 0 }),
       type: 'walletClient',
     }),
     account: account ? parseAccount(account) : undefined,
