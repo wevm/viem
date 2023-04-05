@@ -1,5 +1,6 @@
 import type { CallParameters } from '../../actions'
-import { BaseError, CallExecutionError } from '../../errors'
+import type { BaseError } from '../../errors'
+import { CallExecutionError } from '../../errors'
 import type { Chain } from '../../types'
 import { containsNodeError, getNodeError } from './getNodeError'
 

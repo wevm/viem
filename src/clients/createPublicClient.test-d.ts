@@ -1,7 +1,8 @@
 import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'
 
-import { createPublicClient, PublicClient } from './createPublicClient'
+import type { PublicClient } from './createPublicClient'
+import { createPublicClient } from './createPublicClient'
 import { http } from './transports'
 
 test('with chain', () => {

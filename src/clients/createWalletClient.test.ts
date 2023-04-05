@@ -9,7 +9,8 @@ import { createTransport } from './transports/createTransport'
 import { custom } from './transports/custom'
 import { http } from './transports/http'
 import { webSocket } from './transports/webSocket'
-import { PrivateKeyAccount, privateKeyToAccount } from '../accounts'
+import type { PrivateKeyAccount } from '../accounts'
+import { privateKeyToAccount } from '../accounts'
 
 const mockTransport = () =>
   createTransport({

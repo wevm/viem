@@ -1,6 +1,6 @@
 import type { SendTransactionParameters } from '../../actions'
+import type { BaseError } from '../../errors'
 import {
-  BaseError,
   ExecutionRevertedError,
   FeeCapTooHighError,
   FeeCapTooLowError,

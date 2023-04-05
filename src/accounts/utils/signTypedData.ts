@@ -1,7 +1,8 @@
 import type { TypedData } from 'abitype'
 
 import type { Hex, TypedDataDefinition } from '../../types'
-import { HashTypedDataParameters, hashTypedData } from '../../utils'
+import type { HashTypedDataParameters } from '../../utils'
+import { hashTypedData } from '../../utils'
 import { sign } from './sign'
 import { signatureToHex } from './signatureToHex'
 

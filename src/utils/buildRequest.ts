@@ -1,3 +1,4 @@
+import type { RpcError } from '../errors'
 import {
   BaseError,
   HttpRequestError,
@@ -12,7 +13,6 @@ import {
   ParseRpcError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcError,
   SwitchChainError,
   TransactionRejectedRpcError,
   UnknownRpcError,

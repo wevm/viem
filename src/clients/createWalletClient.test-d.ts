@@ -2,7 +2,8 @@ import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'
 
 import type { JsonRpcAccount } from '../types'
-import { createWalletClient, WalletClient } from './createWalletClient'
+import type { WalletClient } from './createWalletClient'
+import { createWalletClient } from './createWalletClient'
 import { http } from './transports'
 
 test('with chain', () => {
