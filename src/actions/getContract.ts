@@ -419,7 +419,7 @@ export function getContract<
                 functionName,
                 args,
                 ...options,
-              } as WriteContractParameters<
+              } as unknown as WriteContractParameters<
                 TAbi,
                 typeof functionName,
                 TChain,
