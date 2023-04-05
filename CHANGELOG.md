@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.7
+
+### Patch Changes
+
+- [#310](https://github.com/wagmi-dev/viem/pull/310) [`6dfc225`](https://github.com/wagmi-dev/viem/commit/6dfc22537b9dd5740911b8677bba01cc477b9b23) Thanks [@jxom](https://github.com/jxom)! - Made `GetValue` return `{ value?: never }` instead of `unknown` for contract functions that are not payable.
+
 ## 0.2.6
 
 ### Patch Changes
