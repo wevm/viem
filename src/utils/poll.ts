@@ -1,4 +1,4 @@
-import { wait } from './wait'
+import { wait } from './wait.js'
 
 type PollOptions<TData> = {
   // Whether or not to emit when the polling starts.

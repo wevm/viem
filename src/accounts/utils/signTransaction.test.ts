@@ -8,10 +8,10 @@ import type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedLegacy,
-} from '../../types'
-import { parseGwei } from '../../utils'
-import { accounts } from '../../_test'
-import { signTransaction } from './signTransaction'
+} from '../../types/index.js'
+import { parseGwei } from '../../utils/index.js'
+import { accounts } from '../../_test/index.js'
+import { signTransaction } from './signTransaction.js'
 
 const base = {
   gas: 21000n,

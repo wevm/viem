@@ -16,7 +16,7 @@ export type {
   SimulateContractParameters,
   SimulateContractReturnType,
   WatchContractEventParameters,
-} from './actions/public'
+} from './actions/public/index.js'
 export {
   createContractEventFilter,
   estimateContractGas,
@@ -26,15 +26,15 @@ export {
   readContract,
   simulateContract,
   watchContractEvent,
-} from './actions/public'
+} from './actions/public/index.js'
 
 export type {
   DeployContractParameters,
   DeployContractReturnType,
   WriteContractParameters,
   WriteContractReturnType,
-} from './actions/wallet'
-export { deployContract, writeContract } from './actions/wallet'
+} from './actions/wallet/index.js'
+export { deployContract, writeContract } from './actions/wallet/index.js'
 
 export type {
   DecodeAbiParametersReturnType,
@@ -52,7 +52,7 @@ export type {
   EncodeFunctionDataParameters,
   EncodeFunctionResultParameters,
   GetAbiItemParameters,
-} from './utils'
+} from './utils/index.js'
 export {
   decodeAbiParameters,
   decodeErrorResult,
@@ -68,4 +68,4 @@ export {
   formatAbiItemWithArgs,
   formatAbiItem,
   getAbiItem,
-} from './utils'
+} from './utils/index.js'

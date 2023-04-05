@@ -1,18 +1,18 @@
 import type { Abi, Narrow } from 'abitype'
-import type { WalletClient, Transport } from '../../clients'
+import type { WalletClient, Transport } from '../../clients/index.js'
 import type {
   Account,
   Chain,
   GetConstructorArgs,
   GetChain,
   Hex,
-} from '../../types'
-import { encodeDeployData } from '../../utils'
-import { sendTransaction } from '../wallet'
+} from '../../types/index.js'
+import { encodeDeployData } from '../../utils/index.js'
+import { sendTransaction } from './index.js'
 import type {
   SendTransactionParameters,
   SendTransactionReturnType,
-} from '../wallet'
+} from './index.js'
 
 export type DeployContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

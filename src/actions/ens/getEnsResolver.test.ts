@@ -1,9 +1,13 @@
 import { afterAll, beforeAll, expect, test } from 'vitest'
-import { optimism } from '../../chains'
-import { createPublicClient, http } from '../../clients'
-import { localHttpUrl, publicClient, setBlockNumber } from '../../_test'
-import { getBlockNumber } from '../public'
-import { getEnsResolver } from './getEnsResolver'
+import { optimism } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import {
+  localHttpUrl,
+  publicClient,
+  setBlockNumber,
+} from '../../_test/index.js'
+import { getBlockNumber } from '../public/index.js'
+import { getEnsResolver } from './getEnsResolver.js'
 
 let blockNumber: bigint
 beforeAll(async () => {

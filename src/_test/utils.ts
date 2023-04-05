@@ -21,18 +21,18 @@ import {
   custom,
   http,
   webSocket,
-} from '../clients'
-import type { Hex } from '../types'
-import { RpcError } from '../types/eip1193'
-import { rpc } from '../utils'
-import { baycContractConfig, ensRegistryConfig } from './abis'
-import { accounts, address, localWsUrl } from './constants'
-import { ensAvatarTokenUriABI, errorsExampleABI } from './generated'
+} from '../clients/index.js'
+import type { Hex } from '../types/index.js'
+import { RpcError } from '../types/eip1193.js'
+import { rpc } from '../utils/index.js'
+import { baycContractConfig, ensRegistryConfig } from './abis.js'
+import { accounts, address, localWsUrl } from './constants.js'
+import { ensAvatarTokenUriABI, errorsExampleABI } from './generated.js'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
-import { namehash } from '../ens'
+import { namehash } from '../ens.js'
 
 export const anvilChain = {
   ...localhost,

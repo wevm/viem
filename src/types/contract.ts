@@ -17,9 +17,9 @@ import type {
   Narrow,
   AbiConstructor,
 } from 'abitype'
-import type { Hex, LogTopic } from './misc'
-import type { TransactionRequest } from './transaction'
-import type { Filter, MaybeRequired } from './utils'
+import type { Hex, LogTopic } from './misc.js'
+import type { TransactionRequest } from './transaction.js'
+import type { Filter, MaybeRequired } from './utils.js'
 
 export type AbiItem = Abi[number]
 

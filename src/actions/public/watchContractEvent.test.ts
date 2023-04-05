@@ -7,8 +7,8 @@ import {
   test,
   vi,
 } from 'vitest'
-import { getAddress } from '../../utils'
-import { wait } from '../../utils/wait'
+import { getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   accounts,
   address,

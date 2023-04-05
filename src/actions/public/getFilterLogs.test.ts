@@ -8,20 +8,20 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
+} from '../../_test/index.js'
 
 import {
   impersonateAccount,
   mine,
   setIntervalMining,
   stopImpersonatingAccount,
-} from '../test'
-import { writeContract } from '../wallet'
-import type { Log } from '../../types'
-import { createEventFilter } from './createEventFilter'
-import { getFilterLogs } from './getFilterLogs'
-import { getAddress } from '../../utils'
-import { createContractEventFilter } from './createContractEventFilter'
+} from '../test/index.js'
+import { writeContract } from '../wallet/index.js'
+import type { Log } from '../../types/index.js'
+import { createEventFilter } from './createEventFilter.js'
+import { getFilterLogs } from './getFilterLogs.js'
+import { getAddress } from '../../utils/index.js'
+import { createContractEventFilter } from './createContractEventFilter.js'
 
 const event = {
   default: {

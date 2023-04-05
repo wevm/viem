@@ -1,7 +1,7 @@
-export { parseAvatarRecord } from './avatar'
+export { parseAvatarRecord } from './avatar/index.js'
 
-export { labelhash } from './labelhash'
+export { labelhash } from './labelhash.js'
 
-export { namehash } from './namehash'
+export { namehash } from './namehash.js'
 
-export { packetToBytes } from './packetToBytes'
+export { packetToBytes } from './packetToBytes.js'

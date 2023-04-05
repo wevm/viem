@@ -1,6 +1,6 @@
-import type { Transport, WalletClient } from '../../clients'
-import type { Account, Chain } from '../../types'
-import type { WalletPermission } from '../../types/eip1193'
+import type { Transport, WalletClient } from '../../clients/index.js'
+import type { Account, Chain } from '../../types/index.js'
+import type { WalletPermission } from '../../types/eip1193.js'
 
 export type RequestPermissionsParameters = {
   eth_accounts: Record<string, any>

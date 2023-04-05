@@ -1,19 +1,28 @@
-import { parseAccount } from '../accounts'
+import { parseAccount } from '../accounts.js'
 import {
   estimateGas,
   getBlock,
   getGasPrice,
   getTransactionCount,
-} from '../../actions'
+} from '../../actions/index.js'
 import type {
   EstimateGasParameters,
   SendTransactionParameters,
-} from '../../actions'
-import type { PublicClient, Transport, WalletClient } from '../../clients'
-import { AccountNotFoundError, BaseError } from '../../errors'
-import type { Account, Address, Chain, GetAccountParameter } from '../../types'
-import { parseGwei } from '../unit/parseGwei'
-import { assertRequest } from './assertRequest'
+} from '../../actions/index.js'
+import type {
+  PublicClient,
+  Transport,
+  WalletClient,
+} from '../../clients/index.js'
+import { AccountNotFoundError, BaseError } from '../../errors/index.js'
+import type {
+  Account,
+  Address,
+  Chain,
+  GetAccountParameter,
+} from '../../types/index.js'
+import { parseGwei } from '../unit/parseGwei.js'
+import { assertRequest } from './assertRequest.js'
 
 export type PrepareRequestParameters<
   TAccount extends Account | undefined = undefined,

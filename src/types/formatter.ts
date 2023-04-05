@@ -1,15 +1,15 @@
-import type { Block } from './block'
+import type { Block } from './block.js'
 import type {
   RpcBlock,
   RpcTransaction,
   RpcTransactionReceipt,
   RpcTransactionRequest,
-} from './rpc'
+} from './rpc.js'
 import type {
   Transaction,
   TransactionReceipt,
   TransactionRequest,
-} from './transaction'
+} from './transaction.js'
 
 export type Formatter<TSource = any, TTarget = any> = (
   value: TSource & { [key: string]: unknown },

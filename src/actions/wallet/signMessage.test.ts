@@ -1,8 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { privateKeyToAccount } from '../../accounts'
-import { walletClientWithAccount, accounts, walletClient } from '../../_test'
-import { signMessage } from './signMessage'
+import { privateKeyToAccount } from '../../accounts/index.js'
+import {
+  walletClientWithAccount,
+  accounts,
+  walletClient,
+} from '../../_test/index.js'
+import { signMessage } from './signMessage.js'
 
 test('default', async () => {
   expect(

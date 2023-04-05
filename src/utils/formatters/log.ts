@@ -1,4 +1,4 @@
-import type { Log, RpcLog } from '../../types'
+import type { Log, RpcLog } from '../../types/index.js'
 
 export function formatLog(
   log: Partial<RpcLog>,

@@ -2,16 +2,16 @@ import type { Abi, Narrow } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
-} from '../../errors'
+} from '../../errors/index.js'
 import type {
   GetFunctionArgs,
   InferFunctionName,
   ContractFunctionResult,
   Hex,
-} from '../../types'
-import { decodeAbiParameters } from './decodeAbiParameters'
-import { getAbiItem } from './getAbiItem'
-import type { GetAbiItemParameters } from './getAbiItem'
+} from '../../types/index.js'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
+import { getAbiItem } from './getAbiItem.js'
+import type { GetAbiItemParameters } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { encodePacked } from './encodePacked'
-import { address } from '../../_test'
+import { encodePacked } from './encodePacked.js'
+import { address } from '../../_test/index.js'
 
 test.each([
   {

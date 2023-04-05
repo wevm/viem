@@ -9,12 +9,17 @@ import {
   AbiDecodingDataSizeInvalidError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
-} from '../../errors'
-import type { Hex } from '../../types'
-import { checksumAddress } from '../address'
-import { size, slice, trim } from '../data'
-import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
-import { getArrayComponents } from './encodeAbiParameters'
+} from '../../errors/index.js'
+import type { Hex } from '../../types/index.js'
+import { checksumAddress } from '../address/index.js'
+import { size, slice, trim } from '../data/index.js'
+import {
+  hexToBigInt,
+  hexToBool,
+  hexToNumber,
+  hexToString,
+} from '../encoding/index.js'
+import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<
   TParams extends

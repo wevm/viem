@@ -1,7 +1,7 @@
 import type { Chain as Chain_ } from '@wagmi/chains'
 import type { Address } from 'abitype'
-import type { Formatters } from './formatter'
-import type { IsUndefined } from './utils'
+import type { Formatters } from './formatter.js'
+import type { IsUndefined } from './utils.js'
 
 export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
   formatters?: TFormatters

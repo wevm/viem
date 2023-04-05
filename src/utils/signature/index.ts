@@ -1,37 +1,37 @@
-export { hashMessage } from './hashMessage'
+export { hashMessage } from './hashMessage.js'
 
 export type {
   HashTypedDataParameters,
   HashTypedDataReturnType,
-} from './hashTypedData'
-export { hashTypedData } from './hashTypedData'
+} from './hashTypedData.js'
+export { hashTypedData } from './hashTypedData.js'
 
 export type {
   RecoverAddressParameters,
   RecoverAddressReturnType,
-} from './recoverAddress'
-export { recoverAddress } from './recoverAddress'
+} from './recoverAddress.js'
+export { recoverAddress } from './recoverAddress.js'
 
 export type {
   RecoverMessageAddressParameters,
   RecoverMessageAddressReturnType,
-} from './recoverMessageAddress'
-export { recoverMessageAddress } from './recoverMessageAddress'
+} from './recoverMessageAddress.js'
+export { recoverMessageAddress } from './recoverMessageAddress.js'
 
 export type {
   RecoverTypedDataAddressParameters,
   RecoverTypedDataAddressReturnType,
-} from './recoverTypedDataAddress'
-export { recoverTypedDataAddress } from './recoverTypedDataAddress'
+} from './recoverTypedDataAddress.js'
+export { recoverTypedDataAddress } from './recoverTypedDataAddress.js'
 
-export { verifyMessage } from './verifyMessage'
+export { verifyMessage } from './verifyMessage.js'
 export type {
   VerifyMessageParameters,
   VerifyMessageReturnType,
-} from './verifyMessage'
+} from './verifyMessage.js'
 
-export { verifyTypedData } from './verifyTypedData'
+export { verifyTypedData } from './verifyTypedData.js'
 export type {
   VerifyTypedDataParameters,
   VerifyTypedDataReturnType,
-} from './verifyTypedData'
+} from './verifyTypedData.js'

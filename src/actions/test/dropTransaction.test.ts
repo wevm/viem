@@ -1,12 +1,17 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { parseEther } from '../../utils'
-import { getBalance } from '../public/getBalance'
-import { sendTransaction } from '../wallet/sendTransaction'
-import { mine } from './mine'
-import { dropTransaction } from './dropTransaction'
-import { setIntervalMining } from './setIntervalMining'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/index.js'
+import { parseEther } from '../../utils/index.js'
+import { getBalance } from '../public/getBalance.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+import { mine } from './mine.js'
+import { dropTransaction } from './dropTransaction.js'
+import { setIntervalMining } from './setIntervalMining.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

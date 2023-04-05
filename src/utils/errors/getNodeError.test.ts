@@ -3,10 +3,10 @@ import {
   InvalidInputRpcError,
   RpcError,
   TransactionRejectedRpcError,
-} from '../../errors'
-import { address } from '../../_test'
-import { parseEther, parseGwei } from '../unit'
-import { containsNodeError, getNodeError } from './getNodeError'
+} from '../../errors/index.js'
+import { address } from '../../_test/index.js'
+import { parseEther, parseGwei } from '../unit/index.js'
+import { containsNodeError, getNodeError } from './getNodeError.js'
 
 test('containsNodeError', () => {
   // @ts-expect-error

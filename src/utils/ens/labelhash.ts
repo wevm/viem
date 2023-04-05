@@ -1,5 +1,5 @@
-import { bytesToHex, stringToBytes } from '../encoding'
-import { keccak256 } from '../hash'
+import { bytesToHex, stringToBytes } from '../encoding/index.js'
+import { keccak256 } from '../hash/index.js'
 
 /**
  * @description Hashes ENS label

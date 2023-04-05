@@ -1,3 +1,3 @@
-export { getCache, withCache } from './withCache'
-export { withRetry } from './withRetry'
-export { withTimeout } from './withTimeout'
+export { getCache, withCache } from './withCache.js'
+export { withRetry } from './withRetry.js'
+export { withTimeout } from './withTimeout.js'

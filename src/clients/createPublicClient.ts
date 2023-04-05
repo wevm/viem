@@ -1,10 +1,10 @@
-import type { PublicRequests } from '../types/eip1193'
-import type { Transport } from './transports/createTransport'
-import type { Client, ClientConfig } from './createClient'
-import { createClient } from './createClient'
-import { publicActions } from './decorators'
-import type { PublicActions } from './decorators'
-import type { Chain, Prettify } from '../types'
+import type { PublicRequests } from '../types/eip1193.js'
+import type { Transport } from './transports/createTransport.js'
+import type { Client, ClientConfig } from './createClient.js'
+import { createClient } from './createClient.js'
+import { publicActions } from './decorators/index.js'
+import type { PublicActions } from './decorators/index.js'
+import type { Chain, Prettify } from '../types/index.js'
 
 export type PublicClientConfig<
   TTransport extends Transport = Transport,

@@ -20,7 +20,7 @@ import type {
   WatchAssetReturnType,
   WriteContractParameters,
   WriteContractReturnType,
-} from '../../actions/wallet'
+} from '../../actions/wallet/index.js'
 import {
   addChain,
   deployContract,
@@ -35,10 +35,10 @@ import {
   switchChain,
   watchAsset,
   writeContract,
-} from '../../actions/wallet'
-import type { Account, Chain } from '../../types'
-import type { WalletClient } from '../createWalletClient'
-import type { Transport } from '../transports'
+} from '../../actions/wallet/index.js'
+import type { Account, Chain } from '../../types/index.js'
+import type { WalletClient } from '../createWalletClient.js'
+import type { Transport } from '../transports/index.js'
 
 export type WalletActions<
   TChain extends Chain | undefined = Chain | undefined,
@@ -87,7 +87,13 @@ export type WalletActions<
   ) => Promise<WriteContractReturnType>
 }
 
-export const walletActions = <
+export const walletActions: <
+  TTransport extends Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+>(
+  client: WalletClient<TTransport, TChain, TAccount>,
+) => WalletActions<TChain, TAccount> = <
   TTransport extends Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,

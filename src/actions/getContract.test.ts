@@ -6,12 +6,12 @@ import {
   publicClient,
   walletClient,
   accounts,
-} from '../_test'
+} from '../_test/index.js'
 import {
   getContract,
   getEventParameters,
   getFunctionParameters,
-} from './getContract'
+} from './getContract.js'
 
 const contract = getContract({
   ...wagmiContractConfig,

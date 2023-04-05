@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as formatters from './index'
+import * as formatters from './index.js'
 
 test('exports formatters', () => {
   expect(formatters).toMatchInlineSnapshot(`

@@ -16,7 +16,7 @@ import {
   TransactionRejectedRpcError,
   TransactionTypeNotSupportedError,
   UnknownNodeError,
-} from '../../errors'
+} from '../../errors/index.js'
 
 export function containsNodeError(err: BaseError) {
   return (

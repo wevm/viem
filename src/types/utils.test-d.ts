@@ -6,7 +6,7 @@ import type {
   IsNever,
   IsUndefined,
   RequiredBy,
-} from './utils'
+} from './utils.js'
 
 test('Contains', () => {
   expectTypeOf<Contains<[true, false, true], true>>().toEqualTypeOf<true>()

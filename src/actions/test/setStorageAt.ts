@@ -1,6 +1,10 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
-import type { Address, Chain, Hash, Hex } from '../../types'
-import { numberToHex } from '../../utils'
+import type {
+  TestClient,
+  TestClientMode,
+  Transport,
+} from '../../clients/index.js'
+import type { Address, Chain, Hash, Hex } from '../../types/index.js'
+import { numberToHex } from '../../utils/index.js'
 
 export type SetStorageAtParameters = {
   /** The account address. */

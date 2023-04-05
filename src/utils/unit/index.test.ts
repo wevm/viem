@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as value from './index'
+import * as value from './index.js'
 
 test('exports value utils', () => {
   expect(value).toMatchInlineSnapshot(`

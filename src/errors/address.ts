@@ -1,4 +1,4 @@
-import { BaseError } from './base'
+import { BaseError } from './base.js'
 
 export class InvalidAddressError extends BaseError {
   name = 'InvalidAddressError'

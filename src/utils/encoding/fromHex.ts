@@ -1,7 +1,7 @@
-import { InvalidHexBooleanError } from '../../errors'
-import type { ByteArray, Hex } from '../../types'
-import { trim } from '../data'
-import { hexToBytes } from './toBytes'
+import { InvalidHexBooleanError } from '../../errors/index.js'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { trim } from '../data/index.js'
+import { hexToBytes } from './toBytes.js'
 
 type FromHexReturnType<TTo> = TTo extends 'string'
   ? string

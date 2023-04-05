@@ -1,14 +1,18 @@
 import { describe, expect, test, vi } from 'vitest'
 import WebSocket from 'isomorphic-ws'
 
-import { createHttpServer, initialBlockNumber, localWsUrl } from '../_test'
-import * as withTimeout from '../utils/promise/withTimeout'
-import { localhost, mainnet } from '../chains'
+import {
+  createHttpServer,
+  initialBlockNumber,
+  localWsUrl,
+} from '../_test/index.js'
+import * as withTimeout from './promise/withTimeout.js'
+import { localhost, mainnet } from '../chains.js'
 
-import { numberToHex } from './encoding'
-import type { RpcResponse } from './rpc'
-import { getSocket, rpc } from './rpc'
-import { wait } from './wait'
+import { numberToHex } from './encoding/index.js'
+import type { RpcResponse } from './rpc.js'
+import { getSocket, rpc } from './rpc.js'
+import { wait } from './wait.js'
 import type { IncomingHttpHeaders } from 'http'
 
 test('rpc', () => {

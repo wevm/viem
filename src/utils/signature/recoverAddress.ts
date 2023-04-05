@@ -1,7 +1,7 @@
-import type { Address, ByteArray, Hex } from '../../types'
-import { publicKeyToAddress } from '../accounts'
-import { isHex } from '../data'
-import { hexToNumber, toHex } from '../encoding'
+import type { Address, ByteArray, Hex } from '../../types/index.js'
+import { publicKeyToAddress } from '../accounts.js'
+import { isHex } from '../data/index.js'
+import { hexToNumber, toHex } from '../encoding/index.js'
 
 export type RecoverAddressParameters = {
   hash: Hex | ByteArray

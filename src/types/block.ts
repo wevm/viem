@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import type { Hash, Hex } from './misc'
-import type { Transaction } from './transaction'
+import type { Hash, Hex } from './misc.js'
+import type { Transaction } from './transaction.js'
 
 export type Block<TQuantity = bigint, TTransaction = Transaction> = {
   /** Base fee per gas */

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { formatAbiItem } from './formatAbiItem'
+import { formatAbiItem } from './formatAbiItem.js'
 
 test('foo()', () => {
   expect(

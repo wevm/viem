@@ -1,8 +1,8 @@
 import type { AbiParameter } from 'abitype'
 import { describe, expect, test } from 'vitest'
-import { wagmiContractConfig } from '../../_test'
-import { toBytes } from '../encoding'
-import { getAbiItem, isArgOfType } from './getAbiItem'
+import { wagmiContractConfig } from '../../_test/index.js'
+import { toBytes } from '../encoding/index.js'
+import { getAbiItem, isArgOfType } from './getAbiItem.js'
 
 test('default', () => {
   expect(

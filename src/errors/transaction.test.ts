@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
-import { parseAccount } from '../utils'
-import { polygon } from '../chains'
-import { address } from '../_test'
-import { BaseError } from './base'
+import { parseAccount } from '../utils/index.js'
+import { polygon } from '../chains.js'
+import { address } from '../_test/index.js'
+import { BaseError } from './base.js'
 import {
   FeeConflictError,
   InvalidLegacyVError,
@@ -13,7 +13,7 @@ import {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
-} from './transaction'
+} from './transaction.js'
 
 test('InvalidLegacyVError', () => {
   expect(new InvalidLegacyVError({ v: 69n })).toMatchInlineSnapshot(`

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { keccak256 } from './keccak256'
+import { keccak256 } from './keccak256.js'
 
 test('to hex', () => {
   expect(keccak256('0xdeadbeef')).toMatchInlineSnapshot(

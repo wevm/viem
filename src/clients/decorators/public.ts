@@ -10,14 +10,14 @@ import type {
   GetEnsResolverReturnType,
   GetEnsTextParameters,
   GetEnsTextReturnType,
-} from '../../actions/ens'
+} from '../../actions/ens/index.js'
 import {
   getEnsAddress,
   getEnsAvatar,
   getEnsName,
   getEnsResolver,
   getEnsText,
-} from '../../actions/ens'
+} from '../../actions/ens/index.js'
 import type {
   CallParameters,
   CallReturnType,
@@ -81,7 +81,7 @@ import type {
   WatchEventReturnType,
   WatchPendingTransactionsParameters,
   WatchPendingTransactionsReturnType,
-} from '../../actions/public'
+} from '../../actions/public/index.js'
 import {
   call,
   createBlockFilter,
@@ -116,15 +116,15 @@ import {
   watchContractEvent,
   watchEvent,
   watchPendingTransactions,
-} from '../../actions/public'
+} from '../../actions/public/index.js'
 import type {
   Chain,
   ContractFunctionConfig,
   FilterType,
   MaybeExtractEventArgsFromAbi,
-} from '../../types'
-import type { PublicClient } from '../createPublicClient'
-import type { Transport } from '../transports'
+} from '../../types/index.js'
+import type { PublicClient } from '../createPublicClient.js'
+import type { Transport } from '../transports/index.js'
 
 export type PublicActions<
   TTransport extends Transport = Transport,
@@ -270,7 +270,12 @@ export type PublicActions<
   ) => WatchPendingTransactionsReturnType
 }
 
-export const publicActions = <
+export const publicActions: <
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+>(
+  client: PublicClient<TTransport, TChain>,
+) => PublicActions<TTransport, TChain> = <
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 >(

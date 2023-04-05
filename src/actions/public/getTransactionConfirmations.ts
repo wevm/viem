@@ -1,11 +1,11 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { Chain, Hash } from '../../types'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { Chain, Hash } from '../../types/index.js'
 import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
-} from '../../utils'
-import { getBlockNumber } from './getBlockNumber'
-import { getTransaction } from './getTransaction'
+} from '../../utils/index.js'
+import { getBlockNumber } from './getBlockNumber.js'
+import { getTransaction } from './getTransaction.js'
 
 export type GetTransactionConfirmationsParameters<
   TChain extends Chain | undefined = Chain,

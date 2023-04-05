@@ -2,7 +2,7 @@ import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import { isAddress as isAddressV6 } from 'ethers@6'
 
-import { isAddress } from './isAddress'
+import { isAddress } from './isAddress.js'
 
 describe('Is Address', () => {
   bench('viem: isAddress', () => {

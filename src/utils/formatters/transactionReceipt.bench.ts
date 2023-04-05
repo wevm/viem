@@ -1,9 +1,9 @@
 import { providers } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import type { RpcTransactionReceipt } from '../../types'
+import type { RpcTransactionReceipt } from '../../types/index.js'
 
-import { formatTransactionReceipt } from './transactionReceipt'
+import { formatTransactionReceipt } from './transactionReceipt.js'
 
 const receipt: RpcTransactionReceipt = {
   blockHash:

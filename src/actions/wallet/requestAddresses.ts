@@ -1,8 +1,8 @@
 import type { Address } from 'abitype'
 
-import type { Transport, WalletClient } from '../../clients'
-import type { Account, Chain } from '../../types'
-import { getAddress } from '../../utils'
+import type { Transport, WalletClient } from '../../clients/index.js'
+import type { Account, Chain } from '../../types/index.js'
+import { getAddress } from '../../utils/index.js'
 
 export type RequestAddressesReturnType = Address[]
 

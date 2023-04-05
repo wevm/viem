@@ -1,26 +1,26 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients'
-import type { BaseError } from '../../errors'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { BaseError } from '../../errors/index.js'
 import type {
   Chain,
   ContractFunctionConfig,
   ContractFunctionResult,
   GetValue,
-} from '../../types'
+} from '../../types/index.js'
 import {
   decodeFunctionResult,
   encodeFunctionData,
   getContractError,
   parseAccount,
-} from '../../utils'
+} from '../../utils/index.js'
 import type {
   DecodeFunctionResultParameters,
   EncodeFunctionDataParameters,
-} from '../../utils'
-import type { WriteContractParameters } from '../wallet'
-import { call } from './call'
-import type { CallParameters } from './call'
+} from '../../utils/index.js'
+import type { WriteContractParameters } from '../wallet/index.js'
+import { call } from './call.js'
+import type { CallParameters } from './call.js'
 
 export type SimulateContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

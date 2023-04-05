@@ -1,16 +1,21 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnTransactionsParameter } from './watchPendingTransactions'
-import * as createPendingTransactionFilter from './createPendingTransactionFilter'
-import * as getFilterChanges from './getFilterChanges'
-import { watchPendingTransactions } from './watchPendingTransactions'
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { wait } from '../../utils/wait'
-import { sendTransaction } from '../wallet'
-import { parseEther } from '../../utils'
-import { mine, setIntervalMining } from '../test'
-import { webSocketClient } from '../../_test/utils'
-import type { PublicClient } from '../../clients'
+import type { OnTransactionsParameter } from './watchPendingTransactions.js'
+import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import { watchPendingTransactions } from './watchPendingTransactions.js'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/index.js'
+import { wait } from '../../utils/wait.js'
+import { sendTransaction } from '../wallet/index.js'
+import { parseEther } from '../../utils/index.js'
+import { mine, setIntervalMining } from '../test/index.js'
+import { webSocketClient } from '../../_test/utils.js'
+import type { PublicClient } from '../../clients/index.js'
 
 describe('poll', () => {
   test(

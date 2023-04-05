@@ -17,8 +17,8 @@ import {
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
-} from './request'
-import { RpcError } from './rpc'
+} from './request.js'
+import { RpcError } from './rpc.js'
 
 test('RequestError', () => {
   expect(
