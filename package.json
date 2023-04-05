@@ -8,13 +8,12 @@
     "bench:ci": "CI=true vitest bench --no-threads",
     "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm+types && size-limit",
     "build:cjs": "tsc --project tsconfig.build.json --module commonjs --outDir ./dist/cjs && echo > ./dist/cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --verbatimModuleSyntax --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
+    "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --verbatimModuleSyntax --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types && echo > ./dist/esm/package.json '{\"type\":\"module\"}'",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm bun scripts/updateVersion.ts",
     "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
-    "dev": "DEV=true tsup",
     "dev:docs": "pnpm -r --filter site dev",
     "format": "rome format . --write",
     "lint": "rome check .",
@@ -31,82 +30,81 @@
     "test:ui": "vitest dev --ui --no-threads",
     "typecheck": "tsc --noEmit"
   },
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "typings": "./dist/types/index.d.ts",
+  "sideEffects": false,
   "files": [
-    "dist/**/*.js",
-    "dist/**/*.js.map",
-    "dist/**/*.d.ts",
-    "dist/**/*.d.ts.map",
+    "dist",
+    "!dist/*.tsbuildinfo",
     "src/**/*.ts",
     "!src/**/*.test.ts",
     "!src/**/*.test-d.ts",
     "!src/**/*.bench.ts",
     "!src/_test/**/*"
   ],
-  "type": "module",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
-  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "default": "./dist/cjs/index.js"
     },
     "./abi": {
       "types": "./dist/types/abi.d.ts",
       "import": "./dist/esm/abi.js",
-      "require": "./dist/cjs/abi.js"
+      "default": "./dist/cjs/abi.js"
     },
     "./accounts": {
       "types": "./dist/types/accounts/index.d.ts",
       "import": "./dist/esm/accounts/index.js",
-      "require": "./dist/cjs/accounts/index.js"
+      "default": "./dist/cjs/accounts/index.js"
     },
     "./chains": {
       "types": "./dist/types/chains.d.ts",
       "import": "./dist/esm/chains.js",
-      "require": "./dist/cjs/chains.js"
+      "default": "./dist/cjs/chains.js"
     },
     "./contract": {
       "types": "./dist/types/contract.d.ts",
       "import": "./dist/esm/contract.js",
-      "require": "./dist/cjs/contract.js"
+      "default": "./dist/cjs/contract.js"
     },
     "./ens": {
       "types": "./dist/types/ens.d.ts",
       "import": "./dist/esm/ens.js",
-      "require": "./dist/cjs/ens.js"
+      "default": "./dist/cjs/ens.js"
     },
     "./ethers": {
       "types": "./dist/types/ethers.d.ts",
       "import": "./dist/esm/ethers.js",
-      "require": "./dist/cjs/ethers.js"
+      "default": "./dist/cjs/ethers.js"
     },
     "./public": {
       "types": "./dist/types/public.d.ts",
       "import": "./dist/esm/public.js",
-      "require": "./dist/cjs/public.js"
+      "default": "./dist/cjs/public.js"
     },
     "./test": {
       "types": "./dist/types/test.d.ts",
       "import": "./dist/esm/test.js",
-      "require": "./dist/cjs/test.js"
+      "default": "./dist/cjs/test.js"
     },
     "./utils": {
       "types": "./dist/types/utils/index.d.ts",
       "import": "./dist/esm/utils/index.js",
-      "require": "./dist/cjs/utils/index.js"
+      "default": "./dist/cjs/utils/index.js"
     },
     "./wallet": {
       "types": "./dist/types/wallet.d.ts",
       "import": "./dist/esm/wallet.js",
-      "require": "./dist/cjs/wallet.js"
+      "default": "./dist/cjs/wallet.js"
     },
     "./window": {
       "types": "./dist/types/window.d.ts",
       "import": "./dist/esm/window.js",
-      "require": "./dist/cjs/window.js"
+      "default": "./dist/cjs/window.js"
     },
     "./package.json": "./package.json"
   },
