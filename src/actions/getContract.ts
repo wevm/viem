@@ -15,6 +15,7 @@ import type {
   AbiEventParametersToPrimitiveTypes,
   Account,
   Chain,
+  Contains,
   IsNarrowable,
   IsNever,
   IsUndefined,
@@ -586,11 +587,10 @@ type GetWriteFunction<
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   // For making `options` parameter required if `TAccount` or `TChain` is undefined
-  IsOptionsRequired = [IsUndefined<TAccount>, IsUndefined<TChain>] extends
-    | [true, false]
-    | [false, true]
-    ? true
-    : false,
+  IsOptionsRequired = Contains<
+    [IsUndefined<TAccount>, IsUndefined<TChain>],
+    true
+  >,
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,
