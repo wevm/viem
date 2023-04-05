@@ -10,7 +10,8 @@ import type {
   Hex,
 } from '../../types'
 import { decodeAbiParameters } from './decodeAbiParameters'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+import { getAbiItem } from './getAbiItem'
+import type { GetAbiItemParameters } from './getAbiItem'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 

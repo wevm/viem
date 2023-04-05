@@ -14,14 +14,13 @@ import {
   assertRequest,
   extract,
   format,
-  Formatted,
   formatTransactionRequest,
   getEstimateGasError,
   numberToHex,
   parseAccount,
   prepareRequest,
-  TransactionRequestFormatter,
 } from '../../utils'
+import type { Formatted, TransactionRequestFormatter } from '../../utils'
 
 export type FormattedEstimateGas<
   TFormatter extends Formatter | undefined = Formatter,

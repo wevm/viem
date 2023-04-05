@@ -1,5 +1,4 @@
 import type { Abi, Narrow } from 'abitype'
-
 import type { WalletClient, Transport } from '../../clients'
 import type {
   Account,
@@ -9,8 +8,8 @@ import type {
   Hex,
 } from '../../types'
 import { encodeDeployData } from '../../utils'
-import {
-  sendTransaction,
+import { sendTransaction } from '../wallet'
+import type {
   SendTransactionParameters,
   SendTransactionReturnType,
 } from '../wallet'

@@ -6,7 +6,8 @@ import type {
   Transaction,
 } from '../../types'
 import { hexToNumber } from '../encoding'
-import { defineFormatter, ExtractFormatter, Formatted } from './format'
+import { defineFormatter } from './format'
+import type { ExtractFormatter, Formatted } from './format'
 
 export type TransactionFormatter<TChain extends Chain | undefined = Chain> =
   TChain extends Chain

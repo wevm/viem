@@ -26,7 +26,8 @@ import {
   assertTransactionEIP2930,
   assertTransactionLegacy,
 } from './assertTransaction'
-import { getTransactionType, GetTransactionType } from './getTransactionType'
+import { getTransactionType } from './getTransactionType'
+import type { GetTransactionType } from './getTransactionType'
 
 export type SerializedTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,

@@ -9,12 +9,15 @@ import type {
 } from '../../types'
 import {
   decodeFunctionResult,
-  DecodeFunctionResultParameters,
   encodeFunctionData,
-  EncodeFunctionDataParameters,
   getContractError,
 } from '../../utils'
-import { call, CallParameters } from './call'
+import type {
+  DecodeFunctionResultParameters,
+  EncodeFunctionDataParameters,
+} from '../../utils'
+import { call } from './call'
+import type { CallParameters } from './call'
 
 export type ReadContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

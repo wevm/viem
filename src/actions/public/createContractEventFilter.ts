@@ -10,11 +10,8 @@ import type {
   Filter,
   MaybeExtractEventArgsFromAbi,
 } from '../../types'
-import {
-  encodeEventTopics,
-  EncodeEventTopicsParameters,
-  numberToHex,
-} from '../../utils'
+import { encodeEventTopics, numberToHex } from '../../utils'
+import type { EncodeEventTopicsParameters } from '../../utils'
 
 export type CreateContractEventFilterParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

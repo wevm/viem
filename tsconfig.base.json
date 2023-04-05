@@ -24,7 +24,7 @@
     "checkJs": false,
 
     // Interop constraints
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
     // Language and environment

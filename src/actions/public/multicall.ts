@@ -17,10 +17,10 @@ import type { MulticallResults } from '../../types/multicall'
 import {
   decodeFunctionResult,
   encodeFunctionData,
-  EncodeFunctionDataParameters,
   getChainContractAddress,
   getContractError,
 } from '../../utils'
+import type { EncodeFunctionDataParameters } from '../../utils'
 import type { CallParameters } from './call'
 import { readContract } from './readContract'
 
