@@ -1,4 +1,4 @@
-import WebSocket from 'isomorphic-ws'
+import { WebSocket, MessageEvent } from 'isomorphic-ws'
 import {
   HttpRequestError,
   RpcError,
@@ -152,7 +152,7 @@ export async function getSocket(url_: string) {
   // Set up a cache for subscriptions (eth_subscribe).
   const subscriptions = new Map<Id, CallbackFn>()
 
-  const onMessage: (event: WebSocket.MessageEvent) => void = ({ data }) => {
+  const onMessage: (event: MessageEvent) => void = ({ data }) => {
     const message: RpcResponse = JSON.parse(data as string)
     const isSubscription = message.method === 'eth_subscription'
     const id = isSubscription ? message.params.subscription : message.id

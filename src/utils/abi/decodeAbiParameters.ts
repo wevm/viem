@@ -28,7 +28,8 @@ export type DecodeAbiParametersReturnType<
 export function decodeAbiParameters<
   TParams extends readonly AbiParameter[] | readonly unknown[],
 >(params: Narrow<TParams>, data: Hex): DecodeAbiParametersReturnType<TParams> {
-  if (data === '0x' && params.length > 0) throw new AbiDecodingZeroDataError()
+  if (data === '0x' && (params as unknown[]).length > 0)
+    throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
     throw new AbiDecodingDataSizeInvalidError({ data, size: size(data) })
   return decodeParams({

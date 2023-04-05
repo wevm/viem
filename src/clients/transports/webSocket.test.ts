@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from 'vitest'
-import WebSocket from 'isomorphic-ws'
+import { WebSocket } from 'isomorphic-ws'
 
 import { localWsUrl } from '../../_test'
 import { localhost } from '../../chains'
