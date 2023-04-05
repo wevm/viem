@@ -10,10 +10,8 @@ import type {
 } from '../../types'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import {
-  createEventFilter,
-  CreateEventFilterParameters,
-} from './createEventFilter'
+import { createEventFilter } from './createEventFilter'
+import type { CreateEventFilterParameters } from './createEventFilter'
 import { getBlockNumber } from './getBlockNumber'
 import { getFilterChanges } from './getFilterChanges'
 import { getLogs } from './getLogs'

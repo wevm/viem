@@ -7,7 +7,8 @@ import {
 import type { Address, Chain, Prettify } from '../../types'
 import { getChainContractAddress, toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
-import { readContract, ReadContractParameters } from '../public'
+import { readContract } from '../public'
+import type { ReadContractParameters } from '../public'
 
 export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

@@ -8,7 +8,8 @@ import { concatHex } from '../data'
 import { getFunctionSelector } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+import { getAbiItem } from './getAbiItem'
+import type { GetAbiItemParameters } from './getAbiItem'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 

@@ -12,7 +12,8 @@ import {
   trim,
 } from '../../utils'
 import { namehash, packetToBytes } from '../../utils/ens'
-import { readContract, ReadContractParameters } from '../public'
+import { readContract } from '../public'
+import type { ReadContractParameters } from '../public'
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

@@ -5,7 +5,8 @@ import type {
   RpcTransactionRequest,
   TransactionRequest,
 } from '../../types'
-import { defineFormatter, ExtractFormatter, Formatted } from './format'
+import { defineFormatter } from './format'
+import type { ExtractFormatter, Formatted } from './format'
 import { numberToHex } from '../encoding'
 
 export type TransactionRequestFormatter<

@@ -12,13 +12,12 @@ import type { GetAbiItemParameters } from '../../utils'
 import { getAbiItem } from '../../utils'
 import { observe } from '../../utils/observe'
 import { poll } from '../../utils/poll'
-import {
-  createContractEventFilter,
-  CreateContractEventFilterParameters,
-} from './createContractEventFilter'
+import { createContractEventFilter } from './createContractEventFilter'
+import type { CreateContractEventFilterParameters } from './createContractEventFilter'
 import { getBlockNumber } from './getBlockNumber'
 import { getFilterChanges } from './getFilterChanges'
-import { getLogs, GetLogsParameters } from './getLogs'
+import { getLogs } from './getLogs'
+import type { GetLogsParameters } from './getLogs'
 import { uninstallFilter } from './uninstallFilter'
 
 export type OnLogsParameter<

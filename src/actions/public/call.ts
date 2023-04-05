@@ -14,13 +14,12 @@ import {
   assertRequest,
   extract,
   format,
-  Formatted,
   formatTransactionRequest,
   getCallError,
   numberToHex,
   parseAccount,
-  TransactionRequestFormatter,
 } from '../../utils'
+import type { Formatted, TransactionRequestFormatter } from '../../utils'
 
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,

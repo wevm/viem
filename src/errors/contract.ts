@@ -4,7 +4,6 @@ import { panicReasons } from '../constants'
 import type { Address, Chain, Hex } from '../types'
 import {
   decodeErrorResult,
-  DecodeErrorResultReturnType,
   formatAbiItem,
   formatAbiItemWithArgs,
   formatEther,
@@ -12,6 +11,7 @@ import {
   getAbiItem,
   parseAccount,
 } from '../utils'
+import type { DecodeErrorResultReturnType } from '../utils'
 import { BaseError } from './base'
 import { prettyPrint } from './transaction'
 import { getContractAddress } from './utils'

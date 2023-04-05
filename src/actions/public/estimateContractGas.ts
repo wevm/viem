@@ -3,13 +3,10 @@ import type { Abi } from 'abitype'
 import type { PublicClient, Transport } from '../../clients'
 import type { BaseError } from '../../errors'
 import type { Chain, ContractFunctionConfig, GetValue } from '../../types'
-import {
-  encodeFunctionData,
-  EncodeFunctionDataParameters,
-  getContractError,
-  parseAccount,
-} from '../../utils'
-import { estimateGas, EstimateGasParameters } from './estimateGas'
+import { encodeFunctionData, getContractError, parseAccount } from '../../utils'
+import type { EncodeFunctionDataParameters } from '../../utils'
+import { estimateGas } from './estimateGas'
+import type { EstimateGasParameters } from './estimateGas'
 
 export type EstimateContractGasParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
