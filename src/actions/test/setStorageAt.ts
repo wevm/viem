@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Address, Chain, Hash, Hex } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -12,7 +12,7 @@ export type SetStorageAtParameters = {
 }
 
 export async function setStorageAt<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   { address, index, value }: SetStorageAtParameters,
 ) {
   return await client.request({

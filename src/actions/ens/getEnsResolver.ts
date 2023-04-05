@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { Address, Chain, Prettify } from '../../types'
 import { getChainContractAddress, toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
@@ -19,7 +19,7 @@ export type GetEnsResolverReturnType = Address
  * @description Gets resolver for ENS name.
  */
 export async function getEnsResolver<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     blockNumber,
     blockTag,

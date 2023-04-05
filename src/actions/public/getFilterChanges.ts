@@ -1,5 +1,5 @@
 import type { Abi, AbiEvent } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type {
   Chain,
   Filter,
@@ -31,14 +31,13 @@ export type GetFilterChangesReturnType<
   : Hash[]
 
 export async function getFilterChanges<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
   TFilterType extends FilterType,
   TAbiEvent extends AbiEvent | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     filter,
   }: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,

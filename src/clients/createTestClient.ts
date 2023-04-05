@@ -9,10 +9,10 @@ export type TestClientMode = 'anvil' | 'hardhat'
 
 export type TestClientConfig<
   TMode extends TestClientMode = TestClientMode,
-  TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
+  TTransport extends Transport = Transport,
 > = Pick<
-  ClientConfig<TTransport, TChain>,
+  ClientConfig<TChain, TTransport>,
   'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
 > & {
   /** Mode of the test client. Available: "anvil" | "hardhat" */
@@ -21,10 +21,10 @@ export type TestClientConfig<
 
 export type TestClient<
   TMode extends TestClientMode = TestClientMode,
-  TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
-  TIncludeActions extends boolean = true,
-> = Client<TTransport, TestRequests<TMode>, TChain> &
+  TTransport extends Transport = Transport,
+  TIncludeActions extends boolean = true | false,
+> = Client<TChain, TestRequests<TMode>, TTransport> &
   (TIncludeActions extends true ? TestActions : unknown) & {
     mode: TMode
   }
@@ -34,8 +34,8 @@ export type TestClient<
  */
 export function createTestClient<
   TMode extends TestClientMode,
-  TTransport extends Transport,
   TChain extends Chain | undefined = undefined,
+  TTransport extends Transport = Transport,
 >({
   chain,
   key = 'test',
@@ -43,10 +43,10 @@ export function createTestClient<
   mode,
   pollingInterval,
   transport,
-}: TestClientConfig<TMode, TTransport, TChain>): TestClient<
+}: TestClientConfig<TMode, TChain, TTransport>): TestClient<
   TMode,
-  TTransport,
   TChain,
+  TTransport,
   true
 > {
   const client = {
@@ -59,7 +59,7 @@ export function createTestClient<
       type: 'testClient',
     }),
     mode,
-  } as TestClient<TMode, TTransport, TChain>
+  } as TestClient<TMode, TChain, TTransport>
   return {
     ...client,
     ...testActions(client),

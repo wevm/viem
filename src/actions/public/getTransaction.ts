@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import { TransactionNotFoundError } from '../../errors/transaction'
 import type { BlockTag, Chain, Hash, RpcTransaction } from '../../types'
 import { format, numberToHex } from '../../utils'
@@ -50,7 +50,7 @@ export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
 
 /** @description Returns information about a transaction given a hash or block identifier. */
 export async function getTransaction<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     blockHash,
     blockNumber,

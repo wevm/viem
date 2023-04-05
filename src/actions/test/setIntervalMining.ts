@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Chain } from '../../types'
 
 export type SetIntervalMiningParameters = {
@@ -7,7 +7,7 @@ export type SetIntervalMiningParameters = {
 }
 
 export async function setIntervalMining<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   { interval }: SetIntervalMiningParameters,
 ) {
   return await client.request({

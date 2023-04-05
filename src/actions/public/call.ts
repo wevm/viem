@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
   Account,
@@ -49,7 +49,7 @@ export type CallParameters<
 export type CallReturnType = { data: Hex | undefined }
 
 export async function call<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   args: CallParameters<TChain>,
 ): Promise<CallReturnType> {
   const {

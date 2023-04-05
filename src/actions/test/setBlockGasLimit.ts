@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -8,7 +8,7 @@ export type SetBlockGasLimitParameters = {
 }
 
 export async function setBlockGasLimit<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   { gasLimit }: SetBlockGasLimitParameters,
 ) {
   return await client.request({

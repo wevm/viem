@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { Chain, Hash } from '../../types'
 import type {
   FormattedTransactionReceipt,
@@ -28,7 +28,7 @@ export type GetTransactionConfirmationsReturnType = bigint
 export async function getTransactionConfirmations<
   TChain extends Chain | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   { hash, transactionReceipt }: GetTransactionConfirmationsParameters<TChain>,
 ): Promise<GetTransactionConfirmationsReturnType> {
   const [blockNumber, transaction] = await Promise.all([

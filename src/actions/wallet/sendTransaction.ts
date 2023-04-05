@@ -1,4 +1,4 @@
-import type { Transport, WalletClient } from '../../clients'
+import type { Client, WalletClient } from '../../clients'
 import {
   AccountNotFoundError,
   BaseError,
@@ -51,11 +51,11 @@ export async function sendTransaction<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: WalletClient<TChain, TAccount> | Client<TChain>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {
-    account: account_ = client.account,
+    account: account_ = (client as WalletClient).account,
     chain = client.chain,
     accessList,
     data,

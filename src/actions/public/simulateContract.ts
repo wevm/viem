@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { BaseError } from '../../errors'
 import type {
   Chain,
@@ -60,7 +60,7 @@ export async function simulateContract<
   TFunctionName extends string,
   TChainOverride extends Chain | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     abi,
     address,

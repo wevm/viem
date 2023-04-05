@@ -7,7 +7,7 @@ import {
   getTransactionCount,
   SendTransactionParameters,
 } from '../../actions'
-import type { PublicClient, Transport, WalletClient } from '../../clients'
+import type { PublicClient, WalletClient, Client } from '../../clients'
 import { AccountNotFoundError, BaseError } from '../../errors'
 import type { Account, Address, Chain, GetAccountParameter } from '../../types'
 import { parseGwei } from '../unit/parseGwei'
@@ -43,8 +43,9 @@ export async function prepareRequest<
   TParameters extends PrepareRequestParameters<TAccount>,
 >(
   client:
-    | WalletClient<Transport, TChain, TAccount>
-    | PublicClient<Transport, TChain>,
+    | PublicClient<TChain>
+    | WalletClient<TChain, TAccount>
+    | Client<TChain>,
   args: TParameters,
 ): Promise<PrepareRequestReturnType<TAccount, TParameters>> {
   const {

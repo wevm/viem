@@ -1,5 +1,5 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type {
   Address,
   Chain,
@@ -60,7 +60,7 @@ export function watchEvent<
   TAbiEvent extends AbiEvent | undefined,
   TEventName extends string | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     address,
     args,

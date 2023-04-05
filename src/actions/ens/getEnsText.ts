@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import { textResolverAbi, universalResolverAbi } from '../../constants/abis'
 import type { Address, Chain, Prettify } from '../../types'
 import {
@@ -39,7 +39,7 @@ export type GetEnsTextReturnType = string | null
  * // 'wagmi_sh'
  */
 export async function getEnsText<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     blockNumber,
     blockTag,

@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { Chain } from '../../types'
 import { getCache, withCache } from '../../utils/promise'
 
@@ -19,7 +19,7 @@ export function getBlockNumberCache(id: string) {
  * @description Returns the number of the most recent block seen.
  */
 export async function getBlockNumber<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   { maxAge = client.pollingInterval }: GetBlockNumberParameters = {},
 ): Promise<GetBlockNumberReturnType> {
   const blockNumberHex = await withCache(

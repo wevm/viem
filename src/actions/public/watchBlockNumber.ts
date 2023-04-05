@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient, Transport } from '../../clients'
 import type { Chain, GetTransportConfig } from '../../types'
 import { hexToBigInt } from '../../utils'
 import { observe } from '../../utils/observe'
@@ -47,7 +47,7 @@ export function watchBlockNumber<
   TChain extends Chain | undefined,
   TTransport extends Transport,
 >(
-  client: PublicClient<TTransport, TChain>,
+  client: PublicClient<TChain, TTransport> | Client<TChain>,
   {
     emitOnBegin = false,
     emitMissed = false,

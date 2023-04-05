@@ -39,10 +39,10 @@ export type WatchPendingTransactionsParameters<
 export type WatchPendingTransactionsReturnType = () => void
 
 export function watchPendingTransactions<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
+  TTransport extends Transport,
 >(
-  client: PublicClient<TTransport, TChain>,
+  client: PublicClient<TChain, TTransport>,
   {
     batch = true,
     onError,

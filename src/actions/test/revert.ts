@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Chain, Quantity } from '../../types'
 
 export type RevertParameters = {
@@ -7,7 +7,7 @@ export type RevertParameters = {
 }
 
 export async function revert<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   { id }: RevertParameters,
 ) {
   return await client.request({

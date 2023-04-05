@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import { TransactionReceiptNotFoundError } from '../../errors'
 import type { Chain, Hash } from '../../types'
 import { format } from '../../utils'
@@ -18,7 +18,7 @@ export type GetTransactionReceiptReturnType<
 > = FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
 
 export async function getTransactionReceipt<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   { hash }: GetTransactionReceiptParameters,
 ) {
   const receipt = await client.request({

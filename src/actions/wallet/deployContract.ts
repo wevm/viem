@@ -1,6 +1,6 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { WalletClient, Transport } from '../../clients'
+import type { Client, WalletClient } from '../../clients'
 import type {
   Account,
   Chain,
@@ -37,7 +37,7 @@ export function deployContract<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,
 >(
-  walletClient: WalletClient<Transport, TChain, TAccount>,
+  walletClient: WalletClient<TChain, TAccount> | Client<TChain>,
   {
     abi,
     args,

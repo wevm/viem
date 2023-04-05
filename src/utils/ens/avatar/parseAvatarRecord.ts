@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../../clients'
+import type { Client, PublicClient } from '../../../clients'
 import type { AssetGatewayUrls, Chain } from '../../../types'
 import {
   getJsonImage,
@@ -10,7 +10,7 @@ import {
 } from './utils'
 
 export async function parseAvatarRecord<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     gatewayUrls,
     record,
@@ -25,7 +25,7 @@ export async function parseAvatarRecord<TChain extends Chain | undefined>(
 }
 
 async function parseNftAvatarUri<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     gatewayUrls,
     record,

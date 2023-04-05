@@ -1,4 +1,4 @@
-import type { Transport, WalletClient } from '../../clients'
+import type { Client, WalletClient } from '../../clients'
 import type { Account, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -8,7 +8,7 @@ export async function switchChain<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: WalletClient<TChain, TAccount> | Client<TChain>,
   { id }: SwitchChainParameters,
 ) {
   await client.request({

@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { Address, BlockTag, Chain, Hex } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -19,7 +19,7 @@ export type GetStorageAtParameters = {
 export type GetStorageAtReturnType = Hex | undefined
 
 export async function getStorageAt<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   { address, blockNumber, blockTag = 'latest', slot }: GetStorageAtParameters,
 ): Promise<GetStorageAtReturnType> {
   const blockNumberHex =

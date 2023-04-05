@@ -54,10 +54,10 @@ export type WatchBlocksReturnType = () => void
  * @description Watches and returns information for incoming blocks.
  */
 export function watchBlocks<
-  TTransport extends Transport,
   TChain extends Chain | undefined,
+  TTransport extends Transport,
 >(
-  client: PublicClient<TTransport, TChain>,
+  client: PublicClient<TChain, TTransport>,
   {
     blockTag = 'latest',
     emitMissed = false,

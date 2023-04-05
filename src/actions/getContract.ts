@@ -45,13 +45,13 @@ import {
 } from './wallet'
 
 export type GetContractParameters<
-  TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
+  TTransport extends Transport = Transport,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends PublicClient<TTransport, TChain> | unknown = unknown,
+  TPublicClient extends PublicClient<TChain, TTransport> | unknown = unknown,
   TWalletClient extends
-    | WalletClient<TTransport, TChain, TAccount>
+    | WalletClient<TChain, TAccount, TTransport>
     | unknown = unknown,
 > = {
   /** Contract ABI */
@@ -201,15 +201,15 @@ export type GetContractReturnType<
  * Gets type-safe contract instance.
  */
 export function getContract<
-  TTransport extends Transport,
   TAbi extends Abi | readonly unknown[],
+  TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TPublicClient extends PublicClient<TTransport, TChain> | undefined =
-    | PublicClient<TTransport, TChain>
+  TPublicClient extends PublicClient<TChain, TTransport> | undefined =
+    | PublicClient<TChain, TTransport>
     | undefined,
-  TWalletClient extends WalletClient<TTransport, TChain, TAccount> | undefined =
-    | WalletClient<TTransport, TChain, TAccount>
+  TWalletClient extends WalletClient<TChain, TAccount, TTransport> | undefined =
+    | WalletClient<TChain, TAccount, TTransport>
     | undefined,
 >({
   abi,
@@ -217,9 +217,9 @@ export function getContract<
   publicClient,
   walletClient,
 }: GetContractParameters<
-  TTransport,
   TChain,
   TAccount,
+  TTransport,
   TAbi,
   TPublicClient,
   TWalletClient

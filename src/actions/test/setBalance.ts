@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Address, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -10,7 +10,7 @@ export type SetBalanceParameters = {
 }
 
 export async function setBalance<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   { address, value }: SetBalanceParameters,
 ) {
   return await client.request({

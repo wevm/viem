@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { AssetGatewayUrls, Chain, Prettify } from '../../types'
 import { parseAvatarRecord } from '../../utils/ens'
 import { getEnsText, GetEnsTextParameters } from './getEnsText'
@@ -16,7 +16,7 @@ export type GetEnsAvatarReturnType = string | null
  * @description Gets avatar URI for ENS name.
  */
 export async function getEnsAvatar<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     blockNumber,
     blockTag,

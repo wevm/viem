@@ -1,5 +1,5 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type {
   Address,
   BlockNumber,
@@ -60,7 +60,7 @@ export async function getLogs<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     address,
     blockHash,

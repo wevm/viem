@@ -1,5 +1,5 @@
 import type { TypedData } from 'abitype'
-import type { Transport, WalletClient } from '../../clients'
+import type { Client, WalletClient } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
 import type {
   Account,
@@ -25,9 +25,9 @@ export async function signTypedData<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: WalletClient<TChain, TAccount> | Client<TChain>,
   {
-    account: account_ = client.account,
+    account: account_ = (client as WalletClient).account,
     domain,
     message,
     primaryType,

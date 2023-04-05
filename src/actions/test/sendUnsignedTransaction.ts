@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Chain, Hash, TransactionRequest } from '../../types'
 import { formatTransactionRequest } from '../../utils'
 
@@ -9,7 +9,7 @@ export type SendUnsignedTransactionReturnType = Hash
 export async function sendUnsignedTransaction<
   TChain extends Chain | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   request: SendUnsignedTransactionParameters,
 ): Promise<SendUnsignedTransactionReturnType> {
   const request_ = formatTransactionRequest(request)

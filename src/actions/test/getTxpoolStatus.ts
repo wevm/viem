@@ -1,5 +1,5 @@
-import type { Chain } from '@wagmi/chains'
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
+import type { Chain } from '../../types'
 import { hexToNumber } from '../../utils'
 
 export type GetTxpoolStatusReturnType = {
@@ -8,7 +8,7 @@ export type GetTxpoolStatusReturnType = {
 }
 
 export async function getTxpoolStatus<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
 ): Promise<GetTxpoolStatusReturnType> {
   const { pending, queued } = await client.request({
     method: 'txpool_status',

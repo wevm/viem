@@ -1,4 +1,4 @@
-import type { PublicClient, Transport, WalletClient } from '../../clients'
+import type { Client, PublicClient, WalletClient } from '../../clients'
 import type { Account, Address, BlockTag, Chain } from '../../types'
 import { hexToNumber, numberToHex } from '../../utils'
 
@@ -27,8 +27,9 @@ export async function getTransactionCount<
   TAccount extends Account | undefined,
 >(
   client:
-    | PublicClient<Transport, TChain>
-    | WalletClient<Transport, TChain, TAccount>,
+    | PublicClient<TChain>
+    | WalletClient<TChain, TAccount>
+    | Client<TChain>,
   { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
   const count = await client.request({

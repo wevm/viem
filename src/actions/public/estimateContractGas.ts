@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { BaseError } from '../../errors'
 import type { Chain, ContractFunctionConfig, GetValue } from '../../types'
 import {
@@ -26,7 +26,7 @@ export async function estimateContractGas<
   TFunctionName extends string,
   TChain extends Chain | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     abi,
     address,

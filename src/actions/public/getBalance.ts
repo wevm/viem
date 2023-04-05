@@ -1,4 +1,4 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 import type { Address, BlockTag, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -24,7 +24,7 @@ export type GetBalanceReturnType = bigint
  * @description Returns the balance of an address in wei.
  */
 export async function getBalance<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   { address, blockNumber, blockTag = 'latest' }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined

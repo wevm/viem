@@ -1,5 +1,5 @@
 import type { Abi, AbiEvent, Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { Client, PublicClient } from '../../clients'
 
 import type {
   Address,
@@ -71,7 +71,7 @@ export async function createEventFilter<
     | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
     | undefined = undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   {
     address,
     args,

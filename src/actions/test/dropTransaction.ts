@@ -1,4 +1,4 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
+import type { TestClient, TestClientMode } from '../../clients'
 import type { Chain, Hash } from '../../types'
 
 export type DropTransactionParameters = {
@@ -7,7 +7,7 @@ export type DropTransactionParameters = {
 }
 
 export async function dropTransaction<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, TChain>,
   { hash }: DropTransactionParameters,
 ) {
   return await client.request({

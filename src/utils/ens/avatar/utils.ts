@@ -1,5 +1,5 @@
 import { readContract } from '../../../actions'
-import type { PublicClient, Transport } from '../../../clients'
+import type { Client, PublicClient } from '../../../clients'
 import {
   EnsAvatarInvalidMetadataError,
   EnsAvatarInvalidNftUriError,
@@ -209,7 +209,7 @@ export function parseNftUri(uri: string): ParsedNft {
 }
 
 export async function getNftTokenUri<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: PublicClient<TChain> | Client<TChain>,
   { nft }: { nft: ParsedNft },
 ) {
   if (nft.namespace === 'erc721') {

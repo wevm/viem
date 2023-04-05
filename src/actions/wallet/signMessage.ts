@@ -1,4 +1,4 @@
-import type { Transport, WalletClient } from '../../clients'
+import type { Client, WalletClient } from '../../clients'
 import { AccountNotFoundError } from '../../errors'
 import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
 import { parseAccount, toHex } from '../../utils'
@@ -15,9 +15,9 @@ export async function signMessage<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: WalletClient<TChain, TAccount> | Client<TChain>,
   {
-    account: account_ = client.account,
+    account: account_ = (client as WalletClient).account,
     message,
   }: SignMessageParameters<TAccount>,
 ): Promise<SignMessageReturnType> {

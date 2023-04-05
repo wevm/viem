@@ -1,4 +1,4 @@
-import type { Transport, WalletClient } from '../../clients'
+import type { Client, WalletClient } from '../../clients'
 import type { Account, Chain } from '../../types'
 import { numberToHex } from '../../utils'
 
@@ -10,7 +10,7 @@ export async function addChain<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: WalletClient<TChain, TAccount> | Client<TChain>,
   { chain }: AddChainParameters,
 ) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain

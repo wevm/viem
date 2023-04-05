@@ -99,9 +99,11 @@ export type TestActions = {
   ) => Promise<void>
 }
 
-export function testActions<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
-): TestActions {
+export function testActions<
+  TMode extends TestClientMode = TestClientMode,
+  TChain extends Chain | undefined = Chain | undefined,
+  TTransport extends Transport = Transport,
+>(client: TestClient<TMode, TChain, TTransport>): TestActions {
   return {
     dropTransaction: (args) => dropTransaction(client, args),
     getAutomine: () => getAutomine(client),
