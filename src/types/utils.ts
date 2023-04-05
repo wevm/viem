@@ -43,6 +43,28 @@ export type IsNarrowable<T, U> = IsNever<
 export type IsNever<T> = [T] extends [never] ? true : false
 
 /**
+ * @description Checks if {@link T} contains predicate type.
+ * @param T - Type to check
+ * @param TPredicate - Predicate type
+ *
+ * @example
+ * type Result = Contains<['a', 'b', 'c'], 'b'>
+ * //   ^? type Result = true
+ *
+ * @example
+ * type Result = Contains<[false, false, false], true>
+ * //   ^? type Result = false
+ */
+export type Contains<
+  T extends readonly unknown[],
+  TPredicate extends unknown,
+> = T extends readonly [infer Head, ...infer Tail]
+  ? Head extends TPredicate
+    ? true
+    : Contains<Tail, TPredicate>
+  : false
+
+/**
  * @description Checks if {@link T} is `undefined`
  * @param T - Type to check
  * @example

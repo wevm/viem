@@ -118,6 +118,7 @@ export type {
 } from './typedData'
 
 export type {
+  Contains,
   IsNarrowable,
   IsNever,
   IsUndefined,
