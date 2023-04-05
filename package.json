@@ -8,7 +8,7 @@
     "bench:ci": "CI=true vitest bench --no-threads",
     "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm+types && size-limit",
     "build:cjs": "tsc --project tsconfig.build.json --module commonjs --outDir ./dist/cjs && echo > ./dist/cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
+    "build:esm+types": "tsc --project tsconfig.build.json --module es2015 --verbatimModuleSyntax --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm bun scripts/updateVersion.ts",
@@ -178,7 +178,7 @@
     "rome": "^12.0.0",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
-    "typescript": "^4.9.4",
+    "typescript": "^5.0.3",
     "vite": "^4.1.4",
     "vitest": "~0.29.2"
   },

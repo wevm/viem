@@ -1,11 +1,12 @@
 {
+  // This tsconfig file contains the shared config for the build (tsconfig.build.json) and type checking (tsconfig.json) config.
   "include": [],
   "compilerOptions": {
     // Incremental builds
     // NOTE: Enabling incremental builds speeds up `tsc`. Keep in mind though that it does not reliably bust the cache when the `tsconfig.json` file changes.
     "incremental": true,
 
-    // Type Checking
+    // Type checking
     "strict": true,
     "useDefineForClassFields": true, // Not enabled by default in `strict` mode unless we bump `target` to ES2022.
     "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
@@ -18,16 +19,15 @@
     // "noUnusedParameters": true,
     // "noUncheckedIndexedAccess": true,
 
-    // JavaScript Support
+    // JavaScript support
     "allowJs": false,
     "checkJs": false,
 
-    // Interop Constraints
-    "esModuleInterop": true,
+    // Interop constraints
+    "esModuleInterop": false,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
 
-    // Language and Environment
+    // Language and environment
     "moduleResolution": "Node",
     "module": "ESNext",
     "target": "ES2021", // Setting this to `ES2021` enables native support for `Node v16+`: https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping.
@@ -36,7 +36,7 @@
       "DOM" // We are adding `DOM` here to get the `fetch`, etc. types. This should be removed once these types are available via DefinitelyTyped.
     ],
 
-    // Completeness
+    // Skip type checking for node modules
     "skipLibCheck": true
   }
 }
