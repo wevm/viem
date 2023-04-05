@@ -2,9 +2,9 @@
 import type { Abi } from 'abitype'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import type { DeployContractParameters } from '../actions'
 import {
   deployContract,
-  DeployContractParameters,
   getTransactionReceipt,
   impersonateAccount,
   mine,
@@ -12,7 +12,8 @@ import {
   stopImpersonatingAccount,
   writeContract,
 } from '../actions'
-import { Chain, localhost, mainnet } from '../chains'
+import type { Chain } from '../chains'
+import { localhost, mainnet } from '../chains'
 import {
   createPublicClient,
   createTestClient,

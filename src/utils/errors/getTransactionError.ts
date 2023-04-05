@@ -1,4 +1,5 @@
-import { BaseError, TransactionExecutionError } from '../../errors'
+import type { BaseError } from '../../errors'
+import { TransactionExecutionError } from '../../errors'
 import type { Account, Chain } from '../../types'
 import type { SendTransactionParameters } from '../../wallet'
 import { containsNodeError, getNodeError } from './getNodeError'

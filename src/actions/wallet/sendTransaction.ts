@@ -1,7 +1,7 @@
 import type { Transport, WalletClient } from '../../clients'
+import type { BaseError } from '../../errors'
 import {
   AccountNotFoundError,
-  BaseError,
   ChainMismatchError,
   ChainNotFoundError,
 } from '../../errors'

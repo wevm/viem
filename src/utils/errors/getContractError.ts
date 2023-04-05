@@ -1,7 +1,7 @@
 import type { Abi } from 'abitype'
+import type { BaseError } from '../../errors'
 import {
   AbiDecodingZeroDataError,
-  BaseError,
   ContractFunctionExecutionError,
   EstimateGasExecutionError,
   RawContractError,

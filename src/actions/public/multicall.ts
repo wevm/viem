@@ -1,11 +1,8 @@
 import type { Narrow } from 'abitype'
 import type { PublicClient, Transport } from '../../clients'
 import { multicall3Abi } from '../../constants'
-import {
-  AbiDecodingZeroDataError,
-  BaseError,
-  RawContractError,
-} from '../../errors'
+import type { BaseError } from '../../errors'
+import { AbiDecodingZeroDataError, RawContractError } from '../../errors'
 import type {
   Address,
   Chain,

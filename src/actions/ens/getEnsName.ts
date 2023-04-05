@@ -1,9 +1,7 @@
 import type { PublicClient, Transport } from '../../clients'
 import { panicReasons } from '../../constants'
-import {
-  ContractFunctionExecutionError,
-  ContractFunctionRevertedError,
-} from '../../errors'
+import type { ContractFunctionRevertedError } from '../../errors'
+import { ContractFunctionExecutionError } from '../../errors'
 import type { Address, Chain, Prettify } from '../../types'
 import { getChainContractAddress, toHex } from '../../utils'
 import { packetToBytes } from '../../utils/ens'
