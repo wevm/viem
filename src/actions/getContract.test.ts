@@ -140,7 +140,7 @@ test('watchEvent', async () => {
 
 test('write', async () => {
   await expect(
-    contract.write.mint([0n], {
+    contract.write.mint({
       account: accounts[0].address,
     }),
   ).resolves.toBeDefined()

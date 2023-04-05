@@ -1,11 +1,18 @@
 import { test, expectTypeOf } from 'vitest'
 import type {
+  Contains,
   Filter,
   IsNarrowable,
   IsNever,
   IsUndefined,
   RequiredBy,
 } from './utils'
+
+test('Contains', () => {
+  expectTypeOf<Contains<[true, false, true], true>>().toEqualTypeOf<true>()
+  expectTypeOf<Contains<[false, false, false], true>>().toEqualTypeOf<false>()
+  expectTypeOf<Contains<['a', 'b', 'c'], 'a'>>().toEqualTypeOf<true>()
+})
 
 test('Filter', () => {
   expectTypeOf<Filter<[1, 'foo', false, 'baz'], 1 | boolean>>().toEqualTypeOf<
