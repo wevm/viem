@@ -23,7 +23,8 @@ import * as createContractEventFilter from './createContractEventFilter'
 import * as getBlockNumber from './getBlockNumber'
 import * as getFilterChanges from './getFilterChanges'
 import * as getLogs from './getLogs'
-import { OnLogsParameter, watchContractEvent } from './watchContractEvent'
+import type { OnLogsParameter } from './watchContractEvent'
+import { watchContractEvent } from './watchContractEvent'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {

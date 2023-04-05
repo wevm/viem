@@ -7,7 +7,8 @@ import { createPublicClient } from '../createPublicClient'
 import { getBlockNumber } from '../../actions'
 import { wait } from '../../utils/wait'
 import type { Transport } from './createTransport'
-import { fallback, FallbackTransport, rankTransports } from './fallback'
+import type { FallbackTransport } from './fallback'
+import { fallback, rankTransports } from './fallback'
 import { http } from './http'
 
 test('default', () => {

@@ -4,11 +4,8 @@ import type {
   TransactionSerialized,
   TransactionType,
 } from '../../types'
-import {
-  GetTransactionType,
-  keccak256,
-  serializeTransaction,
-} from '../../utils'
+import { keccak256, serializeTransaction } from '../../utils'
+import type { GetTransactionType } from '../../utils'
 import { sign } from './sign'
 
 export type SignTransactionArgs<

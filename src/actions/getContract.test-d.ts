@@ -1,11 +1,11 @@
-import {
+import type {
   Abi,
   Address,
   ExtractAbiEventNames,
   ExtractAbiFunctionNames,
-  parseAbi,
   ResolvedConfig,
 } from 'abitype'
+import { parseAbi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import {

@@ -1,5 +1,6 @@
 import type { EstimateGasParameters } from '../../actions'
-import { BaseError, EstimateGasExecutionError } from '../../errors'
+import type { BaseError } from '../../errors'
+import { EstimateGasExecutionError } from '../../errors'
 import type { Account, Chain } from '../../types'
 import { containsNodeError, getNodeError } from './getNodeError'
 

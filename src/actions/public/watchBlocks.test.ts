@@ -1,7 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { celo, localhost } from '../../chains'
-import { createPublicClient, http, PublicClient } from '../../clients'
+import type { PublicClient } from '../../clients'
+import { createPublicClient, http } from '../../clients'
 import type { Block } from '../../types'
 import { parseEther } from '../../utils'
 import { wait } from '../../utils/wait'

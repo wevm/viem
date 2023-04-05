@@ -15,7 +15,8 @@ import * as createEventFilter from './createEventFilter'
 import * as getBlockNumber from './getBlockNumber'
 import * as getLogs from './getLogs'
 import * as getFilterChanges from './getFilterChanges'
-import { OnLogsParameter, watchEvent } from './watchEvent'
+import type { OnLogsParameter } from './watchEvent'
+import { watchEvent } from './watchEvent'
 
 const event = {
   transfer: {

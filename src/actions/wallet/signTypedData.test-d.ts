@@ -2,7 +2,8 @@ import type { TypedData } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 import { walletClient } from '../../_test'
 
-import { signTypedData, SignTypedDataParameters } from './signTypedData'
+import type { SignTypedDataParameters } from './signTypedData'
+import { signTypedData } from './signTypedData'
 
 const types = {
   Name: [
