@@ -8,7 +8,8 @@ import type {
   JsonRpcAccount,
   Prettify,
 } from '../types'
-import { WalletActions, walletActions } from './decorators'
+import { walletActions } from './decorators'
+import type { WalletActions } from './decorators'
 import { parseAccount } from '../utils'
 import type { Requests } from '../types/eip1193'
 

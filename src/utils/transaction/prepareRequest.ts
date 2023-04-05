@@ -1,10 +1,12 @@
 import { parseAccount } from '../accounts'
 import {
   estimateGas,
-  EstimateGasParameters,
   getBlock,
   getGasPrice,
   getTransactionCount,
+} from '../../actions'
+import type {
+  EstimateGasParameters,
   SendTransactionParameters,
 } from '../../actions'
 import type { PublicClient, Transport, WalletClient } from '../../clients'

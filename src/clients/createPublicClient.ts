@@ -2,7 +2,8 @@ import type { PublicRequests } from '../types/eip1193'
 import type { Transport } from './transports/createTransport'
 import type { Client, ClientConfig } from './createClient'
 import { createClient } from './createClient'
-import { publicActions, PublicActions } from './decorators'
+import { publicActions } from './decorators'
+import type { PublicActions } from './decorators'
 import type { Chain, Prettify } from '../types'
 
 export type PublicClientConfig<

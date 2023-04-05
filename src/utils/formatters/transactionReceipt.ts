@@ -6,7 +6,8 @@ import type {
   TransactionReceipt,
 } from '../../types'
 import { hexToNumber } from '../encoding'
-import { defineFormatter, ExtractFormatter, Formatted } from './format'
+import { defineFormatter } from './format'
+import type { ExtractFormatter, Formatted } from './format'
 import { formatLog } from './log'
 import { transactionType } from './transaction'
 

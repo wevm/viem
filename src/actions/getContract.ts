@@ -22,27 +22,26 @@ import type {
   Prettify,
 } from '../types'
 import {
+  createContractEventFilter,
+  readContract,
+  simulateContract,
+  estimateContractGas,
+  watchContractEvent,
+} from './public'
+import type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
   ReadContractParameters,
   ReadContractReturnType,
   SimulateContractParameters,
-  readContract,
-  simulateContract,
   EstimateContractGasParameters,
-  estimateContractGas,
-  createContractEventFilter,
   CreateContractEventFilterParameters,
-  watchContractEvent,
   CreateContractEventFilterReturnType,
   EstimateContractGasReturnType,
   SimulateContractReturnType,
 } from './public'
-import {
-  WriteContractParameters,
-  WriteContractReturnType,
-  writeContract,
-} from './wallet'
+import { writeContract } from './wallet'
+import type { WriteContractParameters, WriteContractReturnType } from './wallet'
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,

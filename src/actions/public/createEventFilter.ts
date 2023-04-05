@@ -12,11 +12,8 @@ import type {
   MaybeExtractEventArgsFromAbi,
   Prettify,
 } from '../../types'
-import {
-  encodeEventTopics,
-  EncodeEventTopicsParameters,
-  numberToHex,
-} from '../../utils'
+import { encodeEventTopics, numberToHex } from '../../utils'
+import type { EncodeEventTopicsParameters } from '../../utils'
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

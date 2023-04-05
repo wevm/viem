@@ -19,7 +19,8 @@ import { toBytes } from '../encoding'
 import { getEventSelector, keccak256 } from '../hash'
 import { encodeAbiParameters } from './encodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+import { getAbiItem } from './getAbiItem'
+import type { GetAbiItemParameters } from './getAbiItem'
 
 export type EncodeEventTopicsParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

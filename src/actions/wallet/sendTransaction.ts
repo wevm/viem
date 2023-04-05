@@ -20,13 +20,12 @@ import {
   assertRequest,
   extract,
   format,
-  Formatted,
   formatTransactionRequest,
   getTransactionError,
   parseAccount,
   prepareRequest,
-  TransactionRequestFormatter,
 } from '../../utils'
+import type { Formatted, TransactionRequestFormatter } from '../../utils'
 import { getChainId } from '../public'
 
 export type FormattedTransactionRequest<

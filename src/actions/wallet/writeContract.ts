@@ -8,9 +8,10 @@ import type {
   GetChain,
   GetValue,
 } from '../../types'
-import { encodeFunctionData, EncodeFunctionDataParameters } from '../../utils'
-import {
-  sendTransaction,
+import { encodeFunctionData } from '../../utils'
+import type { EncodeFunctionDataParameters } from '../../utils'
+import { sendTransaction } from './sendTransaction'
+import type {
   SendTransactionParameters,
   SendTransactionReturnType,
 } from './sendTransaction'
