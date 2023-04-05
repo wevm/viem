@@ -369,7 +369,7 @@ test('with and without wallet client `account`', () => {
   expectTypeOf(contractWithoutAccount.write.approve).parameters.toEqualTypeOf<
     [
       args: readonly [`0x${string}`, bigint],
-      options: { account: Account | Address },
+      options?: { account: Account | Address },
     ]
   >()
 })
@@ -392,7 +392,7 @@ test('with and without wallet client `chain`', () => {
   expectTypeOf(contractWithoutChain.write.approve).parameters.toEqualTypeOf<
     [
       args: readonly [`0x${string}`, bigint],
-      params: { chain: Chain | null | undefined },
+      params?: { chain: Chain | null | undefined },
     ]
   >()
 })

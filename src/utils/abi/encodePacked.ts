@@ -48,7 +48,7 @@ export function encodePacked<
     })
 
   const data: Hex[] = []
-  for (let i = 0; i < types.length; i++) {
+  for (let i = 0; i < (types as unknown[]).length; i++) {
     const type = types[i]
     const value = values[i]
     data.push(encode(type, value))

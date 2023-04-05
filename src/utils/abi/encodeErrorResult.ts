@@ -34,7 +34,7 @@ export function encodeErrorResult<
   const signature = getFunctionSelector(definition)
 
   let data: Hex = '0x'
-  if (args && args.length > 0) {
+  if (args && (args as readonly unknown[]).length > 0) {
     if (!('inputs' in description && description.inputs))
       throw new AbiErrorInputsNotFoundError(errorName, { docsPath })
     data = encodeAbiParameters(description.inputs, args as readonly unknown[])
