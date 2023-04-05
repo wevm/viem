@@ -1,4 +1,4 @@
-import type { RpcError } from '../errors'
+import type { RpcError } from '../errors/index.js'
 import {
   BaseError,
   HttpRequestError,

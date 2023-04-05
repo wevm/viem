@@ -16,15 +16,19 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
-import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { writeContract } from '../wallet'
-import * as createContractEventFilter from './createContractEventFilter'
-import * as getBlockNumber from './getBlockNumber'
-import * as getFilterChanges from './getFilterChanges'
-import * as getLogs from './getLogs'
-import type { OnLogsParameter } from './watchContractEvent'
-import { watchContractEvent } from './watchContractEvent'
+} from '../../_test/index.js'
+import {
+  impersonateAccount,
+  mine,
+  stopImpersonatingAccount,
+} from '../test/index.js'
+import { writeContract } from '../wallet/index.js'
+import * as createContractEventFilter from './createContractEventFilter.js'
+import * as getBlockNumber from './getBlockNumber.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import * as getLogs from './getLogs.js'
+import type { OnLogsParameter } from './watchContractEvent.js'
+import { watchContractEvent } from './watchContractEvent.js'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {

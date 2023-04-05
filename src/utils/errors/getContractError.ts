@@ -1,5 +1,5 @@
 import type { Abi } from 'abitype'
-import type { BaseError } from '../../errors'
+import type { BaseError } from '../../errors/index.js'
 import {
   AbiDecodingZeroDataError,
   ContractFunctionExecutionError,

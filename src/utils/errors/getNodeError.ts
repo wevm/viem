@@ -1,5 +1,5 @@
-import type { SendTransactionParameters } from '../../actions'
-import type { BaseError } from '../../errors'
+import type { SendTransactionParameters } from '../../actions/index.js'
+import type { BaseError } from '../../errors/index.js'
 import {
   ExecutionRevertedError,
   FeeCapTooHighError,

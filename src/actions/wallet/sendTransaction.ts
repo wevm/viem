@@ -1,5 +1,5 @@
-import type { Transport, WalletClient } from '../../clients'
-import type { BaseError } from '../../errors'
+import type { Transport, WalletClient } from '../../clients/index.js'
+import type { BaseError } from '../../errors/index.js'
 import {
   AccountNotFoundError,
   ChainMismatchError,

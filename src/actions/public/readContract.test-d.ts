@@ -8,9 +8,9 @@ import {
 } from 'abitype/test'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '../../_test'
-import type { ReadContractParameters } from './readContract'
-import { readContract } from './readContract'
+import { publicClient } from '../../_test/index.js'
+import type { ReadContractParameters } from './readContract.js'
+import { readContract } from './readContract.js'
 
 test('ReadContractParameters', () => {
   type Result = ReadContractParameters<typeof wagmiMintExampleAbi, 'tokenURI'>

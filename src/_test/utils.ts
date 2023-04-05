@@ -2,7 +2,7 @@
 import type { Abi } from 'abitype'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
-import type { DeployContractParameters } from '../actions'
+import type { DeployContractParameters } from '../actions/index.js'
 import {
   deployContract,
   getTransactionReceipt,
@@ -11,9 +11,9 @@ import {
   reset,
   stopImpersonatingAccount,
   writeContract,
-} from '../actions'
-import type { Chain } from '../chains'
-import { localhost, mainnet } from '../chains'
+} from '../actions/index.js'
+import type { Chain } from '../chains.js'
+import { localhost, mainnet } from '../chains.js'
 import {
   createPublicClient,
   createTestClient,

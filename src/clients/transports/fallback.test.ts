@@ -4,12 +4,12 @@ import { createHttpServer } from '../../_test/index.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
 
-import { getBlockNumber } from '../../actions'
-import { wait } from '../../utils/wait'
-import type { Transport } from './createTransport'
-import type { FallbackTransport } from './fallback'
-import { fallback, rankTransports } from './fallback'
-import { http } from './http'
+import { getBlockNumber } from '../../actions/index.js'
+import { wait } from '../../utils/wait.js'
+import type { Transport } from './createTransport.js'
+import type { FallbackTransport } from './fallback.js'
+import { fallback, rankTransports } from './fallback.js'
+import { http } from './http.js'
 
 test('default', () => {
   const alchemy = http('https://alchemy.com/rpc')
