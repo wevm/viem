@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.9
+
+### Patch Changes
+
+- [#317](https://github.com/wagmi-dev/viem/pull/317) [`2720ba5`](https://github.com/wagmi-dev/viem/commit/2720ba566d02fdb2c6ddc8d016ec252606a9cb95) Thanks [@jxom](https://github.com/jxom)! - Fixed `transports` property type on `FallbackTransport`.
+
 ## 0.2.8
 
 ### Patch Changes
