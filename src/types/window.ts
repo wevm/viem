@@ -1,9 +1,7 @@
-import type { Events, Requests } from './eip1193.js'
-
-type WindowProvider = Requests & Events
+import type { EIP1193Provider } from './eip1193.js'
 
 declare global {
   interface Window {
-    ethereum?: WindowProvider
+    ethereum?: EIP1193Provider
   }
 }

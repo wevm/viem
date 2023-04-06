@@ -260,6 +260,7 @@ export type {
   ContractFunctionConfig,
   ContractFunctionResult,
   CustomSource,
+  EIP1193Provider,
   FeeHistory,
   FeeValues,
   FeeValuesEIP1559,
