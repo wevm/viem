@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.8
+
+### Patch Changes
+
+- [#313](https://github.com/wagmi-dev/viem/pull/313) [`eb2280c`](https://github.com/wagmi-dev/viem/commit/eb2280cbc65b3e509b4b3871fe75b236101da442) Thanks [@jxom](https://github.com/jxom)! - Migrated from `idna-uts46-hx` to `@adraffy/ens-normalize` for `normalize`.
+
 ## 0.2.7
 
 ### Patch Changes
