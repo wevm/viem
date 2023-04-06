@@ -16,6 +16,13 @@ export type VerifyTypedDataParameters<
 
 export type VerifyTypedDataReturnType = boolean
 
+/**
+ * Can be used to verify a typed data signed by a private key
+ *
+ * @private Should not be used directly, please use `publicClient.verifyTypedData` instead
+ * @param parameters
+ * @returns true if the typed data was signed by the private key of provided address (EOA)
+ */
 export async function verifyTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
