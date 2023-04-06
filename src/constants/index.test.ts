@@ -12,6 +12,7 @@ test('exports index', () => {
       "etherUnits",
       "gweiUnits",
       "weiUnits",
+      "ERC1271_MAGICVALUE",
     ]
   `)
 })

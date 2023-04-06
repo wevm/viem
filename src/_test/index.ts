@@ -3,6 +3,7 @@ export {
   wagmiContractConfig,
   uniswapV3PositionsContractConfig,
   usdcContractConfig,
+  smartAccountConfig,
 } from './abis'
 
 export { ethersProvider, ethersV6Provider } from './bench'
