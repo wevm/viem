@@ -5,18 +5,18 @@ head:
       content: verifyTypedData
   - - meta
     - name: description
-      content: Verifies a typed data signature
+      content: Verifies a typed data signature for an account
   - - meta
     - property: og:description
-      content: Verifies a typed data signature
+      content: Verifies a typed data signature for an account
 ---
 
 # verifyTypedData
 
-Verify that typed data was signed by the provided address.
+Verifies if a typed data signature is valid for the provided address.
 
-::: warning ⚠️ WARNING
-Should not be used directly to verify typedData from accounts, please use [publicClient.verifyTypedData](../actions/public/verifyTypedData.md) instead.
+::: info 💡 Why should I use this instead of `utils.verifyTypedData`?
+Please use this method instead of [utils.verifyTypedData](../../utilities/verifyTypedData.md), as this method supports [ERC-1271](https://eips.ethereum.org/EIPS/eip-1271) and therefore supports more types of accounts. This is getting increasingly important as more and more wallets use [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337).
 :::
 
 ## Usage
@@ -24,8 +24,7 @@ Should not be used directly to verify typedData from accounts, please use [publi
 ::: code-group
 
 ```ts [example.ts]
-import { verifyTypedData } from 'viem'
-import { account, walletClient } from './client'
+import { account, walletClient, publicClient } from './client'
 
 const message = {
   from: {
@@ -47,7 +46,7 @@ const signature = await walletClient.signTypedData({
   message,
 })
 // [!code focus:99]
-const valid = await verifyTypedData({
+const valid = await publicClient.verifyTypedData({
   address: account.address,
   domain,
   types,
@@ -82,13 +81,22 @@ export const types = {
 ```
 
 ```ts [client.ts]
-import { createWalletClient, custom } from 'viem'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
 
 export const walletClient = createWalletClient({
-  transport: custom(window.ethereum),
+  transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -97,7 +105,7 @@ export const walletClient = createWalletClient({
 
 `boolean`
 
-Whether the provided `address` generated the `signature`.
+Wheather the signed message is valid for the given address.
 
 ## Parameters
 
