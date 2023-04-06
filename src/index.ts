@@ -104,6 +104,8 @@ export type {
   SwitchChainParameters,
   UninstallFilterParameters,
   UninstallFilterReturnType,
+  VerifyMessageParameters,
+  VerifyMessageReturnType,
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
   WatchAssetParameters,
@@ -368,8 +370,6 @@ export type {
   TransactionFormatter,
   TransactionReceiptFormatter,
   TransactionRequestFormatter,
-  VerifyMessageParameters,
-  VerifyMessageReturnType,
   VerifyTypedDataParameters,
   VerifyTypedDataReturnType,
 } from './utils'

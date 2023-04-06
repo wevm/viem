@@ -33,6 +33,8 @@ test('exports actions', () => {
       "readContract": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
+      "verifyMessage": [Function],
+      "verifyTypedData": [Function],
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],

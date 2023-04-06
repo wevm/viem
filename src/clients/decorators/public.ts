@@ -67,6 +67,10 @@ import type {
   ReadContractReturnType,
   SimulateContractParameters,
   SimulateContractReturnType,
+  VerifyMessageParameters,
+  VerifyMessageReturnType,
+  VerifyTypedDataParameters,
+  VerifyTypedDataReturnType,
   UninstallFilterParameters,
   UninstallFilterReturnType,
   WaitForTransactionReceiptParameters,
@@ -109,6 +113,8 @@ import {
   multicall,
   readContract,
   simulateContract,
+  verifyMessage,
+  verifyTypedData,
   uninstallFilter,
   waitForTransactionReceipt,
   watchBlockNumber,
@@ -244,6 +250,12 @@ export type PublicActions<
   ) => Promise<
     SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
   >
+  verifyMessage: (
+    args: VerifyMessageParameters,
+  ) => Promise<VerifyMessageReturnType>
+  verifyTypedData: (
+    args: VerifyTypedDataParameters,
+  ) => Promise<VerifyTypedDataReturnType>
   uninstallFilter: (
     args: UninstallFilterParameters,
   ) => Promise<UninstallFilterReturnType>
@@ -308,6 +320,8 @@ export const publicActions = <
   multicall: (args) => multicall(client, args),
   readContract: (args) => readContract(client, args),
   simulateContract: (args) => simulateContract(client, args),
+  verifyMessage: (args) => verifyMessage(client, args),
+  verifyTypedData: (args) => verifyTypedData(client, args),
   uninstallFilter: (args) => uninstallFilter(client, args),
   waitForTransactionReceipt: (args) => waitForTransactionReceipt(client, args),
   watchBlocks: (args) => watchBlocks(client, args),

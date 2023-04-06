@@ -7,7 +7,9 @@ import {
   initialBlockNumber,
   publicClient,
   setBlockNumber,
+  smartAccountConfig,
   testClient,
+  typedData,
   usdcContractConfig,
   wagmiContractConfig,
   walletClient,
@@ -49,6 +51,8 @@ test('default', async () => {
       "readContract": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
+      "verifyMessage": [Function],
+      "verifyTypedData": [Function],
       "waitForTransactionReceipt": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
@@ -333,6 +337,29 @@ describe('smoke test', () => {
         args: [69435n],
       }),
     ).toBeDefined()
+  })
+
+  test('verifyMessage', async () => {
+    expect(
+      await publicClient.verifyMessage({
+        address: smartAccountConfig.address,
+        message: 'This is a test message for viem!',
+        signature:
+          '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
+      }),
+    ).toBe(true)
+  })
+
+  test('verifyTypedData', async () => {
+    expect(
+      await publicClient.verifyTypedData({
+        ...typedData.basic,
+        primaryType: 'Mail',
+        address: smartAccountConfig.address,
+        signature:
+          '0x79d756d805073dc97b7bc885b0d56ddf319a2599530fe1e178c2a7de5be88980068d24f20a79b318ea0a84d33ae06f93db77e4235e5d9eeb8b1d7a63922ada3e1c',
+      }),
+    ).toBe(true)
   })
 
   test('uninstallFilter', async () => {

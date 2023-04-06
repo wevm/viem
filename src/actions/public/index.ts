@@ -133,6 +133,18 @@ export type {
   UninstallFilterReturnType,
 } from './uninstallFilter'
 
+export { verifyMessage } from './verifyMessage'
+export type {
+  VerifyMessageParameters,
+  VerifyMessageReturnType,
+} from './verifyMessage'
+
+export { verifyTypedData } from './verifyTypedData'
+export type {
+  VerifyTypedDataParameters,
+  VerifyTypedDataReturnType,
+} from './verifyTypedData'
+
 export { waitForTransactionReceipt } from './waitForTransactionReceipt'
 export type {
   WaitForTransactionReceiptParameters,
