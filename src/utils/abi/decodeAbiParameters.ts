@@ -49,6 +49,8 @@ function decodeParams<TParams extends readonly AbiParameter[]>({
 
   for (let i = 0; i < params.length; i++) {
     const param = params[i]
+    // Skip the log if all params are not available in the data
+    if(position >= data.length) return null;
     const { consumed, value } = decodeParam({ data, param, position })
     decodedValues.push(value)
     // Step across the data by the amount of data consumed by this parameter.
