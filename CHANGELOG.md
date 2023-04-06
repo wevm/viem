@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.10
+
+### Patch Changes
+
+- [#322](https://github.com/wagmi-dev/viem/pull/322) [`ea019d7`](https://github.com/wagmi-dev/viem/commit/ea019d75c5243d8ae2b8ca1686b34026b170d903) Thanks [@tmm](https://github.com/tmm)! - Fixed properties passed to ethers adapter `signTransaction`
+
 ## 0.2.9
 
 ### Patch Changes
