@@ -3,12 +3,14 @@ import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
   address,
+  deployErc20InvalidTransferEvent,
   initialBlockNumber,
   publicClient,
   testClient,
   usdcContractConfig,
   walletClient,
 } from '../../_test'
+import { erc20InvalidTransferEventABI } from '../../_test/generated'
 
 import {
   impersonateAccount,
@@ -33,6 +35,27 @@ const event = {
       },
       {
         indexed: true,
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  invalid: {
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: false,
         name: 'to',
         type: 'address',
       },
@@ -744,5 +767,75 @@ describe('raw events', () => {
       getAddress(accounts[0].address),
       1n,
     ])
+  })
+})
+
+describe('skip invalid logs', () => {
+  test('indexed params mismatch', async () => {
+    const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+    const filter = await createEventFilter(publicClient, {
+      event: event.default,
+    })
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      abi: erc20InvalidTransferEventABI,
+      address: contractAddress!,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      abi: erc20InvalidTransferEventABI,
+      address: contractAddress!,
+      functionName: 'transfer',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+    assertType<Log[]>(logs)
+    expect(logs.length).toBe(1)
+  })
+
+  test('non-indexed params mismatch', async () => {
+    const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+    const filter = await createEventFilter(publicClient, {
+      event: event.invalid,
+    })
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      abi: erc20InvalidTransferEventABI,
+      address: contractAddress!,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      abi: erc20InvalidTransferEventABI,
+      address: contractAddress!,
+      functionName: 'transfer',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+    assertType<Log[]>(logs)
+    expect(logs.length).toBe(2)
   })
 })

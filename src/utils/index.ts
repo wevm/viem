@@ -34,6 +34,7 @@ export {
   encodePacked,
   formatAbiItemWithArgs,
   formatAbiItem,
+  formatAbiParams,
   getAbiItem,
   parseAbi,
   parseAbiItem,

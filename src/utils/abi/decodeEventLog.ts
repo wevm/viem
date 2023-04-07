@@ -1,5 +1,6 @@
 import type { Abi, AbiParameter, Narrow } from 'abitype'
 import {
+  AbiDecodingDataSizeTooSmallError,
   AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
   DecodeLogTopicsMismatch,
@@ -13,6 +14,7 @@ import type {
 import { getEventSelector } from '../hash'
 import { decodeAbiParameters } from './decodeAbiParameters'
 import { formatAbiItem } from './formatAbiItem'
+import { DecodeLogDataMismatch } from '../../errors/abi'
 
 export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -90,14 +92,24 @@ export function decodeEventLog<
   // Decode data (non-indexed args).
   if (data && data !== '0x') {
     const params = inputs.filter((x) => !('indexed' in x && x.indexed))
-    const decodedData = decodeAbiParameters(params, data)
-    if (decodedData) {
-      if (isUnnamed) args = [...args, ...decodedData]
-      else {
-        for (let i = 0; i < params.length; i++) {
-          args[params[i].name!] = decodedData[i]
+    try {
+      const decodedData = decodeAbiParameters(params, data)
+      if (decodedData) {
+        if (isUnnamed) args = [...args, ...decodedData]
+        else {
+          for (let i = 0; i < params.length; i++) {
+            args[params[i].name!] = decodedData[i]
+          }
         }
       }
+    } catch (err) {
+      if (err instanceof AbiDecodingDataSizeTooSmallError)
+        throw new DecodeLogDataMismatch({
+          data: err.data,
+          params: err.params,
+          size: err.size,
+        })
+      throw err
     }
   }
 

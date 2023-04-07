@@ -19,6 +19,7 @@ test('exports utils', () => {
       "encodePacked": [Function],
       "formatAbiItem": [Function],
       "formatAbiItemWithArgs": [Function],
+      "formatAbiParams": [Function],
       "getAbiItem": [Function],
       "parseAbi": [Function],
       "parseAbiItem": [Function],

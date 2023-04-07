@@ -57,7 +57,7 @@ export { encodePacked } from './encodePacked'
 
 export { formatAbiItemWithArgs } from './formatAbiItemWithArgs'
 
-export { formatAbiItem } from './formatAbiItem'
+export { formatAbiItem, formatAbiParams } from './formatAbiItem'
 
 export type { GetAbiItemParameters } from './getAbiItem'
 export { getAbiItem } from './getAbiItem'

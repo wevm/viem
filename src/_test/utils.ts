@@ -1,6 +1,7 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
+import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import {
   deployContract,
@@ -26,7 +27,11 @@ import { RpcError } from '../types/eip1193'
 import { rpc } from '../utils'
 import { baycContractConfig, ensRegistryConfig } from './abis'
 import { accounts, address, localWsUrl } from './constants'
-import { ensAvatarTokenUriABI, errorsExampleABI } from './generated'
+import {
+  ensAvatarTokenUriABI,
+  erc20InvalidTransferEventABI,
+  errorsExampleABI,
+} from './generated'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
@@ -186,6 +191,14 @@ export async function deployEnsAvatarTokenUri() {
   return deploy({
     abi: ensAvatarTokenUriABI,
     bytecode: ensAvatarTokenUri.bytecode.object as Hex,
+    account: accounts[0].address,
+  })
+}
+
+export async function deployErc20InvalidTransferEvent() {
+  return deploy({
+    abi: erc20InvalidTransferEventABI,
+    bytecode: erc20InvalidTransferEvent.bytecode.object as Hex,
     account: accounts[0].address,
   })
 }
