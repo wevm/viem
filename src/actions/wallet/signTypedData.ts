@@ -1,14 +1,19 @@
 import type { TypedData } from 'abitype'
-import type { Transport, WalletClient } from '../../clients'
-import { AccountNotFoundError } from '../../errors'
+import type { Transport, WalletClient } from '../../clients/index.js'
+import { AccountNotFoundError } from '../../errors/index.js'
 import type {
   Account,
   Chain,
   GetAccountParameter,
   Hex,
   TypedDataDefinition,
-} from '../../types'
-import { isHex, parseAccount, stringify, validateTypedData } from '../../utils'
+} from '../../types/index.js'
+import {
+  isHex,
+  parseAccount,
+  stringify,
+  validateTypedData,
+} from '../../utils/index.js'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

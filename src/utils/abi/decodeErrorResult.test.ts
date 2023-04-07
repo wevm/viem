@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { decodeErrorResult } from './decodeErrorResult'
+import { decodeErrorResult } from './decodeErrorResult.js'
 
 test('revert SoldOutError()', () => {
   expect(

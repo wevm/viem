@@ -1,6 +1,6 @@
-import type { Address } from '../../types'
-import { InvalidAddressError } from '../../errors'
-import { isAddress } from './isAddress'
+import type { Address } from '../../types/index.js'
+import { InvalidAddressError } from '../../errors/index.js'
+import { isAddress } from './isAddress.js'
 
 export function isAddressEqual(a: Address, b: Address) {
   if (!isAddress(a)) throw new InvalidAddressError({ address: a })

@@ -1,17 +1,17 @@
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients/index.js'
 import {
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
-} from '../../errors'
-import type { Chain, Hash, Transaction } from '../../types'
-import { observe } from '../../utils/observe'
-import { getBlock, watchBlockNumber } from '../public'
+} from '../../errors/index.js'
+import type { Chain, Hash, Transaction } from '../../types/index.js'
+import { observe } from '../../utils/observe.js'
+import { getBlock, watchBlockNumber } from './index.js'
 
-import type { GetTransactionReturnType } from './getTransaction'
-import { getTransaction } from './getTransaction'
-import type { GetTransactionReceiptReturnType } from './getTransactionReceipt'
-import { getTransactionReceipt } from './getTransactionReceipt'
+import type { GetTransactionReturnType } from './getTransaction.js'
+import { getTransaction } from './getTransaction.js'
+import type { GetTransactionReceiptReturnType } from './getTransactionReceipt.js'
+import { getTransactionReceipt } from './getTransactionReceipt.js'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementReturnType<

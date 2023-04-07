@@ -1,5 +1,5 @@
-import type { ByteArray, Hex } from '../../types'
-import { isHex } from './isHex'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { isHex } from './isHex.js'
 
 /**
  * @description Retrieves the size of the value (in bytes).

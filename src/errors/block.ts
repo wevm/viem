@@ -1,5 +1,5 @@
-import type { Hash } from '../types'
-import { BaseError } from './base'
+import type { Hash } from '../types/index.js'
+import { BaseError } from './base.js'
 
 export class BlockNotFoundError extends BaseError {
   name = 'BlockNotFoundError'

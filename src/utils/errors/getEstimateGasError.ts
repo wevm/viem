@@ -1,8 +1,8 @@
-import type { EstimateGasParameters } from '../../actions'
-import type { BaseError } from '../../errors'
-import { EstimateGasExecutionError } from '../../errors'
-import type { Account, Chain } from '../../types'
-import { containsNodeError, getNodeError } from './getNodeError'
+import type { EstimateGasParameters } from '../../actions/index.js'
+import type { BaseError } from '../../errors/index.js'
+import { EstimateGasExecutionError } from '../../errors/index.js'
+import type { Account, Chain } from '../../types/index.js'
+import { containsNodeError, getNodeError } from './getNodeError.js'
 
 export function getEstimateGasError(
   err: BaseError,

@@ -1,8 +1,8 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { AssetGatewayUrls, Chain, Prettify } from '../../types'
-import { parseAvatarRecord } from '../../utils/ens'
-import { getEnsText } from './getEnsText'
-import type { GetEnsTextParameters } from './getEnsText'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { AssetGatewayUrls, Chain, Prettify } from '../../types/index.js'
+import { parseAvatarRecord } from '../../utils/ens/index.js'
+import { getEnsText } from './getEnsText.js'
+import type { GetEnsTextParameters } from './getEnsText.js'
 
 export type GetEnsAvatarParameters = Prettify<
   Omit<GetEnsTextParameters, 'key'> & {

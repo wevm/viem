@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
-import { parseEther, parseGwei } from '../utils'
-import { accounts, typedData } from '../_test'
-import { privateKeyToAccount } from './privateKeyToAccount'
+import { parseEther, parseGwei } from '../utils/index.js'
+import { accounts, typedData } from '../_test/index.js'
+import { privateKeyToAccount } from './privateKeyToAccount.js'
 
 test('default', () => {
   expect(privateKeyToAccount(accounts[0].privateKey)).toMatchInlineSnapshot(`

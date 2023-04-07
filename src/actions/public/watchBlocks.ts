@@ -1,9 +1,9 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { BlockTag, Chain, GetTransportConfig } from '../../types'
-import { observe } from '../../utils/observe'
-import { poll } from '../../utils/poll'
-import type { GetBlockReturnType } from './getBlock'
-import { getBlock } from './getBlock'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { BlockTag, Chain, GetTransportConfig } from '../../types/index.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
+import type { GetBlockReturnType } from './getBlock.js'
+import { getBlock } from './getBlock.js'
 
 export type OnBlockParameter<TChain extends Chain | undefined = Chain> =
   GetBlockReturnType<TChain>

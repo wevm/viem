@@ -1,8 +1,8 @@
-import type { Chain } from '../../types'
-import { isDeterministicError } from '../../utils/buildRequest'
-import { wait } from '../../utils/wait'
-import type { Transport, TransportConfig } from './createTransport'
-import { createTransport } from './createTransport'
+import type { Chain } from '../../types/index.js'
+import { isDeterministicError } from '../../utils/buildRequest.js'
+import { wait } from '../../utils/wait.js'
+import type { Transport, TransportConfig } from './createTransport.js'
+import { createTransport } from './createTransport.js'
 
 type RankOptions = {
   /**

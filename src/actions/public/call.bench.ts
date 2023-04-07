@@ -5,9 +5,9 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
-} from '../../_test'
+} from '../../_test/index.js'
 
-import { call } from './call'
+import { call } from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'

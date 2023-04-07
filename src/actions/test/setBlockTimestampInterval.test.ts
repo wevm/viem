@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test'
-import { wait } from '../../utils/wait'
+import { publicClient, testClient } from '../../_test/index.js'
+import { wait } from '../../utils/wait.js'
 
-import { getBlock } from '../public/getBlock'
-import { setBlockTimestampInterval } from './setBlockTimestampInterval'
-import { setIntervalMining } from './setIntervalMining'
+import { getBlock } from '../public/getBlock.js'
+import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
+import { setIntervalMining } from './setIntervalMining.js'
 
 test('sets block timestamp interval', async () => {
   await setIntervalMining(testClient, { interval: 1 })

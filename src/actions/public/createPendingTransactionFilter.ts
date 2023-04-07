@@ -1,5 +1,5 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { Chain, Filter } from '../../types'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { Chain, Filter } from '../../types/index.js'
 
 export type CreatePendingTransactionFilterReturnType = Filter<'transaction'>
 

@@ -1,7 +1,12 @@
 import type { TypedData } from 'abitype'
-import type { Address, ByteArray, Hex, TypedDataDefinition } from '../../types'
-import { hashTypedData } from './hashTypedData'
-import { recoverAddress } from './recoverAddress'
+import type {
+  Address,
+  ByteArray,
+  Hex,
+  TypedDataDefinition,
+} from '../../types/index.js'
+import { hashTypedData } from './hashTypedData.js'
+import { recoverAddress } from './recoverAddress.js'
 
 export type RecoverTypedDataAddressParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

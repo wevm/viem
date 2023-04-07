@@ -4,12 +4,12 @@ import {
   accounts,
   testClient,
   walletClient,
-} from '../../_test'
-import { baycContractConfig } from '../../_test/abis'
-import { parseEther } from '../../utils'
-import { mine, setBalance } from '../test'
+} from '../../_test/index.js'
+import { baycContractConfig } from '../../_test/abis.js'
+import { parseEther } from '../../utils/index.js'
+import { mine, setBalance } from '../test/index.js'
 
-import { deployContract } from './deployContract'
+import { deployContract } from './deployContract.js'
 
 test('default', async () => {
   const hash = await deployContract(walletClient, {

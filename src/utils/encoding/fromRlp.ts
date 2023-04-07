@@ -3,12 +3,12 @@ import {
   DataLengthTooShortError,
   InvalidHexValueError,
   OffsetOutOfBoundsError,
-} from '../../errors'
-import type { ByteArray, Hex } from '../../types'
-import { bytesToNumber } from './fromBytes'
-import { hexToBytes } from './toBytes'
-import { bytesToHex } from './toHex'
-import type { RecursiveArray } from './toRlp'
+} from '../../errors/index.js'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { bytesToNumber } from './fromBytes.js'
+import { hexToBytes } from './toBytes.js'
+import { bytesToHex } from './toHex.js'
+import type { RecursiveArray } from './toRlp.js'
 
 type FromRlpReturnType<TTo> = TTo extends 'bytes'
   ? ByteArray

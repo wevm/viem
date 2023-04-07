@@ -1,6 +1,10 @@
-import type { PublicClient, Transport, WalletClient } from '../../clients'
-import type { Account, Address, BlockTag, Chain } from '../../types'
-import { hexToNumber, numberToHex } from '../../utils'
+import type {
+  PublicClient,
+  Transport,
+  WalletClient,
+} from '../../clients/index.js'
+import type { Account, Address, BlockTag, Chain } from '../../types/index.js'
+import { hexToNumber, numberToHex } from '../../utils/index.js'
 
 export type GetTransactionCountParameters = {
   /** The account address. */

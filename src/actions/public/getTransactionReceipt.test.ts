@@ -1,16 +1,21 @@
 import { assertType, describe, expect, it, test } from 'vitest'
 
-import { accounts, publicClient, testClient, walletClient } from '../../_test'
-import { celo } from '../../chains'
-import { createPublicClient, http } from '../../clients'
-import type { Address, TransactionReceipt } from '../../types'
-import { parseEther, parseGwei } from '../../utils'
-import { wait } from '../../utils/wait'
-import { mine } from '../test'
-import { getBlock, sendTransaction } from '..'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/index.js'
+import { celo } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import type { Address, TransactionReceipt } from '../../types/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
+import { mine } from '../test/index.js'
+import { getBlock, sendTransaction } from '../index.js'
 
-import { getTransaction } from './getTransaction'
-import { getTransactionReceipt } from './getTransactionReceipt'
+import { getTransaction } from './getTransaction.js'
+import { getTransactionReceipt } from './getTransactionReceipt.js'
 
 test(
   'gets transaction receipt',

@@ -1,8 +1,8 @@
-import type { CallParameters } from '../../actions'
-import type { BaseError } from '../../errors'
-import { CallExecutionError } from '../../errors'
-import type { Chain } from '../../types'
-import { containsNodeError, getNodeError } from './getNodeError'
+import type { CallParameters } from '../../actions/index.js'
+import type { BaseError } from '../../errors/index.js'
+import { CallExecutionError } from '../../errors/index.js'
+import type { Chain } from '../../types/index.js'
+import { containsNodeError, getNodeError } from './getNodeError.js'
 
 export function getCallError(
   err: BaseError,

@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from 'vitest'
 import { WebSocket } from 'isomorphic-ws'
 
-import { localWsUrl } from '../../_test'
-import { localhost } from '../../chains'
-import { wait } from '../../utils/wait'
-import type { WebSocketTransport } from './webSocket'
-import { webSocket } from './webSocket'
+import { localWsUrl } from '../../_test/index.js'
+import { localhost } from '../../chains.js'
+import { wait } from '../../utils/wait.js'
+import type { WebSocketTransport } from './webSocket.js'
+import { webSocket } from './webSocket.js'
 
 test('default', () => {
   const transport = webSocket(localWsUrl)

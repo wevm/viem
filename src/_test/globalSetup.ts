@@ -1,5 +1,5 @@
-import { setBlockNumber, testClient } from './utils'
-import { setAutomine, setIntervalMining } from '../actions'
+import { setBlockNumber, testClient } from './utils.js'
+import { setAutomine, setIntervalMining } from '../actions/index.js'
 
 export async function setup() {
   if (!process.env.SKIP_GLOBAL_SETUP) {

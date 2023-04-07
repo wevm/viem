@@ -2,7 +2,7 @@ import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import { parseUnits as parseUnitsV6 } from 'ethers@6'
 
-import { parseUnits } from './parseUnits'
+import { parseUnits } from './parseUnits.js'
 
 describe('Parse Unit', () => {
   bench('viem: `parseUnits`', () => {

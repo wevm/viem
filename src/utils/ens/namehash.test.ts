@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 
-import { namehash } from './namehash'
-import { normalize } from './normalize'
+import { namehash } from './namehash.js'
+import { normalize } from './normalize.js'
 
 test.each([
   {

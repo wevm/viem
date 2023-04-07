@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { extract } from './extract'
+import { extract } from './extract.js'
 
 test('default', () => {
   expect(

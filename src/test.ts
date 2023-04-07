@@ -27,7 +27,7 @@ export {
   snapshot,
   setRpcUrl,
   stopImpersonatingAccount,
-} from './actions/test'
+} from './actions/test/index.js'
 export type {
   DropTransactionParameters,
   ImpersonateAccountParameters,
@@ -49,4 +49,4 @@ export type {
   SetNonceParameters,
   SetStorageAtParameters,
   StopImpersonatingAccountParameters,
-} from './actions/test'
+} from './actions/test/index.js'

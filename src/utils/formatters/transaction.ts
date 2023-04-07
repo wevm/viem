@@ -4,10 +4,10 @@ import type {
   Formatters,
   RpcTransaction,
   Transaction,
-} from '../../types'
-import { hexToNumber } from '../encoding'
-import { defineFormatter } from './format'
-import type { ExtractFormatter, Formatted } from './format'
+} from '../../types/index.js'
+import { hexToNumber } from '../encoding/index.js'
+import { defineFormatter } from './format.js'
+import type { ExtractFormatter, Formatted } from './format.js'
 
 export type TransactionFormatter<TChain extends Chain | undefined = Chain> =
   TChain extends Chain

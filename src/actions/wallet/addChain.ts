@@ -1,6 +1,6 @@
-import type { Transport, WalletClient } from '../../clients'
-import type { Account, Chain } from '../../types'
-import { numberToHex } from '../../utils'
+import type { Transport, WalletClient } from '../../clients/index.js'
+import type { Account, Chain } from '../../types/index.js'
+import { numberToHex } from '../../utils/index.js'
 
 export type AddChainParameters = {
   chain: Chain

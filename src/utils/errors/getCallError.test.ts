@@ -1,8 +1,12 @@
 import { expect, test } from 'vitest'
-import { parseAccount } from '../../utils'
-import { BaseError, RpcError, TransactionRejectedRpcError } from '../../errors'
-import { address } from '../../_test'
-import { getCallError } from './getCallError'
+import { parseAccount } from '../index.js'
+import {
+  BaseError,
+  RpcError,
+  TransactionRejectedRpcError,
+} from '../../errors/index.js'
+import { address } from '../../_test/index.js'
+import { getCallError } from './getCallError.js'
 
 test('default', () => {
   const error = new BaseError('Unknown error')

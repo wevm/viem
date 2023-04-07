@@ -1,16 +1,16 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import type { JsonRpcAccount } from '../types'
-import { localhost } from '../chains'
-import type { SignableRequests, WalletRequests } from '../types/eip1193'
-import { accounts, localWsUrl } from '../_test'
-import { createWalletClient } from './createWalletClient'
-import { createTransport } from './transports/createTransport'
-import { custom } from './transports/custom'
-import { http } from './transports/http'
-import { webSocket } from './transports/webSocket'
-import type { PrivateKeyAccount } from '../accounts'
-import { privateKeyToAccount } from '../accounts'
+import type { JsonRpcAccount } from '../types/index.js'
+import { localhost } from '../chains.js'
+import type { SignableRequests, WalletRequests } from '../types/eip1193.js'
+import { accounts, localWsUrl } from '../_test/index.js'
+import { createWalletClient } from './createWalletClient.js'
+import { createTransport } from './transports/createTransport.js'
+import { custom } from './transports/custom.js'
+import { http } from './transports/http.js'
+import { webSocket } from './transports/webSocket.js'
+import type { PrivateKeyAccount } from '../accounts/index.js'
+import { privateKeyToAccount } from '../accounts/index.js'
 
 const mockTransport = () =>
   createTransport({

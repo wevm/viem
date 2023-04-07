@@ -1,1 +1,1 @@
-import './types/window'
+import './types/window.js'

@@ -5,9 +5,9 @@ import {
   RpcError,
   TimeoutError,
   WebSocketRequestError,
-} from '../errors'
-import { withTimeout } from './promise/withTimeout'
-import { stringify } from './stringify'
+} from '../errors/index.js'
+import { withTimeout } from './promise/withTimeout.js'
+import { stringify } from './stringify.js'
 
 let id = 0
 

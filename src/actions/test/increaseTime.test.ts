@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test'
+import { publicClient, testClient } from '../../_test/index.js'
 
-import { getBlock } from '../public/getBlock'
-import { increaseTime } from './increaseTime'
-import { mine } from './mine'
+import { getBlock } from '../public/getBlock.js'
+import { increaseTime } from './increaseTime.js'
+import { mine } from './mine.js'
 
 // TODO: Anvil seems to not register the increased timestamp sometimes.
 test.skip('increases time', async () => {

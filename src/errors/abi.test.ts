@@ -10,7 +10,7 @@ import {
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,
-} from './abi'
+} from './abi.js'
 
 test('AbiDecodingDataSizeInvalidError', () => {
   expect(

@@ -4,12 +4,12 @@ import type {
   Formatters,
   RpcTransactionReceipt,
   TransactionReceipt,
-} from '../../types'
-import { hexToNumber } from '../encoding'
-import { defineFormatter } from './format'
-import type { ExtractFormatter, Formatted } from './format'
-import { formatLog } from './log'
-import { transactionType } from './transaction'
+} from '../../types/index.js'
+import { hexToNumber } from '../encoding/index.js'
+import { defineFormatter } from './format.js'
+import type { ExtractFormatter, Formatted } from './format.js'
+import { formatLog } from './log.js'
+import { transactionType } from './transaction.js'
 
 export type TransactionReceiptFormatter<
   TChain extends Chain | undefined = Chain,

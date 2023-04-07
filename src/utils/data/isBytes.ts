@@ -1,4 +1,4 @@
-import type { ByteArray } from '../../types'
+import type { ByteArray } from '../../types/index.js'
 
 export function isBytes(value: unknown): value is ByteArray {
   if (!value) return false

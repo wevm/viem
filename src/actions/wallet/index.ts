@@ -1,57 +1,60 @@
-export { addChain } from './addChain'
-export type { AddChainParameters } from './addChain'
+export { addChain } from './addChain.js'
+export type { AddChainParameters } from './addChain.js'
 
-export { deployContract } from './deployContract'
+export { deployContract } from './deployContract.js'
 export type {
   DeployContractParameters,
   DeployContractReturnType,
-} from './deployContract'
+} from './deployContract.js'
 
-export { getAddresses } from './getAddresses'
-export type { GetAddressesReturnType } from './getAddresses'
+export { getAddresses } from './getAddresses.js'
+export type { GetAddressesReturnType } from './getAddresses.js'
 
-export { getChainId } from '../public/getChainId'
-export type { GetChainIdReturnType } from '../public/getChainId'
+export { getChainId } from '../public/getChainId.js'
+export type { GetChainIdReturnType } from '../public/getChainId.js'
 
-export { getPermissions } from './getPermissions'
-export type { GetPermissionsReturnType } from './getPermissions'
+export { getPermissions } from './getPermissions.js'
+export type { GetPermissionsReturnType } from './getPermissions.js'
 
-export { requestAddresses } from './requestAddresses'
-export type { RequestAddressesReturnType } from './requestAddresses'
+export { requestAddresses } from './requestAddresses.js'
+export type { RequestAddressesReturnType } from './requestAddresses.js'
 
-export { requestPermissions } from './requestPermissions'
+export { requestPermissions } from './requestPermissions.js'
 export type {
   RequestPermissionsParameters,
   RequestPermissionsReturnType,
-} from './requestPermissions'
+} from './requestPermissions.js'
 
-export { sendTransaction } from './sendTransaction'
+export { sendTransaction } from './sendTransaction.js'
 export type {
   FormattedTransactionRequest,
   SendTransactionParameters,
   SendTransactionReturnType,
-} from './sendTransaction'
+} from './sendTransaction.js'
 
-export { signMessage } from './signMessage'
+export { signMessage } from './signMessage.js'
 export type {
   SignMessageParameters,
   SignMessageReturnType,
-} from './signMessage'
+} from './signMessage.js'
 
-export { signTypedData } from './signTypedData'
+export { signTypedData } from './signTypedData.js'
 export type {
   SignTypedDataParameters,
   SignTypedDataReturnType,
-} from './signTypedData'
+} from './signTypedData.js'
 
-export { switchChain } from './switchChain'
-export type { SwitchChainParameters } from './switchChain'
+export { switchChain } from './switchChain.js'
+export type { SwitchChainParameters } from './switchChain.js'
 
-export { watchAsset } from './watchAsset'
-export type { WatchAssetParameters, WatchAssetReturnType } from './watchAsset'
+export { watchAsset } from './watchAsset.js'
+export type {
+  WatchAssetParameters,
+  WatchAssetReturnType,
+} from './watchAsset.js'
 
-export { writeContract } from './writeContract'
+export { writeContract } from './writeContract.js'
 export type {
   WriteContractParameters,
   WriteContractReturnType,
-} from './writeContract'
+} from './writeContract.js'

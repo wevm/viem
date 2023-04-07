@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import type { RpcFeeHistory } from '../../types'
+import type { RpcFeeHistory } from '../../types/index.js'
 
-import { formatFeeHistory } from './feeHistory'
+import { formatFeeHistory } from './feeHistory.js'
 
 const feeHistory: RpcFeeHistory = {
   baseFeePerGas: [

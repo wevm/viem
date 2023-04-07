@@ -1,8 +1,8 @@
-import { InvalidAddressError } from '../../errors'
-import type { Address } from '../../types'
-import { stringToBytes } from '../encoding'
-import { keccak256 } from '../hash'
-import { isAddress } from './isAddress'
+import { InvalidAddressError } from '../../errors/index.js'
+import type { Address } from '../../types/index.js'
+import { stringToBytes } from '../encoding/index.js'
+import { keccak256 } from '../hash/index.js'
+import { isAddress } from './isAddress.js'
 
 export function checksumAddress(address_: Address): Address {
   const hexAddress = address_.substring(2).toLowerCase()

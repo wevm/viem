@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test'
-import { parseGwei } from '../../utils'
-import { wait } from '../../utils/wait'
+import { publicClient, testClient } from '../../_test/index.js'
+import { parseGwei } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 
-import { getBlock } from '../public/getBlock'
-import { setBlockGasLimit } from './setBlockGasLimit'
+import { getBlock } from '../public/getBlock.js'
+import { setBlockGasLimit } from './setBlockGasLimit.js'
 
 test('sets block gas limit', async () => {
   const block1 = await getBlock(publicClient, {

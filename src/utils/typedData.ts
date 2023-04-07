@@ -1,11 +1,11 @@
 import type { TypedData, TypedDataParameter, TypedDataType } from 'abitype'
 
-import { BytesSizeMismatchError, InvalidAddressError } from '../errors'
-import type { Hex, TypedDataDefinition } from '../types'
-import { isAddress } from './address'
-import { size } from './data'
-import { numberToHex } from './encoding'
-import { bytesRegex, integerRegex } from './regex'
+import { BytesSizeMismatchError, InvalidAddressError } from '../errors/index.js'
+import type { Hex, TypedDataDefinition } from '../types/index.js'
+import { isAddress } from './address/index.js'
+import { size } from './data/index.js'
+import { numberToHex } from './encoding/index.js'
+import { bytesRegex, integerRegex } from './regex.js'
 
 export function validateTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },

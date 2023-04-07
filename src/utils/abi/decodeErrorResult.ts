@@ -1,14 +1,14 @@
 import type { Abi } from 'abitype'
-import { solidityError, solidityPanic } from '../../constants'
+import { solidityError, solidityPanic } from '../../constants/index.js'
 import {
   AbiDecodingZeroDataError,
   AbiErrorSignatureNotFoundError,
-} from '../../errors'
-import type { AbiItem, Hex } from '../../types'
-import { slice } from '../data'
-import { getFunctionSelector } from '../hash'
-import { decodeAbiParameters } from './decodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
+} from '../../errors/index.js'
+import type { AbiItem, Hex } from '../../types/index.js'
+import { slice } from '../data/index.js'
+import { getFunctionSelector } from '../hash/index.js'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeErrorResultParameters = { abi?: Abi; data: Hex }
 

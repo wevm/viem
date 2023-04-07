@@ -5,10 +5,10 @@ import {
   ethersProvider,
   ethersV6Provider,
   walletClient,
-} from '../../_test'
-import { parseEther } from '../../utils'
+} from '../../_test/index.js'
+import { parseEther } from '../../utils/index.js'
 
-import { sendTransaction } from './sendTransaction'
+import { sendTransaction } from './sendTransaction.js'
 import { JsonRpcSigner } from 'ethers@6'
 
 describe('Send Transaction', () => {

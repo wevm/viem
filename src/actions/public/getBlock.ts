@@ -1,8 +1,18 @@
-import type { PublicClient, WalletClient, Transport } from '../../clients'
-import { BlockNotFoundError } from '../../errors'
-import type { Account, BlockTag, Chain, Hash, RpcBlock } from '../../types'
-import type { BlockFormatter, FormattedBlock } from '../../utils'
-import { format, formatBlock, numberToHex } from '../../utils'
+import type {
+  PublicClient,
+  WalletClient,
+  Transport,
+} from '../../clients/index.js'
+import { BlockNotFoundError } from '../../errors/index.js'
+import type {
+  Account,
+  BlockTag,
+  Chain,
+  Hash,
+  RpcBlock,
+} from '../../types/index.js'
+import type { BlockFormatter, FormattedBlock } from '../../utils/index.js'
+import { format, formatBlock, numberToHex } from '../../utils/index.js'
 
 export type GetBlockParameters = {
   /** Whether or not to include transaction data in the response. */

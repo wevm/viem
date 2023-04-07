@@ -6,7 +6,7 @@ export type {
   ParseAbiItem,
   ParseAbiParameter,
   ParseAbiParameters,
-} from './utils/abi'
+} from './utils/abi/index.js'
 export {
   decodeAbiParameters,
   encodeAbiParameters,
@@ -16,4 +16,4 @@ export {
   parseAbiItem,
   parseAbiParameter,
   parseAbiParameters,
-} from './utils/abi'
+} from './utils/abi/index.js'

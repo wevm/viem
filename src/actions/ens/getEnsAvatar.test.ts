@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { namehash } from '../../ens'
+import { namehash } from '../../ens.js'
 
 import {
   address,
@@ -8,12 +8,16 @@ import {
   setBlockNumber,
   testClient,
   walletClient,
-} from '../../_test'
-import { ensPublicResolverConfig } from '../../_test/abis'
-import { getBlockNumber } from '../public'
-import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { writeContract } from '../wallet'
-import { getEnsAvatar } from './getEnsAvatar'
+} from '../../_test/index.js'
+import { ensPublicResolverConfig } from '../../_test/abis.js'
+import { getBlockNumber } from '../public/index.js'
+import {
+  impersonateAccount,
+  mine,
+  stopImpersonatingAccount,
+} from '../test/index.js'
+import { writeContract } from '../wallet/index.js'
+import { getEnsAvatar } from './getEnsAvatar.js'
 
 let blockNumber: bigint
 beforeAll(async () => {

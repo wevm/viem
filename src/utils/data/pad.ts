@@ -1,5 +1,5 @@
-import { SizeExceedsPaddingSizeError } from '../../errors'
-import type { ByteArray, Hex } from '../../types'
+import { SizeExceedsPaddingSizeError } from '../../errors/index.js'
+import type { ByteArray, Hex } from '../../types/index.js'
 
 type PadOptions = {
   dir?: 'left' | 'right'

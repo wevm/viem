@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { UrlRequiredError } from './transport'
+import { UrlRequiredError } from './transport.js'
 
 test('UrlRequiredError', () => {
   expect(new UrlRequiredError()).toMatchInlineSnapshot(`

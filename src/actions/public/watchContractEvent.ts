@@ -1,5 +1,5 @@
 import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   Chain,
@@ -7,18 +7,18 @@ import type {
   InferEventName,
   Filter,
   Log,
-} from '../../types'
-import type { GetAbiItemParameters } from '../../utils'
-import { getAbiItem } from '../../utils'
-import { observe } from '../../utils/observe'
-import { poll } from '../../utils/poll'
-import { createContractEventFilter } from './createContractEventFilter'
-import type { CreateContractEventFilterParameters } from './createContractEventFilter'
-import { getBlockNumber } from './getBlockNumber'
-import { getFilterChanges } from './getFilterChanges'
-import { getLogs } from './getLogs'
-import type { GetLogsParameters } from './getLogs'
-import { uninstallFilter } from './uninstallFilter'
+} from '../../types/index.js'
+import type { GetAbiItemParameters } from '../../utils/index.js'
+import { getAbiItem } from '../../utils/index.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
+import { createContractEventFilter } from './createContractEventFilter.js'
+import type { CreateContractEventFilterParameters } from './createContractEventFilter.js'
+import { getBlockNumber } from './getBlockNumber.js'
+import { getFilterChanges } from './getFilterChanges.js'
+import { getLogs } from './getLogs.js'
+import type { GetLogsParameters } from './getLogs.js'
+import { uninstallFilter } from './uninstallFilter.js'
 
 export type OnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],

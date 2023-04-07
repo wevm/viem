@@ -1,6 +1,10 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
-import type { Chain, Hash, TransactionRequest } from '../../types'
-import { formatTransactionRequest } from '../../utils'
+import type {
+  TestClient,
+  TestClientMode,
+  Transport,
+} from '../../clients/index.js'
+import type { Chain, Hash, TransactionRequest } from '../../types/index.js'
+import { formatTransactionRequest } from '../../utils/index.js'
 
 export type SendUnsignedTransactionParameters = TransactionRequest
 

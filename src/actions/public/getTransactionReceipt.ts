@@ -1,12 +1,12 @@
-import type { PublicClient, Transport } from '../../clients'
-import { TransactionReceiptNotFoundError } from '../../errors'
-import type { Chain, Hash } from '../../types'
-import { format } from '../../utils'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import { TransactionReceiptNotFoundError } from '../../errors/index.js'
+import type { Chain, Hash } from '../../types/index.js'
+import { format } from '../../utils/index.js'
 import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
-} from '../../utils/formatters/transactionReceipt'
-import { formatTransactionReceipt } from '../../utils/formatters/transactionReceipt'
+} from '../../utils/formatters/transactionReceipt.js'
+import { formatTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 
 export type GetTransactionReceiptParameters = {
   /** The hash of the transaction. */

@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { hexToNumber, hexToString } from './fromHex'
+import { hexToNumber, hexToString } from './fromHex.js'
 
 describe.skip('Hex to Number', () => {
   bench('viem: `hexToNumber`', () => {

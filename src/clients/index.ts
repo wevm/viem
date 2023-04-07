@@ -4,7 +4,7 @@ export {
   fallback,
   http,
   webSocket,
-} from './transports'
+} from './transports/index.js'
 export type {
   CustomTransport,
   CustomTransportConfig,
@@ -16,26 +16,26 @@ export type {
   HttpTransportConfig,
   WebSocketTransport,
   WebSocketTransportConfig,
-} from './transports'
+} from './transports/index.js'
 
-export { createClient } from './createClient'
-export type { Client, ClientConfig } from './createClient'
+export { createClient } from './createClient.js'
+export type { Client, ClientConfig } from './createClient.js'
 
-export { createPublicClient } from './createPublicClient'
+export { createPublicClient } from './createPublicClient.js'
 export type {
   PublicClient,
   PublicClientConfig,
-} from './createPublicClient'
+} from './createPublicClient.js'
 
-export { createTestClient } from './createTestClient'
+export { createTestClient } from './createTestClient.js'
 export type {
   TestClient,
   TestClientConfig,
   TestClientMode,
-} from './createTestClient'
+} from './createTestClient.js'
 
-export { createWalletClient } from './createWalletClient'
+export { createWalletClient } from './createWalletClient.js'
 export type {
   WalletClient,
   WalletClientConfig,
-} from './createWalletClient'
+} from './createWalletClient.js'

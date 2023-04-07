@@ -1,6 +1,6 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { BlockTag, Chain, Hash, Quantity } from '../../types'
-import { hexToNumber, numberToHex } from '../../utils'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { BlockTag, Chain, Hash, Quantity } from '../../types/index.js'
+import { hexToNumber, numberToHex } from '../../utils/index.js'
 
 export type GetBlockTransactionCountParameters =
   | {

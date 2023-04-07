@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
-import { accounts } from '../../_test'
-import { privateKeyToAccount } from '../privateKeyToAccount'
-import { parseAccount } from './parseAccount'
+import { accounts } from '../../_test/index.js'
+import { privateKeyToAccount } from '../privateKeyToAccount.js'
+import { parseAccount } from './parseAccount.js'
 
 test('address', () => {
   expect(

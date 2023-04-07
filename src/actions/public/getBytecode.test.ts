@@ -3,9 +3,9 @@ import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
-} from '../../_test'
+} from '../../_test/index.js'
 
-import { getBytecode } from './getBytecode'
+import { getBytecode } from './getBytecode.js'
 
 test('default', async () => {
   expect(
