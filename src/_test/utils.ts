@@ -28,7 +28,11 @@ import { RpcError } from '../types/eip1193.js'
 import { rpc } from '../utils/index.js'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
 import { accounts, address, localWsUrl } from './constants.js'
-import { ensAvatarTokenUriABI, erc20InvalidTransferEventABI, errorsExampleABI } from './generated.js'
+import {
+  ensAvatarTokenUriABI,
+  erc20InvalidTransferEventABI,
+  errorsExampleABI,
+} from './generated.js'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'

@@ -600,7 +600,7 @@ test('errors: no topics', () => {
   `)
 })
 
-test("errors: invalid data size", () => {
+test('errors: invalid data size', () => {
   expect(() =>
     decodeEventLog({
       abi: [
