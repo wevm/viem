@@ -49,14 +49,15 @@ export type IsNever<T> = [T] extends [never] ? true : false
  * * @example
  * type Result = Or<[false, true, false]>
  * //   ^? type Result = true
- * 
+ *
  * @example
  * type Result = Or<[false, false, false]>
  * //   ^? type Result = false
  */
-export type Or<
-  T extends readonly unknown[],
-> = T extends readonly [infer Head, ...infer Tail]
+export type Or<T extends readonly unknown[],> = T extends readonly [
+  infer Head,
+  ...infer Tail,
+]
   ? Head extends true
     ? true
     : Or<Tail>
