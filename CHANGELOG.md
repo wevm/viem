@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.12
+
+### Patch Changes
+
+- [#328](https://github.com/wagmi-dev/viem/pull/328) [`ee87fe7`](https://github.com/wagmi-dev/viem/commit/ee87fe73884297db1c3957453efd7c326924c269) Thanks [@jxom](https://github.com/jxom)! - Tweaked error inheritence for `UserRejectedRequestError` & `SwitchChainError` to be more friendly with custom errors.
+
 ## 0.2.11
 
 ### Patch Changes
