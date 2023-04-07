@@ -20,16 +20,3 @@ tsconfig.tsbuildinfo
 
 # @wagmi/cli
 generated.ts
-
-# proxy packages
-/abi
-/accounts
-/chains
-/contract
-/ens
-/ethers
-/public
-/test
-/utils
-/wallet
-/window
