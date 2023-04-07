@@ -98,14 +98,22 @@ export async function getLogs<
       ],
     })
   }
-  return logs.map((log) => {
-    const { eventName, args } = event
-      ? decodeEventLog({
-          abi: [event],
-          data: log.data,
-          topics: log.topics as any,
-        })
-      : { eventName: undefined, args: undefined }
-    return formatLog(log, { args, eventName })
-  }) as unknown as GetLogsReturnType<TAbiEvent>
+
+  return logs
+    .map((log) => {
+      try {
+        const { eventName, args } = event
+          ? decodeEventLog({
+              abi: [event],
+              data: log.data,
+              topics: log.topics as any,
+            })
+          : { eventName: undefined, args: undefined }
+        return formatLog(log, { args, eventName })
+      } catch {
+        // Skip log if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return
+      }
+    })
+    .filter(Boolean) as unknown as GetLogsReturnType<TAbiEvent>
 }

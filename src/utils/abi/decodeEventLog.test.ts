@@ -490,6 +490,57 @@ describe('GitHub repros', () => {
       )
     })
   })
+
+  describe('https://github.com/wagmi-dev/viem/issues/323', () => {
+    test('data + params mismatch', () => {
+      expect(() =>
+        decodeEventLog({
+          abi: [
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: 'address',
+                  name: 'from',
+                  type: 'address',
+                },
+                {
+                  indexed: false,
+                  internalType: 'address',
+                  name: 'to',
+                  type: 'address',
+                },
+                {
+                  indexed: false,
+                  internalType: 'uint256',
+                  name: 'id',
+                  type: 'uint256',
+                },
+              ],
+              name: 'Transfer',
+              type: 'event',
+            },
+          ],
+          data: '0x0000000000000000000000000000000000000000000000000000000023c34600',
+          topics: [
+            '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+            '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+            '0x00000000000000000000000070e8a65d014918798ba424110d5df658cde1cc58',
+          ],
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        "Data size of 32 bytes is too small for non-indexed event parameters.
+
+        This error is usually caused if the ABI event has too many non-indexed event parameters for the emitted log.
+
+        Params: (address to, uint256 id)
+        Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
+
+        Version: viem@1.0.2"
+      `)
+    })
+  })
 })
 
 test("errors: event doesn't exist", () => {
@@ -545,6 +596,50 @@ test('errors: no topics', () => {
     "Cannot extract event signature from empty topics.
 
     Docs: https://viem.sh/docs/contract/decodeEventLog.html
+    Version: viem@1.0.2"
+  `)
+})
+
+test("errors: invalid data size", () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'tokenId',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x1',
+      eventName: 'Transfer',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Data size of 1 bytes is invalid.
+    Size must be in increments of 32 bytes (size % 32 === 0).
+
+    Data: 0x1 (1 bytes)
+
     Version: viem@1.0.2"
   `)
 })
