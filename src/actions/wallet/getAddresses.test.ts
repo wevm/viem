@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '../../_test'
+import { walletClient } from '../../_test/index.js'
 
-import { getAddresses } from './getAddresses'
+import { getAddresses } from './getAddresses.js'
 
 test('default', async () => {
   expect(await getAddresses(walletClient!)).toMatchInlineSnapshot(`

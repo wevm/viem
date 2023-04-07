@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { formatAbiItem, formatAbiParams } from './formatAbiItem'
+import { formatAbiItem, formatAbiParams } from './formatAbiItem.js'
 
 describe('formatAbiItem', () => {
   test('foo()', () => {
@@ -23,7 +23,7 @@ describe('formatAbiItem', () => {
       }),
     ).toEqual('foo()')
   })
-  
+
   test('foo(uint256)', () => {
     expect(
       formatAbiItem({
@@ -57,7 +57,7 @@ describe('formatAbiItem', () => {
       ),
     ).toEqual('foo(uint256 a)')
   })
-  
+
   test('getVoter((uint256,bool,address,uint256),string[],bytes)', () => {
     expect(
       formatAbiItem({
@@ -145,7 +145,7 @@ describe('formatAbiItem', () => {
       'getVoter((uint256 weight, bool voted, address delegate, uint256 vote), string[] foo, bytes bar)',
     )
   })
-  
+
   test('VoterEvent((uint256,bool,address,uint256),string[],bytes)', () => {
     expect(
       formatAbiItem({
@@ -233,7 +233,7 @@ describe('formatAbiItem', () => {
       'VoterEvent((uint256 weight, bool voted, address delegate, uint256 vote), string[] foo, bytes bar)',
     )
   })
-  
+
   test('VoterError((uint256,bool,address,uint256),string[],bytes)', () => {
     expect(
       formatAbiItem({
@@ -276,7 +276,7 @@ describe('formatAbiItem', () => {
       }),
     ).toEqual('VoterError((uint256,bool,address,uint256),string[],bytes)')
   })
-  
+
   test('error: invalid type', () => {
     expect(() =>
       formatAbiItem({
@@ -300,74 +300,87 @@ describe('formatAbiItem', () => {
 
 describe('formatAbiParams', () => {
   test('default', () => {
-    expect(formatAbiParams([{ name: 'a', type: 'uint256' }])).toMatchInlineSnapshot('"uint256"')
-    expect(formatAbiParams([
-      {
-        components: [
-          {
-            name: 'weight',
-            type: 'uint256',
-          },
-          {
-            name: 'voted',
-            type: 'bool',
-          },
-          {
-            name: 'delegate',
-            type: 'address',
-          },
-          {
-            name: 'vote',
-            type: 'uint256',
-          },
-        ],
-        name: 'voter',
-        type: 'tuple',
-      },
-      {
-        name: 'foo',
-        type: 'string[]',
-      },
-      {
-        name: 'bar',
-        type: 'bytes',
-      },
-    ])).toMatchInlineSnapshot('"(uint256,bool,address,uint256),string[],bytes"')
+    expect(
+      formatAbiParams([{ name: 'a', type: 'uint256' }]),
+    ).toMatchInlineSnapshot('"uint256"')
+    expect(
+      formatAbiParams([
+        {
+          components: [
+            {
+              name: 'weight',
+              type: 'uint256',
+            },
+            {
+              name: 'voted',
+              type: 'bool',
+            },
+            {
+              name: 'delegate',
+              type: 'address',
+            },
+            {
+              name: 'vote',
+              type: 'uint256',
+            },
+          ],
+          name: 'voter',
+          type: 'tuple',
+        },
+        {
+          name: 'foo',
+          type: 'string[]',
+        },
+        {
+          name: 'bar',
+          type: 'bytes',
+        },
+      ]),
+    ).toMatchInlineSnapshot('"(uint256,bool,address,uint256),string[],bytes"')
   })
 
   test('includeName', () => {
-    expect(formatAbiParams([{ name: 'a', type: 'uint256' }], { includeName: true })).toMatchInlineSnapshot('"uint256 a"')
-    expect(formatAbiParams([
-      {
-        components: [
+    expect(
+      formatAbiParams([{ name: 'a', type: 'uint256' }], { includeName: true }),
+    ).toMatchInlineSnapshot('"uint256 a"')
+    expect(
+      formatAbiParams(
+        [
           {
-            name: 'weight',
-            type: 'uint256',
+            components: [
+              {
+                name: 'weight',
+                type: 'uint256',
+              },
+              {
+                name: 'voted',
+                type: 'bool',
+              },
+              {
+                name: 'delegate',
+                type: 'address',
+              },
+              {
+                name: 'vote',
+                type: 'uint256',
+              },
+            ],
+            name: 'voter',
+            type: 'tuple',
           },
           {
-            name: 'voted',
-            type: 'bool',
+            name: 'foo',
+            type: 'string[]',
           },
           {
-            name: 'delegate',
-            type: 'address',
-          },
-          {
-            name: 'vote',
-            type: 'uint256',
+            name: 'bar',
+            type: 'bytes',
           },
         ],
-        name: 'voter',
-        type: 'tuple',
-      },
-      {
-        name: 'foo',
-        type: 'string[]',
-      },
-      {
-        name: 'bar',
-        type: 'bytes',
-      },
-    ], { includeName: true })).toMatchInlineSnapshot('"(uint256 weight, bool voted, address delegate, uint256 vote), string[] foo, bytes bar"')
+        { includeName: true },
+      ),
+    ).toMatchInlineSnapshot(
+      '"(uint256 weight, bool voted, address delegate, uint256 vote), string[] foo, bytes bar"',
+    )
   })
 })

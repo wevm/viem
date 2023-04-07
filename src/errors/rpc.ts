@@ -1,6 +1,6 @@
-import { stringify } from '../utils'
-import { BaseError } from './base'
-import { getUrl } from './utils'
+import { stringify } from '../utils/index.js'
+import { BaseError } from './base.js'
+import { getUrl } from './utils.js'
 
 export class HttpRequestError extends BaseError {
   name = 'HttpRequestError'

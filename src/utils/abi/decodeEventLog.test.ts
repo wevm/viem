@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { getAddress } from '../address'
-import { decodeEventLog } from './decodeEventLog'
+import { getAddress } from '../address/index.js'
+import { decodeEventLog } from './decodeEventLog.js'
 
 test('Transfer()', () => {
   const event = decodeEventLog({
@@ -600,7 +600,7 @@ test('errors: no topics', () => {
   `)
 })
 
-test("errors: invalid data size", () => {
+test('errors: invalid data size', () => {
   expect(() =>
     decodeEventLog({
       abi: [

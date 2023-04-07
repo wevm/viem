@@ -1,7 +1,7 @@
 import { Wallet } from 'ethers'
 import { expect, test } from 'vitest'
-import { accounts, typedData } from '../_test'
-import { ethersWalletToAccount } from './ethers'
+import { accounts, typedData } from '../_test/index.js'
+import { ethersWalletToAccount } from './ethers.js'
 const wallet = new Wallet(accounts[0].privateKey)
 
 test('ethersWalletToAccount', async () => {

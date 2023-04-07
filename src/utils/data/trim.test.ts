@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { trim } from './trim'
+import { trim } from './trim.js'
 
 test('default', () => {
   expect(trim('0x000000')).toMatchInlineSnapshot('"0x0"')

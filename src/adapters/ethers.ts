@@ -1,6 +1,6 @@
-import { toAccount } from '../accounts/toAccount'
-import type { Address, Hash } from '../types'
-import { toBytes } from '../utils'
+import { toAccount } from '../accounts/toAccount.js'
+import type { Address, Hash } from '../types/index.js'
+import { toBytes } from '../utils/index.js'
 
 type BigNumberish = string | number | bigint
 type BytesLike = string | Uint8Array

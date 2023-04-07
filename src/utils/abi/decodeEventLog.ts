@@ -4,17 +4,17 @@ import {
   AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
   DecodeLogTopicsMismatch,
-} from '../../errors'
+} from '../../errors/index.js'
 import type {
   EventDefinition,
   GetEventArgsFromTopics,
   InferEventName,
   Hex,
-} from '../../types'
-import { getEventSelector } from '../hash'
-import { decodeAbiParameters } from './decodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
-import { DecodeLogDataMismatch } from '../../errors/abi'
+} from '../../types/index.js'
+import { getEventSelector } from '../hash/index.js'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
+import { DecodeLogDataMismatch } from '../../errors/abi.js'
 
 export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

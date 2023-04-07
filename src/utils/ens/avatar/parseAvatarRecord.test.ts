@@ -3,9 +3,9 @@ import {
   deployEnsAvatarTokenUri,
   publicClient,
   setBlockNumber,
-} from '../../../_test'
-import { parseAvatarRecord } from './parseAvatarRecord'
-import { getBlockNumber } from '../../../actions'
+} from '../../../_test/index.js'
+import { parseAvatarRecord } from './parseAvatarRecord.js'
+import { getBlockNumber } from '../../../actions/index.js'
 
 let blockNumber: bigint
 beforeAll(async () => {

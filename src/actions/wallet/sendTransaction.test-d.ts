@@ -1,10 +1,10 @@
 import type { Address } from 'abitype'
 import { test } from 'vitest'
 
-import { createWalletClient, http } from '../../clients'
-import type { Account, Chain } from '../../types'
-import { anvilChain, localHttpUrl } from '../../_test'
-import { sendTransaction } from './sendTransaction'
+import { createWalletClient, http } from '../../clients/index.js'
+import type { Account, Chain } from '../../types/index.js'
+import { anvilChain, localHttpUrl } from '../../_test/index.js'
+import { sendTransaction } from './sendTransaction.js'
 
 const walletClient = createWalletClient({
   account: '0x',

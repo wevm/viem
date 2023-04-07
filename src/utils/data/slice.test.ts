@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { slice, sliceBytes, sliceHex } from './slice'
+import { slice, sliceBytes, sliceHex } from './slice.js'
 
 test('hex', () => {
   expect(sliceHex('0x')).toMatchInlineSnapshot('"0x"')

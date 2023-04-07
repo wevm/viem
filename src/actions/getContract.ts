@@ -10,7 +10,7 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
-import type { PublicClient, Transport, WalletClient } from '../clients'
+import type { PublicClient, Transport, WalletClient } from '../clients/index.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
   Account,
@@ -19,30 +19,33 @@ import type {
   IsNever,
   IsUndefined,
   MaybeExtractEventArgsFromAbi,
+  Or,
   Prettify,
-} from '../types'
+} from '../types/index.js'
 import {
+  createContractEventFilter,
+  readContract,
+  simulateContract,
+  estimateContractGas,
+  watchContractEvent,
+} from './public/index.js'
+import type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
   ReadContractParameters,
   ReadContractReturnType,
   SimulateContractParameters,
-  readContract,
-  simulateContract,
   EstimateContractGasParameters,
-  estimateContractGas,
-  createContractEventFilter,
   CreateContractEventFilterParameters,
-  watchContractEvent,
   CreateContractEventFilterReturnType,
   EstimateContractGasReturnType,
   SimulateContractReturnType,
-} from './public'
-import {
+} from './public/index.js'
+import { writeContract } from './wallet/index.js'
+import type {
   WriteContractParameters,
   WriteContractReturnType,
-  writeContract,
-} from './wallet'
+} from './wallet/index.js'
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,
@@ -587,11 +590,7 @@ type GetWriteFunction<
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   // For making `options` parameter required if `TAccount` or `TChain` is undefined
-  IsOptionsRequired = [IsUndefined<TAccount>, IsUndefined<TChain>] extends
-    | [true, false]
-    | [false, true]
-    ? true
-    : false,
+  IsOptionsRequired = Or<[IsUndefined<TAccount>, IsUndefined<TChain>]>,
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,

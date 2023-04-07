@@ -2,13 +2,14 @@ import type { Abi, Narrow } from 'abitype'
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
-} from '../../errors'
-import type { GetErrorArgs, InferErrorName, Hex } from '../../types'
-import { concatHex } from '../data'
-import { getFunctionSelector } from '../hash'
-import { encodeAbiParameters } from './encodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
-import { getAbiItem, GetAbiItemParameters } from './getAbiItem'
+} from '../../errors/index.js'
+import type { GetErrorArgs, InferErrorName, Hex } from '../../types/index.js'
+import { concatHex } from '../data/index.js'
+import { getFunctionSelector } from '../hash/index.js'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
+import { getAbiItem } from './getAbiItem.js'
+import type { GetAbiItemParameters } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 
@@ -34,7 +35,7 @@ export function encodeErrorResult<
   const signature = getFunctionSelector(definition)
 
   let data: Hex = '0x'
-  if (args && args.length > 0) {
+  if (args && (args as readonly unknown[]).length > 0) {
     if (!('inputs' in description && description.inputs))
       throw new AbiErrorInputsNotFoundError(errorName, { docsPath })
     data = encodeAbiParameters(description.inputs, args as readonly unknown[])

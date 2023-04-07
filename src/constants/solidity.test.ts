@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as solidity from './solidity'
+import * as solidity from './solidity.js'
 
 test('exports solidity constants', () => {
   expect(solidity).toMatchInlineSnapshot(`

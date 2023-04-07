@@ -7,7 +7,7 @@ import {
   bytesToNumber,
   bytesToString,
   fromBytes,
-} from './fromBytes'
+} from './fromBytes.js'
 
 test('converts bytes to number', () => {
   expect(fromBytes(new Uint8Array([0]), 'number')).toMatchInlineSnapshot('0')

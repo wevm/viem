@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'vitest'
-import { address } from '../../_test'
-import { seaportContractConfig } from '../../_test/abis'
+import { address } from '../../_test/index.js'
+import { seaportContractConfig } from '../../_test/abis.js'
 
-import { encodeAbiParameters, getArrayComponents } from './encodeAbiParameters'
-import { getAbiItem } from './getAbiItem'
+import {
+  encodeAbiParameters,
+  getArrayComponents,
+} from './encodeAbiParameters.js'
+import { getAbiItem } from './getAbiItem.js'
 
 describe('static', () => {
   test('blank', () => {

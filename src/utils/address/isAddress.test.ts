@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { isAddress } from './isAddress'
+import { isAddress } from './isAddress.js'
 
 test('checks if address is valid', () => {
   expect(isAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac')).toBeTruthy()

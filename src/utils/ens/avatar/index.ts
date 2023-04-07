@@ -1,1 +1,1 @@
-export { parseAvatarRecord } from './parseAvatarRecord'
+export { parseAvatarRecord } from './parseAvatarRecord.js'

@@ -1,7 +1,7 @@
-import type { ByteArray, Hex } from '../../types'
-import { concat } from '../data'
-import { toBytes } from './toBytes'
-import { bytesToHex } from './toHex'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { concat } from '../data/index.js'
+import { toBytes } from './toBytes.js'
+import { bytesToHex } from './toHex.js'
 
 export type RecursiveArray<T> = T | RecursiveArray<T>[]
 

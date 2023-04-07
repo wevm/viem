@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest'
-import { generateMnemonic } from './generateMnemonic'
-import { czech } from './wordlists/czech'
-import { english } from './wordlists/english'
-import { french } from './wordlists/french'
-import { italian } from './wordlists/italian'
-import { korean } from './wordlists/korean'
-import { simplifiedChinese } from './wordlists/simplifiedChinese'
-import { spanish } from './wordlists/spanish'
-import { traditionalChinese } from './wordlists/traditionalChinese'
+import { generateMnemonic } from './generateMnemonic.js'
+import { czech } from './wordlists/czech.js'
+import { english } from './wordlists/english.js'
+import { french } from './wordlists/french.js'
+import { italian } from './wordlists/italian.js'
+import { korean } from './wordlists/korean.js'
+import { simplifiedChinese } from './wordlists/simplifiedChinese.js'
+import { spanish } from './wordlists/spanish.js'
+import { traditionalChinese } from './wordlists/traditionalChinese.js'
 
 test('english', () => {
   const phrase = generateMnemonic(english)

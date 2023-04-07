@@ -9,19 +9,19 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
-import { erc20InvalidTransferEventABI } from '../../_test/generated'
+} from '../../_test/index.js'
 import {
   impersonateAccount,
   mine,
   setIntervalMining,
   stopImpersonatingAccount,
-} from '../test'
-import { writeContract } from '../wallet'
-import type { Log } from '../../types'
-import { getLogs } from './getLogs'
-import { getBlock } from './getBlock'
-import { getAddress } from '../../utils'
+} from '../test/index.js'
+import { writeContract } from '../wallet/index.js'
+import type { Log } from '../../types/index.js'
+import { getLogs } from './getLogs.js'
+import { getBlock } from './getBlock.js'
+import { getAddress } from '../../utils/index.js'
+import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 
 const event = {
   default: {
@@ -128,7 +128,7 @@ describe('events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getLogs(publicClient)
+    const logs = await getLogs(publicClient)
     assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })
@@ -148,7 +148,7 @@ describe('events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    let logs = await getLogs(publicClient, {
+    const logs = await getLogs(publicClient, {
       event: event.default,
     })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
@@ -168,7 +168,7 @@ describe('events', () => {
   })
 
   test('args: fromBlock/toBlock', async () => {
-    let logs = await getLogs(publicClient, {
+    const logs = await getLogs(publicClient, {
       event: event.default,
       fromBlock: initialBlockNumber - 5n,
       toBlock: initialBlockNumber,
@@ -187,7 +187,7 @@ describe('events', () => {
     const block = await getBlock(publicClient, {
       blockNumber: initialBlockNumber - 1n,
     })
-    let logs = await getLogs(publicClient, {
+    const logs = await getLogs(publicClient, {
       event: event.default,
       blockHash: block.hash!,
     })

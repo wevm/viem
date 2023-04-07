@@ -5,7 +5,7 @@ import type {
   Hex,
   TransactionSerializable,
   TypedDataDefinition,
-} from '../types'
+} from '../types/index.js'
 
 export type Account<TAddress extends Address = Address> =
   | JsonRpcAccount<TAddress>

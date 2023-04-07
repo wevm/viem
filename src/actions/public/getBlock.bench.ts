@@ -1,8 +1,12 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, ethersV6Provider, publicClient } from '../../_test'
+import {
+  ethersProvider,
+  ethersV6Provider,
+  publicClient,
+} from '../../_test/index.js'
 
-import { getBlock } from './getBlock'
+import { getBlock } from './getBlock.js'
 
 describe('Get Block', () => {
   bench('viem: `getBlock`', async () => {

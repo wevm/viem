@@ -1,7 +1,7 @@
 import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 
-import { getAddress } from './getAddress'
+import { getAddress } from './getAddress.js'
 
 describe.skip('Get Address', () => {
   bench('viem: getAddress', () => {

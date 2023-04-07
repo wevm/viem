@@ -2,12 +2,12 @@
 
 import type { AbiParameter, TypedData, TypedDataDomain } from 'abitype'
 
-import type { Hex, TypedDataDefinition } from '../../types'
-import { encodeAbiParameters } from '../abi'
-import { concat } from '../data'
-import { toHex } from '../encoding'
-import { keccak256 } from '../hash'
-import { validateTypedData } from '../typedData'
+import type { Hex, TypedDataDefinition } from '../../types/index.js'
+import { encodeAbiParameters } from '../abi/index.js'
+import { concat } from '../data/index.js'
+import { toHex } from '../encoding/index.js'
+import { keccak256 } from '../hash/index.js'
+import { validateTypedData } from '../typedData.js'
 
 type MessageTypeProperty = {
   name: string
@@ -54,7 +54,7 @@ export function hashTypedData<
     types,
   } as TypedDataDefinition)
 
-  let parts: Hex[] = ['0x1901']
+  const parts: Hex[] = ['0x1901']
   if (domain)
     parts.push(
       hashDomain({
@@ -116,7 +116,7 @@ function encodeData({
   primaryType: string
   types: Record<string, MessageTypeProperty[]>
 }) {
-  let encodedTypes: AbiParameter[] = [{ type: 'bytes32' }]
+  const encodedTypes: AbiParameter[] = [{ type: 'bytes32' }]
   const encodedValues: unknown[] = [hashType({ primaryType, types })]
 
   for (const field of types[primaryType]) {

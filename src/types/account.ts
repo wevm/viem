@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import type { Account, JsonRpcAccount } from '../accounts'
-import type { IsUndefined } from './utils'
+import type { Account, JsonRpcAccount } from '../accounts/index.js'
+import type { IsUndefined } from './utils.js'
 
 export type {
   Account,
@@ -12,7 +12,7 @@ export type {
   JsonRpcAccount,
   LocalAccount,
   PrivateKeyAccount,
-} from '../accounts'
+} from '../accounts/index.js'
 
 export type GetAccountParameter<
   TAccount extends Account | undefined = Account | undefined,

@@ -3,4 +3,4 @@ export {
   extractFunctionParams,
   extractFunctionParts,
   extractFunctionType,
-} from './extractFunctionParts'
+} from './extractFunctionParts.js'

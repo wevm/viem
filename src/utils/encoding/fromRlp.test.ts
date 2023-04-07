@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { fromRlp } from './fromRlp'
-import { stringToBytes, toBytes } from './toBytes'
-import { toHex, stringToHex } from './toHex'
+import { fromRlp } from './fromRlp.js'
+import { stringToBytes, toBytes } from './toBytes.js'
+import { toHex, stringToHex } from './toHex.js'
 
 test('single byte', () => {
   expect(fromRlp('0x', 'bytes')).toStrictEqual(new Uint8Array([]))

@@ -1,12 +1,13 @@
 import WebSocket from 'isomorphic-ws'
+import type { MessageEvent } from 'isomorphic-ws'
 import {
   HttpRequestError,
   RpcError,
   TimeoutError,
   WebSocketRequestError,
-} from '../errors'
-import { withTimeout } from './promise/withTimeout'
-import { stringify } from './stringify'
+} from '../errors/index.js'
+import { withTimeout } from './promise/withTimeout.js'
+import { stringify } from './stringify.js'
 
 let id = 0
 
@@ -152,7 +153,7 @@ export async function getSocket(url_: string) {
   // Set up a cache for subscriptions (eth_subscribe).
   const subscriptions = new Map<Id, CallbackFn>()
 
-  const onMessage: (event: WebSocket.MessageEvent) => void = ({ data }) => {
+  const onMessage: (event: MessageEvent) => void = ({ data }) => {
     const message: RpcResponse = JSON.parse(data as string)
     const isSubscription = message.method === 'eth_subscription'
     const id = isSubscription ? message.params.subscription : message.id

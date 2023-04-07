@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-import { getAddress } from '../../utils'
-import { wait } from '../../utils/wait'
+import { getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   accounts,
   address,
@@ -8,14 +8,19 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
-} from '../../_test'
-import { impersonateAccount, mine, stopImpersonatingAccount } from '../test'
-import { writeContract } from '../wallet'
-import * as createEventFilter from './createEventFilter'
-import * as getBlockNumber from './getBlockNumber'
-import * as getLogs from './getLogs'
-import * as getFilterChanges from './getFilterChanges'
-import { OnLogsParameter, watchEvent } from './watchEvent'
+} from '../../_test/index.js'
+import {
+  impersonateAccount,
+  mine,
+  stopImpersonatingAccount,
+} from '../test/index.js'
+import { writeContract } from '../wallet/index.js'
+import * as createEventFilter from './createEventFilter.js'
+import * as getBlockNumber from './getBlockNumber.js'
+import * as getLogs from './getLogs.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import type { OnLogsParameter } from './watchEvent.js'
+import { watchEvent } from './watchEvent.js'
 
 const event = {
   transfer: {
@@ -84,7 +89,7 @@ afterAll(async () => {
 test(
   'default',
   async () => {
-    let logs: OnLogsParameter[] = []
+    const logs: OnLogsParameter[] = []
 
     const unwatch = watchEvent(publicClient, {
       onLogs: (logs_) => logs.push(logs_),
@@ -121,7 +126,7 @@ test(
 )
 
 test('args: batch', async () => {
-  let logs: OnLogsParameter[] = []
+  const logs: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     batch: false,
@@ -158,8 +163,8 @@ test('args: batch', async () => {
 })
 
 test('args: address', async () => {
-  let logs: OnLogsParameter[] = []
-  let logs2: OnLogsParameter[] = []
+  const logs: OnLogsParameter[] = []
+  const logs2: OnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -186,8 +191,8 @@ test('args: address', async () => {
 })
 
 test('args: address + event', async () => {
-  let logs: OnLogsParameter<typeof event.transfer>[] = []
-  let logs2: OnLogsParameter<typeof event.approval>[] = []
+  const logs: OnLogsParameter<typeof event.transfer>[] = []
+  const logs2: OnLogsParameter<typeof event.approval>[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -237,7 +242,7 @@ describe('`getLogs` fallback', () => {
         new Error('foo'),
       )
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),
@@ -287,7 +292,7 @@ describe('`getLogs` fallback', () => {
         new Error('foo'),
       )
 
-      let logs: OnLogsParameter[] = []
+      const logs: OnLogsParameter[] = []
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),

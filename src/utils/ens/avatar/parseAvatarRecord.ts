@@ -1,5 +1,5 @@
-import type { PublicClient, Transport } from '../../../clients'
-import type { AssetGatewayUrls, Chain } from '../../../types'
+import type { PublicClient, Transport } from '../../../clients/index.js'
+import type { AssetGatewayUrls, Chain } from '../../../types/index.js'
 import {
   getJsonImage,
   getMetadataAvatarUri,
@@ -7,7 +7,7 @@ import {
   parseAvatarUri,
   parseNftUri,
   resolveAvatarUri,
-} from './utils'
+} from './utils.js'
 
 export async function parseAvatarRecord<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,

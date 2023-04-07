@@ -6,7 +6,7 @@
 
 import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
-import { createPublicClient, http } from '../../clients'
+import { createPublicClient, http } from '../../clients/index.js'
 import {
   accounts,
   address,
@@ -14,10 +14,10 @@ import {
   localHttpUrl,
   publicClient,
   usdcContractConfig,
-} from '../../_test'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis'
+} from '../../_test/index.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 
-import { multicall } from './multicall'
+import { multicall } from './multicall.js'
 
 test('default', async () => {
   expect(

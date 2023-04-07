@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { BlockNotFoundError } from './block'
+import { BlockNotFoundError } from './block.js'
 
 test('BlockNotFoundError', () => {
   expect(

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as transports from './index'
+import * as transports from './index.js'
 
 test('exports transports', () => {
   expect(transports).toMatchInlineSnapshot(`

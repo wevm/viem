@@ -1,5 +1,5 @@
-import { BaseError } from './base'
-import type { RpcError } from './rpc'
+import { BaseError } from './base.js'
+import type { RpcError } from './rpc.js'
 
 export class RequestError extends BaseError {
   constructor(
