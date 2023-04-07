@@ -47,9 +47,35 @@ export const ethersWalletToAccount = (wallet: EthersWallet) =>
       return (await wallet.signMessage(toBytes(message))) as Hash
     },
     async signTransaction(txn) {
+      // ethers type mappings
+      // https://github.com/ethers-io/ethers.js/blob/0802b70a724321f56d4c170e4c8a46b7804dfb48/src.ts/transaction/transaction.ts#L394
+      let type = null
+      if (txn.type === 'legacy') {
+        type = 0
+      } else if (txn.type === 'eip1559') {
+        type = 2
+      } else if (txn.type === 'eip2930') {
+        type = 1
+      }
       return (await wallet.signTransaction({
-        ...txn,
+        // allowed fields for `ethers.TransactionRequest`
+        chainId: txn.chainId,
+        data: txn.data,
         gasLimit: txn.gas,
+        gasPrice: txn.gasPrice,
+        nonce: txn.nonce,
+        to: txn.to,
+        type,
+        value: txn.value,
+        // untyped transactions do not support accessList
+        ...(txn.type && txn.accessList ? { accessList: txn.accessList } : {}),
+        // eip1559 properties
+        ...(txn.type === 'eip1559' && txn.maxPriorityFeePerGas
+          ? { maxPriorityFeePerGas: txn.maxPriorityFeePerGas }
+          : {}),
+        ...(txn.type === 'eip1559' && txn.maxFeePerGas
+          ? { maxFeePerGas: txn.maxFeePerGas }
+          : {}),
       })) as Hash
     },
     async signTypedData({ domain, types: types_, message }) {

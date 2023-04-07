@@ -15,11 +15,11 @@ import type {
   AbiEventParametersToPrimitiveTypes,
   Account,
   Chain,
-  Contains,
   IsNarrowable,
   IsNever,
   IsUndefined,
   MaybeExtractEventArgsFromAbi,
+  Or,
   Prettify,
 } from '../types/index.js'
 import {
@@ -422,7 +422,7 @@ export function getContract<
                 functionName,
                 args,
                 ...options,
-              } as WriteContractParameters<
+              } as unknown as WriteContractParameters<
                 TAbi,
                 typeof functionName,
                 TChain,
@@ -590,10 +590,7 @@ type GetWriteFunction<
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   // For making `options` parameter required if `TAccount` or `TChain` is undefined
-  IsOptionsRequired = Contains<
-    [IsUndefined<TAccount>, IsUndefined<TChain>],
-    true
-  >,
+  IsOptionsRequired = Or<[IsUndefined<TAccount>, IsUndefined<TChain>]>,
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,

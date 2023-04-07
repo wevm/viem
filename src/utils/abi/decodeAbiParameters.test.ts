@@ -1964,6 +1964,24 @@ test('invalid size', () => {
     "Data size of 35 bytes is invalid.
     Size must be in increments of 32 bytes (size % 32 === 0).
 
+    Data: 0x0000000000000000000000000000000000000000000000000000000000010fabababab (35 bytes)
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('data size too small', () => {
+  expect(() =>
+    decodeAbiParameters(
+      [{ type: 'uint256' }, { type: 'uint256' }],
+      '0x0000000000000000000000000000000000000000000000000000000000010f2c',
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Data size of 32 bytes is too small for given parameters.
+
+    Params: (uint256, uint256)
+    Data:   0x0000000000000000000000000000000000000000000000000000000000010f2c (32 bytes)
+
     Version: viem@1.0.2"
   `)
 })

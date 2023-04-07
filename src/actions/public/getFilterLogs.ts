@@ -36,15 +36,26 @@ export async function getFilterLogs<
     method: 'eth_getFilterLogs',
     params: [filter.id],
   })
-  return logs.map((log) => {
-    const { eventName, args } =
-      'abi' in filter && filter.abi
-        ? decodeEventLog({
-            abi: filter.abi,
-            data: log.data,
-            topics: log.topics as any,
-          })
-        : { eventName: undefined, args: undefined }
-    return formatLog(log, { args, eventName })
-  }) as unknown as GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>
+  return logs
+    .map((log) => {
+      try {
+        const { eventName, args } =
+          'abi' in filter && filter.abi
+            ? decodeEventLog({
+                abi: filter.abi,
+                data: log.data,
+                topics: log.topics as any,
+              })
+            : { eventName: undefined, args: undefined }
+        return formatLog(log, { args, eventName })
+      } catch {
+        // Skip log if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return
+      }
+    })
+    .filter(Boolean) as unknown as GetFilterLogsReturnType<
+    TAbiEvent,
+    TAbi,
+    TEventName
+  >
 }

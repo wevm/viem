@@ -43,25 +43,23 @@ export type IsNarrowable<T, U> = IsNever<
 export type IsNever<T> = [T] extends [never] ? true : false
 
 /**
- * @description Checks if {@link T} contains predicate type.
+ * @description Evaluates boolean "or" condition for {@link T} properties.
  * @param T - Type to check
- * @param TPredicate - Predicate type
  *
- * @example
- * type Result = Contains<['a', 'b', 'c'], 'b'>
+ * * @example
+ * type Result = Or<[false, true, false]>
  * //   ^? type Result = true
- *
+ * 
  * @example
- * type Result = Contains<[false, false, false], true>
+ * type Result = Or<[false, false, false]>
  * //   ^? type Result = false
  */
-export type Contains<
+export type Or<
   T extends readonly unknown[],
-  TPredicate extends unknown,
 > = T extends readonly [infer Head, ...infer Tail]
-  ? Head extends TPredicate
+  ? Head extends true
     ? true
-    : Contains<Tail, TPredicate>
+    : Or<Tail>
   : false
 
 /**

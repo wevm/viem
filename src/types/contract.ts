@@ -67,7 +67,7 @@ export type GetValue<
   ? { value?: TValueType }
   : TAbiFunction['payable'] extends true
   ? { value?: TValueType }
-  : unknown
+  : { value?: never }
 
 export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
   TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined

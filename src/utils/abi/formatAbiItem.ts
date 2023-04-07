@@ -14,25 +14,25 @@ export function formatAbiItem(
   )
     throw new InvalidDefinitionTypeError(abiItem.type)
 
-  return `${abiItem.name}(${getParams(abiItem.inputs, { includeName })})`
+  return `${abiItem.name}(${formatAbiParams(abiItem.inputs, { includeName })})`
 }
 
-function getParams(
+export function formatAbiParams(
   params: readonly AbiParameter[] | undefined,
-  { includeName }: { includeName: boolean },
+  { includeName = false }: { includeName?: boolean } = {},
 ): string {
   if (!params) return ''
   return params
-    .map((param) => getParam(param, { includeName }))
+    .map((param) => formatAbiParam(param, { includeName }))
     .join(includeName ? ', ' : ',')
 }
 
-function getParam(
+function formatAbiParam(
   param: AbiParameter,
   { includeName }: { includeName: boolean },
 ): string {
   if (param.type.startsWith('tuple')) {
-    return `(${getParams(
+    return `(${formatAbiParams(
       (param as unknown as { components: AbiParameter[] }).components,
       { includeName },
     )})${param.type.slice('tuple'.length)}`

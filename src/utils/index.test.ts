@@ -49,6 +49,7 @@ test('exports utils', () => {
       "format": [Function],
       "formatAbiItem": [Function],
       "formatAbiItemWithArgs": [Function],
+      "formatAbiParams": [Function],
       "formatBlock": [Function],
       "formatEther": [Function],
       "formatGwei": [Function],

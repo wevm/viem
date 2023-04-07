@@ -7,6 +7,7 @@ import type {
 
 import {
   AbiDecodingDataSizeInvalidError,
+  AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
 } from '../../errors/index.js'
@@ -35,7 +36,7 @@ export function decodeAbiParameters<
   if (data === '0x' && (params as unknown[]).length > 0)
     throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
-    throw new AbiDecodingDataSizeInvalidError(size(data))
+    throw new AbiDecodingDataSizeInvalidError({ data, size: size(data) })
   return decodeParams({
     data,
     params: params as readonly AbiParameter[],
@@ -54,6 +55,13 @@ function decodeParams<TParams extends readonly AbiParameter[]>({
   let position = 0
 
   for (let i = 0; i < params.length; i++) {
+    if (position >= size(data))
+      throw new AbiDecodingDataSizeTooSmallError({
+        data,
+        params,
+        size: size(data),
+      })
+
     const param = params[i]
     const { consumed, value } = decodeParam({ data, param, position })
     decodedValues.push(value)

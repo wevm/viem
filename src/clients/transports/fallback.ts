@@ -52,7 +52,7 @@ export type FallbackTransportConfig = {
 
 export type FallbackTransport = Transport<
   'fallback',
-  { transports: Transport[] }
+  { transports: ReturnType<Transport>[] }
 >
 
 export function fallback(
@@ -100,9 +100,7 @@ export function fallback(
         type: 'fallback',
       },
       {
-        transports: transports.map(
-          (fn) => fn({ chain, retryCount: 0 }) as unknown as Transport,
-        ),
+        transports: transports.map((fn) => fn({ chain, retryCount: 0 })),
       },
     )
 

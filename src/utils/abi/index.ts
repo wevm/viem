@@ -57,7 +57,7 @@ export { encodePacked } from './encodePacked.js'
 
 export { formatAbiItemWithArgs } from './formatAbiItemWithArgs.js'
 
-export { formatAbiItem } from './formatAbiItem.js'
+export { formatAbiItem, formatAbiParams } from './formatAbiItem.js'
 
 export type { GetAbiItemParameters } from './getAbiItem.js'
 export { getAbiItem } from './getAbiItem.js'
