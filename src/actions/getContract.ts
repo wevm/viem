@@ -587,9 +587,7 @@ type GetWriteFunction<
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   // For making `options` parameter required if `TAccount` or `TChain` is undefined
-  IsOptionsRequired = Or<
-    [IsUndefined<TAccount>, IsUndefined<TChain>]
-  >,
+  IsOptionsRequired = Or<[IsUndefined<TAccount>, IsUndefined<TChain>]>,
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,
