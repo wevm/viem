@@ -35,6 +35,9 @@ test('RequestError', () => {
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
 
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: error details
     Version: viem@1.0.2]
   `)
