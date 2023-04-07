@@ -8,10 +8,10 @@ import {
   ParseRpcError,
   TimeoutError,
   UnknownRpcError,
-} from '../errors'
-import { createHttpServer } from '../_test'
-import { buildRequest, isDeterministicError } from './buildRequest'
-import { rpc } from './rpc'
+} from '../errors/index.js'
+import { createHttpServer } from '../_test/index.js'
+import { buildRequest, isDeterministicError } from './buildRequest.js'
+import { rpc } from './rpc.js'
 
 function request(url: string) {
   return async ({ method, params }: any) => {

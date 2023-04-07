@@ -1,8 +1,8 @@
-import type { EstimateGasParameters } from '../actions'
-import type { Account, Chain } from '../types'
-import { formatEther, formatGwei } from '../utils'
-import { BaseError } from './base'
-import { prettyPrint } from './transaction'
+import type { EstimateGasParameters } from '../actions/index.js'
+import type { Account, Chain } from '../types/index.js'
+import { formatEther, formatGwei } from '../utils/index.js'
+import { BaseError } from './base.js'
+import { prettyPrint } from './transaction.js'
 
 export class EstimateGasExecutionError extends BaseError {
   cause: BaseError

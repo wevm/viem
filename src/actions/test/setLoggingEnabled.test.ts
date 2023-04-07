@@ -1,8 +1,8 @@
 import { test } from 'vitest'
 
-import { testClient } from '../../_test'
+import { testClient } from '../../_test/index.js'
 
-import { setLoggingEnabled } from './setLoggingEnabled'
+import { setLoggingEnabled } from './setLoggingEnabled.js'
 
 test('sets logging', async () => {
   await setLoggingEnabled(testClient, false)

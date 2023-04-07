@@ -1,20 +1,20 @@
 import type { Abi } from 'abitype'
 
-import type { Transport, WalletClient } from '../../clients'
+import type { Transport, WalletClient } from '../../clients/index.js'
 import type {
   Account,
   Chain,
   ContractFunctionConfig,
   GetChain,
   GetValue,
-} from '../../types'
-import { encodeFunctionData } from '../../utils'
-import type { EncodeFunctionDataParameters } from '../../utils'
-import { sendTransaction } from './sendTransaction'
+} from '../../types/index.js'
+import { encodeFunctionData } from '../../utils/index.js'
+import type { EncodeFunctionDataParameters } from '../../utils/index.js'
+import { sendTransaction } from './sendTransaction.js'
 import type {
   SendTransactionParameters,
   SendTransactionReturnType,
-} from './sendTransaction'
+} from './sendTransaction.js'
 
 export type WriteContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

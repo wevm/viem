@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as clients from './index'
+import * as clients from './index.js'
 
 test('exports clients', () => {
   expect(clients).toMatchInlineSnapshot(`

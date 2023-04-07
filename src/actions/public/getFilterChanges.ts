@@ -1,5 +1,5 @@
 import type { Abi, AbiEvent } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Chain,
   Filter,
@@ -7,10 +7,10 @@ import type {
   Hash,
   Log,
   MaybeAbiEventName,
-} from '../../types'
-import { decodeEventLog } from '../../utils'
+} from '../../types/index.js'
+import { decodeEventLog } from '../../utils/index.js'
 
-import { formatLog } from '../../utils/formatters/log'
+import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,
@@ -47,16 +47,28 @@ export async function getFilterChanges<
     method: 'eth_getFilterChanges',
     params: [filter.id],
   })
-  return logs.map((log) => {
-    if (typeof log === 'string') return log
-    const { eventName, args } =
-      'abi' in filter && filter.abi
-        ? decodeEventLog({
-            abi: filter.abi,
-            data: log.data,
-            topics: log.topics as any,
-          })
-        : { eventName: undefined, args: undefined }
-    return formatLog(log, { args, eventName })
-  }) as GetFilterChangesReturnType<TFilterType, TAbiEvent, TAbi, TEventName>
+  return logs
+    .map((log) => {
+      if (typeof log === 'string') return log
+      try {
+        const { eventName, args } =
+          'abi' in filter && filter.abi
+            ? decodeEventLog({
+                abi: filter.abi,
+                data: log.data,
+                topics: log.topics as any,
+              })
+            : { eventName: undefined, args: undefined }
+        return formatLog(log, { args, eventName })
+      } catch {
+        // Skip log if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return
+      }
+    })
+    .filter(Boolean) as GetFilterChangesReturnType<
+    TFilterType,
+    TAbiEvent,
+    TAbi,
+    TEventName
+  >
 }

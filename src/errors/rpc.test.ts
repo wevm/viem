@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
-import { initialBlockNumber } from '../_test'
-import { numberToHex } from '../utils'
+import { initialBlockNumber } from '../_test/index.js'
+import { numberToHex } from '../utils/index.js'
 import {
   HttpRequestError,
   RpcError,
   TimeoutError,
   WebSocketRequestError,
-} from './rpc'
+} from './rpc.js'
 
 test('RpcError', () => {
   const err = new RpcError({

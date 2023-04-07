@@ -1,5 +1,9 @@
-import type { PublicClient, Transport, WalletClient } from '../../clients'
-import type { Account, Chain } from '../../types'
+import type {
+  PublicClient,
+  Transport,
+  WalletClient,
+} from '../../clients/index.js'
+import type { Account, Chain } from '../../types/index.js'
 
 export type GetGasPriceReturnType = bigint
 

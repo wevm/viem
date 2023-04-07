@@ -1,10 +1,10 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { Chain, GetTransportConfig } from '../../types'
-import { hexToBigInt } from '../../utils'
-import { observe } from '../../utils/observe'
-import { poll } from '../../utils/poll'
-import type { GetBlockNumberReturnType } from './getBlockNumber'
-import { getBlockNumber } from './getBlockNumber'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { Chain, GetTransportConfig } from '../../types/index.js'
+import { hexToBigInt } from '../../utils/index.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
+import type { GetBlockNumberReturnType } from './getBlockNumber.js'
+import { getBlockNumber } from './getBlockNumber.js'
 
 export type OnBlockNumberParameter = GetBlockNumberReturnType
 export type OnBlockNumberFn = (

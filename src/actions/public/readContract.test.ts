@@ -11,12 +11,12 @@ import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
-} from '../../_test'
-import { baycContractConfig } from '../../_test/abis'
-import { errorsExampleABI } from '../../_test/generated'
-import { deployErrorExample } from '../../_test/utils'
+} from '../../_test/index.js'
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
+import { deployErrorExample } from '../../_test/utils.js'
 
-import { readContract } from './readContract'
+import { readContract } from './readContract.js'
 
 describe('wagmi', () => {
   test('default', async () => {

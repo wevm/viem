@@ -1,6 +1,10 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
-import type { Address, Chain } from '../../types'
-import { numberToHex } from '../../utils'
+import type {
+  TestClient,
+  TestClientMode,
+  Transport,
+} from '../../clients/index.js'
+import type { Address, Chain } from '../../types/index.js'
+import { numberToHex } from '../../utils/index.js'
 
 export type SetBalanceParameters = {
   /** The account address. */

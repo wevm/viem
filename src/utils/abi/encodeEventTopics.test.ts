@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { encodeEventTopics } from './encodeEventTopics'
+import { encodeEventTopics } from './encodeEventTopics.js'
 
 test('Transfer()', () => {
   expect(

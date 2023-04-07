@@ -5,10 +5,10 @@ import type {
   TransactionType,
   Chain,
   Hex,
-} from '../types'
-import { formatEther, formatGwei } from '../utils'
-import type { SendTransactionParameters } from '../wallet'
-import { BaseError } from './base'
+} from '../types/index.js'
+import { formatEther, formatGwei } from '../utils/index.js'
+import type { SendTransactionParameters } from '../wallet.js'
+import { BaseError } from './base.js'
 
 export function prettyPrint(
   args: Record<string, bigint | number | string | undefined | false | unknown>,

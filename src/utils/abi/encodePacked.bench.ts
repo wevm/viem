@@ -1,9 +1,9 @@
-import { solidityPack } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { solidityPacked } from 'ethers@6'
 import { bench, describe } from 'vitest'
-import { address } from '../../_test'
+import { address } from '../../_test/index.js'
 
-import { encodePacked } from './encodePacked'
+import { encodePacked } from './encodePacked.js'
 
 describe('Encode Packed ABI', () => {
   bench('viem: `encodePacked`', () => {
@@ -14,7 +14,7 @@ describe('Encode Packed ABI', () => {
   })
 
   bench('ethers@5: `solidityPack`', () => {
-    solidityPack(
+    ethersV5Utils.solidityPack(
       ['address', 'string', 'bytes4[]'],
       [address.vitalik, 'hello world', ['0xdeadbeef', '0xcafebabe']],
     )

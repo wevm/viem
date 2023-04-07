@@ -1,7 +1,7 @@
 import { describe, bench } from 'vitest'
 import { ens_normalize } from '@adraffy/ens-normalize'
 
-import { normalize } from './normalize'
+import { normalize } from './normalize.js'
 
 describe('Normalize ENS name', () => {
   bench('viem: `normalize`', () => {

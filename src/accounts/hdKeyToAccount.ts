@@ -1,8 +1,8 @@
 import type { HDKey } from '@scure/bip32'
 
-import { toHex } from '../utils'
-import { privateKeyToAccount } from './privateKeyToAccount'
-import type { HDAccount, HDOptions } from './types'
+import { toHex } from '../utils/index.js'
+import { privateKeyToAccount } from './privateKeyToAccount.js'
+import type { HDAccount, HDOptions } from './types.js'
 
 /**
  * @description Creates an Account from a HD Key.

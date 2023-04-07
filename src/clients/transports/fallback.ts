@@ -1,8 +1,8 @@
-import type { Chain } from '../../types'
-import { isDeterministicError } from '../../utils/buildRequest'
-import { wait } from '../../utils/wait'
-import type { Transport, TransportConfig } from './createTransport'
-import { createTransport } from './createTransport'
+import type { Chain } from '../../types/index.js'
+import { isDeterministicError } from '../../utils/buildRequest.js'
+import { wait } from '../../utils/wait.js'
+import type { Transport, TransportConfig } from './createTransport.js'
+import { createTransport } from './createTransport.js'
 
 type RankOptions = {
   /**
@@ -52,7 +52,7 @@ export type FallbackTransportConfig = {
 
 export type FallbackTransport = Transport<
   'fallback',
-  { transports: Transport[] }
+  { transports: ReturnType<Transport>[] }
 >
 
 export function fallback(
@@ -100,9 +100,7 @@ export function fallback(
         type: 'fallback',
       },
       {
-        transports: transports.map(
-          (fn) => fn({ chain, retryCount: 0 }) as unknown as Transport,
-        ),
+        transports: transports.map((fn) => fn({ chain, retryCount: 0 })),
       },
     )
 

@@ -1,8 +1,8 @@
-import { BaseError } from '../../errors'
-import type { ByteArray, Hex } from '../../types'
-import { isHex } from '../data/isHex'
-import type { NumberToHexOpts } from './toHex'
-import { numberToHex } from './toHex'
+import { BaseError } from '../../errors/index.js'
+import type { ByteArray, Hex } from '../../types/index.js'
+import { isHex } from '../data/isHex.js'
+import type { NumberToHexOpts } from './toHex.js'
+import { numberToHex } from './toHex.js'
 
 const encoder = new TextEncoder()
 

@@ -3,9 +3,9 @@ export {
   wagmiContractConfig,
   uniswapV3PositionsContractConfig,
   usdcContractConfig,
-} from './abis'
+} from './abis.js'
 
-export { ethersProvider, ethersV6Provider } from './bench'
+export { ethersProvider, ethersV6Provider } from './bench.js'
 
 export {
   accounts,
@@ -14,7 +14,7 @@ export {
   localHttpUrl,
   localWsUrl,
   typedData,
-} from './constants'
+} from './constants.js'
 
 export {
   anvilChain,
@@ -22,6 +22,7 @@ export {
   deploy,
   deployBAYC,
   deployEnsAvatarTokenUri,
+  deployErc20InvalidTransferEvent,
   publicClient,
   testClient,
   walletClient,
@@ -29,4 +30,4 @@ export {
   walletClientWithAccount,
   walletClientWithoutChain,
   webSocketClient,
-} from './utils'
+} from './utils.js'

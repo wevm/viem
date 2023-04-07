@@ -1,7 +1,13 @@
-import type { Chain, Block, Formatter, Formatters, RpcBlock } from '../../types'
-import { defineFormatter } from './format'
-import type { ExtractFormatter, Formatted } from './format'
-import { formatTransaction } from './transaction'
+import type {
+  Chain,
+  Block,
+  Formatter,
+  Formatters,
+  RpcBlock,
+} from '../../types/index.js'
+import { defineFormatter } from './format.js'
+import type { ExtractFormatter, Formatted } from './format.js'
+import { formatTransaction } from './transaction.js'
 
 export type BlockFormatter<TChain extends Chain | undefined = Chain> =
   TChain extends Chain

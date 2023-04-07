@@ -1,10 +1,10 @@
 import { bench, describe } from 'vitest'
-import { serializeTransaction as serializeTransactionEthers } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { Transaction } from 'ethers@6'
-import { serializeTransaction } from './serializeTransaction'
-import { parseEther } from '../unit'
-import { accounts } from '../../_test'
-import type { TransactionSerializableBase } from '../../types'
+import { serializeTransaction } from './serializeTransaction.js'
+import { parseEther } from '../unit/index.js'
+import { accounts } from '../../_test/index.js'
+import type { TransactionSerializableBase } from '../../types/index.js'
 
 const base = {
   to: accounts[1].address,
@@ -21,7 +21,7 @@ describe('Serialize Transaction (Legacy)', () => {
   })
 
   bench('ethers@5: `serializeTransaction`', () => {
-    serializeTransactionEthers(
+    ethersV5Utils.serializeTransaction(
       { ...base, gasPrice: 1n, type: 0 },
       { r: '0x1', s: '0x2', v: 28 },
     )
@@ -46,7 +46,7 @@ describe('Serialize Transaction (EIP1559)', () => {
   })
 
   bench('ethers@5: `serializeTransaction`', () => {
-    serializeTransactionEthers(
+    ethersV5Utils.serializeTransaction(
       { ...base, chainId: 1, maxFeePerGas: 1n, type: 2 },
       { r: '0x1', s: '0x2', v: 28 },
     )
@@ -72,7 +72,7 @@ describe('Serialize Transaction (EIP2930)', () => {
   })
 
   bench('ethers@5: `serializeTransaction`', () => {
-    serializeTransactionEthers(
+    ethersV5Utils.serializeTransaction(
       { ...base, chainId: 1, gasPrice: 1n, accessList: [], type: 1 },
       { r: '0x1', s: '0x2', v: 28 },
     )

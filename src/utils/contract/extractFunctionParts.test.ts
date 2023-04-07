@@ -5,7 +5,7 @@ import {
   extractFunctionParams,
   extractFunctionParts,
   extractFunctionType,
-} from './extractFunctionParts'
+} from './extractFunctionParts.js'
 
 test('extractFunctionParts', () => {
   expect(extractFunctionParts('foo()')).toMatchInlineSnapshot(`

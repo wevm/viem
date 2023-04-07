@@ -1,6 +1,10 @@
-import type { PublicClient, WalletClient, Transport } from '../../clients'
-import type { BaseError } from '../../errors'
-import { AccountNotFoundError } from '../../errors'
+import type {
+  PublicClient,
+  WalletClient,
+  Transport,
+} from '../../clients/index.js'
+import type { BaseError } from '../../errors/index.js'
+import { AccountNotFoundError } from '../../errors/index.js'
 import type {
   Account,
   BlockTag,
@@ -8,8 +12,8 @@ import type {
   Formatter,
   MergeIntersectionProperties,
   TransactionRequest,
-} from '../../types'
-import type { GetAccountParameter } from '../../types/account'
+} from '../../types/index.js'
+import type { GetAccountParameter } from '../../types/account.js'
 import {
   assertRequest,
   extract,
@@ -19,8 +23,11 @@ import {
   numberToHex,
   parseAccount,
   prepareRequest,
-} from '../../utils'
-import type { Formatted, TransactionRequestFormatter } from '../../utils'
+} from '../../utils/index.js'
+import type {
+  Formatted,
+  TransactionRequestFormatter,
+} from '../../utils/index.js'
 
 export type FormattedEstimateGas<
   TFormatter extends Formatter | undefined = Formatter,

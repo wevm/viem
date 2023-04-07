@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import type { BlockTag } from './block'
-import type { Hash, Hex, LogTopic } from './misc'
+import type { BlockTag } from './block.js'
+import type { Hash, Hex, LogTopic } from './misc.js'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -12,7 +12,7 @@ import type {
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
-} from './rpc'
+} from './rpc.js'
 
 //////////////////////////////////////////////////
 // Errors

@@ -17,8 +17,8 @@ import {
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
-} from './request'
-import { RpcError } from './rpc'
+} from './request.js'
+import { RpcError } from './rpc.js'
 
 test('RequestError', () => {
   expect(
@@ -34,6 +34,9 @@ test('RequestError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [RpcError: An internal error was received.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
 
     Details: error details
     Version: viem@1.0.2]

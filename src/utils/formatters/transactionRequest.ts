@@ -4,10 +4,10 @@ import type {
   Formatters,
   RpcTransactionRequest,
   TransactionRequest,
-} from '../../types'
-import { defineFormatter } from './format'
-import type { ExtractFormatter, Formatted } from './format'
-import { numberToHex } from '../encoding'
+} from '../../types/index.js'
+import { defineFormatter } from './format.js'
+import type { ExtractFormatter, Formatted } from './format.js'
+import { numberToHex } from '../encoding/index.js'
 
 export type TransactionRequestFormatter<
   TChain extends Chain | undefined = Chain,

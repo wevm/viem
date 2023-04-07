@@ -1,8 +1,12 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, ethersV6Provider, publicClient } from '../../_test'
+import {
+  ethersProvider,
+  ethersV6Provider,
+  publicClient,
+} from '../../_test/index.js'
 
-import { getEnsAddress } from './getEnsAddress'
+import { getEnsAddress } from './getEnsAddress.js'
 
 describe('Get ENS Name', () => {
   bench('viem: `getEnsAddress`', async () => {

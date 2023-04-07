@@ -16,15 +16,15 @@ import {
   testClient,
   wagmiContractConfig,
   walletClient,
-} from '../../_test'
-import { baycContractConfig } from '../../_test/abis'
-import { encodeFunctionData, parseEther, parseGwei } from '../../utils'
-import { mine } from '../test'
-import { sendTransaction } from '../wallet'
+} from '../../_test/index.js'
+import { baycContractConfig } from '../../_test/abis.js'
+import { encodeFunctionData, parseEther, parseGwei } from '../../utils/index.js'
+import { mine } from '../test/index.js'
+import { sendTransaction } from '../wallet/index.js'
 
-import { simulateContract } from './simulateContract'
-import { deployErrorExample } from '../../_test/utils'
-import { errorsExampleABI } from '../../_test/generated'
+import { simulateContract } from './simulateContract.js'
+import { deployErrorExample } from '../../_test/utils.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 
 describe('wagmi', () => {
   test('default', async () => {

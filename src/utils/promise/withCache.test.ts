@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { wait } from '../wait'
+import { wait } from '../wait.js'
 
-import { getCache, withCache } from './withCache'
+import { getCache, withCache } from './withCache.js'
 
 beforeEach(() => getCache('foo').clear())
 

@@ -1,7 +1,10 @@
-import type { Chain } from '../types'
-import type { Requests } from '../types/eip1193'
-import { uid } from '../utils/uid'
-import type { BaseRpcRequests, Transport } from './transports/createTransport'
+import type { Chain } from '../types/index.js'
+import type { Requests } from '../types/eip1193.js'
+import { uid } from '../utils/uid.js'
+import type {
+  BaseRpcRequests,
+  Transport,
+} from './transports/createTransport.js'
 
 export type ClientConfig<
   TTransport extends Transport = Transport,

@@ -1,12 +1,12 @@
-import { readContract } from '../../../actions'
-import type { PublicClient, Transport } from '../../../clients'
+import { readContract } from '../../../actions/index.js'
+import type { PublicClient, Transport } from '../../../clients/index.js'
 import {
   EnsAvatarInvalidMetadataError,
   EnsAvatarInvalidNftUriError,
   EnsAvatarUnsupportedNamespaceError,
   EnsAvatarUriResolutionError,
-} from '../../../errors'
-import type { Address, AssetGatewayUrls, Chain } from '../../../types'
+} from '../../../errors/index.js'
+import type { Address, AssetGatewayUrls, Chain } from '../../../types/index.js'
 
 type UriItem = {
   uri: string

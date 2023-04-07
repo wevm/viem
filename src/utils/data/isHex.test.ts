@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { isHex } from './isHex'
+import { isHex } from './isHex.js'
 
 test('is hex', () => {
   expect(isHex('0x')).toBeTruthy()

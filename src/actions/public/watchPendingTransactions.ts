@@ -1,10 +1,15 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { Chain, Filter, GetTransportConfig, Hash } from '../../types'
-import { observe } from '../../utils/observe'
-import { poll } from '../../utils/poll'
-import { createPendingTransactionFilter } from './createPendingTransactionFilter'
-import { getFilterChanges } from './getFilterChanges'
-import { uninstallFilter } from './uninstallFilter'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type {
+  Chain,
+  Filter,
+  GetTransportConfig,
+  Hash,
+} from '../../types/index.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
+import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
+import { getFilterChanges } from './getFilterChanges.js'
+import { uninstallFilter } from './uninstallFilter.js'
 
 export type OnTransactionsParameter = Hash[]
 export type OnTransactionsFn = (transactions: OnTransactionsParameter) => void

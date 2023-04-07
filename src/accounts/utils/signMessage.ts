@@ -1,7 +1,7 @@
-import type { Hex } from '../../types'
-import { hashMessage } from '../../utils'
-import { sign } from './sign'
-import { signatureToHex } from './signatureToHex'
+import type { Hex } from '../../types/index.js'
+import { hashMessage } from '../../utils/index.js'
+import { sign } from './sign.js'
+import { signatureToHex } from './signatureToHex.js'
 
 export type SignMessageParameters = {
   /** The message to sign. */

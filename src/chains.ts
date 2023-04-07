@@ -1,16 +1,16 @@
 import * as chains from '@wagmi/chains'
 
-import type { Address, Hex, Quantity } from './types'
+import type { Address, Hex, Quantity } from './types/index.js'
 import {
   defineBlock,
   defineChain,
   defineTransaction,
   defineTransactionReceipt,
   defineTransactionRequest,
-} from './utils'
+} from './utils/index.js'
 
-export type { Chain } from './types'
-export { defineChain } from './utils'
+export type { Chain } from './types/index.js'
+export { defineChain } from './utils/index.js'
 
 const celoFormatters = {
   block: defineBlock({

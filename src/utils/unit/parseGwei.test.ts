@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { parseGwei } from './parseGwei'
+import { parseGwei } from './parseGwei.js'
 
 test('converts gwei to wei', () => {
   expect(parseGwei('69420.1234567')).toMatchInlineSnapshot('69420123456700n')

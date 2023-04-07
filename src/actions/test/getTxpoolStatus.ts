@@ -1,6 +1,10 @@
 import type { Chain } from '@wagmi/chains'
-import type { TestClient, TestClientMode, Transport } from '../../clients'
-import { hexToNumber } from '../../utils'
+import type {
+  TestClient,
+  TestClientMode,
+  Transport,
+} from '../../clients/index.js'
+import { hexToNumber } from '../../utils/index.js'
 
 export type GetTxpoolStatusReturnType = {
   pending: number

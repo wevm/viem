@@ -1,12 +1,12 @@
 import type { IncomingHttpHeaders } from 'http'
 import { assertType, describe, expect, test } from 'vitest'
 
-import { localhost } from '../../chains'
-import { wait } from '../../utils/wait'
-import { createHttpServer } from '../../_test'
+import { localhost } from '../../chains.js'
+import { wait } from '../../utils/wait.js'
+import { createHttpServer } from '../../_test/index.js'
 
-import type { HttpTransport } from './http'
-import { http } from './http'
+import type { HttpTransport } from './http.js'
+import { http } from './http.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')

@@ -1,1 +1,1 @@
-export { ethersWalletToAccount } from './adapters/ethers'
+export { ethersWalletToAccount } from './adapters/ethers.js'

@@ -1,4 +1,4 @@
-import { BaseError } from './base'
+import { BaseError } from './base.js'
 
 export class EnsAvatarInvalidMetadataError extends BaseError {
   name = 'EnsAvatarInvalidMetadataError'

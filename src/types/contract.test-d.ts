@@ -19,8 +19,8 @@ import type {
   AbiEventTopicToPrimitiveType,
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
-} from './contract'
-import type { Hex } from './misc'
+} from './contract.js'
+import type { Hex } from './misc.js'
 
 test('ContractFunctionConfig', async () => {
   type Result = ContractFunctionConfig<typeof seaportAbi, 'getOrderStatus'>
@@ -170,10 +170,12 @@ test('GetValue', () => {
   expectTypeOf<Result>().toEqualTypeOf<{ value?: bigint | undefined }>()
 
   // other
-  expectTypeOf<
-    GetValue<typeof seaportAbi, 'getOrderStatus'>
-  >().toEqualTypeOf<unknown>()
-  expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<unknown>()
+  expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{
+    value?: never
+  }>()
+  expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<{
+    value?: never
+  }>()
 })
 
 test('InferErrorName', () => {

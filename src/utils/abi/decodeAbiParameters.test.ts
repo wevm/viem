@@ -1,13 +1,13 @@
 import type { Address } from 'abitype'
 import { assertType, describe, expect, test } from 'vitest'
-import { multicall3Abi } from '../../constants'
-import type { Hex } from '../../types'
-import { address } from '../../_test'
-import { seaportContractConfig } from '../../_test/abis'
-import { getAddress } from '../address'
+import { multicall3Abi } from '../../constants/index.js'
+import type { Hex } from '../../types/index.js'
+import { address } from '../../_test/index.js'
+import { seaportContractConfig } from '../../_test/abis.js'
+import { getAddress } from '../address/index.js'
 
-import { decodeAbiParameters } from './decodeAbiParameters'
-import { getAbiItem } from './getAbiItem'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
+import { getAbiItem } from './getAbiItem.js'
 
 describe('static', () => {
   test('blank', () => {
@@ -1963,6 +1963,24 @@ test('invalid size', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     "Data size of 35 bytes is invalid.
     Size must be in increments of 32 bytes (size % 32 === 0).
+
+    Data: 0x0000000000000000000000000000000000000000000000000000000000010fabababab (35 bytes)
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('data size too small', () => {
+  expect(() =>
+    decodeAbiParameters(
+      [{ type: 'uint256' }, { type: 'uint256' }],
+      '0x0000000000000000000000000000000000000000000000000000000000010f2c',
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Data size of 32 bytes is too small for given parameters.
+
+    Params: (uint256, uint256)
+    Data:   0x0000000000000000000000000000000000000000000000000000000000010f2c (32 bytes)
 
     Version: viem@1.0.2"
   `)

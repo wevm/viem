@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest'
 
-import { observe } from './observe'
-import { wait } from './wait'
+import { observe } from './observe.js'
+import { wait } from './wait.js'
 
 test('emits data to callbacks', async () => {
   const id = 'mock'

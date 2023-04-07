@@ -3,9 +3,9 @@ import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
-} from '../../_test'
+} from '../../_test/index.js'
 
-import { getStorageAt } from './getStorageAt'
+import { getStorageAt } from './getStorageAt.js'
 
 test('default', async () => {
   expect(

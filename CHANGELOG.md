@@ -1,5 +1,35 @@
 # viem
 
+## 0.2.11
+
+### Patch Changes
+
+- [#326](https://github.com/wagmi-dev/viem/pull/326) [`c83616a`](https://github.com/wagmi-dev/viem/commit/c83616ad33aa06054342a3bf72bcb51c09ee0ada) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where filtered logs that do not conform to the provided ABI would cause `getLogs`, `getFilterLogs` or `getFilterChanges` to throw – these logs are now skipped. See [#323](https://github.com/wagmi-dev/viem/issues/323#issuecomment-1499654052) for more info.
+
+## 0.2.10
+
+### Patch Changes
+
+- [#322](https://github.com/wagmi-dev/viem/pull/322) [`ea019d7`](https://github.com/wagmi-dev/viem/commit/ea019d75c5243d8ae2b8ca1686b34026b170d903) Thanks [@tmm](https://github.com/tmm)! - Fixed properties passed to ethers adapter `signTransaction`
+
+## 0.2.9
+
+### Patch Changes
+
+- [#317](https://github.com/wagmi-dev/viem/pull/317) [`2720ba5`](https://github.com/wagmi-dev/viem/commit/2720ba566d02fdb2c6ddc8d016ec252606a9cb95) Thanks [@jxom](https://github.com/jxom)! - Fixed `transports` property type on `FallbackTransport`.
+
+## 0.2.8
+
+### Patch Changes
+
+- [#313](https://github.com/wagmi-dev/viem/pull/313) [`eb2280c`](https://github.com/wagmi-dev/viem/commit/eb2280cbc65b3e509b4b3871fe75b236101da442) Thanks [@jxom](https://github.com/jxom)! - Migrated from `idna-uts46-hx` to `@adraffy/ens-normalize` for `normalize`.
+
+## 0.2.7
+
+### Patch Changes
+
+- [#310](https://github.com/wagmi-dev/viem/pull/310) [`6dfc225`](https://github.com/wagmi-dev/viem/commit/6dfc22537b9dd5740911b8677bba01cc477b9b23) Thanks [@jxom](https://github.com/jxom)! - Made `GetValue` return `{ value?: never }` instead of `unknown` for contract functions that are not payable.
+
 ## 0.2.6
 
 ### Patch Changes

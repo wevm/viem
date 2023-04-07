@@ -7,14 +7,20 @@ import type {
 
 import {
   AbiDecodingDataSizeInvalidError,
+  AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
-} from '../../errors'
-import type { Hex } from '../../types'
-import { checksumAddress } from '../address'
-import { size, slice, trim } from '../data'
-import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
-import { getArrayComponents } from './encodeAbiParameters'
+} from '../../errors/index.js'
+import type { Hex } from '../../types/index.js'
+import { checksumAddress } from '../address/index.js'
+import { size, slice, trim } from '../data/index.js'
+import {
+  hexToBigInt,
+  hexToBool,
+  hexToNumber,
+  hexToString,
+} from '../encoding/index.js'
+import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<
   TParams extends
@@ -30,7 +36,7 @@ export function decodeAbiParameters<
   if (data === '0x' && (params as unknown[]).length > 0)
     throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
-    throw new AbiDecodingDataSizeInvalidError(size(data))
+    throw new AbiDecodingDataSizeInvalidError({ data, size: size(data) })
   return decodeParams({
     data,
     params: params as readonly AbiParameter[],
@@ -49,6 +55,13 @@ function decodeParams<TParams extends readonly AbiParameter[]>({
   let position = 0
 
   for (let i = 0; i < params.length; i++) {
+    if (position >= size(data))
+      throw new AbiDecodingDataSizeTooSmallError({
+        data,
+        params,
+        size: size(data),
+      })
+
     const param = params[i]
     const { consumed, value } = decodeParam({ data, param, position })
     decodedValues.push(value)

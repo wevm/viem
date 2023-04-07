@@ -1,5 +1,5 @@
-import type { ByteArray, Hex } from '../types'
-import { BaseError } from './base'
+import type { ByteArray, Hex } from '../types/index.js'
+import { BaseError } from './base.js'
 
 export class DataLengthTooLongError extends BaseError {
   name = 'DataLengthTooLongError'
