@@ -118,10 +118,10 @@ export type {
 } from './typedData'
 
 export type {
-  Contains,
   IsNarrowable,
   IsNever,
   IsUndefined,
+  Or,
   PartialBy,
   Prettify,
   MergeIntersectionProperties,
