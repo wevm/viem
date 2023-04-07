@@ -1,9 +1,10 @@
 import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'
 
-import type { JsonRpcAccount } from '../types'
-import { createWalletClient, WalletClient } from './createWalletClient'
-import { http } from './transports'
+import type { JsonRpcAccount } from '../types/index.js'
+import type { WalletClient } from './createWalletClient.js'
+import { createWalletClient } from './createWalletClient.js'
+import { http } from './transports/index.js'
 
 test('with chain', () => {
   const client = createWalletClient({

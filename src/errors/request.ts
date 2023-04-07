@@ -1,5 +1,5 @@
-import { BaseError } from './base'
-import type { RpcError } from './rpc'
+import { BaseError } from './base.js'
+import type { RpcError } from './rpc.js'
 
 export class RequestError extends BaseError {
   constructor(
@@ -13,7 +13,8 @@ export class RequestError extends BaseError {
     super(shortMessage, {
       cause: err,
       docsPath,
-      metaMessages,
+      metaMessages:
+        metaMessages || (err as { metaMessages?: string[] })?.metaMessages,
     })
     this.name = err.name
   }
@@ -26,7 +27,7 @@ export class RpcRequestError extends RequestError {
     err: RpcError,
     { docsPath, shortMessage }: { docsPath?: string; shortMessage: string },
   ) {
-    super(err, { docsPath, metaMessages: err.metaMessages, shortMessage })
+    super(err, { docsPath, shortMessage })
     this.code = err.code
     this.name = err.name
   }
@@ -157,22 +158,22 @@ export class JsonRpcVersionUnsupportedError extends RpcRequestError {
   }
 }
 
-export class UserRejectedRequestError extends RpcRequestError {
+export class UserRejectedRequestError extends RequestError {
   name = 'UserRejectedRequestError'
   code = 4001
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
       shortMessage: 'User rejected the request.',
     })
   }
 }
 
-export class SwitchChainError extends RpcRequestError {
+export class SwitchChainError extends RequestError {
   name = 'SwitchChainError'
   code = 4902
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
       shortMessage: 'An error occurred when attempting to switch chain.',
     })

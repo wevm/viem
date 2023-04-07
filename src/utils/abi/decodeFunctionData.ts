@@ -1,11 +1,11 @@
 import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 
-import { AbiFunctionSignatureNotFoundError } from '../../errors'
-import type { GetFunctionArgs, Hex } from '../../types'
-import { slice } from '../data'
-import { getFunctionSelector } from '../hash'
-import { decodeAbiParameters } from './decodeAbiParameters'
-import { formatAbiItem } from './formatAbiItem'
+import { AbiFunctionSignatureNotFoundError } from '../../errors/index.js'
+import type { GetFunctionArgs, Hex } from '../../types/index.js'
+import { slice } from '../data/index.js'
+import { getFunctionSelector } from '../hash/index.js'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
+import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeFunctionDataParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

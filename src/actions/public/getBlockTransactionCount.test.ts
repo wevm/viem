@@ -6,12 +6,12 @@ import {
   publicClient,
   testClient,
   walletClient,
-} from '../../_test'
-import { parseEther } from '../../utils'
-import { mine } from '../test'
-import { sendTransaction } from '..'
-import { getBlock } from './getBlock'
-import { getBlockTransactionCount } from './getBlockTransactionCount'
+} from '../../_test/index.js'
+import { parseEther } from '../../utils/index.js'
+import { mine } from '../test/index.js'
+import { sendTransaction } from '../index.js'
+import { getBlock } from './getBlock.js'
+import { getBlockTransactionCount } from './getBlockTransactionCount.js'
 
 test('default', async () => {
   expect(await getBlockTransactionCount(publicClient)).toBeDefined()

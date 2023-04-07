@@ -1,9 +1,9 @@
-import { AbiCoder } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { AbiCoder as AbiCoderV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
-import { address } from '../../_test'
+import { address } from '../../_test/index.js'
 
-import { encodeAbiParameters } from './encodeAbiParameters'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
 
 describe('ABI Encode', () => {
   bench('viem: `encodeAbiParameters`', () => {
@@ -75,7 +75,7 @@ describe('ABI Encode', () => {
   })
 
   bench('ethers@5: `AbiCoder.encode`', () => {
-    const coder = new AbiCoder()
+    const coder = new ethersV5Utils.AbiCoder()
     coder.encode(
       [
         {
@@ -407,7 +407,7 @@ describe('Seaport function', () => {
   })
 
   bench('ethers@5: `AbiCoder.encode`', () => {
-    const coder = new AbiCoder()
+    const coder = new ethersV5Utils.AbiCoder()
     coder.encode(
       [
         {
@@ -600,7 +600,7 @@ describe('Seaport function', () => {
   })
 
   bench.skip('ethers@6: `AbiCoder.encode`', () => {
-    const coder = new AbiCoder()
+    const coder = new ethersV5Utils.AbiCoder()
     coder.encode(
       [
         {

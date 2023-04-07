@@ -1,5 +1,5 @@
 import { assertType, expect, test } from 'vitest'
-import { getSerializedTransactionType } from './getSerializedTransactionType'
+import { getSerializedTransactionType } from './getSerializedTransactionType.js'
 
 test('eip1559', () => {
   const type = getSerializedTransactionType('0x02abc')

@@ -6,7 +6,7 @@
 
 import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
-import { createPublicClient, http } from '../../clients'
+import { createPublicClient, http } from '../../clients/index.js'
 import {
   accounts,
   address,
@@ -14,10 +14,10 @@ import {
   localHttpUrl,
   publicClient,
   usdcContractConfig,
-} from '../../_test'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis'
+} from '../../_test/index.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 
-import { multicall } from './multicall'
+import { multicall } from './multicall.js'
 
 test('default', async () => {
   expect(
@@ -46,7 +46,7 @@ test('default', async () => {
         "status": "success",
       },
       {
-        "result": 231481998553n,
+        "result": 231481998547n,
         "status": "success",
       },
       {
@@ -81,7 +81,7 @@ test('args: allowFailure', async () => {
   ).toMatchInlineSnapshot(`
     [
       41119586940119550n,
-      231481998553n,
+      231481998547n,
       10000n,
     ]
   `)
@@ -115,7 +115,7 @@ test('args: multicallAddress', async () => {
         "status": "success",
       },
       {
-        "result": 231481998553n,
+        "result": 231481998547n,
         "status": "success",
       },
       {
@@ -168,7 +168,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998553n,
+            "result": 231481998547n,
             "status": "success",
           },
           {
@@ -222,7 +222,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998553n,
+            "result": 231481998547n,
             "status": "success",
           },
           {
@@ -276,7 +276,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998553n,
+            "result": 231481998547n,
             "status": "success",
           },
           {
@@ -321,11 +321,11 @@ describe('errors', async () => {
       ).toMatchInlineSnapshot(`
         [
           {
-            "result": 231481998553n,
+            "result": 231481998547n,
             "status": "success",
           },
           {
-            "result": 231481998553n,
+            "result": 231481998547n,
             "status": "success",
           },
           {

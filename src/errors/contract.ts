@@ -1,20 +1,20 @@
 import type { Abi } from 'abitype'
-import type { CallParameters } from '../actions'
-import { panicReasons } from '../constants'
-import type { Address, Chain, Hex } from '../types'
+import type { CallParameters } from '../actions/index.js'
+import { panicReasons } from '../constants/index.js'
+import type { Address, Chain, Hex } from '../types/index.js'
 import {
   decodeErrorResult,
-  DecodeErrorResultReturnType,
   formatAbiItem,
   formatAbiItemWithArgs,
   formatEther,
   formatGwei,
   getAbiItem,
   parseAccount,
-} from '../utils'
-import { BaseError } from './base'
-import { prettyPrint } from './transaction'
-import { getContractAddress } from './utils'
+} from '../utils/index.js'
+import type { DecodeErrorResultReturnType } from '../utils/index.js'
+import { BaseError } from './base.js'
+import { prettyPrint } from './transaction.js'
+import { getContractAddress } from './utils.js'
 
 export class CallExecutionError extends BaseError {
   cause: BaseError

@@ -1,4 +1,4 @@
-import type { ByteArray, Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types/index.js'
 
 type TrimOptions = {
   dir?: 'left' | 'right'

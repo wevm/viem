@@ -1,7 +1,12 @@
-import type { Transport, WalletClient } from '../../clients'
-import { AccountNotFoundError } from '../../errors'
-import type { Account, Chain, GetAccountParameter, Hex } from '../../types'
-import { parseAccount, toHex } from '../../utils'
+import type { Transport, WalletClient } from '../../clients/index.js'
+import { AccountNotFoundError } from '../../errors/index.js'
+import type {
+  Account,
+  Chain,
+  GetAccountParameter,
+  Hex,
+} from '../../types/index.js'
+import { parseAccount, toHex } from '../../utils/index.js'
 
 export type SignMessageParameters<
   TAccount extends Account | undefined = Account | undefined,

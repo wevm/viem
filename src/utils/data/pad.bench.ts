@@ -1,9 +1,9 @@
-import { hexZeroPad, zeroPad } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { zeroPadValue } from 'ethers@6'
 
 import { bench, describe } from 'vitest'
 
-import { padBytes, padHex } from './pad'
+import { padBytes, padHex } from './pad.js'
 
 describe('Pad Hex', () => {
   bench('viem: `padHex`', () => {
@@ -11,7 +11,7 @@ describe('Pad Hex', () => {
   })
 
   bench('ethers@5: `hexZeroPad`', () => {
-    hexZeroPad('0xa4e12a45', 32)
+    ethersV5Utils.hexZeroPad('0xa4e12a45', 32)
   })
 
   bench('ethers@6: `zeroPadValue`', () => {
@@ -25,7 +25,7 @@ describe('Pad Bytes', () => {
   })
 
   bench('ethers@5: `zeroPad`', () => {
-    zeroPad(new Uint8Array([1, 122, 51, 123]), 32)
+    ethersV5Utils.zeroPad(new Uint8Array([1, 122, 51, 123]), 32)
   })
 
   bench('ethers@6: `zeroPadValue`', () => {

@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
-import type { transactionType } from '../utils'
-import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee'
-import type { Log } from './log'
-import type { Hash, Hex, Signature } from './misc'
-import type { ValueOf } from './utils'
+import type { transactionType } from '../utils/index.js'
+import type { FeeValuesEIP1559, FeeValuesLegacy } from './fee.js'
+import type { Log } from './log.js'
+import type { Hash, Hex, Signature } from './misc.js'
+import type { ValueOf } from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 

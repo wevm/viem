@@ -1,19 +1,45 @@
 import { describe, expect, test } from 'vitest'
 import {
   AbiDecodingDataSizeInvalidError,
+  AbiDecodingDataSizeTooSmallError,
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   AbiEventSignatureEmptyTopicsError,
+  DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
   InvalidAbiDecodingTypeError,
   InvalidAbiEncodingTypeError,
   InvalidArrayError,
-} from './abi'
+} from './abi.js'
 
 test('AbiDecodingDataSizeInvalidError', () => {
-  expect(new AbiDecodingDataSizeInvalidError(69)).toMatchInlineSnapshot(`
-    [AbiDecodingDataSizeInvalidError: Data size of 69 bytes is invalid.
+  expect(
+    new AbiDecodingDataSizeInvalidError({ data: '0x1234', size: 2 }),
+  ).toMatchInlineSnapshot(`
+    [AbiDecodingDataSizeInvalidError: Data size of 2 bytes is invalid.
     Size must be in increments of 32 bytes (size % 32 === 0).
+
+    Data: 0x1234 (2 bytes)
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('AbiDecodingDataSizeTooSmallError', () => {
+  expect(
+    new AbiDecodingDataSizeTooSmallError({
+      data: '0x1234',
+      params: [
+        { name: 'a', type: 'uint256' },
+        { name: 'b', type: 'uint256' },
+      ],
+      size: 2,
+    }),
+  ).toMatchInlineSnapshot(`
+    [AbiDecodingDataSizeTooSmallError: Data size of 2 bytes is too small for given parameters.
+
+    Params: (uint256 a, uint256 b)
+    Data:   0x1234 (2 bytes)
 
     Version: viem@1.0.2]
   `)
@@ -69,6 +95,28 @@ test('AbiEventSignatureEmptyTopicsError', () => {
     [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
     Docs: https://viem.sh/test.html
+    Version: viem@1.0.2]
+  `)
+})
+
+test('DecodeLogDataMismatch', () => {
+  expect(
+    new DecodeLogDataMismatch({
+      data: '0x1234',
+      params: [
+        { name: 'a', type: 'uint256' },
+        { name: 'b', type: 'uint256' },
+      ],
+      size: 2,
+    }),
+  ).toMatchInlineSnapshot(`
+    [DecodeLogDataMismatch: Data size of 2 bytes is too small for non-indexed event parameters.
+
+    This error is usually caused if the ABI event has too many non-indexed event parameters for the emitted log.
+
+    Params: (uint256 a, uint256 b)
+    Data:   0x1234 (2 bytes)
+
     Version: viem@1.0.2]
   `)
 })

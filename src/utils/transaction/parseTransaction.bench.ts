@@ -1,11 +1,11 @@
 import { bench, describe } from 'vitest'
-import { parseTransaction as parseTransactionEthers } from 'ethers/lib/utils'
+import { utils as ethersV5Utils } from 'ethers'
 import { Transaction } from 'ethers@6'
-import { parseTransaction } from './parseTransaction'
-import { parseEther } from '../unit'
-import { accounts } from '../../_test'
-import type { TransactionSerializableBase } from '../../types'
-import { serializeTransaction } from './serializeTransaction'
+import { parseTransaction } from './parseTransaction.js'
+import { parseEther } from '../unit/index.js'
+import { accounts } from '../../_test/index.js'
+import type { TransactionSerializableBase } from '../../types/index.js'
+import { serializeTransaction } from './serializeTransaction.js'
 
 const base = {
   to: accounts[1].address,
@@ -32,7 +32,7 @@ describe('Parse Transaction (Legacy)', () => {
   })
 
   bench('ethers@5: `parseTransaction`', () => {
-    parseTransactionEthers(legacy)
+    ethersV5Utils.parseTransaction(legacy)
   })
 
   bench('ethers@6: `Transaction.from`', () => {
@@ -46,7 +46,7 @@ describe('Parse Transaction (EIP1559)', () => {
   })
 
   bench('ethers@5: `parseTransaction`', () => {
-    parseTransactionEthers(eip1559)
+    ethersV5Utils.parseTransaction(eip1559)
   })
 
   bench('ethers@6: `Transaction.from`', () => {
@@ -60,7 +60,7 @@ describe('Parse Transaction (EIP2930)', () => {
   })
 
   bench('ethers@5: `parseTransaction`', () => {
-    parseTransactionEthers(eip2930)
+    ethersV5Utils.parseTransaction(eip2930)
   })
 
   bench('ethers@6: `Transaction.from`', () => {

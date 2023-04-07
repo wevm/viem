@@ -4,8 +4,9 @@ import type {
   IsNarrowable,
   IsNever,
   IsUndefined,
+  Or,
   RequiredBy,
-} from './utils'
+} from './utils.js'
 
 test('Filter', () => {
   expectTypeOf<Filter<[1, 'foo', false, 'baz'], 1 | boolean>>().toEqualTypeOf<
@@ -42,6 +43,11 @@ test('IsUndefined', () => {
   expectTypeOf<IsUndefined<[]>>().toEqualTypeOf<false>()
   expectTypeOf<IsUndefined<{}>>().toEqualTypeOf<false>()
   expectTypeOf<IsUndefined<undefined[]>>().toEqualTypeOf<false>()
+})
+
+test('Or', () => {
+  expectTypeOf<Or<[true, false, true]>>().toEqualTypeOf<true>()
+  expectTypeOf<Or<[false, false, false]>>().toEqualTypeOf<false>()
 })
 
 test('RequiredBy', () => {

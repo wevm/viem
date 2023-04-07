@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient } from '../../_test'
-import { parseEther } from '../../utils'
-import { getBalance } from '../public/getBalance'
-import { setBalance } from '../test/setBalance'
+import { accounts, publicClient, testClient } from '../../_test/index.js'
+import { parseEther } from '../../utils/index.js'
+import { getBalance } from '../public/getBalance.js'
+import { setBalance } from './setBalance.js'
 
 const targetAccount = accounts[0]
 

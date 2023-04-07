@@ -1,4 +1,4 @@
-import type { ByteArray, Hex } from '../../types'
+import type { ByteArray, Hex } from '../../types/index.js'
 
 export type ConcatReturnType<TValue extends Hex | ByteArray> =
   TValue extends Hex ? Hex : ByteArray

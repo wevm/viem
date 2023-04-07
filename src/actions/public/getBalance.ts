@@ -1,6 +1,6 @@
-import type { PublicClient, Transport } from '../../clients'
-import type { Address, BlockTag, Chain } from '../../types'
-import { numberToHex } from '../../utils'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { Address, BlockTag, Chain } from '../../types/index.js'
+import { numberToHex } from '../../utils/index.js'
 
 export type GetBalanceParameters = {
   /** The address of the account. */

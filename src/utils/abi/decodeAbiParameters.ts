@@ -7,14 +7,20 @@ import type {
 
 import {
   AbiDecodingDataSizeInvalidError,
+  AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
-} from '../../errors'
-import type { Hex } from '../../types'
-import { checksumAddress } from '../address'
-import { size, slice, trim } from '../data'
-import { hexToBigInt, hexToBool, hexToNumber, hexToString } from '../encoding'
-import { getArrayComponents } from './encodeAbiParameters'
+} from '../../errors/index.js'
+import type { Hex } from '../../types/index.js'
+import { checksumAddress } from '../address/index.js'
+import { size, slice, trim } from '../data/index.js'
+import {
+  hexToBigInt,
+  hexToBool,
+  hexToNumber,
+  hexToString,
+} from '../encoding/index.js'
+import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<
   TParams extends
@@ -27,9 +33,10 @@ export type DecodeAbiParametersReturnType<
 export function decodeAbiParameters<
   TParams extends readonly AbiParameter[] | readonly unknown[],
 >(params: Narrow<TParams>, data: Hex): DecodeAbiParametersReturnType<TParams> {
-  if (data === '0x' && params.length > 0) throw new AbiDecodingZeroDataError()
+  if (data === '0x' && (params as unknown[]).length > 0)
+    throw new AbiDecodingZeroDataError()
   if (size(data) % 32 !== 0)
-    throw new AbiDecodingDataSizeInvalidError(size(data))
+    throw new AbiDecodingDataSizeInvalidError({ data, size: size(data) })
   return decodeParams({
     data,
     params: params as readonly AbiParameter[],
@@ -44,10 +51,17 @@ function decodeParams<TParams extends readonly AbiParameter[]>({
   data,
   params,
 }: { data: Hex; params: TParams }) {
-  let decodedValues: unknown[] = []
+  const decodedValues: unknown[] = []
   let position = 0
 
   for (let i = 0; i < params.length; i++) {
+    if (position >= size(data))
+      throw new AbiDecodingDataSizeTooSmallError({
+        data,
+        params,
+        size: size(data),
+      })
+
     const param = params[i]
     const { consumed, value } = decodeParam({ data, param, position })
     decodedValues.push(value)
@@ -85,7 +99,7 @@ function decodeParam({
     return decodeBytes(data, { param, position })
   }
 
-  let value = slice(data, position, position + 32) as Hex
+  const value = slice(data, position, position + 32) as Hex
   if (param.type.startsWith('uint') || param.type.startsWith('int')) {
     return decodeNumber(value, { param })
   }
@@ -127,7 +141,7 @@ function decodeArray<TParam extends AbiParameter>(
     const length = hexToNumber(slice(data, offset, offset + 32))
 
     let consumed = 0
-    let value: AbiParameterToPrimitiveType<TParam>[] = []
+    const value: AbiParameterToPrimitiveType<TParam>[] = []
     for (let i = 0; i < length; ++i) {
       const decodedChild = decodeParam({
         data: slice(data, offset + 32),
@@ -150,7 +164,7 @@ function decodeArray<TParam extends AbiParameter>(
     const dynamicChild = !arrayComponents?.[0]
 
     let consumed = 0
-    let value: AbiParameterToPrimitiveType<TParam>[] = []
+    const value: AbiParameterToPrimitiveType<TParam>[] = []
     for (let i = 0; i < length; ++i) {
       const offset = hexToNumber(slice(data, position, position + 32))
       const decodedChild = decodeParam({
@@ -168,7 +182,7 @@ function decodeArray<TParam extends AbiParameter>(
   // and the length of each element in the array is known,
   // the array data is encoded contiguously after the array.
   let consumed = 0
-  let value: AbiParameterToPrimitiveType<TParam>[] = []
+  const value: AbiParameterToPrimitiveType<TParam>[] = []
   for (let i = 0; i < length; ++i) {
     const decodedChild = decodeParam({
       data,
@@ -243,7 +257,7 @@ function decodeTuple<
 
   // Initialize the value to an object or an array, depending on whether the
   // tuple is named or unnamed.
-  let value: any = hasUnnamedChild ? [] : {}
+  const value: any = hasUnnamedChild ? [] : {}
   let consumed = 0
 
   // If the tuple has a dynamic child, we must first decode the offset to the

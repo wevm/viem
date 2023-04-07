@@ -5,9 +5,9 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
-} from '../../types'
+} from '../../types/index.js'
 
-import { formatTransactionRequest } from './transactionRequest'
+import { formatTransactionRequest } from './transactionRequest.js'
 
 const base: TransactionRequest = {
   data: '0x1',

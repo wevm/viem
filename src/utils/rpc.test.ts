@@ -1,14 +1,18 @@
 import { describe, expect, test, vi } from 'vitest'
 import WebSocket from 'isomorphic-ws'
 
-import { createHttpServer, initialBlockNumber, localWsUrl } from '../_test'
-import * as withTimeout from '../utils/promise/withTimeout'
-import { localhost, mainnet } from '../chains'
+import {
+  createHttpServer,
+  initialBlockNumber,
+  localWsUrl,
+} from '../_test/index.js'
+import * as withTimeout from './promise/withTimeout.js'
+import { localhost, mainnet } from '../chains.js'
 
-import { numberToHex } from './encoding'
-import type { RpcResponse } from './rpc'
-import { getSocket, rpc } from './rpc'
-import { wait } from './wait'
+import { numberToHex } from './encoding/index.js'
+import type { RpcResponse } from './rpc.js'
+import { getSocket, rpc } from './rpc.js'
+import { wait } from './wait.js'
 import type { IncomingHttpHeaders } from 'http'
 
 test('rpc', () => {
@@ -85,7 +89,7 @@ describe('http', () => {
   })
 
   test('serial requests', async () => {
-    let response: any = []
+    const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await rpc.http(localhost.rpcUrls.default.http[0], {
@@ -556,7 +560,7 @@ describe('webSocket', () => {
 describe('webSocket (subscription)', () => {
   test('basic', async () => {
     const socket = await getSocket(localWsUrl)
-    let data_: RpcResponse[] = []
+    const data_: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -582,7 +586,7 @@ describe('webSocket (subscription)', () => {
 
   test('multiple', async () => {
     const socket = await getSocket(localWsUrl)
-    let s1: RpcResponse[] = []
+    const s1: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -591,7 +595,7 @@ describe('webSocket (subscription)', () => {
       onData: (data) => s1.push(data),
     })
 
-    let s2: RpcResponse[] = []
+    const s2: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -600,7 +604,7 @@ describe('webSocket (subscription)', () => {
       onData: (data) => s2.push(data),
     })
 
-    let s3: RpcResponse[] = []
+    const s3: RpcResponse[] = []
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
@@ -868,7 +872,7 @@ describe('webSocketAsync', () => {
 
   test('serial requests', async () => {
     const socket = await getSocket(localWsUrl)
-    let response: any = []
+    const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
         await rpc.webSocketAsync(socket, {

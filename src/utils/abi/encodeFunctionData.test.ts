@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { encodeFunctionData } from './encodeFunctionData'
+import { encodeFunctionData } from './encodeFunctionData.js'
 
 test('foo()', () => {
   expect(

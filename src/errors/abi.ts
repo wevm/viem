@@ -1,7 +1,7 @@
 import type { AbiParameter } from 'abitype'
-import type { AbiItem, Hex } from '../types'
-import { formatAbiItem, size } from '../utils'
-import { BaseError } from './base'
+import type { AbiItem, Hex } from '../types/index.js'
+import { formatAbiItem, formatAbiParams, size } from '../utils/index.js'
+import { BaseError } from './base.js'
 
 export class AbiConstructorNotFoundError extends BaseError {
   name = 'AbiConstructorNotFoundError'
@@ -35,13 +35,44 @@ export class AbiConstructorParamsNotFoundError extends BaseError {
 
 export class AbiDecodingDataSizeInvalidError extends BaseError {
   name = 'AbiDecodingDataSizeInvalidError'
-  constructor(size: number) {
+  constructor({ data, size }: { data: Hex; size: number }) {
     super(
       [
         `Data size of ${size} bytes is invalid.`,
         'Size must be in increments of 32 bytes (size % 32 === 0).',
       ].join('\n'),
+      { metaMessages: [`Data: ${data} (${size} bytes)`] },
     )
+  }
+}
+
+export class AbiDecodingDataSizeTooSmallError extends BaseError {
+  name = 'AbiDecodingDataSizeTooSmallError'
+
+  data: Hex
+  params: readonly AbiParameter[]
+  size: number
+
+  constructor({
+    data,
+    params,
+    size,
+  }: { data: Hex; params: readonly AbiParameter[]; size: number }) {
+    super(
+      [`Data size of ${size} bytes is too small for given parameters.`].join(
+        '\n',
+      ),
+      {
+        metaMessages: [
+          `Params: (${formatAbiParams(params, { includeName: true })})`,
+          `Data:   ${data} (${size} bytes)`,
+        ],
+      },
+    )
+
+    this.data = data
+    this.params = params
+    this.size = size
   }
 }
 
@@ -237,6 +268,38 @@ export class BytesSizeMismatchError extends BaseError {
     givenSize,
   }: { expectedSize: number; givenSize: number }) {
     super(`Expected bytes${expectedSize}, got bytes${givenSize}.`)
+  }
+}
+
+export class DecodeLogDataMismatch extends BaseError {
+  name = 'DecodeLogDataMismatch'
+
+  data: Hex
+  params: readonly AbiParameter[]
+  size: number
+
+  constructor({
+    data,
+    params,
+    size,
+  }: { data: Hex; params: readonly AbiParameter[]; size: number }) {
+    super(
+      [
+        `Data size of ${size} bytes is too small for non-indexed event parameters.`,
+      ].join('\n'),
+      {
+        metaMessages: [
+          'This error is usually caused if the ABI event has too many non-indexed event parameters for the emitted log.',
+          '',
+          `Params: (${formatAbiParams(params, { includeName: true })})`,
+          `Data:   ${data} (${size} bytes)`,
+        ],
+      },
+    )
+
+    this.data = data
+    this.params = params
+    this.size = size
   }
 }
 

@@ -1,8 +1,8 @@
-import { HDKey } from './index'
+import { HDKey } from './index.js'
 import { describe, expect, test } from 'vitest'
-import { getAddress, parseEther, parseGwei, toBytes } from '../utils'
-import { accounts, typedData } from '../_test'
-import { hdKeyToAccount } from './hdKeyToAccount'
+import { getAddress, parseEther, parseGwei, toBytes } from '../utils/index.js'
+import { accounts, typedData } from '../_test/index.js'
+import { hdKeyToAccount } from './hdKeyToAccount.js'
 
 const hdKey = HDKey.fromMasterSeed(
   toBytes(

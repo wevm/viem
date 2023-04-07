@@ -1,5 +1,5 @@
 import type { AbiEvent } from 'abitype'
-import type { PublicClient, Transport } from '../../clients'
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   BlockNumber,
@@ -11,10 +11,14 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
   RpcLog,
-} from '../../types'
-import type { EncodeEventTopicsParameters } from '../../utils'
-import { decodeEventLog, encodeEventTopics, numberToHex } from '../../utils'
-import { formatLog } from '../../utils/formatters/log'
+} from '../../types/index.js'
+import type { EncodeEventTopicsParameters } from '../../utils/index.js'
+import {
+  decodeEventLog,
+  encodeEventTopics,
+  numberToHex,
+} from '../../utils/index.js'
+import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -98,14 +102,22 @@ export async function getLogs<
       ],
     })
   }
-  return logs.map((log) => {
-    const { eventName, args } = event
-      ? decodeEventLog({
-          abi: [event],
-          data: log.data,
-          topics: log.topics as any,
-        })
-      : { eventName: undefined, args: undefined }
-    return formatLog(log, { args, eventName })
-  }) as unknown as GetLogsReturnType<TAbiEvent>
+
+  return logs
+    .map((log) => {
+      try {
+        const { eventName, args } = event
+          ? decodeEventLog({
+              abi: [event],
+              data: log.data,
+              topics: log.topics as any,
+            })
+          : { eventName: undefined, args: undefined }
+        return formatLog(log, { args, eventName })
+      } catch {
+        // Skip log if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return
+      }
+    })
+    .filter(Boolean) as unknown as GetLogsReturnType<TAbiEvent>
 }

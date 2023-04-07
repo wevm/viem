@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { publicClient } from '../../_test'
+import { publicClient } from '../../_test/index.js'
 
-import { getBlockNumber, getBlockNumberCache } from './getBlockNumber'
+import { getBlockNumber, getBlockNumberCache } from './getBlockNumber.js'
 
 beforeEach(() => getBlockNumberCache(publicClient.uid).clear())
 

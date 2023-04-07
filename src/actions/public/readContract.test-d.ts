@@ -1,4 +1,5 @@
-import { Abi, ResolvedConfig, parseAbi } from 'abitype'
+import type { Abi, ResolvedConfig } from 'abitype'
+import { parseAbi } from 'abitype'
 import {
   address,
   wagmiMintExampleAbi,
@@ -7,8 +8,9 @@ import {
 } from 'abitype/test'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '../../_test'
-import { readContract, ReadContractParameters } from './readContract'
+import { publicClient } from '../../_test/index.js'
+import type { ReadContractParameters } from './readContract.js'
+import { readContract } from './readContract.js'
 
 test('ReadContractParameters', () => {
   type Result = ReadContractParameters<typeof wagmiMintExampleAbi, 'tokenURI'>

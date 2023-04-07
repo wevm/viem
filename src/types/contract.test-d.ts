@@ -19,8 +19,8 @@ import type {
   AbiEventTopicToPrimitiveType,
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
-} from './contract'
-import type { Hex } from './misc'
+} from './contract.js'
+import type { Hex } from './misc.js'
 
 test('ContractFunctionConfig', async () => {
   type Result = ContractFunctionConfig<typeof seaportAbi, 'getOrderStatus'>

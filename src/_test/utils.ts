@@ -1,18 +1,20 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
+import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import type { DeployContractParameters } from '../actions/index.js'
 import {
   deployContract,
-  DeployContractParameters,
   getTransactionReceipt,
   impersonateAccount,
   mine,
   reset,
   stopImpersonatingAccount,
   writeContract,
-} from '../actions'
-import { Chain, localhost, mainnet } from '../chains'
+} from '../actions/index.js'
+import type { Chain } from '../chains.js'
+import { localhost, mainnet } from '../chains.js'
 import {
   createPublicClient,
   createTestClient,
@@ -20,18 +22,22 @@ import {
   custom,
   http,
   webSocket,
-} from '../clients'
-import type { Hex } from '../types'
-import { RpcError } from '../types/eip1193'
-import { rpc } from '../utils'
-import { baycContractConfig, ensRegistryConfig } from './abis'
-import { accounts, address, localWsUrl } from './constants'
-import { ensAvatarTokenUriABI, errorsExampleABI } from './generated'
+} from '../clients/index.js'
+import type { Hex } from '../types/index.js'
+import { RpcError } from '../types/eip1193.js'
+import { rpc } from '../utils/index.js'
+import { baycContractConfig, ensRegistryConfig } from './abis.js'
+import { accounts, address, localWsUrl } from './constants.js'
+import {
+  ensAvatarTokenUriABI,
+  erc20InvalidTransferEventABI,
+  errorsExampleABI,
+} from './generated.js'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
-import { namehash } from '../ens'
+import { namehash } from '../ens.js'
 
 export const anvilChain = {
   ...localhost,
@@ -186,6 +192,14 @@ export async function deployEnsAvatarTokenUri() {
   return deploy({
     abi: ensAvatarTokenUriABI,
     bytecode: ensAvatarTokenUri.bytecode.object as Hex,
+    account: accounts[0].address,
+  })
+}
+
+export async function deployErc20InvalidTransferEvent() {
+  return deploy({
+    abi: erc20InvalidTransferEventABI,
+    bytecode: erc20InvalidTransferEvent.bytecode.object as Hex,
     account: accounts[0].address,
   })
 }

@@ -1,8 +1,8 @@
 import { bench, describe } from 'vitest'
-import { accounts, typedData } from '../../_test'
+import { accounts, typedData } from '../../_test/index.js'
 import { Wallet } from 'ethers'
 import { Wallet as WalletV6 } from 'ethers@6'
-import { signTypedData } from './signTypedData'
+import { signTypedData } from './signTypedData.js'
 
 const wallet = new Wallet(accounts[0].privateKey)
 const walletV6 = new WalletV6(accounts[0].privateKey)

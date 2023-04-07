@@ -1,12 +1,12 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createTestClient } from './createTestClient'
-import { createTransport } from './transports/createTransport'
-import { http } from './transports/http'
-import { localhost } from '../chains'
-import type { TestRequests } from '../types/eip1193'
-import { webSocket } from './transports/webSocket'
-import { localWsUrl } from '../_test'
+import { createTestClient } from './createTestClient.js'
+import { createTransport } from './transports/createTransport.js'
+import { http } from './transports/http.js'
+import { localhost } from '../chains.js'
+import type { TestRequests } from '../types/eip1193.js'
+import { webSocket } from './transports/webSocket.js'
+import { localWsUrl } from '../_test/index.js'
 
 const mockTransport = () =>
   createTransport({

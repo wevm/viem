@@ -6,7 +6,7 @@ import {
   hexToBool,
   hexToNumber,
   hexToString,
-} from './fromHex'
+} from './fromHex.js'
 
 describe('converts hex to number', () => {
   test('default', () => {

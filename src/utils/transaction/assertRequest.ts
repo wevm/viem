@@ -1,13 +1,13 @@
-import type { SendTransactionParameters } from '../../actions'
+import type { SendTransactionParameters } from '../../actions/index.js'
 import {
   FeeCapTooHighError,
   InvalidAddressError,
   TipAboveFeeCapError,
-} from '../../errors'
-import { FeeConflictError } from '../../errors/transaction'
-import type { Chain } from '../../types'
-import { parseAccount } from '../accounts'
-import { isAddress } from '../address'
+} from '../../errors/index.js'
+import { FeeConflictError } from '../../errors/transaction.js'
+import type { Chain } from '../../types/index.js'
+import { parseAccount } from '../accounts.js'
+import { isAddress } from '../address/index.js'
 
 export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {
   const {

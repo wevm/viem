@@ -1,11 +1,11 @@
-import { InvalidSerializedTransactionTypeError } from '../../errors/transaction'
+import { InvalidSerializedTransactionTypeError } from '../../errors/transaction.js'
 import type {
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
-} from '../../types/transaction'
-import { sliceHex } from '../data'
-import { hexToNumber } from '../encoding'
+} from '../../types/transaction.js'
+import { sliceHex } from '../data/index.js'
+import { hexToNumber } from '../encoding/index.js'
 
 export type GetSerializedTransactionType<
   TTransactionSerialized extends TransactionSerialized = TransactionSerialized,

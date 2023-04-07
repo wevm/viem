@@ -2,8 +2,8 @@ import type {
   BaseRpcRequests,
   Transport,
   TransportConfig,
-} from './createTransport'
-import { createTransport } from './createTransport'
+} from './createTransport.js'
+import { createTransport } from './createTransport.js'
 
 type EthereumProvider = { request: BaseRpcRequests['request'] }
 

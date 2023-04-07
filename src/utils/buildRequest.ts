@@ -1,3 +1,4 @@
+import type { RpcError } from '../errors/index.js'
 import {
   BaseError,
   HttpRequestError,
@@ -12,13 +13,12 @@ import {
   ParseRpcError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcError,
   SwitchChainError,
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
-} from '../errors'
-import { withRetry } from './promise'
+} from '../errors/index.js'
+import { withRetry } from './promise/index.js'
 
 export const isDeterministicError = (error: Error) => {
   if ('code' in error) return error.code !== -32603 && error.code !== -32005

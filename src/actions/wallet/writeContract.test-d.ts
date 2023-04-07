@@ -1,7 +1,7 @@
 import { assertType, expectTypeOf, test } from 'vitest'
 import { seaportAbi } from 'abitype/test'
 
-import type { WriteContractParameters } from './writeContract'
+import type { WriteContractParameters } from './writeContract.js'
 
 test('WriteContractParameters', async () => {
   type Result = WriteContractParameters<typeof seaportAbi, 'cancel'>

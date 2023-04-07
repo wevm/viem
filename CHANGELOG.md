@@ -1,5 +1,23 @@
 # viem
 
+## 0.2.12
+
+### Patch Changes
+
+- [#328](https://github.com/wagmi-dev/viem/pull/328) [`ee87fe7`](https://github.com/wagmi-dev/viem/commit/ee87fe73884297db1c3957453efd7c326924c269) Thanks [@jxom](https://github.com/jxom)! - Tweaked error inheritence for `UserRejectedRequestError` & `SwitchChainError` to be more friendly with custom errors.
+
+## 0.2.11
+
+### Patch Changes
+
+- [#326](https://github.com/wagmi-dev/viem/pull/326) [`c83616a`](https://github.com/wagmi-dev/viem/commit/c83616ad33aa06054342a3bf72bcb51c09ee0ada) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where filtered logs that do not conform to the provided ABI would cause `getLogs`, `getFilterLogs` or `getFilterChanges` to throw – these logs are now skipped. See [#323](https://github.com/wagmi-dev/viem/issues/323#issuecomment-1499654052) for more info.
+
+## 0.2.10
+
+### Patch Changes
+
+- [#322](https://github.com/wagmi-dev/viem/pull/322) [`ea019d7`](https://github.com/wagmi-dev/viem/commit/ea019d75c5243d8ae2b8ca1686b34026b170d903) Thanks [@tmm](https://github.com/tmm)! - Fixed properties passed to ethers adapter `signTransaction`
+
 ## 0.2.9
 
 ### Patch Changes

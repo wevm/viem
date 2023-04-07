@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { optimism } from '../../chains'
-import { createWalletClient, http } from '../../clients'
+import { optimism } from '../../chains.js'
+import { createWalletClient, http } from '../../clients/index.js'
 import {
   walletClientWithAccount,
   accounts,
@@ -9,12 +9,12 @@ import {
   testClient,
   wagmiContractConfig,
   walletClient,
-} from '../../_test'
-import { anvilChain } from '../../_test/utils'
-import { simulateContract } from '../public'
-import { mine } from '../test'
+} from '../../_test/index.js'
+import { anvilChain } from '../../_test/utils.js'
+import { simulateContract } from '../public/index.js'
+import { mine } from '../test/index.js'
 
-import { writeContract } from './writeContract'
+import { writeContract } from './writeContract.js'
 
 test('default', async () => {
   expect(

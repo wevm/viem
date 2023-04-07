@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as utils from './index'
+import * as utils from './index.js'
 
 test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
@@ -49,6 +49,7 @@ test('exports utils', () => {
       "format": [Function],
       "formatAbiItem": [Function],
       "formatAbiItemWithArgs": [Function],
+      "formatAbiParams": [Function],
       "formatBlock": [Function],
       "formatEther": [Function],
       "formatGwei": [Function],

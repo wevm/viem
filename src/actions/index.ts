@@ -1,4 +1,4 @@
-export { getEnsAddress, getEnsName, getEnsResolver } from './ens'
+export { getEnsAddress, getEnsName, getEnsResolver } from './ens/index.js'
 export type {
   GetEnsAddressParameters,
   GetEnsAddressReturnType,
@@ -6,7 +6,7 @@ export type {
   GetEnsNameReturnType,
   GetEnsResolverParameters,
   GetEnsResolverReturnType,
-} from './ens'
+} from './ens/index.js'
 
 export {
   call,
@@ -44,7 +44,7 @@ export {
   watchContractEvent,
   watchEvent,
   watchPendingTransactions,
-} from './public'
+} from './public/index.js'
 export type {
   CallParameters,
   CallReturnType,
@@ -119,7 +119,7 @@ export type {
   WatchEventReturnType,
   WatchPendingTransactionsParameters,
   WatchPendingTransactionsReturnType,
-} from './public'
+} from './public/index.js'
 
 export {
   dropTransaction,
@@ -149,7 +149,7 @@ export {
   setStorageAt,
   snapshot,
   stopImpersonatingAccount,
-} from './test'
+} from './test/index.js'
 export type {
   DropTransactionParameters,
   ImpersonateAccountParameters,
@@ -171,7 +171,7 @@ export type {
   SetNonceParameters,
   SetStorageAtParameters,
   StopImpersonatingAccountParameters,
-} from './test'
+} from './test/index.js'
 
 export {
   addChain,
@@ -185,7 +185,7 @@ export {
   switchChain,
   watchAsset,
   writeContract,
-} from './wallet'
+} from './wallet/index.js'
 export type {
   AddChainParameters,
   DeployContractParameters,
@@ -208,10 +208,10 @@ export type {
   WatchAssetReturnType,
   WriteContractParameters,
   WriteContractReturnType,
-} from './wallet'
+} from './wallet/index.js'
 
-export { getContract } from './getContract'
+export { getContract } from './getContract.js'
 export type {
   GetContractParameters,
   GetContractReturnType,
-} from './getContract'
+} from './getContract.js'

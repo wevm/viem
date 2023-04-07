@@ -1,5 +1,9 @@
-import type { TestClient, TestClientMode, Transport } from '../../clients'
-import type { Address, Chain, Hex } from '../../types'
+import type {
+  TestClient,
+  TestClientMode,
+  Transport,
+} from '../../clients/index.js'
+import type { Address, Chain, Hex } from '../../types/index.js'
 
 export type SetCodeParameters = {
   /** The account address. */

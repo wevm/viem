@@ -1,17 +1,17 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { accounts } from '../../_test'
-import { serializeTransaction } from './serializeTransaction'
-import { parseGwei, parseEther } from '../unit'
-import { parseTransaction } from './parseTransaction'
+import { accounts } from '../../_test/index.js'
+import { serializeTransaction } from './serializeTransaction.js'
+import { parseGwei, parseEther } from '../unit/index.js'
+import { parseTransaction } from './parseTransaction.js'
 import type {
   TransactionSerializableBase,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableLegacy,
-} from '../../types'
-import { toHex, toRlp } from '../encoding'
-import { sign } from '../../accounts/utils/sign'
-import { keccak256 } from '../hash'
+} from '../../types/index.js'
+import { toHex, toRlp } from '../encoding/index.js'
+import { sign } from '../../accounts/utils/sign.js'
+import { keccak256 } from '../hash/index.js'
 
 const base = {
   to: accounts[1].address,
