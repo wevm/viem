@@ -26,7 +26,6 @@
     // Interop constraints
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
 
     // Language and environment
     "moduleResolution": "NodeNext",
