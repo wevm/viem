@@ -13,7 +13,8 @@ export class RequestError extends BaseError {
     super(shortMessage, {
       cause: err,
       docsPath,
-      metaMessages: metaMessages || (err as { metaMessages?: string[] })?.metaMessages,
+      metaMessages:
+        metaMessages || (err as { metaMessages?: string[] })?.metaMessages,
     })
     this.name = err.name
   }
