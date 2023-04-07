@@ -2,4 +2,5 @@
 "viem": patch
 ---
 
-Update to NodeNext module resolution and switching to tsc
+Migrated to TypeScript 5.
+Migrated build process from `tsup` to `tsc`.
