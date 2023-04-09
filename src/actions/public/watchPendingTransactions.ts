@@ -36,7 +36,7 @@ export type WatchPendingTransactionsParameters<
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions & { poll: true })
+      | (PollOptions & { poll?: true })
   : PollOptions & {
       poll?: true
     })
