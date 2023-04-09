@@ -45,7 +45,7 @@ export type WatchBlocksParameters<
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions & { poll: true })
+      | (PollOptions & { poll?: true })
   : PollOptions & { poll?: true })
 
 export type WatchBlocksReturnType = () => void
