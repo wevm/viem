@@ -5,10 +5,10 @@ import {
   smartAccountConfig,
   ensPublicResolverConfig,
   address,
-} from '../../_test'
-import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage'
-import type { Hex } from '../../types'
-import { hashMessage, toBytes } from '../../utils'
+} from '../../_test/index.js'
+import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
+import type { Hex } from '../../types/index.js'
+import { hashMessage, toBytes } from '../../utils/index.js'
 
 describe('verifyMessageHashOnChain', async () => {
   test.each([

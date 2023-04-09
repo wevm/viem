@@ -2,15 +2,15 @@ import type { TypedData } from 'abitype'
 import {
   VerifyMessageHashOnchainParameters,
   verifyMessageHashOnChain,
-} from './verifyMessage'
+} from './verifyMessage.js'
 import {
   verifyTypedData as offlineVerifyTypedData,
   VerifyTypedDataParameters as OfflineVerifyTypedDataParameters,
   VerifyTypedDataReturnType as OfflineVerifyTypedDataReturnType,
-} from '../../utils/signature/verifyTypedData'
-import type { Chain } from '../../types'
-import type { PublicClient, Transport } from '../../clients'
-import { hashTypedData } from '../../utils'
+} from '../../utils/signature/verifyTypedData.js'
+import type { Chain } from '../../types/index.js'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import { hashTypedData } from '../../utils/index.js'
 
 export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
@@ -20,6 +20,23 @@ export type VerifyTypedDataParameters<
 
 export type VerifyTypedDataReturnType = OfflineVerifyTypedDataReturnType
 
+/**
+ * Verifies a typed data signature considering ERC1271 with fallback to EOA signature verification
+ *
+ * - Docs {@link https://viem.sh/docs/actions/public/verifyTypedData.html}
+ *
+ * @param client - The public client
+ * @param parameters - Object containing the typed data, signature and address to verify, plus optional blockTag and blockNumber for the onchain call
+ * @param parameters.address - The address to verify the typed data for
+ * @param parameters.signature - The signature to verify
+ * @param parameters.message - The typed data message
+ * @param parameters.primaryType - The typed data primary type
+ * @param parameters.types - The typed data types
+ * @param parameters.domain - The typed data domain
+ * @param parameters.blockTag - The block tag to use for the onchain call
+ * @param parameters.blockNumber - The block number to use for the onchain call
+ * @returns true if the signature is valid, false if the signature is invalid
+ */
 export async function verifyTypedData<TChain extends Chain | undefined,>(
   client: PublicClient<Transport, TChain>,
   {

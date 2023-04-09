@@ -17,8 +17,16 @@ export type VerifyTypedDataReturnType = boolean
 /**
  * Can be used to verify a typed data signed by a private key
  *
- * @private Should not be used directly, please use `publicClient.verifyTypedData` instead
- * @param parameters
+ * - Docs {@link https://viem.sh/docs/utilities/verifyTypedData.html}
+ *
+ * @dev Should not be used directly, please use `publicClient.verifyTypedData` instead
+ * @param parameters - Object containing the typed data, signature and address to verify
+ * @param parameters.address - The address to verify the typed data for
+ * @param parameters.signature - The signature to verify
+ * @param parameters.message - The typed data message
+ * @param parameters.primaryType - The typed data primary type
+ * @param parameters.types - The typed data types
+ * @param parameters.domain - The typed data domain
  * @returns true if the typed data was signed by the private key of provided address (EOA)
  */
 export async function verifyTypedData<
