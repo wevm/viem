@@ -45,6 +45,31 @@ export type WalletActions<
   TAccount extends Account | undefined = Account | undefined,
 > = {
   addChain: (args: AddChainParameters) => Promise<void>
+  /**
+   * Deploys a contract to the network, given bytecode and constructor arguments.
+   *
+   * - Docs: https://viem.sh/docs/contract/deployContract.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts
+   *
+   * @param parameters - {@link DeployContractParameters}
+   * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
+   *
+   * @example
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account = privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const hash = await client.deployContract({
+   *   abi: [],
+   *   account: '0x…,
+   *   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
+   * })
+   */
   deployContract: <
     TAbi extends Abi | readonly unknown[],
     TChainOverride extends Chain | undefined,

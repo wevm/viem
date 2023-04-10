@@ -136,7 +136,6 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/call.html
    * - JSON-RPC Methods: [`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
    *
-   * @param client - Client to use
    * @param parameters - {@link CallParameters}
    * @returns The call data. {@link CallReturnType}
    *
@@ -154,14 +153,13 @@ export type PublicActions<
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
    * })
    */
-  call: (args: CallParameters<TChain>) => Promise<CallReturnType>
+  call: (parameters: CallParameters<TChain>) => Promise<CallReturnType>
   /**
    * Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
    *
    * - Docs: https://viem.sh/docs/actions/public/createBlockFilter.html
    * - JSON-RPC Methods: [`eth_newBlockFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newBlockFilter)
    *
-   * @param client - Client to use
    * @returns Filter. {@link CreateBlockFilterReturnType}
    *
    * @example
@@ -176,6 +174,26 @@ export type PublicActions<
    * // { id: "0x345a6572337856574a76364e457a4366", type: 'block' }
    */
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
+  /**
+   * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
+   *
+   * - Docs: https://viem.sh/docs/contract/createContractEventFilter.html
+   *
+   * @param parameters - {@link CreateContractEventFilterParameters}
+   * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateContractEventFilterReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const filter = await client.createContractEventFilter({
+   *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+   * })
+   */
   createContractEventFilter: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
@@ -232,6 +250,32 @@ export type PublicActions<
    * // { id: "0x345a6572337856574a76364e457a4366", type: 'transaction' }
    */
   createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterReturnType>
+  /**
+   * Estimates the gas required to successfully execute a contract write function call.
+   *
+   * - Docs: https://viem.sh/docs/contract/estimateContractGas.html
+   *
+   * @remarks
+   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   *
+   * @param parameters - {@link EstimateContractGasParameters}
+   * @returns The gas estimate (in wei). {@link EstimateContractGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const gas = await client.estimateContractGas({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['function mint() public']),
+   *   functionName: 'mint',
+   *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+   * })
+   */
   estimateContractGas: <
     TChain extends Chain | undefined,
     TAbi extends Abi | readonly unknown[],
@@ -371,6 +415,27 @@ export type PublicActions<
   getBlockTransactionCount: (
     args?: GetBlockTransactionCountParameters,
   ) => Promise<GetBlockTransactionCountReturnType>
+  /**
+   * Retrieves the bytecode at an address.
+   *
+   * - Docs: https://viem.sh/docs/contract/getBytecode.html
+   * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
+   *
+   * @param parameters - {@link GetBytecodeParameters}
+   * @returns The contract's bytecode. {@link GetBytecodeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const code = await client.getBytecode({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   * })
+   */
   getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
   /**
    * Returns the chain ID associated with the current network.
@@ -729,6 +794,29 @@ export type PublicActions<
   getLogs: <TAbiEvent extends AbiEvent | undefined>(
     args?: GetLogsParameters<TAbiEvent>,
   ) => Promise<GetLogsReturnType<TAbiEvent>>
+  /**
+   * Returns the value from a storage slot at a given address.
+   *
+   * - Docs: https://viem.sh/docs/contract/getStorageAt.html
+   * - JSON-RPC Methods: [`eth_getStorageAt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getstorageat)
+   *
+   * @param parameters - {@link GetStorageAtParameters}
+   * @returns The value of the storage slot. {@link GetStorageAtReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { getStorageAt } from 'viem/contract'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const code = await client.getStorageAt({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   slot: toHex(0),
+   * })
+   */
   getStorageAt: (
     args: GetStorageAtParameters,
   ) => Promise<GetStorageAtReturnType>
@@ -831,18 +919,116 @@ export type PublicActions<
   getTransactionReceipt: (
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<TChain>>
+  /**
+   * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
+   *
+   * - Docs: https://viem.sh/docs/contract/multicall.html
+   *
+   * @param parameters - {@link MulticallParameters}
+   * @returns An array of results with accompanying status. {@link MulticallReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const abi = parseAbi([
+   *   'function balanceOf(address) view returns (uint256)',
+   *   'function totalSupply() view returns (uint256)',
+   * ])
+   * const results = await client.multicall({
+   *   contracts: [
+   *     {
+   *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *       abi,
+   *       functionName: 'balanceOf',
+   *       args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+   *     },
+   *     {
+   *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *       abi,
+   *       functionName: 'totalSupply',
+   *     },
+   *   ],
+   * })
+   * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
+   */
   multicall: <
     TContracts extends ContractFunctionConfig[],
     TAllowFailure extends boolean = true,
   >(
     args: MulticallParameters<TContracts, TAllowFailure>,
   ) => Promise<MulticallReturnType<TContracts, TAllowFailure>>
+  /**
+   * Calls a read-only function on a contract, and returns the response.
+   *
+   * - Docs: https://viem.sh/docs/contract/readContract.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/reading-contracts
+   *
+   * @remarks
+   * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
+   *
+   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   *
+   * @param parameters - {@link ReadContractParameters}
+   * @returns The response from the contract. Type is inferred. {@link ReadContractReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { readContract } from 'viem/contract'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const results = await client.readContract({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['function balanceOf(address) view returns (uint256)']),
+   *   functionName: 'balanceOf',
+   *   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+   * })
+   * // 424122n
+   */
   readContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
     args: ReadContractParameters<TAbi, TFunctionName>,
   ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+  /**
+   * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
+   *
+   * - Docs: https://viem.sh/docs/contract/simulateContract.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+   *
+   * @remarks
+   * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
+   *
+   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   *
+   * @param parameters - {@link SimulateContractParameters}
+   * @returns The simulation result and write request. {@link SimulateContractReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const results = await client.simulateContract({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['function mint(uint32) view returns (uint32)']),
+   *   functionName: 'mint',
+   *   args: ['69420'],
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
   simulateContract: <
     TAbi extends Abi | readonly unknown[] = Abi,
     TFunctionName extends string = any,
@@ -977,6 +1163,35 @@ export type PublicActions<
   watchBlocks: (
     args: WatchBlocksParameters<TTransport, TChain>,
   ) => WatchBlocksReturnType
+  /**
+   * Watches and returns emitted contract event logs.
+   *
+   * - Docs: https://viem.sh/docs/contract/watchContractEvent.html
+   *
+   * @remarks
+   * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
+   *
+   * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+   *
+   * @param parameters - {@link WatchContractEventParameters}
+   * @returns A function that can be invoked to stop watching for new event logs. {@link WatchContractEventReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const unwatch = client.watchContractEvent({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['event Transfer(address indexed from, address indexed to, uint256 value)']),
+   *   eventName: 'Transfer',
+   *   args: { from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' },
+   *   onLogs: (logs) => console.log(logs),
+   * })
+   */
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,

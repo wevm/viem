@@ -38,6 +38,45 @@ export type MulticallReturnType<
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
 
+/**
+ * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
+ *
+ * - Docs: https://viem.sh/docs/contract/multicall.html
+ *
+ * @param client - Client to use
+ * @param parameters - {@link MulticallParameters}
+ * @returns An array of results with accompanying status. {@link MulticallReturnType}
+ *
+ * @example
+ * import { createPublicClient, http, parseAbi } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { multicall } from 'viem/contract'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const abi = parseAbi([
+ *   'function balanceOf(address) view returns (uint256)',
+ *   'function totalSupply() view returns (uint256)',
+ * ])
+ * const results = await multicall(client, {
+ *   contracts: [
+ *     {
+ *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+ *       abi,
+ *       functionName: 'balanceOf',
+ *       args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+ *     },
+ *     {
+ *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+ *       abi,
+ *       functionName: 'totalSupply',
+ *     },
+ *   ],
+ * })
+ * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
+ */
 export async function multicall<
   TChain extends Chain | undefined,
   TContracts extends ContractFunctionConfig[],

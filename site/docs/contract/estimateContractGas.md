@@ -16,6 +16,8 @@ head:
 
 Estimates the gas required to successfully execute a contract write function call. 
 
+Internally, `estimateContractGas` uses a [Public Client](/docs/clients/public) to call the [`estimateGas` action](/docs/actions/public/estimateGas) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
+
 ## Usage
 
 Below is a very basic example of how to estimate gas (with no arguments).

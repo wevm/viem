@@ -59,3 +59,7 @@ const bytecode = await publicClient.getBytecode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+[`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
