@@ -990,7 +990,7 @@ export type WalletRequests = {
      * @description Requests that the user provides an Ethereum address to be identified by. Typically causes a browser extension popup to appear.
      * @link https://eips.ethereum.org/EIPS/eip-1102
      * @example
-     * provider.request({ method: 'eth_requestAccounts' }] })
+     * provider.request({ method: 'eth_requestAccounts' })
      * // => ['0x...', '0x...']
      * */
     method: 'eth_requestAccounts'

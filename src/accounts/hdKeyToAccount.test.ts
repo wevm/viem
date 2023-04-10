@@ -103,3 +103,13 @@ test('sign typed data', async () => {
     '"0x32f3d5975ba38d6c2fba9b95d5cbed1febaa68003d3d588d51f2de522ad54117760cfc249470a75232552e43991f53953a3d74edf6944553c6bef2469bb9e5921b"',
   )
 })
+
+test('return: getHdKey()', async () => {
+  const account = hdKeyToAccount(hdKey)
+  expect(account.getHdKey()).toMatchInlineSnapshot(`
+    {
+      "xpriv": "xprvA3KbAeguosodJeRqpV3NF1VYREub6vBASfBEXa1LgZeqPAhCFkHQMBjXYPa8RZvP5tnWMSg2zYcox5vbsfz1pB7J2zU9LEzWxg7rrRpoeSh",
+      "xpub": "xpub6GJwaADoeFMvX8WJvWaNc9SGyGk5WNu1ot6qKxQxEuBpFy2LoHbetz41PgEcEg4n2bk3hWoHYJ69EqkjpoSv9KrinCnZV6y4Xo6VJZ6KHWT",
+    }
+  `)
+})
