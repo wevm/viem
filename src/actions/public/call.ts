@@ -50,6 +50,30 @@ export type CallParameters<
 
 export type CallReturnType = { data: Hex | undefined }
 
+/**
+ * Executes a new message call immediately without submitting a transaction to the network.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/call.html
+ * - JSON-RPC Methods: [`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+ *
+ * @param client - Client to use
+ * @param parameters - {@link CallParameters}
+ * @returns The call data. {@link CallReturnType}
+ *
+ * @example
+ * import { createPublicClient, call, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const data = await call(client, {
+ *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+ *   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+ *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ * })
+ */
 export async function call<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,
   args: CallParameters<TChain>,

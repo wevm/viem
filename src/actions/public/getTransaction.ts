@@ -53,7 +53,29 @@ export type GetTransactionParameters =
 export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
   FormattedTransaction<TransactionFormatter<TChain>>
 
-/** @description Returns information about a transaction given a hash or block identifier. */
+/**
+ * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/getTransaction.html
+ * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+ * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetTransactionParameters}
+ * @returns The transaction information. {@link GetTransactionReturnType}
+ *
+ * @example
+ * import { createPublicClient, getTransaction, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const transaction = await getTransaction(client, {
+ *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+ * })
+ */
 export async function getTransaction<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,
   {

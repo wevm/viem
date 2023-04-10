@@ -130,6 +130,30 @@ export type PublicActions<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 > = {
+  /**
+   * Executes a new message call immediately without submitting a transaction to the network.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/call.html
+   * - JSON-RPC Methods: [`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link CallParameters}
+   * @returns The call data. {@link CallReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const data = await client.call({
+   *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+   *   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   * })
+   */
   call: (args: CallParameters<TChain>) => Promise<CallReturnType>
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   createContractEventFilter: <
@@ -344,15 +368,102 @@ export type PublicActions<
   getStorageAt: (
     args: GetStorageAtParameters,
   ) => Promise<GetStorageAtReturnType>
+  /**
+   * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getTransaction.html
+   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+   * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
+   *
+   * @param parameters - {@link GetTransactionParameters}
+   * @returns The transaction information. {@link GetTransactionReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const transaction = await client.getTransaction({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+   * })
+   */
   getTransaction: (
     args: GetTransactionParameters,
   ) => Promise<GetTransactionReturnType<TChain>>
+  /**
+   * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getTransactionConfirmations.html
+   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+   * - JSON-RPC Methods: [`eth_getTransactionConfirmations`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionConfirmations)
+   *
+   * @param parameters - {@link GetTransactionConfirmationsParameters}
+   * @returns The number of blocks passed since the transaction was processed. If confirmations is 0, then the Transaction has not been confirmed & processed yet. {@link GetTransactionConfirmationsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const confirmations = await client.getTransactionConfirmations({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+   * })
+   */
   getTransactionConfirmations: (
     args: GetTransactionConfirmationsParameters<TChain>,
   ) => Promise<GetTransactionConfirmationsReturnType>
+  /**
+   * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has broadcast / sent.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getTransactionCount.html
+   * - JSON-RPC Methods: [`eth_getTransactionCount`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount)
+   *
+   * @param parameters - {@link GetTransactionCountParameters}
+   * @returns The number of transactions an account has sent. {@link GetTransactionCountReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const transactionCount = await client.getTransactionCount({
+   *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
   getTransactionCount: (
     args: GetTransactionCountParameters,
   ) => Promise<GetTransactionCountReturnType>
+  /**
+   * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt.html
+   * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
+   * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt)
+   *
+   * @param parameters - {@link GetTransactionReceiptParameters}
+   * @returns The transaction receipt. {@link GetTransactionReceiptReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const transactionReceipt = await client.getTransactionReceipt({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+   * })
+   */
   getTransactionReceipt: (
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<TChain>>
