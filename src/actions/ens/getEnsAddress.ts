@@ -17,9 +17,9 @@ import type { ReadContractParameters } from '../public/index.js'
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** ENS name to get address. */
+    /** Name to get the address for. */
     name: string
-    /** Address of ENS Universal Resolver Contract */
+    /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
 >
@@ -27,10 +27,33 @@ export type GetEnsAddressParameters = Prettify<
 export type GetEnsAddressReturnType = Address | null
 
 /**
- * @description Gets address for ENS name.
+ * Gets address for ENS name.
  *
- * - Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
- * - Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsAddress.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ *
+ * @remarks
+ * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+ *
+ * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetEnsAddressParameters}
+ * @returns Address for ENS name or `null` if not found. {@link GetEnsAddressReturnType}
+ *
+ * @example
+ * import { createPublicClient, getEnsAddress, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { normalize } from 'viem/ens'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const ensAddress = await getEnsAddress(client, {
+ *   name: normalize('wagmi-dev.eth'),
+ * })
+ * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
 export async function getEnsAddress<TChain extends Chain | undefined,>(
   client: PublicClient<Transport, TChain>,

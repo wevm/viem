@@ -16,6 +16,8 @@ head:
 
 Gets the avatar of an ENS name.
 
+Calls [`getEnsText`](/docs/ens/actions/getEnsText.html) with `key` set to `'avatar'`.
+
 ## Usage
 
 ::: code-group

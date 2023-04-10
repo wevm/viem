@@ -13,9 +13,9 @@ import type { ReadContractParameters } from '../public/index.js'
 
 export type GetEnsTextParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** ENS name to get ENS avatar for. */
+    /** ENS name to get Text for. */
     name: string
-    /** Text record to retrieve */
+    /** Text record to retrieve. */
     key: string
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
@@ -25,15 +25,30 @@ export type GetEnsTextParameters = Prettify<
 export type GetEnsTextReturnType = string | null
 
 /**
- * @description Gets text record for ENS name.
+ * Gets a text record for specified ENS name.
  *
- * - Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
- * - Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ *
+ * @remarks
+ * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+ *
+ * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetEnsTextParameters}
+ * @returns Address for ENS resolver. {@link GetEnsTextReturnType}
  *
  * @example
+ * import { createPublicClient, getEnsText, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  * import { normalize } from 'viem/ens'
  *
- * const twitterRecord = await getEnsText(publicClient, {
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const twitterRecord = await getEnsText(client, {
  *   name: normalize('wagmi-dev.eth'),
  *   key: 'com.twitter',
  * })

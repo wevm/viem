@@ -16,6 +16,8 @@ head:
 
 Gets a text record for specified ENS name.
 
+Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+
 ## Usage
 
 ::: code-group

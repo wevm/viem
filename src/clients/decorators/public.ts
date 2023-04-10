@@ -168,16 +168,154 @@ export type PublicActions<
   ) => Promise<GetBlockTransactionCountReturnType>
   getBytecode: (args: GetBytecodeParameters) => Promise<GetBytecodeReturnType>
   getChainId: () => Promise<GetChainIdReturnType>
+  /**
+   * Gets address for ENS name.
+   *
+   * - Docs: https://viem.sh/docs/ens/actions/getEnsAddress.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   *
+   * @remarks
+   * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+   *
+   * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+   *
+   * @param parameters - {@link GetEnsAddressParameters}
+   * @returns Address for ENS name or `null` if not found. {@link GetEnsAddressReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { normalize } from 'viem/ens'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const ensAddress = await client.getEnsAddress({
+   *   name: normalize('wagmi-dev.eth'),
+   * })
+   * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+   */
   getEnsAddress: (
     args: GetEnsAddressParameters,
   ) => Promise<GetEnsAddressReturnType>
+  /**
+   * Gets the avatar of an ENS name.
+   *
+   * - Docs: https://viem.sh/docs/ens/actions/getEnsAvatar.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   *
+   * @remarks
+   * Calls [`getEnsText`](https://viem.sh/docs/ens/actions/getEnsText.html) with `key` set to `'avatar'`.
+   *
+   * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+   *
+   * @param parameters - {@link GetEnsAvatarParameters}
+   * @returns Avatar URI or `null` if not found. {@link GetEnsAvatarReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { normalize } from 'viem/ens'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const ensAvatar = await client.getEnsAvatar({
+   *   name: normalize('wagmi-dev.eth'),
+   * })
+   * // 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
+   */
   getEnsAvatar: (
     args: GetEnsAvatarParameters,
   ) => Promise<GetEnsAvatarReturnType>
+  /**
+   * Gets primary name for specified address.
+   *
+   * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   *
+   * @remarks
+   * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
+   *
+   * @param parameters - {@link GetEnsNameParameters}
+   * @returns Name or `null` if not found. {@link GetEnsNameReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const ensName = await client.getEnsName({
+   *   address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+   * })
+   * // 'wagmi-dev.eth'
+   */
   getEnsName: (args: GetEnsNameParameters) => Promise<GetEnsNameReturnType>
+  /**
+   * Gets resolver for ENS name.
+   *
+   * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   *
+   * @remarks
+   * Calls `findResolver(bytes)` on ENS Universal Resolver Contract to retrieve the resolver of an ENS name.
+   *
+   * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+   *
+   * @param parameters - {@link GetEnsResolverParameters}
+   * @returns Address for ENS resolver. {@link GetEnsResolverReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { normalize } from 'viem/ens'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const resolverAddress = await client.getEnsResolver({
+   *   name: normalize('wagmi-dev.eth'),
+   * })
+   * // '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
+   */
   getEnsResolver: (
     args: GetEnsResolverParameters,
   ) => Promise<GetEnsResolverReturnType>
+  /**
+   * Gets a text record for specified ENS name.
+   *
+   * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+   *
+   * @remarks
+   * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+   *
+   * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
+   *
+   * @param parameters - {@link GetEnsTextParameters}
+   * @returns Address for ENS resolver. {@link GetEnsTextReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { normalize } from 'viem/ens'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const twitterRecord = await client.getEnsText({
+   *   name: normalize('wagmi-dev.eth'),
+   *   key: 'com.twitter',
+   * })
+   * // 'wagmi_sh'
+   */
   getEnsText: (args: GetEnsTextParameters) => Promise<GetEnsTextReturnType>
   getFeeHistory: (
     args: GetFeeHistoryParameters,

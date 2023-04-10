@@ -61,9 +61,25 @@ export type GetContractParameters<
   abi: Narrow<TAbi>
   /** Contract address */
   address: Address
-  /** Public client */
+  /**
+   * Public client
+   *
+   * If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the following methods are available:
+   *
+   * - [`createEventFilter`](https://viem.sh/docs/contract/createContractEventFilter.html)
+   * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
+   * - [`read`](https://viem.sh/docs/contract/readContract.html)
+   * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
+   * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
+   */
   publicClient?: TPublicClient
-  /** Wallet client */
+  /**
+   * Wallet client
+   *
+   * If you pass in a [`walletClient`](https://viem.sh/docs/clients/wallet.html), the following methods are available:
+   *
+   * - [`write`](https://viem.sh/docs/contract/writeContract.html)
+   */
   walletClient?: TWalletClient
 }
 
@@ -201,7 +217,30 @@ export type GetContractReturnType<
 >
 
 /**
- * Gets type-safe contract instance.
+ * Gets type-safe interface for performing contract-related actions with a specific `abi` and `address`.
+ *
+ * - Docs https://viem.sh/docs/contract/getContract.html
+ *
+ * @remarks
+ * Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properites every time you perform contract actions, e.g. [`readContract`](https://viem.sh/docs/contract/readContract.html), [`writeContract`](https://viem.sh/docs/contract/writeContract.html), [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas.html), etc.
+ *
+ * @example
+ * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const publicClient = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const contract = getContract({
+ *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+ *   abi: parseAbi([
+ *     'function balanceOf(address owner) view returns (uint256)',
+ *     'function ownerOf(uint256 tokenId) view returns (address)',
+ *     'function totalSupply() view returns (uint256)',
+ *   ]),
+ *   publicClient,
+ * })
  */
 export function getContract<
   TTransport extends Transport,
