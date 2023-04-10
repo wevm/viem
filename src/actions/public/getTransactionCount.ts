@@ -34,8 +34,9 @@ export type GetTransactionCountReturnType = number
  * @returns The number of transactions an account has sent. {@link GetTransactionCountReturnType}
  *
  * @example
- * import { createPublicClient, getTransactionCount, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { getTransactionCount } from 'viem/public'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

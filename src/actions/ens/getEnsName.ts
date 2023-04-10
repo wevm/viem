@@ -33,8 +33,9 @@ export type GetEnsNameReturnType = string | null
  * @returns Name or `null` if not found. {@link GetEnsNameReturnType}
  *
  * @example
- * import { createPublicClient, getEnsName, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { getEnsName } from 'viem/ens'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

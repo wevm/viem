@@ -42,9 +42,9 @@ export type GetEnsAddressReturnType = Address | null
  * @returns Address for ENS name or `null` if not found. {@link GetEnsAddressReturnType}
  *
  * @example
- * import { createPublicClient, getEnsAddress, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { normalize } from 'viem/ens'
+ * import { getEnsAddress, normalize } from 'viem/ens'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

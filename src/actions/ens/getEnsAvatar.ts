@@ -29,9 +29,9 @@ export type GetEnsAvatarReturnType = string | null
  * @returns Avatar URI or `null` if not found. {@link GetEnsAvatarReturnType}
  *
  * @example
- * import { createPublicClient, getEnsAvatar, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { normalize } from 'viem/ens'
+ * import { getEnsAvatar, normalize } from 'viem/ens'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

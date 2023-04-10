@@ -40,9 +40,9 @@ export type GetEnsTextReturnType = string | null
  * @returns Address for ENS resolver. {@link GetEnsTextReturnType}
  *
  * @example
- * import { createPublicClient, getEnsText, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { normalize } from 'viem/ens'
+ * import { getEnsText, normalize } from 'viem/ens'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

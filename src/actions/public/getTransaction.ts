@@ -65,15 +65,16 @@ export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
  * @returns The transaction information. {@link GetTransactionReturnType}
  *
  * @example
- * import { createPublicClient, getTransaction, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { getTransaction } from 'viem/public'
  *
  * const client = createPublicClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
  * const transaction = await getTransaction(client, {
- *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+ *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
  * })
  */
 export async function getTransaction<TChain extends Chain | undefined>(

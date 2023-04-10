@@ -43,7 +43,10 @@ export type CallParameters<
       }
     | {
         blockNumber?: never
-        /** The balance of the account at a block tag. */
+        /**
+         * The balance of the account at a block tag.
+         * @default 'latest'
+         */
         blockTag?: BlockTag
       }
   )
@@ -61,8 +64,9 @@ export type CallReturnType = { data: Hex | undefined }
  * @returns The call data. {@link CallReturnType}
  *
  * @example
- * import { createPublicClient, call, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { call } from 'viem/public'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

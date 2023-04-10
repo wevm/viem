@@ -37,15 +37,16 @@ export type GetTransactionConfirmationsReturnType = bigint
  * @returns The number of blocks passed since the transaction was processed. If confirmations is 0, then the Transaction has not been confirmed & processed yet. {@link GetTransactionConfirmationsReturnType}
  *
  * @example
- * import { createPublicClient, getTransactionConfirmations, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { getTransactionConfirmations } from 'viem/public'
  *
  * const client = createPublicClient({
  *   chain: mainnet,
  *   transport: http(),
  * })
  * const confirmations = await getTransactionConfirmations(client, {
- *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+ *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
  * })
  */
 export async function getTransactionConfirmations<
