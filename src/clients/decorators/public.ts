@@ -654,6 +654,32 @@ export type PublicActions<
   ) => Promise<
     GetFilterChangesReturnType<TFilterType, TAbiEvent, TAbi, TEventName>
   >
+  /**
+   * Returns a list of event logs since the filter was created.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getFilterLogs.html
+   * - JSON-RPC Methods: [`eth_getFilterLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterlogs)
+   *
+   * @remarks
+   * `getFilterLogs` is only compatible with **event filters**.
+   *
+   * @param parameters - {@link GetFilterLogsParameters}
+   * @returns A list of event logs. {@link GetFilterLogsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbiItem } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const filter = await client.createEventFilter({
+   *   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+   *   event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
+   * })
+   * const logs = await client.getFilterLogs({ filter })
+   */
   getFilterLogs: <
     TAbiEvent extends AbiEvent | undefined,
     TAbi extends Abi | readonly unknown[],
@@ -680,6 +706,26 @@ export type PublicActions<
    * const gasPrice = await client.getGasPrice()
    */
   getGasPrice: () => Promise<GetGasPriceReturnType>
+  /**
+   * Returns a list of event logs matching the provided parameters.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getLogs.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs
+   * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
+   *
+   * @param parameters - {@link GetLogsParameters}
+   * @returns A list of event logs. {@link GetLogsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbiItem } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const logs = await client.getLogs()
+   */
   getLogs: <TAbiEvent extends AbiEvent | undefined>(
     args?: GetLogsParameters<TAbiEvent>,
   ) => Promise<GetLogsReturnType<TAbiEvent>>
@@ -811,6 +857,28 @@ export type PublicActions<
   ) => Promise<
     SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
   >
+  /**
+   * Destroys a Filter that was created from one of the following Actions:
+   *
+   * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
+   * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
+   * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter)
+   *
+   * - Docs: https://viem.sh/docs/actions/public/uninstallFilter.html
+   * - JSON-RPC Methods: [`eth_uninstallFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_uninstallFilter)
+   *
+   * @param parameters - {@link UninstallFilterParameters}
+   * @returns A boolean indicating if the Filter was successfully uninstalled. {@link UninstallFilterReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { createPendingTransactionFilter, uninstallFilter } from 'viem/public'
+   *
+   * const filter = await client.createPendingTransactionFilter()
+   * const uninstalled = await client.uninstallFilter({ filter })
+   * // true
+   */
   uninstallFilter: (
     args: UninstallFilterParameters,
   ) => Promise<UninstallFilterReturnType>
@@ -915,6 +983,37 @@ export type PublicActions<
   >(
     args: WatchContractEventParameters<TAbi, TEventName>,
   ) => WatchContractEventReturnType
+  /**
+   * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms#event-log).
+   *
+   * - Docs: https://viem.sh/docs/actions/public/watchEvent.html
+   * - JSON-RPC Methods:
+   *   - **RPC Provider supports `eth_newFilter`:**
+   *     - Calls [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter) to create a filter (called on initialize).
+   *     - On a polling interval, it will call [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges).
+   *   - **RPC Provider does not support `eth_newFilter`:**
+   *     - Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) for each block between the polling interval.
+   *
+   * @remarks
+   * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent.html#onLogs).
+   *
+   * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+   *
+   * @param parameters - {@link WatchEventParameters}
+   * @returns A function that can be invoked to stop watching for new Event Logs. {@link WatchEventReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const unwatch = client.watchEvent({
+   *   onLogs: (logs) => console.log(logs),
+   * })
+   */
   watchEvent: <TAbiEvent extends AbiEvent | undefined>(
     args: WatchEventParameters<TAbiEvent>,
   ) => WatchEventReturnType

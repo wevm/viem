@@ -32,7 +32,10 @@ export type WatchEventParameters<
 > = {
   /** The address of the contract. */
   address?: Address | Address[]
-  /** Whether or not the event logs should be batched on each invocation. */
+  /**
+   * Whether or not the event logs should be batched on each invocation.
+   * @default true
+   */
   batch?: boolean
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
@@ -53,6 +56,39 @@ export type WatchEventParameters<
 
 export type WatchEventReturnType = () => void
 
+/**
+ * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms#event-log).
+ *
+ * - Docs: https://viem.sh/docs/actions/public/watchEvent.html
+ * - JSON-RPC Methods:
+ *   - **RPC Provider supports `eth_newFilter`:**
+ *     - Calls [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter) to create a filter (called on initialize).
+ *     - On a polling interval, it will call [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges).
+ *   - **RPC Provider does not support `eth_newFilter`:**
+ *     - Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) for each block between the polling interval.
+ *
+ * @remarks
+ * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent.html#onLogs).
+ *
+ * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link WatchEventParameters}
+ * @returns A function that can be invoked to stop watching for new Event Logs. {@link WatchEventReturnType}
+ *
+ * @example
+ * import { createPublicClient, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { watchEvent } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const unwatch = watchEvent(client, {
+ *   onLogs: (logs) => console.log(logs),
+ * })
+ */
 export function watchEvent<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,

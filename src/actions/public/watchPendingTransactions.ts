@@ -76,8 +76,9 @@ export type WatchPendingTransactionsReturnType = () => void
  * @returns A function that can be invoked to stop watching for new pending transaction hashes. {@link WatchPendingTransactionsReturnType}
  *
  * @example
- * import { createPublicClient, watchPendingTransactions, http } from 'viem'
+ * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { watchPendingTransactions } from 'viem/public'
  *
  * const client = createPublicClient({
  *   chain: mainnet,
