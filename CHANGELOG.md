@@ -1,5 +1,11 @@
 # viem
 
+## 0.2.14
+
+### Patch Changes
+
+- [#344](https://github.com/wagmi-dev/viem/pull/344) [`bb9c2a4`](https://github.com/wagmi-dev/viem/commit/bb9c2a4b769655f230b8af22efb871393e78a80d) Thanks [@jxom](https://github.com/jxom)! - Added `EIP1193Provider` type.
+
 ## 0.2.13
 
 ### Patch Changes
