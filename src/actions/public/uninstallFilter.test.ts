@@ -14,6 +14,9 @@ import { mine } from '../test/index.js'
 import { sendTransaction } from '../wallet/index.js'
 import { parseEther } from '../../utils/index.js'
 import type { Hash } from '../../types/index.js'
+import type { Requests } from '../../types/eip1193.js'
+
+const request = (() => {}) as unknown as Requests['request']
 
 test('default', async () => {
   const filter = await createPendingTransactionFilter(publicClient)
@@ -58,7 +61,7 @@ test('pending txns', async () => {
 test('filter does not exist', async () => {
   expect(
     await uninstallFilter(publicClient, {
-      filter: { id: '0x1', type: 'default' },
+      filter: { id: '0x1', request, type: 'default' },
     }),
   ).toBeFalsy()
 })

@@ -29,10 +29,10 @@ export async function getFilterLogs<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  _client: PublicClient<Transport, TChain>,
   { filter }: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
 ): Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>> {
-  const logs = await client.request({
+  const logs = await filter.request({
     method: 'eth_getFilterLogs',
     params: [filter.id],
   })

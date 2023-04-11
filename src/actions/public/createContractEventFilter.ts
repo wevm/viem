@@ -12,6 +12,7 @@ import type {
 } from '../../types/index.js'
 import { encodeEventTopics, numberToHex } from '../../utils/index.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
+import type { OnResponseFn } from '../../clients/transports/fallback.js'
 
 export type CreateContractEventFilterParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -64,6 +65,21 @@ export async function createContractEventFilter<
     toBlock,
   }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
 ): Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>> {
+  let request = client.request
+
+  // If the transport is a fallback, we want to scope the request function
+  // to the successful child transport. This is because we want to keep the
+  // request function scoped & don't want to apply the fallback behavior to
+  // methods such as `eth_getFilterChanges`, `eth_getFilterLogs`, etc.
+  if (client.transport.type === 'fallback')
+    client.transport.onResponse(
+      ({ method, status, transport }: Parameters<OnResponseFn>[0]) => {
+        if (status === 'success' && method === 'eth_newFilter') {
+          request = transport.request
+        }
+      },
+    )
+
   const topics = eventName
     ? encodeEventTopics({
         abi,
@@ -88,6 +104,7 @@ export async function createContractEventFilter<
     args,
     eventName,
     id,
+    request,
     type: 'event',
   } as unknown as CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>
 }
