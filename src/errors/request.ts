@@ -160,7 +160,7 @@ export class JsonRpcVersionUnsupportedError extends RpcRequestError {
 
 export class UserRejectedRequestError extends RequestError {
   override name = 'UserRejectedRequestError'
-  code = 4001 // TODO: This has a code, should it be a RpcRequestError?
+  code = 4001
 
   constructor(err: Error) {
     super(err, {
@@ -171,7 +171,7 @@ export class UserRejectedRequestError extends RequestError {
 
 export class SwitchChainError extends RequestError {
   override name = 'SwitchChainError'
-  code = 4902 // TODO: This has a code, should it be a RpcRequestError?
+  code = 4902
 
   constructor(err: Error) {
     super(err, {
