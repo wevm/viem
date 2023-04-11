@@ -23,36 +23,36 @@ The 0.3.0 release only includes breaking changes around RPC errors. If you do no
 
 `RequestError` was renamed `RpcError` for clarity.
 
-```diff
-- import { RequestError } from 'viem'
-+ import { RpcError } from 'viem'
+```ts
+import { RequestError } from 'viem'  // [!code --]
+import { RpcError } from 'viem'  // [!code ++]
 
-- throw new RequestError(new Error('An error occurred.'))
-+ throw new RpcError(new Error('An error occurred.'))
+throw new RequestError(new Error('An error occurred.'))  // [!code --]
+throw new RpcError(new Error('An error occurred.'))  // [!code ++]
 ```
 
 ### Removed `RpcRequestError`
 
 `RpcRequestError` was removed. Use `RpcError` instead.
 
-```diff
-- import { RpcRequestError } from 'viem'
-+ import { RpcError } from 'viem'
+```ts
+import { RpcRequestError } from 'viem' // [!code --]
+import { RpcError } from 'viem'  // [!code ++]
 
-- throw new RpcRequestError(new Error('An error occurred.'))
-+ throw new RpcError(new Error('An error occurred.'))
+throw new RpcRequestError(new Error('An error occurred.')) // [!code --]
+throw new RpcError(new Error('An error occurred.')) // [!code ++]
 ```
 
 ### Renamed `RpcError` to `RpcRequestError`
 
 `RpcError` was renamed `RpcRequestError` for consistency.
 
-```diff
-- import { RpcError } from 'viem'
-+ import { RpcRequestError } from 'viem'
+```ts
+import { RpcError } from 'viem' // [!code --]
+import { RpcRequestError } from 'viem'  // [!code ++]
 
-- const err = new RpcError({
-+ const err = new RpcRequestError({
+const err = new RpcError({ // [!code --]
+const err = new RpcRequestError({  // [!code ++]
   body: { foo: 'bar' },
   error: { code: 420, message: 'Error' },
   url: 'https://example-rpc.com',
