@@ -1,6 +1,7 @@
 import type { Abi } from 'abitype'
 import type { MaybeExtractEventArgsFromAbi } from './contract.js'
 import type { Hex } from './misc.js'
+import type { Requests } from './eip1193.js'
 
 export type FilterType = 'transaction' | 'block' | 'event'
 
@@ -13,6 +14,8 @@ export type Filter<
     | undefined = MaybeExtractEventArgsFromAbi<TAbi, TEventName>,
 > = {
   id: Hex
+  // TODO: Narrow `request` to filter-based methods (ie. `eth_getFilterLogs`, etc).
+  request: Requests['request']
   type: TFilterType
 } & (TFilterType extends 'event'
   ? TAbi extends Abi

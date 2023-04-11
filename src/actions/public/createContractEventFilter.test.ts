@@ -2,12 +2,17 @@ import { assertType, expect, test } from 'vitest'
 
 import {
   accounts,
+  createHttpServer,
   initialBlockNumber,
   publicClient,
   usdcContractConfig,
 } from '../../_test/index.js'
+import { createPublicClient, fallback, http } from '../../clients/index.js'
+import type { Requests } from '../../types/eip1193.js'
 
 import { createContractEventFilter } from './createContractEventFilter.js'
+
+const request = (() => {}) as unknown as Requests['request']
 
 test('default', async () => {
   const filter = await createContractEventFilter(publicClient, {
@@ -19,6 +24,7 @@ test('default', async () => {
     type: 'event',
     args: undefined,
     eventName: undefined,
+    request,
   })
   expect(filter.id).toBeDefined()
   expect(filter.type).toBe('event')
@@ -124,4 +130,44 @@ test('args: toBlock', async () => {
       })
     ).id,
   ).toBeDefined()
+})
+
+test('fallback client: scopes request', async () => {
+  let count1 = 0
+  const server1 = await createHttpServer((_req, res) => {
+    count1++
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+    })
+    res.end(
+      JSON.stringify({
+        error: { code: -32004, message: 'method not supported' },
+      }),
+    )
+  })
+
+  let count2 = 0
+  const server2 = await createHttpServer((_req, res) => {
+    count2++
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+    })
+    res.end(JSON.stringify({ result: '0x1' }))
+  })
+
+  const fallbackClient = createPublicClient({
+    transport: fallback([http(server1.url), http(server2.url)], {
+      rank: false,
+    }),
+  })
+  const filter = await createContractEventFilter(fallbackClient, {
+    abi: usdcContractConfig.abi,
+  })
+  expect(filter).toBeDefined()
+  expect(count1).toBe(1)
+  expect(count2).toBe(1)
+
+  await filter.request({ method: 'eth_getFilterChanges', params: [filter.id] })
+  expect(count1).toBe(1)
+  expect(count2).toBe(2)
 })

@@ -7,7 +7,7 @@ import { createPublicClient } from '../createPublicClient.js'
 import { getBlockNumber } from '../../actions/index.js'
 import { wait } from '../../utils/wait.js'
 import type { Transport } from './createTransport.js'
-import type { FallbackTransport } from './fallback.js'
+import type { FallbackTransport, OnResponseFn } from './fallback.js'
 import { fallback, rankTransports } from './fallback.js'
 import { http } from './http.js'
 
@@ -32,6 +32,7 @@ test('default', () => {
       },
       "request": [Function],
       "value": {
+        "onResponse": [Function],
         "transports": [
           {
             "config": {
@@ -140,6 +141,79 @@ describe('request', () => {
 
     // ensure `retryCount` on transport is adhered
     expect(count).toBe(8)
+  })
+
+  test('onResponse', async () => {
+    let count = 0
+    const server1 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(500)
+      res.end()
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(500)
+      res.end()
+    })
+    const server3 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback(
+      [http(server1.url), http(server2.url), http(server3.url)],
+      {
+        rank: false,
+      },
+    )({
+      chain: localhost,
+    })
+
+    const args: Parameters<OnResponseFn>[0][] = []
+    transport.value?.onResponse((args_) => args.push(args_))
+
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+    expect(
+      args.map(({ transport: _transport, ...rest }) => rest),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "error": [HttpRequestError: HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {"method":"eth_blockNumber"}
+
+      Details: Internal Server Error
+      Version: viem@1.0.2],
+          "method": "eth_blockNumber",
+          "params": undefined,
+          "status": "error",
+        },
+        {
+          "error": [HttpRequestError: HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {"method":"eth_blockNumber"}
+
+      Details: Internal Server Error
+      Version: viem@1.0.2],
+          "method": "eth_blockNumber",
+          "params": undefined,
+          "status": "error",
+        },
+        {
+          "method": "eth_blockNumber",
+          "params": undefined,
+          "response": "0x1",
+          "status": "success",
+        },
+      ]
+    `)
   })
 
   test('error (rpc)', async () => {
@@ -362,6 +436,7 @@ describe('client', () => {
         "transport": {
           "key": "fallback",
           "name": "Fallback",
+          "onResponse": [Function],
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
