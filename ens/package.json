@@ -1,0 +1,4 @@
+{
+  "module": "../dist/ens.mjs",
+  "main": "../dist/ens.js"
+}

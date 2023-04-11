@@ -1,0 +1,4 @@
+{
+  "module": "../dist/window.mjs",
+  "main": "../dist/window.js"
+}
