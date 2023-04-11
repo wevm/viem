@@ -1,4 +1,0 @@
-{
-  "module": "../dist/ethers.mjs",
-  "main": "../dist/ethers.js"
-}

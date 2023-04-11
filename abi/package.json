@@ -1,4 +1,0 @@
-{
-  "module": "../dist/abi.mjs",
-  "main": "../dist/abi.js"
-}

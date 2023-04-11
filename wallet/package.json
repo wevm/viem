@@ -1,4 +1,0 @@
-{
-  "module": "../dist/wallet.mjs",
-  "main": "../dist/wallet.js"
-}

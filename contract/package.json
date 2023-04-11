@@ -1,4 +1,0 @@
-{
-  "module": "../dist/contract.mjs",
-  "main": "../dist/contract.js"
-}

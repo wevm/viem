@@ -1,4 +1,0 @@
-{
-  "module": "../dist/utils/index.mjs",
-  "main": "../dist/utils/index.js"
-}
