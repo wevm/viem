@@ -13,8 +13,8 @@ test('containsNodeError', () => {
   expect(containsNodeError(new TransactionRejectedRpcError({}))).toBeTruthy()
   // @ts-expect-error
   expect(containsNodeError(new InvalidInputRpcError({}))).toBeTruthy()
-  // @ts-expect-error
   expect(
+    // @ts-expect-error
     containsNodeError(new RpcRequestError({ error: { code: 3 } })),
   ).toBeTruthy()
   // @ts-expect-error

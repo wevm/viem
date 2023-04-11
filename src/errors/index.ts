@@ -87,6 +87,13 @@ export {
 } from './node.js'
 
 export {
+  HttpRequestError,
+  RpcRequestError,
+  TimeoutError,
+  WebSocketRequestError,
+} from './request.js'
+
+export {
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -103,13 +110,6 @@ export {
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
-} from './request.js'
-
-export {
-  HttpRequestError,
-  RpcRequestError,
-  TimeoutError,
-  WebSocketRequestError,
 } from './rpc.js'
 
 export {
