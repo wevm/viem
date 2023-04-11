@@ -20,12 +20,28 @@ export type GetEnsNameParameters = Prettify<
 export type GetEnsNameReturnType = string | null
 
 /**
- * @description Gets primary name for specified address.
+ * Gets primary name for specified address.
  *
- * - Calls `reverse(bytes)` on ENS Universal Resolver Contract.
+ * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
+ *
+ * @remarks
+ * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetEnsNameParameters}
+ * @returns Name or `null` if not found. {@link GetEnsNameReturnType}
  *
  * @example
- * const ensName = await getEnsName(publicClient, {
+ * import { createPublicClient, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { getEnsName } from 'viem/ens'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const ensName = await getEnsName(client, {
  *   address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
  * })
  * // 'wagmi-dev.eth'

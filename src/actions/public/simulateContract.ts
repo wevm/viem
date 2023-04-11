@@ -57,6 +57,38 @@ export type SimulateContractReturnType<
   } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
+/**
+ * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
+ *
+ * - Docs: https://viem.sh/docs/contract/simulateContract.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+ *
+ * @remarks
+ * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
+ *
+ * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+ *
+ * @param client - Client to use
+ * @param parameters - {@link SimulateContractParameters}
+ * @returns The simulation result and write request. {@link SimulateContractReturnType}
+ *
+ * @example
+ * import { createPublicClient, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { simulateContract } from 'viem/contract'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const results = await simulateContract(client, {
+ *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+ *   abi: parseAbi(['function mint(uint32) view returns (uint32)']),
+ *   functionName: 'mint',
+ *   args: ['69420'],
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ * })
+ */
 export async function simulateContract<
   TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],

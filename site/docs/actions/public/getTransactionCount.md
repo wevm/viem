@@ -23,7 +23,7 @@ Returns the number of [Transactions](/docs/glossary/terms#transaction) an Accoun
 ```ts [example.ts]
 import { publicClient } from './client'
 
-const block = await publicClient.getTransactionCount({  // [!code focus:99]
+const transactionCount = await publicClient.getTransactionCount({  // [!code focus:99]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // 420
@@ -56,7 +56,7 @@ The number of transactions an account has sent.
 The address of the account.
 
 ```ts
-const balance = await publicClient.getTransactionCount({
+const transactionCount = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
 ```
@@ -68,7 +68,7 @@ const balance = await publicClient.getTransactionCount({
 Get the count at a block number.
 
 ```ts
-const balance = await publicClient.getTransactionCount({
+const transactionCount = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockNumber: 69420n  // [!code focus]
 })
@@ -81,7 +81,7 @@ const balance = await publicClient.getTransactionCount({
 Get the count at a block tag.
 
 ```ts
-const balance = await publicClient.getTransactionCount({
+const transactionCount = await publicClient.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe'  // [!code focus]
 })

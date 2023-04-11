@@ -48,6 +48,28 @@ export type CreateContractEventFilterReturnType<
     | undefined = undefined,
 > = Filter<'event', TAbi, TEventName, TArgs>
 
+/**
+ * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
+ *
+ * - Docs: https://viem.sh/docs/contract/createContractEventFilter.html
+ *
+ * @param client - Client to use
+ * @param parameters - {@link CreateContractEventFilterParameters}
+ * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateContractEventFilterReturnType}
+ *
+ * @example
+ * import { createPublicClient, http, parseAbi } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { createContractEventFilter } from 'viem/contract'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const filter = await createContractEventFilter(client, {
+ *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+ * })
+ */
 export async function createContractEventFilter<
   TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],

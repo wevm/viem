@@ -258,4 +258,4 @@ const filter = await publicClient.createEventFilter({
 
 ## JSON-RPC Methods
 
-[`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newFilter)
+[`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter)

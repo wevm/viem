@@ -58,7 +58,26 @@ export type GetLogsReturnType<
 > = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
 
 /**
- * @description Returns a collection of event logs.
+ * Returns a list of event logs matching the provided parameters.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/getLogs.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs
+ * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetLogsParameters}
+ * @returns A list of event logs. {@link GetLogsReturnType}
+ *
+ * @example
+ * import { createPublicClient, http, parseAbiItem } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { getLogs } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const logs = await getLogs(client)
  */
 export async function getLogs<
   TChain extends Chain | undefined,

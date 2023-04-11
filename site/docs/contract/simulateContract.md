@@ -38,7 +38,6 @@ const { result } = await publicClient.simulateContract({
   functionName: 'mint',
   account,
 })
-// 69420
 ```
 
 ```ts [abi.ts]
@@ -94,7 +93,6 @@ const { result } = await publicClient.simulateContract({
   args: [69420],
   account,
 })
-// 69420
 ```
 
 ```ts [abi.ts]
@@ -184,7 +182,7 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-The response from the contract. Type is inferred.
+The simulation result and write request. Type is inferred.
 
 ## Parameters
 

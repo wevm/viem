@@ -1,5 +1,20 @@
 # viem
 
+## 0.2.14
+
+### Patch Changes
+
+- [#344](https://github.com/wagmi-dev/viem/pull/344) [`bb9c2a4`](https://github.com/wagmi-dev/viem/commit/bb9c2a4b769655f230b8af22efb871393e78a80d) Thanks [@jxom](https://github.com/jxom)! - Added `EIP1193Provider` type.
+
+## 0.2.13
+
+### Patch Changes
+
+- [#331](https://github.com/wagmi-dev/viem/pull/331) [`cd7b642`](https://github.com/wagmi-dev/viem/commit/cd7b64242643247c3c04896dacdd95b2a335ba52) Thanks [@jxom](https://github.com/jxom)! - Migrated to TypeScript 5.
+  Migrated build process from `tsup` to `tsc`.
+
+* [#343](https://github.com/wagmi-dev/viem/pull/343) [`579171d`](https://github.com/wagmi-dev/viem/commit/579171dbc691f9c352688455f21b6c4187dbf422) Thanks [@fubhy](https://github.com/fubhy)! - Fixed conditional types for poll options on `watchBlocks` & `watchPendingTransactions`.
+
 ## 0.2.12
 
 ### Patch Changes
