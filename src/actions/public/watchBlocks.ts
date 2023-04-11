@@ -51,7 +51,29 @@ export type WatchBlocksParameters<
 export type WatchBlocksReturnType = () => void
 
 /**
- * @description Watches and returns information for incoming blocks.
+ * Watches and returns information for incoming blocks.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/watchBlocks.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/watching-blocks
+ * - JSON-RPC Methods:
+ *   - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
+ *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link WatchBlocksParameters}
+ * @returns A function that can be invoked to stop watching for new block numbers. {@link WatchBlocksReturnType}
+ *
+ * @example
+ * import { createPublicClient, watchBlocks, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const unwatch = await watchBlocks(client, {
+ *   onBlock: (block) => console.log(block),
+ * })
  */
 export function watchBlocks<
   TTransport extends Transport,

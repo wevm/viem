@@ -155,7 +155,7 @@ Depending on if you create a contract instance with a Public Client, Wallet Clie
 
 #### With Public Client
 
-If you pass in a [`publicClient`](/docs/contract/getContract#publicclient), the following methods are available:
+If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the following methods are available:
 
 - [`createEventFilter`](/docs/contract/createContractEventFilter.html)
 - [`estimateGas`](/docs/contract/estimateContractGas.html)
@@ -165,7 +165,7 @@ If you pass in a [`publicClient`](/docs/contract/getContract#publicclient), the 
 
 #### With Wallet Client
 
-If you pass in a [`walletClient`](/docs/contract/getContract#walletclient), the following methods are available:
+If you pass in a [`walletClient`](/docs/clients/wallet.html), the following methods are available:
 
 - [`write`](/docs/contract/writeContract.html)
 

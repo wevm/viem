@@ -8,7 +8,7 @@ cache
 coverage
 dist
 node_modules
-tsconfig.tsbuildinfo
+tsconfig*.tsbuildinfo
 
 # local env files
 .env

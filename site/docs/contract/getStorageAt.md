@@ -77,3 +77,6 @@ const data = await publicClient.getStorageAt({
 })
 ```
 
+## JSON-RPC Method
+
+[`eth_getStorageAt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getstorageat)

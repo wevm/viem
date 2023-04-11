@@ -24,7 +24,7 @@ Deploys a contract to the network, given bytecode & constructor arguments.
 import { wagmiAbi } from './abi'
 import { account, walletClient } from './config'
 
-await walletClient.deployContract({
+const hash = await walletClient.deployContract({
   abi,
   account,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
@@ -70,7 +70,7 @@ import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
 import { account, walletClient } from './config'
 
-await walletClient.deployContract({
+const hash = await walletClient.deployContract({
   abi,
   account,
   args: [69420],
@@ -108,6 +108,12 @@ export const account = privateKeyToAccount(...)
 
 :::
 
+## Returns
+
+[`Hash`](/docs/glossary/types#hash)
+
+The [Transaction](/docs/glossary/terms#transaction) hash.
+
 ## Parameters
 
 ### abi
@@ -117,7 +123,7 @@ export const account = privateKeyToAccount(...)
 The contract's ABI.
 
 ```ts
-await walletClient.deployContract({
+const hash = await walletClient.deployContract({
   abi: wagmiAbi, // [!code focus]
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
@@ -133,7 +139,7 @@ The Account to deploy the contract from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-await walletClient.deployContract({
+const hash = await walletClient.deployContract({
   abi: wagmiAbi, 
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
@@ -147,7 +153,7 @@ await walletClient.deployContract({
 The contract's bytecode.
 
 ```ts
-await walletClient.deployContract({
+const hash = await walletClient.deployContract({
   abi: wagmiAbi,
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus]
@@ -161,7 +167,7 @@ await walletClient.deployContract({
 Constructor arguments to call upon deployment.
 
 ```ts
-await walletClient.deployContract({
+const hash = await walletClient.deployContract({
   abi: wagmiAbi,
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',

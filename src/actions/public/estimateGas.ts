@@ -49,7 +49,10 @@ export type EstimateGasParameters<
       }
     | {
         blockNumber?: never
-        /** The balance of the account at a block tag. */
+        /**
+         * The balance of the account at a block tag.
+         * @default 'latest'
+         */
         blockTag?: BlockTag
       }
   )
@@ -57,7 +60,29 @@ export type EstimateGasParameters<
 export type EstimateGasReturnType = bigint
 
 /**
- * @description Estimates the gas necessary to complete a transaction without submitting it to the network.
+ * Estimates the gas necessary to complete a transaction without submitting it to the network.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/estimateGas.html
+ * - JSON-RPC Methods: [`eth_estimateGas`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_estimategas)
+ *
+ * @param client - Client to use
+ * @param parameters - {@link EstimateGasParameters}
+ * @returns The gas estimate (in wei). {@link EstimateGasReturnType}
+ *
+ * @example
+ * import { createPublicClient, http, parseEther } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { estimateGas } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const gasEstimate = await estimateGas(client, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *   value: parseEther('1'),
+ * })
  */
 export async function estimateGas<
   TChain extends Chain | undefined,

@@ -59,6 +59,29 @@ export type CreateEventFilterReturnType<
     | undefined = undefined,
 > = Prettify<Filter<'event', TAbi, TEventName, TArgs>>
 
+/**
+ * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+ *
+ * - Docs: https://viem.sh/docs/actions/public/createEventFilter.html
+ * - JSON-RPC Methods: [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter)
+ *
+ * @param client - Client to use
+ * @param parameters - {@link CreateEventFilterParameters}
+ * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateEventFilterReturnType}
+ *
+ * @example
+ * import { createPublicClient, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { createEventFilter } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const filter = await createEventFilter(client, {
+ *   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+ * })
+ */
 export async function createEventFilter<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,

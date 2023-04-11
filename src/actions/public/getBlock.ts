@@ -33,7 +33,10 @@ export type GetBlockParameters = {
   | {
       blockHash?: never
       blockNumber?: never
-      /** The block tag. Defaults to 'latest'. */
+      /**
+       * The block tag.
+       * @default 'latest'
+       */
       blockTag?: BlockTag
     }
 )
@@ -42,6 +45,30 @@ export type GetBlockReturnType<
   TChain extends Chain | undefined = Chain | undefined,
 > = FormattedBlock<BlockFormatter<TChain>>
 
+/**
+ * Returns information about a block at a block number, hash, or tag.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/getBlock.html
+ * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks
+ * - JSON-RPC Methods:
+ *   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) for `blockNumber` & `blockTag`.
+ *   - Calls [`eth_getBlockByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbyhash) for `blockHash`.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetBlockParameters}
+ * @returns Information about the block. {@link GetBlockReturnType}
+ *
+ * @example
+ * import { createPublicClient, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { getBlock } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const block = await getBlock(client)
+ */
 export async function getBlock<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,

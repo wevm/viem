@@ -23,6 +23,34 @@ export type GetFilterLogsReturnType<
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = Log<bigint, number, TAbiEvent, TAbi, TEventName>[]
 
+/**
+ * Returns a list of event logs since the filter was created.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/getFilterLogs.html
+ * - JSON-RPC Methods: [`eth_getFilterLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterlogs)
+ *
+ * @remarks
+ * `getFilterLogs` is only compatible with **event filters**.
+ *
+ * @param client - Client to use
+ * @param parameters - {@link GetFilterLogsParameters}
+ * @returns A list of event logs. {@link GetFilterLogsReturnType}
+ *
+ * @example
+ * import { createPublicClient, http, parseAbiItem } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { createEventFilter, getFilterLogs } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const filter = await createEventFilter(client, {
+ *   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+ *   event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
+ * })
+ * const logs = await getFilterLogs(client, { filter })
+ */
 export async function getFilterLogs<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
