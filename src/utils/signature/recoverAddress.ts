@@ -8,7 +8,7 @@ export type RecoverAddressParameters = {
 }
 export type RecoverAddressReturnType = Address
 
-export async function recoverMessageAddress({
+export async function recoverAddress({
   hash,
   signature,
 }: RecoverAddressParameters): Promise<RecoverAddressReturnType> {
