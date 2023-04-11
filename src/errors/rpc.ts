@@ -126,7 +126,7 @@ export class ResourceUnavailableRpcError extends RpcError {
 export class TransactionRejectedRpcError extends RpcError {
   override name = 'TransactionRejectedRpcError'
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, { code: -32003, shortMessage: 'Transaction creation failed.' })
   }
 }
@@ -134,7 +134,7 @@ export class TransactionRejectedRpcError extends RpcError {
 export class MethodNotSupportedRpcError extends RpcError {
   override name = 'MethodNotSupportedRpcError'
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, { code: -32004, shortMessage: 'Method is not implemented.' })
   }
 }
@@ -142,7 +142,7 @@ export class MethodNotSupportedRpcError extends RpcError {
 export class LimitExceededRpcError extends RpcError {
   override name = 'LimitExceededRpcError'
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, { code: -32005, shortMessage: 'Request exceeds defined limit.' })
   }
 }
@@ -150,7 +150,7 @@ export class LimitExceededRpcError extends RpcError {
 export class JsonRpcVersionUnsupportedError extends RpcError {
   override name = 'JsonRpcVersionUnsupportedError'
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
       code: -32006,
       shortMessage: 'Version of JSON-RPC protocol is not supported.',
