@@ -15,6 +15,50 @@ head:
 
 If you are coming from an earlier version of `viem`, you will need to make sure to update the following APIs listed below.
 
+## 0.3.x Breaking changes
+
+The 0.3.0 release only includes breaking changes around RPC errors. If you do not directly use the APIs listed below, you do not need to migrate.
+
+### Renamed `RequestError` to `RpcError`
+
+`RequestError` was renamed `RpcError` for clarity.
+
+```diff
+- import { RequestError } from 'viem'
++ import { RpcError } from 'viem'
+
+- throw new RequestError(new Error('An error occurred.'))
++ throw new RpcError(new Error('An error occurred.'))
+```
+
+### Removed `RpcRequestError`
+
+`RpcRequestError` was removed. Use `RpcError` instead.
+
+```diff
+- import { RpcRequestError } from 'viem'
++ import { RpcError } from 'viem'
+
+- throw new RpcRequestError(new Error('An error occurred.'))
++ throw new RpcError(new Error('An error occurred.'))
+```
+
+### Renamed `RpcError` to `RpcRequestError`
+
+`RpcError` was renamed `RpcRequestError` for consistency.
+
+```diff
+- import { RpcError } from 'viem'
++ import { RpcRequestError } from 'viem'
+
+- const err = new RpcError({
++ const err = new RpcRequestError({
+  body: { foo: 'bar' },
+  error: { code: 420, message: 'Error' },
+  url: 'https://example-rpc.com',
+})
+```
+
 ## 0.2.x Breaking changes
 
 ### `chain` is required for `sendTransaction`, `writeContract`, `deployContract`
