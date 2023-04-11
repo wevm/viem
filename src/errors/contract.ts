@@ -225,7 +225,7 @@ export class ContractFunctionZeroDataError extends BaseError {
 }
 
 export class RawContractError extends BaseError {
-  code = 3 // TODO: What's this code?
+  code = 3
   override name = 'RawContractError'
 
   data?: Hex
