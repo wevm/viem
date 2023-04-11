@@ -118,7 +118,7 @@ export function fallback(
               return response
             } catch (err) {
               onResponse({
-                error: err,
+                error: err as Error,
                 method,
                 params: params as unknown[],
                 transport,
