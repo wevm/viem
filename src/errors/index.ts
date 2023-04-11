@@ -96,10 +96,9 @@ export {
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
-  RequestError,
+  RpcError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcRequestError,
   SwitchChainError,
   TransactionRejectedRpcError,
   UnknownRpcError,
@@ -108,7 +107,7 @@ export {
 
 export {
   HttpRequestError,
-  RpcError,
+  RpcRequestError,
   TimeoutError,
   WebSocketRequestError,
 } from './rpc.js'

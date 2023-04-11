@@ -64,7 +64,6 @@ test('exports actions', () => {
       "OffsetOutOfBoundsError": [Function],
       "ParseRpcError": [Function],
       "RawContractError": [Function],
-      "RequestError": [Function],
       "ResourceNotFoundRpcError": [Function],
       "ResourceUnavailableRpcError": [Function],
       "RpcError": [Function],

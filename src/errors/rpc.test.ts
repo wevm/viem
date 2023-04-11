@@ -3,19 +3,19 @@ import { initialBlockNumber } from '../_test/index.js'
 import { numberToHex } from '../utils/index.js'
 import {
   HttpRequestError,
-  RpcError,
+  RpcRequestError,
   TimeoutError,
   WebSocketRequestError,
 } from './rpc.js'
 
-test('RpcError', () => {
-  const err = new RpcError({
+test('RpcRequestError', () => {
+  const err = new RpcRequestError({
     body: { foo: 'bar' },
     error: { code: 420, message: 'Error' },
     url: 'https://lol.com',
   })
   expect(err).toMatchInlineSnapshot(`
-    [RpcError: RPC Request failed.
+    [RpcRequestError: RPC Request failed.
 
     URL: http://localhost
     Request body: {"foo":"bar"}

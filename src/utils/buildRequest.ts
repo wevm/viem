@@ -21,7 +21,8 @@ import {
 import { withRetry } from './promise/index.js'
 
 export const isDeterministicError = (error: Error) => {
-  if ('code' in error) return error.code !== -32603 && error.code !== -32005
+  if ('code' in error)
+    return error.code !== -1 && error.code !== -32603 && error.code !== -32005
   if (error instanceof HttpRequestError && error.status)
     return (
       error.status !== 408 &&

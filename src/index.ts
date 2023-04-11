@@ -221,7 +221,6 @@ export {
   OffsetOutOfBoundsError,
   ParseRpcError,
   RawContractError,
-  RequestError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   RpcError,

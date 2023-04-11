@@ -1,14 +1,24 @@
 import { BaseError } from './base.js'
-import type { RpcError } from './rpc.js'
+import { RpcRequestError } from './rpc.js'
 
-export class RequestError extends BaseError {
+const unknownErrorCode = -1
+
+export class RpcError extends BaseError {
+  code: number
+
   constructor(
     err: Error,
     {
+      code = unknownErrorCode,
       docsPath,
       metaMessages,
       shortMessage,
-    }: { docsPath?: string; metaMessages?: string[]; shortMessage: string },
+    }: {
+      code?: number
+      docsPath?: string
+      metaMessages?: string[]
+      shortMessage: string
+    },
   ) {
     super(shortMessage, {
       cause: err,
@@ -17,60 +27,50 @@ export class RequestError extends BaseError {
         metaMessages || (err as { metaMessages?: string[] })?.metaMessages,
     })
     this.name = err.name
+    this.code = err instanceof RpcRequestError ? err.code : code
   }
 }
 
-export class RpcRequestError extends RequestError {
-  code: number
-
-  constructor(
-    err: RpcError,
-    { docsPath, shortMessage }: { docsPath?: string; shortMessage: string },
-  ) {
-    super(err, { docsPath, shortMessage })
-    this.code = err.code
-    this.name = err.name
-  }
-}
-
-export class ParseRpcError extends RpcRequestError {
+export class ParseRpcError extends RpcError {
   override name = 'ParseRpcError'
-  override code = -32700
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
+      code: -32700,
       shortMessage:
         'Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.',
     })
   }
 }
 
-export class InvalidRequestRpcError extends RpcRequestError {
+export class InvalidRequestRpcError extends RpcError {
   override name = 'InvalidRequestRpcError'
-  override code = -32600
 
-  constructor(err: RpcError) {
-    super(err, { shortMessage: 'JSON is not a valid request object.' })
+  constructor(err: Error) {
+    super(err, {
+      code: -32600,
+      shortMessage: 'JSON is not a valid request object.',
+    })
   }
 }
 
-export class MethodNotFoundRpcError extends RpcRequestError {
+export class MethodNotFoundRpcError extends RpcError {
   override name = 'MethodNotFoundRpcError'
-  override code = -32601
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
+      code: -32601,
       shortMessage: 'The method does not exist / is not available.',
     })
   }
 }
 
-export class InvalidParamsRpcError extends RpcRequestError {
+export class InvalidParamsRpcError extends RpcError {
   override name = 'InvalidParamsRpcError'
-  override code = -32602
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
+      code: -32602,
       shortMessage: [
         'Invalid parameters were provided to the RPC method.',
         'Double check you have provided the correct parameters.',
@@ -79,21 +79,23 @@ export class InvalidParamsRpcError extends RpcRequestError {
   }
 }
 
-export class InternalRpcError extends RpcRequestError {
+export class InternalRpcError extends RpcError {
   override name = 'InternalRpcError'
-  override code = -32603
 
-  constructor(err: RpcError) {
-    super(err, { shortMessage: 'An internal error was received.' })
+  constructor(err: Error) {
+    super(err, {
+      code: -32603,
+      shortMessage: 'An internal error was received.',
+    })
   }
 }
 
-export class InvalidInputRpcError extends RpcRequestError {
+export class InvalidInputRpcError extends RpcError {
   override name = 'InvalidInputRpcError'
-  override code = -32000
 
-  constructor(err: RpcError) {
+  constructor(err: Error) {
     super(err, {
+      code: -32000,
       shortMessage: [
         'Missing or invalid parameters.',
         'Double check you have provided the correct parameters.',
@@ -102,85 +104,83 @@ export class InvalidInputRpcError extends RpcRequestError {
   }
 }
 
-export class ResourceNotFoundRpcError extends RpcRequestError {
+export class ResourceNotFoundRpcError extends RpcError {
   override name = 'ResourceNotFoundRpcError'
-  override code = -32001
 
-  constructor(err: RpcError) {
-    super(err, { shortMessage: 'Requested resource not found.' })
+  constructor(err: Error) {
+    super(err, { code: -32001, shortMessage: 'Requested resource not found.' })
   }
 }
 
-export class ResourceUnavailableRpcError extends RpcRequestError {
+export class ResourceUnavailableRpcError extends RpcError {
   override name = 'ResourceUnavailableRpcError'
-  override code = -32002
 
-  constructor(err: RpcError) {
-    super(err, { shortMessage: 'Requested resource not available.' })
+  constructor(err: Error) {
+    super(err, {
+      code: -32002,
+      shortMessage: 'Requested resource not available.',
+    })
   }
 }
 
-export class TransactionRejectedRpcError extends RpcRequestError {
+export class TransactionRejectedRpcError extends RpcError {
   override name = 'TransactionRejectedRpcError'
-  override code = -32003
 
   constructor(err: RpcError) {
-    super(err, { shortMessage: 'Transaction creation failed.' })
+    super(err, { code: -32003, shortMessage: 'Transaction creation failed.' })
   }
 }
 
-export class MethodNotSupportedRpcError extends RpcRequestError {
+export class MethodNotSupportedRpcError extends RpcError {
   override name = 'MethodNotSupportedRpcError'
-  override code = -32004
 
   constructor(err: RpcError) {
-    super(err, { shortMessage: 'Method is not implemented.' })
+    super(err, { code: -32004, shortMessage: 'Method is not implemented.' })
   }
 }
 
-export class LimitExceededRpcError extends RpcRequestError {
+export class LimitExceededRpcError extends RpcError {
   override name = 'LimitExceededRpcError'
-  override code = -32005
 
   constructor(err: RpcError) {
-    super(err, { shortMessage: 'Request exceeds defined limit.' })
+    super(err, { code: -32005, shortMessage: 'Request exceeds defined limit.' })
   }
 }
 
-export class JsonRpcVersionUnsupportedError extends RpcRequestError {
+export class JsonRpcVersionUnsupportedError extends RpcError {
   override name = 'JsonRpcVersionUnsupportedError'
-  override code = -32006
 
   constructor(err: RpcError) {
     super(err, {
+      code: -32006,
       shortMessage: 'Version of JSON-RPC protocol is not supported.',
     })
   }
 }
 
-export class UserRejectedRequestError extends RequestError {
+export class UserRejectedRequestError extends RpcError {
   override name = 'UserRejectedRequestError'
-  code = 4001
 
   constructor(err: Error) {
     super(err, {
+      code: 4001,
       shortMessage: 'User rejected the request.',
     })
   }
 }
 
-export class SwitchChainError extends RequestError {
+export class SwitchChainError extends RpcError {
   override name = 'SwitchChainError'
-  code = 4902
 
   constructor(err: Error) {
     super(err, {
+      code: 4902,
       shortMessage: 'An error occurred when attempting to switch chain.',
     })
   }
 }
 
-export class UnknownRpcError extends RequestError {
+export class UnknownRpcError extends RpcError {
   override name = 'UnknownRpcError'
 
   constructor(err: Error) {

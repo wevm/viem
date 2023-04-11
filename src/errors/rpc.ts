@@ -57,10 +57,10 @@ export class WebSocketRequestError extends BaseError {
   }
 }
 
-export class RpcError extends BaseError {
-  code: number
+export class RpcRequestError extends BaseError {
+  override name = 'RpcRequestError'
 
-  override name = 'RpcError'
+  code: number
 
   constructor({
     body,

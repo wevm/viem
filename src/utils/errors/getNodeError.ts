@@ -1,5 +1,5 @@
 import type { SendTransactionParameters } from '../../actions/index.js'
-import type { BaseError } from '../../errors/index.js'
+import { RpcRequestError, type BaseError } from '../../errors/index.js'
 import {
   ExecutionRevertedError,
   FeeCapTooHighError,
@@ -11,7 +11,6 @@ import {
   NonceMaxValueError,
   NonceTooHighError,
   NonceTooLowError,
-  RpcError,
   TipAboveFeeCapError,
   TransactionRejectedRpcError,
   TransactionTypeNotSupportedError,
@@ -22,7 +21,7 @@ export function containsNodeError(err: BaseError) {
   return (
     err instanceof TransactionRejectedRpcError ||
     err instanceof InvalidInputRpcError ||
-    (err instanceof RpcError && err.code === ExecutionRevertedError.code)
+    (err instanceof RpcRequestError && err.code === ExecutionRevertedError.code)
   )
 }
 

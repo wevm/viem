@@ -9,31 +9,31 @@ import {
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
-  RequestError,
+  RpcError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcRequestError,
   SwitchChainError,
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
 } from './request.js'
-import { RpcError } from './rpc.js'
+import { RpcRequestError } from './rpc.js'
 
-test('RequestError', () => {
+test('RpcError', () => {
   expect(
-    new RequestError(
-      new RpcError({
+    new RpcError(
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: { code: 1337, message: 'error details' },
       }),
       {
+        code: 1337,
         shortMessage: 'An internal error was received.',
       },
     ),
   ).toMatchInlineSnapshot(`
-    [RpcError: An internal error was received.
+    [RpcRequestError: An internal error was received.
 
     URL: http://localhost
     Request body: {"foo":"bar"}
@@ -43,31 +43,10 @@ test('RequestError', () => {
   `)
 })
 
-test('RpcRequestError', () => {
+test('RpcError', () => {
   expect(
-    new RpcRequestError(
-      new RpcError({
-        body: { foo: 'bar' },
-        url: 'https://viem.sh',
-        error: { code: 1337, message: 'error details' },
-      }),
-      { shortMessage: 'An internal error was received.' },
-    ),
-  ).toMatchInlineSnapshot(`
-    [RpcError: An internal error was received.
-
-    URL: http://localhost
-    Request body: {"foo":"bar"}
-
-    Details: error details
-    Version: viem@1.0.2]
-  `)
-})
-
-test('RpcRequestError', () => {
-  expect(
-    new RpcRequestError(
-      new RpcError({
+    new RpcError(
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: { code: 1337, message: 'error details' },
@@ -78,7 +57,7 @@ test('RpcRequestError', () => {
       },
     ),
   ).toMatchInlineSnapshot(`
-    [RpcError: An internal error was received.
+    [RpcRequestError: An internal error was received.
 
     URL: http://localhost
     Request body: {"foo":"bar"}
@@ -92,7 +71,7 @@ test('RpcRequestError', () => {
 test('ParseRpcError', () => {
   expect(
     new ParseRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -115,7 +94,7 @@ test('ParseRpcError', () => {
 test('InvalidRequestRpcError', () => {
   expect(
     new InvalidRequestRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -138,7 +117,7 @@ test('InvalidRequestRpcError', () => {
 test('MethodNotFoundRpcError', () => {
   expect(
     new MethodNotFoundRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -161,7 +140,7 @@ test('MethodNotFoundRpcError', () => {
 test('InvalidParamsRpcError', () => {
   expect(
     new InvalidParamsRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -185,7 +164,7 @@ test('InvalidParamsRpcError', () => {
 test('InternalRpcError', () => {
   expect(
     new InternalRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -208,7 +187,7 @@ test('InternalRpcError', () => {
 test('InvalidInputRpcError', () => {
   expect(
     new InvalidInputRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -232,7 +211,7 @@ test('InvalidInputRpcError', () => {
 test('ResourceNotFoundRpcError', () => {
   expect(
     new ResourceNotFoundRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -255,7 +234,7 @@ test('ResourceNotFoundRpcError', () => {
 test('ResourceUnavailableRpcError', () => {
   expect(
     new ResourceUnavailableRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -278,7 +257,7 @@ test('ResourceUnavailableRpcError', () => {
 test('TransactionRejectedRpcError', () => {
   expect(
     new TransactionRejectedRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -301,7 +280,7 @@ test('TransactionRejectedRpcError', () => {
 test('MethodNotSupportedRpcError', () => {
   expect(
     new MethodNotSupportedRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -324,7 +303,7 @@ test('MethodNotSupportedRpcError', () => {
 test('LimitExceededRpcError', () => {
   expect(
     new LimitExceededRpcError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -347,7 +326,7 @@ test('LimitExceededRpcError', () => {
 test('JsonRpcVersionUnsupportedError', () => {
   expect(
     new JsonRpcVersionUnsupportedError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -370,7 +349,7 @@ test('JsonRpcVersionUnsupportedError', () => {
 test('UserRejectedRequestError', () => {
   expect(
     new UserRejectedRequestError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {
@@ -393,7 +372,7 @@ test('UserRejectedRequestError', () => {
 test('SwitchChainError', () => {
   expect(
     new SwitchChainError(
-      new RpcError({
+      new RpcRequestError({
         body: { foo: 'bar' },
         url: 'https://viem.sh',
         error: {

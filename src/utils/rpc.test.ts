@@ -669,7 +669,7 @@ describe('webSocket (subscription)', () => {
     expect(socket.requests.size).toBe(0)
     expect(socket.subscriptions.size).toBe(0)
     expect(err_).toMatchInlineSnapshot(`
-      [RpcError: RPC Request failed.
+      [RpcRequestError: RPC Request failed.
 
       URL: http://localhost
       Request body: {"method":"eth_subscribe","params":["fakeHeadz"]}
