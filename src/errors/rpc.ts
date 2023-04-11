@@ -3,7 +3,7 @@ import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
 
 export class HttpRequestError extends BaseError {
-  name = 'HttpRequestError'
+  override name = 'HttpRequestError'
 
   body: { [key: string]: unknown }
   headers?: Headers
@@ -39,7 +39,7 @@ export class HttpRequestError extends BaseError {
 }
 
 export class WebSocketRequestError extends BaseError {
-  name = 'WebSocketRequestError'
+  override name = 'WebSocketRequestError'
 
   constructor({
     body,
@@ -60,7 +60,7 @@ export class WebSocketRequestError extends BaseError {
 export class RpcError extends BaseError {
   code: number
 
-  name = 'RpcError'
+  override name = 'RpcError'
 
   constructor({
     body,
@@ -81,7 +81,7 @@ export class RpcError extends BaseError {
 }
 
 export class TimeoutError extends BaseError {
-  name = 'TimeoutError'
+  override name = 'TimeoutError'
 
   constructor({
     body,

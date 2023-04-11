@@ -4,7 +4,7 @@ import { formatAbiItem, formatAbiParams, size } from '../utils/index.js'
 import { BaseError } from './base.js'
 
 export class AbiConstructorNotFoundError extends BaseError {
-  name = 'AbiConstructorNotFoundError'
+  override name = 'AbiConstructorNotFoundError'
   constructor({ docsPath }: { docsPath: string }) {
     super(
       [
@@ -19,7 +19,7 @@ export class AbiConstructorNotFoundError extends BaseError {
 }
 
 export class AbiConstructorParamsNotFoundError extends BaseError {
-  name = 'AbiConstructorParamsNotFoundError'
+  override name = 'AbiConstructorParamsNotFoundError'
   constructor({ docsPath }: { docsPath: string }) {
     super(
       [
@@ -34,7 +34,7 @@ export class AbiConstructorParamsNotFoundError extends BaseError {
 }
 
 export class AbiDecodingDataSizeInvalidError extends BaseError {
-  name = 'AbiDecodingDataSizeInvalidError'
+  override name = 'AbiDecodingDataSizeInvalidError'
   constructor({ data, size }: { data: Hex; size: number }) {
     super(
       [
@@ -47,7 +47,7 @@ export class AbiDecodingDataSizeInvalidError extends BaseError {
 }
 
 export class AbiDecodingDataSizeTooSmallError extends BaseError {
-  name = 'AbiDecodingDataSizeTooSmallError'
+  override name = 'AbiDecodingDataSizeTooSmallError'
 
   data: Hex
   params: readonly AbiParameter[]
@@ -77,14 +77,14 @@ export class AbiDecodingDataSizeTooSmallError extends BaseError {
 }
 
 export class AbiDecodingZeroDataError extends BaseError {
-  name = 'AbiDecodingZeroDataError'
+  override name = 'AbiDecodingZeroDataError'
   constructor() {
     super('Cannot decode zero data ("0x") with ABI parameters.')
   }
 }
 
 export class AbiEncodingArrayLengthMismatchError extends BaseError {
-  name = 'AbiEncodingArrayLengthMismatchError'
+  override name = 'AbiEncodingArrayLengthMismatchError'
   constructor({
     expectedLength,
     givenLength,
@@ -101,7 +101,7 @@ export class AbiEncodingArrayLengthMismatchError extends BaseError {
 }
 
 export class AbiEncodingBytesSizeMismatchError extends BaseError {
-  name = 'AbiEncodingBytesSizeMismatchError'
+  override name = 'AbiEncodingBytesSizeMismatchError'
   constructor({ expectedSize, value }: { expectedSize: number; value: Hex }) {
     super(
       `Size of bytes "${value}" (bytes${size(
@@ -112,7 +112,7 @@ export class AbiEncodingBytesSizeMismatchError extends BaseError {
 }
 
 export class AbiEncodingLengthMismatchError extends BaseError {
-  name = 'AbiEncodingLengthMismatchError'
+  override name = 'AbiEncodingLengthMismatchError'
   constructor({
     expectedLength,
     givenLength,
@@ -128,7 +128,7 @@ export class AbiEncodingLengthMismatchError extends BaseError {
 }
 
 export class AbiErrorInputsNotFoundError extends BaseError {
-  name = 'AbiErrorInputsNotFoundError'
+  override name = 'AbiErrorInputsNotFoundError'
   constructor(errorName: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -144,7 +144,7 @@ export class AbiErrorInputsNotFoundError extends BaseError {
 }
 
 export class AbiErrorNotFoundError extends BaseError {
-  name = 'AbiErrorNotFoundError'
+  override name = 'AbiErrorNotFoundError'
   constructor(errorName: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -159,7 +159,7 @@ export class AbiErrorNotFoundError extends BaseError {
 }
 
 export class AbiErrorSignatureNotFoundError extends BaseError {
-  name = 'AbiErrorSignatureNotFoundError'
+  override name = 'AbiErrorSignatureNotFoundError'
   constructor(signature: Hex, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -175,7 +175,7 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
 }
 
 export class AbiEventSignatureEmptyTopicsError extends BaseError {
-  name = 'AbiEventSignatureEmptyTopicsError'
+  override name = 'AbiEventSignatureEmptyTopicsError'
   constructor({ docsPath }: { docsPath: string }) {
     super('Cannot extract event signature from empty topics.', {
       docsPath,
@@ -184,7 +184,7 @@ export class AbiEventSignatureEmptyTopicsError extends BaseError {
 }
 
 export class AbiEventSignatureNotFoundError extends BaseError {
-  name = 'AbiEventSignatureNotFoundError'
+  override name = 'AbiEventSignatureNotFoundError'
   constructor(signature: Hex, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -200,7 +200,7 @@ export class AbiEventSignatureNotFoundError extends BaseError {
 }
 
 export class AbiEventNotFoundError extends BaseError {
-  name = 'AbiEventNotFoundError'
+  override name = 'AbiEventNotFoundError'
   constructor(eventName: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -215,7 +215,7 @@ export class AbiEventNotFoundError extends BaseError {
 }
 
 export class AbiFunctionNotFoundError extends BaseError {
-  name = 'AbiFunctionNotFoundError'
+  override name = 'AbiFunctionNotFoundError'
   constructor(functionName: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -230,7 +230,7 @@ export class AbiFunctionNotFoundError extends BaseError {
 }
 
 export class AbiFunctionOutputsNotFoundError extends BaseError {
-  name = 'AbiFunctionOutputsNotFoundError'
+  override name = 'AbiFunctionOutputsNotFoundError'
   constructor(functionName: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -246,7 +246,7 @@ export class AbiFunctionOutputsNotFoundError extends BaseError {
 }
 
 export class AbiFunctionSignatureNotFoundError extends BaseError {
-  name = 'AbiFunctionSignatureNotFoundError'
+  override name = 'AbiFunctionSignatureNotFoundError'
   constructor(signature: Hex, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -262,7 +262,7 @@ export class AbiFunctionSignatureNotFoundError extends BaseError {
 }
 
 export class BytesSizeMismatchError extends BaseError {
-  name = 'BytesSizeMismatchError'
+  override name = 'BytesSizeMismatchError'
   constructor({
     expectedSize,
     givenSize,
@@ -272,7 +272,7 @@ export class BytesSizeMismatchError extends BaseError {
 }
 
 export class DecodeLogDataMismatch extends BaseError {
-  name = 'DecodeLogDataMismatch'
+  override name = 'DecodeLogDataMismatch'
 
   data: Hex
   params: readonly AbiParameter[]
@@ -304,7 +304,7 @@ export class DecodeLogDataMismatch extends BaseError {
 }
 
 export class DecodeLogTopicsMismatch extends BaseError {
-  name = 'DecodeLogTopicsMismatch'
+  override name = 'DecodeLogTopicsMismatch'
   constructor({
     abiItem,
     param,
@@ -323,7 +323,7 @@ export class DecodeLogTopicsMismatch extends BaseError {
 }
 
 export class InvalidAbiEncodingTypeError extends BaseError {
-  name = 'InvalidAbiEncodingType'
+  override name = 'InvalidAbiEncodingType'
   constructor(type: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -336,7 +336,7 @@ export class InvalidAbiEncodingTypeError extends BaseError {
 }
 
 export class InvalidAbiDecodingTypeError extends BaseError {
-  name = 'InvalidAbiDecodingType'
+  override name = 'InvalidAbiDecodingType'
   constructor(type: string, { docsPath }: { docsPath: string }) {
     super(
       [
@@ -349,14 +349,14 @@ export class InvalidAbiDecodingTypeError extends BaseError {
 }
 
 export class InvalidArrayError extends BaseError {
-  name = 'InvalidArrayError'
+  override name = 'InvalidArrayError'
   constructor(value: unknown) {
     super([`Value "${value}" is not a valid array.`].join('\n'))
   }
 }
 
 export class InvalidDefinitionTypeError extends BaseError {
-  name = 'InvalidDefinitionTypeError'
+  override name = 'InvalidDefinitionTypeError'
   constructor(type: string) {
     super(
       [
@@ -368,7 +368,7 @@ export class InvalidDefinitionTypeError extends BaseError {
 }
 
 export class UnsupportedPackedAbiType extends BaseError {
-  name = 'UnsupportedPackedAbiType'
+  override name = 'UnsupportedPackedAbiType'
   constructor(type: unknown) {
     super(`Type "${type}" is not supported for packed encoding.`)
   }

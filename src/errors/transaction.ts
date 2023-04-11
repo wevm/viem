@@ -26,7 +26,7 @@ export function prettyPrint(
 }
 
 export class FeeConflictError extends BaseError {
-  name = 'FeeConflictError'
+  override name = 'FeeConflictError'
   constructor() {
     super(
       [
@@ -38,7 +38,7 @@ export class FeeConflictError extends BaseError {
 }
 
 export class InvalidLegacyVError extends BaseError {
-  name = 'InvalidLegacyVError'
+  override name = 'InvalidLegacyVError'
 
   constructor({ v }: { v: bigint }) {
     super(`Invalid \`v\` value "${v}". Expected 27 or 28.`)
@@ -46,7 +46,7 @@ export class InvalidLegacyVError extends BaseError {
 }
 
 export class InvalidSerializableTransactionError extends BaseError {
-  name = 'InvalidSerializableTransactionError'
+  override name = 'InvalidSerializableTransactionError'
 
   constructor({ transaction }: { transaction: Record<string, unknown> }) {
     super('Cannot infer a transaction type from provided transaction.', {
@@ -67,7 +67,7 @@ export class InvalidSerializableTransactionError extends BaseError {
 }
 
 export class InvalidSerializedTransactionTypeError extends BaseError {
-  name = 'InvalidSerializedTransactionType'
+  override name = 'InvalidSerializedTransactionType'
 
   serializedType: Hex
 
@@ -79,7 +79,7 @@ export class InvalidSerializedTransactionTypeError extends BaseError {
 }
 
 export class InvalidSerializedTransactionError extends BaseError {
-  name = 'InvalidSerializedTransactionError'
+  override name = 'InvalidSerializedTransactionError'
 
   serializedTransaction: Hex
   type: TransactionType
@@ -109,7 +109,7 @@ export class InvalidSerializedTransactionError extends BaseError {
 }
 
 export class InvalidStorageKeySizeError extends BaseError {
-  name = 'InvalidStorageKeySizeError'
+  override name = 'InvalidStorageKeySizeError'
 
   constructor({ storageKey }: { storageKey: Hex }) {
     super(
@@ -121,9 +121,9 @@ export class InvalidStorageKeySizeError extends BaseError {
 }
 
 export class TransactionExecutionError extends BaseError {
-  cause: BaseError
+  override cause: BaseError
 
-  name = 'TransactionExecutionError'
+  override name = 'TransactionExecutionError'
 
   constructor(
     cause: BaseError,
@@ -179,7 +179,7 @@ export class TransactionExecutionError extends BaseError {
 }
 
 export class TransactionNotFoundError extends BaseError {
-  name = 'TransactionNotFoundError'
+  override name = 'TransactionNotFoundError'
   constructor({
     blockHash,
     blockNumber,
@@ -206,7 +206,7 @@ export class TransactionNotFoundError extends BaseError {
 }
 
 export class TransactionReceiptNotFoundError extends BaseError {
-  name = 'TransactionReceiptNotFoundError'
+  override name = 'TransactionReceiptNotFoundError'
   constructor({ hash }: { hash: Hash }) {
     super(
       `Transaction receipt with hash "${hash}" could not be found. The Transaction may not be processed on a block yet.`,
@@ -215,7 +215,7 @@ export class TransactionReceiptNotFoundError extends BaseError {
 }
 
 export class WaitForTransactionReceiptTimeoutError extends BaseError {
-  name = 'WaitForTransactionReceiptTimeoutError'
+  override name = 'WaitForTransactionReceiptTimeoutError'
   constructor({ hash }: { hash: Hash }) {
     super(
       `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,

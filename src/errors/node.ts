@@ -15,7 +15,7 @@ export class ExecutionRevertedError extends BaseError {
   static code = 3
   static nodeMessage = /execution reverted/
 
-  name = 'ExecutionRevertedError'
+  override name = 'ExecutionRevertedError'
 
   constructor({
     cause,
@@ -38,7 +38,7 @@ export class ExecutionRevertedError extends BaseError {
 export class FeeCapTooHighError extends BaseError {
   static nodeMessage =
     /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
-  name = 'FeeCapTooHigh'
+  override name = 'FeeCapTooHigh'
   constructor({
     cause,
     maxFeePerGas,
@@ -57,7 +57,7 @@ export class FeeCapTooHighError extends BaseError {
 export class FeeCapTooLowError extends BaseError {
   static nodeMessage =
     /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
-  name = 'FeeCapTooLow'
+  override name = 'FeeCapTooLow'
   constructor({
     cause,
     maxFeePerGas,
@@ -75,7 +75,7 @@ export class FeeCapTooLowError extends BaseError {
 
 export class NonceTooHighError extends BaseError {
   static nodeMessage = /nonce too high/
-  name = 'NonceTooHighError'
+  override name = 'NonceTooHighError'
   constructor({ cause, nonce }: { cause?: BaseError; nonce?: number } = {}) {
     super(
       `Nonce provided for the transaction ${
@@ -88,7 +88,7 @@ export class NonceTooHighError extends BaseError {
 
 export class NonceTooLowError extends BaseError {
   static nodeMessage = /nonce too low|transaction already imported/
-  name = 'NonceTooLowError'
+  override name = 'NonceTooLowError'
   constructor({ cause, nonce }: { cause?: BaseError; nonce?: number } = {}) {
     super(
       [
@@ -104,7 +104,7 @@ export class NonceTooLowError extends BaseError {
 
 export class NonceMaxValueError extends BaseError {
   static nodeMessage = /nonce has max value/
-  name = 'NonceMaxValueError'
+  override name = 'NonceMaxValueError'
   constructor({ cause, nonce }: { cause?: BaseError; nonce?: number } = {}) {
     super(
       `Nonce provided for the transaction ${
@@ -117,7 +117,7 @@ export class NonceMaxValueError extends BaseError {
 
 export class InsufficientFundsError extends BaseError {
   static nodeMessage = /insufficient funds/
-  name = 'InsufficientFundsError'
+  override name = 'InsufficientFundsError'
   constructor({ cause }: { cause?: BaseError } = {}) {
     super(
       [
@@ -142,7 +142,7 @@ export class InsufficientFundsError extends BaseError {
 
 export class IntrinsicGasTooHighError extends BaseError {
   static nodeMessage = /intrinsic gas too high|gas limit reached/
-  name = 'IntrinsicGasTooHighError'
+  override name = 'IntrinsicGasTooHighError'
   constructor({ cause, gas }: { cause?: BaseError; gas?: bigint } = {}) {
     super(
       `The amount of gas ${
@@ -157,7 +157,7 @@ export class IntrinsicGasTooHighError extends BaseError {
 
 export class IntrinsicGasTooLowError extends BaseError {
   static nodeMessage = /intrinsic gas too low/
-  name = 'IntrinsicGasTooLowError'
+  override name = 'IntrinsicGasTooLowError'
   constructor({ cause, gas }: { cause?: BaseError; gas?: bigint } = {}) {
     super(
       `The amount of gas ${
@@ -172,7 +172,7 @@ export class IntrinsicGasTooLowError extends BaseError {
 
 export class TransactionTypeNotSupportedError extends BaseError {
   static nodeMessage = /transaction type not valid/
-  name = 'TransactionTypeNotSupportedError'
+  override name = 'TransactionTypeNotSupportedError'
   constructor({ cause }: { cause?: BaseError }) {
     super('The transaction type is not supported for this chain.', {
       cause,
@@ -183,7 +183,7 @@ export class TransactionTypeNotSupportedError extends BaseError {
 export class TipAboveFeeCapError extends BaseError {
   static nodeMessage =
     /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
-  name = 'TipAboveFeeCapError'
+  override name = 'TipAboveFeeCapError'
   constructor({
     cause,
     maxPriorityFeePerGas,
@@ -211,7 +211,7 @@ export class TipAboveFeeCapError extends BaseError {
 }
 
 export class UnknownNodeError extends BaseError {
-  name = 'UnknownNodeError'
+  override name = 'UnknownNodeError'
 
   constructor({ cause }: { cause?: BaseError }) {
     super(`An error occurred while executing: ${cause?.message}`, {
