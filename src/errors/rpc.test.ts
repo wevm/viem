@@ -16,6 +16,11 @@ import {
   TransactionRejectedRpcError,
   UnknownRpcError,
   UserRejectedRequestError,
+  UnauthorizedProviderError,
+  UnsupportedProviderMethodError,
+  ProviderDisconnectedError,
+  ChainDisconnectedError,
+  ProviderRpcError,
 } from './rpc.js'
 import { RpcRequestError } from './request.js'
 
@@ -63,6 +68,29 @@ test('RpcError', () => {
     Request body: {"foo":"bar"}
 
     Docs: https://viem.sh/lol.html
+    Details: error details
+    Version: viem@1.0.2]
+  `)
+})
+
+test('ProviderRpcError', () => {
+  expect(
+    new ProviderRpcError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: { code: 1337, message: 'error details' },
+      }),
+      {
+        shortMessage: 'An internal error was received.',
+      },
+    ),
+  ).toMatchInlineSnapshot(`
+    [ProviderRpcError: An internal error was received.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
     Details: error details
     Version: viem@1.0.2]
   `)
@@ -365,6 +393,153 @@ test('UserRejectedRequestError', () => {
     Request body: {"foo":"bar"}
 
     Details: message
+    Version: viem@1.0.2]
+  `)
+
+  expect(
+    new UserRejectedRequestError(
+      new Error('An arbitrary error from a Provider SDK'),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UserRejectedRequestError: User rejected the request.
+
+    Details: An arbitrary error from a Provider SDK
+    Version: viem@1.0.2]
+  `)
+})
+
+test('UnauthorizedProviderError', () => {
+  expect(
+    new UnauthorizedProviderError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 4001,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnauthorizedProviderError: The requested method and/or account has not been authorized by the user.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@1.0.2]
+  `)
+
+  expect(
+    new UnauthorizedProviderError(
+      new Error('An arbitrary error from a Provider SDK'),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnauthorizedProviderError: The requested method and/or account has not been authorized by the user.
+
+    Details: An arbitrary error from a Provider SDK
+    Version: viem@1.0.2]
+  `)
+})
+
+test('UnsupportedProviderMethodError', () => {
+  expect(
+    new UnsupportedProviderMethodError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 4001,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnsupportedProviderMethodError: The Provider does not support the requested method.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@1.0.2]
+  `)
+
+  expect(
+    new UnsupportedProviderMethodError(
+      new Error('An arbitrary error from a Provider SDK'),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnsupportedProviderMethodError: The Provider does not support the requested method.
+
+    Details: An arbitrary error from a Provider SDK
+    Version: viem@1.0.2]
+  `)
+})
+
+test('ProviderDisconnectedError', () => {
+  expect(
+    new ProviderDisconnectedError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 4001,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [ProviderDisconnectedError: The Provider is disconnected from all chains.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@1.0.2]
+  `)
+
+  expect(
+    new ProviderDisconnectedError(
+      new Error('An arbitrary error from a Provider SDK'),
+    ),
+  ).toMatchInlineSnapshot(`
+    [ProviderDisconnectedError: The Provider is disconnected from all chains.
+
+    Details: An arbitrary error from a Provider SDK
+    Version: viem@1.0.2]
+  `)
+})
+
+test('ChainDisconnectedError', () => {
+  expect(
+    new ChainDisconnectedError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 4001,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [ChainDisconnectedError: The Provider is not connected to the requested chain.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@1.0.2]
+  `)
+
+  expect(
+    new ChainDisconnectedError(
+      new Error('An arbitrary error from a Provider SDK'),
+    ),
+  ).toMatchInlineSnapshot(`
+    [ChainDisconnectedError: The Provider is not connected to the requested chain.
+
+    Details: An arbitrary error from a Provider SDK
     Version: viem@1.0.2]
   `)
 })

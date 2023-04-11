@@ -372,6 +372,90 @@ describe('behavior', () => {
       `)
     })
 
+    test('UnauthorizedProviderError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4100, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The requested method and/or account has not been authorized by the user.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('UnsupportedProviderMethodError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4200, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The Provider does not support the requested method.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('ProviderDisconnectedError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4900, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The Provider is disconnected from all chains.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('ChainDisconnectedError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4901, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The Provider is not connected to the requested chain.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
     test('SwitchChainError', async () => {
       const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {

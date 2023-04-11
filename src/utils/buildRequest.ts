@@ -18,6 +18,12 @@ import {
   UnknownRpcError,
   UserRejectedRequestError,
 } from '../errors/index.js'
+import {
+  ChainDisconnectedError,
+  ProviderDisconnectedError,
+  UnauthorizedProviderError,
+  UnsupportedProviderMethodError,
+} from '../errors/rpc.js'
 import { withRetry } from './promise/index.js'
 
 export const isDeterministicError = (error: Error) => {
@@ -68,6 +74,10 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
           if (err.code === -32005) throw new LimitExceededRpcError(err)
           if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
           if (err.code === 4001) throw new UserRejectedRequestError(err)
+          if (err.code === 4100) throw new UnauthorizedProviderError(err)
+          if (err.code === 4200) throw new UnsupportedProviderMethodError(err)
+          if (err.code === 4900) throw new ProviderDisconnectedError(err)
+          if (err.code === 4901) throw new ChainDisconnectedError(err)
           if (err.code === 4902) throw new SwitchChainError(err)
           if (err_ instanceof BaseError) throw err_
           throw new UnknownRpcError(err as Error)
