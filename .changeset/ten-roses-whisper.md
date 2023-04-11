@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Scoped filters to their respective transport.
+Fixed an issue where Filter querying (`eth_getFilterChanges`, etc) was not being scoped to the Transport that created the Filter.
