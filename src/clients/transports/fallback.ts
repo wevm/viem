@@ -4,6 +4,26 @@ import { wait } from '../../utils/wait.js'
 import type { Transport, TransportConfig } from './createTransport.js'
 import { createTransport } from './createTransport.js'
 
+// TODO: Narrow `method` & `params` types.
+export type OnResponseFn = (
+  args: {
+    method: string
+    params: unknown[]
+    transport: ReturnType<Transport>
+  } & (
+    | {
+        error?: never
+        response: unknown
+        status: 'success'
+      }
+    | {
+        error: Error
+        response?: never
+        status: 'error'
+      }
+  ),
+) => void
+
 type RankOptions = {
   /**
    * The polling interval (in ms) at which the ranker should ping the RPC URL.
@@ -52,7 +72,10 @@ export type FallbackTransportConfig = {
 
 export type FallbackTransport = Transport<
   'fallback',
-  { transports: ReturnType<Transport>[] }
+  {
+    onResponse: (fn: OnResponseFn) => void
+    transports: ReturnType<Transport>[]
+  }
 >
 
 export function fallback(
@@ -69,6 +92,8 @@ export function fallback(
   return ({ chain, pollingInterval = 4_000, timeout }) => {
     let transports = transports_
 
+    let onResponse: OnResponseFn = () => {}
+
     const transport = createTransport(
       {
         key,
@@ -77,11 +102,29 @@ export function fallback(
           const fetch = async (i: number = 0): Promise<any> => {
             const transport = transports[i]({ chain, retryCount: 0, timeout })
             try {
-              return await transport.request({
+              const response = await transport.request({
                 method,
                 params,
               } as any)
+
+              onResponse({
+                method,
+                params: params as unknown[],
+                response,
+                transport,
+                status: 'success',
+              })
+
+              return response
             } catch (err) {
+              onResponse({
+                error: err as Error,
+                method,
+                params: params as unknown[],
+                transport,
+                status: 'error',
+              })
+
               // If the error is deterministic, we don't need to fall back.
               // So throw the error.
               if (isDeterministicError(err as Error)) throw err
@@ -100,6 +143,7 @@ export function fallback(
         type: 'fallback',
       },
       {
+        onResponse: (fn: OnResponseFn) => (onResponse = fn),
         transports: transports.map((fn) => fn({ chain, retryCount: 0 })),
       },
     )

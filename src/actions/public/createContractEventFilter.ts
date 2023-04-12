@@ -12,6 +12,7 @@ import type {
 } from '../../types/index.js'
 import { encodeEventTopics, numberToHex } from '../../utils/index.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
+import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateContractEventFilterParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -86,6 +87,10 @@ export async function createContractEventFilter<
     toBlock,
   }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
 ): Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>> {
+  const getRequest = createFilterRequestScope(client, {
+    method: 'eth_newFilter',
+  })
+
   const topics = eventName
     ? encodeEventTopics({
         abi,
@@ -110,6 +115,7 @@ export async function createContractEventFilter<
     args,
     eventName,
     id,
+    request: getRequest(id),
     type: 'event',
   } as unknown as CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>
 }
