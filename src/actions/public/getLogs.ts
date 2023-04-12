@@ -1,4 +1,4 @@
-import type { AbiEvent } from 'abitype'
+import type { AbiEvent, Narrow } from 'abitype'
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
@@ -28,7 +28,7 @@ export type GetLogsParameters<
   address?: Address | Address[]
 } & (
   | {
-      event: TAbiEvent
+      event: Narrow<TAbiEvent>
       args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
     }
   | {
@@ -97,7 +97,7 @@ export async function getLogs<
   if (event)
     topics = encodeEventTopics({
       abi: [event],
-      eventName: event.name,
+      eventName: (event as AbiEvent).name,
       args,
     } as EncodeEventTopicsParameters)
 
