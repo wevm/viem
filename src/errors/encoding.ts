@@ -2,7 +2,7 @@ import type { ByteArray, Hex } from '../types/index.js'
 import { BaseError } from './base.js'
 
 export class DataLengthTooLongError extends BaseError {
-  name = 'DataLengthTooLongError'
+  override name = 'DataLengthTooLongError'
   constructor({ consumed, length }: { consumed: number; length: number }) {
     super(
       `Consumed bytes (${consumed}) is shorter than data length (${
@@ -13,7 +13,7 @@ export class DataLengthTooLongError extends BaseError {
 }
 
 export class DataLengthTooShortError extends BaseError {
-  name = 'DataLengthTooShortError'
+  override name = 'DataLengthTooShortError'
   constructor({ length, dataLength }: { length: number; dataLength: number }) {
     super(
       `Data length (${dataLength - 1}) is shorter than prefix length (${
@@ -24,7 +24,7 @@ export class DataLengthTooShortError extends BaseError {
 }
 
 export class IntegerOutOfRangeError extends BaseError {
-  name = 'IntegerOutOfRangeError'
+  override name = 'IntegerOutOfRangeError'
   constructor({
     max,
     min,
@@ -47,7 +47,7 @@ export class IntegerOutOfRangeError extends BaseError {
 }
 
 export class InvalidBytesBooleanError extends BaseError {
-  name = 'InvalidBytesBooleanError'
+  override name = 'InvalidBytesBooleanError'
   constructor(bytes: ByteArray) {
     super(
       `Bytes value "${bytes}" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.`,
@@ -56,7 +56,7 @@ export class InvalidBytesBooleanError extends BaseError {
 }
 
 export class InvalidHexBooleanError extends BaseError {
-  name = 'InvalidHexBooleanError'
+  override name = 'InvalidHexBooleanError'
   constructor(hex: Hex) {
     super(
       `Hex value "${hex}" is not a valid boolean. The hex value must be "0x0" (false) or "0x1" (true).`,
@@ -65,7 +65,7 @@ export class InvalidHexBooleanError extends BaseError {
 }
 
 export class InvalidHexValueError extends BaseError {
-  name = 'InvalidHexValueError'
+  override name = 'InvalidHexValueError'
   constructor(value: Hex) {
     super(
       `Hex value "${value}" is an odd length (${value.length}). It must be an even length.`,
@@ -74,7 +74,7 @@ export class InvalidHexValueError extends BaseError {
 }
 
 export class OffsetOutOfBoundsError extends BaseError {
-  name = 'OffsetOutOfBoundsError'
+  override name = 'OffsetOutOfBoundsError'
   constructor({ nextOffset, offset }: { nextOffset: number; offset: number }) {
     super(
       `Next offset (${nextOffset}) is greater than previous offset + consumed bytes (${offset})`,

@@ -21,7 +21,7 @@ export class BaseError extends Error {
   metaMessages?: string[]
   shortMessage: string
 
-  name = 'ViemError'
+  override name = 'ViemError'
 
   constructor(shortMessage: string, args: BaseErrorParameters = {}) {
     const details =

@@ -1,7 +1,7 @@
 import { BaseError } from './base.js'
 
 export class SizeExceedsPaddingSizeError extends BaseError {
-  name = 'SizeExceedsPaddingSizeError'
+  override name = 'SizeExceedsPaddingSizeError'
   constructor({
     size,
     targetSize,

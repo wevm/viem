@@ -13,14 +13,14 @@ import { getContract } from './getContract.js'
 
 describe('Create contract instance', () => {
   bench('viem: `getContract`', async () => {
-    const _contract = getContract({
+    getContract({
       ...wagmiContractConfig,
       publicClient,
     })
   })
 
   bench('ethers@5: `new Contract`', async () => {
-    const _contract = new Contract(
+    new Contract(
       wagmiContractConfig.address,
       wagmiContractConfig.abi,
       ethersProvider,
@@ -28,7 +28,7 @@ describe('Create contract instance', () => {
   })
 
   bench('ethers@6: `new Contract`', async () => {
-    const _contract = new Contractv6(
+    new Contractv6(
       wagmiContractConfig.address,
       wagmiContractConfig.abi,
       ethersV6Provider,

@@ -17,9 +17,9 @@ import { prettyPrint } from './transaction.js'
 import { getContractAddress } from './utils.js'
 
 export class CallExecutionError extends BaseError {
-  cause: BaseError
+  override cause: BaseError
 
-  name = 'CallExecutionError'
+  override name = 'CallExecutionError'
 
   constructor(
     cause: BaseError,
@@ -73,13 +73,13 @@ export class CallExecutionError extends BaseError {
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
   args?: unknown[]
-  cause: BaseError
+  override cause: BaseError
   contractAddress?: Address
   formattedArgs?: string
   functionName: string
   sender?: Address
 
-  name = 'ContractFunctionExecutionError'
+  override name = 'ContractFunctionExecutionError'
 
   constructor(
     cause: BaseError,
@@ -147,7 +147,7 @@ export class ContractFunctionExecutionError extends BaseError {
 }
 
 export class ContractFunctionRevertedError extends BaseError {
-  name = 'ContractFunctionRevertedError'
+  override name = 'ContractFunctionRevertedError'
 
   data?: DecodeErrorResultReturnType
   reason?: string
@@ -211,7 +211,7 @@ export class ContractFunctionRevertedError extends BaseError {
 }
 
 export class ContractFunctionZeroDataError extends BaseError {
-  name = 'ContractFunctionZeroDataError'
+  override name = 'ContractFunctionZeroDataError'
   constructor({ functionName }: { functionName: string }) {
     super(`The contract function "${functionName}" returned no data ("0x").`, {
       metaMessages: [
@@ -226,7 +226,7 @@ export class ContractFunctionZeroDataError extends BaseError {
 
 export class RawContractError extends BaseError {
   code = 3
-  name = 'RawContractError'
+  override name = 'RawContractError'
 
   data?: Hex
 

@@ -2,7 +2,7 @@ import type { Chain } from '../types/index.js'
 import { BaseError } from './base.js'
 
 export class ChainDoesNotSupportContract extends BaseError {
-  name = 'ChainDoesNotSupportContract'
+  override name = 'ChainDoesNotSupportContract'
   constructor({
     blockNumber,
     chain,
@@ -33,7 +33,7 @@ export class ChainDoesNotSupportContract extends BaseError {
 }
 
 export class ChainMismatchError extends BaseError {
-  name = 'ChainMismatchError'
+  override name = 'ChainMismatchError'
 
   constructor({
     chain,
@@ -55,7 +55,7 @@ export class ChainMismatchError extends BaseError {
 }
 
 export class ChainNotFoundError extends BaseError {
-  name = 'ChainNotFoundError'
+  override name = 'ChainNotFoundError'
 
   constructor() {
     super(
@@ -68,7 +68,7 @@ export class ChainNotFoundError extends BaseError {
 }
 
 export class InvalidChainIdError extends BaseError {
-  name = 'InvalidChainIdError'
+  override name = 'InvalidChainIdError'
 
   constructor({ chainId }: { chainId: number }) {
     super(`Chain ID "${chainId}" is invalid.`)

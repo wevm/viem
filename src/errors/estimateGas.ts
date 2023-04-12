@@ -5,9 +5,9 @@ import { BaseError } from './base.js'
 import { prettyPrint } from './transaction.js'
 
 export class EstimateGasExecutionError extends BaseError {
-  cause: BaseError
+  override cause: BaseError
 
-  name = 'EstimateGasExecutionError'
+  override name = 'EstimateGasExecutionError'
 
   constructor(
     cause: BaseError,
