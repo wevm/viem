@@ -21,7 +21,13 @@ import {
 import { withRetry } from './promise/index.js'
 
 export const isDeterministicError = (error: Error) => {
-  if ('code' in error) return error.code !== -32603 && error.code !== -32005
+  if ('code' in error)
+    return (
+      error.code !== -32603 &&
+      error.code !== -32004 &&
+      error.code !== -32042 &&
+      error.code !== -32005
+    )
   if (error instanceof HttpRequestError && error.status)
     return (
       error.status !== 408 &&
@@ -66,6 +72,7 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
           if (err.code === -32004) throw new MethodNotSupportedRpcError(err)
           if (err.code === -32005) throw new LimitExceededRpcError(err)
           if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
+          if (err.code === -32042) throw new MethodNotSupportedRpcError(err)
           if (err.code === 4001) throw new UserRejectedRequestError(err)
           if (err.code === 4902) throw new SwitchChainError(err)
           if (err_ instanceof BaseError) throw err_

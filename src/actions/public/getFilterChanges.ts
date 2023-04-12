@@ -121,12 +121,12 @@ export async function getFilterChanges<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
+  _client: PublicClient<TTransport, TChain>,
   {
     filter,
   }: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,
 ) {
-  const logs = await client.request({
+  const logs = await filter.request({
     method: 'eth_getFilterChanges',
     params: [filter.id],
   })

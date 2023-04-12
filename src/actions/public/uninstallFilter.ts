@@ -35,10 +35,10 @@ export async function uninstallFilter<
   TTransport extends Transport,
   TChain extends Chain | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
+  _client: PublicClient<TTransport, TChain>,
   { filter }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
-  return client.request({
+  return filter.request({
     method: 'eth_uninstallFilter',
     params: [filter.id],
   })

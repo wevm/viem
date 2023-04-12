@@ -415,6 +415,27 @@ describe('behavior', () => {
       `)
     })
 
+    test('MethodNotSupportedRpcError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32042, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Method is not implemented.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
     test('UnknownRpcError', async () => {
       await expect(() =>
         buildRequest(() => Promise.reject(new Error('wat')))(),
