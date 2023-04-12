@@ -26,6 +26,7 @@
     // Interop constraints
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
 
     // Language and environment
     "moduleResolution": "NodeNext",
