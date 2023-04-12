@@ -25,7 +25,7 @@ Mine a specified number of blocks.
 import { testClient } from './client'
 
 await testClient.mine({ // [!code focus:4]
-  blocks: 1
+  blocks: 1,
 })
 ```
 
@@ -52,7 +52,7 @@ Number of blocks to mine.
 
 ```ts
 await testClient.mine({
-  blocks: 1 // [!code focus:4]
+  blocks: 1, // [!code focus:4]
 })
 ```
 
