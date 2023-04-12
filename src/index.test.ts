@@ -229,6 +229,7 @@ test('exports actions', () => {
       "prepareRequest": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
+      "recoverPublicKey": [Function],
       "recoverTypedDataAddress": [Function],
       "serializeTransaction": [Function],
       "size": [Function],

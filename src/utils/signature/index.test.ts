@@ -9,6 +9,7 @@ test('exports utils', () => {
       "hashTypedData": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
+      "recoverPublicKey": [Function],
       "recoverTypedDataAddress": [Function],
       "verifyMessage": [Function],
       "verifyTypedData": [Function],

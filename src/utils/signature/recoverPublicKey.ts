@@ -2,16 +2,16 @@ import type { ByteArray, Hex } from '../../types/index.js'
 import { isHex } from '../data/index.js'
 import { hexToNumber, toHex } from '../encoding/index.js'
 
-export type recoverPublicKeyParameters = {
+export type RecoverPublicKeyParameters = {
   hash: Hex | ByteArray
   signature: Hex | ByteArray
 }
-export type recoverPublicKeyReturnType = Hex
+export type RecoverPublicKeyReturnType = Hex
 
 export async function recoverPublicKey({
   hash,
   signature,
-}: recoverPublicKeyParameters): Promise<Hex> {
+}: RecoverPublicKeyParameters): Promise<RecoverPublicKeyReturnType> {
   const signatureHex = isHex(signature) ? signature : toHex(signature)
   const hashHex = isHex(hash) ? hash : toHex(hash)
 
@@ -25,6 +25,6 @@ export async function recoverPublicKey({
   )
     .addRecoveryBit(v - 27)
     .recoverPublicKey(hashHex.substring(2))
-    .toHex(true)
-  return publicKey
+    .toHex(false)
+  return `0x${publicKey}`
 }
