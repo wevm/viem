@@ -8,16 +8,17 @@
 
     // Type checking
     "strict": true,
-    "useDefineForClassFields": true, // Not enabled by default in `strict` mode unless we bump `target` to ES2022.
-    "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
-    "noImplicitReturns": true, // Not enabled by default in `strict` mode.
-    "useUnknownInCatchVariables": true, // TODO: This would normally be enabled in `strict` mode but would require some adjustments to the codebase.
-    "noImplicitOverride": true, // Not enabled by default in `strict` mode.
-    "noUnusedLocals": true, // Not enabled by default in `strict` mode.
-    "noUnusedParameters": true, // Not enabled by default in `strict` mode.
-    // TODO: The following options are also not enabled by default in `strict` mode and would be nice to have but would require some adjustments to the codebase.
-    // "exactOptionalPropertyTypes": true,
-    // "noUncheckedIndexedAccess": true,
+    // The following options are not enabled by `strict` automatically.
+    "useDefineForClassFields": true, // Will be enabled by default once we bump `target` to ES2022.
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "useUnknownInCatchVariables": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    // "noPropertyAccessFromIndexSignature": true,
 
     // JavaScript support
     "allowJs": false,
