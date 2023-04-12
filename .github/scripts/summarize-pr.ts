@@ -16,7 +16,7 @@ import { getOctokit, context } from '@actions/github'
   if (data.body && /<!--\ncopilot:summary/.test(data.body)) {
     body = data.body.replace(/<!--\ncopilot:summary.*/s, 'copilot:summary')
   } else {
-    body = `${data.body}\n\n---\n\ncopilot:summary`
+    body = `${data.body}\n\n---\n\n### Automated Summary\n\ncopilot:summary`
   }
 
   await octokit.rest.pulls.update({
