@@ -23,22 +23,23 @@ export type GetAbiItemReturnType<
 export function getAbiItem<
   TAbi extends Abi | readonly unknown[],
   TItemName extends string,
-  TReturnType = GetAbiItemReturnType<TAbi, TItemName>,
 >({
   abi,
   args = [],
   name,
-}: GetAbiItemParameters<TAbi, TItemName>): TReturnType {
+}: GetAbiItemParameters<TAbi, TItemName>): GetAbiItemReturnType<
+  TAbi,
+  TItemName
+> {
   const abiItems = (abi as Abi).filter((x) => 'name' in x && x.name === name)
 
-  if (abiItems.length === 0) return undefined as unknown as TReturnType
-  if (abiItems.length === 1) return abiItems[0] as unknown as TReturnType
+  if (abiItems.length === 0) return undefined as any
+  if (abiItems.length === 1) return abiItems[0] as any
 
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
-      if (!abiItem.inputs || abiItem.inputs.length === 0)
-        return abiItem as unknown as TReturnType
+      if (!abiItem.inputs || abiItem.inputs.length === 0) return abiItem as any
       continue
     }
     if (!abiItem.inputs) continue
@@ -48,9 +49,9 @@ export function getAbiItem<
       if (!abiParameter) return false
       return isArgOfType(arg, abiParameter as AbiParameter)
     })
-    if (matched) return abiItem as unknown as TReturnType
+    if (matched) return abiItem as any
   }
-  return abiItems[0] as unknown as TReturnType
+  return abiItems[0] as any
 }
 
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
