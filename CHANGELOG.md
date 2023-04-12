@@ -1,5 +1,21 @@
 # viem
 
+## 0.3.0
+
+### Minor Changes
+
+- [#355](https://github.com/wagmi-dev/viem/pull/355) [`b1acfc9`](https://github.com/wagmi-dev/viem/commit/b1acfc9198bfbed8c3de6e769c5ff06d7124881c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `RequestError` to `RpcError`.
+  **Breaking:** Removed `RpcRequestError` – use `RpcError` instead.
+  **Breaking:** Renamed `RpcError` to `RpcRequestError`.
+
+### Patch Changes
+
+- [#355](https://github.com/wagmi-dev/viem/pull/355) [`b1acfc9`](https://github.com/wagmi-dev/viem/commit/b1acfc9198bfbed8c3de6e769c5ff06d7124881c) Thanks [@jxom](https://github.com/jxom)! - Added `ProviderRpcError` subclass.
+
+  Added EIP-1193 `UnauthorizedProviderError`, `UnsupportedProviderMethodError`, `ProviderDisconnectedError`, and `ChainDisconnectedError`.
+
+* [#349](https://github.com/wagmi-dev/viem/pull/349) [`b275811`](https://github.com/wagmi-dev/viem/commit/b2758116623567a07e9c2cae7e2471e3c6bf2ecf) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where Filter querying (`eth_getFilterChanges`, etc) was not being scoped to the Transport that created the Filter.
+
 ## 0.2.14
 
 ### Patch Changes
