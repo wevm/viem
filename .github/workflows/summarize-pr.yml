@@ -1,0 +1,21 @@
+name: Summarize PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  workflow_dispatch:
+
+jobs:
+  summarize_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Bun
+        uses: antongolub/action-setup-bun@v1
+      - name: Summarize PR
+        run: bun ./.github/scripts/summarize-pr.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.WAGMI_BOT_GITHUB_TOKEN }}
