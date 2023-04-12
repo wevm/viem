@@ -80,7 +80,7 @@ export type SimulateContractReturnType<
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const results = await simulateContract(client, {
+ * const result = await simulateContract(client, {
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   abi: parseAbi(['function mint(uint32) view returns (uint32)']),
  *   functionName: 'mint',

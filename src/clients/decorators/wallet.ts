@@ -50,7 +50,7 @@ export type WalletActions<
    * - Docs: https://viem.sh/docs/actions/wallet/addChain.html
    * - JSON-RPC Methods: [`eth_addEthereumChain`](https://eips.ethereum.org/EIPS/eip-3085)
    *
-   * @param parameters - {@link AddChainParameters}
+   * @param args - {@link AddChainParameters}
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
@@ -68,7 +68,7 @@ export type WalletActions<
    * - Docs: https://viem.sh/docs/contract/deployContract.html
    * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/deploying-contracts
    *
-   * @param parameters - {@link DeployContractParameters}
+   * @param args - {@link DeployContractParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
    *
    * @example
@@ -180,7 +180,7 @@ export type WalletActions<
    * - Docs: https://viem.sh/docs/actions/wallet/requestPermissions.html
    * - JSON-RPC Methods: [`wallet_requestPermissions`](https://eips.ethereum.org/EIPS/eip-2255)
    *
-   * @param parameters - {@link RequestPermissionsParameters}
+   * @param args - {@link RequestPermissionsParameters}
    * @returns The wallet permissions. {@link RequestPermissionsReturnType}
    *
    * @example
@@ -207,7 +207,7 @@ export type WalletActions<
    *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
    *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
    *
-   * @param parameters - {@link SendTransactionParameters}
+   * @param args - {@link SendTransactionParameters}
    * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link SendTransactionReturnType}
    *
    * @example
@@ -255,7 +255,7 @@ export type WalletActions<
    * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage) to verify the signature,
    * - use [`recoverMessageAddress`](https://viem.sh/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
    *
-   * @param parameters - {@link SignMessageParameters}
+   * @param args - {@link SignMessageParameters}
    * @returns The signed message. {@link SignMessageReturnType}
    *
    * @example
@@ -298,7 +298,7 @@ export type WalletActions<
    *   - Local Accounts: Signs locally. No JSON-RPC request.
    *
    * @param client - Client to use
-   * @param parameters - {@link SignTypedDataParameters}
+   * @param args - {@link SignTypedDataParameters}
    * @returns The signed data. {@link SignTypedDataReturnType}
    *
    * @example
@@ -397,7 +397,7 @@ export type WalletActions<
    * - Docs: https://viem.sh/docs/actions/wallet/switchChain.html
    * - JSON-RPC Methods: [`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-3326)
    *
-   * @param parameters - {@link SwitchChainParameters}
+   * @param args - {@link SwitchChainParameters}
    *
    * @example
    * import { createWalletClient, custom } from 'viem'
@@ -416,7 +416,7 @@ export type WalletActions<
    * - Docs: https://viem.sh/docs/actions/wallet/watchAsset.html
    * - JSON-RPC Methods: [`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-747)
    *
-   * @param parameters - {@link WatchAssetParameters}
+   * @param args - {@link WatchAssetParameters}
    * @returns Boolean indicating if the token was successfully added. {@link WatchAssetReturnType}
    *
    * @example
@@ -449,7 +449,7 @@ export type WalletActions<
    *
    * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
    *
-   * @param parameters - {@link WriteContractParameters}
+   * @param args - {@link WriteContractParameters}
    * @returns A [Transaction Hash](https://viem.sh/docs/glossary/terms#hash). {@link WriteContractReturnType}
    *
    * @example

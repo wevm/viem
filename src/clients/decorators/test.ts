@@ -64,7 +64,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/dropTransaction.html
    *
-   * @param parameters - {@link DropTransactionParameters}
+   * @param args - {@link DropTransactionParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -142,7 +142,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/impersonateAccount.html
    *
-   * @param parameters - {@link ImpersonateAccountParameters}
+   * @param args - {@link ImpersonateAccountParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -163,7 +163,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/increaseTime.html
    *
-   * @param parameters – {@link IncreaseTimeParameters}
+   * @param args – {@link IncreaseTimeParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -204,7 +204,7 @@ export type TestActions = {
    * - Docs: https://viem.sh/docs/actions/test/mine.html
    *
    * @param client - Client to use
-   * @param parameters – {@link MineParameters}
+   * @param args – {@link MineParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -241,7 +241,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/reset.html
    *
-   * @param parameters – {@link ResetParameters}
+   * @param args – {@link ResetParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -260,7 +260,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/revert.html
    *
-   * @param parameters – {@link RevertParameters}
+   * @param args – {@link RevertParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -279,7 +279,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent.html
    *
-   * @param parameters – {@link SendUnsignedTransactionParameters}
+   * @param args – {@link SendUnsignedTransactionParameters}
    * @returns The transaction hash. {@link SendUnsignedTransactionReturnType}
    *
    * @example
@@ -322,7 +322,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/setBalance.html
    *
-   * @param parameters – {@link SetBalanceParameters}
+   * @param args – {@link SetBalanceParameters}
    *
    * @example
    * import { createTestClient, http, parseEther } from 'viem'
@@ -344,7 +344,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/setBlockGasLimit.html
    *
-   * @param parameters – {@link SetBlockGasLimitParameters}
+   * @param args – {@link SetBlockGasLimitParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -363,7 +363,7 @@ export type TestActions = {
    *
    * - Docs: https://viem.sh/docs/actions/test/setBlockTimestampInterval.html
    *
-   * @param parameters – {@link SetBlockTimestampIntervalParameters}
+   * @param args – {@link SetBlockTimestampIntervalParameters}
    *
    * @example
    * import { createTestClient, http } from 'viem'
@@ -379,21 +379,257 @@ export type TestActions = {
   setBlockTimestampInterval: (
     args: SetBlockTimestampIntervalParameters,
   ) => Promise<void>
+  /**
+   * Modifies the bytecode stored at an account's address.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setCode.html
+   *
+   * @param args – {@link SetCodeParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setCode({
+   *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
+   *   bytecode: '0x60806040526000600355600019600955600c80546001600160a01b031916737a250d5630b4cf539739df…',
+   * })
+   */
   setCode: (args: SetCodeParameters) => Promise<void>
+  /**
+   * Sets the coinbase address to be used in new blocks.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setCoinbase.html
+   *
+   * @param args – {@link SetCoinbaseParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setCoinbase({
+   *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
+   * })
+   */
   setCoinbase: (args: SetCoinbaseParameters) => Promise<void>
+  /**
+   * Sets the automatic mining interval (in seconds) of blocks. Setting the interval to 0 will disable automatic mining.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setIntervalMining.html
+   *
+   * @param args – {@link SetIntervalMiningParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setIntervalMining({ interval: 5 })
+   */
   setIntervalMining: (args: SetIntervalMiningParameters) => Promise<void>
+  /**
+   * Enable or disable logging on the test node network.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setLoggingEnabled.html
+   *
+   * @param client - Client to use
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setLoggingEnabled()
+   */
   setLoggingEnabled: (args: boolean) => Promise<void>
+  /**
+   * Change the minimum gas price accepted by the network (in wei).
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setMinGasPrice.html
+   *
+   * Note: `setMinGasPrice` can only be used on clients that do not have EIP-1559 enabled.
+   *
+   * @param args – {@link SetBlockGasLimitParameters}
+   *
+   * @example
+   * import { createTestClient, http, parseGwei } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setMinGasPrice({
+   *   gasPrice: parseGwei('20'),
+   * })
+   */
   setMinGasPrice: (args: SetMinGasPriceParameters) => Promise<void>
+  /**
+   * Sets the next block's base fee per gas.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setNextBlockBaseFeePerGas.html
+   *
+   * @param args – {@link SetNextBlockBaseFeePerGasParameters}
+   *
+   * @example
+   * import { createTestClient, http, parseGwei } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setNextBlockBaseFeePerGas({
+   *   baseFeePerGas: parseGwei('20'),
+   * })
+   */
   setNextBlockBaseFeePerGas: (
     args: SetNextBlockBaseFeePerGasParameters,
   ) => Promise<void>
+  /**
+   * Sets the next block's timestamp.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setNextBlockTimestamp.html
+   *
+   * @param args – {@link SetNextBlockTimestampParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setNextBlockTimestamp({ timestamp: 1671744314n })
+   */
   setNextBlockTimestamp: (
     args: SetNextBlockTimestampParameters,
   ) => Promise<void>
+  /**
+   * Modifies (overrides) the nonce of an account.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setNonce.html
+   *
+   * @param args – {@link SetNonceParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setNonce({
+   *   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+   *   nonce: 420,
+   * })
+   */
   setNonce: (args: SetNonceParameters) => Promise<void>
+  /**
+   * Sets the backend RPC URL.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setRpcUrl.html
+   *
+   * @param jsonRpcUrl – RPC URL
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setRpcUrl('https://eth-mainnet.g.alchemy.com/v2')
+   */
   setRpcUrl: (args: string) => Promise<void>
+  /**
+   * Writes to a slot of an account's storage.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/setStorageAt.html
+   *
+   * @param args – {@link SetStorageAtParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.setStorageAt({
+   *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
+   *   index: 2,
+   *   value: '0x0000000000000000000000000000000000000000000000000000000000000069',
+   * })
+   */
   setStorageAt: (args: SetStorageAtParameters) => Promise<void>
+  /**
+   * Snapshot the state of the blockchain at the current block.
+   *
+   * - Docs: https://viem.sh/docs/actions/test/snapshot.html
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   * import { snapshot } from 'viem/test'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.snapshot()
+   */
   snapshot: () => Promise<Quantity>
+  /**
+   * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount).
+   *
+   * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount.html
+   *
+   * @param args – {@link StopImpersonatingAccountParameters}
+   *
+   * @example
+   * import { createTestClient, http } from 'viem'
+   * import { foundry } from 'viem/chains'
+   * import { stopImpersonatingAccount } from 'viem/test'
+   *
+   * const client = createTestClient({
+   *   mode: 'anvil',
+   *   chain: 'foundry',
+   *   transport: http(),
+   * })
+   * await client.stopImpersonatingAccount({
+   *   address: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+   * })
+   */
   stopImpersonatingAccount: (
     args: StopImpersonatingAccountParameters,
   ) => Promise<void>
