@@ -10,12 +10,12 @@ import { getFunctionSelector } from '../hash/index.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 
-export type DecodeErrorResultParameters = { abi?: Abi; data: Hex }
+export type DecodeErrorResultParameters = { abi?: Abi | undefined; data: Hex }
 
 export type DecodeErrorResultReturnType = {
   abiItem: AbiItem
   errorName: string
-  args?: readonly unknown[]
+  args?: readonly unknown[] | undefined
 }
 
 export function decodeErrorResult({

@@ -72,7 +72,7 @@ export type GetContractParameters<
    * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
    * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
    */
-  publicClient?: TPublicClient
+  publicClient?: TPublicClient | undefined
   /**
    * Wallet client
    *
@@ -80,7 +80,7 @@ export type GetContractParameters<
    *
    * - [`write`](https://viem.sh/docs/contract/writeContract.html)
    */
-  walletClient?: TWalletClient
+  walletClient?: TWalletClient | undefined
 }
 
 export type GetContractReturnType<

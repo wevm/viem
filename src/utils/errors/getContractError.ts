@@ -27,10 +27,10 @@ export function getContractError(
   }: {
     abi: Abi
     args: any
-    address?: Address
-    docsPath?: string
+    address?: Address | undefined
+    docsPath?: string | undefined
     functionName: string
-    sender?: Address
+    sender?: Address | undefined
   },
 ) {
   const { code, data, message } = (

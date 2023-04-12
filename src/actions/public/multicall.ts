@@ -28,9 +28,9 @@ export type MulticallParameters<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
-  allowFailure?: TAllowFailure
+  allowFailure?: TAllowFailure | undefined
   contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
-  multicallAddress?: Address
+  multicallAddress?: Address | undefined
 }
 
 export type MulticallReturnType<

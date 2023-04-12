@@ -42,13 +42,13 @@ export function toHex(
 export type NumberToHexOpts =
   | {
       // Whether or not the number of a signed representation.
-      signed?: boolean
+      signed?: boolean | undefined
       // The size of the output hex (in bytes).
       size: number
     }
   | {
-      signed?: never
-      size?: never
+      signed?: never | undefined
+      size?: never | undefined
     }
 
 /**

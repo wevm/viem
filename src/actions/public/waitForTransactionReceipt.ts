@@ -34,18 +34,18 @@ export type WaitForTransactionReceiptParameters<
    * The number of confirmations (blocks that have passed) to wait before resolving.
    * @default 1
    */
-  confirmations?: number
+  confirmations?: number | undefined
   /** The hash of the transaction. */
   hash: Hash
   /** Optional callback to emit if the transaction has been replaced. */
-  onReplaced?: (response: ReplacementReturnType<TChain>) => void
+  onReplaced?: ((response: ReplacementReturnType<TChain>) => void) | undefined
   /**
    * Polling frequency (in ms). Defaults to the client's pollingInterval config.
    * @default client.pollingInterval
    */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
   /** Optional timeout (in milliseconds) to wait before stopping polling. */
-  timeout?: number
+  timeout?: number | undefined
 }
 
 /**

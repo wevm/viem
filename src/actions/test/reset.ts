@@ -7,9 +7,9 @@ import type { Chain } from '../../types/index.js'
 
 export type ResetParameters = {
   /** The block number to reset from. */
-  blockNumber?: bigint
+  blockNumber?: bigint | undefined
   /** The JSON RPC URL. */
-  jsonRpcUrl?: string
+  jsonRpcUrl?: string | undefined
 }
 
 export async function reset<TChain extends Chain | undefined>(

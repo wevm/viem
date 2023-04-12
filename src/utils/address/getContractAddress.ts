@@ -17,7 +17,7 @@ export type GetCreate2AddressOptions = {
 
 export type GetContractAddressOptions =
   | ({
-      opcode?: 'CREATE'
+      opcode?: 'CREATE' | undefined
     } & GetCreateAddressOptions)
   | ({ opcode: 'CREATE2' } & GetCreate2AddressOptions)
 

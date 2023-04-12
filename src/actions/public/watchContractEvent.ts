@@ -36,20 +36,20 @@ export type WatchContractEventParameters<
   TEventName extends string = string,
 > = {
   /** The address of the contract. */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   /** Contract ABI. */
   abi: Narrow<TAbi>
-  args?: GetEventArgs<TAbi, TEventName>
+  args?: GetEventArgs<TAbi, TEventName> | undefined
   /** Whether or not the event logs should be batched on each invocation. */
-  batch?: boolean
+  batch?: boolean | undefined
   /** Contract event. */
-  eventName?: InferEventName<TAbi, TEventName>
+  eventName?: InferEventName<TAbi, TEventName> | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
   onLogs: OnLogsFn<TAbi, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
 }
 
 export type WatchContractEventReturnType = () => void

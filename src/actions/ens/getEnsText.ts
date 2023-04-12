@@ -18,7 +18,7 @@ export type GetEnsTextParameters = Prettify<
     /** Text record to retrieve. */
     key: string
     /** Address of ENS Universal Resolver Contract. */
-    universalResolverAddress?: Address
+    universalResolverAddress?: Address | undefined
   }
 >
 

@@ -21,24 +21,27 @@ export type CreateContractEventFilterParameters<
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
 > = {
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   abi: Narrow<TAbi>
-  eventName?: InferEventName<TAbi, TEventName>
-  fromBlock?: BlockNumber | BlockTag
-  toBlock?: BlockNumber | BlockTag
+  eventName?: InferEventName<TAbi, TEventName> | undefined
+  fromBlock?: BlockNumber | BlockTag | undefined
+  toBlock?: BlockNumber | BlockTag | undefined
 } & (undefined extends TEventName
   ? {
-      args?: never
+      args?: never | undefined
     }
   : MaybeExtractEventArgsFromAbi<
       TAbi,
       TEventName
     > extends infer TEventFilterArgs
   ? {
-      args?: TEventFilterArgs | (TArgs extends TEventFilterArgs ? TArgs : never)
+      args?:
+        | TEventFilterArgs
+        | (TArgs extends TEventFilterArgs ? TArgs : never)
+        | undefined
     }
   : {
-      args?: never
+      args?: never | undefined
     })
 
 export type CreateContractEventFilterReturnType<

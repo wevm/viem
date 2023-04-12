@@ -171,10 +171,10 @@ test('GetValue', () => {
 
   // other
   expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{
-    value?: never
+    value?: never | undefined
   }>()
   expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<{
-    value?: never
+    value?: never | undefined
   }>()
 })
 
@@ -451,8 +451,8 @@ test('AbiEventParametersToPrimitiveTypes', () => {
     }
   >
   expectTypeOf<Named_DisableUnion>().toEqualTypeOf<{
-    foo?: string
-    bar?: number
+    foo?: string | undefined
+    bar?: number | undefined
   }>()
 
   // unnamed parameters

@@ -4,9 +4,9 @@ import { RpcRequestError } from './request.js'
 const unknownErrorCode = -1
 
 type RpcErrorOptions = {
-  code?: number
-  docsPath?: string
-  metaMessages?: string[]
+  code?: number | undefined
+  docsPath?: string | undefined
+  metaMessages?: string[] | undefined
   shortMessage: string
 }
 
@@ -31,7 +31,8 @@ export class RpcError extends BaseError {
       cause,
       docsPath,
       metaMessages:
-        metaMessages || (cause as { metaMessages?: string[] })?.metaMessages,
+        metaMessages ||
+        (cause as { metaMessages?: string[] | undefined })?.metaMessages,
     })
     this.name = cause.name
     this.code = cause instanceof RpcRequestError ? cause.code : code
@@ -46,12 +47,12 @@ export class RpcError extends BaseError {
 export class ProviderRpcError<T = undefined> extends RpcError {
   override name = 'ProviderRpcError'
 
-  data?: T
+  data?: T | undefined
 
   constructor(
     cause: Error,
     options: RpcErrorOptions & {
-      data?: T
+      data?: T | undefined
     },
   ) {
     super(cause, options)

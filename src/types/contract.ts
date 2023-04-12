@@ -64,10 +64,10 @@ export type GetValue<
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
 > = TAbiFunction['stateMutability'] extends 'payable'
-  ? { value?: TValueType }
+  ? { value?: TValueType | undefined }
   : TAbiFunction['payable'] extends true
-  ? { value?: TValueType }
-  : { value?: never }
+  ? { value?: TValueType | undefined }
+  : { value?: never | undefined }
 
 export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
   TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
@@ -153,10 +153,10 @@ export type GetFunctionArgs<
        *
        * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
        */
-      args?: readonly unknown[]
+      args?: readonly unknown[] | undefined
     }
   : TArgs extends readonly []
-  ? { args?: never }
+  ? { args?: never | undefined }
   : {
       /** Arguments to pass contract method */ args: TArgs
     }
@@ -177,10 +177,10 @@ export type GetConstructorArgs<
        *
        * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
        */
-      args?: readonly unknown[]
+      args?: readonly unknown[] | undefined
     }
   : TArgs extends readonly []
-  ? { args?: never }
+  ? { args?: never | undefined }
   : {
       /** Arguments to pass contract constructor */ args: TArgs
     }
@@ -202,10 +202,10 @@ export type GetErrorArgs<
        *
        * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
        */
-      args?: readonly unknown[]
+      args?: readonly unknown[] | undefined
     }
   : TArgs extends readonly []
-  ? { args?: never }
+  ? { args?: never | undefined }
   : {
       /** Arguments to pass contract method */ args: TArgs
     }
@@ -238,17 +238,17 @@ export type GetEventArgsFromTopics<
   TArgs = AbiEventTopicsToPrimitiveTypes<TAbiEvent['inputs'], TTopics, TData>,
 > = TTopics extends readonly []
   ? TData extends undefined
-    ? { args?: never }
-    : { args?: TArgs }
-  : { args?: TArgs }
+    ? { args?: never | undefined }
+    : { args?: TArgs | undefined }
+  : { args?: TArgs | undefined }
 
 //////////////////////////////////////////////////////////////////////
 // ABI event types
 
 type EventParameterOptions = {
-  EnableUnion?: boolean
-  IndexedOnly?: boolean
-  Required?: boolean
+  EnableUnion?: boolean | undefined
+  IndexedOnly?: boolean | undefined
+  Required?: boolean | undefined
 }
 type DefaultEventParameterOptions = {
   EnableUnion: true

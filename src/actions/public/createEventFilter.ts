@@ -24,9 +24,9 @@ export type CreateEventFilterParameters<
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
 > = {
-  address?: Address | Address[]
-  fromBlock?: BlockNumber | BlockTag
-  toBlock?: BlockNumber | BlockTag
+  address?: Address | Address[] | undefined
+  fromBlock?: BlockNumber | BlockTag | undefined
+  toBlock?: BlockNumber | BlockTag | undefined
 } & (MaybeExtractEventArgsFromAbi<
   TAbi,
   TEventName
@@ -39,16 +39,16 @@ export type CreateEventFilterParameters<
           event: Narrow<TAbiEvent>
         }
       | {
-          args?: never
-          event?: Narrow<TAbiEvent>
+          args?: never | undefined
+          event?: Narrow<TAbiEvent> | undefined
         }
       | {
-          args?: never
-          event?: never
+          args?: never | undefined
+          event?: never | undefined
         }
   : {
-      args?: never
-      event?: never
+      args?: never | undefined
+      event?: never | undefined
     })
 
 export type CreateEventFilterReturnType<

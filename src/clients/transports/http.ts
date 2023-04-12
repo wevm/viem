@@ -9,23 +9,23 @@ export type HttpTransportConfig = {
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
-  fetchOptions?: HttpOptions['fetchOptions']
+  fetchOptions?: HttpOptions['fetchOptions'] | undefined
   /** The key of the HTTP transport. */
-  key?: TransportConfig['key']
+  key?: TransportConfig['key'] | undefined
   /** The name of the HTTP transport. */
-  name?: TransportConfig['name']
+  name?: TransportConfig['name'] | undefined
   /** The max number of times to retry. */
-  retryCount?: TransportConfig['retryCount']
+  retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
-  retryDelay?: TransportConfig['retryDelay']
+  retryDelay?: TransportConfig['retryDelay'] | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
-  timeout?: TransportConfig['timeout']
+  timeout?: TransportConfig['timeout'] | undefined
 }
 
 export type HttpTransport = Transport<
   'http',
   {
-    url?: string
+    url?: string | undefined
   }
 >
 

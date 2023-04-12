@@ -30,7 +30,7 @@ export function fromHex<
 
 export type HexToBigIntOpts = {
   // Whether or not the number of a signed representation.
-  signed?: boolean
+  signed?: boolean | undefined
 }
 
 /**

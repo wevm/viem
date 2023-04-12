@@ -6,8 +6,8 @@ export class HttpRequestError extends BaseError {
   override name = 'HttpRequestError'
 
   body: { [key: string]: unknown }
-  headers?: Headers
-  status?: number
+  headers?: Headers | undefined
+  status?: number | undefined
   url: string
 
   constructor({
@@ -18,9 +18,9 @@ export class HttpRequestError extends BaseError {
     url,
   }: {
     body: { [key: string]: unknown }
-    details?: string
-    headers?: Headers
-    status?: number
+    details?: string | undefined
+    headers?: Headers | undefined
+    status?: number | undefined
     url: string
   }) {
     super('HTTP request failed.', {

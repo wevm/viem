@@ -28,7 +28,7 @@ export type SimulateContractParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
 > = {
-  chain?: TChainOverride
+  chain?: TChainOverride | undefined
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,

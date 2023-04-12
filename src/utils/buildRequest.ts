@@ -55,9 +55,9 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
     retryCount = 3,
   }: {
     // The base delay (in ms) between retries.
-    retryDelay?: number
+    retryDelay?: number | undefined
     // The max number of times to retry.
-    retryCount?: number
+    retryCount?: number | undefined
   } = {},
 ) {
   return (async (args: any) =>

@@ -14,11 +14,11 @@ export type OnBlockNumberFn = (
 
 export type PollOptions = {
   /** Whether or not to emit the missed block numbers to the callback. */
-  emitMissed?: boolean
+  emitMissed?: boolean | undefined
   /** Whether or not to emit the latest block number to the callback when the subscription opens. */
-  emitOnBegin?: boolean
+  emitOnBegin?: boolean | undefined
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
 }
 
 export type WatchBlockNumberParameters<
@@ -27,18 +27,18 @@ export type WatchBlockNumberParameters<
   /** The callback to call when a new block number is received. */
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
 } & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
   ?
       | {
-          emitMissed?: never
-          emitOnBegin?: never
+          emitMissed?: never | undefined
+          emitOnBegin?: never | undefined
           /** Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`. */
-          poll?: false
-          pollingInterval?: never
+          poll?: false | undefined
+          pollingInterval?: never | undefined
         }
       | (PollOptions & { poll: true })
-  : PollOptions & { poll?: true })
+  : PollOptions & { poll?: true | undefined })
 
 export type WatchBlockNumberReturnType = () => void
 

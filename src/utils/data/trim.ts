@@ -1,7 +1,7 @@
 import type { ByteArray, Hex } from '../../types/index.js'
 
 type TrimOptions = {
-  dir?: 'left' | 'right'
+  dir?: 'left' | 'right' | undefined
 }
 export type TrimReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex

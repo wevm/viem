@@ -31,26 +31,26 @@ export type WatchEventParameters<
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** The address of the contract. */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   /**
    * Whether or not the event logs should be batched on each invocation.
    * @default true
    */
-  batch?: boolean
+  batch?: boolean | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
   onLogs: OnLogsFn<TAbiEvent, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
 } & (
   | {
       event: TAbiEvent
-      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
+      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName> | undefined
     }
   | {
-      event?: never
-      args?: never
+      event?: never | undefined
+      args?: never | undefined
     }
 )
 

@@ -11,20 +11,20 @@ export type ClientConfig<
   TChain extends Chain | undefined = Chain | undefined,
 > = {
   /** Chain for the client. */
-  chain?: TChain
+  chain?: TChain | undefined
   /** A key for the client. */
-  key?: string
+  key?: string | undefined
   /** A name for the client. */
-  name?: string
+  name?: string | undefined
   /**
    * Frequency (in ms) for polling enabled actions & events.
    * @default 4_000
    */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
   /** The RPC transport */
   transport: TTransport
   /** The type of client. */
-  type?: string
+  type?: string | undefined
 }
 
 export type Client<

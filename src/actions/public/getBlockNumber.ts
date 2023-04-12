@@ -4,7 +4,7 @@ import { getCache, withCache } from '../../utils/promise/index.js'
 
 export type GetBlockNumberParameters = {
   /** The maximum age (in ms) of the cached value. */
-  maxAge?: number
+  maxAge?: number | undefined
 }
 
 export type GetBlockNumberReturnType = bigint

@@ -10,9 +10,9 @@ export function getEstimateGasError(
     docsPath,
     ...args
   }: Omit<EstimateGasParameters, 'account'> & {
-    account?: Account
-    chain?: Chain
-    docsPath?: string
+    account?: Account | undefined
+    chain?: Chain | undefined
+    docsPath?: string | undefined
   },
 ) {
   let cause = err

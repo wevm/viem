@@ -6,11 +6,11 @@ type BigNumberish = string | number | bigint
 type BytesLike = string | Uint8Array
 
 type TypedDataDomain = {
-  name?: string
-  version?: string
-  chainId?: BigNumberish
-  verifyingContract?: string
-  salt?: BytesLike
+  name?: string | undefined
+  version?: string | undefined
+  chainId?: BigNumberish | undefined
+  verifyingContract?: string | undefined
+  salt?: BytesLike | undefined
 }
 type TypedDataField = {
   name: string
@@ -28,10 +28,10 @@ type EthersWallet = {
         types: Record<string, TypedDataField[]>,
         value: Record<string, any>,
       ): Promise<string>
-      _signTypedData?: never
+      _signTypedData?: never | undefined
     }
   | {
-      signTypedData?: never
+      signTypedData?: never | undefined
       _signTypedData(
         domain: TypedDataDomain,
         types: Record<string, TypedDataField[]>,

@@ -7,12 +7,12 @@ export type GetStorageAtParameters = {
   slot: Hex
 } & (
   | {
-      blockNumber?: never
-      blockTag?: BlockTag
+      blockNumber?: never | undefined
+      blockTag?: BlockTag | undefined
     }
   | {
-      blockNumber?: bigint
-      blockTag?: never
+      blockNumber?: bigint | undefined
+      blockTag?: never | undefined
     }
 )
 

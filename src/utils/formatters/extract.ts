@@ -5,7 +5,7 @@ import type { Formatter } from '../../types/index.js'
  */
 export function extract(
   value: Record<string, unknown>,
-  { formatter }: { formatter?: Formatter },
+  { formatter }: { formatter?: Formatter | undefined },
 ) {
   if (!formatter) return {}
   const keys = Object.keys(formatter({}))

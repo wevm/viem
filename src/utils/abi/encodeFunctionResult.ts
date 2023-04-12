@@ -18,7 +18,7 @@ export type EncodeFunctionResultParameters<
 > = {
   abi: Narrow<TAbi>
   functionName: InferFunctionName<TAbi, TFunctionName>
-  result?: ContractFunctionResult<TAbi, TFunctionName>
+  result?: ContractFunctionResult<TAbi, TFunctionName> | undefined
 }
 
 export function encodeFunctionResult<

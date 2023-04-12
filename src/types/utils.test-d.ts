@@ -52,6 +52,9 @@ test('Or', () => {
 
 test('RequiredBy', () => {
   expectTypeOf<
-    RequiredBy<{ a?: number; b?: string; c: boolean }, 'a' | 'c'>
-  >().toEqualTypeOf<{ a: number; b?: string; c: boolean }>()
+    RequiredBy<
+      { a?: number | undefined; b?: string | undefined; c: boolean },
+      'a' | 'c'
+    >
+  >().toEqualTypeOf<{ a: number; b?: string | undefined; c: boolean }>()
 })

@@ -10,8 +10,8 @@ export function getCallError(
     docsPath,
     ...args
   }: CallParameters & {
-    chain?: Chain
-    docsPath?: string
+    chain?: Chain | undefined
+    docsPath?: string | undefined
   },
 ) {
   let cause = err

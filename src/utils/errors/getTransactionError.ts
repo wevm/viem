@@ -11,8 +11,8 @@ export function getTransactionError(
     ...args
   }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
     account: Account
-    chain?: Chain
-    docsPath?: string
+    chain?: Chain | undefined
+    docsPath?: string | undefined
   },
 ) {
   let cause = err

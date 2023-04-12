@@ -27,11 +27,13 @@ import { assertRequest } from './assertRequest.js'
 export type PrepareRequestParameters<
   TAccount extends Account | undefined = undefined,
 > = GetAccountParameter<TAccount> & {
-  gas?: SendTransactionParameters['gas']
-  gasPrice?: SendTransactionParameters['gasPrice']
-  maxFeePerGas?: SendTransactionParameters['maxFeePerGas']
-  maxPriorityFeePerGas?: SendTransactionParameters['maxPriorityFeePerGas']
-  nonce?: SendTransactionParameters['nonce']
+  gas?: SendTransactionParameters['gas'] | undefined
+  gasPrice?: SendTransactionParameters['gasPrice'] | undefined
+  maxFeePerGas?: SendTransactionParameters['maxFeePerGas'] | undefined
+  maxPriorityFeePerGas?:
+    | SendTransactionParameters['maxPriorityFeePerGas']
+    | undefined
+  nonce?: SendTransactionParameters['nonce'] | undefined
 }
 
 export type PrepareRequestReturnType<
@@ -40,9 +42,11 @@ export type PrepareRequestReturnType<
 > = TParameters & {
   from: Address
   gas: SendTransactionParameters['gas']
-  gasPrice?: SendTransactionParameters['gasPrice']
-  maxFeePerGas?: SendTransactionParameters['maxFeePerGas']
-  maxPriorityFeePerGas?: SendTransactionParameters['maxPriorityFeePerGas']
+  gasPrice?: SendTransactionParameters['gasPrice'] | undefined
+  maxFeePerGas?: SendTransactionParameters['maxFeePerGas'] | undefined
+  maxPriorityFeePerGas?:
+    | SendTransactionParameters['maxPriorityFeePerGas']
+    | undefined
   nonce: SendTransactionParameters['nonce']
 }
 

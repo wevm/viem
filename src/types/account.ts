@@ -18,7 +18,7 @@ export type GetAccountParameter<
   TAccount extends Account | undefined = Account | undefined,
 > = IsUndefined<TAccount> extends true
   ? { account: Account | Address }
-  : { account?: Account | Address }
+  : { account?: Account | Address | undefined }
 
 export type ParseAccount<TAccount extends Account | Address | undefined> =
   | (TAccount extends Account ? TAccount : never)
