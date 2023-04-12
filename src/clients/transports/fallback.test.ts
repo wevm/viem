@@ -144,19 +144,15 @@ describe('request', () => {
   })
 
   test('onResponse', async () => {
-    let count = 0
     const server1 = await createHttpServer((_req, res) => {
-      count++
       res.writeHead(500)
       res.end()
     })
     const server2 = await createHttpServer((_req, res) => {
-      count++
       res.writeHead(500)
       res.end()
     })
     const server3 = await createHttpServer((_req, res) => {
-      count++
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
