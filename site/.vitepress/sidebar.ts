@@ -680,6 +680,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/recoverMessageAddress',
             },
             {
+              text: 'recoverPublicKey',
+              link: '/docs/utilities/recoverPublicKey',
+            },
+            {
               text: 'recoverTypedDataAddress',
               link: '/docs/utilities/recoverTypedDataAddress',
             },
