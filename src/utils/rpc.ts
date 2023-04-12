@@ -2,7 +2,7 @@ import WebSocket from 'isomorphic-ws'
 import type { MessageEvent } from 'isomorphic-ws'
 import {
   HttpRequestError,
-  RpcError,
+  RpcRequestError,
   TimeoutError,
   WebSocketRequestError,
 } from '../errors/index.js'
@@ -107,12 +107,12 @@ async function http(
     }
 
     if (data.error) {
-      throw new RpcError({ body, error: data.error, url })
+      throw new RpcRequestError({ body, error: data.error, url })
     }
     return data as RpcResponse
   } catch (err) {
     if (err instanceof HttpRequestError) throw err
-    if (err instanceof RpcError) throw err
+    if (err instanceof RpcRequestError) throw err
     if (err instanceof TimeoutError) throw err
     throw new HttpRequestError({
       body,
@@ -224,7 +224,9 @@ function webSocket(
     if (typeof message.id === 'number' && id_ !== message.id) return
 
     if (message.error) {
-      onError?.(new RpcError({ body, error: message.error, url: socket.url }))
+      onError?.(
+        new RpcRequestError({ body, error: message.error, url: socket.url }),
+      )
     } else {
       onData?.(message)
     }

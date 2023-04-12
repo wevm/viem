@@ -15,6 +15,50 @@ head:
 
 If you are coming from an earlier version of `viem`, you will need to make sure to update the following APIs listed below.
 
+## 0.3.x Breaking changes
+
+The 0.3.0 release only includes breaking changes around RPC errors. If you do not directly use the APIs listed below, you do not need to migrate.
+
+### Renamed `RequestError` to `RpcError`
+
+`RequestError` was renamed `RpcError` for clarity.
+
+```ts
+import { RequestError } from 'viem'  // [!code --]
+import { RpcError } from 'viem'  // [!code ++]
+
+throw new RequestError(new Error('An error occurred.'))  // [!code --]
+throw new RpcError(new Error('An error occurred.'))  // [!code ++]
+```
+
+### Removed `RpcRequestError`
+
+`RpcRequestError` was removed. Use `RpcError` instead.
+
+```ts
+import { RpcRequestError } from 'viem' // [!code --]
+import { RpcError } from 'viem'  // [!code ++]
+
+throw new RpcRequestError(new Error('An error occurred.')) // [!code --]
+throw new RpcError(new Error('An error occurred.')) // [!code ++]
+```
+
+### Renamed `RpcError` to `RpcRequestError`
+
+`RpcError` was renamed `RpcRequestError` for consistency.
+
+```ts
+import { RpcError } from 'viem' // [!code --]
+import { RpcRequestError } from 'viem'  // [!code ++]
+
+const err = new RpcError({ // [!code --]
+const err = new RpcRequestError({  // [!code ++]
+  body: { foo: 'bar' },
+  error: { code: 420, message: 'Error' },
+  url: 'https://example-rpc.com',
+})
+```
+
 ## 0.2.x Breaking changes
 
 ### `chain` is required for `sendTransaction`, `writeContract`, `deployContract`

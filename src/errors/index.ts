@@ -63,8 +63,8 @@ export {
 export {
   EnsAvatarInvalidMetadataError,
   EnsAvatarInvalidNftUriError,
-  EnsAvatarUriResolutionError,
   EnsAvatarUnsupportedNamespaceError,
+  EnsAvatarUriResolutionError,
 } from './ens.js'
 
 export { EstimateGasExecutionError } from './estimateGas.js'
@@ -87,6 +87,14 @@ export {
 } from './node.js'
 
 export {
+  HttpRequestError,
+  RpcRequestError,
+  TimeoutError,
+  WebSocketRequestError,
+} from './request.js'
+
+export {
+  ChainDisconnectedError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -96,29 +104,25 @@ export {
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
-  RequestError,
+  ProviderDisconnectedError,
+  ProviderRpcError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcRequestError,
+  RpcError,
   SwitchChainError,
   TransactionRejectedRpcError,
+  UnauthorizedProviderError,
   UnknownRpcError,
+  UnsupportedProviderMethodError,
   UserRejectedRequestError,
-} from './request.js'
-
-export {
-  HttpRequestError,
-  RpcError,
-  TimeoutError,
-  WebSocketRequestError,
 } from './rpc.js'
 
 export {
   FeeConflictError,
   InvalidLegacyVError,
+  InvalidSerializableTransactionError,
   InvalidSerializedTransactionError,
   InvalidSerializedTransactionTypeError,
-  InvalidSerializableTransactionError,
   InvalidStorageKeySizeError,
   TransactionExecutionError,
   TransactionNotFoundError,
