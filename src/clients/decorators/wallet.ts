@@ -228,6 +228,7 @@ export type WalletActions<
    * @example
    * // Account Hoisting
    * import { createWalletClient, custom } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
    * import { sendTransaction } from 'viem/wallet'
    *
@@ -244,6 +245,49 @@ export type WalletActions<
   sendTransaction: <TChainOverride extends Chain | undefined>(
     args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<SendTransactionReturnType>
+  /**
+   * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/signMessage.html
+   * - JSON-RPC Methods:
+   *   - JSON-RPC Accounts: [`personal_sign`](https://docs.metamask.io/guide/signing-data.html#personal-sign)
+   *   - Local Accounts: Signs locally. No JSON-RPC request.
+   *
+   * With the calculated signature, you can:
+   * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage) to verify the signature,
+   * - use [`recoverMessageAddress`](https://viem.sh/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
+   *
+   * @param parameters - {@link SignMessageParameters}
+   * @returns The signed message. {@link SignMessageReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const signature = await client.signMessage({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   message: 'hello world',
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, custom } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const signature = await client.signMessage({
+   *   message: 'hello world',
+   * })
+   */
   signMessage: (
     args: SignMessageParameters<TAccount>,
   ) => Promise<SignMessageReturnType>
@@ -254,6 +298,32 @@ export type WalletActions<
     args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
   ) => Promise<SignTypedDataReturnType>
   switchChain: (args: SwitchChainParameters) => Promise<void>
+  /**
+   * Adds an EVM chain to the wallet.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/watchAsset.html
+   * - JSON-RPC Methods: [`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-747)
+   *
+   * @param parameters - {@link WatchAssetParameters}
+   * @returns Boolean indicating if the token was successfully added. {@link WatchAssetReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const success = await client.watchAsset({
+   *   type: 'ERC20',
+   *   options: {
+   *     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+   *     decimals: 18,
+   *     symbol: 'WETH',
+   *   },
+   * })
+   */
   watchAsset: (args: WatchAssetParameters) => Promise<WatchAssetReturnType>
   writeContract: <
     TAbi extends Abi | readonly unknown[],

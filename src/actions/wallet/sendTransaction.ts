@@ -79,6 +79,7 @@ export type SendTransactionReturnType = Hash
  * @example
  * // Account Hoisting
  * import { createWalletClient, custom } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
  * import { sendTransaction } from 'viem/wallet'
  *
