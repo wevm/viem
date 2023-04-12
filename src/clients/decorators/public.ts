@@ -939,7 +939,7 @@ export type PublicActions<
    *   'function balanceOf(address) view returns (uint256)',
    *   'function totalSupply() view returns (uint256)',
    * ])
-   * const results = await client.multicall({
+   * const result = await client.multicall({
    *   contracts: [
    *     {
    *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',

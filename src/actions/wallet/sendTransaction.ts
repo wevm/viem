@@ -73,12 +73,12 @@ export type SendTransactionReturnType = Hash
  * const hash = await sendTransaction(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *   value: 1000000000000000000n
+ *   value: 1000000000000000000n,
  * })
  *
  * @example
  * // Account Hoisting
- * import { createWalletClient, custom } from 'viem'
+ * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
  * import { sendTransaction } from 'viem/wallet'
@@ -86,11 +86,11 @@ export type SendTransactionReturnType = Hash
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),
  *   chain: mainnet,
- *   transport: custom(window.ethereum),
+ *   transport: http(),
  * })
  * const hash = await sendTransaction(client, {
  *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *   value: 1000000000000000000n
+ *   value: 1000000000000000000n,
  * })
  */
 export async function sendTransaction<

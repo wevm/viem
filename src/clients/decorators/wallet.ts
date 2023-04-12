@@ -213,7 +213,6 @@ export type WalletActions<
    * @example
    * import { createWalletClient, custom } from 'viem'
    * import { mainnet } from 'viem/chains'
-   * import { sendTransaction } from 'viem/wallet'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
@@ -222,24 +221,23 @@ export type WalletActions<
    * const hash = await client.sendTransaction({
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-   *   value: 1000000000000000000n
+   *   value: 1000000000000000000n,
    * })
    *
    * @example
    * // Account Hoisting
-   * import { createWalletClient, custom } from 'viem'
+   * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
-   * import { sendTransaction } from 'viem/wallet'
    *
    * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
    *   chain: mainnet,
-   *   transport: custom(window.ethereum),
+   *   transport: http(),
    * })
    * const hash = await client.sendTransaction({
    *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-   *   value: 1000000000000000000n
+   *   value: 1000000000000000000n,
    * })
    */
   sendTransaction: <TChainOverride extends Chain | undefined>(
@@ -275,14 +273,14 @@ export type WalletActions<
    *
    * @example
    * // Account Hoisting
-   * import { createWalletClient, custom } from 'viem'
+   * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
    *
    * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
    *   chain: mainnet,
-   *   transport: custom(window.ethereum),
+   *   transport: http(),
    * })
    * const signature = await client.signMessage({
    *   message: 'hello world',
@@ -291,12 +289,126 @@ export type WalletActions<
   signMessage: (
     args: SignMessageParameters<TAccount>,
   ) => Promise<SignMessageReturnType>
+  /**
+   * Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/signTypedData.html
+   * - JSON-RPC Methods:
+   *   - JSON-RPC Accounts: [`eth_signTypedData_v4`](https://docs.metamask.io/guide/signing-data.html#signtypeddata-v4)
+   *   - Local Accounts: Signs locally. No JSON-RPC request.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SignTypedDataParameters}
+   * @returns The signed data. {@link SignTypedDataReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const signature = await client.signTypedData({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   domain: {
+   *     name: 'Ether Mail',
+   *     version: '1',
+   *     chainId: 1,
+   *     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+   *   },
+   *   types: {
+   *     Person: [
+   *       { name: 'name', type: 'string' },
+   *       { name: 'wallet', type: 'address' },
+   *     ],
+   *     Mail: [
+   *       { name: 'from', type: 'Person' },
+   *       { name: 'to', type: 'Person' },
+   *       { name: 'contents', type: 'string' },
+   *     ],
+   *   },
+   *   primaryType: 'Mail',
+   *   message: {
+   *     from: {
+   *       name: 'Cow',
+   *       wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+   *     },
+   *     to: {
+   *       name: 'Bob',
+   *       wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+   *     },
+   *     contents: 'Hello, Bob!',
+   *   },
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const signature = await client.signTypedData({
+   *   domain: {
+   *     name: 'Ether Mail',
+   *     version: '1',
+   *     chainId: 1,
+   *     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+   *   },
+   *   types: {
+   *     Person: [
+   *       { name: 'name', type: 'string' },
+   *       { name: 'wallet', type: 'address' },
+   *     ],
+   *     Mail: [
+   *       { name: 'from', type: 'Person' },
+   *       { name: 'to', type: 'Person' },
+   *       { name: 'contents', type: 'string' },
+   *     ],
+   *   },
+   *   primaryType: 'Mail',
+   *   message: {
+   *     from: {
+   *       name: 'Cow',
+   *       wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+   *     },
+   *     to: {
+   *       name: 'Bob',
+   *       wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+   *     },
+   *     contents: 'Hello, Bob!',
+   *   },
+   * })
+   */
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string,
   >(
     args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
   ) => Promise<SignTypedDataReturnType>
+  /**
+   * Switch the target chain in a wallet.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/switchChain.html
+   * - JSON-RPC Methods: [`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-3326)
+   *
+   * @param parameters - {@link SwitchChainParameters}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet, optimism } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * await client.switchChain({ id: optimism.id })
+   */
   switchChain: (args: SwitchChainParameters) => Promise<void>
   /**
    * Adds an EVM chain to the wallet.
@@ -325,6 +437,53 @@ export type WalletActions<
    * })
    */
   watchAsset: (args: WatchAssetParameters) => Promise<WatchAssetReturnType>
+  /**
+   * Executes a write function on a contract.
+   *
+   * - Docs: https://viem.sh/docs/contract/writeContract.html
+   * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
+   *
+   * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms) is needed to be broadcast in order to change the state.
+   *
+   * Internally, uses a [Wallet Client](https://viem.sh/docs/clients/wallet) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   *
+   * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
+   *
+   * @param parameters - {@link WriteContractParameters}
+   * @returns A [Transaction Hash](https://viem.sh/docs/glossary/terms#hash). {@link WriteContractReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const hash = await client.writeContract({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
+   *   functionName: 'mint',
+   *   args: [69420],
+   * })
+   *
+   * @example
+   * // With Validation
+   * import { createWalletClient, custom, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const { request } = await client.simulateContract({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
+   *   functionName: 'mint',
+   *   args: [69420],
+   * }
+   * const hash = await client.writeContract(request)
+   */
   writeContract: <
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,

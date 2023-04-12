@@ -45,7 +45,7 @@ export type ReadContractReturnType<
  * @returns The response from the contract. Type is inferred. {@link ReadContractReturnType}
  *
  * @example
- * import { createPublicClient, http } from 'viem'
+ * import { createPublicClient, http, parseAbi } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { readContract } from 'viem/contract'
  *
@@ -53,7 +53,7 @@ export type ReadContractReturnType<
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const results = await readContract(client, {
+ * const result = await readContract(client, {
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   abi: parseAbi(['function balanceOf(address) view returns (uint256)']),
  *   functionName: 'balanceOf',
