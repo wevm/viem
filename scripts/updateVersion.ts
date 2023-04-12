@@ -6,4 +6,4 @@ const versionFilePath = path.join(__dirname, '../src/errors/version.ts')
 const packageJsonPath = path.join(__dirname, '../package.json')
 const packageVersion = readJsonSync(packageJsonPath).version
 
-writeFileSync(versionFilePath, `export const version = '${packageVersion}'`)
+writeFileSync(versionFilePath, `export const version = '${packageVersion}'\n`)
