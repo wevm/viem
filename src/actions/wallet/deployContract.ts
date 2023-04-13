@@ -47,7 +47,7 @@ export type DeployContractReturnType = SendTransactionReturnType
  * import { deployContract } from 'viem/contract'
  *
  * const client = createWalletClient({
- *   account = privateKeyToAccount('0x…'),
+ *   account: privateKeyToAccount('0x…'),
  *   chain: mainnet,
  *   transport: http(),
  * })

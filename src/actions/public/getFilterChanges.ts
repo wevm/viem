@@ -36,7 +36,6 @@ export type GetFilterChangesReturnType<
  * - Docs: https://viem.sh/docs/actions/public/getFilterChanges.html
  * - JSON-RPC Methods: [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges)
  *
- * @remarks
  * A Filter can be created from the following actions:
  *
  * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)

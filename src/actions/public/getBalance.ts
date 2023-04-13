@@ -26,7 +26,6 @@ export type GetBalanceReturnType = bigint
  * - Docs: https://viem.sh/docs/actions/public/getBalance.html
  * - JSON-RPC Methods: [`eth_getBalance`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance)
  *
- * @remarks
  * You can convert the balance to ether units with [`formatEther`](https://viem.sh/docs/utilities/formatEther.html).
  *
  * ```ts

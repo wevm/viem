@@ -29,7 +29,6 @@ export type GetFilterLogsReturnType<
  * - Docs: https://viem.sh/docs/actions/public/getFilterLogs.html
  * - JSON-RPC Methods: [`eth_getFilterLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterlogs)
  *
- * @remarks
  * `getFilterLogs` is only compatible with **event filters**.
  *
  * @param client - Client to use

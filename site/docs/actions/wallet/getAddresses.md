@@ -48,4 +48,4 @@ A list of checksummed addresses.
 
 ## JSON-RPC Methods
 
-[`eth_accounts`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_accounts5)
+[`eth_accounts`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_accounts)

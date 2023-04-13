@@ -63,7 +63,6 @@ export type SimulateContractReturnType<
  * - Docs: https://viem.sh/docs/contract/simulateContract.html
  * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
  *
- * @remarks
  * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
  *
  * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
@@ -81,7 +80,7 @@ export type SimulateContractReturnType<
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const results = await simulateContract(client, {
+ * const result = await simulateContract(client, {
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   abi: parseAbi(['function mint(uint32) view returns (uint32)']),
  *   functionName: 'mint',

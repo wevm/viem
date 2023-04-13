@@ -15,6 +15,30 @@ export type SetStorageAtParameters = {
   value: Hex
 }
 
+/**
+ * Writes to a slot of an account's storage.
+ *
+ * - Docs: https://viem.sh/docs/actions/test/setStorageAt.html
+ *
+ * @param client - Client to use
+ * @param parameters – {@link SetStorageAtParameters}
+ *
+ * @example
+ * import { createTestClient, http } from 'viem'
+ * import { foundry } from 'viem/chains'
+ * import { setStorageAt } from 'viem/test'
+ *
+ * const client = createTestClient({
+ *   mode: 'anvil',
+ *   chain: 'foundry',
+ *   transport: http(),
+ * })
+ * await setStorageAt(client, {
+ *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
+ *   index: 2,
+ *   value: '0x0000000000000000000000000000000000000000000000000000000000000069',
+ * })
+ */
 export async function setStorageAt<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address, index, value }: SetStorageAtParameters,

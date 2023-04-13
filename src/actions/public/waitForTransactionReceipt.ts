@@ -60,7 +60,6 @@ export type WaitForTransactionReceiptParameters<
  *     - Checks if one of the Transactions is a replacement
  *     - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
  *
- * @remarks
  * The `waitForTransactionReceipt` action additionally supports Replacement detection (e.g. sped up Transactions).
  *
  * Transactions can be replaced when a user modifies their transaction in their wallet (to speed up or cancel). Transactions are replaced when they are sent from the same nonce.
