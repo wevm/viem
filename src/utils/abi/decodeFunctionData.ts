@@ -1,4 +1,4 @@
-import type { Abi, ExtractAbiFunctionNames } from 'abitype'
+import type { Abi, AbiFunction, ExtractAbiFunctionNames } from 'abitype'
 
 import { AbiFunctionSignatureNotFoundError } from '../../errors/index.js'
 import type { GetFunctionArgs, Hex } from '../../types/index.js'
@@ -8,14 +8,14 @@ import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeFunctionDataParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
+  TAbi extends Abi | AbiFunction | readonly unknown[] = Abi,
 > = {
   abi: TAbi
   data: Hex
 }
 
 export type DecodeFunctionDataReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
+  TAbi extends Abi | AbiFunction | readonly unknown[] = Abi,
   _FunctionNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
@@ -23,25 +23,32 @@ export type DecodeFunctionDataReturnType<
     : string,
 > = {
   [TName in _FunctionNames]: {
-    args: GetFunctionArgs<TAbi, TName>['args']
+    args: GetFunctionArgs<
+      TAbi extends AbiFunction ? [TAbi] : TAbi,
+      TName
+    >['args']
     functionName: TName
   }
 }[_FunctionNames]
 
-export function decodeFunctionData<TAbi extends Abi | readonly unknown[]>({
-  abi,
-  data,
-}: DecodeFunctionDataParameters<TAbi>) {
+export function decodeFunctionData<
+  TAbi extends Abi | AbiFunction | readonly unknown[],
+>({ abi, data }: DecodeFunctionDataParameters<TAbi>) {
   const signature = slice(data, 0, 4)
-  const description = (abi as Abi).find(
-    (x) =>
+  const abis: Abi = Array.isArray(abi) ? abi : [abi]
+  const description = abis.find<AbiFunction>(
+    ((x) =>
       x.type === 'function' &&
-      signature === getFunctionSelector(formatAbiItem(x)),
+      signature === getFunctionSelector(formatAbiItem(x))) as (
+      x: Abi[number],
+    ) => x is AbiFunction,
   )
-  if (!description)
+
+  if (description === undefined)
     throw new AbiFunctionSignatureNotFoundError(signature, {
       docsPath: '/docs/contract/decodeFunctionData',
     })
+
   return {
     functionName: (description as { name: string }).name,
     args: ('inputs' in description &&

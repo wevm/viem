@@ -30,6 +30,18 @@ test('foo()', () => {
       data: '0xc2985578',
     }),
   ).toEqual({ args: undefined, functionName: 'foo' })
+  expect(
+    decodeFunctionData({
+      abi: {
+        inputs: [],
+        name: 'foo',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      } as const,
+      data: '0xc2985578',
+    }),
+  ).toEqual({ args: undefined, functionName: 'foo' })
 })
 
 test('bar(uint256)', () => {
@@ -49,6 +61,26 @@ test('bar(uint256)', () => {
           type: 'function',
         },
       ] as const,
+      data: '0x0423a1320000000000000000000000000000000000000000000000000000000000000001',
+    }),
+  ).toEqual({
+    args: [1n],
+    functionName: 'bar',
+  })
+  expect(
+    decodeFunctionData({
+      abi: {
+        inputs: [
+          {
+            name: 'a',
+            type: 'uint256',
+          },
+        ],
+        name: 'bar',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      } as const,
       data: '0x0423a1320000000000000000000000000000000000000000000000000000000000000001',
     }),
   ).toEqual({
