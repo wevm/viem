@@ -1504,6 +1504,42 @@ import { pad } from 'viem'
 pad('0x69', { size: 32 })
 ```
 
+### formatBytes32String
+
+#### Ethers
+
+```ts {3}
+import { utils } from 'ethers'
+
+utils.formatBytes32String('abc')
+```
+
+#### viem
+
+```ts {3}
+import { pad, toHex } from 'viem'
+
+pad(toHex('abc'), { dir: 'right' })
+```
+
+### parseBytes32String
+
+#### Ethers
+
+```ts {3}
+import { utils } from 'ethers'
+
+utils.parseBytes32String('0x6162630000000000000000000000000000000000000000000000000000000000')
+```
+
+#### viem
+
+```ts {3}
+import { trim, fromHex } from 'viem'
+
+fromHex(trim('0x6162630000000000000000000000000000000000000000000000000000000000', { dir: 'right' }), 'string')
+```
+
 ## Display Logic & Input Utilities
 
 ### formatUnits
