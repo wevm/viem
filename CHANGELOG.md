@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.2
+
+### Patch Changes
+
+- [#375](https://github.com/wagmi-dev/viem/pull/375) [`f9bedc9`](https://github.com/wagmi-dev/viem/commit/f9bedc94ecd41fdcb2f0fed1d90162567c2a31ea) Thanks [@fubhy](https://github.com/fubhy)! - Support edge runtime
+
 ## 0.3.1
 
 ### Patch Changes
