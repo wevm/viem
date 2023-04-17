@@ -114,6 +114,24 @@ export type GetContractReturnType<
              * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
              *
              * Internally, `read` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+             *
+             * @example
+             * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+             * import { mainnet } from 'viem/chains'
+             *
+             * const publicClient = createPublicClient({
+             *   chain: mainnet,
+             *   transport: http(),
+             * })
+             * const contract = getContract({
+             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+             *   abi: parseAbi([
+             *     'function balanceOf(address owner) view returns (uint256)',
+             *   ]),
+             *   publicClient,
+             * })
+             * const result = await contract.read.balanceOf(['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'])
+             * // 424122n
              */
             read: {
               [FunctionName in _ReadFunctionNames]: GetReadFunction<
@@ -128,6 +146,23 @@ export type GetContractReturnType<
           : {
               /**
                * Estimates the gas necessary to complete a transaction without submitting it to the network.
+               *
+               * @example
+               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { mainnet } from 'viem/chains'
+               *
+               * const client = createPublicClient({
+               *   chain: mainnet,
+               *   transport: http(),
+               * })
+               * const contract = getContract({
+               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+               *   abi: parseAbi(['function mint() public']),
+               *   publicClient,
+               * })
+               * const gas = await contract.estimateGas.mint({
+               *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+               * })
                */
               estimateGas: {
                 [FunctionName in _WriteFunctionNames]: GetEstimateFunction<
@@ -145,6 +180,23 @@ export type GetContractReturnType<
                * This function does not require gas to execute and does not change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
                *
                * Internally, `simulate` uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
+               *
+               * @example
+               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { mainnet } from 'viem/chains'
+               *
+               * const client = createPublicClient({
+               *   chain: mainnet,
+               *   transport: http(),
+               * })
+               * const contract = getContract({
+               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+               *   abi: parseAbi(['function mint() public']),
+               *   publicClient,
+               * })
+               * const result = await contract.simulate.mint({
+               *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+               * })
                */
               simulate: {
                 [FunctionName in _WriteFunctionNames]: GetSimulateFunction<
@@ -162,6 +214,21 @@ export type GetContractReturnType<
           : {
               /**
                * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+               *
+               * @example
+               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { mainnet } from 'viem/chains'
+               *
+               * const client = createPublicClient({
+               *   chain: mainnet,
+               *   transport: http(),
+               * })
+               * const contract = getContract({
+               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+               *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+               *   publicClient,
+               * })
+               * const filter = await contract.createEventFilter.Transfer()
                */
               createEventFilter: {
                 [EventName in _EventNames]: GetEventFilter<
@@ -176,6 +243,25 @@ export type GetContractReturnType<
                * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
                *
                * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
+               *
+               * @example
+               * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+               * import { mainnet } from 'viem/chains'
+               *
+               * const client = createPublicClient({
+               *   chain: mainnet,
+               *   transport: http(),
+               * })
+               * const contract = getContract({
+               *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+               *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+               *   publicClient,
+               * })
+               * const filter = await contract.createEventFilter.Transfer()
+               * const unwatch = contract.watchEvent.Transfer(
+               *   { from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b' },
+               *   { onLogs: (logs) => console.log(logs) },
+               * )
                */
               watchEvent: {
                 [EventName in _EventNames]: GetWatchEvent<
@@ -197,7 +283,24 @@ export type GetContractReturnType<
              *
              * Internally, `write` uses a [Wallet Client](https://viem.sh/docs/clients/wallet.html) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
              *
-             * Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.
+             * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract.html#usage) before you execute it.__
+             *
+             * @example
+             * import { createWalletClient, getContract, http, parseAbi } from 'viem'
+             * import { mainnet } from 'viem/chains'
+             *
+             * const client = createWalletClient({
+             *   chain: mainnet,
+             *   transport: http(),
+             * })
+             * const contract = getContract({
+             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+             *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
+             *   publicClient,
+             * })
+             * const hash = await contract.write.min([69420], {
+             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+             * })
              */
             write: {
               [FunctionName in _WriteFunctionNames]: GetWriteFunction<
@@ -221,7 +324,6 @@ export type GetContractReturnType<
  *
  * - Docs https://viem.sh/docs/contract/getContract.html
  *
- * @remarks
  * Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properites every time you perform contract actions, e.g. [`readContract`](https://viem.sh/docs/contract/readContract.html), [`writeContract`](https://viem.sh/docs/contract/writeContract.html), [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas.html), etc.
  *
  * @example

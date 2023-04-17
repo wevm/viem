@@ -107,6 +107,7 @@ test('exports utils', () => {
       "publicKeyToAddress": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
+      "recoverPublicKey": [Function],
       "recoverTypedDataAddress": [Function],
       "rpc": {
         "http": [Function],

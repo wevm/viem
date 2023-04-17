@@ -12,6 +12,26 @@ export type ResetParameters = {
   jsonRpcUrl?: string | undefined
 }
 
+/**
+ * Resets fork back to its original state.
+ *
+ * - Docs: https://viem.sh/docs/actions/test/reset.html
+ *
+ * @param client - Client to use
+ * @param parameters – {@link ResetParameters}
+ *
+ * @example
+ * import { createTestClient, http } from 'viem'
+ * import { foundry } from 'viem/chains'
+ * import { reset } from 'viem/test'
+ *
+ * const client = createTestClient({
+ *   mode: 'anvil',
+ *   chain: 'foundry',
+ *   transport: http(),
+ * })
+ * await reset(client, { blockNumber: 69420n })
+ */
 export async function reset<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { blockNumber, jsonRpcUrl }: ResetParameters = {},

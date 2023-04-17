@@ -41,6 +41,10 @@ export const publicClient = createPublicClient({
 
 :::
 
+::: tip
+Check out [`createContractEventFilter`](/docs/contract/createContractEventFilter) if you are after a first-class solution for querying events on a contract without needing to manually craft ABI event parameters.
+:::
+
 ## Scoping
 
 You can also scope a Filter to a set of given attributes (listed below).

@@ -1,5 +1,4 @@
-import WebSocket from 'isomorphic-ws'
-import type { MessageEvent } from 'isomorphic-ws'
+import type { WebSocket, MessageEvent } from 'isomorphic-ws'
 import {
   HttpRequestError,
   RpcRequestError,
@@ -145,6 +144,7 @@ export async function getSocket(url_: string) {
   // If the socket already exists, return it.
   if (socket) return socket
 
+  const { WebSocket } = await import('isomorphic-ws')
   const webSocket = new WebSocket(url)
 
   // Set up a cache for incoming "synchronous" requests.

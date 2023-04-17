@@ -25,7 +25,6 @@ export type GetEnsNameReturnType = string | null
  * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
  * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
  *
- * @remarks
  * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
  *
  * @param client - Client to use

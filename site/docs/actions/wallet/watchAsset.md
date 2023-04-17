@@ -23,7 +23,7 @@ Requests that the user tracks the token in their wallet. Returns a boolean indic
 ```ts [example.ts]
 import { walletClient } from './client'
  
-await walletClient.watchAsset({ // [!code focus:99]
+const success = await walletClient.watchAsset({ // [!code focus:99]
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -60,7 +60,7 @@ Boolean indicating if the token was successfully added.
 Token type.
 
 ```ts
-await walletClient.watchAsset({
+const success = await walletClient.watchAsset({
   type: 'ERC20', // [!code focus]
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -77,7 +77,7 @@ await walletClient.watchAsset({
 The address of the token contract.
 
 ```ts
-await walletClient.watchAsset({
+const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
@@ -94,7 +94,7 @@ await walletClient.watchAsset({
 The number of token decimals.
 
 ```ts
-await walletClient.watchAsset({
+const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -111,7 +111,7 @@ await walletClient.watchAsset({
 A ticker symbol or shorthand, up to 11 characters.
 
 ```ts
-await walletClient.watchAsset({
+const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -128,7 +128,7 @@ await walletClient.watchAsset({
 A string url of the token logo.
 
 ```ts
-await walletClient.watchAsset({
+const success = await walletClient.watchAsset({
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
