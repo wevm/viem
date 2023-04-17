@@ -41,6 +41,28 @@ describe('eip1559', () => {
     })
   })
 
+  test('default (all zeros)', () => {
+    const baseEip1559Zero = {
+      to: accounts[1].address,
+      nonce: 0,
+      chainId: 1,
+      maxFeePerGas: 0n,
+      maxPriorityFeePerGas: 0n,
+      value: 0n,
+    } satisfies TransactionSerializableEIP1559
+
+    const serialized = serializeTransaction(baseEip1559Zero)
+
+    expect(serialized).toEqual(
+      '0x02dd01808080809470997970c51812dc3a010c7d01b50e0d17dc79c88080c0',
+    )
+    expect(parseTransaction(serialized)).toEqual({
+      chainId: 1,
+      to: accounts[1].address,
+      type: 'eip1559',
+    })
+  })
+
   test('minimal (w/ maxFeePerGas)', () => {
     const args = {
       chainId: 1,
@@ -223,6 +245,29 @@ describe('eip2930', () => {
     })
   })
 
+  test('default (all zeros)', () => {
+    const baseEip2930Zero = {
+      to: accounts[1].address,
+      nonce: 0,
+      chainId: 1,
+      value: 0n,
+      gasPrice: 0n,
+      accessList: [],
+    } satisfies TransactionSerializableEIP2930
+
+    const serialized = serializeTransaction(baseEip2930Zero)
+
+    expect(serialized).toEqual(
+      '0x01dc018080809470997970c51812dc3a010c7d01b50e0d17dc79c88080c0',
+    )
+
+    expect(parseTransaction(serialized)).toEqual({
+      chainId: 1,
+      to: accounts[1].address,
+      type: 'eip2930',
+    })
+  })
+
   test('minimal (w/ accessList & gasPrice)', () => {
     const args = {
       chainId: 1,
@@ -380,6 +425,26 @@ describe('legacy', () => {
     )
     expect(parseTransaction(serialized)).toEqual({
       ...baseLegacy,
+      type: 'legacy',
+    })
+  })
+
+  test('default (all zeros)', () => {
+    const baseLegacyZero = {
+      to: accounts[1].address,
+      nonce: 0,
+      value: 0n,
+      gasPrice: 0n,
+    } satisfies TransactionSerializableLegacy
+
+    const serialized = serializeTransaction(baseLegacyZero)
+
+    expect(serialized).toEqual(
+      '0xda8080809470997970c51812dc3a010c7d01b50e0d17dc79c88080',
+    )
+
+    expect(parseTransaction(serialized)).toEqual({
+      to: accounts[1].address,
       type: 'legacy',
     })
   })
