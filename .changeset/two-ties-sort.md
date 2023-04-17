@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixes a bug where `serializeTransaction` was incorrectly encoding properties with zeros as values.
+Fixed an issue where `serializeTransaction` was incorrectly encoding zero-ish properties.
