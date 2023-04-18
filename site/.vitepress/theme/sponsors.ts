@@ -78,6 +78,11 @@ export const sponsors = [
         url: 'https://bitkeep.com',
         img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/bitkeep-light.svg',
       },
+      {
+        name: 'Privy',
+        url: 'https://privy.com',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/privy-light.svg',
+      },
     ],
   },
 ] satisfies Sponsors
