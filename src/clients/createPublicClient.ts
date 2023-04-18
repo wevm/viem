@@ -33,9 +33,9 @@ export type PublicClient<
   TIncludeActions extends boolean = true,
 > = Prettify<
   Client<TTransport, PublicRequests, TChain> &
+    Pick<PublicClientConfig, 'batch'> &
     (TIncludeActions extends true ? PublicActions<TTransport, TChain> : unknown)
-> &
-  Pick<PublicClientConfig, 'batch'>
+>
 
 /**
  * Creates a Public Client with a given [Transport](https://viem.sh/docs/clients/intro) configured for a [Chain](https://viem.sh/docs/clients/chains).
