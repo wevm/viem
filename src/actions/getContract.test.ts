@@ -170,8 +170,7 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
   await expect(
     contractNoIndexedEventArgs.read.constructor(),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"constructor\\" reverted with the following reason:
-    execution reverted
+    "The contract function \\"constructor\\" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
@@ -183,8 +182,7 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
   await expect(
     contractNoIndexedEventArgs.read.function(['function']),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"function\\" reverted with the following reason:
-    execution reverted
+    "The contract function \\"function\\" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000

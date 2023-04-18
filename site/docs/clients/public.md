@@ -72,6 +72,65 @@ const client = createPublicClient({
 })
 ```
 
+### batch (optional)
+
+Flags for batch settings.
+
+### batch.multicall (optional)
+
+- **Type:** `boolean | MulticallBatchOptions`
+- **Default:** `false`
+
+Toggle to enable `eth_call` multicall aggregation.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: true, // [!code focus]
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### batch.multicall.batchSize (optional)
+
+- **Type:** `number`
+- **Default:** `1_024`
+
+The maximum size (in bytes) for each multicall (`aggregate3`) calldata chunk.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: {
+      batchSize: 512, // [!code focus]
+    },
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### batch.multicall.wait (optional)
+
+- **Type:** `number`
+- **Default:** `16`
+
+The maximum number of milliseconds to wait before sending a batch.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: {
+      wait: 16, // [!code focus]
+    },
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`
