@@ -1,11 +1,18 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, publicClient } from '../../_test/index.js'
-import { celo } from '../../chains.js'
+import {
+  accounts,
+  initialBlockNumber,
+  publicClient,
+} from '../../_test/index.js'
+import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
+import { celo, mainnet } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
+import { aggregate3Signature } from '../../constants/index.js'
 import { numberToHex, parseEther, parseGwei } from '../../utils/index.js'
 
 import { call } from './call.js'
+import { wait } from '../../utils/wait.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -230,4 +237,464 @@ describe('errors', () => {
       Version: viem@1.0.2"
     `)
   })
+})
+
+describe('batch call', () => {
+  test('default', async () => {
+    publicClient.batch = { multicall: true }
+
+    const spy = vi.spyOn(publicClient, 'request')
+
+    const p = []
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    await wait(1)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+    await wait(1)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    await wait(50)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+
+    const results = await Promise.all(p)
+
+    expect(spy).toBeCalledTimes(2)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+      ]
+    `)
+  })
+
+  test('args: blockNumber', async () => {
+    publicClient.batch = { multicall: true }
+
+    const spy = vi.spyOn(publicClient, 'request')
+
+    const p = []
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+        blockNumber: initialBlockNumber,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+        blockNumber: initialBlockNumber + 1n,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    await wait(1)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+        blockNumber: initialBlockNumber,
+      }),
+    )
+    await wait(1)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    await wait(50)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+
+    const results = await Promise.all(p)
+
+    expect(spy).toBeCalledTimes(4)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+      ]
+    `)
+  })
+
+  test('args: no address, no data, aggregate3 sig, other properties', async () => {
+    publicClient.batch = { multicall: true }
+
+    const spy = vi.spyOn(publicClient, 'request')
+
+    const p = []
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: aggregate3Signature,
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+        maxFeePerGas: 1n,
+      }),
+    )
+
+    try {
+      await Promise.all(p)
+    } catch {}
+
+    expect(spy).toBeCalledTimes(4)
+  })
+
+  test('contract revert', async () => {
+    const spy = vi.spyOn(publicClient, 'request')
+
+    const p = []
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: `${mintWithParams4bytes}${fourTwenty}`,
+        to: wagmiContractAddress,
+      }),
+    )
+
+    const results = await Promise.allSettled(p)
+
+    expect(spy).toBeCalledTimes(1)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "status": "fulfilled",
+          "value": {
+            "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+          },
+        },
+        {
+          "reason": [CallExecutionError: An error occurred.
+
+      Raw Call Arguments:
+        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
+
+      Version: viem@1.0.2],
+          "status": "rejected",
+        },
+      ]
+    `)
+  })
+
+  test('client config', async () => {
+    publicClient.batch = {
+      multicall: {
+        batchSize: 1024,
+        wait: 0,
+      },
+    }
+
+    const spy = vi.spyOn(publicClient, 'request')
+
+    const p = []
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    await wait(1)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+    await wait(1)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    await wait(50)
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    p.push(
+      call(publicClient, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+
+    const results = await Promise.all(p)
+
+    expect(spy).toBeCalledTimes(4)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+      ]
+    `)
+  })
+
+  test('no chain on client', async () => {
+    const client = publicClient
+
+    // @ts-expect-error
+    client.chain = undefined
+    client.batch = { multicall: true }
+
+    const spy = vi.spyOn(client, 'request')
+
+    const p = []
+    p.push(
+      call(client, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(client, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    p.push(
+      call(client, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+
+    const results = await Promise.all(p)
+
+    expect(spy).toBeCalledTimes(3)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+      ]
+    `)
+  })
+
+  test('chain not configured with multicall', async () => {
+    const client = publicClient
+
+    client.batch = { multicall: true }
+    client.chain = {
+      ...client.chain,
+      contracts: {
+        // @ts-expect-error
+        multicall3: undefined,
+      },
+    }
+
+    const spy = vi.spyOn(client, 'request')
+
+    const p = []
+    p.push(
+      call(client, {
+        data: name4bytes,
+        to: wagmiContractAddress,
+      }),
+    )
+    p.push(
+      call(client, {
+        data: name4bytes,
+        to: usdcContractConfig.address,
+      }),
+    )
+    p.push(
+      call(client, {
+        data: name4bytes,
+        to: baycContractConfig.address,
+      }),
+    )
+
+    const results = await Promise.all(p)
+
+    expect(spy).toBeCalledTimes(3)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+        },
+        {
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
+        },
+      ]
+    `)
+  })
+
+  test(
+    'stress',
+    async () => {
+      const batchSize = 2048
+      const batch1Length = 500
+      const batch2Length = 10_000
+
+      const client = createPublicClient({
+        chain: mainnet,
+        batch: { multicall: true },
+        transport: http(),
+      })
+
+      const spy = vi.spyOn(client, 'request')
+
+      const p = []
+      for (let i = 0; i < batch1Length; i++) {
+        p.push(
+          call(client, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+          }),
+        )
+      }
+      await wait(50)
+      for (let i = 0; i < batch2Length; i++) {
+        p.push(
+          call(client, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+          }),
+        )
+      }
+
+      await Promise.all(p)
+
+      expect(spy).toBeCalledTimes(
+        Math.ceil((batch1Length * (name4bytes.length - 2)) / batchSize) +
+          Math.ceil((batch2Length * (name4bytes.length - 2)) / batchSize),
+      )
+    },
+    { timeout: 30_000 },
+  )
 })

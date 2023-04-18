@@ -78,6 +78,10 @@ jobs:
         shard: [1, 2, 3]
         total-shards: [3]
         transport-mode: ['http', 'webSocket']
+        include:
+          - batch-multicall: 'false'
+          - batch-multicall: 'true'
+            transport-mode: 'http'
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -100,6 +104,7 @@ jobs:
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
+          VITE_BATCH_MULTICALL: ${{ matrix.batch-multicall }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

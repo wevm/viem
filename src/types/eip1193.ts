@@ -207,7 +207,7 @@ export type PublicRequests = {
      */
     method: 'eth_call'
     params: [
-      request: TransactionRequest,
+      request: Partial<TransactionRequest>,
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Hex>

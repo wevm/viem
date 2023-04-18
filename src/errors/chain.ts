@@ -67,6 +67,14 @@ export class ChainNotFoundError extends BaseError {
   }
 }
 
+export class ClientChainNotConfiguredError extends BaseError {
+  override name = 'ClientChainNotConfiguredError'
+
+  constructor() {
+    super('No chain was provided to the Client.')
+  }
+}
+
 export class InvalidChainIdError extends BaseError {
   override name = 'InvalidChainIdError'
 

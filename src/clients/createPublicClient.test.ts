@@ -27,6 +27,7 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
+      "batch": undefined,
       "call": [Function],
       "chain": undefined,
       "createBlockFilter": [Function],
@@ -84,6 +85,42 @@ test('creates', () => {
   `)
 })
 
+test('args: batch', () => {
+  expect(
+    createPublicClient({
+      batch: {
+        multicall: true,
+      },
+      chain: localhost,
+      transport: http(),
+    }).batch,
+  ).toMatchInlineSnapshot(`
+    {
+      "multicall": true,
+    }
+  `)
+
+  expect(
+    createPublicClient({
+      batch: {
+        multicall: {
+          batchSize: 2048,
+          wait: 32,
+        },
+      },
+      chain: localhost,
+      transport: http(),
+    }).batch,
+  ).toMatchInlineSnapshot(`
+    {
+      "multicall": {
+        "batchSize": 2048,
+        "wait": 32,
+      },
+    }
+  `)
+})
+
 describe('transports', () => {
   test('http', () => {
     const { uid, ...client } = createPublicClient({
@@ -94,6 +131,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "batch": undefined,
         "call": [Function],
         "chain": {
           "id": 1337,
@@ -182,6 +220,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "batch": undefined,
         "call": [Function],
         "chain": {
           "id": 1337,
@@ -270,6 +309,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "batch": undefined,
         "call": [Function],
         "chain": undefined,
         "createBlockFilter": [Function],
