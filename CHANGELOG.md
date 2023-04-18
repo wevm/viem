@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.3
+
+### Patch Changes
+
+- [#383](https://github.com/wagmi-dev/viem/pull/383) [`7e9731c`](https://github.com/wagmi-dev/viem/commit/7e9731cf315ddcd10f35c81c63a15af6aa78350d) Thanks [@Raiden1411](https://github.com/Raiden1411)! - Fixed an issue where `serializeTransaction` was incorrectly encoding zero-ish properties.
+
 ## 0.3.2
 
 ### Patch Changes
