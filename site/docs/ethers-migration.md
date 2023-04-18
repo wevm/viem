@@ -1360,6 +1360,52 @@ import { toHex } from 'viem'
 toHex(1)
 ```
 
+### formatBytes32String
+
+#### Ethers
+
+```ts {3}
+import { utils } from 'ethers'
+
+utils.formatBytes32String('Hello world')
+// 0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000
+```
+
+#### viem
+
+```ts {3-6}
+import { stringToHex } from 'viem'
+
+stringToHex(
+  'Hello world', 
+  { size: 32 }
+)
+// 0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000
+```
+
+### parseBytes32String
+
+#### Ethers
+
+```ts {3}
+import { utils } from 'ethers'
+
+utils.parseBytes32String('0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000')
+// "Hello world"
+```
+
+#### viem
+
+```ts {3-6}
+import { hexToString } from 'viem'
+
+hexToString(
+  '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000', 
+  { size: 32 }
+)
+// "Hello world"
+```
+
 ### concat
 
 #### Ethers

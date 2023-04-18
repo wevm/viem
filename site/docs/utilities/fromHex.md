@@ -16,6 +16,14 @@ head:
 
 Decodes a hex value to a string, number or byte array.
 
+Shortcut Functions:
+
+- [hexToNumber](#hextonumber)
+- [hexToBigInt](#hextobigint)
+- [hexToString](#hextostring)
+- [hexToBytes](#hextobytes)
+- [hexToBool](#hextobool)
+
 ## Import
 
 ```ts
@@ -57,11 +65,30 @@ The targeted type.
 
 The hex value to decode.
 
-### to
+### toOrOptions
 
-- **Type:** `"string" | "bigint" | "number" | "bytes" | "boolean"`
+- **Type:** `"string" | "hex" | "number" | "bigint" | "boolean" | Options`
 
-The output type.
+The output type or options.
+
+```ts {3}
+fromHex(
+  '0x48656c6c6f20776f726c642e', 
+  'string'
+)
+// 'Hello world'
+```
+
+```ts {3-6}
+fromHex(
+  '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000', 
+  {
+    size: 32,
+    to: 'string'
+  }
+)
+// 'Hello world'
+```
 
 ## Shortcut Functions
 
@@ -76,6 +103,12 @@ import { hexToNumber } from 'viem'
 
 hexToNumber('0x1a4')
 // 420
+
+hexToNumber(
+  '0x00000000000000000000000000000000000000000000000000000000000001a4', 
+  { size: 32 }
+)
+// 420
 ```
 
 ### hexToBigInt
@@ -88,6 +121,12 @@ Decodes a hex value to a bigint.
 import { hexToBigInt } from 'viem'
 
 hexToBigInt('0xc5cf39211876fb5e5884327fa56fc0b75')
+// 4206942069420694206942069420694206942069n
+
+hexToBigInt(
+  '0x0000000000000000000000000000000c5cf39211876fb5e5884327fa56fc0b75', 
+  { size: 32 }
+)
 // 4206942069420694206942069420694206942069n
 ```
 
@@ -102,6 +141,12 @@ import { hexToString } from 'viem'
 
 hexToString('0x48656c6c6f20576f726c6421')
 // "Hello World!"
+
+hexToString(
+  '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000',
+  { size: 32 }
+)
+// "Hello World!"
 ```
 
 ### hexToBytes
@@ -115,6 +160,12 @@ import { hexToBytes } from 'viem'
 
 hexToBytes('0x48656c6c6f20576f726c6421')
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+
+hexToBytes(
+  '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000',
+  { size: 32 }
+)
+// Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 ```
 
 ### hexToBool
@@ -124,8 +175,14 @@ hexToBytes('0x48656c6c6f20576f726c6421')
 Decodes a hex value to a boolean.
 
 ```ts
-import { hexToBytes } from 'viem'
+import { hexToBool } from 'viem'
 
-hexToBytes('0x1')
+hexToBool('0x1')
+// true
+
+hexToBool(
+  '0x00000000000000000000000000000000000000000000000000000000000001',
+  { size: 32 }
+)
 // true
 ```
