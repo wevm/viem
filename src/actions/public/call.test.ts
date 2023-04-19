@@ -288,7 +288,7 @@ describe('batch call', () => {
 
     const results = await Promise.all(p)
 
-    expect(spy).toBeCalledTimes(2)
+    expect(spy).toBeCalledTimes(4)
     expect(results).toMatchInlineSnapshot(`
       [
         {
@@ -370,7 +370,7 @@ describe('batch call', () => {
 
     const results = await Promise.all(p)
 
-    expect(spy).toBeCalledTimes(4)
+    expect(spy).toBeCalledTimes(6)
     expect(results).toMatchInlineSnapshot(`
       [
         {
@@ -481,7 +481,7 @@ describe('batch call', () => {
     publicClient.batch = {
       multicall: {
         batchSize: 1024,
-        wait: 0,
+        wait: 16,
       },
     }
 
@@ -530,7 +530,7 @@ describe('batch call', () => {
 
     const results = await Promise.all(p)
 
-    expect(spy).toBeCalledTimes(4)
+    expect(spy).toBeCalledTimes(2)
     expect(results).toMatchInlineSnapshot(`
       [
         {
@@ -678,7 +678,7 @@ describe('batch call', () => {
           }),
         )
       }
-      await wait(50)
+      await wait(1)
       for (let i = 0; i < batch2Length; i++) {
         p.push(
           call(client, {

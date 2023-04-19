@@ -197,7 +197,7 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,
   args: ScheduleMulticallParameters<TChain>,
 ) {
-  const { batchSize = 1024, wait = 16 } =
+  const { batchSize = 1024, wait = 0 } =
     typeof client.batch?.multicall === 'object' ? client.batch?.multicall : {}
   const {
     blockNumber,

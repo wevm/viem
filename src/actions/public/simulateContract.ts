@@ -32,7 +32,7 @@ export type SimulateContractParameters<
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
-    'to' | 'data' | 'value'
+    'batch' | 'to' | 'data' | 'value'
   > &
   GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
 
