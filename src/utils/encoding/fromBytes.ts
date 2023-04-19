@@ -4,7 +4,9 @@ import { trim } from '../data/trim.js'
 import { assertSize, hexToBigInt, hexToNumber } from './fromHex.js'
 import { bytesToHex } from './toHex.js'
 
-export type FromBytesParameters<TTo> =
+export type FromBytesParameters<
+  TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
+> =
   | TTo
   | {
       /** Size of the bytes. */

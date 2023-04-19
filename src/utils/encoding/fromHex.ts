@@ -18,7 +18,9 @@ export function assertSize(
     })
 }
 
-export type FromHexParameters<TTo> =
+export type FromHexParameters<
+  TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
+> =
   | TTo
   | {
       /** Size (in bytes) of the hex value. */
