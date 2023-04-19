@@ -2,6 +2,7 @@
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
   "version": "0.3.3",
+  "packageManager": "pnpm@7.32.1",
   "scripts": {
     "anvil": "dotenv -- sh -c 'anvil --fork-url $VITE_ANVIL_FORK_URL --fork-block-number $VITE_ANVIL_BLOCK_NUMBER --block-time $VITE_ANVIL_BLOCK_TIME'",
     "bench": "vitest bench --no-threads",
