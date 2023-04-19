@@ -85,7 +85,7 @@ export function fallback(
   const {
     key = 'fallback',
     name = 'Fallback',
-    rank = true,
+    rank = false,
     retryCount,
     retryDelay,
   } = config

@@ -105,9 +105,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server3.url)], {
-      rank: false,
-    })({
+    let transport = fallback([http(server1.url), http(server3.url)])({
       chain: localhost,
     })
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -116,12 +114,11 @@ describe('request', () => {
     expect(count).toBe(2)
 
     count = 0
-    transport = fallback(
-      [http(server1.url), http(server2.url), http(server3.url)],
-      {
-        rank: false,
-      },
-    )({
+    transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
       chain: localhost,
     })
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -130,9 +127,7 @@ describe('request', () => {
     expect(count).toBe(3)
 
     count = 0
-    transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -159,12 +154,11 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback(
-      [http(server1.url), http(server2.url), http(server3.url)],
-      {
-        rank: false,
-      },
-    )({
+    const transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
       chain: localhost,
     })
 
@@ -234,12 +228,11 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback(
-      [http(server1.url), http(server2.url), http(server3.url)],
-      {
-        rank: false,
-      },
-    )({
+    const transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
       chain: localhost,
     })
     await expect(() =>
@@ -266,9 +259,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     expect(
@@ -291,9 +282,7 @@ describe('request', () => {
       res.end()
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -321,9 +310,7 @@ describe('request', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -348,7 +335,6 @@ describe('request', () => {
 
     const transport = fallback([http(server1.url), http(server2.url)], {
       retryCount: 1,
-      rank: false,
     })({
       chain: localhost,
     })
@@ -380,7 +366,6 @@ describe('request', () => {
         http(server2.url, { retryCount: 2 }),
       ],
       {
-        rank: false,
         retryCount: 0,
       },
     )({
@@ -534,9 +519,7 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })
+    const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
@@ -560,9 +543,7 @@ describe('client', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })
+    const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
     await expect(

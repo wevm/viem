@@ -156,9 +156,7 @@ test('fallback client: scopes request', async () => {
   })
 
   const fallbackClient = createPublicClient({
-    transport: fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    }),
+    transport: fallback([http(server1.url), http(server2.url)]),
   })
   const filter = await createContractEventFilter(fallbackClient, {
     abi: usdcContractConfig.abi,

@@ -33,9 +33,7 @@ test('fallback client: scopes request', async () => {
   })
 
   const fallbackClient = createPublicClient({
-    transport: fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    }),
+    transport: fallback([http(server1.url), http(server2.url)]),
   })
   const filter = await createPendingTransactionFilter(fallbackClient)
   expect(filter).toBeDefined()
