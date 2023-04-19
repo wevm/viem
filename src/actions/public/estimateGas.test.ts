@@ -6,6 +6,7 @@ import {
   initialBlockNumber,
   publicClient,
   testClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { reset } from '../test/index.js'
@@ -13,6 +14,8 @@ import { estimateGas } from './estimateGas.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+
+setupAnvil()
 
 test('estimates gas', async () => {
   expect(

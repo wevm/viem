@@ -5,6 +5,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import {
   getBlock,
@@ -17,6 +18,8 @@ import * as publicActions from '../../actions/public/index.js'
 
 import { defaultTip, prepareRequest } from './prepareRequest.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
+
+setupAnvil()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

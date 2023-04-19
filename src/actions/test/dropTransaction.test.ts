@@ -5,6 +5,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
@@ -12,6 +13,8 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 import { mine } from './mine.js'
 import { dropTransaction } from './dropTransaction.js'
 import { setIntervalMining } from './setIntervalMining.js'
+
+setupAnvil()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

@@ -5,10 +5,13 @@ import {
   address,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { impersonateAccount } from './impersonateAccount.js'
+
+setupAnvil()
 
 test('impersonates account', async () => {
   await expect(

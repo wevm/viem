@@ -5,11 +5,14 @@ import {
   ethersProvider,
   ethersV6Provider,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 
 import { sendTransaction } from './sendTransaction.js'
 import { JsonRpcSigner } from 'ethers@6'
+
+setupAnvil()
 
 describe('Send Transaction', () => {
   bench('viem: `sendTransaction`', async () => {

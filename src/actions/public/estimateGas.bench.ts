@@ -5,10 +5,13 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 
 import { estimateGas } from './estimateGas.js'
+
+setupAnvil()
 
 describe.skip('Estimate Gas', () => {
   bench('viem: `estimateGas`', async () => {

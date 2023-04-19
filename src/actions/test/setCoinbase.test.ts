@@ -1,8 +1,10 @@
 import { test } from 'vitest'
 
-import { testClient } from '../../_test/index.js'
+import { testClient, setupAnvil } from '../../_test/index.js'
 
 import { setCoinbase } from './setCoinbase.js'
+
+setupAnvil()
 
 test('set next block base fee per gas', async () => {
   await setCoinbase(testClient, {

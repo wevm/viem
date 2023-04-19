@@ -1,4 +1,4 @@
-import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test } from 'vitest'
 
 import {
   accounts,
@@ -9,19 +9,16 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
-import {
-  impersonateAccount,
-  mine,
-  setIntervalMining,
-  stopImpersonatingAccount,
-} from '../test/index.js'
+import { impersonateAccount, mine, setIntervalMining } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import type { Log } from '../../types/index.js'
 import { getLogs } from './getLogs.js'
 import { getBlock } from './getBlock.js'
 import { getAddress } from '../../utils/index.js'
 import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
+import { setBalance } from '../test/setBalance.js'
 
 const event = {
   default: {
@@ -86,7 +83,7 @@ const event = {
   },
 } as const
 
-beforeAll(async () => {
+setupAnvil(async () => {
   await setIntervalMining(testClient, { interval: 0 })
   await impersonateAccount(testClient, {
     address: address.vitalik,
@@ -94,15 +91,9 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
   })
-})
-
-afterAll(async () => {
-  await setIntervalMining(testClient, { interval: 1 })
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await impersonateAccount(testClient, {
+  await setBalance(testClient, {
     address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
 })
 

@@ -14,10 +14,13 @@ import {
   localHttpUrl,
   publicClient,
   usdcContractConfig,
+  setupAnvil,
 } from '../../_test/index.js'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 
 import { multicall } from './multicall.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(

@@ -6,11 +6,14 @@ import {
   initialBlockNumber,
   publicClient,
   usdcContractConfig,
+  setupAnvil,
 } from '../../_test/index.js'
 import { createPublicClient, fallback, http } from '../../clients/index.js'
 import type { Requests } from '../../types/eip1193.js'
 
 import { createContractEventFilter } from './createContractEventFilter.js'
+
+setupAnvil()
 
 const request = (() => {}) as unknown as Requests['request']
 

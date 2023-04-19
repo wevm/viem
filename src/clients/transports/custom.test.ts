@@ -2,9 +2,12 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 import '../../types/window.js'
 
 import type { Requests } from '../../types/eip1193.js'
+import { setupAnvil } from '../../_test/index.js'
 
 import type { CustomTransport } from './custom.js'
 import { custom } from './custom.js'
+
+setupAnvil()
 
 vi.stubGlobal('window', {
   ethereum: {

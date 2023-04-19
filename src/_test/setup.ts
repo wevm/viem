@@ -1,5 +1,4 @@
-import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
-
+import { beforeAll, beforeEach, vi } from 'vitest'
 import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
 
@@ -13,6 +12,10 @@ beforeAll(() => {
       getVersion: vi.fn().mockReturnValue('viem@1.0.2'),
     }
   })
+
+  return () => {
+    vi.resetAllMocks()
+  }
 })
 
 beforeEach(() => {
@@ -20,8 +23,4 @@ beforeEach(() => {
   responseCache.clear()
   listenersCache.clear()
   cleanupCache.clear()
-})
-
-afterAll(() => {
-  vi.resetAllMocks()
 })

@@ -6,9 +6,12 @@ import {
   typedData,
   walletClient,
   walletClientWithAccount,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { signTypedData } from './signTypedData.js'
+
+setupAnvil()
 
 const localAccount = privateKeyToAccount(accounts[0].privateKey)
 const jsonRpcAccount = accounts[0].address

@@ -1,9 +1,15 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer, publicClient } from '../../_test/index.js'
+import {
+  createHttpServer,
+  publicClient,
+  setupAnvil,
+} from '../../_test/index.js'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { createPublicClient, fallback, http } from '../../clients/index.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(await createPendingTransactionFilter(publicClient)).toBeDefined()

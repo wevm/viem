@@ -4,12 +4,15 @@ import {
   initialBlockNumber,
   publicClient,
   testClient,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { getBlockNumber } from '../public/getBlockNumber.js'
 import { setIntervalMining } from './setIntervalMining.js'
 import { mine } from './mine.js'
 import { reset } from './reset.js'
+
+setupAnvil()
 
 test('resets the fork', async () => {
   await setIntervalMining(testClient, { interval: 0 })

@@ -7,9 +7,12 @@ import {
   ethersV6Provider,
   publicClient,
   wagmiContractConfig,
+  setupAnvil,
 } from '../_test/index.js'
 
 import { getContract } from './getContract.js'
+
+setupAnvil()
 
 describe('Create contract instance', () => {
   bench('viem: `getContract`', async () => {

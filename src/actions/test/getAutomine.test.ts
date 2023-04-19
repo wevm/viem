@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '../../_test/index.js'
+import { testClient, setupAnvil } from '../../_test/index.js'
 
 import { getAutomine } from './getAutomine.js'
 import { setAutomine } from './setAutomine.js'
+
+setupAnvil()
 
 // TODO: Anvil sometimes stops interval mining when automining is programatically set.
 test.skip('gets automine status', async () => {

@@ -5,10 +5,13 @@ import {
   createHttpServer,
   initialBlockNumber,
   publicClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { createEventFilter } from './createEventFilter.js'
 import type { Requests } from '../../types/eip1193.js'
 import { createPublicClient, fallback, http } from '../../clients/index.js'
+
+setupAnvil()
 
 const event = {
   default: {

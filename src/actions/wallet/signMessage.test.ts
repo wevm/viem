@@ -5,8 +5,11 @@ import {
   walletClientWithAccount,
   accounts,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { signMessage } from './signMessage.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(

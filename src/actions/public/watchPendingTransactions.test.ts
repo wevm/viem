@@ -9,6 +9,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
 import { sendTransaction } from '../wallet/index.js'
@@ -16,6 +17,8 @@ import { parseEther } from '../../utils/index.js'
 import { mine, setIntervalMining } from '../test/index.js'
 import { webSocketClient } from '../../_test/utils.js'
 import type { PublicClient } from '../../clients/index.js'
+
+setupAnvil()
 
 describe('poll', () => {
   test(

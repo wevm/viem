@@ -31,3 +31,6 @@ export {
   walletClientWithoutChain,
   webSocketClient,
 } from './utils.js'
+
+export { setupAnvil } from './anvil/setup.js'
+export { anvilPort } from './anvil/port.js'

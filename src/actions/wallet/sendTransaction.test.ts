@@ -6,6 +6,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import {
   celo,
@@ -22,6 +23,8 @@ import { sendTransaction } from './sendTransaction.js'
 import { createWalletClient, http } from '../../clients/index.js'
 import { anvilChain, walletClientWithAccount } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
+
+setupAnvil()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

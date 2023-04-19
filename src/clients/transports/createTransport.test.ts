@@ -1,8 +1,11 @@
 import { assertType, expect, test, vi } from 'vitest'
 
 import type { Requests } from '../../types/eip1193.js'
+import { setupAnvil } from '../../_test/index.js'
 
 import { createTransport } from './createTransport.js'
+
+setupAnvil()
 
 test('default', () => {
   const transport = createTransport({

@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  assertType,
-  beforeAll,
-  describe,
-  expect,
-  test,
-  vi,
-} from 'vitest'
+import { assertType, describe, expect, test, vi } from 'vitest'
 import { getAddress } from '../../utils/index.js'
 import { wait } from '../../utils/wait.js'
 import {
@@ -16,12 +8,9 @@ import {
   testClient,
   usdcContractConfig,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
-import {
-  impersonateAccount,
-  mine,
-  stopImpersonatingAccount,
-} from '../test/index.js'
+import { impersonateAccount, mine } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
@@ -29,22 +18,18 @@ import * as getFilterChanges from './getFilterChanges.js'
 import * as getLogs from './getLogs.js'
 import type { OnLogsParameter } from './watchContractEvent.js'
 import { watchContractEvent } from './watchContractEvent.js'
+import { setBalance } from '../test/setBalance.js'
 
-beforeAll(async () => {
+setupAnvil(async () => {
   await impersonateAccount(testClient, {
     address: address.vitalik,
   })
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
   })
-})
-
-afterAll(async () => {
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await stopImpersonatingAccount(testClient, {
+  await setBalance(testClient, {
     address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
 })
 

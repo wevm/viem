@@ -2,9 +2,11 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localhost } from '../chains.js'
 import type { Requests } from '../types/eip1193.js'
-import { localWsUrl } from '../_test/index.js'
+import { localWsUrl, setupAnvil } from '../_test/index.js'
 import { createClient } from './createClient.js'
 import { createTransport, custom, http, webSocket } from './transports/index.js'
+
+setupAnvil()
 
 test('creates', () => {
   const mockTransport = () =>

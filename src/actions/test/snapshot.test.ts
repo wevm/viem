@@ -1,9 +1,16 @@
 import { expect, test } from 'vitest'
 
-import { accounts, testClient, walletClient } from '../../_test/index.js'
+import {
+  accounts,
+  testClient,
+  walletClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { snapshot } from './snapshot.js'
+
+setupAnvil()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

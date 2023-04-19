@@ -1,10 +1,16 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient } from '../../_test/index.js'
+import {
+  initialBlockNumber,
+  publicClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { celo } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import type { Block, Hex } from '../../types/index.js'
 import { getBlock } from './getBlock.js'
+
+setupAnvil()
 
 test('gets latest block', async () => {
   const block = await getBlock(publicClient)

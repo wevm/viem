@@ -1,7 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient } from '../../_test/index.js'
+import {
+  initialBlockNumber,
+  publicClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { getFeeHistory } from './getFeeHistory.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(

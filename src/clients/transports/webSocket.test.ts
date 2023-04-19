@@ -1,11 +1,14 @@
 import { assertType, describe, expect, test } from 'vitest'
 import { WebSocket } from 'isomorphic-ws'
 
-import { localWsUrl } from '../../_test/index.js'
+import { localWsUrl, setupAnvil } from '../../_test/index.js'
 import { localhost } from '../../chains.js'
 import { wait } from '../../utils/wait.js'
 import type { WebSocketTransport } from './webSocket.js'
 import { webSocket } from './webSocket.js'
+import { localHttpUrl } from '../../_test/constants.js'
+
+setupAnvil()
 
 test('default', () => {
   const transport = webSocket(localWsUrl)
@@ -109,8 +112,8 @@ test('request', async () => {
       chain: {
         ...localhost,
         rpcUrls: {
-          public: { http: [localWsUrl], webSocket: [localWsUrl] },
-          default: { http: [localWsUrl], webSocket: [localWsUrl] },
+          public: { http: [localHttpUrl], webSocket: [localWsUrl] },
+          default: { http: [localHttpUrl], webSocket: [localWsUrl] },
         },
       },
     }).config.request({

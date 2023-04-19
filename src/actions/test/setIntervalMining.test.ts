@@ -1,11 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test/index.js'
+import { publicClient, testClient, setupAnvil } from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
 import { mine } from './mine.js'
 
 import { setIntervalMining } from './setIntervalMining.js'
+
+setupAnvil()
 
 test('sets mining interval', async () => {
   await mine(testClient, { blocks: 1 })

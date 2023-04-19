@@ -4,9 +4,12 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { getEnsAddress } from './getEnsAddress.js'
+
+setupAnvil()
 
 describe('Get ENS Name', () => {
   bench('viem: `getEnsAddress`', async () => {

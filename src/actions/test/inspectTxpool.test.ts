@@ -1,11 +1,18 @@
 import { expect, test } from 'vitest'
 
-import { accounts, testClient, walletClient } from '../../_test/index.js'
+import {
+  accounts,
+  testClient,
+  walletClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { inspectTxpool } from './inspectTxpool.js'
 import { mine } from './mine.js'
+
+setupAnvil()
 
 test('inspects txpool (empty)', async () => {
   await mine(testClient, { blocks: 1 })

@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 import { localhost } from '../../chains.js'
-import { createHttpServer } from '../../_test/index.js'
+import { createHttpServer, setupAnvil } from '../../_test/index.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
 
@@ -10,6 +10,8 @@ import type { Transport } from './createTransport.js'
 import type { FallbackTransport, OnResponseFn } from './fallback.js'
 import { fallback, rankTransports } from './fallback.js'
 import { http } from './http.js'
+
+setupAnvil()
 
 test('default', () => {
   const alchemy = http('https://alchemy.com/rpc')

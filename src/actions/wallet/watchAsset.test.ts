@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '../../_test/index.js'
+import { walletClient, setupAnvil } from '../../_test/index.js'
 
 import { watchAsset } from './watchAsset.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(

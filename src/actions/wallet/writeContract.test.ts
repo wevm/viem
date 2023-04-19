@@ -9,12 +9,15 @@ import {
   testClient,
   wagmiContractConfig,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { anvilChain } from '../../_test/utils.js'
 import { simulateContract } from '../public/index.js'
 import { mine } from '../test/index.js'
 
 import { writeContract } from './writeContract.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(

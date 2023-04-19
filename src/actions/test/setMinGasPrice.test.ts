@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '../../_test/index.js'
+import { testClient, setupAnvil } from '../../_test/index.js'
 import { parseGwei } from '../../utils/index.js'
 
 import { setMinGasPrice } from './setMinGasPrice.js'
+
+setupAnvil()
 
 test.todo('set min gas price')
 

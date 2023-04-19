@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
-import { createHttpServer, publicClient } from '../../../_test/index.js'
+import {
+  createHttpServer,
+  publicClient,
+  setupAnvil,
+} from '../../../_test/index.js'
 import {
   getGateway,
   getJsonImage,
@@ -10,6 +14,8 @@ import {
   parseNftUri,
   resolveAvatarUri,
 } from './utils.js'
+
+setupAnvil()
 
 describe('isImageUri', () => {
   test('is image', async () => {

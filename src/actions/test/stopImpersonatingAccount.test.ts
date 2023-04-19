@@ -5,11 +5,14 @@ import {
   accounts,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { impersonateAccount } from './impersonateAccount.js'
 import { stopImpersonatingAccount } from './stopImpersonatingAccount.js'
+
+setupAnvil()
 
 test('stops impersonating account', async () => {
   await impersonateAccount(testClient, { address: address.vitalik })

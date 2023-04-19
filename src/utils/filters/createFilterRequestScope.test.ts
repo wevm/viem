@@ -1,8 +1,14 @@
 import { expect, test } from 'vitest'
 import { createFilterRequestScope } from './createFilterRequestScope.js'
-import { createHttpServer, publicClient } from '../../_test/utils.js'
+import {
+  createHttpServer,
+  publicClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { createBlockFilter } from '../../public.js'
 import { createPublicClient, fallback, http } from '../../clients/index.js'
+
+setupAnvil()
 
 test('default', async () => {
   const getRequest = createFilterRequestScope(publicClient, {

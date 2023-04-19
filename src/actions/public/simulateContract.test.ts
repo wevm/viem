@@ -16,6 +16,7 @@ import {
   testClient,
   wagmiContractConfig,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { baycContractConfig } from '../../_test/abis.js'
 import { encodeFunctionData, parseEther, parseGwei } from '../../utils/index.js'
@@ -25,6 +26,8 @@ import { sendTransaction } from '../wallet/index.js'
 import { simulateContract } from './simulateContract.js'
 import { deployErrorExample } from '../../_test/utils.js'
 import { errorsExampleABI } from '../../_test/generated.js'
+
+setupAnvil()
 
 describe('wagmi', () => {
   test('default', async () => {

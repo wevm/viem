@@ -1,3 +1,5 @@
+import { anvilPort } from './anvil/port.js'
+
 export const accounts = [
   {
     address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -53,8 +55,8 @@ export const initialBlockNumber = BigInt(
   Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
 )
 
-export const localHttpUrl = 'http://127.0.0.1:8545'
-export const localWsUrl = 'ws://127.0.0.1:8545'
+export const localHttpUrl = `http://127.0.0.1:${anvilPort}`
+export const localWsUrl = `ws://127.0.0.1:${anvilPort}`
 
 export const typedData = {
   basic: {

@@ -11,12 +11,15 @@ import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
+  setupAnvil,
 } from '../../_test/index.js'
 import { baycContractConfig } from '../../_test/abis.js'
 import { errorsExampleABI } from '../../_test/generated.js'
 import { deployErrorExample } from '../../_test/utils.js'
 
 import { readContract } from './readContract.js'
+
+setupAnvil()
 
 describe('wagmi', () => {
   test('default', async () => {

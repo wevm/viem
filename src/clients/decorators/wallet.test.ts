@@ -4,7 +4,10 @@ import { parseEther } from '../../utils/index.js'
 import { accounts, walletClient } from '../../_test/index.js'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { walletClientWithAccount } from '../../_test/utils.js'
+import { setupAnvil } from '../../_test/index.js'
 import { walletActions } from './wallet.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(walletActions(walletClient as any)).toMatchInlineSnapshot(`

@@ -1,10 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test/index.js'
+import { publicClient, testClient, setupAnvil } from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
 
 import { getBlock } from '../public/getBlock.js'
 import { setNextBlockTimestamp } from './setNextBlockTimestamp.js'
+
+setupAnvil()
 
 test('sets block timestamp interval', async () => {
   const block1 = await getBlock(publicClient, {

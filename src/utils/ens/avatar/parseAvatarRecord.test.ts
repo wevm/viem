@@ -1,20 +1,14 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import {
   deployEnsAvatarTokenUri,
   publicClient,
   setBlockNumber,
+  setupAnvil,
 } from '../../../_test/index.js'
 import { parseAvatarRecord } from './parseAvatarRecord.js'
-import { getBlockNumber } from '../../../actions/index.js'
 
-let blockNumber: bigint
-beforeAll(async () => {
-  blockNumber = await getBlockNumber(publicClient)
+setupAnvil(async () => {
   await setBlockNumber(16773780n)
-})
-
-afterAll(async () => {
-  await setBlockNumber(blockNumber)
 })
 
 test('default', async () => {

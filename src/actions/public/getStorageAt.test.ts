@@ -3,9 +3,12 @@ import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { getStorageAt } from './getStorageAt.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(

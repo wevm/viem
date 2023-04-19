@@ -4,9 +4,12 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { getBlock } from './getBlock.js'
+
+setupAnvil()
 
 describe('Get Block', () => {
   bench('viem: `getBlock`', async () => {

@@ -3,10 +3,13 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { localhost } from '../../chains.js'
 import { wait } from '../../utils/wait.js'
-import { createHttpServer } from '../../_test/index.js'
+import { createHttpServer, anvilChain, setupAnvil } from '../../_test/index.js'
 
 import type { HttpTransport } from './http.js'
 import { http } from './http.js'
+
+// TODO: Should we really set up anvil just for the `default > server` test?
+setupAnvil()
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')
@@ -110,7 +113,7 @@ describe('request', () => {
     const transport = http(undefined, {
       key: 'jsonRpc',
       name: 'JSON RPC',
-    })({ chain: localhost })
+    })({ chain: anvilChain })
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBeDefined()
   })

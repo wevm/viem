@@ -5,6 +5,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
@@ -15,6 +16,8 @@ import { sendTransaction } from '../wallet/index.js'
 import { parseEther } from '../../utils/index.js'
 import type { Hash } from '../../types/index.js'
 import type { Requests } from '../../types/eip1193.js'
+
+setupAnvil()
 
 const request = (() => {}) as unknown as Requests['request']
 

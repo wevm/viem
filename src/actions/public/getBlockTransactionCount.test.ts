@@ -6,12 +6,15 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { mine } from '../test/index.js'
 import { sendTransaction } from '../index.js'
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(await getBlockTransactionCount(publicClient)).toBeDefined()

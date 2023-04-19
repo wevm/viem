@@ -1,12 +1,7 @@
 import { providers } from 'ethers'
 import { JsonRpcProvider } from 'ethers@6'
+import { localHttpUrl } from './constants.js'
 
-import { localhost } from '../chains.js'
+export const ethersProvider = new providers.JsonRpcProvider(localHttpUrl)
 
-export const ethersProvider = new providers.JsonRpcProvider(
-  localhost.rpcUrls.default.http[0],
-)
-
-export const ethersV6Provider = new JsonRpcProvider(
-  localhost.rpcUrls.default.http[0],
-)
+export const ethersV6Provider = new JsonRpcProvider(localHttpUrl)

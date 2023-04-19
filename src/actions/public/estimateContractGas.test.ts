@@ -13,6 +13,7 @@ import {
   testClient,
   wagmiContractConfig,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { baycContractConfig } from '../../_test/abis.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
@@ -23,6 +24,8 @@ import { sendTransaction } from '../wallet/index.js'
 import { deployErrorExample } from '../../_test/utils.js'
 import { errorsExampleABI } from '../../_test/generated.js'
 import { estimateContractGas } from './estimateContractGas.js'
+
+setupAnvil()
 
 describe('wagmi', () => {
   test('default', async () => {

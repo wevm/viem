@@ -11,8 +11,11 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { publicActions } from './public.js'
+
+setupAnvil()
 
 test('default', async () => {
   expect(publicActions(publicClient)).toMatchInlineSnapshot(`

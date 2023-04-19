@@ -1,8 +1,10 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '../../_test/index.js'
+import { publicClient, setupAnvil } from '../../_test/index.js'
 
 import { getFeeHistory } from './getFeeHistory.js'
+
+setupAnvil()
 
 describe.skip('Get Fee History', () => {
   bench('viem: `getFeeHistory`', async () => {

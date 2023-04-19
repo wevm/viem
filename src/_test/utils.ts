@@ -27,7 +27,7 @@ import type { Hex } from '../types/index.js'
 import { RpcError } from '../types/eip1193.js'
 import { rpc } from '../utils/index.js'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
-import { accounts, address, localWsUrl } from './constants.js'
+import { accounts, address, localHttpUrl, localWsUrl } from './constants.js'
 import {
   ensAvatarTokenUriABI,
   erc20InvalidTransferEventABI,
@@ -43,6 +43,10 @@ export const anvilChain = {
   ...localhost,
   id: 1,
   contracts: mainnet.contracts,
+  rpcUrls: {
+    public: { http: [localHttpUrl], webSocket: [localWsUrl] },
+    default: { http: [localHttpUrl], webSocket: [localWsUrl] },
+  },
 } as const satisfies Chain
 
 const provider = {
@@ -90,7 +94,7 @@ const provider = {
         },
       ]
 
-    const { result } = await rpc.http(anvilChain.rpcUrls.default.http[0], {
+    const { result } = await rpc.http(localHttpUrl, {
       body: {
         method,
         params,
@@ -103,7 +107,7 @@ const provider = {
 export const httpClient = createPublicClient({
   chain: anvilChain,
   pollingInterval: 1_000,
-  transport: http(),
+  transport: http(localHttpUrl),
 })
 
 export const webSocketClient = createPublicClient({
@@ -136,7 +140,7 @@ export const walletClientWithoutChain = createWalletClient({
 export const testClient = createTestClient({
   chain: anvilChain,
   mode: 'anvil',
-  transport: http(),
+  transport: http(localHttpUrl),
 })
 
 export function createHttpServer(

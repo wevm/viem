@@ -11,6 +11,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { webSocketClient } from '../../_test/utils.js'
 import { setIntervalMining } from '../test/index.js'
@@ -19,6 +20,9 @@ import { sendTransaction } from '../wallet/index.js'
 import * as getBlock from './getBlock.js'
 import type { OnBlockParameter } from './watchBlocks.js'
 import { watchBlocks } from './watchBlocks.js'
+import { localHttpUrl } from '../../_test/constants.js'
+
+setupAnvil()
 
 describe('poll', () => {
   test('watches for new blocks', async () => {
@@ -103,7 +107,7 @@ describe('poll', () => {
     test('watches for new blocks', async () => {
       const client = createPublicClient({
         chain: localhost,
-        transport: http(),
+        transport: http(localHttpUrl),
         pollingInterval: 500,
       })
 
@@ -121,7 +125,7 @@ describe('poll', () => {
   test('custom chain type', async () => {
     const client = createPublicClient({
       chain: celo,
-      transport: http(),
+      transport: http(localHttpUrl),
     })
 
     const blocks: OnBlockParameter<typeof celo>[] = []

@@ -5,12 +5,15 @@ import {
   address,
   publicClient,
   testClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
 import { mine, setBalance } from './index.js'
 
 import { sendUnsignedTransaction } from './sendUnsignedTransaction.js'
+
+setupAnvil()
 
 const sourceAccount = {
   address: address.vitalik,

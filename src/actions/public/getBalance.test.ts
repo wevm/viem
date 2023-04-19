@@ -5,12 +5,15 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { getBlockNumber, sendTransaction } from '../index.js'
 import { mine, setBalance } from '../test/index.js'
 
 import { getBalance } from './getBalance.js'
+
+setupAnvil()
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

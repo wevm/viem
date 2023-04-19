@@ -1,8 +1,10 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '../../_test/index.js'
+import { publicClient, setupAnvil } from '../../_test/index.js'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { uninstallFilter } from './uninstallFilter.js'
+
+setupAnvil()
 
 const filter = await createPendingTransactionFilter(publicClient)
 

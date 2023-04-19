@@ -1,9 +1,16 @@
 import { expect, test } from 'vitest'
 
-import { accounts, publicClient, testClient } from '../../_test/index.js'
+import {
+  accounts,
+  publicClient,
+  testClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
 import { setBalance } from './setBalance.js'
+
+setupAnvil()
 
 const targetAccount = accounts[0]
 

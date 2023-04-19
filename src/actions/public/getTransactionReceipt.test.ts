@@ -5,6 +5,7 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { celo } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
@@ -16,6 +17,8 @@ import { getBlock, sendTransaction } from '../index.js'
 
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
+
+setupAnvil()
 
 test(
   'gets transaction receipt',

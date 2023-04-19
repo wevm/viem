@@ -2,7 +2,12 @@ import { describe, expect, test, vi } from 'vitest'
 
 import type { OnBlockNumberParameter } from './watchBlockNumber.js'
 import { watchBlockNumber } from './watchBlockNumber.js'
-import { publicClient, testClient, webSocketClient } from '../../_test/index.js'
+import {
+  publicClient,
+  testClient,
+  webSocketClient,
+  setupAnvil,
+} from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
 import { localhost } from '../../chains.js'
 import type { PublicClient } from '../../clients/index.js'
@@ -10,6 +15,8 @@ import { createPublicClient, http } from '../../clients/index.js'
 import { mine } from '../test/mine.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import { setIntervalMining } from '../test/index.js'
+
+setupAnvil()
 
 describe('poll', () => {
   test('watches for new block numbers', async () => {

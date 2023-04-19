@@ -6,12 +6,15 @@ import {
   publicClient,
   walletClient,
   accounts,
+  setupAnvil,
 } from '../_test/index.js'
 import {
   getContract,
   getEventParameters,
   getFunctionParameters,
 } from './getContract.js'
+
+setupAnvil()
 
 const contract = getContract({
   ...wagmiContractConfig,

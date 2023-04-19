@@ -4,9 +4,12 @@ import {
   ethersProvider,
   ethersV6Provider,
   publicClient,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { getTransactionReceipt } from './getTransactionReceipt.js'
+
+setupAnvil()
 
 const hash =
   '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b'

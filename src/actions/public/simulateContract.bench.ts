@@ -8,9 +8,12 @@ import {
   ethersV6Provider,
   publicClient,
   wagmiContractConfig,
+  setupAnvil,
 } from '../../_test/index.js'
 
 import { simulateContract } from './simulateContract.js'
+
+setupAnvil()
 
 describe('Simulate Contract', () => {
   bench('viem: `simulateContract`', async () => {

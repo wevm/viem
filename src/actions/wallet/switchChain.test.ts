@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '../../_test/index.js'
+import { walletClient, setupAnvil } from '../../_test/index.js'
 import { avalanche, fantom } from '../../chains.js'
 
 import { switchChain } from './switchChain.js'
+
+setupAnvil()
 
 test('default', async () => {
   await switchChain(walletClient!, avalanche)

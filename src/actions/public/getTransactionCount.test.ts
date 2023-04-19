@@ -6,10 +6,13 @@ import {
   publicClient,
   testClient,
   walletClient,
+  setupAnvil,
 } from '../../_test/index.js'
 import { sendTransaction } from '../index.js'
 import { mine, setNonce } from '../test/index.js'
 import { getTransactionCount } from './getTransactionCount.js'
+
+setupAnvil()
 
 test(
   'gets transaction count',
