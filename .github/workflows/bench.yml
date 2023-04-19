@@ -10,9 +10,6 @@ jobs:
   install:
     name: Install
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -24,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18]
+        transport-mode: ['http', 'webSocket']
     steps:
       - uses: actions/checkout@v3
       - name: Setup

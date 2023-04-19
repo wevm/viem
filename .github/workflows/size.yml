@@ -6,9 +6,6 @@ jobs:
   build:
     name: Compressed Size
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup

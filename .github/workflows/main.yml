@@ -13,9 +13,6 @@ jobs:
   install:
     name: Install
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -25,9 +22,6 @@ jobs:
     name: Lint
     needs: install
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -54,9 +48,6 @@ jobs:
     name: Build
     needs: lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -70,7 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18]
         shard: [1, 2, 3]
         total-shards: [3]
         transport-mode: ['http', 'webSocket']
@@ -105,9 +95,6 @@ jobs:
     name: Test Types
     needs: lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -121,9 +108,6 @@ jobs:
     name: Benchmark
     needs: lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
