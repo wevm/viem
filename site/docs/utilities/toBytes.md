@@ -16,6 +16,13 @@ head:
 
 Encodes a string, hex value, number or boolean to a byte array.
 
+Shortcut Functions:
+
+- [hexToBytes](#hextobytes)
+- [stringToBytes](#stringtobytes)
+- [numberToBytes](#numbertobytes)
+- [boolToBytes](#booltobytes)
+
 ## Import
 
 ```ts
@@ -54,6 +61,23 @@ The byte array represented as a `Uint8Array`.
 
 The value to encode as bytes.
 
+```ts {2}
+toBytes(
+  'Hello world'
+)
+// Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+```
+
+### options
+
+```ts {3}
+toBytes(
+  'Hello world', 
+  { size: 32 }
+)
+// Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+```
+
 ## Shortcut Functions
 
 ### hexToBytes
@@ -67,6 +91,9 @@ import { numberToHex } from 'viem'
 
 hexToBytes('0x48656c6c6f20576f726c6421') // [!code focus:2]
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+
+hexToBytes('0x48656c6c6f20576f726c6421', { size: 32 }) // [!code focus:2]
+// Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 ```
 
 ### stringToBytes
@@ -80,6 +107,9 @@ import { numberToHex } from 'viem'
 
 stringToBytes('Hello world') // [!code focus:2]
 // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+
+stringToBytes('Hello world', { size: 32 }) // [!code focus:2]
+// Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 ```
 
 ### numberToBytes
@@ -93,6 +123,9 @@ import { numberToHex } from 'viem'
 
 numberToBytes(420) // [!code focus:2]
 // Uint8Array([1, 164])
+
+numberToBytes(420, { size: 32 }) // [!code focus:2]
+// Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 164])
 ```
 
 ### boolToBytes
@@ -106,4 +139,7 @@ import { boolToHex } from 'viem'
 
 boolToBytes(true) // [!code focus:2]
 // Uint8Array([1])
+
+boolToBytes(true, { size: 32 }) // [!code focus:2]
+// Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
 ```

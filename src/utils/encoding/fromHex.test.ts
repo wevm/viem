@@ -7,6 +7,8 @@ import {
   hexToNumber,
   hexToString,
 } from './fromHex.js'
+import { boolToHex, bytesToHex, numberToHex, stringToHex } from './toHex.js'
+import { hexToBytes } from './toBytes.js'
 
 describe('converts hex to number', () => {
   test('default', () => {
@@ -45,6 +47,25 @@ describe('converts hex to number', () => {
       694206942069420,
     )
   })
+
+  test('args: size', () => {
+    expect(
+      fromHex(numberToHex(69420, { size: 32 }), { size: 32, to: 'number' }),
+    ).toEqual(69420)
+    expect(hexToNumber(numberToHex(69420, { size: 32 }), { size: 32 })).toEqual(
+      69420,
+    )
+  })
+
+  test('error: size overflow', () => {
+    expect(() =>
+      hexToNumber(numberToHex(69420, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })
 
 describe('converts hex to bigint', () => {
@@ -66,7 +87,7 @@ describe('converts hex to bigint', () => {
     ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
   })
 
-  test('signed', () => {
+  test('args: signed', () => {
     expect(hexToBigInt('0x20', { signed: true })).toBe(32n)
     expect(
       hexToBigInt('0xe0', {
@@ -92,78 +113,244 @@ describe('converts hex to bigint', () => {
       ),
     ).toBe(-12312312312312312412n)
   })
+
+  test('args: size', () => {
+    expect(
+      fromHex(numberToHex(69420n, { size: 32 }), { size: 32, to: 'bigint' }),
+    ).toEqual(69420n)
+    expect(
+      hexToBigInt(numberToHex(69420n, { size: 32 }), { size: 32 }),
+    ).toEqual(69420n)
+  })
+
+  test('error: size overflow', () => {
+    expect(() =>
+      hexToBigInt(numberToHex(69420, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })
 
-test('converts hex to boolean', () => {
-  expect(fromHex('0x0', 'boolean')).toMatchInlineSnapshot('false')
-  expect(fromHex('0x1', 'boolean')).toMatchInlineSnapshot('true')
+describe('converts hex to boolean', () => {
+  test('default', () => {
+    expect(fromHex('0x0', 'boolean')).toMatchInlineSnapshot('false')
+    expect(fromHex('0x1', 'boolean')).toMatchInlineSnapshot('true')
 
-  expect(hexToBool('0x0')).toMatchInlineSnapshot('false')
-  expect(hexToBool('0x1')).toMatchInlineSnapshot('true')
+    expect(hexToBool('0x0')).toMatchInlineSnapshot('false')
+    expect(hexToBool('0x1')).toMatchInlineSnapshot('true')
+  })
 
-  expect(() => hexToBool('0xa')).toThrowErrorMatchingInlineSnapshot(
-    `
-    "Hex value \\"0xa\\" is not a valid boolean. The hex value must be \\"0x0\\" (false) or \\"0x1\\" (true).
+  test('args: size', () => {
+    expect(
+      fromHex(boolToHex(true, { size: 32 }), { size: 32, to: 'boolean' }),
+    ).toEqual(true)
+    expect(hexToBool(boolToHex(true, { size: 32 }), { size: 32 })).toEqual(true)
+  })
 
-    Version: viem@1.0.2"
-  `,
-  )
+  test('error: size overflow', () => {
+    expect(() =>
+      hexToBool(boolToHex(true, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('error: invalid boolean', () => {
+    expect(() => hexToBool('0xa')).toThrowErrorMatchingInlineSnapshot(
+      `
+      "Hex value \\"0xa\\" is not a valid boolean. The hex value must be \\"0x0\\" (false) or \\"0x1\\" (true).
+
+      Version: viem@1.0.2"
+    `,
+    )
+  })
 })
 
-test('converts hex to string', () => {
-  expect(fromHex('0x', 'string')).toMatchInlineSnapshot(`""`)
-  expect(fromHex('0x61', 'string')).toMatchInlineSnapshot(`"a"`)
-  expect(fromHex('0x616263', 'string')).toMatchInlineSnapshot(`"abc"`)
-  expect(fromHex('0x48656c6c6f20576f726c6421', 'string')).toMatchInlineSnapshot(
-    `"Hello World!"`,
-  )
+describe('converts hex to string', () => {
+  test('default', () => {
+    expect(fromHex('0x', 'string')).toMatchInlineSnapshot(`""`)
+    expect(fromHex('0x61', 'string')).toMatchInlineSnapshot(`"a"`)
+    expect(fromHex('0x616263', 'string')).toMatchInlineSnapshot(`"abc"`)
+    expect(
+      fromHex('0x48656c6c6f20576f726c6421', 'string'),
+    ).toMatchInlineSnapshot(`"Hello World!"`)
 
-  expect(hexToString('0x')).toMatchInlineSnapshot(`""`)
-  expect(hexToString('0x61')).toMatchInlineSnapshot(`"a"`)
-  expect(hexToString('0x616263')).toMatchInlineSnapshot(`"abc"`)
-  expect(hexToString('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
-    `"Hello World!"`,
-  )
+    expect(hexToString('0x')).toMatchInlineSnapshot(`""`)
+    expect(hexToString('0x61')).toMatchInlineSnapshot(`"a"`)
+    expect(hexToString('0x616263')).toMatchInlineSnapshot(`"abc"`)
+    expect(hexToString('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
+      `"Hello World!"`,
+    )
+  })
+
+  test('args: size', () => {
+    expect(
+      fromHex(stringToHex('wagmi', { size: 32 }), {
+        size: 32,
+        to: 'string',
+      }),
+    ).toEqual('wagmi')
+    expect(
+      hexToString(stringToHex('wagmi', { size: 32 }), { size: 32 }),
+    ).toEqual('wagmi')
+  })
+
+  test('error: size overflow', () => {
+    expect(() =>
+      hexToString(stringToHex('wagmi', { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })
 
-test('converts hex to bytes', () => {
-  expect(fromHex('0x', 'bytes')).toMatchInlineSnapshot('Uint8Array []')
-  expect(fromHex('0x61', 'bytes')).toMatchInlineSnapshot(`
-    Uint8Array [
-      97,
-    ]
-  `)
-  expect(fromHex('0x616263', 'bytes')).toMatchInlineSnapshot(
-    `
-    Uint8Array [
-      97,
-      98,
-      99,
-    ]
-  `,
-  )
-  expect(fromHex('0x48656c6c6f20576f726c6421', 'bytes')).toMatchInlineSnapshot(`
-    Uint8Array [
-      72,
-      101,
-      108,
-      108,
-      111,
-      32,
-      87,
-      111,
-      114,
-      108,
-      100,
-      33,
-    ]
-  `)
+describe('converts hex to bytes', () => {
+  test('default', () => {
+    expect(fromHex('0x', 'bytes')).toMatchInlineSnapshot('Uint8Array []')
+    expect(fromHex('0x61', 'bytes')).toMatchInlineSnapshot(`
+      Uint8Array [
+        97,
+      ]
+    `)
+    expect(fromHex('0x616263', 'bytes')).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        97,
+        98,
+        99,
+      ]
+    `,
+    )
+    expect(
+      fromHex('0x48656c6c6f20576f726c6421', 'bytes'),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33,
+      ]
+    `)
+  })
 
-  expect(() =>
-    fromHex('0x420fggf11a', 'bytes'),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    "Invalid byte sequence (\\"gg\\" in \\"420fggf11a\\").
+  test('args: size', () => {
+    expect(
+      fromHex(bytesToHex(Uint8Array.from([69, 420]), { size: 32 }), {
+        size: 32,
+        to: 'bytes',
+      }),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        69,
+        164,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ]
+    `)
+    expect(
+      hexToBytes(bytesToHex(Uint8Array.from([69, 420]), { size: 32 }), {
+        size: 32,
+      }),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        69,
+        164,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ]
+    `)
+  })
 
-    Version: viem@1.0.2"
-  `)
+  test('error: size overflow', () => {
+    expect(() =>
+      hexToString(bytesToHex(Uint8Array.from([69, 420]), { size: 64 }), {
+        size: 32,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 32 bytes. Given size: 64 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('error: invalid bytes', () => {
+    expect(() =>
+      fromHex('0x420fggf11a', 'bytes'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Invalid byte sequence (\\"gg\\" in \\"420fggf11a\\").
+
+      Version: viem@1.0.2"
+    `)
+  })
 })

@@ -58,6 +58,7 @@ export {
   InvalidHexBooleanError,
   InvalidHexValueError,
   OffsetOutOfBoundsError,
+  SizeOverflowError,
 } from './encoding.js'
 
 export {

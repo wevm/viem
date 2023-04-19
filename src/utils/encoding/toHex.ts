@@ -1,58 +1,162 @@
 import { pad } from '../data/index.js'
 import type { ByteArray, Hex } from '../../types/index.js'
 import { IntegerOutOfRangeError } from '../../errors/index.js'
+import { assertSize } from './fromHex.js'
 
 const hexes = Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
 )
 
-/**
- * @description Encodes a boolean into a hex string
- */
-export function boolToHex(value: boolean): Hex {
-  return `0x${Number(value)}`
+export type ToHexParameters = {
+  /** The size (in bytes) of the output hex value. */
+  size?: number
 }
 
 /**
- * @description Encodes a bytes array into a hex string
- */
-export function bytesToHex(value: ByteArray): Hex {
-  let hex = ''
-  for (let i = 0; i < value.length; i++) {
-    hex += hexes[value[i]]
-  }
-  return `0x${hex}`
-}
-
-/**
- * @description Encodes a string, number, bigint, or ByteArray into a hex string
+ * Encodes a string, number, bigint, or ByteArray into a hex string
+ *
+ * - Docs: https://viem.sh/docs/utilities/toHex.html
+ * - Example: https://viem.sh/docs/utilities/toHex.html#usage
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Hex value.
+ *
+ * @example
+ * import { toHex } from 'viem'
+ * const data = toHex('Hello world')
+ * // '0x48656c6c6f20776f726c6421'
+ *
+ * @example
+ * import { toHex } from 'viem'
+ * const data = toHex(420)
+ * // '0x1a4'
+ *
+ * @example
+ * import { toHex } from 'viem'
+ * const data = toHex('Hello world', { size: 32 })
+ * // '0x48656c6c6f20776f726c64210000000000000000000000000000000000000000'
  */
 export function toHex(
   value: string | number | bigint | boolean | ByteArray,
+  opts: ToHexParameters = {},
 ): Hex {
   if (typeof value === 'number' || typeof value === 'bigint')
-    return numberToHex(value)
+    return numberToHex(value, opts)
   if (typeof value === 'string') {
-    return stringToHex(value)
+    return stringToHex(value, opts)
   }
-  if (typeof value === 'boolean') return boolToHex(value)
-  return bytesToHex(value)
+  if (typeof value === 'boolean') return boolToHex(value, opts)
+  return bytesToHex(value, opts)
+}
+
+export type BoolToHexOpts = {
+  /** The size (in bytes) of the output hex value. */
+  size?: number
+}
+
+/**
+ * Encodes a boolean into a hex string
+ *
+ * - Docs: https://viem.sh/docs/utilities/toHex.html#booltohex
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Hex value.
+ *
+ * @example
+ * import { boolToHex } from 'viem'
+ * const data = boolToHex(true)
+ * // '0x1'
+ *
+ * @example
+ * import { boolToHex } from 'viem'
+ * const data = boolToHex(false)
+ * // '0x0'
+ *
+ * @example
+ * import { boolToHex } from 'viem'
+ * const data = boolToHex(true, { size: 32 })
+ * // '0x0000000000000000000000000000000000000000000000000000000000000001'
+ */
+export function boolToHex(value: boolean, opts: BoolToHexOpts = {}): Hex {
+  const hex: Hex = `0x${Number(value)}`
+  if (typeof opts.size === 'number') {
+    assertSize(hex, { size: opts.size })
+    return pad(hex, { size: opts.size })
+  }
+  return hex
+}
+
+export type BytesToHexOpts = {
+  /** The size (in bytes) of the output hex value. */
+  size?: number
+}
+
+/**
+ * Encodes a bytes array into a hex string
+ *
+ * - Docs: https://viem.sh/docs/utilities/toHex.html#bytestohex
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Hex value.
+ *
+ * @example
+ * import { bytesToHex } from 'viem'
+ * const data = bytesToHex(Uint8Array.from([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+ * // '0x48656c6c6f20576f726c6421'
+ *
+ * @example
+ * import { bytesToHex } from 'viem'
+ * const data = bytesToHex(Uint8Array.from([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]), { size: 32 })
+ * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
+ */
+export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
+  let hexString = ''
+  for (let i = 0; i < value.length; i++) {
+    hexString += hexes[value[i]]
+  }
+
+  const hex: Hex = `0x${hexString}`
+  if (typeof opts.size === 'number') {
+    assertSize(hex, { size: opts.size })
+    return pad(hex, { dir: 'right', size: opts.size })
+  }
+  return hex
 }
 
 export type NumberToHexOpts =
   | {
-      // Whether or not the number of a signed representation.
+      /** Whether or not the number of a signed representation. */
       signed?: boolean
-      // The size of the output hex (in bytes).
+      /** The size (in bytes) of the output hex value. */
       size: number
     }
   | {
       signed?: never
-      size?: never
+      /** The size (in bytes) of the output hex value. */
+      size?: number
     }
 
 /**
- * @description Encodes a number or bigint into a hex string
+ * Encodes a number or bigint into a hex string
+ *
+ * - Docs: https://viem.sh/docs/utilities/toHex.html#numbertohex
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Hex value.
+ *
+ * @example
+ * import { numberToHex } from 'viem'
+ * const data = numberToHex(420)
+ * // '0x1a4'
+ *
+ * @example
+ * import { numberToHex } from 'viem'
+ * const data = numberToHex(420, { size: 32 })
+ * // '0x00000000000000000000000000000000000000000000000000000000000001a4'
  */
 export function numberToHex(
   value_: number | bigint,
@@ -91,12 +195,33 @@ export function numberToHex(
   return hex
 }
 
+export type StringToHexOpts = {
+  /** The size (in bytes) of the output hex value. */
+  size?: number
+}
+
 const encoder = new TextEncoder()
 
 /**
- * @description Encodes a UTF-8 string into a hex string
+ * Encodes a UTF-8 string into a hex string
+ *
+ * - Docs: https://viem.sh/docs/utilities/toHex.html#stringtohex
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Hex value.
+ *
+ * @example
+ * import { stringToHex } from 'viem'
+ * const data = stringToHex('Hello World!')
+ * // '0x48656c6c6f20576f726c6421'
+ *
+ * @example
+ * import { stringToHex } from 'viem'
+ * const data = stringToHex('Hello World!', { size: 32 })
+ * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
  */
-export function stringToHex(value_: string): Hex {
+export function stringToHex(value_: string, opts: StringToHexOpts = {}): Hex {
   const value = encoder.encode(value_)
-  return toHex(value)
+  return bytesToHex(value, opts)
 }

@@ -1,7 +1,19 @@
 import { InvalidBytesBooleanError } from '../../errors/index.js'
 import type { ByteArray, Hex } from '../../types/index.js'
-import { hexToBigInt, hexToNumber } from './fromHex.js'
+import { trim } from '../data/trim.js'
+import { assertSize, hexToBigInt, hexToNumber } from './fromHex.js'
 import { bytesToHex } from './toHex.js'
+
+export type FromBytesParameters<
+  TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
+> =
+  | TTo
+  | {
+      /** Size of the bytes. */
+      size?: number
+      /** Type to convert to. */
+      to: TTo
+    }
 
 type FromBytesReturnType<TTo> = TTo extends 'string'
   ? string
@@ -16,30 +28,106 @@ type FromBytesReturnType<TTo> = TTo extends 'string'
   : never
 
 /**
- * @description Decodes a byte array into a UTF-8 string, hex value, number, bigint or boolean.
+ * Decodes a byte array into a UTF-8 string, hex value, number, bigint or boolean.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromBytes.html
+ * - Example: https://viem.sh/docs/utilities/fromBytes.html#usage
+ *
+ * @param bytes Byte array to decode.
+ * @param toOrOpts Type to convert to or options.
+ * @returns Decoded value.
+ *
+ * @example
+ * import { fromBytes } from 'viem'
+ * const data = fromBytes(new Uint8Array([1, 164]), 'number')
+ * // 420
+ *
+ * @example
+ * import { fromBytes } from 'viem'
+ * const data = fromBytes(
+ *   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
+ *   'string'
+ * )
+ * // 'Hello world'
  */
 export function fromBytes<
   TTo extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
->(bytes: ByteArray, to: TTo): FromBytesReturnType<TTo> {
-  if (to === 'number') return bytesToNumber(bytes) as FromBytesReturnType<TTo>
-  if (to === 'bigint') return bytesToBigint(bytes) as FromBytesReturnType<TTo>
-  if (to === 'boolean') return bytesToBool(bytes) as FromBytesReturnType<TTo>
-  if (to === 'string') return bytesToString(bytes) as FromBytesReturnType<TTo>
-  return bytesToHex(bytes) as FromBytesReturnType<TTo>
+>(
+  bytes: ByteArray,
+  toOrOpts: FromBytesParameters<TTo>,
+): FromBytesReturnType<TTo> {
+  const opts = typeof toOrOpts === 'string' ? { to: toOrOpts } : toOrOpts
+  const to = opts.to
+
+  if (to === 'number')
+    return bytesToNumber(bytes, opts) as FromBytesReturnType<TTo>
+  if (to === 'bigint')
+    return bytesToBigint(bytes, opts) as FromBytesReturnType<TTo>
+  if (to === 'boolean')
+    return bytesToBool(bytes, opts) as FromBytesReturnType<TTo>
+  if (to === 'string')
+    return bytesToString(bytes, opts) as FromBytesReturnType<TTo>
+  return bytesToHex(bytes, opts) as FromBytesReturnType<TTo>
+}
+
+export type BytesToBigIntOpts = {
+  /** Whether or not the number of a signed representation. */
+  signed?: boolean
+  /** Size of the bytes. */
+  size?: number
 }
 
 /**
- * @description Decodes a byte array into a bigint.
+ * Decodes a byte array into a bigint.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestobigint
+ *
+ * @param bytes Byte array to decode.
+ * @param opts Options.
+ * @returns BigInt value.
+ *
+ * @example
+ * import { bytesToBigint } from 'viem'
+ * const data = bytesToBigint(new Uint8Array([1, 164]))
+ * // 420n
  */
-export function bytesToBigint(bytes: ByteArray): bigint {
-  const hex = bytesToHex(bytes)
+export function bytesToBigint(
+  bytes: ByteArray,
+  opts: BytesToBigIntOpts = {},
+): bigint {
+  if (typeof opts.size !== 'undefined') assertSize(bytes, { size: opts.size })
+  const hex = bytesToHex(bytes, opts)
   return hexToBigInt(hex)
 }
 
+export type BytesToBoolOpts = {
+  /** Size of the bytes. */
+  size?: number
+}
+
 /**
- * @description Decodes a byte array into a boolean.
+ * Decodes a byte array into a boolean.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestobool
+ *
+ * @param bytes Byte array to decode.
+ * @param opts Options.
+ * @returns Boolean value.
+ *
+ * @example
+ * import { bytesToBool } from 'viem'
+ * const data = bytesToBool(new Uint8Array([1]))
+ * // true
  */
-export function bytesToBool(bytes: ByteArray): boolean {
+export function bytesToBool(
+  bytes_: ByteArray,
+  opts: BytesToBoolOpts = {},
+): boolean {
+  let bytes = bytes_
+  if (typeof opts.size !== 'undefined') {
+    assertSize(bytes, { size: opts.size })
+    bytes = trim(bytes)
+  }
   if (bytes.length > 1 || bytes[0] > 1)
     throw new InvalidBytesBooleanError(bytes)
   return Boolean(bytes[0])
@@ -47,17 +135,58 @@ export function bytesToBool(bytes: ByteArray): boolean {
 
 export { bytesToHex }
 
+export type BytesToNumberOpts = BytesToBigIntOpts
+
 /**
- * @description Decodes a byte array into a number.
+ * Decodes a byte array into a number.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestonumber
+ *
+ * @param bytes Byte array to decode.
+ * @param opts Options.
+ * @returns Number value.
+ *
+ * @example
+ * import { bytesToNumber } from 'viem'
+ * const data = bytesToNumber(new Uint8Array([1, 164]))
+ * // 420
  */
-export function bytesToNumber(bytes: ByteArray): number {
-  const hex = bytesToHex(bytes)
+export function bytesToNumber(
+  bytes: ByteArray,
+  opts: BytesToNumberOpts = {},
+): number {
+  if (typeof opts.size !== 'undefined') assertSize(bytes, { size: opts.size })
+  const hex = bytesToHex(bytes, opts)
   return hexToNumber(hex)
 }
 
+export type BytesToStringOpts = {
+  /** Size of the bytes. */
+  size?: number
+}
+
 /**
- * @description Decodes a byte array into a UTF-8 string.
+ * Decodes a byte array into a UTF-8 string.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromBytes.html#bytestostring
+ *
+ * @param bytes Byte array to decode.
+ * @param opts Options.
+ * @returns String value.
+ *
+ * @example
+ * import { bytesToString } from 'viem'
+ * const data = bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]))
+ * // 'Hello world'
  */
-export function bytesToString(bytes: ByteArray): string {
+export function bytesToString(
+  bytes_: ByteArray,
+  opts: BytesToStringOpts = {},
+): string {
+  let bytes = bytes_
+  if (typeof opts.size !== 'undefined') {
+    assertSize(bytes, { size: opts.size })
+    bytes = trim(bytes, { dir: 'right' })
+  }
   return new TextDecoder().decode(bytes)
 }
