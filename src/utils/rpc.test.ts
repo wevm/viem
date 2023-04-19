@@ -1,6 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-
-import WebSocket from 'isomorphic-ws'
+import { WebSocket } from 'unws'
 
 import {
   createHttpServer,
