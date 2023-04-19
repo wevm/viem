@@ -194,7 +194,7 @@ export class ContractFunctionRevertedError extends BaseError {
     } else if (message) reason = message
 
     super(
-      reason
+      reason && reason !== 'execution reverted'
         ? [
             `The contract function "${functionName}" reverted with the following reason:`,
             reason,

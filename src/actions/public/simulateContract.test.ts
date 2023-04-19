@@ -350,8 +350,7 @@ describe('contract errors', () => {
         account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
-      execution reverted
+      [ContractFunctionExecutionError: The contract function "requireWrite" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -565,8 +564,7 @@ describe('node errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"mint\\" reverted with the following reason:
-      execution reverted
+      "The contract function \\"mint\\" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

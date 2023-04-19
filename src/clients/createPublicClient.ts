@@ -6,13 +6,26 @@ import { publicActions } from './decorators/index.js'
 import type { PublicActions } from './decorators/index.js'
 import type { Chain, Prettify } from '../types/index.js'
 
+export type MulticallBatchOptions = {
+  /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
+  batchSize?: number
+  /** The maximum number of milliseconds to wait before sending a batch. @default 16 */
+  wait?: number
+}
+
 export type PublicClientConfig<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 > = Pick<
   ClientConfig<TTransport, TChain>,
   'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
->
+> & {
+  /** Flags for batch settings. */
+  batch?: {
+    /** Toggle to enable `eth_call` multicall aggregation. */
+    multicall?: boolean | MulticallBatchOptions
+  }
+}
 
 export type PublicClient<
   TTransport extends Transport = Transport,
@@ -20,6 +33,7 @@ export type PublicClient<
   TIncludeActions extends boolean = true,
 > = Prettify<
   Client<TTransport, PublicRequests, TChain> &
+    Pick<PublicClientConfig, 'batch'> &
     (TIncludeActions extends true ? PublicActions<TTransport, TChain> : unknown)
 >
 
@@ -46,6 +60,7 @@ export function createPublicClient<
   TTransport extends Transport,
   TChain extends Chain | undefined = undefined,
 >({
+  batch,
   chain,
   key = 'public',
   name = 'Public Client',
@@ -65,6 +80,7 @@ export function createPublicClient<
     type: 'publicClient',
   }) as PublicClient<TTransport, TChain>
   return {
+    batch,
     ...client,
     ...publicActions(client),
   }

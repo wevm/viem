@@ -252,8 +252,7 @@ describe('contract errors', () => {
         functionName: 'requireRead',
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
-      execution reverted
+      [ContractFunctionExecutionError: The contract function "requireRead" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

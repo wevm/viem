@@ -101,12 +101,18 @@ const provider = {
 }
 
 export const httpClient = createPublicClient({
+  batch: {
+    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
+  },
   chain: anvilChain,
   pollingInterval: 1_000,
   transport: http(),
 })
 
 export const webSocketClient = createPublicClient({
+  batch: {
+    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
+  },
   chain: anvilChain,
   pollingInterval: 1_000,
   transport: webSocket(localWsUrl),

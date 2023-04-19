@@ -25,6 +25,7 @@ test('exports actions', () => {
       "CallExecutionError": [Function],
       "ChainDisconnectedError": [Function],
       "ChainDoesNotSupportContract": [Function],
+      "ClientChainNotConfiguredError": [Function],
       "ContractFunctionExecutionError": [Function],
       "ContractFunctionRevertedError": [Function],
       "ContractFunctionZeroDataError": [Function],

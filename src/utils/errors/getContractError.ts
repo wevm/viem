@@ -33,11 +33,12 @@ export function getContractError(
     sender?: Address
   },
 ) {
-  const { code, data, message } = (
+  const { code, data, message, shortMessage } = (
     err instanceof RawContractError
       ? err
-      : err instanceof CallExecutionError ||
-        err instanceof EstimateGasExecutionError
+      : !(err.cause && 'data' in (err.cause as BaseError)) &&
+        (err instanceof CallExecutionError ||
+          err instanceof EstimateGasExecutionError)
       ? ((err.cause as BaseError)?.cause as BaseError)?.cause || {}
       : err.cause || {}
   ) as RawContractError
@@ -45,12 +46,15 @@ export function getContractError(
   let cause = err
   if (err instanceof AbiDecodingZeroDataError) {
     cause = new ContractFunctionZeroDataError({ functionName })
-  } else if (code === EXECUTION_REVERTED_ERROR_CODE && (data || message)) {
+  } else if (
+    code === EXECUTION_REVERTED_ERROR_CODE &&
+    (data || message || shortMessage)
+  ) {
     cause = new ContractFunctionRevertedError({
       abi,
       data,
       functionName,
-      message,
+      message: shortMessage ?? message,
     })
   }
 

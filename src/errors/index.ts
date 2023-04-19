@@ -37,6 +37,7 @@ export {
   ChainDoesNotSupportContract,
   ChainMismatchError,
   ChainNotFoundError,
+  ClientChainNotConfiguredError,
   InvalidChainIdError,
 } from './chain.js'
 

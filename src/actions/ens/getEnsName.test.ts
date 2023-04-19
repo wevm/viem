@@ -102,8 +102,7 @@ test('invalid universal resolver address', async () => {
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"reverse\\" reverted with the following reason:
-    execution reverted
+    "The contract function \\"reverse\\" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000

@@ -6,6 +6,7 @@ test('exports index', () => {
   expect(Object.keys(index)).toMatchInlineSnapshot(`
     [
       "multicall3Abi",
+      "aggregate3Signature",
       "panicReasons",
       "solidityError",
       "solidityPanic",

@@ -182,6 +182,7 @@ export {
   CallExecutionError,
   ChainDisconnectedError,
   ChainDoesNotSupportContract,
+  ClientChainNotConfiguredError,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
