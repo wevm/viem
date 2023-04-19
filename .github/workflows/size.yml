@@ -9,7 +9,6 @@ jobs:
     strategy:
       matrix:
         node-version: [18]
-        pnpm-version: [7]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
