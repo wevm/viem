@@ -6,15 +6,13 @@ import { setBlockNumber, testClient } from './utils.js'
 import { setAutomine, setIntervalMining } from '../test.js'
 
 beforeAll(() => {
-  vi.mock('../errors/utils.ts', async () => {
-    return {
-      getContractAddress: vi
-        .fn()
-        .mockReturnValue('0x0000000000000000000000000000000000000000'),
-      getUrl: vi.fn().mockReturnValue('http://localhost'),
-      getVersion: vi.fn().mockReturnValue('viem@1.0.2'),
-    }
-  })
+  vi.mock('../errors/utils.ts', () => ({
+    getContractAddress: vi
+      .fn()
+      .mockReturnValue('0x0000000000000000000000000000000000000000'),
+    getUrl: vi.fn().mockReturnValue('http://localhost'),
+    getVersion: vi.fn().mockReturnValue('viem@1.0.2'),
+  }))
 })
 
 beforeEach(() => {
@@ -24,19 +22,19 @@ beforeEach(() => {
   cleanupCache.clear()
 })
 
-afterAll(() => {
-  vi.resetAllMocks()
-})
-
-// Reset the anvil instance to the same state it was in before the tests started.
 afterAll(async () => {
-  await setBlockNumber(BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER)))
-  await setAutomine(testClient, false)
-  await setIntervalMining(testClient, { interval: 1 })
+  vi.restoreAllMocks()
+
+  // Reset the anvil instance to the same state it was in before the tests started.
+  await Promise.all([
+    setBlockNumber(BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER))),
+    setAutomine(testClient, false),
+    setIntervalMining(testClient, { interval: 1 }),
+  ])
 })
 
-// Print the last log entries from anvil after each test.
-afterEach(async (context) => {
+afterEach((context) => {
+  // Print the last log entries from anvil after eazch test.
   context.onTestFailed(async (result) => {
     try {
       const pool = process.env.VITEST_POOL_ID ?? 1

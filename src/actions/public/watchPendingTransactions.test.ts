@@ -50,7 +50,7 @@ describe('poll', () => {
       await setIntervalMining(testClient, { interval: 1 })
       await mine(testClient, { blocks: 1 })
     },
-    { timeout: 10_000, retry: 3 },
+    { timeout: 10_000 },
   )
 
   test('watches for pending transactions (unbatched)', async () => {
@@ -160,7 +160,7 @@ describe('subscribe', () => {
       await setIntervalMining(testClient, { interval: 1 })
       await mine(testClient, { blocks: 1 })
     },
-    { timeout: 10_000, retry: 3 },
+    { timeout: 10_000 },
   )
 
   describe('errors', () => {

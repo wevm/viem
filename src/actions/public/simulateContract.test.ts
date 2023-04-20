@@ -235,19 +235,17 @@ describe('BAYC', () => {
 })
 
 describe('contract errors', () => {
-  test(
-    'revert',
-    async () => {
-      const { contractAddress } = await deployErrorExample()
+  test('revert', async () => {
+    const { contractAddress } = await deployErrorExample()
 
-      await expect(() =>
-        simulateContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'revertWrite',
-          account: accounts[0].address,
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'revertWrite',
+        account: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
         This is a revert message
 
@@ -259,23 +257,19 @@ describe('contract errors', () => {
         Docs: https://viem.sh/docs/contract/simulateContract.html
         Version: viem@1.0.2]
       `)
-    },
-    { retry: 3 },
-  )
+  })
 
-  test(
-    'assert',
-    async () => {
-      const { contractAddress } = await deployErrorExample()
+  test('assert', async () => {
+    const { contractAddress } = await deployErrorExample()
 
-      await expect(() =>
-        simulateContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'assertWrite',
-          account: accounts[0].address,
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'assertWrite',
+        account: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
         An \`assert\` condition failed.
 
@@ -287,9 +281,7 @@ describe('contract errors', () => {
         Docs: https://viem.sh/docs/contract/simulateContract.html
         Version: viem@1.0.2]
       `)
-    },
-    { retry: 3 },
-  )
+  })
 
   test('overflow', async () => {
     const { contractAddress } = await deployErrorExample()

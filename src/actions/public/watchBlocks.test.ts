@@ -50,34 +50,25 @@ describe('poll', () => {
     expect(prevBlocks.length).toBe(3)
   })
 
-  test(
-    'args: includeTransactions',
-    async () => {
-      await mine(testClient, { blocks: 1 })
+  test('args: includeTransactions', async () => {
+    const blocks: OnBlockParameter[] = []
+    const unwatch = watchBlocks(publicClient, {
+      onBlock: (block) => blocks.push(block),
+      poll: true,
+    })
 
-      const blocks: OnBlockParameter[] = []
-      const unwatch = watchBlocks(publicClient, {
-        includeTransactions: true,
-        onBlock: (block) => {
-          blocks.push(block)
-        },
-        poll: true,
-        pollingInterval: 100,
-      })
+    await sendTransaction(walletClient, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(1000)
 
-      await sendTransaction(walletClient, {
-        account: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('1'),
-      })
-      await wait(1000)
-
-      unwatch()
-      expect(blocks.length).toBe(1)
-      expect(blocks[0].transactions.length).toBe(1)
-    },
-    { retry: 3 },
-  )
+    unwatch()
+    expect(blocks.length).toBe(1)
+    expect(blocks[0].transactions.length).toBe(1)
+  })
 
   describe('emitMissed', () => {
     test('emits on missed blocks', async () => {
