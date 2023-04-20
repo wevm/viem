@@ -86,11 +86,11 @@ describe('behavior', () => {
           Promise.reject(new BaseError('foo', { details: 'bar' })),
         )(),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-          [ViemError: foo
+        "foo
 
-          Details: bar
-          Version: viem@1.0.2]
-        `)
+        Details: bar
+        Version: viem@1.0.2"
+      `)
     })
 
     test('ParseRpcError', async () => {
@@ -540,14 +540,14 @@ describe('behavior', () => {
           ),
         )(),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-          [TimeoutError: The request took too long to respond.
+        "The request took too long to respond.
 
-          URL: http://localhost
-          Request body: {"foo":"bar"}
+        URL: http://localhost
+        Request body: {\\"foo\\":\\"bar\\"}
 
-          Details: The request timed out.
-          Version: viem@1.0.2]
-        `)
+        Details: The request timed out.
+        Version: viem@1.0.2"
+      `)
     })
   })
 
