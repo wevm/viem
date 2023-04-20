@@ -81,18 +81,16 @@ describe('args', () => {
 describe('behavior', () => {
   describe('error types', () => {
     test('BaseError', async () => {
-      try {
-        await buildRequest(() =>
+      await expect(() =>
+        buildRequest(() =>
           Promise.reject(new BaseError('foo', { details: 'bar' })),
-        )()
-      } catch (err) {
-        expect(err).toMatchInlineSnapshot(`
+        )(),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
           [ViemError: foo
 
           Details: bar
           Version: viem@1.0.2]
         `)
-      }
     })
 
     test('ParseRpcError', async () => {
@@ -532,17 +530,16 @@ describe('behavior', () => {
     })
 
     test('TimeoutError', async () => {
-      try {
-        await buildRequest(() =>
+      await expect(() =>
+        buildRequest(() =>
           Promise.reject(
             new TimeoutError({
               body: { foo: 'bar' },
               url: 'http://localhost:8000',
             }),
           ),
-        )()
-      } catch (err) {
-        expect(err).toMatchInlineSnapshot(`
+        )(),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
           [TimeoutError: The request took too long to respond.
 
           URL: http://localhost
@@ -551,7 +548,6 @@ describe('behavior', () => {
           Details: The request timed out.
           Version: viem@1.0.2]
         `)
-      }
     })
   })
 
