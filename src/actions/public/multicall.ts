@@ -117,7 +117,7 @@ export async function multicall<
     callData: Hex
     target: Address
   }[]
-  
+
   const chunkedCalls: Aggregate3Calls[] = [[]]
   let currentChunk = 0
   let currentChunkSize = 0
