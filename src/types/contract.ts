@@ -19,7 +19,7 @@ import type {
 } from 'abitype'
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
-import type { Filter, MaybeRequired } from './utils.js'
+import type { Filter, MaybeRequired, NoUndefined } from './utils.js'
 
 export type AbiItem = Abi[number]
 
@@ -64,9 +64,9 @@ export type GetValue<
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
 > = TAbiFunction['stateMutability'] extends 'payable'
-  ? { value?: TValueType }
+  ? { value: NoUndefined<TValueType> }
   : TAbiFunction['payable'] extends true
-  ? { value?: TValueType }
+  ? { value: NoUndefined<TValueType> }
   : { value?: never }
 
 export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =

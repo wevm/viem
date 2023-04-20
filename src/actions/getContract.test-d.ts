@@ -704,8 +704,11 @@ test('argument permutations', async () => {
   // estimateGas
   contract.estimateGas.nonpayableWithoutArgs({ account: '0x' })
   contract.estimateGas.nonpayableWithArgs(['foo', 69n], { account: '0x' })
-  contract.estimateGas.payableWithoutArgs({ account: '0x' })
-  contract.estimateGas.payableWithArgs(['foo', 69n], { account: '0x' })
+  contract.estimateGas.payableWithoutArgs({ account: '0x', value: 1n })
+  contract.estimateGas.payableWithArgs(['foo', 69n], {
+    account: '0x',
+    value: 1n,
+  })
 
   contract.estimateGas.overloadedNonpayable({ account: '0x' })
   contract.estimateGas.overloadedNonpayable(['foo'], { account: '0x' })
@@ -733,8 +736,8 @@ test('argument permutations', async () => {
   // simulate
   contract.simulate.nonpayableWithoutArgs({ account: '0x' })
   contract.simulate.nonpayableWithArgs(['foo', 69n], { account: '0x' })
-  contract.simulate.payableWithoutArgs({ account: '0x' })
-  contract.simulate.payableWithArgs(['foo', 69n], { account: '0x' })
+  contract.simulate.payableWithoutArgs({ account: '0x', value: 1n })
+  contract.simulate.payableWithArgs(['foo', 69n], { account: '0x', value: 1n })
 
   contract.simulate.overloadedNonpayable({ account: '0x' })
   contract.simulate.overloadedNonpayable(['foo'], { account: '0x' })

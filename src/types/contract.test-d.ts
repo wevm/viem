@@ -167,7 +167,7 @@ test('GetFunctionArgs', () => {
 test('GetValue', () => {
   // payable
   type Result = GetValue<typeof seaportAbi, 'fulfillAdvancedOrder'>
-  expectTypeOf<Result>().toEqualTypeOf<{ value?: bigint | undefined }>()
+  expectTypeOf<Result>().toEqualTypeOf<{ value: bigint }>()
 
   // other
   expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{
