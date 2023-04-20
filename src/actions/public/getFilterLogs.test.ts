@@ -16,6 +16,7 @@ import {
   mine,
   setIntervalMining,
   stopImpersonatingAccount,
+  setBalance,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import type { Log } from '../../types/index.js'
@@ -95,6 +96,10 @@ beforeAll(async () => {
   })
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
+  })
+  await setBalance(testClient, {
+    address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
 })
 

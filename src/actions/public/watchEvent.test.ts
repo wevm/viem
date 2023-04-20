@@ -13,6 +13,7 @@ import {
   impersonateAccount,
   mine,
   stopImpersonatingAccount,
+  setBalance,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import * as createEventFilter from './createEventFilter.js'
@@ -73,6 +74,10 @@ beforeAll(async () => {
   })
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
+  })
+  await setBalance(testClient, {
+    address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
   await mine(testClient, { blocks: 1 })
 })
