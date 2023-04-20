@@ -2,6 +2,8 @@ import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
 
 import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
+import { setBlockNumber, testClient } from './utils.js'
+import { setAutomine, setIntervalMining } from '../test.js'
 
 beforeAll(() => {
   vi.mock('../errors/utils.ts', async () => {
@@ -24,4 +26,11 @@ beforeEach(() => {
 
 afterAll(() => {
   vi.resetAllMocks()
+})
+
+afterAll(async () => {
+  // NOTE: The downside of doing this here is that it means we'll spawn an anvil instance even for unit tests.
+  await setBlockNumber(BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER)))
+  await setAutomine(testClient, false)
+  await setIntervalMining(testClient, { interval: 1 })
 })

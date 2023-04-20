@@ -7,6 +7,7 @@ import { createHttpServer } from '../../_test/index.js'
 
 import type { HttpTransport } from './http.js'
 import { http } from './http.js'
+import { localHttpUrl } from '../../_test/constants.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')
@@ -110,7 +111,19 @@ describe('request', () => {
     const transport = http(undefined, {
       key: 'jsonRpc',
       name: 'JSON RPC',
-    })({ chain: localhost })
+    })({
+      chain: {
+        ...localhost,
+        rpcUrls: {
+          default: {
+            http: [localHttpUrl],
+          },
+          public: {
+            http: [localHttpUrl],
+          },
+        },
+      },
+    })
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBeDefined()
   })

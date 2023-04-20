@@ -7,13 +7,13 @@ import {
   localWsUrl,
 } from '../_test/index.js'
 import * as withTimeout from './promise/withTimeout.js'
-import { localhost, mainnet } from '../chains.js'
 
 import { numberToHex } from './encoding/index.js'
 import type { RpcResponse } from './rpc.js'
 import { getSocket, rpc } from './rpc.js'
 import { wait } from './wait.js'
 import type { IncomingHttpHeaders } from 'http'
+import { localHttpUrl } from '../_test/constants.js'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`
@@ -28,7 +28,7 @@ test('rpc', () => {
 describe('http', () => {
   test('valid request', async () => {
     expect(
-      await rpc.http(localhost.rpcUrls.default.http[0], {
+      await rpc.http(localHttpUrl, {
         body: { method: 'web3_clientVersion' },
       }),
     ).toMatchInlineSnapshot(`
@@ -42,7 +42,7 @@ describe('http', () => {
 
   test('valid request w/ incremented id', async () => {
     expect(
-      await rpc.http(localhost.rpcUrls.default.http[0], {
+      await rpc.http(localHttpUrl, {
         body: { method: 'web3_clientVersion' },
       }),
     ).toMatchInlineSnapshot(`
@@ -56,7 +56,7 @@ describe('http', () => {
 
   test('invalid rpc params', async () => {
     await expect(() =>
-      rpc.http(localhost.rpcUrls.default.http[0], {
+      rpc.http(localHttpUrl, {
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -74,7 +74,7 @@ describe('http', () => {
 
   test('invalid request', async () => {
     expect(
-      rpc.http(localhost.rpcUrls.default.http[0], {
+      rpc.http(localHttpUrl, {
         body: { method: 'eth_wagmi' },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -92,7 +92,7 @@ describe('http', () => {
     const response: any = []
     for (const i in Array.from({ length: 10 })) {
       response.push(
-        await rpc.http(localhost.rpcUrls.default.http[0], {
+        await rpc.http(localHttpUrl, {
           body: {
             method: 'eth_getBlockByNumber',
             params: [numberToHex(initialBlockNumber - BigInt(i)), false],
@@ -111,7 +111,7 @@ describe('http', () => {
     await wait(500)
     const response = await Promise.all(
       Array.from({ length: 50 }).map(async (_, i) => {
-        return await rpc.http(localhost.rpcUrls.default.http[0], {
+        return await rpc.http(localHttpUrl, {
           body: {
             method: 'eth_getBlockByNumber',
             params: [numberToHex(initialBlockNumber - BigInt(i)), false],
@@ -206,7 +206,7 @@ describe('http', () => {
 
   test('timeout', async () => {
     try {
-      await rpc.http(mainnet.rpcUrls.default.http[0], {
+      await rpc.http(localHttpUrl, {
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
@@ -231,7 +231,7 @@ describe('http', () => {
   test('unknown', async () => {
     vi.spyOn(withTimeout, 'withTimeout').mockRejectedValueOnce(new Error('foo'))
     try {
-      await rpc.http(mainnet.rpcUrls.default.http[0], {
+      await rpc.http(localHttpUrl, {
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(initialBlockNumber), false],
