@@ -621,3 +621,23 @@ test('multicall contract deployed on later block', async () => {
     Version: viem@1.0.2"
   `)
 })
+
+test('stress', async () => {
+  const client = createPublicClient({
+    chain: mainnet,
+    transport: http(),
+  })
+
+  const contracts = []
+  for (let i = 0; i < 10_000; i++) {
+    contracts.push({
+      ...usdcContractConfig,
+      functionName: 'totalSupply',
+    })
+  }
+
+  await multicall(client, {
+    chunkSize: 1024,
+    contracts,
+  })
+})

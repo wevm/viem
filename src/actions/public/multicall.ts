@@ -30,6 +30,7 @@ export type MulticallParameters<
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
   contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
+  chunkSize?: number
   multicallAddress?: Address
 }
 
@@ -90,6 +91,7 @@ export async function multicall<
     blockNumber,
     blockTag,
     contracts: contracts_,
+    chunkSize = 0,
     multicallAddress: multicallAddress_,
   } = args
 
@@ -110,18 +112,39 @@ export async function multicall<
     })
   }
 
-  const calls = contracts.map(({ abi, address, args, functionName }) => {
+  type Aggregate3Calls = {
+    allowFailure: boolean
+    callData: Hex
+    target: Address
+  }[]
+  
+  const chunkedCalls: Aggregate3Calls[] = [[]]
+  let currentChunk = 0
+  let currentChunkSize = 0
+  for (let i = 0; i < contracts.length; i++) {
+    const { abi, address, args, functionName } = contracts[i]
     try {
       const callData = encodeFunctionData({
         abi,
         args,
         functionName,
       } as unknown as EncodeFunctionDataParameters)
-      return {
-        allowFailure: true,
-        callData,
-        target: address,
+
+      currentChunkSize += callData.length
+      if (chunkSize > 0 && currentChunkSize > chunkSize) {
+        currentChunk++
+        currentChunkSize = (callData.length - 2) / 2
+        chunkedCalls[currentChunk] = []
       }
+
+      chunkedCalls[currentChunk] = [
+        ...(chunkedCalls[currentChunk] || []),
+        {
+          allowFailure: true,
+          callData,
+          target: address,
+        },
+      ]
     } catch (err) {
       const error = getContractError(err as BaseError, {
         abi,
@@ -131,22 +154,32 @@ export async function multicall<
         functionName,
       })
       if (!allowFailure) throw error
-      return {
-        allowFailure: true,
-        callData: '0x' as Hex,
-        target: address,
-      }
+      chunkedCalls[currentChunk] = [
+        ...(chunkedCalls[currentChunk] || []),
+        {
+          allowFailure: true,
+          callData: '0x' as Hex,
+          target: address,
+        },
+      ]
     }
-  })
-  const results = await readContract(client, {
-    abi: multicall3Abi,
-    address: multicallAddress,
-    args: [calls],
-    blockNumber,
-    blockTag,
-    functionName: 'aggregate3',
-  })
-  return results.map(({ returnData, success }, i) => {
+  }
+
+  const results = await Promise.all(
+    chunkedCalls.map((calls) =>
+      readContract(client, {
+        abi: multicall3Abi,
+        address: multicallAddress!,
+        args: [calls],
+        blockNumber,
+        blockTag,
+        functionName: 'aggregate3',
+      }),
+    ),
+  )
+
+  return results.flat().flatMap(({ returnData, success }, i) => {
+    const calls = chunkedCalls.flat()
     const { callData } = calls[i]
     const { abi, address, functionName, args } = contracts[i]
     try {
