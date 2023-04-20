@@ -2,7 +2,7 @@ import { execa, type ExecaChildProcess } from 'execa'
 import { Writable } from 'node:stream'
 
 export interface AnvilOptions {
-  portNumber: number
+  port: number
   forkUrl?: string | undefined
   forkBlockNumber?: number | bigint | undefined
   blockTime?: number
@@ -44,14 +44,14 @@ export class Anvil {
     const controller = new AbortController()
     const recorder = new LogRecorder((message) => {
       // We know that anvil has started up when it prints this message.
-      if (message.includes(`Listening on 127.0.0.1:${opts.portNumber}`)) {
+      if (message.includes(`Listening on 127.0.0.1:${opts.port}`)) {
         resolve(instance)
       }
     })
 
     // TODO: We could expose a lot more options here. We could also extract this into a dedicated command builder.
     const args = Object.entries({
-      '--port': `${opts.portNumber}`,
+      '--port': `${opts.port}`,
       ...(opts.forkUrl ? { '--fork-url': opts.forkUrl } : {}),
       ...(opts.forkBlockNumber
         ? { '--fork-block-number': `${Number(opts.forkBlockNumber)}` }
@@ -97,7 +97,7 @@ export class Anvil {
   }
 
   public get port() {
-    return this.options.portNumber
+    return this.options.port
   }
 
   public get logs() {
