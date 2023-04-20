@@ -115,8 +115,14 @@ class LogRecorder extends Writable {
   }
 
   override _write(chunk: any, _: string, next: (error?: Error) => void) {
-    const message = chunk.toString()
+    const message = chunk.toString().trim()
     this.messages.push(message)
+
+    // Limit the number of messages we store.
+    if (this.messages.length > 100) {
+      this.messages.shift()
+    }
+
     this.callback(message)
     next()
   }

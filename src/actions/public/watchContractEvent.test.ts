@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  assertType,
-  beforeAll,
-  describe,
-  expect,
-  test,
-  vi,
-} from 'vitest'
+import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 import { getAddress } from '../../utils/index.js'
 import { wait } from '../../utils/wait.js'
 import {
@@ -42,15 +34,15 @@ beforeAll(async () => {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-})
 
-afterAll(async () => {
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await stopImpersonatingAccount(testClient, {
-    address: address.usdcHolder,
-  })
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+    await stopImpersonatingAccount(testClient, {
+      address: address.usdcHolder,
+    })
+  }
 })
 
 test(

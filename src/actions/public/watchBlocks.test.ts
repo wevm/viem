@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { celo, localhost } from '../../chains.js'
 import type { PublicClient } from '../../clients/index.js'
@@ -19,6 +19,11 @@ import { sendTransaction } from '../wallet/index.js'
 import * as getBlock from './getBlock.js'
 import type { OnBlockParameter } from './watchBlocks.js'
 import { watchBlocks } from './watchBlocks.js'
+import { localHttpUrl } from '../../_test/constants.js'
+
+beforeAll(async () => {
+  await setIntervalMining(testClient, { interval: 0 })
+})
 
 describe('poll', () => {
   test('watches for new blocks', async () => {
@@ -30,8 +35,16 @@ describe('poll', () => {
         prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
       },
       poll: true,
+      pollingInterval: 100,
     })
-    await wait(5000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
     expect(blocks.length).toBe(4)
     expect(prevBlocks.length).toBe(3)
@@ -49,6 +62,7 @@ describe('poll', () => {
           blocks.push(block)
         },
         poll: true,
+        pollingInterval: 100,
       })
 
       await sendTransaction(walletClient, {
@@ -56,7 +70,7 @@ describe('poll', () => {
         to: accounts[1].address,
         value: parseEther('1'),
       })
-      await wait(2000)
+      await wait(1000)
 
       unwatch()
       expect(blocks.length).toBe(1)
@@ -67,21 +81,19 @@ describe('poll', () => {
 
   describe('emitMissed', () => {
     test('emits on missed blocks', async () => {
-      await setIntervalMining(testClient, { interval: 0 })
       const blocks: OnBlockParameter[] = []
       const unwatch = watchBlocks(publicClient, {
         emitMissed: true,
         onBlock: (block) => blocks.push(block),
         poll: true,
-        pollingInterval: 500,
+        pollingInterval: 100,
       })
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
       await mine(testClient, { blocks: 5 })
-      await wait(1000)
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(6)
-      await setIntervalMining(testClient, { interval: 1 })
     })
   })
 
@@ -92,8 +104,16 @@ describe('poll', () => {
         emitOnBegin: true,
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
-      await wait(5000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(5)
     })
@@ -103,16 +123,19 @@ describe('poll', () => {
     test('watches for new blocks', async () => {
       const client = createPublicClient({
         chain: localhost,
-        transport: http(),
-        pollingInterval: 500,
+        transport: http(localHttpUrl),
+        pollingInterval: 100,
       })
-
       const blocks: OnBlockParameter[] = []
       const unwatch = watchBlocks(client, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
-      await wait(2000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(2)
     })
@@ -123,14 +146,15 @@ describe('poll', () => {
       chain: celo,
       transport: http(),
     })
-
     const blocks: OnBlockParameter<typeof celo>[] = []
     const unwatch = watchBlocks(client, {
       emitOnBegin: true,
       onBlock: (block) => blocks.push(block),
       poll: true,
+      pollingInterval: 100,
     })
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
     expect(blocks[0].randomness).toBeDefined()
   })
@@ -143,7 +167,10 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
-      await wait(1200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(2)
     })
@@ -153,8 +180,12 @@ describe('poll', () => {
       let unwatch = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
-      await wait(3000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(2)
 
@@ -162,8 +193,12 @@ describe('poll', () => {
       unwatch = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
-      await wait(3000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(2)
     })
@@ -174,16 +209,22 @@ describe('poll', () => {
       let unwatch1 = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
       let unwatch2 = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
       let unwatch3 = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
-      await wait(3000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch1()
       unwatch2()
       unwatch3()
@@ -194,16 +235,22 @@ describe('poll', () => {
       unwatch1 = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
       unwatch2 = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
       unwatch3 = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
-      await wait(3000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch1()
       unwatch2()
       unwatch3()
@@ -215,9 +262,11 @@ describe('poll', () => {
       const unwatch = watchBlocks(publicClient, {
         onBlock: (block) => blocks.push(block),
         poll: true,
+        pollingInterval: 100,
       })
       unwatch()
-      await wait(3000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       expect(blocks.length).toBe(0)
     })
 
@@ -526,7 +575,17 @@ describe('subscribe', () => {
         prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
       },
     })
-    await wait(5000)
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
     expect(blocks.length).toBe(5)
     expect(prevBlocks.length).toBe(4)
@@ -538,7 +597,9 @@ describe('subscribe', () => {
       const unwatch = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      await wait(1200)
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(1)
     })
@@ -548,7 +609,13 @@ describe('subscribe', () => {
       let unwatch = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      await wait(3000)
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(3)
 
@@ -556,7 +623,13 @@ describe('subscribe', () => {
       unwatch = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      await wait(3000)
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
       expect(blocks.length).toBe(3)
     })
@@ -573,7 +646,13 @@ describe('subscribe', () => {
       let unwatch3 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      await wait(3000)
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch1()
       unwatch2()
       unwatch3()
@@ -590,7 +669,13 @@ describe('subscribe', () => {
       unwatch3 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      await wait(3000)
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch1()
       unwatch2()
       unwatch3()
@@ -603,7 +688,8 @@ describe('subscribe', () => {
         onBlock: (block) => blocks.push(block),
       })
       unwatch()
-      await wait(3000)
+      await mine(testClient, { blocks: 1 })
+      await wait(1000)
       expect(blocks.length).toBe(0)
     })
   })

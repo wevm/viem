@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 
 import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
@@ -28,9 +28,44 @@ afterAll(() => {
   vi.resetAllMocks()
 })
 
+// Reset the anvil instance to the same state it was in before the tests started.
 afterAll(async () => {
-  // NOTE: The downside of doing this here is that it means we'll spawn an anvil instance even for unit tests.
   await setBlockNumber(BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER)))
   await setAutomine(testClient, false)
   await setIntervalMining(testClient, { interval: 1 })
+})
+
+// Print the last log entries from anvil after each test.
+afterEach(async (context) => {
+  context.onTestFailed(async (result) => {
+    try {
+      const pool = process.env.VITEST_POOL_ID ?? 1
+      const response = await fetch(`http://127.0.0.1:8545/${pool}/logs`)
+      const logs = (((await response.json()) ?? []) as string[])
+        .slice(1)
+        .slice(-20)
+
+      if (!Array.isArray(logs) || logs.length === 0) {
+        return
+      }
+
+      // Try to append the log messages to the vitest error message if possible. Otherwise, print them to the console.
+      const error = result.errors?.[0]
+      const label =
+        'Anvil log output\n=======================================\n'
+
+      if (error !== undefined) {
+        error.message += `\n\n${label}`
+        error.message += `\n${logs.join('\n')}`
+      } else {
+        console.group(label)
+
+        for (const log of logs) {
+          console.log(log)
+        }
+
+        console.groupEnd()
+      }
+    } catch {}
+  })
 })

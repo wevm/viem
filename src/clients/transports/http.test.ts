@@ -170,15 +170,15 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "HTTP request failed.
+      "HTTP request failed.
 
-        Status: 500
-        URL: http://localhost
-        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Status: 500
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
-        Details: Internal Server Error
-        Version: viem@1.0.2"
-      `)
+      Details: Internal Server Error
+      Version: viem@1.0.2"
+    `)
     expect(retryCount).toBe(1)
   })
 
@@ -203,15 +203,15 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "HTTP request failed.
+      "HTTP request failed.
 
-        Status: 500
-        URL: http://localhost
-        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Status: 500
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
-        Details: Internal Server Error
-        Version: viem@1.0.2"
-      `)
+      Details: Internal Server Error
+      Version: viem@1.0.2"
+    `)
     expect(end > 500 && end < 520).toBeTruthy()
   })
 

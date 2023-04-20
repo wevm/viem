@@ -1,4 +1,4 @@
-import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
+import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
 import {
   accounts,
@@ -103,16 +103,15 @@ beforeAll(async () => {
     address: address.usdcHolder,
     value: 10000000000000000000000n,
   })
-})
 
-afterAll(async () => {
-  await setIntervalMining(testClient, { interval: 1 })
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await stopImpersonatingAccount(testClient, {
-    address: address.usdcHolder,
-  })
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+    await stopImpersonatingAccount(testClient, {
+      address: address.usdcHolder,
+    })
+  }
 })
 
 test('default', async () => {

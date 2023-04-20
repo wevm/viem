@@ -24,38 +24,57 @@ export function createAnvilProxy({
     })
 
     const server = createServer(async (req, res) => {
-      const id = getIdFromUrl(req.url)
+      const { id, path } = parseRequest(req.url)
+
       if (id === undefined) {
         res.writeHead(404).end('Missing worker id in request')
-      } else {
+      } else if (path === '/logs') {
+        const instance = instances.get(id)
+
+        if (instance === undefined) {
+          res.writeHead(404).end(`No anvil instance found for id ${id}`)
+        } else {
+          const logs = await instance.then((anvil) => anvil.logs)
+          res.writeHead(200).end(JSON.stringify(logs ?? []))
+        }
+      } else if (path === '/') {
         const port = await getPort({
           ...(portRange !== undefined ? { port: portRange } : {}),
         })
+
         const anvil = await getOrCreateAnvilInstance(id, {
           ...anvilOptions,
           port,
         })
+
         proxy.web(req, res, {
           target: `http://127.0.0.1:${anvil.port}`,
         })
+      } else {
+        res.writeHead(404).end('Invalid request')
       }
     })
 
     server.on('upgrade', async (req, socket, head) => {
-      const id = getIdFromUrl(req.url)
+      const { id, path } = parseRequest(req.url)
+
       if (id === undefined) {
         socket.destroy(new Error('Missing worker id in request'))
-      } else {
+      } else if (path === '/') {
         const port = await getPort({
           ...(portRange !== undefined ? { port: portRange } : {}),
         })
+
         const anvil = await getOrCreateAnvilInstance(id, {
           ...anvilOptions,
           port,
         })
+
         proxy.ws(req, socket, head, {
           target: `ws://127.0.0.1:${anvil.port}`,
         })
+      } else {
+        socket.destroy(new Error('Invalid request'))
       }
     })
 
@@ -94,9 +113,19 @@ async function getOrCreateAnvilInstance(id: number, options: AnvilOptions) {
   return anvil
 }
 
-function getIdFromUrl(url?: string) {
-  const path = url ? new RegExp('^[0-9]+$').exec(url.slice(1))?.[0] : undefined
-  const id = path ? Number(path) : undefined
+function parseRequest(request?: string) {
+  const url = new URL(`http://localhost${request ?? '/'}`)
+  const matches =
+    new RegExp('^([0-9]+)(?:/([^/]+))*$').exec(url.pathname.slice(1)) ?? []
 
-  return id
+  const id = matches[1] ? Number(matches[1]) : undefined
+  if (id === undefined) {
+    return { id: undefined, path: undefined }
+  }
+
+  const path = matches[2]
+    ? matches[2].split('/').map((value) => value.trim())
+    : []
+
+  return { id, path: `/${path.join('/')}` }
 }

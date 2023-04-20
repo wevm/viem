@@ -15,6 +15,7 @@ test(
   'gets transaction count',
   async () => {
     await setNonce(testClient, { address: accounts[0].address, nonce: 0 })
+    await mine(testClient, { blocks: 1 })
 
     expect(
       await getTransactionCount(publicClient, {
