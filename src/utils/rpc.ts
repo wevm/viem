@@ -149,7 +149,7 @@ export async function getSocket(url_: string) {
   // https://github.com/vitejs/vite/issues/9703
   // TODO: Remove when issue is resolved.
   if (!WebSocket.constructor)
-    WebSocket = (<{ default: typeof WebSocket }>(<unknown>WebSocket)).default
+    WebSocket = (WebSocket as unknown as { default: typeof WebSocket }).default
 
   const webSocket = new WebSocket(url)
 
