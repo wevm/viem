@@ -1,10 +1,7 @@
 import { Server, createServer } from 'node:http'
-import { Writable } from 'node:stream'
+import { createProxyServer } from 'http-proxy'
 import { Anvil } from './anvil.js'
 import getPort from 'get-port'
-
-// NOTE: This is required to make typescript happy as long as @types/node doesn't include it.
-declare let fetch: typeof import('undici').fetch
 
 const instances = new Map<number, Promise<Anvil>>()
 
@@ -12,7 +9,7 @@ async function getOrCreateAnvil(id: number) {
   let anvil = instances.get(id)
 
   if (anvil === undefined) {
-    // rome-ignore lint/suspicious/noAsyncPromiseExecutor: <explanation>
+    // rome-ignore lint/suspicious/noAsyncPromiseExecutor: we are using try/catch here correctly
     anvil = new Promise(async (resolve, reject) => {
       try {
         resolve(
@@ -37,54 +34,46 @@ async function getOrCreateAnvil(id: number) {
   return anvil
 }
 
+function getIdFromUrl(url?: string) {
+  const path = url ? new RegExp('^[0-9]+$').exec(url.slice(1))?.[0] : undefined
+  const id = path ? Number(path) : undefined
+
+  return id
+}
+
 export default async function () {
   const server = await new Promise<Server>((resolve, reject) => {
+    const proxy = createProxyServer({
+      ignorePath: true,
+      ws: true,
+    })
+
     const server = createServer(async (req, res) => {
-      try {
-        const path = req.url
-          ? new RegExp('^[0-9]+$').exec(req.url.slice(1))?.[0]
-          : undefined
-        const id = path ? Number(path) : undefined
-
-        if (id === undefined) {
-          res.writeHead(404)
-          res.end()
-        } else {
-          const anvil = await getOrCreateAnvil(id)
-          const result = await fetch(`http://127.0.0.1:${anvil.port}`, {
-            method: 'POST',
-            duplex: 'half',
-            body: req,
-            headers: (Object.entries(req.headers) as [string, string][]).filter(
-              ([key]) => !forbiddenHeaderNames.includes(key),
-            ),
-          })
-
-          res.writeHead(
-            result.status,
-            result.statusText,
-            Object.fromEntries(result.headers.entries()),
-          )
-
-          if (result.body !== null) {
-            await result.body.pipeTo(Writable.toWeb(res))
-          } else {
-            res.end()
-          }
-        }
-      } catch {
-        res.writeHead(500)
-        res.end()
+      const id = getIdFromUrl(req.url)
+      if (id === undefined) {
+        res.writeHead(404).end('Missing worker id in request')
+      } else {
+        const anvil = await getOrCreateAnvil(id)
+        proxy.web(req, res, {
+          target: `http://localhost:${anvil.port}`,
+        })
       }
     })
 
-    server.on('error', () => {
-      reject(new Error('Failed to start anvil pool manager'))
+    server.on('upgrade', async (req, socket, head) => {
+      const id = getIdFromUrl(req.url)
+      if (id === undefined) {
+        socket.destroy(new Error('Missing worker id in request'))
+      } else {
+        const anvil = await getOrCreateAnvil(id)
+        proxy.ws(req, socket, head, {
+          target: `ws://localhost:${anvil.port}`,
+        })
+      }
     })
 
-    server.on('listening', () => {
-      resolve(server)
-    })
+    server.on('listening', () => resolve(server))
+    server.on('error', (error) => reject(error))
 
     server.listen('8545')
   })
@@ -100,27 +89,3 @@ export default async function () {
     ])
   }
 }
-
-// Undici doesn't allow these headers: https://github.com/nodejs/undici/blob/9041e9fed85a69426242dc4ed7aaa7dea4b289d2/lib/core/request.js#L292
-const forbiddenHeaderNames = [
-  'accept-charset',
-  'accept-encoding',
-  'access-control-request-headers',
-  'access-control-request-method',
-  'connection',
-  'content-length',
-  'cookie',
-  'cookie2',
-  'date',
-  'dnt',
-  'expect',
-  'host',
-  'keep-alive',
-  'origin',
-  'referer',
-  'te',
-  'trailer',
-  'transfer-encoding',
-  'upgrade',
-  'via',
-]
