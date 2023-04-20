@@ -29,8 +29,8 @@ export type MulticallParameters<
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
-  contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
   chunkSize?: number
+  contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
   multicallAddress?: Address
 }
 
@@ -90,8 +90,8 @@ export async function multicall<
     allowFailure = true,
     blockNumber,
     blockTag,
-    contracts: contracts_,
     chunkSize = 0,
+    contracts: contracts_,
     multicallAddress: multicallAddress_,
   } = args
 
