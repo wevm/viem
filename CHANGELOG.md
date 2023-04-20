@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.6
+
+### Patch Changes
+
+- [`ae6d388`](https://github.com/wagmi-dev/viem/commit/ae6d3883ec41dfdd3750a5f7473495d011df5802) Thanks [@jxom](https://github.com/jxom)! - Fixed unpublished type declarations.
+
 ## 0.3.5
 
 ### Patch Changes
