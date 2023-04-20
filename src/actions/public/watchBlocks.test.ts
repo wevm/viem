@@ -137,17 +137,21 @@ describe('poll', () => {
       chain: celo,
       transport: http(),
     })
-    const blocks: OnBlockParameter<typeof celo>[] = []
-    const unwatch = watchBlocks(client, {
-      emitOnBegin: true,
-      onBlock: (block) => blocks.push(block),
-      poll: true,
-      pollingInterval: 100,
-    })
-    await mine(testClient, { blocks: 1 })
-    await wait(200)
+
+    let unwatch = () => {}
+    const block = await new Promise<OnBlockParameter<typeof celo>>(
+      (resolve) => {
+        unwatch = watchBlocks(client, {
+          emitOnBegin: true,
+          onBlock: (block) => resolve(block),
+          poll: true,
+          pollingInterval: 100,
+        })
+      },
+    )
+
     unwatch()
-    expect(blocks[0].randomness).toBeDefined()
+    expect(block.randomness).toBeDefined()
   })
 
   describe('behavior', () => {
