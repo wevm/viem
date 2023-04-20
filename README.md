@@ -156,6 +156,12 @@ Check out the following places for more viem-related content:
     <img alt="Privy logo" src="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/privy-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://spruceid.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/spruce-dark.svg">
+    <img alt="Spruce logo" src="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/spruce-light.svg" width="auto" height="50">
+  </picture>
+</a>
 
 ## Contributing
 
