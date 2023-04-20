@@ -144,7 +144,13 @@ export async function getSocket(url_: string) {
   // If the socket already exists, return it.
   if (socket) return socket
 
-  const { WebSocket } = await import('isomorphic-ws')
+  let WebSocket = await import('isomorphic-ws')
+  // Workaround for Vite.
+  // https://github.com/vitejs/vite/issues/9703
+  // TODO: Remove when issue is resolved.
+  if (!WebSocket.constructor)
+    WebSocket = (<{ default: typeof WebSocket }>(<unknown>WebSocket)).default
+
   const webSocket = new WebSocket(url)
 
   // Set up a cache for incoming "synchronous" requests.
