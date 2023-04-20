@@ -216,6 +216,7 @@ describe('BAYC', () => {
           functionName: 'mintApe',
           account: accounts[0].address,
           args: [1n],
+          value: 1n,
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "The contract function \\"mintApe\\" reverted with the following reason:
