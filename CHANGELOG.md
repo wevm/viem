@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.5
+
+### Patch Changes
+
+- [`0d38807`](https://github.com/wagmi-dev/viem/commit/0d38807bcd61fae5c5d4736aed6c59277c9b4bf4) Thanks [@jxom](https://github.com/jxom)! - Fixed `batch` config in `createPublicClient`.
+
 ## 0.3.4
 
 ### Patch Changes
