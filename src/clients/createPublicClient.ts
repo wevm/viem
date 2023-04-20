@@ -71,16 +71,18 @@ export function createPublicClient<
   TChain,
   true
 > {
-  const client = createClient({
-    chain,
-    key,
-    name,
-    pollingInterval,
-    transport,
-    type: 'publicClient',
-  }) as PublicClient<TTransport, TChain>
-  return {
+  const client = {
     batch,
+    ...(createClient({
+      chain,
+      key,
+      name,
+      pollingInterval,
+      transport,
+      type: 'publicClient',
+    }) as PublicClient<TTransport, TChain>),
+  }
+  return {
     ...client,
     ...publicActions(client),
   }
