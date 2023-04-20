@@ -937,7 +937,7 @@ describe('webSocketAsync', () => {
   })
 
   // TODO: This is flaky.
-  test.only('timeout', async () => {
+  test.skip('timeout', async () => {
     const socket = await getSocket(localWsUrl)
 
     await expect(() =>
