@@ -29,7 +29,7 @@ export type MulticallParameters<
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
-  chunkSize?: number
+  batchSize?: number
   contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
   multicallAddress?: Address
 }
@@ -88,9 +88,9 @@ export async function multicall<
 ): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
   const {
     allowFailure = true,
+    batchSize = 0,
     blockNumber,
     blockTag,
-    chunkSize = 0,
     contracts: contracts_,
     multicallAddress: multicallAddress_,
   } = args
@@ -131,7 +131,7 @@ export async function multicall<
       } as unknown as EncodeFunctionDataParameters)
 
       currentChunkSize += callData.length
-      if (chunkSize > 0 && currentChunkSize > chunkSize) {
+      if (batchSize > 0 && currentChunkSize > batchSize) {
         currentChunk++
         currentChunkSize = (callData.length - 2) / 2
         chunkedCalls[currentChunk] = []

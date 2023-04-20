@@ -637,7 +637,7 @@ test('stress', async () => {
   }
 
   await multicall(client, {
-    chunkSize: 1024,
+    batchSize: 1024,
     contracts,
   })
 })
