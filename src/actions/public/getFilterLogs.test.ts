@@ -121,7 +121,7 @@ test('default', async () => {
 })
 
 describe('contract events', () => {
-  test.only('no args', async () => {
+  test('no args', async () => {
     const filter = await createContractEventFilter(publicClient, {
       abi: usdcContractConfig.abi,
     })
