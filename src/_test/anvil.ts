@@ -1,7 +1,7 @@
 import { execa, type ExecaChildProcess } from 'execa'
 import { Writable } from 'node:stream'
 
-export interface AnvilOptions {
+export type AnvilOptions = {
   port: number
   forkUrl?: string | undefined
   forkBlockNumber?: number | bigint | undefined
