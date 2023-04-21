@@ -1,4 +1,3 @@
-import { portNumbers } from 'get-port'
 import { stopAnvilInstances, createAnvilProxy } from './proxy.js'
 
 export default async function () {
@@ -6,7 +5,6 @@ export default async function () {
     proxyPort: 8545,
     proxyHostname: '::',
     anvilOptions: {
-      portRange: portNumbers(8546, 8546 + 100),
       forkUrl: process.env.VITE_ANVIL_FORK_URL,
       forkBlockNumber: Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
       blockTime: Number(process.env.VITE_ANVIL_BLOCK_TIME),

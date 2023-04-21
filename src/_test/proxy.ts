@@ -4,9 +4,7 @@ import { Anvil, type AnvilOptions } from './anvil.js'
 import getPort from 'get-port'
 
 export type AnvilProxyOptions = {
-  anvilOptions: Omit<AnvilOptions, 'port'> & {
-    portRange?: number[] | Iterable<number>
-  }
+  anvilOptions?: Omit<AnvilOptions, 'port'>
   proxyHostname?: string
   proxyPort?: number
 }
@@ -14,7 +12,7 @@ export type AnvilProxyOptions = {
 export function createAnvilProxy({
   proxyPort = 8545,
   proxyHostname = '::',
-  anvilOptions: { portRange, ...anvilOptions },
+  anvilOptions,
 }: AnvilProxyOptions) {
   // rome-ignore lint/suspicious/noAsyncPromiseExecutor: this is fine ...
   return new Promise<Server>(async (resolve, reject) => {
@@ -38,14 +36,7 @@ export function createAnvilProxy({
           res.writeHead(200).end(JSON.stringify(logs ?? []))
         }
       } else if (path === '/') {
-        const port = await getPort({
-          ...(portRange !== undefined ? { port: portRange } : {}),
-        })
-
-        const anvil = await getOrCreateAnvilInstance(id, {
-          ...anvilOptions,
-          port,
-        })
+        const anvil = await getOrCreateAnvilInstance(id, anvilOptions)
 
         proxy.web(req, res, {
           target: `http://127.0.0.1:${anvil.port}`,
@@ -61,14 +52,7 @@ export function createAnvilProxy({
       if (id === undefined) {
         socket.destroy(new Error('Missing worker id in request'))
       } else if (path === '/') {
-        const port = await getPort({
-          ...(portRange !== undefined ? { port: portRange } : {}),
-        })
-
-        const anvil = await getOrCreateAnvilInstance(id, {
-          ...anvilOptions,
-          port,
-        })
+        const anvil = await getOrCreateAnvilInstance(id, anvilOptions)
 
         proxy.ws(req, socket, head, {
           target: `ws://127.0.0.1:${anvil.port}`,
@@ -92,14 +76,22 @@ export async function stopAnvilInstances() {
   await Promise.allSettled(anvils.map(async (anvil) => (await anvil).exit()))
 }
 
-async function getOrCreateAnvilInstance(id: number, options: AnvilOptions) {
+async function getOrCreateAnvilInstance(
+  id: number,
+  options?: Omit<AnvilOptions, 'port'>,
+) {
   let anvil = instances.get(id)
 
   if (anvil === undefined) {
     // rome-ignore lint/suspicious/noAsyncPromiseExecutor: we need this to be synchronous
     anvil = new Promise(async (resolve, reject) => {
       try {
-        resolve(Anvil.start(options))
+        resolve(
+          await Anvil.start({
+            ...options,
+            port: await getPort(),
+          }),
+        )
       } catch (error) {
         reject(error)
       }
@@ -114,7 +106,8 @@ async function getOrCreateAnvilInstance(id: number, options: AnvilOptions) {
 }
 
 function parseRequest(request?: string) {
-  const url = new URL(`http://localhost${request ?? '/'}`)
+  const host = 'http://localhost' // Dummy value for URL constructor
+  const url = new URL(`${host}${request ?? '/'}`)
   const matches =
     new RegExp('^([0-9]+)(?:/([^/]+))*$').exec(url.pathname.slice(1)) ?? []
 
