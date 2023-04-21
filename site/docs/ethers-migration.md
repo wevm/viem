@@ -117,6 +117,28 @@ const client = createPublicClient({
 
 > viem does not have custom API Provider clients – you can just pass in their RPC URL.
 
+### QuickNode
+
+#### Ethers
+
+```ts {3}
+import { providers } from 'ethers'
+
+const provider = new providers.QuickNodeProvider('homestead', '<apiKey>')
+```
+
+#### viem
+
+```ts {4-7}
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http('https://your-node-service.network.quiknode.pro/<apiKey>')
+})
+```
+
 ### AlchemyProvider
 
 #### Ethers
