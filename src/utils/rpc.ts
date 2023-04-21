@@ -144,7 +144,7 @@ export async function getSocket(url_: string) {
   // If the socket already exists, return it.
   if (socket) return socket
 
-  let WebSocket = await import('isomorphic-ws')
+  let { WebSocket } = await import('isomorphic-ws')
   // Workaround for Vite.
   // https://github.com/vitejs/vite/issues/9703
   // TODO: Remove when issue is resolved.
