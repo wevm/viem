@@ -1,6 +1,10 @@
 import { stopAnvilInstances, createAnvilProxy } from './proxy.js'
 
 export default async function () {
+  if (process.env.SKIP_GLOBAL_SETUP) {
+    return
+  }
+
   // Using this proxy, we can parallelize our test suite by spawning multiple "on demand" anvil
   // instances and proxying requests to them. Especially for local development, this is much faster
   // than running the tests serially.
