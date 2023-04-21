@@ -2,10 +2,10 @@ import { execa, type ExecaChildProcess } from 'execa'
 import { Writable } from 'node:stream'
 
 export type AnvilOptions = {
-  port: number
+  blockTime?: number
   forkUrl?: string | undefined
   forkBlockNumber?: number | bigint | undefined
-  blockTime?: number
+  port: number
   startUpTimeout?: number
 }
 
