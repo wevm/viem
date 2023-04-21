@@ -17,7 +17,7 @@ export class Anvil {
 
   public static async start(options: AnvilOptions) {
     const opts = {
-      startUpTimeout: 10000,
+      startUpTimeout: 10_000,
       ...options,
     }
 
