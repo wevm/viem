@@ -3,7 +3,7 @@ import { createProxyServer } from 'http-proxy'
 import { Anvil, type AnvilOptions } from './anvil.js'
 import getPort from 'get-port'
 
-export interface AnvilProxyOptions {
+export type AnvilProxyOptions = {
   anvilOptions: Omit<AnvilOptions, 'port'> & {
     portRange?: number[] | Iterable<number>
   }
