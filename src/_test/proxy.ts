@@ -4,11 +4,11 @@ import { Anvil, type AnvilOptions } from './anvil.js'
 import getPort from 'get-port'
 
 export interface AnvilProxyOptions {
-  proxyPort?: number
-  proxyHostname?: string
   anvilOptions: Omit<AnvilOptions, 'port'> & {
     portRange?: number[] | Iterable<number>
   }
+  proxyHostname?: string
+  proxyPort?: number
 }
 
 export function createAnvilProxy({
