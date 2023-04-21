@@ -34,7 +34,7 @@ afterAll(async () => {
 })
 
 afterEach((context) => {
-  // Print the last log entries from anvil after eazch test.
+  // Print the last log entries from anvil after each test.
   context.onTestFailed(async (result) => {
     try {
       const pool = process.env.VITEST_POOL_ID ?? 1
