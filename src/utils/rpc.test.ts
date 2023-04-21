@@ -226,7 +226,6 @@ describe('http', () => {
       Version: viem@1.0.2"
     `,
     )
-    vi.restoreAllMocks()
   })
 
   test('unknown', async () => {
