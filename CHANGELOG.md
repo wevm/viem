@@ -1,5 +1,13 @@
 # viem
 
+## 0.3.7
+
+### Patch Changes
+
+- [#399](https://github.com/wagmi-dev/viem/pull/399) [`eefd839`](https://github.com/wagmi-dev/viem/commit/eefd83997a98113b81d5ba21a8b5492a1de2284c) Thanks [@jxom](https://github.com/jxom)! - Fixed async imports in Vite environments.
+
+* [#397](https://github.com/wagmi-dev/viem/pull/397) [`69b95ed`](https://github.com/wagmi-dev/viem/commit/69b95ed5991c712d11ff4de1bb873c9a2af152b3) Thanks [@tmm](https://github.com/tmm)! - Made `value` required for payable functions.
+
 ## 0.3.6
 
 ### Patch Changes
