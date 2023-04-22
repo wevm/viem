@@ -1,4 +1,4 @@
-import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
+import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
 import {
   accounts,
@@ -16,6 +16,7 @@ import {
   mine,
   setIntervalMining,
   stopImpersonatingAccount,
+  setBalance,
 } from '../test/index.js'
 import { sendTransaction, writeContract } from '../wallet/index.js'
 import { getAddress, parseEther } from '../../utils/index.js'
@@ -98,16 +99,19 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
   })
-})
-
-afterAll(async () => {
-  await setIntervalMining(testClient, { interval: 1 })
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await stopImpersonatingAccount(testClient, {
+  await setBalance(testClient, {
     address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
+
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+    await stopImpersonatingAccount(testClient, {
+      address: address.usdcHolder,
+    })
+  }
 })
 
 test('default', async () => {

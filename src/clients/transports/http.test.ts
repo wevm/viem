@@ -7,6 +7,7 @@ import { createHttpServer } from '../../_test/index.js'
 
 import type { HttpTransport } from './http.js'
 import { http } from './http.js'
+import { localHttpUrl } from '../../_test/constants.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')
@@ -110,7 +111,19 @@ describe('request', () => {
     const transport = http(undefined, {
       key: 'jsonRpc',
       name: 'JSON RPC',
-    })({ chain: localhost })
+    })({
+      chain: {
+        ...localhost,
+        rpcUrls: {
+          default: {
+            http: [localHttpUrl],
+          },
+          public: {
+            http: [localHttpUrl],
+          },
+        },
+      },
+    })
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBeDefined()
   })
@@ -157,15 +170,15 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "HTTP request failed.
+      "HTTP request failed.
 
-        Status: 500
-        URL: http://localhost
-        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Status: 500
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
-        Details: Internal Server Error
-        Version: viem@1.0.2"
-      `)
+      Details: Internal Server Error
+      Version: viem@1.0.2"
+    `)
     expect(retryCount).toBe(1)
   })
 
@@ -190,15 +203,15 @@ describe('request', () => {
     await expect(() =>
       transport.request({ method: 'eth_blockNumber' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "HTTP request failed.
+      "HTTP request failed.
 
-        Status: 500
-        URL: http://localhost
-        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+      Status: 500
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
-        Details: Internal Server Error
-        Version: viem@1.0.2"
-      `)
+      Details: Internal Server Error
+      Version: viem@1.0.2"
+    `)
     expect(end > 500 && end < 520).toBeTruthy()
   })
 

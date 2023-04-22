@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 import { optimism } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 
@@ -8,17 +8,11 @@ import {
   setBlockNumber,
 } from '../../_test/index.js'
 import { setVitalikResolver } from '../../_test/utils.js'
-import { getBlockNumber } from '../public/index.js'
 import { getEnsText } from './getEnsText.js'
 
-let blockNumber: bigint
 beforeAll(async () => {
-  blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
   await setVitalikResolver()
-})
-afterAll(async () => {
-  await setBlockNumber(blockNumber)
 })
 
 test('gets text record for name', async () => {

@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  assertType,
-  beforeAll,
-  describe,
-  expect,
-  test,
-  vi,
-} from 'vitest'
+import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 import { getAddress } from '../../utils/index.js'
 import { wait } from '../../utils/wait.js'
 import {
@@ -21,6 +13,7 @@ import {
   impersonateAccount,
   mine,
   stopImpersonatingAccount,
+  setBalance,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
@@ -37,15 +30,19 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
   })
-})
-
-afterAll(async () => {
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await stopImpersonatingAccount(testClient, {
+  await setBalance(testClient, {
     address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
+
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+    await stopImpersonatingAccount(testClient, {
+      address: address.usdcHolder,
+    })
+  }
 })
 
 test(

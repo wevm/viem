@@ -110,6 +110,7 @@ export async function createContractEventFilter<
       },
     ],
   })
+
   return {
     abi,
     args,

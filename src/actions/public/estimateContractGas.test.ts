@@ -202,22 +202,18 @@ describe('BAYC', () => {
   })
 })
 
-describe(
-  'local account',
-  () => {
-    test('default', async () => {
-      expect(
-        await estimateContractGas(publicClient, {
-          ...wagmiContractConfig,
-          account: privateKeyToAccount(accounts[0].privateKey),
-          functionName: 'mint',
-          args: [69420n],
-        }),
-      ).toEqual(73747n)
-    })
-  },
-  { retry: 3 },
-)
+describe('local account', () => {
+  test('default', async () => {
+    expect(
+      await estimateContractGas(publicClient, {
+        ...wagmiContractConfig,
+        account: privateKeyToAccount(accounts[0].privateKey),
+        functionName: 'mint',
+        args: [69420n],
+      }),
+    ).toEqual(73747n)
+  })
+})
 
 describe('contract errors', () => {
   test('revert', async () => {

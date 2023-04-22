@@ -11,32 +11,29 @@ import { sendTransaction } from '../index.js'
 import { mine, setNonce } from '../test/index.js'
 import { getTransactionCount } from './getTransactionCount.js'
 
-test(
-  'gets transaction count',
-  async () => {
-    await setNonce(testClient, { address: accounts[0].address, nonce: 0 })
+test('gets transaction count', async () => {
+  await setNonce(testClient, { address: accounts[0].address, nonce: 0 })
+  await mine(testClient, { blocks: 1 })
 
-    expect(
-      await getTransactionCount(publicClient, {
-        address: accounts[0].address,
-      }),
-    ).toBe(0)
+  expect(
+    await getTransactionCount(publicClient, {
+      address: accounts[0].address,
+    }),
+  ).toBe(0)
 
-    await sendTransaction(walletClient, {
-      account: accounts[0].address,
-      to: accounts[0].address,
-      value: parseEther('1'),
-    })
-    await mine(testClient, { blocks: 1 })
+  await sendTransaction(walletClient, {
+    account: accounts[0].address,
+    to: accounts[0].address,
+    value: parseEther('1'),
+  })
+  await mine(testClient, { blocks: 1 })
 
-    expect(
-      await getTransactionCount(publicClient, {
-        address: accounts[0].address,
-      }),
-    ).toBe(1)
-  },
-  { retry: 3 },
-)
+  expect(
+    await getTransactionCount(publicClient, {
+      address: accounts[0].address,
+    }),
+  ).toBe(1)
+})
 
 test('args: blockNumber', async () => {
   expect(
