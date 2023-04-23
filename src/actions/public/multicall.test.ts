@@ -10,6 +10,7 @@ import { createPublicClient, http } from '../../clients/index.js'
 import {
   accounts,
   address,
+  anvilChain,
   initialBlockNumber,
   localHttpUrl,
   publicClient,
@@ -622,7 +623,7 @@ test('multicall contract deployed on later block', async () => {
   `)
 })
 
-test('stress', async () => {
+test.only('stress', async () => {
   const client = createPublicClient({
     chain: mainnet,
     transport: http(),
@@ -638,6 +639,30 @@ test('stress', async () => {
 
   await multicall(client, {
     batchSize: 1024,
+    contracts,
+  })
+})
+
+test('batchSize on client', async () => {
+  const client = createPublicClient({
+    batch: {
+      multicall: {
+        batchSize: 1024,
+      },
+    },
+    chain: anvilChain,
+    transport: http(),
+  })
+
+  const contracts = []
+  for (let i = 0; i < 1_000; i++) {
+    contracts.push({
+      ...usdcContractConfig,
+      functionName: 'totalSupply',
+    })
+  }
+
+  await multicall(client, {
     contracts,
   })
 })

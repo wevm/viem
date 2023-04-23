@@ -29,6 +29,7 @@ export type MulticallParameters<
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
+  /** The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit. @default 1_024 */
   batchSize?: number
   contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
   multicallAddress?: Address
@@ -88,12 +89,18 @@ export async function multicall<
 ): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
   const {
     allowFailure = true,
-    batchSize = 0,
+    batchSize: batchSize_,
     blockNumber,
     blockTag,
     contracts: contracts_,
     multicallAddress: multicallAddress_,
   } = args
+
+  const batchSize =
+    batchSize_ ??
+    ((typeof client.batch?.multicall === 'object' &&
+      client.batch.multicall.batchSize) ||
+      1_024)
 
   // Fix type cast from `Narrow` in type definition.
   const contracts = contracts_ as readonly [...MulticallContracts<TContracts>]
@@ -138,7 +145,7 @@ export async function multicall<
       }
 
       chunkedCalls[currentChunk] = [
-        ...(chunkedCalls[currentChunk] || []),
+        ...chunkedCalls[currentChunk],
         {
           allowFailure: true,
           callData,
@@ -155,7 +162,7 @@ export async function multicall<
       })
       if (!allowFailure) throw error
       chunkedCalls[currentChunk] = [
-        ...(chunkedCalls[currentChunk] || []),
+        ...chunkedCalls[currentChunk],
         {
           allowFailure: true,
           callData: '0x' as Hex,
