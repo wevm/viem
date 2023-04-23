@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.9
+
+### Patch Changes
+
+- [`b4d6623`](https://github.com/wagmi-dev/viem/commit/b4d662360f55d5963e015f7080538a167e89b1f6) Thanks [@jxom](https://github.com/jxom)! - Fixed multicall return type.
+
 ## 0.3.8
 
 ### Patch Changes
