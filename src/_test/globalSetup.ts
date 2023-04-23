@@ -1,4 +1,4 @@
-import { stopAnvilInstances, createAnvilProxy } from './proxy.js'
+import { createAnvilProxy } from '@fubhy/anvil'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) {
@@ -23,23 +23,11 @@ export default async function () {
   // We still need to remember to reset the anvil instance between test files. This is generally
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
-  const server = await createAnvilProxy({
-    proxyPort: 8545,
-    proxyHostname: '::',
+  return await createAnvilProxy({
     anvilOptions: {
       forkUrl: process.env.VITE_ANVIL_FORK_URL,
       forkBlockNumber: Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
       blockTime: Number(process.env.VITE_ANVIL_BLOCK_TIME),
     },
   })
-
-  return async () => {
-    // Clean up all anvil instances and the anvil pool manager itself.
-    await Promise.allSettled([
-      stopAnvilInstances(),
-      new Promise<void>((resolve, reject) => {
-        server.close((error) => (error ? reject(error) : resolve()))
-      }),
-    ])
-  }
 }
