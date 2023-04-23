@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.8
+
+### Patch Changes
+
+- [`8371ad9`](https://github.com/wagmi-dev/viem/commit/8371ad9cb6987b5876a679ba502a80573c92ec64) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket import on Vite environments.
+
 ## 0.3.7
 
 ### Patch Changes
