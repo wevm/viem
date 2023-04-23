@@ -59,7 +59,7 @@ export type MulticallResult<
       | {
           error: Error
           result?: undefined
-          status: 'error'
+          status: 'failure'
         }
   : Result
 
