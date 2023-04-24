@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.10
+
+### Patch Changes
+
+- [`777fa34`](https://github.com/wagmi-dev/viem/commit/777fa34c9ce5630696e554127e39e5e9386ad74e) Thanks [@jxom](https://github.com/jxom)! - Fixed wallet_watchAsset type.
+
 ## 0.3.9
 
 ### Patch Changes
