@@ -230,6 +230,8 @@ const results = await publicClient.multicall({
 
 The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit.
 
+> Note: Some RPC Providers limit the amount of calldata (`data`) that can be sent in a single `eth_call` request. It is best to check with your RPC Provider to see if there are any calldata size limits to `eth_call` requests.
+
 ```ts
 const results = await publicClient.multicall({
   contracts: [

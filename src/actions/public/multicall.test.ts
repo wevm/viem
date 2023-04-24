@@ -623,7 +623,7 @@ test('multicall contract deployed on later block', async () => {
   `)
 })
 
-test.only('stress', async () => {
+test('stress', async () => {
   const client = createPublicClient({
     chain: mainnet,
     transport: http(),
