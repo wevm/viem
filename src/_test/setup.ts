@@ -4,7 +4,7 @@ import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
 import { setBlockNumber, testClient } from './utils.js'
 import { setAutomine, setIntervalMining } from '../test.js'
-import { getAnvilProxyLogs } from '@fubhy/anvil'
+import { fetchLogs } from '@fubhy/anvil'
 import { poolId } from './constants.js'
 
 beforeAll(() => {
@@ -39,7 +39,7 @@ afterEach((context) => {
   // Print the last log entries from anvil after each test.
   context.onTestFailed(async (result) => {
     try {
-      const response = await getAnvilProxyLogs('http://127.0.0.1:8545', poolId)
+      const response = await fetchLogs('http://127.0.0.1:8545', poolId)
       const logs = response.slice(1).slice(-20)
 
       if (logs.length === 0) {

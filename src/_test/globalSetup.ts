@@ -1,4 +1,4 @@
-import { createAnvilProxy } from '@fubhy/anvil'
+import { startProxy } from '@fubhy/anvil'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) {
@@ -23,8 +23,8 @@ export default async function () {
   // We still need to remember to reset the anvil instance between test files. This is generally
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
-  return await createAnvilProxy({
-    anvilOptions: {
+  return await startProxy({
+    options: {
       forkUrl: process.env.VITE_ANVIL_FORK_URL,
       forkBlockNumber: Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
       blockTime: Number(process.env.VITE_ANVIL_BLOCK_TIME),
