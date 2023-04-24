@@ -14,7 +14,7 @@ head:
 
 # getAddress
 
-Converts an address into an address that is [checksum encoded](https://eips.ethereum.org/EIPS/eip-55).
+Converts an address into an address that is [checksum encoded](https://eips.ethereum.org/EIPS/eip-55), support [EIP-1191](https://eips.ethereum.org/EIPS/eip-1191).
 
 ## Import
 
@@ -29,6 +29,10 @@ import { getAddress } from 'viem'
 
 getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac') // [!code focus:2]
 // '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'
+
+// EIP-1191 defined checksum address
+getAddress('0x27b1fdb04752bbc536007a920d24acb045561c26', 30)
+// '0x27b1FdB04752BBc536007A920D24ACB045561c26'
 ```
 
 ## Returns
@@ -44,3 +48,9 @@ The checksummed address.
 - **Type:** `string`
 
 An Ethereum address.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+The chain ID of the network the address is on. Only required for [EIP-1191](https://eips.ethereum.org/EIPS/eip-1191) checksum addresses.
