@@ -42,7 +42,7 @@ export async function watchAsset<
 ): Promise<WatchAssetReturnType> {
   const added = await client.request({
     method: 'wallet_watchAsset',
-    params: [params],
+    params,
   })
   return added
 }

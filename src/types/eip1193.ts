@@ -126,7 +126,7 @@ export type WatchAssetParams = {
     /** The number of token decimals */
     decimals: number
     /** A string url of the token logo */
-    image: string
+    image?: string
   }
 }
 
@@ -1049,7 +1049,7 @@ export type WalletRequests = {
    * */
   request(args: {
     method: 'wallet_watchAsset'
-    params: [WatchAssetParams]
+    params: WatchAssetParams
   }): Promise<boolean>
 }
 
