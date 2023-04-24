@@ -71,7 +71,7 @@ const provider = {
       params = [params[1], params[0]]
     }
     if (method === 'wallet_watchAsset') {
-      if (params[0].type === 'ERC721') {
+      if (params.type === 'ERC721') {
         throw new RpcError(-32602, 'Token type ERC721 not supported.')
       }
       return true
