@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-support eip-1191 address checksum
+Added support for EIP-1191 address checksum.
