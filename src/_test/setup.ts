@@ -40,7 +40,7 @@ afterEach((context) => {
   context.onTestFailed(async (result) => {
     try {
       const response = await fetchLogs('http://127.0.0.1:8545', poolId)
-      const logs = response.slice(1).slice(-20)
+      const logs = response.slice(-20)
 
       if (logs.length === 0) {
         return
@@ -48,20 +48,13 @@ afterEach((context) => {
 
       // Try to append the log messages to the vitest error message if possible. Otherwise, print them to the console.
       const error = result.errors?.[0]
-      const label =
-        'Anvil log output\n=======================================\n'
 
       if (error !== undefined) {
-        error.message += `\n\n${label}`
+        error.message +=
+          '\n\nAnvil log output\n=======================================\n'
         error.message += `\n${logs.join('\n')}`
       } else {
-        console.group(label)
-
-        for (const log of logs) {
-          console.log(log)
-        }
-
-        console.groupEnd()
+        console.log(...logs)
       }
     } catch {}
   })
