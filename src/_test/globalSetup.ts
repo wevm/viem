@@ -1,4 +1,4 @@
-import { startProxy } from '@fubhy/anvil'
+import { startProxy } from '@viem/anvil'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) {

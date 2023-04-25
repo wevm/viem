@@ -52,9 +52,6 @@ importers:
       '@changesets/cli':
         specifier: ^2.23.2
         version: 2.24.0
-      '@fubhy/anvil':
-        specifier: ^0.0.6
-        version: 0.0.6
       '@size-limit/preset-big-lib':
         specifier: ^8.2.4
         version: 8.2.4(esbuild@0.15.13)(size-limit@8.2.4)
@@ -64,6 +61,9 @@ importers:
       '@types/ws':
         specifier: ^8.5.4
         version: 8.5.4
+      '@viem/anvil':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@vitest/coverage-c8':
         specifier: ^0.29.2
         version: 0.29.2(vitest@0.29.2)
@@ -121,7 +121,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/blocks/fetching-blocks:
     dependencies:
@@ -134,7 +134,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/blocks/watching-blocks:
     dependencies:
@@ -147,7 +147,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/clients/public-client:
     dependencies:
@@ -160,7 +160,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/clients/wallet-client:
     dependencies:
@@ -188,7 +188,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/contracts/deploying-contracts:
     dependencies:
@@ -216,7 +216,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/contracts/multicall:
     dependencies:
@@ -229,7 +229,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/contracts/reading-contracts:
     dependencies:
@@ -242,7 +242,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/contracts/writing-to-contracts:
     dependencies:
@@ -270,7 +270,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/ens:
     dependencies:
@@ -283,7 +283,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/filters-and-logs/block-event-logs:
     dependencies:
@@ -296,7 +296,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/filters-and-logs/event-logs:
     dependencies:
@@ -309,7 +309,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/signing/typed-data:
     dependencies:
@@ -337,7 +337,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/transactions/fetching-transactions:
     dependencies:
@@ -350,7 +350,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   examples/transactions/sending-transactions:
     dependencies:
@@ -378,7 +378,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   playgrounds/browser:
     dependencies:
@@ -406,7 +406,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.15.12)
+        version: 4.1.4
 
   playgrounds/bun:
     dependencies:
@@ -431,7 +431,7 @@ importers:
         version: 3.2.4(postcss@8.4.19)
       vitepress:
         specifier: 1.0.0-alpha.61
-        version: 1.0.0-alpha.61(patch_hash=bwgf4tbd2mw4gh6hee525znk3q)(@types/node@18.15.12)
+        version: 1.0.0-alpha.61(patch_hash=bwgf4tbd2mw4gh6hee525znk3q)
       vue:
         specifier: ^3.2.45
         version: 3.2.45
@@ -1802,19 +1802,6 @@ packages:
       '@ethersproject/strings': 5.7.0
     dev: true
 
-  /@fubhy/anvil@0.0.6:
-    resolution: {integrity: sha512-OG57g3y3kqOeKT4EvcW+17vsQ4msm5IC7ee+YNsiukIP+Tzr2rf7proDDy7rTsKTD7ntCqxnNC1MSX0m9shNKA==}
-    dependencies:
-      execa: 7.1.1
-      get-port: 6.1.2
-      http-proxy: 1.18.1
-      ws: 8.13.0
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - utf-8-validate
-    dev: true
-
   /@istanbuljs/schema@0.1.3:
     resolution: {integrity: sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==}
     engines: {node: '>=8'}
@@ -2323,6 +2310,19 @@ packages:
     dev: true
     optional: true
 
+  /@viem/anvil@0.0.1:
+    resolution: {integrity: sha512-38aEFhgVtqlLYntAzZLbu6akDKdViQYeJG7aRemUU8jVfJhwVOzxBrCxvvye918VHc9MP8w+b2+TixevOlkhHQ==}
+    dependencies:
+      execa: 7.1.1
+      get-port: 6.1.2
+      http-proxy: 1.18.1
+      ws: 8.13.0
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+    dev: true
+
   /@vitejs/plugin-react@3.1.0(vite@4.1.4):
     resolution: {integrity: sha512-AfgcRL8ZBhAlc3BFdigClmTUMISmmzHn7sB2h9U1odvc5U/MjWXsAaz18b/WoppUTDBzxOJwo2VdClfUcItu9g==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -2334,7 +2334,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.20.12)
       magic-string: 0.27.0
       react-refresh: 0.14.0
-      vite: 4.1.4(@types/node@18.15.12)
+      vite: 4.1.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -6558,40 +6558,6 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vite@4.1.4(@types/node@18.15.12):
-    resolution: {integrity: sha512-3knk/HsbSTKEin43zHu7jTwYWv81f8kgAL99G5NWBcA1LKvtvcVAC4JjBH1arBunO9kQka+1oGbrMKOjk4ZrBg==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 18.15.12
-      esbuild: 0.16.17
-      postcss: 8.4.21
-      resolve: 1.22.1
-      rollup: 3.15.0
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
   /vite@4.2.1(@types/node@18.15.12):
     resolution: {integrity: sha512-7MKhqdy0ISo4wnvwtqZkjke6XN4taqQ2TBaTccLIpOKv7Vp2h4Y+NpmWCnGDeSvvn45KxvWgGyb0MkHvY1vgbg==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -6626,7 +6592,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress@1.0.0-alpha.61(patch_hash=bwgf4tbd2mw4gh6hee525znk3q)(@types/node@18.15.12):
+  /vitepress@1.0.0-alpha.61(patch_hash=bwgf4tbd2mw4gh6hee525znk3q):
     resolution: {integrity: sha512-NvzERVS3/TU9YkYcaiK7yNSe0zY9UcSV58tx3mxbvVLCuwRykzO4OWbl6vQT6Ut6YGuZU1y3Z5WcSS+fHfaxJA==}
     hasBin: true
     dependencies:

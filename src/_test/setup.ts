@@ -4,7 +4,7 @@ import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
 import { setBlockNumber, testClient } from './utils.js'
 import { setAutomine, setIntervalMining } from '../test.js'
-import { fetchLogs } from '@fubhy/anvil'
+import { fetchLogs } from '@viem/anvil'
 import { poolId } from './constants.js'
 
 beforeAll(() => {
