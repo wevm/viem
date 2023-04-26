@@ -76,9 +76,6 @@ importers:
       bun:
         specifier: ^0.5.5
         version: 0.5.6
-      dotenv-cli:
-        specifier: ^7.1.0
-        version: 7.1.0
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -3573,16 +3570,6 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.5.0
-    dev: true
-
-  /dotenv-cli@7.1.0:
-    resolution: {integrity: sha512-motytjZFQB3ZtGTIN4c0vnFgv4kuNZ2WxVnGY6PVFiygCzkm3IFBBguDUzezd9HgNA0OYYd6vNCWlozs0Q1Zxg==}
-    hasBin: true
-    dependencies:
-      cross-spawn: 7.0.3
-      dotenv: 16.0.3
-      dotenv-expand: 10.0.0
-      minimist: 1.2.6
     dev: true
 
   /dotenv-expand@10.0.0:

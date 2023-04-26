@@ -169,7 +169,6 @@
     "@vitest/ui": "^0.29.2",
     "@wagmi/cli": "^0.1.6",
     "bun": "^0.5.5",
-    "dotenv-cli": "^7.1.0",
     "ethers": "^5.7.2",
     "ethers@6": "npm:ethers@^6.0.2",
     "fs-extra": "^10.1.0",
