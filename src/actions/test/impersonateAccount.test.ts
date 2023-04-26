@@ -19,7 +19,9 @@ test('impersonates account', async () => {
     }),
   ).rejects.toThrowError('No Signer available')
 
-  await impersonateAccount(testClient, { address: address.vitalik })
+  await expect(
+    impersonateAccount(testClient, { address: address.vitalik }),
+  ).resolves.toBeUndefined()
 
   expect(
     await sendTransaction(walletClient, {

@@ -1,10 +1,10 @@
-import { test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { testClient } from '../../_test/index.js'
 
 import { setLoggingEnabled } from './setLoggingEnabled.js'
 
 test('sets logging', async () => {
-  await setLoggingEnabled(testClient, false)
+  await expect(setLoggingEnabled(testClient, false)).resolves.toBeUndefined()
   await setLoggingEnabled(testClient, true)
 })

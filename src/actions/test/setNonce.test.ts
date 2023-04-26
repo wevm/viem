@@ -8,10 +8,12 @@ import { mine } from './mine.js'
 const targetAccount = accounts[0]
 
 test('sets nonce', async () => {
-  await setNonce(testClient, {
-    address: targetAccount.address,
-    nonce: 420,
-  })
+  await expect(
+    setNonce(testClient, {
+      address: targetAccount.address,
+      nonce: 420,
+    }),
+  ).resolves.toBeUndefined()
   await mine(testClient, { blocks: 1 })
   expect(
     await getTransactionCount(publicClient, {

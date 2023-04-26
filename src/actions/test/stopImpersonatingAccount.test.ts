@@ -22,7 +22,9 @@ test('stops impersonating account', async () => {
     }),
   ).toBeDefined()
 
-  await stopImpersonatingAccount(testClient, { address: address.vitalik })
+  await expect(
+    stopImpersonatingAccount(testClient, { address: address.vitalik }),
+  ).resolves.toBeUndefined()
 
   await expect(
     sendTransaction(walletClient, {

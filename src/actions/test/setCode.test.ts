@@ -13,10 +13,12 @@ test('sets code', async () => {
       params: ['0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7', 'latest'],
     })) !== bytecode,
   ).toBeTruthy()
-  await setCode(testClient, {
-    address: '0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7',
-    bytecode,
-  })
+  await expect(
+    setCode(testClient, {
+      address: '0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7',
+      bytecode,
+    }),
+  ).resolves.toBeUndefined()
   expect(
     (await publicClient.request({
       method: 'eth_getCode',
