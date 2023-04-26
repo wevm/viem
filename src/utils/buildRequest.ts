@@ -37,6 +37,7 @@ export const isDeterministicError = (error: Error) => {
     )
   if (error instanceof HttpRequestError && error.status)
     return (
+      error.status !== 403 &&
       error.status !== 408 &&
       error.status !== 413 &&
       error.status !== 429 &&
