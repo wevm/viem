@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.12
+
+### Patch Changes
+
+- [`6f8151c`](https://github.com/wagmi-dev/viem/commit/6f8151c58fcb5e14b7a954df6e941fe3cca4054c) Thanks [@jxom](https://github.com/jxom)! - Flagged 403 as non-deterministic error for `fallback` Transport.
+
 ## 0.3.11
 
 ### Patch Changes
