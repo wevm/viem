@@ -87,7 +87,7 @@ describe('smoke test', () => {
   })
 
   test('mine', async () => {
-    expect(await testClient.mine({ blocks: 1 })).toBeDefined()
+    expect(await testClient.mine({ blocks: 1 })).toBeUndefined()
   })
 
   test('removeBlockTimestampInterval', async () => {

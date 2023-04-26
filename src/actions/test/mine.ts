@@ -37,7 +37,7 @@ export async function mine<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { blocks, interval }: MineParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_mine`,
     params: [numberToHex(blocks), numberToHex(interval || 0)],
   })
