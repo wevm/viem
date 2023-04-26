@@ -40,7 +40,7 @@ export async function setBalance<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address, value }: SetBalanceParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setBalance`,
     params: [address, numberToHex(value)],
   })

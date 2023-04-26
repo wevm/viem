@@ -43,7 +43,7 @@ export async function setStorageAt<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address, index, value }: SetStorageAtParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setStorageAt`,
     params: [
       address,

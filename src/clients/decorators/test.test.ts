@@ -55,7 +55,7 @@ describe('smoke test', () => {
       to: accounts[7].address,
       value: parseEther('2'),
     })
-    expect(await testClient.dropTransaction({ hash })).toBeDefined()
+    expect(await testClient.dropTransaction({ hash })).toBeUndefined()
   })
 
   // TODO: Anvil sometimes stops interval mining when automining is programatically set.
@@ -91,18 +91,18 @@ describe('smoke test', () => {
   })
 
   test('removeBlockTimestampInterval', async () => {
-    expect(await testClient.removeBlockTimestampInterval()).toBeDefined()
+    expect(await testClient.removeBlockTimestampInterval()).toBeUndefined()
   })
 
   test('reset', async () => {
     expect(
       await testClient.reset({ blockNumber: initialBlockNumber }),
-    ).toBeDefined()
+    ).toBeUndefined()
   })
 
   test('revert', async () => {
     const id = await testClient.snapshot()
-    expect(await testClient.revert({ id })).toBeDefined()
+    expect(await testClient.revert({ id })).toBeUndefined()
   })
 
   test('sendUnsignedTransaction', async () => {
@@ -117,7 +117,7 @@ describe('smoke test', () => {
 
   // TODO: Anvil sometimes stops interval mining when automining is programatically set.
   test.skip('setAutomine', async () => {
-    expect(await testClient.setAutomine(true)).toBeDefined()
+    expect(await testClient.setAutomine(true)).toBeUndefined()
   })
 
   test('setBalance', async () => {
@@ -126,7 +126,7 @@ describe('smoke test', () => {
         address: accounts[8].address,
         value: parseEther('420'),
       }),
-    ).toBeDefined()
+    ).toBeUndefined()
   })
 
   test('setBlockGasLimit', async () => {

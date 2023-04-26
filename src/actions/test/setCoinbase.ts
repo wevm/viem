@@ -36,7 +36,7 @@ export async function setCoinbase<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address }: SetCoinbaseParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setCoinbase`,
     params: [address],
   })

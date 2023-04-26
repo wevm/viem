@@ -36,7 +36,7 @@ export async function reset<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { blockNumber, jsonRpcUrl }: ResetParameters = {},
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_reset`,
     params: [{ forking: { blockNumber: Number(blockNumber), jsonRpcUrl } }],
   })
