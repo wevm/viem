@@ -2,6 +2,8 @@ import { describe, expect, test, vi } from 'vitest'
 
 import {
   accounts,
+  createHttpServer,
+  deployOffchainLookupExample,
   initialBlockNumber,
   publicClient,
 } from '../../_test/index.js'
@@ -9,10 +11,17 @@ import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
 import { celo, mainnet } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import { aggregate3Signature } from '../../constants/index.js'
-import { numberToHex, parseEther, parseGwei } from '../../utils/index.js'
+import {
+  encodeFunctionData,
+  numberToHex,
+  parseEther,
+  parseGwei,
+} from '../../utils/index.js'
 
-import { call } from './call.js'
+import { call, getRevertErrorSignature } from './call.js'
 import { wait } from '../../utils/wait.js'
+import { offchainLookupExampleABI } from '../../_test/generated.js'
+import { BaseError, RawContractError } from '../../index.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -32,6 +41,32 @@ test('default', async () => {
   expect(data).toMatchInlineSnapshot(
     '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
   )
+})
+
+test.only('ccip', async () => {
+  const server = await createHttpServer((_req, res) => {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+    })
+    res.end(JSON.stringify({ data: '0xdeadbeef' }))
+  })
+
+  const { contractAddress } = await deployOffchainLookupExample({
+    urls: [server.url],
+  })
+
+  const calldata = encodeFunctionData({
+    abi: offchainLookupExampleABI,
+    functionName: 'getAddress',
+    args: ['jxom.viem'],
+  })
+
+  const { data } = await call(publicClient, {
+    data: calldata,
+    to: contractAddress!,
+  })
+
+  await server.close()
 })
 
 test('custom formatter', async () => {
@@ -697,4 +732,25 @@ describe('batch call', () => {
     },
     { timeout: 30_000 },
   )
+})
+
+describe('getRevertErrorSignature', () => {
+  test('default', () => {
+    expect(getRevertErrorSignature(new Error('lol'))).toBe(undefined)
+    expect(getRevertErrorSignature(new BaseError('lol'))).toBe(undefined)
+    expect(
+      getRevertErrorSignature(
+        new BaseError('error', {
+          cause: new RawContractError({ data: '0xdeadbeef' }),
+        }),
+      ),
+    ).toBe('0xdeadbeef')
+    expect(
+      getRevertErrorSignature(
+        new BaseError('error', {
+          cause: new RawContractError({ data: '0x556f1830' }),
+        }),
+      ),
+    ).toBe('0x556f1830')
+  })
 })

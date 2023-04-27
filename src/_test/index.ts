@@ -23,6 +23,7 @@ export {
   deployBAYC,
   deployEnsAvatarTokenUri,
   deployErc20InvalidTransferEvent,
+  deployOffchainLookupExample,
   publicClient,
   testClient,
   walletClient,
