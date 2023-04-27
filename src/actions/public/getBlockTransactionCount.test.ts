@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 
 import {
   accounts,
@@ -12,6 +12,11 @@ import { mine } from '../test/index.js'
 import { sendTransaction } from '../index.js'
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
+
+await beforeAll(async () => {
+  await setIntervalMining(testClient, { interval: 0 })
+})
 
 test('default', async () => {
   expect(await getBlockTransactionCount(publicClient)).toBeDefined()
