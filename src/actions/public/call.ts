@@ -161,11 +161,9 @@ export async function call<TChain extends Chain | undefined>(
     if (response === '0x') return { data: undefined }
     return { data: response }
   } catch (err) {
-    const signature = getRevertErrorSignature(err)
-    if (signature === offchainLookupSignature && to) {
-      const data = ((err as BaseError)?.cause as { data?: Hex }).data as Hex
+    const data = getRevertErrorData(err)
+    if (data?.slice(0, 10) === offchainLookupSignature && to)
       return { data: await offchainLookup(client, { data, to }) }
-    }
     throw getCallError(err as BaseError, {
       ...args,
       account,
@@ -280,8 +278,7 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   return { data: returnData }
 }
 
-export function getRevertErrorSignature(err: unknown) {
+export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
-  if (!err.cause) return undefined
-  return (err.cause as { data?: Hex }).data?.slice(0, 10)
+  return (err.walk() as { data?: Hex })?.data
 }

@@ -1,15 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { offchainLookup, offchainLookupAbiItem } from './ccip.js'
-import {
-  decodeAbiParameters,
-  encodeAbiParameters,
-  encodeErrorResult,
-  encodeFunctionData,
-  keccak256,
-  parseAbiParameters,
-  stringToHex,
-  trim,
-} from './index.js'
+import { encodeErrorResult, encodeFunctionData, trim } from './index.js'
 import {
   createHttpServer,
   deployOffchainLookupExample,
@@ -20,34 +11,11 @@ import { accounts } from '../_test/constants.js'
 import { getUrl } from '../errors/utils.js'
 import { offchainLookupExampleABI } from '../_test/generated.js'
 import type { Hex } from '../types/index.js'
-import { sign } from '../accounts/utils/sign.js'
-import { signatureToHex } from '../accounts/utils/signatureToHex.js'
+import { createCcipServer } from '../_test/ccip.js'
 
 describe('offchainLookup', () => {
   test('default', async () => {
-    const server = await createHttpServer(async (req, res) => {
-      res.writeHead(200, {
-        'Content-Type': 'application/json',
-      })
-      const signature = signatureToHex(
-        await sign({
-          hash: keccak256(stringToHex('jxom.viem')),
-          privateKey: accounts[0].privateKey,
-        }),
-      )
-
-      const data = req.url?.split('/')[2]! as Hex
-      const [name] = decodeAbiParameters(parseAbiParameters('string'), data)
-
-      res.end(
-        JSON.stringify({
-          data: encodeAbiParameters(
-            parseAbiParameters('address,bytes32,bytes'),
-            [accounts[0].address, keccak256(stringToHex(name)), signature],
-          ),
-        }),
-      )
-    })
+    const server = await createCcipServer()
     const { contractAddress } = await deployOffchainLookupExample({
       urls: [`${server.url}/{sender}/{data}`],
     })
@@ -78,29 +46,7 @@ describe('offchainLookup', () => {
   })
 
   test('error: invalid signature', async () => {
-    const server = await createHttpServer(async (req, res) => {
-      res.writeHead(200, {
-        'Content-Type': 'application/json',
-      })
-      const signature = signatureToHex(
-        await sign({
-          hash: keccak256(stringToHex('jxom.viem')),
-          privateKey: accounts[0].privateKey,
-        }),
-      )
-
-      const data = req.url?.split('/')[2]! as Hex
-      const [name] = decodeAbiParameters(parseAbiParameters('string'), data)
-
-      res.end(
-        JSON.stringify({
-          data: encodeAbiParameters(
-            parseAbiParameters('address,bytes32,bytes'),
-            [accounts[0].address, keccak256(stringToHex(name)), signature],
-          ),
-        }),
-      )
-    })
+    const server = await createCcipServer()
     const { contractAddress } = await deployOffchainLookupExample({
       urls: [`${server.url}/{sender}/{data}`],
     })
@@ -131,12 +77,7 @@ describe('offchainLookup', () => {
   })
 
   test('error: sender check', async () => {
-    const server = await createHttpServer((_req, res) => {
-      res.writeHead(200, {
-        'Content-Type': 'application/json',
-      })
-      res.end(JSON.stringify({ data: '0xdeadbeef' }))
-    })
+    const server = await createCcipServer()
     const data = encodeErrorResult({
       abi: [offchainLookupAbiItem],
       errorName: 'OffchainLookup',

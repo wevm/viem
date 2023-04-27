@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import {
   accounts,
-  createHttpServer,
   deployOffchainLookupExample,
   initialBlockNumber,
   publicClient,
@@ -16,12 +15,14 @@ import {
   numberToHex,
   parseEther,
   parseGwei,
+  trim,
 } from '../../utils/index.js'
 
-import { call, getRevertErrorSignature } from './call.js'
+import { call, getRevertErrorData } from './call.js'
 import { wait } from '../../utils/wait.js'
 import { offchainLookupExampleABI } from '../../_test/generated.js'
 import { BaseError, RawContractError } from '../../index.js'
+import { createCcipServer } from '../../_test/ccip.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -43,30 +44,48 @@ test('default', async () => {
   )
 })
 
-test.only('ccip', async () => {
-  const server = await createHttpServer((_req, res) => {
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
+describe('ccip', () => {
+  test('default', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
     })
-    res.end(JSON.stringify({ data: '0xdeadbeef' }))
+
+    const calldata = encodeFunctionData({
+      abi: offchainLookupExampleABI,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+
+    const { data } = await call(publicClient, {
+      data: calldata,
+      to: contractAddress!,
+    })
+
+    expect(trim(data!)).toEqual(accounts[0].address)
+
+    await server.close()
   })
 
-  const { contractAddress } = await deployOffchainLookupExample({
-    urls: [server.url],
-  })
+  test('error: invalid signature', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
 
-  const calldata = encodeFunctionData({
-    abi: offchainLookupExampleABI,
-    functionName: 'getAddress',
-    args: ['jxom.viem'],
-  })
+    const calldata = encodeFunctionData({
+      abi: offchainLookupExampleABI,
+      functionName: 'getAddress',
+      args: ['fake.viem'],
+    })
 
-  const { data } = await call(publicClient, {
-    data: calldata,
-    to: contractAddress!,
-  })
+    await expect(() => call(publicClient, {
+      data: calldata,
+      to: contractAddress!,
+    })).rejects.toThrowError('Execution reverted with reason: invalid signature.')
 
-  await server.close()
+    await server.close()
+  })
 })
 
 test('custom formatter', async () => {
@@ -240,7 +259,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "Execution reverted for an unknown reason.
+      "Execution reverted with reason: Token ID is taken.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -734,19 +753,19 @@ describe('batch call', () => {
   )
 })
 
-describe('getRevertErrorSignature', () => {
+describe('getRevertErrorData', () => {
   test('default', () => {
-    expect(getRevertErrorSignature(new Error('lol'))).toBe(undefined)
-    expect(getRevertErrorSignature(new BaseError('lol'))).toBe(undefined)
+    expect(getRevertErrorData(new Error('lol'))).toBe(undefined)
+    expect(getRevertErrorData(new BaseError('lol'))).toBe(undefined)
     expect(
-      getRevertErrorSignature(
+      getRevertErrorData(
         new BaseError('error', {
           cause: new RawContractError({ data: '0xdeadbeef' }),
         }),
       ),
     ).toBe('0xdeadbeef')
     expect(
-      getRevertErrorSignature(
+      getRevertErrorData(
         new BaseError('error', {
           cause: new RawContractError({ data: '0x556f1830' }),
         }),
