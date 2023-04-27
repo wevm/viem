@@ -27,7 +27,7 @@ test('drops transaction', async () => {
     to: targetAccount.address,
     value: parseEther('2'),
   })
-  await dropTransaction(testClient, { hash })
+  await expect(dropTransaction(testClient, { hash })).resolves.toBeUndefined()
   await mine(testClient, { blocks: 1 })
   expect(
     await getBalance(publicClient, {

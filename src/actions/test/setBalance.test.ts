@@ -8,10 +8,12 @@ import { setBalance } from './setBalance.js'
 const targetAccount = accounts[0]
 
 test('sets balance', async () => {
-  await setBalance(testClient, {
-    address: targetAccount.address,
-    value: parseEther('420'),
-  })
+  await expect(
+    setBalance(testClient, {
+      address: targetAccount.address,
+      value: parseEther('420'),
+    }),
+  ).resolves.toBeUndefined()
   expect(
     await getBalance(publicClient, {
       address: targetAccount.address,

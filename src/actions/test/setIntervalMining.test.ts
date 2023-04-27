@@ -11,7 +11,9 @@ test('sets mining interval', async () => {
   await mine(testClient, { blocks: 1 })
 
   const blockNumber1 = await getBlockNumber(publicClient, { maxAge: 0 })
-  await setIntervalMining(testClient, { interval: 1 })
+  await expect(
+    setIntervalMining(testClient, { interval: 1 }),
+  ).resolves.toBeUndefined()
   await wait(2000)
   const blockNumber2 = await getBlockNumber(publicClient, { maxAge: 0 })
   expect(blockNumber2 - blockNumber1).toBe(2n)

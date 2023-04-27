@@ -28,7 +28,7 @@ export async function setAutomine<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   enabled: boolean,
 ) {
-  return await client.request({
+  await client.request({
     method: 'evm_setAutomine',
     params: [enabled],
   })

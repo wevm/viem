@@ -35,7 +35,7 @@ export async function setBlockGasLimit<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { gasLimit }: SetBlockGasLimitParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: 'evm_setBlockGasLimit',
     params: [numberToHex(gasLimit)],
   })

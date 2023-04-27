@@ -40,7 +40,7 @@ export async function setNonce<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address, nonce }: SetNonceParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setNonce`,
     params: [address, numberToHex(nonce)],
   })

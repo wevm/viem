@@ -39,7 +39,7 @@ export async function setCode<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address, bytecode }: SetCodeParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setCode`,
     params: [address, bytecode],
   })

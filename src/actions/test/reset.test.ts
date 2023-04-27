@@ -14,9 +14,11 @@ import { reset } from './reset.js'
 test('resets the fork', async () => {
   await setIntervalMining(testClient, { interval: 0 })
   await mine(testClient, { blocks: 10 })
-  await reset(testClient, {
-    blockNumber: initialBlockNumber,
-  })
+  await expect(
+    reset(testClient, {
+      blockNumber: initialBlockNumber,
+    }),
+  ).resolves.toBeUndefined()
   expect(await getBlockNumber(publicClient)).toBe(initialBlockNumber)
   await setIntervalMining(testClient, { interval: 1 })
   await mine(testClient, { blocks: 1 })

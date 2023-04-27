@@ -35,7 +35,7 @@ test('reverts', async () => {
     }),
   ).not.toBe(balance)
 
-  await revert(testClient, { id })
+  await expect(revert(testClient, { id })).resolves.toBeUndefined()
   expect(
     await getBalance(publicClient, {
       address: sourceAccount.address,
