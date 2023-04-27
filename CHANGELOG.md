@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.13
+
+### Patch Changes
+
+- [`eb32e6c`](https://github.com/wagmi-dev/viem/commit/eb32e6c8a412aa4d16339236d4a14d820a26fdc1) Thanks [@fubhy](https://github.com/fubhy)! - Fixed `mine()` to resolve to `undefined` instead of `null`.
+
 ## 0.3.12
 
 ### Patch Changes
