@@ -147,7 +147,7 @@ test('walk: predicate fn', () => {
   const err = new BaseError('test1', {
     cause: new FooError('test2', { cause: new BarError('test3') }),
   })
-  expect(err.walk(err => err instanceof FooError)).toMatchInlineSnapshot(`
+  expect(err.walk((err) => err instanceof FooError)).toMatchInlineSnapshot(`
     [ViemError: test2
 
     Version: viem@1.0.2]

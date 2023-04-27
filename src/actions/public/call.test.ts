@@ -79,10 +79,12 @@ describe('ccip', () => {
       args: ['fake.viem'],
     })
 
-    await expect(() => call(publicClient, {
-      data: calldata,
-      to: contractAddress!,
-    })).rejects.toThrowError('Execution reverted with reason: invalid signature.')
+    await expect(() =>
+      call(publicClient, {
+        data: calldata,
+        to: contractAddress!,
+      }),
+    ).rejects.toThrowError('Execution reverted with reason: invalid signature.')
 
     await server.close()
   })
