@@ -5,7 +5,6 @@ import * as chains from './chains.js'
 test('exports chains', () => {
   expect(Object.keys(chains)).toMatchInlineSnapshot(`
     [
-      "defineChain",
       "arbitrum",
       "arbitrumGoerli",
       "aurora",

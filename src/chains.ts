@@ -10,7 +10,6 @@ import {
 } from './utils/index.js'
 
 export type { Chain } from './types/index.js'
-export { defineChain } from './utils/index.js'
 
 const celoFormatters = {
   block: defineBlock({
