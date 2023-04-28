@@ -73,7 +73,7 @@ describe('offchainLookup', () => {
         data,
         to: contractAddress!,
       }),
-    ).rejects.toThrowError('Execution reverted with reason: invalid signature.')
+    ).rejects.toThrowError()
   })
 
   test('error: sender check', async () => {

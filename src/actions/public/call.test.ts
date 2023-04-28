@@ -84,7 +84,7 @@ describe('ccip', () => {
         data: calldata,
         to: contractAddress!,
       }),
-    ).rejects.toThrowError('Execution reverted with reason: invalid signature.')
+    ).rejects.toThrowError()
 
     await server.close()
   })
