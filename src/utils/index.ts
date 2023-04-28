@@ -60,6 +60,13 @@ export {
 
 export { buildRequest } from './buildRequest.js'
 
+export {
+  ccipFetch,
+  offchainLookup,
+  offchainLookupAbiItem,
+  offchainLookupSignature,
+} from './ccip.js'
+
 export { defineChain, getChainContractAddress } from './chain.js'
 
 export {

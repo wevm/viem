@@ -1,7 +1,7 @@
 import type { PublicClient, Transport } from '../../clients/index.js'
 import { aggregate3Signature, multicall3Abi } from '../../constants/index.js'
-import { BaseError } from '../../errors/index.js'
 import {
+  BaseError,
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
   RawContractError,
@@ -16,7 +16,6 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types/index.js'
-import { offchainLookup } from '../../utils/ccip.js'
 import type {
   Formatted,
   TransactionRequestFormatter,
@@ -31,9 +30,10 @@ import {
   getCallError,
   getChainContractAddress,
   numberToHex,
+  offchainLookup,
+  offchainLookupSignature,
   parseAccount,
 } from '../../utils/index.js'
-import { offchainLookupSignature } from '../../utils/ccip.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 
 export type FormattedCall<
