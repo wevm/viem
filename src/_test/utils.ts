@@ -3,7 +3,7 @@ import type { Abi } from 'abitype'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
-import offchainLookupExample from '../../contracts/out/offchainLookupExample.sol/offchainLookupExample.json'
+import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
 import type { DeployContractParameters } from '../actions/index.js'
 import {
   deployContract,
