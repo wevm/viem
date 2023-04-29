@@ -1,3 +1,5 @@
+export { zeroAddress } from './address.js'
+
 export { multicall3Abi } from './abis.js'
 
 export { aggregate3Signature } from './contract.js'

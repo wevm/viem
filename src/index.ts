@@ -159,6 +159,7 @@ export {
   etherUnits,
   gweiUnits,
   weiUnits,
+  zeroAddress,
 } from './constants/index.js'
 
 export {
