@@ -7,6 +7,7 @@ import type {
   ContractFunctionConfig,
   ContractFunctionResult,
   GetValue,
+  Hex,
 } from '../../types/index.js'
 import {
   decodeFunctionResult,
@@ -29,6 +30,7 @@ export type SimulateContractParameters<
   TChainOverride extends Chain | undefined = undefined,
 > = {
   chain?: TChainOverride
+  dataSuffix?: Hex
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
@@ -99,6 +101,7 @@ export async function simulateContract<
     abi,
     address,
     args,
+    dataSuffix,
     functionName,
     ...callRequest
   }: SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>,
@@ -116,7 +119,7 @@ export async function simulateContract<
   try {
     const { data } = await call(client, {
       batch: false,
-      data: calldata,
+      data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
     } as unknown as CallParameters<TChain>)
