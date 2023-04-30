@@ -25,6 +25,23 @@ export {
   UnsupportedPackedAbiType,
 } from './abi.js'
 
+export {
+  CircularReferenceError,
+  InvalidParenthesisError,
+  UnknownSignatureError,
+  InvalidSignatureError,
+  InvalidStructSignatureError,
+  InvalidAbiParameterError,
+  InvalidAbiParametersError,
+  InvalidParameterError,
+  SolidityProtectedKeywordError,
+  InvalidModifierError,
+  InvalidFunctionModifierError,
+  InvalidAbiTypeParameterError,
+  InvalidAbiItemError,
+  UnknownTypeError,
+} from 'abitype'
+
 export { AccountNotFoundError } from './account.js'
 
 export { InvalidAddressError } from './address.js'
