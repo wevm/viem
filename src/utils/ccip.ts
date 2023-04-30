@@ -1,4 +1,4 @@
-import { parseAbiItem, parseAbiParameters, type Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 import type { PublicClient, Transport } from '../clients/index.js'
 import {
   BaseError,
@@ -7,7 +7,8 @@ import {
   OffchainLookupResponseMalformedError,
   OffchainLookupSenderMismatchError,
 } from '../errors/index.js'
-import { call, type CallParameters } from '../public.js'
+import type { CallParameters } from '../actions/public/index.js'
+import { call } from '../actions/public/call.js'
 import type { Chain, GetErrorArgs, Hex } from '../types/index.js'
 import { decodeErrorResult, encodeAbiParameters } from './abi/index.js'
 import { isAddressEqual } from './address/index.js'
@@ -15,9 +16,32 @@ import { concat, isHex } from './data/index.js'
 import { stringify } from './stringify.js'
 
 export const offchainLookupSignature = '0x556f1830'
-export const offchainLookupAbiItem = parseAbiItem(
-  'error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)',
-)
+export const offchainLookupAbiItem = {
+  name: 'OffchainLookup',
+  type: 'error',
+  inputs: [
+    {
+      name: 'sender',
+      type: 'address',
+    },
+    {
+      name: 'urls',
+      type: 'string[]',
+    },
+    {
+      name: 'callData',
+      type: 'bytes',
+    },
+    {
+      name: 'callbackFunction',
+      type: 'bytes4',
+    },
+    {
+      name: 'extraData',
+      type: 'bytes',
+    },
+  ],
+} as const satisfies Abi[number]
 
 export async function offchainLookup<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,
@@ -51,10 +75,10 @@ export async function offchainLookup<TChain extends Chain | undefined>(
       blockTag,
       data: concat([
         callbackSelector,
-        encodeAbiParameters(parseAbiParameters('bytes,bytes'), [
-          result,
-          extraData,
-        ]),
+        encodeAbiParameters(
+          [{ type: 'bytes' }, { type: 'bytes' }],
+          [result, extraData],
+        ),
       ]),
       to,
     } as CallParameters)
