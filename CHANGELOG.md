@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.15
+
+### Patch Changes
+
+- [#436](https://github.com/wagmi-dev/viem/pull/436) [`72ed656`](https://github.com/wagmi-dev/viem/commit/72ed6567897ee87939d33e89a7d6599ec8db321e) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `multicall`'s return type was incorrectly flattening when `allowFailure: false`.
+
 ## 0.3.14
 
 ### Patch Changes
