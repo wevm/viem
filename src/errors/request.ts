@@ -31,7 +31,7 @@ export class HttpRequestError extends BaseError {
         body && `Request body: ${stringify(body)}`,
       ].filter(Boolean) as string[],
     })
-    if (body) this.body = body
+    this.body = body
     this.headers = headers
     this.status = status
     this.url = url
