@@ -1,5 +1,17 @@
 # viem
 
+## 0.3.14
+
+### Patch Changes
+
+- [#426](https://github.com/wagmi-dev/viem/pull/426) [`840d19d`](https://github.com/wagmi-dev/viem/commit/840d19d652819001addfe9c47267d9e7c71841bd) Thanks [@izayl](https://github.com/izayl)! - Added constants zeroAddress.
+
+* [#424](https://github.com/wagmi-dev/viem/pull/424) [`2eb73f6`](https://github.com/wagmi-dev/viem/commit/2eb73f6f449be7f00790c992202816d5eccf5232) Thanks [@fubhy](https://github.com/fubhy)! - Removed the `defineChain` export from `viem/chains`.
+
+- [#427](https://github.com/wagmi-dev/viem/pull/427) [`41bc9e3`](https://github.com/wagmi-dev/viem/commit/41bc9e38dcbd71d10ea28edaaad48fb81d40f61b) Thanks [@jxom](https://github.com/jxom)! - Added support for EIP-3668 CCIP Read.
+
+* [#431](https://github.com/wagmi-dev/viem/pull/431) [`31aafb3`](https://github.com/wagmi-dev/viem/commit/31aafb3514adff65bc4c27b78dad90057ee97421) Thanks [@jxom](https://github.com/jxom)! - Added a `dataSuffix` argument to `writeContract` and `simulateContract`
+
 ## 0.3.13
 
 ### Patch Changes
