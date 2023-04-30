@@ -42,6 +42,12 @@ export {
 } from './chain.js'
 
 export {
+  OffchainLookupError,
+  OffchainLookupResponseMalformedError,
+  OffchainLookupSenderMismatchError,
+} from './ccip.js'
+
+export {
   CallExecutionError,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,

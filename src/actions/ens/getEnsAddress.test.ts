@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest'
-import { optimism } from '../../chains.js'
+import { mainnet, optimism } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 
 import {
@@ -45,6 +45,48 @@ test('name that looks like a hex', async () => {
     getEnsAddress(publicClient, { name: '0xdeadbeef.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0xA8cc612Ecb2E853d3A882b0F9cf5357C2D892aDb"',
+  )
+})
+
+test('offchain: gets address for name', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: 'jake.cb.id' }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0xdAb929527D862F6A75422cf40a9fb0B53059D801"',
+  )
+})
+
+test('offchain: name without address', async () => {
+  await expect(
+    getEnsAddress(publicClient, {
+      name: 'loalsdsladasdhjasgdhasjdghasgdjgasjdasd.cb.id',
+    }),
+  ).resolves.toMatchInlineSnapshot('null')
+})
+
+test('offchain: aggregated', async () => {
+  const client = createPublicClient({
+    chain: mainnet,
+    batch: { multicall: true },
+    transport: http(),
+  })
+
+  const names = await Promise.all([
+    getEnsAddress(client, { name: 'jake.cb.id' }),
+    getEnsAddress(client, { name: 'brian.cb.id' }),
+    getEnsAddress(client, {
+      name: 'loalsdsladasdhjasgdhasjdghasgdjgasjdasd.cb.id',
+    }),
+  ])
+
+  expect(names).toMatchInlineSnapshot(
+    `
+      [
+        "0xdAb929527D862F6A75422cf40a9fb0B53059D801",
+        "0xc1D9D4E2fACf0F4E72Cad1579Ac7a86598dd605D",
+        null,
+      ]
+    `,
   )
 })
 

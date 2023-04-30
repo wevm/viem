@@ -3,6 +3,7 @@ import type { Abi } from 'abitype'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
 import type { DeployContractParameters } from '../actions/index.js'
 import {
   deployContract,
@@ -32,6 +33,7 @@ import {
   ensAvatarTokenUriABI,
   erc20InvalidTransferEventABI,
   errorsExampleABI,
+  offchainLookupExampleABI,
 } from './generated.js'
 
 import type { RequestListener } from 'http'
@@ -217,6 +219,17 @@ export async function deployErc20InvalidTransferEvent() {
     abi: erc20InvalidTransferEventABI,
     bytecode: erc20InvalidTransferEvent.bytecode.object as Hex,
     account: accounts[0].address,
+  })
+}
+
+export async function deployOffchainLookupExample({
+  urls,
+}: { urls: string[] }) {
+  return deploy({
+    abi: offchainLookupExampleABI,
+    bytecode: offchainLookupExample.bytecode.object as Hex,
+    account: accounts[0].address,
+    args: [urls],
   })
 }
 

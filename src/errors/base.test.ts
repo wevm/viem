@@ -125,3 +125,31 @@ test('inherited Error', () => {
     Version: viem@1.0.2]
   `)
 })
+
+test('walk: no predicate fn (walks to leaf)', () => {
+  class FooError extends BaseError {}
+  class BarError extends BaseError {}
+
+  const err = new BaseError('test1', {
+    cause: new FooError('test2', { cause: new BarError('test3') }),
+  })
+  expect(err.walk()).toMatchInlineSnapshot(`
+    [ViemError: test3
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('walk: predicate fn', () => {
+  class FooError extends BaseError {}
+  class BarError extends BaseError {}
+
+  const err = new BaseError('test1', {
+    cause: new FooError('test2', { cause: new BarError('test3') }),
+  })
+  expect(err.walk((err) => err instanceof FooError)).toMatchInlineSnapshot(`
+    [ViemError: test2
+
+    Version: viem@1.0.2]
+  `)
+})

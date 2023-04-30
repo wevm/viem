@@ -1,7 +1,7 @@
 import type { PublicClient, Transport } from '../../clients/index.js'
 import { aggregate3Signature, multicall3Abi } from '../../constants/index.js'
-import type { BaseError } from '../../errors/index.js'
 import {
+  BaseError,
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
   RawContractError,
@@ -30,6 +30,7 @@ import {
   getCallError,
   getChainContractAddress,
   numberToHex,
+  offchainLookupSignature,
   parseAccount,
 } from '../../utils/index.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
@@ -159,6 +160,11 @@ export async function call<TChain extends Chain | undefined>(
     if (response === '0x') return { data: undefined }
     return { data: response }
   } catch (err) {
+    const data = getRevertErrorData(err)
+    if (data?.slice(0, 10) === offchainLookupSignature && to) {
+      const { offchainLookup } = await import('../../utils/ccip.js')
+      return { data: await offchainLookup(client, { data, to }) }
+    }
     throw getCallError(err as BaseError, {
       ...args,
       account,
@@ -271,4 +277,9 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   if (!success) throw new RawContractError({ data: returnData })
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
+}
+
+export function getRevertErrorData(err: unknown) {
+  if (!(err instanceof BaseError)) return undefined
+  return (err.walk() as { data?: Hex })?.data
 }

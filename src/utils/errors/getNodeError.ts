@@ -67,7 +67,7 @@ export function getNodeError(
   )
     return new ExecutionRevertedError({
       cause: err,
-      message: (err.cause as BaseError).details,
+      message: (err.cause as BaseError).details || err.details,
     })
   return new UnknownNodeError({
     cause: (err.cause as BaseError).cause as BaseError,
