@@ -153,3 +153,79 @@ contract Example {
 ```
 
 :::
+
+### Decode Slot
+
+::: code-group
+
+```ts [decode-primitive.ts]
+import { createPublicClient, decodeAbiParameters, http, toHex } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const WAGMI_ADDRESS = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// totalSupply is uint256 at storage 6
+const hash = await client.getStorageAt({
+  address: WAGMI_ADDRESS,
+  slot: toHex(6),
+})
+
+if (!hash) throw new Error('Empty storage')
+
+const totalSupply = await decodeAbiParameters(
+  [
+    {
+      type: 'uint256',
+      name: 'totalSupply',
+    },
+  ],
+  hash
+)
+
+console.log(hash, totalSupply)
+// 0x000000000000000000000000000000000000000000000000000000000000024e [ 590n ]
+```
+
+```ts [decode-mapping-primitive.ts]
+import {
+  createPublicClient,
+  decodeAbiParameters,
+  encodeAbiParameters,
+  http,
+  keccak256,
+  parseAbiParameters,
+} from 'viem'
+import { mainnet } from 'viem/chains'
+
+const WAGMI_ADDRESS = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// balanceOf is mapping of uint256 at storage 3
+const slot = encodeAbiParameters(parseAbiParameters('address, uint256'), [
+  '0x9FfE01796da0a5F5C6240Bef67adaC576A6e0eca',
+  3n,
+])
+
+const data = await client.getStorageAt({
+  address: WAGMI_ADDRESS,
+  slot: keccak256(slot),
+})
+
+if (!data) throw new Error('Empty storage')
+
+const balance = decodeAbiParameters(parseAbiParameters('uint256'), data)
+
+console.log(data, balance)
+// 0x0000000000000000000000000000000000000000000000000000000000000001 [ 1n ]
+```
+
+:::
