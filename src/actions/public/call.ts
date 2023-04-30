@@ -30,7 +30,6 @@ import {
   getCallError,
   getChainContractAddress,
   numberToHex,
-  offchainLookup,
   offchainLookupSignature,
   parseAccount,
 } from '../../utils/index.js'
@@ -162,8 +161,10 @@ export async function call<TChain extends Chain | undefined>(
     return { data: response }
   } catch (err) {
     const data = getRevertErrorData(err)
-    if (data?.slice(0, 10) === offchainLookupSignature && to)
+    if (data?.slice(0, 10) === offchainLookupSignature && to) {
+      const { offchainLookup } = await import('../../utils/ccip.js')
       return { data: await offchainLookup(client, { data, to }) }
+    }
     throw getCallError(err as BaseError, {
       ...args,
       account,

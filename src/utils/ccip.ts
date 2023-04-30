@@ -10,6 +10,7 @@ import {
 import { call, type CallParameters } from '../public.js'
 import type { Chain, GetErrorArgs, Hex } from '../types/index.js'
 import { decodeErrorResult, encodeAbiParameters } from './abi/index.js'
+import { isAddressEqual } from './address/index.js'
 import { concat, isHex } from './data/index.js'
 import { stringify } from './stringify.js'
 
@@ -40,7 +41,7 @@ export async function offchainLookup<TChain extends Chain | undefined>(
   const [sender, urls, callData, callbackSelector, extraData] = args
 
   try {
-    if (to.toLowerCase() !== sender.toLowerCase())
+    if (!isAddressEqual(to, sender))
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
     const result = await ccipFetch({ data: callData, sender, urls })
