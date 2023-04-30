@@ -7,6 +7,7 @@ import type {
   ContractFunctionConfig,
   ContractFunctionResult,
   GetValue,
+  Hex,
 } from '../../types/index.js'
 import {
   decodeFunctionResult,
@@ -29,6 +30,8 @@ export type SimulateContractParameters<
   TChainOverride extends Chain | undefined = undefined,
 > = {
   chain?: TChainOverride
+  /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
+  dataSuffix?: Hex
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
@@ -99,6 +102,7 @@ export async function simulateContract<
     abi,
     address,
     args,
+    dataSuffix,
     functionName,
     ...callRequest
   }: SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>,
@@ -116,7 +120,7 @@ export async function simulateContract<
   try {
     const { data } = await call(client, {
       batch: false,
-      data: calldata,
+      data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
     } as unknown as CallParameters<TChain>)

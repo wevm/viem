@@ -329,6 +329,22 @@ await walletClient.writeContract({
 })
 ```
 
+### dataSuffix
+
+- **Type:** `Hex`
+
+Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). 
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  dataSuffix: '0xdeadbeef' // [!code focus]
+})
+```
+
 ### gasPrice (optional)
 
 - **Type:** `bigint`

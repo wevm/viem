@@ -8,7 +8,7 @@
  *        - Custom nonce
  */
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import {
   accounts,
   deployBAYC,
@@ -21,6 +21,7 @@ import { baycContractConfig } from '../../_test/abis.js'
 import { encodeFunctionData, parseEther, parseGwei } from '../../utils/index.js'
 import { mine } from '../test/index.js'
 import { sendTransaction } from '../wallet/index.js'
+import * as call from './call.js'
 
 import { simulateContract } from './simulateContract.js'
 import { deployErrorExample } from '../../_test/utils.js'
@@ -152,6 +153,22 @@ describe('wagmi', () => {
       Docs: https://viem.sh/docs/contract/simulateContract.html
       Version: viem@1.0.2"
     `)
+  })
+})
+
+test('args: dataSuffix', async () => {
+  const spy = vi.spyOn(call, 'call')
+  await simulateContract(publicClient, {
+    ...wagmiContractConfig,
+    account: accounts[0].address,
+    functionName: 'mint',
+    dataSuffix: '0x12345678',
+  })
+  expect(spy).toHaveBeenCalledWith(publicClient, {
+    account: accounts[0].address,
+    batch: false,
+    data: '0x1249c58b12345678',
+    to: wagmiContractConfig.address,
   })
 })
 

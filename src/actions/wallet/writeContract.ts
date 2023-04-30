@@ -7,6 +7,7 @@ import type {
   ContractFunctionConfig,
   GetChain,
   GetValue,
+  Hex,
 } from '../../types/index.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import type { EncodeFunctionDataParameters } from '../../utils/index.js'
@@ -28,7 +29,10 @@ export type WriteContractParameters<
     'chain' | 'to' | 'data' | 'value'
   > &
   GetChain<TChain, TChainOverride> &
-  GetValue<TAbi, TFunctionName, SendTransactionParameters<TChain>['value']>
+  GetValue<TAbi, TFunctionName, SendTransactionParameters<TChain>['value']> & {
+    /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
+    dataSuffix?: Hex
+  }
 
 export type WriteContractReturnType = SendTransactionReturnType
 
@@ -94,6 +98,7 @@ export async function writeContract<
     abi,
     address,
     args,
+    dataSuffix,
     functionName,
     ...request
   }: WriteContractParameters<
@@ -110,7 +115,7 @@ export async function writeContract<
     functionName,
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   const hash = await sendTransaction(client, {
-    data,
+    data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,
   } as unknown as SendTransactionParameters<TChain, TAccount, TChainOverride>)
