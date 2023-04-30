@@ -30,7 +30,7 @@ jobs:
 
       - name: Set version
         run: |
-          npm --no-git-tag-version version minor
+          npm --no-git-tag-version version 0.0.0
           npm --no-git-tag-version version $(npm pkg get version | sed 's/"//g')-$(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//').$(date +'%Y%m%dT%H%M%S')
           pnpm bun scripts/updateVersion.ts
 
