@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.16
+
+### Patch Changes
+
+- [`482aaa1`](https://github.com/wagmi-dev/viem/commit/482aaa1651ff06575860c6d9d38bcde05e5b136e) Thanks [@jxom](https://github.com/jxom)! - Wrapped slice offset out-of-bounds error in a `BaseError`.
+
 ## 0.3.15
 
 ### Patch Changes
