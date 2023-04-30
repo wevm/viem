@@ -185,7 +185,7 @@ export async function multicall<
     ),
   )
 
-  return results.flat().flatMap(({ returnData, success }, i) => {
+  return results.flat().map(({ returnData, success }, i) => {
     const calls = chunkedCalls.flat()
     const { callData } = calls[i]
     const { abi, address, functionName, args } = contracts[i]
