@@ -62,8 +62,8 @@ importers:
         specifier: ^8.5.4
         version: 8.5.4
       '@viem/anvil':
-        specifier: ^0.0.1
-        version: 0.0.1
+        specifier: ^0.0.5
+        version: 0.0.5
       '@vitest/coverage-c8':
         specifier: ^0.29.2
         version: 0.29.2(vitest@0.29.2)
@@ -2307,8 +2307,8 @@ packages:
     dev: true
     optional: true
 
-  /@viem/anvil@0.0.1:
-    resolution: {integrity: sha512-38aEFhgVtqlLYntAzZLbu6akDKdViQYeJG7aRemUU8jVfJhwVOzxBrCxvvye918VHc9MP8w+b2+TixevOlkhHQ==}
+  /@viem/anvil@0.0.5:
+    resolution: {integrity: sha512-aGgbwBNmCcxp08WcYwyL+n01HLLFYuhIczQLy6BPcomQ2CG4ngfTed8K73EOpsBTmvCxAcek0APcVS7UUWNALw==}
     dependencies:
       execa: 7.1.1
       get-port: 6.1.2
