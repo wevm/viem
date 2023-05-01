@@ -1,5 +1,6 @@
 import type { Address, TypedData } from 'abitype'
-import type { Hex, ByteArray, TypedDataDefinition } from '../../types/index.js'
+
+import type { ByteArray, Hex, TypedDataDefinition } from '../../types/index.js'
 import { getAddress, isAddressEqual } from '../index.js'
 import { recoverTypedDataAddress } from './recoverTypedDataAddress.js'
 import type { RecoverTypedDataAddressParameters } from './recoverTypedDataAddress.js'

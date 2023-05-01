@@ -1,7 +1,8 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
-import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
+
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
+import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
 import type { DeployContractParameters } from '../actions/index.js'
@@ -24,8 +25,9 @@ import {
   http,
   webSocket,
 } from '../clients/index.js'
-import type { Hex } from '../types/index.js'
+import { namehash } from '../ens.js'
 import { RpcError } from '../types/eip1193.js'
+import type { Hex } from '../types/index.js'
 import { rpc } from '../utils/index.js'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
 import { accounts, address, localHttpUrl, localWsUrl } from './constants.js'
@@ -39,7 +41,6 @@ import {
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
-import { namehash } from '../ens.js'
 
 export const anvilChain = {
   ...localhost,

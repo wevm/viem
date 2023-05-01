@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { parseEther, parseGwei } from '../../utils/index.js'
+
 import {
   accounts,
   address,
@@ -8,6 +8,7 @@ import {
   testClient,
   walletClient,
 } from '../../_test/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
 import { testActions } from './test.js'
 
 const bytecode =

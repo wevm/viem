@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getBlockNumber } from '../../actions/index.js'
-import { parseEther } from '../../utils/index.js'
+
 import {
   accounts,
   address,
@@ -12,6 +11,8 @@ import {
   wagmiContractConfig,
   walletClient,
 } from '../../_test/index.js'
+import { getBlockNumber } from '../../actions/index.js'
+import { parseEther } from '../../utils/index.js'
 import { publicActions } from './public.js'
 
 test('default', async () => {

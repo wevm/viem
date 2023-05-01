@@ -1,6 +1,6 @@
 import type { Transport, WalletClient } from '../../clients/index.js'
-import type { Account, Chain } from '../../types/index.js'
 import type { WalletPermission } from '../../types/eip1193.js'
+import type { Account, Chain } from '../../types/index.js'
 
 export type GetPermissionsReturnType = WalletPermission[]
 

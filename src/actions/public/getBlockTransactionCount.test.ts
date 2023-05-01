@@ -8,11 +8,11 @@ import {
   walletClient,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
-import { mine } from '../test/index.js'
 import { sendTransaction } from '../index.js'
+import { mine } from '../test/index.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 
 await beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })

@@ -1,16 +1,16 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import * as publicActions from './index.js'
 import {
   accounts,
   initialBlockNumber,
   publicClient,
   testClient,
 } from '../../_test/index.js'
+import { privateKeyToAccount } from '../../accounts/index.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { reset } from '../test/index.js'
 import { estimateGas } from './estimateGas.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
+import * as publicActions from './index.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 

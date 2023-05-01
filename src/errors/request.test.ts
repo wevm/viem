@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { initialBlockNumber } from '../_test/index.js'
 import { numberToHex } from '../utils/index.js'
 import {

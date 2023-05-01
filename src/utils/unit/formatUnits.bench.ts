@@ -1,6 +1,6 @@
-import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import { formatUnits as formatUnitsV6 } from 'ethers@6'
+import { bench, describe } from 'vitest'
 
 import { formatUnits } from './formatUnits.js'
 

@@ -1,4 +1,5 @@
 import { assertType, describe, expect, test } from 'vitest'
+
 import { getAddress } from '../address/index.js'
 import { decodeEventLog } from './decodeEventLog.js'
 

@@ -1,20 +1,18 @@
+import type { IncomingHttpHeaders } from 'http'
+import WebSocket from 'isomorphic-ws'
 import { describe, expect, test, vi } from 'vitest'
 
-import WebSocket from 'isomorphic-ws'
-
+import { localHttpUrl } from '../_test/constants.js'
 import {
   createHttpServer,
   initialBlockNumber,
   localWsUrl,
 } from '../_test/index.js'
-import * as withTimeout from './promise/withTimeout.js'
-
 import { numberToHex } from './encoding/index.js'
+import * as withTimeout from './promise/withTimeout.js'
 import type { RpcResponse } from './rpc.js'
 import { getSocket, rpc } from './rpc.js'
 import { wait } from './wait.js'
-import type { IncomingHttpHeaders } from 'http'
-import { localHttpUrl } from '../_test/constants.js'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`

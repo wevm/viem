@@ -1,16 +1,16 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
-import type { OnBlockNumberParameter } from './watchBlockNumber.js'
-import { watchBlockNumber } from './watchBlockNumber.js'
+import { localHttpUrl } from '../../_test/constants.js'
 import { publicClient, testClient, webSocketClient } from '../../_test/index.js'
-import { wait } from '../../utils/wait.js'
 import { localhost } from '../../chains.js'
 import type { PublicClient } from '../../clients/index.js'
 import { createPublicClient, http } from '../../clients/index.js'
+import { wait } from '../../utils/wait.js'
+import { setIntervalMining } from '../test/index.js'
 import { mine } from '../test/mine.js'
 import * as getBlockNumber from './getBlockNumber.js'
-import { setIntervalMining } from '../test/index.js'
-import { localHttpUrl } from '../../_test/constants.js'
+import type { OnBlockNumberParameter } from './watchBlockNumber.js'
+import { watchBlockNumber } from './watchBlockNumber.js'
 
 beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })

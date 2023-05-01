@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-import { getAddress } from '../../utils/index.js'
-import { wait } from '../../utils/wait.js'
+
 import {
   accounts,
   address,
@@ -9,17 +8,19 @@ import {
   usdcContractConfig,
   walletClient,
 } from '../../_test/index.js'
+import { getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   impersonateAccount,
   mine,
-  stopImpersonatingAccount,
   setBalance,
+  stopImpersonatingAccount,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
-import * as getLogs from './getLogs.js'
 import * as getFilterChanges from './getFilterChanges.js'
+import * as getLogs from './getLogs.js'
 import type { OnLogsParameter } from './watchEvent.js'
 import { watchEvent } from './watchEvent.js'
 

@@ -1,4 +1,4 @@
-import { getOctokit, context } from '@actions/github'
+import { context, getOctokit } from '@actions/github'
 
 type Report = {
   testResults: {

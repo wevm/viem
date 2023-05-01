@@ -1,9 +1,8 @@
 import { expect, test } from 'vitest'
 
 import { createHttpServer, publicClient } from '../../_test/index.js'
-
-import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { createPublicClient, fallback, http } from '../../clients/index.js'
+import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 
 test('default', async () => {
   expect(await createPendingTransactionFilter(publicClient)).toBeDefined()

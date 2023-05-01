@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
+
 import {
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
 } from '../../_test/index.js'
-
 import { getStorageAt } from './getStorageAt.js'
 
 test('default', async () => {

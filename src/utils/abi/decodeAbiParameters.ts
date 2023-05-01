@@ -1,7 +1,7 @@
 import type {
   AbiParameter,
-  AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
+  AbiParametersToPrimitiveTypes,
   Narrow,
 } from 'abitype'
 

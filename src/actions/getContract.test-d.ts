@@ -9,14 +9,14 @@ import { parseAbi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import {
-  wagmiContractConfig,
-  publicClient,
-  localHttpUrl,
   anvilChain,
+  localHttpUrl,
+  publicClient,
+  wagmiContractConfig,
 } from '../_test/index.js'
 import { createWalletClient, http } from '../clients/index.js'
-import { getContract } from './getContract.js'
 import type { Account, Chain } from '../types/index.js'
+import { getContract } from './getContract.js'
 
 const walletClient = createWalletClient({
   account: '0x',

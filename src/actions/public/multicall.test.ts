@@ -3,11 +3,11 @@
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
  */
-
-import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
+
 import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
-import { createPublicClient, http } from '../../clients/index.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
+import { gh434ABI } from '../../_test/generated.js'
 import {
   accounts,
   address,
@@ -18,10 +18,9 @@ import {
   publicClient,
   usdcContractConfig,
 } from '../../_test/index.js'
-import { gh434ABI } from '../../_test/generated.js'
+import { mainnet } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
 import type { Hex } from '../../types/index.js'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-
 import { multicall } from './multicall.js'
 
 test('default', async () => {

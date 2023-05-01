@@ -2,10 +2,10 @@ import type { AbiEvent } from 'abitype'
 import { expect, test } from 'vitest'
 
 import {
-  wagmiContractConfig,
-  publicClient,
-  walletClient,
   accounts,
+  publicClient,
+  wagmiContractConfig,
+  walletClient,
 } from '../_test/index.js'
 import {
   getContract,

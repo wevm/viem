@@ -7,9 +7,9 @@ import {
 } from '../../errors/index.js'
 import type {
   Account,
-  GetAccountParameter,
   Chain,
   Formatter,
+  GetAccountParameter,
   GetChain,
   Hash,
   MergeIntersectionProperties,

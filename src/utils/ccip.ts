@@ -1,4 +1,5 @@
-import type { Abi, Address } from 'abitype'
+import { call } from '../actions/public/call.js'
+import type { CallParameters } from '../actions/public/index.js'
 import type { PublicClient, Transport } from '../clients/index.js'
 import {
   BaseError,
@@ -7,13 +8,12 @@ import {
   OffchainLookupResponseMalformedError,
   OffchainLookupSenderMismatchError,
 } from '../errors/index.js'
-import type { CallParameters } from '../actions/public/index.js'
-import { call } from '../actions/public/call.js'
 import type { Chain, GetErrorArgs, Hex } from '../types/index.js'
 import { decodeErrorResult, encodeAbiParameters } from './abi/index.js'
 import { isAddressEqual } from './address/index.js'
 import { concat, isHex } from './data/index.js'
 import { stringify } from './stringify.js'
+import type { Abi, Address } from 'abitype'
 
 export const offchainLookupSignature = '0x556f1830'
 export const offchainLookupAbiItem = {

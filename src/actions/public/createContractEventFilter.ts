@@ -1,18 +1,18 @@
 import type { Abi, Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients/index.js'
 
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   BlockNumber,
   BlockTag,
   Chain,
-  InferEventName,
   Filter,
+  InferEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/index.js'
+import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 import { encodeEventTopics, numberToHex } from '../../utils/index.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
-import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateContractEventFilterParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

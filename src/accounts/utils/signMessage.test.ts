@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { accounts } from '../../_test/index.js'
 import { signMessage } from './signMessage.js'
 

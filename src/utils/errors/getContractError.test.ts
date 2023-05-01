@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '../../_test/index.js'
 import { baycContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/index.js'
 import {
   AbiDecodingZeroDataError,
   BaseError,

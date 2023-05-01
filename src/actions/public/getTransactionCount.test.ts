@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { parseEther } from '../../utils/index.js'
 import {
   accounts,
   publicClient,
   testClient,
   walletClient,
 } from '../../_test/index.js'
+import { parseEther } from '../../utils/index.js'
 import { sendTransaction } from '../index.js'
 import { mine, setNonce } from '../test/index.js'
 import { getTransactionCount } from './getTransactionCount.js'

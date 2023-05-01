@@ -1,5 +1,6 @@
 import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
+import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 import {
   accounts,
   address,
@@ -7,26 +8,24 @@ import {
   initialBlockNumber,
   publicClient,
   testClient,
-  walletClient,
   usdcContractConfig,
+  walletClient,
 } from '../../_test/index.js'
-
+import type { Hash, Log } from '../../types/index.js'
+import { getAddress, parseEther } from '../../utils/index.js'
 import {
   impersonateAccount,
   mine,
+  setBalance,
   setIntervalMining,
   stopImpersonatingAccount,
-  setBalance,
 } from '../test/index.js'
 import { sendTransaction, writeContract } from '../wallet/index.js'
-import { getAddress, parseEther } from '../../utils/index.js'
-import type { Hash, Log } from '../../types/index.js'
 import { createBlockFilter } from './createBlockFilter.js'
+import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
-import { createContractEventFilter } from './createContractEventFilter.js'
-import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 
 const event = {
   default: {

@@ -1,7 +1,8 @@
 import type { Abi } from 'abitype'
+
 import type { MaybeExtractEventArgsFromAbi } from './contract.js'
-import type { Hex } from './misc.js'
 import type { Requests } from './eip1193.js'
+import type { Hex } from './misc.js'
 
 export type FilterType = 'transaction' | 'block' | 'event'
 

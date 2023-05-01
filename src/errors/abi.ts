@@ -1,4 +1,5 @@
 import type { AbiParameter } from 'abitype'
+
 import type { AbiItem, Hex } from '../types/index.js'
 import { formatAbiItem, formatAbiParams, size } from '../utils/index.js'
 import { BaseError } from './base.js'

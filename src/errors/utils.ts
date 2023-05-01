@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+
 import { version } from './version.js'
 
 export const getContractAddress = (address: Address) => address

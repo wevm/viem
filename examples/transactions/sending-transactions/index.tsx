@@ -1,18 +1,18 @@
-import 'viem/window'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   Address,
   Hash,
   TransactionReceipt,
-  createWalletClient,
   createPublicClient,
+  createWalletClient,
   custom,
   http,
   parseEther,
   stringify,
 } from 'viem'
 import { goerli } from 'viem/chains'
+import 'viem/window'
 
 const publicClient = createPublicClient({
   chain: goerli,

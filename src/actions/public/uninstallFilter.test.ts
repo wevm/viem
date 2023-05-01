@@ -6,15 +6,14 @@ import {
   testClient,
   walletClient,
 } from '../../_test/index.js'
-
+import type { Requests } from '../../types/eip1193.js'
+import type { Hash } from '../../types/index.js'
+import { parseEther } from '../../utils/index.js'
+import { mine } from '../test/index.js'
+import { sendTransaction } from '../wallet/index.js'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { uninstallFilter } from './uninstallFilter.js'
-import { mine } from '../test/index.js'
-import { sendTransaction } from '../wallet/index.js'
-import { parseEther } from '../../utils/index.js'
-import type { Hash } from '../../types/index.js'
-import type { Requests } from '../../types/eip1193.js'
 
 const request = (() => {}) as unknown as Requests['request']
 
