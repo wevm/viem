@@ -38,7 +38,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        run: RUST_BACKTRACE=1 pnpm test
+        run: RUST_BACKTRACE=full pnpm test
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
