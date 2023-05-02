@@ -6,16 +6,20 @@
 
 import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
+import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
 import { createPublicClient, http } from '../../clients/index.js'
 import {
   accounts,
   address,
   anvilChain,
+  deploy,
   initialBlockNumber,
   localHttpUrl,
   publicClient,
   usdcContractConfig,
 } from '../../_test/index.js'
+import { gh434ABI } from '../../_test/generated.js'
+import type { Hex } from '../../types/index.js'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 
 import { multicall } from './multicall.js'
@@ -664,5 +668,48 @@ test('batchSize on client', async () => {
 
   await multicall(client, {
     contracts,
+  })
+})
+
+describe('GitHub repros', () => {
+  test('https://github.com/wagmi-dev/viem/issues/434', async () => {
+    const { contractAddress } = await deploy({
+      abi: gh434ABI,
+      bytecode: gh434.bytecode.object as Hex,
+      account: accounts[0].address,
+    })
+
+    expect(
+      await multicall(publicClient, {
+        allowFailure: false,
+        blockNumber: initialBlockNumber,
+        contracts: [
+          {
+            abi: gh434ABI,
+            address: contractAddress!,
+            functionName: 'foo',
+          },
+          {
+            abi: gh434ABI,
+            address: contractAddress!,
+            functionName: 'bar',
+          },
+          {
+            abi: gh434ABI,
+            address: contractAddress!,
+            functionName: 'baz',
+          },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          42069n,
+          true,
+        ],
+        "hi",
+        69420n,
+      ]
+    `)
   })
 })

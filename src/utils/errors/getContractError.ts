@@ -1,5 +1,5 @@
 import type { Abi } from 'abitype'
-import type { BaseError } from '../../errors/index.js'
+import { BaseError } from '../../errors/index.js'
 import {
   AbiDecodingZeroDataError,
   ContractFunctionExecutionError,
@@ -34,7 +34,9 @@ export function getContractError(
   const { code, data, message, shortMessage } = (
     err instanceof RawContractError
       ? err
-      : err.walk((err) => 'data' in (err as Error))
+      : err instanceof BaseError
+      ? err.walk((err) => 'data' in (err as Error))
+      : {}
   ) as RawContractError
 
   let cause = err

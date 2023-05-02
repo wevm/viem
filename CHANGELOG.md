@@ -1,5 +1,17 @@
 # viem
 
+## 0.3.16
+
+### Patch Changes
+
+- [`482aaa1`](https://github.com/wagmi-dev/viem/commit/482aaa1651ff06575860c6d9d38bcde05e5b136e) Thanks [@jxom](https://github.com/jxom)! - Wrapped slice offset out-of-bounds error in a `BaseError`.
+
+## 0.3.15
+
+### Patch Changes
+
+- [#436](https://github.com/wagmi-dev/viem/pull/436) [`72ed656`](https://github.com/wagmi-dev/viem/commit/72ed6567897ee87939d33e89a7d6599ec8db321e) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `multicall`'s return type was incorrectly flattening when `allowFailure: false`.
+
 ## 0.3.14
 
 ### Patch Changes

@@ -31,7 +31,11 @@ test('hex', () => {
   expect(sliceHex('0x0123456789', -10)).toMatchInlineSnapshot('"0x0123456789"')
 
   expect(() => sliceHex('0x0123456789', 5)).toThrowErrorMatchingInlineSnapshot(
-    '"Slice starting at offset \\"5\\" is out-of-bounds (size: 5)."',
+    `
+    "Slice starting at offset \\"5\\" is out-of-bounds (size: 5).
+
+    Version: viem@1.0.2"
+  `,
   )
 })
 
@@ -198,6 +202,10 @@ test('bytes', () => {
   expect(() =>
     sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 10),
   ).toThrowErrorMatchingInlineSnapshot(
-    '"Slice starting at offset \\"10\\" is out-of-bounds (size: 10)."',
+    `
+    "Slice starting at offset \\"10\\" is out-of-bounds (size: 10).
+
+    Version: viem@1.0.2"
+  `,
   )
 })

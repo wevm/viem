@@ -18,7 +18,7 @@ function generatePackageJson() {
     version,
     files,
     exports: exports_,
-    // NOTE: We explicitly don't want to publish the type field. We create a separate package.json for `dist/cjs` and `dist/emc` that has the type field.
+    // NOTE: We explicitly don't want to publish the type field. We create a separate package.json for `dist/cjs` and `dist/esm` that has the type field.
     // type,
     main,
     module,

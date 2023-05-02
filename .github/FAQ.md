@@ -8,6 +8,7 @@ Feel free to add to this document if you notice frequently asked questions that 
 
 - [Why are contract function `args` with fully-named inputs represented as unnamed tuple types instead of object types?](#why-are-contract-function-args-with-fully-named-inputs-represented-as-unnamed-tuple-types-instead-of-object-types)
 - [Why is a contract function return type returning an array instead of an object?](#why-is-a-contract-function-return-type-returning-an-array-instead-of-an-object)
+- [Why doesn't Wallet Client support public actions?](#why-doesnt-wallet-client-support-public-actions)
 
 <br>
 
@@ -223,6 +224,14 @@ function latestRoundData() external view returns (Data data);
 The first function returns a set of five items, so viem maps it to an array. The reason why we don't convert it to an object is because things get ambiguous when we come to decode structs. How do you determine the difference between a "return" tuple (first function) and a "struct" tuple (second function).
 
 Another reason is that folks might expect it to be an array (because it is a set of return items). Other libraries, like ethers, mitigates this by returning a hybrid Array/Object type, but that kind of type is not serializable in JavaScript, and viem prefers to not try and "hack" JavaScript types.
+
+<div align="right">
+  <a href="#faq">&uarr; back to top</a></b>
+</div>
+
+## Why doesn't Wallet Client support public actions?
+
+Wallet Client doesn't support public actions because wallet providers (Injected `window.ethereum`, WalletConnect v2, etc.) may not provide a large majority of "node"/"public" RPC methods like `eth_call`, `eth_newFilter`, `eth_getLogs`, etc. This is because these methods are not required for a wallet provider to function properly. For example, a wallet provider may only support `eth_sendTransaction` and `eth_sign` and nothing else.
 
 <div align="right">
   <a href="#faq">&uarr; back to top</a></b>

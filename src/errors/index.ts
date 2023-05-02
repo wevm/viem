@@ -72,7 +72,10 @@ export {
   RawContractError,
 } from './contract.js'
 
-export { SizeExceedsPaddingSizeError } from './data.js'
+export {
+  SizeExceedsPaddingSizeError,
+  SliceOffsetOutOfBoundsError,
+} from './data.js'
 
 export {
   DataLengthTooLongError,
