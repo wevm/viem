@@ -13,11 +13,25 @@ type Report = {
   }
 }
 ;(async () => {
-  let report
+  let report: Report | undefined
   try {
-    report = (
-      await import('../../bench/report.json', { assert: { type: 'json' } })
-    ).default
+    // Split up reports to avoid hitting `JSON.stringify` limits
+    const reports = [
+      '../../bench/report.json',
+      // '../../bench/actions.json', // CI=true vitest bench --run --outputFile=bench/actions.json src/actions
+      // '../../bench/utils.json', // CI=true vitest bench --run --outputFile=bench/utils.json src/utils/{abi,address,data,formatters,transaction}
+      // '../../bench/encoding.json', // CI=true vitest bench --run --outputFile=bench/encoding.json src/utils/encoding
+    ]
+    let testResults = {}
+    for (const path of reports) {
+      const report_ = (await import(path, { assert: { type: 'json' } }))
+        .default as Report
+      testResults = {
+        ...testResults,
+        ...report_.testResults,
+      }
+    }
+    report = { testResults }
   } catch {}
 
   if (!report) {
