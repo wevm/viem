@@ -14,6 +14,8 @@ jobs:
     secrets: inherit
 
   bench:
+    # Disable as benchmarking isn't working in CI
+    if: false
     name: Benchmark
     runs-on: ubuntu-latest
     timeout-minutes: 5
