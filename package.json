@@ -164,7 +164,7 @@
     "@size-limit/preset-big-lib": "^8.2.4",
     "@types/fs-extra": "^9.0.13",
     "@types/ws": "^8.5.4",
-    "@viem/anvil": "0.0.0-debug-20230502160649",
+    "@viem/anvil": "0.0.5",
     "@vitest/coverage-c8": "^0.29.2",
     "@vitest/ui": "^0.29.2",
     "@wagmi/cli": "^0.1.6",
