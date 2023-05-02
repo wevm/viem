@@ -9,6 +9,7 @@ concurrency:
 
 jobs:
   verify:
+    name: Debug
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -17,7 +18,7 @@ jobs:
       - name: Install foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: nightly-87bc53fc6c874bd4c92d97ed180b949e3a36d78c
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
@@ -29,6 +30,10 @@ jobs:
           node-version: 18
           registry-url: https://registry.npmjs.org
 
+      - name: anvil version
+        shell: bash
+        run: anvil --version
+
       - name: Install dependencies
         shell: bash
         run: pnpm install
@@ -38,7 +43,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        run: RUST_BACKTRACE=full pnpm test
+        run: RUST_BACKTRACE=full pnpm test:ci
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
