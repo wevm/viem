@@ -71,7 +71,7 @@ importers:
         specifier: ^0.29.2
         version: 0.29.2
       '@wagmi/cli':
-        specifier: ^0.1.6
+        specifier: ~0.1.6
         version: 0.1.6(typescript@5.0.3)
       bun:
         specifier: ^0.5.5

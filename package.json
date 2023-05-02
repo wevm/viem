@@ -37,13 +37,8 @@
   "typings": "./dist/types/index.d.ts",
   "sideEffects": false,
   "files": [
-    "dist",
-    "!dist/**/*.tsbuildinfo",
-    "src/**/*.ts",
-    "!src/**/*.test.ts",
-    "!src/**/*.test-d.ts",
-    "!src/**/*.bench.ts",
-    "!src/_test/**/*"
+    "dist", "!dist/**/*.tsbuildinfo", "src/**/*.ts", "!src/**/*.test.ts",
+    "!src/**/*.test-d.ts", "!src/**/*.bench.ts", "!src/_test/**/*"
   ],
   "exports": {
     ".": {
@@ -110,39 +105,17 @@
   },
   "typesVersions": {
     "*": {
-      "abi": [
-        "./dist/types/abi.d.ts"
-      ],
-      "accounts": [
-        "./dist/types/accounts/index.d.ts"
-      ],
-      "chains": [
-        "./dist/types/chains.d.ts"
-      ],
-      "contract": [
-        "./dist/types/contract.d.ts"
-      ],
-      "ens": [
-        "./dist/types/ens.d.ts"
-      ],
-      "ethers": [
-        "./dist/types/ethers.d.ts"
-      ],
-      "public": [
-        "./dist/types/public.d.ts"
-      ],
-      "test": [
-        "./dist/types/test.d.ts"
-      ],
-      "utils": [
-        "./dist/types/utils/index.d.ts"
-      ],
-      "wallet": [
-        "./dist/types/wallet.d.ts"
-      ],
-      "window": [
-        "./dist/types/window.d.ts"
-      ]
+      "abi": ["./dist/types/abi.d.ts"],
+      "accounts": ["./dist/types/accounts/index.d.ts"],
+      "chains": ["./dist/types/chains.d.ts"],
+      "contract": ["./dist/types/contract.d.ts"],
+      "ens": ["./dist/types/ens.d.ts"],
+      "ethers": ["./dist/types/ethers.d.ts"],
+      "public": ["./dist/types/public.d.ts"],
+      "test": ["./dist/types/test.d.ts"],
+      "utils": ["./dist/types/utils/index.d.ts"],
+      "wallet": ["./dist/types/wallet.d.ts"],
+      "window": ["./dist/types/window.d.ts"]
     }
   },
   "dependencies": {
@@ -167,7 +140,7 @@
     "@viem/anvil": "^0.0.5",
     "@vitest/coverage-c8": "^0.29.2",
     "@vitest/ui": "^0.29.2",
-    "@wagmi/cli": "^0.1.6",
+    "@wagmi/cli": "~0.1.6",
     "bun": "^0.5.5",
     "ethers": "^5.7.2",
     "ethers@6": "npm:ethers@^6.0.2",
@@ -182,23 +155,14 @@
   },
   "license": "MIT",
   "repository": "wagmi-dev/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wagmi-dev"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ],
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"],
   "size-limit": [
     {
       "path": "./dist/cjs/index.js"
@@ -216,9 +180,7 @@
       "vitepress@1.0.0-alpha.61": "patches/vitepress@1.0.0-alpha.61.patch"
     },
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "@algolia/client-search"
-      ]
+      "ignoreMissing": ["@algolia/client-search"]
     }
   }
 }

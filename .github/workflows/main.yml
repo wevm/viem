@@ -79,7 +79,6 @@ jobs:
           max_attempts: 3
           command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
-          ALCHEMY_ID: ${{ vars.ALCHEMY_ID }}
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
@@ -114,7 +113,6 @@ jobs:
       - name: Bench
         run: pnpm bench:ci --changed
         env:
-          ALCHEMY_ID: ${{ vars.ALCHEMY_ID }}
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
