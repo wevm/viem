@@ -14,6 +14,7 @@ import type {
   Formatter,
   Hex,
   MergeIntersectionProperties,
+  RpcTransactionRequest,
   TransactionRequest,
 } from '../../types/index.js'
 import type {
@@ -115,6 +116,8 @@ export async function call<TChain extends Chain | undefined>(
     assertRequest(args)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const block = blockNumberHex || blockTag
+
     const formatter = client.chain?.formatters?.transactionRequest
     const request = format(
       {
@@ -154,7 +157,9 @@ export async function call<TChain extends Chain | undefined>(
 
     const response = await client.request({
       method: 'eth_call',
-      params: [request as any, blockNumberHex || blockTag],
+      params: block
+        ? [request as Partial<RpcTransactionRequest>, block]
+        : [request as Partial<RpcTransactionRequest>],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
