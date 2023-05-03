@@ -55,13 +55,32 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create Version Pull Request
         uses: changesets/action@v1
         with:
           version: pnpm changeset:version
-          publish: pnpm changeset:release
-          commit: 'chore: publish package'
+          commit: 'chore: version package'
           title: 'chore: version package'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    name: Release
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Publish to NPM
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

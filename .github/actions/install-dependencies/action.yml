@@ -12,7 +12,6 @@ runs:
       with:
         cache: pnpm
         node-version: 18
-        registry-url: https://registry.npmjs.org
 
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1
