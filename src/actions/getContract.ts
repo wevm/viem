@@ -10,6 +10,7 @@ import type {
   ExtractAbiFunctionNames,
   Narrow,
 } from 'abitype'
+
 import type { PublicClient, Transport, WalletClient } from '../clients/index.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
@@ -24,22 +25,22 @@ import type {
 } from '../types/index.js'
 import {
   createContractEventFilter,
+  estimateContractGas,
   readContract,
   simulateContract,
-  estimateContractGas,
   watchContractEvent,
 } from './public/index.js'
 import type {
-  WatchContractEventParameters,
-  WatchContractEventReturnType,
+  CreateContractEventFilterParameters,
+  CreateContractEventFilterReturnType,
+  EstimateContractGasParameters,
+  EstimateContractGasReturnType,
   ReadContractParameters,
   ReadContractReturnType,
   SimulateContractParameters,
-  EstimateContractGasParameters,
-  CreateContractEventFilterParameters,
-  CreateContractEventFilterReturnType,
-  EstimateContractGasReturnType,
   SimulateContractReturnType,
+  WatchContractEventParameters,
+  WatchContractEventReturnType,
 } from './public/index.js'
 import { writeContract } from './wallet/index.js'
 import type {

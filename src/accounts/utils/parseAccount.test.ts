@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { accounts } from '../../_test/index.js'
 import { privateKeyToAccount } from '../privateKeyToAccount.js'
 import { parseAccount } from './parseAccount.js'

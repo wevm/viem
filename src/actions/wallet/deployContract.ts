@@ -1,10 +1,11 @@
 import type { Abi, Narrow } from 'abitype'
-import type { WalletClient, Transport } from '../../clients/index.js'
+
+import type { Transport, WalletClient } from '../../clients/index.js'
 import type {
   Account,
   Chain,
-  GetConstructorArgs,
   GetChain,
+  GetConstructorArgs,
   Hex,
 } from '../../types/index.js'
 import { encodeDeployData } from '../../utils/index.js'

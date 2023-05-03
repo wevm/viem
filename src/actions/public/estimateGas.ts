@@ -1,10 +1,11 @@
 import type {
   PublicClient,
-  WalletClient,
   Transport,
+  WalletClient,
 } from '../../clients/index.js'
 import type { BaseError } from '../../errors/index.js'
 import { AccountNotFoundError } from '../../errors/index.js'
+import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Account,
   BlockTag,
@@ -13,7 +14,6 @@ import type {
   MergeIntersectionProperties,
   TransactionRequest,
 } from '../../types/index.js'
-import type { GetAccountParameter } from '../../types/account.js'
 import {
   assertRequest,
   extract,

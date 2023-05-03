@@ -1,4 +1,4 @@
-import type { Chain } from '@wagmi/chains'
+import type { Chain } from '../../chains.js'
 import type {
   TestClient,
   TestClientMode,

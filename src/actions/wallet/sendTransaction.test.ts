@@ -12,11 +12,11 @@ import { hexToNumber, parseEther, parseGwei } from '../../utils/index.js'
 import { getBalance, getBlock, getTransaction } from '../index.js'
 import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test/index.js'
 
-import { sendTransaction } from './sendTransaction.js'
-import { createWalletClient, http } from '../../clients/index.js'
 import { anvilChain, walletClientWithAccount } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
+import { createWalletClient, http } from '../../clients/index.js'
 import { defineChain } from '../../utils/chain.js'
+import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

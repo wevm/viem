@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
-import { parseEther, parseGwei } from '../utils/index.js'
+
 import { accounts, typedData } from '../_test/index.js'
+import { parseEther, parseGwei } from '../utils/index.js'
 import { privateKeyToAccount } from './privateKeyToAccount.js'
 
 test('default', () => {

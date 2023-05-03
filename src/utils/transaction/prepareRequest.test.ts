@@ -6,17 +6,16 @@ import {
   testClient,
   walletClient,
 } from '../../_test/index.js'
+import { privateKeyToAccount } from '../../accounts/index.js'
 import {
   getBlock,
   mine,
   setBalance,
   setNextBlockBaseFeePerGas,
 } from '../../actions/index.js'
-import { parseEther, parseGwei } from '../index.js'
 import * as publicActions from '../../actions/public/index.js'
-
+import { parseEther, parseGwei } from '../index.js'
 import { defaultTip, prepareRequest } from './prepareRequest.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

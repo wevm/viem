@@ -1,13 +1,13 @@
 import type { PublicClient, Transport } from '../../clients/index.js'
 import { textResolverAbi, universalResolverAbi } from '../../constants/abis.js'
 import type { Address, Chain, Prettify } from '../../types/index.js'
+import { namehash, packetToBytes } from '../../utils/ens/index.js'
 import {
   decodeFunctionResult,
   encodeFunctionData,
   getChainContractAddress,
   toHex,
 } from '../../utils/index.js'
-import { namehash, packetToBytes } from '../../utils/ens/index.js'
 import { readContract } from '../public/index.js'
 import type { ReadContractParameters } from '../public/index.js'
 

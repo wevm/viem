@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { generateMnemonic } from './generateMnemonic.js'
 import { czech } from './wordlists/czech.js'
 import { english } from './wordlists/english.js'

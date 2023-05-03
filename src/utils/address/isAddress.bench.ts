@@ -1,6 +1,6 @@
-import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
 import { isAddress as isAddressV6 } from 'ethers@6'
+import { bench, describe } from 'vitest'
 
 import { isAddress } from './isAddress.js'
 

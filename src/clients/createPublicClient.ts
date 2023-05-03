@@ -1,10 +1,10 @@
 import type { PublicRequests } from '../types/eip1193.js'
-import type { Transport } from './transports/createTransport.js'
+import type { Chain, Prettify } from '../types/index.js'
 import type { Client, ClientConfig } from './createClient.js'
 import { createClient } from './createClient.js'
 import { publicActions } from './decorators/index.js'
 import type { PublicActions } from './decorators/index.js'
-import type { Chain, Prettify } from '../types/index.js'
+import type { Transport } from './transports/createTransport.js'
 
 export type MulticallBatchOptions = {
   /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */

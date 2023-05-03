@@ -1,6 +1,6 @@
 import type {
-  Chain,
   Block,
+  Chain,
   Formatter,
   Formatters,
   RpcBlock,

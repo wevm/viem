@@ -1,4 +1,5 @@
-import type { WebSocket, MessageEvent } from 'isomorphic-ws'
+import type { MessageEvent, WebSocket } from 'isomorphic-ws'
+
 import {
   HttpRequestError,
   RpcRequestError,

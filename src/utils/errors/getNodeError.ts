@@ -1,5 +1,5 @@
 import type { SendTransactionParameters } from '../../actions/index.js'
-import { RpcRequestError, type BaseError } from '../../errors/index.js'
+import { type BaseError, RpcRequestError } from '../../errors/index.js'
 import {
   ExecutionRevertedError,
   FeeCapTooHighError,

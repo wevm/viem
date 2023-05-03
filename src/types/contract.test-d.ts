@@ -3,22 +3,22 @@ import type { seaportAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
 import type {
-  ContractFunctionConfig,
-  ContractFunctionResult,
-  GetValue,
-  GetConstructorArgs,
-  GetErrorArgs,
-  InferErrorName,
-  InferEventName,
-  GetFunctionArgs,
-  InferFunctionName,
-  InferItemName,
-  GetEventArgs,
-  GetEventArgsFromTopics,
-  LogTopicType,
-  AbiEventTopicToPrimitiveType,
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
+  AbiEventTopicToPrimitiveType,
+  ContractFunctionConfig,
+  ContractFunctionResult,
+  GetConstructorArgs,
+  GetErrorArgs,
+  GetEventArgs,
+  GetEventArgsFromTopics,
+  GetFunctionArgs,
+  GetValue,
+  InferErrorName,
+  InferEventName,
+  InferFunctionName,
+  InferItemName,
+  LogTopicType,
 } from './contract.js'
 import type { Hex } from './misc.js'
 

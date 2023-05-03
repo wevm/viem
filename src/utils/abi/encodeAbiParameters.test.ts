@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { address } from '../../_test/index.js'
-import { seaportContractConfig } from '../../_test/abis.js'
 
+import { seaportContractConfig } from '../../_test/abis.js'
+import { address } from '../../_test/index.js'
 import {
   encodeAbiParameters,
   getArrayComponents,

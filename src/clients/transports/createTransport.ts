@@ -1,5 +1,5 @@
-import type { Chain } from '../../types/index.js'
 import type { Requests } from '../../types/eip1193.js'
+import type { Chain } from '../../types/index.js'
 import { buildRequest } from '../../utils/index.js'
 import type { ClientConfig } from '../createClient.js'
 

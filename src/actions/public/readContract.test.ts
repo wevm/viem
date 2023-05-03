@@ -4,18 +4,17 @@
  *        - Complex return types (tuple/structs)
  *        - Calls against blocks
  */
-
 import { describe, expect, test } from 'vitest'
+
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 import {
   address,
   initialBlockNumber,
   publicClient,
   wagmiContractConfig,
 } from '../../_test/index.js'
-import { baycContractConfig } from '../../_test/abis.js'
-import { errorsExampleABI } from '../../_test/generated.js'
 import { deployErrorExample } from '../../_test/utils.js'
-
 import { readContract } from './readContract.js'
 
 describe('wagmi', () => {

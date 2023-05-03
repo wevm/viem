@@ -6,12 +6,12 @@ import type {
   Hash,
   RpcTransaction,
 } from '../../types/index.js'
-import { format, numberToHex } from '../../utils/index.js'
 import type {
   FormattedTransaction,
   TransactionFormatter,
 } from '../../utils/formatters/transaction.js'
 import { formatTransaction } from '../../utils/formatters/transaction.js'
+import { format, numberToHex } from '../../utils/index.js'
 
 export type GetTransactionParameters =
   | {

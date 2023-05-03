@@ -1,10 +1,11 @@
 import { expect, test } from 'vitest'
+
+import { address } from '../../_test/index.js'
 import {
   InvalidInputRpcError,
   RpcRequestError,
   TransactionRejectedRpcError,
 } from '../../errors/index.js'
-import { address } from '../../_test/index.js'
 import { parseEther, parseGwei } from '../unit/index.js'
 import { containsNodeError, getNodeError } from './getNodeError.js'
 

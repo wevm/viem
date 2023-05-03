@@ -1,6 +1,5 @@
 import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
-import { getAddress } from '../../utils/index.js'
-import { wait } from '../../utils/wait.js'
+
 import {
   accounts,
   address,
@@ -9,11 +8,13 @@ import {
   usdcContractConfig,
   walletClient,
 } from '../../_test/index.js'
+import { getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   impersonateAccount,
   mine,
-  stopImpersonatingAccount,
   setBalance,
+  stopImpersonatingAccount,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'

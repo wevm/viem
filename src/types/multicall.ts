@@ -1,4 +1,5 @@
 import type { Abi } from 'abitype'
+
 import type {
   ContractFunctionConfig,
   ContractFunctionResult,

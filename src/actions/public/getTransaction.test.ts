@@ -7,13 +7,13 @@ import {
   testClient,
   walletClient,
 } from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import type { Address, Transaction } from '../../types/index.js'
-import { createPublicClient, http } from '../../clients/index.js'
 import { celo } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import type { Address, Transaction } from '../../types/index.js'
+import { parseEther } from '../../utils/index.js'
 import { getBlock, sendTransaction } from '../index.js'
-import { getTransaction } from './getTransaction.js'
 import { mine, setBalance } from '../test/index.js'
+import { getTransaction } from './getTransaction.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

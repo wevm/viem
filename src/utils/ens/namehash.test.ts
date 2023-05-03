@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { namehash } from './namehash.js'
 import { normalize } from './normalize.js'

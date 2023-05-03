@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { hashMessage } from './hashMessage.js'
 
 test('to hex', () => {

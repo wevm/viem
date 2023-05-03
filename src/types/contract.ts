@@ -1,5 +1,6 @@
 import type {
   Abi,
+  AbiConstructor,
   AbiError,
   AbiEvent,
   AbiFunction,
@@ -8,15 +9,15 @@ import type {
   AbiParametersToPrimitiveTypes,
   AbiStateMutability,
   Address,
-  ExtractAbiFunction,
-  ExtractAbiEvent,
-  ExtractAbiEventNames,
   ExtractAbiError,
   ExtractAbiErrorNames,
+  ExtractAbiEvent,
+  ExtractAbiEventNames,
+  ExtractAbiFunction,
   ExtractAbiFunctionNames,
   Narrow,
-  AbiConstructor,
 } from 'abitype'
+
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
 import type { Filter, MaybeRequired, NoUndefined } from './utils.js'

@@ -1,17 +1,18 @@
 import { describe, expect, test } from 'vitest'
-import { offchainLookup, offchainLookupAbiItem } from './ccip.js'
-import { encodeErrorResult, encodeFunctionData, trim } from './index.js'
+
+import { createCcipServer } from '../_test/ccip.js'
+import { accounts } from '../_test/constants.js'
+import { offchainLookupExampleABI } from '../_test/generated.js'
 import {
   createHttpServer,
   deployOffchainLookupExample,
   publicClient,
 } from '../_test/utils.js'
-import { ccipFetch } from './ccip.js'
-import { accounts } from '../_test/constants.js'
 import { getUrl } from '../errors/utils.js'
-import { offchainLookupExampleABI } from '../_test/generated.js'
 import type { Hex } from '../types/index.js'
-import { createCcipServer } from '../_test/ccip.js'
+import { offchainLookup, offchainLookupAbiItem } from './ccip.js'
+import { ccipFetch } from './ccip.js'
+import { encodeErrorResult, encodeFunctionData, trim } from './index.js'
 
 describe('offchainLookup', () => {
   test('default', async () => {

@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest'
+
 import { accounts } from '../../_test/index.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
 import { toBytes } from '../encoding/index.js'
 import { hashMessage } from './hashMessage.js'
-
 import { recoverPublicKey } from './recoverPublicKey.js'
 
 test('default', async () => {

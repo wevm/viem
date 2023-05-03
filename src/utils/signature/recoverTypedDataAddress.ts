@@ -1,4 +1,5 @@
 import type { TypedData } from 'abitype'
+
 import type {
   Address,
   ByteArray,

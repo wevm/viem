@@ -1,6 +1,6 @@
 import type { Abi, AbiEvent, Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients/index.js'
 
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   BlockNumber,
@@ -12,9 +12,9 @@ import type {
   MaybeExtractEventArgsFromAbi,
   Prettify,
 } from '../../types/index.js'
+import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 import { encodeEventTopics, numberToHex } from '../../utils/index.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
-import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

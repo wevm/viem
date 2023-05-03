@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { getAddress, parseEther, parseGwei } from '../utils/index.js'
+
 import { accounts, typedData } from '../_test/index.js'
+import { getAddress, parseEther, parseGwei } from '../utils/index.js'
 import { mnemonicToAccount } from './mnemonicToAccount.js'
 
 const mnemonic = 'test test test test test test test test test test test junk'

@@ -1,7 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
-import { createBatchScheduler } from './createBatchScheduler.js'
+
 import { uid } from '../uid.js'
 import { wait } from '../wait.js'
+import { createBatchScheduler } from './createBatchScheduler.js'
 
 test('default', async () => {
   const fn = vi.fn()

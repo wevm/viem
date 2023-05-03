@@ -7,8 +7,8 @@ import {
   hexToNumber,
   hexToString,
 } from './fromHex.js'
-import { boolToHex, bytesToHex, numberToHex, stringToHex } from './toHex.js'
 import { hexToBytes } from './toBytes.js'
+import { boolToHex, bytesToHex, numberToHex, stringToHex } from './toHex.js'
 
 describe('converts hex to number', () => {
   test('default', () => {

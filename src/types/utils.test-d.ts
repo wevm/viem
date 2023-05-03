@@ -1,4 +1,5 @@
-import { test, expectTypeOf } from 'vitest'
+import { expectTypeOf, test } from 'vitest'
+
 import type {
   Filter,
   IsNarrowable,

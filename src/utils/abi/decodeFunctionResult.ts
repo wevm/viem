@@ -1,13 +1,14 @@
 import type { Abi, Narrow } from 'abitype'
+
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
 } from '../../errors/index.js'
 import type {
-  GetFunctionArgs,
-  InferFunctionName,
   ContractFunctionResult,
+  GetFunctionArgs,
   Hex,
+  InferFunctionName,
 } from '../../types/index.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { getAbiItem } from './getAbiItem.js'

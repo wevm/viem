@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { localhost } from '../../chains.js'
+
 import { createHttpServer } from '../../_test/index.js'
+import { getBlockNumber } from '../../actions/index.js'
+import { localhost } from '../../chains.js'
+import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
-
-import { getBlockNumber } from '../../actions/index.js'
-import { wait } from '../../utils/wait.js'
 import type { Transport } from './createTransport.js'
 import type { FallbackTransport, OnResponseFn } from './fallback.js'
 import { fallback, rankTransports } from './fallback.js'

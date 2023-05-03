@@ -1,4 +1,5 @@
 import type { Narrow } from 'abitype'
+
 import type { PublicClient, Transport } from '../../clients/index.js'
 import { multicall3Abi } from '../../constants/index.js'
 import type { BaseError } from '../../errors/index.js'

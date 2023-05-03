@@ -1,10 +1,11 @@
-import { bench, describe } from 'vitest'
 import { utils as ethersV5Utils } from 'ethers'
 import { Transaction } from 'ethers@6'
-import { parseTransaction } from './parseTransaction.js'
-import { parseEther } from '../unit/index.js'
+import { bench, describe } from 'vitest'
+
 import { accounts } from '../../_test/index.js'
 import type { TransactionSerializableBase } from '../../types/index.js'
+import { parseEther } from '../unit/index.js'
+import { parseTransaction } from './parseTransaction.js'
 import { serializeTransaction } from './serializeTransaction.js'
 
 const base = {
