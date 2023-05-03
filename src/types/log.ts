@@ -58,10 +58,10 @@ type GetTopics<
     ? TAbiEvent['name']
     : undefined,
   _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
-  ? TEventName extends string
-    ? ExtractAbiEvent<TAbi, TEventName>
-    : undefined
-  : undefined,
+    ? TEventName extends string
+      ? ExtractAbiEvent<TAbi, TEventName>
+      : undefined
+    : undefined,
   _Args = _AbiEvent extends AbiEvent
     ? AbiEventParametersToPrimitiveTypes<_AbiEvent['inputs']>
     : never,
