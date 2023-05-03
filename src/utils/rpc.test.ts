@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { localHttpUrl } from '../_test/constants.js'
 import {
   createHttpServer,
-  initialBlockNumber,
+  forkBlockNumber,
   localWsUrl,
 } from '../_test/index.js'
 import { numberToHex } from './encoding/index.js'
@@ -94,14 +94,14 @@ describe('http', () => {
         await rpc.http(localHttpUrl, {
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
           },
         }),
       )
     }
     expect(response.map((r: any) => r.result.number)).toEqual(
       Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(initialBlockNumber - BigInt(i)),
+        numberToHex(forkBlockNumber - BigInt(i)),
       ),
     )
   })
@@ -113,14 +113,14 @@ describe('http', () => {
         return await rpc.http(localHttpUrl, {
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
           },
         })
       }),
     )
     expect(response.map((r) => r.result.number)).toEqual(
       Array.from({ length: 50 }).map((_, i) =>
-        numberToHex(initialBlockNumber - BigInt(i)),
+        numberToHex(forkBlockNumber - BigInt(i)),
       ),
     )
     await wait(500)
@@ -161,7 +161,7 @@ describe('http', () => {
       rpc.http(server.url, {
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
+          params: [numberToHex(forkBlockNumber), false],
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -186,7 +186,7 @@ describe('http', () => {
       rpc.http(server.url, {
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
+          params: [numberToHex(forkBlockNumber), false],
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -209,7 +209,7 @@ describe('http', () => {
       rpc.http(localHttpUrl, {
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
+          params: [numberToHex(forkBlockNumber), false],
         },
         timeout: 1,
       }),
@@ -235,7 +235,7 @@ describe('http', () => {
       rpc.http('http://127.0.0.1', {
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
+          params: [numberToHex(forkBlockNumber), false],
         },
         timeout: 10000,
       }),
@@ -299,7 +299,7 @@ describe('webSocket', () => {
       rpc.webSocket(socket, {
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
+          params: [numberToHex(forkBlockNumber), false],
         },
         onData: resolve,
         onError: reject,
@@ -700,7 +700,7 @@ describe('webSocketAsync', () => {
     const { id, ...block } = await rpc.webSocketAsync(socket, {
       body: {
         method: 'eth_getBlockByNumber',
-        params: [numberToHex(initialBlockNumber), false],
+        params: [numberToHex(forkBlockNumber), false],
       },
     })
     expect(id).toBeDefined()
@@ -877,14 +877,14 @@ describe('webSocketAsync', () => {
         await rpc.webSocketAsync(socket, {
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
           },
         }),
       )
     }
     expect(response.map((r: any) => r.result.number)).toEqual(
       Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(initialBlockNumber - BigInt(i)),
+        numberToHex(forkBlockNumber - BigInt(i)),
       ),
     )
     expect(socket.requests.size).toBe(0)
@@ -898,14 +898,14 @@ describe('webSocketAsync', () => {
         return await rpc.webSocketAsync(socket, {
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(initialBlockNumber - BigInt(i)), false],
+            params: [numberToHex(forkBlockNumber - BigInt(i)), false],
           },
         })
       }),
     )
     expect(response.map((r) => r.result.number)).toEqual(
       Array.from({ length: 100 }).map((_, i) =>
-        numberToHex(initialBlockNumber - BigInt(i)),
+        numberToHex(forkBlockNumber - BigInt(i)),
       ),
     )
     expect(socket.requests.size).toBe(0)
@@ -941,7 +941,7 @@ describe('webSocketAsync', () => {
       rpc.webSocketAsync(socket, {
         body: {
           method: 'eth_getBlockByNumber',
-          params: [numberToHex(initialBlockNumber), false],
+          params: [numberToHex(forkBlockNumber), false],
         },
         timeout: 10,
       }),

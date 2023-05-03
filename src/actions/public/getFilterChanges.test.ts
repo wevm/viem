@@ -5,7 +5,7 @@ import {
   accounts,
   address,
   deployErc20InvalidTransferEvent,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   usdcContractConfig,
@@ -280,8 +280,8 @@ describe('contract events', () => {
     const filter = await createContractEventFilter(publicClient, {
       abi: usdcContractConfig.abi,
       eventName: 'Transfer',
-      fromBlock: initialBlockNumber - 5n,
-      toBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
     })
 
     const logs = await getFilterChanges(publicClient, { filter })
@@ -601,8 +601,8 @@ describe('events', () => {
   test('args: fromBlock/toBlock', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: initialBlockNumber - 5n,
-      toBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
     })
 
     let logs = await getFilterChanges(publicClient, { filter })

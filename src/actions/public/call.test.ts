@@ -6,7 +6,7 @@ import { offchainLookupExampleABI } from '../../_test/generated.js'
 import {
   accounts,
   deployOffchainLookupExample,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
 } from '../../_test/index.js'
 import { celo, mainnet } from '../../chains.js'
@@ -378,14 +378,14 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
       }),
     )
     p.push(
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: initialBlockNumber + 1n,
+        blockNumber: forkBlockNumber + 1n,
       }),
     )
     p.push(
@@ -399,7 +399,7 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: baycContractConfig.address,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
       }),
     )
     await wait(1)

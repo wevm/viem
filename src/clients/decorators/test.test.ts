@@ -3,7 +3,8 @@ import { describe, expect, test } from 'vitest'
 import {
   accounts,
   address,
-  initialBlockNumber,
+  forkBlockNumber,
+  forkUrl,
   publicClient,
   testClient,
   walletClient,
@@ -97,7 +98,7 @@ describe('smoke test', () => {
 
   test('reset', async () => {
     expect(
-      await testClient.reset({ blockNumber: initialBlockNumber }),
+      await testClient.reset({ blockNumber: forkBlockNumber }),
     ).toBeUndefined()
   })
 
@@ -200,7 +201,7 @@ describe('smoke test', () => {
   })
 
   test('setRpcUrl', async () => {
-    await testClient.setRpcUrl(process.env.VITE_ANVIL_FORK_URL!)
+    await testClient.setRpcUrl(forkUrl)
   })
 
   test('setStorageAt', async () => {

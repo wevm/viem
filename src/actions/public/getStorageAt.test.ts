@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import {
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   wagmiContractConfig,
 } from '../../_test/index.js'
@@ -27,7 +27,7 @@ test('args: blockNumber', async () => {
     await getStorageAt(publicClient, {
       address: wagmiContractConfig.address,
       slot: '0x0',
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
     }),
   ).toBe('0x7761676d6900000000000000000000000000000000000000000000000000000a')
 })
