@@ -209,7 +209,7 @@ export type PublicRequests = {
     method: 'eth_call'
     params: [
       request: Partial<TransactionRequest>,
-      block: BlockNumber | BlockTag | BlockIdentifier,
+      block?: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Hex>
   request(args: {
@@ -235,7 +235,7 @@ export type PublicRequests = {
      * // => '0x5208'
      * */
     method: 'eth_estimateGas'
-    params: [parameters: TransactionRequest, block: BlockNumber | BlockTag]
+    params: [parameters: TransactionRequest, block?: BlockNumber | BlockTag]
   }): Promise<Quantity>
   request(args: {
     /**

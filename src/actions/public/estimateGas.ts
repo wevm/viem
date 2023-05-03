@@ -103,7 +103,7 @@ export async function estimateGas<
     const {
       accessList,
       blockNumber,
-      blockTag = 'latest',
+      blockTag,
       data,
       gas,
       gasPrice,
@@ -116,6 +116,7 @@ export async function estimateGas<
     } = account.type === 'local' ? await prepareRequest(client, args) : args
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const block = blockNumberHex || blockTag
 
     assertRequest(args)
 
@@ -142,7 +143,7 @@ export async function estimateGas<
 
     const balance = await client.request({
       method: 'eth_estimateGas',
-      params: [request, blockNumberHex || blockTag],
+      params: block ? [request, block] : [request],
     })
     return BigInt(balance)
   } catch (err) {
