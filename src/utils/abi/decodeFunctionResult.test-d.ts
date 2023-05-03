@@ -2,7 +2,7 @@ import { decodeFunctionResult } from './decodeFunctionResult.js'
 import type { Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-test('default', async () => {
+test('default', () => {
   const data = decodeFunctionResult({
     abi: [
       {

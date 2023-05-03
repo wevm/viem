@@ -12,6 +12,7 @@ import type {
   GetEventArgsFromTopics,
   Hex,
   InferEventName,
+  Prettify,
 } from '../../types/index.js'
 import { getEventSelector } from '../hash/index.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
@@ -40,13 +41,17 @@ export type DecodeEventLogReturnType<
       : ExtractAbiEventNames<TAbi>
     : string,
 > = TEventName extends _EventNames[number]
-  ? {
-      eventName: TEventName
-    } & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+  ? Prettify<
+      {
+        eventName: TEventName
+      } & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+    >
   : {
-      [TName in _EventNames]: {
-        eventName: TName
-      } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData>
+      [TName in _EventNames]: Prettify<
+        {
+          eventName: TName
+        } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData>
+      >
     }[_EventNames]
 
 const docsPath = '/docs/contract/decodeEventLog'
