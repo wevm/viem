@@ -1,7 +1,6 @@
 import type { Abi, ResolvedConfig } from 'abitype'
 import { parseAbi } from 'abitype'
 import {
-  zeroAddress,
   wagmiMintExampleAbi,
   wagmiMintExampleHumanReadableAbi,
   writingEditionsFactoryAbi,
@@ -31,7 +30,7 @@ test('ReadContractParameters', () => {
 test('args', () => {
   test('zero', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'name',
     })
@@ -40,7 +39,7 @@ test('args', () => {
 
   test('one', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'tokenURI',
       args: [123n],
@@ -50,10 +49,10 @@ test('args', () => {
 
   test('two or more', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: writingEditionsFactoryAbi,
       functionName: 'predictDeterministicAddress',
-      args: [zeroAddress, '0xfoo'],
+      args: ['0x', '0xfoo'],
     })
     assertType<ResolvedConfig['AddressType']>(result)
   })
@@ -62,7 +61,7 @@ test('args', () => {
 test('return types', () => {
   test('string', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'name',
     })
@@ -71,7 +70,7 @@ test('return types', () => {
 
   test('Address', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'ownerOf',
       args: [123n],
@@ -81,10 +80,10 @@ test('return types', () => {
 
   test('number', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: wagmiMintExampleAbi,
       functionName: 'balanceOf',
-      args: [zeroAddress],
+      args: ['0x'],
     })
     assertType<ResolvedConfig['BigIntType']>(result)
   })
@@ -93,7 +92,7 @@ test('return types', () => {
 test('behavior', () => {
   test('write function not allowed', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: wagmiMintExampleAbi,
       // @ts-expect-error Trying to use non-read function
       functionName: 'approve',
@@ -119,15 +118,15 @@ test('behavior', () => {
       },
     ]
     const result1 = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: abi,
       functionName: 'foo',
     })
     const result2 = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: abi,
       functionName: 'bar',
-      args: [zeroAddress],
+      args: ['0x'],
     })
     type Result1 = typeof result1
     type Result2 = typeof result2
@@ -153,15 +152,15 @@ test('behavior', () => {
       },
     ]
     const result1 = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: abi,
       functionName: 'foo',
     })
     const result2 = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: abi,
       functionName: 'bar',
-      args: [zeroAddress],
+      args: ['0x'],
     })
     type Result1 = typeof result1
     type Result2 = typeof result2
@@ -171,7 +170,7 @@ test('behavior', () => {
 
   test('defined inline', async () => {
     const result1 = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: [
         {
           name: 'foo',
@@ -191,7 +190,7 @@ test('behavior', () => {
       functionName: 'foo',
     })
     const result2 = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: [
         {
           name: 'foo',
@@ -209,7 +208,7 @@ test('behavior', () => {
         },
       ],
       functionName: 'bar',
-      args: [zeroAddress],
+      args: ['0x'],
     })
     type Result1 = typeof result1
     type Result2 = typeof result2
@@ -219,10 +218,10 @@ test('behavior', () => {
 
   test('human readable', async () => {
     const result = await readContract(publicClient, {
-      address: zeroAddress,
+      address: '0x',
       abi: parseAbi(wagmiMintExampleHumanReadableAbi),
       functionName: 'balanceOf',
-      args: [zeroAddress],
+      args: ['0x'],
     })
     assertType<bigint>(result)
   })
