@@ -26,6 +26,11 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Setup .npmrc file
+        uses: actions/setup-node@v3
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Set version
         run: |
           npm --no-git-tag-version version 0.0.0
