@@ -30,7 +30,13 @@ import { RpcError } from '../types/eip1193.js'
 import type { Hex } from '../types/index.js'
 import { rpc } from '../utils/index.js'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
-import { accounts, address, localHttpUrl, localWsUrl } from './constants.js'
+import {
+  accounts,
+  address,
+  forkUrl,
+  localHttpUrl,
+  localWsUrl,
+} from './constants.js'
 import {
   ensAvatarTokenUriABI,
   erc20InvalidTransferEventABI,
@@ -237,7 +243,7 @@ export async function deployOffchainLookupExample({
 export async function setBlockNumber(blockNumber: bigint) {
   await reset(testClient, {
     blockNumber,
-    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
+    jsonRpcUrl: forkUrl,
   })
 }
 

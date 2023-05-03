@@ -1,10 +1,6 @@
 import { expect, test } from 'vitest'
 
-import {
-  initialBlockNumber,
-  publicClient,
-  testClient,
-} from '../../_test/index.js'
+import { forkBlockNumber, publicClient, testClient } from '../../_test/index.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
 import { mine } from './mine.js'
 import { reset } from './reset.js'
@@ -15,10 +11,10 @@ test('resets the fork', async () => {
   await mine(testClient, { blocks: 10 })
   await expect(
     reset(testClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
     }),
   ).resolves.toBeUndefined()
-  expect(await getBlockNumber(publicClient)).toBe(initialBlockNumber)
+  expect(await getBlockNumber(publicClient)).toBe(forkBlockNumber)
   await setIntervalMining(testClient, { interval: 1 })
   await mine(testClient, { blocks: 1 })
 })

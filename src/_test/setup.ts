@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { setAutomine, setIntervalMining } from '../test.js'
 import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
-import { poolId } from './constants.js'
+import { forkBlockNumber, poolId } from './constants.js'
 import { setBlockNumber, testClient } from './utils.js'
 
 beforeAll(() => {
@@ -29,7 +29,7 @@ afterAll(async () => {
 
   // Reset the anvil instance to the same state it was in before the tests started.
   await Promise.all([
-    setBlockNumber(BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER))),
+    setBlockNumber(forkBlockNumber),
     setAutomine(testClient, false),
     setIntervalMining(testClient, { interval: 1 }),
   ])

@@ -5,7 +5,7 @@ import {
   accounts,
   address,
   deployErc20InvalidTransferEvent,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   usdcContractConfig,
@@ -174,8 +174,8 @@ describe('events', () => {
   test('args: fromBlock/toBlock', async () => {
     const logs = await getLogs(publicClient, {
       event: event.default,
-      fromBlock: initialBlockNumber - 5n,
-      toBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
     })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
@@ -189,7 +189,7 @@ describe('events', () => {
 
   test('args: blockHash', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber - 1n,
+      blockNumber: forkBlockNumber - 1n,
     })
     const logs = await getLogs(publicClient, {
       event: event.default,

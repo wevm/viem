@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import {
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   wagmiContractConfig,
 } from '../../_test/index.js'
@@ -21,7 +21,7 @@ test('default', async () => {
   expect(
     await getBytecode(publicClient, {
       address: wagmiContractConfig.address,
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
     }),
   ).toBeDefined()
 })

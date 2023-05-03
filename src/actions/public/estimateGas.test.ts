@@ -2,7 +2,8 @@ import { describe, expect, test, vi } from 'vitest'
 
 import {
   accounts,
-  initialBlockNumber,
+  forkBlockNumber,
+  forkUrl,
   publicClient,
   testClient,
 } from '../../_test/index.js'
@@ -26,12 +27,12 @@ test('estimates gas', async () => {
 
 test('args: blockNumber', async () => {
   await reset(testClient, {
-    blockNumber: BigInt(parseInt(process.env.VITE_ANVIL_BLOCK_NUMBER!)),
-    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
+    blockNumber: forkBlockNumber,
+    jsonRpcUrl: forkUrl,
   })
   expect(
     await estimateGas(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),

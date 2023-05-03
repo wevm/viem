@@ -10,7 +10,7 @@ import { baycContractConfig } from '../../_test/abis.js'
 import { errorsExampleABI } from '../../_test/generated.js'
 import {
   address,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   wagmiContractConfig,
 } from '../../_test/index.js'
@@ -81,7 +81,7 @@ describe('wagmi', () => {
     expect(
       await readContract(publicClient, {
         ...wagmiContractConfig,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         functionName: 'totalSupply',
       }),
     ).toEqual(558n)

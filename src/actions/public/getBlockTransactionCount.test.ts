@@ -2,7 +2,7 @@ import { beforeAll, expect, test } from 'vitest'
 
 import {
   accounts,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   walletClient,
@@ -25,14 +25,14 @@ test('default', async () => {
 test('args: blockNumber', async () => {
   expect(
     await getBlockTransactionCount(publicClient, {
-      blockNumber: initialBlockNumber - 1n,
+      blockNumber: forkBlockNumber - 1n,
     }),
   ).toBe(120)
 })
 
 test('args: blockHash', async () => {
   const block = await getBlock(publicClient, {
-    blockNumber: initialBlockNumber - 1n,
+    blockNumber: forkBlockNumber - 1n,
   })
   expect(
     await getBlockTransactionCount(publicClient, {

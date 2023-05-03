@@ -2,7 +2,7 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import {
   accounts,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   walletClient,
@@ -243,7 +243,7 @@ describe('args: blockHash', () => {
 
   test('blockHash: throws if transaction not found', async () => {
     const { hash: blockHash } = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber - 69n,
+      blockNumber: forkBlockNumber - 69n,
     })
     if (!blockHash) throw new Error('no block hash found')
 

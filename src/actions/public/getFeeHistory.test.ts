@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient } from '../../_test/index.js'
+import { forkBlockNumber, publicClient } from '../../_test/index.js'
 import { getFeeHistory } from './getFeeHistory.js'
 
 test('default', async () => {
   expect(
     await getFeeHistory(publicClient, {
       blockCount: 4,
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
     }),
   ).toMatchInlineSnapshot(`
@@ -66,7 +66,7 @@ test('args: blockCount', async () => {
   expect(
     await getFeeHistory(publicClient, {
       blockCount: 2,
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       rewardPercentiles: [0, 50, 100],
     }),
   ).toMatchInlineSnapshot(`
@@ -101,7 +101,7 @@ test('args: rewardPercentiles', async () => {
   expect(
     await getFeeHistory(publicClient, {
       blockCount: 2,
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       rewardPercentiles: [0, 25, 50, 75, 100],
     }),
   ).toMatchInlineSnapshot(`

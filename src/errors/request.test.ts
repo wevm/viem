@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { initialBlockNumber } from '../_test/index.js'
+import { forkBlockNumber } from '../_test/constants.js'
 import { numberToHex } from '../utils/index.js'
 import {
   HttpRequestError,
@@ -31,7 +31,7 @@ test('HttpRequestError', () => {
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(initialBlockNumber), false],
+      params: [numberToHex(forkBlockNumber), false],
     },
     status: 500,
     details: 'Some error',
@@ -53,7 +53,7 @@ test('WebSocketRequestError', () => {
     url: 'ws://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(initialBlockNumber), false],
+      params: [numberToHex(forkBlockNumber), false],
     },
     details: 'Some error',
   })
@@ -73,7 +73,7 @@ test('TimeoutError', () => {
     url: 'https://eth-mainnet.g.alchemy.com/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     body: {
       method: 'eth_getBlockByNumber',
-      params: [numberToHex(initialBlockNumber), false],
+      params: [numberToHex(forkBlockNumber), false],
     },
   })
   expect(err).toMatchInlineSnapshot(`
