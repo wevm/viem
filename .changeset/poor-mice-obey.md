@@ -2,5 +2,4 @@
 "viem": patch
 ---
 
-Updates abitype dependency to 0.8.2
-Exports custom errors from abitype to viem
+Updated `abitype` to `0.8.2` and exported abitype errors.
