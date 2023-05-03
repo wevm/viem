@@ -38,5 +38,8 @@
       "trailingComma": "all",
       "semicolons": "asNeeded"
     }
+  },
+  "organizeImports": {
+    "enabled": true
   }
 }

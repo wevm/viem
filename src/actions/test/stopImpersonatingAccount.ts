@@ -38,7 +38,7 @@ export async function stopImpersonatingAccount<
   client: TestClient<TestClientMode, Transport, TChain>,
   { address }: StopImpersonatingAccountParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_stopImpersonatingAccount`,
     params: [address],
   })

@@ -1,4 +1,5 @@
-import type { WebSocket, MessageEvent } from 'unws'
+import type { MessageEvent, WebSocket } from 'unws'
+
 import {
   HttpRequestError,
   RpcRequestError,
@@ -38,7 +39,7 @@ type Subscription<TResult, TError> = {
   )
 }
 
-type RpcRequest = { method: string; params?: any[] }
+type RpcRequest = { method: string; params?: any }
 
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`

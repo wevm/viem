@@ -4,8 +4,10 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-
 import { describe, expect, test } from 'vitest'
+
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 import {
   accounts,
   deployBAYC,
@@ -14,14 +16,11 @@ import {
   wagmiContractConfig,
   walletClient,
 } from '../../_test/index.js'
-import { baycContractConfig } from '../../_test/abis.js'
+import { deployErrorExample } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { mine } from '../test/index.js'
 import { sendTransaction } from '../wallet/index.js'
-
-import { deployErrorExample } from '../../_test/utils.js'
-import { errorsExampleABI } from '../../_test/generated.js'
 import { estimateContractGas } from './estimateContractGas.js'
 
 describe('wagmi', () => {

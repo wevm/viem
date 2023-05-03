@@ -1,5 +1,5 @@
-import type { Chain } from '../types/index.js'
 import type { TestRequests } from '../types/eip1193.js'
+import type { Chain } from '../types/index.js'
 import type { Client, ClientConfig } from './createClient.js'
 import { createClient } from './createClient.js'
 import { testActions } from './decorators/index.js'

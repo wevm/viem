@@ -1,4 +1,3 @@
-import type { Abi, AbiEvent } from 'abitype'
 import type {
   GetEnsAddressParameters,
   GetEnsAddressReturnType,
@@ -125,6 +124,7 @@ import type {
 } from '../../types/index.js'
 import type { PublicClient } from '../createPublicClient.js'
 import type { Transport } from '../transports/index.js'
+import type { Abi, AbiEvent } from 'abitype'
 
 export type PublicActions<
   TTransport extends Transport = Transport,

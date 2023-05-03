@@ -24,6 +24,12 @@ test('checksums address', () => {
   expect(
     getAddress('0x15d34aaf54267db7d7c367839aaf71a00a2c6a65'),
   ).toMatchInlineSnapshot('"0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65"')
+  expect(
+    getAddress('0x27b1fdb04752bbc536007a920d24acb045561c26', 30),
+  ).toMatchInlineSnapshot('"0x27b1FdB04752BBc536007A920D24ACB045561c26"')
+  expect(
+    getAddress('0x3599689e6292b81b2d85451025146515070129bb', 30),
+  ).toMatchInlineSnapshot('"0x3599689E6292B81B2D85451025146515070129Bb"')
 })
 
 describe('errors', () => {

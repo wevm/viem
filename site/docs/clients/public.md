@@ -148,6 +148,8 @@ const client = createPublicClient({
 
 The maximum size (in bytes) for each multicall (`aggregate3`) calldata chunk.
 
+> Note: Some RPC Providers limit the amount of calldata that can be sent in a single request. It is best to check with your RPC Provider to see if there are any calldata size limits to `eth_call` requests.
+
 ```ts
 const client = createPublicClient({
   batch: {

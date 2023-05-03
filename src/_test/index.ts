@@ -10,7 +10,9 @@ export { ethersProvider, ethersV6Provider } from './bench.js'
 export {
   accounts,
   address,
-  initialBlockNumber,
+  blockTime,
+  forkBlockNumber,
+  forkUrl,
   localHttpUrl,
   localWsUrl,
   typedData,
@@ -23,6 +25,7 @@ export {
   deployBAYC,
   deployEnsAvatarTokenUri,
   deployErc20InvalidTransferEvent,
+  deployOffchainLookupExample,
   publicClient,
   testClient,
   walletClient,

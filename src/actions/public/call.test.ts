@@ -1,18 +1,27 @@
 import { describe, expect, test, vi } from 'vitest'
 
+import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
+import { createCcipServer } from '../../_test/ccip.js'
+import { offchainLookupExampleABI } from '../../_test/generated.js'
 import {
   accounts,
-  initialBlockNumber,
+  deployOffchainLookupExample,
+  forkBlockNumber,
   publicClient,
 } from '../../_test/index.js'
-import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
 import { celo, mainnet } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import { aggregate3Signature } from '../../constants/index.js'
-import { numberToHex, parseEther, parseGwei } from '../../utils/index.js'
-
-import { call } from './call.js'
+import { BaseError, RawContractError } from '../../index.js'
+import {
+  encodeFunctionData,
+  numberToHex,
+  parseEther,
+  parseGwei,
+  trim,
+} from '../../utils/index.js'
 import { wait } from '../../utils/wait.js'
+import { call, getRevertErrorData } from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -32,6 +41,52 @@ test('default', async () => {
   expect(data).toMatchInlineSnapshot(
     '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
   )
+})
+
+describe('ccip', () => {
+  test('default', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+
+    const calldata = encodeFunctionData({
+      abi: offchainLookupExampleABI,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+
+    const { data } = await call(publicClient, {
+      data: calldata,
+      to: contractAddress!,
+    })
+
+    expect(trim(data!)).toEqual(accounts[0].address)
+
+    await server.close()
+  })
+
+  test('error: invalid signature', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+
+    const calldata = encodeFunctionData({
+      abi: offchainLookupExampleABI,
+      functionName: 'getAddress',
+      args: ['fake.viem'],
+    })
+
+    await expect(() =>
+      call(publicClient, {
+        data: calldata,
+        to: contractAddress!,
+      }),
+    ).rejects.toThrowError()
+
+    await server.close()
+  })
 })
 
 test('custom formatter', async () => {
@@ -205,7 +260,7 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      "Execution reverted for an unknown reason.
+      "Execution reverted with reason: Token ID is taken.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -323,14 +378,14 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
       }),
     )
     p.push(
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: initialBlockNumber + 1n,
+        blockNumber: forkBlockNumber + 1n,
       }),
     )
     p.push(
@@ -344,7 +399,7 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: baycContractConfig.address,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
       }),
     )
     await wait(1)
@@ -697,4 +752,25 @@ describe('batch call', () => {
     },
     { timeout: 30_000 },
   )
+})
+
+describe('getRevertErrorData', () => {
+  test('default', () => {
+    expect(getRevertErrorData(new Error('lol'))).toBe(undefined)
+    expect(getRevertErrorData(new BaseError('lol'))).toBe(undefined)
+    expect(
+      getRevertErrorData(
+        new BaseError('error', {
+          cause: new RawContractError({ data: '0xdeadbeef' }),
+        }),
+      ),
+    ).toBe('0xdeadbeef')
+    expect(
+      getRevertErrorData(
+        new BaseError('error', {
+          cause: new RawContractError({ data: '0x556f1830' }),
+        }),
+      ),
+    ).toBe('0x556f1830')
+  })
 })

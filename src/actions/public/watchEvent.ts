@@ -1,4 +1,3 @@
-import type { AbiEvent } from 'abitype'
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
@@ -16,6 +15,7 @@ import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
+import type { AbiEvent } from 'abitype'
 
 export type OnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,

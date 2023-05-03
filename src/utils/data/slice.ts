@@ -1,3 +1,4 @@
+import { SliceOffsetOutOfBoundsError } from '../../errors/data.js'
 import type { ByteArray, Hex } from '../../types/index.js'
 import { isHex } from './isHex.js'
 import { size } from './size.js'
@@ -25,11 +26,7 @@ export function slice<TValue extends ByteArray | Hex>(
 
 function assertStartOffset(value: Hex | ByteArray, start?: number) {
   if (typeof start === 'number' && start > 0 && start > size(value) - 1)
-    throw new Error(
-      `Slice starting at offset "${start}" is out-of-bounds (size: ${size(
-        value,
-      )}).`,
-    )
+    throw new SliceOffsetOutOfBoundsError({ offset: start, size: size(value) })
 }
 
 /**

@@ -1,11 +1,12 @@
 import { expect, test } from 'vitest'
-import { parseAccount } from '../index.js'
+
+import { address } from '../../_test/index.js'
 import {
   BaseError,
   RpcRequestError,
   TransactionRejectedRpcError,
 } from '../../errors/index.js'
-import { address } from '../../_test/index.js'
+import { parseAccount } from '../index.js'
 import { getCallError } from './getCallError.js'
 
 test('default', () => {

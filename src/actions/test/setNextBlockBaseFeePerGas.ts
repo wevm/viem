@@ -39,7 +39,7 @@ export async function setNextBlockBaseFeePerGas<
   client: TestClient<TestClientMode, Transport, TChain>,
   { baseFeePerGas }: SetNextBlockBaseFeePerGasParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setNextBlockBaseFeePerGas`,
     params: [numberToHex(baseFeePerGas)],
   })

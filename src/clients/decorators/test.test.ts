@@ -1,13 +1,15 @@
 import { describe, expect, test } from 'vitest'
-import { parseEther, parseGwei } from '../../utils/index.js'
+
 import {
   accounts,
   address,
-  initialBlockNumber,
+  forkBlockNumber,
+  forkUrl,
   publicClient,
   testClient,
   walletClient,
 } from '../../_test/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
 import { testActions } from './test.js'
 
 const bytecode =
@@ -55,7 +57,7 @@ describe('smoke test', () => {
       to: accounts[7].address,
       value: parseEther('2'),
     })
-    expect(await testClient.dropTransaction({ hash })).toBeDefined()
+    expect(await testClient.dropTransaction({ hash })).toBeUndefined()
   })
 
   // TODO: Anvil sometimes stops interval mining when automining is programatically set.
@@ -87,22 +89,22 @@ describe('smoke test', () => {
   })
 
   test('mine', async () => {
-    expect(await testClient.mine({ blocks: 1 })).toBeDefined()
+    expect(await testClient.mine({ blocks: 1 })).toBeUndefined()
   })
 
   test('removeBlockTimestampInterval', async () => {
-    expect(await testClient.removeBlockTimestampInterval()).toBeDefined()
+    expect(await testClient.removeBlockTimestampInterval()).toBeUndefined()
   })
 
   test('reset', async () => {
     expect(
-      await testClient.reset({ blockNumber: initialBlockNumber }),
-    ).toBeDefined()
+      await testClient.reset({ blockNumber: forkBlockNumber }),
+    ).toBeUndefined()
   })
 
   test('revert', async () => {
     const id = await testClient.snapshot()
-    expect(await testClient.revert({ id })).toBeDefined()
+    expect(await testClient.revert({ id })).toBeUndefined()
   })
 
   test('sendUnsignedTransaction', async () => {
@@ -117,7 +119,7 @@ describe('smoke test', () => {
 
   // TODO: Anvil sometimes stops interval mining when automining is programatically set.
   test.skip('setAutomine', async () => {
-    expect(await testClient.setAutomine(true)).toBeDefined()
+    expect(await testClient.setAutomine(true)).toBeUndefined()
   })
 
   test('setBalance', async () => {
@@ -126,7 +128,7 @@ describe('smoke test', () => {
         address: accounts[8].address,
         value: parseEther('420'),
       }),
-    ).toBeDefined()
+    ).toBeUndefined()
   })
 
   test('setBlockGasLimit', async () => {
@@ -199,7 +201,7 @@ describe('smoke test', () => {
   })
 
   test('setRpcUrl', async () => {
-    await testClient.setRpcUrl(process.env.VITE_ANVIL_FORK_URL!)
+    await testClient.setRpcUrl(forkUrl)
   })
 
   test('setStorageAt', async () => {

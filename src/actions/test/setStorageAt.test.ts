@@ -6,11 +6,14 @@ import { setStorageAt } from './setStorageAt.js'
 const targetAccount = accounts[0]
 
 test('sets storage', async () => {
-  await setStorageAt(testClient, {
-    address: targetAccount.address,
-    index: 0,
-    value: '0x0000000000000000000000000000000000000000000000000000000000003039',
-  })
+  await expect(
+    setStorageAt(testClient, {
+      address: targetAccount.address,
+      index: 0,
+      value:
+        '0x0000000000000000000000000000000000000000000000000000000000003039',
+    }),
+  ).resolves.toBeUndefined()
   expect(
     await publicClient.request({
       method: 'eth_getStorageAt',

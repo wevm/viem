@@ -1,19 +1,20 @@
-import { describe, expect, test } from 'vitest'
-import { optimism } from '../../chains.js'
-import { createWalletClient, http } from '../../clients/index.js'
+import { describe, expect, test, vi } from 'vitest'
+
 import {
-  walletClientWithAccount,
   accounts,
   localHttpUrl,
   publicClient,
   testClient,
   wagmiContractConfig,
   walletClient,
+  walletClientWithAccount,
 } from '../../_test/index.js'
 import { anvilChain } from '../../_test/utils.js'
+import { optimism } from '../../chains.js'
+import { createWalletClient, http } from '../../clients/index.js'
 import { simulateContract } from '../public/index.js'
 import { mine } from '../test/index.js'
-
+import * as sendTransaction from './sendTransaction.js'
 import { writeContract } from './writeContract.js'
 
 test('default', async () => {
@@ -123,6 +124,21 @@ describe('args: chain', () => {
 
       Version: viem@1.0.2"
     `)
+  })
+})
+
+test('args: dataSuffix', async () => {
+  const spy = vi.spyOn(sendTransaction, 'sendTransaction')
+  await writeContract(walletClient, {
+    ...wagmiContractConfig,
+    account: accounts[0].address,
+    functionName: 'mint',
+    dataSuffix: '0x12345678',
+  })
+  expect(spy).toHaveBeenCalledWith(walletClient, {
+    account: accounts[0].address,
+    data: '0x1249c58b12345678',
+    to: wagmiContractConfig.address,
   })
 })
 

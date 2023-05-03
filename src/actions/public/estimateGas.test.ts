@@ -1,16 +1,17 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import * as publicActions from './index.js'
 import {
   accounts,
-  initialBlockNumber,
+  forkBlockNumber,
+  forkUrl,
   publicClient,
   testClient,
 } from '../../_test/index.js'
+import { privateKeyToAccount } from '../../accounts/index.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { reset } from '../test/index.js'
 import { estimateGas } from './estimateGas.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
+import * as publicActions from './index.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
@@ -26,12 +27,12 @@ test('estimates gas', async () => {
 
 test('args: blockNumber', async () => {
   await reset(testClient, {
-    blockNumber: BigInt(parseInt(process.env.VITE_ANVIL_BLOCK_NUMBER!)),
-    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
+    blockNumber: forkBlockNumber,
+    jsonRpcUrl: forkUrl,
   })
   expect(
     await estimateGas(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),

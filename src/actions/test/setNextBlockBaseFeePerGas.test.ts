@@ -11,9 +11,11 @@ test('set next block base fee per gas', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
   })
-  await setNextBlockBaseFeePerGas(testClient, {
-    baseFeePerGas: block1.baseFeePerGas! + parseGwei('10'),
-  })
+  await expect(
+    setNextBlockBaseFeePerGas(testClient, {
+      baseFeePerGas: block1.baseFeePerGas! + parseGwei('10'),
+    }),
+  ).resolves.toBeUndefined()
   await wait(1000)
   const block2 = await getBlock(publicClient, { blockTag: 'latest' })
   expect(block2.baseFeePerGas).toEqual(block1.baseFeePerGas! + parseGwei('10'))

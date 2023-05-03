@@ -34,7 +34,7 @@ export async function revert<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { id }: RevertParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: 'evm_revert',
     params: [id],
   })

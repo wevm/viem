@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
 import {
-  address,
   accounts,
+  address,
   testClient,
   walletClient,
 } from '../../_test/index.js'
@@ -22,7 +22,9 @@ test('stops impersonating account', async () => {
     }),
   ).toBeDefined()
 
-  await stopImpersonatingAccount(testClient, { address: address.vitalik })
+  await expect(
+    stopImpersonatingAccount(testClient, { address: address.vitalik }),
+  ).resolves.toBeUndefined()
 
   await expect(
     sendTransaction(walletClient, {

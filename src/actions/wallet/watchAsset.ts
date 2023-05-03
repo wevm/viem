@@ -1,6 +1,6 @@
 import type { Transport, WalletClient } from '../../clients/index.js'
-import type { Account, Chain } from '../../types/index.js'
 import type { WatchAssetParams } from '../../types/eip1193.js'
+import type { Account, Chain } from '../../types/index.js'
 
 export type WatchAssetParameters = WatchAssetParams
 export type WatchAssetReturnType = boolean
@@ -42,7 +42,7 @@ export async function watchAsset<
 ): Promise<WatchAssetReturnType> {
   const added = await client.request({
     method: 'wallet_watchAsset',
-    params: [params],
+    params,
   })
   return added
 }

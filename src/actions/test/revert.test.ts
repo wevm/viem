@@ -10,8 +10,8 @@ import { parseEther } from '../../utils/index.js'
 import { getBalance } from '../public/getBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { mine } from './mine.js'
-import { snapshot } from './snapshot.js'
 import { revert } from './revert.js'
+import { snapshot } from './snapshot.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -35,7 +35,7 @@ test('reverts', async () => {
     }),
   ).not.toBe(balance)
 
-  await revert(testClient, { id })
+  await expect(revert(testClient, { id })).resolves.toBeUndefined()
   expect(
     await getBalance(publicClient, {
       address: sourceAccount.address,

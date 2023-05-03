@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from 'vitest'
-import { namehash } from '../../ens.js'
 
+import { ensPublicResolverConfig } from '../../_test/abis.js'
 import {
   address,
   deployEnsAvatarTokenUri,
@@ -9,7 +9,7 @@ import {
   testClient,
   walletClient,
 } from '../../_test/index.js'
-import { ensPublicResolverConfig } from '../../_test/abis.js'
+import { namehash } from '../../ens.js'
 import {
   impersonateAccount,
   mine,

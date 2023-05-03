@@ -1,8 +1,9 @@
 import { Wallet } from 'ethers'
 import { expect, test } from 'vitest'
+
 import { accounts, typedData } from '../_test/index.js'
-import { ethersWalletToAccount } from './ethers.js'
 import { parseEther, parseGwei } from '../utils/index.js'
+import { ethersWalletToAccount } from './ethers.js'
 
 const wallet = new Wallet(accounts[0].privateKey)
 

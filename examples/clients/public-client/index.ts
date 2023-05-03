@@ -1,5 +1,5 @@
 import { createPublicClient, http, stringify } from 'viem'
-import { mainnet, polygon, optimism } from 'viem/chains'
+import { mainnet, optimism, polygon } from 'viem/chains'
 
 const publicClients = [
   createPublicClient({

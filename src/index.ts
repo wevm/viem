@@ -159,6 +159,7 @@ export {
   etherUnits,
   gweiUnits,
   weiUnits,
+  zeroAddress,
 } from './constants/index.js'
 
 export {
@@ -398,6 +399,7 @@ export {
   bytesToHex,
   bytesToNumber,
   bytesToString,
+  ccipFetch,
   concat,
   concatBytes,
   concatHex,
@@ -452,6 +454,9 @@ export {
   keccak256,
   numberToBytes,
   numberToHex,
+  offchainLookup,
+  offchainLookupAbiItem,
+  offchainLookupSignature,
   pad,
   padBytes,
   padHex,

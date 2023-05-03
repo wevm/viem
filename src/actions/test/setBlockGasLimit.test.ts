@@ -11,9 +11,11 @@ test('sets block gas limit', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
   })
-  await setBlockGasLimit(testClient, {
-    gasLimit: block1.gasLimit + parseGwei('10'),
-  })
+  await expect(
+    setBlockGasLimit(testClient, {
+      gasLimit: block1.gasLimit + parseGwei('10'),
+    }),
+  ).resolves.toBeUndefined()
   await wait(1000)
   const block2 = await getBlock(publicClient, { blockTag: 'latest' })
   expect(block2.gasLimit).toEqual(block1.gasLimit + parseGwei('10'))

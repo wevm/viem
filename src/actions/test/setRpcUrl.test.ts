@@ -1,9 +1,8 @@
-import { test } from 'vitest'
+import { expect, test } from 'vitest'
 
-import { testClient } from '../../_test/index.js'
-
+import { forkUrl, testClient } from '../../_test/index.js'
 import { setRpcUrl } from './setRpcUrl.js'
 
 test('sets the rpc url', async () => {
-  await setRpcUrl(testClient, process.env.VITE_ANVIL_FORK_URL!)
+  await expect(setRpcUrl(testClient, forkUrl)).resolves.toBeUndefined()
 })

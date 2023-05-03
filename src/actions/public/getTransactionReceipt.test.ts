@@ -10,9 +10,8 @@ import { celo } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import type { Address, TransactionReceipt } from '../../types/index.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
-import { mine } from '../test/index.js'
 import { getBlock, sendTransaction } from '../index.js'
-
+import { mine } from '../test/index.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 

@@ -1,4 +1,5 @@
 import { beforeAll, expect, test } from 'vitest'
+
 import { optimism } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 

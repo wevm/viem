@@ -747,6 +747,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       items: [
         { text: 'Terms', link: '/docs/glossary/terms' },
         { text: 'Types', link: '/docs/glossary/types' },
+        { text: 'Errors', link: '/docs/glossary/errors' },
       ],
     },
   ],

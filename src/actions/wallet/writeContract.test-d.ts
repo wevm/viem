@@ -1,5 +1,5 @@
-import { assertType, expectTypeOf, test } from 'vitest'
 import { seaportAbi } from 'abitype/test'
+import { assertType, expectTypeOf, test } from 'vitest'
 
 import type { WriteContractParameters } from './writeContract.js'
 

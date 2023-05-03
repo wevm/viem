@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
+import { createHttpServer } from '../_test/index.js'
 import {
   BaseError,
   HttpRequestError,
@@ -9,7 +10,6 @@ import {
   TimeoutError,
   UnknownRpcError,
 } from '../errors/index.js'
-import { createHttpServer } from '../_test/index.js'
 import { buildRequest, isDeterministicError } from './buildRequest.js'
 import { rpc } from './rpc.js'
 
@@ -646,6 +646,31 @@ describe('behavior', () => {
       expect(retryCount).toBe(3)
     })
 
+    test('non-deterministic HttpRequestError (403)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((_req, res) => {
+        retryCount++
+        res.writeHead(403, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 403
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Forbidden
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
     test('non-deterministic HttpRequestError (408)', async () => {
       let retryCount = -1
       const server = await createHttpServer((_req, res) => {
@@ -810,6 +835,14 @@ describe('isDeterministicError', () => {
     expect(
       isDeterministicError(
         new HttpRequestError({ body: {}, details: '', status: 429, url: '' }),
+      ),
+    ).toBe(false)
+  })
+
+  test('HttpRequestError (403)', () => {
+    expect(
+      isDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 403, url: '' }),
       ),
     ).toBe(false)
   })

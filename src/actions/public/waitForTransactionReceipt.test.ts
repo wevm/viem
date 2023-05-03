@@ -7,11 +7,11 @@ import {
   walletClient,
 } from '../../_test/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/index.js'
-import { wait } from '../../utils/wait.js'
-import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 import { hexToNumber, parseEther, parseGwei } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import { sendTransaction } from '../index.js'
 import { mine, setIntervalMining } from '../test/index.js'
+import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

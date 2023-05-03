@@ -1,5 +1,5 @@
 import type { SendTransactionParameters } from '../../actions/index.js'
-import { RpcRequestError, type BaseError } from '../../errors/index.js'
+import { type BaseError, RpcRequestError } from '../../errors/index.js'
 import {
   ExecutionRevertedError,
   FeeCapTooHighError,
@@ -67,7 +67,7 @@ export function getNodeError(
   )
     return new ExecutionRevertedError({
       cause: err,
-      message: (err.cause as BaseError).details,
+      message: (err.cause as BaseError).details || err.details,
     })
   return new UnknownNodeError({
     cause: (err.cause as BaseError).cause as BaseError,

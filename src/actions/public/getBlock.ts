@@ -1,7 +1,7 @@
 import type {
   PublicClient,
-  WalletClient,
   Transport,
+  WalletClient,
 } from '../../clients/index.js'
 import { BlockNotFoundError } from '../../errors/index.js'
 import type {

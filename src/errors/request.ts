@@ -5,7 +5,7 @@ import { getUrl } from './utils.js'
 export class HttpRequestError extends BaseError {
   override name = 'HttpRequestError'
 
-  body: { [key: string]: unknown }
+  body?: { [key: string]: unknown }
   headers?: Headers
   status?: number
   url: string
@@ -17,7 +17,7 @@ export class HttpRequestError extends BaseError {
     status,
     url,
   }: {
-    body: { [key: string]: unknown }
+    body?: { [key: string]: unknown }
     details?: string
     headers?: Headers
     status?: number
@@ -28,7 +28,7 @@ export class HttpRequestError extends BaseError {
       metaMessages: [
         status && `Status: ${status}`,
         `URL: ${getUrl(url)}`,
-        `Request body: ${stringify(body)}`,
+        body && `Request body: ${stringify(body)}`,
       ].filter(Boolean) as string[],
     })
     this.body = body

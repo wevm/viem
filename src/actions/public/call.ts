@@ -1,7 +1,7 @@
 import type { PublicClient, Transport } from '../../clients/index.js'
 import { aggregate3Signature, multicall3Abi } from '../../constants/index.js'
-import type { BaseError } from '../../errors/index.js'
 import {
+  BaseError,
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
   RawContractError,
@@ -14,6 +14,7 @@ import type {
   Formatter,
   Hex,
   MergeIntersectionProperties,
+  RpcTransactionRequest,
   TransactionRequest,
 } from '../../types/index.js'
 import type {
@@ -115,6 +116,8 @@ export async function call<TChain extends Chain | undefined>(
     assertRequest(args)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const block = blockNumberHex || blockTag
+
     const formatter = client.chain?.formatters?.transactionRequest
     const request = format(
       {
@@ -154,11 +157,20 @@ export async function call<TChain extends Chain | undefined>(
 
     const response = await client.request({
       method: 'eth_call',
-      params: [request as any, blockNumberHex || blockTag],
+      params: block
+        ? [request as Partial<RpcTransactionRequest>, block]
+        : [request as Partial<RpcTransactionRequest>],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
   } catch (err) {
+    const data = getRevertErrorData(err)
+    const { offchainLookup, offchainLookupSignature } = await import(
+      '../../utils/ccip.js'
+    )
+    if (data?.slice(0, 10) === offchainLookupSignature && to) {
+      return { data: await offchainLookup(client, { data, to }) }
+    }
     throw getCallError(err as BaseError, {
       ...args,
       account,
@@ -271,4 +283,9 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   if (!success) throw new RawContractError({ data: returnData })
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
+}
+
+export function getRevertErrorData(err: unknown) {
+  if (!(err instanceof BaseError)) return undefined
+  return (err.walk() as { data?: Hex })?.data
 }

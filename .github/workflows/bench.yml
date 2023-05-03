@@ -7,34 +7,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  install:
-    name: Install
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup
-        uses: ./.github/actions/setup
-
   bench:
     name: Benchmark
-    needs: install
     runs-on: ubuntu-latest
     strategy:
       matrix:
         transport-mode: ['http', 'webSocket']
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup
-        uses: ./.github/actions/setup
-      - name: Bench
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Run benchmarks
         run: pnpm bench:ci
         env:
-          ALCHEMY_ID: ${{ vars.ALCHEMY_ID }}
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
-          VITE_ANVIL_FORK_URL: ${{ vars.VITE_ANVIL_FORK_URL }}
+          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
-      - name: Report
+
+      - name: Report benchmarks
         run: pnpm bun ./.github/scripts/bench.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

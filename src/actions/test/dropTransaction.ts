@@ -36,7 +36,7 @@ export async function dropTransaction<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { hash }: DropTransactionParameters,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_dropTransaction`,
     params: [hash],
   })

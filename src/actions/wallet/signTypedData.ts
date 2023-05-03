@@ -1,4 +1,5 @@
 import type { TypedData } from 'abitype'
+
 import type { Transport, WalletClient } from '../../clients/index.js'
 import { AccountNotFoundError } from '../../errors/index.js'
 import type {

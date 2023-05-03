@@ -10,9 +10,11 @@ test('sets block timestamp interval', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
   })
-  await setNextBlockTimestamp(testClient, {
-    timestamp: block1.timestamp + 86400n,
-  })
+  await expect(
+    setNextBlockTimestamp(testClient, {
+      timestamp: block1.timestamp + 86400n,
+    }),
+  ).resolves.toBeUndefined()
   await wait(1000)
   const block2 = await getBlock(publicClient, { blockTag: 'latest' })
   expect(block2.timestamp).toEqual(block1.timestamp + 86400n)

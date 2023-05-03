@@ -1,4 +1,5 @@
 import type { Abi } from 'abitype'
+
 import type {
   ContractFunctionConfig,
   ContractFunctionResult,
@@ -59,7 +60,7 @@ export type MulticallResult<
       | {
           error: Error
           result?: undefined
-          status: 'error'
+          status: 'failure'
         }
   : Result
 

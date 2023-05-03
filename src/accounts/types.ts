@@ -1,5 +1,6 @@
 import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
+
 import type {
   Hash,
   Hex,

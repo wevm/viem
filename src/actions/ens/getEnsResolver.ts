@@ -1,7 +1,7 @@
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type { Address, Chain, Prettify } from '../../types/index.js'
-import { getChainContractAddress, toHex } from '../../utils/index.js'
 import { packetToBytes } from '../../utils/ens/index.js'
+import { getChainContractAddress, toHex } from '../../utils/index.js'
 import { readContract } from '../public/index.js'
 import type { ReadContractParameters } from '../public/index.js'
 

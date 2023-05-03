@@ -3,8 +3,8 @@ import {
   SizeOverflowError,
 } from '../../errors/index.js'
 import type { ByteArray, Hex } from '../../types/index.js'
-import { size as size_ } from '../data/size.js'
 import { trim } from '../data/index.js'
+import { size as size_ } from '../data/size.js'
 import { hexToBytes } from './toBytes.js'
 
 export function assertSize(

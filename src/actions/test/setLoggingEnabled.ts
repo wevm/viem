@@ -28,7 +28,7 @@ export async function setLoggingEnabled<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   enabled: boolean,
 ) {
-  return await client.request({
+  await client.request({
     method: `${client.mode}_setLoggingEnabled`,
     params: [enabled],
   })

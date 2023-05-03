@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { parseGwei } from '../utils/index.js'
 import { BaseError } from './base.js'
 import {
