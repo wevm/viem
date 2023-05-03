@@ -1,6 +1,6 @@
-import { bench, describe } from 'vitest'
-import { Contract as Contractv6 } from 'ethers@6'
 import { Contract } from 'ethers'
+import { Contract as Contractv6 } from 'ethers@6'
+import { bench, describe } from 'vitest'
 
 import {
   ethersProvider,

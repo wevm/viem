@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
 import {
-  address,
   accounts,
+  address,
   testClient,
   walletClient,
 } from '../../_test/index.js'

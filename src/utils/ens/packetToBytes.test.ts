@@ -1,4 +1,5 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
+
 import { toHex } from '../encoding/index.js'
 import { packetToBytes } from './packetToBytes.js'
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
+
 import { accounts, typedData } from '../../_test/index.js'
 import { getAddress } from '../address/index.js'
-
 import { recoverTypedDataAddress } from './recoverTypedDataAddress.js'
 
 test('default', async () => {

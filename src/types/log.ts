@@ -1,4 +1,5 @@
 import type { Abi, AbiEvent, Address, ExtractAbiEventNames } from 'abitype'
+
 import type { GetEventArgs } from './contract.js'
 import type { Hash, Hex } from './misc.js'
 

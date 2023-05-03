@@ -1,10 +1,10 @@
 import type {
   Account,
   BlockTag,
-  Hash,
-  TransactionType,
   Chain,
+  Hash,
   Hex,
+  TransactionType,
 } from '../types/index.js'
 import { formatEther, formatGwei } from '../utils/index.js'
 import type { SendTransactionParameters } from '../wallet.js'

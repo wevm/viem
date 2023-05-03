@@ -1,5 +1,7 @@
 import { startProxy } from '@viem/anvil'
 
+import { blockTime, forkBlockNumber, forkUrl } from './constants.js'
+
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) {
     return
@@ -25,9 +27,9 @@ export default async function () {
   // any custom per-test adjustments that persist beyond `anvil_reset`.
   return await startProxy({
     options: {
-      forkUrl: process.env.VITE_ANVIL_FORK_URL,
-      forkBlockNumber: Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
-      blockTime: Number(process.env.VITE_ANVIL_BLOCK_TIME),
+      forkUrl,
+      forkBlockNumber,
+      blockTime,
     },
   })
 }

@@ -1,30 +1,29 @@
 import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
+import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 import {
   accounts,
   address,
   deployErc20InvalidTransferEvent,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   usdcContractConfig,
   walletClient,
 } from '../../_test/index.js'
-
+import type { Log } from '../../types/index.js'
+import { getAddress } from '../../utils/index.js'
 import {
   impersonateAccount,
   mine,
+  setBalance,
   setIntervalMining,
   stopImpersonatingAccount,
-  setBalance,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
-import type { Log } from '../../types/index.js'
+import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { getFilterLogs } from './getFilterLogs.js'
-import { getAddress } from '../../utils/index.js'
-import { createContractEventFilter } from './createContractEventFilter.js'
-import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 
 const event = {
   default: {
@@ -229,8 +228,8 @@ describe('contract events', () => {
     const filter = await createContractEventFilter(publicClient, {
       abi: usdcContractConfig.abi,
       eventName: 'Transfer',
-      fromBlock: initialBlockNumber - 5n,
-      toBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
     })
 
     const logs = await getFilterLogs(publicClient, { filter })
@@ -515,8 +514,8 @@ describe('raw events', () => {
   test('args: fromBlock/toBlock', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: initialBlockNumber - 5n,
-      toBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
     })
 
     const logs = await getFilterLogs(publicClient, { filter })

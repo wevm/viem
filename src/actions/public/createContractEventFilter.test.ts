@@ -3,7 +3,7 @@ import { assertType, expect, test } from 'vitest'
 import {
   accounts,
   createHttpServer,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   usdcContractConfig,
 } from '../../_test/index.js'
@@ -103,7 +103,7 @@ test('args: fromBlock', async () => {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
-        fromBlock: initialBlockNumber,
+        fromBlock: forkBlockNumber,
       })
     ).id,
   ).toBeDefined()
@@ -126,7 +126,7 @@ test('args: toBlock', async () => {
         address: usdcContractConfig.address,
         abi: usdcContractConfig.abi,
         eventName: 'Transfer',
-        toBlock: initialBlockNumber,
+        toBlock: forkBlockNumber,
       })
     ).id,
   ).toBeDefined()

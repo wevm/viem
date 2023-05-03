@@ -1,6 +1,4 @@
-import type { Client, ClientConfig } from './createClient.js'
-import { createClient } from './createClient.js'
-import type { Transport } from './transports/createTransport.js'
+import type { Requests } from '../types/eip1193.js'
 import type {
   Account,
   Address,
@@ -8,10 +6,12 @@ import type {
   JsonRpcAccount,
   Prettify,
 } from '../types/index.js'
+import { parseAccount } from '../utils/index.js'
+import type { Client, ClientConfig } from './createClient.js'
+import { createClient } from './createClient.js'
 import { walletActions } from './decorators/index.js'
 import type { WalletActions } from './decorators/index.js'
-import { parseAccount } from '../utils/index.js'
-import type { Requests } from '../types/eip1193.js'
+import type { Transport } from './transports/createTransport.js'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,

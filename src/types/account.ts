@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+
 import type { Account, JsonRpcAccount } from '../accounts/index.js'
 import type { IsUndefined } from './utils.js'
 

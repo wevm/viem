@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.17
+
+### Patch Changes
+
+- [#443](https://github.com/wagmi-dev/viem/pull/443) [`ca0cb85`](https://github.com/wagmi-dev/viem/commit/ca0cb852999dd90aebdb938d8bf4dbbec504a173) Thanks [@jxom](https://github.com/jxom)! - Fixed eth_call & eth_estimateGas calls for nodes that conform to the older JSON-RPC spec.
+
 ## 0.3.16
 
 ### Patch Changes

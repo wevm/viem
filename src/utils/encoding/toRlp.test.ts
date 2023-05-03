@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { toHex, stringToHex } from './toHex.js'
-
+import { stringToHex, toHex } from './toHex.js'
 import { bytesToRlp, toRlp } from './toRlp.js'
 
 test('single byte < 0x80', () => {

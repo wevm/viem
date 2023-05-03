@@ -7,10 +7,10 @@ import {
   walletClient,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
+import { sendTransaction } from '../index.js'
 import { mine } from '../test/index.js'
 import { getTransactionConfirmations } from './getTransactionConfirmations.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
-import { sendTransaction } from '../index.js'
 
 test('default', async () => {
   const hash = await sendTransaction(walletClient, {

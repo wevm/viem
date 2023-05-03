@@ -1,4 +1,5 @@
 import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
+
 import type { GetFunctionArgs, InferItemName } from '../../types/index.js'
 import { isAddress } from '../address/index.js'
 

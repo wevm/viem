@@ -2,10 +2,10 @@ import { describe, expect, test } from 'vitest'
 
 import {
   boolToBytes,
-  toBytes,
   hexToBytes,
   numberToBytes,
   stringToBytes,
+  toBytes,
 } from './toBytes.js'
 
 describe('converts numbers to bytes', () => {

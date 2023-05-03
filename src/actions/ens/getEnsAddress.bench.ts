@@ -6,7 +6,6 @@ import {
   publicClient,
   setBlockNumber,
 } from '../../_test/index.js'
-
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {
@@ -15,9 +14,7 @@ beforeAll(async () => {
 
 describe('Get ENS Name', () => {
   bench('viem: `getEnsAddress`', async () => {
-    await getEnsAddress(publicClient, {
-      name: 'awkweb.eth',
-    })
+    await getEnsAddress(publicClient, { name: 'awkweb.eth' })
   })
 
   bench('ethers: `resolveName`', async () => {

@@ -1,16 +1,18 @@
 import { describe, expect, test, vi } from 'vitest'
 
+import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
+import { createCcipServer } from '../../_test/ccip.js'
+import { offchainLookupExampleABI } from '../../_test/generated.js'
 import {
   accounts,
   deployOffchainLookupExample,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
 } from '../../_test/index.js'
-import { createCcipServer } from '../../_test/ccip.js'
-import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
 import { celo, mainnet } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import { aggregate3Signature } from '../../constants/index.js'
+import { BaseError, RawContractError } from '../../index.js'
 import {
   encodeFunctionData,
   numberToHex,
@@ -18,11 +20,8 @@ import {
   parseGwei,
   trim,
 } from '../../utils/index.js'
-
-import { call, getRevertErrorData } from './call.js'
 import { wait } from '../../utils/wait.js'
-import { offchainLookupExampleABI } from '../../_test/generated.js'
-import { BaseError, RawContractError } from '../../index.js'
+import { call, getRevertErrorData } from './call.js'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
@@ -379,14 +378,14 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
       }),
     )
     p.push(
       call(publicClient, {
         data: name4bytes,
         to: wagmiContractAddress,
-        blockNumber: initialBlockNumber + 1n,
+        blockNumber: forkBlockNumber + 1n,
       }),
     )
     p.push(
@@ -400,7 +399,7 @@ describe('batch call', () => {
       call(publicClient, {
         data: name4bytes,
         to: baycContractConfig.address,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
       }),
     )
     await wait(1)

@@ -1,11 +1,10 @@
-import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   Chain,
+  Filter,
   GetEventArgs,
   InferEventName,
-  Filter,
   Log,
 } from '../../types/index.js'
 import type { GetAbiItemParameters } from '../../utils/index.js'
@@ -19,6 +18,7 @@ import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import type { GetLogsParameters } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
+import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
 
 export type OnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],

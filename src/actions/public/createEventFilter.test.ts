@@ -3,12 +3,12 @@ import { assertType, describe, expect, test } from 'vitest'
 import {
   accounts,
   createHttpServer,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
 } from '../../_test/index.js'
-import { createEventFilter } from './createEventFilter.js'
-import type { Requests } from '../../types/eip1193.js'
 import { createPublicClient, fallback, http } from '../../clients/index.js'
+import type { Requests } from '../../types/eip1193.js'
+import { createEventFilter } from './createEventFilter.js'
 
 const event = {
   default: {
@@ -215,7 +215,7 @@ describe('default', () => {
   test('args: fromBlock', async () => {
     await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber,
     })
     await createEventFilter(publicClient, {
       event: event.default,
@@ -226,7 +226,7 @@ describe('default', () => {
   test('args: toBlock', async () => {
     await createEventFilter(publicClient, {
       event: event.default,
-      toBlock: initialBlockNumber,
+      toBlock: forkBlockNumber,
     })
     await createEventFilter(publicClient, {
       event: event.default,

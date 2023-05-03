@@ -3,6 +3,9 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.rome": true
+  },
   "[typescript]": {
     "editor.defaultFormatter": "rome.rome"
   },

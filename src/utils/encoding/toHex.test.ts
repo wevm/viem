@@ -3,9 +3,9 @@ import { describe, expect, test } from 'vitest'
 import {
   boolToHex,
   bytesToHex,
-  toHex,
   numberToHex,
   stringToHex,
+  toHex,
 } from './toHex.js'
 
 describe('converts numbers to hex', () => {

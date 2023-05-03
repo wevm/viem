@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
+
+import { address } from '../_test/index.js'
 import { polygon } from '../chains.js'
 import { parseAccount } from '../utils/index.js'
-import { address } from '../_test/index.js'
 import { BaseError } from './base.js'
 import { EstimateGasExecutionError } from './estimateGas.js'
 

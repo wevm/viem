@@ -1,7 +1,7 @@
 import { utils as ethersV5Utils } from 'ethers'
 import {
-  toBeHex,
   hexlify as hexlifyV6,
+  toBeHex,
   toUtf8Bytes as toUtf8BytesV6,
 } from 'ethers@6'
 import { bench, describe } from 'vitest'

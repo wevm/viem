@@ -2,17 +2,17 @@ import { beforeAll, expect, test } from 'vitest'
 
 import {
   accounts,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   walletClient,
 } from '../../_test/index.js'
 import { parseEther } from '../../utils/index.js'
-import { mine } from '../test/index.js'
 import { sendTransaction } from '../index.js'
+import { mine } from '../test/index.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 
 await beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })
@@ -25,14 +25,14 @@ test('default', async () => {
 test('args: blockNumber', async () => {
   expect(
     await getBlockTransactionCount(publicClient, {
-      blockNumber: initialBlockNumber - 1n,
+      blockNumber: forkBlockNumber - 1n,
     }),
   ).toBe(120)
 })
 
 test('args: blockHash', async () => {
   const block = await getBlock(publicClient, {
-    blockNumber: initialBlockNumber - 1n,
+    blockNumber: forkBlockNumber - 1n,
   })
   expect(
     await getBlockTransactionCount(publicClient, {

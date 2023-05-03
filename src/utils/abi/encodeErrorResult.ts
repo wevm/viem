@@ -1,9 +1,10 @@
 import type { Abi, Narrow } from 'abitype'
+
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
 } from '../../errors/index.js'
-import type { GetErrorArgs, InferErrorName, Hex } from '../../types/index.js'
+import type { GetErrorArgs, Hex, InferErrorName } from '../../types/index.js'
 import { concatHex } from '../data/index.js'
 import { getFunctionSelector } from '../hash/index.js'
 import { encodeAbiParameters } from './encodeAbiParameters.js'

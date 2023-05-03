@@ -1,11 +1,12 @@
 import { beforeAll, expect, test } from 'vitest'
-import { optimism } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
+
 import {
   localHttpUrl,
   publicClient,
   setBlockNumber,
 } from '../../_test/index.js'
+import { optimism } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
 import { getEnsResolver } from './getEnsResolver.js'
 
 beforeAll(async () => {

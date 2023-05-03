@@ -2,10 +2,9 @@ import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
-
 import { getBlock } from '../public/getBlock.js'
-import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
 import { removeBlockTimestampInterval } from './removeBlockTimestampInterval.js'
+import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
 
 test('removes block timestamp interval', async () => {
   let interval = 86400

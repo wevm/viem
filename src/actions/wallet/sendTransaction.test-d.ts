@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import { test } from 'vitest'
 
+import { anvilChain, localHttpUrl } from '../../_test/index.js'
 import { createWalletClient, http } from '../../clients/index.js'
 import type { Account, Chain } from '../../types/index.js'
-import { anvilChain, localHttpUrl } from '../../_test/index.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const walletClient = createWalletClient({

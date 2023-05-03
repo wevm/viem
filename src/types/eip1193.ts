@@ -1,13 +1,14 @@
 import type { Address } from 'abitype'
+
 import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
 import type {
+  Quantity,
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
   RpcBlockNumber as BlockNumber,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
-  Quantity,
   RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
@@ -208,7 +209,7 @@ export type PublicRequests = {
     method: 'eth_call'
     params: [
       request: Partial<TransactionRequest>,
-      block: BlockNumber | BlockTag | BlockIdentifier,
+      block?: BlockNumber | BlockTag | BlockIdentifier,
     ]
   }): Promise<Hex>
   request(args: {
@@ -234,7 +235,7 @@ export type PublicRequests = {
      * // => '0x5208'
      * */
     method: 'eth_estimateGas'
-    params: [parameters: TransactionRequest, block: BlockNumber | BlockTag]
+    params: [parameters: TransactionRequest, block?: BlockNumber | BlockTag]
   }): Promise<Quantity>
   request(args: {
     /**

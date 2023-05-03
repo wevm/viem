@@ -1,4 +1,3 @@
-import { parseAccount } from '../accounts.js'
 import {
   estimateGas,
   getBlock,
@@ -21,6 +20,7 @@ import type {
   Chain,
   GetAccountParameter,
 } from '../../types/index.js'
+import { parseAccount } from '../accounts.js'
 import { parseGwei } from '../unit/parseGwei.js'
 import { assertRequest } from './assertRequest.js'
 

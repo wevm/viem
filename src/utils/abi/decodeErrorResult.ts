@@ -1,4 +1,5 @@
 import type { Abi } from 'abitype'
+
 import { solidityError, solidityPanic } from '../../constants/index.js'
 import {
   AbiDecodingZeroDataError,

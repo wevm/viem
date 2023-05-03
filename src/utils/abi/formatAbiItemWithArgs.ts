@@ -1,4 +1,5 @@
 import type { AbiParameter } from 'abitype'
+
 import type { AbiItem } from '../../types/index.js'
 import { stringify } from '../index.js'
 

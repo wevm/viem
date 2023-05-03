@@ -12,8 +12,8 @@ import {
 import type {
   EventDefinition,
   GetEventArgs,
-  InferEventName,
   Hex,
+  InferEventName,
 } from '../../types/index.js'
 import { toBytes } from '../encoding/index.js'
 import { getEventSelector, keccak256 } from '../hash/index.js'

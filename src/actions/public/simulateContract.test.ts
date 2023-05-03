@@ -7,8 +7,10 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-
 import { describe, expect, test, vi } from 'vitest'
+
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 import {
   accounts,
   deployBAYC,
@@ -17,15 +19,12 @@ import {
   wagmiContractConfig,
   walletClient,
 } from '../../_test/index.js'
-import { baycContractConfig } from '../../_test/abis.js'
+import { deployErrorExample } from '../../_test/utils.js'
 import { encodeFunctionData, parseEther, parseGwei } from '../../utils/index.js'
 import { mine } from '../test/index.js'
 import { sendTransaction } from '../wallet/index.js'
 import * as call from './call.js'
-
 import { simulateContract } from './simulateContract.js'
-import { deployErrorExample } from '../../_test/utils.js'
-import { errorsExampleABI } from '../../_test/generated.js'
 
 describe('wagmi', () => {
   test('default', async () => {

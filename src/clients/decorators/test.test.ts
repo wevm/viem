@@ -1,13 +1,15 @@
 import { describe, expect, test } from 'vitest'
-import { parseEther, parseGwei } from '../../utils/index.js'
+
 import {
   accounts,
   address,
-  initialBlockNumber,
+  forkBlockNumber,
+  forkUrl,
   publicClient,
   testClient,
   walletClient,
 } from '../../_test/index.js'
+import { parseEther, parseGwei } from '../../utils/index.js'
 import { testActions } from './test.js'
 
 const bytecode =
@@ -96,7 +98,7 @@ describe('smoke test', () => {
 
   test('reset', async () => {
     expect(
-      await testClient.reset({ blockNumber: initialBlockNumber }),
+      await testClient.reset({ blockNumber: forkBlockNumber }),
     ).toBeUndefined()
   })
 
@@ -199,7 +201,7 @@ describe('smoke test', () => {
   })
 
   test('setRpcUrl', async () => {
-    await testClient.setRpcUrl(process.env.VITE_ANVIL_FORK_URL!)
+    await testClient.setRpcUrl(forkUrl)
   })
 
   test('setStorageAt', async () => {

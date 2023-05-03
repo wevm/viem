@@ -2,18 +2,18 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import {
   accounts,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   walletClient,
 } from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import type { Address, Transaction } from '../../types/index.js'
-import { createPublicClient, http } from '../../clients/index.js'
 import { celo } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import type { Address, Transaction } from '../../types/index.js'
+import { parseEther } from '../../utils/index.js'
 import { getBlock, sendTransaction } from '../index.js'
-import { getTransaction } from './getTransaction.js'
 import { mine, setBalance } from '../test/index.js'
+import { getTransaction } from './getTransaction.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -243,7 +243,7 @@ describe('args: blockHash', () => {
 
   test('blockHash: throws if transaction not found', async () => {
     const { hash: blockHash } = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber - 69n,
+      blockNumber: forkBlockNumber - 69n,
     })
     if (!blockHash) throw new Error('no block hash found')
 

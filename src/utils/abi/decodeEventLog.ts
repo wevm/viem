@@ -1,4 +1,6 @@
 import type { Abi, AbiParameter, Narrow } from 'abitype'
+
+import { DecodeLogDataMismatch } from '../../errors/abi.js'
 import {
   AbiDecodingDataSizeTooSmallError,
   AbiEventSignatureEmptyTopicsError,
@@ -8,13 +10,12 @@ import {
 import type {
   EventDefinition,
   GetEventArgsFromTopics,
-  InferEventName,
   Hex,
+  InferEventName,
 } from '../../types/index.js'
 import { getEventSelector } from '../hash/index.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
-import { DecodeLogDataMismatch } from '../../errors/abi.js'
 
 export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

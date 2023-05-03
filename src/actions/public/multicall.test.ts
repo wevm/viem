@@ -3,31 +3,30 @@
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
  */
-
-import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
+
 import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
-import { createPublicClient, http } from '../../clients/index.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
+import { gh434ABI } from '../../_test/generated.js'
 import {
   accounts,
   address,
   anvilChain,
   deploy,
-  initialBlockNumber,
+  forkBlockNumber,
   localHttpUrl,
   publicClient,
   usdcContractConfig,
 } from '../../_test/index.js'
-import { gh434ABI } from '../../_test/generated.js'
+import { mainnet } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
 import type { Hex } from '../../types/index.js'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-
 import { multicall } from './multicall.js'
 
 test('default', async () => {
   expect(
     await multicall(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -66,7 +65,7 @@ test('args: allowFailure', async () => {
   expect(
     await multicall(publicClient, {
       allowFailure: false,
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -95,7 +94,7 @@ test('args: allowFailure', async () => {
 test('args: multicallAddress', async () => {
   expect(
     await multicall(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -136,7 +135,7 @@ describe('errors', async () => {
     test('function not found', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -187,7 +186,7 @@ describe('errors', async () => {
     test('invalid params', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           // @ts-expect-error
           contracts: [
             {
@@ -241,7 +240,7 @@ describe('errors', async () => {
     test('invalid contract address', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -295,7 +294,7 @@ describe('errors', async () => {
     test('contract revert', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -535,7 +534,7 @@ test('chain not provided', async () => {
         transport: http(localHttpUrl),
       }),
       {
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -569,7 +568,7 @@ test('multicall contract not configured for chain', async () => {
         transport: http(localHttpUrl),
       }),
       {
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -682,7 +681,7 @@ describe('GitHub repros', () => {
     expect(
       await multicall(publicClient, {
         allowFailure: false,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         contracts: [
           {
             abi: gh434ABI,

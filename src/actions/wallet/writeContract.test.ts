@@ -1,21 +1,21 @@
 import { describe, expect, test, vi } from 'vitest'
-import { optimism } from '../../chains.js'
-import { createWalletClient, http } from '../../clients/index.js'
+
 import {
-  walletClientWithAccount,
   accounts,
   localHttpUrl,
   publicClient,
   testClient,
   wagmiContractConfig,
   walletClient,
+  walletClientWithAccount,
 } from '../../_test/index.js'
 import { anvilChain } from '../../_test/utils.js'
+import { optimism } from '../../chains.js'
+import { createWalletClient, http } from '../../clients/index.js'
 import { simulateContract } from '../public/index.js'
 import { mine } from '../test/index.js'
-
-import { writeContract } from './writeContract.js'
 import * as sendTransaction from './sendTransaction.js'
+import { writeContract } from './writeContract.js'
 
 test('default', async () => {
   expect(

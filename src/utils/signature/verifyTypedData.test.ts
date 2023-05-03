@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { accounts, typedData } from '../../_test/index.js'
 
+import { accounts, typedData } from '../../_test/index.js'
 import { verifyTypedData } from './verifyTypedData.js'
 
 test('default', async () => {

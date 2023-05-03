@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
-import { BaseError } from './base.js'
+
 import type { Hex } from '../types/index.js'
+import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
 
 export class OffchainLookupError extends BaseError {
