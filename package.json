@@ -153,7 +153,7 @@
     "@scure/bip32": "1.2.0",
     "@scure/bip39": "1.2.0",
     "@wagmi/chains": "0.2.16",
-    "abitype": "0.7.1",
+    "abitype": "0.8.2",
     "isomorphic-ws": "5.0.0",
     "ws": "8.12.0"
   },
