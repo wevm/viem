@@ -1,8 +1,7 @@
-import { expectTypeOf, test } from 'vitest'
-
-import { publicClient } from '../../_test/index.js'
+import { publicClient } from '../../_test/utils.js'
 import { getLogs } from './getLogs.js'
 import type { AbiEvent } from 'abitype'
+import { expectTypeOf, test } from 'vitest'
 
 test('event: const assertion', async () => {
   const event = {

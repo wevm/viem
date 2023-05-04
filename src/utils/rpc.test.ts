@@ -3,12 +3,10 @@ import WebSocket from 'isomorphic-ws'
 import { describe, expect, test, vi } from 'vitest'
 
 import { localHttpUrl } from '../_test/constants.js'
-import {
-  createHttpServer,
-  forkBlockNumber,
-  localWsUrl,
-} from '../_test/index.js'
-import { numberToHex } from './encoding/index.js'
+import { forkBlockNumber } from '../_test/constants.js'
+import { localWsUrl } from '../_test/constants.js'
+import { createHttpServer } from '../_test/utils.js'
+import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
 import type { RpcResponse } from './rpc.js'
 import { getSocket, rpc } from './rpc.js'

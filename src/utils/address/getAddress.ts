@@ -1,8 +1,8 @@
-import { InvalidAddressError } from '../../errors/index.js'
-import type { Address } from '../../types/index.js'
-import { stringToBytes } from '../encoding/index.js'
-import { keccak256 } from '../hash/index.js'
+import { InvalidAddressError } from '../../errors/address.js'
+import { stringToBytes } from '../encoding/toBytes.js'
+import { keccak256 } from '../hash/keccak256.js'
 import { isAddress } from './isAddress.js'
+import type { Address } from 'abitype'
 
 export function checksumAddress(address_: Address, chainId?: number): Address {
   const hexAddress = chainId

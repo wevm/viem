@@ -1,26 +1,23 @@
-import {
-  InvalidAddressError,
-  InvalidLegacyVError,
-  InvalidStorageKeySizeError,
-} from '../../errors/index.js'
-import type {
-  AccessList,
-  Hex,
-  Signature,
-  TransactionSerializable,
-  TransactionSerializableEIP1559,
-  TransactionSerializableEIP2930,
-  TransactionSerializableLegacy,
-  TransactionSerialized,
-  TransactionSerializedEIP1559,
-  TransactionSerializedEIP2930,
-  TransactionSerializedLegacy,
-  TransactionType,
-} from '../../types/index.js'
-import { isAddress } from '../address/index.js'
-import { concatHex } from '../data/index.js'
-import { toHex, toRlp } from '../encoding/index.js'
+import { InvalidAddressError } from '../../errors/address.js'
+import { InvalidLegacyVError } from '../../errors/transaction.js'
+import { InvalidStorageKeySizeError } from '../../errors/transaction.js'
+import type { Hex } from '../../types/misc.js'
+import type { Signature } from '../../types/misc.js'
+import type { AccessList } from '../../types/transaction.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
+import type { TransactionSerializableEIP1559 } from '../../types/transaction.js'
+import type { TransactionSerializableEIP2930 } from '../../types/transaction.js'
+import type { TransactionSerializableLegacy } from '../../types/transaction.js'
+import type { TransactionSerialized } from '../../types/transaction.js'
+import type { TransactionSerializedEIP1559 } from '../../types/transaction.js'
+import type { TransactionSerializedEIP2930 } from '../../types/transaction.js'
+import type { TransactionSerializedLegacy } from '../../types/transaction.js'
+import type { TransactionType } from '../../types/transaction.js'
+import { isAddress } from '../address/isAddress.js'
+import { concatHex } from '../data/concat.js'
+import { toHex } from '../encoding/toHex.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
+import { toRlp } from '../encoding/toRlp.js'
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,

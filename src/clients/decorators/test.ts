@@ -1,62 +1,59 @@
-import type {
-  DropTransactionParameters,
-  GetAutomineReturnType,
-  GetTxpoolContentReturnType,
-  GetTxpoolStatusReturnType,
-  ImpersonateAccountParameters,
-  IncreaseTimeParameters,
-  InspectTxpoolReturnType,
-  MineParameters,
-  ResetParameters,
-  RevertParameters,
-  SendUnsignedTransactionParameters,
-  SendUnsignedTransactionReturnType,
-  SetBalanceParameters,
-  SetBlockGasLimitParameters,
-  SetBlockTimestampIntervalParameters,
-  SetCodeParameters,
-  SetCoinbaseParameters,
-  SetIntervalMiningParameters,
-  SetMinGasPriceParameters,
-  SetNextBlockBaseFeePerGasParameters,
-  SetNextBlockTimestampParameters,
-  SetNonceParameters,
-  SetStorageAtParameters,
-  StopImpersonatingAccountParameters,
-} from '../../actions/test/index.js'
-import {
-  dropTransaction,
-  getAutomine,
-  getTxpoolContent,
-  getTxpoolStatus,
-  impersonateAccount,
-  increaseTime,
-  inspectTxpool,
-  mine,
-  removeBlockTimestampInterval,
-  reset,
-  revert,
-  sendUnsignedTransaction,
-  setAutomine,
-  setBalance,
-  setBlockGasLimit,
-  setBlockTimestampInterval,
-  setCode,
-  setCoinbase,
-  setIntervalMining,
-  setLoggingEnabled,
-  setMinGasPrice,
-  setNextBlockBaseFeePerGas,
-  setNextBlockTimestamp,
-  setNonce,
-  setRpcUrl,
-  setStorageAt,
-  snapshot,
-  stopImpersonatingAccount,
-} from '../../actions/test/index.js'
-import type { Chain, Quantity } from '../../types/index.js'
+import type { DropTransactionParameters } from '../../actions/test/dropTransaction.js'
+import { dropTransaction } from '../../actions/test/dropTransaction.js'
+import type { GetAutomineReturnType } from '../../actions/test/getAutomine.js'
+import { getAutomine } from '../../actions/test/getAutomine.js'
+import type { GetTxpoolContentReturnType } from '../../actions/test/getTxpoolContent.js'
+import { getTxpoolContent } from '../../actions/test/getTxpoolContent.js'
+import type { GetTxpoolStatusReturnType } from '../../actions/test/getTxpoolStatus.js'
+import { getTxpoolStatus } from '../../actions/test/getTxpoolStatus.js'
+import type { ImpersonateAccountParameters } from '../../actions/test/impersonateAccount.js'
+import { impersonateAccount } from '../../actions/test/impersonateAccount.js'
+import type { IncreaseTimeParameters } from '../../actions/test/increaseTime.js'
+import { increaseTime } from '../../actions/test/increaseTime.js'
+import type { InspectTxpoolReturnType } from '../../actions/test/inspectTxpool.js'
+import { inspectTxpool } from '../../actions/test/inspectTxpool.js'
+import type { MineParameters } from '../../actions/test/mine.js'
+import { mine } from '../../actions/test/mine.js'
+import { removeBlockTimestampInterval } from '../../actions/test/removeBlockTimestampInterval.js'
+import type { ResetParameters } from '../../actions/test/reset.js'
+import { reset } from '../../actions/test/reset.js'
+import type { RevertParameters } from '../../actions/test/revert.js'
+import { revert } from '../../actions/test/revert.js'
+import type { SendUnsignedTransactionParameters } from '../../actions/test/sendUnsignedTransaction.js'
+import type { SendUnsignedTransactionReturnType } from '../../actions/test/sendUnsignedTransaction.js'
+import { sendUnsignedTransaction } from '../../actions/test/sendUnsignedTransaction.js'
+import { setAutomine } from '../../actions/test/setAutomine.js'
+import type { SetBalanceParameters } from '../../actions/test/setBalance.js'
+import { setBalance } from '../../actions/test/setBalance.js'
+import type { SetBlockGasLimitParameters } from '../../actions/test/setBlockGasLimit.js'
+import { setBlockGasLimit } from '../../actions/test/setBlockGasLimit.js'
+import type { SetBlockTimestampIntervalParameters } from '../../actions/test/setBlockTimestampInterval.js'
+import { setBlockTimestampInterval } from '../../actions/test/setBlockTimestampInterval.js'
+import type { SetCodeParameters } from '../../actions/test/setCode.js'
+import { setCode } from '../../actions/test/setCode.js'
+import type { SetCoinbaseParameters } from '../../actions/test/setCoinbase.js'
+import { setCoinbase } from '../../actions/test/setCoinbase.js'
+import type { SetIntervalMiningParameters } from '../../actions/test/setIntervalMining.js'
+import { setIntervalMining } from '../../actions/test/setIntervalMining.js'
+import { setLoggingEnabled } from '../../actions/test/setLoggingEnabled.js'
+import type { SetMinGasPriceParameters } from '../../actions/test/setMinGasPrice.js'
+import { setMinGasPrice } from '../../actions/test/setMinGasPrice.js'
+import type { SetNextBlockBaseFeePerGasParameters } from '../../actions/test/setNextBlockBaseFeePerGas.js'
+import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFeePerGas.js'
+import type { SetNextBlockTimestampParameters } from '../../actions/test/setNextBlockTimestamp.js'
+import { setNextBlockTimestamp } from '../../actions/test/setNextBlockTimestamp.js'
+import type { SetNonceParameters } from '../../actions/test/setNonce.js'
+import { setNonce } from '../../actions/test/setNonce.js'
+import { setRpcUrl } from '../../actions/test/setRpcUrl.js'
+import type { SetStorageAtParameters } from '../../actions/test/setStorageAt.js'
+import { setStorageAt } from '../../actions/test/setStorageAt.js'
+import { snapshot } from '../../actions/test/snapshot.js'
+import type { StopImpersonatingAccountParameters } from '../../actions/test/stopImpersonatingAccount.js'
+import { stopImpersonatingAccount } from '../../actions/test/stopImpersonatingAccount.js'
+import type { Chain } from '../../types/chain.js'
+import type { Quantity } from '../../types/rpc.js'
 import type { TestClient, TestClientMode } from '../createTestClient.js'
-import type { Transport } from '../transports/index.js'
+import type { Transport } from '../transports/createTransport.js'
 
 export type TestActions = {
   /**

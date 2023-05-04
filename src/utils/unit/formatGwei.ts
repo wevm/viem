@@ -1,4 +1,4 @@
-import { gweiUnits } from '../../constants/index.js'
+import { gweiUnits } from '../../constants/unit.js'
 import { formatUnits } from './formatUnits.js'
 
 export function formatGwei(wei: bigint, unit: 'wei' = 'wei') {

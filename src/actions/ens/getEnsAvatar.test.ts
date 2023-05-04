@@ -1,21 +1,17 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import { ensPublicResolverConfig } from '../../_test/abis.js'
-import {
-  address,
-  deployEnsAvatarTokenUri,
-  publicClient,
-  setBlockNumber,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { namehash } from '../../ens.js'
-import {
-  impersonateAccount,
-  mine,
-  stopImpersonatingAccount,
-} from '../test/index.js'
-import { writeContract } from '../wallet/index.js'
+import { address } from '../../_test/constants.js'
+import { deployEnsAvatarTokenUri } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { setBlockNumber } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { namehash } from '../../utils/ens/namehash.js'
+import { impersonateAccount } from '../test/impersonateAccount.js'
+import { mine } from '../test/mine.js'
+import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
+import { writeContract } from '../wallet/writeContract.js'
 import { getEnsAvatar } from './getEnsAvatar.js'
 
 beforeAll(async () => {

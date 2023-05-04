@@ -3,7 +3,7 @@ import { expectTypeOf, test } from 'vitest'
 
 import type { TestClient } from './createTestClient.js'
 import { createTestClient } from './createTestClient.js'
-import { http } from './transports/index.js'
+import { http } from './transports/http.js'
 
 test('with chain', () => {
   const client = createTestClient({

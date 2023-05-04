@@ -1,19 +1,20 @@
-import { assertType, describe, expect, it, test } from 'vitest'
-
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
 import { celo } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
-import type { Address, TransactionReceipt } from '../../types/index.js'
-import { parseEther, parseGwei } from '../../utils/index.js'
-import { getBlock, sendTransaction } from '../index.js'
-import { mine } from '../test/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
+import type { TransactionReceipt } from '../../types/transaction.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { mine } from '../test/mine.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
+import type { Address } from 'abitype'
+import { assertType, describe, expect, it, test } from 'vitest'
 
 test('gets transaction receipt', async () => {
   const receipt = await getTransactionReceipt(publicClient, {

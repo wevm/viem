@@ -1,9 +1,13 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { Address, Chain, Prettify } from '../../types/index.js'
-import { packetToBytes } from '../../utils/ens/index.js'
-import { getChainContractAddress, toHex } from '../../utils/index.js'
-import { readContract } from '../public/index.js'
-import type { ReadContractParameters } from '../public/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Prettify } from '../../types/utils.js'
+import { getChainContractAddress } from '../../utils/chain.js'
+import { toHex } from '../../utils/encoding/toHex.js'
+import { packetToBytes } from '../../utils/ens/packetToBytes.js'
+import { readContract } from '../public/readContract.js'
+import type { ReadContractParameters } from '../public/readContract.js'
+import type { Address } from 'abitype'
 
 export type GetEnsResolverParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

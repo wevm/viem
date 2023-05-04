@@ -1,13 +1,10 @@
-import type { MessageEvent, WebSocket } from 'isomorphic-ws'
-
-import {
-  HttpRequestError,
-  RpcRequestError,
-  TimeoutError,
-  WebSocketRequestError,
-} from '../errors/index.js'
+import { HttpRequestError } from '../errors/request.js'
+import { RpcRequestError } from '../errors/request.js'
+import { TimeoutError } from '../errors/request.js'
+import { WebSocketRequestError } from '../errors/request.js'
 import { withTimeout } from './promise/withTimeout.js'
 import { stringify } from './stringify.js'
+import type { MessageEvent, WebSocket } from 'isomorphic-ws'
 
 let id = 0
 

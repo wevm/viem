@@ -1,8 +1,6 @@
-import { expect, test } from 'vitest'
-
-import { testClient } from '../../_test/index.js'
-
+import { testClient } from '../../_test/utils.js'
 import { setCoinbase } from './setCoinbase.js'
+import { expect, test } from 'vitest'
 
 test('set next block base fee per gas', async () => {
   await expect(

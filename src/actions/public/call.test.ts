@@ -2,24 +2,22 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
 import { createCcipServer } from '../../_test/ccip.js'
+import { accounts } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
 import { offchainLookupExampleABI } from '../../_test/generated.js'
-import {
-  accounts,
-  deployOffchainLookupExample,
-  forkBlockNumber,
-  publicClient,
-} from '../../_test/index.js'
+import { deployOffchainLookupExample } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
 import { celo, mainnet } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
-import { aggregate3Signature } from '../../constants/index.js'
-import { BaseError, RawContractError } from '../../index.js'
-import {
-  encodeFunctionData,
-  numberToHex,
-  parseEther,
-  parseGwei,
-  trim,
-} from '../../utils/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
+import { aggregate3Signature } from '../../constants/contract.js'
+import { BaseError } from '../../errors/base.js'
+import { RawContractError } from '../../errors/contract.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import { trim } from '../../utils/data/trim.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 import { call, getRevertErrorData } from './call.js'
 

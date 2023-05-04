@@ -1,14 +1,10 @@
-import { bench, describe } from 'vitest'
-
-import {
-  accounts,
-  ethersProvider,
-  ethersV6Provider,
-  publicClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-
+import { ethersProvider } from '../../_test/bench.js'
+import { ethersV6Provider } from '../../_test/bench.js'
+import { accounts } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { estimateGas } from './estimateGas.js'
+import { bench, describe } from 'vitest'
 
 describe.skip('Estimate Gas', () => {
   bench('viem: `estimateGas`', async () => {

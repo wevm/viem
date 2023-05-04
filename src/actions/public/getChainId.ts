@@ -1,10 +1,9 @@
-import type {
-  PublicClient,
-  Transport,
-  WalletClient,
-} from '../../clients/index.js'
-import type { Account, Chain } from '../../types/index.js'
-import { hexToNumber } from '../../utils/index.js'
+import type { Account } from '../../accounts/types.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import { hexToNumber } from '../../utils/encoding/fromHex.js'
 
 export type GetChainIdReturnType = number
 

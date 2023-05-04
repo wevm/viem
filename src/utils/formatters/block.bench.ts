@@ -1,8 +1,7 @@
+import type { RpcBlock } from '../../types/rpc.js'
+import { formatBlock } from './block.js'
 import { providers } from 'ethers'
 import { bench, describe } from 'vitest'
-
-import type { RpcBlock } from '../../types/index.js'
-import { formatBlock } from './block.js'
 
 const block: RpcBlock = {
   baseFeePerGas: '0x1',

@@ -1,4 +1,4 @@
-import { etherUnits } from '../../constants/index.js'
+import { etherUnits } from '../../constants/unit.js'
 import { parseUnits } from './parseUnits.js'
 
 export function parseEther(ether: `${number}`, unit: 'wei' | 'gwei' = 'wei') {

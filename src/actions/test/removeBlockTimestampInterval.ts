@@ -1,9 +1,7 @@
-import type { Chain } from '../../chains.js'
-import type {
-  TestClient,
-  TestClientMode,
-  Transport,
-} from '../../clients/index.js'
+import type { TestClient } from '../../clients/createTestClient.js'
+import type { TestClientMode } from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 
 /**
  * Removes [`setBlockTimestampInterval`](https://viem.sh/docs/actions/test/setBlockTimestampInterval.html) if it exists.

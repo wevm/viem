@@ -1,33 +1,25 @@
-import type {
-  PublicClient,
-  Transport,
-  WalletClient,
-} from '../../clients/index.js'
-import type { BaseError } from '../../errors/index.js'
-import { AccountNotFoundError } from '../../errors/index.js'
+import type { Account } from '../../accounts/types.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
+import type { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type {
-  Account,
-  BlockTag,
-  Chain,
-  Formatter,
-  MergeIntersectionProperties,
-  TransactionRequest,
-} from '../../types/index.js'
-import {
-  assertRequest,
-  extract,
-  format,
-  formatTransactionRequest,
-  getEstimateGasError,
-  numberToHex,
-  parseAccount,
-  prepareRequest,
-} from '../../utils/index.js'
-import type {
-  Formatted,
-  TransactionRequestFormatter,
-} from '../../utils/index.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
+import type { Formatter } from '../../types/formatter.js'
+import type { TransactionRequest } from '../../types/transaction.js'
+import type { MergeIntersectionProperties } from '../../types/utils.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import { getEstimateGasError } from '../../utils/errors/getEstimateGasError.js'
+import { extract } from '../../utils/formatters/extract.js'
+import { format } from '../../utils/formatters/format.js'
+import type { Formatted } from '../../utils/formatters/format.js'
+import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import type { TransactionRequestFormatter } from '../../utils/formatters/transactionRequest.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
+import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 
 export type FormattedEstimateGas<
   TFormatter extends Formatter | undefined = Formatter,

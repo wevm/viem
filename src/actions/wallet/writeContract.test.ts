@@ -1,21 +1,19 @@
-import { describe, expect, test, vi } from 'vitest'
-
-import {
-  accounts,
-  localHttpUrl,
-  publicClient,
-  testClient,
-  wagmiContractConfig,
-  walletClient,
-  walletClientWithAccount,
-} from '../../_test/index.js'
+import { wagmiContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/constants.js'
+import { localHttpUrl } from '../../_test/constants.js'
 import { anvilChain } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { walletClientWithAccount } from '../../_test/utils.js'
 import { optimism } from '../../chains.js'
-import { createWalletClient, http } from '../../clients/index.js'
-import { simulateContract } from '../public/index.js'
-import { mine } from '../test/index.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { http } from '../../clients/transports/http.js'
+import { simulateContract } from '../public/simulateContract.js'
+import { mine } from '../test/mine.js'
 import * as sendTransaction from './sendTransaction.js'
 import { writeContract } from './writeContract.js'
+import { describe, expect, test, vi } from 'vitest'
 
 test('default', async () => {
   expect(

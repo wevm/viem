@@ -1,6 +1,8 @@
-import type { ByteArray, Hex } from '../../types/index.js'
-import { isHex } from '../data/index.js'
-import { hexToNumber, toHex } from '../encoding/index.js'
+import type { ByteArray } from '../../types/misc.js'
+import type { Hex } from '../../types/misc.js'
+import { isHex } from '../data/isHex.js'
+import { hexToNumber } from '../encoding/fromHex.js'
+import { toHex } from '../encoding/toHex.js'
 
 export type RecoverPublicKeyParameters = {
   hash: Hex | ByteArray

@@ -1,6 +1,5 @@
-import { describe, expect, test, vi } from 'vitest'
-
-import { createHttpServer, publicClient } from '../../../_test/index.js'
+import { createHttpServer } from '../../../_test/utils.js'
+import { publicClient } from '../../../_test/utils.js'
 import {
   getGateway,
   getJsonImage,
@@ -11,6 +10,7 @@ import {
   parseNftUri,
   resolveAvatarUri,
 } from './utils.js'
+import { describe, expect, test, vi } from 'vitest'
 
 describe('isImageUri', () => {
   test('is image', async () => {

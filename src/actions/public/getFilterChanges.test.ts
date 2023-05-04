@@ -1,26 +1,25 @@
 import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
+import { usdcContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/constants.js'
+import { address } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
 import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
-import {
-  accounts,
-  address,
-  deployErc20InvalidTransferEvent,
-  forkBlockNumber,
-  publicClient,
-  testClient,
-  usdcContractConfig,
-  walletClient,
-} from '../../_test/index.js'
-import type { Hash, Log } from '../../types/index.js'
-import { getAddress, parseEther } from '../../utils/index.js'
-import {
-  impersonateAccount,
-  mine,
-  setBalance,
-  setIntervalMining,
-  stopImpersonatingAccount,
-} from '../test/index.js'
-import { sendTransaction, writeContract } from '../wallet/index.js'
+import { deployErc20InvalidTransferEvent } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import type { Log } from '../../types/log.js'
+import type { Hash } from '../../types/misc.js'
+import { getAddress } from '../../utils/address/getAddress.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { impersonateAccount } from '../test/impersonateAccount.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
+import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+import { writeContract } from '../wallet/writeContract.js'
 import { createBlockFilter } from './createBlockFilter.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'

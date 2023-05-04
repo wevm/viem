@@ -4,8 +4,8 @@ import type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
 } from '../../types/transaction.js'
-import { sliceHex } from '../data/index.js'
-import { hexToNumber } from '../encoding/index.js'
+import { sliceHex } from '../data/slice.js'
+import { hexToNumber } from '../encoding/fromHex.js'
 
 export type GetSerializedTransactionType<
   TTransactionSerialized extends TransactionSerialized = TransactionSerialized,

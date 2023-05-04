@@ -1,8 +1,14 @@
-import type { Address, ByteArray, Hex } from '../../types/index.js'
-import { concat, isBytes, pad, slice } from '../data/index.js'
-import { toBytes, toRlp } from '../encoding/index.js'
-import { keccak256 } from '../hash/index.js'
+import type { ByteArray } from '../../types/misc.js'
+import type { Hex } from '../../types/misc.js'
+import { concat } from '../data/concat.js'
+import { isBytes } from '../data/isBytes.js'
+import { pad } from '../data/pad.js'
+import { slice } from '../data/slice.js'
+import { toBytes } from '../encoding/toBytes.js'
+import { toRlp } from '../encoding/toRlp.js'
+import { keccak256 } from '../hash/keccak256.js'
 import { getAddress } from './getAddress.js'
+import type { Address } from 'abitype'
 
 export type GetCreateAddressOptions = {
   from: Address

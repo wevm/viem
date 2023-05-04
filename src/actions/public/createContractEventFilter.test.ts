@@ -1,15 +1,14 @@
+import type { Requests } from '../../types/eip1193.js'
 import { assertType, expect, test } from 'vitest'
 
-import {
-  accounts,
-  createHttpServer,
-  forkBlockNumber,
-  publicClient,
-  usdcContractConfig,
-} from '../../_test/index.js'
-import { createPublicClient, fallback, http } from '../../clients/index.js'
-import type { Requests } from '../../types/eip1193.js'
-
+import { usdcContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
+import { createHttpServer } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { fallback } from '../../clients/transports/fallback.js'
+import { http } from '../../clients/transports/http.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 
 const request = (() => {}) as unknown as Requests['request']

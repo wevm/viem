@@ -1,20 +1,16 @@
+import type { Account } from '../../accounts/types.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
+import type { GetAccountParameter } from '../../types/account.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
+import { isHex } from '../../utils/data/isHex.js'
+import { stringify } from '../../utils/stringify.js'
+import { validateTypedData } from '../../utils/typedData.js'
 import type { TypedData } from 'abitype'
-
-import type { Transport, WalletClient } from '../../clients/index.js'
-import { AccountNotFoundError } from '../../errors/index.js'
-import type {
-  Account,
-  Chain,
-  GetAccountParameter,
-  Hex,
-  TypedDataDefinition,
-} from '../../types/index.js'
-import {
-  isHex,
-  parseAccount,
-  stringify,
-  validateTypedData,
-} from '../../utils/index.js'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

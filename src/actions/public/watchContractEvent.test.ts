@@ -1,28 +1,23 @@
-import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
-
-import {
-  accounts,
-  address,
-  publicClient,
-  testClient,
-  usdcContractConfig,
-  walletClient,
-} from '../../_test/index.js'
-import { getAddress } from '../../utils/index.js'
+import { usdcContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/constants.js'
+import { address } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
-import {
-  impersonateAccount,
-  mine,
-  setBalance,
-  stopImpersonatingAccount,
-} from '../test/index.js'
-import { writeContract } from '../wallet/index.js'
+import { impersonateAccount } from '../test/impersonateAccount.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
+import { writeContract } from '../wallet/writeContract.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
 import * as getLogs from './getLogs.js'
 import type { OnLogsParameter } from './watchContractEvent.js'
 import { watchContractEvent } from './watchContractEvent.js'
+import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {

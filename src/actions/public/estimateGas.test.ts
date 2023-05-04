@@ -1,17 +1,15 @@
-import { describe, expect, test, vi } from 'vitest'
-
-import {
-  accounts,
-  forkBlockNumber,
-  forkUrl,
-  publicClient,
-  testClient,
-} from '../../_test/index.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
-import { parseEther, parseGwei } from '../../utils/index.js'
-import { reset } from '../test/index.js'
+import { accounts } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
+import { forkUrl } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { reset } from '../test/reset.js'
 import { estimateGas } from './estimateGas.js'
-import * as publicActions from './index.js'
+import * as getBlock from './getBlock.js'
+import { describe, expect, test, vi } from 'vitest'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
@@ -148,7 +146,7 @@ describe('local account', () => {
   })
 
   test('args: gasPrice (on legacy)', async () => {
-    vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
       baseFeePerGas: undefined,
     } as any)
 
@@ -174,7 +172,7 @@ describe('local account', () => {
   })
 
   test('args: maxFeePerGas (on legacy)', async () => {
-    vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
       baseFeePerGas: undefined,
     } as any)
 

@@ -1,8 +1,6 @@
-import { expect, test } from 'vitest'
-
-import type { RpcBlock } from '../../types/index.js'
-
+import type { RpcBlock } from '../../types/rpc.js'
 import { format } from './format.js'
+import { expect, test } from 'vitest'
 
 const data: RpcBlock = {
   baseFeePerGas: '0x0',

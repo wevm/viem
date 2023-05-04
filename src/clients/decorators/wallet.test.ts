@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { accounts, walletClient } from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
 import { walletClientWithAccount } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
 import { avalanche } from '../../chains.js'
-import { parseEther } from '../../utils/index.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { walletActions } from './wallet.js'
 
 test('default', async () => {

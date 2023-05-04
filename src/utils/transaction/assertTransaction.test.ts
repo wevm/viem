@@ -1,11 +1,10 @@
-import { expect, test } from 'vitest'
-
-import { parseGwei } from '../unit/index.js'
+import { parseGwei } from '../unit/parseGwei.js'
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionLegacy,
 } from './assertTransaction.js'
+import { expect, test } from 'vitest'
 
 test('fee cap too high', () => {
   expect(() =>

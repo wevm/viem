@@ -1,6 +1,6 @@
 // Adapted from https://github.com/mafintosh/dns-packet
-import type { ByteArray } from '../../types/index.js'
-import { stringToBytes } from '../encoding/index.js'
+import type { ByteArray } from '../../types/misc.js'
+import { stringToBytes } from '../encoding/toBytes.js'
 
 /*
  * @description Encodes a DNS packet into a ByteArray containing a UDP payload.

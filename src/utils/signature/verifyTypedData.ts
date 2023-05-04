@@ -1,9 +1,11 @@
-import type { Address, TypedData } from 'abitype'
-
-import type { ByteArray, Hex, TypedDataDefinition } from '../../types/index.js'
-import { getAddress, isAddressEqual } from '../index.js'
+import type { ByteArray } from '../../types/misc.js'
+import type { Hex } from '../../types/misc.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
+import { getAddress } from '../address/getAddress.js'
+import { isAddressEqual } from '../address/isAddressEqual.js'
 import { recoverTypedDataAddress } from './recoverTypedDataAddress.js'
 import type { RecoverTypedDataAddressParameters } from './recoverTypedDataAddress.js'
+import type { Address, TypedData } from 'abitype'
 
 export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

@@ -1,12 +1,12 @@
-import { InvalidAddressError } from '../errors/index.js'
-import type { Address } from '../types/index.js'
-import { isAddress } from '../utils/index.js'
+import { InvalidAddressError } from '../errors/address.js'
+import { isAddress } from '../utils/address/isAddress.js'
 import type {
   AccountSource,
   CustomSource,
   JsonRpcAccount,
   LocalAccount,
 } from './types.js'
+import type { Address } from 'abitype'
 
 type GetAccountReturnType<TAccountSource extends AccountSource> =
   | (TAccountSource extends Address ? JsonRpcAccount : never)

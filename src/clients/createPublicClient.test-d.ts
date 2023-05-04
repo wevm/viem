@@ -3,7 +3,7 @@ import { expectTypeOf, test } from 'vitest'
 
 import type { PublicClient } from './createPublicClient.js'
 import { createPublicClient } from './createPublicClient.js'
-import { http } from './transports/index.js'
+import { http } from './transports/http.js'
 
 test('with chain', () => {
   const client = createPublicClient({

@@ -1,13 +1,11 @@
-import { expect, test } from 'vitest'
-
-import { address } from '../../_test/index.js'
-import {
-  InvalidInputRpcError,
-  RpcRequestError,
-  TransactionRejectedRpcError,
-} from '../../errors/index.js'
-import { parseEther, parseGwei } from '../unit/index.js'
+import { address } from '../../_test/constants.js'
+import { RpcRequestError } from '../../errors/request.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
+import { TransactionRejectedRpcError } from '../../errors/rpc.js'
+import { parseEther } from '../unit/parseEther.js'
+import { parseGwei } from '../unit/parseGwei.js'
 import { containsNodeError, getNodeError } from './getNodeError.js'
+import { expect, test } from 'vitest'
 
 test('containsNodeError', () => {
   // @ts-expect-error

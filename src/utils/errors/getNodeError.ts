@@ -1,21 +1,20 @@
-import type { SendTransactionParameters } from '../../actions/index.js'
-import { type BaseError, RpcRequestError } from '../../errors/index.js'
-import {
-  ExecutionRevertedError,
-  FeeCapTooHighError,
-  FeeCapTooLowError,
-  InsufficientFundsError,
-  IntrinsicGasTooHighError,
-  IntrinsicGasTooLowError,
-  InvalidInputRpcError,
-  NonceMaxValueError,
-  NonceTooHighError,
-  NonceTooLowError,
-  TipAboveFeeCapError,
-  TransactionRejectedRpcError,
-  TransactionTypeNotSupportedError,
-  UnknownNodeError,
-} from '../../errors/index.js'
+import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import type { BaseError } from '../../errors/base.js'
+import { ExecutionRevertedError } from '../../errors/node.js'
+import { FeeCapTooHighError } from '../../errors/node.js'
+import { FeeCapTooLowError } from '../../errors/node.js'
+import { InsufficientFundsError } from '../../errors/node.js'
+import { IntrinsicGasTooHighError } from '../../errors/node.js'
+import { IntrinsicGasTooLowError } from '../../errors/node.js'
+import { NonceMaxValueError } from '../../errors/node.js'
+import { NonceTooHighError } from '../../errors/node.js'
+import { NonceTooLowError } from '../../errors/node.js'
+import { TipAboveFeeCapError } from '../../errors/node.js'
+import { TransactionTypeNotSupportedError } from '../../errors/node.js'
+import { UnknownNodeError } from '../../errors/node.js'
+import { RpcRequestError } from '../../errors/request.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
+import { TransactionRejectedRpcError } from '../../errors/rpc.js'
 
 export function containsNodeError(err: BaseError) {
   return (

@@ -1,22 +1,21 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { localHttpUrl } from '../../_test/constants.js'
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
 import { webSocketClient } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
 import { celo, localhost } from '../../chains.js'
-import type { PublicClient } from '../../clients/index.js'
-import { createPublicClient, http } from '../../clients/index.js'
-import type { Block } from '../../types/index.js'
-import { parseEther } from '../../utils/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
+import type { Block } from '../../types/block.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
-import { setIntervalMining } from '../test/index.js'
 import { mine } from '../test/mine.js'
-import { sendTransaction } from '../wallet/index.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
 import type { OnBlockParameter } from './watchBlocks.js'
 import { watchBlocks } from './watchBlocks.js'

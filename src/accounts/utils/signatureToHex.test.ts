@@ -1,7 +1,6 @@
-import { expect, test } from 'vitest'
-
-import { toHex } from '../../utils/index.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 import { signatureToHex } from './signatureToHex.js'
+import { expect, test } from 'vitest'
 
 test('default', () => {
   expect(

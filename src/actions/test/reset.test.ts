@@ -1,10 +1,11 @@
-import { expect, test } from 'vitest'
-
-import { forkBlockNumber, publicClient, testClient } from '../../_test/index.js'
+import { forkBlockNumber } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
 import { mine } from './mine.js'
 import { reset } from './reset.js'
 import { setIntervalMining } from './setIntervalMining.js'
+import { expect, test } from 'vitest'
 
 test('resets the fork', async () => {
   await setIntervalMining(testClient, { interval: 0 })

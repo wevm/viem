@@ -1,10 +1,9 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type {
-  Chain,
-  Filter,
-  GetTransportConfig,
-  Hash,
-} from '../../types/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Filter } from '../../types/filter.js'
+import type { Hash } from '../../types/misc.js'
+import type { GetTransportConfig } from '../../types/transport.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'

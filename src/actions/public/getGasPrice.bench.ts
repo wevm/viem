@@ -1,8 +1,7 @@
-import { bench, describe } from 'vitest'
-
-import { ethersProvider, publicClient } from '../../_test/index.js'
-
+import { ethersProvider } from '../../_test/bench.js'
+import { publicClient } from '../../_test/utils.js'
 import { getGasPrice } from './getGasPrice.js'
+import { bench, describe } from 'vitest'
 
 describe('Get Gas Price', () => {
   bench('viem: `getGasPrice`', async () => {

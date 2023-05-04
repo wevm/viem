@@ -1,17 +1,17 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import { TransactionNotFoundError } from '../../errors/transaction.js'
-import type {
-  BlockTag,
-  Chain,
-  Hash,
-  RpcTransaction,
-} from '../../types/index.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hash } from '../../types/misc.js'
+import type { RpcTransaction } from '../../types/rpc.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import { format } from '../../utils/formatters/format.js'
 import type {
   FormattedTransaction,
   TransactionFormatter,
 } from '../../utils/formatters/transaction.js'
 import { formatTransaction } from '../../utils/formatters/transaction.js'
-import { format, numberToHex } from '../../utils/index.js'
 
 export type GetTransactionParameters =
   | {

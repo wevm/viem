@@ -1,4 +1,4 @@
-import { stringify } from '../utils/index.js'
+import { stringify } from '../utils/stringify.js'
 import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
 

@@ -1,19 +1,20 @@
-import { assertType, describe, expect, test } from 'vitest'
-
-import {
-  accounts,
-  forkBlockNumber,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
 import { celo } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
-import type { Address, Transaction } from '../../types/index.js'
-import { parseEther } from '../../utils/index.js'
-import { getBlock, sendTransaction } from '../index.js'
-import { mine, setBalance } from '../test/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
+import type { Transaction } from '../../types/transaction.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
+import type { Address } from 'abitype'
+import { assertType, describe, expect, test } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

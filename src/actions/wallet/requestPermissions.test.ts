@@ -1,8 +1,6 @@
-import { expect, test } from 'vitest'
-
-import { walletClient } from '../../_test/index.js'
-
+import { walletClient } from '../../_test/utils.js'
 import { requestPermissions } from './requestPermissions.js'
+import { expect, test } from 'vitest'
 
 test('default', async () => {
   expect(

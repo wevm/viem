@@ -1,15 +1,13 @@
-import { expect, test } from 'vitest'
-
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import { sendTransaction } from '../index.js'
-import { mine, setNonce } from '../test/index.js'
+import { accounts } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { mine } from '../test/mine.js'
+import { setNonce } from '../test/setNonce.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import { getTransactionCount } from './getTransactionCount.js'
+import { expect, test } from 'vitest'
 
 test('gets transaction count', async () => {
   await setNonce(testClient, { address: accounts[0].address, nonce: 0 })
