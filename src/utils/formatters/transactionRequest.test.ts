@@ -1,8 +1,8 @@
 import type {
   TransactionRequest,
-  type TransactionRequestEIP1559,
-  type TransactionRequestEIP2930,
-  type TransactionRequestLegacy,
+  TransactionRequestEIP1559,
+  TransactionRequestEIP2930,
+  TransactionRequestLegacy,
 } from '../../types/transaction.js'
 import { formatTransactionRequest } from './transactionRequest.js'
 import { expect, test } from 'vitest'

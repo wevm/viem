@@ -2,9 +2,9 @@ import { accounts } from '../../_test/constants.js'
 import { sign } from '../../accounts/utils/sign.js'
 import type {
   TransactionSerializableBase,
-  type TransactionSerializableEIP1559,
-  type TransactionSerializableEIP2930,
-  type TransactionSerializableLegacy,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { toHex } from '../encoding/toHex.js'
 import { toRlp } from '../encoding/toRlp.js'

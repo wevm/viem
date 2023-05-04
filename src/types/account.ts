@@ -1,4 +1,4 @@
-import type { Account, type JsonRpcAccount } from '../accounts/types.js'
+import type { Account, JsonRpcAccount } from '../accounts/types.js'
 import type { IsUndefined } from './utils.js'
 import type { Address } from 'abitype'
 export type GetAccountParameter<

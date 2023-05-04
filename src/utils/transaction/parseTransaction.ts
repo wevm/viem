@@ -3,18 +3,18 @@ import {
   InvalidLegacyVError,
   InvalidSerializedTransactionError,
 } from '../../errors/transaction.js'
-import type { Hex, type Signature } from '../../types/misc.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
-  type TransactionRequestEIP2930,
-  type TransactionRequestLegacy,
-  type TransactionSerializableEIP1559,
-  type TransactionSerializableEIP2930,
-  type TransactionSerializableLegacy,
-  type TransactionSerialized,
-  type TransactionSerializedEIP1559,
-  type TransactionSerializedEIP2930,
-  type TransactionType,
+  TransactionRequestEIP2930,
+  TransactionRequestLegacy,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
+  TransactionSerialized,
+  TransactionSerializedEIP1559,
+  TransactionSerializedEIP2930,
+  TransactionType,
 } from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 import { isHex } from '../data/isHex.js'

@@ -1,7 +1,7 @@
 import { InvalidSerializableTransactionError } from '../../errors/transaction.js'
 import type {
   AccessList,
-  type TransactionSerializable,
+  TransactionSerializable,
 } from '../../types/transaction.js'
 
 export type GetTransactionType<

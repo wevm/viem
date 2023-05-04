@@ -10,7 +10,7 @@ import type { RpcBlock } from '../../types/rpc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import type {
   BlockFormatter,
-  type FormattedBlock,
+  FormattedBlock,
 } from '../../utils/formatters/block.js'
 import { formatBlock } from '../../utils/formatters/block.js'
 import { format } from '../../utils/formatters/format.js'

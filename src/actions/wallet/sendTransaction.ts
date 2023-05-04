@@ -6,12 +6,12 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import { ChainMismatchError, ChainNotFoundError } from '../../errors/chain.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, type GetChain } from '../../types/chain.js'
+import type { Chain, GetChain } from '../../types/chain.js'
 import type { Formatter } from '../../types/formatter.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,
-  type TransactionSerializable,
+  TransactionSerializable,
 } from '../../types/transaction.js'
 import type { MergeIntersectionProperties } from '../../types/utils.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'

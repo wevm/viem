@@ -1,4 +1,4 @@
-import type { Hash, type Hex } from '../types/misc.js'
+import type { Hash, Hex } from '../types/misc.js'
 import type { TransactionSerializable } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
 import type { HDKey } from '@scure/bip32'

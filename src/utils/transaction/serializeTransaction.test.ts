@@ -2,12 +2,12 @@ import { accounts } from '../../_test/constants.js'
 import { sign } from '../../accounts/utils/sign.js'
 import type {
   TransactionSerializableBase,
-  type TransactionSerializableEIP1559,
-  type TransactionSerializableEIP2930,
-  type TransactionSerializableLegacy,
-  type TransactionSerializedEIP1559,
-  type TransactionSerializedEIP2930,
-  type TransactionSerializedLegacy,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
+  TransactionSerializedEIP1559,
+  TransactionSerializedEIP2930,
+  TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'

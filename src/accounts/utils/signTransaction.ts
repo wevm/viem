@@ -1,8 +1,8 @@
 import type { Hex } from '../../types/misc.js'
 import type {
   TransactionSerializable,
-  type TransactionSerialized,
-  type TransactionType,
+  TransactionSerialized,
+  TransactionType,
 } from '../../types/transaction.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'

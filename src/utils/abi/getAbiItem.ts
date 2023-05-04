@@ -1,7 +1,4 @@
-import type {
-  GetFunctionArgs,
-  type InferItemName,
-} from '../../types/contract.js'
+import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
 import { isAddress } from '../address/isAddress.js'
 import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
 

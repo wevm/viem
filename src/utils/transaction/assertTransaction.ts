@@ -4,8 +4,8 @@ import { InvalidChainIdError } from '../../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
 import type {
   TransactionSerializableEIP1559,
-  type TransactionSerializableEIP2930,
-  type TransactionSerializableLegacy,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 

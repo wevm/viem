@@ -4,9 +4,9 @@ import {
 } from '../../errors/abi.js'
 import type {
   AbiItem,
-  type ContractFunctionResult,
-  type GetFunctionArgs,
-  type InferFunctionName,
+  ContractFunctionResult,
+  GetFunctionArgs,
+  InferFunctionName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'

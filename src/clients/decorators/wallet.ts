@@ -5,7 +5,7 @@ import type { AddChainParameters } from '../../actions/wallet/addChain.js'
 import { addChain } from '../../actions/wallet/addChain.js'
 import type {
   DeployContractParameters,
-  type DeployContractReturnType,
+  DeployContractReturnType,
 } from '../../actions/wallet/deployContract.js'
 import { deployContract } from '../../actions/wallet/deployContract.js'
 import type { GetAddressesReturnType } from '../../actions/wallet/getAddresses.js'
@@ -16,34 +16,34 @@ import type { RequestAddressesReturnType } from '../../actions/wallet/requestAdd
 import { requestAddresses } from '../../actions/wallet/requestAddresses.js'
 import type {
   RequestPermissionsParameters,
-  type RequestPermissionsReturnType,
+  RequestPermissionsReturnType,
 } from '../../actions/wallet/requestPermissions.js'
 import { requestPermissions } from '../../actions/wallet/requestPermissions.js'
 import type {
   SendTransactionParameters,
-  type SendTransactionReturnType,
+  SendTransactionReturnType,
 } from '../../actions/wallet/sendTransaction.js'
 import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import type {
   SignMessageParameters,
-  type SignMessageReturnType,
+  SignMessageReturnType,
 } from '../../actions/wallet/signMessage.js'
 import { signMessage } from '../../actions/wallet/signMessage.js'
 import type {
   SignTypedDataParameters,
-  type SignTypedDataReturnType,
+  SignTypedDataReturnType,
 } from '../../actions/wallet/signTypedData.js'
 import { signTypedData } from '../../actions/wallet/signTypedData.js'
 import type { SwitchChainParameters } from '../../actions/wallet/switchChain.js'
 import { switchChain } from '../../actions/wallet/switchChain.js'
 import type {
   WatchAssetParameters,
-  type WatchAssetReturnType,
+  WatchAssetReturnType,
 } from '../../actions/wallet/watchAsset.js'
 import { watchAsset } from '../../actions/wallet/watchAsset.js'
 import type {
   WriteContractParameters,
-  type WriteContractReturnType,
+  WriteContractReturnType,
 } from '../../actions/wallet/writeContract.js'
 import { writeContract } from '../../actions/wallet/writeContract.js'
 import type { Chain } from '../../types/chain.js'

@@ -1,13 +1,13 @@
 import { accounts } from '../../_test/constants.js'
 import type {
   TransactionSerializable,
-  type TransactionSerializableBase,
-  type TransactionSerializableEIP1559,
-  type TransactionSerializableEIP2930,
-  type TransactionSerializableLegacy,
-  type TransactionSerializedEIP1559,
-  type TransactionSerializedEIP2930,
-  type TransactionSerializedLegacy,
+  TransactionSerializableBase,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
+  TransactionSerializedEIP1559,
+  TransactionSerializedEIP2930,
+  TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { signTransaction } from './signTransaction.js'

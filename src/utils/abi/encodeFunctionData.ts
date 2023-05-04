@@ -1,8 +1,8 @@
 import { AbiFunctionNotFoundError } from '../../errors/abi.js'
 import type {
   AbiItem,
-  type GetFunctionArgs,
-  type InferFunctionName,
+  GetFunctionArgs,
+  InferFunctionName,
 } from '../../types/contract.js'
 import { concatHex } from '../data/concat.js'
 import { getFunctionSelector } from '../hash/getFunctionSelector.js'

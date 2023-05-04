@@ -3,10 +3,7 @@ import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
-import type {
-  ContractFunctionConfig,
-  type GetValue,
-} from '../../types/contract.js'
+import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'

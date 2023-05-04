@@ -1,9 +1,6 @@
 import { accounts, localWsUrl } from '../_test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
-import type {
-  type JsonRpcAccount,
-  PrivateKeyAccount,
-} from '../accounts/types.js'
+import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains.js'
 import type { SignableRequests, WalletRequests } from '../types/eip1193.js'
 import { createWalletClient } from './createWalletClient.js'

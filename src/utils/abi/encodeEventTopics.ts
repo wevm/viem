@@ -2,9 +2,9 @@ import { AbiEventNotFoundError } from '../../errors/abi.js'
 import { FilterTypeNotSupportedError } from '../../errors/log.js'
 import type {
   AbiItem,
-  type EventDefinition,
-  type GetEventArgs,
-  type InferEventName,
+  EventDefinition,
+  GetEventArgs,
+  InferEventName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { toBytes } from '../encoding/toBytes.js'

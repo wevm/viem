@@ -1,20 +1,20 @@
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { BlockNumber, type BlockTag } from '../../types/block.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   MaybeAbiEventName,
-  type MaybeExtractEventArgsFromAbi,
+  MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
-import type { Hash, type LogTopic } from '../../types/misc.js'
+import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import type { EncodeEventTopicsParameters } from '../../utils/abi/encodeEventTopics.js'
 import { encodeEventTopics } from '../../utils/abi/encodeEventTopics.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import type { AbiEvent, type Address, Narrow } from 'abitype'
+import type { AbiEvent, Address, Narrow } from 'abitype'
 
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

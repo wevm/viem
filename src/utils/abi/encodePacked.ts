@@ -13,7 +13,7 @@ import { arrayRegex, bytesRegex, integerRegex } from '../regex.js'
 import type {
   AbiParameterToPrimitiveType,
   AbiType,
-  type Address,
+  Address,
   Narrow,
   SolidityAddress,
   SolidityArrayWithoutTuple,

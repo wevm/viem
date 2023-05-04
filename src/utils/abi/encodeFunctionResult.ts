@@ -4,8 +4,8 @@ import {
 } from '../../errors/abi.js'
 import type {
   AbiItem,
-  type ContractFunctionResult,
-  type InferFunctionName,
+  ContractFunctionResult,
+  InferFunctionName,
 } from '../../types/contract.js'
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import type { GetAbiItemParameters } from './getAbiItem.js'

@@ -5,8 +5,8 @@ import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
-  type ContractFunctionResult,
-  type GetValue,
+  ContractFunctionResult,
+  GetValue,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'

@@ -3,18 +3,18 @@ import {
   InvalidLegacyVError,
   InvalidStorageKeySizeError,
 } from '../../errors/transaction.js'
-import type { Hex, type Signature } from '../../types/misc.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
-  type TransactionSerializable,
-  type TransactionSerializableEIP1559,
-  type TransactionSerializableEIP2930,
-  type TransactionSerializableLegacy,
-  type TransactionSerialized,
-  type TransactionSerializedEIP1559,
-  type TransactionSerializedEIP2930,
-  type TransactionSerializedLegacy,
-  type TransactionType,
+  TransactionSerializable,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableLegacy,
+  TransactionSerialized,
+  TransactionSerializedEIP1559,
+  TransactionSerializedEIP2930,
+  TransactionSerializedLegacy,
+  TransactionType,
 } from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 import { concatHex } from '../data/concat.js'

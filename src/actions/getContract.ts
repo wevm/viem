@@ -5,44 +5,44 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
-  type MaybeExtractEventArgsFromAbi,
+  MaybeExtractEventArgsFromAbi,
 } from '../types/contract.js'
 import type {
   IsNarrowable,
-  type IsNever,
-  type IsUndefined,
-  type Or,
-  type Prettify,
+  IsNever,
+  IsUndefined,
+  Or,
+  Prettify,
 } from '../types/utils.js'
 import { createContractEventFilter } from './public/createContractEventFilter.js'
 import type {
   CreateContractEventFilterParameters,
-  type CreateContractEventFilterReturnType,
+  CreateContractEventFilterReturnType,
 } from './public/createContractEventFilter.js'
 import { estimateContractGas } from './public/estimateContractGas.js'
 import type {
   EstimateContractGasParameters,
-  type EstimateContractGasReturnType,
+  EstimateContractGasReturnType,
 } from './public/estimateContractGas.js'
 import { readContract } from './public/readContract.js'
 import type {
   ReadContractParameters,
-  type ReadContractReturnType,
+  ReadContractReturnType,
 } from './public/readContract.js'
 import { simulateContract } from './public/simulateContract.js'
 import type {
   SimulateContractParameters,
-  type SimulateContractReturnType,
+  SimulateContractReturnType,
 } from './public/simulateContract.js'
 import { watchContractEvent } from './public/watchContractEvent.js'
 import type {
   WatchContractEventParameters,
-  type WatchContractEventReturnType,
+  WatchContractEventReturnType,
 } from './public/watchContractEvent.js'
 import { writeContract } from './wallet/writeContract.js'
 import type {
   WriteContractParameters,
-  type WriteContractReturnType,
+  WriteContractReturnType,
 } from './wallet/writeContract.js'
 import type {
   Abi,

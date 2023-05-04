@@ -9,8 +9,8 @@ import {
 } from '../../errors/abi.js'
 import type {
   EventDefinition,
-  type GetEventArgsFromTopics,
-  type InferEventName,
+  GetEventArgsFromTopics,
+  InferEventName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'

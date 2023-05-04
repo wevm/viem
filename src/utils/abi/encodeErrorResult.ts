@@ -4,8 +4,8 @@ import {
 } from '../../errors/abi.js'
 import type {
   AbiItem,
-  type GetErrorArgs,
-  type InferErrorName,
+  GetErrorArgs,
+  InferErrorName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { concatHex } from '../data/concat.js'

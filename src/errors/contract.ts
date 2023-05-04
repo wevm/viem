@@ -13,7 +13,7 @@ import { formatGwei } from '../utils/unit/formatGwei.js'
 import { BaseError } from './base.js'
 import { prettyPrint } from './transaction.js'
 import { getContractAddress } from './utils.js'
-import type { Abi, type Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 export class CallExecutionError extends BaseError {
   override cause: BaseError

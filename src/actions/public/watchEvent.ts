@@ -3,7 +3,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   MaybeAbiEventName,
-  type MaybeExtractEventArgsFromAbi,
+  MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
@@ -15,7 +15,7 @@ import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
-import type { AbiEvent, type Address } from 'abitype'
+import type { AbiEvent, Address } from 'abitype'
 
 export type OnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,

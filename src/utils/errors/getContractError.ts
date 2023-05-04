@@ -1,4 +1,4 @@
-import type { Abi, type Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
