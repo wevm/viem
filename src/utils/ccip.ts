@@ -2,7 +2,7 @@ import { call } from '../actions/public/call.js'
 import type { CallParameters } from '../actions/public/call.js'
 import type { PublicClient } from '../clients/createPublicClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
-import { BaseError } from '../errors/base.js'
+import { type BaseError } from '../errors/base.js'
 import {
   OffchainLookupError,
   OffchainLookupResponseMalformedError,
