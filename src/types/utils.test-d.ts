@@ -1,13 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
 
-import type {
-  Filter,
-  IsNarrowable,
-  IsNever,
-  IsUndefined,
-  Or,
-  RequiredBy,
-} from './utils.js'
+import type { Filter, IsNarrowable, IsNever, IsUndefined, Or } from './utils.js'
 
 test('Filter', () => {
   expectTypeOf<Filter<[1, 'foo', false, 'baz'], 1 | boolean>>().toEqualTypeOf<
@@ -49,13 +42,4 @@ test('IsUndefined', () => {
 test('Or', () => {
   expectTypeOf<Or<[true, false, true]>>().toEqualTypeOf<true>()
   expectTypeOf<Or<[false, false, false]>>().toEqualTypeOf<false>()
-})
-
-test('RequiredBy', () => {
-  expectTypeOf<
-    RequiredBy<
-      { a?: number | undefined; b?: string | undefined; c: boolean },
-      'a' | 'c'
-    >
-  >().toEqualTypeOf<{ a: number; b?: string | undefined; c: boolean }>()
 })
