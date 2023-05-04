@@ -9,8 +9,10 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { createEventFilter } from './createEventFilter.js'
-import type { CreateEventFilterParameters } from './createEventFilter.js'
+import {
+  type CreateEventFilterParameters,
+  createEventFilter,
+} from './createEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'

@@ -10,8 +10,7 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { getAbiItem } from './getAbiItem.js'
-import type { GetAbiItemParameters } from './getAbiItem.js'
+import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
 import type { Abi, ExtractAbiFunctionNames, Narrow } from 'abitype'
 
 const docsPath = '/docs/contract/decodeFunctionResult'

@@ -1,8 +1,7 @@
 import { localWsUrl } from '../../_test/constants.js'
 import { localhost } from '../../chains.js'
 import { wait } from '../../utils/wait.js'
-import type { WebSocketTransport } from './webSocket.js'
-import { webSocket } from './webSocket.js'
+import { type WebSocketTransport, webSocket } from './webSocket.js'
 import { WebSocket } from 'isomorphic-ws'
 import { assertType, describe, expect, test } from 'vitest'
 

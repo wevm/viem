@@ -9,8 +9,10 @@ import type {
 import type { Filter } from '../../types/filter.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
-import { encodeEventTopics } from '../../utils/abi/encodeEventTopics.js'
-import type { EncodeEventTopicsParameters } from '../../utils/abi/encodeEventTopics.js'
+import {
+  type EncodeEventTopicsParameters,
+  encodeEventTopics,
+} from '../../utils/abi/encodeEventTopics.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 import type { Abi, AbiEvent, Address, Narrow } from 'abitype'

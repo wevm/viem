@@ -1,8 +1,6 @@
 import { publicClient } from '../../_test/utils.js'
-import type { ReadContractParameters } from './readContract.js'
-import { readContract } from './readContract.js'
-import type { Abi, ResolvedConfig } from 'abitype'
-import { parseAbi } from 'abitype'
+import { type ReadContractParameters, readContract } from './readContract.js'
+import { type Abi, type ResolvedConfig, parseAbi } from 'abitype'
 import {
   wagmiMintExampleAbi,
   wagmiMintExampleHumanReadableAbi,

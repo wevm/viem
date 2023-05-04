@@ -1,7 +1,9 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { estimateGas } from '../../actions/public/estimateGas.js'
-import type { EstimateGasParameters } from '../../actions/public/estimateGas.js'
+import {
+  type EstimateGasParameters,
+  estimateGas,
+} from '../../actions/public/estimateGas.js'
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getGasPrice } from '../../actions/public/getGasPrice.js'
 import { getTransactionCount } from '../../actions/public/getTransactionCount.js'

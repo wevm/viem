@@ -8,8 +8,10 @@ import {
   webSocketClient,
 } from '../../_test/utils.js'
 import { celo, localhost } from '../../chains.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
+import {
+  type PublicClient,
+  createPublicClient,
+} from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -18,9 +20,7 @@ import { mine } from '../test/mine.js'
 import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
-import type { OnBlockParameter } from './watchBlocks.js'
-import { watchBlocks } from './watchBlocks.js'
-
+import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
 beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })
 })

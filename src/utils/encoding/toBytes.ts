@@ -3,9 +3,7 @@ import type { ByteArray, Hex } from '../../types/misc.js'
 import { isHex } from '../data/isHex.js'
 import { pad } from '../data/pad.js'
 import { assertSize } from './fromHex.js'
-import type { NumberToHexOpts } from './toHex.js'
-import { numberToHex } from './toHex.js'
-
+import { type NumberToHexOpts, numberToHex } from './toHex.js'
 const encoder = new TextEncoder()
 
 export type ToBytesParameters = {

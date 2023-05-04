@@ -10,10 +10,14 @@ import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { observe } from '../../utils/observe.js'
 import { getBlock } from './getBlock.js'
-import type { GetTransactionReturnType } from './getTransaction.js'
-import { getTransaction } from './getTransaction.js'
-import type { GetTransactionReceiptReturnType } from './getTransactionReceipt.js'
-import { getTransactionReceipt } from './getTransactionReceipt.js'
+import {
+  type GetTransactionReturnType,
+  getTransaction,
+} from './getTransaction.js'
+import {
+  type GetTransactionReceiptReturnType,
+  getTransactionReceipt,
+} from './getTransactionReceipt.js'
 import { watchBlockNumber } from './watchBlockNumber.js'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'

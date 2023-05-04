@@ -1,18 +1,28 @@
 export { normalize } from './utils/ens/normalize.js'
-export type { GetEnsAddressParameters } from './actions/ens/getEnsAddress.js'
-export type { GetEnsAddressReturnType } from './actions/ens/getEnsAddress.js'
-export type { GetEnsAvatarParameters } from './actions/ens/getEnsAvatar.js'
-export type { GetEnsAvatarReturnType } from './actions/ens/getEnsAvatar.js'
-export type { GetEnsNameParameters } from './actions/ens/getEnsName.js'
-export type { GetEnsNameReturnType } from './actions/ens/getEnsName.js'
-export type { GetEnsResolverParameters } from './actions/ens/getEnsResolver.js'
-export type { GetEnsResolverReturnType } from './actions/ens/getEnsResolver.js'
-export type { GetEnsTextParameters } from './actions/ens/getEnsText.js'
-export type { GetEnsTextReturnType } from './actions/ens/getEnsText.js'
-export { getEnsAddress } from './actions/ens/getEnsAddress.js'
-export { getEnsAvatar } from './actions/ens/getEnsAvatar.js'
-export { getEnsName } from './actions/ens/getEnsName.js'
-export { getEnsResolver } from './actions/ens/getEnsResolver.js'
-export { getEnsText } from './actions/ens/getEnsText.js'
+export {
+  type GetEnsAddressParameters,
+  type GetEnsAddressReturnType,
+  getEnsAddress,
+} from './actions/ens/getEnsAddress.js'
+export {
+  type GetEnsAvatarParameters,
+  type GetEnsAvatarReturnType,
+  getEnsAvatar,
+} from './actions/ens/getEnsAvatar.js'
+export {
+  type GetEnsNameParameters,
+  type GetEnsNameReturnType,
+  getEnsName,
+} from './actions/ens/getEnsName.js'
+export {
+  type GetEnsResolverParameters,
+  type GetEnsResolverReturnType,
+  getEnsResolver,
+} from './actions/ens/getEnsResolver.js'
+export {
+  type GetEnsTextParameters,
+  type GetEnsTextReturnType,
+  getEnsText,
+} from './actions/ens/getEnsText.js'
 export { labelhash } from './utils/ens/labelhash.js'
 export { namehash } from './utils/ens/namehash.js'

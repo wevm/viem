@@ -6,14 +6,14 @@ import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Chain } from '../types/chain.js'
 import { getContract } from './getContract.js'
-import type {
-  Abi,
-  Address,
-  ExtractAbiEventNames,
-  ExtractAbiFunctionNames,
-  ResolvedConfig,
+import {
+  type Abi,
+  type Address,
+  type ExtractAbiEventNames,
+  type ExtractAbiFunctionNames,
+  type ResolvedConfig,
+  parseAbi,
 } from 'abitype'
-import { parseAbi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 const walletClient = createWalletClient({

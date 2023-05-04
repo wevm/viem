@@ -4,11 +4,12 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'
+import {
+  type EncodeFunctionDataParameters,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
-import { estimateGas } from './estimateGas.js'
-import type { EstimateGasParameters } from './estimateGas.js'
+import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
 import type { Abi } from 'abitype'
 
 export type EstimateContractGasParameters<

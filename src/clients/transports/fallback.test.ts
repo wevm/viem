@@ -5,8 +5,12 @@ import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
 import type { Transport } from './createTransport.js'
-import type { FallbackTransport, OnResponseFn } from './fallback.js'
-import { fallback, rankTransports } from './fallback.js'
+import {
+  type FallbackTransport,
+  type OnResponseFn,
+  fallback,
+  rankTransports,
+} from './fallback.js'
 import { http } from './http.js'
 import { assertType, describe, expect, test } from 'vitest'
 

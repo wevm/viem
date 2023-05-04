@@ -4,12 +4,11 @@ import { TransactionReceiptNotFoundError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import { format } from '../../utils/formatters/format.js'
-import type {
-  FormattedTransactionReceipt,
-  TransactionReceiptFormatter,
+import {
+  type FormattedTransactionReceipt,
+  type TransactionReceiptFormatter,
+  formatTransactionReceipt,
 } from '../../utils/formatters/transactionReceipt.js'
-import { formatTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
-
 export type GetTransactionReceiptParameters = {
   /** The hash of the transaction. */
   hash: Hash

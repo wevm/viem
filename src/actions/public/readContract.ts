@@ -6,13 +6,16 @@ import type {
   ContractFunctionConfig,
   ContractFunctionResult,
 } from '../../types/contract.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import type { DecodeFunctionResultParameters } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'
+import {
+  type DecodeFunctionResultParameters,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataParameters,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
-import { call } from './call.js'
-import type { CallParameters } from './call.js'
+import { type CallParameters, call } from './call.js'
 import type { Abi } from 'abitype'
 
 export type ReadContractParameters<

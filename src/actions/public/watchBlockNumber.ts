@@ -5,9 +5,10 @@ import type { GetTransportConfig } from '../../types/transport.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import type { GetBlockNumberReturnType } from './getBlockNumber.js'
-import { getBlockNumber } from './getBlockNumber.js'
-
+import {
+  type GetBlockNumberReturnType,
+  getBlockNumber,
+} from './getBlockNumber.js'
 export type OnBlockNumberParameter = GetBlockNumberReturnType
 export type OnBlockNumberFn = (
   blockNumber: OnBlockNumberParameter,

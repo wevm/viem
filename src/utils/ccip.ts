@@ -1,5 +1,4 @@
-import { call } from '../actions/public/call.js'
-import type { CallParameters } from '../actions/public/call.js'
+import { type CallParameters, call } from '../actions/public/call.js'
 import type { PublicClient } from '../clients/createPublicClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import { type BaseError } from '../errors/base.js'

@@ -12,8 +12,10 @@ import type {
   MulticallResults,
 } from '../../types/multicall.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'
+import {
+  type EncodeFunctionDataParameters,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 import type { CallParameters } from './call.js'

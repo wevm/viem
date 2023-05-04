@@ -5,8 +5,10 @@ import type { Prettify } from '../../types/utils.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
-import { readContract } from '../public/readContract.js'
-import type { ReadContractParameters } from '../public/readContract.js'
+import {
+  type ReadContractParameters,
+  readContract,
+} from '../public/readContract.js'
 import type { Address } from 'abitype'
 
 export type GetEnsResolverParameters = Prettify<

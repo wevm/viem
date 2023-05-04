@@ -1,6 +1,5 @@
 import type { JsonRpcAccount } from '../accounts/types.js'
-import type { WalletClient } from './createWalletClient.js'
-import { createWalletClient } from './createWalletClient.js'
+import { type WalletClient, createWalletClient } from './createWalletClient.js'
 import { http } from './transports/http.js'
 import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'

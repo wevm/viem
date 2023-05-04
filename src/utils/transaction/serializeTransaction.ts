@@ -19,16 +19,16 @@ import type {
 import { isAddress } from '../address/isAddress.js'
 import { concatHex } from '../data/concat.js'
 import { toHex } from '../encoding/toHex.js'
-import type { RecursiveArray } from '../encoding/toRlp.js'
-import { toRlp } from '../encoding/toRlp.js'
+import { type RecursiveArray, toRlp } from '../encoding/toRlp.js'
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionLegacy,
 } from './assertTransaction.js'
-import { getTransactionType } from './getTransactionType.js'
-import type { GetTransactionType } from './getTransactionType.js'
-
+import {
+  type GetTransactionType,
+  getTransactionType,
+} from './getTransactionType.js'
 export type SerializedTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
   TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,

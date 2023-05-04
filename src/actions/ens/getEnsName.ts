@@ -1,15 +1,19 @@
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { panicReasons } from '../../constants/solidity.js'
-import type { ContractFunctionRevertedError } from '../../errors/contract.js'
-import { ContractFunctionExecutionError } from '../../errors/contract.js'
+import {
+  ContractFunctionExecutionError,
+  type ContractFunctionRevertedError,
+} from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
-import { readContract } from '../public/readContract.js'
-import type { ReadContractParameters } from '../public/readContract.js'
+import {
+  type ReadContractParameters,
+  readContract,
+} from '../public/readContract.js'
 import type { Address } from 'abitype'
 
 export type GetEnsNameParameters = Prettify<

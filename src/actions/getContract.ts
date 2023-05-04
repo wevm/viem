@@ -14,35 +14,35 @@ import type {
   Or,
   Prettify,
 } from '../types/utils.js'
-import { createContractEventFilter } from './public/createContractEventFilter.js'
-import type {
-  CreateContractEventFilterParameters,
-  CreateContractEventFilterReturnType,
+import {
+  type CreateContractEventFilterParameters,
+  type CreateContractEventFilterReturnType,
+  createContractEventFilter,
 } from './public/createContractEventFilter.js'
-import { estimateContractGas } from './public/estimateContractGas.js'
-import type {
-  EstimateContractGasParameters,
-  EstimateContractGasReturnType,
+import {
+  type EstimateContractGasParameters,
+  type EstimateContractGasReturnType,
+  estimateContractGas,
 } from './public/estimateContractGas.js'
-import { readContract } from './public/readContract.js'
-import type {
-  ReadContractParameters,
-  ReadContractReturnType,
+import {
+  type ReadContractParameters,
+  type ReadContractReturnType,
+  readContract,
 } from './public/readContract.js'
-import { simulateContract } from './public/simulateContract.js'
-import type {
-  SimulateContractParameters,
-  SimulateContractReturnType,
+import {
+  type SimulateContractParameters,
+  type SimulateContractReturnType,
+  simulateContract,
 } from './public/simulateContract.js'
-import { watchContractEvent } from './public/watchContractEvent.js'
-import type {
-  WatchContractEventParameters,
-  WatchContractEventReturnType,
+import {
+  type WatchContractEventParameters,
+  type WatchContractEventReturnType,
+  watchContractEvent,
 } from './public/watchContractEvent.js'
-import { writeContract } from './wallet/writeContract.js'
-import type {
-  WriteContractParameters,
-  WriteContractReturnType,
+import {
+  type WriteContractParameters,
+  type WriteContractReturnType,
+  writeContract,
 } from './wallet/writeContract.js'
 import type {
   Abi,

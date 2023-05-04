@@ -27,8 +27,10 @@ import { impersonateAccount } from '../actions/test/impersonateAccount.js'
 import { mine } from '../actions/test/mine.js'
 import { reset } from '../actions/test/reset.js'
 import { stopImpersonatingAccount } from '../actions/test/stopImpersonatingAccount.js'
-import type { DeployContractParameters } from '../actions/wallet/deployContract.js'
-import { deployContract } from '../actions/wallet/deployContract.js'
+import {
+  type DeployContractParameters,
+  deployContract,
+} from '../actions/wallet/deployContract.js'
 import { writeContract } from '../actions/wallet/writeContract.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
 import { createTestClient } from '../clients/createTestClient.js'
@@ -40,8 +42,7 @@ import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
 import { namehash } from '../utils/ens/namehash.js'
 import { rpc } from '../utils/rpc.js'
-import type { RequestListener } from 'http'
-import { createServer } from 'http'
+import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
 
 export const anvilChain = {

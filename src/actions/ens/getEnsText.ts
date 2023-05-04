@@ -9,8 +9,10 @@ import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
-import { readContract } from '../public/readContract.js'
-import type { ReadContractParameters } from '../public/readContract.js'
+import {
+  type ReadContractParameters,
+  readContract,
+} from '../public/readContract.js'
 import type { Address } from 'abitype'
 
 export type GetEnsTextParameters = Prettify<

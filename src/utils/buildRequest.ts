@@ -14,6 +14,7 @@ import {
   ProviderDisconnectedError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
+  type RpcError,
   SwitchChainError,
   TransactionRejectedRpcError,
   UnauthorizedProviderError,
@@ -21,7 +22,6 @@ import {
   UnsupportedProviderMethodError,
   UserRejectedRequestError,
 } from '../errors/rpc.js'
-import type { RpcError } from '../errors/rpc.js'
 import { withRetry } from './promise/withRetry.js'
 
 export const isDeterministicError = (error: Error) => {

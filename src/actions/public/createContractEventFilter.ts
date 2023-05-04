@@ -7,8 +7,10 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
-import { encodeEventTopics } from '../../utils/abi/encodeEventTopics.js'
-import type { EncodeEventTopicsParameters } from '../../utils/abi/encodeEventTopics.js'
+import {
+  type EncodeEventTopicsParameters,
+  encodeEventTopics,
+} from '../../utils/abi/encodeEventTopics.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 import type { Abi, Address, Narrow } from 'abitype'

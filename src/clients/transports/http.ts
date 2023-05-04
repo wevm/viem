@@ -1,9 +1,10 @@
 import { UrlRequiredError } from '../../errors/transport.js'
-import type { HttpOptions } from '../../utils/rpc.js'
-import { rpc } from '../../utils/rpc.js'
-import type { Transport, TransportConfig } from './createTransport.js'
-import { createTransport } from './createTransport.js'
-
+import { type HttpOptions, rpc } from '../../utils/rpc.js'
+import {
+  type Transport,
+  type TransportConfig,
+  createTransport,
+} from './createTransport.js'
 export type HttpTransportConfig = {
   /**
    * Request configuration to pass to `fetch`.

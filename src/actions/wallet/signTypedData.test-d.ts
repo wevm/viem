@@ -1,6 +1,5 @@
 import { walletClient } from '../../_test/utils.js'
-import type { SignTypedDataParameters } from './signTypedData.js'
-import { signTypedData } from './signTypedData.js'
+import { type SignTypedDataParameters, signTypedData } from './signTypedData.js'
 import type { TypedData } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 

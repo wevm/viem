@@ -1,77 +1,125 @@
-export { call } from './actions/public/call.js'
-export { createBlockFilter } from './actions/public/createBlockFilter.js'
-export { createEventFilter } from './actions/public/createEventFilter.js'
-export { createPendingTransactionFilter } from './actions/public/createPendingTransactionFilter.js'
-export { estimateGas } from './actions/public/estimateGas.js'
-export { getBalance } from './actions/public/getBalance.js'
-export { getBlock } from './actions/public/getBlock.js'
-export { getBlockNumber } from './actions/public/getBlockNumber.js'
-export { getBlockNumberCache } from './actions/public/getBlockNumber.js'
-export { getBlockTransactionCount } from './actions/public/getBlockTransactionCount.js'
-export { getBytecode } from './actions/public/getBytecode.js'
+export {
+  call,
+  type CallParameters,
+  type CallReturnType,
+} from './actions/public/call.js'
+export {
+  createBlockFilter,
+  type CreateBlockFilterReturnType,
+} from './actions/public/createBlockFilter.js'
+export {
+  createEventFilter,
+  type CreateEventFilterParameters,
+  type CreateEventFilterReturnType,
+} from './actions/public/createEventFilter.js'
+export {
+  createPendingTransactionFilter,
+  type CreatePendingTransactionFilterReturnType,
+} from './actions/public/createPendingTransactionFilter.js'
+export {
+  estimateGas,
+  type EstimateGasParameters,
+  type EstimateGasReturnType,
+} from './actions/public/estimateGas.js'
+export {
+  getBalance,
+  type GetBalanceParameters,
+  type GetBalanceReturnType,
+} from './actions/public/getBalance.js'
+export {
+  getBlock,
+  type GetBlockParameters,
+  type GetBlockReturnType,
+} from './actions/public/getBlock.js'
+export {
+  getBlockNumber,
+  getBlockNumberCache,
+  type GetBlockNumberParameters,
+  type GetBlockNumberReturnType,
+} from './actions/public/getBlockNumber.js'
+export {
+  getBlockTransactionCount,
+  type GetBlockTransactionCountParameters,
+  type GetBlockTransactionCountReturnType,
+} from './actions/public/getBlockTransactionCount.js'
+export {
+  getBytecode,
+  type GetBytecodeParameters,
+  type GetBytecodeReturnType,
+} from './actions/public/getBytecode.js'
 export { getChainId } from './actions/public/getChainId.js'
-export { getFeeHistory } from './actions/public/getFeeHistory.js'
-export { getFilterChanges } from './actions/public/getFilterChanges.js'
-export { getFilterLogs } from './actions/public/getFilterLogs.js'
+export {
+  getFeeHistory,
+  type GetFeeHistoryParameters,
+  type GetFeeHistoryReturnType,
+} from './actions/public/getFeeHistory.js'
+export {
+  getFilterChanges,
+  type GetFilterChangesParameters,
+  type GetFilterChangesReturnType,
+} from './actions/public/getFilterChanges.js'
+export {
+  getFilterLogs,
+  type GetFilterLogsParameters,
+  type GetFilterLogsReturnType,
+} from './actions/public/getFilterLogs.js'
 export { getLogs } from './actions/public/getLogs.js'
-export { getGasPrice } from './actions/public/getGasPrice.js'
-export { getTransaction } from './actions/public/getTransaction.js'
-export { getTransactionConfirmations } from './actions/public/getTransactionConfirmations.js'
-export { getTransactionCount } from './actions/public/getTransactionCount.js'
-export { getTransactionReceipt } from './actions/public/getTransactionReceipt.js'
-export { uninstallFilter } from './actions/public/uninstallFilter.js'
-export { waitForTransactionReceipt } from './actions/public/waitForTransactionReceipt.js'
-export { watchBlockNumber } from './actions/public/watchBlockNumber.js'
-export { watchBlocks } from './actions/public/watchBlocks.js'
-export { watchEvent } from './actions/public/watchEvent.js'
-export { watchPendingTransactions } from './actions/public/watchPendingTransactions.js'
-export type { CallParameters } from './actions/public/call.js'
-export type { CallReturnType } from './actions/public/call.js'
-export type { CreateBlockFilterReturnType } from './actions/public/createBlockFilter.js'
-export type { CreateEventFilterParameters } from './actions/public/createEventFilter.js'
-export type { CreateEventFilterReturnType } from './actions/public/createEventFilter.js'
-export type { CreatePendingTransactionFilterReturnType } from './actions/public/createPendingTransactionFilter.js'
-export type { EstimateGasParameters } from './actions/public/estimateGas.js'
-export type { EstimateGasReturnType } from './actions/public/estimateGas.js'
-export type { GetBalanceParameters } from './actions/public/getBalance.js'
-export type { GetBalanceReturnType } from './actions/public/getBalance.js'
-export type { GetBlockParameters } from './actions/public/getBlock.js'
-export type { GetBlockNumberParameters } from './actions/public/getBlockNumber.js'
-export type { GetBlockNumberReturnType } from './actions/public/getBlockNumber.js'
-export type { GetBlockReturnType } from './actions/public/getBlock.js'
-export type { GetBlockTransactionCountParameters } from './actions/public/getBlockTransactionCount.js'
-export type { GetBlockTransactionCountReturnType } from './actions/public/getBlockTransactionCount.js'
-export type { GetBytecodeParameters } from './actions/public/getBytecode.js'
-export type { GetBytecodeReturnType } from './actions/public/getBytecode.js'
-export type { GetFeeHistoryParameters } from './actions/public/getFeeHistory.js'
-export type { GetFeeHistoryReturnType } from './actions/public/getFeeHistory.js'
-export type { GetFilterChangesParameters } from './actions/public/getFilterChanges.js'
-export type { GetFilterChangesReturnType } from './actions/public/getFilterChanges.js'
-export type { GetFilterLogsParameters } from './actions/public/getFilterLogs.js'
-export type { GetFilterLogsReturnType } from './actions/public/getFilterLogs.js'
-export type { GetGasPriceReturnType } from './actions/public/getGasPrice.js'
-export type { GetTransactionParameters } from './actions/public/getTransaction.js'
-export type { GetTransactionConfirmationsParameters } from './actions/public/getTransactionConfirmations.js'
-export type { GetTransactionConfirmationsReturnType } from './actions/public/getTransactionConfirmations.js'
-export type { GetTransactionCountParameters } from './actions/public/getTransactionCount.js'
-export type { GetTransactionCountReturnType } from './actions/public/getTransactionCount.js'
-export type { GetTransactionReceiptParameters } from './actions/public/getTransactionReceipt.js'
-export type { GetTransactionReceiptReturnType } from './actions/public/getTransactionReceipt.js'
-export type { GetTransactionReturnType } from './actions/public/getTransaction.js'
-export type { OnBlock } from './actions/public/watchBlocks.js'
-export type { OnBlockNumberFn } from './actions/public/watchBlockNumber.js'
-export type { OnBlockNumberParameter } from './actions/public/watchBlockNumber.js'
-export type { OnBlockParameter } from './actions/public/watchBlocks.js'
-export type { OnLogsFn } from './actions/public/watchEvent.js'
-export type { OnLogsParameter } from './actions/public/watchEvent.js'
-export type { OnTransactionsFn } from './actions/public/watchPendingTransactions.js'
-export type { OnTransactionsParameter } from './actions/public/watchPendingTransactions.js'
-export type { ReplacementReason } from './actions/public/waitForTransactionReceipt.js'
-export type { ReplacementReturnType } from './actions/public/waitForTransactionReceipt.js'
-export type { UninstallFilterParameters } from './actions/public/uninstallFilter.js'
-export type { UninstallFilterReturnType } from './actions/public/uninstallFilter.js'
-export type { WaitForTransactionReceiptParameters } from './actions/public/waitForTransactionReceipt.js'
-export type { WaitForTransactionReceiptReturnType } from './actions/public/waitForTransactionReceipt.js'
-export type { WatchBlockNumberParameters } from './actions/public/watchBlockNumber.js'
-export type { WatchBlocksParameters } from './actions/public/watchBlocks.js'
-export type { WatchPendingTransactionsParameters } from './actions/public/watchPendingTransactions.js'
+export {
+  getGasPrice,
+  type GetGasPriceReturnType,
+} from './actions/public/getGasPrice.js'
+export {
+  getTransaction,
+  type GetTransactionParameters,
+  type GetTransactionReturnType,
+} from './actions/public/getTransaction.js'
+export {
+  getTransactionConfirmations,
+  type GetTransactionConfirmationsParameters,
+  type GetTransactionConfirmationsReturnType,
+} from './actions/public/getTransactionConfirmations.js'
+export {
+  getTransactionCount,
+  type GetTransactionCountParameters,
+  type GetTransactionCountReturnType,
+} from './actions/public/getTransactionCount.js'
+export {
+  getTransactionReceipt,
+  type GetTransactionReceiptParameters,
+  type GetTransactionReceiptReturnType,
+} from './actions/public/getTransactionReceipt.js'
+export {
+  uninstallFilter,
+  type UninstallFilterParameters,
+  type UninstallFilterReturnType,
+} from './actions/public/uninstallFilter.js'
+export {
+  waitForTransactionReceipt,
+  type ReplacementReason,
+  type ReplacementReturnType,
+  type WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReturnType,
+} from './actions/public/waitForTransactionReceipt.js'
+export {
+  watchBlockNumber,
+  type OnBlockNumberFn,
+  type OnBlockNumberParameter,
+  type WatchBlockNumberParameters,
+} from './actions/public/watchBlockNumber.js'
+export {
+  watchBlocks,
+  type OnBlock,
+  type OnBlockParameter,
+  type WatchBlocksParameters,
+} from './actions/public/watchBlocks.js'
+export {
+  watchEvent,
+  type OnLogsFn,
+  type OnLogsParameter,
+} from './actions/public/watchEvent.js'
+export {
+  watchPendingTransactions,
+  type OnTransactionsFn,
+  type OnTransactionsParameter,
+  type WatchPendingTransactionsParameters,
+} from './actions/public/watchPendingTransactions.js'

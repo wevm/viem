@@ -16,10 +16,11 @@ import type {
 import type { MergeIntersectionProperties } from '../../types/utils.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
-import { format } from '../../utils/formatters/format.js'
-import type { Formatted } from '../../utils/formatters/format.js'
-import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import type { TransactionRequestFormatter } from '../../utils/formatters/transactionRequest.js'
+import { type Formatted, format } from '../../utils/formatters/format.js'
+import {
+  type TransactionRequestFormatter,
+  formatTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 import { getChainId } from '../public/getChainId.js'

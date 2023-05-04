@@ -12,12 +12,14 @@ export type ParseAccount<TAccount extends Account | Address | undefined> =
   | (TAccount extends Address ? JsonRpcAccount : never)
   | (TAccount extends undefined ? undefined : never)
 
-export type { Account } from '../accounts/types.js'
-export type { AccountSource } from '../accounts/types.js'
-export type { CustomSource } from '../accounts/types.js'
-export type { HDAccount } from '../accounts/types.js'
+export {
+  type Account,
+  type AccountSource,
+  type CustomSource,
+  type HDAccount,
+  type HDOptions,
+  type JsonRpcAccount,
+  type LocalAccount,
+  type PrivateKeyAccount,
+} from '../accounts/types.js'
 export type { HDKey } from '@scure/bip32'
-export type { HDOptions } from '../accounts/types.js'
-export type { JsonRpcAccount } from '../accounts/types.js'
-export type { LocalAccount } from '../accounts/types.js'
-export type { PrivateKeyAccount } from '../accounts/types.js'

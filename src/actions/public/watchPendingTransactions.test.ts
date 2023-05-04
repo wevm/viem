@@ -13,8 +13,10 @@ import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
 import * as getFilterChanges from './getFilterChanges.js'
-import type { OnTransactionsParameter } from './watchPendingTransactions.js'
-import { watchPendingTransactions } from './watchPendingTransactions.js'
+import {
+  type OnTransactionsParameter,
+  watchPendingTransactions,
+} from './watchPendingTransactions.js'
 import { describe, expect, test, vi } from 'vitest'
 
 describe('poll', () => {

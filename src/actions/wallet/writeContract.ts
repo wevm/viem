@@ -4,12 +4,14 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'
-import { sendTransaction } from './sendTransaction.js'
-import type {
-  SendTransactionParameters,
-  SendTransactionReturnType,
+import {
+  type EncodeFunctionDataParameters,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import {
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  sendTransaction,
 } from './sendTransaction.js'
 import type { Abi } from 'abitype'
 

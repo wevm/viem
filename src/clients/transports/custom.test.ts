@@ -2,9 +2,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import type { Requests } from '../../types/eip1193.js'
 import '../../types/window.js'
-import type { CustomTransport } from './custom.js'
-import { custom } from './custom.js'
-
+import { type CustomTransport, custom } from './custom.js'
 vi.stubGlobal('window', {
   ethereum: {
     on: vi.fn(() => null),

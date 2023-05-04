@@ -25,11 +25,15 @@ export { korean } from './wordlists/korean.js'
 export { simplifiedChinese } from './wordlists/simplifiedChinese.js'
 export { spanish } from './wordlists/spanish.js'
 export { traditionalChinese } from './wordlists/traditionalChinese.js'
-export type { SignMessageParameters } from './utils/signMessage.js'
-export type { SignMessageReturnType } from './utils/signMessage.js'
-export type { SignTypedDataParameters } from './utils/signTypedData.js'
-export type { SignTypedDataReturnType } from './utils/signTypedData.js'
+export {
+  type SignMessageParameters,
+  type SignMessageReturnType,
+  signMessage,
+} from './utils/signMessage.js'
+export {
+  type SignTypedDataParameters,
+  type SignTypedDataReturnType,
+  signTypedData,
+} from './utils/signTypedData.js'
 export { parseAccount } from './utils/parseAccount.js'
 export { publicKeyToAddress } from './utils/publicKeyToAddress.js'
-export { signMessage } from './utils/signMessage.js'
-export { signTypedData } from './utils/signTypedData.js'

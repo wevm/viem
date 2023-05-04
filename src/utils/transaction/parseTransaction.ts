@@ -29,9 +29,10 @@ import {
   assertTransactionEIP2930,
   assertTransactionLegacy,
 } from './assertTransaction.js'
-import { getSerializedTransactionType } from './getSerializedTransactionType.js'
-import type { GetSerializedTransactionType } from './getSerializedTransactionType.js'
-
+import {
+  type GetSerializedTransactionType,
+  getSerializedTransactionType,
+} from './getSerializedTransactionType.js'
 export type ParseTransactionReturnType<
   TSerialized extends TransactionSerialized = TransactionSerialized,
   TType extends TransactionType = GetSerializedTransactionType<TSerialized>,

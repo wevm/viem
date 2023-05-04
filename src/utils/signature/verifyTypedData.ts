@@ -2,8 +2,10 @@ import type { ByteArray, Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { getAddress } from '../address/getAddress.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
-import { recoverTypedDataAddress } from './recoverTypedDataAddress.js'
-import type { RecoverTypedDataAddressParameters } from './recoverTypedDataAddress.js'
+import {
+  type RecoverTypedDataAddressParameters,
+  recoverTypedDataAddress,
+} from './recoverTypedDataAddress.js'
 import type { Address, TypedData } from 'abitype'
 
 export type VerifyTypedDataParameters<

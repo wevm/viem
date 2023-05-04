@@ -1,7 +1,9 @@
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import type { HashTypedDataParameters } from '../../utils/signature/hashTypedData.js'
-import { hashTypedData } from '../../utils/signature/hashTypedData.js'
+import {
+  type HashTypedDataParameters,
+  hashTypedData,
+} from '../../utils/signature/hashTypedData.js'
 import { sign } from './sign.js'
 import { signatureToHex } from './signatureToHex.js'
 import type { TypedData } from 'abitype'

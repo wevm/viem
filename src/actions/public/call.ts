@@ -23,10 +23,11 @@ import { getChainContractAddress } from '../../utils/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getCallError } from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
-import type { Formatted } from '../../utils/formatters/format.js'
-import { format } from '../../utils/formatters/format.js'
-import type { TransactionRequestFormatter } from '../../utils/formatters/transactionRequest.js'
-import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import { type Formatted, format } from '../../utils/formatters/format.js'
+import {
+  type TransactionRequestFormatter,
+  formatTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type { Address } from 'abitype'

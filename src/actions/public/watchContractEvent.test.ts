@@ -12,8 +12,10 @@ import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
 import * as getLogs from './getLogs.js'
-import type { OnLogsParameter } from './watchContractEvent.js'
-import { watchContractEvent } from './watchContractEvent.js'
+import {
+  type OnLogsParameter,
+  watchContractEvent,
+} from './watchContractEvent.js'
 import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 beforeAll(async () => {

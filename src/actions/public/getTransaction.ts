@@ -7,12 +7,11 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { format } from '../../utils/formatters/format.js'
-import type {
-  FormattedTransaction,
-  TransactionFormatter,
+import {
+  type FormattedTransaction,
+  type TransactionFormatter,
+  formatTransaction,
 } from '../../utils/formatters/transaction.js'
-import { formatTransaction } from '../../utils/formatters/transaction.js'
-
 export type GetTransactionParameters =
   | {
       /** The block hash */

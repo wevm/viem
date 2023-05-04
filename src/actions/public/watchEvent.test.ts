@@ -12,8 +12,7 @@ import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
 import * as getLogs from './getLogs.js'
-import type { OnLogsParameter } from './watchEvent.js'
-import { watchEvent } from './watchEvent.js'
+import { type OnLogsParameter, watchEvent } from './watchEvent.js'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 const event = {

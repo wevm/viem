@@ -8,8 +8,7 @@ import type {
   InferFunctionName,
 } from '../../types/contract.js'
 import { encodeAbiParameters } from './encodeAbiParameters.js'
-import type { GetAbiItemParameters } from './getAbiItem.js'
-import { getAbiItem } from './getAbiItem.js'
+import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
 import type { Abi, Narrow } from 'abitype'
 
 const docsPath = '/docs/contract/encodeFunctionResult'

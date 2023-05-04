@@ -4,16 +4,19 @@ import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs, InferEventName } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
-import type { GetAbiItemParameters } from '../../utils/abi/getAbiItem.js'
-import { getAbiItem } from '../../utils/abi/getAbiItem.js'
+import {
+  type GetAbiItemParameters,
+  getAbiItem,
+} from '../../utils/abi/getAbiItem.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { createContractEventFilter } from './createContractEventFilter.js'
-import type { CreateContractEventFilterParameters } from './createContractEventFilter.js'
+import {
+  type CreateContractEventFilterParameters,
+  createContractEventFilter,
+} from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
-import { getLogs } from './getLogs.js'
-import type { GetLogsParameters } from './getLogs.js'
+import { type GetLogsParameters, getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 import type { Abi, Address, ExtractAbiEvent, Narrow } from 'abitype'
 

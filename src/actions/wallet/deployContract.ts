@@ -5,10 +5,10 @@ import type { Chain, GetChain } from '../../types/chain.js'
 import type { GetConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
-import { sendTransaction } from './sendTransaction.js'
-import type {
-  SendTransactionParameters,
-  SendTransactionReturnType,
+import {
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  sendTransaction,
 } from './sendTransaction.js'
 import type { Abi, Narrow } from 'abitype'
 

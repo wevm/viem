@@ -12,8 +12,7 @@ import { getEventSelector } from '../hash/getEventSelector.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
-import { getAbiItem } from './getAbiItem.js'
-import type { GetAbiItemParameters } from './getAbiItem.js'
+import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
 import type {
   Abi,
   AbiParameter,

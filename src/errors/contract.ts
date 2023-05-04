@@ -3,8 +3,10 @@ import type { CallParameters } from '../actions/public/call.js'
 import { panicReasons } from '../constants/solidity.js'
 import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
-import { decodeErrorResult } from '../utils/abi/decodeErrorResult.js'
-import type { DecodeErrorResultReturnType } from '../utils/abi/decodeErrorResult.js'
+import {
+  type DecodeErrorResultReturnType,
+  decodeErrorResult,
+} from '../utils/abi/decodeErrorResult.js'
 import { formatAbiItem } from '../utils/abi/formatAbiItem.js'
 import { formatAbiItemWithArgs } from '../utils/abi/formatAbiItemWithArgs.js'
 import { getAbiItem } from '../utils/abi/getAbiItem.js'

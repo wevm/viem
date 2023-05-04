@@ -10,8 +10,10 @@ import type { Log } from '../../types/log.js'
 import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
-import type { EncodeEventTopicsParameters } from '../../utils/abi/encodeEventTopics.js'
-import { encodeEventTopics } from '../../utils/abi/encodeEventTopics.js'
+import {
+  type EncodeEventTopicsParameters,
+  encodeEventTopics,
+} from '../../utils/abi/encodeEventTopics.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { formatLog } from '../../utils/formatters/log.js'
 import type { AbiEvent, Address, Narrow } from 'abitype'
