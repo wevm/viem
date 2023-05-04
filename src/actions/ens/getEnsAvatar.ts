@@ -1,6 +1,9 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { AssetGatewayUrls, Chain, Prettify } from '../../types/index.js'
-import { parseAvatarRecord } from '../../utils/ens/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { AssetGatewayUrls } from '../../types/ens.js'
+import type { Prettify } from '../../types/utils.js'
+import { parseAvatarRecord } from '../../utils/ens/avatar/parseAvatarRecord.js'
 import { getEnsText } from './getEnsText.js'
 import type { GetEnsTextParameters } from './getEnsText.js'
 

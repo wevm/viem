@@ -7,20 +7,18 @@
 import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig } from '../../_test/abis.js'
+import { wagmiContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/constants.js'
 import { errorsExampleABI } from '../../_test/generated.js'
-import {
-  accounts,
-  deployBAYC,
-  publicClient,
-  testClient,
-  wagmiContractConfig,
-  walletClient,
-} from '../../_test/index.js'
 import { deployErrorExample } from '../../_test/utils.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
-import { encodeFunctionData } from '../../utils/index.js'
-import { mine } from '../test/index.js'
-import { sendTransaction } from '../wallet/index.js'
+import { deployBAYC } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import { mine } from '../test/mine.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import { estimateContractGas } from './estimateContractGas.js'
 
 describe('wagmi', () => {

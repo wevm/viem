@@ -1,5 +1,6 @@
-import { InvalidBytesBooleanError } from '../../errors/index.js'
-import type { ByteArray, Hex } from '../../types/index.js'
+import { InvalidBytesBooleanError } from '../../errors/encoding.js'
+import type { ByteArray } from '../../types/misc.js'
+import type { Hex } from '../../types/misc.js'
 import { trim } from '../data/trim.js'
 import { assertSize, hexToBigInt, hexToNumber } from './fromHex.js'
 import { bytesToHex } from './toHex.js'
@@ -132,8 +133,6 @@ export function bytesToBool(
     throw new InvalidBytesBooleanError(bytes)
   return Boolean(bytes[0])
 }
-
-export { bytesToHex }
 
 export type BytesToNumberOpts = BytesToBigIntOpts
 

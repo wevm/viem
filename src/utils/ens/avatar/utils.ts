@@ -1,12 +1,13 @@
-import { readContract } from '../../../actions/index.js'
-import type { PublicClient, Transport } from '../../../clients/index.js'
-import {
-  EnsAvatarInvalidMetadataError,
-  EnsAvatarInvalidNftUriError,
-  EnsAvatarUnsupportedNamespaceError,
-  EnsAvatarUriResolutionError,
-} from '../../../errors/index.js'
-import type { Address, AssetGatewayUrls, Chain } from '../../../types/index.js'
+import { readContract } from '../../../actions/public/readContract.js'
+import type { PublicClient } from '../../../clients/createPublicClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import { EnsAvatarInvalidMetadataError } from '../../../errors/ens.js'
+import { EnsAvatarInvalidNftUriError } from '../../../errors/ens.js'
+import { EnsAvatarUnsupportedNamespaceError } from '../../../errors/ens.js'
+import { EnsAvatarUriResolutionError } from '../../../errors/ens.js'
+import type { Chain } from '../../../types/chain.js'
+import type { AssetGatewayUrls } from '../../../types/ens.js'
+import type { Address } from 'abitype'
 
 type UriItem = {
   uri: string

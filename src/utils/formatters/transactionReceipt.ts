@@ -1,11 +1,9 @@
-import type {
-  Chain,
-  Formatter,
-  Formatters,
-  RpcTransactionReceipt,
-  TransactionReceipt,
-} from '../../types/index.js'
-import { hexToNumber } from '../encoding/index.js'
+import type { Chain } from '../../types/chain.js'
+import type { Formatter } from '../../types/formatter.js'
+import type { Formatters } from '../../types/formatter.js'
+import type { RpcTransactionReceipt } from '../../types/rpc.js'
+import type { TransactionReceipt } from '../../types/transaction.js'
+import { hexToNumber } from '../encoding/fromHex.js'
 import { defineFormatter } from './format.js'
 import type { ExtractFormatter, Formatted } from './format.js'
 import { formatLog } from './log.js'

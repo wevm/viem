@@ -1,20 +1,18 @@
-import { assertType, describe, expect, test } from 'vitest'
-
-import { accounts } from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
 import { sign } from '../../accounts/utils/sign.js'
-import type {
-  TransactionSerializableBase,
-  TransactionSerializableEIP1559,
-  TransactionSerializableEIP2930,
-  TransactionSerializableLegacy,
-  TransactionSerializedEIP1559,
-  TransactionSerializedEIP2930,
-  TransactionSerializedLegacy,
-} from '../../types/index.js'
-import { keccak256 } from '../hash/index.js'
-import { parseEther, parseGwei } from '../unit/index.js'
+import type { TransactionSerializableBase } from '../../types/transaction.js'
+import type { TransactionSerializableEIP1559 } from '../../types/transaction.js'
+import type { TransactionSerializableEIP2930 } from '../../types/transaction.js'
+import type { TransactionSerializableLegacy } from '../../types/transaction.js'
+import type { TransactionSerializedEIP1559 } from '../../types/transaction.js'
+import type { TransactionSerializedEIP2930 } from '../../types/transaction.js'
+import type { TransactionSerializedLegacy } from '../../types/transaction.js'
+import { keccak256 } from '../hash/keccak256.js'
+import { parseEther } from '../unit/parseEther.js'
+import { parseGwei } from '../unit/parseGwei.js'
 import { parseTransaction } from './parseTransaction.js'
 import { serializeTransaction } from './serializeTransaction.js'
+import { assertType, describe, expect, test } from 'vitest'
 
 const base = {
   to: accounts[1].address,

@@ -1,4 +1,4 @@
-import type { Formatter } from '../../types/index.js'
+import type { Formatter } from '../../types/formatter.js'
 
 /**
  * @description Picks out the keys from `value` that exist in the formatter.

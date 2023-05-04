@@ -1,18 +1,15 @@
-import { assertType, describe, expect, test } from 'vitest'
-
-import { accounts } from '../../_test/index.js'
-import type {
-  TransactionSerializable,
-  TransactionSerializableBase,
-  TransactionSerializableEIP1559,
-  TransactionSerializableEIP2930,
-  TransactionSerializableLegacy,
-  TransactionSerializedEIP1559,
-  TransactionSerializedEIP2930,
-  TransactionSerializedLegacy,
-} from '../../types/index.js'
-import { parseGwei } from '../../utils/index.js'
+import { accounts } from '../../_test/constants.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
+import type { TransactionSerializableBase } from '../../types/transaction.js'
+import type { TransactionSerializableEIP1559 } from '../../types/transaction.js'
+import type { TransactionSerializableEIP2930 } from '../../types/transaction.js'
+import type { TransactionSerializableLegacy } from '../../types/transaction.js'
+import type { TransactionSerializedEIP1559 } from '../../types/transaction.js'
+import type { TransactionSerializedEIP2930 } from '../../types/transaction.js'
+import type { TransactionSerializedLegacy } from '../../types/transaction.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { signTransaction } from './signTransaction.js'
+import { assertType, describe, expect, test } from 'vitest'
 
 const base = {
   gas: 21000n,

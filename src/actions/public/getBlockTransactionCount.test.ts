@@ -1,18 +1,15 @@
-import { beforeAll, expect, test } from 'vitest'
-
-import {
-  accounts,
-  forkBlockNumber,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import { sendTransaction } from '../index.js'
-import { mine } from '../test/index.js'
+import { accounts } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { mine } from '../test/mine.js'
 import { setIntervalMining } from '../test/setIntervalMining.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
+import { beforeAll, expect, test } from 'vitest'
 
 await beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })

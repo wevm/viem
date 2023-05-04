@@ -1,30 +1,28 @@
-import type { RpcError } from '../errors/index.js'
-import {
-  BaseError,
-  HttpRequestError,
-  InternalRpcError,
-  InvalidInputRpcError,
-  InvalidParamsRpcError,
-  InvalidRequestRpcError,
-  JsonRpcVersionUnsupportedError,
-  LimitExceededRpcError,
-  MethodNotFoundRpcError,
-  MethodNotSupportedRpcError,
-  ParseRpcError,
-  ResourceNotFoundRpcError,
-  ResourceUnavailableRpcError,
-  SwitchChainError,
-  TransactionRejectedRpcError,
-  UnknownRpcError,
-  UserRejectedRequestError,
-} from '../errors/index.js'
+import { BaseError } from '../errors/base.js'
+import { HttpRequestError } from '../errors/request.js'
 import {
   ChainDisconnectedError,
   ProviderDisconnectedError,
   UnauthorizedProviderError,
   UnsupportedProviderMethodError,
 } from '../errors/rpc.js'
-import { withRetry } from './promise/index.js'
+import type { RpcError } from '../errors/rpc.js'
+import { InternalRpcError } from '../errors/rpc.js'
+import { InvalidInputRpcError } from '../errors/rpc.js'
+import { InvalidParamsRpcError } from '../errors/rpc.js'
+import { InvalidRequestRpcError } from '../errors/rpc.js'
+import { JsonRpcVersionUnsupportedError } from '../errors/rpc.js'
+import { LimitExceededRpcError } from '../errors/rpc.js'
+import { MethodNotFoundRpcError } from '../errors/rpc.js'
+import { MethodNotSupportedRpcError } from '../errors/rpc.js'
+import { ParseRpcError } from '../errors/rpc.js'
+import { ResourceNotFoundRpcError } from '../errors/rpc.js'
+import { ResourceUnavailableRpcError } from '../errors/rpc.js'
+import { SwitchChainError } from '../errors/rpc.js'
+import { TransactionRejectedRpcError } from '../errors/rpc.js'
+import { UnknownRpcError } from '../errors/rpc.js'
+import { UserRejectedRequestError } from '../errors/rpc.js'
+import { withRetry } from './promise/withRetry.js'
 
 export const isDeterministicError = (error: Error) => {
   if ('code' in error)

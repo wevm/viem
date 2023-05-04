@@ -1,29 +1,25 @@
-export {
-  addChain,
-  getAddresses,
-  getPermissions,
-  requestAddresses,
-  requestPermissions,
-  sendTransaction,
-  signMessage,
-  signTypedData,
-  switchChain,
-  watchAsset,
-} from './actions/wallet/index.js'
-export type {
-  AddChainParameters,
-  FormattedTransactionRequest,
-  GetPermissionsReturnType,
-  GetAddressesReturnType,
-  RequestAddressesReturnType,
-  RequestPermissionsReturnType,
-  SendTransactionParameters,
-  SendTransactionReturnType,
-  SignMessageParameters,
-  SignMessageReturnType,
-  SignTypedDataParameters,
-  SignTypedDataReturnType,
-  SwitchChainParameters,
-  WatchAssetParameters,
-  WatchAssetReturnType,
-} from './actions/wallet/index.js'
+export { addChain } from './actions/wallet/addChain.js'
+export { getAddresses } from './actions/wallet/getAddresses.js'
+export { getPermissions } from './actions/wallet/getPermissions.js'
+export { requestAddresses } from './actions/wallet/requestAddresses.js'
+export { requestPermissions } from './actions/wallet/requestPermissions.js'
+export { sendTransaction } from './actions/wallet/sendTransaction.js'
+export { signMessage } from './actions/wallet/signMessage.js'
+export { signTypedData } from './actions/wallet/signTypedData.js'
+export { switchChain } from './actions/wallet/switchChain.js'
+export { watchAsset } from './actions/wallet/watchAsset.js'
+export type { AddChainParameters } from './actions/wallet/addChain.js'
+export type { FormattedTransactionRequest } from './actions/wallet/sendTransaction.js'
+export type { GetPermissionsReturnType } from './actions/wallet/getPermissions.js'
+export type { GetAddressesReturnType } from './actions/wallet/getAddresses.js'
+export type { RequestAddressesReturnType } from './actions/wallet/requestAddresses.js'
+export type { RequestPermissionsReturnType } from './actions/wallet/requestPermissions.js'
+export type { SendTransactionParameters } from './actions/wallet/sendTransaction.js'
+export type { SendTransactionReturnType } from './actions/wallet/sendTransaction.js'
+export type { SignMessageParameters } from './actions/wallet/signMessage.js'
+export type { SignMessageReturnType } from './actions/wallet/signMessage.js'
+export type { SignTypedDataParameters } from './actions/wallet/signTypedData.js'
+export type { SignTypedDataReturnType } from './actions/wallet/signTypedData.js'
+export type { SwitchChainParameters } from './actions/wallet/switchChain.js'
+export type { WatchAssetParameters } from './actions/wallet/watchAsset.js'
+export type { WatchAssetReturnType } from './actions/wallet/watchAsset.js'

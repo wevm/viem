@@ -1,8 +1,7 @@
+import { avalanche, fantom } from '../../chains.js'
 import { expect, test } from 'vitest'
 
-import { walletClient } from '../../_test/index.js'
-import { avalanche, fantom } from '../../chains.js'
-
+import { walletClient } from '../../_test/utils.js'
 import { switchChain } from './switchChain.js'
 
 test('default', async () => {

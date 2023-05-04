@@ -1,11 +1,11 @@
-import { fetchLogs } from '@viem/anvil'
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
-
-import { setAutomine, setIntervalMining } from '../test.js'
+import { setAutomine } from '../actions/test/setAutomine.js'
+import { setIntervalMining } from '../actions/test/setIntervalMining.js'
 import { cleanupCache, listenersCache } from '../utils/observe.js'
 import { promiseCache, responseCache } from '../utils/promise/withCache.js'
 import { forkBlockNumber, poolId } from './constants.js'
 import { setBlockNumber, testClient } from './utils.js'
+import { fetchLogs } from '@viem/anvil'
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 
 beforeAll(() => {
   vi.mock('../errors/utils.ts', () => ({

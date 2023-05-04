@@ -1,17 +1,14 @@
-import { describe, expect, test } from 'vitest'
-
-import { createHttpServer } from '../_test/index.js'
-import {
-  BaseError,
-  HttpRequestError,
-  InternalRpcError,
-  LimitExceededRpcError,
-  ParseRpcError,
-  TimeoutError,
-  UnknownRpcError,
-} from '../errors/index.js'
+import { createHttpServer } from '../_test/utils.js'
+import { BaseError } from '../errors/base.js'
+import { HttpRequestError } from '../errors/request.js'
+import { TimeoutError } from '../errors/request.js'
+import { InternalRpcError } from '../errors/rpc.js'
+import { LimitExceededRpcError } from '../errors/rpc.js'
+import { ParseRpcError } from '../errors/rpc.js'
+import { UnknownRpcError } from '../errors/rpc.js'
 import { buildRequest, isDeterministicError } from './buildRequest.js'
 import { rpc } from './rpc.js'
+import { describe, expect, test } from 'vitest'
 
 function request(url: string) {
   return async ({ method, params }: any) => {

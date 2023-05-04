@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest'
 
 import { createHttpServer, publicClient } from '../../_test/utils.js'
-import { createPublicClient, fallback, http } from '../../clients/index.js'
-import { createBlockFilter } from '../../public.js'
+import { createBlockFilter } from '../../actions/public/createBlockFilter.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { fallback } from '../../clients/transports/fallback.js'
+import { http } from '../../clients/transports/http.js'
 import { createFilterRequestScope } from './createFilterRequestScope.js'
 
 test('default', async () => {

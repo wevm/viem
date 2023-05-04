@@ -9,10 +9,12 @@ import {
   publicClient,
 } from '../_test/utils.js'
 import { getUrl } from '../errors/utils.js'
-import type { Hex } from '../types/index.js'
+import type { Hex } from '../types/misc.js'
+import { encodeErrorResult } from './abi/encodeErrorResult.js'
+import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { offchainLookup, offchainLookupAbiItem } from './ccip.js'
 import { ccipFetch } from './ccip.js'
-import { encodeErrorResult, encodeFunctionData, trim } from './index.js'
+import { trim } from './data/trim.js'
 
 describe('offchainLookup', () => {
   test('default', async () => {

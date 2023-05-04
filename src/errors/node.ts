@@ -1,4 +1,4 @@
-import { formatGwei } from '../utils/index.js'
+import { formatGwei } from '../utils/unit/formatGwei.js'
 import { BaseError } from './base.js'
 
 /**

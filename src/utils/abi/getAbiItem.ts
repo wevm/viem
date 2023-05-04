@@ -1,7 +1,7 @@
+import type { GetFunctionArgs } from '../../types/contract.js'
+import type { InferItemName } from '../../types/contract.js'
+import { isAddress } from '../address/isAddress.js'
 import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
-
-import type { GetFunctionArgs, InferItemName } from '../../types/index.js'
-import { isAddress } from '../address/index.js'
 
 export type GetAbiItemParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

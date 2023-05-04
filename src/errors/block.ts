@@ -1,4 +1,4 @@
-import type { Hash } from '../types/index.js'
+import type { Hash } from '../types/misc.js'
 import { BaseError } from './base.js'
 
 export class BlockNotFoundError extends BaseError {

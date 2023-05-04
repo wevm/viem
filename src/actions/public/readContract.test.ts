@@ -7,14 +7,12 @@
 import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig } from '../../_test/abis.js'
+import { wagmiContractConfig } from '../../_test/abis.js'
+import { address } from '../../_test/constants.js'
+import { forkBlockNumber } from '../../_test/constants.js'
 import { errorsExampleABI } from '../../_test/generated.js'
-import {
-  address,
-  forkBlockNumber,
-  publicClient,
-  wagmiContractConfig,
-} from '../../_test/index.js'
 import { deployErrorExample } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
 import { readContract } from './readContract.js'
 
 describe('wagmi', () => {

@@ -1,15 +1,11 @@
-import { bench, describe } from 'vitest'
-
-import {
-  accounts,
-  ethersProvider,
-  ethersV6Provider,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-
+import { ethersProvider } from '../../_test/bench.js'
+import { ethersV6Provider } from '../../_test/bench.js'
+import { accounts } from '../../_test/constants.js'
+import { walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from './sendTransaction.js'
 import { JsonRpcSigner } from 'ethers@6'
+import { bench, describe } from 'vitest'
 
 describe('Send Transaction', () => {
   bench('viem: `sendTransaction`', async () => {

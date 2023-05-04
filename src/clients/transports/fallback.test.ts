@@ -1,7 +1,5 @@
-import { assertType, describe, expect, test } from 'vitest'
-
-import { createHttpServer } from '../../_test/index.js'
-import { getBlockNumber } from '../../actions/index.js'
+import { createHttpServer } from '../../_test/utils.js'
+import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { localhost } from '../../chains.js'
 import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
@@ -10,6 +8,7 @@ import type { Transport } from './createTransport.js'
 import type { FallbackTransport, OnResponseFn } from './fallback.js'
 import { fallback, rankTransports } from './fallback.js'
 import { http } from './http.js'
+import { assertType, describe, expect, test } from 'vitest'
 
 test('default', () => {
   const alchemy = http('https://alchemy.com/rpc')

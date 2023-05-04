@@ -1,9 +1,7 @@
+import type { TransactionRequest } from '../../types/transaction.js'
+import { formatTransactionRequest } from './transactionRequest.js'
 import { providers } from 'ethers'
 import { bench, describe } from 'vitest'
-
-import type { TransactionRequest } from '../../types/index.js'
-
-import { formatTransactionRequest } from './transactionRequest.js'
 
 const receipt: TransactionRequest = {
   data: '0x0000000000000000000000000000000000000000000000000000002b3b6fb3d0',

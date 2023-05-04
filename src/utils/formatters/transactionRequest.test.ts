@@ -1,13 +1,9 @@
-import { expect, test } from 'vitest'
-
-import type {
-  TransactionRequest,
-  TransactionRequestEIP1559,
-  TransactionRequestEIP2930,
-  TransactionRequestLegacy,
-} from '../../types/index.js'
-
+import type { TransactionRequest } from '../../types/transaction.js'
+import type { TransactionRequestEIP1559 } from '../../types/transaction.js'
+import type { TransactionRequestEIP2930 } from '../../types/transaction.js'
+import type { TransactionRequestLegacy } from '../../types/transaction.js'
 import { formatTransactionRequest } from './transactionRequest.js'
+import { expect, test } from 'vitest'
 
 const base: TransactionRequest = {
   data: '0x1',

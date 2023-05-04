@@ -1,9 +1,8 @@
+import { address } from '../../_test/constants.js'
+import { encodePacked } from './encodePacked.js'
 import { utils as ethersV5Utils } from 'ethers'
 import { solidityPacked } from 'ethers@6'
 import { bench, describe } from 'vitest'
-
-import { address } from '../../_test/index.js'
-import { encodePacked } from './encodePacked.js'
 
 describe('Encode Packed ABI', () => {
   bench('viem: `encodePacked`', () => {

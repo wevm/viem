@@ -1,16 +1,12 @@
+import { wagmiContractConfig } from '../../_test/abis.js'
+import { ethersProvider } from '../../_test/bench.js'
+import { ethersV6Provider } from '../../_test/bench.js'
+import { accounts } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { simulateContract } from './simulateContract.js'
 import { Contract } from 'ethers'
 import { Contract as ContractV6, Typed } from 'ethers@6'
 import { bench, describe } from 'vitest'
-
-import {
-  accounts,
-  ethersProvider,
-  ethersV6Provider,
-  publicClient,
-  wagmiContractConfig,
-} from '../../_test/index.js'
-
-import { simulateContract } from './simulateContract.js'
 
 describe('Simulate Contract', () => {
   bench('viem: `simulateContract`', async () => {

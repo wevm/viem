@@ -1,21 +1,19 @@
-import { describe, expect, test, vi } from 'vitest'
-
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
 import { webSocketClient } from '../../_test/utils.js'
-import type { PublicClient } from '../../clients/index.js'
-import { parseEther } from '../../utils/index.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
-import { mine, setIntervalMining } from '../test/index.js'
-import { sendTransaction } from '../wallet/index.js'
+import { mine } from '../test/mine.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
 import * as getFilterChanges from './getFilterChanges.js'
 import type { OnTransactionsParameter } from './watchPendingTransactions.js'
 import { watchPendingTransactions } from './watchPendingTransactions.js'
+import { describe, expect, test, vi } from 'vitest'
 
 describe('poll', () => {
   test(

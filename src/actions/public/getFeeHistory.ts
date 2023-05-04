@@ -1,7 +1,10 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { BlockTag, Chain, FeeHistory } from '../../types/index.js'
-import { formatFeeHistory } from '../../utils/formatters/index.js'
-import { numberToHex } from '../../utils/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
+import type { FeeHistory } from '../../types/fee.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import { formatFeeHistory } from '../../utils/formatters/feeHistory.js'
 
 export type GetFeeHistoryParameters = {
   /**

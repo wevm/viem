@@ -1,14 +1,12 @@
 import { beforeAll, expect, test } from 'vitest'
 
-import { mainnet, optimism } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
-
-import {
-  localHttpUrl,
-  publicClient,
-  setBlockNumber,
-} from '../../_test/index.js'
+import { localHttpUrl } from '../../_test/constants.js'
 import { setVitalikResolver } from '../../_test/utils.js'
+import { publicClient } from '../../_test/utils.js'
+import { setBlockNumber } from '../../_test/utils.js'
+import { mainnet, optimism } from '../../chains.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {

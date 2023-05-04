@@ -1,9 +1,12 @@
-import { describe, expect, test } from 'vitest'
-
-import { accounts, typedData } from '../_test/index.js'
-import { getAddress, parseEther, parseGwei, toBytes } from '../utils/index.js'
+import { accounts } from '../_test/constants.js'
+import { typedData } from '../_test/constants.js'
+import { getAddress } from '../utils/address/getAddress.js'
+import { toBytes } from '../utils/encoding/toBytes.js'
+import { parseEther } from '../utils/unit/parseEther.js'
+import { parseGwei } from '../utils/unit/parseGwei.js'
 import { hdKeyToAccount } from './hdKeyToAccount.js'
-import { HDKey } from './index.js'
+import { HDKey } from '@scure/bip32'
+import { describe, expect, test } from 'vitest'
 
 const hdKey = HDKey.fromMasterSeed(
   toBytes(

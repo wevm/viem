@@ -1,16 +1,14 @@
-import { expect, test } from 'vitest'
-
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import { getBlockNumber, sendTransaction } from '../index.js'
-import { mine, setBalance } from '../test/index.js'
-
+import { accounts } from '../../_test/constants.js'
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import { getBalance } from './getBalance.js'
+import { getBlockNumber } from './getBlockNumber.js'
+import { expect, test } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

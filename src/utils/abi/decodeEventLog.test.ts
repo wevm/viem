@@ -1,7 +1,6 @@
-import { assertType, describe, expect, test } from 'vitest'
-
-import { getAddress } from '../address/index.js'
+import { getAddress } from '../address/getAddress.js'
 import { decodeEventLog } from './decodeEventLog.js'
+import { assertType, describe, expect, test } from 'vitest'
 
 test('Transfer()', () => {
   const event = decodeEventLog({

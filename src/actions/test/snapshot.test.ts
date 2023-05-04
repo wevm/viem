@@ -1,9 +1,10 @@
-import { expect, test } from 'vitest'
-
-import { accounts, testClient, walletClient } from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
+import { accounts } from '../../_test/constants.js'
+import { testClient } from '../../_test/utils.js'
+import { walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { snapshot } from './snapshot.js'
+import { expect, test } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

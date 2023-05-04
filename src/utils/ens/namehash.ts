@@ -1,6 +1,7 @@
-import { concat } from '../data/index.js'
-import { bytesToHex, stringToBytes } from '../encoding/index.js'
-import { keccak256 } from '../hash/index.js'
+import { concat } from '../data/concat.js'
+import { stringToBytes } from '../encoding/toBytes.js'
+import { bytesToHex } from '../encoding/toHex.js'
+import { keccak256 } from '../hash/keccak256.js'
 
 /**
  * @description Hashes ENS name

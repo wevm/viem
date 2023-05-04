@@ -1,16 +1,12 @@
+import type { Hex } from './types/misc.js'
+import type { Quantity } from './types/rpc.js'
+import { defineChain } from './utils/chain.js'
+import { defineBlock } from './utils/formatters/block.js'
+import { defineTransaction } from './utils/formatters/transaction.js'
+import { defineTransactionReceipt } from './utils/formatters/transactionReceipt.js'
+import { defineTransactionRequest } from './utils/formatters/transactionRequest.js'
 import * as chains from '@wagmi/chains'
-
-import type { Address, Hex, Quantity } from './types/index.js'
-import {
-  defineBlock,
-  defineChain,
-  defineTransaction,
-  defineTransactionReceipt,
-  defineTransactionRequest,
-} from './utils/index.js'
-
-export type { Chain } from './types/index.js'
-
+import type { Address } from 'abitype'
 const celoFormatters = {
   block: defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
@@ -139,3 +135,5 @@ export const xdcTestnet = defineChain(chains.xdcTestnet)
 export const zhejiang = defineChain(chains.zhejiang)
 export const zkSync = defineChain(chains.zkSync)
 export const zkSyncTestnet = defineChain(chains.zkSyncTestnet)
+
+export type { Chain } from './types/chain.js'

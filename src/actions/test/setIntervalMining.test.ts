@@ -1,10 +1,10 @@
-import { expect, test } from 'vitest'
-
-import { publicClient, testClient } from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
 import { mine } from './mine.js'
+import { expect, test } from 'vitest'
 
+import { publicClient } from '../../_test/utils.js'
+import { testClient } from '../../_test/utils.js'
 import { setIntervalMining } from './setIntervalMining.js'
 
 test('sets mining interval', async () => {

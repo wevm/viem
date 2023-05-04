@@ -1,6 +1,10 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { Address, BlockTag, Chain, Hex } from '../../types/index.js'
-import { numberToHex } from '../../utils/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { Address } from 'abitype'
 
 export type GetBytecodeParameters = {
   address: Address

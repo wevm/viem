@@ -1,9 +1,7 @@
-import type {
-  TestClient,
-  TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Chain } from '../../types/index.js'
+import type { TestClient } from '../../clients/createTestClient.js'
+import type { TestClientMode } from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 
 /**
  * Snapshot the state of the blockchain at the current block.

@@ -1,20 +1,7 @@
-import type { Address } from 'abitype'
-
-import type { Account, JsonRpcAccount } from '../accounts/index.js'
+import type { Account } from '../accounts/types.js'
+import type { JsonRpcAccount } from '../accounts/types.js'
 import type { IsUndefined } from './utils.js'
-
-export type {
-  Account,
-  AccountSource,
-  CustomSource,
-  HDAccount,
-  HDKey,
-  HDOptions,
-  JsonRpcAccount,
-  LocalAccount,
-  PrivateKeyAccount,
-} from '../accounts/index.js'
-
+import type { Address } from 'abitype'
 export type GetAccountParameter<
   TAccount extends Account | undefined = Account | undefined,
 > = IsUndefined<TAccount> extends true
@@ -25,3 +12,13 @@ export type ParseAccount<TAccount extends Account | Address | undefined> =
   | (TAccount extends Account ? TAccount : never)
   | (TAccount extends Address ? JsonRpcAccount : never)
   | (TAccount extends undefined ? undefined : never)
+
+export type { Account } from '../accounts/types.js'
+export type { AccountSource } from '../accounts/types.js'
+export type { CustomSource } from '../accounts/types.js'
+export type { HDAccount } from '../accounts/types.js'
+export type { HDKey } from '@scure/bip32'
+export type { HDOptions } from '../accounts/types.js'
+export type { JsonRpcAccount } from '../accounts/types.js'
+export type { LocalAccount } from '../accounts/types.js'
+export type { PrivateKeyAccount } from '../accounts/types.js'

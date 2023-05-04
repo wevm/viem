@@ -1,7 +1,6 @@
-import { expect, test } from 'vitest'
-
-import { parseGwei } from '../unit/index.js'
+import { parseGwei } from '../unit/parseGwei.js'
 import { assertRequest } from './assertRequest.js'
+import { expect, test } from 'vitest'
 
 test('invalid address', () => {
   expect(() =>
