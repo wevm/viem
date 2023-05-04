@@ -7,7 +7,6 @@ import type {
   TransactionRequestLegacy,
 } from '../../types/index.js'
 
-import type { TransactionRequestBase } from '../../types/transaction.js'
 import { formatTransactionRequest } from './transactionRequest.js'
 
 const base: TransactionRequest = {
