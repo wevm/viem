@@ -25,6 +25,7 @@ export function containsNodeError(err: BaseError) {
   )
 }
 
+// @jxom / @tmm: Can one of you guys look into these types? Not sure what's going on here. (see getTransactionError.ts and getEstimateGasError.ts)
 export function getNodeError(
   err: BaseError,
   args: Partial<SendTransactionParameters<any>>,

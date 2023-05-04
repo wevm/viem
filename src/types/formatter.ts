@@ -16,8 +16,12 @@ export type Formatter<TSource = any, TTarget = any> = (
 ) => TTarget
 
 export type Formatters = {
-  block?: Formatter<RpcBlock, Block>
-  transaction?: Formatter<RpcTransaction, Transaction>
-  transactionReceipt?: Formatter<RpcTransactionReceipt, TransactionReceipt>
-  transactionRequest?: Formatter<TransactionRequest, RpcTransactionRequest>
+  block?: Formatter<RpcBlock, Block> | undefined
+  transaction?: Formatter<RpcTransaction, Transaction> | undefined
+  transactionReceipt?:
+    | Formatter<RpcTransactionReceipt, TransactionReceipt>
+    | undefined
+  transactionRequest?:
+    | Formatter<TransactionRequest, RpcTransactionRequest>
+    | undefined
 }

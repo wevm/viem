@@ -18,7 +18,7 @@ export type EncodeFunctionDataParameters<
   TFunctionName extends string | undefined = string,
   _FunctionName = InferFunctionName<TAbi, TFunctionName>,
 > = {
-  functionName?: _FunctionName
+  functionName?: _FunctionName | undefined
 } & (TFunctionName extends string
   ? { abi: Narrow<TAbi> } & GetFunctionArgs<TAbi, TFunctionName>
   : _FunctionName extends string

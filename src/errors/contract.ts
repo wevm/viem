@@ -36,7 +36,10 @@ export class CallExecutionError extends BaseError {
       nonce,
       to,
       value,
-    }: CallParameters & { chain?: Chain; docsPath?: string },
+    }: CallParameters & {
+      chain?: Chain | undefined
+      docsPath?: string | undefined
+    },
   ) {
     const account = account_ ? parseAccount(account_) : undefined
     const prettyArgs = prettyPrint({
@@ -73,12 +76,12 @@ export class CallExecutionError extends BaseError {
 
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
-  args?: unknown[]
+  args?: unknown[] | undefined
   override cause: BaseError
-  contractAddress?: Address
-  formattedArgs?: string
+  contractAddress?: Address | undefined
+  formattedArgs?: string | undefined
   functionName: string
-  sender?: Address
+  sender?: Address | undefined
 
   override name = 'ContractFunctionExecutionError'
 
@@ -93,11 +96,11 @@ export class ContractFunctionExecutionError extends BaseError {
       sender,
     }: {
       abi: Abi
-      args?: any
-      contractAddress?: Address
-      docsPath?: string
+      args?: any | undefined
+      contractAddress?: Address | undefined
+      docsPath?: string | undefined
       functionName: string
-      sender?: Address
+      sender?: Address | undefined
     },
   ) {
     const abiItem = getAbiItem({ abi, args, name: functionName })
@@ -150,15 +153,20 @@ export class ContractFunctionExecutionError extends BaseError {
 export class ContractFunctionRevertedError extends BaseError {
   override name = 'ContractFunctionRevertedError'
 
-  data?: DecodeErrorResultReturnType
-  reason?: string
+  data?: DecodeErrorResultReturnType | undefined
+  reason?: string | undefined
 
   constructor({
     abi,
     data,
     functionName,
     message,
-  }: { abi: Abi; data?: Hex; functionName: string; message?: string }) {
+  }: {
+    abi: Abi
+    data?: Hex | undefined
+    functionName: string
+    message?: string | undefined
+  }) {
     let decodedData: DecodeErrorResultReturnType | undefined = undefined
     let metaMessages
     let reason
@@ -229,9 +237,12 @@ export class RawContractError extends BaseError {
   code = 3
   override name = 'RawContractError'
 
-  data?: Hex
+  data?: Hex | undefined
 
-  constructor({ data, message }: { data?: Hex; message?: string }) {
+  constructor({
+    data,
+    message,
+  }: { data?: Hex | undefined; message?: string | undefined }) {
     super(message || '')
     this.data = data
   }

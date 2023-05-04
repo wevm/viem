@@ -1,5 +1,7 @@
 export function withTimeout<TData>(
-  fn: ({ signal }: { signal?: AbortController['signal'] }) => Promise<TData>,
+  fn: ({
+    signal,
+  }: { signal?: AbortController['signal'] | undefined }) => Promise<TData>,
   {
     errorInstance,
     timeout,
@@ -10,7 +12,7 @@ export function withTimeout<TData>(
     // The timeout (in ms).
     timeout: number
     // Whether or not the timeout should use an abort signal.
-    signal?: boolean
+    signal?: boolean | undefined
   },
 ): Promise<TData> {
   return new Promise((resolve, reject) => {

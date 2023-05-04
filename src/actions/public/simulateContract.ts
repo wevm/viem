@@ -29,9 +29,9 @@ export type SimulateContractParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TChainOverride extends Chain | undefined = undefined,
 > = {
-  chain?: TChainOverride
+  chain?: TChainOverride | undefined
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
-  dataSuffix?: Hex
+  dataSuffix?: Hex | undefined
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,

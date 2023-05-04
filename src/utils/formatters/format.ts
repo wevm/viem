@@ -76,8 +76,8 @@ export function defineFormatter<
       exclude,
       format: formatOverride,
     }: {
-      exclude?: TExclude
-      format?: TFormat
+      exclude?: TExclude | undefined
+      format?: TFormat | undefined
     }) =>
     (data: TSource & { [key: string]: unknown }) => {
       const formatted = format(data)

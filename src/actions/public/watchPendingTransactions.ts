@@ -19,41 +19,41 @@ type PollOptions = {
    * Whether or not the transaction hashes should be batched on each invocation.
    * @default true
    */
-  batch?: boolean
+  batch?: boolean | undefined
   /**
    * Polling frequency (in ms). Defaults to Client's pollingInterval config.
    * @default client.pollingInterval
    */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
 }
 
 export type WatchPendingTransactionsParameters<
   TTransport extends Transport = Transport,
 > = {
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void | undefined
   /** The callback to call when new transactions are received. */
   onTransactions: OnTransactionsFn
 } & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
   ?
       | {
-          batch?: never
+          batch?: never | undefined
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
            * @default false
            */
-          poll?: false
-          pollingInterval?: never
+          poll?: false | undefined
+          pollingInterval?: never | undefined
         }
       | (PollOptions & {
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
            * @default true
            */
-          poll?: true
+          poll?: true | undefined
         })
   : PollOptions & {
-      poll?: true
+      poll?: true | undefined
     })
 
 export type WatchPendingTransactionsReturnType = () => void

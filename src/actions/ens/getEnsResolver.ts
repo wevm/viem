@@ -10,7 +10,7 @@ export type GetEnsResolverParameters = Prettify<
     /** Name to get the address for. */
     name: string
     /** Address of ENS Universal Resolver Contract. */
-    universalResolverAddress?: Address
+    universalResolverAddress?: Address | undefined
   }
 >
 

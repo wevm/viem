@@ -45,21 +45,21 @@ export type FormattedCall<
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = FormattedCall<TransactionRequestFormatter<TChain>> & {
-  account?: Account | Address
-  batch?: boolean
+  account?: Account | Address | undefined
+  batch?: boolean | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
+        blockNumber?: bigint | undefined
+        blockTag?: never | undefined
       }
     | {
-        blockNumber?: never
+        blockNumber?: never | undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
          */
-        blockTag?: BlockTag
+        blockTag?: BlockTag | undefined
       }
   )
 
@@ -201,7 +201,7 @@ type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
   'blockNumber' | 'blockTag'
 > & {
   data: Hex
-  multicallAddress?: Address
+  multicallAddress?: Address | undefined
   to: Address
 }
 
@@ -287,5 +287,5 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
 
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
-  return (err.walk() as { data?: Hex })?.data
+  return (err.walk() as { data?: Hex | undefined })?.data
 }

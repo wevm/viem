@@ -7,6 +7,7 @@ import type {
   TransactionRequestLegacy,
 } from '../../types/index.js'
 
+import type { TransactionRequestBase } from '../../types/transaction.js'
 import { formatTransactionRequest } from './transactionRequest.js'
 
 const base: TransactionRequest = {
@@ -136,7 +137,7 @@ test('nullish gasPrice', () => {
     formatTransactionRequest({
       ...base,
       gasPrice: undefined,
-    }),
+    } as TransactionRequestEIP1559),
   ).toMatchInlineSnapshot(`
     {
       "data": "0x1",
@@ -157,7 +158,7 @@ test('nullish maxFeePerGas', () => {
     formatTransactionRequest({
       ...base,
       maxFeePerGas: undefined,
-    }),
+    } as TransactionRequestLegacy),
   ).toMatchInlineSnapshot(`
     {
       "data": "0x1",
@@ -178,7 +179,7 @@ test('nullish maxPriorityFeePerGas', () => {
     formatTransactionRequest({
       ...base,
       maxPriorityFeePerGas: undefined,
-    }),
+    } as TransactionRequestLegacy),
   ).toMatchInlineSnapshot(`
     {
       "data": "0x1",

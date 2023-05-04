@@ -2,7 +2,10 @@ import type { Log, RpcLog } from '../../types/index.js'
 
 export function formatLog(
   log: Partial<RpcLog>,
-  { args, eventName }: { args?: unknown; eventName?: string } = {},
+  {
+    args,
+    eventName,
+  }: { args?: unknown | undefined; eventName?: string | undefined } = {},
 ) {
   return {
     ...log,

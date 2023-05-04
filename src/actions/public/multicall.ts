@@ -29,11 +29,11 @@ export type MulticallParameters<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
-  allowFailure?: TAllowFailure
+  allowFailure?: TAllowFailure | undefined
   /** The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit. @default 1_024 */
-  batchSize?: number
+  batchSize?: number | undefined
   contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
-  multicallAddress?: Address
+  multicallAddress?: Address | undefined
 }
 
 export type MulticallReturnType<

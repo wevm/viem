@@ -51,7 +51,7 @@ export type Block<TQuantity = bigint, TTransaction = Transaction> = {
 
 export type BlockIdentifier<TQuantity = bigint> = {
   /** Whether or not to throw an error if the block is not in the canonical chain as described below. Only allowed in conjunction with the blockHash tag. Defaults to false. */
-  requireCanonical?: boolean
+  requireCanonical?: boolean | undefined
 } & (
   | {
       /** The block in the canonical chain with this number */

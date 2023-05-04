@@ -28,7 +28,7 @@ export type GetTypedDataDomain<
       domain: TDomain
     }
   : {
-      domain?: TDomain
+      domain?: TDomain | undefined
     }
 
 export type GetTypedDataMessage<
@@ -74,7 +74,7 @@ export type GetTypedDataTypes<
   TPrimaryType extends string = string,
 > = TPrimaryType extends 'EIP712Domain'
   ? {
-      types?: Narrow<TTypedData>
+      types?: Narrow<TTypedData> | undefined
     }
   : {
       types: Narrow<TTypedData>

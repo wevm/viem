@@ -11,12 +11,13 @@ export function getTransactionError(
     ...args
   }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
     account: Account
-    chain?: Chain
-    docsPath?: string
+    chain?: Chain | undefined
+    docsPath?: string | undefined
   },
 ) {
   let cause = err
-  if (containsNodeError(err)) cause = getNodeError(err, args)
+  if (containsNodeError(err))
+    cause = getNodeError<Chain | undefined, Account>(err, args)
   return new TransactionExecutionError(cause, {
     docsPath,
     ...args,

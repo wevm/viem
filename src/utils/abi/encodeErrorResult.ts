@@ -24,7 +24,7 @@ export type EncodeErrorResultParameters<
   TErrorName extends string | undefined = string,
   _ErrorName = InferErrorName<TAbi, TErrorName>,
 > = {
-  errorName?: _ErrorName
+  errorName?: _ErrorName | undefined
 } & (TErrorName extends string
   ? { abi: Narrow<TAbi> } & GetErrorArgs<TAbi, TErrorName>
   : _ErrorName extends string

@@ -10,7 +10,7 @@ export type MineParameters = {
   /** Number of blocks to mine. */
   blocks: number
   /** Interval between each block in seconds. */
-  interval?: number
+  interval?: number | undefined
 }
 
 /**

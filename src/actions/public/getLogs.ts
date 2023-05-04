@@ -26,30 +26,30 @@ export type GetLogsParameters<
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** Address or list of addresses from which logs originated */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
 } & (
   | {
       event: Narrow<TAbiEvent>
-      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
+      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName> | undefined
     }
   | {
-      event?: never
-      args?: never
+      event?: never | undefined
+      args?: never | undefined
     }
 ) &
   (
     | {
         /** Block number or tag after which to include logs */
-        fromBlock?: BlockNumber<bigint> | BlockTag
+        fromBlock?: BlockNumber<bigint> | BlockTag | undefined
         /** Block number or tag before which to include logs */
-        toBlock?: BlockNumber<bigint> | BlockTag
-        blockHash?: never
+        toBlock?: BlockNumber<bigint> | BlockTag | undefined
+        blockHash?: never | undefined
       }
     | {
-        fromBlock?: never
-        toBlock?: never
+        fromBlock?: never | undefined
+        toBlock?: never | undefined
         /** Hash of block to include logs from */
-        blockHash?: Hash
+        blockHash?: Hash | undefined
       }
   )
 

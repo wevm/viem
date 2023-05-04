@@ -5,12 +5,12 @@ import type { Formatters } from './formatter.js'
 import type { IsUndefined } from './utils.js'
 
 export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
-  formatters?: TFormatters
+  formatters?: TFormatters | undefined
 }
 
 export type ChainContract = {
   address: Address
-  blockCreated?: number
+  blockCreated?: number | undefined
 }
 
 export type GetChain<
@@ -18,4 +18,4 @@ export type GetChain<
   TChainOverride extends Chain | undefined = undefined,
 > = IsUndefined<TChain> extends true
   ? { chain: TChainOverride | null }
-  : { chain?: TChainOverride | null }
+  : { chain?: TChainOverride | null | undefined }

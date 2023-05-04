@@ -19,13 +19,16 @@ export type EncodeFunctionResultParameters<
   TFunctionName extends string | undefined = string,
   _FunctionName = InferFunctionName<TAbi, TFunctionName>,
 > = {
-  functionName?: _FunctionName
+  functionName?: _FunctionName | undefined
 } & (TFunctionName extends string
-  ? { abi: Narrow<TAbi>; result?: ContractFunctionResult<TAbi, TFunctionName> }
+  ? {
+      abi: Narrow<TAbi>
+      result?: ContractFunctionResult<TAbi, TFunctionName> | undefined
+    }
   : _FunctionName extends string
   ? {
       abi: [Narrow<TAbi[number]>]
-      result?: ContractFunctionResult<TAbi, _FunctionName>
+      result?: ContractFunctionResult<TAbi, _FunctionName> | undefined
     }
   : never)
 

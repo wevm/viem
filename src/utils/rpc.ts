@@ -12,34 +12,34 @@ import { stringify } from './stringify.js'
 let id = 0
 
 type SuccessResult<T> = {
-  method?: never
+  method?: never | undefined
   result: T
-  error?: never
+  error?: never | undefined
 }
 type ErrorResult<T> = {
-  method?: never
-  result?: never
+  method?: never | undefined
+  result?: never | undefined
   error: T
 }
 type Subscription<TResult, TError> = {
   method: 'eth_subscription'
-  error?: never
-  result?: never
+  error?: never | undefined
+  result?: never | undefined
   params: {
     subscription: string
   } & (
     | {
         result: TResult
-        error?: never
+        error?: never | undefined
       }
     | {
-        result?: never
+        result?: never | undefined
         error: TError
       }
   )
 }
 
-type RpcRequest = { method: string; params?: any }
+type RpcRequest = { method: string; params?: any | undefined }
 
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
@@ -57,9 +57,9 @@ export type HttpOptions = {
   // The RPC request body.
   body: RpcRequest
   // Request configuration to pass to `fetch`.
-  fetchOptions?: Omit<RequestInit, 'body'>
+  fetchOptions?: Omit<RequestInit, 'body'> | undefined
   // The timeout (in ms) for the request.
-  timeout?: number
+  timeout?: number | undefined
 }
 
 async function http(
@@ -78,7 +78,7 @@ async function http(
             'Content-Type': 'application/json',
           },
           method: method || 'POST',
-          signal: signal_ || (timeout > 0 ? signal : undefined),
+          signal: (signal_ || (timeout > 0 ? signal : null)) ?? null,
         })
         return response
       },
@@ -150,7 +150,7 @@ export async function getSocket(url_: string) {
   // https://github.com/vitejs/vite/issues/9703
   // TODO: Remove when issue is resolved.
   if (
-    (WebSocket as unknown as { default?: typeof WebSocket }).default
+    (WebSocket as unknown as { default?: typeof WebSocket | undefined }).default
       ?.constructor
   )
     WebSocket = (WebSocket as unknown as { default: typeof WebSocket }).default
@@ -212,9 +212,9 @@ function webSocket(
     // The RPC request body.
     body: RpcRequest
     // The callback to invoke when the request is successful.
-    onData?: (message: RpcResponse) => void
+    onData?: ((message: RpcResponse) => void) | undefined
     // The callback to invoke if the request errors.
-    onError?: (message: RpcResponse['error']) => void
+    onError?: (message: RpcResponse['error']) => void | undefined
   },
 ) {
   if (
@@ -269,7 +269,7 @@ async function webSocketAsync(
     // The RPC request body.
     body: RpcRequest
     // The timeout (in ms) for the request.
-    timeout?: number
+    timeout?: number | undefined
   },
 ) {
   return withTimeout(

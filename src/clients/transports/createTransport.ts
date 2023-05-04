@@ -18,11 +18,11 @@ export type TransportConfig<
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
   request: TRequests
   /** The base delay (in ms) between retries. */
-  retryDelay?: number
+  retryDelay?: number | undefined
   /** The max number of times to retry. */
-  retryCount?: number
+  retryCount?: number | undefined
   /** The timeout (in ms) for requests. */
-  timeout?: number
+  timeout?: number | undefined
   /** The type of the transport. */
   type: TType
 }
@@ -34,14 +34,14 @@ export type Transport<
 > = <TChain extends Chain | undefined = Chain>({
   chain,
 }: {
-  chain?: TChain
-  pollingInterval?: ClientConfig['pollingInterval']
-  retryCount?: TransportConfig['retryCount']
-  timeout?: TransportConfig['timeout']
+  chain?: TChain | undefined
+  pollingInterval?: ClientConfig['pollingInterval'] | undefined
+  retryCount?: TransportConfig['retryCount'] | undefined
+  timeout?: TransportConfig['timeout'] | undefined
 }) => {
   config: TransportConfig<TType>
   request: TRequests
-  value?: TRpcAttributes
+  value?: TRpcAttributes | undefined
 }
 
 /**

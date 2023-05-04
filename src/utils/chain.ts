@@ -13,7 +13,7 @@ export function getChainContractAddress({
   chain,
   contract: name,
 }: {
-  blockNumber?: bigint
+  blockNumber?: bigint | undefined
   chain: Chain
   contract: string
 }) {

@@ -23,7 +23,7 @@ test('times out correctly w/ signal', async () => {
   await expect(() =>
     withTimeout(
       async ({ signal }) => {
-        await fetch(server.url, { signal })
+        await fetch(server.url, { signal: signal ?? null })
       },
       {
         errorInstance: new Error('timed out'),

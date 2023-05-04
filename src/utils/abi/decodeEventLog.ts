@@ -25,8 +25,8 @@ export type DecodeEventLogParameters<
   TData extends Hex | undefined = undefined,
 > = {
   abi: Narrow<TAbi>
-  data?: TData
-  eventName?: InferEventName<TAbi, TEventName>
+  data?: TData | undefined
+  eventName?: InferEventName<TAbi, TEventName> | undefined
   topics: [signature: Hex, ...args: TTopics] | []
 }
 

@@ -84,14 +84,16 @@ export type Chain = {
   /** The chain name. */
   chainName: string
   /** Native currency for the chain. */
-  nativeCurrency?: {
-    name: string
-    symbol: string
-    decimals: number
-  }
+  nativeCurrency?:
+    | {
+        name: string
+        symbol: string
+        decimals: number
+      }
+    | undefined
   rpcUrls: readonly string[]
-  blockExplorerUrls?: string[]
-  iconUrls?: string[]
+  blockExplorerUrls?: string[] | undefined
+  iconUrls?: string[] | undefined
 }
 
 export type NetworkSync = {
@@ -127,7 +129,7 @@ export type WatchAssetParams = {
     /** The number of token decimals */
     decimals: number
     /** A string url of the token logo */
-    image?: string
+    image?: string | undefined
   }
 }
 
@@ -141,7 +143,7 @@ export type PublicRequests = {
      * // => 'MetaMask/v1.0.0'
      */
     method: 'web3_clientVersion'
-    params?: never
+    params?: never | undefined
   }): Promise<string>
   request(args: {
     /**
@@ -163,7 +165,7 @@ export type PublicRequests = {
      * // => true
      */
     method: 'net_listening'
-    params?: never
+    params?: never | undefined
   }): Promise<boolean>
   request(args: {
     /**
@@ -174,7 +176,7 @@ export type PublicRequests = {
      * // => '0x1'
      */
     method: 'net_peerCount'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -185,7 +187,7 @@ export type PublicRequests = {
      * // => '1'
      */
     method: 'net_version'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -196,7 +198,7 @@ export type PublicRequests = {
      * // => '0x1b4'
      * */
     method: 'eth_blockNumber'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -220,9 +222,12 @@ export type PublicRequests = {
      * // => '1'
      */
     method: 'eth_chainId'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
-  request(args: { method: 'eth_coinbase'; params?: never }): Promise<Address>
+  request(args: {
+    method: 'eth_coinbase'
+    params?: never | undefined
+  }): Promise<Address>
   request(args: {
     /**
      * @description Estimates the gas necessary to complete a transaction without submitting it to the network
@@ -272,7 +277,7 @@ export type PublicRequests = {
      * // => '0x09184e72a000'
      * */
     method: 'eth_gasPrice'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -393,18 +398,18 @@ export type PublicRequests = {
     method: 'eth_getLogs'
     params: [
       parameters: {
-        address?: Address | Address[]
-        topics?: LogTopic[]
+        address?: Address | Address[] | undefined
+        topics?: LogTopic[] | undefined
       } & (
         | {
-            fromBlock?: BlockNumber | BlockTag
-            toBlock?: BlockNumber | BlockTag
-            blockHash?: never
+            fromBlock?: BlockNumber | BlockTag | undefined
+            toBlock?: BlockNumber | BlockTag | undefined
+            blockHash?: never | undefined
           }
         | {
-            fromBlock?: never
-            toBlock?: never
-            blockHash?: Hash
+            fromBlock?: never | undefined
+            toBlock?: never | undefined
+            blockHash?: Hash | undefined
           }
       ),
     ]
@@ -532,7 +537,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_newBlockFilter'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -545,10 +550,10 @@ export type PublicRequests = {
     method: 'eth_newFilter'
     params: [
       filter: {
-        fromBlock?: BlockNumber | BlockTag
-        toBlock?: BlockNumber | BlockTag
-        address?: Address | Address[]
-        topics?: LogTopic[]
+        fromBlock?: BlockNumber | BlockTag | undefined
+        toBlock?: BlockNumber | BlockTag | undefined
+        address?: Address | Address[] | undefined
+        topics?: LogTopic[] | undefined
       },
     ]
   }): Promise<Quantity>
@@ -561,7 +566,7 @@ export type PublicRequests = {
      * // => '0x1'
      * */
     method: 'eth_newPendingTransactionFilter'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -572,7 +577,7 @@ export type PublicRequests = {
      * // => '54'
      * */
     method: 'eth_protocolVersion'
-    params?: never
+    params?: never | undefined
   }): Promise<string>
   request(args: {
     /**
@@ -623,7 +628,7 @@ export type TestRequests<Name extends string> = {
      * @description Turn on call traces for transactions that are returned to the user when they execute a transaction (instead of just txhash/receipt).
      */
     method: `${Name}_enableTraces`
-    params?: never
+    params?: never | undefined
   }): Promise<void>
   request(args: {
     /**
@@ -828,21 +833,21 @@ export type TestRequests<Name extends string> = {
      * @link https://hardhat.org/hardhat-network/docs/reference#evm_snapshot
      */
     method: 'evm_snapshot'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
      * @description Revert the state of the blockchain to a previous snapshot. Takes a single parameter, which is the snapshot id to revert to.
      */
     method: 'evm_revert'
-    params?: [id: Quantity]
+    params?: [id: Quantity] | undefined
   }): Promise<void>
   request(args: {
     /**
      * @link https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-content
      */
     method: 'txpool_content'
-    params?: never
+    params?: never | undefined
   }): Promise<{
     pending: Record<Address, Record<string, Transaction>>
     queued: Record<Address, Record<string, Transaction>>
@@ -852,7 +857,7 @@ export type TestRequests<Name extends string> = {
      * @link https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-inspect
      */
     method: 'txpool_inspect'
-    params?: never
+    params?: never | undefined
   }): Promise<{
     pending: Record<Address, Record<string, string>>
     queued: Record<Address, Record<string, string>>
@@ -862,7 +867,7 @@ export type TestRequests<Name extends string> = {
      * @link https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-inspect
      */
     method: 'txpool_status'
-    params?: never
+    params?: never | undefined
   }): Promise<{
     pending: Quantity
     queued: Quantity
@@ -944,7 +949,7 @@ export type SignableRequests = {
      * // => { startingBlock: '0x...', currentBlock: '0x...', highestBlock: '0x...' }
      * */
     method: 'eth_syncing'
-    params?: never
+    params?: never | undefined
   }): Promise<NetworkSync | false>
   request(args: {
     /**
@@ -974,7 +979,7 @@ export type WalletRequests = {
      * // => ['0x0fB69...']
      * */
     method: 'eth_accounts'
-    params?: never
+    params?: never | undefined
   }): Promise<Address[]>
   request(args: {
     /**
@@ -984,7 +989,7 @@ export type WalletRequests = {
      * // => '1'
      */
     method: 'eth_chainId'
-    params?: never
+    params?: never | undefined
   }): Promise<Quantity>
   request(args: {
     /**
@@ -995,7 +1000,7 @@ export type WalletRequests = {
      * // => ['0x...', '0x...']
      * */
     method: 'eth_requestAccounts'
-    params?: never
+    params?: never | undefined
   }): Promise<Address[]>
   request(args: {
     /**
@@ -1017,7 +1022,7 @@ export type WalletRequests = {
      * // => { ... }
      * */
     method: 'wallet_getPermissions'
-    params?: never
+    params?: never | undefined
   }): Promise<WalletPermission[]>
   request(args: {
     /**

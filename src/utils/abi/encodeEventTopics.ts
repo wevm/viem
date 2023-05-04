@@ -28,11 +28,14 @@ export type EncodeEventTopicsParameters<
   TEventName extends string | undefined = string,
   _EventName = InferEventName<TAbi, TEventName>,
 > = {
-  eventName?: _EventName
+  eventName?: _EventName | undefined
 } & (TEventName extends string
-  ? { abi: Narrow<TAbi>; args?: GetEventArgs<TAbi, TEventName> }
+  ? { abi: Narrow<TAbi>; args?: GetEventArgs<TAbi, TEventName> | undefined }
   : _EventName extends string
-  ? { abi: [Narrow<TAbi[number]>]; args?: GetEventArgs<TAbi, _EventName> }
+  ? {
+      abi: [Narrow<TAbi[number]>]
+      args?: GetEventArgs<TAbi, _EventName> | undefined
+    }
   : never)
 
 export function encodeEventTopics<

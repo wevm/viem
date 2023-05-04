@@ -14,17 +14,17 @@ export type GetFeeHistoryParameters = {
   rewardPercentiles: number[]
 } & (
   | {
-      blockNumber?: never
+      blockNumber?: never | undefined
       /**
        * Highest number block of the requested range.
        * @default 'latest'
        */
-      blockTag?: BlockTag
+      blockTag?: BlockTag | undefined
     }
   | {
       /** Highest number block of the requested range. */
-      blockNumber?: bigint
-      blockTag?: never
+      blockNumber?: bigint | undefined
+      blockTag?: never | undefined
     }
 )
 export type GetFeeHistoryReturnType = FeeHistory

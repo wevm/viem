@@ -15,15 +15,15 @@ export type OnBlock<TChain extends Chain | undefined = Chain> = (
 
 type PollOptions = {
   /** The block tag. Defaults to "latest". */
-  blockTag?: BlockTag
+  blockTag?: BlockTag | undefined
   /** Whether or not to emit the missed blocks to the callback. */
-  emitMissed?: boolean
+  emitMissed?: boolean | undefined
   /** Whether or not to emit the block to the callback when the subscription opens. */
-  emitOnBegin?: boolean
+  emitOnBegin?: boolean | undefined
   /** Whether or not to include transaction data in the response. */
-  includeTransactions?: boolean
+  includeTransactions?: boolean | undefined
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
 }
 
 export type WatchBlocksParameters<
@@ -33,20 +33,20 @@ export type WatchBlocksParameters<
   /** The callback to call when a new block is received. */
   onBlock: OnBlock<TChain>
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void | undefined
 } & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
   ?
       | {
-          blockTag?: never
-          emitMissed?: never
-          emitOnBegin?: never
-          includeTransactions?: never
+          blockTag?: never | undefined
+          emitMissed?: never | undefined
+          emitOnBegin?: never | undefined
+          includeTransactions?: never | undefined
           /** Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`. */
-          poll?: false
-          pollingInterval?: never
+          poll?: false | undefined
+          pollingInterval?: never | undefined
         }
-      | (PollOptions & { poll?: true })
-  : PollOptions & { poll?: true })
+      | (PollOptions & { poll?: true | undefined })
+  : PollOptions & { poll?: true | undefined })
 
 export type WatchBlocksReturnType = () => void
 

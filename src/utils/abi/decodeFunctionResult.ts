@@ -22,7 +22,7 @@ export type DecodeFunctionResultParameters<
   TFunctionName extends string | undefined = string,
   _FunctionName = InferFunctionName<TAbi, TFunctionName>,
 > = {
-  functionName?: _FunctionName
+  functionName?: _FunctionName | undefined
   data: Hex
 } & (TFunctionName extends string
   ? { abi: Narrow<TAbi> } & Partial<GetFunctionArgs<TAbi, TFunctionName>>

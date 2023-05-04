@@ -44,16 +44,16 @@ export type EstimateGasParameters<
   (
     | {
         /** The balance of the account at a block number. */
-        blockNumber?: bigint
-        blockTag?: never
+        blockNumber?: bigint | undefined
+        blockTag?: never | undefined
       }
     | {
-        blockNumber?: never
+        blockNumber?: never | undefined
         /**
          * The balance of the account at a block tag.
          * @default 'latest'
          */
-        blockTag?: BlockTag
+        blockTag?: BlockTag | undefined
       }
   )
 

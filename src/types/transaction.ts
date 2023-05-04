@@ -82,7 +82,7 @@ export type TransactionLegacy<
   TType = 'legacy',
 > = TransactionBase<TQuantity, TIndex> &
   FeeValuesLegacy<TQuantity> & {
-    accessList?: never
+    accessList?: never | undefined
     type: TType
   }
 export type TransactionEIP2930<
@@ -110,38 +110,38 @@ export type Transaction<TQuantity = bigint, TIndex = number> =
 
 export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Contract code or a hashed method call with encoded args */
-  data?: Hex
+  data?: Hex | undefined
   /** Transaction sender */
   from: Address
   /** Gas provided for transaction execution */
-  gas?: TQuantity
+  gas?: TQuantity | undefined
   /** Unique number identifying this transaction */
-  nonce?: TIndex
+  nonce?: TIndex | undefined
   /** Transaction recipient */
-  to?: Address
+  to?: Address | undefined
   /** Value in wei sent with this transaction */
-  value?: TQuantity
+  value?: TQuantity | undefined
 }
 export type TransactionRequestLegacy<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: never
+    accessList?: never | undefined
   }
 export type TransactionRequestEIP2930<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: AccessList
+    accessList?: AccessList | undefined
   }
 export type TransactionRequestEIP1559<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList
+    accessList?: AccessList | undefined
   }
 export type TransactionRequest<TQuantity = bigint, TIndex = number> =
   | TransactionRequestLegacy<TQuantity, TIndex>
@@ -165,29 +165,29 @@ export type TransactionSerializableLegacy<
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: never
-    chainId?: number
-    type?: 'legacy'
+    accessList?: never | undefined
+    chainId?: number | undefined
+    type?: 'legacy' | undefined
   }
 export type TransactionSerializableEIP2930<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
-    accessList?: AccessList
+    accessList?: AccessList | undefined
     chainId: number
-    type?: 'eip2930'
-    yParity?: number
+    type?: 'eip2930' | undefined
+    yParity?: number | undefined
   }
 export type TransactionSerializableEIP1559<
   TQuantity = bigint,
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> &
   Partial<FeeValuesEIP1559<TQuantity>> & {
-    accessList?: AccessList
+    accessList?: AccessList | undefined
     chainId: number
-    type?: 'eip1559'
-    yParity?: number
+    type?: 'eip1559' | undefined
+    yParity?: number | undefined
   }
 export type TransactionSerializable<TQuantity = bigint, TIndex = number> =
   | TransactionSerializableLegacy<TQuantity, TIndex>

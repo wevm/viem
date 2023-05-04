@@ -11,6 +11,7 @@ test('default', async () => {
 
 test('no block explorer', async () => {
   await addChain(walletClient!, {
-    chain: { ...avalanche, blockExplorers: undefined },
+    // NOTE: Wagmi should type `blockExplorers` as optionally `undefined`.
+    chain: { ...avalanche, blockExplorers: undefined as any },
   })
 })

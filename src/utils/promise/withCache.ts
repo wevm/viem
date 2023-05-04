@@ -28,7 +28,7 @@ export type WithCacheParameters = {
   /** The key to cache the data against. */
   cacheKey: string
   /** The maximum age (in ms) of the cached value. Default: Infinity (no expiry) */
-  maxAge?: number
+  maxAge?: number | undefined
 }
 
 /**

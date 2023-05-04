@@ -10,7 +10,7 @@ const encoder = new TextEncoder()
 
 export type ToBytesParameters = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 /**
@@ -51,7 +51,7 @@ export function toBytes(
 
 export type BoolToHexOpts = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 /**
@@ -85,7 +85,7 @@ export function boolToBytes(value: boolean, opts: BoolToHexOpts = {}) {
 
 export type HexToBytesOpts = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 /**
@@ -157,7 +157,7 @@ export function numberToBytes(value: bigint | number, opts?: NumberToHexOpts) {
 
 export type StringToBytesOpts = {
   /** Size of the output bytes. */
-  size?: number
+  size?: number | undefined
 }
 
 /**

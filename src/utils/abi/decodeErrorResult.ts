@@ -18,7 +18,7 @@ import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeErrorResultParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
-> = { abi?: Narrow<TAbi>; data: Hex }
+> = { abi?: Narrow<TAbi> | undefined; data: Hex }
 
 export type DecodeErrorResultReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,

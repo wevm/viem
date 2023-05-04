@@ -25,7 +25,7 @@ export type WalletClientConfig<
   'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
 > & {
   /** The Account to use for the Wallet Client. This will be used for Actions that require an account as an argument. */
-  account?: TAccountOrAddress
+  account?: TAccountOrAddress | undefined
 }
 
 export type WalletClient<
