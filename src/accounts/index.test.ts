@@ -21,10 +21,10 @@ test('exports utils', () => {
       "simplifiedChinese",
       "spanish",
       "traditionalChinese",
-      "parseAccount",
-      "publicKeyToAddress",
       "signMessage",
       "signTypedData",
+      "parseAccount",
+      "publicKeyToAddress",
     ]
   `)
 })
