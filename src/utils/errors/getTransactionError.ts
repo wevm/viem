@@ -16,8 +16,7 @@ export function getTransactionError(
   },
 ) {
   let cause = err
-  if (containsNodeError(err))
-    cause = getNodeError<Chain | undefined, Account>(err, args)
+  if (containsNodeError(err)) cause = getNodeError(err, args)
   return new TransactionExecutionError(cause, {
     docsPath,
     ...args,

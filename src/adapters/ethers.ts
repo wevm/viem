@@ -84,7 +84,7 @@ export const ethersWalletToAccount = (wallet: EthersWallet) =>
         ? wallet.signTypedData.bind(wallet)
         : wallet._signTypedData.bind(wallet)
       return (await signTypedData(
-        domain ?? {},
+        (domain ?? {}) as TypedDataDomain,
         types as Record<string, TypedDataField[]>,
         message,
       )) as Hash

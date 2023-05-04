@@ -1,4 +1,5 @@
 import type { SendTransactionParameters } from '../../actions/index.js'
+import type { Chain } from '../../chains.js'
 import { type BaseError, RpcRequestError } from '../../errors/index.js'
 import {
   ExecutionRevertedError,
@@ -16,6 +17,7 @@ import {
   TransactionTypeNotSupportedError,
   UnknownNodeError,
 } from '../../errors/index.js'
+import type { Account } from '../../index.js'
 
 export function containsNodeError(err: BaseError) {
   return (
@@ -28,7 +30,7 @@ export function containsNodeError(err: BaseError) {
 // @jxom / @tmm: Can one of you guys look into these types? Not sure what's going on here. (see getTransactionError.ts and getEstimateGasError.ts)
 export function getNodeError(
   err: BaseError,
-  args: Partial<SendTransactionParameters<any>>,
+  args: Partial<SendTransactionParameters<Chain, Account>>,
 ) {
   const message = err.details.toLowerCase()
   if (FeeCapTooHighError.nodeMessage.test(message))

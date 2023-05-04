@@ -74,17 +74,17 @@ test('nullish values', () => {
   expect(
     formatBlock({
       ...block,
-      difficulty: undefined,
+      // difficulty: undefined,
       number: null,
-      baseFeePerGas: undefined,
-      gasLimit: undefined,
-      gasUsed: undefined,
-      hash: undefined,
-      logsBloom: undefined,
-      nonce: undefined,
-      size: undefined,
-      timestamp: undefined,
-      totalDifficulty: undefined,
+      baseFeePerGas: null,
+      // gasLimit: undefined,
+      // gasUsed: undefined,
+      hash: null,
+      logsBloom: null,
+      nonce: null,
+      // size: undefined,
+      // timestamp: undefined,
+      totalDifficulty: null,
     }),
   ).toMatchInlineSnapshot(`
     {

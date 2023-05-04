@@ -5,11 +5,11 @@ import {
   TipAboveFeeCapError,
 } from '../../errors/index.js'
 import { FeeConflictError } from '../../errors/transaction.js'
-import type { Chain } from '../../types/index.js'
+import type { Account, Chain } from '../../types/index.js'
 import { parseAccount } from '../accounts.js'
 import { isAddress } from '../address/index.js'
 
-export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {
+export function assertRequest(args: SendTransactionParameters<Chain, Account>) {
   const {
     account: account_,
     gasPrice,
