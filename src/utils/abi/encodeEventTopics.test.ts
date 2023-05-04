@@ -292,6 +292,44 @@ test('Foo((uint,string))', () => {
   `)
 })
 
+test('inferred eventName', () => {
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'tokenId',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      args: {
+        from: null,
+        to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      },
+    }),
+  ).toEqual([
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    null,
+    '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  ])
+})
+
 test("errors: event doesn't exist", () => {
   expect(() =>
     encodeEventTopics({
@@ -313,6 +351,33 @@ test("errors: event doesn't exist", () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
     "Event \\"Bar\\" not found on ABI.
+    Make sure you are using the correct ABI and that the event exists on it.
+
+    Docs: https://viem.sh/docs/contract/encodeEventTopics.html
+    Version: viem@1.0.2"
+  `)
+})
+
+test('errors: abi item not an event', () => {
+  expect(() =>
+    // @ts-expect-error
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'message',
+              type: 'string',
+            },
+          ],
+          name: 'Foo',
+          type: 'function',
+        },
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Event not found on ABI.
     Make sure you are using the correct ABI and that the event exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeEventTopics.html

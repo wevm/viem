@@ -99,6 +99,28 @@ test('revert AccessDeniedError((uint256,bool,address,uint256))', () => {
   )
 })
 
+test('inferred errorName', () => {
+  expect(
+    encodeErrorResult({
+      abi: [
+        {
+          inputs: [
+            {
+              name: 'a',
+              type: 'string',
+            },
+          ],
+          name: 'AccessDeniedError',
+          type: 'error',
+        },
+      ],
+      args: ['you do not have access ser'],
+    }),
+  ).toEqual(
+    '0x83aa206e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001a796f7520646f206e6f7420686176652061636365737320736572000000000000',
+  )
+})
+
 test("errors: error doesn't exist", () => {
   expect(() =>
     encodeErrorResult({
@@ -127,6 +149,50 @@ test("errors: error doesn't exist", () => {
     Docs: https://viem.sh/docs/contract/encodeErrorResult.html
     Version: viem@1.0.2"
   `)
+})
+
+test('error: abi item not an error', () => {
+  expect(() =>
+    // @ts-expect-error
+    encodeErrorResult({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: false,
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      args: [
+        {
+          delegate: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+          vote: 41n,
+          voted: true,
+          weight: 69420n,
+        },
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Error not found on ABI.
+    Make sure you are using the correct ABI and that the error exists on it.
+
+    Docs: https://viem.sh/docs/contract/encodeErrorResult.html
+    Version: viem@1.0.2"
+  `,
+  )
 })
 
 test('errors: no inputs', () => {

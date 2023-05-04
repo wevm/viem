@@ -1,4 +1,4 @@
-import type { Abi, AbiParameter, Narrow } from 'abitype'
+import type { Abi, AbiParameter, ExtractAbiEventNames, Narrow } from 'abitype'
 
 import { DecodeLogDataMismatch } from '../../errors/abi.js'
 import {
@@ -12,6 +12,7 @@ import type {
   GetEventArgsFromTopics,
   Hex,
   InferEventName,
+  Prettify,
 } from '../../types/index.js'
 import { getEventSelector } from '../hash/index.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
@@ -19,7 +20,7 @@ import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = string,
+  TEventName extends string | undefined = string,
   TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
 > = {
@@ -31,19 +32,34 @@ export type DecodeEventLogParameters<
 
 export type DecodeEventLogReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = string,
+  TEventName extends string | undefined = string,
   TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
-> = {
-  eventName: TEventName
-} & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+  _EventNames extends string = TAbi extends Abi
+    ? Abi extends TAbi
+      ? string
+      : ExtractAbiEventNames<TAbi>
+    : string,
+> = TEventName extends _EventNames[number]
+  ? Prettify<
+      {
+        eventName: TEventName
+      } & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+    >
+  : {
+      [TName in _EventNames]: Prettify<
+        {
+          eventName: TName
+        } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData>
+      >
+    }[_EventNames]
 
 const docsPath = '/docs/contract/decodeEventLog'
 
 export function decodeEventLog<
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
-  TTopics extends Hex[],
+  TEventName extends string | undefined = undefined,
+  TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
 >({
   abi,

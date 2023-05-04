@@ -111,6 +111,28 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Without `functionName`
+
+If your `abi` contains only one ABI item, you can omit the `functionName` (it becomes optional):
+
+```ts
+import { encodeFunctionData } from 'viem'
+
+const abiItem = {
+  inputs: [{ name: 'owner', type: 'address' }],
+  name: 'balanceOf',
+  outputs: [{ name: '', type: 'uint256' }],
+  stateMutability: 'view',
+  type: 'function',
+}
+
+const data = encodeFunctionData({
+  abi: [abiItem],
+  functionName: 'balanceOf', // [!code --]
+  args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
+})
+```
+
 ## Return Value
 
 [`Hex`](/docs/glossary/types#hex)

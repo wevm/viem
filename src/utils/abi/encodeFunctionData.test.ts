@@ -107,6 +107,30 @@ test('getVoter((uint256,bool,address,uint256))', () => {
   )
 })
 
+test('inferred functionName', () => {
+  expect(
+    encodeFunctionData({
+      abi: [
+        {
+          inputs: [
+            {
+              name: 'a',
+              type: 'uint256',
+            },
+          ],
+          name: 'bar',
+          outputs: [],
+          stateMutability: 'nonpayable',
+          type: 'function',
+        },
+      ],
+      args: [1n],
+    }),
+  ).toEqual(
+    '0x0423a1320000000000000000000000000000000000000000000000000000000000000001',
+  )
+})
+
 test("errors: function doesn't exist", () => {
   expect(() =>
     encodeFunctionData({
@@ -124,6 +148,28 @@ test("errors: function doesn't exist", () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
     "Function \\"bar\\" not found on ABI.
+    Make sure you are using the correct ABI and that the function exists on it.
+
+    Docs: https://viem.sh/docs/contract/encodeFunctionData.html
+    Version: viem@1.0.2"
+  `)
+})
+
+test('errors: abi item not a function', () => {
+  expect(() =>
+    // @ts-expect-error
+    encodeFunctionData({
+      abi: [
+        {
+          inputs: [],
+          name: 'Foo',
+          outputs: [],
+          type: 'error',
+        },
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Function not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeFunctionData.html

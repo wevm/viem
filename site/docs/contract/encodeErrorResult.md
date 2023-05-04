@@ -26,7 +26,8 @@ import { encodeErrorResult } from 'viem'
 
 ::: code-group
 
-```ts [example.tsencodert { decodeErrorResult } from 'viem'
+```ts [example.ts]
+import { decodeErrorResult } from 'viem'
 
 const value = encodeErrorResult({
   abi: wagmiAbi,
@@ -64,6 +65,27 @@ export const publicClient = createPublicClient({
 ```
 
 :::
+
+### Without `errorName`
+
+If your `abi` contains only one ABI item, you can omit the `errorName` (it becomes optional):
+
+```ts
+import { decodeErrorResult } from 'viem'
+
+const abiItem = {
+  inputs: [{ name: 'reason', type: 'string' }],
+  name: 'InvalidTokenError',
+  type: 'error'
+}
+
+const value = encodeErrorResult({
+  abi: [abiItem],
+  errorName: 'InvalidTokenError', // [!code --]
+  args: ['sold out']
+})
+// 0xb758934b000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000b68656c6c6f20776f726c64000000000000000000000000000000000000000000
+```
 
 ## Return Value
 

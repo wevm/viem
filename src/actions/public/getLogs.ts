@@ -128,7 +128,7 @@ export async function getLogs<
       try {
         const { eventName, args } = event
           ? decodeEventLog({
-              abi: [event],
+              abi: [event] as [AbiEvent],
               data: log.data,
               topics: log.topics as any,
             })

@@ -148,12 +148,10 @@ test('GetEventArgsFromTopics', () => {
     '0x0000000000000000000000000000000000000000000000000000000000000001'
   >
   expectTypeOf<Result>().toEqualTypeOf<{
-    args?:
-      | {
-          from: `0x${string}`
-          to: `0x${string}`
-        }
-      | undefined
+    args: {
+      from: `0x${string}`
+      to: `0x${string}`
+    }
   }>()
 })
 

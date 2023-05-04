@@ -251,6 +251,28 @@ test('overloads', () => {
   ).toEqual(105n)
 })
 
+test('inferred functionName', () => {
+  expect(
+    decodeFunctionResult({
+      abi: [
+        {
+          inputs: [],
+          name: 'foo',
+          outputs: [
+            {
+              name: 'sender',
+              type: 'address',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ],
+      data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    }),
+  ).toEqual('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC')
+})
+
 test("error: function doesn't exist", () => {
   expect(() =>
     decodeFunctionResult({
@@ -283,7 +305,44 @@ test("error: function doesn't exist", () => {
   )
 })
 
-test("error: function doesn't exist", () => {
+test('error: abi item not a function', () => {
+  expect(() =>
+    // @ts-expect-error
+    decodeFunctionResult({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: false,
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Function not found on ABI.
+    Make sure you are using the correct ABI and that the function exists on it.
+
+    Docs: https://viem.sh/docs/contract/decodeFunctionResult.html
+    Version: viem@1.0.2"
+  `,
+  )
+})
+
+test('error: no outputs', () => {
   expect(() =>
     decodeFunctionResult({
       abi: [

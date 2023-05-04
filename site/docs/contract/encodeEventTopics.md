@@ -134,6 +134,38 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Without `eventName`
+
+If your `abi` contains only one ABI item, you can omit the `eventName` (it becomes optional):
+
+```ts
+import { encodeEventTopics } from 'viem'
+
+const abiItem = {
+  inputs: [
+    {
+      indexed: true,
+      name: 'from',
+      type: 'address',
+    },
+    { indexed: true, name: 'to', type: 'address' },
+    {
+      indexed: false,
+      name: 'value',
+      type: 'uint256',
+    },
+  ],
+  name: 'Transfer',
+  type: 'event',
+}
+
+const topics = encodeEventTopics({
+  abi: [abiItem],
+  eventName: 'Transfer' // [!code --]
+})
+// ["0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0"]
+```
+
 ## Return Value
 
 Encoded topics.

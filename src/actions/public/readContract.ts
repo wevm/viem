@@ -91,7 +91,10 @@ export async function readContract<
       args,
       functionName,
       data: data || '0x',
-    } as DecodeFunctionResultParameters<TAbi, TFunctionName>)
+    } as DecodeFunctionResultParameters<
+      TAbi,
+      TFunctionName
+    >) as ReadContractReturnType<TAbi, TFunctionName>
   } catch (err) {
     throw getContractError(err as BaseError, {
       abi: abi as Abi,

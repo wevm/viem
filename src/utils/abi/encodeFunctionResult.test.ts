@@ -203,6 +203,30 @@ test('returns (Bar, string)', () => {
   )
 })
 
+test('inferred functionName', () => {
+  expect(
+    encodeFunctionResult({
+      abi: [
+        {
+          inputs: [],
+          name: 'foo',
+          outputs: [
+            {
+              name: 'sender',
+              type: 'address',
+            },
+          ],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ],
+      result: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    }),
+  ).toEqual(
+    '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  )
+})
+
 test("error: function doesn't exist", () => {
   expect(() =>
     encodeFunctionResult({
@@ -259,4 +283,27 @@ test("error: function doesn't exist", () => {
     Version: viem@1.0.2"
   `,
   )
+})
+
+test('errors: abi item not a function', () => {
+  expect(() =>
+    // @ts-expect-error
+    encodeFunctionResult({
+      abi: [
+        {
+          inputs: [],
+          name: 'Foo',
+          outputs: [],
+          type: 'error',
+        },
+      ],
+      result: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Function not found on ABI.
+    Make sure you are using the correct ABI and that the function exists on it.
+
+    Docs: https://viem.sh/docs/contract/encodeFunctionResult.html
+    Version: viem@1.0.2"
+  `)
 })
