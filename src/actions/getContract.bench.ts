@@ -1,6 +1,5 @@
 import { wagmiContractConfig } from '../_test/abis.js'
-import { ethersProvider } from '../_test/bench.js'
-import { ethersV6Provider } from '../_test/bench.js'
+import { ethersProvider, ethersV6Provider } from '../_test/bench.js'
 import { publicClient } from '../_test/utils.js'
 import { getContract } from './getContract.js'
 import { Contract } from 'ethers'

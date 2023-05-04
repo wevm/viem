@@ -1,5 +1,4 @@
-import { createHttpServer } from '../../../_test/utils.js'
-import { publicClient } from '../../../_test/utils.js'
+import { createHttpServer, publicClient } from '../../../_test/utils.js'
 import {
   getGateway,
   getJsonImage,

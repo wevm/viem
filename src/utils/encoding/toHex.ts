@@ -1,6 +1,5 @@
 import { IntegerOutOfRangeError } from '../../errors/encoding.js'
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { pad } from '../data/pad.js'
 import { assertSize } from './fromHex.js'
 

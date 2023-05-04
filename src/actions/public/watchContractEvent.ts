@@ -1,8 +1,7 @@
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetEventArgs } from '../../types/contract.js'
-import type { InferEventName } from '../../types/contract.js'
+import type { GetEventArgs, type InferEventName } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { GetAbiItemParameters } from '../../utils/abi/getAbiItem.js'
@@ -16,8 +15,7 @@ import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import type { GetLogsParameters } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
-import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
-import type { Address } from 'abitype'
+import type { Abi, type Address, ExtractAbiEvent, Narrow } from 'abitype'
 
 export type OnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],

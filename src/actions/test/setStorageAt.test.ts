@@ -1,6 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
+import { publicClient, testClient } from '../../_test/utils.js'
 import { setStorageAt } from './setStorageAt.js'
 import { expect, test } from 'vitest'
 

@@ -2,8 +2,10 @@ import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
-import type { ContractFunctionConfig } from '../../types/contract.js'
-import type { ContractFunctionResult } from '../../types/contract.js'
+import type {
+  ContractFunctionConfig,
+  type ContractFunctionResult,
+} from '../../types/contract.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import type { DecodeFunctionResultParameters } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'

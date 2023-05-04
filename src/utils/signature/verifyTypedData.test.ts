@@ -1,5 +1,4 @@
-import { accounts } from '../../_test/constants.js'
-import { typedData } from '../../_test/constants.js'
+import { accounts, typedData } from '../../_test/constants.js'
 import { verifyTypedData } from './verifyTypedData.js'
 import { expect, test } from 'vitest'
 

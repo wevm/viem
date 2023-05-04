@@ -1,11 +1,12 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '../../_test/constants.js'
-import { accounts } from '../../_test/constants.js'
-import { webSocketClient } from '../../_test/utils.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import { accounts, localHttpUrl } from '../../_test/constants.js'
+import {
+  publicClient,
+  testClient,
+  walletClient,
+  webSocketClient,
+} from '../../_test/utils.js'
 import { celo, localhost } from '../../chains.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'

@@ -1,12 +1,11 @@
-import { usdcContractConfig } from '../../_test/abis.js'
-import { wagmiContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
-import { address } from '../../_test/constants.js'
-import { forkBlockNumber } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { setBlockNumber } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import { usdcContractConfig, wagmiContractConfig } from '../../_test/abis.js'
+import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
+import {
+  publicClient,
+  setBlockNumber,
+  testClient,
+  walletClient,
+} from '../../_test/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { publicActions } from './public.js'

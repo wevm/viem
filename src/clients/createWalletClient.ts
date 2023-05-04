@@ -1,5 +1,4 @@
-import type { Account } from '../accounts/types.js'
-import type { JsonRpcAccount } from '../accounts/types.js'
+import type { Account, type JsonRpcAccount } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import type { Chain } from '../types/chain.js'
 import type { Requests } from '../types/eip1193.js'

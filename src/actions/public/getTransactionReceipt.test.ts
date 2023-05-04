@@ -1,7 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { celo } from '../../chains.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

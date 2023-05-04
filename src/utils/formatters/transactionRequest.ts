@@ -1,6 +1,5 @@
 import type { Chain } from '../../types/chain.js'
-import type { Formatter } from '../../types/formatter.js'
-import type { Formatters } from '../../types/formatter.js'
+import type { Formatter, type Formatters } from '../../types/formatter.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import { numberToHex } from '../encoding/toHex.js'

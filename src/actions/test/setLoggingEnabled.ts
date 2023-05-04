@@ -1,5 +1,7 @@
-import type { TestClient } from '../../clients/createTestClient.js'
-import type { TestClientMode } from '../../clients/createTestClient.js'
+import type {
+  TestClient,
+  type TestClientMode,
+} from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 

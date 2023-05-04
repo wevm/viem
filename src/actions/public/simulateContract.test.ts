@@ -9,15 +9,16 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { baycContractConfig } from '../../_test/abis.js'
-import { wagmiContractConfig } from '../../_test/abis.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { accounts } from '../../_test/constants.js'
 import { errorsExampleABI } from '../../_test/generated.js'
-import { deployErrorExample } from '../../_test/utils.js'
-import { deployBAYC } from '../../_test/utils.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import {
+  deployBAYC,
+  deployErrorExample,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'

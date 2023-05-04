@@ -6,16 +6,19 @@
 import { describe, expect, test } from 'vitest'
 
 import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { usdcContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
-import { address } from '../../_test/constants.js'
-import { forkBlockNumber } from '../../_test/constants.js'
-import { localHttpUrl } from '../../_test/constants.js'
+import {
+  baycContractConfig,
+  usdcContractConfig,
+  wagmiContractConfig,
+} from '../../_test/abis.js'
+import {
+  accounts,
+  address,
+  forkBlockNumber,
+  localHttpUrl,
+} from '../../_test/constants.js'
 import { gh434ABI } from '../../_test/generated.js'
-import { anvilChain } from '../../_test/utils.js'
-import { deploy } from '../../_test/utils.js'
-import { publicClient } from '../../_test/utils.js'
+import { anvilChain, deploy, publicClient } from '../../_test/utils.js'
 import { mainnet } from '../../chains.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

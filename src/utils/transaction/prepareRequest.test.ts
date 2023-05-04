@@ -1,7 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'

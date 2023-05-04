@@ -1,6 +1,5 @@
 import { BaseError } from '../../errors/base.js'
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { isHex } from '../data/isHex.js'
 import { pad } from '../data/pad.js'
 import { assertSize } from './fromHex.js'

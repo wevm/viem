@@ -1,5 +1,7 @@
-import { extractFunctionName } from '../contract/extractFunctionParts.js'
-import { extractFunctionParams } from '../contract/extractFunctionParts.js'
+import {
+  extractFunctionName,
+  extractFunctionParams,
+} from '../contract/extractFunctionParts.js'
 import { toBytes } from '../encoding/toBytes.js'
 import { keccak256 } from './keccak256.js'
 

@@ -1,6 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
+import { publicClient, testClient } from '../../_test/utils.js'
 import { getTransactionCount } from '../public/getTransactionCount.js'
 import { mine } from './mine.js'
 import { setNonce } from './setNonce.js'

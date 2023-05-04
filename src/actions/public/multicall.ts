@@ -7,8 +7,10 @@ import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import type { MulticallResults } from '../../types/multicall.js'
-import type { MulticallContracts } from '../../types/multicall.js'
+import type {
+  type MulticallContracts,
+  MulticallResults,
+} from '../../types/multicall.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'
@@ -16,8 +18,7 @@ import { getChainContractAddress } from '../../utils/chain.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
-import type { Narrow } from 'abitype'
-import type { Address } from 'abitype'
+import type { type Address, Narrow } from 'abitype'
 
 export type MulticallParameters<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],

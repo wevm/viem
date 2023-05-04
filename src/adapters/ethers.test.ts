@@ -1,5 +1,4 @@
-import { accounts } from '../_test/constants.js'
-import { typedData } from '../_test/constants.js'
+import { accounts, typedData } from '../_test/constants.js'
 import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
 import { ethersWalletToAccount } from './ethers.js'

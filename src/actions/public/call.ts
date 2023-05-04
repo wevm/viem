@@ -5,8 +5,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
-import { ChainDoesNotSupportContract } from '../../errors/chain.js'
-import { ClientChainNotConfiguredError } from '../../errors/chain.js'
+import {
+  ChainDoesNotSupportContract,
+  ClientChainNotConfiguredError,
+} from '../../errors/chain.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'

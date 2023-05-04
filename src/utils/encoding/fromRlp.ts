@@ -1,9 +1,10 @@
-import { DataLengthTooLongError } from '../../errors/encoding.js'
-import { DataLengthTooShortError } from '../../errors/encoding.js'
-import { InvalidHexValueError } from '../../errors/encoding.js'
-import { OffsetOutOfBoundsError } from '../../errors/encoding.js'
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import {
+  DataLengthTooLongError,
+  DataLengthTooShortError,
+  InvalidHexValueError,
+  OffsetOutOfBoundsError,
+} from '../../errors/encoding.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { bytesToNumber } from './fromBytes.js'
 import { hexToBytes } from './toBytes.js'
 import { bytesToHex } from './toHex.js'

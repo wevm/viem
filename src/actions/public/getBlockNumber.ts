@@ -1,8 +1,7 @@
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
-import { getCache } from '../../utils/promise/withCache.js'
-import { withCache } from '../../utils/promise/withCache.js'
+import { getCache, withCache } from '../../utils/promise/withCache.js'
 
 export type GetBlockNumberParameters = {
   /** The maximum age (in ms) of the cached value. */

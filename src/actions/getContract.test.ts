@@ -1,7 +1,6 @@
 import { wagmiContractConfig } from '../_test/abis.js'
 import { accounts } from '../_test/constants.js'
-import { publicClient } from '../_test/utils.js'
-import { walletClient } from '../_test/utils.js'
+import { publicClient, walletClient } from '../_test/utils.js'
 import {
   getContract,
   getEventParameters,

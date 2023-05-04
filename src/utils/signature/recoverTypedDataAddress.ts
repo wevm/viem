@@ -1,10 +1,8 @@
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { hashTypedData } from './hashTypedData.js'
 import { recoverAddress } from './recoverAddress.js'
-import type { TypedData } from 'abitype'
-import type { Address } from 'abitype'
+import type { type Address, TypedData } from 'abitype'
 
 export type RecoverTypedDataAddressParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

@@ -1,6 +1,5 @@
 import { InvalidBytesBooleanError } from '../../errors/encoding.js'
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { trim } from '../data/trim.js'
 import { assertSize, hexToBigInt, hexToNumber } from './fromHex.js'
 import { bytesToHex } from './toHex.js'

@@ -1,7 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'

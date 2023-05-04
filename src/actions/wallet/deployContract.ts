@@ -1,14 +1,15 @@
 import type { Account } from '../../accounts/types.js'
 import type { WalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Chain } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
+import type { Chain, type GetChain } from '../../types/chain.js'
 import type { GetConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
 import { sendTransaction } from './sendTransaction.js'
-import type { SendTransactionParameters } from './sendTransaction.js'
-import type { SendTransactionReturnType } from './sendTransaction.js'
+import type {
+  SendTransactionParameters,
+  type SendTransactionReturnType,
+} from './sendTransaction.js'
 import type { Abi, Narrow } from 'abitype'
 
 export type DeployContractParameters<

@@ -1,5 +1,4 @@
-import { ethersProvider } from '../../_test/bench.js'
-import { ethersV6Provider } from '../../_test/bench.js'
+import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
 import { accounts } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'

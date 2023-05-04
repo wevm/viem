@@ -1,7 +1,6 @@
 import type { Block } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Formatter } from '../../types/formatter.js'
-import type { Formatters } from '../../types/formatter.js'
+import type { Formatter, type Formatters } from '../../types/formatter.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import { defineFormatter } from './format.js'
 import type { ExtractFormatter, Formatted } from './format.js'

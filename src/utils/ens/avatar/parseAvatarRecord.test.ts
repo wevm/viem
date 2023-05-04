@@ -1,6 +1,8 @@
-import { deployEnsAvatarTokenUri } from '../../../_test/utils.js'
-import { publicClient } from '../../../_test/utils.js'
-import { setBlockNumber } from '../../../_test/utils.js'
+import {
+  deployEnsAvatarTokenUri,
+  publicClient,
+  setBlockNumber,
+} from '../../../_test/utils.js'
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 import { beforeAll, describe, expect, test } from 'vitest'
 

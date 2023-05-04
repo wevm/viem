@@ -1,5 +1,4 @@
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { getAddress } from '../address/getAddress.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'

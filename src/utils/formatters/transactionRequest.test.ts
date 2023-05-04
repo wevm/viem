@@ -1,7 +1,9 @@
-import type { TransactionRequest } from '../../types/transaction.js'
-import type { TransactionRequestEIP1559 } from '../../types/transaction.js'
-import type { TransactionRequestEIP2930 } from '../../types/transaction.js'
-import type { TransactionRequestLegacy } from '../../types/transaction.js'
+import type {
+  TransactionRequest,
+  type TransactionRequestEIP1559,
+  type TransactionRequestEIP2930,
+  type TransactionRequestLegacy,
+} from '../../types/transaction.js'
 import { formatTransactionRequest } from './transactionRequest.js'
 import { expect, test } from 'vitest'
 

@@ -1,5 +1,4 @@
-import { accounts } from '../../_test/constants.js'
-import { typedData } from '../../_test/constants.js'
+import { accounts, typedData } from '../../_test/constants.js'
 import { signTypedData } from './signTypedData.js'
 import { Wallet } from 'ethers'
 import { Wallet as WalletV6 } from 'ethers@6'

@@ -1,9 +1,9 @@
-import { solidityError } from '../../constants/solidity.js'
-import { solidityPanic } from '../../constants/solidity.js'
-import { AbiDecodingZeroDataError } from '../../errors/abi.js'
-import { AbiErrorSignatureNotFoundError } from '../../errors/abi.js'
-import type { AbiItem } from '../../types/contract.js'
-import type { GetErrorArgs } from '../../types/contract.js'
+import { solidityError, solidityPanic } from '../../constants/solidity.js'
+import {
+  AbiDecodingZeroDataError,
+  AbiErrorSignatureNotFoundError,
+} from '../../errors/abi.js'
+import type { AbiItem, type GetErrorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { slice } from '../data/slice.js'
 import { getFunctionSelector } from '../hash/getFunctionSelector.js'

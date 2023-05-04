@@ -1,24 +1,26 @@
 import { InvalidAddressError } from '../../errors/address.js'
-import { InvalidLegacyVError } from '../../errors/transaction.js'
-import { InvalidSerializedTransactionError } from '../../errors/transaction.js'
-import type { Hex } from '../../types/misc.js'
-import type { Signature } from '../../types/misc.js'
-import type { AccessList } from '../../types/transaction.js'
-import type { TransactionRequestEIP2930 } from '../../types/transaction.js'
-import type { TransactionRequestLegacy } from '../../types/transaction.js'
-import type { TransactionSerializableEIP1559 } from '../../types/transaction.js'
-import type { TransactionSerializableEIP2930 } from '../../types/transaction.js'
-import type { TransactionSerializableLegacy } from '../../types/transaction.js'
-import type { TransactionSerialized } from '../../types/transaction.js'
-import type { TransactionSerializedEIP1559 } from '../../types/transaction.js'
-import type { TransactionSerializedEIP2930 } from '../../types/transaction.js'
-import type { TransactionType } from '../../types/transaction.js'
+import {
+  InvalidLegacyVError,
+  InvalidSerializedTransactionError,
+} from '../../errors/transaction.js'
+import type { Hex, type Signature } from '../../types/misc.js'
+import type {
+  AccessList,
+  type TransactionRequestEIP2930,
+  type TransactionRequestLegacy,
+  type TransactionSerializableEIP1559,
+  type TransactionSerializableEIP2930,
+  type TransactionSerializableLegacy,
+  type TransactionSerialized,
+  type TransactionSerializedEIP1559,
+  type TransactionSerializedEIP2930,
+  type TransactionType,
+} from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 import { isHex } from '../data/isHex.js'
 import { padHex } from '../data/pad.js'
 import { trim } from '../data/trim.js'
-import { hexToBigInt } from '../encoding/fromHex.js'
-import { hexToNumber } from '../encoding/fromHex.js'
+import { hexToBigInt, hexToNumber } from '../encoding/fromHex.js'
 import { fromRlp } from '../encoding/fromRlp.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
 import { isHash } from '../hash/isHash.js'

@@ -1,8 +1,7 @@
 import { wait } from '../../utils/wait.js'
 import { expect, test } from 'vitest'
 
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
+import { publicClient, testClient } from '../../_test/utils.js'
 import { getBlock } from '../public/getBlock.js'
 import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
 import { setIntervalMining } from './setIntervalMining.js'

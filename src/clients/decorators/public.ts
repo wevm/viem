@@ -1,116 +1,186 @@
-import type { GetEnsAddressParameters } from '../../actions/ens/getEnsAddress.js'
-import type { GetEnsAddressReturnType } from '../../actions/ens/getEnsAddress.js'
+import type {
+  GetEnsAddressParameters,
+  type GetEnsAddressReturnType,
+} from '../../actions/ens/getEnsAddress.js'
 import { getEnsAddress } from '../../actions/ens/getEnsAddress.js'
-import type { GetEnsAvatarParameters } from '../../actions/ens/getEnsAvatar.js'
-import type { GetEnsAvatarReturnType } from '../../actions/ens/getEnsAvatar.js'
+import type {
+  GetEnsAvatarParameters,
+  type GetEnsAvatarReturnType,
+} from '../../actions/ens/getEnsAvatar.js'
 import { getEnsAvatar } from '../../actions/ens/getEnsAvatar.js'
-import type { GetEnsNameParameters } from '../../actions/ens/getEnsName.js'
-import type { GetEnsNameReturnType } from '../../actions/ens/getEnsName.js'
+import type {
+  GetEnsNameParameters,
+  type GetEnsNameReturnType,
+} from '../../actions/ens/getEnsName.js'
 import { getEnsName } from '../../actions/ens/getEnsName.js'
-import type { GetEnsResolverParameters } from '../../actions/ens/getEnsResolver.js'
-import type { GetEnsResolverReturnType } from '../../actions/ens/getEnsResolver.js'
+import type {
+  GetEnsResolverParameters,
+  type GetEnsResolverReturnType,
+} from '../../actions/ens/getEnsResolver.js'
 import { getEnsResolver } from '../../actions/ens/getEnsResolver.js'
-import type { GetEnsTextParameters } from '../../actions/ens/getEnsText.js'
-import type { GetEnsTextReturnType } from '../../actions/ens/getEnsText.js'
+import type {
+  GetEnsTextParameters,
+  type GetEnsTextReturnType,
+} from '../../actions/ens/getEnsText.js'
 import { getEnsText } from '../../actions/ens/getEnsText.js'
-import type { CallParameters } from '../../actions/public/call.js'
-import type { CallReturnType } from '../../actions/public/call.js'
+import type {
+  CallParameters,
+  type CallReturnType,
+} from '../../actions/public/call.js'
 import { call } from '../../actions/public/call.js'
 import type { CreateBlockFilterReturnType } from '../../actions/public/createBlockFilter.js'
 import { createBlockFilter } from '../../actions/public/createBlockFilter.js'
-import type { CreateContractEventFilterParameters } from '../../actions/public/createContractEventFilter.js'
-import type { CreateContractEventFilterReturnType } from '../../actions/public/createContractEventFilter.js'
+import type {
+  CreateContractEventFilterParameters,
+  type CreateContractEventFilterReturnType,
+} from '../../actions/public/createContractEventFilter.js'
 import { createContractEventFilter } from '../../actions/public/createContractEventFilter.js'
-import type { CreateEventFilterParameters } from '../../actions/public/createEventFilter.js'
-import type { CreateEventFilterReturnType } from '../../actions/public/createEventFilter.js'
+import type {
+  CreateEventFilterParameters,
+  type CreateEventFilterReturnType,
+} from '../../actions/public/createEventFilter.js'
 import { createEventFilter } from '../../actions/public/createEventFilter.js'
 import type { CreatePendingTransactionFilterReturnType } from '../../actions/public/createPendingTransactionFilter.js'
 import { createPendingTransactionFilter } from '../../actions/public/createPendingTransactionFilter.js'
-import type { EstimateContractGasParameters } from '../../actions/public/estimateContractGas.js'
-import type { EstimateContractGasReturnType } from '../../actions/public/estimateContractGas.js'
+import type {
+  EstimateContractGasParameters,
+  type EstimateContractGasReturnType,
+} from '../../actions/public/estimateContractGas.js'
 import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
-import type { EstimateGasParameters } from '../../actions/public/estimateGas.js'
-import type { EstimateGasReturnType } from '../../actions/public/estimateGas.js'
+import type {
+  EstimateGasParameters,
+  type EstimateGasReturnType,
+} from '../../actions/public/estimateGas.js'
 import { estimateGas } from '../../actions/public/estimateGas.js'
-import type { GetBalanceParameters } from '../../actions/public/getBalance.js'
-import type { GetBalanceReturnType } from '../../actions/public/getBalance.js'
+import type {
+  GetBalanceParameters,
+  type GetBalanceReturnType,
+} from '../../actions/public/getBalance.js'
 import { getBalance } from '../../actions/public/getBalance.js'
-import type { GetBlockParameters } from '../../actions/public/getBlock.js'
-import type { GetBlockReturnType } from '../../actions/public/getBlock.js'
+import type {
+  GetBlockParameters,
+  type GetBlockReturnType,
+} from '../../actions/public/getBlock.js'
 import { getBlock } from '../../actions/public/getBlock.js'
-import type { GetBlockNumberParameters } from '../../actions/public/getBlockNumber.js'
-import type { GetBlockNumberReturnType } from '../../actions/public/getBlockNumber.js'
+import type {
+  GetBlockNumberParameters,
+  type GetBlockNumberReturnType,
+} from '../../actions/public/getBlockNumber.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import type { GetBlockTransactionCountParameters } from '../../actions/public/getBlockTransactionCount.js'
-import type { GetBlockTransactionCountReturnType } from '../../actions/public/getBlockTransactionCount.js'
+import type {
+  GetBlockTransactionCountParameters,
+  type GetBlockTransactionCountReturnType,
+} from '../../actions/public/getBlockTransactionCount.js'
 import { getBlockTransactionCount } from '../../actions/public/getBlockTransactionCount.js'
-import type { GetBytecodeParameters } from '../../actions/public/getBytecode.js'
-import type { GetBytecodeReturnType } from '../../actions/public/getBytecode.js'
+import type {
+  GetBytecodeParameters,
+  type GetBytecodeReturnType,
+} from '../../actions/public/getBytecode.js'
 import { getBytecode } from '../../actions/public/getBytecode.js'
 import type { GetChainIdReturnType } from '../../actions/public/getChainId.js'
 import { getChainId } from '../../actions/public/getChainId.js'
-import type { GetFeeHistoryParameters } from '../../actions/public/getFeeHistory.js'
-import type { GetFeeHistoryReturnType } from '../../actions/public/getFeeHistory.js'
+import type {
+  GetFeeHistoryParameters,
+  type GetFeeHistoryReturnType,
+} from '../../actions/public/getFeeHistory.js'
 import { getFeeHistory } from '../../actions/public/getFeeHistory.js'
-import type { GetFilterChangesParameters } from '../../actions/public/getFilterChanges.js'
-import type { GetFilterChangesReturnType } from '../../actions/public/getFilterChanges.js'
+import type {
+  GetFilterChangesParameters,
+  type GetFilterChangesReturnType,
+} from '../../actions/public/getFilterChanges.js'
 import { getFilterChanges } from '../../actions/public/getFilterChanges.js'
-import type { GetFilterLogsParameters } from '../../actions/public/getFilterLogs.js'
-import type { GetFilterLogsReturnType } from '../../actions/public/getFilterLogs.js'
+import type {
+  GetFilterLogsParameters,
+  type GetFilterLogsReturnType,
+} from '../../actions/public/getFilterLogs.js'
 import { getFilterLogs } from '../../actions/public/getFilterLogs.js'
 import type { GetGasPriceReturnType } from '../../actions/public/getGasPrice.js'
 import { getGasPrice } from '../../actions/public/getGasPrice.js'
-import type { GetLogsParameters } from '../../actions/public/getLogs.js'
-import type { GetLogsReturnType } from '../../actions/public/getLogs.js'
+import type {
+  GetLogsParameters,
+  type GetLogsReturnType,
+} from '../../actions/public/getLogs.js'
 import { getLogs } from '../../actions/public/getLogs.js'
-import type { GetStorageAtParameters } from '../../actions/public/getStorageAt.js'
-import type { GetStorageAtReturnType } from '../../actions/public/getStorageAt.js'
+import type {
+  GetStorageAtParameters,
+  type GetStorageAtReturnType,
+} from '../../actions/public/getStorageAt.js'
 import { getStorageAt } from '../../actions/public/getStorageAt.js'
-import type { GetTransactionParameters } from '../../actions/public/getTransaction.js'
-import type { GetTransactionReturnType } from '../../actions/public/getTransaction.js'
+import type {
+  GetTransactionParameters,
+  type GetTransactionReturnType,
+} from '../../actions/public/getTransaction.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
-import type { GetTransactionConfirmationsParameters } from '../../actions/public/getTransactionConfirmations.js'
-import type { GetTransactionConfirmationsReturnType } from '../../actions/public/getTransactionConfirmations.js'
+import type {
+  GetTransactionConfirmationsParameters,
+  type GetTransactionConfirmationsReturnType,
+} from '../../actions/public/getTransactionConfirmations.js'
 import { getTransactionConfirmations } from '../../actions/public/getTransactionConfirmations.js'
-import type { GetTransactionCountParameters } from '../../actions/public/getTransactionCount.js'
-import type { GetTransactionCountReturnType } from '../../actions/public/getTransactionCount.js'
+import type {
+  GetTransactionCountParameters,
+  type GetTransactionCountReturnType,
+} from '../../actions/public/getTransactionCount.js'
 import { getTransactionCount } from '../../actions/public/getTransactionCount.js'
-import type { GetTransactionReceiptParameters } from '../../actions/public/getTransactionReceipt.js'
-import type { GetTransactionReceiptReturnType } from '../../actions/public/getTransactionReceipt.js'
+import type {
+  GetTransactionReceiptParameters,
+  type GetTransactionReceiptReturnType,
+} from '../../actions/public/getTransactionReceipt.js'
 import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
-import type { MulticallParameters } from '../../actions/public/multicall.js'
-import type { MulticallReturnType } from '../../actions/public/multicall.js'
+import type {
+  MulticallParameters,
+  type MulticallReturnType,
+} from '../../actions/public/multicall.js'
 import { multicall } from '../../actions/public/multicall.js'
-import type { ReadContractParameters } from '../../actions/public/readContract.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
+import type {
+  ReadContractParameters,
+  type ReadContractReturnType,
+} from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
-import type { SimulateContractParameters } from '../../actions/public/simulateContract.js'
-import type { SimulateContractReturnType } from '../../actions/public/simulateContract.js'
+import type {
+  SimulateContractParameters,
+  type SimulateContractReturnType,
+} from '../../actions/public/simulateContract.js'
 import { simulateContract } from '../../actions/public/simulateContract.js'
-import type { UninstallFilterParameters } from '../../actions/public/uninstallFilter.js'
-import type { UninstallFilterReturnType } from '../../actions/public/uninstallFilter.js'
+import type {
+  UninstallFilterParameters,
+  type UninstallFilterReturnType,
+} from '../../actions/public/uninstallFilter.js'
 import { uninstallFilter } from '../../actions/public/uninstallFilter.js'
-import type { WaitForTransactionReceiptParameters } from '../../actions/public/waitForTransactionReceipt.js'
-import type { WaitForTransactionReceiptReturnType } from '../../actions/public/waitForTransactionReceipt.js'
+import type {
+  WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReturnType,
+} from '../../actions/public/waitForTransactionReceipt.js'
 import { waitForTransactionReceipt } from '../../actions/public/waitForTransactionReceipt.js'
-import type { WatchBlockNumberParameters } from '../../actions/public/watchBlockNumber.js'
-import type { WatchBlockNumberReturnType } from '../../actions/public/watchBlockNumber.js'
+import type {
+  WatchBlockNumberParameters,
+  type WatchBlockNumberReturnType,
+} from '../../actions/public/watchBlockNumber.js'
 import { watchBlockNumber } from '../../actions/public/watchBlockNumber.js'
-import type { WatchBlocksParameters } from '../../actions/public/watchBlocks.js'
-import type { WatchBlocksReturnType } from '../../actions/public/watchBlocks.js'
+import type {
+  WatchBlocksParameters,
+  type WatchBlocksReturnType,
+} from '../../actions/public/watchBlocks.js'
 import { watchBlocks } from '../../actions/public/watchBlocks.js'
-import type { WatchContractEventParameters } from '../../actions/public/watchContractEvent.js'
-import type { WatchContractEventReturnType } from '../../actions/public/watchContractEvent.js'
+import type {
+  WatchContractEventParameters,
+  type WatchContractEventReturnType,
+} from '../../actions/public/watchContractEvent.js'
 import { watchContractEvent } from '../../actions/public/watchContractEvent.js'
-import type { WatchEventParameters } from '../../actions/public/watchEvent.js'
-import type { WatchEventReturnType } from '../../actions/public/watchEvent.js'
+import type {
+  WatchEventParameters,
+  type WatchEventReturnType,
+} from '../../actions/public/watchEvent.js'
 import { watchEvent } from '../../actions/public/watchEvent.js'
-import type { WatchPendingTransactionsParameters } from '../../actions/public/watchPendingTransactions.js'
-import type { WatchPendingTransactionsReturnType } from '../../actions/public/watchPendingTransactions.js'
+import type {
+  WatchPendingTransactionsParameters,
+  type WatchPendingTransactionsReturnType,
+} from '../../actions/public/watchPendingTransactions.js'
 import { watchPendingTransactions } from '../../actions/public/watchPendingTransactions.js'
 import type { Chain } from '../../types/chain.js'
-import type { ContractFunctionConfig } from '../../types/contract.js'
-import type { MaybeExtractEventArgsFromAbi } from '../../types/contract.js'
+import type {
+  ContractFunctionConfig,
+  type MaybeExtractEventArgsFromAbi,
+} from '../../types/contract.js'
 import type { FilterType } from '../../types/filter.js'
 import type { PublicClient } from '../createPublicClient.js'
 import type { Transport } from '../transports/createTransport.js'

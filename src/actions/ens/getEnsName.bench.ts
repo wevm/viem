@@ -1,7 +1,5 @@
-import { ethersProvider } from '../../_test/bench.js'
-import { ethersV6Provider } from '../../_test/bench.js'
-import { publicClient } from '../../_test/utils.js'
-import { setBlockNumber } from '../../_test/utils.js'
+import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
+import { publicClient, setBlockNumber } from '../../_test/utils.js'
 import { getEnsName } from './getEnsName.js'
 import { beforeAll, bench, describe } from 'vitest'
 

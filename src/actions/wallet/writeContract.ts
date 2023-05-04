@@ -1,10 +1,11 @@
 import type { Account } from '../../accounts/types.js'
 import type { WalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Chain } from '../../types/chain.js'
-import type { GetChain } from '../../types/chain.js'
-import type { ContractFunctionConfig } from '../../types/contract.js'
-import type { GetValue } from '../../types/contract.js'
+import type { Chain, type GetChain } from '../../types/chain.js'
+import type {
+  ContractFunctionConfig,
+  type GetValue,
+} from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { EncodeFunctionDataParameters } from '../../utils/abi/encodeFunctionData.js'

@@ -1,10 +1,11 @@
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { BlockNumber } from '../../types/block.js'
-import type { BlockTag } from '../../types/block.js'
+import type { BlockNumber, type BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { MaybeAbiEventName } from '../../types/contract.js'
-import type { MaybeExtractEventArgsFromAbi } from '../../types/contract.js'
+import type {
+  MaybeAbiEventName,
+  type MaybeExtractEventArgsFromAbi,
+} from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -12,8 +13,7 @@ import { encodeEventTopics } from '../../utils/abi/encodeEventTopics.js'
 import type { EncodeEventTopicsParameters } from '../../utils/abi/encodeEventTopics.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
-import type { Abi, AbiEvent, Narrow } from 'abitype'
-import type { Address } from 'abitype'
+import type { Abi, AbiEvent, type Address, Narrow } from 'abitype'
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

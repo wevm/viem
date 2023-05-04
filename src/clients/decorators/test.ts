@@ -19,8 +19,10 @@ import type { ResetParameters } from '../../actions/test/reset.js'
 import { reset } from '../../actions/test/reset.js'
 import type { RevertParameters } from '../../actions/test/revert.js'
 import { revert } from '../../actions/test/revert.js'
-import type { SendUnsignedTransactionParameters } from '../../actions/test/sendUnsignedTransaction.js'
-import type { SendUnsignedTransactionReturnType } from '../../actions/test/sendUnsignedTransaction.js'
+import type {
+  SendUnsignedTransactionParameters,
+  type SendUnsignedTransactionReturnType,
+} from '../../actions/test/sendUnsignedTransaction.js'
 import { sendUnsignedTransaction } from '../../actions/test/sendUnsignedTransaction.js'
 import { setAutomine } from '../../actions/test/setAutomine.js'
 import type { SetBalanceParameters } from '../../actions/test/setBalance.js'

@@ -1,7 +1,6 @@
 import type { AbiItem } from '../types/contract.js'
 import type { Hex } from '../types/misc.js'
-import { formatAbiItem } from '../utils/abi/formatAbiItem.js'
-import { formatAbiParams } from '../utils/abi/formatAbiItem.js'
+import { formatAbiItem, formatAbiParams } from '../utils/abi/formatAbiItem.js'
 import { size } from '../utils/data/size.js'
 import { BaseError } from './base.js'
 import type { AbiParameter } from 'abitype'

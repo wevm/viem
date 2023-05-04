@@ -1,14 +1,14 @@
 import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
-import { address } from '../../_test/constants.js'
-import { forkBlockNumber } from '../../_test/constants.js'
+import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
 import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
-import { deployErc20InvalidTransferEvent } from '../../_test/utils.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import {
+  deployErc20InvalidTransferEvent,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/utils.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
 import { getAddress } from '../../utils/address/getAddress.js'

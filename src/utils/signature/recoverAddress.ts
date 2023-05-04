@@ -1,6 +1,5 @@
 import { publicKeyToAddress } from '../../accounts/utils/publicKeyToAddress.js'
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { recoverPublicKey } from './recoverPublicKey.js'
 import type { Address } from 'abitype'
 

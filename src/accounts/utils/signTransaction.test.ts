@@ -1,12 +1,14 @@
 import { accounts } from '../../_test/constants.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
-import type { TransactionSerializableBase } from '../../types/transaction.js'
-import type { TransactionSerializableEIP1559 } from '../../types/transaction.js'
-import type { TransactionSerializableEIP2930 } from '../../types/transaction.js'
-import type { TransactionSerializableLegacy } from '../../types/transaction.js'
-import type { TransactionSerializedEIP1559 } from '../../types/transaction.js'
-import type { TransactionSerializedEIP2930 } from '../../types/transaction.js'
-import type { TransactionSerializedLegacy } from '../../types/transaction.js'
+import type {
+  TransactionSerializable,
+  type TransactionSerializableBase,
+  type TransactionSerializableEIP1559,
+  type TransactionSerializableEIP2930,
+  type TransactionSerializableLegacy,
+  type TransactionSerializedEIP1559,
+  type TransactionSerializedEIP2930,
+  type TransactionSerializedLegacy,
+} from '../../types/transaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { signTransaction } from './signTransaction.js'
 import { assertType, describe, expect, test } from 'vitest'

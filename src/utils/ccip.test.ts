@@ -12,8 +12,7 @@ import { getUrl } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
 import { encodeFunctionData } from './abi/encodeFunctionData.js'
-import { offchainLookup, offchainLookupAbiItem } from './ccip.js'
-import { ccipFetch } from './ccip.js'
+import { ccipFetch, offchainLookup, offchainLookupAbiItem } from './ccip.js'
 import { trim } from './data/trim.js'
 
 describe('offchainLookup', () => {

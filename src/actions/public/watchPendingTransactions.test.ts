@@ -1,8 +1,10 @@
 import { accounts } from '../../_test/constants.js'
-import { webSocketClient } from '../../_test/utils.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import {
+  publicClient,
+  testClient,
+  walletClient,
+  webSocketClient,
+} from '../../_test/utils.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'

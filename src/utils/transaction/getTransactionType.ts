@@ -1,6 +1,8 @@
 import { InvalidSerializableTransactionError } from '../../errors/transaction.js'
-import type { AccessList } from '../../types/transaction.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
+import type {
+  AccessList,
+  type TransactionSerializable,
+} from '../../types/transaction.js'
 
 export type GetTransactionType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,

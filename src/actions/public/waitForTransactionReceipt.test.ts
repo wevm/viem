@@ -1,7 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
-import { walletClient } from '../../_test/utils.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'

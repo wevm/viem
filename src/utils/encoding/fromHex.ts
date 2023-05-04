@@ -1,7 +1,8 @@
-import { InvalidHexBooleanError } from '../../errors/encoding.js'
-import { SizeOverflowError } from '../../errors/encoding.js'
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import {
+  InvalidHexBooleanError,
+  SizeOverflowError,
+} from '../../errors/encoding.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { size as size_ } from '../data/size.js'
 import { trim } from '../data/trim.js'
 import { hexToBytes } from './toBytes.js'

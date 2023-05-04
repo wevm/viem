@@ -1,11 +1,12 @@
 import { InvalidAddressError } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import { InvalidChainIdError } from '../../errors/chain.js'
-import { FeeCapTooHighError } from '../../errors/node.js'
-import { TipAboveFeeCapError } from '../../errors/node.js'
-import type { TransactionSerializableEIP1559 } from '../../types/transaction.js'
-import type { TransactionSerializableEIP2930 } from '../../types/transaction.js'
-import type { TransactionSerializableLegacy } from '../../types/transaction.js'
+import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
+import type {
+  TransactionSerializableEIP1559,
+  type TransactionSerializableEIP2930,
+  type TransactionSerializableLegacy,
+} from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 
 export function assertTransactionEIP1559(

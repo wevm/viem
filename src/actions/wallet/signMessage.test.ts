@@ -1,6 +1,5 @@
 import { accounts } from '../../_test/constants.js'
-import { walletClient } from '../../_test/utils.js'
-import { walletClientWithAccount } from '../../_test/utils.js'
+import { walletClient, walletClientWithAccount } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from './signMessage.js'
 import { expect, test } from 'vitest'

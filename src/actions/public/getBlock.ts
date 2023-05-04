@@ -8,8 +8,10 @@ import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
-import type { BlockFormatter } from '../../utils/formatters/block.js'
-import type { FormattedBlock } from '../../utils/formatters/block.js'
+import type {
+  BlockFormatter,
+  type FormattedBlock,
+} from '../../utils/formatters/block.js'
 import { formatBlock } from '../../utils/formatters/block.js'
 import { format } from '../../utils/formatters/format.js'
 

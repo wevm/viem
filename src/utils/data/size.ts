@@ -1,5 +1,4 @@
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { isHex } from './isHex.js'
 
 /**

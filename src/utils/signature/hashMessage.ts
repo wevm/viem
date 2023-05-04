@@ -1,5 +1,4 @@
-import type { ByteArray } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { ByteArray, type Hex } from '../../types/misc.js'
 import { concat } from '../data/concat.js'
 import { toBytes } from '../encoding/toBytes.js'
 import { keccak256 } from '../hash/keccak256.js'

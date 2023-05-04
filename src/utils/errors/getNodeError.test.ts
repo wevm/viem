@@ -1,7 +1,9 @@
 import { address } from '../../_test/constants.js'
 import { RpcRequestError } from '../../errors/request.js'
-import { InvalidInputRpcError } from '../../errors/rpc.js'
-import { TransactionRejectedRpcError } from '../../errors/rpc.js'
+import {
+  InvalidInputRpcError,
+  TransactionRejectedRpcError,
+} from '../../errors/rpc.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 import { containsNodeError, getNodeError } from './getNodeError.js'

@@ -1,5 +1,4 @@
-import { publicClient } from '../../_test/utils.js'
-import { testClient } from '../../_test/utils.js'
+import { publicClient, testClient } from '../../_test/utils.js'
 import { getBlock } from '../public/getBlock.js'
 import { increaseTime } from './increaseTime.js'
 import { mine } from './mine.js'

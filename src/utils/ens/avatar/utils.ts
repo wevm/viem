@@ -1,10 +1,12 @@
 import { readContract } from '../../../actions/public/readContract.js'
 import type { PublicClient } from '../../../clients/createPublicClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { EnsAvatarInvalidMetadataError } from '../../../errors/ens.js'
-import { EnsAvatarInvalidNftUriError } from '../../../errors/ens.js'
-import { EnsAvatarUnsupportedNamespaceError } from '../../../errors/ens.js'
-import { EnsAvatarUriResolutionError } from '../../../errors/ens.js'
+import {
+  EnsAvatarInvalidMetadataError,
+  EnsAvatarInvalidNftUriError,
+  EnsAvatarUnsupportedNamespaceError,
+  EnsAvatarUriResolutionError,
+} from '../../../errors/ens.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
 import type { Address } from 'abitype'
