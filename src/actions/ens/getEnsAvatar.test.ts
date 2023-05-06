@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { namehash } from '../../ens.js'
+import { beforeAll, describe, expect, test } from 'vitest'
 
+import { ensPublicResolverConfig } from '../../_test/abis.js'
 import {
   address,
   deployEnsAvatarTokenUri,
@@ -9,8 +9,7 @@ import {
   testClient,
   walletClient,
 } from '../../_test/index.js'
-import { ensPublicResolverConfig } from '../../_test/abis.js'
-import { getBlockNumber } from '../public/index.js'
+import { namehash } from '../../ens.js'
 import {
   impersonateAccount,
   mine,
@@ -19,20 +18,17 @@ import {
 import { writeContract } from '../wallet/index.js'
 import { getEnsAvatar } from './getEnsAvatar.js'
 
-let blockNumber: bigint
 beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.vitalik,
   })
-  blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
-})
 
-afterAll(async () => {
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await setBlockNumber(blockNumber)
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+  }
 })
 
 test.each([

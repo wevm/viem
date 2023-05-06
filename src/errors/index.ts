@@ -25,6 +25,23 @@ export {
   UnsupportedPackedAbiType,
 } from './abi.js'
 
+export {
+  CircularReferenceError,
+  InvalidParenthesisError,
+  UnknownSignatureError,
+  InvalidSignatureError,
+  InvalidStructSignatureError,
+  InvalidAbiParameterError,
+  InvalidAbiParametersError,
+  InvalidParameterError,
+  SolidityProtectedKeywordError,
+  InvalidModifierError,
+  InvalidFunctionModifierError,
+  InvalidAbiTypeParameterError,
+  InvalidAbiItemError,
+  UnknownTypeError,
+} from 'abitype'
+
 export { AccountNotFoundError } from './account.js'
 
 export { InvalidAddressError } from './address.js'
@@ -37,8 +54,15 @@ export {
   ChainDoesNotSupportContract,
   ChainMismatchError,
   ChainNotFoundError,
+  ClientChainNotConfiguredError,
   InvalidChainIdError,
 } from './chain.js'
+
+export {
+  OffchainLookupError,
+  OffchainLookupResponseMalformedError,
+  OffchainLookupSenderMismatchError,
+} from './ccip.js'
 
 export {
   CallExecutionError,
@@ -48,7 +72,10 @@ export {
   RawContractError,
 } from './contract.js'
 
-export { SizeExceedsPaddingSizeError } from './data.js'
+export {
+  SizeExceedsPaddingSizeError,
+  SliceOffsetOutOfBoundsError,
+} from './data.js'
 
 export {
   DataLengthTooLongError,
@@ -58,13 +85,14 @@ export {
   InvalidHexBooleanError,
   InvalidHexValueError,
   OffsetOutOfBoundsError,
+  SizeOverflowError,
 } from './encoding.js'
 
 export {
   EnsAvatarInvalidMetadataError,
   EnsAvatarInvalidNftUriError,
-  EnsAvatarUriResolutionError,
   EnsAvatarUnsupportedNamespaceError,
+  EnsAvatarUriResolutionError,
 } from './ens.js'
 
 export { EstimateGasExecutionError } from './estimateGas.js'
@@ -87,6 +115,14 @@ export {
 } from './node.js'
 
 export {
+  HttpRequestError,
+  RpcRequestError,
+  TimeoutError,
+  WebSocketRequestError,
+} from './request.js'
+
+export {
+  ChainDisconnectedError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -96,29 +132,25 @@ export {
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
-  RequestError,
+  ProviderDisconnectedError,
+  ProviderRpcError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
-  RpcRequestError,
+  RpcError,
   SwitchChainError,
   TransactionRejectedRpcError,
+  UnauthorizedProviderError,
   UnknownRpcError,
+  UnsupportedProviderMethodError,
   UserRejectedRequestError,
-} from './request.js'
-
-export {
-  HttpRequestError,
-  RpcError,
-  TimeoutError,
-  WebSocketRequestError,
 } from './rpc.js'
 
 export {
   FeeConflictError,
   InvalidLegacyVError,
+  InvalidSerializableTransactionError,
   InvalidSerializedTransactionError,
   InvalidSerializedTransactionTypeError,
-  InvalidSerializableTransactionError,
   InvalidStorageKeySizeError,
   TransactionExecutionError,
   TransactionNotFoundError,

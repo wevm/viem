@@ -1,8 +1,10 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
-import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
+
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
+import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
 import type { DeployContractParameters } from '../actions/index.js'
 import {
   deployContract,
@@ -23,21 +25,28 @@ import {
   http,
   webSocket,
 } from '../clients/index.js'
-import type { Hex } from '../types/index.js'
+import { namehash } from '../ens.js'
 import { RpcError } from '../types/eip1193.js'
+import type { Hex } from '../types/index.js'
 import { rpc } from '../utils/index.js'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
-import { accounts, address, localWsUrl } from './constants.js'
+import {
+  accounts,
+  address,
+  forkUrl,
+  localHttpUrl,
+  localWsUrl,
+} from './constants.js'
 import {
   ensAvatarTokenUriABI,
   erc20InvalidTransferEventABI,
   errorsExampleABI,
+  offchainLookupExampleABI,
 } from './generated.js'
 
 import type { RequestListener } from 'http'
 import { createServer } from 'http'
 import type { AddressInfo } from 'net'
-import { namehash } from '../ens.js'
 
 export const publicMainnetClient = createPublicClient({
   chain: mainnet,
@@ -48,6 +57,16 @@ export const anvilChain = {
   ...localhost,
   id: 1,
   contracts: mainnet.contracts,
+  rpcUrls: {
+    default: {
+      http: [localHttpUrl],
+      webSocket: [localWsUrl],
+    },
+    public: {
+      http: [localHttpUrl],
+      webSocket: [localWsUrl],
+    },
+  },
 } as const satisfies Chain
 
 const provider = {
@@ -66,7 +85,7 @@ const provider = {
       params = [params[1], params[0]]
     }
     if (method === 'wallet_watchAsset') {
-      if (params[0].type === 'ERC721') {
+      if (params.type === 'ERC721') {
         throw new RpcError(-32602, 'Token type ERC721 not supported.')
       }
       return true
@@ -95,7 +114,7 @@ const provider = {
         },
       ]
 
-    const { result } = await rpc.http(anvilChain.rpcUrls.default.http[0], {
+    const { result } = await rpc.http(localHttpUrl, {
       body: {
         method,
         params,
@@ -106,12 +125,18 @@ const provider = {
 }
 
 export const httpClient = createPublicClient({
+  batch: {
+    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
+  },
   chain: anvilChain,
   pollingInterval: 1_000,
-  transport: custom(provider),
+  transport: http(localHttpUrl),
 })
 
 export const webSocketClient = createPublicClient({
+  batch: {
+    multicall: process.env.VITE_BATCH_MULTICALL === 'true',
+  },
   chain: anvilChain,
   pollingInterval: 1_000,
   transport: webSocket(localWsUrl),
@@ -141,7 +166,7 @@ export const walletClientWithoutChain = createWalletClient({
 export const testClient = createTestClient({
   chain: anvilChain,
   mode: 'anvil',
-  transport: http(),
+  transport: http(localHttpUrl),
 })
 
 export function createHttpServer(
@@ -209,10 +234,21 @@ export async function deployErc20InvalidTransferEvent() {
   })
 }
 
+export async function deployOffchainLookupExample({
+  urls,
+}: { urls: string[] }) {
+  return deploy({
+    abi: offchainLookupExampleABI,
+    bytecode: offchainLookupExample.bytecode.object as Hex,
+    account: accounts[0].address,
+    args: [urls],
+  })
+}
+
 export async function setBlockNumber(blockNumber: bigint) {
   await reset(testClient, {
     blockNumber,
-    jsonRpcUrl: process.env.VITE_ANVIL_FORK_URL,
+    jsonRpcUrl: forkUrl,
   })
 }
 

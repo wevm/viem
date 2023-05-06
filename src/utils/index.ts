@@ -60,6 +60,13 @@ export {
 
 export { buildRequest } from './buildRequest.js'
 
+export {
+  ccipFetch,
+  offchainLookup,
+  offchainLookupAbiItem,
+  offchainLookupSignature,
+} from './ccip.js'
+
 export { defineChain, getChainContractAddress } from './chain.js'
 
 export {
@@ -165,6 +172,8 @@ export type {
   RecoverAddressReturnType,
   RecoverMessageAddressParameters,
   RecoverMessageAddressReturnType,
+  RecoverPublicKeyParameters,
+  RecoverPublicKeyReturnType,
   RecoverTypedDataAddressParameters,
   RecoverTypedDataAddressReturnType,
   VerifyMessageParameters,
@@ -177,6 +186,7 @@ export {
   hashTypedData,
   recoverAddress,
   recoverMessageAddress,
+  recoverPublicKey,
   recoverTypedDataAddress,
   verifyMessage,
   verifyTypedData,

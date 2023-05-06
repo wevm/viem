@@ -1,15 +1,16 @@
 import type { Abi, Narrow } from 'abitype'
-import type { PublicClient, Transport } from '../../clients/index.js'
 
+import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   BlockNumber,
   BlockTag,
   Chain,
-  InferEventName,
   Filter,
+  InferEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/index.js'
+import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 import { encodeEventTopics, numberToHex } from '../../utils/index.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
 
@@ -86,6 +87,10 @@ export async function createContractEventFilter<
     toBlock,
   }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
 ): Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>> {
+  const getRequest = createFilterRequestScope(client, {
+    method: 'eth_newFilter',
+  })
+
   const topics = eventName
     ? encodeEventTopics({
         abi,
@@ -105,11 +110,13 @@ export async function createContractEventFilter<
       },
     ],
   })
+
   return {
     abi,
     args,
     eventName,
     id,
+    request: getRequest(id),
     type: 'event',
   } as unknown as CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>
 }

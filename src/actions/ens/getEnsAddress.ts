@@ -4,6 +4,7 @@ import {
   universalResolverAbi,
 } from '../../constants/abis.js'
 import type { Address, Chain, Prettify } from '../../types/index.js'
+import { namehash, packetToBytes } from '../../utils/ens/index.js'
 import {
   decodeFunctionResult,
   encodeFunctionData,
@@ -11,7 +12,6 @@ import {
   toHex,
   trim,
 } from '../../utils/index.js'
-import { namehash, packetToBytes } from '../../utils/ens/index.js'
 import { readContract } from '../public/index.js'
 import type { ReadContractParameters } from '../public/index.js'
 
@@ -32,7 +32,6 @@ export type GetEnsAddressReturnType = Address | null
  * - Docs: https://viem.sh/docs/ens/actions/getEnsAddress.html
  * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
  *
- * @remarks
  * Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
  *
  * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.

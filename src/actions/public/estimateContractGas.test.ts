@@ -4,8 +4,10 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-
 import { describe, expect, test } from 'vitest'
+
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 import {
   accounts,
   deployBAYC,
@@ -14,14 +16,11 @@ import {
   wagmiContractConfig,
   walletClient,
 } from '../../_test/index.js'
-import { baycContractConfig } from '../../_test/abis.js'
+import { deployErrorExample } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/index.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { mine } from '../test/index.js'
 import { sendTransaction } from '../wallet/index.js'
-
-import { deployErrorExample } from '../../_test/utils.js'
-import { errorsExampleABI } from '../../_test/generated.js'
 import { estimateContractGas } from './estimateContractGas.js'
 
 describe('wagmi', () => {
@@ -183,6 +182,7 @@ describe('BAYC', () => {
           functionName: 'mintApe',
           account: accounts[0].address,
           args: [1n],
+          value: 1n,
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "The contract function \\"mintApe\\" reverted with the following reason:
@@ -201,22 +201,18 @@ describe('BAYC', () => {
   })
 })
 
-describe(
-  'local account',
-  () => {
-    test('default', async () => {
-      expect(
-        await estimateContractGas(publicClient, {
-          ...wagmiContractConfig,
-          account: privateKeyToAccount(accounts[0].privateKey),
-          functionName: 'mint',
-          args: [69420n],
-        }),
-      ).toEqual(73747n)
-    })
-  },
-  { retry: 3 },
-)
+describe('local account', () => {
+  test('default', async () => {
+    expect(
+      await estimateContractGas(publicClient, {
+        ...wagmiContractConfig,
+        account: privateKeyToAccount(accounts[0].privateKey),
+        functionName: 'mint',
+        args: [69420n],
+      }),
+    ).toEqual(73747n)
+  })
+})
 
 describe('contract errors', () => {
   test('revert', async () => {
@@ -326,8 +322,7 @@ describe('contract errors', () => {
         account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
-      execution reverted
+      [ContractFunctionExecutionError: The contract function "requireWrite" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

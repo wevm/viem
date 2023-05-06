@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+
 import { validateTypedData } from './typedData.js'
 
 describe('validateTypedData', () => {

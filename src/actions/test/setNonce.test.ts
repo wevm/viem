@@ -2,15 +2,19 @@ import { expect, test } from 'vitest'
 
 import { accounts, publicClient, testClient } from '../../_test/index.js'
 import { getTransactionCount } from '../public/getTransactionCount.js'
+import { mine } from './mine.js'
 import { setNonce } from './setNonce.js'
 
 const targetAccount = accounts[0]
 
 test('sets nonce', async () => {
-  await setNonce(testClient, {
-    address: targetAccount.address,
-    nonce: 420,
-  })
+  await expect(
+    setNonce(testClient, {
+      address: targetAccount.address,
+      nonce: 420,
+    }),
+  ).resolves.toBeUndefined()
+  await mine(testClient, { blocks: 1 })
   expect(
     await getTransactionCount(publicClient, {
       address: targetAccount.address,

@@ -20,7 +20,7 @@ async function setup() {
     address: targetAccount.address,
     value: targetAccount.balance,
   })
-
+  await mine(testClient, { blocks: 1 })
   await sendTransaction(walletClient, {
     account: sourceAccount.address,
     to: targetAccount.address,

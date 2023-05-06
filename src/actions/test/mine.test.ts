@@ -7,7 +7,7 @@ import { mine } from './mine.js'
 
 test('mines 1 block', async () => {
   const currentBlockNumber = await getBlockNumber(publicClient, { maxAge: 0 })
-  await mine(testClient, { blocks: 1 })
+  await expect(mine(testClient, { blocks: 1 })).resolves.toBeUndefined()
   const nextBlockNumber = await getBlockNumber(publicClient, { maxAge: 0 })
   expect(nextBlockNumber).toEqual(currentBlockNumber + 1n)
 })

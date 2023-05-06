@@ -1,4 +1,3 @@
-import type { Abi, AbiEvent } from 'abitype'
 import type {
   GetEnsAddressParameters,
   GetEnsAddressReturnType,
@@ -67,12 +66,12 @@ import type {
   ReadContractReturnType,
   SimulateContractParameters,
   SimulateContractReturnType,
+  UninstallFilterParameters,
+  UninstallFilterReturnType,
   VerifyMessageParameters,
   VerifyMessageReturnType,
   VerifyTypedDataParameters,
   VerifyTypedDataReturnType,
-  UninstallFilterParameters,
-  UninstallFilterReturnType,
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
   WatchBlockNumberParameters,
@@ -113,9 +112,9 @@ import {
   multicall,
   readContract,
   simulateContract,
+  uninstallFilter,
   verifyMessage,
   verifyTypedData,
-  uninstallFilter,
   waitForTransactionReceipt,
   watchBlockNumber,
   watchBlocks,
@@ -131,6 +130,7 @@ import type {
 } from '../../types/index.js'
 import type { PublicClient } from '../createPublicClient.js'
 import type { Transport } from '../transports/index.js'
+import type { Abi, AbiEvent } from 'abitype'
 
 export type PublicActions<
   TTransport extends Transport = Transport,
@@ -142,7 +142,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/call.html
    * - JSON-RPC Methods: [`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call)
    *
-   * @param parameters - {@link CallParameters}
+   * @param args - {@link CallParameters}
    * @returns The call data. {@link CallReturnType}
    *
    * @example
@@ -185,7 +185,7 @@ export type PublicActions<
    *
    * - Docs: https://viem.sh/docs/contract/createContractEventFilter.html
    *
-   * @param parameters - {@link CreateContractEventFilterParameters}
+   * @param args - {@link CreateContractEventFilterParameters}
    * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateContractEventFilterReturnType}
    *
    * @example
@@ -213,7 +213,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/createEventFilter.html
    * - JSON-RPC Methods: [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter)
    *
-   * @param parameters - {@link CreateEventFilterParameters}
+   * @param args - {@link CreateEventFilterParameters}
    * @returns [`Filter`](https://viem.sh/docs/glossary/types.html#filter). {@link CreateEventFilterReturnType}
    *
    * @example
@@ -264,7 +264,7 @@ export type PublicActions<
    * @remarks
    * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
    *
-   * @param parameters - {@link EstimateContractGasParameters}
+   * @param args - {@link EstimateContractGasParameters}
    * @returns The gas estimate (in wei). {@link EstimateContractGasReturnType}
    *
    * @example
@@ -295,7 +295,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/estimateGas.html
    * - JSON-RPC Methods: [`eth_estimateGas`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_estimategas)
    *
-   * @param parameters - {@link EstimateGasParameters}
+   * @param args - {@link EstimateGasParameters}
    * @returns The gas estimate (in wei). {@link EstimateGasReturnType}
    *
    * @example
@@ -333,7 +333,7 @@ export type PublicActions<
    * // "6.942"
    * ```
    *
-   * @param parameters - {@link GetBalanceParameters}
+   * @param args - {@link GetBalanceParameters}
    * @returns The balance of the address in wei. {@link GetBalanceReturnType}
    *
    * @example
@@ -359,7 +359,7 @@ export type PublicActions<
    *   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) for `blockNumber` & `blockTag`.
    *   - Calls [`eth_getBlockByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbyhash) for `blockHash`.
    *
-   * @param parameters - {@link GetBlockParameters}
+   * @param args - {@link GetBlockParameters}
    * @returns Information about the block. {@link GetBlockReturnType}
    *
    * @example
@@ -380,7 +380,7 @@ export type PublicActions<
    * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks
    * - JSON-RPC Methods: [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber)
    *
-   * @param parameters - {@link GetBlockNumberParameters}
+   * @param args - {@link GetBlockNumberParameters}
    * @returns The number of the block. {@link GetBlockNumberReturnType}
    *
    * @example
@@ -405,7 +405,7 @@ export type PublicActions<
    *   - Calls [`eth_getBlockTransactionCountByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbynumber) for `blockNumber` & `blockTag`.
    *   - Calls [`eth_getBlockTransactionCountByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbyhash) for `blockHash`.
    *
-   * @param parameters - {@link GetBlockTransactionCountParameters}
+   * @param args - {@link GetBlockTransactionCountParameters}
    * @returns The block transaction count. {@link GetBlockTransactionCountReturnType}
    *
    * @example
@@ -427,7 +427,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/contract/getBytecode.html
    * - JSON-RPC Methods: [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode)
    *
-   * @param parameters - {@link GetBytecodeParameters}
+   * @param args - {@link GetBytecodeParameters}
    * @returns The contract's bytecode. {@link GetBytecodeReturnType}
    *
    * @example
@@ -474,7 +474,7 @@ export type PublicActions<
    *
    * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
    *
-   * @param parameters - {@link GetEnsAddressParameters}
+   * @param args - {@link GetEnsAddressParameters}
    * @returns Address for ENS name or `null` if not found. {@link GetEnsAddressReturnType}
    *
    * @example
@@ -505,7 +505,7 @@ export type PublicActions<
    *
    * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
    *
-   * @param parameters - {@link GetEnsAvatarParameters}
+   * @param args - {@link GetEnsAvatarParameters}
    * @returns Avatar URI or `null` if not found. {@link GetEnsAvatarReturnType}
    *
    * @example
@@ -534,7 +534,7 @@ export type PublicActions<
    * @remarks
    * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
    *
-   * @param parameters - {@link GetEnsNameParameters}
+   * @param args - {@link GetEnsNameParameters}
    * @returns Name or `null` if not found. {@link GetEnsNameReturnType}
    *
    * @example
@@ -562,7 +562,7 @@ export type PublicActions<
    *
    * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
    *
-   * @param parameters - {@link GetEnsResolverParameters}
+   * @param args - {@link GetEnsResolverParameters}
    * @returns Address for ENS resolver. {@link GetEnsResolverReturnType}
    *
    * @example
@@ -593,7 +593,7 @@ export type PublicActions<
    *
    * Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](https://viem.sh/docs/ens/utilities/normalize.html) function for this.
    *
-   * @param parameters - {@link GetEnsTextParameters}
+   * @param args - {@link GetEnsTextParameters}
    * @returns Address for ENS resolver. {@link GetEnsTextReturnType}
    *
    * @example
@@ -618,7 +618,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/getFeeHistory.html
    * - JSON-RPC Methods: [`eth_feeHistory`](https://docs.alchemy.com/reference/eth-feehistory)
    *
-   * @param parameters - {@link GetFeeHistoryParameters}
+   * @param args - {@link GetFeeHistoryParameters}
    * @returns The gas estimate (in wei). {@link GetFeeHistoryReturnType}
    *
    * @example
@@ -657,7 +657,7 @@ export type PublicActions<
    * - If the filter was created with `createPendingTransactionFilter`, it returns a list of transaction hashes.
    * - If the filter was created with `createBlockFilter`, it returns a list of block hashes.
    *
-   * @param parameters - {@link GetFilterChangesParameters}
+   * @param args - {@link GetFilterChangesParameters}
    * @returns Logs or hashes. {@link GetFilterChangesReturnType}
    *
    * @example
@@ -734,7 +734,7 @@ export type PublicActions<
    * @remarks
    * `getFilterLogs` is only compatible with **event filters**.
    *
-   * @param parameters - {@link GetFilterLogsParameters}
+   * @param args - {@link GetFilterLogsParameters}
    * @returns A list of event logs. {@link GetFilterLogsReturnType}
    *
    * @example
@@ -784,7 +784,7 @@ export type PublicActions<
    * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/filters-and-logs/event-logs
    * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
    *
-   * @param parameters - {@link GetLogsParameters}
+   * @param args - {@link GetLogsParameters}
    * @returns A list of event logs. {@link GetLogsReturnType}
    *
    * @example
@@ -806,7 +806,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/contract/getStorageAt.html
    * - JSON-RPC Methods: [`eth_getStorageAt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getstorageat)
    *
-   * @param parameters - {@link GetStorageAtParameters}
+   * @param args - {@link GetStorageAtParameters}
    * @returns The value of the storage slot. {@link GetStorageAtReturnType}
    *
    * @example
@@ -833,7 +833,7 @@ export type PublicActions<
    * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionByHash`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionByHash)
    *
-   * @param parameters - {@link GetTransactionParameters}
+   * @param args - {@link GetTransactionParameters}
    * @returns The transaction information. {@link GetTransactionReturnType}
    *
    * @example
@@ -858,7 +858,7 @@ export type PublicActions<
    * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionConfirmations`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionConfirmations)
    *
-   * @param parameters - {@link GetTransactionConfirmationsParameters}
+   * @param args - {@link GetTransactionConfirmationsParameters}
    * @returns The number of blocks passed since the transaction was processed. If confirmations is 0, then the Transaction has not been confirmed & processed yet. {@link GetTransactionConfirmationsReturnType}
    *
    * @example
@@ -882,7 +882,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/getTransactionCount.html
    * - JSON-RPC Methods: [`eth_getTransactionCount`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount)
    *
-   * @param parameters - {@link GetTransactionCountParameters}
+   * @param args - {@link GetTransactionCountParameters}
    * @returns The number of transactions an account has sent. {@link GetTransactionCountReturnType}
    *
    * @example
@@ -907,7 +907,7 @@ export type PublicActions<
    * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
    * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt)
    *
-   * @param parameters - {@link GetTransactionReceiptParameters}
+   * @param args - {@link GetTransactionReceiptParameters}
    * @returns The transaction receipt. {@link GetTransactionReceiptReturnType}
    *
    * @example
@@ -930,7 +930,7 @@ export type PublicActions<
    *
    * - Docs: https://viem.sh/docs/contract/multicall.html
    *
-   * @param parameters - {@link MulticallParameters}
+   * @param args - {@link MulticallParameters}
    * @returns An array of results with accompanying status. {@link MulticallReturnType}
    *
    * @example
@@ -945,7 +945,7 @@ export type PublicActions<
    *   'function balanceOf(address) view returns (uint256)',
    *   'function totalSupply() view returns (uint256)',
    * ])
-   * const results = await client.multicall({
+   * const result = await client.multicall({
    *   contracts: [
    *     {
    *       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -979,7 +979,7 @@ export type PublicActions<
    *
    * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
    *
-   * @param parameters - {@link ReadContractParameters}
+   * @param args - {@link ReadContractParameters}
    * @returns The response from the contract. Type is inferred. {@link ReadContractReturnType}
    *
    * @example
@@ -991,7 +991,7 @@ export type PublicActions<
    *   chain: mainnet,
    *   transport: http(),
    * })
-   * const results = await client.readContract({
+   * const result = await client.readContract({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
    *   abi: parseAbi(['function balanceOf(address) view returns (uint256)']),
    *   functionName: 'balanceOf',
@@ -1016,7 +1016,7 @@ export type PublicActions<
    *
    * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
    *
-   * @param parameters - {@link SimulateContractParameters}
+   * @param args - {@link SimulateContractParameters}
    * @returns The simulation result and write request. {@link SimulateContractReturnType}
    *
    * @example
@@ -1027,7 +1027,7 @@ export type PublicActions<
    *   chain: mainnet,
    *   transport: http(),
    * })
-   * const results = await client.simulateContract({
+   * const result = await client.simulateContract({
    *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
    *   abi: parseAbi(['function mint(uint32) view returns (uint32)']),
    *   functionName: 'mint',
@@ -1065,7 +1065,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/actions/public/uninstallFilter.html
    * - JSON-RPC Methods: [`eth_uninstallFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_uninstallFilter)
    *
-   * @param parameters - {@link UninstallFilterParameters}
+   * @param args - {@link UninstallFilterParameters}
    * @returns A boolean indicating if the Filter was successfully uninstalled. {@link UninstallFilterReturnType}
    *
    * @example
@@ -1103,7 +1103,7 @@ export type PublicActions<
    * - `cancelled`: The Transaction has been cancelled (e.g. `value === 0n`)
    * - `replaced`: The Transaction has been replaced (e.g. different `value` or `data`)
    *
-   * @param parameters - {@link WaitForTransactionReceiptParameters}
+   * @param args - {@link WaitForTransactionReceiptParameters}
    * @returns The transaction receipt. {@link WaitForTransactionReceiptReturnType}
    *
    * @example
@@ -1130,7 +1130,7 @@ export type PublicActions<
    *   - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.
    *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
    *
-   * @param parameters - {@link WatchBlockNumberParameters}
+   * @param args - {@link WatchBlockNumberParameters}
    * @returns A function that can be invoked to stop watching for new block numbers. {@link WatchBlockNumberReturnType}
    *
    * @example
@@ -1157,7 +1157,7 @@ export type PublicActions<
    *   - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
    *   - When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
    *
-   * @param parameters - {@link WatchBlocksParameters}
+   * @param args - {@link WatchBlocksParameters}
    * @returns A function that can be invoked to stop watching for new block numbers. {@link WatchBlocksReturnType}
    *
    * @example
@@ -1185,7 +1185,7 @@ export type PublicActions<
    *
    * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
    *
-   * @param parameters - {@link WatchContractEventParameters}
+   * @param args - {@link WatchContractEventParameters}
    * @returns A function that can be invoked to stop watching for new event logs. {@link WatchContractEventReturnType}
    *
    * @example
@@ -1226,7 +1226,7 @@ export type PublicActions<
    *
    * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
    *
-   * @param parameters - {@link WatchEventParameters}
+   * @param args - {@link WatchEventParameters}
    * @returns A function that can be invoked to stop watching for new Event Logs. {@link WatchEventReturnType}
    *
    * @example
@@ -1257,7 +1257,7 @@ export type PublicActions<
    * @remarks
    * This Action will batch up all the pending transactions found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchPendingTransactions.html#pollinginterval-optional), and invoke them via [`onTransactions`](https://viem.sh/docs/actions/public/watchPendingTransactions.html#ontransactions).
    *
-   * @param parameters - {@link WatchPendingTransactionsParameters}
+   * @param args - {@link WatchPendingTransactionsParameters}
    * @returns A function that can be invoked to stop watching for new pending transaction hashes. {@link WatchPendingTransactionsReturnType}
    *
    * @example

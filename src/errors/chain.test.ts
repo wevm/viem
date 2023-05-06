@@ -1,6 +1,11 @@
 import { expect, test } from 'vitest'
+
 import { mainnet } from '../chains.js'
-import { ChainDoesNotSupportContract, InvalidChainIdError } from './chain.js'
+import {
+  ChainDoesNotSupportContract,
+  ClientChainNotConfiguredError,
+  InvalidChainIdError,
+} from './chain.js'
 
 test('ChainDoesNotSupportContract', () => {
   expect(
@@ -40,6 +45,14 @@ test('ChainDoesNotSupportContract', () => {
 
     This could be due to any of the following:
     - The contract "ensUniversalResolver" was not deployed until block 16172161 (current block 16172160).
+
+    Version: viem@1.0.2]
+  `)
+})
+
+test('ClientChainNotConfiguredError', () => {
+  expect(new ClientChainNotConfiguredError()).toMatchInlineSnapshot(`
+    [ClientChainNotConfiguredError: No chain was provided to the Client.
 
     Version: viem@1.0.2]
   `)

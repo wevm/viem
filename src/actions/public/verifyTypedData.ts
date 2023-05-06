@@ -1,15 +1,15 @@
-import type { TypedData } from 'abitype'
-import {
-  type VerifyMessageHashOnchainParameters,
-  verifyMessageHashOnChain,
-} from './verifyMessage.js'
+import type { PublicClient, Transport } from '../../clients/index.js'
+import type { Chain } from '../../types/index.js'
+import { hashTypedData } from '../../utils/index.js'
 import {
   type VerifyTypedDataParameters as OfflineVerifyTypedDataParameters,
   type VerifyTypedDataReturnType as OfflineVerifyTypedDataReturnType,
 } from '../../utils/signature/verifyTypedData.js'
-import type { Chain } from '../../types/index.js'
-import type { PublicClient, Transport } from '../../clients/index.js'
-import { hashTypedData } from '../../utils/index.js'
+import {
+  type VerifyMessageHashOnchainParameters,
+  verifyMessageHashOnChain,
+} from './verifyMessage.js'
+import type { TypedData } from 'abitype'
 
 export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

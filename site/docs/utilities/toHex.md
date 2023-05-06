@@ -16,6 +16,13 @@ head:
 
 Encodes a string, number, boolean or byte array to a hex value value.
 
+Shortcut Functions: 
+
+- [numberToHex](#numbertohex)
+- [stringToHex](#stringtohex)
+- [bytesToHex](#bytestohex)
+- [boolToHex](#booltohex)
+
 ## Import
 
 ```ts
@@ -50,11 +57,28 @@ The hex value.
 
 ## Parameters
 
-### Value
+### value
 
 - **Type:** `string | number | bigint | ByteArray`
 
 The value to hex encode.
+
+```ts {2}
+toHex(
+  'Hello world'
+)
+// '0x48656c6c6f20776f726c642e'
+```
+
+### options
+
+```ts {3}
+toHex(
+  'Hello world', 
+  { size: 32 }
+)
+// '0x48656c6c6f20776f726c642e0000000000000000000000000000000000000000'
+```
 
 ## Shortcut Functions
 
@@ -72,6 +96,12 @@ numberToHex(420)
 
 numberToHex(4206942069420694206942069420694206942069n)
 // "0xc5cf39211876fb5e5884327fa56fc0b75"
+
+numberToHex(420, { size: 32 })
+// "0x00000000000000000000000000000000000000000000000000000000000001a4"
+
+numberToHex(4206942069420694206942069420694206942069n, { size: 32 })
+// "0x0000000000000000000000000000000c5cf39211876fb5e5884327fa56fc0b75"
 ```
 
 ### stringToHex
@@ -85,6 +115,9 @@ import { stringToHex } from 'viem'
 
 stringToHex('Hello World!')
 // "0x48656c6c6f20576f726c6421"
+
+stringToHex('Hello World!', { size: 32 })
+// "0x48656c6c6f20576f726c64210000000000000000000000000000000000000000"
 ```
 
 ### bytesToHex
@@ -100,6 +133,12 @@ bytesToHex(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
 )
 // "0x48656c6c6f20576f726c6421"
+
+bytesToHex(
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
+  { size: 32 }
+)
+// "0x48656c6c6f20576f726c64210000000000000000000000000000000000000000"
 ```
 
 ### boolToHex
@@ -113,4 +152,7 @@ import { stringToHex } from 'viem'
 
 bytesToHex(true)
 // "0x1"
+
+bytesToHex(true, { size: 32 })
+// "0x0000000000000000000000000000000000000000000000000000000000000001"
 ```

@@ -1,5 +1,5 @@
+import { type ByteArray, type Hex, isHex, toBytes } from '../../index.js'
 import { equalBytes } from '@noble/curves/abstract/utils'
-import { toBytes, type ByteArray, type Hex, isHex } from '../../index.js'
 
 type Input = ByteArray | Hex
 export function isBytesEqual(a: Input, b: Input) {

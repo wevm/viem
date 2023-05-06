@@ -7,6 +7,7 @@ import type {
   ContractFunctionConfig,
   ContractFunctionResult,
   GetValue,
+  Hex,
 } from '../../types/index.js'
 import {
   decodeFunctionResult,
@@ -29,10 +30,12 @@ export type SimulateContractParameters<
   TChainOverride extends Chain | undefined = undefined,
 > = {
   chain?: TChainOverride
+  /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
+  dataSuffix?: Hex
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
-    'to' | 'data' | 'value'
+    'batch' | 'to' | 'data' | 'value'
   > &
   GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
 
@@ -63,7 +66,6 @@ export type SimulateContractReturnType<
  * - Docs: https://viem.sh/docs/contract/simulateContract.html
  * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
  *
- * @remarks
  * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
  *
  * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
@@ -81,7 +83,7 @@ export type SimulateContractReturnType<
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const results = await simulateContract(client, {
+ * const result = await simulateContract(client, {
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   abi: parseAbi(['function mint(uint32) view returns (uint32)']),
  *   functionName: 'mint',
@@ -100,6 +102,7 @@ export async function simulateContract<
     abi,
     address,
     args,
+    dataSuffix,
     functionName,
     ...callRequest
   }: SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>,
@@ -116,7 +119,8 @@ export async function simulateContract<
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   try {
     const { data } = await call(client, {
-      data: calldata,
+      batch: false,
+      data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
     } as unknown as CallParameters<TChain>)

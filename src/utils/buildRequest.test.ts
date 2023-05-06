@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
+import { createHttpServer } from '../_test/index.js'
 import {
   BaseError,
   HttpRequestError,
@@ -9,7 +10,6 @@ import {
   TimeoutError,
   UnknownRpcError,
 } from '../errors/index.js'
-import { createHttpServer } from '../_test/index.js'
 import { buildRequest, isDeterministicError } from './buildRequest.js'
 import { rpc } from './rpc.js'
 
@@ -81,18 +81,16 @@ describe('args', () => {
 describe('behavior', () => {
   describe('error types', () => {
     test('BaseError', async () => {
-      try {
-        await buildRequest(() =>
+      await expect(() =>
+        buildRequest(() =>
           Promise.reject(new BaseError('foo', { details: 'bar' })),
-        )()
-      } catch (err) {
-        expect(err).toMatchInlineSnapshot(`
-          [ViemError: foo
+        )(),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "foo
 
-          Details: bar
-          Version: viem@1.0.2]
-        `)
-      }
+        Details: bar
+        Version: viem@1.0.2"
+      `)
     })
 
     test('ParseRpcError', async () => {
@@ -372,6 +370,90 @@ describe('behavior', () => {
       `)
     })
 
+    test('UnauthorizedProviderError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4100, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The requested method and/or account has not been authorized by the user.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('UnsupportedProviderMethodError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4200, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The Provider does not support the requested method.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('ProviderDisconnectedError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4900, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The Provider is disconnected from all chains.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
+    test('ChainDisconnectedError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: 4901, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The Provider is not connected to the requested chain.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
     test('SwitchChainError', async () => {
       const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
@@ -415,6 +497,27 @@ describe('behavior', () => {
       `)
     })
 
+    test('MethodNotSupportedRpcError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ error: { code: -32042, message: 'message' } }))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "Method is not implemented.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
     test('UnknownRpcError', async () => {
       await expect(() =>
         buildRequest(() => Promise.reject(new Error('wat')))(),
@@ -427,26 +530,24 @@ describe('behavior', () => {
     })
 
     test('TimeoutError', async () => {
-      try {
-        await buildRequest(() =>
+      await expect(() =>
+        buildRequest(() =>
           Promise.reject(
             new TimeoutError({
               body: { foo: 'bar' },
               url: 'http://localhost:8000',
             }),
           ),
-        )()
-      } catch (err) {
-        expect(err).toMatchInlineSnapshot(`
-          [TimeoutError: The request took too long to respond.
+        )(),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "The request took too long to respond.
 
-          URL: http://localhost
-          Request body: {"foo":"bar"}
+        URL: http://localhost
+        Request body: {\\"foo\\":\\"bar\\"}
 
-          Details: The request timed out.
-          Version: viem@1.0.2]
-        `)
-      }
+        Details: The request timed out.
+        Version: viem@1.0.2"
+      `)
     })
   })
 
@@ -540,6 +641,31 @@ describe('behavior', () => {
         Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
         Details: Internal Server Error
+        Version: viem@1.0.2"
+      `)
+      expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (403)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((_req, res) => {
+        retryCount++
+        res.writeHead(403, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 403
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: Forbidden
         Version: viem@1.0.2"
       `)
       expect(retryCount).toBe(3)
@@ -709,6 +835,14 @@ describe('isDeterministicError', () => {
     expect(
       isDeterministicError(
         new HttpRequestError({ body: {}, details: '', status: 429, url: '' }),
+      ),
+    ).toBe(false)
+  })
+
+  test('HttpRequestError (403)', () => {
+    expect(
+      isDeterministicError(
+        new HttpRequestError({ body: {}, details: '', status: 403, url: '' }),
       ),
     ).toBe(false)
   })

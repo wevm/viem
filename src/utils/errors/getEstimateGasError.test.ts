@@ -1,11 +1,12 @@
 import { expect, test } from 'vitest'
-import { parseAccount } from '../index.js'
+
+import { address } from '../../_test/index.js'
 import {
   BaseError,
-  RpcError,
+  RpcRequestError,
   TransactionRejectedRpcError,
 } from '../../errors/index.js'
-import { address } from '../../_test/index.js'
+import { parseAccount } from '../index.js'
 import { getEstimateGasError } from './getEstimateGasError.js'
 
 test('default', () => {
@@ -25,7 +26,7 @@ test('default', () => {
 
 test('default', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'fee cap higher than 2\^256-1' },
       url: '',

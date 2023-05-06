@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+
 import type { Hash, Hex } from './misc.js'
 import type { Transaction } from './transaction.js'
 

@@ -43,13 +43,25 @@ const client = createPublicClient({
 
 ### Transport Ranking
 
-By default, each of the Transports passed to the `fallback` Transport are automatically ranked based on their **latency** & **stability** via a weighted moving score algorithm. 
+Transport Ranking enables each of the Transports passed to the `fallback` Transport are automatically ranked based on their **latency** & **stability** via a weighted moving score algorithm. 
 
 Every 10 seconds (`interval`), the `fallback` Transport will ping each transport in the list. For the past 10 pings (`sampleCount`), they will be ranked based on if they responded (stability) and how fast they responded (latency). The algorithm applies a weight of `0.7` to the stability score, and a weight of `0.3` to the latency score to derive the final score which it is ranked on. 
 
 The Transport that has the best latency & stability score over the sample period is prioritized first. 
 
-You can modify the default rank config using the `rank` parameter:
+You can turn on automated ranking with the `rank` option:
+
+```ts
+const client = createPublicClient({
+  chain: mainnet,
+  transport: fallback(
+    [alchemy, infura],
+    { rank: true } // [!code focus]
+  ),
+})
+```
+
+You can also modify the default rank config:
 
 ```ts
 const client = createPublicClient({
@@ -67,18 +79,6 @@ const client = createPublicClient({
         }
       }
     }
-  ),
-})
-```
-
-Or you can turn it off automated ranking by passing `false` to `rank`:
-
-```ts
-const client = createPublicClient({
-  chain: mainnet,
-  transport: fallback(
-    [alchemy, infura],
-    { rank: false } // [!code focus]
   ),
 })
 ```

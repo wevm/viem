@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest'
-import { privateKeyToAccount } from '../../accounts/index.js'
-import { getAddress, recoverTypedDataAddress } from '../../utils/index.js'
+
 import {
   accounts,
   typedData,
   walletClient,
   walletClientWithAccount,
 } from '../../_test/index.js'
-
+import { privateKeyToAccount } from '../../accounts/index.js'
+import { getAddress, recoverTypedDataAddress } from '../../utils/index.js'
 import { signTypedData } from './signTypedData.js'
 
 const localAccount = privateKeyToAccount(accounts[0].privateKey)

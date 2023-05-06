@@ -19,6 +19,12 @@ export type {
 export { recoverMessageAddress } from './recoverMessageAddress.js'
 
 export type {
+  RecoverPublicKeyParameters,
+  RecoverPublicKeyReturnType,
+} from './recoverPublicKey.js'
+export { recoverPublicKey } from './recoverPublicKey.js'
+
+export type {
   RecoverTypedDataAddressParameters,
   RecoverTypedDataAddressReturnType,
 } from './recoverTypedDataAddress.js'

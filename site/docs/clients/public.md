@@ -44,6 +44,54 @@ Then you can consume [Public Actions](/docs/actions/public/introduction):
 const blockNumber = await client.getBlockNumber() // [!code focus:10]
 ```
 
+## Optimization
+
+The Public Client also supports [`eth_call` Aggregation](#multicall) and <span class="opacity-50 font-medium">JSON-RPC Batching (soon)</span> for improved performance.
+
+### `eth_call` Aggregation (via Multicall)
+
+The Public Client supports the aggregation of `eth_call` requests into a single multicall (`aggregate3`) request. 
+
+This means for every Action that utilizes an `eth_call` request (ie. `readContract`), the Public Client will batch the requests (over a timed period) and send it to the RPC Provider in a single multicall request. This can dramatically improve network performance, and decrease the amount of [Compute Units (CU)](https://docs.alchemy.com/reference/compute-units) used by RPC Providers like Alchemy, Infura, etc.
+
+The Public Client schedules the aggregation of `eth_call` requests over a given time period. By default, it executes the batch request at the end of the current [JavaScript message queue](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop#queue) (a [zero delay](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop#zero_delays)), however, consumers can specify a custom `wait` period (in ms).
+
+You can enable `eth_call` aggregation by setting the `batch.multicall` flag to `true`:
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: true, // [!code focus]
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+> You can also [customize the `multicall` options](#batch-multicall-batchsize-optional).
+
+Now, when you start to utilize `readContract` Actions, the Public Client will batch and send over those requests at the end of the message queue (or custom time period) in a single `eth_call` multicall request:
+
+```ts
+const contract = getContract({ address, abi })
+
+// The below will send a single request to the RPC Provider.
+const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
+  contract.read.name(),
+  contract.read.totalSupply(),
+  contract.read.symbol(),
+  contract.read.tokenURI([420n]),
+  contract.read.balanceOf([address]),
+])
+```
+
+> Read more on [Contract Instances](/docs/contract/getContract.html).
+
+
+### JSON-RPC Batching
+
+The Public Client will support [JSON-RPC Batching](https://www.jsonrpc.org/specification#batch). This is coming soon.
+
 ## Parameters
 
 ### transport
@@ -68,6 +116,67 @@ The [Chain](/docs/clients/chains) of the Public Client.
 ```ts
 const client = createPublicClient({
   chain: mainnet, // [!code focus]
+  transport: http(),
+})
+```
+
+### batch (optional)
+
+Flags for batch settings.
+
+### batch.multicall (optional)
+
+- **Type:** `boolean | MulticallBatchOptions`
+- **Default:** `false`
+
+Toggle to enable `eth_call` multicall aggregation.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: true, // [!code focus]
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### batch.multicall.batchSize (optional)
+
+- **Type:** `number`
+- **Default:** `1_024`
+
+The maximum size (in bytes) for each multicall (`aggregate3`) calldata chunk.
+
+> Note: Some RPC Providers limit the amount of calldata that can be sent in a single request. It is best to check with your RPC Provider to see if there are any calldata size limits to `eth_call` requests.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: {
+      batchSize: 512, // [!code focus]
+    },
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### batch.multicall.wait (optional)
+
+- **Type:** `number`
+- **Default:** `0` ([zero delay](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop#zero_delays))
+
+The maximum number of milliseconds to wait before sending a batch.
+
+```ts
+const client = createPublicClient({
+  batch: {
+    multicall: {
+      wait: 16, // [!code focus]
+    },
+  },
+  chain: mainnet,
   transport: http(),
 })
 ```

@@ -1,10 +1,11 @@
 import { expect, test } from 'vitest'
+
+import { address } from '../../_test/index.js'
 import {
   InvalidInputRpcError,
-  RpcError,
+  RpcRequestError,
   TransactionRejectedRpcError,
 } from '../../errors/index.js'
-import { address } from '../../_test/index.js'
 import { parseEther, parseGwei } from '../unit/index.js'
 import { containsNodeError, getNodeError } from './getNodeError.js'
 
@@ -13,15 +14,17 @@ test('containsNodeError', () => {
   expect(containsNodeError(new TransactionRejectedRpcError({}))).toBeTruthy()
   // @ts-expect-error
   expect(containsNodeError(new InvalidInputRpcError({}))).toBeTruthy()
+  expect(
+    // @ts-expect-error
+    containsNodeError(new RpcRequestError({ error: { code: 3 } })),
+  ).toBeTruthy()
   // @ts-expect-error
-  expect(containsNodeError(new RpcError({ error: { code: 3 } }))).toBeTruthy()
-  // @ts-expect-error
-  expect(containsNodeError(new RpcError({ error: {} }))).toBeFalsy()
+  expect(containsNodeError(new RpcRequestError({ error: {} }))).toBeFalsy()
 })
 
 test('FeeCapTooHigh', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'fee cap higher than 2\^256-1' },
       url: '',
@@ -44,7 +47,7 @@ test('FeeCapTooHigh', () => {
 
 test('FeeCapTooLow', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: {
         code: -32003,
@@ -68,7 +71,7 @@ test('FeeCapTooLow', () => {
 
 test('NonceTooHigh', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: {
         code: -32003,
@@ -91,7 +94,7 @@ test('NonceTooHigh', () => {
 
 test('NonceTooLow', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'nonce too low' },
       url: '',
@@ -112,7 +115,7 @@ test('NonceTooLow', () => {
 
 test('NonceMaxValue', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'nonce has max value' },
       url: '',
@@ -132,7 +135,7 @@ test('NonceMaxValue', () => {
 
 test('InsufficientFundsError', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'insufficient funds' },
       url: '',
@@ -162,7 +165,7 @@ test('InsufficientFundsError', () => {
 
 test('IntrinsicGasTooHigh', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'intrinsic gas too high' },
       url: '',
@@ -182,7 +185,7 @@ test('IntrinsicGasTooHigh', () => {
 
 test('IntrinsicGasTooLowError', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'intrinsic gas too low' },
       url: '',
@@ -202,7 +205,7 @@ test('IntrinsicGasTooLowError', () => {
 
 test('TransactionTypeNotSupported', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'transaction type not valid' },
       url: '',
@@ -222,7 +225,7 @@ test('TransactionTypeNotSupported', () => {
 
 test('TipAboveFeeCap', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: {
         code: -32003,
@@ -246,7 +249,7 @@ test('TipAboveFeeCap', () => {
 
 test('ExecutionRevertedError', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: {
         code: -32003,
@@ -270,7 +273,7 @@ test('ExecutionRevertedError', () => {
 
 test('ExecutionRevertedError', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: {
         code: 3,
@@ -294,7 +297,7 @@ test('ExecutionRevertedError', () => {
 
 test('Unknown node error', () => {
   const error = new TransactionRejectedRpcError(
-    new RpcError({
+    new RpcRequestError({
       body: {},
       error: { code: -32003, message: 'oh no' },
       url: '',

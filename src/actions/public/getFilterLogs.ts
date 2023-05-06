@@ -1,4 +1,5 @@
 import type { Abi, AbiEvent } from 'abitype'
+
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Chain,
@@ -6,9 +7,8 @@ import type {
   Log,
   MaybeAbiEventName,
 } from '../../types/index.js'
-import { decodeEventLog } from '../../utils/index.js'
-
 import { formatLog } from '../../utils/formatters/log.js'
+import { decodeEventLog } from '../../utils/index.js'
 
 export type GetFilterLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -29,7 +29,6 @@ export type GetFilterLogsReturnType<
  * - Docs: https://viem.sh/docs/actions/public/getFilterLogs.html
  * - JSON-RPC Methods: [`eth_getFilterLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterlogs)
  *
- * @remarks
  * `getFilterLogs` is only compatible with **event filters**.
  *
  * @param client - Client to use
@@ -57,10 +56,10 @@ export async function getFilterLogs<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  _client: PublicClient<Transport, TChain>,
   { filter }: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
 ): Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>> {
-  const logs = await client.request({
+  const logs = await filter.request({
     method: 'eth_getFilterLogs',
     params: [filter.id],
   })

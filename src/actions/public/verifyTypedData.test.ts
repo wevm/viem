@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
-import { verifyTypedData } from './verifyTypedData.js'
 import {
   address,
   publicMainnetClient,
   smartAccountConfig,
   typedData,
 } from '../../_test/index.js'
+import { verifyTypedData } from './verifyTypedData.js'
+import { describe, expect, test } from 'vitest'
 
 describe('verifyTypedData', async () => {
   test('valid signature', async () => {

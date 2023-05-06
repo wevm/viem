@@ -22,8 +22,11 @@ export class BaseError extends Error {
   shortMessage: string
 
   override name = 'ViemError'
+  version = getVersion()
 
   constructor(shortMessage: string, args: BaseErrorParameters = {}) {
+    super()
+
     const details =
       args.cause instanceof BaseError
         ? args.cause.details
@@ -34,7 +37,8 @@ export class BaseError extends Error {
       args.cause instanceof BaseError
         ? args.cause.docsPath || args.docsPath
         : args.docsPath
-    const message = [
+
+    this.message = [
       shortMessage || 'An error occurred.',
       '',
       ...(args.metaMessages ? [...args.metaMessages, ''] : []),
@@ -46,15 +50,23 @@ export class BaseError extends Error {
           ]
         : []),
       ...(details ? [`Details: ${details}`] : []),
-      `Version: ${getVersion()}`,
+      `Version: ${this.version}`,
     ].join('\n')
-
-    super(message)
 
     if (args.cause) this.cause = args.cause
     this.details = details
     this.docsPath = docsPath
     this.metaMessages = args.metaMessages
     this.shortMessage = shortMessage
+  }
+
+  walk(fn?: (err: unknown) => boolean) {
+    return this.#walk(this, fn)
+  }
+
+  #walk(err: unknown, fn?: (err: unknown) => boolean): unknown {
+    if (fn?.(err)) return err
+    if ((err as Error).cause) return this.#walk((err as Error).cause, fn)
+    return err
   }
 }

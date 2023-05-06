@@ -1,11 +1,10 @@
-import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Address,
   Chain,
+  Filter,
   GetEventArgs,
   InferEventName,
-  Filter,
   Log,
 } from '../../types/index.js'
 import type { GetAbiItemParameters } from '../../utils/index.js'
@@ -19,6 +18,7 @@ import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import type { GetLogsParameters } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
+import type { Abi, ExtractAbiEvent, Narrow } from 'abitype'
 
 export type OnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
@@ -59,7 +59,6 @@ export type WatchContractEventReturnType = () => void
  *
  * - Docs: https://viem.sh/docs/contract/watchContractEvent.html
  *
- * @remarks
  * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
  *
  * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.

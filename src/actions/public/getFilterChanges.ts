@@ -1,4 +1,5 @@
 import type { Abi, AbiEvent } from 'abitype'
+
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type {
   Chain,
@@ -8,9 +9,8 @@ import type {
   Log,
   MaybeAbiEventName,
 } from '../../types/index.js'
-import { decodeEventLog } from '../../utils/index.js'
-
 import { formatLog } from '../../utils/formatters/log.js'
+import { decodeEventLog } from '../../utils/index.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,
@@ -36,7 +36,6 @@ export type GetFilterChangesReturnType<
  * - Docs: https://viem.sh/docs/actions/public/getFilterChanges.html
  * - JSON-RPC Methods: [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges)
  *
- * @remarks
  * A Filter can be created from the following actions:
  *
  * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
@@ -121,12 +120,12 @@ export async function getFilterChanges<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
+  _client: PublicClient<TTransport, TChain>,
   {
     filter,
   }: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,
 ) {
-  const logs = await client.request({
+  const logs = await filter.request({
     method: 'eth_getFilterChanges',
     params: [filter.id],
   })

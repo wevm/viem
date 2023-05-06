@@ -1,22 +1,16 @@
-import { afterAll, beforeAll, expect, test } from 'vitest'
-import { optimism } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
+import { beforeAll, expect, test } from 'vitest'
+
 import {
   localHttpUrl,
   publicClient,
   setBlockNumber,
 } from '../../_test/index.js'
-import { getBlockNumber } from '../public/index.js'
+import { optimism } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
 import { getEnsResolver } from './getEnsResolver.js'
 
-let blockNumber: bigint
 beforeAll(async () => {
-  blockNumber = await getBlockNumber(publicClient)
   await setBlockNumber(16773780n)
-})
-
-afterAll(async () => {
-  await setBlockNumber(blockNumber)
 })
 
 test('default', async () => {
@@ -100,8 +94,7 @@ test('invalid universal resolver address', async () => {
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The contract function \\"findResolver\\" reverted with the following reason:
-    execution reverted
+    "The contract function \\"findResolver\\" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000

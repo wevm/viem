@@ -1,21 +1,21 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import type { OnTransactionsParameter } from './watchPendingTransactions.js'
-import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
-import * as getFilterChanges from './getFilterChanges.js'
-import { watchPendingTransactions } from './watchPendingTransactions.js'
 import {
   accounts,
   publicClient,
   testClient,
   walletClient,
 } from '../../_test/index.js'
-import { wait } from '../../utils/wait.js'
-import { sendTransaction } from '../wallet/index.js'
-import { parseEther } from '../../utils/index.js'
-import { mine, setIntervalMining } from '../test/index.js'
 import { webSocketClient } from '../../_test/utils.js'
 import type { PublicClient } from '../../clients/index.js'
+import { parseEther } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
+import { mine, setIntervalMining } from '../test/index.js'
+import { sendTransaction } from '../wallet/index.js'
+import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
+import * as getFilterChanges from './getFilterChanges.js'
+import type { OnTransactionsParameter } from './watchPendingTransactions.js'
+import { watchPendingTransactions } from './watchPendingTransactions.js'
 
 describe('poll', () => {
   test(
@@ -50,7 +50,7 @@ describe('poll', () => {
       await setIntervalMining(testClient, { interval: 1 })
       await mine(testClient, { blocks: 1 })
     },
-    { timeout: 10_000, retry: 3 },
+    { timeout: 10_000 },
   )
 
   test('watches for pending transactions (unbatched)', async () => {
@@ -160,7 +160,7 @@ describe('subscribe', () => {
       await setIntervalMining(testClient, { interval: 1 })
       await mine(testClient, { blocks: 1 })
     },
-    { timeout: 10_000, retry: 3 },
+    { timeout: 10_000 },
   )
 
   describe('errors', () => {

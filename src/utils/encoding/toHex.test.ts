@@ -3,9 +3,9 @@ import { describe, expect, test } from 'vitest'
 import {
   boolToHex,
   bytesToHex,
-  toHex,
   numberToHex,
   stringToHex,
+  toHex,
 } from './toHex.js'
 
 describe('converts numbers to hex', () => {
@@ -43,6 +43,9 @@ describe('converts numbers to hex', () => {
     expect(numberToHex(7, { size: 1 })).toBe('0x07')
     expect(numberToHex(10, { size: 2 })).toBe('0x000a')
     expect(numberToHex(69, { size: 4 })).toBe('0x00000045')
+    expect(numberToHex(69, { size: 32 })).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000045',
+    )
 
     expect(() =>
       numberToHex(-7, { size: 1 }),
@@ -240,50 +243,190 @@ describe('converts bigints to hex', () => {
   })
 })
 
-test('converts boolean to hex', () => {
-  expect(toHex(true)).toMatchInlineSnapshot('"0x1"')
-  expect(toHex(false)).toMatchInlineSnapshot('"0x0"')
+describe('converts boolean to hex', () => {
+  test('default', () => {
+    expect(toHex(true)).toMatchInlineSnapshot('"0x1"')
+    expect(toHex(false)).toMatchInlineSnapshot('"0x0"')
 
-  expect(boolToHex(true)).toMatchInlineSnapshot('"0x1"')
-  expect(boolToHex(false)).toMatchInlineSnapshot('"0x0"')
+    expect(boolToHex(true)).toMatchInlineSnapshot('"0x1"')
+    expect(boolToHex(false)).toMatchInlineSnapshot('"0x0"')
+  })
+
+  test('args: size', () => {
+    expect(toHex(true, { size: 16 })).toMatchInlineSnapshot(
+      '"0x00000000000000000000000000000001"',
+    )
+    expect(toHex(true, { size: 32 })).toMatchInlineSnapshot(
+      '"0x0000000000000000000000000000000000000000000000000000000000000001"',
+    )
+    expect(boolToHex(false, { size: 16 })).toMatchInlineSnapshot(
+      '"0x00000000000000000000000000000000"',
+    )
+    expect(boolToHex(false, { size: 32 })).toMatchInlineSnapshot(
+      '"0x0000000000000000000000000000000000000000000000000000000000000000"',
+    )
+  })
+
+  test('error: size overflow', () => {
+    expect(() => toHex(true, { size: 0 })).toThrowErrorMatchingInlineSnapshot(
+      `
+      "Size cannot exceed 0 bytes. Given size: 1 bytes.
+
+      Version: viem@1.0.2"
+    `,
+    )
+    expect(() =>
+      boolToHex(false, { size: 0 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 0 bytes. Given size: 1 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })
 
-test('converts string to hex', () => {
-  expect(toHex('')).toMatchInlineSnapshot('"0x"')
-  expect(toHex('a')).toMatchInlineSnapshot('"0x61"')
-  expect(toHex('abc')).toMatchInlineSnapshot('"0x616263"')
-  expect(toHex('Hello World!')).toMatchInlineSnapshot(
-    '"0x48656c6c6f20576f726c6421"',
-  )
+describe('converts string to hex', () => {
+  test('default', () => {
+    expect(toHex('')).toMatchInlineSnapshot('"0x"')
+    expect(toHex('a')).toMatchInlineSnapshot('"0x61"')
+    expect(toHex('abc')).toMatchInlineSnapshot('"0x616263"')
+    expect(toHex('Hello World!')).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c6421"',
+    )
 
-  expect(stringToHex('')).toMatchInlineSnapshot('"0x"')
-  expect(stringToHex('a')).toMatchInlineSnapshot('"0x61"')
-  expect(stringToHex('abc')).toMatchInlineSnapshot('"0x616263"')
-  expect(stringToHex('Hello World!')).toMatchInlineSnapshot(
-    '"0x48656c6c6f20576f726c6421"',
-  )
+    expect(stringToHex('')).toMatchInlineSnapshot('"0x"')
+    expect(stringToHex('a')).toMatchInlineSnapshot('"0x61"')
+    expect(stringToHex('abc')).toMatchInlineSnapshot('"0x616263"')
+    expect(stringToHex('Hello World!')).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c6421"',
+    )
+  })
+
+  test('args: size', () => {
+    expect(toHex('Hello World!', { size: 16 })).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c642100000000"',
+    )
+    expect(toHex('Hello World!', { size: 32 })).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c64210000000000000000000000000000000000000000"',
+    )
+    expect(stringToHex('Hello World!', { size: 16 })).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c642100000000"',
+    )
+    expect(stringToHex('Hello World!', { size: 32 })).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c64210000000000000000000000000000000000000000"',
+    )
+  })
+
+  test('error: size overflow', () => {
+    expect(() =>
+      toHex('Hello World!', { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 8 bytes. Given size: 12 bytes.
+
+      Version: viem@1.0.2"
+    `)
+    expect(() =>
+      stringToHex('Hello World!', { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 8 bytes. Given size: 12 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })
 
-test('converts bytes to hex', () => {
-  expect(toHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
-  expect(toHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
-  expect(toHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
-    '"0x616263"',
-  )
-  expect(
-    toHex(
-      new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
-    ),
-  ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')
+describe('converts bytes to hex', () => {
+  test('default', () => {
+    expect(toHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
+    expect(toHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
+    expect(toHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
+      '"0x616263"',
+    )
+    expect(
+      toHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+      ),
+    ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')
 
-  expect(bytesToHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
-  expect(bytesToHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
-  expect(bytesToHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
-    '"0x616263"',
-  )
-  expect(
-    bytesToHex(
-      new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
-    ),
-  ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')
+    expect(bytesToHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
+    expect(bytesToHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
+    expect(bytesToHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
+      '"0x616263"',
+    )
+    expect(
+      bytesToHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+      ),
+    ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')
+  })
+
+  test('args: size', () => {
+    expect(
+      toHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+        { size: 16 },
+      ),
+    ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c642100000000"')
+    expect(
+      bytesToHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+        { size: 16 },
+      ),
+    ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c642100000000"')
+    expect(
+      toHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+        { size: 32 },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c64210000000000000000000000000000000000000000"',
+    )
+    expect(
+      bytesToHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+        { size: 32 },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0x48656c6c6f20576f726c64210000000000000000000000000000000000000000"',
+    )
+  })
+
+  test('error: size overflow', () => {
+    expect(() =>
+      toHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+        { size: 8 },
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 8 bytes. Given size: 12 bytes.
+
+      Version: viem@1.0.2"
+    `)
+    expect(() =>
+      bytesToHex(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+        { size: 8 },
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Size cannot exceed 8 bytes. Given size: 12 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
 })

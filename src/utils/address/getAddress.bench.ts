@@ -1,5 +1,5 @@
-import { bench, describe } from 'vitest'
 import { utils } from 'ethers'
+import { bench, describe } from 'vitest'
 
 import { getAddress } from './getAddress.js'
 

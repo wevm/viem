@@ -1,5 +1,6 @@
 import type {
   Abi,
+  AbiConstructor,
   AbiError,
   AbiEvent,
   AbiFunction,
@@ -8,18 +9,18 @@ import type {
   AbiParametersToPrimitiveTypes,
   AbiStateMutability,
   Address,
-  ExtractAbiFunction,
-  ExtractAbiEvent,
-  ExtractAbiEventNames,
   ExtractAbiError,
   ExtractAbiErrorNames,
+  ExtractAbiEvent,
+  ExtractAbiEventNames,
+  ExtractAbiFunction,
   ExtractAbiFunctionNames,
   Narrow,
-  AbiConstructor,
 } from 'abitype'
+
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
-import type { Filter, MaybeRequired } from './utils.js'
+import type { Filter, MaybeRequired, NoUndefined, Prettify } from './utils.js'
 
 export type AbiItem = Abi[number]
 
@@ -64,9 +65,9 @@ export type GetValue<
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
 > = TAbiFunction['stateMutability'] extends 'payable'
-  ? { value?: TValueType }
+  ? { value: NoUndefined<TValueType> }
   : TAbiFunction['payable'] extends true
-  ? { value?: TValueType }
+  ? { value: NoUndefined<TValueType> }
   : { value?: never }
 
 export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
@@ -82,7 +83,7 @@ export type MaybeExtractEventArgsFromAbi<
 
 export type InferErrorName<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TErrorName extends string = string,
+  TErrorName extends string | undefined = string,
 > = TAbi extends Abi
   ? ExtractAbiErrorNames<TAbi> extends infer AbiErrorNames
     ?
@@ -103,7 +104,7 @@ export type InferEventName<
 
 export type InferFunctionName<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
+  TFunctionName extends string | undefined = string,
   TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
 > = TAbi extends Abi
   ? ExtractAbiFunctionNames<
@@ -240,7 +241,7 @@ export type GetEventArgsFromTopics<
   ? TData extends undefined
     ? { args?: never }
     : { args?: TArgs }
-  : { args?: TArgs }
+  : { args: TArgs }
 
 //////////////////////////////////////////////////////////////////////
 // ABI event types
@@ -362,63 +363,65 @@ export type AbiEventTopicsToPrimitiveTypes<
   TTopics extends LogTopic[] | undefined = undefined,
   TData extends Hex | undefined = undefined,
   TBase = TAbiParameters[0] extends { name: string } ? {} : [],
-> = TAbiParameters extends readonly [
-  infer Head extends AbiParameter,
-  ...infer Tail,
-]
-  ? TTopics extends readonly [infer TopicHead, ...infer TopicTail]
-    ? Head extends { indexed: true }
-      ? Head extends { name: infer Name extends string }
-        ? {
-            [_ in Name]: TopicHead extends LogTopic
-              ? AbiEventTopicToPrimitiveType<Head, TopicHead>
-              : never
-          } & (Tail extends readonly []
-            ? {}
-            : Tail extends readonly AbiParameter[]
-            ? TopicTail extends LogTopic[]
-              ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
-              : {}
-            : {})
-        : [
-            TopicHead extends LogTopic
-              ? AbiEventTopicToPrimitiveType<Head, TopicHead>
-              : never,
-            ...(Tail extends readonly []
-              ? []
-              : Tail extends readonly AbiParameter[]
-              ? TopicTail extends LogTopic[]
-                ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
-                : []
-              : []),
-          ]
-      : TBase
-    : TTopics extends readonly []
-    ? TData extends '0x'
-      ? TBase
-      : TData extends Hex
-      ? Head extends AbiParameter
-        ? Head extends { indexed: true }
-          ? Tail extends readonly AbiParameter[]
-            ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
-            : TBase
-          : Head extends { name: infer Name extends string }
+> = Prettify<
+  TAbiParameters extends readonly [
+    infer Head extends AbiParameter,
+    ...infer Tail,
+  ]
+    ? TTopics extends readonly [infer TopicHead, ...infer TopicTail]
+      ? Head extends { indexed: true }
+        ? Head extends { name: infer Name extends string }
           ? {
-              [_ in Name]: AbiParameterToPrimitiveType<Head>
+              [_ in Name]: TopicHead extends LogTopic
+                ? AbiEventTopicToPrimitiveType<Head, TopicHead>
+                : never
             } & (Tail extends readonly []
               ? {}
               : Tail extends readonly AbiParameter[]
-              ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+              ? TopicTail extends LogTopic[]
+                ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
+                : {}
               : {})
           : [
-              AbiParameterToPrimitiveType<Head>,
+              TopicHead extends LogTopic
+                ? AbiEventTopicToPrimitiveType<Head, TopicHead>
+                : never,
               ...(Tail extends readonly []
                 ? []
                 : Tail extends readonly AbiParameter[]
-                ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+                ? TopicTail extends LogTopic[]
+                  ? AbiEventTopicsToPrimitiveTypes<Tail, TopicTail, TData>
+                  : []
                 : []),
             ]
         : TBase
+      : TTopics extends readonly []
+      ? TData extends '0x'
+        ? TBase
+        : TData extends Hex
+        ? Head extends AbiParameter
+          ? Head extends { indexed: true }
+            ? Tail extends readonly AbiParameter[]
+              ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+              : TBase
+            : Head extends { name: infer Name extends string }
+            ? {
+                [_ in Name]: AbiParameterToPrimitiveType<Head>
+              } & (Tail extends readonly []
+                ? {}
+                : Tail extends readonly AbiParameter[]
+                ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+                : {})
+            : [
+                AbiParameterToPrimitiveType<Head>,
+                ...(Tail extends readonly []
+                  ? []
+                  : Tail extends readonly AbiParameter[]
+                  ? AbiEventTopicsToPrimitiveTypes<Tail, [], TData>
+                  : []),
+              ]
+          : TBase
+        : TBase
       : TBase
-    : TBase
-  : undefined
+    : undefined
+>

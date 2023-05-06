@@ -19,8 +19,8 @@ A Wallet Client is an interface to interact with [Ethereum Account(s)](https://e
 The `createWalletClient` function sets up a Wallet Client with a given [Transport](/docs/clients/intro).
 
 The Wallet Client supports signing over:
-- a [JSON-RPC Account](#json-rpc-accounts) (ie. Browser Extension Wallets, WalletConnect, etc). 
-- [Local Accounts](#local-accounts-private-key-mnemonic-etc) (ie. private key/mnemonic wallets).
+- [JSON-RPC Accounts](#json-rpc-accounts) (e.g. Browser Extension Wallets, WalletConnect, etc.). 
+- [Local Accounts](#local-accounts-private-key-mnemonic-etc) (e.g. private key/mnemonic wallets).
 
 ## Import
 

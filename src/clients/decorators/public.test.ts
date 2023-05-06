@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { getBlockNumber } from '../../actions/index.js'
-import { parseEther } from '../../utils/index.js'
+
 import {
   accounts,
   address,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   setBlockNumber,
   smartAccountConfig,
@@ -14,6 +13,8 @@ import {
   wagmiContractConfig,
   walletClient,
 } from '../../_test/index.js'
+import { getBlockNumber } from '../../actions/index.js'
+import { parseEther } from '../../utils/index.js'
 import { publicActions } from './public.js'
 
 test('default', async () => {
@@ -124,7 +125,7 @@ describe('smoke test', () => {
 
   test('getBlock', async () => {
     expect(
-      await publicClient.getBlock({ blockNumber: initialBlockNumber }),
+      await publicClient.getBlock({ blockNumber: forkBlockNumber }),
     ).toBeDefined()
   })
 
@@ -215,7 +216,7 @@ describe('smoke test', () => {
     expect(
       await publicClient.getFeeHistory({
         blockCount: 4,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         rewardPercentiles: [0, 50, 100],
       }),
     ).toBeDefined()
@@ -301,7 +302,7 @@ describe('smoke test', () => {
   test('multicall', async () => {
     expect(
       await publicClient.multicall({
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,

@@ -81,3 +81,12 @@ export class OffsetOutOfBoundsError extends BaseError {
     )
   }
 }
+
+export class SizeOverflowError extends BaseError {
+  override name = 'SizeOverflowError'
+  constructor({ givenSize, maxSize }: { givenSize: number; maxSize: number }) {
+    super(
+      `Size cannot exceed ${maxSize} bytes. Given size: ${givenSize} bytes.`,
+    )
+  }
+}

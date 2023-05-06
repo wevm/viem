@@ -693,6 +693,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/recoverMessageAddress',
             },
             {
+              text: 'recoverPublicKey',
+              link: '/docs/utilities/recoverPublicKey',
+            },
+            {
               text: 'recoverTypedDataAddress',
               link: '/docs/utilities/recoverTypedDataAddress',
             },
@@ -756,6 +760,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       items: [
         { text: 'Terms', link: '/docs/glossary/terms' },
         { text: 'Types', link: '/docs/glossary/types' },
+        { text: 'Errors', link: '/docs/glossary/errors' },
       ],
     },
   ],

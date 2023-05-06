@@ -1,4 +1,5 @@
 import type { Abi } from 'abitype'
+
 import type { CallParameters } from '../actions/index.js'
 import { panicReasons } from '../constants/index.js'
 import type { Address, Chain, Hex } from '../types/index.js'
@@ -194,7 +195,7 @@ export class ContractFunctionRevertedError extends BaseError {
     } else if (message) reason = message
 
     super(
-      reason
+      reason && reason !== 'execution reverted'
         ? [
             `The contract function "${functionName}" reverted with the following reason:`,
             reason,

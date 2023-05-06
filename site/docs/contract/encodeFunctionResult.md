@@ -149,6 +149,29 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Without `functionName`
+
+If your `abi` contains only one ABI item, you can omit the `functionName` (it becomes optional):
+
+```ts
+import { encodeFunctionResult } from 'viem';
+
+const abiItem = {
+  inputs: [{ name: 'owner', type: 'address' }],
+  name: 'balanceOf',
+  outputs: [{ name: '', type: 'uint256' }],
+  stateMutability: 'view',
+  type: 'function',
+}
+
+const data = encodeFunctionResult({
+  abi: wagmiAbi,
+  functionName: 'ownerOf', // [!code --]
+  value: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'],
+});
+// '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+```
+
 ## Return Value
 
 The decoded data. Type is inferred from the ABI.

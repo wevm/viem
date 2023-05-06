@@ -1,5 +1,11 @@
 import type { PublicClient, Transport } from '../../clients/index.js'
-import type { BaseError } from '../../errors/index.js'
+import { aggregate3Signature, multicall3Abi } from '../../constants/index.js'
+import {
+  BaseError,
+  ChainDoesNotSupportContract,
+  ClientChainNotConfiguredError,
+  RawContractError,
+} from '../../errors/index.js'
 import type {
   Account,
   Address,
@@ -8,21 +14,26 @@ import type {
   Formatter,
   Hex,
   MergeIntersectionProperties,
+  RpcTransactionRequest,
   TransactionRequest,
 } from '../../types/index.js'
-import {
-  assertRequest,
-  extract,
-  format,
-  formatTransactionRequest,
-  getCallError,
-  numberToHex,
-  parseAccount,
-} from '../../utils/index.js'
 import type {
   Formatted,
   TransactionRequestFormatter,
 } from '../../utils/index.js'
+import {
+  assertRequest,
+  decodeFunctionResult,
+  encodeFunctionData,
+  extract,
+  format,
+  formatTransactionRequest,
+  getCallError,
+  getChainContractAddress,
+  numberToHex,
+  parseAccount,
+} from '../../utils/index.js'
+import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,
@@ -35,6 +46,7 @@ export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
 > = FormattedCall<TransactionRequestFormatter<TChain>> & {
   account?: Account | Address
+  batch?: boolean
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -84,6 +96,7 @@ export async function call<TChain extends Chain | undefined>(
 ): Promise<CallReturnType> {
   const {
     account: account_,
+    batch = Boolean(client.batch?.multicall),
     blockNumber,
     blockTag = 'latest',
     accessList,
@@ -103,8 +116,10 @@ export async function call<TChain extends Chain | undefined>(
     assertRequest(args)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const block = blockNumberHex || blockTag
+
     const formatter = client.chain?.formatters?.transactionRequest
-    const request_ = format(
+    const request = format(
       {
         from: account?.address,
         accessList,
@@ -122,19 +137,155 @@ export async function call<TChain extends Chain | undefined>(
       {
         formatter: formatter || formatTransactionRequest,
       },
-    )
+    ) as TransactionRequest
+
+    if (batch && shouldPerformMulticall({ request })) {
+      try {
+        return await scheduleMulticall(client, {
+          ...request,
+          blockNumber,
+          blockTag,
+        } as unknown as ScheduleMulticallParameters<TChain>)
+      } catch (err) {
+        if (
+          !(err instanceof ClientChainNotConfiguredError) &&
+          !(err instanceof ChainDoesNotSupportContract)
+        )
+          throw err
+      }
+    }
 
     const response = await client.request({
       method: 'eth_call',
-      params: [request_, blockNumberHex || blockTag],
+      params: block
+        ? [request as Partial<RpcTransactionRequest>, block]
+        : [request as Partial<RpcTransactionRequest>],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
   } catch (err) {
+    const data = getRevertErrorData(err)
+    const { offchainLookup, offchainLookupSignature } = await import(
+      '../../utils/ccip.js'
+    )
+    if (data?.slice(0, 10) === offchainLookupSignature && to) {
+      return { data: await offchainLookup(client, { data, to }) }
+    }
     throw getCallError(err as BaseError, {
       ...args,
       account,
       chain: client.chain,
     })
   }
+}
+
+// We only want to perform a scheduled multicall if:
+// - The request has calldata,
+// - The request has a target address,
+// - The target address is not already the aggregate3 signature,
+// - The request has no other properties (`nonce`, `gas`, etc cannot be sent with a multicall).
+function shouldPerformMulticall({ request }: { request: TransactionRequest }) {
+  const { data, to, ...request_ } = request
+  if (!data) return false
+  if (data.startsWith(aggregate3Signature)) return false
+  if (!to) return false
+  if (
+    Object.values(request_).filter((x) => typeof x !== 'undefined').length > 0
+  )
+    return false
+  return true
+}
+
+type ScheduleMulticallParameters<TChain extends Chain | undefined> = Pick<
+  CallParameters<TChain>,
+  'blockNumber' | 'blockTag'
+> & {
+  data: Hex
+  multicallAddress?: Address
+  to: Address
+}
+
+async function scheduleMulticall<TChain extends Chain | undefined>(
+  client: PublicClient<Transport, TChain>,
+  args: ScheduleMulticallParameters<TChain>,
+) {
+  const { batchSize = 1024, wait = 0 } =
+    typeof client.batch?.multicall === 'object' ? client.batch?.multicall : {}
+  const {
+    blockNumber,
+    blockTag = 'latest',
+    data,
+    multicallAddress: multicallAddress_,
+    to,
+  } = args
+
+  let multicallAddress = multicallAddress_
+  if (!multicallAddress) {
+    if (!client.chain) throw new ClientChainNotConfiguredError()
+
+    multicallAddress = getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'multicall3',
+    })
+  }
+
+  const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+  const block = blockNumberHex || blockTag
+
+  const { schedule } = createBatchScheduler({
+    id: `${client.uid}.${block}`,
+    wait,
+    shouldSplitBatch(args) {
+      const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
+      return size > batchSize * 2
+    },
+    fn: async (
+      requests: {
+        data: Hex
+        to: Address
+      }[],
+    ) => {
+      const calls = requests.map((request) => ({
+        allowFailure: true,
+        callData: request.data,
+        target: request.to,
+      }))
+
+      const calldata = encodeFunctionData({
+        abi: multicall3Abi,
+        args: [calls],
+        functionName: 'aggregate3',
+      })
+
+      const data = await client.request({
+        method: 'eth_call',
+        params: [
+          {
+            data: calldata,
+            to: multicallAddress,
+          },
+          block,
+        ],
+      })
+
+      return decodeFunctionResult({
+        abi: multicall3Abi,
+        args: [calls],
+        functionName: 'aggregate3',
+        data: data || '0x',
+      })
+    },
+  })
+
+  const [{ returnData, success }] = await schedule({ data, to })
+
+  if (!success) throw new RawContractError({ data: returnData })
+  if (returnData === '0x') return { data: undefined }
+  return { data: returnData }
+}
+
+export function getRevertErrorData(err: unknown) {
+  if (!(err instanceof BaseError)) return undefined
+  return (err.walk() as { data?: Hex })?.data
 }

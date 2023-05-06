@@ -80,4 +80,19 @@ export const sponsors = [
       },
     ],
   },
+  {
+    size: 'medium',
+    items: [
+      {
+        name: 'Privy',
+        url: 'https://privy.io',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/privy-light.svg',
+      },
+      {
+        name: 'Spruce',
+        url: 'https://spruceid.com',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/spruce-light.svg',
+      },
+    ],
+  },
 ] satisfies Sponsors

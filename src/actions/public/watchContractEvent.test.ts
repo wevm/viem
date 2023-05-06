@@ -1,14 +1,5 @@
-import {
-  afterAll,
-  assertType,
-  beforeAll,
-  describe,
-  expect,
-  test,
-  vi,
-} from 'vitest'
-import { getAddress } from '../../utils/index.js'
-import { wait } from '../../utils/wait.js'
+import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
+
 import {
   accounts,
   address,
@@ -17,9 +8,12 @@ import {
   usdcContractConfig,
   walletClient,
 } from '../../_test/index.js'
+import { getAddress } from '../../utils/index.js'
+import { wait } from '../../utils/wait.js'
 import {
   impersonateAccount,
   mine,
+  setBalance,
   stopImpersonatingAccount,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
@@ -37,15 +31,19 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
   })
-})
-
-afterAll(async () => {
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await stopImpersonatingAccount(testClient, {
+  await setBalance(testClient, {
     address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
+
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+    await stopImpersonatingAccount(testClient, {
+      address: address.usdcHolder,
+    })
+  }
 })
 
 test(

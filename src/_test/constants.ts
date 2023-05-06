@@ -50,12 +50,43 @@ export const address = {
   notDeployed: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
 } as const
 
-export const initialBlockNumber = BigInt(
-  Number(process.env.VITE_ANVIL_BLOCK_NUMBER),
-)
+const messages = new Map()
+function warn(message: string) {
+  if (!messages.has(message)) {
+    messages.set(message, true)
+    console.warn(message)
+  }
+}
 
-export const localHttpUrl = 'http://127.0.0.1:8545'
-export const localWsUrl = 'ws://127.0.0.1:8545'
+export let forkBlockNumber: bigint
+if (process.env.VITE_ANVIL_BLOCK_NUMBER) {
+  forkBlockNumber = BigInt(Number(process.env.VITE_ANVIL_BLOCK_NUMBER))
+} else {
+  forkBlockNumber = 16280770n
+  warn(
+    `\`VITE_ANVIL_BLOCK_NUMBER\` not found. Falling back to \`${forkBlockNumber}\`.`,
+  )
+}
+
+export let forkUrl: string
+if (process.env.VITE_ANVIL_FORK_URL) {
+  forkUrl = process.env.VITE_ANVIL_FORK_URL
+} else {
+  forkUrl = 'https://cloudflare-eth.com'
+  warn(`\`VITE_ANVIL_FORK_URL\` not found. Falling back to \`${forkUrl}\`.`)
+}
+
+export let blockTime: number
+if (process.env.VITE_ANVIL_BLOCK_TIME) {
+  blockTime = Number(process.env.VITE_ANVIL_BLOCK_TIME)
+} else {
+  blockTime = 1
+  warn(`\`VITE_ANVIL_BLOCK_TIME\` not found. Falling back to \`${blockTime}\`.`)
+}
+
+export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
+export const localHttpUrl = `http://127.0.0.1:8545/${poolId}`
+export const localWsUrl = `ws://127.0.0.1:8545/${poolId}`
 
 export const typedData = {
   basic: {

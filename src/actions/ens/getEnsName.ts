@@ -3,8 +3,8 @@ import { panicReasons } from '../../constants/index.js'
 import type { ContractFunctionRevertedError } from '../../errors/index.js'
 import { ContractFunctionExecutionError } from '../../errors/index.js'
 import type { Address, Chain, Prettify } from '../../types/index.js'
-import { getChainContractAddress, toHex } from '../../utils/index.js'
 import { packetToBytes } from '../../utils/ens/index.js'
+import { getChainContractAddress, toHex } from '../../utils/index.js'
 import { readContract } from '../public/index.js'
 import type { ReadContractParameters } from '../public/index.js'
 
@@ -25,7 +25,6 @@ export type GetEnsNameReturnType = string | null
  * - Docs: https://viem.sh/docs/ens/actions/getEnsName.html
  * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
  *
- * @remarks
  * Calls `reverse(bytes)` on ENS Universal Resolver Contract to "reverse resolve" the address to the primary ENS name.
  *
  * @param client - Client to use

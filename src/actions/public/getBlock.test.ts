@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { initialBlockNumber, publicClient } from '../../_test/index.js'
+import { forkBlockNumber, publicClient } from '../../_test/index.js'
 import { celo } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import type { Block, Hex } from '../../types/index.js'
@@ -118,7 +118,7 @@ test('chain w/ custom block type', async () => {
 describe('args: blockNumber', () => {
   test('gets block by block number', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber - 1n,
+      blockNumber: forkBlockNumber - 1n,
     })
     expect(block).toMatchInlineSnapshot(`
       {
@@ -374,7 +374,7 @@ describe('args: blockTag', () => {
 describe('args: hash', () => {
   test('gets block by block hash', async () => {
     const initialBlock = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
     })
     const block = await getBlock(publicClient, {
       blockHash: initialBlock!.hash!,
@@ -542,7 +542,7 @@ describe('args: hash', () => {
 
   test('args: includeTransactions', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       includeTransactions: true,
     })
     expect(typeof block.transactions[0] === 'object').toBe(true)

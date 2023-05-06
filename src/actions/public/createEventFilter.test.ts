@@ -2,9 +2,12 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import {
   accounts,
-  initialBlockNumber,
+  createHttpServer,
+  forkBlockNumber,
   publicClient,
 } from '../../_test/index.js'
+import { createPublicClient, fallback, http } from '../../clients/index.js'
+import type { Requests } from '../../types/eip1193.js'
 import { createEventFilter } from './createEventFilter.js'
 
 const event = {
@@ -49,11 +52,14 @@ const event = {
   },
 } as const
 
+const request = (() => {}) as unknown as Requests['request']
+
 describe('default', () => {
   test('no args', async () => {
     const filter = await createEventFilter(publicClient)
     assertType<typeof filter>({
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter.id).toBeDefined()
@@ -77,6 +83,7 @@ describe('default', () => {
       abi: [event.default],
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter.args).toBeUndefined()
@@ -100,6 +107,7 @@ describe('default', () => {
       },
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter.args).toEqual({
@@ -122,6 +130,7 @@ describe('default', () => {
       },
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter2.args).toEqual({
@@ -143,6 +152,7 @@ describe('default', () => {
       },
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter3.args).toEqual({
@@ -162,6 +172,7 @@ describe('default', () => {
       args: [accounts[0].address, accounts[1].address],
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter1.args).toEqual([accounts[0].address, accounts[1].address])
@@ -177,6 +188,7 @@ describe('default', () => {
       args: [[accounts[0].address, accounts[1].address]],
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter2.args).toEqual([[accounts[0].address, accounts[1].address]])
@@ -192,6 +204,7 @@ describe('default', () => {
       args: [null, accounts[0].address],
       eventName: 'Transfer',
       id: '0x',
+      request,
       type: 'event',
     })
     expect(filter3.args).toEqual([null, accounts[0].address])
@@ -202,7 +215,7 @@ describe('default', () => {
   test('args: fromBlock', async () => {
     await createEventFilter(publicClient, {
       event: event.default,
-      fromBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber,
     })
     await createEventFilter(publicClient, {
       event: event.default,
@@ -213,11 +226,47 @@ describe('default', () => {
   test('args: toBlock', async () => {
     await createEventFilter(publicClient, {
       event: event.default,
-      toBlock: initialBlockNumber,
+      toBlock: forkBlockNumber,
     })
     await createEventFilter(publicClient, {
       event: event.default,
       toBlock: 'latest',
     })
   })
+})
+
+test('fallback client: scopes request', async () => {
+  let count1 = 0
+  const server1 = await createHttpServer((_req, res) => {
+    count1++
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+    })
+    res.end(
+      JSON.stringify({
+        error: { code: -32004, message: 'method not supported' },
+      }),
+    )
+  })
+
+  let count2 = 0
+  const server2 = await createHttpServer((_req, res) => {
+    count2++
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+    })
+    res.end(JSON.stringify({ result: '0x1' }))
+  })
+
+  const fallbackClient = createPublicClient({
+    transport: fallback([http(server1.url), http(server2.url)]),
+  })
+  const filter = await createEventFilter(fallbackClient)
+  expect(filter).toBeDefined()
+  expect(count1).toBe(1)
+  expect(count2).toBe(1)
+
+  await filter.request({ method: 'eth_getFilterChanges', params: [filter.id] })
+  expect(count1).toBe(1)
+  expect(count2).toBe(2)
 })

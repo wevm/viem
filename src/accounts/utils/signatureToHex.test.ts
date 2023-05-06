@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { toHex } from '../../utils/index.js'
 import { signatureToHex } from './signatureToHex.js'
 

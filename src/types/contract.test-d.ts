@@ -3,22 +3,22 @@ import type { seaportAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
 import type {
-  ContractFunctionConfig,
-  ContractFunctionResult,
-  GetValue,
-  GetConstructorArgs,
-  GetErrorArgs,
-  InferErrorName,
-  InferEventName,
-  GetFunctionArgs,
-  InferFunctionName,
-  InferItemName,
-  GetEventArgs,
-  GetEventArgsFromTopics,
-  LogTopicType,
-  AbiEventTopicToPrimitiveType,
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
+  AbiEventTopicToPrimitiveType,
+  ContractFunctionConfig,
+  ContractFunctionResult,
+  GetConstructorArgs,
+  GetErrorArgs,
+  GetEventArgs,
+  GetEventArgsFromTopics,
+  GetFunctionArgs,
+  GetValue,
+  InferErrorName,
+  InferEventName,
+  InferFunctionName,
+  InferItemName,
+  LogTopicType,
 } from './contract.js'
 import type { Hex } from './misc.js'
 
@@ -148,12 +148,10 @@ test('GetEventArgsFromTopics', () => {
     '0x0000000000000000000000000000000000000000000000000000000000000001'
   >
   expectTypeOf<Result>().toEqualTypeOf<{
-    args?:
-      | {
-          from: `0x${string}`
-          to: `0x${string}`
-        }
-      | undefined
+    args: {
+      from: `0x${string}`
+      to: `0x${string}`
+    }
   }>()
 })
 
@@ -167,7 +165,7 @@ test('GetFunctionArgs', () => {
 test('GetValue', () => {
   // payable
   type Result = GetValue<typeof seaportAbi, 'fulfillAdvancedOrder'>
-  expectTypeOf<Result>().toEqualTypeOf<{ value?: bigint | undefined }>()
+  expectTypeOf<Result>().toEqualTypeOf<{ value: bigint }>()
 
   // other
   expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{

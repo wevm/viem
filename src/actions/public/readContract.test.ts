@@ -4,18 +4,17 @@
  *        - Complex return types (tuple/structs)
  *        - Calls against blocks
  */
-
 import { describe, expect, test } from 'vitest'
+
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 import {
   address,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   wagmiContractConfig,
 } from '../../_test/index.js'
-import { baycContractConfig } from '../../_test/abis.js'
-import { errorsExampleABI } from '../../_test/generated.js'
 import { deployErrorExample } from '../../_test/utils.js'
-
 import { readContract } from './readContract.js'
 
 describe('wagmi', () => {
@@ -82,7 +81,7 @@ describe('wagmi', () => {
     expect(
       await readContract(publicClient, {
         ...wagmiContractConfig,
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         functionName: 'totalSupply',
       }),
     ).toEqual(558n)
@@ -252,8 +251,7 @@ describe('contract errors', () => {
         functionName: 'requireRead',
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
-      execution reverted
+      [ContractFunctionExecutionError: The contract function "requireRead" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

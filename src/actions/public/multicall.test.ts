@@ -3,26 +3,30 @@
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
  */
-
-import { mainnet } from '@wagmi/chains'
 import { describe, expect, test } from 'vitest'
-import { createPublicClient, http } from '../../clients/index.js'
+
+import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
+import { gh434ABI } from '../../_test/generated.js'
 import {
   accounts,
   address,
-  initialBlockNumber,
+  anvilChain,
+  deploy,
+  forkBlockNumber,
   localHttpUrl,
   publicClient,
   usdcContractConfig,
 } from '../../_test/index.js'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-
+import { mainnet } from '../../chains.js'
+import { createPublicClient, http } from '../../clients/index.js'
+import type { Hex } from '../../types/index.js'
 import { multicall } from './multicall.js'
 
 test('default', async () => {
   expect(
     await multicall(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -46,7 +50,7 @@ test('default', async () => {
         "status": "success",
       },
       {
-        "result": 231481998547n,
+        "result": 231481998602n,
         "status": "success",
       },
       {
@@ -61,7 +65,7 @@ test('args: allowFailure', async () => {
   expect(
     await multicall(publicClient, {
       allowFailure: false,
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -81,7 +85,7 @@ test('args: allowFailure', async () => {
   ).toMatchInlineSnapshot(`
     [
       41119586940119550n,
-      231481998547n,
+      231481998602n,
       10000n,
     ]
   `)
@@ -90,7 +94,7 @@ test('args: allowFailure', async () => {
 test('args: multicallAddress', async () => {
   expect(
     await multicall(publicClient, {
-      blockNumber: initialBlockNumber,
+      blockNumber: forkBlockNumber,
       contracts: [
         {
           ...usdcContractConfig,
@@ -115,7 +119,7 @@ test('args: multicallAddress', async () => {
         "status": "success",
       },
       {
-        "result": 231481998547n,
+        "result": 231481998602n,
         "status": "success",
       },
       {
@@ -131,7 +135,7 @@ describe('errors', async () => {
     test('function not found', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -168,7 +172,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998547n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -182,7 +186,7 @@ describe('errors', async () => {
     test('invalid params', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           // @ts-expect-error
           contracts: [
             {
@@ -222,7 +226,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998547n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -236,7 +240,7 @@ describe('errors', async () => {
     test('invalid contract address', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -276,7 +280,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 231481998547n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -290,7 +294,7 @@ describe('errors', async () => {
     test('contract revert', async () => {
       expect(
         await multicall(publicClient, {
-          blockNumber: initialBlockNumber,
+          blockNumber: forkBlockNumber,
           contracts: [
             {
               ...usdcContractConfig,
@@ -321,11 +325,11 @@ describe('errors', async () => {
       ).toMatchInlineSnapshot(`
         [
           {
-            "result": 231481998547n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
-            "result": 231481998547n,
+            "result": 231481998602n,
             "status": "success",
           },
           {
@@ -530,7 +534,7 @@ test('chain not provided', async () => {
         transport: http(localHttpUrl),
       }),
       {
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -564,7 +568,7 @@ test('multicall contract not configured for chain', async () => {
         transport: http(localHttpUrl),
       }),
       {
-        blockNumber: initialBlockNumber,
+        blockNumber: forkBlockNumber,
         contracts: [
           {
             ...usdcContractConfig,
@@ -620,4 +624,91 @@ test('multicall contract deployed on later block', async () => {
 
     Version: viem@1.0.2"
   `)
+})
+
+test('stress', async () => {
+  const client = createPublicClient({
+    chain: mainnet,
+    transport: http(),
+  })
+
+  const contracts = []
+  for (let i = 0; i < 10_000; i++) {
+    contracts.push({
+      ...usdcContractConfig,
+      functionName: 'totalSupply',
+    })
+  }
+
+  await multicall(client, {
+    batchSize: 1024,
+    contracts,
+  })
+})
+
+test('batchSize on client', async () => {
+  const client = createPublicClient({
+    batch: {
+      multicall: {
+        batchSize: 1024,
+      },
+    },
+    chain: anvilChain,
+    transport: http(),
+  })
+
+  const contracts = []
+  for (let i = 0; i < 1_000; i++) {
+    contracts.push({
+      ...usdcContractConfig,
+      functionName: 'totalSupply',
+    })
+  }
+
+  await multicall(client, {
+    contracts,
+  })
+})
+
+describe('GitHub repros', () => {
+  test('https://github.com/wagmi-dev/viem/issues/434', async () => {
+    const { contractAddress } = await deploy({
+      abi: gh434ABI,
+      bytecode: gh434.bytecode.object as Hex,
+      account: accounts[0].address,
+    })
+
+    expect(
+      await multicall(publicClient, {
+        allowFailure: false,
+        blockNumber: forkBlockNumber,
+        contracts: [
+          {
+            abi: gh434ABI,
+            address: contractAddress!,
+            functionName: 'foo',
+          },
+          {
+            abi: gh434ABI,
+            address: contractAddress!,
+            functionName: 'bar',
+          },
+          {
+            abi: gh434ABI,
+            address: contractAddress!,
+            functionName: 'baz',
+          },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          42069n,
+          true,
+        ],
+        "hi",
+        69420n,
+      ]
+    `)
+  })
 })

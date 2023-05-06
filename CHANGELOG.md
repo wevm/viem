@@ -1,5 +1,141 @@
 # viem
 
+## 0.3.17
+
+### Patch Changes
+
+- [#443](https://github.com/wagmi-dev/viem/pull/443) [`ca0cb85`](https://github.com/wagmi-dev/viem/commit/ca0cb852999dd90aebdb938d8bf4dbbec504a173) Thanks [@jxom](https://github.com/jxom)! - Fixed eth_call & eth_estimateGas calls for nodes that conform to the older JSON-RPC spec.
+
+## 0.3.16
+
+### Patch Changes
+
+- [`482aaa1`](https://github.com/wagmi-dev/viem/commit/482aaa1651ff06575860c6d9d38bcde05e5b136e) Thanks [@jxom](https://github.com/jxom)! - Wrapped slice offset out-of-bounds error in a `BaseError`.
+
+## 0.3.15
+
+### Patch Changes
+
+- [#436](https://github.com/wagmi-dev/viem/pull/436) [`72ed656`](https://github.com/wagmi-dev/viem/commit/72ed6567897ee87939d33e89a7d6599ec8db321e) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `multicall`'s return type was incorrectly flattening when `allowFailure: false`.
+
+## 0.3.14
+
+### Patch Changes
+
+- [#426](https://github.com/wagmi-dev/viem/pull/426) [`840d19d`](https://github.com/wagmi-dev/viem/commit/840d19d652819001addfe9c47267d9e7c71841bd) Thanks [@izayl](https://github.com/izayl)! - Added constants zeroAddress.
+
+* [#424](https://github.com/wagmi-dev/viem/pull/424) [`2eb73f6`](https://github.com/wagmi-dev/viem/commit/2eb73f6f449be7f00790c992202816d5eccf5232) Thanks [@fubhy](https://github.com/fubhy)! - Removed the `defineChain` export from `viem/chains`.
+
+- [#427](https://github.com/wagmi-dev/viem/pull/427) [`41bc9e3`](https://github.com/wagmi-dev/viem/commit/41bc9e38dcbd71d10ea28edaaad48fb81d40f61b) Thanks [@jxom](https://github.com/jxom)! - Added support for EIP-3668 CCIP Read.
+
+* [#431](https://github.com/wagmi-dev/viem/pull/431) [`31aafb3`](https://github.com/wagmi-dev/viem/commit/31aafb3514adff65bc4c27b78dad90057ee97421) Thanks [@jxom](https://github.com/jxom)! - Added a `dataSuffix` argument to `writeContract` and `simulateContract`
+
+## 0.3.13
+
+### Patch Changes
+
+- [`eb32e6c`](https://github.com/wagmi-dev/viem/commit/eb32e6c8a412aa4d16339236d4a14d820a26fdc1) Thanks [@fubhy](https://github.com/fubhy)! - Fixed `mine()` to resolve to `undefined` instead of `null`.
+
+## 0.3.12
+
+### Patch Changes
+
+- [`6f8151c`](https://github.com/wagmi-dev/viem/commit/6f8151c58fcb5e14b7a954df6e941fe3cca4054c) Thanks [@jxom](https://github.com/jxom)! - Flagged 403 as non-deterministic error for `fallback` Transport.
+
+## 0.3.11
+
+### Patch Changes
+
+- [#404](https://github.com/wagmi-dev/viem/pull/404) [`2c380cf`](https://github.com/wagmi-dev/viem/commit/2c380cf0f0e528d6ff9e9c354e4fcec28df5329b) Thanks [@izayl](https://github.com/izayl)! - Added support for EIP-1191 address checksum.
+
+* [#398](https://github.com/wagmi-dev/viem/pull/398) [`cbb4f1f`](https://github.com/wagmi-dev/viem/commit/cbb4f1f66b80914313e54bf7022e59a1b0bee2d3) Thanks [@jxom](https://github.com/jxom)! - Added a new `batchSize` parameter to `multicall` which limits the size of each calldata chunk.
+
+## 0.3.10
+
+### Patch Changes
+
+- [`777fa34`](https://github.com/wagmi-dev/viem/commit/777fa34c9ce5630696e554127e39e5e9386ad74e) Thanks [@jxom](https://github.com/jxom)! - Fixed wallet_watchAsset type.
+
+## 0.3.9
+
+### Patch Changes
+
+- [`b4d6623`](https://github.com/wagmi-dev/viem/commit/b4d662360f55d5963e015f7080538a167e89b1f6) Thanks [@jxom](https://github.com/jxom)! - Fixed multicall return type.
+
+## 0.3.8
+
+### Patch Changes
+
+- [`8371ad9`](https://github.com/wagmi-dev/viem/commit/8371ad9cb6987b5876a679ba502a80573c92ec64) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket import on Vite environments.
+
+## 0.3.7
+
+### Patch Changes
+
+- [#399](https://github.com/wagmi-dev/viem/pull/399) [`eefd839`](https://github.com/wagmi-dev/viem/commit/eefd83997a98113b81d5ba21a8b5492a1de2284c) Thanks [@jxom](https://github.com/jxom)! - Fixed async imports in Vite environments.
+
+* [#397](https://github.com/wagmi-dev/viem/pull/397) [`69b95ed`](https://github.com/wagmi-dev/viem/commit/69b95ed5991c712d11ff4de1bb873c9a2af152b3) Thanks [@tmm](https://github.com/tmm)! - Made `value` required for payable functions.
+
+## 0.3.6
+
+### Patch Changes
+
+- [`ae6d388`](https://github.com/wagmi-dev/viem/commit/ae6d3883ec41dfdd3750a5f7473495d011df5802) Thanks [@jxom](https://github.com/jxom)! - Fixed unpublished type declarations.
+
+## 0.3.5
+
+### Patch Changes
+
+- [`0d38807`](https://github.com/wagmi-dev/viem/commit/0d38807bcd61fae5c5d4736aed6c59277c9b4bf4) Thanks [@jxom](https://github.com/jxom)! - Fixed `batch` config in `createPublicClient`.
+
+## 0.3.4
+
+### Patch Changes
+
+- [#387](https://github.com/wagmi-dev/viem/pull/387) [`230fcfd`](https://github.com/wagmi-dev/viem/commit/230fcfd97bb4937502e604630bb97695198e7b7e) Thanks [@jxom](https://github.com/jxom)! - Added support for `eth_call` batch aggregation via multicall `aggregate3`.
+
+* [#388](https://github.com/wagmi-dev/viem/pull/388) [`bc254d8`](https://github.com/wagmi-dev/viem/commit/bc254d882bed6216daa72d5820526e6573a34e85) Thanks [@jxom](https://github.com/jxom)! - Added `size` as an argument to hex/bytes encoding/decoding utilities.
+
+- [`03816ec`](https://github.com/wagmi-dev/viem/commit/03816ec421eb8adbcb17bd44c5dc344407acba2d) Thanks [@jxom](https://github.com/jxom)! - Disabled `fallback` transport ranking by default.
+
+## 0.3.3
+
+### Patch Changes
+
+- [#383](https://github.com/wagmi-dev/viem/pull/383) [`7e9731c`](https://github.com/wagmi-dev/viem/commit/7e9731cf315ddcd10f35c81c63a15af6aa78350d) Thanks [@Raiden1411](https://github.com/Raiden1411)! - Fixed an issue where `serializeTransaction` was incorrectly encoding zero-ish properties.
+
+## 0.3.2
+
+### Patch Changes
+
+- [#375](https://github.com/wagmi-dev/viem/pull/375) [`f9bedc9`](https://github.com/wagmi-dev/viem/commit/f9bedc94ecd41fdcb2f0fed1d90162567c2a31ea) Thanks [@fubhy](https://github.com/fubhy)! - Support edge runtime
+
+## 0.3.1
+
+### Patch Changes
+
+- [`6856443`](https://github.com/wagmi-dev/viem/commit/6856443fb75421639c9622343d5958791028874c) Thanks [@jxom](https://github.com/jxom)! - Added `recoverPublicKey`.
+
+* [#363](https://github.com/wagmi-dev/viem/pull/363) [`ee1cb7f`](https://github.com/wagmi-dev/viem/commit/ee1cb7ff546236041b1ca115bb2a252520e8ef7f) Thanks [@tmm](https://github.com/tmm)! - Added inference to `getLogs` `event` type.
+
+- [#365](https://github.com/wagmi-dev/viem/pull/365) [`f4dcc33`](https://github.com/wagmi-dev/viem/commit/f4dcc33739a339c286f852a377f71fbf2fb7ab97) Thanks [@fubhy](https://github.com/fubhy)! - Fixed `getAbiItem` to not use a generic type variable for the return type
+
+## 0.3.0
+
+### Minor Changes
+
+- [#355](https://github.com/wagmi-dev/viem/pull/355) [`b1acfc9`](https://github.com/wagmi-dev/viem/commit/b1acfc9198bfbed8c3de6e769c5ff06d7124881c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `RequestError` to `RpcError`.
+  **Breaking:** Removed `RpcRequestError` – use `RpcError` instead.
+  **Breaking:** Renamed `RpcError` to `RpcRequestError`.
+
+### Patch Changes
+
+- [#355](https://github.com/wagmi-dev/viem/pull/355) [`b1acfc9`](https://github.com/wagmi-dev/viem/commit/b1acfc9198bfbed8c3de6e769c5ff06d7124881c) Thanks [@jxom](https://github.com/jxom)! - Added `ProviderRpcError` subclass.
+
+  Added EIP-1193 `UnauthorizedProviderError`, `UnsupportedProviderMethodError`, `ProviderDisconnectedError`, and `ChainDisconnectedError`.
+
+* [#349](https://github.com/wagmi-dev/viem/pull/349) [`b275811`](https://github.com/wagmi-dev/viem/commit/b2758116623567a07e9c2cae7e2471e3c6bf2ecf) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where Filter querying (`eth_getFilterChanges`, etc) was not being scoped to the Transport that created the Filter.
+
 ## 0.2.14
 
 ### Patch Changes

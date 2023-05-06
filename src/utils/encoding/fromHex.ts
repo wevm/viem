@@ -1,9 +1,35 @@
-import { InvalidHexBooleanError } from '../../errors/index.js'
+import {
+  InvalidHexBooleanError,
+  SizeOverflowError,
+} from '../../errors/index.js'
 import type { ByteArray, Hex } from '../../types/index.js'
 import { trim } from '../data/index.js'
+import { size as size_ } from '../data/size.js'
 import { hexToBytes } from './toBytes.js'
 
-type FromHexReturnType<TTo> = TTo extends 'string'
+export function assertSize(
+  hexOrBytes: Hex | ByteArray,
+  { size }: { size: number },
+): void {
+  if (size_(hexOrBytes) > size)
+    throw new SizeOverflowError({
+      givenSize: size_(hexOrBytes),
+      maxSize: size,
+    })
+}
+
+export type FromHexParameters<
+  TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
+> =
+  | TTo
+  | {
+      /** Size (in bytes) of the hex value. */
+      size?: number
+      /** Type to convert to. */
+      to: TTo
+    }
+
+export type FromHexReturnType<TTo> = TTo extends 'string'
   ? string
   : TTo extends 'bigint'
   ? bigint
@@ -16,28 +42,76 @@ type FromHexReturnType<TTo> = TTo extends 'string'
   : never
 
 /**
- * @description Decodes a hex string into a string, number, bigint, boolean, or bytes32 array.
+ * Decodes a hex string into a string, number, bigint, boolean, or byte array.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromHex.html
+ * - Example: https://viem.sh/docs/utilities/fromHex.html#usage
+ *
+ * @param hex Hex string to decode.
+ * @param toOrOpts Type to convert to or options.
+ * @returns Decoded value.
+ *
+ * @example
+ * import { fromHex } from 'viem'
+ * const data = fromHex('0x1a4', 'number')
+ * // 420
+ *
+ * @example
+ * import { fromHex } from 'viem'
+ * const data = fromHex('0x48656c6c6f20576f726c6421', 'string')
+ * // 'Hello world'
+ *
+ * @example
+ * import { fromHex } from 'viem'
+ * const data = fromHex('0x48656c6c6f20576f726c64210000000000000000000000000000000000000000', {
+ *   size: 32,
+ *   to: 'string'
+ * })
+ * // 'Hello world'
  */
 export function fromHex<
   TTo extends 'string' | 'bigint' | 'number' | 'bytes' | 'boolean',
->(hex: Hex, to: TTo): FromHexReturnType<TTo> {
-  if (to === 'number') return hexToNumber(hex) as FromHexReturnType<TTo>
-  if (to === 'bigint') return hexToBigInt(hex) as FromHexReturnType<TTo>
-  if (to === 'string') return hexToString(hex) as FromHexReturnType<TTo>
-  if (to === 'boolean') return hexToBool(hex) as FromHexReturnType<TTo>
-  return hexToBytes(hex) as FromHexReturnType<TTo>
+>(hex: Hex, toOrOpts: FromHexParameters<TTo>): FromHexReturnType<TTo> {
+  const opts = typeof toOrOpts === 'string' ? { to: toOrOpts } : toOrOpts
+  const to = opts.to
+
+  if (to === 'number') return hexToNumber(hex, opts) as FromHexReturnType<TTo>
+  if (to === 'bigint') return hexToBigInt(hex, opts) as FromHexReturnType<TTo>
+  if (to === 'string') return hexToString(hex, opts) as FromHexReturnType<TTo>
+  if (to === 'boolean') return hexToBool(hex, opts) as FromHexReturnType<TTo>
+  return hexToBytes(hex, opts) as FromHexReturnType<TTo>
 }
 
 export type HexToBigIntOpts = {
-  // Whether or not the number of a signed representation.
+  /** Whether or not the number of a signed representation. */
   signed?: boolean
+  /** Size (in bytes) of the hex value. */
+  size?: number
 }
 
 /**
- * @description Decodes a hex string into a bigint.
+ * Decodes a hex value into a bigint.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextobigint
+ *
+ * @param hex Hex value to decode.
+ * @param opts Options.
+ * @returns BigInt value.
+ *
+ * @example
+ * import { hexToBigInt } from 'viem'
+ * const data = hexToBigInt('0x1a4', { signed: true })
+ * // 420n
+ *
+ * @example
+ * import { hexToBigInt } from 'viem'
+ * const data = hexToBigInt('0x00000000000000000000000000000000000000000000000000000000000001a4', { size: 32 })
+ * // 420n
  */
 export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
   const { signed } = opts
+
+  if (opts.size) assertSize(hex, { size: opts.size })
 
   const value = BigInt(hex)
   if (!signed) return value
@@ -49,28 +123,97 @@ export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
   return value - BigInt(`0x${'f'.padStart(size * 2, 'f')}`) - 1n
 }
 
+export type HexToBoolOpts = {
+  /** Size (in bytes) of the hex value. */
+  size?: number
+}
+
 /**
- * @description Decodes a hex string into a boolean.
+ * Decodes a hex value into a boolean.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextobool
+ *
+ * @param hex Hex value to decode.
+ * @param opts Options.
+ * @returns Boolean value.
+ *
+ * @example
+ * import { hexToBool } from 'viem'
+ * const data = hexToBool('0x1')
+ * // true
+ *
+ * @example
+ * import { hexToBool } from 'viem'
+ * const data = hexToBool('0x0000000000000000000000000000000000000000000000000000000000000001', { size: 32 })
+ * // true
  */
-export function hexToBool(hex: Hex): boolean {
+export function hexToBool(hex_: Hex, opts: HexToBoolOpts = {}): boolean {
+  let hex = hex_
+  if (opts.size) {
+    assertSize(hex, { size: opts.size })
+    hex = trim(hex)
+  }
   if (trim(hex) === '0x0') return false
   if (trim(hex) === '0x1') return true
   throw new InvalidHexBooleanError(hex)
 }
 
-type NumberToHexOpts = HexToBigIntOpts
+export type HexToNumberOpts = HexToBigIntOpts
 
 /**
- * @description Decodes a hex string into a number.
+ * Decodes a hex string into a number.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextonumber
+ *
+ * @param hex Hex value to decode.
+ * @param opts Options.
+ * @returns Number value.
+ *
+ * @example
+ * import { hexToNumber } from 'viem'
+ * const data = hexToNumber('0x1a4')
+ * // 420
+ *
+ * @example
+ * import { hexToNumber } from 'viem'
+ * const data = hexToBigInt('0x00000000000000000000000000000000000000000000000000000000000001a4', { size: 32 })
+ * // 420
  */
-export function hexToNumber(hex: Hex, opts: NumberToHexOpts = {}): number {
+export function hexToNumber(hex: Hex, opts: HexToNumberOpts = {}): number {
   return Number(hexToBigInt(hex, opts))
 }
 
+export type HexToStringOpts = {
+  /** Size (in bytes) of the hex value. */
+  size?: number
+}
+
 /**
- * @description Decodes a hex string into a UTF-8 string.
+ * Decodes a hex value into a UTF-8 string.
+ *
+ * - Docs: https://viem.sh/docs/utilities/fromHex.html#hextostring
+ *
+ * @param hex Hex value to decode.
+ * @param opts Options.
+ * @returns String value.
+ *
+ * @example
+ * import { hexToString } from 'viem'
+ * const data = hexToString('0x48656c6c6f20576f726c6421')
+ * // 'Hello world!'
+ *
+ * @example
+ * import { hexToString } from 'viem'
+ * const data = hexToString('0x48656c6c6f20576f726c64210000000000000000000000000000000000000000', {
+ *  size: 32,
+ * })
+ * // 'Hello world'
  */
-export function hexToString(hex: Hex): string {
-  const bytes = hexToBytes(hex)
+export function hexToString(hex: Hex, opts: HexToStringOpts = {}): string {
+  let bytes = hexToBytes(hex)
+  if (opts.size) {
+    assertSize(bytes, { size: opts.size })
+    bytes = trim(bytes, { dir: 'right' })
+  }
   return new TextDecoder().decode(bytes)
 }

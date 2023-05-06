@@ -65,6 +65,44 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Without `functionName`
+
+If your `abi` contains only one ABI item, you can omit the `functionName` (it becomes optional):
+
+::: code-group
+
+```ts [example.ts]
+import { decodeFunctionResult } from 'viem'
+
+const abiItem = {
+  inputs: [{ name: 'tokenId', type: 'uint256' }],
+  name: 'ownerOf',
+  outputs: [{ name: '', type: 'address' }],
+  stateMutability: 'view',
+  type: 'function',
+}
+
+const value = decodeFunctionResult({
+  abi: [abiItem],
+  functionName: 'ownerOf', // [!code --]
+  data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+})
+// '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+```
+
+```ts [client.ts]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
+
 ### A more complex example
 
 ::: code-group

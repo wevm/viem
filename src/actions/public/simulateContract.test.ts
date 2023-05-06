@@ -7,8 +7,10 @@
  *        - Custom chain types
  *        - Custom nonce
  */
+import { describe, expect, test, vi } from 'vitest'
 
-import { describe, expect, test } from 'vitest'
+import { baycContractConfig } from '../../_test/abis.js'
+import { errorsExampleABI } from '../../_test/generated.js'
 import {
   accounts,
   deployBAYC,
@@ -17,14 +19,12 @@ import {
   wagmiContractConfig,
   walletClient,
 } from '../../_test/index.js'
-import { baycContractConfig } from '../../_test/abis.js'
+import { deployErrorExample } from '../../_test/utils.js'
 import { encodeFunctionData, parseEther, parseGwei } from '../../utils/index.js'
 import { mine } from '../test/index.js'
 import { sendTransaction } from '../wallet/index.js'
-
+import * as call from './call.js'
 import { simulateContract } from './simulateContract.js'
-import { deployErrorExample } from '../../_test/utils.js'
-import { errorsExampleABI } from '../../_test/generated.js'
 
 describe('wagmi', () => {
   test('default', async () => {
@@ -155,6 +155,22 @@ describe('wagmi', () => {
   })
 })
 
+test('args: dataSuffix', async () => {
+  const spy = vi.spyOn(call, 'call')
+  await simulateContract(publicClient, {
+    ...wagmiContractConfig,
+    account: accounts[0].address,
+    functionName: 'mint',
+    dataSuffix: '0x12345678',
+  })
+  expect(spy).toHaveBeenCalledWith(publicClient, {
+    account: accounts[0].address,
+    batch: false,
+    data: '0x1249c58b12345678',
+    to: wagmiContractConfig.address,
+  })
+})
+
 describe('BAYC', () => {
   describe('default', () => {
     test('mintApe', async () => {
@@ -216,6 +232,7 @@ describe('BAYC', () => {
           functionName: 'mintApe',
           account: accounts[0].address,
           args: [1n],
+          value: 1n,
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "The contract function \\"mintApe\\" reverted with the following reason:
@@ -235,19 +252,17 @@ describe('BAYC', () => {
 })
 
 describe('contract errors', () => {
-  test(
-    'revert',
-    async () => {
-      const { contractAddress } = await deployErrorExample()
+  test('revert', async () => {
+    const { contractAddress } = await deployErrorExample()
 
-      await expect(() =>
-        simulateContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'revertWrite',
-          account: accounts[0].address,
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'revertWrite',
+        account: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
         This is a revert message
 
@@ -259,23 +274,19 @@ describe('contract errors', () => {
         Docs: https://viem.sh/docs/contract/simulateContract.html
         Version: viem@1.0.2]
       `)
-    },
-    { retry: 3 },
-  )
+  })
 
-  test(
-    'assert',
-    async () => {
-      const { contractAddress } = await deployErrorExample()
+  test('assert', async () => {
+    const { contractAddress } = await deployErrorExample()
 
-      await expect(() =>
-        simulateContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'assertWrite',
-          account: accounts[0].address,
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+    await expect(() =>
+      simulateContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'assertWrite',
+        account: accounts[0].address,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
         An \`assert\` condition failed.
 
@@ -287,9 +298,7 @@ describe('contract errors', () => {
         Docs: https://viem.sh/docs/contract/simulateContract.html
         Version: viem@1.0.2]
       `)
-    },
-    { retry: 3 },
-  )
+  })
 
   test('overflow', async () => {
     const { contractAddress } = await deployErrorExample()
@@ -350,8 +359,7 @@ describe('contract errors', () => {
         account: accounts[0].address,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
-      execution reverted
+      [ContractFunctionExecutionError: The contract function "requireWrite" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -565,8 +573,7 @@ describe('node errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"mint\\" reverted with the following reason:
-      execution reverted
+      "The contract function \\"mint\\" reverted.
 
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

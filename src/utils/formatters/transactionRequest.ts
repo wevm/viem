@@ -5,9 +5,9 @@ import type {
   RpcTransactionRequest,
   TransactionRequest,
 } from '../../types/index.js'
+import { numberToHex } from '../encoding/index.js'
 import { defineFormatter } from './format.js'
 import type { ExtractFormatter, Formatted } from './format.js'
-import { numberToHex } from '../encoding/index.js'
 
 export type TransactionRequestFormatter<
   TChain extends Chain | undefined = Chain,

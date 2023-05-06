@@ -16,6 +16,14 @@ head:
 
 Decodes a byte array to a string, hex value, boolean or number.
 
+Shortcut Functions:
+
+- [bytesToHex](#bytestohex)
+- [bytesToString](#bytestostring)
+- [bytesToNumber](#bytestonumber)
+- [bytesToBigint](#bytestobigint)
+- [bytesToBool](#bytestobool)
+
 ## Import
 
 ```ts
@@ -60,11 +68,30 @@ The targeted type.
 
 The byte array to decode.
 
-### to
+### toOrOptions
 
-- **Type:** `"string" | "hex" | "number" | "bigint" | "boolean"`
+- **Type:** `"string" | "hex" | "number" | "bigint" | "boolean" | Options`
 
-The output type.
+The output type or options.
+
+```ts {3}
+fromBytes(
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]), 
+  'string' 
+)
+// 'Hello world'
+```
+
+```ts {3-6}
+fromBytes(
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 
+  {
+    size: 32,
+    to: 'string'
+  }
+)
+// 'Hello world'
+```
 
 ## Shortcut Functions
 
@@ -77,8 +104,16 @@ Decodes a byte array to a hex value.
 ```ts
 import { bytesToHex } from 'viem'
 
-bytesToHex(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code focus:2]
+bytesToHex( // [!code focus:4]
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+)
 // '0x48656c6c6f20576f726c6421'
+
+bytesToHex( // [!code focus:5]
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 
+  { size: 32 }
+)
+// '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
 ```
 
 ### bytesToString
@@ -90,7 +125,15 @@ Decodes a byte array to a string.
 ```ts
 import { bytesToString } from 'viem'
 
-bytesToString(new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])) // [!code focus:2]
+bytesToString( // [!code focus:4]
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+)
+// 'Hello world'
+
+bytesToString( // [!code focus:5]
+  new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 
+  { size: 32 }
+)
 // 'Hello world'
 ```
 
@@ -105,6 +148,12 @@ import { bytesToNumber } from 'viem'
 
 bytesToNumber(new Uint8Array([1, 164])) // [!code focus:2]
 // 420
+
+bytesToNumber( // [!code focus:5]
+  new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 164]), 
+  { size: 32 }
+)
+// 420
 ```
 
 ### bytesToBigint
@@ -116,7 +165,15 @@ Decodes a byte array to a number.
 ```ts
 import { bytesToBigint } from 'viem'
 
-bytesToBigint(new Uint8Array([12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11, 117])) // [!code focus:2]
+bytesToBigint( // [!code focus:4]
+  new Uint8Array([12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11, 117])
+)
+// 4206942069420694206942069420694206942069n
+
+bytesToBigint( // [!code focus:5]
+  new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11, 117]),
+  { size: 32 }
+)
 // 4206942069420694206942069420694206942069n
 ```
 
@@ -130,5 +187,11 @@ Decodes a byte array to a boolean.
 import { bytesToBool } from 'viem'
 
 bytesToBool(new Uint8Array([1])) // [!code focus:2]
+// true
+
+bytesToBool( // [!code focus:5]
+  new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]),
+  { size: 32 }
+) 
 // true
 ```

@@ -1,4 +1,5 @@
 import { assertType, describe, expect, test } from 'vitest'
+
 import { getTransactionType } from './getTransactionType.js'
 
 describe('type', () => {

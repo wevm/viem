@@ -1,13 +1,13 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { createPublicClient } from './createPublicClient.js'
-import { createTransport } from './transports/createTransport.js'
-import { http } from './transports/http.js'
-import { custom } from './transports/custom.js'
-import { webSocket } from './transports/webSocket.js'
+import { localWsUrl } from '../_test/index.js'
 import { localhost } from '../chains.js'
 import type { PublicRequests } from '../types/eip1193.js'
-import { localWsUrl } from '../_test/index.js'
+import { createPublicClient } from './createPublicClient.js'
+import { createTransport } from './transports/createTransport.js'
+import { custom } from './transports/custom.js'
+import { http } from './transports/http.js'
+import { webSocket } from './transports/webSocket.js'
 
 const mockTransport = () =>
   createTransport({
@@ -27,6 +27,7 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
+      "batch": undefined,
       "call": [Function],
       "chain": undefined,
       "createBlockFilter": [Function],
@@ -86,6 +87,42 @@ test('creates', () => {
   `)
 })
 
+test('args: batch', () => {
+  expect(
+    createPublicClient({
+      batch: {
+        multicall: true,
+      },
+      chain: localhost,
+      transport: http(),
+    }).batch,
+  ).toMatchInlineSnapshot(`
+    {
+      "multicall": true,
+    }
+  `)
+
+  expect(
+    createPublicClient({
+      batch: {
+        multicall: {
+          batchSize: 2048,
+          wait: 32,
+        },
+      },
+      chain: localhost,
+      transport: http(),
+    }).batch,
+  ).toMatchInlineSnapshot(`
+    {
+      "multicall": {
+        "batchSize": 2048,
+        "wait": 32,
+      },
+    }
+  `)
+})
+
 describe('transports', () => {
   test('http', () => {
     const { uid, ...client } = createPublicClient({
@@ -96,6 +133,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "batch": undefined,
         "call": [Function],
         "chain": {
           "id": 1337,
@@ -186,6 +224,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "batch": undefined,
         "call": [Function],
         "chain": {
           "id": 1337,
@@ -276,6 +315,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "batch": undefined,
         "call": [Function],
         "chain": undefined,
         "createBlockFilter": [Function],

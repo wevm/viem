@@ -82,14 +82,12 @@ function serializeTransactionEIP1559(
 
   const serializedTransaction = [
     toHex(chainId),
-    typeof nonce !== 'undefined' ? toHex(nonce) : '0x',
-    typeof maxPriorityFeePerGas !== 'undefined'
-      ? toHex(maxPriorityFeePerGas)
-      : '0x',
-    typeof maxFeePerGas !== 'undefined' ? toHex(maxFeePerGas) : '0x',
-    typeof gas !== 'undefined' ? toHex(gas) : '0x',
+    nonce ? toHex(nonce) : '0x',
+    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
+    maxFeePerGas ? toHex(maxFeePerGas) : '0x',
+    gas ? toHex(gas) : '0x',
     to ?? '0x',
-    typeof value !== 'undefined' ? toHex(value) : '0x',
+    value ? toHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
   ]
@@ -120,11 +118,11 @@ function serializeTransactionEIP2930(
 
   const serializedTransaction = [
     toHex(chainId),
-    typeof nonce !== 'undefined' ? toHex(nonce) : '0x',
-    typeof gasPrice !== 'undefined' ? toHex(gasPrice) : '0x',
-    typeof gas !== 'undefined' ? toHex(gas) : '0x',
+    nonce ? toHex(nonce) : '0x',
+    gasPrice ? toHex(gasPrice) : '0x',
+    gas ? toHex(gas) : '0x',
     to ?? '0x',
-    typeof value !== 'undefined' ? toHex(value) : '0x',
+    value ? toHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
   ]
@@ -151,11 +149,11 @@ function serializeTransactionLegacy(
   assertTransactionLegacy(transaction)
 
   let serializedTransaction = [
-    typeof nonce !== 'undefined' ? toHex(nonce) : '0x',
-    typeof gasPrice !== 'undefined' ? toHex(gasPrice) : '0x',
-    typeof gas !== 'undefined' ? toHex(gas) : '0x',
+    nonce ? toHex(nonce) : '0x',
+    gasPrice ? toHex(gasPrice) : '0x',
+    gas ? toHex(gas) : '0x',
     to ?? '0x',
-    typeof value !== 'undefined' ? toHex(value) : '0x',
+    value ? toHex(value) : '0x',
     data ?? '0x',
   ]
 

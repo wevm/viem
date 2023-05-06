@@ -26,7 +26,6 @@ test('revert SoldOutError()', () => {
   expect(
     decodeErrorResult({
       abi: [
-        // @ts-expect-error
         {
           name: 'SoldOutError',
           type: 'error',

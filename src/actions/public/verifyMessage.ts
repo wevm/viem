@@ -1,7 +1,11 @@
 import type { Address } from 'abitype'
 
 import type { PublicClient, Transport } from '../../clients/index.js'
+import { universalSignatureValidatorAbi } from '../../constants/abis.js'
+import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
+import { CallExecutionError } from '../../index.js'
 import type { ByteArray, Chain, Hex } from '../../types/index.js'
+import { isBytesEqual } from '../../utils/data/isBytesEqual.js'
 import {
   encodeDeployData,
   hashMessage,
@@ -13,10 +17,6 @@ import {
   type VerifyMessageReturnType as OfflineVerifyMessageReturnType,
 } from '../../utils/signature/verifyMessage.js'
 import { type CallParameters, call } from './call.js'
-import { isBytesEqual } from '../../utils/data/isBytesEqual.js'
-import { CallExecutionError } from '../../index.js'
-import { universalSignatureValidatorAbi } from '../../constants/abis.js'
-import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
 
 export type VerifyMessageHashOnchainParameters = Pick<
   CallParameters,

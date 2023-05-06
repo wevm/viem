@@ -1,10 +1,11 @@
 import type { Abi, Narrow } from 'abitype'
-import type { WalletClient, Transport } from '../../clients/index.js'
+
+import type { Transport, WalletClient } from '../../clients/index.js'
 import type {
   Account,
   Chain,
-  GetConstructorArgs,
   GetChain,
+  GetConstructorArgs,
   Hex,
 } from '../../types/index.js'
 import { encodeDeployData } from '../../utils/index.js'
@@ -47,7 +48,7 @@ export type DeployContractReturnType = SendTransactionReturnType
  * import { deployContract } from 'viem/contract'
  *
  * const client = createWalletClient({
- *   account = privateKeyToAccount('0x…'),
+ *   account: privateKeyToAccount('0x…'),
  *   chain: mainnet,
  *   transport: http(),
  * })

@@ -1,11 +1,11 @@
 import type { Address } from 'abitype'
 import { assertType, describe, expect, test } from 'vitest'
+
+import { seaportContractConfig } from '../../_test/abis.js'
+import { address } from '../../_test/index.js'
 import { multicall3Abi } from '../../constants/index.js'
 import type { Hex } from '../../types/index.js'
-import { address } from '../../_test/index.js'
-import { seaportContractConfig } from '../../_test/abis.js'
 import { getAddress } from '../address/index.js'
-
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { getAbiItem } from './getAbiItem.js'
 

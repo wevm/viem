@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  address,
-  publicMainnetClient,
-  publicClient,
-  smartAccountConfig,
-  ensPublicResolverConfig,
   accounts,
+  address,
+  ensPublicResolverConfig,
+  publicClient,
+  publicMainnetClient,
+  smartAccountConfig,
 } from '../../_test/index.js'
-import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
 import type { Hex } from '../../types/index.js'
 import { hashMessage, toBytes } from '../../utils/index.js'
+import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
 
 /**
  * When forking mainnet to anvil, it seems like the deployless contract always returns `0x0`.

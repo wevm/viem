@@ -10,21 +10,17 @@ import { celo } from '../../chains.js'
 import { createPublicClient, http } from '../../clients/index.js'
 import type { Address, TransactionReceipt } from '../../types/index.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
-import { wait } from '../../utils/wait.js'
-import { mine } from '../test/index.js'
 import { getBlock, sendTransaction } from '../index.js'
-
+import { mine } from '../test/index.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
-test(
-  'gets transaction receipt',
-  async () => {
-    const receipt = await getTransactionReceipt(publicClient, {
-      hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
-    })
-    assertType<TransactionReceipt>(receipt)
-    expect(receipt).toMatchInlineSnapshot(`
+test('gets transaction receipt', async () => {
+  const receipt = await getTransactionReceipt(publicClient, {
+    hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+  })
+  assertType<TransactionReceipt>(receipt)
+  expect(receipt).toMatchInlineSnapshot(`
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
@@ -73,9 +69,7 @@ test(
       "type": "eip1559",
     }
   `)
-  },
-  { retry: 3 },
-)
+})
 
 test('chain w/ custom block type', async () => {
   const client = createPublicClient({
@@ -140,9 +134,7 @@ describe('e2e', () => {
         hash,
       }),
     ).rejects.toThrowError('Transaction receipt with hash')
-
-    mine(testClient, { blocks: 1 })
-    await wait(0)
+    await mine(testClient, { blocks: 1 })
 
     const {
       blockHash,

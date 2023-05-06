@@ -1,27 +1,28 @@
-import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
+import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
+import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 import {
   accounts,
   address,
   deployErc20InvalidTransferEvent,
-  initialBlockNumber,
+  forkBlockNumber,
   publicClient,
   testClient,
   usdcContractConfig,
   walletClient,
 } from '../../_test/index.js'
+import type { Log } from '../../types/index.js'
+import { getAddress } from '../../utils/index.js'
 import {
   impersonateAccount,
   mine,
+  setBalance,
   setIntervalMining,
   stopImpersonatingAccount,
 } from '../test/index.js'
 import { writeContract } from '../wallet/index.js'
-import type { Log } from '../../types/index.js'
-import { getLogs } from './getLogs.js'
 import { getBlock } from './getBlock.js'
-import { getAddress } from '../../utils/index.js'
-import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
+import { getLogs } from './getLogs.js'
 
 const event = {
   default: {
@@ -94,16 +95,19 @@ beforeAll(async () => {
   await impersonateAccount(testClient, {
     address: address.usdcHolder,
   })
-})
-
-afterAll(async () => {
-  await setIntervalMining(testClient, { interval: 1 })
-  await stopImpersonatingAccount(testClient, {
-    address: address.vitalik,
-  })
-  await impersonateAccount(testClient, {
+  await setBalance(testClient, {
     address: address.usdcHolder,
+    value: 10000000000000000000000n,
   })
+
+  return async () => {
+    await stopImpersonatingAccount(testClient, {
+      address: address.vitalik,
+    })
+    await impersonateAccount(testClient, {
+      address: address.usdcHolder,
+    })
+  }
 })
 
 test('default', async () => {
@@ -170,8 +174,8 @@ describe('events', () => {
   test('args: fromBlock/toBlock', async () => {
     const logs = await getLogs(publicClient, {
       event: event.default,
-      fromBlock: initialBlockNumber - 5n,
-      toBlock: initialBlockNumber,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
     })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
@@ -185,7 +189,7 @@ describe('events', () => {
 
   test('args: blockHash', async () => {
     const block = await getBlock(publicClient, {
-      blockNumber: initialBlockNumber - 1n,
+      blockNumber: forkBlockNumber - 1n,
     })
     const logs = await getLogs(publicClient, {
       event: event.default,

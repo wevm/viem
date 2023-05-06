@@ -19,6 +19,7 @@ test('exports utils', () => {
       "bytesToHex": [Function],
       "bytesToNumber": [Function],
       "bytesToString": [Function],
+      "ccipFetch": [Function],
       "concat": [Function],
       "concatBytes": [Function],
       "concatHex": [Function],
@@ -91,6 +92,34 @@ test('exports utils', () => {
       "keccak256": [Function],
       "numberToBytes": [Function],
       "numberToHex": [Function],
+      "offchainLookup": [Function],
+      "offchainLookupAbiItem": {
+        "inputs": [
+          {
+            "name": "sender",
+            "type": "address",
+          },
+          {
+            "name": "urls",
+            "type": "string[]",
+          },
+          {
+            "name": "callData",
+            "type": "bytes",
+          },
+          {
+            "name": "callbackFunction",
+            "type": "bytes4",
+          },
+          {
+            "name": "extraData",
+            "type": "bytes",
+          },
+        ],
+        "name": "OffchainLookup",
+        "type": "error",
+      },
+      "offchainLookupSignature": "0x556f1830",
       "pad": [Function],
       "padBytes": [Function],
       "padHex": [Function],
@@ -107,6 +136,7 @@ test('exports utils', () => {
       "publicKeyToAddress": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
+      "recoverPublicKey": [Function],
       "recoverTypedDataAddress": [Function],
       "rpc": {
         "http": [Function],

@@ -1,4 +1,4 @@
-import type { Chain } from '@wagmi/chains'
+import type { Chain } from '../../chains.js'
 import type {
   TestClient,
   TestClientMode,
@@ -11,6 +11,26 @@ export type GetTxpoolStatusReturnType = {
   queued: number
 }
 
+/**
+ * Returns a summary of all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
+ *
+ * - Docs: https://viem.sh/docs/actions/test/getTxpoolStatus.html
+ *
+ * @param client - Client to use
+ * @returns Transaction pool status. {@link GetTxpoolStatusReturnType}
+ *
+ * @example
+ * import { createTestClient, http } from 'viem'
+ * import { foundry } from 'viem/chains'
+ * import { getTxpoolStatus } from 'viem/test'
+ *
+ * const client = createTestClient({
+ *   mode: 'anvil',
+ *   chain: 'foundry',
+ *   transport: http(),
+ * })
+ * const status = await getTxpoolStatus(client)
+ */
 export async function getTxpoolStatus<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
 ): Promise<GetTxpoolStatusReturnType> {

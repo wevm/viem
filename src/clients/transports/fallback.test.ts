@@ -1,13 +1,13 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { localhost } from '../../chains.js'
+
 import { createHttpServer } from '../../_test/index.js'
+import { getBlockNumber } from '../../actions/index.js'
+import { localhost } from '../../chains.js'
+import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
-
-import { getBlockNumber } from '../../actions/index.js'
-import { wait } from '../../utils/wait.js'
 import type { Transport } from './createTransport.js'
-import type { FallbackTransport } from './fallback.js'
+import type { FallbackTransport, OnResponseFn } from './fallback.js'
 import { fallback, rankTransports } from './fallback.js'
 import { http } from './http.js'
 
@@ -32,6 +32,7 @@ test('default', () => {
       },
       "request": [Function],
       "value": {
+        "onResponse": [Function],
         "transports": [
           {
             "config": {
@@ -104,9 +105,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    let transport = fallback([http(server1.url), http(server3.url)], {
-      rank: false,
-    })({
+    let transport = fallback([http(server1.url), http(server3.url)])({
       chain: localhost,
     })
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -115,12 +114,11 @@ describe('request', () => {
     expect(count).toBe(2)
 
     count = 0
-    transport = fallback(
-      [http(server1.url), http(server2.url), http(server3.url)],
-      {
-        rank: false,
-      },
-    )({
+    transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
       chain: localhost,
     })
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -129,9 +127,7 @@ describe('request', () => {
     expect(count).toBe(3)
 
     count = 0
-    transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -140,6 +136,74 @@ describe('request', () => {
 
     // ensure `retryCount` on transport is adhered
     expect(count).toBe(8)
+  })
+
+  test('onResponse', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(500)
+      res.end()
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(500)
+      res.end()
+    })
+    const server3 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
+      chain: localhost,
+    })
+
+    const args: Parameters<OnResponseFn>[0][] = []
+    transport.value?.onResponse((args_) => args.push(args_))
+
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+    expect(
+      args.map(({ transport: _transport, ...rest }) => rest),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "error": [HttpRequestError: HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {"method":"eth_blockNumber"}
+
+      Details: Internal Server Error
+      Version: viem@1.0.2],
+          "method": "eth_blockNumber",
+          "params": undefined,
+          "status": "error",
+        },
+        {
+          "error": [HttpRequestError: HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {"method":"eth_blockNumber"}
+
+      Details: Internal Server Error
+      Version: viem@1.0.2],
+          "method": "eth_blockNumber",
+          "params": undefined,
+          "status": "error",
+        },
+        {
+          "method": "eth_blockNumber",
+          "params": undefined,
+          "response": "0x1",
+          "status": "success",
+        },
+      ]
+    `)
   })
 
   test('error (rpc)', async () => {
@@ -164,12 +228,11 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback(
-      [http(server1.url), http(server2.url), http(server3.url)],
-      {
-        rank: false,
-      },
-    )({
+    const transport = fallback([
+      http(server1.url),
+      http(server2.url),
+      http(server3.url),
+    ])({
       chain: localhost,
     })
     await expect(() =>
@@ -196,9 +259,7 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     expect(
@@ -221,9 +282,7 @@ describe('request', () => {
       res.end()
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -251,9 +310,7 @@ describe('request', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })({
+    const transport = fallback([http(server1.url), http(server2.url)])({
       chain: localhost,
     })
     await expect(() =>
@@ -278,7 +335,6 @@ describe('request', () => {
 
     const transport = fallback([http(server1.url), http(server2.url)], {
       retryCount: 1,
-      rank: false,
     })({
       chain: localhost,
     })
@@ -310,7 +366,6 @@ describe('request', () => {
         http(server2.url, { retryCount: 2 }),
       ],
       {
-        rank: false,
         retryCount: 0,
       },
     )({
@@ -362,6 +417,7 @@ describe('client', () => {
         "transport": {
           "key": "fallback",
           "name": "Fallback",
+          "onResponse": [Function],
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
@@ -463,9 +519,7 @@ describe('client', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })
+    const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
     expect(await getBlockNumber(client)).toBe(1n)
@@ -489,9 +543,7 @@ describe('client', () => {
       res.end(JSON.stringify({ error: { code: -32603, message: 'sad times' } }))
     })
 
-    const transport = fallback([http(server1.url), http(server2.url)], {
-      rank: false,
-    })
+    const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
     await expect(

@@ -12,7 +12,6 @@ export type UninstallFilterReturnType = boolean
  * - Docs: https://viem.sh/docs/actions/public/uninstallFilter.html
  * - JSON-RPC Methods: [`eth_uninstallFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_uninstallFilter)
  *
- * @remarks
  * Destroys a Filter that was created from one of the following Actions:
  * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
  * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
@@ -35,10 +34,10 @@ export async function uninstallFilter<
   TTransport extends Transport,
   TChain extends Chain | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
+  _client: PublicClient<TTransport, TChain>,
   { filter }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
-  return client.request({
+  return filter.request({
     method: 'eth_uninstallFilter',
     params: [filter.id],
   })

@@ -10,10 +10,11 @@ import {
   FilterTypeNotSupportedError,
 } from '../../errors/index.js'
 import type {
+  AbiItem,
   EventDefinition,
   GetEventArgs,
-  InferEventName,
   Hex,
+  InferEventName,
 } from '../../types/index.js'
 import { toBytes } from '../encoding/index.js'
 import { getEventSelector, keccak256 } from '../hash/index.js'
@@ -24,26 +25,38 @@ import type { GetAbiItemParameters } from './getAbiItem.js'
 
 export type EncodeEventTopicsParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string = string,
+  TEventName extends string | undefined = string,
+  _EventName = InferEventName<TAbi, TEventName>,
 > = {
-  abi: Narrow<TAbi>
-  args?: GetEventArgs<TAbi, TEventName>
-  eventName: InferEventName<TAbi, TEventName>
-}
+  eventName?: _EventName
+} & (TEventName extends string
+  ? { abi: Narrow<TAbi>; args?: GetEventArgs<TAbi, TEventName> }
+  : _EventName extends string
+  ? { abi: [Narrow<TAbi[number]>]; args?: GetEventArgs<TAbi, _EventName> }
+  : never)
 
 export function encodeEventTopics<
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
+  TEventName extends string | undefined = undefined,
 >({ abi, eventName, args }: EncodeEventTopicsParameters<TAbi, TEventName>) {
-  const abiItem = getAbiItem({
-    abi,
-    args,
-    name: eventName,
-  } as GetAbiItemParameters)
-  if (!abiItem)
-    throw new AbiEventNotFoundError(eventName, {
+  let abiItem = abi[0] as AbiItem
+  if (eventName) {
+    abiItem = getAbiItem({
+      abi,
+      args,
+      name: eventName,
+    } as GetAbiItemParameters)
+    if (!abiItem)
+      throw new AbiEventNotFoundError(eventName, {
+        docsPath: '/docs/contract/encodeEventTopics',
+      })
+  }
+
+  if (abiItem.type !== 'event')
+    throw new AbiEventNotFoundError(undefined, {
       docsPath: '/docs/contract/encodeEventTopics',
     })
+
   const definition = formatAbiItem(abiItem)
   const signature = getEventSelector(definition as EventDefinition)
 

@@ -2,14 +2,15 @@ import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../_test/index.js'
 import { wait } from '../../utils/wait.js'
-
 import { getBlock } from '../public/getBlock.js'
-import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
 import { removeBlockTimestampInterval } from './removeBlockTimestampInterval.js'
+import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
 
 test('removes block timestamp interval', async () => {
   let interval = 86400
-  await setBlockTimestampInterval(testClient, { interval })
+  await expect(
+    setBlockTimestampInterval(testClient, { interval }),
+  ).resolves.toBeUndefined()
   const block1 = await getBlock(publicClient, { blockTag: 'latest' })
   await wait(1000)
   const block2 = await getBlock(publicClient, { blockTag: 'latest' })
