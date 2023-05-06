@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import {
   address,
   publicMainnetClient,
+  publicClient,
   smartAccountConfig,
   ensPublicResolverConfig,
   accounts,
@@ -10,6 +11,52 @@ import {
 import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
 import type { Hex } from '../../types/index.js'
 import { hashMessage, toBytes } from '../../utils/index.js'
+
+/**
+ * When forking mainnet to anvil, it seems like the deployless contract always returns `0x0`.
+ * It does not fail/error, but just always returns `0x0`.
+ * This test indicates if that is still the case, or if this issue was fixed in an anvil update,
+ * in which case this test should fail, and we should switch from using the ethereum public client
+ * to using the anvil public client everywhere.
+ */
+describe.only('ERC6492 Anvil issue (read comment in code)', () => {
+  const validSignedEOAMessage = {
+    address: accounts[0].address,
+    messageHash: hashMessage('hello world'),
+    signature:
+      '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b',
+  } as const
+  const validSignedErc1271Message = {
+    address: smartAccountConfig.address,
+    messageHash: hashMessage('This is a test message for viem!'),
+    signature:
+      '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
+  } as const
+
+  test('valid test with anvil should fail', async () => {
+    expect(
+      await verifyMessageHashOnChain(publicClient, validSignedEOAMessage),
+    ).toBe(false)
+    expect(
+      await verifyMessageHashOnChain(publicClient, validSignedErc1271Message),
+    ).toBe(false)
+  })
+
+  test('valid test with mainnet will pass', async () => {
+    expect(
+      await verifyMessageHashOnChain(
+        publicMainnetClient,
+        validSignedEOAMessage,
+      ),
+    ).toBe(true)
+    expect(
+      await verifyMessageHashOnChain(
+        publicMainnetClient,
+        validSignedErc1271Message,
+      ),
+    ).toBe(true)
+  })
+})
 
 describe('verifyMessageHashOnChain', async () => {
   test.each([
