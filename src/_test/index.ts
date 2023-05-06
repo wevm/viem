@@ -25,6 +25,7 @@ export {
   deployEnsAvatarTokenUri,
   deployErc20InvalidTransferEvent,
   publicClient,
+  publicMainnetClient,
   testClient,
   walletClient,
   setBlockNumber,

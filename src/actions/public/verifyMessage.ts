@@ -2,21 +2,21 @@ import type { Address } from 'abitype'
 
 import type { PublicClient, Transport } from '../../clients/index.js'
 import type { ByteArray, Chain, Hex } from '../../types/index.js'
-import { hashMessage, isHex, toHex } from '../../utils/index.js'
 import {
-  verifyMessage as offlineVerifyMessage,
-  VerifyMessageParameters as OfflineVerifyMessageParameters,
-  VerifyMessageReturnType as OfflineVerifyMessageReturnType,
+  encodeDeployData,
+  hashMessage,
+  isHex,
+  toHex,
+} from '../../utils/index.js'
+import {
+  type VerifyMessageParameters as OfflineVerifyMessageParameters,
+  type VerifyMessageReturnType as OfflineVerifyMessageReturnType,
 } from '../../utils/signature/verifyMessage.js'
-import { readContract } from './readContract.js'
-import { smartAccountAbi } from '../../constants/abis.js'
-import {
-  ContractFunctionExecutionError,
-  ContractFunctionRevertedError,
-  ContractFunctionZeroDataError,
-} from '../../errors/index.js'
-import { ERC1271_MAGICVALUE } from '../../constants/index.js'
-import type { CallParameters } from './call.js'
+import { type CallParameters, call } from './call.js'
+import { isBytesEqual } from '../../utils/data/isBytesEqual.js'
+import { CallExecutionError } from '../../index.js'
+import { universalSignatureValidatorAbi } from '../../constants/abis.js'
+import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
 
 export type VerifyMessageHashOnchainParameters = Pick<
   CallParameters,
@@ -27,7 +27,7 @@ export type VerifyMessageHashOnchainParameters = Pick<
   signature: Hex | ByteArray
 }
 
-export type VerifyMessageHashOnchainReturnType = boolean | null
+export type VerifyMessageHashOnchainReturnType = boolean
 
 /**
  * Verifies a message hash on chain using ERC1271
@@ -54,33 +54,28 @@ export async function verifyMessageHashOnChain<
     ...callRequest
   }: VerifyMessageHashOnchainParameters,
 ): Promise<VerifyMessageHashOnchainReturnType> {
+  const signatureHex = isHex(signature) ? signature : toHex(signature)
+
   try {
-    const signatureHex = isHex(signature) ? signature : toHex(signature)
-    const data = await readContract(client, {
-      abi: smartAccountAbi,
-      address,
-      args: [messageHash, signatureHex],
-      functionName: 'isValidSignature',
+    const { data } = await call(client, {
+      data: encodeDeployData({
+        abi: universalSignatureValidatorAbi,
+        args: [address, messageHash, signatureHex],
+        bytecode: universalSignatureValidatorByteCode,
+      }),
       ...callRequest,
-    })
-    return data === ERC1271_MAGICVALUE
-  } catch (err) {
-    if (
-      err instanceof ContractFunctionExecutionError &&
-      err.cause instanceof ContractFunctionRevertedError &&
-      // Ignore reverts which have no custom error message, this way we can differentiate between a contract that supports ERC1271 and one that does not
-      err.cause.reason !== 'execution reverted'
-    ) {
+    } as unknown as CallParameters)
+
+    return isBytesEqual(data ?? '0x0', '0x1')
+  } catch (error) {
+    if (error instanceof CallExecutionError) {
+      // if the execution fails, the signature was not valid and an internal method inside of the validator reverted
+      // this can happen for many reasons, for example if signer can not be recovered from the signature
+      // or if the signature has no valid format
       return false
     }
-    if (
-      err instanceof ContractFunctionExecutionError &&
-      (err.cause instanceof ContractFunctionZeroDataError ||
-        err.cause instanceof ContractFunctionRevertedError)
-    ) {
-      return null // Contract does not support ERC1271
-    }
-    throw err // Network errors and other errors should be thrown
+
+    throw error
   }
 }
 
@@ -112,17 +107,11 @@ export async function verifyMessage<TChain extends Chain | undefined,>(
   { address, message, signature, ...callRequest }: VerifyMessageParameters,
 ): Promise<VerifyMessageReturnType> {
   const messageHash = hashMessage(message)
-  const onChainResult = await verifyMessageHashOnChain(client, {
+
+  return verifyMessageHashOnChain(client, {
     address,
     messageHash,
     signature,
     ...callRequest,
   })
-
-  // If the contract does not support ERC1271, we fallback to the offline verification
-  if (onChainResult !== null) {
-    return onChainResult
-  }
-
-  return offlineVerifyMessage({ address, message, signature })
 }

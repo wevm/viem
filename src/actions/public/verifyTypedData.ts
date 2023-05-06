@@ -1,12 +1,11 @@
 import type { TypedData } from 'abitype'
 import {
-  VerifyMessageHashOnchainParameters,
+  type VerifyMessageHashOnchainParameters,
   verifyMessageHashOnChain,
 } from './verifyMessage.js'
 import {
-  verifyTypedData as offlineVerifyTypedData,
-  VerifyTypedDataParameters as OfflineVerifyTypedDataParameters,
-  VerifyTypedDataReturnType as OfflineVerifyTypedDataReturnType,
+  type VerifyTypedDataParameters as OfflineVerifyTypedDataParameters,
+  type VerifyTypedDataReturnType as OfflineVerifyTypedDataReturnType,
 } from '../../utils/signature/verifyTypedData.js'
 import type { Chain } from '../../types/index.js'
 import type { PublicClient, Transport } from '../../clients/index.js'
@@ -50,24 +49,11 @@ export async function verifyTypedData<TChain extends Chain | undefined,>(
   }: VerifyTypedDataParameters,
 ): Promise<VerifyTypedDataReturnType> {
   const messageHash = hashTypedData({ message, primaryType, types, domain })
-  const onChainResult = await verifyMessageHashOnChain(client, {
+
+  return verifyMessageHashOnChain(client, {
     address,
     messageHash,
     signature,
     ...callRequest,
-  })
-
-  // If the contract does not support ERC1271, we fallback to the offline verification
-  if (onChainResult !== null) {
-    return onChainResult
-  }
-
-  return offlineVerifyTypedData({
-    message,
-    primaryType,
-    types,
-    domain,
-    address,
-    signature,
   })
 }

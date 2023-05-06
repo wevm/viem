@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  publicClient,
+  address,
+  publicMainnetClient,
   smartAccountConfig,
   ensPublicResolverConfig,
-  address,
+  accounts,
 } from '../../_test/index.js'
 import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
 import type { Hex } from '../../types/index.js'
@@ -44,14 +45,22 @@ describe('verifyMessageHashOnChain', async () => {
       address: ensPublicResolverConfig.address,
       messageHash: hashMessage('0xdead'),
       signature: '0xdead',
-      expectedResult: null,
+      expectedResult: false,
     },
     {
-      _name: 'undeployed',
+      _name: 'undeployed, with correct signature',
+      address: accounts[0].address,
+      messageHash: hashMessage('hello world'),
+      signature:
+        '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b',
+      expectedResult: true,
+    },
+    {
+      _name: 'undeployed, with wrong signature',
       address: address.notDeployed,
       messageHash: hashMessage('0xdead'),
       signature: '0xdead',
-      expectedResult: null,
+      expectedResult: false,
     },
   ] as {
     _name: string
@@ -63,7 +72,7 @@ describe('verifyMessageHashOnChain', async () => {
     '$_name',
     async ({ address, messageHash, signature, expectedResult }) => {
       expect(
-        await verifyMessageHashOnChain(publicClient, {
+        await verifyMessageHashOnChain(publicMainnetClient, {
           address,
           messageHash,
           signature,
@@ -74,7 +83,7 @@ describe('verifyMessageHashOnChain', async () => {
 
   test('unexpected errors still get thrown', async () => {
     await expect(
-      verifyMessageHashOnChain(publicClient, {
+      verifyMessageHashOnChain(publicMainnetClient, {
         address: '0x0', // invalid address
         messageHash: hashMessage('0xdead'),
         signature: '0xdead',
@@ -84,7 +93,7 @@ describe('verifyMessageHashOnChain', async () => {
 
   test('accept signature as byte array', async () => {
     expect(
-      await verifyMessageHashOnChain(publicClient, {
+      await verifyMessageHashOnChain(publicMainnetClient, {
         address: smartAccountConfig.address,
         messageHash: hashMessage(
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
@@ -100,7 +109,7 @@ describe('verifyMessageHashOnChain', async () => {
 describe('verifyMessage', async () => {
   test('valid signature', async () => {
     expect(
-      await verifyMessage(publicClient, {
+      await verifyMessage(publicMainnetClient, {
         address: smartAccountConfig.address,
         message:
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
@@ -112,7 +121,7 @@ describe('verifyMessage', async () => {
 
   test('invalid signature', async () => {
     expect(
-      await verifyMessage(publicClient, {
+      await verifyMessage(publicMainnetClient, {
         address: smartAccountConfig.address,
         message:
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
@@ -123,7 +132,7 @@ describe('verifyMessage', async () => {
 
   test('account not deployed', async () => {
     expect(
-      await verifyMessage(publicClient, {
+      await verifyMessage(publicMainnetClient, {
         address: address.notDeployed,
         message:
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',

@@ -39,6 +39,11 @@ import { createServer } from 'http'
 import type { AddressInfo } from 'net'
 import { namehash } from '../ens.js'
 
+export const publicMainnetClient = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
 export const anvilChain = {
   ...localhost,
   id: 1,
@@ -103,7 +108,7 @@ const provider = {
 export const httpClient = createPublicClient({
   chain: anvilChain,
   pollingInterval: 1_000,
-  transport: http(),
+  transport: custom(provider),
 })
 
 export const webSocketClient = createPublicClient({
