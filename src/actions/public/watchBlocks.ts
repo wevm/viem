@@ -7,6 +7,7 @@ import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 
 import { type GetBlockReturnType, getBlock } from './getBlock.js'
+
 export type OnBlockParameter<TChain extends Chain | undefined = Chain> =
   GetBlockReturnType<TChain>
 

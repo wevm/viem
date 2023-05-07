@@ -9,6 +9,7 @@ import {
   type TransactionReceiptFormatter,
   formatTransactionReceipt,
 } from '../../utils/formatters/transactionReceipt.js'
+
 export type GetTransactionReceiptParameters = {
   /** The hash of the transaction. */
   hash: Hash

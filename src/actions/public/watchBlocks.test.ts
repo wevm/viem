@@ -22,6 +22,7 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import * as getBlock from './getBlock.js'
 import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
+
 beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })
 })

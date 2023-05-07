@@ -17,6 +17,7 @@ import {
   type OnBlockNumberParameter,
   watchBlockNumber,
 } from './watchBlockNumber.js'
+
 beforeAll(async () => {
   await setIntervalMining(testClient, { interval: 0 })
 })

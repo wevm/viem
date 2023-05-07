@@ -6,6 +6,7 @@ import type { Prettify } from '../../types/utils.js'
 import { parseAvatarRecord } from '../../utils/ens/avatar/parseAvatarRecord.js'
 
 import { type GetEnsTextParameters, getEnsText } from './getEnsText.js'
+
 export type GetEnsAvatarParameters = Prettify<
   Omit<GetEnsTextParameters, 'key'> & {
     /** Gateway urls to resolve IPFS and/or Arweave assets. */

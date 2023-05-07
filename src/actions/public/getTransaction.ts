@@ -12,6 +12,7 @@ import {
   type TransactionFormatter,
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
+
 export type GetTransactionParameters =
   | {
       /** The block hash */

@@ -30,6 +30,7 @@ import {
   type GetTransactionType,
   getTransactionType,
 } from './getTransactionType.js'
+
 export type SerializedTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
   TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,

@@ -4,6 +4,7 @@ import type { Requests } from '../../types/eip1193.js'
 
 import '../../types/window.js'
 import { type CustomTransport, custom } from './custom.js'
+
 vi.stubGlobal('window', {
   ethereum: {
     on: vi.fn(() => null),

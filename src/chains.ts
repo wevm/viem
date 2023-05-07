@@ -9,6 +9,7 @@ import { defineBlock } from './utils/formatters/block.js'
 import { defineTransaction } from './utils/formatters/transaction.js'
 import { defineTransactionReceipt } from './utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from './utils/formatters/transactionRequest.js'
+
 const celoFormatters = {
   block: defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],

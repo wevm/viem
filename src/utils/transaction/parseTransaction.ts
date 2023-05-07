@@ -34,6 +34,7 @@ import {
   type GetSerializedTransactionType,
   getSerializedTransactionType,
 } from './getSerializedTransactionType.js'
+
 export type ParseTransactionReturnType<
   TSerialized extends TransactionSerialized = TransactionSerialized,
   TType extends TransactionType = GetSerializedTransactionType<TSerialized>,

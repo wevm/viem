@@ -6,6 +6,7 @@ import {
   type TransportConfig,
   createTransport,
 } from './createTransport.js'
+
 export type HttpTransportConfig = {
   /**
    * Request configuration to pass to `fetch`.

@@ -9,6 +9,7 @@ import {
   type Formatted,
   defineFormatter,
 } from './format.js'
+
 export type TransactionRequestFormatter<
   TChain extends Chain | undefined = Chain,
 > = TChain extends Chain

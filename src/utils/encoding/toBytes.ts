@@ -5,6 +5,7 @@ import { pad } from '../data/pad.js'
 
 import { assertSize } from './fromHex.js'
 import { type NumberToHexOpts, numberToHex } from './toHex.js'
+
 const encoder = new TextEncoder()
 
 export type ToBytesParameters = {

@@ -4,6 +4,7 @@ import {
   type TransportConfig,
   createTransport,
 } from './createTransport.js'
+
 type EthereumProvider = { request: BaseRpcRequests['request'] }
 
 export type CustomTransportConfig = {

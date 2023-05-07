@@ -10,6 +10,7 @@ import {
   type GetBlockNumberReturnType,
   getBlockNumber,
 } from './getBlockNumber.js'
+
 export type OnBlockNumberParameter = GetBlockNumberReturnType
 export type OnBlockNumberFn = (
   blockNumber: OnBlockNumberParameter,

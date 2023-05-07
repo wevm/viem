@@ -7,6 +7,7 @@ import { wait } from '../../utils/wait.js'
 
 import { type HttpTransport, http } from './http.js'
 import type { IncomingHttpHeaders } from 'http'
+
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')
 
