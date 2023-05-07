@@ -1,4 +1,11 @@
-import { assertType, beforeAll, describe, expect, test } from 'vitest'
+import {
+  assertType,
+  beforeAll,
+  describe,
+  expect,
+  expectTypeOf,
+  test,
+} from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
@@ -146,9 +153,23 @@ describe('contract events', () => {
       filter,
     })
 
-    assertType<Log<bigint, number, undefined, typeof usdcContractConfig.abi>[]>(
-      logs,
-    )
+    expectTypeOf(logs).toEqualTypeOf<
+      Log<bigint, number, undefined, typeof usdcContractConfig.abi>[]
+    >()
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          from: Address
+          to: Address
+          value: bigint
+        }
+      | {
+          owner: Address
+          spender: Address
+          value: bigint
+        }
+    >()
+
     expect(logs.length).toBe(3)
     expect(logs[0].args).toEqual({
       from: getAddress(address.vitalik),

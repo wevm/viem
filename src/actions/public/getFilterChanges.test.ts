@@ -1,4 +1,11 @@
-import { assertType, beforeAll, describe, expect, test } from 'vitest'
+import {
+  assertType,
+  beforeAll,
+  describe,
+  expect,
+  expectTypeOf,
+  test,
+} from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
@@ -562,7 +569,17 @@ describe('events', () => {
     await mine(testClient, { blocks: 1 })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.default>[]>(logs)
+
+    expectTypeOf(logs).toEqualTypeOf<
+      Log<bigint, number, typeof event.default>[]
+    >()
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from: Address
+      to: Address
+      value: bigint
+    }>()
+
     expect(logs.length).toBe(2)
     expect(logs[0].args).toEqual({
       from: getAddress(address.vitalik),

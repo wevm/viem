@@ -780,14 +780,11 @@ export type PublicActions<
    */
   getFilterChanges: <
     TFilterType extends FilterType,
-    TAbiEvent extends AbiEvent | undefined,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
   >(
-    args: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,
-  ) => Promise<
-    GetFilterChangesReturnType<TFilterType, TAbiEvent, TAbi, TEventName>
-  >
+    args: GetFilterChangesParameters<TFilterType, TAbi, TEventName>,
+  ) => Promise<GetFilterChangesReturnType<TFilterType, TAbi, TEventName>>
   /**
    * Returns a list of event logs since the filter was created.
    *
@@ -815,12 +812,11 @@ export type PublicActions<
    * const logs = await client.getFilterLogs({ filter })
    */
   getFilterLogs: <
-    TAbiEvent extends AbiEvent | undefined,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
   >(
-    args: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
-  ) => Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>>
+    args: GetFilterLogsParameters<TAbi, TEventName>,
+  ) => Promise<GetFilterLogsReturnType<TAbi, TEventName>>
   /**
    * Returns the current price of gas (in wei).
    *
