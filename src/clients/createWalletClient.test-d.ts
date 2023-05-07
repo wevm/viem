@@ -7,7 +7,6 @@ import type { JsonRpcAccount } from '../accounts/types.js'
 import { type WalletClient, createWalletClient } from './createWalletClient.js'
 import { http } from './transports/http.js'
 
-
 test('with chain', () => {
   const client = createWalletClient({
     chain: localhost,

@@ -8,7 +8,6 @@ import { getBlock } from '../public/getBlock.js'
 
 import { setNextBlockBaseFeePerGas } from './setNextBlockBaseFeePerGas.js'
 
-
 test('set next block base fee per gas', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',

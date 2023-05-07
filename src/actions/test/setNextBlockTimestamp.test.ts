@@ -7,7 +7,6 @@ import { getBlock } from '../public/getBlock.js'
 
 import { setNextBlockTimestamp } from './setNextBlockTimestamp.js'
 
-
 test('sets block timestamp interval', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',

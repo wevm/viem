@@ -8,7 +8,6 @@ import { getBlock } from '../public/getBlock.js'
 
 import { setBlockGasLimit } from './setBlockGasLimit.js'
 
-
 test('sets block gas limit', async () => {
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
