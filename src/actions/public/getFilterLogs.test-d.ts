@@ -1,11 +1,12 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { publicClient, usdcContractConfig } from '../../_test/index.js'
-import type { Address, Log } from '../../types/index.js'
+import { usdcContractConfig } from '../../_test/abis.js'
+import { publicClient } from '../../_test/utils.js'
+import type { Log } from '../../types/log.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { getFilterLogs } from './getFilterLogs.js'
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, Address } from 'abitype'
 
 describe('createEventFilter', () => {
   test('default', async () => {

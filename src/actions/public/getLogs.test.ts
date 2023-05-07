@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import {
   assertType,
   beforeAll,
