@@ -1,4 +1,12 @@
-import { assertType, beforeAll, describe, expect, test } from 'vitest'
+import type { Address } from 'abitype'
+import {
+  assertType,
+  beforeAll,
+  describe,
+  expect,
+  expectTypeOf,
+  test,
+} from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
@@ -152,7 +160,17 @@ describe('events', () => {
     const logs = await getLogs(publicClient, {
       event: event.default,
     })
-    assertType<Log<bigint, number, typeof event.default>[]>(logs)
+
+    expectTypeOf(logs).toEqualTypeOf<
+      Log<bigint, number, typeof event.default>[]
+    >()
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from: Address
+      to: Address
+      value: bigint
+    }>()
+
     expect(logs.length).toBe(2)
     expect(logs[0].eventName).toEqual('Transfer')
     expect(logs[0].args).toEqual({

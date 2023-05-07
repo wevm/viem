@@ -1,9 +1,8 @@
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, ExtractAbiEvent } from 'abitype'
 
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
-import type { MaybeAbiEventName } from '../../types/contract.js'
 import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
@@ -12,20 +11,23 @@ import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = string,
 > = {
   filter: Filter<TFilterType, TAbi, TEventName, any>
 }
 
 export type GetFilterChangesReturnType<
   TFilterType extends FilterType = FilterType,
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = string,
+  _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
+    ? TEventName extends string
+      ? ExtractAbiEvent<TAbi, TEventName>
+      : undefined
+    : undefined,
 > = TFilterType extends 'event'
-  ? Log<bigint, number, TAbiEvent, TAbi, TEventName>[]
+  ? Log<bigint, number, _AbiEvent, TAbi, TEventName>[]
   : Hash[]
 
 /**
@@ -114,14 +116,11 @@ export async function getFilterChanges<
   TTransport extends Transport,
   TChain extends Chain | undefined,
   TFilterType extends FilterType,
-  TAbiEvent extends AbiEvent | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
   _client: PublicClient<TTransport, TChain>,
-  {
-    filter,
-  }: GetFilterChangesParameters<TFilterType, TAbiEvent, TAbi, TEventName>,
+  { filter }: GetFilterChangesParameters<TFilterType, TAbi, TEventName>,
 ) {
   const logs = await filter.request({
     method: 'eth_getFilterChanges',
@@ -147,7 +146,6 @@ export async function getFilterChanges<
     })
     .filter(Boolean) as GetFilterChangesReturnType<
     TFilterType,
-    TAbiEvent,
     TAbi,
     TEventName
   >
