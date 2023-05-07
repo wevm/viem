@@ -1,16 +1,13 @@
-import type { Abi } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
+import { AbiDecodingZeroDataError } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
 import {
+  ContractFunctionExecutionError,
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
-} from '../../errors/contract.js'
-import { BaseError } from '../../errors/index.js'
-import {
-  AbiDecodingZeroDataError,
-  ContractFunctionExecutionError,
   RawContractError,
-} from '../../errors/index.js'
-import type { Address } from '../../types/index.js'
+} from '../../errors/contract.js'
 
 const EXECUTION_REVERTED_ERROR_CODE = 3
 

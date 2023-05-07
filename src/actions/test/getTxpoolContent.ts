@@ -3,9 +3,10 @@ import type { Address } from 'abitype'
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Chain, RpcTransaction } from '../../types/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { RpcTransaction } from '../../types/rpc.js'
 
 export type GetTxpoolContentReturnType = {
   /** Pending transactions in the pool */

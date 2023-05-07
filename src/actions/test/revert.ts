@@ -1,9 +1,10 @@
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Chain, Quantity } from '../../types/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Quantity } from '../../types/rpc.js'
 
 export type RevertParameters = {
   /** The snapshot ID to revert to. */

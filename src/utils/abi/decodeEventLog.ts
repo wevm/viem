@@ -1,20 +1,21 @@
 import type { Abi, AbiParameter, ExtractAbiEventNames, Narrow } from 'abitype'
 
-import { DecodeLogDataMismatch } from '../../errors/abi.js'
 import {
   AbiDecodingDataSizeTooSmallError,
   AbiEventSignatureEmptyTopicsError,
   AbiEventSignatureNotFoundError,
+  DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
-} from '../../errors/index.js'
+} from '../../errors/abi.js'
 import type {
   EventDefinition,
   GetEventArgsFromTopics,
-  Hex,
   InferEventName,
-  Prettify,
-} from '../../types/index.js'
-import { getEventSelector } from '../hash/index.js'
+} from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import type { Prettify } from '../../types/utils.js'
+import { getEventSelector } from '../hash/getEventSelector.js'
+
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 

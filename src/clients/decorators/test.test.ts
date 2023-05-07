@@ -5,11 +5,11 @@ import {
   address,
   forkBlockNumber,
   forkUrl,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther, parseGwei } from '../../utils/index.js'
+} from '../../_test/constants.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+
 import { testActions } from './test.js'
 
 const bytecode =

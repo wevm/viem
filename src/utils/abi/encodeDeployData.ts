@@ -3,9 +3,11 @@ import type { Abi, Narrow } from 'abitype'
 import {
   AbiConstructorNotFoundError,
   AbiConstructorParamsNotFoundError,
-} from '../../errors/index.js'
-import type { GetConstructorArgs, Hex } from '../../types/index.js'
-import { concatHex } from '../data/index.js'
+} from '../../errors/abi.js'
+import type { GetConstructorArgs } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import { concatHex } from '../data/concat.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 
 const docsPath = '/docs/contract/encodeDeployData'

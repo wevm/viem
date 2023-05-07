@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '../../_test/index.js'
+import { publicClient } from '../../_test/utils.js'
 
 import { createBlockFilter } from './createBlockFilter.js'
 

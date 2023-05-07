@@ -1,20 +1,15 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
-import {
-  getBlock,
-  mine,
-  setBalance,
-  setNextBlockBaseFeePerGas,
-} from '../../actions/index.js'
-import * as publicActions from '../../actions/public/index.js'
-import { parseEther, parseGwei } from '../index.js'
+import { accounts } from '../../_test/constants.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import * as getBlock from '../../actions/public/getBlock.js'
+import { mine } from '../../actions/test/mine.js'
+import { setBalance } from '../../actions/test/setBalance.js'
+import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFeePerGas.js'
+import { parseEther } from '../unit/parseEther.js'
+import { parseGwei } from '../unit/parseGwei.js'
+
 import { defaultTip, prepareRequest } from './prepareRequest.js'
 
 const sourceAccount = accounts[0]
@@ -41,7 +36,7 @@ describe('prepareRequest', () => {
   test('default', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const block = await getBlock.getBlock(publicClient)
     const {
       maxFeePerGas,
       nonce: _nonce,
@@ -78,7 +73,7 @@ describe('prepareRequest', () => {
   test('legacy fees', async () => {
     await setup()
 
-    vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
       baseFeePerGas: undefined,
     } as any)
 
@@ -175,7 +170,7 @@ describe('prepareRequest', () => {
   test('args: gasPrice', async () => {
     await setup()
 
-    vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({} as any)
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({} as any)
 
     const { nonce: _nonce, ...request } = await prepareRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
@@ -270,7 +265,7 @@ describe('prepareRequest', () => {
   test('args: maxFeePerGas (on legacy)', async () => {
     await setup()
 
-    vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
       baseFeePerGas: undefined,
     } as any)
 
@@ -321,7 +316,7 @@ describe('prepareRequest', () => {
   test('args: maxPriorityFeePerGas (on legacy)', async () => {
     await setup()
 
-    vi.spyOn(publicActions, 'getBlock').mockResolvedValueOnce({
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
       baseFeePerGas: undefined,
     } as any)
 

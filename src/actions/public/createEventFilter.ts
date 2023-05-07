@@ -1,20 +1,22 @@
-import type { Abi, AbiEvent, Narrow } from 'abitype'
+import type { Abi, AbiEvent, Address, Narrow } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import type {
-  Address,
-  BlockNumber,
-  BlockTag,
-  Chain,
-  Filter,
-  LogTopic,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
-  Prettify,
-} from '../../types/index.js'
+} from '../../types/contract.js'
+import type { Filter } from '../../types/filter.js'
+import type { LogTopic } from '../../types/misc.js'
+import type { Prettify } from '../../types/utils.js'
+import {
+  type EncodeEventTopicsParameters,
+  encodeEventTopics,
+} from '../../utils/abi/encodeEventTopics.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
-import { encodeEventTopics, numberToHex } from '../../utils/index.js'
-import type { EncodeEventTopicsParameters } from '../../utils/index.js'
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

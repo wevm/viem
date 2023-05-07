@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 
-import { walletClient } from '../../_test/index.js'
+import { walletClient } from '../../_test/utils.js'
 import { avalanche } from '../../chains.js'
 
 import { addChain } from './addChain.js'

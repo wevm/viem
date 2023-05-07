@@ -1,9 +1,12 @@
-import type { Chain } from '../../types/index.js'
+import type { Chain } from '../../types/chain.js'
 import { isDeterministicError } from '../../utils/buildRequest.js'
 import { wait } from '../../utils/wait.js'
-import type { Transport, TransportConfig } from './createTransport.js'
-import { createTransport } from './createTransport.js'
 
+import {
+  type Transport,
+  type TransportConfig,
+  createTransport,
+} from './createTransport.js'
 // TODO: Narrow `method` & `params` types.
 export type OnResponseFn = (
   args: {

@@ -1,13 +1,14 @@
-import type {
-  Chain,
-  Formatter,
-  Formatters,
-  RpcTransactionRequest,
-  TransactionRequest,
-} from '../../types/index.js'
-import { numberToHex } from '../encoding/index.js'
-import { defineFormatter } from './format.js'
-import type { ExtractFormatter, Formatted } from './format.js'
+import type { Chain } from '../../types/chain.js'
+import type { Formatter, Formatters } from '../../types/formatter.js'
+import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type { TransactionRequest } from '../../types/transaction.js'
+import { numberToHex } from '../encoding/toHex.js'
+
+import {
+  type ExtractFormatter,
+  type Formatted,
+  defineFormatter,
+} from './format.js'
 
 export type TransactionRequestFormatter<
   TChain extends Chain | undefined = Chain,

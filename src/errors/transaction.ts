@@ -1,13 +1,12 @@
-import type {
-  Account,
-  BlockTag,
-  Chain,
-  Hash,
-  Hex,
-  TransactionType,
-} from '../types/index.js'
-import { formatEther, formatGwei } from '../utils/index.js'
-import type { SendTransactionParameters } from '../wallet.js'
+import type { Account } from '../accounts/types.js'
+import type { SendTransactionParameters } from '../actions/wallet/sendTransaction.js'
+import type { BlockTag } from '../types/block.js'
+import type { Chain } from '../types/chain.js'
+import type { Hash, Hex } from '../types/misc.js'
+import type { TransactionType } from '../types/transaction.js'
+import { formatEther } from '../utils/unit/formatEther.js'
+import { formatGwei } from '../utils/unit/formatGwei.js'
+
 import { BaseError } from './base.js'
 
 export function prettyPrint(

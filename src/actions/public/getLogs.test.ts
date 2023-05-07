@@ -1,26 +1,23 @@
 import { assertType, beforeAll, describe, expect, test } from 'vitest'
 
+import { usdcContractConfig } from '../../_test/abis.js'
+import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
 import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 import {
-  accounts,
-  address,
   deployErc20InvalidTransferEvent,
-  forkBlockNumber,
   publicClient,
   testClient,
-  usdcContractConfig,
   walletClient,
-} from '../../_test/index.js'
-import type { Log } from '../../types/index.js'
-import { getAddress } from '../../utils/index.js'
-import {
-  impersonateAccount,
-  mine,
-  setBalance,
-  setIntervalMining,
-  stopImpersonatingAccount,
-} from '../test/index.js'
-import { writeContract } from '../wallet/index.js'
+} from '../../_test/utils.js'
+import type { Log } from '../../types/log.js'
+import { getAddress } from '../../utils/address/getAddress.js'
+import { impersonateAccount } from '../test/impersonateAccount.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+import { setIntervalMining } from '../test/setIntervalMining.js'
+import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
+import { writeContract } from '../wallet/writeContract.js'
+
 import { getBlock } from './getBlock.js'
 import { getLogs } from './getLogs.js'
 

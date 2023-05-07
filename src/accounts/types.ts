@@ -1,12 +1,10 @@
 import type { HDKey } from '@scure/bip32'
+
 import type { Address, TypedData } from 'abitype'
 
-import type {
-  Hash,
-  Hex,
-  TransactionSerializable,
-  TypedDataDefinition,
-} from '../types/index.js'
+import type { Hash, Hex } from '../types/misc.js'
+import type { TransactionSerializable } from '../types/transaction.js'
+import type { TypedDataDefinition } from '../types/typedData.js'
 
 export type Account<TAddress extends Address = Address> =
   | JsonRpcAccount<TAddress>

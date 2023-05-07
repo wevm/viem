@@ -1,45 +1,68 @@
 import type { Abi, TypedData } from 'abitype'
 
-import type {
-  AddChainParameters,
-  DeployContractParameters,
-  DeployContractReturnType,
-  GetAddressesReturnType,
-  GetChainIdReturnType,
-  GetPermissionsReturnType,
-  RequestAddressesReturnType,
-  RequestPermissionsParameters,
-  RequestPermissionsReturnType,
-  SendTransactionParameters,
-  SendTransactionReturnType,
-  SignMessageParameters,
-  SignMessageReturnType,
-  SignTypedDataParameters,
-  SignTypedDataReturnType,
-  SwitchChainParameters,
-  WatchAssetParameters,
-  WatchAssetReturnType,
-  WriteContractParameters,
-  WriteContractReturnType,
-} from '../../actions/wallet/index.js'
+import type { Account } from '../../accounts/types.js'
 import {
-  addChain,
-  deployContract,
-  getAddresses,
+  type GetChainIdReturnType,
   getChainId,
+} from '../../actions/public/getChainId.js'
+import {
+  type AddChainParameters,
+  addChain,
+} from '../../actions/wallet/addChain.js'
+import {
+  type DeployContractParameters,
+  type DeployContractReturnType,
+  deployContract,
+} from '../../actions/wallet/deployContract.js'
+import {
+  type GetAddressesReturnType,
+  getAddresses,
+} from '../../actions/wallet/getAddresses.js'
+import {
+  type GetPermissionsReturnType,
   getPermissions,
+} from '../../actions/wallet/getPermissions.js'
+import {
+  type RequestAddressesReturnType,
   requestAddresses,
+} from '../../actions/wallet/requestAddresses.js'
+import {
+  type RequestPermissionsParameters,
+  type RequestPermissionsReturnType,
   requestPermissions,
+} from '../../actions/wallet/requestPermissions.js'
+import {
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
   sendTransaction,
+} from '../../actions/wallet/sendTransaction.js'
+import {
+  type SignMessageParameters,
+  type SignMessageReturnType,
   signMessage,
+} from '../../actions/wallet/signMessage.js'
+import {
+  type SignTypedDataParameters,
+  type SignTypedDataReturnType,
   signTypedData,
+} from '../../actions/wallet/signTypedData.js'
+import {
+  type SwitchChainParameters,
   switchChain,
+} from '../../actions/wallet/switchChain.js'
+import {
+  type WatchAssetParameters,
+  type WatchAssetReturnType,
   watchAsset,
+} from '../../actions/wallet/watchAsset.js'
+import {
+  type WriteContractParameters,
+  type WriteContractReturnType,
   writeContract,
-} from '../../actions/wallet/index.js'
-import type { Account, Chain } from '../../types/index.js'
+} from '../../actions/wallet/writeContract.js'
+import type { Chain } from '../../types/chain.js'
 import type { WalletClient } from '../createWalletClient.js'
-import type { Transport } from '../transports/index.js'
+import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
   TChain extends Chain | undefined = Chain | undefined,

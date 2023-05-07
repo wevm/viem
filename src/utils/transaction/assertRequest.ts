@@ -1,13 +1,10 @@
-import type { SendTransactionParameters } from '../../actions/index.js'
-import {
-  FeeCapTooHighError,
-  InvalidAddressError,
-  TipAboveFeeCapError,
-} from '../../errors/index.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import { InvalidAddressError } from '../../errors/address.js'
+import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
 import { FeeConflictError } from '../../errors/transaction.js'
-import type { Chain } from '../../types/index.js'
-import { parseAccount } from '../accounts.js'
-import { isAddress } from '../address/index.js'
+import type { Chain } from '../../types/chain.js'
+import { isAddress } from '../address/isAddress.js'
 
 export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {
   const {

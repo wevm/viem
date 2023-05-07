@@ -5,30 +5,30 @@ import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferE
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
-import type { DeployContractParameters } from '../actions/index.js'
+
+import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
+import { impersonateAccount } from '../actions/test/impersonateAccount.js'
+import { mine } from '../actions/test/mine.js'
+import { reset } from '../actions/test/reset.js'
+import { stopImpersonatingAccount } from '../actions/test/stopImpersonatingAccount.js'
 import {
+  type DeployContractParameters,
   deployContract,
-  getTransactionReceipt,
-  impersonateAccount,
-  mine,
-  reset,
-  stopImpersonatingAccount,
-  writeContract,
-} from '../actions/index.js'
-import type { Chain } from '../chains.js'
+} from '../actions/wallet/deployContract.js'
+import { writeContract } from '../actions/wallet/writeContract.js'
 import { localhost, mainnet } from '../chains.js'
-import {
-  createPublicClient,
-  createTestClient,
-  createWalletClient,
-  custom,
-  http,
-  webSocket,
-} from '../clients/index.js'
-import { namehash } from '../ens.js'
+import { createPublicClient } from '../clients/createPublicClient.js'
+import { createTestClient } from '../clients/createTestClient.js'
+import { createWalletClient } from '../clients/createWalletClient.js'
+import { custom } from '../clients/transports/custom.js'
+import { http } from '../clients/transports/http.js'
+import { webSocket } from '../clients/transports/webSocket.js'
+import type { Chain } from '../types/chain.js'
 import { RpcError } from '../types/eip1193.js'
-import type { Hex } from '../types/index.js'
-import { rpc } from '../utils/index.js'
+import type { Hex } from '../types/misc.js'
+import { namehash } from '../utils/ens/namehash.js'
+import { rpc } from '../utils/rpc.js'
+
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
 import {
   accounts,
@@ -43,9 +43,7 @@ import {
   errorsExampleABI,
   offchainLookupExampleABI,
 } from './generated.js'
-
-import type { RequestListener } from 'http'
-import { createServer } from 'http'
+import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
 
 export const anvilChain = {

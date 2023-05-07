@@ -1,5 +1,6 @@
-import type { Hex } from '../../types/index.js'
-import { hashMessage } from '../../utils/index.js'
+import type { Hex } from '../../types/misc.js'
+import { hashMessage } from '../../utils/signature/hashMessage.js'
+
 import { sign } from './sign.js'
 import { signatureToHex } from './signatureToHex.js'
 

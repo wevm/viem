@@ -1,8 +1,9 @@
 import {
   extractFunctionName,
   extractFunctionParams,
-} from '../contract/index.js'
-import { toBytes } from '../encoding/index.js'
+} from '../contract/extractFunctionParts.js'
+import { toBytes } from '../encoding/toBytes.js'
+
 import { keccak256 } from './keccak256.js'
 
 const hash = (value: string) => keccak256(toBytes(value))

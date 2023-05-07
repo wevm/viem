@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test/index.js'
+import { publicClient, testClient } from '../../_test/utils.js'
+
 import { setCode } from './setCode.js'
 
 const bytecode =

@@ -3,19 +3,19 @@ import type { Abi, Narrow } from 'abitype'
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
-} from '../../errors/index.js'
+} from '../../errors/abi.js'
 import type {
   AbiItem,
   GetErrorArgs,
-  Hex,
   InferErrorName,
-} from '../../types/index.js'
-import { concatHex } from '../data/index.js'
-import { getFunctionSelector } from '../hash/index.js'
+} from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import { concatHex } from '../data/concat.js'
+import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
-import { getAbiItem } from './getAbiItem.js'
-import type { GetAbiItemParameters } from './getAbiItem.js'
+import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 

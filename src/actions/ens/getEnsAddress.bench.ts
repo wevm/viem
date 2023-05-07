@@ -1,11 +1,8 @@
 import { beforeAll, bench, describe } from 'vitest'
 
-import {
-  ethersProvider,
-  ethersV6Provider,
-  publicClient,
-  setBlockNumber,
-} from '../../_test/index.js'
+import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
+import { publicClient, setBlockNumber } from '../../_test/utils.js'
+
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {

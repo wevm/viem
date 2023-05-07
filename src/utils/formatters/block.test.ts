@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import type { RpcBlock } from '../../types/index.js'
+import type { RpcBlock } from '../../types/rpc.js'
 
 import { formatBlock } from './block.js'
 

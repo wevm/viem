@@ -5,14 +5,16 @@ import type {
   Narrow,
 } from 'abitype'
 
-import { solidityError, solidityPanic } from '../../constants/index.js'
+import { solidityError, solidityPanic } from '../../constants/solidity.js'
 import {
   AbiDecodingZeroDataError,
   AbiErrorSignatureNotFoundError,
-} from '../../errors/index.js'
-import type { AbiItem, GetErrorArgs, Hex } from '../../types/index.js'
-import { slice } from '../data/index.js'
-import { getFunctionSelector } from '../hash/index.js'
+} from '../../errors/abi.js'
+import type { AbiItem, GetErrorArgs } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import { slice } from '../data/slice.js'
+import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 

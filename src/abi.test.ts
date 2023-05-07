@@ -7,12 +7,12 @@ test('exports abi utils', () => {
     [
       "decodeAbiParameters",
       "encodeAbiParameters",
-      "encodePacked",
       "getAbiItem",
       "parseAbi",
       "parseAbiItem",
       "parseAbiParameter",
       "parseAbiParameters",
+      "encodePacked",
     ]
   `)
 })

@@ -1,5 +1,5 @@
-import type { SendTransactionParameters } from '../../actions/index.js'
-import { type BaseError, RpcRequestError } from '../../errors/index.js'
+import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import type { BaseError } from '../../errors/base.js'
 import {
   ExecutionRevertedError,
   FeeCapTooHighError,
@@ -7,15 +7,18 @@ import {
   InsufficientFundsError,
   IntrinsicGasTooHighError,
   IntrinsicGasTooLowError,
-  InvalidInputRpcError,
   NonceMaxValueError,
   NonceTooHighError,
   NonceTooLowError,
   TipAboveFeeCapError,
-  TransactionRejectedRpcError,
   TransactionTypeNotSupportedError,
   UnknownNodeError,
-} from '../../errors/index.js'
+} from '../../errors/node.js'
+import { RpcRequestError } from '../../errors/request.js'
+import {
+  InvalidInputRpcError,
+  TransactionRejectedRpcError,
+} from '../../errors/rpc.js'
 
 export function containsNodeError(err: BaseError) {
   return (

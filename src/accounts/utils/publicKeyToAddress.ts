@@ -1,6 +1,8 @@
-import type { Address, Hex } from '../../types/index.js'
-import { checksumAddress } from '../../utils/address/index.js'
-import { keccak256 } from '../../utils/index.js'
+import type { Address } from 'abitype'
+
+import type { Hex } from '../../types/misc.js'
+import { checksumAddress } from '../../utils/address/getAddress.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
 
 /**
  * @description Converts an ECDSA public key to an address.

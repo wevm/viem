@@ -1,20 +1,20 @@
 import type { Abi } from 'abitype'
 
-import type { Transport, WalletClient } from '../../clients/index.js'
-import type {
-  Account,
-  Chain,
-  ContractFunctionConfig,
-  GetChain,
-  GetValue,
-  Hex,
-} from '../../types/index.js'
-import { encodeFunctionData } from '../../utils/index.js'
-import type { EncodeFunctionDataParameters } from '../../utils/index.js'
-import { sendTransaction } from './sendTransaction.js'
-import type {
-  SendTransactionParameters,
-  SendTransactionReturnType,
+import type { Account } from '../../accounts/types.js'
+import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain, GetChain } from '../../types/chain.js'
+import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import {
+  type EncodeFunctionDataParameters,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+
+import {
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  sendTransaction,
 } from './sendTransaction.js'
 
 export type WriteContractParameters<

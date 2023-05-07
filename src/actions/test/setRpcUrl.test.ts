@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { forkUrl, testClient } from '../../_test/index.js'
+import { forkUrl } from '../../_test/constants.js'
+import { testClient } from '../../_test/utils.js'
+
 import { setRpcUrl } from './setRpcUrl.js'
 
 test('sets the rpc url', async () => {

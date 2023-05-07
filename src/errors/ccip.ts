@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
-import type { Hex } from '../types/index.js'
+import type { Hex } from '../types/misc.js'
+
 import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
 

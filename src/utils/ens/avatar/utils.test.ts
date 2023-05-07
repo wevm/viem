@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { createHttpServer, publicClient } from '../../../_test/index.js'
+import { createHttpServer, publicClient } from '../../../_test/utils.js'
+
 import {
   getGateway,
   getJsonImage,

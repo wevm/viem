@@ -1,16 +1,13 @@
+import type { Address } from 'abitype'
+
+import type { Account, JsonRpcAccount } from '../accounts/types.js'
+import { parseAccount } from '../accounts/utils/parseAccount.js'
+import type { Chain } from '../types/chain.js'
 import type { Requests } from '../types/eip1193.js'
-import type {
-  Account,
-  Address,
-  Chain,
-  JsonRpcAccount,
-  Prettify,
-} from '../types/index.js'
-import { parseAccount } from '../utils/index.js'
-import type { Client, ClientConfig } from './createClient.js'
-import { createClient } from './createClient.js'
-import { walletActions } from './decorators/index.js'
-import type { WalletActions } from './decorators/index.js'
+import type { Prettify } from '../types/utils.js'
+
+import { type Client, type ClientConfig, createClient } from './createClient.js'
+import { type WalletActions, walletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
 
 export type WalletClientConfig<

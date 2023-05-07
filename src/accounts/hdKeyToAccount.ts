@@ -1,6 +1,7 @@
 import type { HDKey } from '@scure/bip32'
 
-import { toHex } from '../utils/index.js'
+import { toHex } from '../utils/encoding/toHex.js'
+
 import { privateKeyToAccount } from './privateKeyToAccount.js'
 import type { HDAccount, HDOptions } from './types.js'
 

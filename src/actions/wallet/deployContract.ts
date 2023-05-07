@@ -1,19 +1,18 @@
 import type { Abi, Narrow } from 'abitype'
 
-import type { Transport, WalletClient } from '../../clients/index.js'
-import type {
-  Account,
-  Chain,
-  GetChain,
-  GetConstructorArgs,
-  Hex,
-} from '../../types/index.js'
-import { encodeDeployData } from '../../utils/index.js'
-import { sendTransaction } from './index.js'
-import type {
-  SendTransactionParameters,
-  SendTransactionReturnType,
-} from './index.js'
+import type { Account } from '../../accounts/types.js'
+import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain, GetChain } from '../../types/chain.js'
+import type { GetConstructorArgs } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
+
+import {
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  sendTransaction,
+} from './sendTransaction.js'
 
 export type DeployContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

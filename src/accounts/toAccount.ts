@@ -1,6 +1,8 @@
-import { InvalidAddressError } from '../errors/index.js'
-import type { Address } from '../types/index.js'
-import { isAddress } from '../utils/index.js'
+import type { Address } from 'abitype'
+
+import { InvalidAddressError } from '../errors/address.js'
+import { isAddress } from '../utils/address/isAddress.js'
+
 import type {
   AccountSource,
   CustomSource,

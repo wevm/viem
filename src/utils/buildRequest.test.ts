@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'vitest'
 
-import { createHttpServer } from '../_test/index.js'
+import { createHttpServer } from '../_test/utils.js'
+import { BaseError } from '../errors/base.js'
+import { HttpRequestError, TimeoutError } from '../errors/request.js'
 import {
-  BaseError,
-  HttpRequestError,
   InternalRpcError,
   LimitExceededRpcError,
   ParseRpcError,
-  TimeoutError,
   UnknownRpcError,
-} from '../errors/index.js'
+} from '../errors/rpc.js'
+
 import { buildRequest, isDeterministicError } from './buildRequest.js'
 import { rpc } from './rpc.js'
 

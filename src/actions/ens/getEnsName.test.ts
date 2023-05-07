@@ -1,14 +1,10 @@
 import { beforeAll, expect, test } from 'vitest'
 
+import { address, localHttpUrl } from '../../_test/constants.js'
+import { publicClient, setBlockNumber } from '../../_test/utils.js'
 import { optimism } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
-
-import {
-  address,
-  localHttpUrl,
-  publicClient,
-  setBlockNumber,
-} from '../../_test/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
 
 import { getEnsName } from './getEnsName.js'
 

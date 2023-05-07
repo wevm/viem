@@ -1,7 +1,7 @@
 import { providers } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import type { TransactionRequest } from '../../types/index.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 
 import { formatTransactionRequest } from './transactionRequest.js'
 

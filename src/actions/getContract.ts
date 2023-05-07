@@ -11,42 +11,53 @@ import type {
   Narrow,
 } from 'abitype'
 
-import type { PublicClient, Transport, WalletClient } from '../clients/index.js'
+import type { Account } from '../accounts/types.js'
+import type { PublicClient } from '../clients/createPublicClient.js'
+import type { WalletClient } from '../clients/createWalletClient.js'
+import type { Transport } from '../clients/transports/createTransport.js'
+import type { Chain } from '../types/chain.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
-  Account,
-  Chain,
+  MaybeExtractEventArgsFromAbi,
+} from '../types/contract.js'
+import type {
   IsNarrowable,
   IsNever,
   IsUndefined,
-  MaybeExtractEventArgsFromAbi,
   Or,
   Prettify,
-} from '../types/index.js'
+} from '../types/utils.js'
+
 import {
+  type CreateContractEventFilterParameters,
+  type CreateContractEventFilterReturnType,
   createContractEventFilter,
+} from './public/createContractEventFilter.js'
+import {
+  type EstimateContractGasParameters,
+  type EstimateContractGasReturnType,
   estimateContractGas,
+} from './public/estimateContractGas.js'
+import {
+  type ReadContractParameters,
+  type ReadContractReturnType,
   readContract,
+} from './public/readContract.js'
+import {
+  type SimulateContractParameters,
+  type SimulateContractReturnType,
   simulateContract,
+} from './public/simulateContract.js'
+import {
+  type WatchContractEventParameters,
+  type WatchContractEventReturnType,
   watchContractEvent,
-} from './public/index.js'
-import type {
-  CreateContractEventFilterParameters,
-  CreateContractEventFilterReturnType,
-  EstimateContractGasParameters,
-  EstimateContractGasReturnType,
-  ReadContractParameters,
-  ReadContractReturnType,
-  SimulateContractParameters,
-  SimulateContractReturnType,
-  WatchContractEventParameters,
-  WatchContractEventReturnType,
-} from './public/index.js'
-import { writeContract } from './wallet/index.js'
-import type {
-  WriteContractParameters,
-  WriteContractReturnType,
-} from './wallet/index.js'
+} from './public/watchContractEvent.js'
+import {
+  type WriteContractParameters,
+  type WriteContractReturnType,
+  writeContract,
+} from './wallet/writeContract.js'
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,

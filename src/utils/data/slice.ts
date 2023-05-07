@@ -1,5 +1,6 @@
 import { SliceOffsetOutOfBoundsError } from '../../errors/data.js'
-import type { ByteArray, Hex } from '../../types/index.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
+
 import { isHex } from './isHex.js'
 import { size } from './size.js'
 

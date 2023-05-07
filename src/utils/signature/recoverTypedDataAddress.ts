@@ -1,11 +1,8 @@
-import type { TypedData } from 'abitype'
+import type { Address, TypedData } from 'abitype'
 
-import type {
-  Address,
-  ByteArray,
-  Hex,
-  TypedDataDefinition,
-} from '../../types/index.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
+
 import { hashTypedData } from './hashTypedData.js'
 import { recoverAddress } from './recoverAddress.js'
 

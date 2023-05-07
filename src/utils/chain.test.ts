@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { mainnet, optimism, polygon } from '../chains.js'
+
 import { defineChain, getChainContractAddress } from './chain.js'
 
 describe('defineChain', () => {

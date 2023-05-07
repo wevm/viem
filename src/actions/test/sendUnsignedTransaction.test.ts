@@ -1,16 +1,13 @@
 import { expect, test } from 'vitest'
 
-import {
-  accounts,
-  address,
-  publicClient,
-  testClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
+import { accounts, address } from '../../_test/constants.js'
+import { publicClient, testClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
-import { mine, setBalance } from './index.js'
 
+import { mine } from './mine.js'
 import { sendUnsignedTransaction } from './sendUnsignedTransaction.js'
+import { setBalance } from './setBalance.js'
 
 const sourceAccount = {
   address: address.vitalik,

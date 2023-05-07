@@ -26,9 +26,9 @@ test('exports contract actions', () => {
       "encodeEventTopics",
       "encodeFunctionData",
       "encodeFunctionResult",
+      "getAbiItem",
       "formatAbiItemWithArgs",
       "formatAbiItem",
-      "getAbiItem",
     ]
   `)
 })

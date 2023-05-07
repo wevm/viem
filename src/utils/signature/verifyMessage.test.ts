@@ -1,7 +1,9 @@
 import { expect, test } from 'vitest'
 
-import { accounts, walletClient } from '../../_test/index.js'
-import { signMessage } from '../../actions/index.js'
+import { accounts } from '../../_test/constants.js'
+import { walletClient } from '../../_test/utils.js'
+import { signMessage } from '../../actions/wallet/signMessage.js'
+
 import { verifyMessage } from './verifyMessage.js'
 
 test('default', async () => {

@@ -5,7 +5,8 @@ import {
   RpcRequestError,
   TimeoutError,
   WebSocketRequestError,
-} from '../errors/index.js'
+} from '../errors/request.js'
+
 import { withTimeout } from './promise/withTimeout.js'
 import { stringify } from './stringify.js'
 

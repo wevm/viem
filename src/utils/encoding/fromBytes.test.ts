@@ -3,7 +3,6 @@ import { describe, expect, test } from 'vitest'
 import {
   bytesToBigint,
   bytesToBool,
-  bytesToHex,
   bytesToNumber,
   bytesToString,
   fromBytes,
@@ -14,6 +13,7 @@ import {
   numberToBytes,
   stringToBytes,
 } from './toBytes.js'
+import { bytesToHex } from './toHex.js'
 
 describe('converts bytes to number', () => {
   test('default', () => {

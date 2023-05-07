@@ -1,21 +1,28 @@
 import { describe, expect, test } from 'vitest'
 
+import { accounts, localHttpUrl } from '../../_test/constants.js'
 import {
-  accounts,
-  localHttpUrl,
+  anvilChain,
   publicClient,
   testClient,
   walletClient,
-} from '../../_test/index.js'
+  walletClientWithAccount,
+} from '../../_test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains.js'
-import { hexToNumber, parseEther, parseGwei } from '../../utils/index.js'
-import { getBalance, getBlock, getTransaction } from '../index.js'
-import { mine, setBalance, setNextBlockBaseFeePerGas } from '../test/index.js'
-
-import { anvilChain, walletClientWithAccount } from '../../_test/utils.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
-import { createWalletClient, http } from '../../clients/index.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { http } from '../../clients/transports/http.js'
 import { defineChain } from '../../utils/chain.js'
+import { hexToNumber } from '../../utils/encoding/fromHex.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { getBalance } from '../public/getBalance.js'
+import { getBlock } from '../public/getBlock.js'
+import { getTransaction } from '../public/getTransaction.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
+
 import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]

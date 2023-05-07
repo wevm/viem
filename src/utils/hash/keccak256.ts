@@ -1,8 +1,9 @@
 import { keccak_256 } from '@noble/hashes/sha3'
 
-import type { ByteArray, Hex } from '../../types/index.js'
-import { isHex } from '../data/index.js'
-import { toBytes, toHex } from '../encoding/index.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
+import { isHex } from '../data/isHex.js'
+import { toBytes } from '../encoding/toBytes.js'
+import { toHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 

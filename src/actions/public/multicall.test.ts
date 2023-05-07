@@ -6,21 +6,24 @@
 import { describe, expect, test } from 'vitest'
 
 import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { gh434ABI } from '../../_test/generated.js'
+import {
+  baycContractConfig,
+  usdcContractConfig,
+  wagmiContractConfig,
+} from '../../_test/abis.js'
 import {
   accounts,
   address,
-  anvilChain,
-  deploy,
   forkBlockNumber,
   localHttpUrl,
-  publicClient,
-  usdcContractConfig,
-} from '../../_test/index.js'
+} from '../../_test/constants.js'
+import { gh434ABI } from '../../_test/generated.js'
+import { anvilChain, deploy, publicClient } from '../../_test/utils.js'
 import { mainnet } from '../../chains.js'
-import { createPublicClient, http } from '../../clients/index.js'
-import type { Hex } from '../../types/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { http } from '../../clients/transports/http.js'
+import type { Hex } from '../../types/misc.js'
+
 import { multicall } from './multicall.js'
 
 test('default', async () => {

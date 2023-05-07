@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test/index.js'
-
+import { publicClient, testClient } from '../../_test/utils.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
+
 import { mine } from './mine.js'
 
 test('mines 1 block', async () => {

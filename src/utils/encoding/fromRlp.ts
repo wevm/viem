@@ -3,8 +3,9 @@ import {
   DataLengthTooShortError,
   InvalidHexValueError,
   OffsetOutOfBoundsError,
-} from '../../errors/index.js'
-import type { ByteArray, Hex } from '../../types/index.js'
+} from '../../errors/encoding.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
+
 import { bytesToNumber } from './fromBytes.js'
 import { hexToBytes } from './toBytes.js'
 import { bytesToHex } from './toHex.js'

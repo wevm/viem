@@ -1,14 +1,16 @@
 import { expect, test } from 'vitest'
 
 import { baycContractConfig } from '../../_test/abis.js'
+import { accounts } from '../../_test/constants.js'
 import {
-  accounts,
   testClient,
   walletClient,
   walletClientWithAccount,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import { mine, setBalance } from '../test/index.js'
+} from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { mine } from '../test/mine.js'
+import { setBalance } from '../test/setBalance.js'
+
 import { deployContract } from './deployContract.js'
 
 test('default', async () => {

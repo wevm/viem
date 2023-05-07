@@ -1,4 +1,6 @@
-import type { Chain, Formatter, OptionalNullable } from '../../types/index.js'
+import type { Chain } from '../../types/chain.js'
+import type { Formatter } from '../../types/formatter.js'
+import type { OptionalNullable } from '../../types/utils.js'
 
 export type ExtractFormatter<
   TChain extends Chain,

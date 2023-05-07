@@ -4,7 +4,8 @@ import {
   deployEnsAvatarTokenUri,
   publicClient,
   setBlockNumber,
-} from '../../../_test/index.js'
+} from '../../../_test/utils.js'
+
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 
 beforeAll(async () => {

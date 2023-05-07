@@ -1,16 +1,14 @@
 import type { Abi, AbiEvent } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type {
-  Chain,
-  Filter,
-  FilterType,
-  Hash,
-  Log,
-  MaybeAbiEventName,
-} from '../../types/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { MaybeAbiEventName } from '../../types/contract.js'
+import type { Filter, FilterType } from '../../types/filter.js'
+import type { Log } from '../../types/log.js'
+import type { Hash } from '../../types/misc.js'
+import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import { decodeEventLog } from '../../utils/index.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,

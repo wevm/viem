@@ -1,10 +1,13 @@
+import type { Address } from 'abitype'
+
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Address, Chain, Hash, Hex } from '../../types/index.js'
-import { numberToHex } from '../../utils/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hash, Hex } from '../../types/misc.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type SetStorageAtParameters = {
   /** The account address. */
