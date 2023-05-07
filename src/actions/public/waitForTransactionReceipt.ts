@@ -9,6 +9,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { observe } from '../../utils/observe.js'
+
 import { getBlock } from './getBlock.js'
 import {
   type GetTransactionReturnType,

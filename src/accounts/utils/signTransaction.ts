@@ -7,6 +7,7 @@ import type {
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
 import { serializeTransaction } from '../../utils/transaction/serializeTransaction.js'
+
 import { sign } from './sign.js'
 
 export type SignTransactionArgs<

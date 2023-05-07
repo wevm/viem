@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
@@ -30,7 +32,6 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
-import type { Address } from 'abitype'
 
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,

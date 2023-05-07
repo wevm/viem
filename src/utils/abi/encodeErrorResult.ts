@@ -1,3 +1,5 @@
+import type { Abi, Narrow } from 'abitype'
+
 import {
   AbiErrorInputsNotFoundError,
   AbiErrorNotFoundError,
@@ -10,10 +12,10 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import { concatHex } from '../data/concat.js'
 import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
-import type { Abi, Narrow } from 'abitype'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 

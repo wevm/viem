@@ -1,7 +1,9 @@
-import type { RpcTransactionReceipt } from '../../types/rpc.js'
-import { formatTransactionReceipt } from './transactionReceipt.js'
 import { providers } from 'ethers'
 import { bench, describe } from 'vitest'
+
+import type { RpcTransactionReceipt } from '../../types/rpc.js'
+
+import { formatTransactionReceipt } from './transactionReceipt.js'
 
 const receipt: RpcTransactionReceipt = {
   blockHash:

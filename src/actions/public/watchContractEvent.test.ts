@@ -1,3 +1,5 @@
+import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
+
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
@@ -8,6 +10,7 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
+
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
@@ -16,7 +19,6 @@ import {
   type OnLogsParameter,
   watchContractEvent,
 } from './watchContractEvent.js'
-import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 beforeAll(async () => {
   await impersonateAccount(testClient, {

@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest'
+
 import { address } from '../../_test/constants.js'
 import { RpcRequestError } from '../../errors/request.js'
 import {
@@ -6,8 +8,8 @@ import {
 } from '../../errors/rpc.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
+
 import { containsNodeError, getNodeError } from './getNodeError.js'
-import { expect, test } from 'vitest'
 
 test('containsNodeError', () => {
   // @ts-expect-error

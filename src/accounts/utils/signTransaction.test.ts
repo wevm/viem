@@ -1,3 +1,5 @@
+import { assertType, describe, expect, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import type {
   TransactionSerializable,
@@ -10,8 +12,8 @@ import type {
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+
 import { signTransaction } from './signTransaction.js'
-import { assertType, describe, expect, test } from 'vitest'
 
 const base = {
   gas: 21000n,

@@ -3,6 +3,7 @@ import type { EstimateGasParameters } from '../../actions/public/estimateGas.js'
 import type { BaseError } from '../../errors/base.js'
 import { EstimateGasExecutionError } from '../../errors/estimateGas.js'
 import type { Chain } from '../../types/chain.js'
+
 import { containsNodeError, getNodeError } from './getNodeError.js'
 
 export function getEstimateGasError(

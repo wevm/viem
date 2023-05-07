@@ -2,6 +2,7 @@ import { BaseError } from '../../errors/base.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import { isHex } from '../data/isHex.js'
 import { pad } from '../data/pad.js'
+
 import { assertSize } from './fromHex.js'
 import { type NumberToHexOpts, numberToHex } from './toHex.js'
 const encoder = new TextEncoder()

@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type {
   TestClient,
   TestClientMode,
@@ -5,7 +7,6 @@ import type {
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
-import type { Address } from 'abitype'
 
 export type SetBalanceParameters = {
   /** The account address. */

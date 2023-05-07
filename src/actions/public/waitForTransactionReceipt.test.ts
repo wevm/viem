@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
@@ -8,8 +10,8 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
-import { describe, expect, test } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

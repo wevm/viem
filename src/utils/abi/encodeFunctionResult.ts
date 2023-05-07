@@ -1,3 +1,5 @@
+import type { Abi, Narrow } from 'abitype'
+
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
@@ -7,9 +9,9 @@ import type {
   ContractFunctionResult,
   InferFunctionName,
 } from '../../types/contract.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
-import type { Abi, Narrow } from 'abitype'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
 

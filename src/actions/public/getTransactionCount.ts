@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { WalletClient } from '../../clients/createWalletClient.js'
@@ -6,7 +8,6 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
-import type { Address } from 'abitype'
 
 export type GetTransactionCountParameters = {
   /** The account address. */

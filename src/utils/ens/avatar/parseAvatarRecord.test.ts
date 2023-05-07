@@ -1,10 +1,12 @@
+import { beforeAll, describe, expect, test } from 'vitest'
+
 import {
   deployEnsAvatarTokenUri,
   publicClient,
   setBlockNumber,
 } from '../../../_test/utils.js'
+
 import { parseAvatarRecord } from './parseAvatarRecord.js'
-import { beforeAll, describe, expect, test } from 'vitest'
 
 beforeAll(async () => {
   await setBlockNumber(16773780n)

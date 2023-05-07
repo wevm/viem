@@ -2,6 +2,7 @@ import type { PublicClient } from '../../../clients/createPublicClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
+
 import {
   getJsonImage,
   getMetadataAvatarUri,

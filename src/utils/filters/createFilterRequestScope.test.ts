@@ -5,6 +5,7 @@ import { createBlockFilter } from '../../actions/public/createBlockFilter.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
+
 import { createFilterRequestScope } from './createFilterRequestScope.js'
 
 test('default', async () => {

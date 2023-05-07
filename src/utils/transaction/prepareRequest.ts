@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
@@ -16,8 +18,8 @@ import { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { parseGwei } from '../unit/parseGwei.js'
+
 import { assertRequest } from './assertRequest.js'
-import type { Address } from 'abitype'
 
 export type PrepareRequestParameters<
   TAccount extends Account | undefined = undefined,

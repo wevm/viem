@@ -1,7 +1,8 @@
-import { avalanche } from '../../chains.js'
 import { test } from 'vitest'
 
 import { walletClient } from '../../_test/utils.js'
+import { avalanche } from '../../chains.js'
+
 import { addChain } from './addChain.js'
 
 test('default', async () => {

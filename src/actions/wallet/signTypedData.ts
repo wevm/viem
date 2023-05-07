@@ -1,3 +1,5 @@
+import type { TypedData } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { WalletClient } from '../../clients/createWalletClient.js'
@@ -10,7 +12,6 @@ import type { TypedDataDefinition } from '../../types/typedData.js'
 import { isHex } from '../../utils/data/isHex.js'
 import { stringify } from '../../utils/stringify.js'
 import { validateTypedData } from '../../utils/typedData.js'
-import type { TypedData } from 'abitype'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

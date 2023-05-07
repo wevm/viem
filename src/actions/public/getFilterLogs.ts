@@ -1,3 +1,5 @@
+import type { Abi, AbiEvent } from 'abitype'
+
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
@@ -6,7 +8,6 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import type { Abi, AbiEvent } from 'abitype'
 
 export type GetFilterLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

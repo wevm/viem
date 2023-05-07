@@ -1,13 +1,16 @@
+import type { AbiEvent } from 'abitype'
+
+import { expect, test } from 'vitest'
+
 import { wagmiContractConfig } from '../_test/abis.js'
 import { accounts } from '../_test/constants.js'
 import { publicClient, walletClient } from '../_test/utils.js'
+
 import {
   getContract,
   getEventParameters,
   getFunctionParameters,
 } from './getContract.js'
-import type { AbiEvent } from 'abitype'
-import { expect, test } from 'vitest'
 
 const contract = getContract({
   ...wagmiContractConfig,

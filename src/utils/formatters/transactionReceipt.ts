@@ -3,6 +3,7 @@ import type { Formatter, Formatters } from '../../types/formatter.js'
 import type { RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import { hexToNumber } from '../encoding/fromHex.js'
+
 import {
   type ExtractFormatter,
   type Formatted,

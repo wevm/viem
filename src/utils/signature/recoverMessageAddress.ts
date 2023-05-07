@@ -1,7 +1,9 @@
+import type { Address } from 'abitype'
+
 import type { ByteArray, Hex } from '../../types/misc.js'
+
 import { hashMessage } from './hashMessage.js'
 import { recoverAddress } from './recoverAddress.js'
-import type { Address } from 'abitype'
 
 export type RecoverMessageAddressParameters = {
   message: string

@@ -1,12 +1,14 @@
+import { describe, expect, test, vi } from 'vitest'
+
 import { accounts, forkBlockNumber, forkUrl } from '../../_test/constants.js'
 import { publicClient, testClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
+
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
-import { describe, expect, test, vi } from 'vitest'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 

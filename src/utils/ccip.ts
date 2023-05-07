@@ -1,3 +1,5 @@
+import type { Abi, Address } from 'abitype'
+
 import { type CallParameters, call } from '../actions/public/call.js'
 import type { PublicClient } from '../clients/createPublicClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -11,13 +13,13 @@ import { HttpRequestError } from '../errors/request.js'
 import type { Chain } from '../types/chain.js'
 import type { GetErrorArgs } from '../types/contract.js'
 import type { Hex } from '../types/misc.js'
+
 import { decodeErrorResult } from './abi/decodeErrorResult.js'
 import { encodeAbiParameters } from './abi/encodeAbiParameters.js'
 import { isAddressEqual } from './address/isAddressEqual.js'
 import { concat } from './data/concat.js'
 import { isHex } from './data/isHex.js'
 import { stringify } from './stringify.js'
-import type { Abi, Address } from 'abitype'
 
 export const offchainLookupSignature = '0x556f1830'
 export const offchainLookupAbiItem = {

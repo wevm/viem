@@ -1,3 +1,5 @@
+import type { Abi, Narrow } from 'abitype'
+
 import { AbiFunctionNotFoundError } from '../../errors/abi.js'
 import type {
   AbiItem,
@@ -6,10 +8,10 @@ import type {
 } from '../../types/contract.js'
 import { concatHex } from '../data/concat.js'
 import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
-import type { Abi, Narrow } from 'abitype'
 
 export type EncodeFunctionDataParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

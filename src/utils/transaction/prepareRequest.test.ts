@@ -1,3 +1,5 @@
+import { describe, expect, test, vi } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -7,8 +9,8 @@ import { setBalance } from '../../actions/test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFeePerGas.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
+
 import { defaultTip, prepareRequest } from './prepareRequest.js'
-import { describe, expect, test, vi } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

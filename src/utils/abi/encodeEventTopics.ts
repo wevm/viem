@@ -1,3 +1,10 @@
+import type {
+  Abi,
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  Narrow,
+} from 'abitype'
+
 import { AbiEventNotFoundError } from '../../errors/abi.js'
 import { FilterTypeNotSupportedError } from '../../errors/log.js'
 import type {
@@ -10,15 +17,10 @@ import type { Hex } from '../../types/misc.js'
 import { toBytes } from '../encoding/toBytes.js'
 import { getEventSelector } from '../hash/getEventSelector.js'
 import { keccak256 } from '../hash/keccak256.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
-import type {
-  Abi,
-  AbiParameter,
-  AbiParameterToPrimitiveType,
-  Narrow,
-} from 'abitype'
 
 export type EncodeEventTopicsParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

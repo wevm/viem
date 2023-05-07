@@ -1,6 +1,8 @@
-import { createHttpServer } from '../../_test/utils.js'
-import { withRetry } from './withRetry.js'
 import { expect, test } from 'vitest'
+
+import { createHttpServer } from '../../_test/utils.js'
+
+import { withRetry } from './withRetry.js'
 
 test('default', async () => {
   let retryTimes = -1

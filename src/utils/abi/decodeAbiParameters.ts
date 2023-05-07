@@ -1,3 +1,10 @@
+import type {
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  AbiParametersToPrimitiveTypes,
+  Narrow,
+} from 'abitype'
+
 import {
   AbiDecodingDataSizeInvalidError,
   AbiDecodingDataSizeTooSmallError,
@@ -15,13 +22,8 @@ import {
   hexToNumber,
   hexToString,
 } from '../encoding/fromHex.js'
+
 import { getArrayComponents } from './encodeAbiParameters.js'
-import type {
-  AbiParameter,
-  AbiParameterToPrimitiveType,
-  AbiParametersToPrimitiveTypes,
-  Narrow,
-} from 'abitype'
 
 export type DecodeAbiParametersReturnType<
   TParams extends

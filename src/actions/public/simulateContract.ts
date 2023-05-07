@@ -1,3 +1,5 @@
+import type { Abi } from 'abitype'
+
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -19,8 +21,8 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
+
 import { type CallParameters, call } from './call.js'
-import type { Abi } from 'abitype'
 
 export type SimulateContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

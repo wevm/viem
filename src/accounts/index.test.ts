@@ -12,6 +12,10 @@ test('exports utils', () => {
       "mnemonicToAccount",
       "privateKeyToAccount",
       "toAccount",
+      "signMessage",
+      "signTypedData",
+      "parseAccount",
+      "publicKeyToAddress",
       "czech",
       "english",
       "french",
@@ -21,10 +25,6 @@ test('exports utils', () => {
       "simplifiedChinese",
       "spanish",
       "traditionalChinese",
-      "signMessage",
-      "signTypedData",
-      "parseAccount",
-      "publicKeyToAddress",
     ]
   `)
 })

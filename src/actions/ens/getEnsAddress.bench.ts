@@ -1,7 +1,9 @@
+import { beforeAll, bench, describe } from 'vitest'
+
 import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
 import { publicClient, setBlockNumber } from '../../_test/utils.js'
+
 import { getEnsAddress } from './getEnsAddress.js'
-import { beforeAll, bench, describe } from 'vitest'
 
 beforeAll(async () => {
   await setBlockNumber(16773780n)

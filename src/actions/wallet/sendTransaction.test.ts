@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest'
+
 import { accounts, localHttpUrl } from '../../_test/constants.js'
 import {
   anvilChain,
@@ -20,8 +22,8 @@ import { getTransaction } from '../public/getTransaction.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
+
 import { sendTransaction } from './sendTransaction.js'
-import { describe, expect, test } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

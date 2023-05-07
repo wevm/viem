@@ -1,10 +1,11 @@
+import type { Address } from 'abitype'
+
 import type {
   TestClient,
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
-import type { Address } from 'abitype'
 
 export type SetCoinbaseParameters = {
   /** The coinbase address. */

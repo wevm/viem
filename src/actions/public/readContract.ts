@@ -1,3 +1,5 @@
+import type { Abi } from 'abitype'
+
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
@@ -15,8 +17,8 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
+
 import { type CallParameters, call } from './call.js'
-import type { Abi } from 'abitype'
 
 export type ReadContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

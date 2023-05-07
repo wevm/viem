@@ -1,7 +1,8 @@
+import type { Address } from 'abitype'
+
 import { toAccount } from '../accounts/toAccount.js'
 import type { Hash } from '../types/misc.js'
 import { toBytes } from '../utils/encoding/toBytes.js'
-import type { Address } from 'abitype'
 
 type BigNumberish = string | number | bigint
 type BytesLike = string | Uint8Array

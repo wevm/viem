@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 
 import { forkBlockNumber } from '../_test/constants.js'
 import { numberToHex } from '../utils/encoding/toHex.js'
+
 import {
   HttpRequestError,
   RpcRequestError,

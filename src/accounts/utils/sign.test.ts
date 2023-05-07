@@ -1,6 +1,8 @@
-import { accounts } from '../../_test/constants.js'
-import { sign } from './sign.js'
 import { expect, test } from 'vitest'
+
+import { accounts } from '../../_test/constants.js'
+
+import { sign } from './sign.js'
 
 test('default', async () => {
   expect(

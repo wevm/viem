@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest'
+
 import { usdcContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
 import {
@@ -8,8 +10,8 @@ import {
 } from '../../_test/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+
 import { publicActions } from './public.js'
-import { describe, expect, test } from 'vitest'
 
 test('default', async () => {
   expect(publicActions(publicClient)).toMatchInlineSnapshot(`

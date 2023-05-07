@@ -1,3 +1,10 @@
+import type {
+  AbiParameter,
+  AbiParameterToPrimitiveType,
+  AbiParametersToPrimitiveTypes,
+  Narrow,
+} from 'abitype'
+
 import {
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingBytesSizeMismatchError,
@@ -13,12 +20,6 @@ import { padHex } from '../data/pad.js'
 import { size } from '../data/size.js'
 import { slice } from '../data/slice.js'
 import { boolToHex, numberToHex, stringToHex } from '../encoding/toHex.js'
-import type {
-  AbiParameter,
-  AbiParameterToPrimitiveType,
-  AbiParametersToPrimitiveTypes,
-  Narrow,
-} from 'abitype'
 
 export type EncodeAbiParametersReturnType = Hex
 

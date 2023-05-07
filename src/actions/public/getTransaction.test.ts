@@ -1,3 +1,7 @@
+import type { Address } from 'abitype'
+
+import { assertType, describe, expect, test } from 'vitest'
+
 import { accounts, forkBlockNumber } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { celo } from '../../chains.js'
@@ -8,10 +12,9 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
-import type { Address } from 'abitype'
-import { assertType, describe, expect, test } from 'vitest'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]

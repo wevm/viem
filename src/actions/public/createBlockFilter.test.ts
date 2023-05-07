@@ -1,9 +1,11 @@
+import { expect, test } from 'vitest'
+
 import { createHttpServer, publicClient } from '../../_test/utils.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
+
 import { createBlockFilter } from './createBlockFilter.js'
-import { expect, test } from 'vitest'
 
 test('default', async () => {
   expect(await createBlockFilter(publicClient)).toBeDefined()

@@ -6,6 +6,7 @@ import type { Hash } from '../../types/misc.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { uninstallFilter } from './uninstallFilter.js'

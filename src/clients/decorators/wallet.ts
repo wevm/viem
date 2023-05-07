@@ -1,3 +1,5 @@
+import type { Abi, TypedData } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import {
   type GetChainIdReturnType,
@@ -61,7 +63,6 @@ import {
 import type { Chain } from '../../types/chain.js'
 import type { WalletClient } from '../createWalletClient.js'
 import type { Transport } from '../transports/createTransport.js'
-import type { Abi, TypedData } from 'abitype'
 
 export type WalletActions<
   TChain extends Chain | undefined = Chain | undefined,

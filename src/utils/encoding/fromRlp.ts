@@ -5,6 +5,7 @@ import {
   OffsetOutOfBoundsError,
 } from '../../errors/encoding.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
+
 import { bytesToNumber } from './fromBytes.js'
 import { hexToBytes } from './toBytes.js'
 import { bytesToHex } from './toHex.js'

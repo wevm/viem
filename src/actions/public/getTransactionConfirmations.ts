@@ -6,6 +6,7 @@ import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
 } from '../../utils/formatters/transactionReceipt.js'
+
 import { getBlockNumber } from './getBlockNumber.js'
 import { getTransaction } from './getTransaction.js'
 

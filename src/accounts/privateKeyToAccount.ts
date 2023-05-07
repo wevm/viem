@@ -1,12 +1,14 @@
+import { secp256k1 } from '@noble/curves/secp256k1'
+
 import type { Hex } from '../types/misc.js'
 import { toHex } from '../utils/encoding/toHex.js'
+
 import { toAccount } from './toAccount.js'
 import type { PrivateKeyAccount } from './types.js'
 import { publicKeyToAddress } from './utils/publicKeyToAddress.js'
 import { signMessage } from './utils/signMessage.js'
 import { signTransaction } from './utils/signTransaction.js'
 import { signTypedData } from './utils/signTypedData.js'
-import { secp256k1 } from '@noble/curves/secp256k1'
 
 /**
  * @description Creates an Account from a private key.

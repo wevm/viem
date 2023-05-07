@@ -5,6 +5,7 @@ import { publicClient, setBlockNumber } from '../../_test/utils.js'
 import { optimism } from '../../chains.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
+
 import { getEnsName } from './getEnsName.js'
 
 beforeAll(async () => {

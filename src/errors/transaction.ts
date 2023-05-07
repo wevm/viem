@@ -6,6 +6,7 @@ import type { Hash, Hex } from '../types/misc.js'
 import type { TransactionType } from '../types/transaction.js'
 import { formatEther } from '../utils/unit/formatEther.js'
 import { formatGwei } from '../utils/unit/formatGwei.js'
+
 import { BaseError } from './base.js'
 
 export function prettyPrint(

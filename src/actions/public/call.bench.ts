@@ -1,8 +1,10 @@
+import { bench, describe } from 'vitest'
+
 import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
 import { accounts } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
+
 import { call } from './call.js'
-import { bench, describe } from 'vitest'
 
 const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'

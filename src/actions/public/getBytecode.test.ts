@@ -1,8 +1,10 @@
+import { expect, test } from 'vitest'
+
 import { wagmiContractConfig } from '../../_test/abis.js'
 import { forkBlockNumber } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
+
 import { getBytecode } from './getBytecode.js'
-import { expect, test } from 'vitest'
 
 test('default', async () => {
   expect(

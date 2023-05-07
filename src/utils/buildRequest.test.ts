@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest'
+
 import { createHttpServer } from '../_test/utils.js'
 import { BaseError } from '../errors/base.js'
 import { HttpRequestError, TimeoutError } from '../errors/request.js'
@@ -7,9 +9,9 @@ import {
   ParseRpcError,
   UnknownRpcError,
 } from '../errors/rpc.js'
+
 import { buildRequest, isDeterministicError } from './buildRequest.js'
 import { rpc } from './rpc.js'
-import { describe, expect, test } from 'vitest'
 
 function request(url: string) {
   return async ({ method, params }: any) => {

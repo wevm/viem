@@ -22,6 +22,7 @@ import {
   UnsupportedProviderMethodError,
   UserRejectedRequestError,
 } from '../errors/rpc.js'
+
 import { withRetry } from './promise/withRetry.js'
 
 export const isDeterministicError = (error: Error) => {

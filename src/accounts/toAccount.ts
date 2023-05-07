@@ -1,12 +1,14 @@
+import type { Address } from 'abitype'
+
 import { InvalidAddressError } from '../errors/address.js'
 import { isAddress } from '../utils/address/isAddress.js'
+
 import type {
   AccountSource,
   CustomSource,
   JsonRpcAccount,
   LocalAccount,
 } from './types.js'
-import type { Address } from 'abitype'
 
 type GetAccountReturnType<TAccountSource extends AccountSource> =
   | (TAccountSource extends Address ? JsonRpcAccount : never)

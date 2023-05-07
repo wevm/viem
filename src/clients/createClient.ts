@@ -1,6 +1,7 @@
 import type { Chain } from '../types/chain.js'
 import type { Requests } from '../types/eip1193.js'
 import { uid } from '../utils/uid.js'
+
 import type {
   BaseRpcRequests,
   Transport,

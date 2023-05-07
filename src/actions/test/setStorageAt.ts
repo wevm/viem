@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type {
   TestClient,
   TestClientMode,
@@ -6,7 +8,6 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
-import type { Address } from 'abitype'
 
 export type SetStorageAtParameters = {
   /** The account address. */

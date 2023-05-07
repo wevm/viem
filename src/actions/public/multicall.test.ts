@@ -23,6 +23,7 @@ import { mainnet } from '../../chains.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
+
 import { multicall } from './multicall.js'
 
 test('default', async () => {

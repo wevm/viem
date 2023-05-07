@@ -20,6 +20,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { estimateContractGas } from './estimateContractGas.js'
 
 describe('wagmi', () => {

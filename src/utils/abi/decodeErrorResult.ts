@@ -1,3 +1,10 @@
+import type {
+  Abi,
+  ExtractAbiError,
+  ExtractAbiErrorNames,
+  Narrow,
+} from 'abitype'
+
 import { solidityError, solidityPanic } from '../../constants/solidity.js'
 import {
   AbiDecodingZeroDataError,
@@ -7,14 +14,9 @@ import type { AbiItem, GetErrorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { slice } from '../data/slice.js'
 import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
-import type {
-  Abi,
-  ExtractAbiError,
-  ExtractAbiErrorNames,
-  Narrow,
-} from 'abitype'
 
 export type DecodeErrorResultParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

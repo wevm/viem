@@ -3,6 +3,7 @@ import type { EstimateGasParameters } from '../actions/public/estimateGas.js'
 import type { Chain } from '../types/chain.js'
 import { formatEther } from '../utils/unit/formatEther.js'
 import { formatGwei } from '../utils/unit/formatGwei.js'
+
 import { BaseError } from './base.js'
 import { prettyPrint } from './transaction.js'
 

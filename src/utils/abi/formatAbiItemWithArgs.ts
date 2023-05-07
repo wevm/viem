@@ -1,6 +1,7 @@
+import type { AbiParameter } from 'abitype'
+
 import type { AbiItem } from '../../types/contract.js'
 import { stringify } from '../stringify.js'
-import type { AbiParameter } from 'abitype'
 
 export function formatAbiItemWithArgs({
   abiItem,

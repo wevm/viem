@@ -24,6 +24,7 @@ import { hexToBigInt, hexToNumber } from '../encoding/fromHex.js'
 import { fromRlp } from '../encoding/fromRlp.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
 import { isHash } from '../hash/isHash.js'
+
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,

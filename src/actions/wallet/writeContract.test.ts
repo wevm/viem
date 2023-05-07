@@ -1,3 +1,5 @@
+import { describe, expect, test, vi } from 'vitest'
+
 import { wagmiContractConfig } from '../../_test/abis.js'
 import { accounts, localHttpUrl } from '../../_test/constants.js'
 import {
@@ -12,9 +14,9 @@ import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
+
 import * as sendTransaction from './sendTransaction.js'
 import { writeContract } from './writeContract.js'
-import { describe, expect, test, vi } from 'vitest'
 
 test('default', async () => {
   expect(

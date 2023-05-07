@@ -1,3 +1,5 @@
+import type { Abi } from 'abitype'
+
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -9,8 +11,8 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
+
 import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
-import type { Abi } from 'abitype'
 
 export type EstimateContractGasParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

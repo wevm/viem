@@ -10,6 +10,7 @@ import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { address, forkBlockNumber } from '../../_test/constants.js'
 import { errorsExampleABI } from '../../_test/generated.js'
 import { deployErrorExample, publicClient } from '../../_test/utils.js'
+
 import { readContract } from './readContract.js'
 
 describe('wagmi', () => {

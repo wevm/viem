@@ -1,7 +1,9 @@
+import { expect, test } from 'vitest'
+
 import { publicClient, testClient } from '../../_test/utils.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
+
 import { mine } from './mine.js'
-import { expect, test } from 'vitest'
 
 test('mines 1 block', async () => {
   const currentBlockNumber = await getBlockNumber(publicClient, { maxAge: 0 })

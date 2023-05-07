@@ -1,6 +1,7 @@
+import type { AbiParameter } from 'abitype'
+
 import { InvalidDefinitionTypeError } from '../../errors/abi.js'
 import type { AbiItem } from '../../types/contract.js'
-import type { AbiParameter } from 'abitype'
 
 export function formatAbiItem(
   abiItem: AbiItem,

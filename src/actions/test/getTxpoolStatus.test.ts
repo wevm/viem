@@ -1,9 +1,10 @@
-import { sendTransaction } from '../wallet/sendTransaction.js'
 import { expect, test } from 'vitest'
 
 import { accounts } from '../../_test/constants.js'
 import { testClient, walletClient } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { getTxpoolStatus } from './getTxpoolStatus.js'
 import { mine } from './mine.js'
 

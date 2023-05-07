@@ -1,12 +1,14 @@
+import type { Address } from 'abitype'
+
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import type { Chain } from '../types/chain.js'
 import type { Requests } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
+
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type WalletActions, walletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
-import type { Address } from 'abitype'
 
 export type WalletClientConfig<
   TTransport extends Transport = Transport,

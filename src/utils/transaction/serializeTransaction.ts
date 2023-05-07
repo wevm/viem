@@ -20,6 +20,7 @@ import { isAddress } from '../address/isAddress.js'
 import { concatHex } from '../data/concat.js'
 import { toHex } from '../encoding/toHex.js'
 import { type RecursiveArray, toRlp } from '../encoding/toRlp.js'
+
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,

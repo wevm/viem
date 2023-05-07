@@ -5,6 +5,7 @@ import { accounts } from '../../_test/constants.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
+
 import { getContractError } from './getContractError.js'
 
 describe('getContractError', () => {

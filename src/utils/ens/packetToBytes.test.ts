@@ -1,6 +1,8 @@
-import { toHex } from '../encoding/toHex.js'
-import { packetToBytes } from './packetToBytes.js'
 import { expect, test } from 'vitest'
+
+import { toHex } from '../encoding/toHex.js'
+
+import { packetToBytes } from './packetToBytes.js'
 
 test.each([
   { packet: 'awkweb.eth', expected: '0x0661776b7765620365746800' },

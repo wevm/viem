@@ -1,6 +1,8 @@
-import { parseGwei } from '../unit/parseGwei.js'
-import { assertRequest } from './assertRequest.js'
 import { expect, test } from 'vitest'
+
+import { parseGwei } from '../unit/parseGwei.js'
+
+import { assertRequest } from './assertRequest.js'
 
 test('invalid address', () => {
   expect(() =>

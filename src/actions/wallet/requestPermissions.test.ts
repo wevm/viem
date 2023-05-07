@@ -1,6 +1,8 @@
-import { walletClient } from '../../_test/utils.js'
-import { requestPermissions } from './requestPermissions.js'
 import { expect, test } from 'vitest'
+
+import { walletClient } from '../../_test/utils.js'
+
+import { requestPermissions } from './requestPermissions.js'
 
 test('default', async () => {
   expect(

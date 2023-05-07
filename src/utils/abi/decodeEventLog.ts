@@ -15,6 +15,7 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import { getEventSelector } from '../hash/getEventSelector.js'
+
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 

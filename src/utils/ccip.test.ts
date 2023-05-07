@@ -10,6 +10,7 @@ import {
 } from '../_test/utils.js'
 import { getUrl } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
+
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
 import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { ccipFetch, offchainLookup, offchainLookupAbiItem } from './ccip.js'

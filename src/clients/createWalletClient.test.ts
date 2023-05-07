@@ -1,14 +1,16 @@
+import { assertType, describe, expect, test, vi } from 'vitest'
+
 import { accounts, localWsUrl } from '../_test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains.js'
 import type { SignableRequests, WalletRequests } from '../types/eip1193.js'
+
 import { createWalletClient } from './createWalletClient.js'
 import { createTransport } from './transports/createTransport.js'
 import { custom } from './transports/custom.js'
 import { http } from './transports/http.js'
 import { webSocket } from './transports/webSocket.js'
-import { assertType, describe, expect, test, vi } from 'vitest'
 
 const mockTransport = () =>
   createTransport({

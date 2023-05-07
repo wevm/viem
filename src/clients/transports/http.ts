@@ -1,5 +1,6 @@
 import { UrlRequiredError } from '../../errors/transport.js'
 import { type HttpOptions, rpc } from '../../utils/rpc.js'
+
 import {
   type Transport,
   type TransportConfig,

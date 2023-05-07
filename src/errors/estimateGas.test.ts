@@ -1,9 +1,11 @@
+import { describe, expect, test } from 'vitest'
+
 import { address } from '../_test/constants.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import { polygon } from '../chains.js'
+
 import { BaseError } from './base.js'
 import { EstimateGasExecutionError } from './estimateGas.js'
-import { describe, expect, test } from 'vitest'
 
 describe('EstimateGasExecutionError', () => {
   test('no args', async () => {

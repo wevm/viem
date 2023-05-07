@@ -1,3 +1,5 @@
+import { assertType, describe, expect, test } from 'vitest'
+
 import { forkBlockNumber } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
 import { celo } from '../../chains.js'
@@ -5,8 +7,8 @@ import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
 import type { Hex } from '../../types/misc.js'
+
 import { getBlock } from './getBlock.js'
-import { assertType, describe, expect, test } from 'vitest'
 
 test('gets latest block', async () => {
   const block = await getBlock(publicClient)

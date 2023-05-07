@@ -1,10 +1,14 @@
+import { Wallet } from 'ethers'
+
+import { Wallet as WalletV6 } from 'ethers@6'
+
+import { bench, describe } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import type { TransactionSerializableBase } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+
 import { signTransaction } from './signTransaction.js'
-import { Wallet } from 'ethers'
-import { Wallet as WalletV6 } from 'ethers@6'
-import { bench, describe } from 'vitest'
 
 const base = {
   to: accounts[1].address,

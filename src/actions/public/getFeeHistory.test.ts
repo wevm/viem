@@ -1,7 +1,9 @@
+import { expect, test } from 'vitest'
+
 import { forkBlockNumber } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
+
 import { getFeeHistory } from './getFeeHistory.js'
-import { expect, test } from 'vitest'
 
 test('default', async () => {
   expect(

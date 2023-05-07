@@ -11,6 +11,7 @@ import { http } from '../../clients/transports/http.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setIntervalMining } from '../test/setIntervalMining.js'
+
 import * as getBlockNumber from './getBlockNumber.js'
 import {
   type OnBlockNumberParameter,

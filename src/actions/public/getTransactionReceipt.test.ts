@@ -1,3 +1,7 @@
+import type { Address } from 'abitype'
+
+import { assertType, describe, expect, it, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { celo } from '../../chains.js'
@@ -8,11 +12,10 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
-import type { Address } from 'abitype'
-import { assertType, describe, expect, it, test } from 'vitest'
 
 test('gets transaction receipt', async () => {
   const receipt = await getTransactionReceipt(publicClient, {

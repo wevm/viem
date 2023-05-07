@@ -1,5 +1,6 @@
 import type { Chain } from '../types/chain.js'
 import type { TestRequests } from '../types/eip1193.js'
+
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type TestActions, testActions } from './decorators/test.js'
 import type { Transport } from './transports/createTransport.js'

@@ -1,3 +1,5 @@
+import { assertType, expect, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import type { Requests } from '../../types/eip1193.js'
@@ -5,10 +7,10 @@ import type { Hash } from '../../types/misc.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { uninstallFilter } from './uninstallFilter.js'
-import { assertType, expect, test } from 'vitest'
 
 const request = (() => {}) as unknown as Requests['request']
 

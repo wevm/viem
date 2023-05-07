@@ -1,3 +1,5 @@
+import type { Abi, Address, ExtractAbiEvent, Narrow } from 'abitype'
+
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
@@ -10,6 +12,7 @@ import {
 } from '../../utils/abi/getAbiItem.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+
 import {
   type CreateContractEventFilterParameters,
   createContractEventFilter,
@@ -18,7 +21,6 @@ import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { type GetLogsParameters, getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
-import type { Abi, Address, ExtractAbiEvent, Narrow } from 'abitype'
 
 export type OnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],

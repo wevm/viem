@@ -1,6 +1,7 @@
 import { IntegerOutOfRangeError } from '../../errors/encoding.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import { pad } from '../data/pad.js'
+
 import { assertSize } from './fromHex.js'
 
 const hexes = Array.from({ length: 256 }, (_v, i) =>

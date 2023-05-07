@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
@@ -9,7 +11,6 @@ import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
-import type { Address } from 'abitype'
 
 export type GetEnsResolverParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

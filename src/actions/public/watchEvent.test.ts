@@ -1,3 +1,5 @@
+import { beforeAll, describe, expect, test, vi } from 'vitest'
+
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
@@ -8,12 +10,12 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
+
 import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
 import * as getLogs from './getLogs.js'
 import { type OnLogsParameter, watchEvent } from './watchEvent.js'
-import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 const event = {
   transfer: {

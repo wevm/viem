@@ -1,3 +1,5 @@
+import type { AbiEvent, Address, Narrow } from 'abitype'
+
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
@@ -16,7 +18,6 @@ import {
 } from '../../utils/abi/encodeEventTopics.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import type { AbiEvent, Address, Narrow } from 'abitype'
 
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,

@@ -1,9 +1,11 @@
+import { expect, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { getAddress } from '../address/getAddress.js'
 import { toBytes } from '../encoding/toBytes.js'
+
 import { hashMessage } from './hashMessage.js'
 import { recoverAddress } from './recoverAddress.js'
-import { expect, test } from 'vitest'
 
 test('default', async () => {
   expect(

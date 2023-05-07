@@ -9,6 +9,7 @@ import {
 import { mainnet, optimism } from '../../chains.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
+
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {

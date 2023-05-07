@@ -3,6 +3,7 @@ import type { SendTransactionParameters } from '../../actions/wallet/sendTransac
 import type { BaseError } from '../../errors/base.js'
 import { TransactionExecutionError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
+
 import { containsNodeError, getNodeError } from './getNodeError.js'
 
 export function getTransactionError(

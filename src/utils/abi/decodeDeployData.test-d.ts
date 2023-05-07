@@ -1,5 +1,6 @@
-import { decodeDeployData } from './decodeDeployData.js'
 import { expectTypeOf, test } from 'vitest'
+
+import { decodeDeployData } from './decodeDeployData.js'
 
 test('default', async () => {
   const { args } = decodeDeployData({

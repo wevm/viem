@@ -1,3 +1,16 @@
+import type {
+  Abi,
+  AbiEvent,
+  AbiFunction,
+  AbiParametersToPrimitiveTypes,
+  Address,
+  ExtractAbiEvent,
+  ExtractAbiEventNames,
+  ExtractAbiFunction,
+  ExtractAbiFunctionNames,
+  Narrow,
+} from 'abitype'
+
 import type { Account } from '../accounts/types.js'
 import type { PublicClient } from '../clients/createPublicClient.js'
 import type { WalletClient } from '../clients/createWalletClient.js'
@@ -14,6 +27,7 @@ import type {
   Or,
   Prettify,
 } from '../types/utils.js'
+
 import {
   type CreateContractEventFilterParameters,
   type CreateContractEventFilterReturnType,
@@ -44,18 +58,6 @@ import {
   type WriteContractReturnType,
   writeContract,
 } from './wallet/writeContract.js'
-import type {
-  Abi,
-  AbiEvent,
-  AbiFunction,
-  AbiParametersToPrimitiveTypes,
-  Address,
-  ExtractAbiEvent,
-  ExtractAbiEventNames,
-  ExtractAbiFunction,
-  ExtractAbiFunctionNames,
-  Narrow,
-} from 'abitype'
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,

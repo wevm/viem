@@ -1,9 +1,11 @@
+import { expect, test } from 'vitest'
+
 import { accounts, address } from '../../_test/constants.js'
 import { testClient, walletClient } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { impersonateAccount } from './impersonateAccount.js'
-import { expect, test } from 'vitest'
 
 test('impersonates account', async () => {
   await expect(

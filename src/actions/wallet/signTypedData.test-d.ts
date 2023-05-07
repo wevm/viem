@@ -1,7 +1,9 @@
-import { walletClient } from '../../_test/utils.js'
-import { type SignTypedDataParameters, signTypedData } from './signTypedData.js'
 import type { TypedData } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
+
+import { walletClient } from '../../_test/utils.js'
+
+import { type SignTypedDataParameters, signTypedData } from './signTypedData.js'
 
 const types = {
   Name: [

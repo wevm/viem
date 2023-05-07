@@ -1,9 +1,11 @@
+import { expect, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient } from '../../_test/utils.js'
 import { getTransactionCount } from '../public/getTransactionCount.js'
+
 import { mine } from './mine.js'
 import { setNonce } from './setNonce.js'
-import { expect, test } from 'vitest'
 
 const targetAccount = accounts[0]
 

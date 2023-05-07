@@ -14,6 +14,7 @@ import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
+
 import { getEnsAvatar } from './getEnsAvatar.js'
 
 beforeAll(async () => {

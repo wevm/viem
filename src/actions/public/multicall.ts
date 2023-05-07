@@ -1,3 +1,5 @@
+import type { Address, Narrow } from 'abitype'
+
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
@@ -18,9 +20,9 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
+
 import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
-import type { Address, Narrow } from 'abitype'
 
 export type MulticallParameters<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],

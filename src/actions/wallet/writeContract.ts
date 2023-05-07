@@ -1,3 +1,5 @@
+import type { Abi } from 'abitype'
+
 import type { Account } from '../../accounts/types.js'
 import type { WalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -8,12 +10,12 @@ import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+
 import {
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
-import type { Abi } from 'abitype'
 
 export type WriteContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

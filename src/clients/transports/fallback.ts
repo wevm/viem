@@ -1,6 +1,7 @@
 import type { Chain } from '../../types/chain.js'
 import { isDeterministicError } from '../../utils/buildRequest.js'
 import { wait } from '../../utils/wait.js'
+
 import {
   type Transport,
   type TransportConfig,
