@@ -1,10 +1,10 @@
-import type { Chain } from '../../chains.js'
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import { hexToNumber } from '../../utils/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import { hexToNumber } from '../../utils/encoding/fromHex.js'
 
 export type GetTxpoolStatusReturnType = {
   pending: number

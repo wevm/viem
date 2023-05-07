@@ -1,14 +1,11 @@
 import { expect, test } from 'vitest'
 
-import {
-  accounts,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
+import { accounts } from '../../_test/constants.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { mine } from './mine.js'
 import { revert } from './revert.js'
 import { snapshot } from './snapshot.js'

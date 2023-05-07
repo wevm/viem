@@ -1,7 +1,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 
-import type { Hex, Signature } from '../../types/index.js'
-import { toHex } from '../../utils/index.js'
+import type { Hex, Signature } from '../../types/misc.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 
 export type SignParameters = {
   hash: Hex

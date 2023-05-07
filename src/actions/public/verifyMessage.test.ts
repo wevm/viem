@@ -1,14 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  accounts,
-  address,
   ensPublicResolverConfig,
-  publicClient,
-  publicMainnetClient,
   smartAccountConfig,
-} from '../../_test/index.js'
-import type { Hex } from '../../types/index.js'
+} from '../../_test/abis.js'
+import { accounts, address } from '../../_test/constants.js'
+import { publicClient, publicMainnetClient } from '../../_test/utils.js'
+import type { Hex } from '../../types/misc.js'
 import { hashMessage, toBytes } from '../../utils/index.js'
 import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
 
@@ -19,7 +17,7 @@ import { verifyMessage, verifyMessageHashOnChain } from './verifyMessage.js'
  * in which case this test should fail, and we should switch from using the ethereum public client
  * to using the anvil public client everywhere.
  */
-describe.only('ERC6492 Anvil issue (read comment in code)', () => {
+describe('ERC6492 Anvil issue (read comment in code)', () => {
   const validSignedEOAMessage = {
     address: accounts[0].address,
     messageHash: hashMessage('hello world'),

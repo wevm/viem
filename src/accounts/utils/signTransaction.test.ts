@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { accounts } from '../../_test/index.js'
+import { accounts } from '../../_test/constants.js'
 import type {
   TransactionSerializable,
   TransactionSerializableBase,
@@ -10,8 +10,9 @@ import type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedLegacy,
-} from '../../types/index.js'
-import { parseGwei } from '../../utils/index.js'
+} from '../../types/transaction.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+
 import { signTransaction } from './signTransaction.js'
 
 const base = {

@@ -1,9 +1,9 @@
-import type { Chain } from '../../chains.js'
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 
 export type SetBlockTimestampIntervalParameters = {
   /** The interval (in seconds). */

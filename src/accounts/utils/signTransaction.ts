@@ -1,11 +1,13 @@
+import type { Hex } from '../../types/misc.js'
 import type {
-  Hex,
   TransactionSerializable,
   TransactionSerialized,
   TransactionType,
-} from '../../types/index.js'
-import { keccak256, serializeTransaction } from '../../utils/index.js'
-import type { GetTransactionType } from '../../utils/index.js'
+} from '../../types/transaction.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
+import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
+import { serializeTransaction } from '../../utils/transaction/serializeTransaction.js'
+
 import { sign } from './sign.js'
 
 export type SignTransactionArgs<

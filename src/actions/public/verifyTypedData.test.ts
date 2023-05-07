@@ -1,9 +1,6 @@
-import {
-  address,
-  publicMainnetClient,
-  smartAccountConfig,
-  typedData,
-} from '../../_test/index.js'
+import { smartAccountConfig } from '../../_test/abis.js'
+import { address, typedData } from '../../_test/constants.js'
+import { publicMainnetClient } from '../../_test/utils.js'
 import { verifyTypedData } from './verifyTypedData.js'
 import { describe, expect, test } from 'vitest'
 

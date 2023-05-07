@@ -1,8 +1,9 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '../../_test/index.js'
-import { privateKeyToAccount } from '../../accounts/index.js'
-import { toBytes } from '../encoding/index.js'
+import { accounts } from '../../_test/constants.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { toBytes } from '../encoding/toBytes.js'
+
 import { hashMessage } from './hashMessage.js'
 import { recoverPublicKey } from './recoverPublicKey.js'
 

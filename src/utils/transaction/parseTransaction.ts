@@ -1,12 +1,11 @@
-import { InvalidAddressError } from '../../errors/index.js'
+import { InvalidAddressError } from '../../errors/address.js'
 import {
   InvalidLegacyVError,
   InvalidSerializedTransactionError,
-} from '../../errors/index.js'
+} from '../../errors/transaction.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
-  Hex,
-  Signature,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
   TransactionSerializableEIP1559,
@@ -16,19 +15,25 @@ import type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionType,
-} from '../../types/index.js'
-import { isAddress } from '../address/index.js'
-import { isHex, padHex, trim } from '../data/index.js'
-import { fromRlp, hexToBigInt, hexToNumber } from '../encoding/index.js'
+} from '../../types/transaction.js'
+import { isAddress } from '../address/isAddress.js'
+import { isHex } from '../data/isHex.js'
+import { padHex } from '../data/pad.js'
+import { trim } from '../data/trim.js'
+import { hexToBigInt, hexToNumber } from '../encoding/fromHex.js'
+import { fromRlp } from '../encoding/fromRlp.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
-import { isHash } from '../hash/index.js'
+import { isHash } from '../hash/isHash.js'
+
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionLegacy,
 } from './assertTransaction.js'
-import { getSerializedTransactionType } from './getSerializedTransactionType.js'
-import type { GetSerializedTransactionType } from './getSerializedTransactionType.js'
+import {
+  type GetSerializedTransactionType,
+  getSerializedTransactionType,
+} from './getSerializedTransactionType.js'
 
 export type ParseTransactionReturnType<
   TSerialized extends TransactionSerialized = TransactionSerialized,

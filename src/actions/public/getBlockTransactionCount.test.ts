@@ -1,16 +1,12 @@
 import { beforeAll, expect, test } from 'vitest'
 
-import {
-  accounts,
-  forkBlockNumber,
-  publicClient,
-  testClient,
-  walletClient,
-} from '../../_test/index.js'
-import { parseEther } from '../../utils/index.js'
-import { sendTransaction } from '../index.js'
-import { mine } from '../test/index.js'
+import { accounts, forkBlockNumber } from '../../_test/constants.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { mine } from '../test/mine.js'
 import { setIntervalMining } from '../test/setIntervalMining.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
 

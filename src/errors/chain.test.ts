@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { mainnet } from '../chains.js'
+
 import {
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,

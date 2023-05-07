@@ -1,4 +1,7 @@
-import type { Address, ByteArray, Hex } from '../../types/index.js'
+import type { Address } from 'abitype'
+
+import type { ByteArray, Hex } from '../../types/misc.js'
+
 import { hashMessage } from './hashMessage.js'
 import { recoverAddress } from './recoverAddress.js'
 

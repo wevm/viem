@@ -1,27 +1,28 @@
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, ExtractAbiEvent } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type {
-  Chain,
-  Filter,
-  Log,
-  MaybeAbiEventName,
-} from '../../types/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Filter } from '../../types/filter.js'
+import type { Log } from '../../types/log.js'
+import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import { decodeEventLog } from '../../utils/index.js'
 
 export type GetFilterLogsParameters<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = string,
 > = {
   filter: Filter<'event', TAbi, TEventName, any>
 }
 export type GetFilterLogsReturnType<
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, TAbiEvent, TAbi, TEventName>[]
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TEventName extends string | undefined = string,
+  _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
+    ? TEventName extends string
+      ? ExtractAbiEvent<TAbi, TEventName>
+      : undefined
+    : undefined,
+> = Log<bigint, number, _AbiEvent, TAbi, TEventName>[]
 
 /**
  * Returns a list of event logs since the filter was created.
@@ -52,13 +53,12 @@ export type GetFilterLogsReturnType<
  */
 export async function getFilterLogs<
   TChain extends Chain | undefined,
-  TAbiEvent extends AbiEvent | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
 >(
   _client: PublicClient<Transport, TChain>,
-  { filter }: GetFilterLogsParameters<TAbiEvent, TAbi, TEventName>,
-): Promise<GetFilterLogsReturnType<TAbiEvent, TAbi, TEventName>> {
+  { filter }: GetFilterLogsParameters<TAbi, TEventName>,
+): Promise<GetFilterLogsReturnType<TAbi, TEventName>> {
   const logs = await filter.request({
     method: 'eth_getFilterLogs',
     params: [filter.id],
@@ -80,9 +80,5 @@ export async function getFilterLogs<
         return
       }
     })
-    .filter(Boolean) as unknown as GetFilterLogsReturnType<
-    TAbiEvent,
-    TAbi,
-    TEventName
-  >
+    .filter(Boolean) as unknown as GetFilterLogsReturnType<TAbi, TEventName>
 }

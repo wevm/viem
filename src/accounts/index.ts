@@ -1,18 +1,11 @@
-import { HDKey } from '@scure/bip32'
-export { HDKey }
-
+export type { Address } from 'abitype'
+export { HDKey } from '@scure/bip32'
 export { generateMnemonic } from './generateMnemonic.js'
-
 export { generatePrivateKey } from './generatePrivateKey.js'
-
 export { hdKeyToAccount } from './hdKeyToAccount.js'
-
 export { mnemonicToAccount } from './mnemonicToAccount.js'
-
 export { privateKeyToAccount } from './privateKeyToAccount.js'
-
 export { toAccount } from './toAccount.js'
-
 export type {
   Account,
   AccountSource,
@@ -23,20 +16,18 @@ export type {
   HDAccount,
   PrivateKeyAccount,
 } from './types.js'
-
-export type {
-  SignMessageParameters,
-  SignMessageReturnType,
-  SignTypedDataParameters,
-  SignTypedDataReturnType,
-} from './utils/index.js'
 export {
-  parseAccount,
-  publicKeyToAddress,
+  type SignMessageParameters,
+  type SignMessageReturnType,
   signMessage,
+} from './utils/signMessage.js'
+export {
+  type SignTypedDataParameters,
+  type SignTypedDataReturnType,
   signTypedData,
-} from './utils/index.js'
-
+} from './utils/signTypedData.js'
+export { parseAccount } from './utils/parseAccount.js'
+export { publicKeyToAddress } from './utils/publicKeyToAddress.js'
 export { czech } from './wordlists/czech.js'
 export { english } from './wordlists/english.js'
 export { french } from './wordlists/french.js'

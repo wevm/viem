@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test/index.js'
-
+import { publicClient, testClient } from '../../_test/utils.js'
 import { getBlock } from '../public/getBlock.js'
+
 import { increaseTime } from './increaseTime.js'
 import { mine } from './mine.js'
 

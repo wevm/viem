@@ -1,10 +1,12 @@
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Chain, Hash, TransactionRequest } from '../../types/index.js'
-import { formatTransactionRequest } from '../../utils/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hash } from '../../types/misc.js'
+import type { TransactionRequest } from '../../types/transaction.js'
+import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 
 export type SendUnsignedTransactionParameters = TransactionRequest
 

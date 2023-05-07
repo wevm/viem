@@ -1,10 +1,7 @@
 import { bench, describe } from 'vitest'
 
-import {
-  ethersProvider,
-  ethersV6Provider,
-  publicClient,
-} from '../../_test/index.js'
+import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
+import { publicClient } from '../../_test/utils.js'
 
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 

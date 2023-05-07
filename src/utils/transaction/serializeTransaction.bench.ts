@@ -1,10 +1,13 @@
 import { utils as ethersV5Utils } from 'ethers'
+
 import { Transaction } from 'ethers@6'
+
 import { bench, describe } from 'vitest'
 
-import { accounts } from '../../_test/index.js'
-import type { TransactionSerializableBase } from '../../types/index.js'
-import { parseEther } from '../unit/index.js'
+import { accounts } from '../../_test/constants.js'
+import type { TransactionSerializableBase } from '../../types/transaction.js'
+import { parseEther } from '../unit/parseEther.js'
+
 import { serializeTransaction } from './serializeTransaction.js'
 
 const base = {

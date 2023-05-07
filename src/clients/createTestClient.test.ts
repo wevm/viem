@@ -1,8 +1,9 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { localWsUrl } from '../_test/index.js'
+import { localWsUrl } from '../_test/constants.js'
 import { localhost } from '../chains.js'
 import type { TestRequests } from '../types/eip1193.js'
+
 import { createTestClient } from './createTestClient.js'
 import { createTransport } from './transports/createTransport.js'
 import { http } from './transports/http.js'

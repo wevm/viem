@@ -1,4 +1,4 @@
-import type { Hex } from '../../types/index.js'
+import type { Hex } from '../../types/misc.js'
 
 export function isHex(value: unknown): value is Hex {
   if (!value) return false

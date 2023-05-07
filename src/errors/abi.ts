@@ -1,7 +1,10 @@
 import type { AbiParameter } from 'abitype'
 
-import type { AbiItem, Hex } from '../types/index.js'
-import { formatAbiItem, formatAbiParams, size } from '../utils/index.js'
+import type { AbiItem } from '../types/contract.js'
+import type { Hex } from '../types/misc.js'
+import { formatAbiItem, formatAbiParams } from '../utils/abi/formatAbiItem.js'
+import { size } from '../utils/data/size.js'
+
 import { BaseError } from './base.js'
 
 export class AbiConstructorNotFoundError extends BaseError {

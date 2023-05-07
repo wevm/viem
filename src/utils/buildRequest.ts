@@ -1,7 +1,7 @@
-import type { RpcError } from '../errors/index.js'
+import { BaseError } from '../errors/base.js'
+import { HttpRequestError } from '../errors/request.js'
 import {
-  BaseError,
-  HttpRequestError,
+  ChainDisconnectedError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -11,20 +11,19 @@ import {
   MethodNotFoundRpcError,
   MethodNotSupportedRpcError,
   ParseRpcError,
+  ProviderDisconnectedError,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
+  type RpcError,
   SwitchChainError,
   TransactionRejectedRpcError,
-  UnknownRpcError,
-  UserRejectedRequestError,
-} from '../errors/index.js'
-import {
-  ChainDisconnectedError,
-  ProviderDisconnectedError,
   UnauthorizedProviderError,
+  UnknownRpcError,
   UnsupportedProviderMethodError,
+  UserRejectedRequestError,
 } from '../errors/rpc.js'
-import { withRetry } from './promise/index.js'
+
+import { withRetry } from './promise/withRetry.js'
 
 export const isDeterministicError = (error: Error) => {
   if ('code' in error)

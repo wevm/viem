@@ -1,7 +1,10 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer, publicClient } from '../../_test/index.js'
-import { createPublicClient, fallback, http } from '../../clients/index.js'
+import { createHttpServer, publicClient } from '../../_test/utils.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { fallback } from '../../clients/transports/fallback.js'
+import { http } from '../../clients/transports/http.js'
+
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 
 test('default', async () => {

@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer } from '../../_test/index.js'
+import { createHttpServer } from '../../_test/utils.js'
+
 import { withRetry } from './withRetry.js'
 
 test('default', async () => {

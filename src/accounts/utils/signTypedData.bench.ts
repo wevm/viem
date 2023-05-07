@@ -2,7 +2,8 @@ import { Wallet } from 'ethers'
 import { Wallet as WalletV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { accounts, typedData } from '../../_test/index.js'
+import { accounts, typedData } from '../../_test/constants.js'
+
 import { signTypedData } from './signTypedData.js'
 
 const wallet = new Wallet(accounts[0].privateKey)

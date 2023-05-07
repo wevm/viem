@@ -1,12 +1,21 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import { panicReasons } from '../../constants/index.js'
-import type { ContractFunctionRevertedError } from '../../errors/index.js'
-import { ContractFunctionExecutionError } from '../../errors/index.js'
-import type { Address, Chain, Prettify } from '../../types/index.js'
-import { packetToBytes } from '../../utils/ens/index.js'
-import { getChainContractAddress, toHex } from '../../utils/index.js'
-import { readContract } from '../public/index.js'
-import type { ReadContractParameters } from '../public/index.js'
+import type { Address } from 'abitype'
+
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { panicReasons } from '../../constants/solidity.js'
+import {
+  ContractFunctionExecutionError,
+  type ContractFunctionRevertedError,
+} from '../../errors/contract.js'
+import type { Chain } from '../../types/chain.js'
+import type { Prettify } from '../../types/utils.js'
+import { getChainContractAddress } from '../../utils/chain.js'
+import { toHex } from '../../utils/encoding/toHex.js'
+import { packetToBytes } from '../../utils/ens/packetToBytes.js'
+import {
+  type ReadContractParameters,
+  readContract,
+} from '../public/readContract.js'
 
 export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {

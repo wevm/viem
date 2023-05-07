@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { toBytes, toHex } from '../encoding/index.js'
+import { toBytes } from '../encoding/toBytes.js'
+import { toHex } from '../encoding/toHex.js'
 
 import {
   getContractAddress,

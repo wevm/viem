@@ -1,7 +1,7 @@
 import { providers } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import type { RpcTransactionReceipt } from '../../types/index.js'
+import type { RpcTransactionReceipt } from '../../types/rpc.js'
 
 import { formatTransactionReceipt } from './transactionReceipt.js'
 

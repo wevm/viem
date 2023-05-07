@@ -1,10 +1,11 @@
 import {
   InvalidHexBooleanError,
   SizeOverflowError,
-} from '../../errors/index.js'
-import type { ByteArray, Hex } from '../../types/index.js'
-import { trim } from '../data/index.js'
+} from '../../errors/encoding.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
 import { size as size_ } from '../data/size.js'
+import { trim } from '../data/trim.js'
+
 import { hexToBytes } from './toBytes.js'
 
 export function assertSize(

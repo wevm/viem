@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { uid } from '../uid.js'
 import { wait } from '../wait.js'
+
 import { createBatchScheduler } from './createBatchScheduler.js'
 
 test('default', async () => {

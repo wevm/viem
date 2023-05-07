@@ -1,5 +1,6 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { Chain } from '../../types/index.js'
+import type { Chain } from '../../chains.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import { hashTypedData } from '../../utils/index.js'
 import {
   type VerifyTypedDataParameters as OfflineVerifyTypedDataParameters,

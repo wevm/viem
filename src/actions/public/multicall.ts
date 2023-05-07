@@ -1,27 +1,26 @@
-import type { Narrow } from 'abitype'
+import type { Address, Narrow } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients/index.js'
-import { multicall3Abi } from '../../constants/index.js'
-import type { BaseError } from '../../errors/index.js'
-import {
-  AbiDecodingZeroDataError,
-  RawContractError,
-} from '../../errors/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { multicall3Abi } from '../../constants/abis.js'
+import { AbiDecodingZeroDataError } from '../../errors/abi.js'
+import type { BaseError } from '../../errors/base.js'
+import { RawContractError } from '../../errors/contract.js'
+import type { Chain } from '../../types/chain.js'
+import type { ContractFunctionConfig } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
 import type {
-  Address,
-  Chain,
-  ContractFunctionConfig,
-  Hex,
   MulticallContracts,
-} from '../../types/index.js'
-import type { MulticallResults } from '../../types/multicall.js'
+  MulticallResults,
+} from '../../types/multicall.js'
+import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import {
-  decodeFunctionResult,
+  type EncodeFunctionDataParameters,
   encodeFunctionData,
-  getChainContractAddress,
-  getContractError,
-} from '../../utils/index.js'
-import type { EncodeFunctionDataParameters } from '../../utils/index.js'
+} from '../../utils/abi/encodeFunctionData.js'
+import { getChainContractAddress } from '../../utils/chain.js'
+import { getContractError } from '../../utils/errors/getContractError.js'
+
 import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 

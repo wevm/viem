@@ -1,8 +1,11 @@
-import { UrlRequiredError } from '../../errors/index.js'
-import type { HttpOptions } from '../../utils/index.js'
-import { rpc } from '../../utils/index.js'
-import type { Transport, TransportConfig } from './createTransport.js'
-import { createTransport } from './createTransport.js'
+import { UrlRequiredError } from '../../errors/transport.js'
+import { type HttpOptions, rpc } from '../../utils/rpc.js'
+
+import {
+  type Transport,
+  type TransportConfig,
+  createTransport,
+} from './createTransport.js'
 
 export type HttpTransportConfig = {
   /**

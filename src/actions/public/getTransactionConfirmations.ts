@@ -1,9 +1,12 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { Chain, Hash } from '../../types/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hash } from '../../types/misc.js'
 import type {
   FormattedTransactionReceipt,
   TransactionReceiptFormatter,
-} from '../../utils/index.js'
+} from '../../utils/formatters/transactionReceipt.js'
+
 import { getBlockNumber } from './getBlockNumber.js'
 import { getTransaction } from './getTransaction.js'
 

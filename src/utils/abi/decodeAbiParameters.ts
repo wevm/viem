@@ -10,16 +10,19 @@ import {
   AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
-} from '../../errors/index.js'
-import type { Hex } from '../../types/index.js'
-import { checksumAddress } from '../address/index.js'
-import { size, slice, trim } from '../data/index.js'
+} from '../../errors/abi.js'
+import type { Hex } from '../../types/misc.js'
+import { checksumAddress } from '../address/getAddress.js'
+import { size } from '../data/size.js'
+import { slice } from '../data/slice.js'
+import { trim } from '../data/trim.js'
 import {
   hexToBigInt,
   hexToBool,
   hexToNumber,
   hexToString,
-} from '../encoding/index.js'
+} from '../encoding/fromHex.js'
+
 import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<

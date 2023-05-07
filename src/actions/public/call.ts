@@ -1,39 +1,37 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import { aggregate3Signature, multicall3Abi } from '../../constants/index.js'
+import type { Address } from 'abitype'
+
+import type { Account } from '../../accounts/types.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { multicall3Abi } from '../../constants/abis.js'
+import { aggregate3Signature } from '../../constants/contract.js'
+import { BaseError } from '../../errors/base.js'
 import {
-  BaseError,
   ChainDoesNotSupportContract,
   ClientChainNotConfiguredError,
-  RawContractError,
-} from '../../errors/index.js'
-import type {
-  Account,
-  Address,
-  BlockTag,
-  Chain,
-  Formatter,
-  Hex,
-  MergeIntersectionProperties,
-  RpcTransactionRequest,
-  TransactionRequest,
-} from '../../types/index.js'
-import type {
-  Formatted,
-  TransactionRequestFormatter,
-} from '../../utils/index.js'
+} from '../../errors/chain.js'
+import { RawContractError } from '../../errors/contract.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
+import type { Formatter } from '../../types/formatter.js'
+import type { Hex } from '../../types/misc.js'
+import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type { TransactionRequest } from '../../types/transaction.js'
+import type { MergeIntersectionProperties } from '../../types/utils.js'
+import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import { getChainContractAddress } from '../../utils/chain.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import { getCallError } from '../../utils/errors/getCallError.js'
+import { extract } from '../../utils/formatters/extract.js'
+import { type Formatted, format } from '../../utils/formatters/format.js'
 import {
-  assertRequest,
-  decodeFunctionResult,
-  encodeFunctionData,
-  extract,
-  format,
+  type TransactionRequestFormatter,
   formatTransactionRequest,
-  getCallError,
-  getChainContractAddress,
-  numberToHex,
-  parseAccount,
-} from '../../utils/index.js'
+} from '../../utils/formatters/transactionRequest.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type FormattedCall<
   TFormatter extends Formatter | undefined = Formatter,

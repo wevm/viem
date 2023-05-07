@@ -1,21 +1,22 @@
-import type {
-  Abi,
-  Address,
-  ExtractAbiEventNames,
-  ExtractAbiFunctionNames,
-  ResolvedConfig,
+import {
+  type Abi,
+  type Address,
+  type ExtractAbiEventNames,
+  type ExtractAbiFunctionNames,
+  type ResolvedConfig,
+  parseAbi,
 } from 'abitype'
-import { parseAbi } from 'abitype'
+
 import { expectTypeOf, test } from 'vitest'
 
-import {
-  anvilChain,
-  localHttpUrl,
-  publicClient,
-  wagmiContractConfig,
-} from '../_test/index.js'
-import { createWalletClient, http } from '../clients/index.js'
-import type { Account, Chain } from '../types/index.js'
+import { wagmiContractConfig } from '../_test/abis.js'
+import { localHttpUrl } from '../_test/constants.js'
+import { anvilChain, publicClient } from '../_test/utils.js'
+import type { Account } from '../accounts/types.js'
+import { createWalletClient } from '../clients/createWalletClient.js'
+import { http } from '../clients/transports/http.js'
+import type { Chain } from '../types/chain.js'
+
 import { getContract } from './getContract.js'
 
 const walletClient = createWalletClient({

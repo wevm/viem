@@ -1,5 +1,17 @@
 # viem
 
+## 0.3.18
+
+### Patch Changes
+
+- [#445](https://github.com/wagmi-dev/viem/pull/445) [`9e096a9`](https://github.com/wagmi-dev/viem/commit/9e096a92e2722e0dd0acd5ab79d5907e7d9bc82f) Thanks [@jxom](https://github.com/jxom)! - Refactored contract decoding utility types.
+
+* [#448](https://github.com/wagmi-dev/viem/pull/448) [`29cf036`](https://github.com/wagmi-dev/viem/commit/29cf0363f0bfe89f0d63a281272151c6bba47ce1) Thanks [@jxom](https://github.com/jxom)! - Refactored inferred types on `Log` (eventName, args, topics), `getLogs`, `getFilterLogs` & `getFilterChanges`.
+
+- [#435](https://github.com/wagmi-dev/viem/pull/435) [`711cf94`](https://github.com/wagmi-dev/viem/commit/711cf9460a262fb12c520d7860f22915fb4c58f6) Thanks [@Raiden1411](https://github.com/Raiden1411)! - Updated `abitype` to `0.8.2` and exported abitype errors.
+
+* [#445](https://github.com/wagmi-dev/viem/pull/445) [`9e096a9`](https://github.com/wagmi-dev/viem/commit/9e096a92e2722e0dd0acd5ab79d5907e7d9bc82f) Thanks [@jxom](https://github.com/jxom)! - Made "name" parameter (`eventName`, `functionName`, etc) optional on contract encoding/decoding utilities when only one ABI item is provided.
+
 ## 0.3.17
 
 ### Patch Changes

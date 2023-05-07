@@ -1,4 +1,5 @@
-import type { Address } from '../../types/index.js'
+import type { Address } from 'abitype'
+
 import type { Account } from '../types.js'
 
 export function parseAccount(account: Address | Account): Account {

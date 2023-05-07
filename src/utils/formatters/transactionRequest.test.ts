@@ -5,7 +5,7 @@ import type {
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
-} from '../../types/index.js'
+} from '../../types/transaction.js'
 
 import { formatTransactionRequest } from './transactionRequest.js'
 

@@ -1,11 +1,14 @@
 import type { WebSocket } from 'isomorphic-ws'
 
-import { UrlRequiredError } from '../../errors/index.js'
-import type { Hash } from '../../types/index.js'
-import type { RpcResponse } from '../../utils/rpc.js'
-import { getSocket, rpc } from '../../utils/rpc.js'
-import type { Transport, TransportConfig } from './createTransport.js'
-import { createTransport } from './createTransport.js'
+import { UrlRequiredError } from '../../errors/transport.js'
+import type { Hash } from '../../types/misc.js'
+import { type RpcResponse, getSocket, rpc } from '../../utils/rpc.js'
+
+import {
+  type Transport,
+  type TransportConfig,
+  createTransport,
+} from './createTransport.js'
 
 type WebSocketTransportSubscribeParameters = {
   onData: (data: RpcResponse) => void

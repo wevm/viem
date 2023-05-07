@@ -1,10 +1,10 @@
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Chain } from '../../types/index.js'
-import { numberToHex } from '../../utils/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type MineParameters = {
   /** Number of blocks to mine. */

@@ -1,6 +1,7 @@
-import { decodeEventLog } from './decodeEventLog.js'
 import type { Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
+
+import { decodeEventLog } from './decodeEventLog.js'
 
 test('named', async () => {
   const event = decodeEventLog({

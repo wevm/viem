@@ -1,9 +1,11 @@
+import type { Address } from 'abitype'
+
 import type {
   TestClient,
   TestClientMode,
-  Transport,
-} from '../../clients/index.js'
-import type { Address, Chain } from '../../types/index.js'
+} from '../../clients/createTestClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 
 export type StopImpersonatingAccountParameters = {
   /** The account to impersonate. */

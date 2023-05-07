@@ -1,8 +1,9 @@
-import type { Chain } from '../../chains.js'
-import type { PublicClient, Transport } from '../../clients/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import type { OnResponseFn } from '../../clients/transports/fallback.js'
+import type { Chain } from '../../types/chain.js'
 import type { Requests } from '../../types/eip1193.js'
-import type { Hex } from '../../types/index.js'
+import type { Hex } from '../../types/misc.js'
 
 type CreateFilterRequestScopeParameters = {
   method:

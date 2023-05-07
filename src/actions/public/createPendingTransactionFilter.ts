@@ -1,5 +1,7 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { Chain, Filter } from '../../types/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Filter } from '../../types/filter.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreatePendingTransactionFilterReturnType = Filter<'transaction'>

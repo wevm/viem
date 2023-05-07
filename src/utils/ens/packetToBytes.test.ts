@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { toHex } from '../encoding/index.js'
+import { toHex } from '../encoding/toHex.js'
+
 import { packetToBytes } from './packetToBytes.js'
 
 test.each([

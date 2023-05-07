@@ -2,11 +2,12 @@
 
 import type { AbiParameter, TypedData, TypedDataDomain } from 'abitype'
 
-import type { Hex, TypedDataDefinition } from '../../types/index.js'
-import { encodeAbiParameters } from '../abi/index.js'
-import { concat } from '../data/index.js'
-import { toHex } from '../encoding/index.js'
-import { keccak256 } from '../hash/index.js'
+import type { Hex } from '../../types/misc.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
+import { encodeAbiParameters } from '../abi/encodeAbiParameters.js'
+import { concat } from '../data/concat.js'
+import { toHex } from '../encoding/toHex.js'
+import { keccak256 } from '../hash/keccak256.js'
 import { validateTypedData } from '../typedData.js'
 
 type MessageTypeProperty = {

@@ -2,7 +2,8 @@ import { utils as ethersV5Utils } from 'ethers'
 import { AbiCoder as AbiCoderV6 } from 'ethers@6'
 import { bench, describe } from 'vitest'
 
-import { address } from '../../_test/index.js'
+import { address } from '../../_test/constants.js'
+
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 
 describe('ABI Encode', () => {

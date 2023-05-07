@@ -1,9 +1,12 @@
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { BlockTag, Chain, GetTransportConfig } from '../../types/index.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
+import type { GetTransportConfig } from '../../types/transport.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import type { GetBlockReturnType } from './getBlock.js'
-import { getBlock } from './getBlock.js'
+
+import { type GetBlockReturnType, getBlock } from './getBlock.js'
 
 export type OnBlockParameter<TChain extends Chain | undefined = Chain> =
   GetBlockReturnType<TChain>

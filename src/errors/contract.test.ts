@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig } from '../_test/abis.js'
+import { address } from '../_test/constants.js'
 import { errorsExampleABI } from '../_test/generated.js'
-import { address } from '../_test/index.js'
 import { polygon } from '../chains.js'
+
 import { BaseError } from './base.js'
 import {
   CallExecutionError,

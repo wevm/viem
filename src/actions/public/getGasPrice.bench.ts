@@ -1,6 +1,7 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, publicClient } from '../../_test/index.js'
+import { ethersProvider } from '../../_test/bench.js'
+import { publicClient } from '../../_test/utils.js'
 
 import { getGasPrice } from './getGasPrice.js'
 

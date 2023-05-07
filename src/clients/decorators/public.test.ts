@@ -1,20 +1,25 @@
 import { describe, expect, test } from 'vitest'
 
 import {
+  smartAccountConfig,
+  usdcContractConfig,
+  wagmiContractConfig,
+} from '../../_test/abis.js'
+import {
   accounts,
   address,
   forkBlockNumber,
+  typedData,
+} from '../../_test/constants.js'
+import {
   publicClient,
   setBlockNumber,
-  smartAccountConfig,
   testClient,
-  typedData,
-  usdcContractConfig,
-  wagmiContractConfig,
   walletClient,
-} from '../../_test/index.js'
-import { getBlockNumber } from '../../actions/index.js'
-import { parseEther } from '../../utils/index.js'
+} from '../../_test/utils.js'
+import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+
 import { publicActions } from './public.js'
 
 test('default', async () => {

@@ -1,13 +1,12 @@
 import { Contract } from 'ethers'
+
 import { Contract as Contractv6 } from 'ethers@6'
+
 import { bench, describe } from 'vitest'
 
-import {
-  ethersProvider,
-  ethersV6Provider,
-  publicClient,
-  wagmiContractConfig,
-} from '../_test/index.js'
+import { wagmiContractConfig } from '../_test/abis.js'
+import { ethersProvider, ethersV6Provider } from '../_test/bench.js'
+import { publicClient } from '../_test/utils.js'
 
 import { getContract } from './getContract.js'
 

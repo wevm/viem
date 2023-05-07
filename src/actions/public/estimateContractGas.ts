@@ -1,20 +1,18 @@
 import type { Abi } from 'abitype'
 
-import type { PublicClient, Transport } from '../../clients/index.js'
-import type { BaseError } from '../../errors/index.js'
-import type {
-  Chain,
-  ContractFunctionConfig,
-  GetValue,
-} from '../../types/index.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BaseError } from '../../errors/base.js'
+import type { Chain } from '../../types/chain.js'
+import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import {
+  type EncodeFunctionDataParameters,
   encodeFunctionData,
-  getContractError,
-  parseAccount,
-} from '../../utils/index.js'
-import type { EncodeFunctionDataParameters } from '../../utils/index.js'
-import { estimateGas } from './estimateGas.js'
-import type { EstimateGasParameters } from './estimateGas.js'
+} from '../../utils/abi/encodeFunctionData.js'
+import { getContractError } from '../../utils/errors/getContractError.js'
+
+import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
 
 export type EstimateContractGasParameters<
   TAbi extends Abi | readonly unknown[] = Abi,

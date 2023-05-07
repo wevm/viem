@@ -1,8 +1,9 @@
 import { expect, test } from 'vitest'
 
-import { typedData } from '../../_test/index.js'
-import { pad } from '../data/index.js'
-import { toHex } from '../encoding/index.js'
+import { typedData } from '../../_test/constants.js'
+import { pad } from '../data/pad.js'
+import { toHex } from '../encoding/toHex.js'
+
 import { hashTypedData } from './hashTypedData.js'
 
 test('default', () => {
