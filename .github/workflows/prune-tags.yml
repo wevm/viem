@@ -1,0 +1,23 @@
+name: Prune NPM tags
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  prune:
+    name: Prune NPM tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Setup .npmrc file
+        uses: actions/setup-node@v3
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Prune tags
+        run: npm view --json | jq -r '.["dist-tags"] | to_entries | .[] | select(.key != "latest") | select(.key != "main") | select(.key != "next") | .key' | xargs -I % npm dist-tag rm viem %
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
