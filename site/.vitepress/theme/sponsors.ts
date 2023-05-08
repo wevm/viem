@@ -93,6 +93,11 @@ export const sponsors = [
         url: 'https://spruceid.com',
         img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/spruce-light.svg',
       },
+      {
+        name: 'rollup.id',
+        url: 'https://rollup.id',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/rollup.id-light.svg',
+      },
     ],
   },
 ] satisfies Sponsors
