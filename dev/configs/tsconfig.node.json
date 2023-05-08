@@ -1,11 +1,12 @@
 {
   // This configuration is used for local development and type checking of configuration and script files that are not part of the build.
-  "include": ["vite.config.ts", "wagmi.config.ts", "dev/scripts"],
+  "include": ["vite.config.ts", "wagmi.config.ts", "../scripts"],
   "compilerOptions": {
     "strict": true,
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "../"
   }
 }
