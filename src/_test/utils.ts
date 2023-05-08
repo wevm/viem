@@ -1,10 +1,10 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 
-import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
-import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
-import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
-import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
+import erc20InvalidTransferEvent from '../../dev/contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
+import ensAvatarTokenUri from '../../dev/contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
+import errorsExample from '../../dev/contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import offchainLookupExample from '../../dev/contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
 
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '../actions/test/impersonateAccount.js'

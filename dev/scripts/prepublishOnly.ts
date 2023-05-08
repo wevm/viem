@@ -5,7 +5,7 @@ generatePackageJson()
 
 // Generates a package.json to be published to NPM with only the necessary fields.
 function generatePackageJson() {
-  const packageJsonPath = path.join(__dirname, '../package.json')
+  const packageJsonPath = path.join(__dirname, '../../package.json')
   const tmpPackageJson = readJsonSync(packageJsonPath)
 
   writeJsonSync(`${packageJsonPath}.tmp`, tmpPackageJson, { spaces: 2 })

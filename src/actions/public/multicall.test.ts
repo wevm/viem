@@ -5,7 +5,7 @@
  */
 import { describe, expect, test } from 'vitest'
 
-import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
+import gh434 from '../../../dev/contracts/out/GH434.sol/GH434.json'
 import {
   baycContractConfig,
   usdcContractConfig,
