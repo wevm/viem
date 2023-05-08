@@ -1,41 +1,33 @@
 import type { Chain } from '../../chains.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
 import { hashTypedData } from '../../utils/index.js'
-import {
-  type VerifyTypedDataParameters as OfflineVerifyTypedDataParameters,
-  type VerifyTypedDataReturnType as OfflineVerifyTypedDataReturnType,
-} from '../../utils/signature/verifyTypedData.js'
-import {
-  type VerifyMessageHashOnchainParameters,
-  verifyMessageHashOnChain,
-} from './verifyMessage.js'
-import type { TypedData } from 'abitype'
+import { type VerifyHashParameters, verifyHash } from './verifyHash.js'
+import type { Address, TypedData } from 'abitype'
 
 export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
   TPrimaryType extends string = string,
-> = Omit<VerifyMessageHashOnchainParameters, 'messageHash'> &
-  OfflineVerifyTypedDataParameters<TTypedData, TPrimaryType>
+> = Omit<VerifyHashParameters, 'hash'> &
+  TypedDataDefinition<TTypedData, TPrimaryType> & {
+    /** The address to verify the typed data for. */
+    address: Address
+    /** The signature to verify */
+    signature: Hex | ByteArray
+  }
 
-export type VerifyTypedDataReturnType = OfflineVerifyTypedDataReturnType
+export type VerifyTypedDataReturnType = boolean
 
 /**
- * Verifies a typed data signature considering ERC1271 with fallback to EOA signature verification
+ * Verify that typed data was signed by the provided address.
  *
  * - Docs {@link https://viem.sh/docs/actions/public/verifyTypedData.html}
  *
- * @param client - The public client
- * @param parameters - Object containing the typed data, signature and address to verify, plus optional blockTag and blockNumber for the onchain call
- * @param parameters.address - The address to verify the typed data for
- * @param parameters.signature - The signature to verify
- * @param parameters.message - The typed data message
- * @param parameters.primaryType - The typed data primary type
- * @param parameters.types - The typed data types
- * @param parameters.domain - The typed data domain
- * @param parameters.blockTag - The block tag to use for the onchain call
- * @param parameters.blockNumber - The block number to use for the onchain call
- * @returns true if the signature is valid, false if the signature is invalid
+ * @param client - Client to use.
+ * @param parameters - {@link VerifyTypedDataParameters}
+ * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
 export async function verifyTypedData<TChain extends Chain | undefined,>(
   client: PublicClient<Transport, TChain>,
@@ -49,11 +41,10 @@ export async function verifyTypedData<TChain extends Chain | undefined,>(
     ...callRequest
   }: VerifyTypedDataParameters,
 ): Promise<VerifyTypedDataReturnType> {
-  const messageHash = hashTypedData({ message, primaryType, types, domain })
-
-  return verifyMessageHashOnChain(client, {
+  const hash = hashTypedData({ message, primaryType, types, domain })
+  return verifyHash(client, {
     address,
-    messageHash,
+    hash,
     signature,
     ...callRequest,
   })

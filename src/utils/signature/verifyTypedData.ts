@@ -14,26 +14,25 @@ export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
   TPrimaryType extends string = string,
 > = TypedDataDefinition<TTypedData, TPrimaryType> & {
+  /** The address to verify the typed data for. */
   address: Address
+  /** The signature to verify */
   signature: Hex | ByteArray
 }
 
 export type VerifyTypedDataReturnType = boolean
 
 /**
- * Can be used to verify a typed data signed by a private key
+ * Verify that typed data was signed by the provided address.
+ *
+ * Note:  Only supports Externally Owned Accounts. Does not support Contract Accounts.
+ *        It is highly recommended to use `publicClient.verifyTypedData` instead to ensure
+ *        wallet interoperability.
  *
  * - Docs {@link https://viem.sh/docs/utilities/verifyTypedData.html}
  *
- * @dev Should not be used directly, please use `publicClient.verifyTypedData` instead
- * @param parameters - Object containing the typed data, signature and address to verify
- * @param parameters.address - The address to verify the typed data for
- * @param parameters.signature - The signature to verify
- * @param parameters.message - The typed data message
- * @param parameters.primaryType - The typed data primary type
- * @param parameters.types - The typed data types
- * @param parameters.domain - The typed data domain
- * @returns true if the typed data was signed by the private key of provided address (EOA)
+ * @param parameters - {@link VerifyTypedDataParameters}
+ * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
 export async function verifyTypedData<
   TTypedData extends TypedData | { [key: string]: unknown },

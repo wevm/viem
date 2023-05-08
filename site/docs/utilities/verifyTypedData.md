@@ -16,7 +16,8 @@ head:
 Verify that typed data was signed by the provided address.
 
 ::: warning ⚠️ WARNING
-Should not be used directly to verify typedData from accounts, please use [publicClient.verifyTypedData](../actions/public/verifyTypedData.md) instead.
+This utility can only verify typed data that was signed by an Externally Owned Account (EOA).
+To verify messages from Contract Accounts (& EOA), use the [`publicClient.verifyMessage` Action](../actions/public/verifyMessage.md) instead.
 :::
 
 ## Usage

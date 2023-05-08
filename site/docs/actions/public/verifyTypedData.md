@@ -5,18 +5,18 @@ head:
       content: verifyTypedData
   - - meta
     - name: description
-      content: Verifies a typed data signature for an account
+      content: Verifies a typed data signature
   - - meta
     - property: og:description
-      content: Verifies a typed data signature for an account
+      content: Verifies a typed data signature
 ---
 
 # verifyTypedData
 
-Verifies if a typed data signature is valid for the provided address.
+Verify that typed data was signed by the provided address.
 
-::: info 💡 Why should I use this instead of `utils.verifyTypedData`?
-Please use this method instead of [utils.verifyTypedData](../../utilities/verifyTypedData.md), as this method supports [ERC-1271](https://eips.ethereum.org/EIPS/eip-1271) and therefore supports more types of accounts. This is getting increasingly important as more and more wallets use [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337).
+::: info 💡 Why should I use this over the [`verifyTypedData`](../../utilities/verifyTypedData.md) util?
+This Action supports verifying typed data that was signed by either a Smart Contract Account or Externally Owned Account (via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492)). The [`verifyTypedData`](../../utilities/verifyTypedData.md) util only supports Externally Owned Accounts. This is getting increasingly important as more wallets implement [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337). 
 :::
 
 ## Usage
@@ -316,3 +316,7 @@ const valid = await verifyTypedData({
   signature: '0x...', // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+[`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call) to a deployless [universal signature validator contract](https://eips.ethereum.org/EIPS/eip-6492).
