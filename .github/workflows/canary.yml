@@ -5,11 +5,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify:
-    name: Verify
-    uses: ./.github/workflows/verify.yml
-    secrets: inherit
-
   canary:
     name: Release canary
     runs-on: ubuntu-latest
