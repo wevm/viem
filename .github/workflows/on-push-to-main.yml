@@ -31,6 +31,7 @@ jobs:
       - name: Create Version Pull Request
         uses: changesets/action@v1
         with:
+          cwd: "./dev"
           version: pnpm changeset:version
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -53,6 +54,7 @@ jobs:
       - name: Publish to NPM
         uses: changesets/action@v1
         with:
+          cwd: "./dev"
           publish: pnpm changeset:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
