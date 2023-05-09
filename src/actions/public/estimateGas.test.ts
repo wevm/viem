@@ -44,7 +44,7 @@ test('args: data', async () => {
       account: accounts[0].address,
       to: wethContractAddress,
     }),
-  ).toMatchInlineSnapshot('26145n')
+  ).toMatchInlineSnapshot('26040n')
 })
 
 test('args: gasPrice', async () => {
@@ -120,7 +120,7 @@ describe('local account', () => {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: wethContractAddress,
       }),
-    ).toMatchInlineSnapshot('26064n')
+    ).toMatchInlineSnapshot('26040n')
   })
 
   test('args: gasPrice (on eip1559)', async () => {

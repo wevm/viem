@@ -2,13 +2,13 @@ import { describe, expect, test } from 'vitest'
 
 import { smartAccountConfig } from '../../_test/abis.js'
 import { address } from '../../_test/constants.js'
-import { publicMainnetClient } from '../../_test/utils.js'
+import { publicClientMainnet } from '../../_test/utils.js'
 import { verifyMessage } from './verifyMessage.js'
 
 describe('verifyMessage', async () => {
   test('valid signature', async () => {
     expect(
-      await verifyMessage(publicMainnetClient, {
+      await verifyMessage(publicClientMainnet, {
         address: smartAccountConfig.address,
         message:
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
@@ -20,7 +20,7 @@ describe('verifyMessage', async () => {
 
   test('invalid signature', async () => {
     expect(
-      await verifyMessage(publicMainnetClient, {
+      await verifyMessage(publicClientMainnet, {
         address: smartAccountConfig.address,
         message:
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
@@ -31,7 +31,7 @@ describe('verifyMessage', async () => {
 
   test('account not deployed', async () => {
     expect(
-      await verifyMessage(publicMainnetClient, {
+      await verifyMessage(publicClientMainnet, {
         address: address.notDeployed,
         message:
           '0x5468697320697320612074657374206d65737361676520666f72207669656d21',

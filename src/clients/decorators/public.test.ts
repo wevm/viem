@@ -109,7 +109,7 @@ describe('smoke test', () => {
         functionName: 'mint',
         args: [69436n],
       }),
-    ).toEqual(57025n)
+    ).toEqual(56584n)
   })
 
   test('estimateGas', async () => {

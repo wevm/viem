@@ -46,11 +46,6 @@ import {
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
 
-export const publicMainnetClient = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
-
 export const anvilChain = {
   ...localhost,
   id: 1,
@@ -145,6 +140,11 @@ export const publicClient = (
     ? webSocketClient
     : httpClient
 ) as typeof httpClient
+
+export const publicClientMainnet = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
 
 export const walletClient = createWalletClient({
   chain: anvilChain,
