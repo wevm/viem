@@ -1,3 +1,5 @@
+import { smartAccountAbi } from '../constants/abis.js'
+
 export const baycContractConfig = {
   address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
   abi: [
@@ -3849,4 +3851,9 @@ export const ensRegistryConfig = {
       type: 'function',
     },
   ],
+} as const
+
+export const smartAccountConfig = {
+  address: '0x3FCf42e10CC70Fe75A62EB3aDD6D305Aa840d145',
+  abi: smartAccountAbi,
 } as const

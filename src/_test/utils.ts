@@ -46,6 +46,11 @@ import {
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
 
+export const publicMainnetClient = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
 export const anvilChain = {
   ...localhost,
   id: 1,

@@ -146,6 +146,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Signature',
+          items: [
+            {
+              text: 'verifyMessage',
+              link: '/docs/actions/public/verifyMessage',
+            },
+            {
+              text: 'verifyTypedData',
+              link: '/docs/actions/public/verifyTypedData',
+            },
+          ],
+        },
+        {
           text: 'Transaction',
           items: [
             { text: 'call', link: '/docs/actions/public/call' },

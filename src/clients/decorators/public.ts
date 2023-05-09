@@ -157,6 +157,16 @@ import {
   uninstallFilter,
 } from '../../actions/public/uninstallFilter.js'
 import {
+  type VerifyMessageParameters,
+  type VerifyMessageReturnType,
+  verifyMessage,
+} from '../../actions/public/verifyMessage.js'
+import {
+  type VerifyTypedDataParameters,
+  type VerifyTypedDataReturnType,
+  verifyTypedData,
+} from '../../actions/public/verifyTypedData.js'
+import {
   type WaitForTransactionReceiptParameters,
   type WaitForTransactionReceiptReturnType,
   waitForTransactionReceipt,
@@ -1108,6 +1118,12 @@ export type PublicActions<
   ) => Promise<
     SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
   >
+  verifyMessage: (
+    args: VerifyMessageParameters,
+  ) => Promise<VerifyMessageReturnType>
+  verifyTypedData: (
+    args: VerifyTypedDataParameters,
+  ) => Promise<VerifyTypedDataReturnType>
   /**
    * Destroys a Filter that was created from one of the following Actions:
    *
@@ -1373,6 +1389,8 @@ export const publicActions: <
   multicall: (args) => multicall(client, args),
   readContract: (args) => readContract(client, args),
   simulateContract: (args) => simulateContract(client, args),
+  verifyMessage: (args) => verifyMessage(client, args),
+  verifyTypedData: (args) => verifyTypedData(client, args),
   uninstallFilter: (args) => uninstallFilter(client, args),
   waitForTransactionReceipt: (args) => waitForTransactionReceipt(client, args),
   watchBlocks: (args) => watchBlocks(client, args),

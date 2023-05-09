@@ -67,6 +67,29 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "smartAccountAbi": [
+        {
+          "inputs": [
+            {
+              "name": "hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "signature",
+              "type": "bytes",
+            },
+          ],
+          "name": "isValidSignature",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes4",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
       "textResolverAbi": [
         {
           "inputs": [
@@ -115,6 +138,29 @@ test('exports abis', () => {
           ],
           "stateMutability": "view",
           "type": "function",
+        },
+      ],
+      "universalSignatureValidatorAbi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_signer",
+              "type": "address",
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_hash",
+              "type": "bytes32",
+            },
+            {
+              "internalType": "bytes",
+              "name": "_signature",
+              "type": "bytes",
+            },
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor",
         },
       ],
     }

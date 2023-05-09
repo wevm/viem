@@ -15,9 +15,8 @@ head:
 
 Verify that typed data was signed by the provided address.
 
-::: warning ⚠️ WARNING
-This utility can only verify typed data that was signed by an Externally Owned Account (EOA).
-To verify messages from Contract Accounts (& EOA), use the [`publicClient.verifyMessage` Action](../actions/public/verifyMessage.md) instead.
+::: info 💡 Why should I use this over the [`verifyTypedData`](../../utilities/verifyTypedData.md) util?
+This Action supports verifying typed data that was signed by either a Smart Contract Account or Externally Owned Account (via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492)). The [`verifyTypedData`](../../utilities/verifyTypedData.md) util only supports Externally Owned Accounts. This is getting increasingly important as more wallets implement [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337). 
 :::
 
 ## Usage
@@ -25,8 +24,7 @@ To verify messages from Contract Accounts (& EOA), use the [`publicClient.verify
 ::: code-group
 
 ```ts [example.ts]
-import { verifyTypedData } from 'viem'
-import { account, walletClient } from './client'
+import { account, walletClient, publicClient } from './client'
 
 const message = {
   from: {
@@ -48,7 +46,7 @@ const signature = await walletClient.signTypedData({
   message,
 })
 // [!code focus:99]
-const valid = await verifyTypedData({
+const valid = await publicClient.verifyTypedData({
   address: account.address,
   domain,
   types,
@@ -83,13 +81,22 @@ export const types = {
 ```
 
 ```ts [client.ts]
-import { createWalletClient, custom } from 'viem'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
 
 export const walletClient = createWalletClient({
-  transport: custom(window.ethereum),
+  transport: custom(window.ethereum)
 })
+
+// JSON-RPC Account
+export const [account] = await walletClient.getAddresses()
+// Local Account
+export const account = privateKeyToAccount(...)
 ```
 
 :::
@@ -98,7 +105,7 @@ export const walletClient = createWalletClient({
 
 `boolean`
 
-Whether the provided `address` generated the `signature`.
+Wheather the signed message is valid for the given address.
 
 ## Parameters
 
@@ -309,3 +316,7 @@ const valid = await verifyTypedData({
   signature: '0x...', // [!code focus]
 })
 ```
+
+## JSON-RPC Method
+
+[`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call) to a deployless [universal signature validator contract](https://eips.ethereum.org/EIPS/eip-6492).
