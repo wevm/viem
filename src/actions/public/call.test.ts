@@ -4,7 +4,11 @@ import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
 import { createCcipServer } from '../../_test/ccip.js'
 import { accounts, forkBlockNumber } from '../../_test/constants.js'
 import { offchainLookupExampleABI } from '../../_test/generated.js'
-import { deployOffchainLookupExample, publicClient } from '../../_test/utils.js'
+import {
+  deployOffchainLookupExample,
+  publicClient,
+  publicClientMainnet,
+} from '../../_test/utils.js'
 import { celo, mainnet } from '../../chains.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -142,7 +146,8 @@ describe('errors', () => {
     `)
   })
 
-  // TODO: Fix anvil error reason
+  // TODO:  Waiting for Anvil fix – should fail with "gas too low" reason
+  //        This test will fail when Anvil is fixed.
   test('gas too low', async () => {
     await expect(() =>
       call(publicClient, {
@@ -152,48 +157,66 @@ describe('errors', () => {
         gas: 100n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "An internal error was received.
+      "The amount of gas (100) provided for the transaction exceeds the limit allowed for the block.
 
-      URL: http://localhost
-      Request body: {\\"method\\":\\"eth_call\\",\\"params\\":[{\\"from\\":\\"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266\\",\\"data\\":\\"0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4\\",\\"gas\\":\\"0x64\\",\\"to\\":\\"0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2\\"},\\"latest\\"]}
-       
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         gas:   100
 
-      Details: EVM error OutOfGas
+      Details: intrinsic gas too high
       Version: viem@1.0.2"
     `)
+
+    await expect(() =>
+      call(publicClientMainnet, {
+        data: `${mintWithParams4bytes}${fourTwenty}`,
+        account: sourceAccount.address,
+        to: wagmiContractAddress,
+        gas: 100n,
+      }),
+    ).rejects.toThrowError('intrinsic gas too low')
   })
 
-  // TODO: Fix anvil error (should throw gas too high)
-  test.skip('gas too high', async () => {
-    await expect(() =>
-      call(publicClient, {
+  // TODO:  Waiting for Anvil fix – should fail with "gas too high" reason
+  //        This test will fail when Anvil is fixed.
+  test('gas too high', async () => {
+    expect(
+      await call(publicClient, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
         gas: 100_000_000_000_000_000n,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot()
+    ).toBeDefined()
   })
 
-  // TODO: Fix anvil – this should fail
-  test.skip('gas fee is less than block base fee', async () => {
-    await expect(() =>
-      call(publicClient, {
+  // TODO:  Waiting for Anvil fix – should fail with "gas fee less than block base fee" reason
+  //        This test will fail when Anvil is fixed.
+  test('gas fee is less than block base fee', async () => {
+    expect(
+      await call(publicClient, {
         account: sourceAccount.address,
         to: accounts[0].address,
         value: 1n,
         maxFeePerGas: 1n,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot()
+    ).toBeDefined()
+
+    await expect(() =>
+      call(publicClientMainnet, {
+        account: sourceAccount.address,
+        to: accounts[0].address,
+        value: 1n,
+        maxFeePerGas: 1n,
+      }),
+    ).rejects.toThrowError('cannot be lower than the block base fee')
   })
 
-  // TODO: Fix anvil – this should fail
-  test.skip('nonce too low', async () => {
+  // TODO:  Waiting for Anvil fix – should fail with "nonce too low" reason
+  //        This test will fail when Anvil is fixed.
+  test('nonce too low', async () => {
     await expect(() =>
       call(publicClient, {
         account: sourceAccount.address,
@@ -201,10 +224,22 @@ describe('errors', () => {
         value: 1n,
         nonce: 0,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "The amount of gas provided for the transaction exceeds the limit allowed for the block.
+
+      Raw Call Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        value:  0.000000000000000001 ETH
+        nonce:  0
+
+      Details: intrinsic gas too high
+      Version: viem@1.0.2"
+    `)
   })
 
-  // TODO: Fix anvil – this should fail with reason
+  // TODO:  Waiting for Anvil fix – should fail with "insufficient funds" reason
+  //        This test will fail when Anvil is fixed.
   test('insufficient funds', async () => {
     await expect(() =>
       call(publicClient, {
@@ -213,16 +248,24 @@ describe('errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Execution reverted for an unknown reason.
+      "The amount of gas provided for the transaction exceeds the limit allowed for the block.
 
       Raw Call Arguments:
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         value:  100000 ETH
 
-      Details: execution reverted
+      Details: intrinsic gas too high
       Version: viem@1.0.2"
     `)
+
+    await expect(() =>
+      call(publicClientMainnet, {
+        account: sourceAccount.address,
+        to: accounts[0].address,
+        value: parseEther('100000'),
+      }),
+    ).rejects.toThrowError('insufficient funds for gas * price + value')
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {

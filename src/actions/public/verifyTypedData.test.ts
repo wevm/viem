@@ -1,13 +1,13 @@
 import { smartAccountConfig } from '../../_test/abis.js'
 import { address, typedData } from '../../_test/constants.js'
-import { publicMainnetClient } from '../../_test/utils.js'
+import { publicClientMainnet } from '../../_test/utils.js'
 import { verifyTypedData } from './verifyTypedData.js'
 import { describe, expect, test } from 'vitest'
 
 describe('verifyTypedData', async () => {
   test('valid signature', async () => {
     expect(
-      await verifyTypedData(publicMainnetClient, {
+      await verifyTypedData(publicClientMainnet, {
         ...typedData.basic,
         primaryType: 'Mail',
         address: smartAccountConfig.address,
@@ -19,7 +19,7 @@ describe('verifyTypedData', async () => {
 
   test('invalid signature', async () => {
     expect(
-      await verifyTypedData(publicMainnetClient, {
+      await verifyTypedData(publicClientMainnet, {
         ...typedData.basic,
         primaryType: 'Mail',
         address: smartAccountConfig.address,
@@ -30,7 +30,7 @@ describe('verifyTypedData', async () => {
 
   test('account not deployed', async () => {
     expect(
-      await verifyTypedData(publicMainnetClient, {
+      await verifyTypedData(publicClientMainnet, {
         ...typedData.basic,
         primaryType: 'Mail',
         address: address.notDeployed,

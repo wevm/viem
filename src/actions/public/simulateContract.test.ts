@@ -16,6 +16,7 @@ import {
   deployBAYC,
   deployErrorExample,
   publicClient,
+  publicClientMainnet,
   testClient,
   walletClient,
 } from '../../_test/utils.js'
@@ -490,7 +491,8 @@ describe('node errors', () => {
     `)
   })
 
-  // TODO: Fix anvil error reason
+  // TODO:  Waiting for Anvil fix – should fail with "gas too low" reason
+  //        This test will fail when Anvil is fixed.
   test('gas too low', async () => {
     await expect(() =>
       simulateContract(publicClient, {
@@ -501,11 +503,8 @@ describe('node errors', () => {
         gas: 100n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "An internal error was received.
+      "The amount of gas (100) provided for the transaction exceeds the limit allowed for the block.
 
-      URL: http://localhost
-      Request body: {\\"method\\":\\"eth_call\\",\\"params\\":[{\\"from\\":\\"0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC\\",\\"data\\":\\"0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c\\",\\"gas\\":\\"0x64\\",\\"to\\":\\"0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2\\"},\\"latest\\"]}
-       
       Raw Call Arguments:
         from:  0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
@@ -519,39 +518,62 @@ describe('node errors', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract.html
-      Details: EVM error OutOfGas
+      Details: intrinsic gas too high
       Version: viem@1.0.2"
     `)
+
+    await expect(() =>
+      simulateContract(publicClientMainnet, {
+        ...wagmiContractConfig,
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        functionName: 'mint',
+        args: [69420n],
+        gas: 100n,
+      }),
+    ).rejects.toThrowError('intrinsic gas too low')
   })
 
-  // TODO: Fix anvil error (should throw gas too high)
-  test.skip('fee cap too low', async () => {
-    await expect(() =>
-      simulateContract(publicClient, {
+  // TODO:  Waiting for Anvil fix – should fail with "gas too high" reason
+  //        This test will fail when Anvil is fixed.
+  test('gas too high', async () => {
+    expect(
+      await simulateContract(publicClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
         args: [69420n],
         gas: 100_000_000_000_000_000n,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot()
+    ).toBeDefined()
   })
 
-  // TODO: Fix anvil – this should fail
-  test.skip('fee cap too low', async () => {
-    await expect(() =>
-      simulateContract(publicClient, {
+  // TODO:  Waiting for Anvil fix – should fail with "gas fee less than block base fee" reason
+  //        This test will fail when Anvil is fixed.
+  test('fee cap too low', async () => {
+    expect(
+      await simulateContract(publicClient, {
         ...wagmiContractConfig,
         account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         functionName: 'mint',
         args: [69420n],
         maxFeePerGas: 1n,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot()
+    ).toBeDefined()
+
+    await expect(() =>
+      simulateContract(publicClientMainnet, {
+        ...wagmiContractConfig,
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        functionName: 'mint',
+        args: [69420n],
+        maxFeePerGas: 1n,
+      }),
+    ).rejects.toThrowError('cannot be lower than the block base fee')
   })
 
-  // TODO: Fix anvil – this should fail
-  test.skip('nonce too low', async () => {
+  // TODO:  Waiting for Anvil fix – should fail with "nonce too low" reason
+  //        This test will fail when Anvil is fixed.
+  test('nonce too low', async () => {
     await expect(() =>
       simulateContract(publicClient, {
         ...wagmiContractConfig,
@@ -560,10 +582,29 @@ describe('node errors', () => {
         args: [69420n],
         nonce: 0,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot()
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "The amount of gas provided for the transaction exceeds the limit allowed for the block.
+
+      Raw Call Arguments:
+        from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
+        to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:   0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+        nonce:  0
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mint(uint256 tokenId)
+        args:          (69420)
+        sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
+
+      Docs: https://viem.sh/docs/contract/simulateContract.html
+      Details: intrinsic gas too high
+      Version: viem@1.0.2"
+    `)
   })
 
-  // TODO: Fix anvil – this should fail with reason
+  // TODO:  Waiting for Anvil fix – should fail with "nonce too low" reason
+  //        This test will fail when Anvil is fixed.
   test('insufficient funds', async () => {
     await expect(() =>
       simulateContract(publicClient, {
@@ -575,8 +616,14 @@ describe('node errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The contract function \\"mint\\" reverted.
+      "The amount of gas provided for the transaction exceeds the limit allowed for the block.
 
+      Raw Call Arguments:
+        from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
+        to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        value:  100000 ETH
+        data:   0xa0712d680000000000000000000000000000000000000000000000000000000000010f2c
+       
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
         function:  mint(uint256 tokenId)
@@ -584,8 +631,20 @@ describe('node errors', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract.html
+      Details: intrinsic gas too high
       Version: viem@1.0.2"
     `)
+
+    await expect(() =>
+      simulateContract(publicClientMainnet, {
+        ...wagmiContractConfig,
+        account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        functionName: 'mint',
+        args: [69420n],
+        // @ts-expect-error
+        value: parseEther('100000'),
+      }),
+    ).rejects.toThrowError('insufficient funds for gas * price + value')
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
