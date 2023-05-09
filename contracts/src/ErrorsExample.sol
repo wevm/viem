@@ -7,6 +7,7 @@ contract ErrorsExample {
         uint256 bar;
     }
 
+    error PlainError();
     error SimpleError(string message);
     error ComplexError(Foo foo, string message, uint256 number);
 

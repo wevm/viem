@@ -378,6 +378,20 @@ describe('ContractFunctionRevertedError', () => {
 
       Version: viem@1.0.2]
     `)
+
+    expect(
+      new ContractFunctionRevertedError({
+        abi: errorsExampleABI,
+        data: '0x253eb71d',
+        functionName: 'customPlainError',
+      }),
+    ).toMatchInlineSnapshot(`
+      [ContractFunctionRevertedError: The contract function "customPlainError" reverted.
+
+      Error: PlainError()
+
+      Version: viem@1.0.2]
+    `)
   })
 
   test('data: zero data', () => {
