@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.19
+
+### Patch Changes
+
+- [#320](https://github.com/wagmi-dev/viem/pull/320) [`6d6d092`](https://github.com/wagmi-dev/viem/commit/6d6d092c6cacb229bb2696261ae9dbe742c26647) Thanks [@janek26](https://github.com/janek26)! - Added support for Contract Wallet signature verification (EIP-6492) via `publicClient.verifyMessage` & `publicClient.verifyTypedData`.
+
 ## 0.3.18
 
 ### Patch Changes
