@@ -7,7 +7,12 @@ export {
   offchainLookupSignature,
 } from './ccip.js'
 
-export { defineChain, getChainContractAddress } from './chain.js'
+export {
+  type AssertCurrentChainParameters,
+  assertCurrentChain,
+  defineChain,
+  getChainContractAddress,
+} from './chain.js'
 export { arrayRegex, bytesRegex, integerRegex } from './regex.js'
 
 export {

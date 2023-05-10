@@ -6,6 +6,7 @@ test('exports utils', () => {
   expect(utils).toMatchInlineSnapshot(`
     {
       "arrayRegex": /\\^\\(\\.\\*\\)\\\\\\[\\(\\[0-9\\]\\*\\)\\\\\\]\\$/,
+      "assertCurrentChain": [Function],
       "assertRequest": [Function],
       "assertTransactionEIP1559": [Function],
       "assertTransactionEIP2930": [Function],

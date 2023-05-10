@@ -630,7 +630,7 @@ export {
   offchainLookupSignature,
 } from './utils/ccip.js'
 export { concat, concatBytes, concatHex } from './utils/data/concat.js'
-export { defineChain } from './utils/chain.js'
+export { assertCurrentChain, defineChain } from './utils/chain.js'
 export { encodePacked } from './utils/abi/encodePacked.js'
 export { formatEther } from './utils/unit/formatEther.js'
 export { formatGwei } from './utils/unit/formatGwei.js'
