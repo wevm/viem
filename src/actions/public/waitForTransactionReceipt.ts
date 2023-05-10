@@ -115,6 +115,7 @@ export async function waitForTransactionReceipt<
   let transaction: GetTransactionReturnType<TChain> | undefined
   let replacedTransaction: GetTransactionReturnType<TChain> | undefined
   let receipt: GetTransactionReceiptReturnType<TChain>
+  let retries = 0
 
   return new Promise((resolve, reject) => {
     if (timeout)
@@ -219,7 +220,8 @@ export async function waitForTransactionReceipt<
                   emit.resolve(receipt)
                 })
               } else {
-                done(() => emit.reject(err))
+                if (retries > 2) done(() => emit.reject(err))
+                retries++
               }
             }
           },
