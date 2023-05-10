@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.20
+
+### Patch Changes
+
+- [#470](https://github.com/wagmi-dev/viem/pull/470) [`be9501e`](https://github.com/wagmi-dev/viem/commit/be9501eb3b509a0fe09dd087ee46d11642a9c408) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `waitForTransactionReceipt` would throw immediately for RPC Providers which may be slow to sync mined transactions.
+
 ## 0.3.19
 
 ### Patch Changes
