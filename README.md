@@ -42,10 +42,6 @@
 
 <br>
 
-> **Note**
->
-> viem is in the Gitcoin Grants Beta Round until May 9. [Click here to support development.](https://explorer.gitcoin.co/#/round/1/0xdf22a2c8f6ba9376ff17ee13e6154b784ee92094/0xdf22a2c8f6ba9376ff17ee13e6154b784ee92094-4) Thank you 🙏
-
 ## Features
 
 - Abstractions over the [JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) to make your life easier
