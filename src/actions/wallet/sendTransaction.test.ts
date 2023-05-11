@@ -642,6 +642,36 @@ describe('local account', () => {
     expect(transaction.chainId).toBe(1)
   })
 
+  test('args: chain (nullish)', async () => {
+    await setup()
+
+    expect(
+      await getBalance(publicClient, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(publicClient, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const hash = await sendTransaction(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: null,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    expect(
+      await getBalance(publicClient, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(publicClient, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+
+    const transaction = await getTransaction(publicClient, { hash })
+    expect(transaction.chainId).toBe(1)
+  })
+
   describe('args: maxFeePerGas', () => {
     test('sends transaction', async () => {
       await setup()
