@@ -4,7 +4,6 @@ import type { WalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
-import { ChainMismatchError, ChainNotFoundError } from '../../errors/chain.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { Formatter } from '../../types/formatter.js'
@@ -14,6 +13,7 @@ import type {
   TransactionSerializable,
 } from '../../types/transaction.js'
 import type { MergeIntersectionProperties } from '../../types/utils.js'
+import { assertCurrentChain } from '../../utils/chain.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import { type Formatted, format } from '../../utils/formatters/format.js'
@@ -119,10 +119,13 @@ export async function sendTransaction<
   try {
     assertRequest(args)
 
-    const chainId = await getChainId(client)
-    if (chain !== null && chainId !== chain?.id) {
-      if (!chain) throw new ChainNotFoundError()
-      throw new ChainMismatchError({ chain, currentChainId: chainId })
+    let chainId
+    if (chain !== null) {
+      chainId = await getChainId(client)
+      assertCurrentChain({
+        currentChainId: chainId,
+        chain,
+      })
     }
 
     if (account.type === 'local') {
@@ -142,6 +145,7 @@ export async function sendTransaction<
         ...rest,
       })
 
+      if (!chainId) chainId = await getChainId(client)
       const signedRequest = (await account.signTransaction({
         chainId,
         ...request,

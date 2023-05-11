@@ -1,6 +1,24 @@
-import { ChainDoesNotSupportContract } from '../errors/chain.js'
+import {
+  ChainDoesNotSupportContract,
+  ChainMismatchError,
+  ChainNotFoundError,
+} from '../errors/chain.js'
 import type { Chain, ChainContract } from '../types/chain.js'
 import type { Formatters } from '../types/formatter.js'
+
+export type AssertCurrentChainParameters = {
+  chain?: Chain
+  currentChainId: number
+}
+
+export function assertCurrentChain({
+  chain,
+  currentChainId,
+}: AssertCurrentChainParameters): void {
+  if (!chain) throw new ChainNotFoundError()
+  if (currentChainId !== chain.id)
+    throw new ChainMismatchError({ chain, currentChainId })
+}
 
 export function defineChain<
   TFormatters extends Formatters = Formatters,

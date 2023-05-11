@@ -89,6 +89,7 @@ test('exports actions', () => {
       "UserRejectedRequestError": [Function],
       "WaitForTransactionReceiptTimeoutError": [Function],
       "WebSocketRequestError": [Function],
+      "assertCurrentChain": [Function],
       "assertRequest": [Function],
       "assertTransactionEIP1559": [Function],
       "assertTransactionEIP2930": [Function],
