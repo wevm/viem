@@ -21,21 +21,9 @@ describe('verifyHash', async () => {
       expectedResult: true,
     },
     {
-      _name: 'deployed, supports ERC1271, valid signature, hex message',
-      address: smartAccountConfig.address,
-      hash: hashMessage(
-        '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
-      ),
-      signature:
-        '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
-      expectedResult: true,
-    },
-    {
       _name: 'deployed, supports ERC1271, invalid signature',
       address: smartAccountConfig.address,
-      hash: hashMessage(
-        '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
-      ),
+      hash: hashMessage('This is a test message for viem!'),
       signature: '0xdead',
       expectedResult: false,
     },
@@ -91,9 +79,7 @@ describe('verifyHash', async () => {
     expect(
       await verifyHash(publicClient, {
         address: smartAccountConfig.address,
-        hash: hashMessage(
-          '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
-        ),
+        hash: hashMessage('This is a test message for viem!'),
         signature: toBytes(
           '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
         ),
