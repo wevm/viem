@@ -20,7 +20,7 @@ export type GetBytecodeParameters = {
     }
 )
 
-export type GetBytecodeReturnType = Hex | undefined
+export type GetBytecodeReturnType = Hex
 
 /**
  * Retrieves the bytecode at an address.
@@ -55,6 +55,6 @@ export async function getBytecode<TChain extends Chain | undefined>(
     method: 'eth_getCode',
     params: [address, blockNumberHex || blockTag],
   })
-  if (hex === '0x') return undefined
+
   return hex
 }
