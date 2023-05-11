@@ -1,5 +1,13 @@
 # viem
 
+## 0.3.21
+
+### Patch Changes
+
+- [#475](https://github.com/wagmi-dev/viem/pull/475) [`64a2f51`](https://github.com/wagmi-dev/viem/commit/64a2f51799431faf28946127a3d62373051d8553) Thanks [@jxom](https://github.com/jxom)! - Fixed \`hashMessage\` string conversion for messages that have same format as hex bytes.
+
+* [#474](https://github.com/wagmi-dev/viem/pull/474) [`1886095`](https://github.com/wagmi-dev/viem/commit/18860951b7276c5b67632113f96a09cda3a48d25) Thanks [@jxom](https://github.com/jxom)! - Exported `assertCurrentChain` util.
+
 ## 0.3.20
 
 ### Patch Changes
