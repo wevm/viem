@@ -10,8 +10,7 @@ describe('verifyMessage', async () => {
     expect(
       await verifyMessage(publicClientMainnet, {
         address: smartAccountConfig.address,
-        message:
-          '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
+        message: 'This is a test message for viem!',
         signature:
           '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
       }),
@@ -22,8 +21,7 @@ describe('verifyMessage', async () => {
     expect(
       await verifyMessage(publicClientMainnet, {
         address: smartAccountConfig.address,
-        message:
-          '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
+        message: 'This is a test message for viem!',
         signature: '0xdead',
       }),
     ).toBe(false)
@@ -33,8 +31,7 @@ describe('verifyMessage', async () => {
     expect(
       await verifyMessage(publicClientMainnet, {
         address: address.notDeployed,
-        message:
-          '0x5468697320697320612074657374206d65737361676520666f72207669656d21',
+        message: 'This is a test message for viem!',
         signature:
           '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
       }),
