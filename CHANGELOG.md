@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.22
+
+### Patch Changes
+
+- [`9ae5eaa`](https://github.com/wagmi-dev/viem/commit/9ae5eaa1465240d07577d380e7387f1a065707e3) Thanks [@jxom](https://github.com/jxom)! - Fixed `functionName` type inference in `SimulateContractReturnType`.
+
 ## 0.3.21
 
 ### Patch Changes
