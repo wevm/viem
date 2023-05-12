@@ -23,11 +23,17 @@ export type EIP1193Provider = Requests & Events
 //////////////////////////////////////////////////
 // Errors
 
+// rome-ignore format: no formatting
+export type RpcErrorCode =
+  // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
+  | 4_001 | 4_100 | 4_200 | 4_900 | 4_901
+  // https://eips.ethereum.org/EIPS/eip-1474#error-codes
+  | -32700 | -32600 | -32601 | -32602 | -32603 | -32000 | -32001 | -32002 | -32003 | -32004 | -32005 | -32006
 export class RpcError extends Error {
-  code: number
+  code: RpcErrorCode | (number & {})
   details: string
 
-  constructor(code: number, message: string) {
+  constructor(code: RpcErrorCode | (number & {}), message: string) {
     super(message)
     this.code = code
     this.details = message
