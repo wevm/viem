@@ -292,6 +292,38 @@ test('Foo((uint,string))', () => {
   `)
 })
 
+test('leading non-indexed args: Bar(string,string)', () => {
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: false,
+              name: 'title',
+              type: 'string',
+            },
+            {
+              indexed: true,
+              name: 'message',
+              type: 'string',
+            },
+          ],
+          name: 'Bar',
+          type: 'event',
+        },
+      ],
+      eventName: 'Bar',
+      args: {
+        message: 'hello',
+      },
+    }),
+  ).toEqual([
+    '0xc4a51b4017224dc1cc4aff8acc6d8da6475dfcb9743bb821dc45c91454526cbd',
+    '0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8',
+  ])
+})
+
 test('inferred eventName', () => {
   expect(
     encodeEventTopics({
