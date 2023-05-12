@@ -55,9 +55,10 @@ export type SimulateContractReturnType<
       undefined,
       TChainOverride
     >,
-    'chain'
+    'chain' | 'functionName'
   > & {
     chain: TChainOverride
+    functionName: TFunctionName
   } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
 
