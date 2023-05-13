@@ -73,6 +73,8 @@ export class CallExecutionError extends BaseError {
   }
 }
 
+type CustomErrorData = [string, string | undefined]
+
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
   args?: unknown[]
@@ -81,6 +83,7 @@ export class ContractFunctionExecutionError extends BaseError {
   formattedArgs?: string
   functionName: string
   sender?: Address
+  customError?: CustomErrorData
 
   override name = 'ContractFunctionExecutionError'
 
@@ -127,6 +130,11 @@ export class ContractFunctionExecutionError extends BaseError {
       sender,
     })
 
+    const customError: CustomErrorData | undefined =
+      cause instanceof ContractFunctionRevertedError
+        ? cause.customError
+        : undefined
+
     super(
       cause.shortMessage ||
         `An unknown error occurred while executing the contract function "${functionName}".`,
@@ -146,6 +154,7 @@ export class ContractFunctionExecutionError extends BaseError {
     this.contractAddress = contractAddress
     this.functionName = functionName
     this.sender = sender
+    this.customError = customError
   }
 }
 
@@ -154,6 +163,7 @@ export class ContractFunctionRevertedError extends BaseError {
 
   data?: DecodeErrorResultReturnType
   reason?: string
+  customError?: CustomErrorData
 
   constructor({
     abi,
@@ -164,6 +174,7 @@ export class ContractFunctionRevertedError extends BaseError {
     let decodedData: DecodeErrorResultReturnType | undefined = undefined
     let metaMessages
     let reason
+    let customError: CustomErrorData | undefined = undefined
     if (data && data !== '0x') {
       decodedData = decodeErrorResult({ abi, data })
       const { abiItem, errorName, args: errorArgs } = decodedData
@@ -185,6 +196,10 @@ export class ContractFunctionRevertedError extends BaseError {
                 includeName: false,
               })
             : undefined
+
+        if (errorWithParams !== undefined) {
+          customError = [errorWithParams, formattedArgs]
+        }
 
         metaMessages = [
           errorWithParams ? `Error: ${errorWithParams}` : '',
@@ -211,6 +226,7 @@ export class ContractFunctionRevertedError extends BaseError {
 
     this.reason = reason
     this.data = decodedData
+    this.customError = customError
   }
 }
 
