@@ -1,5 +1,15 @@
 # viem
 
+## 0.3.23
+
+### Patch Changes
+
+- [#489](https://github.com/wagmi-dev/viem/pull/489) [`d130c72`](https://github.com/wagmi-dev/viem/commit/d130c7277bbb175b7ce82fe2c32ad9f65b3ae63f) Thanks [@tmm](https://github.com/tmm)! - Improved RpcError code types.
+
+* [`670d825`](https://github.com/wagmi-dev/viem/commit/670d825aa8105a6fc5e4fedc540d055d28ec91e1) Thanks [@jxom](https://github.com/jxom)! - Fixed \`call\` revert data for node clients that have nested error data.
+
+- [#487](https://github.com/wagmi-dev/viem/pull/487) [`566e77d`](https://github.com/wagmi-dev/viem/commit/566e77dfafcd5b5486260e492d8db890b788b264) Thanks [@kdembler](https://github.com/kdembler)! - fix encodeEventTopics for leading non-indexed args
+
 ## 0.3.22
 
 ### Patch Changes
