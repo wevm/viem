@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.24
+
+### Patch Changes
+
+- [`9852bcd`](https://github.com/wagmi-dev/viem/commit/9852bcdfb83bfdda43fb276b3a1266b30592d56e) Thanks [@jxom](https://github.com/jxom)! - Fixed custom solidity errors with no args.
+
 ## 0.3.23
 
 ### Patch Changes
