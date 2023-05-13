@@ -426,9 +426,26 @@ export {
   type BlockTag,
   type Uncle,
 } from './types/block.js'
-export { type ByteArray, type Hash, type Hex } from './types/misc.js'
+export {
+  type ByteArray,
+  type Hash,
+  type Hex,
+  type LogTopic,
+  type Signature,
+} from './types/misc.js'
 export type { Chain } from './types/chain.js'
-export type { EIP1193Provider } from './types/eip1193.js'
+export type {
+  EIP1193Provider,
+  RpcErrorCode,
+  RpcError as RpcError_,
+  ProviderConnectInfo,
+  ProviderMessage,
+  Chain as Chain_,
+  NetworkSync,
+  WalletPermissionCaveat,
+  WalletPermission,
+  WatchAssetParams,
+} from './types/eip1193.js'
 export {
   type FeeHistory,
   type FeeValues,
