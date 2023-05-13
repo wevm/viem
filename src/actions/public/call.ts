@@ -285,5 +285,6 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
 
 export function getRevertErrorData(err: unknown) {
   if (!(err instanceof BaseError)) return undefined
-  return (err.walk() as { data?: Hex })?.data
+  const error = err.walk() as RawContractError
+  return typeof error.data === 'object' ? error.data.data : error.data
 }

@@ -231,9 +231,12 @@ export class RawContractError extends BaseError {
   code = 3
   override name = 'RawContractError'
 
-  data?: Hex
+  data?: Hex | { data?: Hex }
 
-  constructor({ data, message }: { data?: Hex; message?: string }) {
+  constructor({
+    data,
+    message,
+  }: { data?: Hex | { data?: Hex }; message?: string }) {
     super(message || '')
     this.data = data
   }

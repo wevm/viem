@@ -46,7 +46,7 @@ export function getContractError(
   ) {
     cause = new ContractFunctionRevertedError({
       abi,
-      data,
+      data: typeof data === 'object' ? data.data : data,
       functionName,
       message: shortMessage ?? message,
     })

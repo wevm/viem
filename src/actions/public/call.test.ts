@@ -812,5 +812,12 @@ describe('getRevertErrorData', () => {
         }),
       ),
     ).toBe('0x556f1830')
+    expect(
+      getRevertErrorData(
+        new BaseError('error', {
+          cause: new RawContractError({ data: { data: '0x556f1830' } }),
+        }),
+      ),
+    ).toBe('0x556f1830')
   })
 })
