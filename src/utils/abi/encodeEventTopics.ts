@@ -61,21 +61,22 @@ export function encodeEventTopics<
 
   let topics: Hex[] = []
   if (args && 'inputs' in abiItem) {
+    const indexedInputs = abiItem.inputs?.filter(
+      (param) => 'indexed' in param && param.indexed,
+    )
     const args_ = Array.isArray(args)
       ? args
-      : abiItem.inputs?.map((x: any) => (args as any)[x.name]) ?? []
+      : indexedInputs?.map((x: any) => (args as any)[x.name]) ?? []
     topics =
-      abiItem.inputs
-        ?.filter((param) => 'indexed' in param && param.indexed)
-        .map((param, i) =>
-          Array.isArray(args_[i])
-            ? args_[i].map((_: any, j: number) =>
-                encodeArg({ param, value: args_[i][j] }),
-              )
-            : args_[i]
-            ? encodeArg({ param, value: args_[i] })
-            : null,
-        ) ?? []
+      indexedInputs?.map((param, i) =>
+        Array.isArray(args_[i])
+          ? args_[i].map((_: any, j: number) =>
+              encodeArg({ param, value: args_[i][j] }),
+            )
+          : args_[i]
+          ? encodeArg({ param, value: args_[i] })
+          : null,
+      ) ?? []
   }
   return [signature, ...topics]
 }
