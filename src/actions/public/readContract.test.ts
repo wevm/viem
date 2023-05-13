@@ -280,6 +280,17 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'simpleCustomRead',
+      }),
+    ).rejects.toHaveProperty('customError', [
+      'SimpleError(string message)',
+      '(bugger)',
+    ])
   })
 
   test('custom error: simple (no args)', async () => {
@@ -303,6 +314,14 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'simpleCustomReadNoArgs',
+      }),
+    ).rejects.toHaveProperty('customError', ['SimpleErrorNoArgs()', undefined])
   })
 
   test('custom error: complex', async () => {
@@ -327,6 +346,17 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'complexCustomRead',
+      }),
+    ).rejects.toHaveProperty('customError', [
+      'ComplexError((address sender, uint256 bar), string message, uint256 number)',
+      '({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)',
+    ])
   })
 })
 
