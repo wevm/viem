@@ -8,6 +8,7 @@ contract ErrorsExample {
     }
 
     error SimpleError(string message);
+    error SimpleErrorNoArgs();
     error ComplexError(Foo foo, string message, uint256 number);
 
     function revertRead() public pure {
@@ -19,7 +20,7 @@ contract ErrorsExample {
     }
 
     function overflowRead() public pure returns (uint256) {
-        uint256 a = 2**256 - 1;
+        uint256 a = 2 ** 256 - 1;
         uint256 b = 1;
         uint256 c = a + b;
         return c;
@@ -40,6 +41,10 @@ contract ErrorsExample {
         revert SimpleError("bugger");
     }
 
+    function simpleCustomReadNoArgs() public pure {
+        revert SimpleErrorNoArgs();
+    }
+
     function complexCustomRead() public pure {
         revert ComplexError(
             Foo({sender: 0x0000000000000000000000000000000000000000, bar: 69}),
@@ -57,7 +62,7 @@ contract ErrorsExample {
     }
 
     function overflowWrite() public returns (uint256) {
-        uint256 a = 2**256 - 1;
+        uint256 a = 2 ** 256 - 1;
         uint256 b = 1;
         uint256 c = a + b;
         return c;

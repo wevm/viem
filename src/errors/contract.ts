@@ -172,18 +172,19 @@ export class ContractFunctionRevertedError extends BaseError {
       } else if (errorName === 'Panic') {
         const [firstArg] = errorArgs as [number]
         reason = panicReasons[firstArg as keyof typeof panicReasons]
-      } else if (errorArgs) {
+      } else {
         const errorWithParams = abiItem
           ? formatAbiItem(abiItem, { includeName: true })
           : undefined
-        const formattedArgs = abiItem
-          ? formatAbiItemWithArgs({
-              abiItem,
-              args: errorArgs,
-              includeFunctionName: false,
-              includeName: false,
-            })
-          : undefined
+        const formattedArgs =
+          abiItem && errorArgs
+            ? formatAbiItemWithArgs({
+                abiItem,
+                args: errorArgs,
+                includeFunctionName: false,
+                includeName: false,
+              })
+            : undefined
 
         metaMessages = [
           errorWithParams ? `Error: ${errorWithParams}` : '',

@@ -282,6 +282,29 @@ describe('contract errors', () => {
     `)
   })
 
+  test('custom error: simple (no args)', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi: errorsExampleABI,
+        address: contractAddress!,
+        functionName: 'simpleCustomReadNoArgs',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "simpleCustomReadNoArgs" reverted.
+
+      Error: SimpleErrorNoArgs()
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  simpleCustomReadNoArgs()
+
+      Docs: https://viem.sh/docs/contract/readContract.html
+      Version: viem@1.0.2]
+    `)
+  })
+
   test('custom error: complex', async () => {
     const { contractAddress } = await deployErrorExample()
 
