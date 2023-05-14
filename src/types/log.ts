@@ -93,7 +93,7 @@ type GetInferredLogValues<
         args: GetEventArgs<
           TAbi,
           TEventName,
-          { EnableUnion: false; IndexedOnly: false; Required: true }
+          { EnableUnion: false; IndexedOnly: false; Required: false }
         >
         /** The event name decoded from `topics`. */
         eventName: TEventName
@@ -105,7 +105,7 @@ type GetInferredLogValues<
           args: GetEventArgs<
             TAbi,
             string,
-            { EnableUnion: false; IndexedOnly: false; Required: true }
+            { EnableUnion: false; IndexedOnly: false; Required: false }
           >
           /** The event name decoded from `topics`. */
           eventName: TName

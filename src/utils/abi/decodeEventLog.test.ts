@@ -63,11 +63,12 @@ test('named args: Transfer(address,address,uint256)', () => {
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
     ],
   })
   assertType<typeof event>({
     eventName: 'Transfer',
-    args: { from: '0x', to: '0x' },
+    args: { from: '0x', to: '0x', tokenId: 1n },
   })
   expect(event).toEqual({
     eventName: 'Transfer',
@@ -104,9 +105,13 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
     ],
   })
-  assertType<typeof event>({ eventName: 'Transfer', args: ['0x', '0x'] })
+  assertType<typeof event>({
+    eventName: 'Transfer',
+    args: ['0x', '0x', 1n],
+  })
   expect(event).toEqual({
     args: [
       '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',

@@ -166,9 +166,9 @@ describe('events', () => {
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
-      from: Address
-      to: Address
-      value: bigint
+      from?: Address
+      to?: Address
+      value?: bigint
     }>()
 
     expect(logs.length).toBe(2)

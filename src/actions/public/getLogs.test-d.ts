@@ -46,11 +46,11 @@ test('event: const assertion', async () => {
     [`0x${string}`, `0x${string}`, `0x${string}`]
   >()
   expectTypeOf(logs[0]['args']).toEqualTypeOf<{
-    from: `0x${string}`
-    to: `0x${string}`
-    value: bigint
-    foo: string
-    bar: string
+    from?: `0x${string}`
+    to?: `0x${string}`
+    value?: bigint
+    foo?: string
+    bar?: string
   }>()
 })
 
@@ -93,11 +93,11 @@ test('event: defined inline', async () => {
     [`0x${string}`, `0x${string}`, `0x${string}`]
   >()
   expectTypeOf(logs[0]['args']).toEqualTypeOf<{
-    from: `0x${string}`
-    to: `0x${string}`
-    value: bigint
-    foo: string
-    bar: string
+    from?: `0x${string}`
+    to?: `0x${string}`
+    value?: bigint
+    foo?: string
+    bar?: string
   }>()
 })
 

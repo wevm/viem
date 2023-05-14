@@ -149,8 +149,9 @@ test('GetEventArgsFromTopics', () => {
   >
   expectTypeOf<Result>().toEqualTypeOf<{
     args: {
-      from: `0x${string}`
-      to: `0x${string}`
+      from?: `0x${string}`
+      to?: `0x${string}`
+      tokenId?: bigint
     }
   }>()
 })
@@ -538,5 +539,3 @@ test('AbiEventParametersToPrimitiveTypes', () => {
     | readonly [string | string[] | null, number | number[] | null]
   >()
 })
-
-test.todo('AbiEventTopicsToPrimitiveTypes')
