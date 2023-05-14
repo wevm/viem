@@ -258,6 +258,58 @@ describe('contract errors', () => {
     `)
   })
 
+  test('custom error attribute safe exposure', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    // Defining cases in which decoded `errorName`s are not `Error` or `Panic`
+    // In other words, reverted ops not caused without custom solidity error
+    const casesPromises = [
+      () =>
+        readContract(publicClient, {
+          abi: errorsExampleABI,
+          address: contractAddress!,
+          functionName: 'revertRead',
+        }),
+      () =>
+        readContract(publicClient, {
+          abi: errorsExampleABI,
+          address: contractAddress!,
+          functionName: 'assertRead',
+        }),
+      () =>
+        readContract(publicClient, {
+          abi: errorsExampleABI,
+          address: contractAddress!,
+          functionName: 'overflowRead',
+        }),
+      () =>
+        readContract(publicClient, {
+          abi: errorsExampleABI,
+          address: contractAddress!,
+          functionName: 'divideByZeroRead',
+        }),
+      () =>
+        readContract(publicClient, {
+          abi: errorsExampleABI,
+          address: contractAddress!,
+          functionName: 'requireRead',
+        }),
+      () =>
+        readContract(publicClient, {
+          abi: wagmiContractConfig.abi,
+          address: '0x0000000000000000000000000000000000000069',
+          functionName: 'totalSupply',
+        }),
+    ]
+
+    const results = await Promise.all(casesPromises)
+
+    // Assert that the customError property is not present in the resolved value
+    results.forEach((result) =>
+      expect(result).not.toHaveProperty('customError'),
+    )
+  })
+
   test('custom error: simple', async () => {
     const { contractAddress } = await deployErrorExample()
 
