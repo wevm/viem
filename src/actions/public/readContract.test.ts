@@ -171,11 +171,20 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'Error')
-    await expect(call).rejects.toHaveProperty('errorArgs', [
-      'This is a revert message',
-    ])
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+        name: 'Error',
+        type: 'error',
+      },
+      errorArgs: ['This is a revert message'],
+      errorName: 'Error',
+    })
   })
 
   test('assert', async () => {
@@ -200,9 +209,20 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'Panic')
-    await expect(call).rejects.toHaveProperty('errorArgs', [BigInt(1)])
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [
+          {
+            name: 'reason',
+            type: 'uint256',
+          },
+        ],
+        name: 'Panic',
+        type: 'error',
+      },
+      errorArgs: [BigInt(1)],
+      errorName: 'Panic',
+    })
   })
 
   test('overflow', async () => {
@@ -227,9 +247,20 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'Panic')
-    await expect(call).rejects.toHaveProperty('errorArgs', [BigInt(17)])
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [
+          {
+            name: 'reason',
+            type: 'uint256',
+          },
+        ],
+        name: 'Panic',
+        type: 'error',
+      },
+      errorArgs: [BigInt(17)],
+      errorName: 'Panic',
+    })
   })
 
   test('divide by zero', async () => {
@@ -254,9 +285,20 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'Panic')
-    await expect(call).rejects.toHaveProperty('errorArgs', [BigInt(18)])
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [
+          {
+            name: 'reason',
+            type: 'uint256',
+          },
+        ],
+        name: 'Panic',
+        type: 'error',
+      },
+      errorArgs: [BigInt(18)],
+      errorName: 'Panic',
+    })
   })
 
   test('require', async () => {
@@ -280,9 +322,11 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem', undefined)
-    await expect(call).rejects.toHaveProperty('errorName', undefined)
-    await expect(call).rejects.toHaveProperty('errorArgs', undefined)
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: undefined,
+      errorArgs: undefined,
+      errorName: undefined,
+    })
   })
 
   test('custom error: simple', async () => {
@@ -309,9 +353,21 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'SimpleError')
-    await expect(call).rejects.toHaveProperty('errorArgs', ['bugger'])
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [
+          {
+            internalType: 'string',
+            name: 'message',
+            type: 'string',
+          },
+        ],
+        name: 'SimpleError',
+        type: 'error',
+      },
+      errorArgs: ['bugger'],
+      errorName: 'SimpleError',
+    })
   })
 
   test('custom error: simple (no args)', async () => {
@@ -337,9 +393,15 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'SimpleErrorNoArgs')
-    await expect(call).rejects.toHaveProperty('errorArgs', undefined)
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [],
+        name: 'SimpleErrorNoArgs',
+        type: 'error',
+      },
+      errorArgs: undefined,
+      errorName: 'SimpleErrorNoArgs',
+    })
   })
 
   test('custom error: complex', async () => {
@@ -366,13 +428,50 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(call).rejects.toHaveProperty('errorAbiItem')
-    await expect(call).rejects.toHaveProperty('errorName', 'ComplexError')
-    await expect(call).rejects.toHaveProperty('errorArgs', [
-      { bar: BigInt(69), sender: '0x0000000000000000000000000000000000000000' },
-      'bugger',
-      BigInt(69),
-    ])
+    await expect(call).rejects.toMatchObject({
+      errorAbiItem: {
+        inputs: [
+          {
+            components: [
+              {
+                internalType: 'address',
+                name: 'sender',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'bar',
+                type: 'uint256',
+              },
+            ],
+            internalType: 'struct ErrorsExample.Foo',
+            name: 'foo',
+            type: 'tuple',
+          },
+          {
+            internalType: 'string',
+            name: 'message',
+            type: 'string',
+          },
+          {
+            internalType: 'uint256',
+            name: 'number',
+            type: 'uint256',
+          },
+        ],
+        name: 'ComplexError',
+        type: 'error',
+      },
+      errorArgs: [
+        {
+          bar: BigInt(69),
+          sender: '0x0000000000000000000000000000000000000000',
+        },
+        'bugger',
+        BigInt(69),
+      ],
+      errorName: 'ComplexError',
+    })
   })
 })
 
@@ -399,7 +498,10 @@ test('fake contract address', async () => {
     Docs: https://viem.sh/docs/contract/readContract.html
     Version: viem@1.0.2"
   `)
-  await expect(call).rejects.toHaveProperty('errorAbiItem', undefined)
-  await expect(call).rejects.toHaveProperty('errorName', undefined)
-  await expect(call).rejects.toHaveProperty('errorArgs', undefined)
+
+  await expect(call).rejects.toMatchObject({
+    errorAbiItem: undefined,
+    errorArgs: undefined,
+    errorName: undefined,
+  })
 })
