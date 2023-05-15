@@ -1947,27 +1947,24 @@ describe('multicall3', () => {
       ]
     `)
   })
-
-  test('loose data size', () => {
-    expect(
-      decodeAbiParameters(
-        [
-          {
-            name: 'purchase',
-            type: 'function',
-            stateMutability: 'nonpayable',
-            inputs: [{ type: 'uint256', name: 'quantity' }],
-            outputs: [{ type: 'uint256' }],
-          },
-        ],
-        '0xefef39a100000000000000000000000000000000000000000000000000000000000000010021fb3f',
-        true,
-      ),
-    )
-  })
 })
 
-test('invalid size', () => {
+test('turn on loose data size', () => {
+  const result = decodeAbiParameters(
+    [
+      {
+        name: 'xIn',
+        type: 'uint256',
+      },
+    ],
+    '0x0000000000000000000000000000000000000000000000000000000000010f2c00000dead',
+    true,
+  )
+  assertType<[bigint]>(result)
+  expect(result).toEqual([69420n])
+})
+
+test('turn off loose data size | invalid size', () => {
   expect(() =>
     decodeAbiParameters(
       [
