@@ -152,7 +152,7 @@ const { functionName } = decodeFunctionData({
 
 - **Type:** [`Hex`](/docs/glossary/types#hex)
 
-The encoded calldata.
+The encoded calldata. If data parameters size is not aligned to 32 bytes, it will be truncated to the nearest 32 bytes.
 
 ```ts
 const { functionName } = decodeFunctionData({
