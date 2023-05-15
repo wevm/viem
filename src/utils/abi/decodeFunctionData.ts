@@ -47,7 +47,7 @@ export function decodeFunctionData<TAbi extends Abi | readonly unknown[]>({
     args: ('inputs' in description &&
     description.inputs &&
     description.inputs.length > 0
-      ? decodeAbiParameters(description.inputs, slice(data, 4))
+      ? decodeAbiParameters(description.inputs, slice(data, 4), true)
       : undefined) as readonly unknown[] | undefined,
   } as DecodeFunctionDataReturnType<TAbi>
 }

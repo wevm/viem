@@ -32,13 +32,19 @@ export type DecodeAbiParametersReturnType<
 
 export function decodeAbiParameters<
   TParams extends readonly AbiParameter[] | readonly unknown[],
->(params: Narrow<TParams>, data: Hex): DecodeAbiParametersReturnType<TParams> {
+>(
+  params: Narrow<TParams>,
+  data: Hex,
+  loose?: boolean,
+): DecodeAbiParametersReturnType<TParams> {
   if (data === '0x' && (params as unknown[]).length > 0)
     throw new AbiDecodingZeroDataError()
-  if (size(data) % 32 !== 0)
+  if ((!loose && size(data) % 32 !== 0) || (loose && size(data) < 32))
     throw new AbiDecodingDataSizeInvalidError({ data, size: size(data) })
+  const location = size(data) - (size(data) % 32)
+  const slicedData = loose ? slice(data, 0, location) : data
   return decodeParams({
-    data,
+    data: slicedData,
     params: params as readonly AbiParameter[],
   }) as unknown as DecodeAbiParametersReturnType<TParams>
 }

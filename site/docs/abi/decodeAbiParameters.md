@@ -93,6 +93,19 @@ const values = decodeAbiParameters(
 )
 ```
 
+### loose (optional)
+
+- **Type:** `boolean`
+
+ignore extra data at the end of the encoded data or not, defaults to `false
+
+```ts
+const values = decodeAbiParameters(
+  [{ name: 'x', type: 'uint32' }],
+  '0x0000000000000000000000000000000000000000000000000000000000010f2cdeadcode', // [!code focus]
+)
+```
+
 ## More Examples
 
 ### Simple struct

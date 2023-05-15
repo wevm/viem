@@ -1947,6 +1947,24 @@ describe('multicall3', () => {
       ]
     `)
   })
+
+  test('loose data size', () => {
+    expect(
+      decodeAbiParameters(
+        [
+          {
+            name: 'purchase',
+            type: 'function',
+            stateMutability: 'nonpayable',
+            inputs: [{ type: 'uint256', name: 'quantity' }],
+            outputs: [{ type: 'uint256' }],
+          },
+        ],
+        '0xefef39a100000000000000000000000000000000000000000000000000000000000000010021fb3f',
+        true,
+      ),
+    )
+  })
 })
 
 test('invalid size', () => {
