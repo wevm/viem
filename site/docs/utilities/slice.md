@@ -27,7 +27,7 @@ import { slice } from 'viem'
 ```ts
 import { slice } from 'viem'
 
-sliceHex('0x0123456789', 1, 4)
+slice('0x0123456789', 1, 4)
 // 0x234567
 
 slice(new Uint8Array([1, 122, 51, 123]), 1, 3)
@@ -49,7 +49,7 @@ The section of the sliced value.
 The hex or byte array to slice.
 
 ```ts
-sliceHex(
+slice(
   '0x0123456789', // [!code focus]
   1,
   4
@@ -63,7 +63,7 @@ sliceHex(
 The start offset (in bytes).
 
 ```ts
-sliceHex(
+slice(
   '0x0123456789', 
   1 // [!code focus]
 )
@@ -76,10 +76,24 @@ sliceHex(
 The end offset (in bytes).
 
 ```ts
-sliceHex(
+slice(
   '0x0123456789', 
   1,
   4 // [!code focus]
 )
+```
+
+#### options.strict (optional)
+
+- **Type:** `boolean`
+
+Whether or not the end offset should be inclusive of the bounds of the data.
+
+```ts
+sliceHex('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678', 0, 20, { strict: true })
+// [SliceOffsetOutOfBoundsError] Slice ending at offset "20" is out-of-bounds (size: 19).
+
+sliceHex('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 0, 20, { strict: true })
+// 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 ```
 
