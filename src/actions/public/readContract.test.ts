@@ -152,13 +152,14 @@ describe('contract errors', () => {
   test('revert', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'revertRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "revertRead" reverted with the following reason:
       This is a revert message
 
@@ -169,18 +170,25 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'Error')
+    await expect(call).rejects.toHaveProperty('errorArgs', [
+      'This is a revert message',
+    ])
   })
 
   test('assert', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'assertRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "assertRead" reverted with the following reason:
       An \`assert\` condition failed.
 
@@ -191,18 +199,23 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'Panic')
+    await expect(call).rejects.toHaveProperty('errorArgs', [BigInt(1)])
   })
 
   test('overflow', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'overflowRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
       Arithmic operation resulted in underflow or overflow.
 
@@ -213,18 +226,23 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'Panic')
+    await expect(call).rejects.toHaveProperty('errorArgs', [BigInt(17)])
   })
 
   test('divide by zero', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'divideByZeroRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "divideByZeroRead" reverted with the following reason:
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
@@ -235,18 +253,23 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
+
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'Panic')
+    await expect(call).rejects.toHaveProperty('errorArgs', [BigInt(18)])
   })
 
   test('require', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'requireRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "requireRead" reverted.
 
       Contract Call:
@@ -256,70 +279,23 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2]
     `)
-  })
 
-  test('custom error attribute safe exposure', async () => {
-    const { contractAddress } = await deployErrorExample()
-
-    // Defining cases in which decoded `errorName`s are not `Error` or `Panic`
-    // In other words, reverted ops not caused without custom solidity error
-    const casesPromises = [
-      () =>
-        readContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'revertRead',
-        }),
-      () =>
-        readContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'assertRead',
-        }),
-      () =>
-        readContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'overflowRead',
-        }),
-      () =>
-        readContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'divideByZeroRead',
-        }),
-      () =>
-        readContract(publicClient, {
-          abi: errorsExampleABI,
-          address: contractAddress!,
-          functionName: 'requireRead',
-        }),
-      () =>
-        readContract(publicClient, {
-          abi: wagmiContractConfig.abi,
-          address: '0x0000000000000000000000000000000000000069',
-          functionName: 'totalSupply',
-        }),
-    ]
-
-    const results = await Promise.all(casesPromises)
-
-    // Assert that the customError property is not present in the resolved value
-    results.forEach((result) =>
-      expect(result).not.toHaveProperty('customError'),
-    )
+    await expect(call).rejects.toHaveProperty('errorAbiItem', undefined)
+    await expect(call).rejects.toHaveProperty('errorName', undefined)
+    await expect(call).rejects.toHaveProperty('errorArgs', undefined)
   })
 
   test('custom error: simple', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'simpleCustomRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted.
 
       Error: SimpleError(string message)
@@ -333,28 +309,22 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(() =>
-      readContract(publicClient, {
-        abi: errorsExampleABI,
-        address: contractAddress!,
-        functionName: 'simpleCustomRead',
-      }),
-    ).rejects.toHaveProperty('customError', [
-      'SimpleError(string message)',
-      '(bugger)',
-    ])
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'SimpleError')
+    await expect(call).rejects.toHaveProperty('errorArgs', ['bugger'])
   })
 
   test('custom error: simple (no args)', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'simpleCustomReadNoArgs',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "simpleCustomReadNoArgs" reverted.
 
       Error: SimpleErrorNoArgs()
@@ -367,25 +337,22 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(() =>
-      readContract(publicClient, {
-        abi: errorsExampleABI,
-        address: contractAddress!,
-        functionName: 'simpleCustomReadNoArgs',
-      }),
-    ).rejects.toHaveProperty('customError', ['SimpleErrorNoArgs()', undefined])
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'SimpleErrorNoArgs')
+    await expect(call).rejects.toHaveProperty('errorArgs', undefined)
   })
 
   test('custom error: complex', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    await expect(() =>
+    const call = () =>
       readContract(publicClient, {
         abi: errorsExampleABI,
         address: contractAddress!,
         functionName: 'complexCustomRead',
-      }),
-    ).rejects.toMatchInlineSnapshot(`
+      })
+
+    await expect(call).rejects.toMatchInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "complexCustomRead" reverted.
 
       Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
@@ -399,27 +366,25 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
 
-    await expect(() =>
-      readContract(publicClient, {
-        abi: errorsExampleABI,
-        address: contractAddress!,
-        functionName: 'complexCustomRead',
-      }),
-    ).rejects.toHaveProperty('customError', [
-      'ComplexError((address sender, uint256 bar), string message, uint256 number)',
-      '({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)',
+    await expect(call).rejects.toHaveProperty('errorAbiItem')
+    await expect(call).rejects.toHaveProperty('errorName', 'ComplexError')
+    await expect(call).rejects.toHaveProperty('errorArgs', [
+      { bar: BigInt(69), sender: '0x0000000000000000000000000000000000000000' },
+      'bugger',
+      BigInt(69),
     ])
   })
 })
 
 test('fake contract address', async () => {
-  await expect(() =>
+  const call = () =>
     readContract(publicClient, {
       abi: wagmiContractConfig.abi,
       address: '0x0000000000000000000000000000000000000069',
       functionName: 'totalSupply',
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    })
+
+  await expect(call).rejects.toThrowErrorMatchingInlineSnapshot(`
     "The contract function \\"totalSupply\\" returned no data (\\"0x\\").
 
     This could be due to any of the following:
@@ -434,4 +399,7 @@ test('fake contract address', async () => {
     Docs: https://viem.sh/docs/contract/readContract.html
     Version: viem@1.0.2"
   `)
+  await expect(call).rejects.toHaveProperty('errorAbiItem', undefined)
+  await expect(call).rejects.toHaveProperty('errorName', undefined)
+  await expect(call).rejects.toHaveProperty('errorArgs', undefined)
 })

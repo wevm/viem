@@ -1,4 +1,4 @@
-import type { Abi, Address } from 'abitype'
+import type { Abi, AbiError, Address } from 'abitype'
 
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import type { CallParameters } from '../actions/public/call.js'
@@ -73,8 +73,6 @@ export class CallExecutionError extends BaseError {
   }
 }
 
-type CustomErrorData = [string, string | undefined]
-
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
   args?: unknown[]
@@ -83,7 +81,9 @@ export class ContractFunctionExecutionError extends BaseError {
   formattedArgs?: string
   functionName: string
   sender?: Address
-  customError?: CustomErrorData
+  errorAbiItem?: AbiError
+  errorName?: string
+  errorArgs?: unknown[]
 
   override name = 'ContractFunctionExecutionError'
 
@@ -130,10 +130,14 @@ export class ContractFunctionExecutionError extends BaseError {
       sender,
     })
 
-    const customError: CustomErrorData | undefined =
-      cause instanceof ContractFunctionRevertedError
-        ? cause.customError
-        : undefined
+    let errorAbiItem
+    let errorName
+    let errorArgs
+    if (cause instanceof ContractFunctionRevertedError && cause.data) {
+      errorAbiItem = cause.data.abiItem
+      errorName = cause.data.errorName
+      errorArgs = cause.data.args as unknown[]
+    }
 
     super(
       cause.shortMessage ||
@@ -154,7 +158,9 @@ export class ContractFunctionExecutionError extends BaseError {
     this.contractAddress = contractAddress
     this.functionName = functionName
     this.sender = sender
-    this.customError = customError
+    this.errorAbiItem = errorAbiItem
+    this.errorName = errorName
+    this.errorArgs = errorArgs
   }
 }
 
@@ -163,7 +169,6 @@ export class ContractFunctionRevertedError extends BaseError {
 
   data?: DecodeErrorResultReturnType
   reason?: string
-  customError?: CustomErrorData
 
   constructor({
     abi,
@@ -174,7 +179,6 @@ export class ContractFunctionRevertedError extends BaseError {
     let decodedData: DecodeErrorResultReturnType | undefined = undefined
     let metaMessages
     let reason
-    let customError: CustomErrorData | undefined = undefined
     if (data && data !== '0x') {
       decodedData = decodeErrorResult({ abi, data })
       const { abiItem, errorName, args: errorArgs } = decodedData
@@ -196,10 +200,6 @@ export class ContractFunctionRevertedError extends BaseError {
                 includeName: false,
               })
             : undefined
-
-        if (errorWithParams !== undefined) {
-          customError = [errorWithParams, formattedArgs]
-        }
 
         metaMessages = [
           errorWithParams ? `Error: ${errorWithParams}` : '',
@@ -226,7 +226,6 @@ export class ContractFunctionRevertedError extends BaseError {
 
     this.reason = reason
     this.data = decodedData
-    this.customError = customError
   }
 }
 
