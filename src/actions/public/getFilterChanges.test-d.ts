@@ -63,11 +63,11 @@ describe('createEventFilter', () => {
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner: Address
-      spender: Address
-      foo: Address
-      value: bigint
-      bar: bigint
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
     }>()
   })
 
@@ -114,11 +114,11 @@ describe('createEventFilter', () => {
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner: Address
-      spender: Address
-      foo: Address
-      value: bigint
-      bar: bigint
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
     }>()
   })
 
@@ -224,21 +224,21 @@ describe('createContractEventFilter', () => {
     >()
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | {
-          from: Address
-          to: Address
-          value: bigint
+          from?: Address
+          to?: Address
+          value?: bigint
         }
       | {
-          owner: Address
-          spender: Address
-          value: bigint
+          owner?: Address
+          spender?: Address
+          value?: bigint
         }
       | {
-          owner: Address
-          spender: Address
-          foo: Address
-          value: bigint
-          bar: bigint
+          owner?: Address
+          spender?: Address
+          foo?: Address
+          value?: bigint
+          bar?: bigint
         }
     >()
   })
@@ -257,11 +257,11 @@ describe('createContractEventFilter', () => {
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner: Address
-      spender: Address
-      foo: Address
-      value: bigint
-      bar: bigint
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
     }>()
   })
 
@@ -310,11 +310,11 @@ describe('createContractEventFilter', () => {
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner: Address
-      spender: Address
-      foo: Address
-      value: bigint
-      bar: bigint
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
     }>()
   })
 
