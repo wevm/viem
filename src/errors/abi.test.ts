@@ -113,8 +113,6 @@ test('DecodeLogDataMismatch', () => {
   ).toMatchInlineSnapshot(`
     [DecodeLogDataMismatch: Data size of 2 bytes is too small for non-indexed event parameters.
 
-    This error is usually caused if the ABI event has too many non-indexed event parameters for the emitted log.
-
     Params: (uint256 a, uint256 b)
     Data:   0x1234 (2 bytes)
 
