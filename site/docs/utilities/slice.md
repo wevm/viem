@@ -90,10 +90,10 @@ slice(
 Whether or not the end offset should be inclusive of the bounds of the data.
 
 ```ts
-sliceHex('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678', 0, 20, { strict: true })
+slice('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678', 0, 20, { strict: true })
 // [SliceOffsetOutOfBoundsError] Slice ending at offset "20" is out-of-bounds (size: 19).
 
-sliceHex('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 0, 20, { strict: true })
+slice('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 0, 20, { strict: true })
 // 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 ```
 
