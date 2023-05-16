@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.26
+
+### Patch Changes
+
+- [#500](https://github.com/wagmi-dev/viem/pull/500) [`1da5831`](https://github.com/wagmi-dev/viem/commit/1da583137a32f381a2e2e5f260105ce8542bbaee) Thanks [@jxom](https://github.com/jxom)! - refactor: lax log types
+
 ## 0.3.25
 
 ### Patch Changes
