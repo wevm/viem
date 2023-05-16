@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.25
+
+### Patch Changes
+
+- [#506](https://github.com/wagmi-dev/viem/pull/506) [`f396e5d`](https://github.com/wagmi-dev/viem/commit/f396e5d242bbf68a4b34596db6943d52fee19e79) Thanks [@jxom](https://github.com/jxom)! - Support suffixed data in `decodeAbiParameters`.
+
 ## 0.3.24
 
 ### Patch Changes
