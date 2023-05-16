@@ -293,8 +293,6 @@ export class DecodeLogDataMismatch extends BaseError {
       ].join('\n'),
       {
         metaMessages: [
-          'This error is usually caused if the ABI event has too many non-indexed event parameters for the emitted log.',
-          '',
           `Params: (${formatAbiParams(params, { includeName: true })})`,
           `Data:   ${data} (${size} bytes)`,
         ],

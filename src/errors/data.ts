@@ -2,9 +2,15 @@ import { BaseError } from './base.js'
 
 export class SliceOffsetOutOfBoundsError extends BaseError {
   override name = 'SliceOffsetOutOfBoundsError'
-  constructor({ offset, size }: { offset: number; size: number }) {
+  constructor({
+    offset,
+    position,
+    size,
+  }: { offset: number; position: 'start' | 'end'; size: number }) {
     super(
-      `Slice starting at offset "${offset}" is out-of-bounds (size: ${size}).`,
+      `Slice ${
+        position === 'start' ? 'starting' : 'ending'
+      } at offset "${offset}" is out-of-bounds (size: ${size}).`,
     )
   }
 }
