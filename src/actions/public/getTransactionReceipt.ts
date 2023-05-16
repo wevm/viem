@@ -24,7 +24,7 @@ export type GetTransactionReceiptReturnType<
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt.html
  * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
- * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt)
+ * - JSON-RPC Methods: [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionreceipt)
  *
  * @param client - Client to use
  * @param parameters - {@link GetTransactionReceiptParameters}
