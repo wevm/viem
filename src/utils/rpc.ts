@@ -7,6 +7,7 @@ import {
   WebSocketRequestError,
 } from '../errors/request.js'
 
+import { createBatchScheduler } from './promise/createBatchScheduler.js'
 import { withTimeout } from './promise/withTimeout.js'
 import { stringify } from './stringify.js'
 
@@ -146,61 +147,70 @@ export async function getSocket(url_: string) {
   // If the socket already exists, return it.
   if (socket) return socket
 
-  let WebSocket = await import('isomorphic-ws')
-  // Workaround for Vite.
-  // https://github.com/vitejs/vite/issues/9703
-  // TODO: Remove when issue is resolved.
-  if (
-    (WebSocket as unknown as { default?: typeof WebSocket }).default
-      ?.constructor
-  )
-    WebSocket = (WebSocket as unknown as { default: typeof WebSocket }).default
-  else WebSocket = WebSocket.WebSocket
+  const { schedule } = createBatchScheduler<undefined, [Socket]>({
+    id: urlKey,
+    fn: async () => {
+      let WebSocket = await import('isomorphic-ws')
+      // Workaround for Vite.
+      // https://github.com/vitejs/vite/issues/9703
+      // TODO: Remove when issue is resolved.
+      if (
+        (WebSocket as unknown as { default?: typeof WebSocket }).default
+          ?.constructor
+      )
+        WebSocket = (WebSocket as unknown as { default: typeof WebSocket })
+          .default
+      else WebSocket = WebSocket.WebSocket
 
-  const webSocket = new WebSocket(url)
+      const webSocket = new WebSocket(url)
 
-  // Set up a cache for incoming "synchronous" requests.
-  const requests = new Map<Id, CallbackFn>()
+      // Set up a cache for incoming "synchronous" requests.
+      const requests = new Map<Id, CallbackFn>()
 
-  // Set up a cache for subscriptions (eth_subscribe).
-  const subscriptions = new Map<Id, CallbackFn>()
+      // Set up a cache for subscriptions (eth_subscribe).
+      const subscriptions = new Map<Id, CallbackFn>()
 
-  const onMessage: (event: MessageEvent) => void = ({ data }) => {
-    const message: RpcResponse = JSON.parse(data as string)
-    const isSubscription = message.method === 'eth_subscription'
-    const id = isSubscription ? message.params.subscription : message.id
-    const cache = isSubscription ? subscriptions : requests
-    const callback = cache.get(id)
-    if (callback) callback({ data })
-    if (!isSubscription) cache.delete(id)
-  }
-  const onClose = () => {
-    sockets.delete(urlKey)
-    webSocket.removeEventListener('close', onClose)
-    webSocket.removeEventListener('message', onMessage)
-  }
+      const onMessage: (event: MessageEvent) => void = ({ data }) => {
+        const message: RpcResponse = JSON.parse(data as string)
+        const isSubscription = message.method === 'eth_subscription'
+        const id = isSubscription ? message.params.subscription : message.id
+        const cache = isSubscription ? subscriptions : requests
+        const callback = cache.get(id)
+        if (callback) callback({ data })
+        if (!isSubscription) cache.delete(id)
+      }
+      const onClose = () => {
+        sockets.delete(urlKey)
+        webSocket.removeEventListener('close', onClose)
+        webSocket.removeEventListener('message', onMessage)
+      }
 
-  // Setup event listeners for RPC & subscription responses.
-  webSocket.addEventListener('close', onClose)
-  webSocket.addEventListener('message', onMessage)
+      // Setup event listeners for RPC & subscription responses.
+      webSocket.addEventListener('close', onClose)
+      webSocket.addEventListener('message', onMessage)
 
-  // Wait for the socket to open.
-  if (webSocket.readyState === WebSocket.CONNECTING) {
-    await new Promise((resolve, reject) => {
-      if (!webSocket) return
-      webSocket.onopen = resolve
-      webSocket.onerror = reject
-    })
-  }
+      // Wait for the socket to open.
+      if (webSocket.readyState === WebSocket.CONNECTING) {
+        await new Promise((resolve, reject) => {
+          if (!webSocket) return
+          webSocket.onopen = resolve
+          webSocket.onerror = reject
+        })
+      }
 
-  // Create a new socket instance.
-  socket = Object.assign(webSocket, {
-    requests,
-    subscriptions,
+      // Create a new socket instance.
+      socket = Object.assign(webSocket, {
+        requests,
+        subscriptions,
+      })
+      sockets.set(urlKey, socket)
+
+      return [socket]
+    },
   })
-  sockets.set(urlKey, socket)
 
-  return socket
+  const [_, [socket_]] = await schedule()
+  return socket_
 }
 
 function webSocket(

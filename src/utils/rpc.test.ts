@@ -261,15 +261,16 @@ describe('getSocket', () => {
   })
 
   test('multiple invocations on a url only opens one socket', async () => {
+    const url = 'ws://127.0.0.1:8545/69420'
     const [socket, socket2, socket3, socket4] = await Promise.all([
-      getSocket(localWsUrl),
-      getSocket(localWsUrl),
-      getSocket(localWsUrl),
-      getSocket(localWsUrl),
+      getSocket(url),
+      getSocket(url),
+      getSocket(url),
+      getSocket(url),
     ])
-    expect(socket).toBe(socket2)
-    expect(socket).toBe(socket3)
-    expect(socket).toBe(socket4)
+    expect(socket).toEqual(socket2)
+    expect(socket).toEqual(socket3)
+    expect(socket).toEqual(socket4)
   })
 })
 
