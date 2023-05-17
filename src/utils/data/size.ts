@@ -9,6 +9,6 @@ import { isHex } from './isHex.js'
  * @returns The size of the value (in bytes).
  */
 export function size(value: Hex | ByteArray) {
-  if (isHex(value)) return Math.ceil((value.length - 2) / 2)
+  if (isHex(value, { strict: false })) return Math.ceil((value.length - 2) / 2)
   return value.length
 }
