@@ -164,8 +164,8 @@ export async function waitForTransactionReceipt<
                 },
                 {
                   // exponential backoff
-                  delay: ({ count }) => ~~(1 << count) * 100,
-                  retryCount: 3,
+                  delay: ({ count }) => ~~(1 << count) * 200,
+                  retryCount: 4,
                 },
               )
 
