@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Optimized \`getTransaction\` strategy in \`waitForTransactionReceipt\`.
+Optimized `getTransaction` strategy in `waitForTransactionReceipt`.
