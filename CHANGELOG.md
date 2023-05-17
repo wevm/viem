@@ -1,5 +1,15 @@
 # viem
 
+## 0.3.27
+
+### Patch Changes
+
+- [#519](https://github.com/wagmi-dev/viem/pull/519) [`2ab7b56`](https://github.com/wagmi-dev/viem/commit/2ab7b56ea6828f92e10f287bac68f1f70815da1a) Thanks [@jxom](https://github.com/jxom)! - Batched websocket initialization.
+
+* [#518](https://github.com/wagmi-dev/viem/pull/518) [`65a0896`](https://github.com/wagmi-dev/viem/commit/65a0896426a28e2d11438984a6ed6b604d87c316) Thanks [@jxom](https://github.com/jxom)! - Added `strict` option to `isHex` & optimized data utilities.
+
+- [#515](https://github.com/wagmi-dev/viem/pull/515) [`c1b81dc`](https://github.com/wagmi-dev/viem/commit/c1b81dc36ad787b632099a98ba2b4bd5e03ddafa) Thanks [@jxom](https://github.com/jxom)! - Optimized `getTransaction` strategy in `waitForTransactionReceipt`.
+
 ## 0.3.26
 
 ### Patch Changes
