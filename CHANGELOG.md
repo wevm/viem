@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.29
+
+### Patch Changes
+
+- [#527](https://github.com/wagmi-dev/viem/pull/527) [`840d3d7`](https://github.com/wagmi-dev/viem/commit/840d3d7411a33ad02c71bd180b53244df91cd779) Thanks [@jxom](https://github.com/jxom)! - Fixed `trim` to trim trailing zero byte data instead of all trailing zeros.
+
 ## 0.3.28
 
 ### Patch Changes
