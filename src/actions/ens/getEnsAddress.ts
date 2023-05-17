@@ -106,5 +106,5 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
     data: res[0],
   })
 
-  return trim(address) === '0x0' ? null : address
+  return trim(address) === '0x00' ? null : address
 }
