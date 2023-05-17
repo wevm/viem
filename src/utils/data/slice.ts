@@ -21,7 +21,7 @@ export function slice<TValue extends ByteArray | Hex>(
   end?: number,
   { strict }: { strict?: boolean } = {},
 ): SliceReturnType<TValue> {
-  if (isHex(value))
+  if (isHex(value, { strict: false }))
     return sliceHex(value as Hex, start, end, {
       strict,
     }) as SliceReturnType<TValue>
