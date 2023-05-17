@@ -140,7 +140,7 @@ export type HexToBoolOpts = {
  *
  * @example
  * import { hexToBool } from 'viem'
- * const data = hexToBool('0x1')
+ * const data = hexToBool('0x01')
  * // true
  *
  * @example
@@ -154,8 +154,8 @@ export function hexToBool(hex_: Hex, opts: HexToBoolOpts = {}): boolean {
     assertSize(hex, { size: opts.size })
     hex = trim(hex)
   }
-  if (trim(hex) === '0x0') return false
-  if (trim(hex) === '0x1') return true
+  if (trim(hex) === '0x00') return false
+  if (trim(hex) === '0x01') return true
   throw new InvalidHexBooleanError(hex)
 }
 
