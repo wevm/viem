@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.28
+
+### Patch Changes
+
+- [`ffee4f8`](https://github.com/wagmi-dev/viem/commit/ffee4f86928ada54d2c6a4403aafa7b861eeccb2) Thanks [@jxom](https://github.com/jxom)! - Bumped `waitForTransactionReceipt` exponential backoff scalar
+
 ## 0.3.27
 
 ### Patch Changes
