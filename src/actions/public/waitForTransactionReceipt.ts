@@ -116,6 +116,7 @@ export async function waitForTransactionReceipt<
   let transaction: GetTransactionReturnType<TChain> | undefined
   let replacedTransaction: GetTransactionReturnType<TChain> | undefined
   let receipt: GetTransactionReceiptReturnType<TChain>
+  let retrying = false
 
   return new Promise((resolve, reject) => {
     if (timeout)
@@ -134,6 +135,8 @@ export async function waitForTransactionReceipt<
           poll: true,
           pollingInterval,
           async onBlockNumber(blockNumber_) {
+            if (retrying) return
+
             let blockNumber = blockNumber_
 
             const done = async (fn: () => void) => {
@@ -156,18 +159,22 @@ export async function waitForTransactionReceipt<
               // Get the transaction to check if it's been replaced.
               // We need to retry as some RPC Providers may be slow to sync
               // up mined transactions.
-              await withRetry(
-                async () => {
-                  transaction = await getTransaction(client, { hash })
-                  if (transaction.blockNumber)
-                    blockNumber = transaction.blockNumber
-                },
-                {
-                  // exponential backoff
-                  delay: ({ count }) => ~~(1 << count) * 200,
-                  retryCount: 4,
-                },
-              )
+              if (!transaction) {
+                retrying = true
+                await withRetry(
+                  async () => {
+                    transaction = await getTransaction(client, { hash })
+                    if (transaction.blockNumber)
+                      blockNumber = transaction.blockNumber
+                  },
+                  {
+                    // exponential backoff
+                    delay: ({ count }) => ~~(1 << count) * 200,
+                    retryCount: 6,
+                  },
+                )
+                retrying = false
+              }
 
               // Get the receipt to check if it's been processed.
               receipt = await getTransactionReceipt(client, { hash })
