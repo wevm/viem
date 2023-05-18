@@ -442,9 +442,13 @@ export type {
   ProviderMessage,
   Chain as Chain_,
   NetworkSync,
+  PublicRequests,
+  Requests,
+  SignableRequests,
+  WatchAssetParams,
   WalletPermissionCaveat,
   WalletPermission,
-  WatchAssetParams,
+  WalletRequests,
 } from './types/eip1193.js'
 export {
   type FeeHistory,
