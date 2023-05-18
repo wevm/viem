@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.30
+
+### Patch Changes
+
+- [`228d949`](https://github.com/wagmi-dev/viem/commit/228d949bce648065ecef629173d1b847e2fc8f21) Thanks [@jxom](https://github.com/jxom)! - Bumped `waitForTransactionReceipt` retry count.
+
 ## 0.3.29
 
 ### Patch Changes
