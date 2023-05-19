@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.31
+
+### Patch Changes
+
+- [#540](https://github.com/wagmi-dev/viem/pull/540) [`0d8f154`](https://github.com/wagmi-dev/viem/commit/0d8f154fbcbf68f8f8b1b8bde0cf5661ffc44370) Thanks [@jxom](https://github.com/jxom)! - Added proxy packages to support bundlers that are not compatible with `package.json#exports`.
+
 ## 0.3.30
 
 ### Patch Changes
