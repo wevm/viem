@@ -133,7 +133,11 @@ export class ContractFunctionExecutionError extends BaseError {
     let errorAbiItem
     let errorName
     let errorArgs
-    if (cause instanceof ContractFunctionRevertedError && cause.data) {
+    if (
+      cause instanceof ContractFunctionRevertedError &&
+      cause.data &&
+      !['Panic', 'Error'].includes(cause.data.errorName)
+    ) {
       errorAbiItem = cause.data.abiItem
       errorName = cause.data.errorName
       errorArgs = cause.data.args as unknown[]

@@ -172,18 +172,9 @@ describe('contract errors', () => {
     `)
 
     await expect(call).rejects.toMatchObject({
-      errorAbiItem: {
-        inputs: [
-          {
-            name: 'message',
-            type: 'string',
-          },
-        ],
-        name: 'Error',
-        type: 'error',
-      },
-      errorArgs: ['This is a revert message'],
-      errorName: 'Error',
+      errorAbiItem: undefined,
+      errorArgs: undefined,
+      errorName: undefined,
     })
   })
 
@@ -210,18 +201,9 @@ describe('contract errors', () => {
     `)
 
     await expect(call).rejects.toMatchObject({
-      errorAbiItem: {
-        inputs: [
-          {
-            name: 'reason',
-            type: 'uint256',
-          },
-        ],
-        name: 'Panic',
-        type: 'error',
-      },
-      errorArgs: [BigInt(1)],
-      errorName: 'Panic',
+      errorAbiItem: undefined,
+      errorArgs: undefined,
+      errorName: undefined,
     })
   })
 
@@ -248,18 +230,9 @@ describe('contract errors', () => {
     `)
 
     await expect(call).rejects.toMatchObject({
-      errorAbiItem: {
-        inputs: [
-          {
-            name: 'reason',
-            type: 'uint256',
-          },
-        ],
-        name: 'Panic',
-        type: 'error',
-      },
-      errorArgs: [BigInt(17)],
-      errorName: 'Panic',
+      errorAbiItem: undefined,
+      errorArgs: undefined,
+      errorName: undefined,
     })
   })
 
@@ -286,18 +259,9 @@ describe('contract errors', () => {
     `)
 
     await expect(call).rejects.toMatchObject({
-      errorAbiItem: {
-        inputs: [
-          {
-            name: 'reason',
-            type: 'uint256',
-          },
-        ],
-        name: 'Panic',
-        type: 'error',
-      },
-      errorArgs: [BigInt(18)],
-      errorName: 'Panic',
+      errorAbiItem: undefined,
+      errorArgs: undefined,
+      errorName: undefined,
     })
   })
 
