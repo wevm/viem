@@ -49,7 +49,7 @@ const mine = await client.mine({ blocks: 1 }) // [!code focus:10]
 
 ### mode
 
-- **Type:** `"anvil" | "hardhat"`
+- **Type:** `"anvil" | "hardhat" | "ganache"`
 
 Mode of the Test Client.
 

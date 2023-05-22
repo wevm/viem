@@ -165,7 +165,7 @@ viem supports all these features out-of-the-box:
 - Browser native [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt), instead of large BigNumber libraries
 - Utilities for working with [ABIs](https://ethereum.org/en/glossary/#abi) (encoding/decoding/inspection)
 - TypeScript ready ([infer types](/docs/typescript) from ABIs and EIP-712 Typed Data)
-- First-class support for [Anvil](https://book.getfoundry.sh/) & [Hardhat](https://hardhat.org/)
+- First-class support for [Anvil](https://book.getfoundry.sh/), [Hardhat](https://hardhat.org/) & [Ganache](https://trufflesuite.com/ganache/)
 - Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
 
 <div class="h-8" />
