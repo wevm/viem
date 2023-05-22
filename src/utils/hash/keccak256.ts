@@ -16,7 +16,9 @@ export function keccak256<TTo extends To = 'hex'>(
   to_?: TTo,
 ): Keccak256Hash<TTo> {
   const to = to_ || 'hex'
-  const bytes = keccak_256(isHex(value) ? toBytes(value) : value)
+  const bytes = keccak_256(
+    isHex(value, { strict: false }) ? toBytes(value) : value,
+  )
   if (to === 'bytes') return bytes as Keccak256Hash<TTo>
   return toHex(bytes) as Keccak256Hash<TTo>
 }

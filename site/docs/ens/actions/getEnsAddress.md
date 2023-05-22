@@ -54,7 +54,7 @@ Since ENS names prohibit certain forbidden characters (e.g. underscore) and have
 
 The address that resolves to provided ENS name.
 
-Returns `0x0000000000000000000000000000000000000000` if ENS name does not resolve to address.
+Returns `null` if ENS name does not resolve to address.
 
 ## Parameters
 

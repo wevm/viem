@@ -11,6 +11,7 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+import { stringify } from '../../utils/stringify.js'
 
 import {
   type CreateEventFilterParameters,
@@ -108,7 +109,7 @@ export function watchEvent<
     pollingInterval = client.pollingInterval,
   }: WatchEventParameters<TAbiEvent>,
 ): WatchEventReturnType {
-  const observerId = JSON.stringify([
+  const observerId = stringify([
     'watchEvent',
     address,
     args,

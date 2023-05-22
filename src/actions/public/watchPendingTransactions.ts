@@ -6,6 +6,7 @@ import type { Hash } from '../../types/misc.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+import { stringify } from '../../utils/stringify.js'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
@@ -104,7 +105,7 @@ export function watchPendingTransactions<
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
 
   const pollPendingTransactions = () => {
-    const observerId = JSON.stringify([
+    const observerId = stringify([
       'watchPendingTransactions',
       client.uid,
       batch,

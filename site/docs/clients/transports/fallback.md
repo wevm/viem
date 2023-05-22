@@ -24,16 +24,12 @@ import { fallback } from 'viem'
 
 ## Usage
 
-```ts {4-9,13}
+```ts {4-5,9}
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const alchemy = http({ 
-  url: 'https://eth-mainnet.g.alchemy.com/v2/...' 
-})
-const infura = http({ 
-  url: 'https://mainnet.infura.io/v3/...' 
-})
+const alchemy = http('https://eth-mainnet.g.alchemy.com/v2/...')
+const infura = http('https://mainnet.infura.io/v3/...')
 
 const client = createPublicClient({
   chain: mainnet,

@@ -9,6 +9,8 @@ import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { observe } from '../../utils/observe.js'
+import { withRetry } from '../../utils/promise/withRetry.js'
+import { stringify } from '../../utils/stringify.js'
 
 import { getBlock } from './getBlock.js'
 import {
@@ -106,16 +108,12 @@ export async function waitForTransactionReceipt<
     timeout,
   }: WaitForTransactionReceiptParameters<TChain>,
 ): Promise<WaitForTransactionReceiptReturnType<TChain>> {
-  const observerId = JSON.stringify([
-    'waitForTransactionReceipt',
-    client.uid,
-    hash,
-  ])
+  const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
 
   let transaction: GetTransactionReturnType<TChain> | undefined
   let replacedTransaction: GetTransactionReturnType<TChain> | undefined
   let receipt: GetTransactionReceiptReturnType<TChain>
-  let retries = 0
+  let retrying = false
 
   return new Promise((resolve, reject) => {
     if (timeout)
@@ -133,7 +131,11 @@ export async function waitForTransactionReceipt<
           emitOnBegin: true,
           poll: true,
           pollingInterval,
-          async onBlockNumber(blockNumber) {
+          async onBlockNumber(blockNumber_) {
+            if (retrying) return
+
+            let blockNumber = blockNumber_
+
             const done = async (fn: () => void) => {
               unwatch()
               fn()
@@ -152,13 +154,34 @@ export async function waitForTransactionReceipt<
               }
 
               // Get the transaction to check if it's been replaced.
-              transaction = await getTransaction(client, { hash })
+              // We need to retry as some RPC Providers may be slow to sync
+              // up mined transactions.
+              if (!transaction) {
+                retrying = true
+                await withRetry(
+                  async () => {
+                    transaction = await getTransaction(client, { hash })
+                    if (transaction.blockNumber)
+                      blockNumber = transaction.blockNumber
+                  },
+                  {
+                    // exponential backoff
+                    delay: ({ count }) => ~~(1 << count) * 200,
+                    retryCount: 6,
+                  },
+                )
+                retrying = false
+              }
 
               // Get the receipt to check if it's been processed.
               receipt = await getTransactionReceipt(client, { hash })
 
               // Check if we have enough confirmations. If not, continue polling.
-              if (blockNumber - receipt.blockNumber + 1n < confirmations) return
+              if (
+                confirmations > 0 &&
+                blockNumber - receipt.blockNumber + 1n < confirmations
+              )
+                return
 
               done(() => emit.resolve(receipt))
             } catch (err) {
@@ -220,8 +243,7 @@ export async function waitForTransactionReceipt<
                   emit.resolve(receipt)
                 })
               } else {
-                if (retries > 2) done(() => emit.reject(err))
-                retries++
+                done(() => emit.reject(err))
               }
             }
           },

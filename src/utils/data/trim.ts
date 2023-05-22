@@ -27,7 +27,9 @@ export function trim<TValue extends ByteArray | Hex>(
 
   if (typeof hexOrBytes === 'string') {
     if (data.length === 1 && dir === 'right') data = `${data}0`
-    return `0x${data}` as TrimReturnType<TValue>
+    return `0x${
+      data.length % 2 === 1 ? `0${data}` : data
+    }` as TrimReturnType<TValue>
   }
   return data as TrimReturnType<TValue>
 }

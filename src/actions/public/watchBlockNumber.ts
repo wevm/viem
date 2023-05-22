@@ -5,6 +5,7 @@ import type { GetTransportConfig } from '../../types/transport.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+import { stringify } from '../../utils/stringify.js'
 
 import {
   type GetBlockNumberReturnType,
@@ -92,7 +93,7 @@ export function watchBlockNumber<
   let prevBlockNumber: GetBlockNumberReturnType | undefined
 
   const pollBlockNumber = () => {
-    const observerId = JSON.stringify([
+    const observerId = stringify([
       'watchBlockNumber',
       client.uid,
       emitOnBegin,

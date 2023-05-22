@@ -5,7 +5,7 @@ import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type TestActions, testActions } from './decorators/test.js'
 import type { Transport } from './transports/createTransport.js'
 
-export type TestClientMode = 'anvil' | 'hardhat'
+export type TestClientMode = 'anvil' | 'hardhat' | 'ganache'
 
 export type TestClientConfig<
   TMode extends TestClientMode = TestClientMode,
@@ -15,7 +15,7 @@ export type TestClientConfig<
   ClientConfig<TTransport, TChain>,
   'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
 > & {
-  /** Mode of the test client. Available: "anvil" | "hardhat" */
+  /** Mode of the test client. Available: "anvil" | "hardhat" | "ganache" */
   mode: TMode
 }
 

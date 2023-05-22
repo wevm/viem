@@ -12,6 +12,7 @@ import {
 } from '../../utils/abi/getAbiItem.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+import { stringify } from '../../utils/stringify.js'
 
 import {
   type CreateContractEventFilterParameters,
@@ -103,7 +104,7 @@ export function watchContractEvent<
     pollingInterval = client.pollingInterval,
   }: WatchContractEventParameters<TAbi, TEventName>,
 ): WatchContractEventReturnType {
-  const observerId = JSON.stringify([
+  const observerId = stringify([
     'watchContractEvent',
     address,
     args,

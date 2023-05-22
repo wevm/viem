@@ -10,6 +10,25 @@ type PendingPromise<TReturnType extends readonly unknown[] = any> = {
 
 type SchedulerItem = { args: unknown; pendingPromise: PendingPromise }
 
+export type CreateBatchSchedulerArguments<
+  TParameters = unknown,
+  TReturnType extends readonly unknown[] = readonly unknown[],
+> = {
+  fn: (args: TParameters[]) => Promise<TReturnType>
+  id: number | string
+  shouldSplitBatch?: (args: TParameters[]) => boolean
+  wait?: number
+}
+export type CreateBatchSchedulerReturnType<
+  TParameters = unknown,
+  TReturnType extends readonly unknown[] = readonly unknown[],
+> = {
+  flush: () => void
+  schedule: TParameters extends undefined
+    ? (args?: TParameters) => Promise<Resolved<TReturnType>>
+    : (args: TParameters) => Promise<Resolved<TReturnType>>
+}
+
 const schedulerCache = new Map<number | string, SchedulerItem[]>()
 
 export function createBatchScheduler<
@@ -20,12 +39,10 @@ export function createBatchScheduler<
   id,
   shouldSplitBatch,
   wait = 0,
-}: {
-  fn: (args: TParameters[]) => Promise<TReturnType>
-  id: number | string
-  shouldSplitBatch?: (args: TParameters[]) => boolean
-  wait?: number
-}) {
+}: CreateBatchSchedulerArguments<
+  TParameters,
+  TReturnType
+>): CreateBatchSchedulerReturnType<TParameters, TReturnType> {
   const exec = async () => {
     const scheduler = getScheduler()
     flush()
@@ -78,5 +95,5 @@ export function createBatchScheduler<
       setTimeout(exec, wait)
       return promise
     },
-  }
+  } as unknown as CreateBatchSchedulerReturnType<TParameters, TReturnType>
 }

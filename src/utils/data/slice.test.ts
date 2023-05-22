@@ -37,6 +37,25 @@ test('hex', () => {
     Version: viem@1.0.2"
   `,
   )
+
+  expect(() =>
+    sliceHex('0x0123456789', 0, 6, { strict: true }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Slice ending at offset \\"6\\" is out-of-bounds (size: 5).
+
+    Version: viem@1.0.2"
+  `,
+  )
+  expect(() =>
+    sliceHex('0x0123456789', 0, 10, { strict: true }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Slice ending at offset \\"10\\" is out-of-bounds (size: 5).
+
+    Version: viem@1.0.2"
+  `,
+  )
 })
 
 test('bytes', () => {
@@ -204,6 +223,29 @@ test('bytes', () => {
   ).toThrowErrorMatchingInlineSnapshot(
     `
     "Slice starting at offset \\"10\\" is out-of-bounds (size: 10).
+
+    Version: viem@1.0.2"
+  `,
+  )
+
+  expect(() =>
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 0, 11, {
+      strict: true,
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Slice ending at offset \\"11\\" is out-of-bounds (size: 10).
+
+    Version: viem@1.0.2"
+  `,
+  )
+  expect(() =>
+    sliceBytes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 5, 15, {
+      strict: true,
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Slice ending at offset \\"15\\" is out-of-bounds (size: 5).
 
     Version: viem@1.0.2"
   `,

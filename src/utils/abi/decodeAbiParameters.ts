@@ -6,7 +6,6 @@ import type {
 } from 'abitype'
 
 import {
-  AbiDecodingDataSizeInvalidError,
   AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
@@ -38,8 +37,12 @@ export function decodeAbiParameters<
 >(params: Narrow<TParams>, data: Hex): DecodeAbiParametersReturnType<TParams> {
   if (data === '0x' && (params as unknown[]).length > 0)
     throw new AbiDecodingZeroDataError()
-  if (size(data) % 32 !== 0)
-    throw new AbiDecodingDataSizeInvalidError({ data, size: size(data) })
+  if (size(data) && size(data) < 32)
+    throw new AbiDecodingDataSizeTooSmallError({
+      data,
+      params: params as readonly AbiParameter[],
+      size: size(data),
+    })
   return decodeParams({
     data,
     params: params as readonly AbiParameter[],
@@ -102,7 +105,7 @@ function decodeParam({
     return decodeBytes(data, { param, position })
   }
 
-  const value = slice(data, position, position + 32) as Hex
+  const value = slice(data, position, position + 32, { strict: true }) as Hex
   if (param.type.startsWith('uint') || param.type.startsWith('int')) {
     return decodeNumber(value, { param })
   }
@@ -139,9 +142,13 @@ function decodeArray<TParam extends AbiParameter>(
   // we will need to decode the offset of the array data.
   if (!length) {
     // Get the offset of the array data.
-    const offset = hexToNumber(slice(data, position, position + 32))
+    const offset = hexToNumber(
+      slice(data, position, position + 32, { strict: true }),
+    )
     // Get the length of the array from the offset.
-    const length = hexToNumber(slice(data, offset, offset + 32))
+    const length = hexToNumber(
+      slice(data, offset, offset + 32, { strict: true }),
+    )
 
     let consumed = 0
     const value: AbiParameterToPrimitiveType<TParam>[] = []
@@ -169,7 +176,9 @@ function decodeArray<TParam extends AbiParameter>(
     let consumed = 0
     const value: AbiParameterToPrimitiveType<TParam>[] = []
     for (let i = 0; i < length; ++i) {
-      const offset = hexToNumber(slice(data, position, position + 32))
+      const offset = hexToNumber(
+        slice(data, position, position + 32, { strict: true }),
+      )
       const decodedChild = decodeParam({
         data: slice(data, offset),
         param,
@@ -210,15 +219,23 @@ function decodeBytes<TParam extends AbiParameter>(
   if (!size) {
     // If we don't have a size, we're dealing with a dynamic-size array
     // so we need to read the offset of the data part first.
-    const offset = hexToNumber(slice(data, position, position + 32))
-    const length = hexToNumber(slice(data, offset, offset + 32))
+    const offset = hexToNumber(
+      slice(data, position, position + 32, { strict: true }),
+    )
+    const length = hexToNumber(
+      slice(data, offset, offset + 32, { strict: true }),
+    )
     // If there is no length, we have zero data.
     if (length === 0) return { consumed: 32, value: '0x' }
-    const value = slice(data, offset + 32, offset + 32 + length)
+    const value = slice(data, offset + 32, offset + 32 + length, {
+      strict: true,
+    })
     return { consumed: 32, value }
   }
 
-  const value = slice(data, position, position + parseInt(size))
+  const value = slice(data, position, position + parseInt(size), {
+    strict: true,
+  })
   return { consumed: 32, value }
 }
 
@@ -238,12 +255,14 @@ function decodeNumber<TParam extends AbiParameter>(
 }
 
 function decodeString(data: Hex, { position }: { position: number }) {
-  const offset = hexToNumber(slice(data, position, position + 32))
-  const length = hexToNumber(slice(data, offset, offset + 32))
+  const offset = hexToNumber(
+    slice(data, position, position + 32, { strict: true }),
+  )
+  const length = hexToNumber(slice(data, offset, offset + 32, { strict: true }))
   // If there is no length, we have zero data (empty string).
   if (length === 0) return { consumed: 32, value: '' }
   const value = hexToString(
-    trim(slice(data, offset + 32, offset + 32 + length)),
+    trim(slice(data, offset + 32, offset + 32 + length, { strict: true })),
   )
   return { consumed: 32, value }
 }
@@ -266,7 +285,9 @@ function decodeTuple<
   // If the tuple has a dynamic child, we must first decode the offset to the
   // tuple data.
   if (hasDynamicChild(param)) {
-    const offset = hexToNumber(slice(data, position, position + 32))
+    const offset = hexToNumber(
+      slice(data, position, position + 32, { strict: true }),
+    )
     // Decode each component of the tuple, starting at the offset.
     for (let i = 0; i < param.components.length; ++i) {
       const component = param.components[i]

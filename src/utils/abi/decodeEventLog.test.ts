@@ -1,5 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
+import { getEventSelector } from '../../utils/hash/getEventSelector.js'
 import { getAddress } from '../address/getAddress.js'
 
 import { decodeEventLog } from './decodeEventLog.js'
@@ -62,11 +63,12 @@ test('named args: Transfer(address,address,uint256)', () => {
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
     ],
   })
   assertType<typeof event>({
     eventName: 'Transfer',
-    args: { from: '0x', to: '0x' },
+    args: { from: '0x', to: '0x', tokenId: 1n },
   })
   expect(event).toEqual({
     eventName: 'Transfer',
@@ -103,9 +105,13 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
     ],
   })
-  assertType<typeof event>({ eventName: 'Transfer', args: ['0x', '0x'] })
+  assertType<typeof event>({
+    eventName: 'Transfer',
+    args: ['0x', '0x', 1n],
+  })
   expect(event).toEqual({
     args: [
       '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -534,8 +540,6 @@ describe('GitHub repros', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         "Data size of 32 bytes is too small for non-indexed event parameters.
 
-        This error is usually caused if the ABI event has too many non-indexed event parameters for the emitted log.
-
         Params: (address to, uint256 id)
         Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
 
@@ -637,10 +641,51 @@ test('errors: invalid data size', () => {
       ],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    "Data size of 1 bytes is invalid.
-    Size must be in increments of 32 bytes (size % 32 === 0).
+    "Data size of 1 bytes is too small for non-indexed event parameters.
 
-    Data: 0x1 (1 bytes)
+    Params: (uint256 tokenId)
+    Data:   0x1 (1 bytes)
+
+    Version: viem@1.0.2"
+  `)
+})
+
+test('errors: invalid bool', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'sender',
+              type: 'bool',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+      eventName: 'Transfer',
+      topics: [
+        getEventSelector('Transfer(address,address,bool)'),
+        '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    "Hex value \\"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef\\" is not a valid boolean. The hex value must be \\"0x0\\" (false) or \\"0x1\\" (true).
 
     Version: viem@1.0.2"
   `)

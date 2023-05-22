@@ -19,15 +19,38 @@ export function slice<TValue extends ByteArray | Hex>(
   value: TValue,
   start?: number,
   end?: number,
+  { strict }: { strict?: boolean } = {},
 ): SliceReturnType<TValue> {
-  if (isHex(value))
-    return sliceHex(value as Hex, start, end) as SliceReturnType<TValue>
-  return sliceBytes(value as ByteArray, start, end) as SliceReturnType<TValue>
+  if (isHex(value, { strict: false }))
+    return sliceHex(value as Hex, start, end, {
+      strict,
+    }) as SliceReturnType<TValue>
+  return sliceBytes(value as ByteArray, start, end, {
+    strict,
+  }) as SliceReturnType<TValue>
 }
 
 function assertStartOffset(value: Hex | ByteArray, start?: number) {
   if (typeof start === 'number' && start > 0 && start > size(value) - 1)
-    throw new SliceOffsetOutOfBoundsError({ offset: start, size: size(value) })
+    throw new SliceOffsetOutOfBoundsError({
+      offset: start,
+      position: 'start',
+      size: size(value),
+    })
+}
+
+function assertEndOffset(value: Hex | ByteArray, start?: number, end?: number) {
+  if (
+    typeof start === 'number' &&
+    typeof end === 'number' &&
+    size(value) !== end - start
+  ) {
+    throw new SliceOffsetOutOfBoundsError({
+      offset: end,
+      position: 'end',
+      size: size(value),
+    })
+  }
 }
 
 /**
@@ -38,12 +61,15 @@ function assertStartOffset(value: Hex | ByteArray, start?: number) {
  * @param end The end offset (in bytes).
  */
 export function sliceBytes(
-  value: ByteArray,
+  value_: ByteArray,
   start?: number,
   end?: number,
+  { strict }: { strict?: boolean } = {},
 ): ByteArray {
-  assertStartOffset(value, start)
-  return value.slice(start, end)
+  assertStartOffset(value_, start)
+  const value = value_.slice(start, end)
+  if (strict) assertEndOffset(value, start, end)
+  return value
 }
 
 /**
@@ -53,10 +79,16 @@ export function sliceBytes(
  * @param start The start offset (in bytes).
  * @param end The end offset (in bytes).
  */
-export function sliceHex(value_: Hex, start?: number, end?: number): Hex {
+export function sliceHex(
+  value_: Hex,
+  start?: number,
+  end?: number,
+  { strict }: { strict?: boolean } = {},
+): Hex {
   assertStartOffset(value_, start)
-  const value = value_
+  const value = `0x${value_
     .replace('0x', '')
-    .slice((start ?? 0) * 2, (end ?? value_.length) * 2)
-  return `0x${value}`
+    .slice((start ?? 0) * 2, (end ?? value_.length) * 2)}` as const
+  if (strict) assertEndOffset(value, start, end)
+  return value
 }

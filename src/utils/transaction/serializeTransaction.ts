@@ -18,6 +18,7 @@ import type {
 } from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 import { concatHex } from '../data/concat.js'
+import { trim } from '../data/trim.js'
 import { toHex } from '../encoding/toHex.js'
 import { type RecursiveArray, toRlp } from '../encoding/toRlp.js'
 
@@ -97,8 +98,8 @@ function serializeTransactionEIP1559(
   if (signature)
     serializedTransaction.push(
       signature.v === 27n ? '0x' : toHex(1), // yParity
-      signature.r,
-      signature.s,
+      trim(signature.r),
+      trim(signature.s),
     )
 
   return concatHex([

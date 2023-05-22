@@ -14,7 +14,7 @@ head:
 
 # getTransactionReceipt
 
-Returns the [Transaction Receipt](/docs/glossary/terms#transaction-receipt) given a [Transaction](/docs/glossary/terms#transaction) hash.
+Returns the [Transaction Receipt](/docs/glossary/terms#transactionreceipt) given a [Transaction](/docs/glossary/terms#transaction) hash.
 
 ## Usage
 

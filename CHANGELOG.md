@@ -1,5 +1,65 @@
 # viem
 
+## 0.3.33
+
+### Patch Changes
+
+- [`0cb8f31`](https://github.com/wagmi-dev/viem/commit/0cb8f31589d65d056de66c13637635785d97b730) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `watchContractEvent` would throw a serialize error for bigint args.
+
+## 0.3.32
+
+### Patch Changes
+
+- [`fb5b321`](https://github.com/wagmi-dev/viem/commit/fb5b321a9238d68a59f387632dd89ccb626a8cb5) Thanks [@jxom](https://github.com/jxom)! - Allowed recovery id as v when recovering public key.
+
+* [`9df44ce`](https://github.com/wagmi-dev/viem/commit/9df44cea3843a74f9e04591d3c683db1982269fb) Thanks [@jxom](https://github.com/jxom)! - Added `ganache` as another mode for Test Client
+
+## 0.3.31
+
+### Patch Changes
+
+- [#540](https://github.com/wagmi-dev/viem/pull/540) [`0d8f154`](https://github.com/wagmi-dev/viem/commit/0d8f154fbcbf68f8f8b1b8bde0cf5661ffc44370) Thanks [@jxom](https://github.com/jxom)! - Added proxy packages to support bundlers that are not compatible with `package.json#exports`.
+
+## 0.3.30
+
+### Patch Changes
+
+- [`228d949`](https://github.com/wagmi-dev/viem/commit/228d949bce648065ecef629173d1b847e2fc8f21) Thanks [@jxom](https://github.com/jxom)! - Bumped `waitForTransactionReceipt` retry count.
+
+## 0.3.29
+
+### Patch Changes
+
+- [#527](https://github.com/wagmi-dev/viem/pull/527) [`840d3d7`](https://github.com/wagmi-dev/viem/commit/840d3d7411a33ad02c71bd180b53244df91cd779) Thanks [@jxom](https://github.com/jxom)! - Fixed `trim` to trim trailing zero byte data instead of all trailing zeros.
+
+## 0.3.28
+
+### Patch Changes
+
+- [`ffee4f8`](https://github.com/wagmi-dev/viem/commit/ffee4f86928ada54d2c6a4403aafa7b861eeccb2) Thanks [@jxom](https://github.com/jxom)! - Bumped `waitForTransactionReceipt` exponential backoff scalar
+
+## 0.3.27
+
+### Patch Changes
+
+- [#519](https://github.com/wagmi-dev/viem/pull/519) [`2ab7b56`](https://github.com/wagmi-dev/viem/commit/2ab7b56ea6828f92e10f287bac68f1f70815da1a) Thanks [@jxom](https://github.com/jxom)! - Batched websocket initialization.
+
+* [#518](https://github.com/wagmi-dev/viem/pull/518) [`65a0896`](https://github.com/wagmi-dev/viem/commit/65a0896426a28e2d11438984a6ed6b604d87c316) Thanks [@jxom](https://github.com/jxom)! - Added `strict` option to `isHex` & optimized data utilities.
+
+- [#515](https://github.com/wagmi-dev/viem/pull/515) [`c1b81dc`](https://github.com/wagmi-dev/viem/commit/c1b81dc36ad787b632099a98ba2b4bd5e03ddafa) Thanks [@jxom](https://github.com/jxom)! - Optimized `getTransaction` strategy in `waitForTransactionReceipt`.
+
+## 0.3.26
+
+### Patch Changes
+
+- [#500](https://github.com/wagmi-dev/viem/pull/500) [`1da5831`](https://github.com/wagmi-dev/viem/commit/1da583137a32f381a2e2e5f260105ce8542bbaee) Thanks [@jxom](https://github.com/jxom)! - refactor: lax log types
+
+## 0.3.25
+
+### Patch Changes
+
+- [#506](https://github.com/wagmi-dev/viem/pull/506) [`f396e5d`](https://github.com/wagmi-dev/viem/commit/f396e5d242bbf68a4b34596db6943d52fee19e79) Thanks [@jxom](https://github.com/jxom)! - Support suffixed data in `decodeAbiParameters`.
+
 ## 0.3.24
 
 ### Patch Changes
