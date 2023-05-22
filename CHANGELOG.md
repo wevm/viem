@@ -1,5 +1,13 @@
 # viem
 
+## 0.3.32
+
+### Patch Changes
+
+- [`fb5b321`](https://github.com/wagmi-dev/viem/commit/fb5b321a9238d68a59f387632dd89ccb626a8cb5) Thanks [@jxom](https://github.com/jxom)! - Allowed recovery id as v when recovering public key.
+
+* [`9df44ce`](https://github.com/wagmi-dev/viem/commit/9df44cea3843a74f9e04591d3c683db1982269fb) Thanks [@jxom](https://github.com/jxom)! - Added `ganache` as another mode for Test Client
+
 ## 0.3.31
 
 ### Patch Changes
