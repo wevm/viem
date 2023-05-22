@@ -10,6 +10,7 @@ import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { observe } from '../../utils/observe.js'
 import { withRetry } from '../../utils/promise/withRetry.js'
+import { stringify } from '../../utils/stringify.js'
 
 import { getBlock } from './getBlock.js'
 import {
@@ -107,11 +108,7 @@ export async function waitForTransactionReceipt<
     timeout,
   }: WaitForTransactionReceiptParameters<TChain>,
 ): Promise<WaitForTransactionReceiptReturnType<TChain>> {
-  const observerId = JSON.stringify([
-    'waitForTransactionReceipt',
-    client.uid,
-    hash,
-  ])
+  const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
 
   let transaction: GetTransactionReturnType<TChain> | undefined
   let replacedTransaction: GetTransactionReturnType<TChain> | undefined

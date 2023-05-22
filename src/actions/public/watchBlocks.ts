@@ -5,6 +5,7 @@ import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
+import { stringify } from '../../utils/stringify.js'
 
 import { type GetBlockReturnType, getBlock } from './getBlock.js'
 
@@ -100,7 +101,7 @@ export function watchBlocks<
   let prevBlock: GetBlockReturnType<TChain> | undefined
 
   const pollBlocks = () => {
-    const observerId = JSON.stringify([
+    const observerId = stringify([
       'watchBlocks',
       client.uid,
       emitMissed,
