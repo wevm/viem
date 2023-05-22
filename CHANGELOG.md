@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.34
+
+### Patch Changes
+
+- [`5c75ee5`](https://github.com/wagmi-dev/viem/commit/5c75ee598a0bd09709f619464e48cbb5fa2327d8) Thanks [@jxom](https://github.com/jxom)! - Added `EstimateContractGasParameters` & `EstimateContractGasReturnType` types.
+
 ## 0.3.33
 
 ### Patch Changes
