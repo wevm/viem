@@ -24,6 +24,10 @@ export {
 } from './actions/wallet/deployContract.js'
 export type { DropTransactionParameters } from './actions/test/dropTransaction.js'
 export {
+  type EstimateContractGasParameters,
+  type EstimateContractGasReturnType,
+} from './actions/public/estimateContractGas.js'
+export {
   type EstimateGasParameters,
   type EstimateGasReturnType,
 } from './actions/public/estimateGas.js'
