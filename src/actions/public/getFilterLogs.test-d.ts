@@ -213,7 +213,7 @@ describe('createContractEventFilter', () => {
     })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, undefined, typeof abi>[]
+      Log<bigint, bigint, undefined, typeof abi>[]
     >()
     expectTypeOf(logs[0].topics).toEqualTypeOf<
       | [`0x${string}`, `0x${string}`, `0x${string}`]

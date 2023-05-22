@@ -22,7 +22,7 @@ export type GetFilterLogsReturnType<
       ? ExtractAbiEvent<TAbi, TEventName>
       : undefined
     : undefined,
-> = Log<bigint, number, _AbiEvent, TAbi, TEventName>[]
+> = Log<bigint, bigint, _AbiEvent, TAbi, TEventName>[]
 
 /**
  * Returns a list of event logs since the filter was created.
@@ -33,7 +33,7 @@ export type GetFilterLogsReturnType<
  * `getFilterLogs` is only compatible with **event filters**.
  *
  * @param client - Client to use
- * @param parameters - {@link GetFilterLogsParameters}
+ * @param parameters - {@link GetFilterLogsParameters}у
  * @returns A list of event logs. {@link GetFilterLogsReturnType}
  *
  * @example
