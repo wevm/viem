@@ -33,7 +33,7 @@ export type GetFilterLogsReturnType<
  * `getFilterLogs` is only compatible with **event filters**.
  *
  * @param client - Client to use
- * @param parameters - {@link GetFilterLogsParameters}у
+ * @param parameters - {@link GetFilterLogsParameters}
  * @returns A list of event logs. {@link GetFilterLogsReturnType}
  *
  * @example
