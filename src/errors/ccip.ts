@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Hex } from '../types/misc.js'
+import { stringify } from '../utils/stringify.js'
 
 import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
@@ -53,7 +54,7 @@ export class OffchainLookupResponseMalformedError extends BaseError {
       {
         metaMessages: [
           `Gateway URL: ${getUrl(url)}`,
-          `Response: ${JSON.stringify(result)}`,
+          `Response: ${stringify(result)}`,
         ],
       },
     )
