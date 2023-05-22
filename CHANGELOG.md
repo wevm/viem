@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.33
+
+### Patch Changes
+
+- [`0cb8f31`](https://github.com/wagmi-dev/viem/commit/0cb8f31589d65d056de66c13637635785d97b730) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `watchContractEvent` would throw a serialize error for bigint args.
+
 ## 0.3.32
 
 ### Patch Changes
