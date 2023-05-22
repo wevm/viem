@@ -13,6 +13,7 @@ export type Filter<
   TArgs extends
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = MaybeExtractEventArgsFromAbi<TAbi, TEventName>,
+  TStrict extends boolean | undefined = undefined,
 > = {
   id: Hex
   // TODO: Narrow `request` to filter-based methods (ie. `eth_getFilterLogs`, etc).
@@ -25,21 +26,25 @@ export type Filter<
           abi: TAbi
           args?: never
           eventName?: never
+          strict?: TStrict
         }
       : TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName>
       ? {
           abi: TAbi
           args: TArgs
           eventName: TEventName
+          strict?: TStrict
         }
       : {
           abi: TAbi
           args?: never
           eventName: TEventName
+          strict?: TStrict
         }
     : {
         abi?: never
         args?: never
         eventName?: never
+        strict?: never
       }
   : {})

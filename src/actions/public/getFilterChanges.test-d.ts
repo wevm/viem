@@ -62,13 +62,16 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner?: Address
-      spender?: Address
-      foo?: Address
-      value?: bigint
-      bar?: bigint
-    }>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          owner: Address
+          spender: Address
+          foo: Address
+          value: bigint
+          bar: bigint
+        }
+      | undefined
+    >()
   })
 
   test('args: event: defined as const', async () => {
@@ -113,13 +116,16 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner?: Address
-      spender?: Address
-      foo?: Address
-      value?: bigint
-      bar?: bigint
-    }>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          owner: Address
+          spender: Address
+          foo: Address
+          value: bigint
+          bar: bigint
+        }
+      | undefined
+    >()
   })
 
   test('args: event: defined as `AbiEvent`', async () => {
@@ -164,7 +170,92 @@ describe('createEventFilter', () => {
       [] | [`0x${string}`, ...`0x${string}`[]]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<string>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<readonly unknown[]>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<readonly unknown[] | undefined>()
+  })
+
+  test('strict: named', async () => {
+    const filter = await createEventFilter(publicClient, {
+      event: {
+        inputs: [
+          {
+            indexed: true,
+            name: 'from',
+            type: 'address',
+          },
+          {
+            indexed: true,
+            name: 'to',
+            type: 'address',
+          },
+          {
+            indexed: false,
+            name: 'value',
+            type: 'uint256',
+          },
+          {
+            indexed: false,
+            name: 'foo',
+            type: 'string',
+          },
+          {
+            indexed: false,
+            name: 'bar',
+            type: 'string',
+          },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+      strict: true,
+    })
+    const logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+    expectTypeOf(logs[0]['args']).toEqualTypeOf<{
+      from: `0x${string}`
+      to: `0x${string}`
+      value: bigint
+      foo: string
+      bar: string
+    }>()
+  })
+
+  test('strict: unnamed', async () => {
+    const filter = await createEventFilter(publicClient, {
+      event: {
+        inputs: [
+          {
+            indexed: true,
+            type: 'address',
+          },
+          {
+            indexed: true,
+            type: 'address',
+          },
+          {
+            indexed: false,
+            type: 'uint256',
+          },
+          {
+            indexed: false,
+            type: 'string',
+          },
+          {
+            indexed: false,
+            type: 'string',
+          },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+      strict: true,
+    })
+    const logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+    expectTypeOf(logs[0]['args']).toEqualTypeOf<
+      readonly [`0x${string}`, `0x${string}`, bigint, string, string]
+    >()
   })
 })
 
@@ -224,22 +315,23 @@ describe('createContractEventFilter', () => {
     >()
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | {
-          from?: Address
-          to?: Address
-          value?: bigint
+          from: Address
+          to: Address
+          value: bigint
         }
       | {
-          owner?: Address
-          spender?: Address
-          value?: bigint
+          owner: Address
+          spender: Address
+          value: bigint
         }
       | {
-          owner?: Address
-          spender?: Address
-          foo?: Address
-          value?: bigint
-          bar?: bigint
+          owner: Address
+          spender: Address
+          foo: Address
+          value: bigint
+          bar: bigint
         }
+      | undefined
     >()
   })
 
@@ -256,13 +348,16 @@ describe('createContractEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner?: Address
-      spender?: Address
-      foo?: Address
-      value?: bigint
-      bar?: bigint
-    }>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          owner: Address
+          spender: Address
+          foo: Address
+          value: bigint
+          bar: bigint
+        }
+      | undefined
+    >()
   })
 
   test('args: abi: defined inline', async () => {
@@ -309,13 +404,16 @@ describe('createContractEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
-      owner?: Address
-      spender?: Address
-      foo?: Address
-      value?: bigint
-      bar?: bigint
-    }>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          owner: Address
+          spender: Address
+          foo: Address
+          value: bigint
+          bar: bigint
+        }
+      | undefined
+    >()
   })
 
   test('args: abi: declared as `Abi`', async () => {
@@ -363,6 +461,36 @@ describe('createContractEventFilter', () => {
       [] | [`0x${string}`, ...`0x${string}`[]]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<string>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<readonly unknown[]>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<readonly unknown[] | undefined>()
+  })
+
+  test('strict', async () => {
+    const filter = await createContractEventFilter(publicClient, {
+      abi,
+      strict: true,
+    })
+    const logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          from: Address
+          to: Address
+          value: bigint
+        }
+      | {
+          owner: Address
+          spender: Address
+          value: bigint
+        }
+      | {
+          owner: Address
+          spender: Address
+          foo: Address
+          value: bigint
+          bar: bigint
+        }
+    >()
   })
 })

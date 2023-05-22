@@ -103,6 +103,14 @@ test('AbiEventSignatureEmptyTopicsError', () => {
 test('DecodeLogDataMismatch', () => {
   expect(
     new DecodeLogDataMismatch({
+      abiItem: {
+        name: 'Event',
+        inputs: [
+          { name: 'a', type: 'uint256' },
+          { name: 'b', type: 'uint256' },
+        ],
+        type: 'event',
+      },
       data: '0x1234',
       params: [
         { name: 'a', type: 'uint256' },

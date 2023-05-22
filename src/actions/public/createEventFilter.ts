@@ -20,47 +20,61 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  TArgs extends
-    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+  TStrict extends boolean | undefined = undefined,
+  _Abi extends Abi | readonly unknown[] = [TAbiEvent],
+  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  _Args extends
+    | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
     | undefined = undefined,
 > = {
   address?: Address | Address[]
   fromBlock?: BlockNumber | BlockTag
   toBlock?: BlockNumber | BlockTag
 } & (MaybeExtractEventArgsFromAbi<
-  TAbi,
-  TEventName
+  _Abi,
+  _EventName
 > extends infer TEventFilterArgs
   ?
       | {
           args:
             | TEventFilterArgs
-            | (TArgs extends TEventFilterArgs ? TArgs : never)
+            | (_Args extends TEventFilterArgs ? _Args : never)
           event: Narrow<TAbiEvent>
+          /**
+           * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+           * @default false
+           */
+          strict?: TStrict
         }
       | {
           args?: never
           event?: Narrow<TAbiEvent>
+          /**
+           * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+           * @default false
+           */
+          strict?: TStrict
         }
       | {
           args?: never
           event?: never
+          strict?: never
         }
   : {
       args?: never
       event?: never
+      strict?: never
     })
 
 export type CreateEventFilterReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-  TArgs extends
-    | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+  TStrict extends boolean | undefined = undefined,
+  _Abi extends Abi | readonly unknown[] = [TAbiEvent],
+  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  _Args extends
+    | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
     | undefined = undefined,
-> = Prettify<Filter<'event', TAbi, TEventName, TArgs>>
+> = Prettify<Filter<'event', _Abi, _EventName, _Args, TStrict>>
 
 /**
  * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
@@ -88,6 +102,7 @@ export type CreateEventFilterReturnType<
 export async function createEventFilter<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
+  TStrict extends boolean | undefined,
   _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
@@ -100,14 +115,18 @@ export async function createEventFilter<
     args,
     event,
     fromBlock,
+    strict,
     toBlock,
   }: CreateEventFilterParameters<
     TAbiEvent,
+    TStrict,
     _Abi,
     _EventName,
     _Args
   > = {} as any,
-): Promise<CreateEventFilterReturnType<TAbiEvent, _Abi, _EventName, _Args>> {
+): Promise<
+  CreateEventFilterReturnType<TAbiEvent, TStrict, _Abi, _EventName, _Args>
+> {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
   })
@@ -139,9 +158,11 @@ export async function createEventFilter<
     eventName: event ? (event as AbiEvent).name : undefined,
     id,
     request: getRequest(id),
+    strict,
     type: 'event',
   } as unknown as CreateEventFilterReturnType<
     TAbiEvent,
+    TStrict,
     _Abi,
     _EventName,
     _Args

@@ -151,6 +151,94 @@ const filter = await publicClient.createContractEventFilter({
 })
 ```
 
+### Strict Mode
+
+By default, `getLogs` will include logs that [do not conform](#what-is-a-non-conforming-log) to the indexed & non-indexed arguments on the `event`, however,
+the `args` property will be `undefined` for non-conforming logs as we cannot deterministically decode them.
+
+```ts
+const filter = await publicClient.createContractEventFilter({
+  eventName: 'Transfer',
+})
+
+logs[0].args
+//      ^? { address: Address, to: Address, value: bigint } | undefined
+```
+
+You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
+
+```ts
+const filter = await publicClient.createContractEventFilter({
+  eventName: 'Transfer',
+  strict: true
+})
+
+logs[0].args
+//      ^? { address: Address, to: Address, value: bigint }
+```
+
+#### What is a non-conforming log?
+
+A non-conforming log is a log where its `topics` & `data` do not match the **indexed** & **non-indexed** arguments on the `event`. `topics` correspond to **indexed** arguments, while `data` corresponds to **non-indexed** arguments.
+
+For example, here is an event definition that has 2 indexed arguments & 2 non-indexed arguments:
+
+```solidity
+event Transfer(
+  bool indexed foo, 
+  uint256 baz, 
+  string indexed bar, 
+  boolean indexed barry
+)
+```
+
+A conforming log for the above signature would be:
+
+```ts
+const log = {
+  ...
+  data: '0x
+    00...23c346 // ✅ non-indexed argument (baz)
+  ',
+  topics: [
+    '0xdd...23b3ef', // event signature
+    '0x00...000001', // ✅ indexed argument (foo)
+    '0xae...e1cc58', // ✅ indexed argument (bar)
+    '0x00...000000', // ✅ indexed argument (barry)
+  ],
+  ...
+}
+```
+
+A non-conforming log for the above signature would be:
+
+```ts
+const log = {
+  ...
+  data: '0x
+    00...23c346 // ✅ non-indexed argument (baz)
+    00...ae0000 // ❌ indexed argument (bar)
+    00...000001 // ❌ indexed argument (barry)
+  ',
+  topics: [
+    '0xdd...23b3ef', // event signature
+    '0x00...b92266', // ✅ indexed argument (foo)
+  ],
+  ...
+}
+```
+
+A non-conforming log can arise when another contract could be using the same event signature, but with a different number of indexed & non-indexed arguments. For example, the definition for the above log would be:
+
+```solidity
+event Transfer(
+  bool indexed foo, 
+  uint256 baz, 
+  string bar, 
+  boolean barry
+)
+```
+
 ## Returns
 
 [`Filter`](/docs/glossary/types#filter)
