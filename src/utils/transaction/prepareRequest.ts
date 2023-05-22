@@ -42,7 +42,7 @@ export type PrepareRequestReturnType<
   nonce: SendTransactionParameters['nonce']
 }
 
-export const defaultTip = 1500000000n // 1.5 gwei
+export const defaultTip = 1_500_000_000n // 1.5 gwei
 
 export async function prepareRequest<
   TChain extends Chain | undefined,
