@@ -23,17 +23,11 @@ export type EIP1193Provider = Requests & Events
 //////////////////////////////////////////////////
 // Errors
 
-// rome-ignore format: no formatting
-export type RpcErrorCode =
-  // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
-  | 4_001 | 4_100 | 4_200 | 4_900 | 4_901
-  // https://eips.ethereum.org/EIPS/eip-1474#error-codes
-  | -32700 | -32600 | -32601 | -32602 | -32603 | -32000 | -32001 | -32002 | -32003 | -32004 | -32005 | -32006
-export class RpcError extends Error {
-  code: RpcErrorCode | (number & {})
+export class ProviderRpcError extends Error {
+  code: number
   details: string
 
-  constructor(code: RpcErrorCode | (number & {}), message: string) {
+  constructor(code: number, message: string) {
     super(message)
     this.code = code
     this.details = message
@@ -57,7 +51,7 @@ export type Events = {
     event: 'connect',
     listener: (connectInfo: ProviderConnectInfo) => void,
   ): void
-  on(event: 'disconnect', listener: (error: RpcError) => void): void
+  on(event: 'disconnect', listener: (error: ProviderRpcError) => void): void
   on(event: 'chainChanged', listener: (chainId: string) => void): void
   on(event: 'accountsChanged', listener: (accounts: string[]) => void): void
   on(event: 'message', listener: (message: ProviderMessage) => void): void
@@ -66,7 +60,10 @@ export type Events = {
     event: 'connect',
     listener: (connectInfo: ProviderConnectInfo) => void,
   ): void
-  removeListener(event: 'disconnect', listener: (error: RpcError) => void): void
+  removeListener(
+    event: 'disconnect',
+    listener: (error: ProviderRpcError) => void,
+  ): void
   removeListener(
     event: 'chainChanged',
     listener: (chainId: string) => void,
@@ -84,7 +81,7 @@ export type Events = {
 //////////////////////////////////////////////////
 // Provider Requests
 
-export type Chain = {
+export type AddEthereumChainParameter = {
   /** A 0x-prefixed hexadecimal string */
   chainId: string
   /** The chain name. */
@@ -1034,7 +1031,7 @@ export type WalletRequests = {
      * // => { ... }
      */
     method: 'wallet_addEthereumChain'
-    params: [chain: Chain]
+    params: [chain: AddEthereumChainParameter]
   }): Promise<null>
   request(args: {
     /**

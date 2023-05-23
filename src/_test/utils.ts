@@ -24,7 +24,7 @@ import { custom } from '../clients/transports/custom.js'
 import { http } from '../clients/transports/http.js'
 import { webSocket } from '../clients/transports/webSocket.js'
 import type { Chain } from '../types/chain.js'
-import { RpcError } from '../types/eip1193.js'
+import { ProviderRpcError } from '../types/eip1193.js'
 import type { Hex } from '../types/misc.js'
 import { namehash } from '../utils/ens/namehash.js'
 import { rpc } from '../utils/rpc.js'
@@ -79,14 +79,14 @@ const provider = {
     }
     if (method === 'wallet_watchAsset') {
       if (params.type === 'ERC721') {
-        throw new RpcError(-32602, 'Token type ERC721 not supported.')
+        throw new ProviderRpcError(-32602, 'Token type ERC721 not supported.')
       }
       return true
     }
     if (method === 'wallet_addEthereumChain') return null
     if (method === 'wallet_switchEthereumChain') {
       if (params[0].chainId === '0xfa') {
-        throw new RpcError(-4902, 'Unrecognized chain.')
+        throw new ProviderRpcError(-4902, 'Unrecognized chain.')
       }
       return null
     }
