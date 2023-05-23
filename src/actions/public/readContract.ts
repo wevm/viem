@@ -23,7 +23,7 @@ import { type CallParameters, call } from './call.js'
 export type ReadContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
-> = Pick<CallParameters, 'blockNumber' | 'blockTag'> &
+> = Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'> &
   ContractFunctionConfig<TAbi, TFunctionName, 'view' | 'pure'>
 
 export type ReadContractReturnType<
