@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.35
+
+### Patch Changes
+
+- [`1cc1dc2`](https://github.com/wagmi-dev/viem/commit/1cc1dc2e989765ea0d0afd72375505b93e0013a5) Thanks [@jxom](https://github.com/jxom)! - Fixed `account` parameter type on `readContract`.
+
 ## 0.3.34
 
 ### Patch Changes
