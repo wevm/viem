@@ -4,6 +4,7 @@ import type { Abi } from 'abitype'
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
+import globalMsgExample from '../../contracts/out/GlobalMsgExample.sol/GlobalMsgExample.json'
 import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
 
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
@@ -41,6 +42,7 @@ import {
   ensAvatarTokenUriABI,
   erc20InvalidTransferEventABI,
   errorsExampleABI,
+  globalMsgExampleABI,
   offchainLookupExampleABI,
 } from './generated.js'
 import { type RequestListener, createServer } from 'http'
@@ -240,6 +242,14 @@ export async function deployOffchainLookupExample({
     bytecode: offchainLookupExample.bytecode.object as Hex,
     account: accounts[0].address,
     args: [urls],
+  })
+}
+
+export async function deployGlobalMsgExample() {
+  return deploy({
+    abi: globalMsgExampleABI,
+    bytecode: globalMsgExample.bytecode.object as Hex,
+    account: accounts[0].address,
   })
 }
 

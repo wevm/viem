@@ -7,9 +7,14 @@
 import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { address, forkBlockNumber } from '../../_test/constants.js'
-import { errorsExampleABI } from '../../_test/generated.js'
-import { deployErrorExample, publicClient } from '../../_test/utils.js'
+import { accounts, address, forkBlockNumber } from '../../_test/constants.js'
+import { errorsExampleABI, globalMsgExampleABI } from '../../_test/generated.js'
+import {
+  deployErrorExample,
+  deployGlobalMsgExample,
+  publicClient,
+} from '../../_test/utils.js'
+import { getAddress } from '../../utils/address/getAddress.js'
 
 import { readContract } from './readContract.js'
 
@@ -145,6 +150,28 @@ describe('bayc', () => {
       Docs: https://viem.sh/docs/contract/readContract.html
       Version: viem@1.0.2"
     `)
+  })
+})
+
+describe('global vars', () => {
+  test('msg.sender', async () => {
+    const { contractAddress } = await deployGlobalMsgExample()
+
+    expect(
+      await readContract(publicClient, {
+        abi: globalMsgExampleABI,
+        address: contractAddress!,
+        functionName: 'getMsgSender',
+      }),
+    ).toEqual('0x0000000000000000000000000000000000000000')
+    expect(
+      await readContract(publicClient, {
+        abi: globalMsgExampleABI,
+        address: contractAddress!,
+        functionName: 'getMsgSender',
+        account: accounts[0].address,
+      }),
+    ).toEqual(getAddress(accounts[0].address))
   })
 })
 
