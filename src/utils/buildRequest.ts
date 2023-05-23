@@ -12,9 +12,11 @@ import {
   MethodNotSupportedRpcError,
   ParseRpcError,
   ProviderDisconnectedError,
+  type ProviderRpcErrorCode,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   type RpcError,
+  type RpcErrorCode,
   SwitchChainError,
   TransactionRejectedRpcError,
   UnauthorizedProviderError,
@@ -66,7 +68,9 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         try {
           return await request(args)
         } catch (err_) {
-          const err = err_ as unknown as RpcError
+          const err = err_ as unknown as RpcError<
+            RpcErrorCode | ProviderRpcErrorCode
+          >
           if (err.code === -32700) throw new ParseRpcError(err)
           if (err.code === -32600) throw new InvalidRequestRpcError(err)
           if (err.code === -32601) throw new MethodNotFoundRpcError(err)
