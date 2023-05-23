@@ -38,7 +38,7 @@ export type PublicClient<
 >
 
 /**
- * Creates a Public Client with a given [Transport](https://viem.sh/docs/clients/intro) configured for a [Chain](https://viem.sh/docs/clients/chains).
+ * Creates a Public Client with a given [Transport](https://viem.sh/docs/clients/intro.html) configured for a [Chain](https://viem.sh/docs/clients/chains.html).
  *
  * - Docs: https://viem.sh/docs/clients/public.html
  *

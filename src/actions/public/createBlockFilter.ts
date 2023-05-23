@@ -7,7 +7,7 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 export type CreateBlockFilterReturnType = Filter<'block'>
 
 /**
- * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+ * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
  *
  * - Docs: https://viem.sh/docs/actions/public/createBlockFilter.html
  * - JSON-RPC Methods: [`eth_newBlockFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newBlockFilter)
