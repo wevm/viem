@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.36
+
+### Patch Changes
+
+- [#560](https://github.com/wagmi-dev/viem/pull/560) [`a5dd3c6`](https://github.com/wagmi-dev/viem/commit/a5dd3c6dcdb2c7625aacd9c9bc498bd86530dd77) Thanks [@Volchunovich](https://github.com/Volchunovich)! - Fixed docs links
+
 ## 0.3.35
 
 ### Patch Changes
