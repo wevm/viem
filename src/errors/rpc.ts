@@ -21,7 +21,7 @@ export type RpcErrorCode =
   | -32042 // Method not found
 
 type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
-  code?: TCode
+  code?: TCode | (number & {})
   docsPath?: string
   metaMessages?: string[]
   shortMessage: string
@@ -34,7 +34,8 @@ type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
  */
 export class RpcError<TCode extends number = RpcErrorCode> extends BaseError {
   override name = 'RpcError'
-  code: TCode
+
+  code: TCode | (number & {})
 
   constructor(
     cause: Error,
