@@ -86,11 +86,12 @@ export async function estimateGas<
     | WalletClient<Transport, TChain, TAccount>,
   args: EstimateGasParameters<TChain, TAccount>,
 ): Promise<EstimateGasReturnType> {
-  if (!args.account)
+  const account_ = args.account ?? (client as WalletClient).account
+  if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/public/estimateGas',
     })
-  const account = parseAccount(args.account)
+  const account = parseAccount(account_)
 
   try {
     const {
