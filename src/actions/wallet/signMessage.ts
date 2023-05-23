@@ -25,8 +25,8 @@ export type SignMessageReturnType = Hex
  *   - Local Accounts: Signs locally. No JSON-RPC request.
  *
  * With the calculated signature, you can:
- * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage) to verify the signature,
- * - use [`recoverMessageAddress`](https://viem.sh/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
+ * - use [`verifyMessage`](https://viem.sh/docs/utilities/verifyMessage.html) to verify the signature,
+ * - use [`recoverMessageAddress`](https://viem.sh/docs/utilities/recoverMessageAddress.html) to recover the signing address from a signature.
  *
  * @param client - Client to use
  * @param parameters - {@link SignMessageParameters}

@@ -54,7 +54,7 @@ export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
   FormattedTransaction<TransactionFormatter<TChain>>
 
 /**
- * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
+ * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) given a hash or block identifier.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransaction.html
  * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions

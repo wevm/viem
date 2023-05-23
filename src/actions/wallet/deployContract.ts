@@ -38,7 +38,7 @@ export type DeployContractReturnType = SendTransactionReturnType
  *
  * @param client - Client to use
  * @param parameters - {@link DeployContractParameters}
- * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
+ * @returns The [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash. {@link DeployContractReturnType}
  *
  * @example
  * import { createWalletClient, http } from 'viem'
