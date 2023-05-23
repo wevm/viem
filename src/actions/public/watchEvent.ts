@@ -62,7 +62,7 @@ export type WatchEventParameters<
 export type WatchEventReturnType = () => void
 
 /**
- * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms#event-log).
+ * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
  *
  * - Docs: https://viem.sh/docs/actions/public/watchEvent.html
  * - JSON-RPC Methods:
@@ -74,7 +74,7 @@ export type WatchEventReturnType = () => void
  *
  * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent.html#onLogs).
  *
- * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+ * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
  *
  * @param client - Client to use
  * @param parameters - {@link WatchEventParameters}

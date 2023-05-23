@@ -29,7 +29,7 @@ export type EstimateContractGasReturnType = bigint
  *
  * - Docs: https://viem.sh/docs/contract/estimateContractGas.html
  *
- * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+ * Internally, uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateContractGasParameters}

@@ -7,7 +7,7 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 export type CreatePendingTransactionFilterReturnType = Filter<'transaction'>
 
 /**
- * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+ * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
  *
  * - Docs: https://viem.sh/docs/actions/public/createPendingTransactionFilter.html
  * - JSON-RPC Methods: [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter)

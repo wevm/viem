@@ -41,7 +41,7 @@ export type MulticallReturnType<
 > = MulticallResults<TContracts, TAllowFailure>
 
 /**
- * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
+ * Similar to [`readContract`](https://viem.sh/docs/contract/readContract.html), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
  *
  * - Docs: https://viem.sh/docs/contract/multicall.html
  *

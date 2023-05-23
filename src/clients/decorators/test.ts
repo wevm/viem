@@ -390,7 +390,7 @@ export type TestActions = {
    */
   setBlockGasLimit: (args: SetBlockGasLimitParameters) => Promise<void>
   /**
-   * Similar to [`increaseTime`](https://viem.sh/docs/actions/test/increaseTime), but sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp` + `interval`.
+   * Similar to [`increaseTime`](https://viem.sh/docs/actions/test/increaseTime.html), but sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp` + `interval`.
    *
    * - Docs: https://viem.sh/docs/actions/test/setBlockTimestampInterval.html
    *
@@ -641,7 +641,7 @@ export type TestActions = {
    */
   snapshot: () => Promise<Quantity>
   /**
-   * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount).
+   * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount.html).
    *
    * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount.html
    *
