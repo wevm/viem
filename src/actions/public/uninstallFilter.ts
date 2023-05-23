@@ -15,9 +15,9 @@ export type UninstallFilterReturnType = boolean
  * - JSON-RPC Methods: [`eth_uninstallFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_uninstallFilter)
  *
  * Destroys a Filter that was created from one of the following Actions:
- * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
- * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
- * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter)
+ * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter.html)
+ * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter.html)
+ * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter.html)
  *
  * @param client - Client to use
  * @param parameters - {@link UninstallFilterParameters}

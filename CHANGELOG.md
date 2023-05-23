@@ -1,5 +1,27 @@
 # viem
 
+## 0.3.36
+
+### Patch Changes
+
+- [#554](https://github.com/wagmi-dev/viem/pull/554) [`d5297c6`](https://github.com/wagmi-dev/viem/commit/d5297c6e32fc148a63c34fe47cd590cfc9c665ec) Thanks [@tmm](https://github.com/tmm)! - Fixed portable types
+
+* [#556](https://github.com/wagmi-dev/viem/pull/556) [`81a3aed`](https://github.com/wagmi-dev/viem/commit/81a3aed513167588f0c3433af8407cc23c78f61f) Thanks [@tmm](https://github.com/tmm)! - Fallback to `client.account` for `estimateGas`.
+
+- [#560](https://github.com/wagmi-dev/viem/pull/560) [`a5dd3c6`](https://github.com/wagmi-dev/viem/commit/a5dd3c6dcdb2c7625aacd9c9bc498bd86530dd77) Thanks [@Volchunovich](https://github.com/Volchunovich)! - Fixed docs links
+
+## 0.3.35
+
+### Patch Changes
+
+- [`1cc1dc2`](https://github.com/wagmi-dev/viem/commit/1cc1dc2e989765ea0d0afd72375505b93e0013a5) Thanks [@jxom](https://github.com/jxom)! - Fixed `account` parameter type on `readContract`.
+
+## 0.3.34
+
+### Patch Changes
+
+- [`5c75ee5`](https://github.com/wagmi-dev/viem/commit/5c75ee598a0bd09709f619464e48cbb5fa2327d8) Thanks [@jxom](https://github.com/jxom)! - Added `EstimateContractGasParameters` & `EstimateContractGasReturnType` types.
+
 ## 0.3.33
 
 ### Patch Changes

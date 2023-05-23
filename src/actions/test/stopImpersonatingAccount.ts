@@ -13,7 +13,7 @@ export type StopImpersonatingAccountParameters = {
 }
 
 /**
- * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount).
+ * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount.html).
  *
  * - Docs: https://viem.sh/docs/actions/test/stopImpersonatingAccount.html
  *

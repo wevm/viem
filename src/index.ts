@@ -24,6 +24,10 @@ export {
 } from './actions/wallet/deployContract.js'
 export type { DropTransactionParameters } from './actions/test/dropTransaction.js'
 export {
+  type EstimateContractGasParameters,
+  type EstimateContractGasReturnType,
+} from './actions/public/estimateContractGas.js'
+export {
   type EstimateGasParameters,
   type EstimateGasReturnType,
 } from './actions/public/estimateGas.js'
@@ -288,9 +292,11 @@ export {
   ParseRpcError,
   ProviderDisconnectedError,
   ProviderRpcError,
+  type ProviderRpcErrorCode,
   ResourceNotFoundRpcError,
   ResourceUnavailableRpcError,
   RpcError,
+  type RpcErrorCode,
   TransactionRejectedRpcError,
   SwitchChainError,
   UnauthorizedProviderError,
@@ -426,9 +432,29 @@ export {
   type BlockTag,
   type Uncle,
 } from './types/block.js'
-export { type ByteArray, type Hash, type Hex } from './types/misc.js'
+export {
+  type ByteArray,
+  type Hash,
+  type Hex,
+  type LogTopic,
+  type Signature,
+} from './types/misc.js'
 export type { Chain } from './types/chain.js'
-export type { EIP1193Provider } from './types/eip1193.js'
+export type {
+  EIP1193Provider,
+  ProviderRpcError as EIP1193ProviderRpcError,
+  ProviderConnectInfo,
+  ProviderMessage,
+  AddEthereumChainParameter,
+  NetworkSync,
+  PublicRequests,
+  Requests,
+  SignableRequests,
+  WatchAssetParams,
+  WalletPermissionCaveat,
+  WalletPermission,
+  WalletRequests,
+} from './types/eip1193.js'
 export {
   type FeeHistory,
   type FeeValues,

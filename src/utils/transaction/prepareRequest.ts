@@ -17,7 +17,6 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import { parseGwei } from '../unit/parseGwei.js'
 
 import { assertRequest } from './assertRequest.js'
 
@@ -43,7 +42,7 @@ export type PrepareRequestReturnType<
   nonce: SendTransactionParameters['nonce']
 }
 
-export const defaultTip = parseGwei('1.5')
+export const defaultTip = 1_500_000_000n // 1.5 gwei
 
 export async function prepareRequest<
   TChain extends Chain | undefined,

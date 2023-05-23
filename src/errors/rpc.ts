@@ -1,10 +1,27 @@
+import type { Prettify } from '../types/utils.js'
 import { BaseError } from './base.js'
 import { RpcRequestError } from './request.js'
 
 const unknownErrorCode = -1
 
-type RpcErrorOptions = {
-  code?: number
+export type RpcErrorCode =
+  | -1
+  | -32700 // Parse error
+  | -32600 // Invalid request
+  | -32601 // Method not found
+  | -32602 // Invalid params
+  | -32603 // Internal error
+  | -32000 // Invalid input
+  | -32001 // Resource not found
+  | -32002 // Resource unavailable
+  | -32003 // Transaction rejected
+  | -32004 // Method not supported
+  | -32005 // Limit exceeded
+  | -32006 // JSON-RPC version not supported
+  | -32042 // Method not found
+
+type RpcErrorOptions<TCode extends number = RpcErrorCode> = {
+  code?: TCode | (number & {})
   docsPath?: string
   metaMessages?: string[]
   shortMessage: string
@@ -15,17 +32,14 @@ type RpcErrorOptions = {
  *
  * - EIP https://eips.ethereum.org/EIPS/eip-1474
  */
-export class RpcError extends BaseError {
-  code: number
+export class RpcError<TCode extends number = RpcErrorCode> extends BaseError {
+  override name = 'RpcError'
+
+  code: TCode | (number & {})
 
   constructor(
     cause: Error,
-    {
-      code = unknownErrorCode,
-      docsPath,
-      metaMessages,
-      shortMessage,
-    }: RpcErrorOptions,
+    { code, docsPath, metaMessages, shortMessage }: RpcErrorOptions<TCode>,
   ) {
     super(shortMessage, {
       cause,
@@ -34,25 +48,39 @@ export class RpcError extends BaseError {
         metaMessages || (cause as { metaMessages?: string[] })?.metaMessages,
     })
     this.name = cause.name
-    this.code = cause instanceof RpcRequestError ? cause.code : code
+    this.code = (
+      cause instanceof RpcRequestError ? cause.code : code ?? unknownErrorCode
+    ) as TCode
   }
 }
+
+export type ProviderRpcErrorCode =
+  | 4001 // User Rejected Request
+  | 4100 // Unauthorized
+  | 4200 // Unsupported Method
+  | 4900 // Disconnected
+  | 4901 // Chain Disconnected
+  | 4902 // Chain Not Recongnized
 
 /**
  * Error subclass implementing Ethereum Provider errors per EIP-1193.
  *
  * - EIP https://eips.ethereum.org/EIPS/eip-1193
  */
-export class ProviderRpcError<T = undefined> extends RpcError {
+export class ProviderRpcError<
+  T = undefined,
+> extends RpcError<ProviderRpcErrorCode> {
   override name = 'ProviderRpcError'
 
   data?: T
 
   constructor(
     cause: Error,
-    options: RpcErrorOptions & {
-      data?: T
-    },
+    options: Prettify<
+      RpcErrorOptions<ProviderRpcErrorCode> & {
+        data?: T
+      }
+    >,
   ) {
     super(cause, options)
 
