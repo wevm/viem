@@ -1,10 +1,15 @@
 {
   "files": {
     "ignore": [
+      "**/node_modules",
       "CHANGELOG.md",
-      "pnpm-lock.yaml",
+      "cache",
+      "coverage",
+      "dist",
       "tsconfig.json",
-      "tsconfig.*.json"
+      "tsconfig.*.json",
+      "generated.ts",
+      "pnpm-lock.yaml"
     ]
   },
   "formatter": {
@@ -30,8 +35,7 @@
       },
       "suspicious": {
         "noArrayIndexKey": "off",
-        "noExplicitAny": "off",
-        "noRedeclare": "off"
+        "noExplicitAny": "off"
       }
     }
   },
@@ -44,10 +48,5 @@
   },
   "organizeImports": {
     "enabled": true
-  },
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
   }
 }
