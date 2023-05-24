@@ -29,10 +29,10 @@ importers:
         version: 1.2.0
       '@wagmi/chains':
         specifier: 0.2.16
-        version: 0.2.16(typescript@5.0.3)
+        version: 0.2.16(typescript@5.0.4)
       abitype:
         specifier: 0.8.2
-        version: 0.8.2(typescript@5.0.3)
+        version: 0.8.2(typescript@5.0.4)
       isomorphic-ws:
         specifier: 5.0.0
         version: 5.0.0(ws@8.12.0)
@@ -72,25 +72,25 @@ importers:
         version: 0.30.1
       '@wagmi/cli':
         specifier: ^0.1.6
-        version: 0.1.6(typescript@5.0.3)
+        version: 0.1.6(typescript@5.0.4)
       bun:
-        specifier: ^0.5.5
-        version: 0.5.6
+        specifier: ^0.5.9
+        version: 0.5.9
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
       ethers@6:
         specifier: npm:ethers@^6.0.2
-        version: /ethers@6.3.0
+        version: /ethers@6.4.0
       fs-extra:
         specifier: ^10.1.0
         version: 10.1.0
       rimraf:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^4.4.1
+        version: 4.4.1
       rome:
-        specifier: ^12.0.0
-        version: 12.0.0
+        specifier: ^12.1.2
+        version: 12.1.2
       simple-git-hooks:
         specifier: ^2.8.1
         version: 2.8.1
@@ -98,8 +98,8 @@ importers:
         specifier: ^8.2.4
         version: 8.2.4
       typescript:
-        specifier: ^5.0.3
-        version: 5.0.3
+        specifier: ^5.0.4
+        version: 5.0.4
       vite:
         specifier: ^4.1.4
         version: 4.1.4(@types/node@18.16.3)
@@ -461,6 +461,7 @@ packages:
 
   /@adraffy/ens-normalize@1.9.0:
     resolution: {integrity: sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==}
+    dev: false
 
   /@algolia/autocomplete-core@1.7.4:
     resolution: {integrity: sha512-daoLpQ3ps/VTMRZDEBfU8ixXd+amZcNJ4QSP3IERGyzqnL5Ch8uSRFt/4G8pUvW9c3o6GA4vtVv4I4lmnkdXyg==}
@@ -2014,48 +2015,48 @@ packages:
       '@octokit/openapi-types': 12.11.0
     dev: true
 
-  /@oven/bun-darwin-aarch64@0.5.6:
-    resolution: {integrity: sha512-QaSQ0kZdnXU+s/MjzxheE4Rj2L0LuNdb+m0P+HZIiDFzvsEtOPZyObL7pAWw1zXNalRQeHVeWR7g3pWUH5CqZg==}
+  /@oven/bun-darwin-aarch64@0.5.9:
+    resolution: {integrity: sha512-4AfiEln+yA5FzR1mEpcd8816ziq0rPT9IQOFMmGbtMLXvYRfWul3ywaquI7nl8c8RU3Lzu5Itlwirx65DKJ19A==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@oven/bun-darwin-x64-baseline@0.5.6:
-    resolution: {integrity: sha512-HInWods1mG+RXaNisjn564vALytCal1oYtPy+snVRFhZKWuJgFeW4uRiOMf5iHcgst6svV6zZxjbM4I69UmcnA==}
+  /@oven/bun-darwin-x64-baseline@0.5.9:
+    resolution: {integrity: sha512-hhsUtMHor9h4fQozPOzSy82P0smT8xaFJouumJv6ekxngZ5Xa13BWfUJZsdTcB+pBsdMUC8V8MRfNFyfiZZiog==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@oven/bun-darwin-x64@0.5.6:
-    resolution: {integrity: sha512-rUvUMPmEHWQVXYyh2jX0IKga2WyqY2W94iNaV3UziO1AC+7ZWKGCra6RrPweqlnUYrjzfi72MNa57PPOV0WCkg==}
+  /@oven/bun-darwin-x64@0.5.9:
+    resolution: {integrity: sha512-YYYg9qIFcvwQqO4GKs7SkpOLCERxHUKpmrZ7yl0DWPAfZWm7xqoTOs1ceCgAUygkKZ9/eLcj5VD8qjhth4Ynyg==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@oven/bun-linux-aarch64@0.5.6:
-    resolution: {integrity: sha512-/nFibpC73QmUmDJb6MihyM3lNNzXKYaZIQ5eHRqoYeU2dE2LEAbkMpBVDOoL+y2ZEnE2z67+f1WuLTcTPmEwwA==}
+  /@oven/bun-linux-aarch64@0.5.9:
+    resolution: {integrity: sha512-D0kZM+VDLhxPKXnczG3d2LlrzWp+bv6LIhjIC/2UTUNdipjO5tFHoCbsQvcPpg+hJYsj0We43pdFPbIC7cL+dg==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@oven/bun-linux-x64-baseline@0.5.6:
-    resolution: {integrity: sha512-0tbproUyIrZ6VSGysHLr0Uwsy+v5Dc5Wj6Xx1cBUC/ylnP60eBQHc9U+Xjat3Vlk3rGp95mbIP4PIInSDIFQvw==}
+  /@oven/bun-linux-x64-baseline@0.5.9:
+    resolution: {integrity: sha512-HO4HMmOMRz7SWEUR4P+iZe3RHDgkrYkNmW1clKIddgrVNf3pS+lKOZBW/GcX2cjjHMRp6vcjPvOxa9oXfqLuVA==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@oven/bun-linux-x64@0.5.6:
-    resolution: {integrity: sha512-wjLAzC0TEv3oqZIFcSajzQV6Otj0Dcuf7EiOQjUYtfugsEFUEtHqXhMUivk0ryKGONjd0PqxIqK7gRJH6aOSkw==}
+  /@oven/bun-linux-x64@0.5.9:
+    resolution: {integrity: sha512-ORE/a3XpDZPZwL/2dvlkJOt3lBd637eonsluY49IcjhYci3eDXKA3S6A2x9H7MVTUhv8G7z6fDztRVh+W7Rz6A==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
@@ -2066,48 +2067,48 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@rometools/cli-darwin-arm64@12.0.0:
-    resolution: {integrity: sha512-kEFCzU6cgy6vfY0mkMzq57ea3srqV5X2wyCAxjVfA2JF7fioq695uWhy7yOCBW+nUUFIz62N9v1nf/aYqX8XkA==}
+  /@rometools/cli-darwin-arm64@12.1.2:
+    resolution: {integrity: sha512-9QxtAwNyX9n7ysxo+9qWczl70I1opulmX7LFNsRJKS9qqyTNc5K++btnNK07vWAIeQsMx4QYwr7241thuBMlFw==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-darwin-x64@12.0.0:
-    resolution: {integrity: sha512-YDevVPKrkRFdjjM/3zOpOWI5mEY2ivjKM2eR8Yqv9xH3SZhyD/t67f/xo7Azp6NkGUVXSnHLGdkmIg+qrYgz5A==}
+  /@rometools/cli-darwin-x64@12.1.2:
+    resolution: {integrity: sha512-w28NkGYK/rSmQU2WkNzw1h7ec8IR5a7LzYwPHDvG2ogY5sTcygkg0TGKOF/MHUvixU6EBPrFobua2gPhpr/m5A==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-linux-arm64@12.0.0:
-    resolution: {integrity: sha512-n2LJg6eAZENUcJF99wjDeqQCr/40IqGUJDbX7NwiU1RvCy+RBZNmhcmSAaKOc6rCoLUcM9W5q+H4jfn4bWfJBA==}
+  /@rometools/cli-linux-arm64@12.1.2:
+    resolution: {integrity: sha512-7BPGqPtnJy1O8B/ucJ5Vg+p6EUvJJ9DazrT1UEdVR/4inPqAVac9PIZDjjHXyMrt/3IngnetPyn5EXNTAqpJVw==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-linux-x64@12.0.0:
-    resolution: {integrity: sha512-VuQO4eOrKmfrLrc8KzMaZypz3i1rD9FXRxwOFk6ha16DNHV+17dRQYm7jRZ1p+HrXdjAJYTScxR/E03yGLThlQ==}
+  /@rometools/cli-linux-x64@12.1.2:
+    resolution: {integrity: sha512-qH2iJKPLp34D0GFK1gLolHGkTA8q2vGKh2Ae1AwoTh87g0mXyyeQf4mAtxJtf4/ydMgjEkAZdEwyaevbTX8gnQ==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-win32-arm64@12.0.0:
-    resolution: {integrity: sha512-lvOh5/B8YuQdI2ieGJnJ6CUMZxvVwA8+1VDkEZJyl5IEF8AXzbXYx4k6SFA5a79cfXEL9tJuJy0rn+Zs/+1yJQ==}
+  /@rometools/cli-win32-arm64@12.1.2:
+    resolution: {integrity: sha512-iIdqss2R8bni7C7isA9OLBj1UAA3MeKfca0aHNZr+2gSRdiSxO/47j6s3Tpebso99xsJBAFdWBOruG+l/C+LQg==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-win32-x64@12.0.0:
-    resolution: {integrity: sha512-yTfz71k8+9QIDzglKnMbEMMv1JUk30qfeSomgEUG2v0qDSbSq0Gs1ff0H0dysYOHLvZZmWA3IheOY/SC8fj1nA==}
+  /@rometools/cli-win32-x64@12.1.2:
+    resolution: {integrity: sha512-MKOd02sSnd/Biogh3rIKpLFZzYbDSVvRNAxbFHJOpyGLbeQHfAg7QxjKwz0PqyrHVjZaTEEPlswrf4IFii0GNg==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
@@ -2262,6 +2263,10 @@ packages:
 
   /@types/node@18.15.12:
     resolution: {integrity: sha512-Wha1UwsB3CYdqUm2PPzh/1gujGCNtWVUYF0mB00fJFoR4gTyWTDPjSm+zBF787Ahw8vSGgBja90MkgFwvB86Dg==}
+    dev: true
+
+  /@types/node@18.15.13:
+    resolution: {integrity: sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==}
     dev: true
 
   /@types/node@18.16.3:
@@ -2613,7 +2618,7 @@ packages:
       - vue
     dev: true
 
-  /@wagmi/chains@0.2.16(typescript@5.0.3):
+  /@wagmi/chains@0.2.16(typescript@5.0.4):
     resolution: {integrity: sha512-rkWaI2PxCnbD8G07ZZff5QXftnSkYL0h5f4DkHCG3fGYYr/ZDvmCL4bMae7j7A9sAif1csPPBmbCzHp3R5ogCQ==}
     peerDependencies:
       typescript: '>=4.9.4'
@@ -2621,10 +2626,10 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.0.3
+      typescript: 5.0.4
     dev: false
 
-  /@wagmi/chains@0.2.7(typescript@5.0.3):
+  /@wagmi/chains@0.2.7(typescript@5.0.4):
     resolution: {integrity: sha512-Oqnkl5n9MTBdMzgIwwdSKEDfm0Vdv2CYBaDyTa5SiTjFNaIfT6MRATLg7KbI3JydfxqJphsVFL+TZZqFvkte/g==}
     peerDependencies:
       typescript: '>=4.9.4'
@@ -2632,10 +2637,10 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.0.3
+      typescript: 5.0.4
     dev: true
 
-  /@wagmi/cli@0.1.6(typescript@5.0.3):
+  /@wagmi/cli@0.1.6(typescript@5.0.4):
     resolution: {integrity: sha512-4ri/QATYDnLNZKVbnulW1Skfu2K5Jc+O0joULoHC6Ag/8Z1QlMEHl9GRXhO+6q68tv382EnVxjIUm6VuzbWpqA==}
     engines: {node: '>=14'}
     hasBin: true
@@ -2652,8 +2657,8 @@ packages:
         optional: true
     dependencies:
       '@ethersproject/address': 5.7.0
-      '@wagmi/chains': 0.2.7(typescript@5.0.3)
-      abitype: 0.3.0(typescript@5.0.3)(zod@3.20.2)
+      '@wagmi/chains': 0.2.7(typescript@5.0.4)
+      abitype: 0.3.0(typescript@5.0.4)(zod@3.20.2)
       abort-controller: 3.0.0
       bundle-require: 3.1.2(esbuild@0.15.13)
       cac: 6.7.14
@@ -2673,7 +2678,7 @@ packages:
       pathe: 1.1.0
       picocolors: 1.0.0
       prettier: 2.8.3
-      typescript: 5.0.3
+      typescript: 5.0.4
       zod: 3.20.2
     dev: true
 
@@ -2791,7 +2796,7 @@ packages:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
     dev: true
 
-  /abitype@0.3.0(typescript@5.0.3)(zod@3.20.2):
+  /abitype@0.3.0(typescript@5.0.4)(zod@3.20.2):
     resolution: {integrity: sha512-0YokyAV4hKMcy97Pl+6QgZBlBdZJN2llslOs7kiFY+cu7kMlVXDBpxMExfv0krzBCQt2t7hNovpQ3y/zvEm18A==}
     engines: {pnpm: '>=7'}
     peerDependencies:
@@ -2801,11 +2806,11 @@ packages:
       zod:
         optional: true
     dependencies:
-      typescript: 5.0.3
+      typescript: 5.0.4
       zod: 3.20.2
     dev: true
 
-  /abitype@0.8.2(typescript@5.0.3):
+  /abitype@0.8.2(typescript@5.0.4):
     resolution: {integrity: sha512-B1ViNMGpfx/qjVQi0RTc2HEFHuR9uoCoTEkwELT5Y7pBPtBbctYijz9BK6+Kd0hQ3S70FhYTO2dWWk0QNUEXMA==}
     peerDependencies:
       typescript: '>=5.0.4'
@@ -2814,7 +2819,7 @@ packages:
       zod:
         optional: true
     dependencies:
-      typescript: 5.0.3
+      typescript: 5.0.4
     dev: false
 
   /abort-controller@3.0.0:
@@ -2866,8 +2871,8 @@ packages:
     resolution: {integrity: sha512-H7wUZRn8WpTq9jocdxQ2c8x2sKo9ZVmzfRE13GiNJXfp7NcKYEdvl3vspKjXox6RIG2VtaRe4JFvxG4rqp2Zuw==}
     dev: true
 
-  /aes-js@4.0.0-beta.3:
-    resolution: {integrity: sha512-/xJX0/VTPcbc5xQE2VUP91y1xN8q/rDfhEzLm+vLc3hYvb5+qHCnpJRuFcrKn63zumK/sCwYYzhG8HP78JYSTA==}
+  /aes-js@4.0.0-beta.5:
+    resolution: {integrity: sha512-G965FqalsNyrPqgEGON7nIx1e/OVENSgiEIzyC63haUMuvNnwIgIjMs52hlTCKhkBny7A2ORNlfY9Zu+jmGk1Q==}
     dev: true
 
   /agent-base@6.0.2:
@@ -3078,6 +3083,12 @@ packages:
       concat-map: 0.0.1
     dev: true
 
+  /brace-expansion@2.0.1:
+    resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
+    dependencies:
+      balanced-match: 1.0.2
+    dev: true
+
   /braces@3.0.2:
     resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
     engines: {node: '>=8'}
@@ -3132,19 +3143,19 @@ packages:
     resolution: {integrity: sha512-c4XXSAo4gA03XE3EIOB1bcLxUvWMzhiE9AQdoZi+3fplNLpyeOw7UJM3o1UCtk00NYZQIbgC/eJ88QrlSdxhxg==}
     dev: true
 
-  /bun@0.5.6:
-    resolution: {integrity: sha512-IzjJd/1l07ZqdgRgReZ6V1WvFs51+DsTmakjvuP7DXccpx3OXhxFaayRUsr+3rA+7dnre+P7j8e7sGB2gYad8g==}
+  /bun@0.5.9:
+    resolution: {integrity: sha512-gX4ped5KlWCf6HZId0O4lU2hcbfELeL3Sp6uKjbsTZR3Wu1/grOuXI/jrKd38aFiPdgMnWR0+mWcKuQuIbMUzw==}
     cpu: [arm64, x64]
     os: [darwin, linux]
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@oven/bun-darwin-aarch64': 0.5.6
-      '@oven/bun-darwin-x64': 0.5.6
-      '@oven/bun-darwin-x64-baseline': 0.5.6
-      '@oven/bun-linux-aarch64': 0.5.6
-      '@oven/bun-linux-x64': 0.5.6
-      '@oven/bun-linux-x64-baseline': 0.5.6
+      '@oven/bun-darwin-aarch64': 0.5.9
+      '@oven/bun-darwin-x64': 0.5.9
+      '@oven/bun-darwin-x64-baseline': 0.5.9
+      '@oven/bun-linux-aarch64': 0.5.9
+      '@oven/bun-linux-x64': 0.5.9
+      '@oven/bun-linux-x64-baseline': 0.5.9
     dev: true
 
   /bundle-require@3.1.2(esbuild@0.15.13):
@@ -4086,14 +4097,15 @@ packages:
       - utf-8-validate
     dev: true
 
-  /ethers@6.3.0:
-    resolution: {integrity: sha512-CKFYvTne1YT4S1glTiu7TgGsj0t6c6GAD7evrIk8zbeUb6nK8dcUPAiAWM8uDX/1NmRTvLM9+1Vnn49hwKtEzw==}
+  /ethers@6.4.0:
+    resolution: {integrity: sha512-nksaMCwX+BOdV2NQ1/57OehSD2JtujbhrdC2+Fb9VpvBO0WO6h+WWwu3oMMw7aUiTa5lvQcWX1vl4aOy7Q3CTg==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      '@adraffy/ens-normalize': 1.9.0
+      '@adraffy/ens-normalize': github.com/ricmoo/ens-normalize.js/2d040533e57e4f25f9a7cc4715e219658ad454b5
       '@noble/hashes': 1.1.2
       '@noble/secp256k1': 1.7.1
-      aes-js: 4.0.0-beta.3
+      '@types/node': 18.15.13
+      aes-js: 4.0.0-beta.5
       tslib: 2.4.0
       ws: 8.5.0
     transitivePeerDependencies:
@@ -4445,6 +4457,16 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
+    dev: true
+
+  /glob@9.3.5:
+    resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      fs.realpath: 1.0.0
+      minimatch: 8.0.4
+      minipass: 4.2.8
+      path-scurry: 1.9.2
     dev: true
 
   /globals@11.12.0:
@@ -5018,6 +5040,11 @@ packages:
       yallist: 4.0.0
     dev: true
 
+  /lru-cache@9.1.1:
+    resolution: {integrity: sha512-65/Jky17UwSb0BuB9V+MyDpsOtXKmYwzhyl+cOa9XUiI4uV2Ouy/2voFP3+al0BjZbJgMBD8FojMpAf+Z+qn4A==}
+    engines: {node: 14 || >=16.14}
+    dev: true
+
   /magic-string@0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
     dependencies:
@@ -5137,6 +5164,13 @@ packages:
       brace-expansion: 1.1.11
     dev: true
 
+  /minimatch@8.0.4:
+    resolution: {integrity: sha512-W0Wvr9HyFXZRGIDgCicunpQ299OKXs9RgZfaukz4qAW/pJhcpUfupc9c+OObPOFueNy8VSrZgEmDtk6Kh4WzDA==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: true
+
   /minimist-options@4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}
     engines: {node: '>= 6'}
@@ -5148,6 +5182,16 @@ packages:
 
   /minimist@1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
+    dev: true
+
+  /minipass@4.2.8:
+    resolution: {integrity: sha512-fNzuVyifolSLFL4NzpF+wEF4qrgqaaKX0haXPQEdQ7NKAN+WecoKMHV09YcuL/DHxrUsYQOK3MiuDf7Ip2OXfQ==}
+    engines: {node: '>=8'}
+    dev: true
+
+  /minipass@6.0.2:
+    resolution: {integrity: sha512-MzWSV5nYVT7mVyWCwn2o7JH13w2TBRmmSqSRCKzTw+lmft9X4z+3wjvs06Tzijo5z4W/kahUCDpRXTF+ZrmF/w==}
+    engines: {node: '>=16 || 14 >=14.17'}
     dev: true
 
   /mixme@0.5.4:
@@ -5453,6 +5497,14 @@ packages:
 
   /path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
+    dev: true
+
+  /path-scurry@1.9.2:
+    resolution: {integrity: sha512-qSDLy2aGFPm8i4rsbHd4MNyTcrzHFsLQykrtbuGRknZZCBBVXSv2tSCDN2Cg6Rt/GFRw8GoW9y9Ecw5rIPG1sg==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      lru-cache: 9.1.1
+      minipass: 6.0.2
     dev: true
 
   /path-type@4.0.0:
@@ -5841,10 +5893,12 @@ packages:
       glob: 7.2.3
     dev: true
 
-  /rimraf@4.1.2:
-    resolution: {integrity: sha512-BlIbgFryTbw3Dz6hyoWFhKk+unCcHMSkZGrTFVAx2WmttdBSonsdtRlwiuTbDqTKr+UlXIUqJVS4QT5tUzGENQ==}
+  /rimraf@4.4.1:
+    resolution: {integrity: sha512-Gk8NlF062+T9CqNGn6h4tls3k6T1+/nXdOcSZVikNVtlRdYpA7wRJJMoXmuvOnLW844rPjdQ7JgXCYM6PPC/og==}
     engines: {node: '>=14'}
     hasBin: true
+    dependencies:
+      glob: 9.3.5
     dev: true
 
   /rollup@3.15.0:
@@ -5863,18 +5917,18 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /rome@12.0.0:
-    resolution: {integrity: sha512-w/tLvLj5PGUCx3R+Kna08BMq4zL83Xzh9spvrqoWa3Nkzk16SkD8JSpyWWP9WhI2r3qv3Xvc7FnYZ4QDnjAiYg==}
+  /rome@12.1.2:
+    resolution: {integrity: sha512-ObyDevKRU6k3R9fAK9hDvrX9FSPEJ0JWNv5i65enknV+epWjEIL0jnDuijPUX7MSVS6M/ngTiKUaeF3w63SJXw==}
     engines: {node: '>=14.*'}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@rometools/cli-darwin-arm64': 12.0.0
-      '@rometools/cli-darwin-x64': 12.0.0
-      '@rometools/cli-linux-arm64': 12.0.0
-      '@rometools/cli-linux-x64': 12.0.0
-      '@rometools/cli-win32-arm64': 12.0.0
-      '@rometools/cli-win32-x64': 12.0.0
+      '@rometools/cli-darwin-arm64': 12.1.2
+      '@rometools/cli-darwin-x64': 12.1.2
+      '@rometools/cli-linux-arm64': 12.1.2
+      '@rometools/cli-linux-x64': 12.1.2
+      '@rometools/cli-win32-arm64': 12.1.2
+      '@rometools/cli-win32-x64': 12.1.2
     dev: true
 
   /run-parallel@1.2.0:
@@ -6448,6 +6502,12 @@ packages:
 
   /typescript@5.0.3:
     resolution: {integrity: sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==}
+    engines: {node: '>=12.20'}
+    hasBin: true
+    dev: true
+
+  /typescript@5.0.4:
+    resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
     engines: {node: '>=12.20'}
     hasBin: true
 
@@ -7076,4 +7136,10 @@ packages:
 
   /zod@3.20.2:
     resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: true
+
+  github.com/ricmoo/ens-normalize.js/2d040533e57e4f25f9a7cc4715e219658ad454b5:
+    resolution: {tarball: https://codeload.github.com/ricmoo/ens-normalize.js/tar.gz/2d040533e57e4f25f9a7cc4715e219658ad454b5}
+    name: '@adraffy/ens-normalize'
+    version: 1.9.0
     dev: true

@@ -163,7 +163,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -179,9 +179,7 @@ export type GetContractReturnType<
               estimateGas: {
                 [FunctionName in _WriteFunctionNames]: GetEstimateFunction<
                   _Narrowable,
-                  TPublicClient extends PublicClient
-                    ? TPublicClient['chain']
-                    : undefined,
+                  TPublicClient['chain'],
                   TAbi,
                   FunctionName
                 >
@@ -197,7 +195,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -213,9 +211,7 @@ export type GetContractReturnType<
               simulate: {
                 [FunctionName in _WriteFunctionNames]: GetSimulateFunction<
                   _Narrowable,
-                  TPublicClient extends PublicClient
-                    ? TPublicClient['chain']
-                    : undefined,
+                  TPublicClient['chain'],
                   TAbi,
                   FunctionName
                 >
@@ -231,7 +227,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -260,7 +256,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -289,6 +285,34 @@ export type GetContractReturnType<
         ? unknown
         : {
             /**
+             * Estimates the gas necessary to complete a transaction without submitting it to the network.
+             *
+             * @example
+             * import { createWalletClient, getContract, http, parseAbi } from 'viem'
+             * import { mainnet } from 'viem/chains'
+             *
+             * const walletClient = createWalletClient({
+             *   chain: mainnet,
+             *   transport: http(),
+             * })
+             * const contract = getContract({
+             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+             *   abi: parseAbi(['function mint() public']),
+             *   walletClient,
+             * })
+             * const gas = await contract.estimateGas.mint({
+             *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+             * })
+             */
+            estimateGas: {
+              [FunctionName in _WriteFunctionNames]: GetEstimateFunction<
+                _Narrowable,
+                TWalletClient['chain'],
+                TAbi,
+                FunctionName
+              >
+            }
+            /**
              * Executes a write function on a contract.
              *
              * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
@@ -301,14 +325,14 @@ export type GetContractReturnType<
              * import { createWalletClient, getContract, http, parseAbi } from 'viem'
              * import { mainnet } from 'viem/chains'
              *
-             * const client = createWalletClient({
+             * const walletClient = createWalletClient({
              *   chain: mainnet,
              *   transport: http(),
              * })
              * const contract = getContract({
              *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
              *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
-             *   publicClient,
+             *   walletClient,
              * })
              * const hash = await contract.write.min([69420], {
              *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -317,12 +341,8 @@ export type GetContractReturnType<
             write: {
               [FunctionName in _WriteFunctionNames]: GetWriteFunction<
                 _Narrowable,
-                TWalletClient extends WalletClient
-                  ? TWalletClient['chain']
-                  : undefined,
-                TWalletClient extends WalletClient
-                  ? TWalletClient['account']
-                  : undefined,
+                TWalletClient['chain'],
+                TWalletClient['account'],
                 TAbi,
                 FunctionName
               >

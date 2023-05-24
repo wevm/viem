@@ -50,6 +50,8 @@ test('public and wallet client', () => {
     walletClient,
   })
 
+  contract.estimateGas.transferFrom(['0x', '0x', 123n])
+
   expectTypeOf(contract).toMatchTypeOf<{
     createEventFilter: {
       [_ in EventNames]: Function
@@ -177,7 +179,7 @@ test('`abi` declared as `Abi` type', () => {
     ...wagmiContractConfig,
     abi,
     publicClient,
-    walletClient: walletClient,
+    walletClient,
   })
 
   contract.createEventFilter.Transfer({ from: '0x' })
