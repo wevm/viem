@@ -1,6 +1,7 @@
 // Adapted from https://github.com/mafintosh/dns-packet
 import type { ByteArray } from '../../types/misc.js'
 import { stringToBytes } from '../encoding/toBytes.js'
+import { encodeLabelhash } from './encodeLabelhash.js'
 import { labelhash } from './labelhash.js'
 
 /*
@@ -20,7 +21,7 @@ export function packetToBytes(packet: string): ByteArray {
     // if the length is > 255, make the encoded label value a labelhash
     // this is compatible with the universal resolver
     if (encoded.byteLength > 255)
-      encoded = stringToBytes(`[${labelhash(list[i]).slice(2)}]`)
+      encoded = stringToBytes(encodeLabelhash(labelhash(list[i])))
     bytes[offset] = encoded.length
     bytes.set(encoded, offset + 1)
     offset += encoded.length + 1
