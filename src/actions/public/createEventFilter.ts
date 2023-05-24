@@ -77,7 +77,7 @@ export type CreateEventFilterReturnType<
 > = Prettify<Filter<'event', _Abi, _EventName, _Args, TStrict>>
 
 /**
- * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+ * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
  *
  * - Docs: https://viem.sh/docs/actions/public/createEventFilter.html
  * - JSON-RPC Methods: [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter)

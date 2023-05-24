@@ -44,10 +44,10 @@ export type GetFilterChangesReturnType<
  *
  * A Filter can be created from the following actions:
  *
- * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
- * - [`createContractEventFilter`](https://viem.sh/docs/contract/createContractEventFilter)
- * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
- * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter)
+ * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter.html)
+ * - [`createContractEventFilter`](https://viem.sh/docs/contract/createContractEventFilter.html)
+ * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter.html)
+ * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter.html)
  *
  * Depending on the type of filter, the return value will be different:
  *

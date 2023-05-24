@@ -20,7 +20,7 @@ export type GetTransactionReceiptReturnType<
 > = FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
 
 /**
- * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash.
+ * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash.
  *
  * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt.html
  * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions

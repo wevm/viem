@@ -59,7 +59,7 @@ export type CreateContractEventFilterReturnType<
 > = Filter<'event', TAbi, TEventName, TArgs, TStrict>
 
 /**
- * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
+ * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
  *
  * - Docs: https://viem.sh/docs/contract/createContractEventFilter.html
  *

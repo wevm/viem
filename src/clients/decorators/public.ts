@@ -234,7 +234,7 @@ export type PublicActions<
    */
   call: (parameters: CallParameters<TChain>) => Promise<CallReturnType>
   /**
-   * Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+   * Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
    *
    * - Docs: https://viem.sh/docs/actions/public/createBlockFilter.html
    * - JSON-RPC Methods: [`eth_newBlockFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newBlockFilter)
@@ -254,7 +254,7 @@ export type PublicActions<
    */
   createBlockFilter: () => Promise<CreateBlockFilterReturnType>
   /**
-   * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
+   * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
    *
    * - Docs: https://viem.sh/docs/contract/createContractEventFilter.html
    *
@@ -284,7 +284,7 @@ export type PublicActions<
     CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
   >
   /**
-   * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+   * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
    *
    * - Docs: https://viem.sh/docs/actions/public/createEventFilter.html
    * - JSON-RPC Methods: [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter)
@@ -322,7 +322,7 @@ export type PublicActions<
     CreateEventFilterReturnType<TAbiEvent, TStrict, _Abi, _EventName, _Args>
   >
   /**
-   * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
+   * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
    *
    * - Docs: https://viem.sh/docs/actions/public/createPendingTransactionFilter.html
    * - JSON-RPC Methods: [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter)
@@ -347,7 +347,7 @@ export type PublicActions<
    * - Docs: https://viem.sh/docs/contract/estimateContractGas.html
    *
    * @remarks
-   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`estimateGas` action](https://viem.sh/docs/actions/public/estimateGas.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
    *
    * @param args - {@link EstimateContractGasParameters}
    * @returns The gas estimate (in wei). {@link EstimateContractGasReturnType}
@@ -731,10 +731,10 @@ export type PublicActions<
    * @remarks
    * A Filter can be created from the following actions:
    *
-   * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
-   * - [`createContractEventFilter`](https://viem.sh/docs/contract/createContractEventFilter)
-   * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
-   * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter)
+   * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter.html)
+   * - [`createContractEventFilter`](https://viem.sh/docs/contract/createContractEventFilter.html)
+   * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter.html)
+   * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter.html)
    *
    * Depending on the type of filter, the return value will be different:
    *
@@ -915,7 +915,7 @@ export type PublicActions<
     args: GetStorageAtParameters,
   ) => Promise<GetStorageAtReturnType>
   /**
-   * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
+   * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) given a hash or block identifier.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransaction.html
    * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
@@ -965,7 +965,7 @@ export type PublicActions<
     args: GetTransactionConfirmationsParameters<TChain>,
   ) => Promise<GetTransactionConfirmationsReturnType>
   /**
-   * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms#transaction) an Account has broadcast / sent.
+   * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms.html#transaction) an Account has broadcast / sent.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransactionCount.html
    * - JSON-RPC Methods: [`eth_getTransactionCount`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount)
@@ -989,7 +989,7 @@ export type PublicActions<
     args: GetTransactionCountParameters,
   ) => Promise<GetTransactionCountReturnType>
   /**
-   * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash.
+   * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransactionReceipt.html
    * - Example: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions
@@ -1014,7 +1014,7 @@ export type PublicActions<
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<TChain>>
   /**
-   * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
+   * Similar to [`readContract`](https://viem.sh/docs/contract/readContract.html), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
    *
    * - Docs: https://viem.sh/docs/contract/multicall.html
    *
@@ -1065,7 +1065,7 @@ export type PublicActions<
    * @remarks
    * A "read-only" function (constant function) on a Solidity contract is denoted by a `view` or `pure` keyword. They can only read the state of the contract, and cannot make any changes to it. Since read-only methods do not change the state of the contract, they do not require any gas to be executed, and can be called by any user without the need to pay for gas.
    *
-   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
    *
    * @param args - {@link ReadContractParameters}
    * @returns The response from the contract. Type is inferred. {@link ReadContractReturnType}
@@ -1100,9 +1100,9 @@ export type PublicActions<
    * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts
    *
    * @remarks
-   * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract), but also supports contract write functions.
+   * This function does not require gas to execute and _**does not**_ change the state of the blockchain. It is almost identical to [`readContract`](https://viem.sh/docs/contract/readContract.html), but also supports contract write functions.
    *
-   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public) to call the [`call` action](https://viem.sh/docs/actions/public/call) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   * Internally, uses a [Public Client](https://viem.sh/docs/clients/public.html) to call the [`call` action](https://viem.sh/docs/actions/public/call.html) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData.html).
    *
    * @param args - {@link SimulateContractParameters}
    * @returns The simulation result and write request. {@link SimulateContractReturnType}
@@ -1146,9 +1146,9 @@ export type PublicActions<
   /**
    * Destroys a Filter that was created from one of the following Actions:
    *
-   * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter)
-   * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter)
-   * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter)
+   * - [`createBlockFilter`](https://viem.sh/docs/actions/public/createBlockFilter.html)
+   * - [`createEventFilter`](https://viem.sh/docs/actions/public/createEventFilter.html)
+   * - [`createPendingTransactionFilter`](https://viem.sh/docs/actions/public/createPendingTransactionFilter.html)
    *
    * - Docs: https://viem.sh/docs/actions/public/uninstallFilter.html
    * - JSON-RPC Methods: [`eth_uninstallFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_uninstallFilter)
@@ -1271,7 +1271,7 @@ export type PublicActions<
    * @remarks
    * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
    *
-   * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+   * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
    *
    * @param args - {@link WatchContractEventParameters}
    * @returns A function that can be invoked to stop watching for new event logs. {@link WatchContractEventReturnType}
@@ -1299,7 +1299,7 @@ export type PublicActions<
     args: WatchContractEventParameters<TAbi, TEventName>,
   ) => WatchContractEventReturnType
   /**
-   * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms#event-log).
+   * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
    *
    * - Docs: https://viem.sh/docs/actions/public/watchEvent.html
    * - JSON-RPC Methods:
@@ -1312,7 +1312,7 @@ export type PublicActions<
    * @remarks
    * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent.html#onLogs).
    *
-   * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+   * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs.html) instead.
    *
    * @param args - {@link WatchEventParameters}
    * @returns A function that can be invoked to stop watching for new Event Logs. {@link WatchEventReturnType}

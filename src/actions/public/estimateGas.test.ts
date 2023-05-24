@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, forkBlockNumber, forkUrl } from '../../_test/constants.js'
-import { publicClient, testClient } from '../../_test/utils.js'
+import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -15,6 +15,16 @@ const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 test('estimates gas', async () => {
   expect(
     await estimateGas(publicClient, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    }),
+  ).toMatchInlineSnapshot('21000n')
+})
+
+test('falls back to wallet client account', async () => {
+  expect(
+    await estimateGas(walletClient, {
       account: accounts[0].address,
       to: accounts[1].address,
       value: parseEther('1'),

@@ -59,7 +59,7 @@ describe('args', () => {
 
   test('retryDelay', async () => {
     const start = Date.now()
-    let end: number = 0
+    let end = 0
 
     const server = await createHttpServer((_req, res) => {
       end = Date.now() - start
