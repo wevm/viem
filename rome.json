@@ -1,15 +1,8 @@
 {
   "files": {
     "ignore": [
-      "**/node_modules",
-      "CHANGELOG.md",
-      "cache",
-      "coverage",
-      "dist",
-      "tsconfig.json",
-      "tsconfig.*.json",
-      "generated.ts",
-      "pnpm-lock.yaml"
+      "**/node_modules", "CHANGELOG.md", "cache", "coverage", "dist",
+      "tsconfig.json", "tsconfig.*.json", "generated.ts", "pnpm-lock.yaml"
     ]
   },
   "formatter": {
