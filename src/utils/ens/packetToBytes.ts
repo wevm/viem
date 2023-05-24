@@ -27,7 +27,7 @@ export function packetToBytes(packet: string): ByteArray {
     offset += encoded.length + 1
   }
 
-  if (bytes.byteLength !== offset) return bytes.slice(0, offset + 1)
+  if (bytes.byteLength !== offset + 1) return bytes.slice(0, offset + 1)
 
   return bytes
 }

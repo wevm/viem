@@ -61,6 +61,11 @@ test.each([
     expected:
       '0x61e4a7cb09f4b512f41d02fedcc851cf8e43161e1f34e4264d7d911bb6c9c7af',
   },
+  {
+    name: '[9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658].eth',
+    expected:
+      '0xeb4f647bea6caa36333c816d7b46fdcb05f9466ecacc140ea8c66faf15b3d9f1',
+  },
 ])("namehash('$name') -> '$expected'", ({ name, expected }) => {
   expect(namehash(name)).toBe(expected)
 })
