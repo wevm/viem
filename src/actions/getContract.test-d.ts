@@ -33,16 +33,6 @@ const walletClientWithoutChain = createWalletClient({
   transport: http(localHttpUrl),
 })
 
-type ReadFunctionNames = ExtractAbiFunctionNames<
-  typeof wagmiContractConfig.abi,
-  'pure' | 'view'
->
-type WriteFunctionNames = ExtractAbiFunctionNames<
-  typeof wagmiContractConfig.abi,
-  'nonpayable' | 'payable'
->
-type EventNames = ExtractAbiEventNames<typeof wagmiContractConfig.abi>
-
 test('public and wallet client', () => {
   const contract = getContract({
     ...wagmiContractConfig,
@@ -50,28 +40,14 @@ test('public and wallet client', () => {
     walletClient,
   })
 
-  contract.estimateGas.transferFrom(['0x', '0x', 123n])
-
-  expectTypeOf(contract).toMatchTypeOf<{
-    createEventFilter: {
-      [_ in EventNames]: Function
-    }
-    estimateGas: {
-      [_ in WriteFunctionNames]: Function
-    }
-    read: {
-      [_ in ReadFunctionNames]: Function
-    }
-    simulate: {
-      [_ in WriteFunctionNames]: Function
-    }
-    watchEvent: {
-      [_ in EventNames]: Function
-    }
-    write: {
-      [_ in WriteFunctionNames]: Function
-    }
-  }>()
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<
+    | 'createEventFilter'
+    | 'estimateGas'
+    | 'read'
+    | 'simulate'
+    | 'watchEvent'
+    | 'write'
+  >()
 })
 
 test('no wallet client', () => {
@@ -80,28 +56,9 @@ test('no wallet client', () => {
     publicClient,
   })
 
-  expectTypeOf(contract).toMatchTypeOf<{
-    createEventFilter: {
-      [_ in EventNames]: Function
-    }
-    estimateGas: {
-      [_ in WriteFunctionNames]: Function
-    }
-    read: {
-      [_ in ReadFunctionNames]: Function
-    }
-    simulate: {
-      [_ in WriteFunctionNames]: Function
-    }
-    watchEvent: {
-      [_ in EventNames]: Function
-    }
-  }>()
-  expectTypeOf(contract).not.toMatchTypeOf<{
-    write: {
-      [_ in WriteFunctionNames]: Function
-    }
-  }>()
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<
+    'createEventFilter' | 'estimateGas' | 'read' | 'simulate' | 'watchEvent'
+  >()
 })
 
 test('no public client', () => {
@@ -110,28 +67,7 @@ test('no public client', () => {
     walletClient,
   })
 
-  expectTypeOf(contract).toMatchTypeOf<{
-    write: {
-      [_ in WriteFunctionNames]: Function
-    }
-  }>()
-  expectTypeOf(contract).not.toMatchTypeOf<{
-    createEventFilter: {
-      [_ in EventNames]: Function
-    }
-    estimateGas: {
-      [_ in WriteFunctionNames]: Function
-    }
-    read: {
-      [_ in ReadFunctionNames]: Function
-    }
-    simulate: {
-      [_ in WriteFunctionNames]: Function
-    }
-    watchEvent: {
-      [_ in EventNames]: Function
-    }
-  }>()
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<'estimateGas' | 'write'>()
 })
 
 test('without const assertion on `abi`', () => {
@@ -491,11 +427,6 @@ test('no read functions', () => {
       [_ in WriteFunctionNames]: Function
     }
   }>()
-  expectTypeOf(contract).not.toMatchTypeOf<{
-    read: {
-      [_ in string]: Function
-    }
-  }>()
 })
 
 test('no write functions', () => {
@@ -572,11 +503,6 @@ test('no write functions', () => {
       [_ in EventNames]: Function
     }
   }>()
-  expectTypeOf(contract).not.toMatchTypeOf<{
-    write: {
-      [_ in WriteFunctionNames]: Function
-    }
-  }>()
 })
 
 test('no events', () => {
@@ -643,14 +569,6 @@ test('no events', () => {
     }
     write: {
       [_ in WriteFunctionNames]: Function
-    }
-  }>()
-  expectTypeOf(contract).not.toMatchTypeOf<{
-    createEventFilter: {
-      [_ in string]: Function
-    }
-    watchEvent: {
-      [_ in string]: Function
     }
   }>()
 })
@@ -840,4 +758,39 @@ test('argument permutations', async () => {
   contract.watchEvent.WithMixedUnnamedInputs(['foo'], { onLogs })
 
   function onLogs() {}
+})
+
+test('estimateGas', () => {
+  const contract1 = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+  })
+  // `account` required
+  contract1.estimateGas.mint({ account: '0x' })
+  contract1.estimateGas.approve(['0x', 123n], { account: '0x' })
+
+  const contract2 = getContract({
+    ...wagmiContractConfig,
+    walletClient,
+  })
+  // `account` inherited from `walletClient`
+  contract2.estimateGas.mint()
+  contract2.estimateGas.approve(['0x', 123n])
+
+  const contract3 = getContract({
+    ...wagmiContractConfig,
+    walletClient: walletClientWithoutAccount,
+  })
+  // `account` required
+  contract3.estimateGas.mint({ account: '0x' })
+  contract3.estimateGas.approve(['0x', 123n], { account: '0x' })
+
+  const contract4 = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient,
+  })
+  // `account` inherited from `walletClient`
+  contract4.estimateGas.mint()
+  contract4.estimateGas.approve(['0x', 123n])
 })

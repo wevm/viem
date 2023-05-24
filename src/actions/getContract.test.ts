@@ -1,10 +1,14 @@
 import type { AbiEvent } from 'abitype'
 
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '../_test/abis.js'
 import { accounts } from '../_test/constants.js'
-import { publicClient, walletClient } from '../_test/utils.js'
+import {
+  publicClient,
+  walletClient,
+  walletClientWithAccount,
+} from '../_test/utils.js'
 
 import {
   getContract,
@@ -65,12 +69,29 @@ test('createEventFilter', async () => {
   ).resolves.toBeDefined()
 })
 
-test('estimateGas', async () => {
-  await expect(
-    contract.estimateGas.mint({
-      account: accounts[0].address,
-    }),
-  ).resolves.toBeDefined()
+describe('estimateGas', async () => {
+  test('account required', async () => {
+    await expect(
+      contract.estimateGas.mint({
+        account: accounts[0].address,
+      }),
+    ).resolves.toBeDefined()
+  })
+
+  test('account inherited from wallet client', async () => {
+    const contract1 = getContract({
+      ...wagmiContractConfig,
+      publicClient,
+      walletClient: walletClientWithAccount,
+    })
+    await expect(contract1.estimateGas.mint()).resolves.toBeDefined()
+
+    const contract2 = getContract({
+      ...wagmiContractConfig,
+      walletClient: walletClientWithAccount,
+    })
+    await expect(contract2.estimateGas.mint()).resolves.toBeDefined()
+  })
 })
 
 test('read', async () => {
