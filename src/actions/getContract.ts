@@ -90,6 +90,7 @@ export type GetContractParameters<
    *
    * If you pass in a [`walletClient`](https://viem.sh/docs/clients/wallet.html), the following methods are available:
    *
+   * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
    * - [`write`](https://viem.sh/docs/contract/writeContract.html)
    */
   walletClient?: TWalletClient
@@ -163,7 +164,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -179,9 +180,8 @@ export type GetContractReturnType<
               estimateGas: {
                 [FunctionName in _WriteFunctionNames]: GetEstimateFunction<
                   _Narrowable,
-                  TPublicClient extends PublicClient
-                    ? TPublicClient['chain']
-                    : undefined,
+                  TPublicClient['chain'],
+                  undefined,
                   TAbi,
                   FunctionName
                 >
@@ -197,7 +197,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -213,9 +213,7 @@ export type GetContractReturnType<
               simulate: {
                 [FunctionName in _WriteFunctionNames]: GetSimulateFunction<
                   _Narrowable,
-                  TPublicClient extends PublicClient
-                    ? TPublicClient['chain']
-                    : undefined,
+                  TPublicClient['chain'],
                   TAbi,
                   FunctionName
                 >
@@ -231,7 +229,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -260,7 +258,7 @@ export type GetContractReturnType<
                * import { createPublicClient, getContract, http, parseAbi } from 'viem'
                * import { mainnet } from 'viem/chains'
                *
-               * const client = createPublicClient({
+               * const publicClient = createPublicClient({
                *   chain: mainnet,
                *   transport: http(),
                * })
@@ -289,6 +287,35 @@ export type GetContractReturnType<
         ? unknown
         : {
             /**
+             * Estimates the gas necessary to complete a transaction without submitting it to the network.
+             *
+             * @example
+             * import { createWalletClient, getContract, http, parseAbi } from 'viem'
+             * import { mainnet } from 'viem/chains'
+             *
+             * const walletClient = createWalletClient({
+             *   chain: mainnet,
+             *   transport: http(),
+             * })
+             * const contract = getContract({
+             *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+             *   abi: parseAbi(['function mint() public']),
+             *   walletClient,
+             * })
+             * const gas = await contract.estimateGas.mint({
+             *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+             * })
+             */
+            estimateGas: {
+              [FunctionName in _WriteFunctionNames]: GetEstimateFunction<
+                _Narrowable,
+                TWalletClient['chain'],
+                TWalletClient['account'],
+                TAbi,
+                FunctionName
+              >
+            }
+            /**
              * Executes a write function on a contract.
              *
              * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms.html) is needed to be broadcast in order to change the state.
@@ -301,14 +328,14 @@ export type GetContractReturnType<
              * import { createWalletClient, getContract, http, parseAbi } from 'viem'
              * import { mainnet } from 'viem/chains'
              *
-             * const client = createWalletClient({
+             * const walletClient = createWalletClient({
              *   chain: mainnet,
              *   transport: http(),
              * })
              * const contract = getContract({
              *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
              *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
-             *   publicClient,
+             *   walletClient,
              * })
              * const hash = await contract.write.min([69420], {
              *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -317,12 +344,8 @@ export type GetContractReturnType<
             write: {
               [FunctionName in _WriteFunctionNames]: GetWriteFunction<
                 _Narrowable,
-                TWalletClient extends WalletClient
-                  ? TWalletClient['chain']
-                  : undefined,
-                TWalletClient extends WalletClient
-                  ? TWalletClient['account']
-                  : undefined,
+                TWalletClient['chain'],
+                TWalletClient['account'],
                 TAbi,
                 FunctionName
               >
@@ -434,32 +457,7 @@ export function getContract<
         },
       )
 
-    if (hasWriteFunction) {
-      contract.estimateGas = new Proxy(
-        {},
-        {
-          get(_, functionName: string) {
-            return (
-              ...parameters: [
-                args?: readonly unknown[],
-                options?: Omit<
-                  EstimateContractGasParameters,
-                  'abi' | 'address' | 'functionName' | 'args'
-                >,
-              ]
-            ) => {
-              const { args, options } = getFunctionParameters(parameters)
-              return estimateContractGas(publicClient, {
-                abi,
-                address,
-                functionName,
-                args,
-                ...options,
-              } as EstimateContractGasParameters)
-            }
-          },
-        },
-      )
+    if (hasWriteFunction)
       contract.simulate = new Proxy(
         {},
         {
@@ -485,7 +483,6 @@ export function getContract<
           },
         },
       )
-    }
 
     if (hasEvent) {
       contract.createEventFilter = new Proxy(
@@ -587,6 +584,38 @@ export function getContract<
       )
   }
 
+  if (hasPublicClient || hasWalletClient)
+    if (hasWriteFunction)
+      contract.estimateGas = new Proxy(
+        {},
+        {
+          get(_, functionName: string) {
+            return (
+              ...parameters: [
+                args?: readonly unknown[],
+                options?: Omit<
+                  EstimateContractGasParameters,
+                  'abi' | 'address' | 'functionName' | 'args'
+                >,
+              ]
+            ) => {
+              const { args, options } = getFunctionParameters(parameters)
+              const client = (publicClient ?? walletClient)!
+              return estimateContractGas(client, {
+                abi,
+                address,
+                functionName,
+                args,
+                ...options,
+                account:
+                  (options as EstimateContractGasParameters).account ??
+                  (walletClient as WalletClient).account,
+              } as EstimateContractGasParameters)
+            }
+          },
+        },
+      )
+
   return contract as unknown as GetContractReturnType<
     TAbi,
     TPublicClient,
@@ -659,6 +688,7 @@ type GetReadFunction<
 type GetEstimateFunction<
   Narrowable extends boolean,
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TAbiFunction extends AbiFunction = TAbi extends Abi
@@ -667,20 +697,36 @@ type GetEstimateFunction<
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     Omit<
-      EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
+      EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
+  // For making `options` parameter required if `TAccount`
+  IsOptionsRequired = IsUndefined<TAccount>,
 > = Narrowable extends true
   ? (
       ...parameters: Args extends readonly []
-        ? [options?: Options]
-        : [args: Args, options?: Options]
+        ? IsOptionsRequired extends true
+          ? [options: Options]
+          : [options?: Options]
+        : [
+            args: Args,
+            ...parameters: IsOptionsRequired extends true
+              ? [options: Options]
+              : [options?: Options],
+          ]
     ) => Promise<EstimateContractGasReturnType>
   : (
       ...parameters:
-        | [options?: Options]
-        | [args: readonly unknown[], options?: Options]
+        | (IsOptionsRequired extends true
+            ? [options: Options]
+            : [options?: Options])
+        | [
+            args: readonly unknown[],
+            ...parameters: IsOptionsRequired extends true
+              ? [options: Options]
+              : [options?: Options],
+          ]
     ) => Promise<EstimateContractGasReturnType>
 
 type GetSimulateFunction<
@@ -759,13 +805,17 @@ type GetWriteFunction<
           'abi' | 'address' | 'args' | 'functionName'
         >
       >,
-      Rest extends IsOptionsRequired extends true
-        ? [options: Options]
-        : [options?: Options],
     >(
       ...parameters: Args extends readonly []
-        ? Rest
-        : [args: Args, ...parameters: Rest]
+        ? IsOptionsRequired extends true
+          ? [options: Options]
+          : [options?: Options]
+        : [
+            args: Args,
+            ...parameters: IsOptionsRequired extends true
+              ? [options: Options]
+              : [options?: Options],
+          ]
     ) => Promise<WriteContractReturnType>
   : <
       TChainOverride extends Chain | undefined,
