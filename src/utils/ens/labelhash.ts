@@ -1,6 +1,7 @@
 import { stringToBytes } from '../encoding/toBytes.js'
 import { bytesToHex } from '../encoding/toHex.js'
 import { keccak256 } from '../hash/keccak256.js'
+import { encodedLabelToLabelhash } from './encodedLabelToLabelhash.js'
 
 /**
  * @description Hashes ENS label
@@ -14,5 +15,5 @@ import { keccak256 } from '../hash/keccak256.js'
 export function labelhash(label: string) {
   const result = new Uint8Array(32).fill(0)
   if (!label) return bytesToHex(result)
-  return keccak256(stringToBytes(label))
+  return encodedLabelToLabelhash(label) || keccak256(stringToBytes(label))
 }
