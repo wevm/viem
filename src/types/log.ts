@@ -11,7 +11,7 @@ import type {
   GetEventArgs,
 } from './contract.js'
 import type { Hash, Hex } from './misc.js'
-import type { MaybeUndefinedish } from './utils.js'
+import type { MaybeUndefined } from './utils.js'
 
 export type Log<
   TQuantity = bigint,
@@ -93,7 +93,7 @@ type GetInferredLogValues<
 > = TAbi extends Abi
   ? TEventName extends string
     ? {
-        args: MaybeUndefinedish<
+        args: MaybeUndefined<
           GetEventArgs<
             TAbi,
             TEventName,
@@ -108,7 +108,7 @@ type GetInferredLogValues<
       }
     : {
         [TName in _EventNames]: {
-          args: MaybeUndefinedish<
+          args: MaybeUndefined<
             GetEventArgs<
               TAbi,
               string,

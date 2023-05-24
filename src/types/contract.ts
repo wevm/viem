@@ -20,7 +20,7 @@ import type {
 
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
-import type { Filter, MaybeRequired, NoUndefined } from './utils.js'
+import type { Filter, MaybeRequired, NoUndefined, Prettify } from './utils.js'
 
 export type AbiItem = Abi[number]
 
@@ -351,9 +351,11 @@ export type AbiEventParametersToPrimitiveTypes<
             ? Name
             : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
       } extends infer Mapped
-    ? MaybeRequired<
-        Mapped,
-        Options['Required'] extends boolean ? Options['Required'] : false
+    ? Prettify<
+        MaybeRequired<
+          Mapped,
+          Options['Required'] extends boolean ? Options['Required'] : false
+        >
       >
     : never
   : never
