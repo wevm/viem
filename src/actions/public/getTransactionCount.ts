@@ -58,7 +58,7 @@ export async function getTransactionCount<
     | WalletClient<Transport, TChain, TAccount>,
   { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
-  const count = await client.request({
+  const count = await (client as PublicClient).request({
     method: 'eth_getTransactionCount',
     params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],
   })

@@ -2,8 +2,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localWsUrl } from '../_test/constants.js'
 import { localhost } from '../chains.js'
-import type { Requests } from '../types/eip1193.js'
-
+import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { createClient } from './createClient.js'
 import { createTransport } from './transports/createTransport.js'
 import { custom } from './transports/custom.js'
@@ -15,14 +14,16 @@ test('creates', () => {
     createTransport({
       key: 'mock',
       name: 'Mock Transport',
-      request: vi.fn(async () => null) as unknown as Requests['request'],
+      request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
       type: 'mock',
     })
   const { uid, ...client } = createClient({
     transport: mockTransport,
   })
 
-  assertType<Requests['request']>(client.request)
+  assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
+    client.request,
+  )
 
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
@@ -182,7 +183,7 @@ describe('config', () => {
       createTransport({
         key: 'mock',
         name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as Requests['request'],
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
         type: 'mock',
       })
     const { uid, ...client } = createClient({
@@ -190,7 +191,9 @@ describe('config', () => {
       transport: mockTransport,
     })
 
-    assertType<Requests['request']>(client.request)
+    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
+      client.request,
+    )
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
@@ -218,7 +221,7 @@ describe('config', () => {
       createTransport({
         key: 'mock',
         name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as Requests['request'],
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
         type: 'mock',
       })
     const { uid, ...client } = createClient({
@@ -226,7 +229,9 @@ describe('config', () => {
       transport: mockTransport,
     })
 
-    assertType<Requests['request']>(client.request)
+    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
+      client.request,
+    )
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
@@ -254,7 +259,7 @@ describe('config', () => {
       createTransport({
         key: 'mock',
         name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as Requests['request'],
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
         type: 'mock',
       })
     const { uid, ...client } = createClient({
@@ -262,7 +267,9 @@ describe('config', () => {
       transport: mockTransport,
     })
 
-    assertType<Requests['request']>(client.request)
+    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
+      client.request,
+    )
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
@@ -290,7 +297,7 @@ describe('config', () => {
       createTransport({
         key: 'mock',
         name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as Requests['request'],
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
         type: 'mock',
       })
     const { uid, ...client } = createClient({
@@ -298,7 +305,9 @@ describe('config', () => {
       type: 'foo',
     })
 
-    assertType<Requests['request']>(client.request)
+    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
+      client.request,
+    )
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {

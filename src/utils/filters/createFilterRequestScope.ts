@@ -2,8 +2,9 @@ import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { OnResponseFn } from '../../clients/transports/fallback.js'
 import type { Chain } from '../../types/chain.js'
-import type { Requests } from '../../types/eip1193.js'
+import type { EIP1193RequestFn, PublicRpcSchema } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
+import type { Filter } from '../../types/utils.js'
 
 type CreateFilterRequestScopeParameters = {
   method:
@@ -11,8 +12,15 @@ type CreateFilterRequestScopeParameters = {
     | 'eth_newPendingTransactionFilter'
     | 'eth_newBlockFilter'
 }
-// TODO: Narrow `request` to filter-based methods (ie. `eth_getFilterLogs`, etc).
-type CreateFilterRequestScopeReturnType = (id: Hex) => Requests['request']
+
+type FilterRpcSchema = Filter<
+  PublicRpcSchema,
+  { Method: 'eth_getFilterLogs' | 'eth_getFilterChanges' }
+>
+
+type CreateFilterRequestScopeReturnType = (
+  id: Hex,
+) => EIP1193RequestFn<FilterRpcSchema>
 
 /**
  * Scopes `request` to the filter ID. If the client is a fallback, it will
@@ -23,7 +31,7 @@ export function createFilterRequestScope<TChain extends Chain | undefined>(
   client: PublicClient<Transport, TChain>,
   { method }: CreateFilterRequestScopeParameters,
 ): CreateFilterRequestScopeReturnType {
-  const requestMap: Record<Hex, PublicClient<Transport, TChain>['request']> = {}
+  const requestMap: Record<Hex, EIP1193RequestFn> = {}
 
   if (client.transport.type === 'fallback')
     client.transport.onResponse?.(

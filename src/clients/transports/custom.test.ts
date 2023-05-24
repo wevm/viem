@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import type { Requests } from '../../types/eip1193.js'
-
+import type { EIP1193RequestFn } from '../../index.js'
 import '../../types/window.js'
 import { type CustomTransport, custom } from './custom.js'
 
@@ -15,7 +14,7 @@ vi.stubGlobal('window', {
 
 test('default', () => {
   const transport = custom({
-    request: vi.fn(async () => null) as unknown as Requests['request'],
+    request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
   })
 
   assertType<CustomTransport>(transport)
@@ -62,7 +61,7 @@ describe('config', () => {
   test('key', () => {
     const transport = custom(
       {
-        request: vi.fn(async () => null) as unknown as Requests['request'],
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
       },
       { key: 'mock' },
     )({})
@@ -87,7 +86,7 @@ describe('config', () => {
   test('name', () => {
     const transport = custom(
       {
-        request: vi.fn(async () => null) as unknown as Requests['request'],
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
       },
       {
         name: 'Mock Transport',

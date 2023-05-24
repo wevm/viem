@@ -1,7 +1,6 @@
 import type { Chain } from '../types/chain.js'
-import type { PublicRequests } from '../types/eip1193.js'
+import type { PublicRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
-
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type PublicActions, publicActions } from './decorators/public.js'
 import type { Transport } from './transports/createTransport.js'
@@ -32,7 +31,7 @@ export type PublicClient<
   TChain extends Chain | undefined = Chain | undefined,
   TIncludeActions extends boolean = true,
 > = Prettify<
-  Client<TTransport, PublicRequests, TChain> &
+  Client<TTransport, PublicRpcSchema, TChain> &
     Pick<PublicClientConfig, 'batch'> &
     (TIncludeActions extends true ? PublicActions<TTransport, TChain> : unknown)
 >
