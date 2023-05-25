@@ -151,6 +151,34 @@ const filter = await publicClient.createContractEventFilter({
 })
 ```
 
+### Strict Mode
+
+By default, `createContractEventFilter` will include logs that [do not conform](/docs/glossary/terms.html#non-conforming-log) to the indexed & non-indexed arguments on the `event`, however,
+the `args` property will be `undefined` for non-conforming logs as we cannot deterministically decode them.
+
+```ts
+const filter = await publicClient.createContractEventFilter({
+  eventName: 'Transfer',
+})
+const logs = await publicClient.getFilterLogs({ filter })
+
+logs[0].args
+//      ^? { address: Address, to: Address, value: bigint } | undefined
+```
+
+You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
+
+```ts
+const filter = await publicClient.createContractEventFilter({
+  eventName: 'Transfer',
+  strict: true
+})
+const logs = await publicClient.getFilterLogs({ filter })
+
+logs[0].args
+//      ^? { address: Address, to: Address, value: bigint }
+```
+
 ## Returns
 
 [`Filter`](/docs/glossary/types#filter)

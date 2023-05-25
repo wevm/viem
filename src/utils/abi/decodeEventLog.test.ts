@@ -59,11 +59,11 @@ test('named args: Transfer(address,address,uint256)', () => {
         type: 'event',
       },
     ],
+    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
     topics: [
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-      '0x0000000000000000000000000000000000000000000000000000000000000001',
     ],
   })
   assertType<typeof event>({
@@ -75,6 +75,7 @@ test('named args: Transfer(address,address,uint256)', () => {
     args: {
       from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
       to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      tokenId: 1n,
     },
   })
 })
@@ -101,11 +102,11 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
         type: 'event',
       },
     ],
+    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
     topics: [
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-      '0x0000000000000000000000000000000000000000000000000000000000000001',
     ],
   })
   assertType<typeof event>({
@@ -116,6 +117,7 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
     args: [
       '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
       '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      1n,
     ],
     eventName: 'Transfer',
   })
@@ -237,8 +239,8 @@ test('args: data – named (address,address,uint256)', () => {
         type: 'event',
       },
     ],
-    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
     eventName: 'Transfer',
+    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
     topics: [
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
       '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
@@ -382,6 +384,138 @@ test('unnamed: topics + event params mismatch', () => {
   ).toThrowErrorMatchingInlineSnapshot(
     `
     "Expected a topic for indexed event parameter on event \\"Transfer(address, address, uint256)\\".
+
+    Version: viem@1.0.2"
+  `,
+  )
+})
+
+test('data + event params mismatch', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: 'address',
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              internalType: 'address',
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              internalType: 'uint256',
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000023c34600',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        '0x00000000000000000000000070e8a65d014918798ba424110d5df658cde1cc58',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+        "Data size of 32 bytes is too small for non-indexed event parameters.
+
+        Params: (address to, uint256 id)
+        Data:   0x0000000000000000000000000000000000000000000000000000000023c34600 (32 bytes)
+
+        Version: viem@1.0.2"
+      `)
+
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Data size of 0 bytes is too small for non-indexed event parameters.
+
+    Params: (address to)
+    Data:   0x (0 bytes)
+
+    Version: viem@1.0.2"
+  `,
+  )
+
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `
+    "Data size of 0 bytes is too small for non-indexed event parameters.
+
+    Params: (address to)
+    Data:   0x (0 bytes)
 
     Version: viem@1.0.2"
   `,

@@ -11,6 +11,7 @@ import type {
   GetEventArgs,
 } from './contract.js'
 import type { Hash, Hex } from './misc.js'
+import type { MaybeUndefined } from './utils.js'
 
 export type Log<
   TQuantity = bigint,
@@ -20,6 +21,7 @@ export type Log<
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
+  TStrict extends boolean | undefined = undefined,
 > = {
   /** The address from which this log originated */
   address: Address
@@ -37,7 +39,7 @@ export type Log<
   transactionIndex: TIndex | null
   /** `true` if this filter has been destroyed and is invalid */
   removed: boolean
-} & GetInferredLogValues<TAbiEvent, TAbi, TEventName>
+} & GetInferredLogValues<TAbiEvent, TAbi, TEventName, TStrict>
 
 type Topics<
   THead extends AbiEvent['inputs'],
@@ -82,6 +84,7 @@ type GetInferredLogValues<
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
+  TStrict extends boolean | undefined = undefined,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
@@ -90,10 +93,13 @@ type GetInferredLogValues<
 > = TAbi extends Abi
   ? TEventName extends string
     ? {
-        args: GetEventArgs<
-          TAbi,
-          TEventName,
-          { EnableUnion: false; IndexedOnly: false }
+        args: MaybeUndefined<
+          GetEventArgs<
+            TAbi,
+            TEventName,
+            { EnableUnion: false; IndexedOnly: false; Required: true }
+          >,
+          TStrict extends true ? false : true
         >
         /** The event name decoded from `topics`. */
         eventName: TEventName
@@ -102,10 +108,13 @@ type GetInferredLogValues<
       }
     : {
         [TName in _EventNames]: {
-          args: GetEventArgs<
-            TAbi,
-            string,
-            { EnableUnion: false; IndexedOnly: false }
+          args: MaybeUndefined<
+            GetEventArgs<
+              TAbi,
+              string,
+              { EnableUnion: false; IndexedOnly: false; Required: true }
+            >,
+            TStrict extends true ? false : true
           >
           /** The event name decoded from `topics`. */
           eventName: TName
