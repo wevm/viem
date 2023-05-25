@@ -130,7 +130,7 @@
     "@noble/hashes": "1.3.0",
     "@scure/bip32": "1.3.0",
     "@scure/bip39": "1.2.0",
-    "@wagmi/chains": "0.2.16",
+    "@wagmi/chains": "0.3.0",
     "abitype": "0.8.2",
     "isomorphic-ws": "5.0.0",
     "ws": "8.12.0"
