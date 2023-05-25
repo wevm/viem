@@ -60,9 +60,9 @@ test('named', async () => {
 
   expectTypeOf(event).toEqualTypeOf<{
     args: {
-      from?: Address
-      to?: Address
-      tokenId?: bigint
+      from: Address
+      to: Address
+      tokenId: bigint
     }
     eventName: 'Transfer'
   }>()
@@ -100,11 +100,7 @@ test('unnamed', async () => {
   })
 
   expectTypeOf(event).toEqualTypeOf<{
-    args:
-      | readonly []
-      | readonly [`0x${string}`]
-      | readonly [`0x${string}`, `0x${string}`]
-      | readonly [`0x${string}`, `0x${string}`, bigint]
+    args: readonly [`0x${string}`, `0x${string}`, bigint]
     eventName: 'Transfer'
   }>()
 })
@@ -166,17 +162,17 @@ test('unknown eventName', async () => {
   expectTypeOf(event).toEqualTypeOf<
     | {
         args: {
-          from?: Address
-          to?: Address
-          tokenId?: bigint
+          from: Address
+          to: Address
+          tokenId: bigint
         }
         eventName: 'Transfer'
       }
     | {
         args: {
-          from?: Address
-          to?: Address
-          value?: bigint
+          from: Address
+          to: Address
+          value: bigint
         }
         eventName: 'Foo'
       }

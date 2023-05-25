@@ -107,6 +107,21 @@ export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
   : T
 
 /**
+ * @description Makes the attribute on the type T allow undefined if TUndefinedish is true.
+ *
+ * @example
+ * MaybeUndefined<string, true>
+ * => string | undefined
+ *
+ * MaybeUndefined<string, false>
+ * => string
+ */
+export type MaybeUndefined<
+  T,
+  TUndefinedish extends boolean,
+> = TUndefinedish extends true ? T | undefined : T
+
+/**
  * @description Merges the intersection properties of T and U.
  *
  * @example

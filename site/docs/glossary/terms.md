@@ -58,6 +58,68 @@ Human-Readable ABIs compress JSON ABIs into signatures that are nicer to read an
 
 A Legacy Transaction in Ethereum refers to a transaction that was created using an older version of Ethereum's transaction format, known as "transaction type 0". This transaction format was used prior to the introduction of the EIP-1559 upgrade, which was implemented in August 2021.
 
+## Non-conforming Log
+
+A non-conforming log is a log where its `topics` & `data` do not match the **indexed** & **non-indexed** arguments on the `event`. `topics` correspond to **indexed** arguments, while `data` corresponds to **non-indexed** arguments.
+
+For example, here is an event definition that has 2 indexed arguments & 2 non-indexed arguments:
+
+```solidity
+event Transfer(
+  bool indexed foo, 
+  uint256 baz, 
+  string indexed bar, 
+  boolean indexed barry
+)
+```
+
+A conforming log for the above signature would be:
+
+```ts
+const log = {
+  ...
+  data: '0x
+    00...23c346 // ✅ non-indexed argument (baz)
+  ',
+  topics: [
+    '0xdd...23b3ef', // event signature
+    '0x00...000001', // ✅ indexed argument (foo)
+    '0xae...e1cc58', // ✅ indexed argument (bar)
+    '0x00...000000', // ✅ indexed argument (barry)
+  ],
+  ...
+}
+```
+
+A non-conforming log for the above signature would be:
+
+```ts
+const log = {
+  ...
+  data: '0x
+    00...23c346 // ✅ non-indexed argument (baz)
+    00...ae0000 // ❌ indexed argument (bar)
+    00...000001 // ❌ indexed argument (barry)
+  ',
+  topics: [
+    '0xdd...23b3ef', // event signature
+    '0x00...b92266', // ✅ indexed argument (foo)
+  ],
+  ...
+}
+```
+
+A non-conforming log can arise when another contract could be using the same event signature, but with a different number of indexed & non-indexed arguments. For example, the definition for the above log would be:
+
+```solidity
+event Transfer(
+  bool indexed foo, 
+  uint256 baz, 
+  string bar, 
+  boolean barry
+)
+```
+
 ## Transaction
 
 A transaction is a message sent by an Account requesting to perform an action on the Ethereum blockchain. Transactions can be used to transfer Ether between accounts, execute smart contract code, deploy smart contracts, etc.

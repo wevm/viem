@@ -1,6 +1,5 @@
-import type { AbiParameter } from 'abitype'
+import type { AbiEvent, AbiParameter } from 'abitype'
 
-import type { AbiItem } from '../types/contract.js'
 import type { Hex } from '../types/misc.js'
 import { formatAbiItem, formatAbiParams } from '../utils/abi/formatAbiItem.js'
 import { size } from '../utils/data/size.js'
@@ -278,15 +277,22 @@ export class BytesSizeMismatchError extends BaseError {
 export class DecodeLogDataMismatch extends BaseError {
   override name = 'DecodeLogDataMismatch'
 
+  abiItem: AbiEvent
   data: Hex
   params: readonly AbiParameter[]
   size: number
 
   constructor({
+    abiItem,
     data,
     params,
     size,
-  }: { data: Hex; params: readonly AbiParameter[]; size: number }) {
+  }: {
+    abiItem: AbiEvent
+    data: Hex
+    params: readonly AbiParameter[]
+    size: number
+  }) {
     super(
       [
         `Data size of ${size} bytes is too small for non-indexed event parameters.`,
@@ -299,6 +305,7 @@ export class DecodeLogDataMismatch extends BaseError {
       },
     )
 
+    this.abiItem = abiItem
     this.data = data
     this.params = params
     this.size = size
@@ -307,11 +314,14 @@ export class DecodeLogDataMismatch extends BaseError {
 
 export class DecodeLogTopicsMismatch extends BaseError {
   override name = 'DecodeLogTopicsMismatch'
+
+  abiItem: AbiEvent
+
   constructor({
     abiItem,
     param,
   }: {
-    abiItem: AbiItem
+    abiItem: AbiEvent
     param: AbiParameter & { indexed: boolean }
   }) {
     super(
@@ -321,6 +331,8 @@ export class DecodeLogTopicsMismatch extends BaseError {
         } on event "${formatAbiItem(abiItem, { includeName: true })}".`,
       ].join('\n'),
     )
+
+    this.abiItem = abiItem
   }
 }
 

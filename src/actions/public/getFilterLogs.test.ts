@@ -160,15 +160,16 @@ describe('contract events', () => {
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | {
-          from?: Address
-          to?: Address
-          value?: bigint
+          from: Address
+          to: Address
+          value: bigint
         }
       | {
-          owner?: Address
-          spender?: Address
-          value?: bigint
+          owner: Address
+          spender: Address
+          value: bigint
         }
+      | undefined
     >()
 
     expect(logs.length).toBe(3)
@@ -466,6 +467,94 @@ describe('contract events', () => {
       value: 1n,
     })
     expect(logs[1].eventName).toEqual('Transfer')
+  })
+
+  describe('args: strict', () => {
+    test('indexed params mismatch', async () => {
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+      const strictFilter = await createContractEventFilter(publicClient, {
+        abi: usdcContractConfig.abi,
+        strict: true,
+      })
+      const looseFilter = await createContractEventFilter(publicClient, {
+        abi: usdcContractConfig.abi,
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+
+      const strictLogs = await getFilterLogs(publicClient, {
+        filter: strictFilter,
+      })
+      const looseLogs = await getFilterLogs(publicClient, {
+        filter: looseFilter,
+      })
+      expect(strictLogs.length).toBe(1)
+      expect(looseLogs.length).toBe(3)
+    })
+
+    test('non-indexed params mismatch', async () => {
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+      const strictFilter = await createContractEventFilter(publicClient, {
+        abi: erc20InvalidTransferEventABI,
+        strict: true,
+      })
+      const looseFilter = await createContractEventFilter(publicClient, {
+        abi: erc20InvalidTransferEventABI,
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+
+      const strictLogs = await getFilterLogs(publicClient, {
+        filter: strictFilter,
+      })
+      const looseLogs = await getFilterLogs(publicClient, {
+        filter: looseFilter,
+      })
+      expect(strictLogs.length).toBe(2)
+      expect(looseLogs.length).toBe(3)
+    })
   })
 })
 
@@ -790,74 +879,92 @@ describe('raw events', () => {
       1n,
     ])
   })
-})
 
-describe('skip invalid logs', () => {
-  test('indexed params mismatch', async () => {
-    const { contractAddress } = await deployErc20InvalidTransferEvent()
+  describe('args: strict', () => {
+    test('indexed params mismatch', async () => {
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
 
-    const filter = await createEventFilter(publicClient, {
-      event: event.default,
+      const strictFilter = await createEventFilter(publicClient, {
+        event: event.default,
+        strict: true,
+      })
+      const looseFilter = await createEventFilter(publicClient, {
+        event: event.default,
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+
+      const strictLogs = await getFilterLogs(publicClient, {
+        filter: strictFilter,
+      })
+      const looseLogs = await getFilterLogs(publicClient, {
+        filter: looseFilter,
+      })
+      expect(strictLogs.length).toBe(1)
+      expect(looseLogs.length).toBe(3)
     })
 
-    await writeContract(walletClient, {
-      ...usdcContractConfig,
-      functionName: 'transfer',
-      args: [accounts[0].address, 1n],
-      account: address.vitalik,
-    })
-    await writeContract(walletClient, {
-      abi: erc20InvalidTransferEventABI,
-      address: contractAddress!,
-      functionName: 'transfer',
-      args: [accounts[0].address, 1n],
-      account: address.vitalik,
-    })
-    await writeContract(walletClient, {
-      abi: erc20InvalidTransferEventABI,
-      address: contractAddress!,
-      functionName: 'transfer',
-      args: [accounts[1].address, 1n],
-      account: address.vitalik,
-    })
-    await mine(testClient, { blocks: 1 })
+    test('non-indexed params mismatch', async () => {
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
 
-    const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log[]>(logs)
-    expect(logs.length).toBe(1)
-  })
+      const strictFilter = await createEventFilter(publicClient, {
+        event: event.invalid,
+        strict: true,
+      })
+      const looseFilter = await createEventFilter(publicClient, {
+        event: event.invalid,
+      })
 
-  test('non-indexed params mismatch', async () => {
-    const { contractAddress } = await deployErc20InvalidTransferEvent()
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
 
-    const filter = await createEventFilter(publicClient, {
-      event: event.invalid,
+      const strictLogs = await getFilterLogs(publicClient, {
+        filter: strictFilter,
+      })
+      const looseLogs = await getFilterLogs(publicClient, {
+        filter: looseFilter,
+      })
+      expect(strictLogs.length).toBe(2)
+      expect(looseLogs.length).toBe(3)
     })
-
-    await writeContract(walletClient, {
-      ...usdcContractConfig,
-      functionName: 'transfer',
-      args: [accounts[0].address, 1n],
-      account: address.vitalik,
-    })
-    await writeContract(walletClient, {
-      abi: erc20InvalidTransferEventABI,
-      address: contractAddress!,
-      functionName: 'transfer',
-      args: [accounts[0].address, 1n],
-      account: address.vitalik,
-    })
-    await writeContract(walletClient, {
-      abi: erc20InvalidTransferEventABI,
-      address: contractAddress!,
-      functionName: 'transfer',
-      args: [accounts[1].address, 1n],
-      account: address.vitalik,
-    })
-    await mine(testClient, { blocks: 1 })
-
-    const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log[]>(logs)
-    expect(logs.length).toBe(2)
   })
 })

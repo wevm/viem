@@ -22,11 +22,17 @@ export type CreateContractEventFilterParameters<
   TArgs extends
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
+  TStrict extends boolean | undefined = undefined,
 > = {
   address?: Address | Address[]
   abi: Narrow<TAbi>
   eventName?: InferEventName<TAbi, TEventName>
   fromBlock?: BlockNumber | BlockTag
+  /**
+   * Whether or not the logs must match the indexed/non-indexed arguments in the event ABI item.
+   * @default false
+   */
+  strict?: TStrict
   toBlock?: BlockNumber | BlockTag
 } & (undefined extends TEventName
   ? {
@@ -49,7 +55,8 @@ export type CreateContractEventFilterReturnType<
   TArgs extends
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
-> = Filter<'event', TAbi, TEventName, TArgs>
+  TStrict extends boolean | undefined = undefined,
+> = Filter<'event', TAbi, TEventName, TArgs, TStrict>
 
 /**
  * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
@@ -78,6 +85,7 @@ export async function createContractEventFilter<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
   TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+  TStrict extends boolean | undefined,
 >(
   client: PublicClient<Transport, TChain>,
   {
@@ -86,9 +94,12 @@ export async function createContractEventFilter<
     args,
     eventName,
     fromBlock,
+    strict,
     toBlock,
-  }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
-): Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>> {
+  }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs, TStrict>,
+): Promise<
+  CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+> {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
   })
@@ -119,6 +130,12 @@ export async function createContractEventFilter<
     eventName,
     id,
     request: getRequest(id),
+    strict,
     type: 'event',
-  } as unknown as CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>
+  } as unknown as CreateContractEventFilterReturnType<
+    TAbi,
+    TEventName,
+    TArgs,
+    TStrict
+  >
 }
