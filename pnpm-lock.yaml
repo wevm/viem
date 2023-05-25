@@ -28,8 +28,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       '@wagmi/chains':
-        specifier: 0.3.0
-        version: 0.3.0(typescript@5.0.4)
+        specifier: 0.2.25
+        version: 0.2.25(typescript@5.0.4)
       abitype:
         specifier: 0.8.2
         version: 0.8.2(typescript@5.0.4)
@@ -2613,6 +2613,17 @@ packages:
       - vue
     dev: true
 
+  /@wagmi/chains@0.2.25(typescript@5.0.4):
+    resolution: {integrity: sha512-Gah0bgR+14navwxi7xTL2oFB8YgK4qoBPye1b8ucccIwF3Z8Zg1u2gVTDFAyPT4lyB+ZVqwYKs3Y/IkFNG5O4Q==}
+    peerDependencies:
+      typescript: '>=4.9.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 5.0.4
+    dev: false
+
   /@wagmi/chains@0.2.7(typescript@5.0.4):
     resolution: {integrity: sha512-Oqnkl5n9MTBdMzgIwwdSKEDfm0Vdv2CYBaDyTa5SiTjFNaIfT6MRATLg7KbI3JydfxqJphsVFL+TZZqFvkte/g==}
     peerDependencies:
@@ -2623,17 +2634,6 @@ packages:
     dependencies:
       typescript: 5.0.4
     dev: true
-
-  /@wagmi/chains@0.3.0(typescript@5.0.4):
-    resolution: {integrity: sha512-NcRtvfkV4bAQUB1RAhJGGjJ4EfGu8vT2DFIRlPQfOZG5bGaVQ4ITpyipzYmfPiOMx9QcJtOp4UuIK3Yf4mne4Q==}
-    peerDependencies:
-      typescript: '>=4.9.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      typescript: 5.0.4
-    dev: false
 
   /@wagmi/cli@0.1.6(typescript@5.0.4):
     resolution: {integrity: sha512-4ri/QATYDnLNZKVbnulW1Skfu2K5Jc+O0joULoHC6Ag/8Z1QlMEHl9GRXhO+6q68tv382EnVxjIUm6VuzbWpqA==}
