@@ -1,4 +1,4 @@
-import type { Abi, AbiError, Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import type { CallParameters } from '../actions/public/call.js'
@@ -81,9 +81,6 @@ export class ContractFunctionExecutionError extends BaseError {
   formattedArgs?: string
   functionName: string
   sender?: Address
-  errorAbiItem?: AbiError
-  errorName?: string
-  errorArgs?: unknown[]
 
   override name = 'ContractFunctionExecutionError'
 
@@ -130,19 +127,6 @@ export class ContractFunctionExecutionError extends BaseError {
       sender,
     })
 
-    let errorAbiItem
-    let errorName
-    let errorArgs
-    if (
-      cause instanceof ContractFunctionRevertedError &&
-      cause.data &&
-      !['Panic', 'Error'].includes(cause.data.errorName)
-    ) {
-      errorAbiItem = cause.data.abiItem
-      errorName = cause.data.errorName
-      errorArgs = cause.data.args as unknown[]
-    }
-
     super(
       cause.shortMessage ||
         `An unknown error occurred while executing the contract function "${functionName}".`,
@@ -162,9 +146,6 @@ export class ContractFunctionExecutionError extends BaseError {
     this.contractAddress = contractAddress
     this.functionName = functionName
     this.sender = sender
-    this.errorAbiItem = errorAbiItem
-    this.errorName = errorName
-    this.errorArgs = errorArgs
   }
 }
 
