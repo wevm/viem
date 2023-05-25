@@ -4,9 +4,7 @@
 
 ### Patch Changes
 
-- [#577](https://github.com/wagmi-dev/viem/pull/577) [`4b91ed4`](https://github.com/wagmi-dev/viem/commit/4b91ed48030c47407e3fbffb7f3d99bb66446ffa) Thanks [@tmm](https://github.com/tmm)! - Bumped @wagmi/chains version
-
-* [#572](https://github.com/wagmi-dev/viem/pull/572) [`3e5bcbf`](https://github.com/wagmi-dev/viem/commit/3e5bcbf1233ea3cc8674767c10bd8dccdfd99182) Thanks [@tmm](https://github.com/tmm)! - Fixed contract instance `estimateGas` typing.
+- [#572](https://github.com/wagmi-dev/viem/pull/572) [`3e5bcbf`](https://github.com/wagmi-dev/viem/commit/3e5bcbf1233ea3cc8674767c10bd8dccdfd99182) Thanks [@tmm](https://github.com/tmm)! - Fixed contract instance `estimateGas` typing.
 
 ## 0.3.36
 
