@@ -100,4 +100,19 @@ export const sponsors = [
       },
     ],
   },
+  {
+    size: 'medium',
+    items: [
+      {
+        name: 'PancakeSwap',
+        url: 'https://pancakeswap.finance',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/pancake-light.svg',
+      },
+      {
+        name: 'Celo',
+        url: 'https://celo.org',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/celo-light.svg',
+      },
+    ],
+  },
 ] satisfies Sponsors
