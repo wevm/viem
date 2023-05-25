@@ -1,7 +1,8 @@
 import { concat } from '../data/concat.js'
-import { stringToBytes } from '../encoding/toBytes.js'
+import { stringToBytes, toBytes } from '../encoding/toBytes.js'
 import { bytesToHex } from '../encoding/toHex.js'
 import { keccak256 } from '../hash/keccak256.js'
+import { encodedLabelToLabelhash } from './encodedLabelToLabelhash.js'
 
 /**
  * @description Hashes ENS name
@@ -21,7 +22,10 @@ export function namehash(name: string) {
   const labels = name.split('.')
   // Iterate in reverse order building up hash
   for (let i = labels.length - 1; i >= 0; i -= 1) {
-    const hashed = keccak256(stringToBytes(labels[i]), 'bytes')
+    const hashFromEncodedLabel = encodedLabelToLabelhash(labels[i])
+    const hashed = hashFromEncodedLabel
+      ? toBytes(hashFromEncodedLabel)
+      : keccak256(stringToBytes(labels[i]), 'bytes')
     result = keccak256(concat([result, hashed]), 'bytes')
   }
 
