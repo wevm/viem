@@ -167,6 +167,7 @@ If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the
 
 If you pass in a [`walletClient`](/docs/clients/wallet.html), the following methods are available:
 
+- [`estimateGas`](/docs/contract/estimateContractGas.html)
 - [`write`](/docs/contract/writeContract.html)
 
 #### Calling methods

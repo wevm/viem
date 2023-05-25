@@ -1,5 +1,6 @@
 import type { Abi } from 'abitype'
 
+import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -12,14 +13,16 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 
+import type { WalletClient } from '../../clients/createWalletClient.js'
 import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
 
 export type EstimateContractGasParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
   TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = undefined,
 > = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  Omit<EstimateGasParameters<TChain>, 'data' | 'to' | 'value'> &
+  Omit<EstimateGasParameters<TChain, TAccount>, 'data' | 'to' | 'value'> &
   GetValue<TAbi, TFunctionName, EstimateGasParameters<TChain>['value']>
 
 export type EstimateContractGasReturnType = bigint
@@ -55,17 +58,19 @@ export async function estimateContractGas<
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined = undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client:
+    | PublicClient<Transport, TChain>
+    | WalletClient<Transport, TChain, TAccount>,
   {
     abi,
     address,
     args,
     functionName,
     ...request
-  }: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
+  }: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
 ): Promise<EstimateContractGasReturnType> {
-  const account = parseAccount(request.account)
   const data = encodeFunctionData({
     abi,
     args,
@@ -79,6 +84,7 @@ export async function estimateContractGas<
     } as unknown as EstimateGasParameters<TChain>)
     return gas
   } catch (err) {
+    const account = request.account ? parseAccount(request.account) : undefined
     throw getContractError(err as BaseError, {
       abi: abi as Abi,
       address,
