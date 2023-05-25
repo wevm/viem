@@ -180,15 +180,15 @@ export const publicClient = createPublicClient({
 
 :::
 
-### Handle custom errors
+### Handling Custom Errors
 
-In the example below, we are **catching** a [custom error](https://blog.soliditylang.org/2021/04/21/custom-errors/) thrown by the `simulateContract`. It's important to include the custom error item in the contract `abi`. 
+In the example below, we are **catching** a [custom error](https://blog.soliditylang.org/2021/04/21/custom-errors/) thrown by the `simulateContract`. It is important to include the custom error item in the contract `abi`. 
 
-Accessing the custom error through the `data` attribute of the error instance is simple:
+You can access the custom error through the `data` attribute of the error:
 
 ::: code-group
 
-```ts [example.ts]
+```ts {13-27} [example.ts]
 import { BaseError, ContractFunctionRevertedError } from 'viem';
 import { account, walletClient, publicClient } from './config'
 import { wagmiAbi } from './abi'
