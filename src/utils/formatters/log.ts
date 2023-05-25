@@ -12,7 +12,7 @@ export function formatLog(
     logIndex: log.logIndex ? Number(log.logIndex) : null,
     transactionHash: log.transactionHash ? log.transactionHash : null,
     transactionIndex: log.transactionIndex
-      ? BigInt(log.transactionIndex)
+      ? Number(log.transactionIndex)
       : null,
     ...(eventName ? { args, eventName } : {}),
   } as Log
