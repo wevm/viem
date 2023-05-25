@@ -4,8 +4,10 @@ import type { WalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
+import { UserRejectedRequestError } from '../../index.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
+import { ProviderRpcError } from '../../types/eip1193.js'
 import type { Formatter } from '../../types/formatter.js'
 import type { Hash } from '../../types/misc.js'
 import type {
@@ -181,6 +183,15 @@ export async function sendTransaction<
       params: [request],
     })
   } catch (err) {
+
+    /**
+    This error occurs when a transaction is sent to
+    the metamask mobile app through walletconnect and it is rejected.
+     */
+    if(err instanceof ProviderRpcError && err.code === 4001) {
+      throw new UserRejectedRequestError(err);
+    }
+
     throw getTransactionError(err as BaseError, {
       ...args,
       account,
