@@ -180,6 +180,100 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Handle custom errors
+
+In the example below, we are **catching** a [custom error](https://blog.soliditylang.org/2021/04/21/custom-errors/) thrown by the `simulateContract`. It's important to include the custom error item in the contract `abi`. 
+
+Accessing the custom error through the `data` attribute of the error instance is simple:
+
+::: code-group
+
+```ts [example.ts]
+import { BaseError, ContractFunctionRevertedError } from 'viem';
+import { account, walletClient, publicClient } from './config'
+import { wagmiAbi } from './abi'
+
+try {
+  await publicClient.simulateContract({
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    abi: wagmiAbi,
+    functionName: 'mint',
+    account,
+  })
+} catch (err) {
+  if (err instanceof BaseError) {
+    // Option 1: checking the instance of the error
+    if (err.cause instanceof ContractFunctionRevertedError) {
+      const cause: ContractFunctionRevertedError = err.cause;
+      const errorName = cause.data?.errorName ?? "";
+      // do something with `errorName`
+    }
+  
+    // Option 2: using `walk` method from `BaseError`
+    const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+    if (revertError) {
+      const errorName = revertError.data?.errorName ?? "";
+      // do something with `errorName`
+    }
+  }
+}
+
+```
+
+```ts [abi.ts]
+export const wagmiAbi = [
+  ...
+  {
+    inputs: [],
+    name: "mint",
+    outputs: [{ name: "", type: "uint32" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  // Custom solidity error
+  { 
+    type: 'error', 
+    inputs: [], 
+    name: 'MintIsDisabled' 
+  },
+  ...
+] as const;
+```
+
+```solidity [WagmiExample.sol]
+// ...
+error MintIsDisabled();
+contract WagmiExample {
+  // ...
+
+    function mint() public {
+      // ...
+      revert MintIsDisabled();
+      // ...
+    }
+
+  // ...
+}
+```
+
+```ts [config.ts]
+import { createPublicClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+
+// JSON-RPC Account
+export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+// Local Account
+export const account = privateKeyToAccount(...)
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+```
+
+:::
+
 ## Return Value
 
 The simulation result and write request. Type is inferred.
