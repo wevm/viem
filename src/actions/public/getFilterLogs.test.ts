@@ -155,7 +155,7 @@ describe('contract events', () => {
     })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, bigint, undefined, typeof usdcContractConfig.abi>[]
+      Log<bigint, number, undefined, typeof usdcContractConfig.abi>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<
@@ -222,7 +222,7 @@ describe('contract events', () => {
     assertType<
       Log<
         bigint,
-        bigint,
+        number,
         undefined,
         typeof usdcContractConfig.abi,
         'Transfer'
@@ -255,7 +255,7 @@ describe('contract events', () => {
     assertType<
       Log<
         bigint,
-        bigint,
+        number,
         undefined,
         typeof usdcContractConfig.abi,
         'Transfer'
@@ -297,7 +297,7 @@ describe('contract events', () => {
     assertType<
       Log<
         bigint,
-        bigint,
+        number,
         undefined,
         typeof usdcContractConfig.abi,
         'Transfer'
@@ -345,7 +345,7 @@ describe('contract events', () => {
     assertType<
       Log<
         bigint,
-        bigint,
+        number,
         undefined,
         typeof usdcContractConfig.abi,
         'Transfer'
@@ -399,7 +399,7 @@ describe('contract events', () => {
     assertType<
       Log<
         bigint,
-        bigint,
+        number,
         undefined,
         typeof usdcContractConfig.abi,
         'Transfer'
@@ -447,7 +447,7 @@ describe('contract events', () => {
     assertType<
       Log<
         bigint,
-        bigint,
+        number,
         undefined,
         typeof usdcContractConfig.abi,
         'Transfer'
@@ -489,7 +489,7 @@ describe('raw events', () => {
     await mine(testClient, { blocks: 1 })
 
     const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log<bigint, bigint>[]>(logs)
+    assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })
 
@@ -514,7 +514,7 @@ describe('raw events', () => {
     await mine(testClient, { blocks: 1 })
 
     const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log<bigint, bigint, typeof event.default>[]>(logs)
+    assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(2)
     expect(logs[0].args).toEqual({
       from: getAddress(address.vitalik),
@@ -538,7 +538,7 @@ describe('raw events', () => {
     })
 
     const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log<bigint, bigint, typeof event.default>[]>(logs)
+    assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
   })
 
@@ -823,7 +823,7 @@ describe('skip invalid logs', () => {
     await mine(testClient, { blocks: 1 })
 
     const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log<bigint, bigint>[]>(logs)
+    assertType<Log[]>(logs)
     expect(logs.length).toBe(1)
   })
 
@@ -857,7 +857,7 @@ describe('skip invalid logs', () => {
     await mine(testClient, { blocks: 1 })
 
     const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log<bigint, bigint>[]>(logs)
+    assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
   })
 })
