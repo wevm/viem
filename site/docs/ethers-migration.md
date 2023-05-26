@@ -800,6 +800,9 @@ decodeAbiParameters(
 )
 ```
 
+Notice: different from ethers, viem only supports [standard tuple expression](https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityParser.tupleExpression) for Human Readable.
+example: `(uint a, string b)` is valid, but `tuple(uint a, string b)` is not.
+
 ### Fragments & Interfaces
 
 In viem, there is no concept of "fragments" & "interfaces". We want to stick as close to the wire as possible and not introduce middleware abstractions and extra layers over ABIs. Instead of working with "fragments", we encourage you to work with the ABI itself.
