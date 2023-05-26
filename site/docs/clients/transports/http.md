@@ -91,6 +91,21 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 })
 ```
 
+### batch.batchSize (optional)
+
+- **Type:** `number`
+- **Default:** `1_000`
+
+The maximum number of JSON-RPC requests to send in a batch.
+
+```ts 
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+  batch: {
+    batchSize: 2_000 // [!code focus]
+  }
+})
+```
+
 ### batch.wait (optional)
 
 - **Type:** `number`

@@ -10,6 +10,8 @@ import {
 } from './createTransport.js'
 
 export type BatchOptions = {
+  /** The maximum number of JSON-RPC requests to send in a batch. @default 1_000 */
+  batchSize?: number
   /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
   wait?: number
 }
@@ -60,6 +62,8 @@ export function http(
     retryDelay,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
+    const { batchSize = 1000, wait = 0 } =
+      typeof batch === 'object' ? batch : {}
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.http[0]
@@ -73,7 +77,10 @@ export function http(
 
           const { schedule } = createBatchScheduler({
             id: `${url}`,
-            wait: typeof batch === 'object' ? batch.wait : 0,
+            wait,
+            shouldSplitBatch(requests) {
+              return requests.length > batchSize
+            },
             fn: (body: RpcRequest[]) =>
               rpc.http(url_, {
                 body,
