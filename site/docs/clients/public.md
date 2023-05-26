@@ -46,7 +46,7 @@ const blockNumber = await client.getBlockNumber() // [!code focus:10]
 
 ## Optimization
 
-The Public Client also supports [`eth_call` Aggregation](#multicall) and <span class="opacity-50 font-medium">JSON-RPC Batching (soon)</span> for improved performance.
+The Public Client also supports [`eth_call` Aggregation](#multicall) for improved performance.
 
 ### `eth_call` Aggregation (via Multicall)
 
@@ -86,11 +86,6 @@ const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
 ```
 
 > Read more on [Contract Instances](/docs/contract/getContract.html).
-
-
-### JSON-RPC Batching
-
-The Public Client will support [JSON-RPC Batching](https://www.jsonrpc.org/specification#batch). This is coming soon.
 
 ## Parameters
 

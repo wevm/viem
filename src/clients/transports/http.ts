@@ -1,5 +1,7 @@
+import { RpcRequestError } from '../../errors/request.js'
 import { UrlRequiredError } from '../../errors/transport.js'
-import { type HttpOptions, rpc } from '../../utils/rpc.js'
+import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
+import { type HttpOptions, type RpcRequest, rpc } from '../../utils/rpc.js'
 
 import {
   type Transport,
@@ -7,7 +9,17 @@ import {
   createTransport,
 } from './createTransport.js'
 
+export type BatchOptions = {
+  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
+  wait?: number
+}
+
 export type HttpTransportConfig = {
+  /**
+   * Whether to enable Batch JSON-RPC.
+   * @link https://www.jsonrpc.org/specification#batch
+   */
+  batch?: boolean | BatchOptions
   /**
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
@@ -41,6 +53,7 @@ export function http(
   config: HttpTransportConfig = {},
 ): HttpTransport {
   const {
+    batch,
     fetchOptions,
     key = 'http',
     name = 'HTTP JSON-RPC',
@@ -56,14 +69,31 @@ export function http(
         key,
         name,
         async request({ method, params }) {
-          const { result } = await rpc.http(url_, {
-            body: {
-              method,
-              params,
-            },
-            fetchOptions,
-            timeout,
+          const body = { method, params }
+
+          const { schedule } = createBatchScheduler({
+            id: `${url}`,
+            wait: typeof batch === 'object' ? batch.wait : 0,
+            fn: (body: RpcRequest[]) =>
+              rpc.http(url_, {
+                body,
+                fetchOptions,
+                timeout,
+              }),
           })
+
+          const fn = async (body: RpcRequest) =>
+            batch
+              ? schedule(body)
+              : [await rpc.http(url_, { body, fetchOptions, timeout })]
+
+          const [{ error, result }] = await fn(body)
+          if (error)
+            throw new RpcRequestError({
+              body,
+              error,
+              url: url_,
+            })
           return result
         },
         retryCount,

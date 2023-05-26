@@ -2,7 +2,11 @@ import { describe, expect, test } from 'vitest'
 
 import { createHttpServer } from '../_test/utils.js'
 import { BaseError } from '../errors/base.js'
-import { HttpRequestError, TimeoutError } from '../errors/request.js'
+import {
+  HttpRequestError,
+  RpcRequestError,
+  TimeoutError,
+} from '../errors/request.js'
 import {
   InternalRpcError,
   LimitExceededRpcError,
@@ -15,12 +19,18 @@ import { rpc } from './rpc.js'
 
 function request(url: string) {
   return async ({ method, params }: any) => {
-    const { result } = await rpc.http(url, {
+    const { error, result } = await rpc.http(url, {
       body: {
         method,
         params,
       },
     })
+    if (error)
+      throw new RpcRequestError({
+        body: { method, params },
+        error,
+        url,
+      })
     return result
   }
 }

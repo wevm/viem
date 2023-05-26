@@ -6,7 +6,7 @@ import { getUrl } from './utils.js'
 export class HttpRequestError extends BaseError {
   override name = 'HttpRequestError'
 
-  body?: { [key: string]: unknown }
+  body?: { [x: string]: unknown } | { [y: string]: unknown }[]
   headers?: Headers
   status?: number
   url: string
@@ -18,7 +18,7 @@ export class HttpRequestError extends BaseError {
     status,
     url,
   }: {
-    body?: { [key: string]: unknown }
+    body?: { [x: string]: unknown } | { [y: string]: unknown }[]
     details?: string
     headers?: Headers
     status?: number
@@ -68,7 +68,7 @@ export class RpcRequestError extends BaseError {
     error,
     url,
   }: {
-    body: { [key: string]: unknown }
+    body: { [x: string]: unknown } | { [y: string]: unknown }[]
     error: { code: number; message: string }
     url: string
   }) {
@@ -88,7 +88,7 @@ export class TimeoutError extends BaseError {
     body,
     url,
   }: {
-    body: { [key: string]: unknown }
+    body: { [x: string]: unknown } | { [y: string]: unknown }[]
     url: string
   }) {
     super('The request took too long to respond.', {

@@ -23,6 +23,7 @@ import { createWalletClient } from '../clients/createWalletClient.js'
 import { custom } from '../clients/transports/custom.js'
 import { http } from '../clients/transports/http.js'
 import { webSocket } from '../clients/transports/webSocket.js'
+import { RpcRequestError } from '../errors/request.js'
 import type { Chain } from '../types/chain.js'
 import { ProviderRpcError } from '../types/eip1193.js'
 import type { Hex } from '../types/misc.js'
@@ -107,12 +108,18 @@ const provider = {
         },
       ]
 
-    const { result } = await rpc.http(localHttpUrl, {
+    const { error, result } = await rpc.http(localHttpUrl, {
       body: {
         method,
         params,
       },
     })
+    if (error)
+      throw new RpcRequestError({
+        body: { method, params },
+        error,
+        url: localHttpUrl,
+      })
     return result
   },
 }
@@ -123,7 +130,9 @@ export const httpClient = createPublicClient({
   },
   chain: anvilChain,
   pollingInterval: 1_000,
-  transport: http(localHttpUrl),
+  transport: http(localHttpUrl, {
+    batch: process.env.VITE_BATCH_JSON_RPC === 'true',
+  }),
 })
 
 export const webSocketClient = createPublicClient({
