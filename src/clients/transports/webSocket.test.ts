@@ -120,6 +120,26 @@ test('request', async () => {
   ).toBeDefined()
 })
 
+test('errors: rpc error', async () => {
+  const transport = webSocket(localWsUrl, {
+    key: 'jsonRpc',
+    name: 'JSON RPC',
+  })({ chain: localhost })
+
+  await expect(() =>
+    transport.request({ method: 'eth_wagmi' }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    "Invalid parameters were provided to the RPC method.
+    Double check you have provided the correct parameters.
+
+    URL: http://localhost
+    Request body: {\\"method\\":\\"eth_wagmi\\"}
+
+    Details: data did not match any variant of untagged enum EthRpcCall
+    Version: viem@1.0.2"
+  `)
+})
+
 test('subscribe', async () => {
   const transport = webSocket(localWsUrl, {
     key: 'jsonRpc',

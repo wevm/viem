@@ -8,7 +8,7 @@ import type { Transport } from './transports/createTransport.js'
 export type MulticallBatchOptions = {
   /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
   batchSize?: number
-  /** The maximum number of milliseconds to wait before sending a batch. @default 16 */
+  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
   wait?: number
 }
 

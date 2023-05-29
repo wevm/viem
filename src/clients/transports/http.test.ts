@@ -127,6 +127,97 @@ describe('request', () => {
     expect(await transport.request({ method: 'eth_blockNumber' })).toBeDefined()
   })
 
+  test('batch', async () => {
+    let count = 0
+    const server = await createHttpServer((_, res) => {
+      count++
+      res.appendHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify([
+          { result: '0x1' },
+          { result: '0x2' },
+          { result: '0x3' },
+        ]),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+
+    const p = []
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    await wait(1)
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+
+    const results = await Promise.all(p)
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "0x1",
+        "0x2",
+        "0x3",
+        "0x1",
+        "0x2",
+      ]
+    `)
+    expect(count).toEqual(2)
+
+    await server.close()
+  })
+
+  test('batch (with wait)', async () => {
+    let count = 0
+    const server = await createHttpServer((_, res) => {
+      count++
+      res.appendHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify([
+          { result: '0x1' },
+          { result: '0x2' },
+          { result: '0x3' },
+          { result: '0x4' },
+          { result: '0x5' },
+        ]),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: { wait: 16 },
+    })({ chain: localhost })
+
+    const p = []
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    await wait(1)
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+    await wait(20)
+    p.push(transport.request({ method: 'eth_blockNumber' }))
+
+    const results = await Promise.all(p)
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "0x1",
+        "0x2",
+        "0x3",
+        "0x4",
+        "0x5",
+        "0x1",
+      ]
+    `)
+    expect(count).toEqual(2)
+
+    await server.close()
+  })
+
   test('behavior: fetchOptions', async () => {
     let headers: IncomingHttpHeaders = {}
     const server = await createHttpServer((req, res) => {
@@ -183,7 +274,7 @@ describe('request', () => {
 
   test('behavior: retryCount', async () => {
     const start = Date.now()
-    let end: number = 0
+    let end = 0
     const server = await createHttpServer((_req, res) => {
       end = Date.now() - start
       res.writeHead(500, {
@@ -238,6 +329,27 @@ describe('request', () => {
       Request body: {\\"method\\":\\"eth_blockNumber\\"}
 
       Details: The request timed out.
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('errors: rpc error', async () => {
+    const transport = http(localHttpUrl, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+    })({
+      chain: localhost,
+    })
+
+    await expect(() =>
+      transport.request({ method: 'eth_wagmi' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "The method does not exist / is not available.
+
+      URL: http://localhost
+      Request body: {\\"method\\":\\"eth_wagmi\\"}
+
+      Details: Method not found
       Version: viem@1.0.2"
     `)
   })

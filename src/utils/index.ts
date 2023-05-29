@@ -17,8 +17,14 @@ export { arrayRegex, bytesRegex, integerRegex } from './regex.js'
 
 export {
   type HttpOptions,
+  type HttpReturnType,
+  type RpcRequest,
   type RpcResponse,
   type Socket,
+  type WebSocketAsyncOptions,
+  type WebSocketAsyncReturnType,
+  type WebSocketOptions,
+  type WebSocketReturnType,
   getSocket,
   rpc,
 } from './rpc.js'

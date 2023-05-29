@@ -1,9 +1,9 @@
 import type { WebSocket } from 'isomorphic-ws'
 
+import { RpcRequestError } from '../../errors/request.js'
 import { UrlRequiredError } from '../../errors/transport.js'
 import type { Hash } from '../../types/misc.js'
 import { type RpcResponse, getSocket, rpc } from '../../utils/rpc.js'
-
 import {
   type Transport,
   type TransportConfig,
@@ -72,11 +72,18 @@ export function webSocket(
         key,
         name,
         async request({ method, params }) {
+          const body = { method, params }
           const socket = await getSocket(url_)
-          const { result } = await rpc.webSocketAsync(socket, {
-            body: { method, params },
+          const { error, result } = await rpc.webSocketAsync(socket, {
+            body,
             timeout,
           })
+          if (error)
+            throw new RpcRequestError({
+              body,
+              error,
+              url: url_,
+            })
           return result
         },
         retryCount,
@@ -97,31 +104,32 @@ export function webSocket(
                   method: 'eth_subscribe',
                   params,
                 },
-                onData: (data) => {
-                  if (typeof data.id === 'number') {
-                    resolve(data)
+                onResponse(response) {
+                  if (response.error) {
+                    reject(response.error)
+                    onError?.(response.error)
                     return
                   }
-                  if (data.method !== 'eth_subscription') return
-                  onData(data.params)
-                },
-                onError: (error) => {
-                  reject(error)
-                  onError?.(error)
+
+                  if (typeof response.id === 'number') {
+                    resolve(response)
+                    return
+                  }
+                  if (response.method !== 'eth_subscription') return
+                  onData(response.params)
                 },
               }),
           )
           return {
             subscriptionId,
             async unsubscribe() {
-              return new Promise<any>((resolve, reject) =>
+              return new Promise<any>((resolve) =>
                 rpc.webSocket(socket, {
                   body: {
                     method: 'eth_unsubscribe',
                     params: [subscriptionId],
                   },
-                  onData: resolve,
-                  onError: reject,
+                  onResponse: resolve,
                 }),
               )
             },
