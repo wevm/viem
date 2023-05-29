@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.38
+
+### Patch Changes
+
+- [#598](https://github.com/wagmi-dev/viem/pull/598) [`baea299`](https://github.com/wagmi-dev/viem/commit/baea2991ce405015e4f68c2fde90a154b698e7a4) Thanks [@iuriiiurevich](https://github.com/iuriiiurevich)! - Fixed an issue in `withCache` where the promise cache would not clear upon rejection.
+
 ## 0.3.37
 
 ### Patch Changes
