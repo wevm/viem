@@ -4,8 +4,7 @@ import { accounts, localWsUrl } from '../_test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains.js'
-import type { SignableRequests, WalletRequests } from '../types/eip1193.js'
-
+import type { EIP1193RequestFn, WalletRpcSchema } from '../types/eip1193.js'
 import { createWalletClient } from './createWalletClient.js'
 import { createTransport } from './transports/createTransport.js'
 import { custom } from './transports/custom.js'
@@ -23,7 +22,7 @@ const mockTransport = () =>
 test('creates', () => {
   const { uid, ...client } = createWalletClient({ transport: mockTransport })
 
-  assertType<SignableRequests['request'] & WalletRequests['request']>(
+  assertType<EIP1193RequestFn<WalletRpcSchema, { Strict: true }>>(
     client.request,
   )
   assertType<{

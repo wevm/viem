@@ -102,7 +102,7 @@ export function fallback(
         key,
         name,
         async request({ method, params }) {
-          const fetch = async (i: number = 0): Promise<any> => {
+          const fetch = async (i = 0): Promise<any> => {
             const transport = transports[i]({ chain, retryCount: 0, timeout })
             try {
               const response = await transport.request({
