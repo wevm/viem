@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.39
+
+### Patch Changes
+
+- [#603](https://github.com/wagmi-dev/viem/pull/603) [`ee2b2b8`](https://github.com/wagmi-dev/viem/commit/ee2b2b8c2eba540cc73ef78e29870f3314a008c3) Thanks [@ilamanov](https://github.com/ilamanov)! - Fixed `getFunctionSelector` for functions with no arguments.
+
 ## 0.3.38
 
 ### Patch Changes
