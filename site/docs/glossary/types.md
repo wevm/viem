@@ -135,7 +135,7 @@ EIP-1559 transaction hex value – a "0x02"-prefixed string: `"0x02${string}"`
 
 ## `TransactionSerializedEIP2930`
 
-EIP-2930 transaction hex value – a "0x02"-prefixed string: `"0x01${string}"`
+EIP-2930 transaction hex value – a "0x01"-prefixed string: `"0x01${string}"`
 
 ## `TransactionSerializedLegacy`
 
