@@ -448,7 +448,9 @@ export {
 export type { Chain } from './types/chain.js'
 export type {
   AddEthereumChainParameter,
+  EIP1193Parameters,
   EIP1193Provider,
+  EIP1193RequestFnConfig,
   EIP1193RequestFn,
   EIP1474Methods,
   ProviderRpcError as EIP1193ProviderRpcError,

@@ -14,6 +14,7 @@ import type {
   RpcTransactionRequest as TransactionRequest,
   RpcUncle as Uncle,
 } from './rpc.js'
+import type { Prettify } from './utils.js'
 
 //////////////////////////////////////////////////
 // Provider
@@ -1272,6 +1273,27 @@ type NoopSchemaItem = {
 }
 
 export type EIP1193RequestFnConfig = { Strict: boolean }
+
+export type EIP1193Parameters<
+  TRpcSchema extends RpcSchema | undefined = undefined,
+> = TRpcSchema extends RpcSchema
+  ? {
+      [K in keyof TRpcSchema]: Prettify<
+        {
+          method: TRpcSchema[K] extends TRpcSchema[number]
+            ? TRpcSchema[K]['Method']
+            : never
+        } & (TRpcSchema[K] extends TRpcSchema[number]
+          ? TRpcSchema[K]['Parameters'] extends undefined
+            ? { params?: never }
+            : { params: TRpcSchema[K]['Parameters'] }
+          : never)
+      >
+    }[number]
+  : {
+      method: string
+      params?: unknown
+    }
 
 export type EIP1193RequestFn<
   TRpcSchema extends RpcSchema | undefined = undefined,

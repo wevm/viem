@@ -28,7 +28,7 @@ test('default', async () => {
 })
 
 test('public methods', async () => {
-  type Public = EIP1193RequestFn<PublicRpcSchema, { Strict: false }>
+  type Public = EIP1193RequestFn<PublicRpcSchema, { Strict: true }>
 
   const request: Public = null as any
 
