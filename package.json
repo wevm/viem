@@ -77,11 +77,6 @@
       "import": "./dist/esm/ens.js",
       "default": "./dist/cjs/ens.js"
     },
-    "./ethers": {
-      "types": "./dist/types/ethers.d.ts",
-      "import": "./dist/esm/ethers.js",
-      "default": "./dist/cjs/ethers.js"
-    },
     "./public": {
       "types": "./dist/types/public.d.ts",
       "import": "./dist/esm/public.js",
@@ -116,7 +111,6 @@
       "chains": ["./dist/types/chains.d.ts"],
       "contract": ["./dist/types/contract.d.ts"],
       "ens": ["./dist/types/ens.d.ts"],
-      "ethers": ["./dist/types/ethers.d.ts"],
       "public": ["./dist/types/public.d.ts"],
       "test": ["./dist/types/test.d.ts"],
       "utils": ["./dist/types/utils/index.d.ts"],
