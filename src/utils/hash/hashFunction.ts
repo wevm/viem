@@ -10,7 +10,6 @@ const hash = (value: string) => keccak256(toBytes(value))
 
 export function hashFunction(def: string) {
   const name = extractFunctionName(def)
-  const params = extractFunctionParams(def)
-  if (!params || params.length === 0) return hash(def.replace(/ /g, ''))
+  const params = extractFunctionParams(def) || []
   return hash(`${name}(${params.map(({ type }) => type).join(',')})`)
 }
