@@ -667,6 +667,19 @@ export type TestRequests<Name extends string> = {
   request(args: {
     /**
      * @description Modifies the balance of an account.
+     * @link https://ganache.dev/#evm_setAccountBalance
+     */
+    method: `evm_setAccountBalance`
+    params: [
+      /** The address of the target account. */
+      address: Address,
+      /** Amount to send in wei. */
+      value: Quantity,
+    ]
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Modifies the balance of an account.
      * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_setbalance
      */
     method: `${Name}_setBalance`
@@ -781,6 +794,20 @@ export type TestRequests<Name extends string> = {
   }): Promise<Quantity>
   request(args: {
     /**
+     * @description Enables the automatic mining of new blocks with each new transaction submitted to the network.
+     * @link https://ganache.dev/#miner_start
+     */
+    method: 'miner_start'
+  }): Promise<void>
+  request(args: {
+    /**
+     * @description Disables the automatic mining of new blocks with each new transaction submitted to the network.
+     * @link https://ganache.dev/#miner_stop
+     */
+    method: 'miner_stop'
+  }): Promise<void>
+  request(args: {
+    /**
      * @description Enables or disables, based on the single boolean argument, the automatic mining of new blocks with each new transaction submitted to the network.
      * @link https://hardhat.org/hardhat-network/docs/reference#evm_setautomine
      */
@@ -881,6 +908,29 @@ export type TestRequests<Name extends string> = {
     method: 'eth_sendUnsignedTransaction'
     params: [request: TransactionRequest]
   }): Promise<Hash>
+  request(args: {
+    /**
+     * @description Returns whether the client is actively mining new blocks.
+     * @link https://eips.ethereum.org/EIPS/eip-1474
+     * @example
+     * provider.request({ method: 'eth_mining' })
+     * // => true
+     * */
+    method: 'eth_mining'
+  }): Promise<boolean>
+  request(args: {
+    /**
+     * @description Advance the block number of the network by a certain number of blocks
+     * @link https://ganache.dev/#evm_mine
+     */
+    method: 'evm_mine'
+    params: [
+      {
+        /** Number of blocks to mine. */
+        blocks: Hex
+      },
+    ]
+  }): Promise<void>
 }
 
 export type SignableRequests = {
