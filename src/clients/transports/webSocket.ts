@@ -75,7 +75,7 @@ export function webSocket(
           const body = { method, params }
           const socket = await getSocket(url_)
           const { error, result } = await rpc.webSocketAsync(socket, {
-            body: { method, params },
+            body,
             timeout,
           })
           if (error)
