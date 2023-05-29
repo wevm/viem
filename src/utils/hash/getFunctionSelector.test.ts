@@ -19,4 +19,6 @@ test('creates function signature', () => {
   expect(getFunctionSelector('processAccount(uint256 , address )')).toEqual(
     '0x73933128',
   )
+  expect(getFunctionSelector('claimed()')).toEqual('0xe834a834')
+  expect(getFunctionSelector('function claimed()')).toEqual('0xe834a834')
 })
