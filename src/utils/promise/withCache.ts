@@ -59,15 +59,17 @@ export async function withCache<TData>(
     cache.promise.set(promise)
   }
 
-  const data = await promise
+  try {
+    const data = await promise
 
-  // Clear the promise cache so that subsequent invocations will
-  // invoke the promise again.
-  cache.promise.clear()
+    // Store the response in the cache so that subsequent invocations
+    // will return the same response.
+    cache.response.set({ created: new Date(), data })
 
-  // Store the response in the cache so that subsequent invocations
-  // will return the same response.
-  cache.response.set({ created: new Date(), data })
-
-  return data
+    return data
+  } finally {
+    // Clear the promise cache so that subsequent invocations will
+    // invoke the promise again.
+    cache.promise.clear()
+  }
 }
