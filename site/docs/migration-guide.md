@@ -15,9 +15,60 @@ head:
 
 If you are coming from an earlier version of `viem`, you will need to make sure to update the following APIs listed below.
 
+## 1.x.x Breaking changes
+
+The 1.x.x release only includes very minor changes to the behavior in event log decoding, and removes the redundant ethers.js Wallet Adapter. If you do not directly use these APIs, you do not need to update any of your code for this version.
+
+### Removed `ethersWalletToAccount`
+
+The `ethersWalletToAccount` adapter has been removed.
+
+This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey.html) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic.html).
+
+If you still need it, you can copy + paste the [old implementation](https://github.com/wagmi-dev/viem/blob/a9a71507032db896295fa1f3fa2dd6c2bdc85137/src/adapters/ethers.ts).
+
+### `logIndex` & `transactionIndex` on Logs
+
+`logIndex` & `transactionIndex` on `Log` now return a `number` instead of a `bigint`.
+
+```ts
+const log: Log = {
+  ...
+  logIndex: 1n, // [!code --]
+  logIndex: 1, // [!code ++]
+  transactionIndex: 1n, // [!code --]
+  transactionIndex: 1, // [!code ++]
+  ...
+}
+```
+
+### Minor: `decodeEventLog` behavior change
+
+`decodeEventLog` no longer attempts to partially decode events. If the Log does not conform to the ABI (mismatch between the number of indexed/non-indexed arguments to topics/data), it will throw an error. 
+
+For example, the following Log will throw an error as there is a mismatch in non-`indexed` arguments & `data` length.
+
+```ts {2-4}
+decodeEventLog({
+  abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
+  // `data` should be 64 bytes, but is only 32 bytes.
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001'
+  topics: [
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  ]
+})
+```
+
+Previously, the above would only decode the `indexed` arguments.
+
+### Minor: `getLogs`, `getFilterLogs`, `getFilterChanges` behavior change
+
+Similarly to the above, `getLogs`, `getFilterLogs`, `getFilterChanges` no longer attempts to decode event args if it does not match the event definition/ABI (`event`) (ie. mismatch between the number of indexed & non-indexed arguments to `topics` & `data`). If there is an error decoding the event args, `args` will be `undefined` on the Log.
+
 ## 0.3.x Breaking changes
 
-The 0.3.0 release only includes breaking changes around RPC errors. If you do not directly use the APIs listed below, you do not need to migrate.
+The 0.3.x release only includes breaking changes around RPC errors. If you do not directly use the APIs listed below, you do not need to update any of your code for this version.
 
 ### Renamed `RequestError` to `RpcError`
 
