@@ -1,12 +1,12 @@
 import type { Address } from 'abitype'
 
-import type { ByteArray, Hex } from '../../types/misc.js'
+import type { ByteArray, Hex, SignableMessage } from '../../types/misc.js'
 
 import { hashMessage } from './hashMessage.js'
 import { recoverAddress } from './recoverAddress.js'
 
 export type RecoverMessageAddressParameters = {
-  message: string
+  message: SignableMessage
   signature: Hex | ByteArray
 }
 export type RecoverMessageAddressReturnType = Address
