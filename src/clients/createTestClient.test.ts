@@ -23,9 +23,7 @@ test('creates', () => {
     transport: mockTransport,
   })
 
-  assertType<EIP1193RequestFn<TestRpcSchema<'anvil'>, { Strict: true }>>(
-    client.request,
-  )
+  assertType<EIP1193RequestFn<TestRpcSchema<'anvil'>>>(client.request)
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {

@@ -21,9 +21,7 @@ test('creates', () => {
     transport: mockTransport,
   })
 
-  assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
-    client.request,
-  )
+  assertType<EIP1193RequestFn<EIP1474Methods>>(client.request)
 
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
@@ -191,9 +189,7 @@ describe('config', () => {
       transport: mockTransport,
     })
 
-    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
-      client.request,
-    )
+    assertType<EIP1193RequestFn<EIP1474Methods>>(client.request)
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
@@ -229,9 +225,7 @@ describe('config', () => {
       transport: mockTransport,
     })
 
-    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
-      client.request,
-    )
+    assertType<EIP1193RequestFn<EIP1474Methods>>(client.request)
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
@@ -267,9 +261,7 @@ describe('config', () => {
       transport: mockTransport,
     })
 
-    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
-      client.request,
-    )
+    assertType<EIP1193RequestFn<EIP1474Methods>>(client.request)
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
@@ -305,9 +297,7 @@ describe('config', () => {
       type: 'foo',
     })
 
-    assertType<EIP1193RequestFn<EIP1474Methods, { Strict: false }>>(
-      client.request,
-    )
+    assertType<EIP1193RequestFn<EIP1474Methods>>(client.request)
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {

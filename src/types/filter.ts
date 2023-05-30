@@ -9,7 +9,9 @@ export type FilterType = 'transaction' | 'block' | 'event'
 
 type FilterRpcSchema = Filter_<
   PublicRpcSchema,
-  { Method: 'eth_getFilterLogs' | 'eth_getFilterChanges' }
+  {
+    Method: 'eth_getFilterLogs' | 'eth_getFilterChanges' | 'eth_uninstallFilter'
+  }
 >
 
 export type Filter<

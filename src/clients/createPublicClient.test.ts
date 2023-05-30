@@ -22,9 +22,7 @@ test('creates', () => {
     transport: mockTransport,
   })
 
-  assertType<EIP1193RequestFn<PublicRpcSchema, { Strict: true }>>(
-    client.request,
-  )
+  assertType<EIP1193RequestFn<PublicRpcSchema>>(client.request)
 
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`

@@ -22,9 +22,7 @@ const mockTransport = () =>
 test('creates', () => {
   const { uid, ...client } = createWalletClient({ transport: mockTransport })
 
-  assertType<EIP1193RequestFn<WalletRpcSchema, { Strict: true }>>(
-    client.request,
-  )
+  assertType<EIP1193RequestFn<WalletRpcSchema>>(client.request)
   assertType<{
     account?: undefined
   }>(client)
