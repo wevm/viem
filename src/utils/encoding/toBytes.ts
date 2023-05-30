@@ -183,6 +183,10 @@ export function stringToBytes(
   value: string,
   opts: StringToBytesOpts = {},
 ): ByteArray {
+  if (isHex(value)) {
+    return hexToBytes(value, opts)
+  }
+
   const bytes = encoder.encode(value)
   if (typeof opts.size === 'number') {
     assertSize(bytes, { size: opts.size })

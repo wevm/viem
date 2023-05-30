@@ -22,4 +22,14 @@ test('default', async () => {
   ).toMatchInlineSnapshot(
     '"0x05c99bbbe9fac3ad61721a815d19d6771ad39f3e8dffa7ae7561358f20431d8e7f9e1d487c77355790c79c6eb0b0d63690f690615ef99ee3e4f25eef0317d0701b"',
   )
+
+  expect(
+    await signMessage({
+      message:
+        '0xa70d0af2ebb03a44dcd0714a8724f622e3ab876d0aa312f0ee04823285d6fb1b',
+      privateKey: accounts[0].privateKey,
+    }),
+  ).toMatchInlineSnapshot(
+    '"0x1a7fd732f926be0a1dbfd1b4acbd7a6f7198fda1ab5ef69ef027a2eee89987785d210298e12119a1d62b5a7d2d9f24d075682675ae00f51a5602e725f0d180851b"',
+  )
 })

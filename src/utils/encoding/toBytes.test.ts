@@ -1042,6 +1042,46 @@ describe('converts string to bytes', () => {
       ]
     `,
     )
+    expect(
+      stringToBytes(
+        '0xa70d0af2ebb03a44dcd0714a8724f622e3ab876d0aa312f0ee04823285d6fb1b',
+      ),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        167,
+        13,
+        10,
+        242,
+        235,
+        176,
+        58,
+        68,
+        220,
+        208,
+        113,
+        74,
+        135,
+        36,
+        246,
+        34,
+        227,
+        171,
+        135,
+        109,
+        10,
+        163,
+        18,
+        240,
+        238,
+        4,
+        130,
+        50,
+        133,
+        214,
+        251,
+        27,
+      ]
+    `)
   })
 
   test('args: size', () => {
