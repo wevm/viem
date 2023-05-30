@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.40
+
+### Patch Changes
+
+- [#608](https://github.com/wagmi-dev/viem/pull/608) [`6e9313b`](https://github.com/wagmi-dev/viem/commit/6e9313b8ed13f930666a06991ed0cd61ab286de0) Thanks [@tmm](https://github.com/tmm)! - Exported types
+
 ## 0.3.39
 
 ### Patch Changes
