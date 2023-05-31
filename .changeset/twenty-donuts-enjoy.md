@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Expose address and abi on GetContractReturnType
+Added `address` and `abi` properties to Contract Instances.
