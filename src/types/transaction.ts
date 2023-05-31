@@ -52,8 +52,6 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   blockHash: Hash | null
   /** Number of block containing this transaction or `null` if pending */
   blockNumber: TQuantity | null
-  /** Chain ID. */
-  chainId: TIndex
   /** Transaction sender */
   from: Address
   /** Gas provided for transaction execution */
@@ -84,6 +82,7 @@ export type TransactionLegacy<
 > = TransactionBase<TQuantity, TIndex> &
   FeeValuesLegacy<TQuantity> & {
     accessList?: never
+    chainId?: TIndex
     type: TType
   }
 export type TransactionEIP2930<
@@ -93,6 +92,7 @@ export type TransactionEIP2930<
 > = TransactionBase<TQuantity, TIndex> &
   FeeValuesLegacy<TQuantity> & {
     accessList: AccessList
+    chainId: TIndex
     type: TType
   }
 export type TransactionEIP1559<
@@ -102,6 +102,7 @@ export type TransactionEIP1559<
 > = TransactionBase<TQuantity, TIndex> &
   FeeValuesEIP1559<TQuantity> & {
     accessList: AccessList
+    chainId: TIndex
     type: TType
   }
 export type Transaction<TQuantity = bigint, TIndex = number> =
