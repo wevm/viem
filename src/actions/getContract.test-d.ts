@@ -47,6 +47,8 @@ test('public and wallet client', () => {
     | 'simulate'
     | 'watchEvent'
     | 'write'
+    | 'address'
+    | 'abi'
   >()
 })
 
@@ -57,7 +59,13 @@ test('no wallet client', () => {
   })
 
   expectTypeOf<keyof typeof contract>().toEqualTypeOf<
-    'createEventFilter' | 'estimateGas' | 'read' | 'simulate' | 'watchEvent'
+    | 'createEventFilter'
+    | 'estimateGas'
+    | 'read'
+    | 'simulate'
+    | 'watchEvent'
+    | 'address'
+    | 'abi'
   >()
 })
 
@@ -67,7 +75,9 @@ test('no public client', () => {
     walletClient,
   })
 
-  expectTypeOf<keyof typeof contract>().toEqualTypeOf<'estimateGas' | 'write'>()
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<
+    'estimateGas' | 'write' | 'address' | 'abi'
+  >()
 })
 
 test('without const assertion on `abi`', () => {
@@ -580,7 +590,7 @@ test('empty abi', () => {
     publicClient,
     walletClient,
   })
-  expectTypeOf(contract).toEqualTypeOf<{}>()
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<'address' | 'abi'>()
 })
 
 test('argument permutations', async () => {
