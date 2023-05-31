@@ -351,8 +351,8 @@ export type GetContractReturnType<
               >
             }
           }
-      : unknown) & { address: Address }
->
+      : unknown)
+> & { address: Address; abi: TAbi }
 
 /**
  * Gets type-safe interface for performing contract-related actions with a specific `abi` and `address`.
@@ -413,7 +413,9 @@ export function getContract<
       | 'read'
       | 'simulate'
       | 'watchEvent'
-      | 'write']?: unknown
+      | 'write'
+      | 'address'
+      | 'abi']?: unknown
   } = {}
 
   let hasReadFunction = false
@@ -616,6 +618,7 @@ export function getContract<
         },
       )
   contract.address = address
+  contract.abi = abi
 
   return contract as unknown as GetContractReturnType<
     TAbi,
