@@ -22,6 +22,14 @@ const contract = getContract({
   walletClient,
 })
 
+test('address', () => {
+  expect(contract.address).toBe(wagmiContractConfig.address)
+})
+
+test('abi', () => {
+  expect(contract.abi).toEqual(wagmiContractConfig.abi)
+})
+
 test('createEventFilter', async () => {
   await expect(
     contract.createEventFilter.Transfer({
