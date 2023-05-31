@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.41
+
+### Patch Changes
+
+- [`1b3f584`](https://github.com/wagmi-dev/viem/commit/1b3f5847a44ba051f19d42dfb03962a4c6a4e36b) Thanks [@jxom](https://github.com/jxom)! - Fixed `chainId` type on Transaction types.
+
 ## 0.3.40
 
 ### Patch Changes
