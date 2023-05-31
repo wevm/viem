@@ -351,7 +351,7 @@ export type GetContractReturnType<
               >
             }
           }
-      : unknown)
+      : unknown) & { address: Address }
 >
 
 /**
@@ -615,6 +615,7 @@ export function getContract<
           },
         },
       )
+  contract.address = address
 
   return contract as unknown as GetContractReturnType<
     TAbi,
