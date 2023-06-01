@@ -8,6 +8,7 @@ export {
   type ParseAbiParameters,
   type TypedData,
   type TypedDataDomain,
+  type TypedDataParameter,
   CircularReferenceError,
   InvalidAbiParameterError,
   InvalidAbiParametersError,
