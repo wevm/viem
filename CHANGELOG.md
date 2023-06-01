@@ -1,5 +1,17 @@
 # viem
 
+## 0.3.44
+
+### Patch Changes
+
+- [#610](https://github.com/wagmi-dev/viem/pull/610) [`06ee89c5`](https://github.com/wagmi-dev/viem/commit/06ee89c53a5f0226407b915cdf9da5550ed58010) Thanks [@jxom](https://github.com/jxom)! - Added ability to hash data representation of `message` via a `raw` attribute in `signMessage`, `verifyMessage`, `recoverMessageAddress`.
+
+  ```ts
+  await walletClient.signMessage({
+    message: { raw: "0x68656c6c6f20776f726c64" }
+  });
+  ```
+
 ## 0.3.43
 
 ### Patch Changes
