@@ -1,5 +1,13 @@
 # viem
 
+## 0.3.43
+
+### Patch Changes
+
+- [#632](https://github.com/wagmi-dev/viem/pull/632) [`2538548`](https://github.com/wagmi-dev/viem/commit/2538548a5c6a897a8a2c5a0e5ea6398c86b54c59) Thanks [@tmm](https://github.com/tmm)! - Exported missing portable type.
+
+* [#630](https://github.com/wagmi-dev/viem/pull/630) [`a446a50`](https://github.com/wagmi-dev/viem/commit/a446a50ad8fe0b6c4a20df82e37a0492995840a4) Thanks [@tmm](https://github.com/tmm)! - Narrowed contract instance address.
+
 ## 0.3.42
 
 ### Patch Changes
