@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.42
+
+### Patch Changes
+
+- [#619](https://github.com/wagmi-dev/viem/pull/619) [`73c7f498`](https://github.com/wagmi-dev/viem/commit/73c7f4980ebc755068b8cf9df70390d1e2ab2524) Thanks [@sakulstra](https://github.com/sakulstra)! - Added `address` and `abi` properties to Contract Instances.
+
 ## 0.3.41
 
 ### Patch Changes
