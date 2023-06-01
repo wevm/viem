@@ -62,13 +62,24 @@ The signing address.
 
 ### message
 
-- **Type:** `string`
+- **Type:** `string | { raw: Hex | ByteArray }`
 
 The message that was signed.
+
+By default, viem verifies the UTF-8 representation of the message.
 
 ```ts
 const address = await recoverMessageAddress({ 
   message: 'hello world', // [!code focus]
+  signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c'
+})
+```
+
+To verify the data representation of the message, you can use the `raw` attribute.
+
+```ts
+const address = await recoverMessageAddress({ 
+  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus:1]
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c'
 })
 ```

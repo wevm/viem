@@ -86,10 +86,23 @@ const valid = await verifyMessage({
 
 The message to be verified.
 
+By default, viem signs the UTF-8 representation of the message.
+
 ```ts
 const valid = await verifyMessage({
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   message: 'hello world', // [!code focus:1]
+  signature:
+    '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c',
+})
+```
+
+To sign the data representation of the message, you can use the `raw` attribute.
+
+```ts
+const valid = await verifyMessage({
+  address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus:1]
   signature:
     '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c',
 })

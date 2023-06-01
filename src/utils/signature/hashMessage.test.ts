@@ -12,6 +12,21 @@ test('to hex', () => {
   expect(hashMessage('0xdeadbeef')).toMatchInlineSnapshot(
     '"0xefedd0a9a0294228c3977d7fbb68c7d40279f8b408cf3e24ef1823b179709e58"',
   )
+
+  expect(
+    hashMessage({ raw: '0x68656c6c6f20776f726c64' }),
+  ).toMatchInlineSnapshot(
+    '"0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68"',
+  )
+  expect(
+    hashMessage({
+      raw: Uint8Array.from([
+        104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
+      ]),
+    }),
+  ).toMatchInlineSnapshot(
+    '"0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68"',
+  )
 })
 
 test('to bytes', () => {
@@ -126,6 +141,94 @@ test('to bytes', () => {
       112,
       158,
       88,
+    ]
+  `,
+  )
+
+  expect(
+    hashMessage({ raw: '0x68656c6c6f20776f726c64' }, 'bytes'),
+  ).toMatchInlineSnapshot(
+    `
+    Uint8Array [
+      217,
+      235,
+      161,
+      110,
+      208,
+      236,
+      174,
+      67,
+      43,
+      113,
+      254,
+      0,
+      140,
+      152,
+      204,
+      135,
+      43,
+      180,
+      204,
+      33,
+      77,
+      50,
+      32,
+      163,
+      111,
+      54,
+      83,
+      38,
+      207,
+      128,
+      125,
+      104,
+    ]
+  `,
+  )
+  expect(
+    hashMessage(
+      {
+        raw: Uint8Array.from([
+          104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
+        ]),
+      },
+      'bytes',
+    ),
+  ).toMatchInlineSnapshot(
+    `
+    Uint8Array [
+      217,
+      235,
+      161,
+      110,
+      208,
+      236,
+      174,
+      67,
+      43,
+      113,
+      254,
+      0,
+      140,
+      152,
+      204,
+      135,
+      43,
+      180,
+      204,
+      33,
+      77,
+      50,
+      32,
+      163,
+      111,
+      54,
+      83,
+      38,
+      207,
+      128,
+      125,
+      104,
     ]
   `,
   )

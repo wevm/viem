@@ -5,13 +5,13 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
-import { toHex } from '../../utils/encoding/toHex.js'
+import type { Hex, SignableMessage } from '../../types/misc.js'
+import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
 
 export type SignMessageParameters<
   TAccount extends Account | undefined = Account | undefined,
 > = GetAccountParameter<TAccount> & {
-  message: string
+  message: SignableMessage
 }
 
 export type SignMessageReturnType = Hex
@@ -78,8 +78,15 @@ export async function signMessage<
     })
   const account = parseAccount(account_)
   if (account.type === 'local') return account.signMessage({ message })
+
+  const message_ = (() => {
+    if (typeof message === 'string') return stringToHex(message)
+    if (message.raw instanceof Uint8Array) return toHex(message.raw)
+    return message.raw
+  })()
+
   return client.request({
     method: 'personal_sign',
-    params: [toHex(message), account.address],
+    params: [message_, account.address],
   })
 }

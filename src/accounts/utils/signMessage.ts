@@ -1,4 +1,4 @@
-import type { Hex } from '../../types/misc.js'
+import type { Hex, SignableMessage } from '../../types/misc.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 
 import { sign } from './sign.js'
@@ -6,7 +6,7 @@ import { signatureToHex } from './signatureToHex.js'
 
 export type SignMessageParameters = {
   /** The message to sign. */
-  message: string
+  message: SignableMessage
   /** The private key to sign with. */
   privateKey: Hex
 }

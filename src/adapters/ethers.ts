@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 
 import { toAccount } from '../accounts/toAccount.js'
 import type { Hash } from '../types/misc.js'
-import { toBytes } from '../utils/encoding/toBytes.js'
+import { stringToBytes, toBytes } from '../utils/encoding/toBytes.js'
 
 type BigNumberish = string | number | bigint
 type BytesLike = string | Uint8Array
@@ -46,7 +46,12 @@ export const ethersWalletToAccount = (wallet: EthersWallet) =>
   toAccount({
     address: wallet.address as Address,
     async signMessage({ message }) {
-      return (await wallet.signMessage(toBytes(message))) as Hash
+      const messageBytes = (() => {
+        if (typeof message === 'string') return stringToBytes(message)
+        if (message.raw instanceof Uint8Array) return message.raw
+        return toBytes(message.raw)
+      })()
+      return (await wallet.signMessage(messageBytes)) as Hash
     },
     async signTransaction(txn) {
       // ethers type mappings
