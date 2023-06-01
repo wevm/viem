@@ -68,11 +68,12 @@ export type GetContractParameters<
   TWalletClient extends
     | WalletClient<TTransport, TChain, TAccount>
     | unknown = unknown,
+  TAddress extends Address = Address,
 > = {
   /** Contract ABI */
   abi: Narrow<TAbi>
   /** Contract address */
-  address: Address
+  address: TAddress
   /**
    * Public client
    *
@@ -100,6 +101,7 @@ export type GetContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TPublicClient extends PublicClient | unknown = unknown,
   TWalletClient extends WalletClient | unknown = unknown,
+  TAddress extends Address = Address,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
@@ -352,7 +354,7 @@ export type GetContractReturnType<
             }
           }
       : unknown)
-> & { address: Address; abi: TAbi }
+> & { address: TAddress; abi: TAbi }
 
 /**
  * Gets type-safe interface for performing contract-related actions with a specific `abi` and `address`.
@@ -381,6 +383,7 @@ export type GetContractReturnType<
  */
 export function getContract<
   TTransport extends Transport,
+  TAddress extends Address,
   TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
@@ -401,21 +404,22 @@ export function getContract<
   TAccount,
   TAbi,
   TPublicClient,
-  TWalletClient
->): GetContractReturnType<TAbi, TPublicClient, TWalletClient> {
+  TWalletClient,
+  TAddress
+>): GetContractReturnType<TAbi, TPublicClient, TWalletClient, TAddress> {
   const hasPublicClient = publicClient !== undefined && publicClient !== null
   const hasWalletClient = walletClient !== undefined && walletClient !== null
 
   const contract: {
     [_ in
+      | 'abi'
+      | 'address'
       | 'createEventFilter'
       | 'estimateGas'
       | 'read'
       | 'simulate'
       | 'watchEvent'
-      | 'write'
-      | 'address'
-      | 'abi']?: unknown
+      | 'write']?: unknown
   } = {}
 
   let hasReadFunction = false
@@ -544,7 +548,7 @@ export function getContract<
                 eventName,
                 args,
                 ...options,
-              } as WatchContractEventParameters)
+              } as unknown as WatchContractEventParameters)
             }
           },
         },
@@ -623,7 +627,8 @@ export function getContract<
   return contract as unknown as GetContractReturnType<
     TAbi,
     TPublicClient,
-    TWalletClient
+    TWalletClient,
+    TAddress
   >
 }
 

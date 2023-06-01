@@ -591,6 +591,10 @@ test('empty abi', () => {
     walletClient,
   })
   expectTypeOf<keyof typeof contract>().toEqualTypeOf<'address' | 'abi'>()
+  expectTypeOf(contract.abi).toEqualTypeOf<[]>()
+  expectTypeOf(
+    contract.address,
+  ).toEqualTypeOf<'0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'>()
 })
 
 test('argument permutations', async () => {
