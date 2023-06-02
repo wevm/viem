@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated abitype
+Updated `abitype` to 0.8.7.
