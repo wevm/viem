@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.48
+
+### Patch Changes
+
+- [`0b92f3a`](https://github.com/wagmi-dev/viem/commit/0b92f3ad535a27e1b8ba70fc3f6e1087ed2cd05f) Thanks [@jxom](https://github.com/jxom)! - Added more chains from @wagmi/chains.
+
 ## 0.3.47
 
 ### Patch Changes
