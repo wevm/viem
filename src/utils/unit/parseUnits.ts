@@ -16,9 +16,20 @@ export function parseUnits(value: `${number}`, decimals: number) {
       fraction.slice(0, decimals),
       fraction.slice(decimals),
     ]
+    // count number of starting zeros in before
+    const zeros = before.match(/^0+/)?.[0].length ?? 0
+    const rounded = Math.round(Number(`.${after}`))
     fraction = `${
-      /^0+/.test(before) ? before.slice(0, before.length - 1) : ''
-    }${Math.round(Number(`${before}.${after}`))}`
+      zeros > 0 ? before.slice(0, zeros - (rounded > 0 ? 1 : 0)) : ''
+    }${
+      Math.round(Number(`${before}.${after}`)) === 0
+        ? ''
+        : Math.round(Number(`${before}.${after}`))
+    }`
+    if (fraction.replace(/^0+/, '').length > decimals) {
+      integer = `${BigInt(integer) + 1n}`
+      fraction = fraction.slice(1)
+    }
   } else {
     fraction = fraction.padEnd(decimals, '0')
   }
