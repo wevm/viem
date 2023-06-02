@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.45
+
+### Patch Changes
+
+- [#637](https://github.com/wagmi-dev/viem/pull/637) [`bbd8f07`](https://github.com/wagmi-dev/viem/commit/bbd8f072f92f189c0b55d5e3cf8c9e4f38b1c6bc) Thanks [@jxom](https://github.com/jxom)! - Updated `abitype` to 0.8.7.
+
 ## 0.3.44
 
 ### Patch Changes
