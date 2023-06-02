@@ -1,5 +1,17 @@
 # viem
 
+## 0.3.49
+
+### Patch Changes
+
+- [`0b92f3a`](https://github.com/wagmi-dev/viem/commit/0b92f3ad535a27e1b8ba70fc3f6e1087ed2cd05f) Thanks [@jxom](https://github.com/jxom)! - Added more chains from @wagmi/chains.
+
+## 0.3.47
+
+### Patch Changes
+
+- [`cc256c0`](https://github.com/wagmi-dev/viem/commit/cc256c0a0dd5cb99975c5a497e5eb025990deaff) Thanks [@jxom](https://github.com/jxom)! - Fixed unit conversion.
+
 ## 0.3.46
 
 ### Patch Changes
