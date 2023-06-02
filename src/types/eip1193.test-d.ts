@@ -51,9 +51,11 @@ test('public methods', async () => {
   })
   expectTypeOf<typeof x3>().toEqualTypeOf<RpcLog[]>()
 
-  const x4 = await request<
-    [{ Method: 'eth_wagmi'; Parameters: undefined; ReturnType: number }]
-  >({ method: 'eth_wagmi' })
+  const x4 = await request<{
+    Method: 'eth_wagmi'
+    Parameters: undefined
+    ReturnType: number
+  }>({ method: 'eth_wagmi' })
   expectTypeOf<typeof x4>().toEqualTypeOf<number>()
 
   // @ts-expect-error
@@ -91,9 +93,11 @@ test('wallet methods', async () => {
   })
   expectTypeOf<typeof x3>().toEqualTypeOf<Hex>()
 
-  const x4 = await request<
-    [{ Method: 'eth_wagmi'; Parameters: undefined; ReturnType: number }]
-  >({ method: 'eth_wagmi' })
+  const x4 = await request<{
+    Method: 'eth_wagmi'
+    Parameters: undefined
+    ReturnType: number
+  }>({ method: 'eth_wagmi' })
   expectTypeOf<typeof x4>().toEqualTypeOf<number>()
 
   // @ts-expect-error
@@ -131,9 +135,10 @@ test('test methods (strict)', async () => {
     queued: Record<`0x${string}`, Record<string, RpcTransaction>>
   }>()
 
-  const x4 = await request<
-    [{ Method: 'eth_wagmi'; Parameters: undefined; ReturnType: number }]
-  >({ method: 'eth_wagmi' })
+  const x4 = await request<{
+    Parameters: undefined
+    ReturnType: number
+  }>({ method: 'eth_wagmi' })
   expectTypeOf<typeof x4>().toEqualTypeOf<number>()
 
   // @ts-expect-error
@@ -161,9 +166,9 @@ test('custom methods (strict)', async () => {
   const x1 = await request({ method: 'eth_wagmi', params: [1] })
   expectTypeOf<typeof x1>().toEqualTypeOf<string>()
 
-  const x2 = await request<
-    [{ Method: 'eth_wagmi'; Parameters: undefined; ReturnType: number }]
-  >({ method: 'eth_wagmi' })
+  const x2 = await request<{ Parameters: undefined; ReturnType: number }>({
+    method: 'eth_wagmi',
+  })
   expectTypeOf<typeof x2>().toEqualTypeOf<number>()
 
   // @ts-expect-error

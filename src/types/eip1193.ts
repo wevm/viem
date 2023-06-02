@@ -1266,6 +1266,8 @@ export type RpcSchema = readonly {
   ReturnType: unknown
 }[]
 
+export type RpcSchemaOverride = Omit<RpcSchema[number], 'Method'>
+
 export type EIP1193Parameters<
   TRpcSchema extends RpcSchema | undefined = undefined,
 > = TRpcSchema extends RpcSchema
@@ -1289,22 +1291,24 @@ export type EIP1193Parameters<
 
 type DerivedRpcSchema<
   TRpcSchema extends RpcSchema | undefined,
-  TRpcSchemaOverrides extends RpcSchema | undefined,
-> = TRpcSchemaOverrides extends RpcSchema ? TRpcSchemaOverrides : TRpcSchema
+  TRpcSchemaOverride extends RpcSchemaOverride | undefined,
+> = TRpcSchemaOverride extends RpcSchemaOverride
+  ? [TRpcSchemaOverride & { Method: string }]
+  : TRpcSchema
 
 export type EIP1193RequestFn<
   TRpcSchema extends RpcSchema | undefined = undefined,
 > = <
-  TRpcSchemaOverrides extends RpcSchema | undefined = undefined,
+  TRpcSchemaOverride extends RpcSchemaOverride | undefined = undefined,
   TParameters extends EIP1193Parameters<
-    DerivedRpcSchema<TRpcSchema, TRpcSchemaOverrides>
-  > = EIP1193Parameters<DerivedRpcSchema<TRpcSchema, TRpcSchemaOverrides>>,
+    DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>
+  > = EIP1193Parameters<DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>>,
   _ReturnType = DerivedRpcSchema<
     TRpcSchema,
-    TRpcSchemaOverrides
+    TRpcSchemaOverride
   > extends RpcSchema
     ? Extract<
-        DerivedRpcSchema<TRpcSchema, TRpcSchemaOverrides>[number],
+        DerivedRpcSchema<TRpcSchema, TRpcSchemaOverride>[number],
         { Method: TParameters['method'] }
       >['ReturnType']
     : unknown,
