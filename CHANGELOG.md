@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.47
+
+### Patch Changes
+
+- [`cc256c0`](https://github.com/wagmi-dev/viem/commit/cc256c0a0dd5cb99975c5a497e5eb025990deaff) Thanks [@jxom](https://github.com/jxom)! - Fixed unit conversion.
+
 ## 0.3.46
 
 ### Patch Changes
