@@ -16,9 +16,9 @@ export function parseUnits(value: `${number}`, decimals: number) {
       fraction.slice(0, decimals),
       fraction.slice(decimals),
     ]
-    fraction = `${
-      /^0+/.test(before) ? before.slice(0, before.length - 1) : ''
-    }${Math.round(Number(`${before}.${after}`))}`
+    fraction = `${before.slice(0, before.length - 1)}${Math.round(
+      Number(`${before.slice(-1)}.${after}`),
+    )}`
   } else {
     fraction = fraction.padEnd(decimals, '0')
   }
