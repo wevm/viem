@@ -1,5 +1,11 @@
 # viem
 
+## 0.3.50
+
+### Patch Changes
+
+- [`7dc25b5`](https://github.com/wagmi-dev/viem/commit/7dc25b56ae5f8c69255f6ebc404fb49c33cb13b7) Thanks [@jxom](https://github.com/jxom)! - Improved Ganache test actions.
+
 ## 0.3.49
 
 ### Patch Changes
