@@ -30,13 +30,11 @@ export type GetAutomineReturnType = boolean
 export async function getAutomine<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
 ): Promise<GetAutomineReturnType> {
-  if (client.mode === 'ganache') {
+  if (client.mode === 'ganache')
     return await client.request({
       method: 'eth_mining',
     })
-  } else {
-    return await client.request({
-      method: `${client.mode}_getAutomine`,
-    })
-  }
+  return await client.request({
+    method: `${client.mode}_getAutomine`,
+  })
 }

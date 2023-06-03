@@ -37,15 +37,14 @@ export async function mine<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { blocks, interval }: MineParameters,
 ) {
-  if (client.mode === 'ganache') {
+  if (client.mode === 'ganache')
     await client.request({
       method: 'evm_mine',
       params: [{ blocks: numberToHex(blocks) }],
     })
-  } else {
+  else
     await client.request({
       method: `${client.mode}_mine`,
       params: [numberToHex(blocks), numberToHex(interval || 0)],
     })
-  }
 }
