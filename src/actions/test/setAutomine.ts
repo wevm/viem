@@ -28,8 +28,12 @@ export async function setAutomine<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   enabled: boolean,
 ) {
-  await client.request({
-    method: 'evm_setAutomine',
-    params: [enabled],
-  })
+  if (client.mode === 'ganache') {
+    if (enabled) await client.request({ method: 'miner_start' })
+    else await client.request({ method: 'miner_stop' })
+  } else
+    await client.request({
+      method: 'evm_setAutomine',
+      params: [enabled],
+    })
 }
