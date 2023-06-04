@@ -13,7 +13,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsText } from './getEnsText.js'
 
 beforeAll(async () => {
-  await setBlockNumber(16773780n)
+  await setBlockNumber(16966590n)
   await setVitalikResolver()
 })
 
@@ -100,7 +100,7 @@ test('universal resolver contract deployed on later block', async () => {
     "Chain \\"Localhost\\" does not support contract \\"ensUniversalResolver\\".
 
     This could be due to any of the following:
-    - The contract \\"ensUniversalResolver\\" was not deployed until block 16773775 (current block 14353601).
+    - The contract \\"ensUniversalResolver\\" was not deployed until block 16966585 (current block 14353601).
 
     Version: viem@1.0.2"
   `)
