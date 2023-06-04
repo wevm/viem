@@ -216,6 +216,33 @@ const filter = await publicClient.getLogs({
 })
 ```
 
+### Strict Mode
+
+By default, `getLogs` will include logs that [do not conform](/docs/glossary/terms.html#non-conforming-log) to the indexed & non-indexed arguments on the `event`, however, the `args` property will be `undefined` for non-conforming logs as we cannot deterministically decode them.
+
+```ts
+const logs = await publicClient.getLogs({
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)')
+})
+
+logs[0].args
+//      ^? { address: Address, to: Address, value: bigint } | undefined
+```
+
+You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
+
+```ts
+const logs = await publicClient.getLogs({
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+  strict: true
+})
+
+logs[0].args
+//      ^? { address: Address, to: Address, value: bigint }
+```
+
 ## Returns
 
 [`Log[]`](/docs/glossary/types#log)

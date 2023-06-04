@@ -2,7 +2,6 @@ import type { MessageEvent, WebSocket } from 'isomorphic-ws'
 
 import {
   HttpRequestError,
-  RpcRequestError,
   TimeoutError,
   WebSocketRequestError,
 } from '../errors/request.js'
@@ -41,7 +40,7 @@ type Subscription<TResult, TError> = {
   )
 }
 
-type RpcRequest = { method: string; params?: any }
+export type RpcRequest = { method: string; params?: any }
 
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
@@ -55,26 +54,39 @@ export type RpcResponse<TResult = any, TError = any> = {
 ///////////////////////////////////////////////////
 // HTTP
 
-export type HttpOptions = {
-  // The RPC request body.
-  body: RpcRequest
-  // Request configuration to pass to `fetch`.
-  fetchOptions?: Omit<RequestInit, 'body'>
-  // The timeout (in ms) for the request.
-  timeout?: number
-}
+export type HttpOptions<TBody extends RpcRequest | RpcRequest[] = RpcRequest,> =
+  {
+    // The RPC request body.
+    body: TBody
+    // Request configuration to pass to `fetch`.
+    fetchOptions?: Omit<RequestInit, 'body'>
+    // The timeout (in ms) for the request.
+    timeout?: number
+  }
 
-async function http(
+export type HttpReturnType<
+  TBody extends RpcRequest | RpcRequest[] = RpcRequest,
+> = TBody extends RpcRequest[] ? RpcResponse[] : RpcResponse
+
+async function http<TBody extends RpcRequest | RpcRequest[]>(
   url: string,
-  { body, fetchOptions = {}, timeout = 10_000 }: HttpOptions,
-) {
+  { body, fetchOptions = {}, timeout = 10_000 }: HttpOptions<TBody>,
+): Promise<HttpReturnType<TBody>> {
   const { headers, method, signal: signal_ } = fetchOptions
   try {
     const response = await withTimeout(
       async ({ signal }) => {
         const response = await fetch(url, {
           ...fetchOptions,
-          body: stringify({ jsonrpc: '2.0', id: id++, ...body }),
+          body: Array.isArray(body)
+            ? stringify(
+                body.map((body) => ({
+                  jsonrpc: '2.0',
+                  id: id++,
+                  ...body,
+                })),
+              )
+            : stringify({ jsonrpc: '2.0', id: id++, ...body }),
           headers: {
             ...headers,
             'Content-Type': 'application/json',
@@ -108,13 +120,9 @@ async function http(
       })
     }
 
-    if (data.error) {
-      throw new RpcRequestError({ body, error: data.error, url })
-    }
-    return data as RpcResponse
+    return data
   } catch (err) {
     if (err instanceof HttpRequestError) throw err
-    if (err instanceof RpcRequestError) throw err
     if (err instanceof TimeoutError) throw err
     throw new HttpRequestError({
       body,
@@ -213,21 +221,19 @@ export async function getSocket(url_: string) {
   return socket_
 }
 
+export type WebSocketOptions = {
+  /** The RPC request body. */
+  body: RpcRequest
+  /** The callback to invoke on response. */
+  onResponse?: (message: RpcResponse) => void
+}
+
+export type WebSocketReturnType = Socket
+
 function webSocket(
   socket: Socket,
-  {
-    body,
-    onData,
-    onError,
-  }: {
-    // The RPC request body.
-    body: RpcRequest
-    // The callback to invoke when the request is successful.
-    onData?: (message: RpcResponse) => void
-    // The callback to invoke if the request errors.
-    onError?: (message: RpcResponse['error']) => void
-  },
-) {
+  { body, onResponse }: WebSocketOptions,
+): WebSocketReturnType {
   if (
     socket.readyState === socket.CLOSED ||
     socket.readyState === socket.CLOSING
@@ -245,13 +251,7 @@ function webSocket(
 
     if (typeof message.id === 'number' && id_ !== message.id) return
 
-    if (message.error) {
-      onError?.(
-        new RpcRequestError({ body, error: message.error, url: socket.url }),
-      )
-    } else {
-      onData?.(message)
-    }
+    onResponse?.(message)
 
     // If we are subscribing to a topic, we want to set up a listener for incoming
     // messages.
@@ -271,25 +271,25 @@ function webSocket(
   return socket
 }
 
+export type WebSocketAsyncOptions = {
+  /** The RPC request body. */
+  body: RpcRequest
+  /** The timeout (in ms) for the request. */
+  timeout?: number
+}
+
+export type WebSocketAsyncReturnType = RpcResponse
+
 async function webSocketAsync(
   socket: Socket,
-  {
-    body,
-    timeout = 10_000,
-  }: {
-    // The RPC request body.
-    body: RpcRequest
-    // The timeout (in ms) for the request.
-    timeout?: number
-  },
-) {
+  { body, timeout = 10_000 }: WebSocketAsyncOptions,
+): Promise<WebSocketAsyncReturnType> {
   return withTimeout(
     () =>
-      new Promise<RpcResponse>((onData, onError) =>
+      new Promise<RpcResponse>((onResponse) =>
         rpc.webSocket(socket, {
           body,
-          onData,
-          onError,
+          onResponse,
         }),
       ),
     {

@@ -13,7 +13,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {
-  await setBlockNumber(16773780n)
+  await setBlockNumber(16966590n)
   await setVitalikResolver()
 })
 
@@ -47,6 +47,17 @@ test('name that looks like a hex', async () => {
     getEnsAddress(publicClient, { name: '0xdeadbeef.eth' }),
   ).resolves.toMatchInlineSnapshot(
     '"0xA8cc612Ecb2E853d3A882b0F9cf5357C2D892aDb"',
+  )
+})
+
+test('name with a label larger than 255 bytes', async () => {
+  await expect(
+    getEnsAddress(publicClient, {
+      name: `${'9'.repeat(291)}.eth`,
+      universalResolverAddress: '0xc0497e381f536be9ce14b0dd3817cbcae57d2f62',
+    }),
+  ).resolves.toMatchInlineSnapshot(
+    `"0xcdf14B42e1D3c264F6955521944a50d9A4d5CF3a"`,
   )
 })
 
@@ -142,7 +153,7 @@ test('universal resolver contract deployed on later block', async () => {
     "Chain \\"Localhost\\" does not support contract \\"ensUniversalResolver\\".
 
     This could be due to any of the following:
-    - The contract \\"ensUniversalResolver\\" was not deployed until block 16773775 (current block 14353601).
+    - The contract \\"ensUniversalResolver\\" was not deployed until block 16966585 (current block 14353601).
 
     Version: viem@1.0.2"
   `)

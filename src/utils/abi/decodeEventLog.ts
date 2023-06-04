@@ -82,7 +82,7 @@ export function decodeEventLog<
       x.type === 'event' &&
       signature === getEventSelector(formatAbiItem(x) as EventDefinition),
   )
-  if (!(abiItem && 'name' in abiItem))
+  if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
     throw new AbiEventSignatureNotFoundError(signature, {
       docsPath,
     })
@@ -109,7 +109,14 @@ export function decodeEventLog<
 
   // Decode data (non-indexed args).
   const nonIndexedInputs = inputs.filter((x) => !('indexed' in x && x.indexed))
-  if (data && data !== '0x') {
+  if (nonIndexedInputs.length > 0) {
+    if (!data || data === '0x')
+      throw new DecodeLogDataMismatch({
+        abiItem,
+        data: '0x',
+        params: nonIndexedInputs,
+        size: 0,
+      })
     try {
       const decodedData = decodeAbiParameters(nonIndexedInputs, data)
       if (decodedData) {
@@ -123,6 +130,7 @@ export function decodeEventLog<
     } catch (err) {
       if (err instanceof AbiDecodingDataSizeTooSmallError)
         throw new DecodeLogDataMismatch({
+          abiItem,
           data: err.data,
           params: err.params,
           size: err.size,

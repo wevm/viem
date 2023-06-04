@@ -1,7 +1,6 @@
 import type { Chain } from '../types/chain.js'
-import type { PublicRequests } from '../types/eip1193.js'
+import type { PublicRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
-
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type PublicActions, publicActions } from './decorators/public.js'
 import type { Transport } from './transports/createTransport.js'
@@ -9,7 +8,7 @@ import type { Transport } from './transports/createTransport.js'
 export type MulticallBatchOptions = {
   /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
   batchSize?: number
-  /** The maximum number of milliseconds to wait before sending a batch. @default 16 */
+  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
   wait?: number
 }
 
@@ -32,7 +31,7 @@ export type PublicClient<
   TChain extends Chain | undefined = Chain | undefined,
   TIncludeActions extends boolean = true,
 > = Prettify<
-  Client<TTransport, PublicRequests, TChain> &
+  Client<TTransport, PublicRpcSchema, TChain> &
     Pick<PublicClientConfig, 'batch'> &
     (TIncludeActions extends true ? PublicActions<TTransport, TChain> : unknown)
 >

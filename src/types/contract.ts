@@ -20,7 +20,7 @@ import type {
 
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
-import type { Filter, NoUndefined } from './utils.js'
+import type { Filter, MaybeRequired, NoUndefined, Prettify } from './utils.js'
 
 export type AbiItem = Abi[number]
 
@@ -238,7 +238,7 @@ export type GetEventArgsFromTopics<
     : AbiEvent & { type: 'event' },
   TArgs = AbiEventParametersToPrimitiveTypes<
     TAbiEvent['inputs'],
-    { EnableUnion: false; IndexedOnly: false }
+    { EnableUnion: false; IndexedOnly: false; Required: true }
   >,
 > = TTopics extends readonly []
   ? TData extends undefined
@@ -252,10 +252,12 @@ export type GetEventArgsFromTopics<
 type EventParameterOptions = {
   EnableUnion?: boolean
   IndexedOnly?: boolean
+  Required?: boolean
 }
 type DefaultEventParameterOptions = {
   EnableUnion: true
   IndexedOnly: true
+  Required: false
 }
 
 type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
@@ -328,10 +330,13 @@ export type AbiEventParametersToPrimitiveTypes<
             },
           ]
         // Distribute over tuple to represent optional parameters
-        | (Filtered extends readonly [
-            ...infer Head extends readonly AbiParameter[],
-            infer _,
-          ]
+        | (Options['Required'] extends true
+            ? never
+            : // Distribute over tuple to represent optional parameters
+            Filtered extends readonly [
+                ...infer Head extends readonly AbiParameter[],
+                infer _,
+              ]
             ? AbiEventParametersToPrimitiveTypes<
                 readonly [...{ [K in keyof Head]: Omit<Head[K], 'name'> }],
                 Options
@@ -346,6 +351,11 @@ export type AbiEventParametersToPrimitiveTypes<
             ? Name
             : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
       } extends infer Mapped
-    ? Mapped
+    ? Prettify<
+        MaybeRequired<
+          Mapped,
+          Options['Required'] extends boolean ? Options['Required'] : false
+        >
+      >
     : never
   : never

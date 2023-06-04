@@ -135,7 +135,7 @@ export async function estimateGas<
       },
     )
 
-    const balance = await client.request({
+    const balance = await (client as PublicClient).request({
       method: 'eth_estimateGas',
       params: block ? [request, block] : [request],
     })

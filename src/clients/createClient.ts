@@ -1,11 +1,11 @@
 import type { Chain } from '../types/chain.js'
-import type { Requests } from '../types/eip1193.js'
-import { uid } from '../utils/uid.js'
-
 import type {
-  BaseRpcRequests,
-  Transport,
-} from './transports/createTransport.js'
+  EIP1193RequestFn,
+  EIP1474Methods,
+  RpcSchema,
+} from '../types/eip1193.js'
+import { uid } from '../utils/uid.js'
+import type { Transport } from './transports/createTransport.js'
 
 export type ClientConfig<
   TTransport extends Transport = Transport,
@@ -30,7 +30,7 @@ export type ClientConfig<
 
 export type Client<
   TTransport extends Transport = Transport,
-  TRequests extends BaseRpcRequests = Requests,
+  TRpcSchema extends RpcSchema | undefined = undefined,
   TChain extends Chain | undefined = Chain | undefined,
 > = {
   /** Chain for the client. */
@@ -42,7 +42,9 @@ export type Client<
   /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
-  request: TRequests['request']
+  request: TRpcSchema extends undefined
+    ? EIP1193RequestFn<EIP1474Methods>
+    : EIP1193RequestFn<TRpcSchema>
   /** The RPC transport */
   transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
   /** The type of client. */
@@ -56,7 +58,7 @@ export type Client<
  */
 export function createClient<
   TTransport extends Transport,
-  TRequests extends BaseRpcRequests,
+  TRpcSchema extends RpcSchema | undefined = undefined,
   TChain extends Chain | undefined = undefined,
 >({
   chain,
@@ -65,14 +67,14 @@ export function createClient<
   pollingInterval = 4_000,
   transport,
   type = 'base',
-}: ClientConfig<TTransport, TChain>): Client<TTransport, TRequests, TChain> {
+}: ClientConfig<TTransport, TChain>): Client<TTransport, TRpcSchema, TChain> {
   const { config, request, value } = transport({ chain, pollingInterval })
   return {
     chain: chain as TChain,
     key,
     name,
     pollingInterval,
-    request,
+    request: request as any,
     transport: { ...config, ...value },
     type,
     uid: uid(),
