@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": major
 ---
 
 **Breaking:** Removed `ethersWalletToAccount` adapter.
