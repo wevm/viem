@@ -1,14 +1,13 @@
 import { assertType, expect, test, vi } from 'vitest'
 
-import type { Requests } from '../../types/eip1193.js'
-
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { createTransport } from './createTransport.js'
 
 test('default', () => {
   const transport = createTransport({
     key: 'mock',
     name: 'Mock Transport',
-    request: vi.fn(async () => null) as unknown as Requests['request'],
+    request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
     type: 'mock',
   })
 
@@ -36,7 +35,7 @@ test('value', () => {
     {
       key: 'mock',
       name: 'Mock Transport',
-      request: vi.fn(async () => null) as unknown as Requests['request'],
+      request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
       type: 'mock',
     },
     {

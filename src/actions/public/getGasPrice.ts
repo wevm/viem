@@ -34,7 +34,7 @@ export async function getGasPrice<
     | PublicClient<Transport, TChain>
     | WalletClient<Transport, TChain, TAccount>,
 ): Promise<GetGasPriceReturnType> {
-  const gasPrice = await client.request({
+  const gasPrice = await (client as PublicClient).request({
     method: 'eth_gasPrice',
   })
   return BigInt(gasPrice)

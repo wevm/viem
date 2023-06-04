@@ -65,7 +65,7 @@ export async function getBlockTransactionCount<
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  let count: Quantity | null = null
+  let count: Quantity
   if (blockHash) {
     count = await client.request({
       method: 'eth_getBlockTransactionCountByHash',
