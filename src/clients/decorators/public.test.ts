@@ -156,7 +156,7 @@ describe('smoke test', () => {
     'getEnsAddress',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(16773780n)
+      await setBlockNumber(16966590n)
       expect(
         await publicClient.getEnsAddress({ name: 'jxom.eth' }),
       ).toBeDefined()
@@ -169,7 +169,7 @@ describe('smoke test', () => {
     'getEnsAvatar',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(16773780n)
+      await setBlockNumber(16966590n)
       expect(
         await publicClient.getEnsAvatar({ name: 'jxom.eth' }),
       ).toBeDefined()
@@ -182,7 +182,7 @@ describe('smoke test', () => {
     'getEnsName',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(16773780n)
+      await setBlockNumber(16966590n)
       expect(
         await publicClient.getEnsName({ address: address.vitalik }),
       ).toBeDefined()
@@ -195,7 +195,7 @@ describe('smoke test', () => {
     'getEnsResolver',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(16773780n)
+      await setBlockNumber(16966590n)
       expect(
         await publicClient.getEnsResolver({ name: 'jxom.eth' }),
       ).toBeDefined()
@@ -208,7 +208,7 @@ describe('smoke test', () => {
     'getEnsText',
     async () => {
       const blockNumber = await getBlockNumber(publicClient)
-      await setBlockNumber(16773780n)
+      await setBlockNumber(16966590n)
       expect(
         await publicClient.getEnsText({ name: 'jxom.eth', key: 'com.twitter' }),
       ).toBeDefined()
