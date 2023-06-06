@@ -33,20 +33,20 @@ export type Filter<
           abi: TAbi
           args?: never
           eventName?: never
-          strict?: TStrict
+          strict: TStrict
         }
       : TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName>
       ? {
           abi: TAbi
           args: TArgs
           eventName: TEventName
-          strict?: TStrict
+          strict: TStrict
         }
       : {
           abi: TAbi
           args?: never
           eventName: TEventName
-          strict?: TStrict
+          strict: TStrict
         }
     : {
         abi?: never

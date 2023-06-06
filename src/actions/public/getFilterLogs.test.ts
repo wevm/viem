@@ -155,21 +155,20 @@ describe('contract events', () => {
     })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, undefined, typeof usdcContractConfig.abi>[]
+      Log<bigint, number, undefined, false, typeof usdcContractConfig.abi>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | {
-          from: Address
-          to: Address
-          value: bigint
+          from?: Address
+          to?: Address
+          value?: bigint
         }
       | {
-          owner: Address
-          spender: Address
-          value: bigint
+          owner?: Address
+          spender?: Address
+          value?: bigint
         }
-      | undefined
     >()
 
     expect(logs.length).toBe(3)
@@ -225,6 +224,7 @@ describe('contract events', () => {
         bigint,
         number,
         undefined,
+        false,
         typeof usdcContractConfig.abi,
         'Transfer'
       >[]
@@ -258,11 +258,35 @@ describe('contract events', () => {
         bigint,
         number,
         undefined,
+        false,
         typeof usdcContractConfig.abi,
         'Transfer'
       >[]
     >(logs)
     expect(logs.length).toBe(1056)
+  })
+
+  test('args: strict', async () => {
+    const filter = await createContractEventFilter(publicClient, {
+      abi: usdcContractConfig.abi,
+      eventName: 'Transfer',
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+      strict: true,
+    })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+    assertType<
+      Log<
+        bigint,
+        number,
+        undefined,
+        true,
+        typeof usdcContractConfig.abi,
+        'Transfer'
+      >[]
+    >(logs)
+    expect(logs.length).toBe(784)
   })
 
   test('args: singular `from`', async () => {
@@ -300,6 +324,7 @@ describe('contract events', () => {
         bigint,
         number,
         undefined,
+        false,
         typeof usdcContractConfig.abi,
         'Transfer'
       >[]
@@ -348,6 +373,7 @@ describe('contract events', () => {
         bigint,
         number,
         undefined,
+        false,
         typeof usdcContractConfig.abi,
         'Transfer'
       >[]
@@ -402,6 +428,7 @@ describe('contract events', () => {
         bigint,
         number,
         undefined,
+        false,
         typeof usdcContractConfig.abi,
         'Transfer'
       >[]
@@ -450,6 +477,7 @@ describe('contract events', () => {
         bigint,
         number,
         undefined,
+        false,
         typeof usdcContractConfig.abi,
         'Transfer'
       >[]
@@ -629,6 +657,115 @@ describe('raw events', () => {
     const logs = await getFilterLogs(publicClient, { filter })
     assertType<Log<bigint, number, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
+  })
+
+  test('args: strict = true (named)', async () => {
+    const filter = await createEventFilter(publicClient, {
+      event: event.default,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+      strict: true,
+    })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+
+    assertType<Log<bigint, number, typeof event.default, true>[]>(logs)
+
+    expect(logs.length).toBe(784)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from: Address
+      to: Address
+      value: bigint
+    }>()
+    expect(logs[0].args).toEqual({
+      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
+      value: 1162592016924672n,
+    })
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: strict = false (named)', async () => {
+    const filter = await createEventFilter(publicClient, {
+      event: event.default,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+    })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+
+    assertType<Log<bigint, number, typeof event.default, false>[]>(logs)
+
+    expect(logs.length).toBe(1056)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from?: Address
+      to?: Address
+      value?: bigint
+    }>()
+    expect(logs[0].args).toEqual({
+      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
+      value: 1162592016924672n,
+    })
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: strict = true (unnamed)', async () => {
+    const filter = await createEventFilter(publicClient, {
+      event: event.unnamed,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+      strict: true,
+    })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+
+    assertType<Log<bigint, number, typeof event.unnamed, true>[]>(logs)
+
+    expect(logs.length).toBe(784)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      readonly [`0x${string}`, `0x${string}`, bigint]
+    >()
+    expect(logs[0].args).toEqual([
+      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      '0x393ADf60012809316659Af13A3117ec22D093a38',
+      1162592016924672n,
+    ])
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: strict = false (unnamed)', async () => {
+    const filter = await createEventFilter(publicClient, {
+      event: event.unnamed,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+    })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+
+    assertType<Log<bigint, number, typeof event.unnamed, false>[]>(logs)
+
+    expect(logs.length).toBe(1056)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | readonly []
+      | readonly [`0x${string}`, `0x${string}`, bigint]
+      | readonly [`0x${string}`, `0x${string}`]
+      | readonly [`0x${string}`]
+    >()
+    expect(logs[0].args).toEqual([
+      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      '0x393ADf60012809316659Af13A3117ec22D093a38',
+      1162592016924672n,
+    ])
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: singular `from`', async () => {

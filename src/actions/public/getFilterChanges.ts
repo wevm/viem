@@ -33,7 +33,7 @@ export type GetFilterChangesReturnType<
       : undefined
     : undefined,
 > = TFilterType extends 'event'
-  ? Log<bigint, number, _AbiEvent, TAbi, TEventName, TStrict>[]
+  ? Log<bigint, number, _AbiEvent, TStrict, TAbi, TEventName>[]
   : Hash[]
 
 /**
@@ -131,6 +131,8 @@ export async function getFilterChanges<
     filter,
   }: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,
 ) {
+  const strict = 'strict' in filter && filter.strict
+
   const logs = await filter.request({
     method: 'eth_getFilterChanges',
     params: [filter.id],
@@ -145,11 +147,13 @@ export async function getFilterChanges<
                 abi: filter.abi,
                 data: log.data,
                 topics: log.topics as any,
+                strict,
               })
             : { eventName: undefined, args: undefined }
         return formatLog(log, { args, eventName })
       } catch (err) {
         let eventName
+        let isUnnamed
         if (
           err instanceof DecodeLogDataMismatch ||
           err instanceof DecodeLogTopicsMismatch
@@ -157,10 +161,11 @@ export async function getFilterChanges<
           // If strict mode is on, and log data/topics do not match event definition, skip.
           if ('strict' in filter && filter.strict) return
           eventName = err.abiItem.name
+          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
         }
 
         // Set args undefined if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return formatLog(log, { args: undefined, eventName })
+        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
       }
     })
     .filter(Boolean) as GetFilterChangesReturnType<

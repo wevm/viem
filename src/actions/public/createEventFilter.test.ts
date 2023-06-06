@@ -82,6 +82,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter.args).toBeUndefined()
@@ -106,6 +107,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter.args).toEqual({
@@ -129,6 +131,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter2.args).toEqual({
@@ -151,6 +154,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter3.args).toEqual({
@@ -171,6 +175,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter1.args).toEqual([accounts[0].address, accounts[1].address])
@@ -187,6 +192,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter2.args).toEqual([[accounts[0].address, accounts[1].address]])
@@ -203,6 +209,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter3.args).toEqual([null, accounts[0].address])

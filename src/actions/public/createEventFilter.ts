@@ -102,7 +102,7 @@ export type CreateEventFilterReturnType<
 export async function createEventFilter<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
-  TStrict extends boolean | undefined,
+  TStrict extends boolean | undefined = undefined,
   _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends

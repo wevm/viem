@@ -66,17 +66,22 @@ export function encodeEventTopics<
     )
     const args_ = Array.isArray(args)
       ? args
-      : indexedInputs?.map((x: any) => (args as any)[x.name]) ?? []
-    topics =
-      indexedInputs?.map((param, i) =>
-        Array.isArray(args_[i])
-          ? args_[i].map((_: any, j: number) =>
-              encodeArg({ param, value: args_[i][j] }),
-            )
-          : args_[i]
-          ? encodeArg({ param, value: args_[i] })
-          : null,
-      ) ?? []
+      : Object.values(args).length > 0
+      ? indexedInputs?.map((x: any) => (args as any)[x.name]) ?? []
+      : []
+
+    if (args_.length > 0) {
+      topics =
+        indexedInputs?.map((param, i) =>
+          Array.isArray(args_[i])
+            ? args_[i].map((_: any, j: number) =>
+                encodeArg({ param, value: args_[i][j] }),
+              )
+            : args_[i]
+            ? encodeArg({ param, value: args_[i] })
+            : null,
+        ) ?? []
+    }
   }
   return [signature, ...topics]
 }

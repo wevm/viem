@@ -60,11 +60,21 @@ decodeEventLog({
 })
 ```
 
-Previously, the above would only decode the `indexed` arguments.
+Previously, the above would only decode the `indexed` arguments. 
 
-### Minor: `getLogs`, `getFilterLogs`, `getFilterChanges` behavior change
+If you would like to partially decode event logs (previous behavior), you can pass the `strict` argument:
 
-Similarly to the above, `getLogs`, `getFilterLogs`, `getFilterChanges` no longer attempts to decode event args if it does not match the event definition/ABI (`event`) (ie. mismatch between the number of indexed & non-indexed arguments to `topics` & `data`). If there is an error decoding the event args, `args` will be `undefined` on the Log.
+```ts {2-4}
+decodeEventLog({
+  abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001'
+  topics: [
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  ],
+  strict: true // [!code ++]
+})
+```
 
 ## 0.3.x Breaking changes
 

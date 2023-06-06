@@ -748,6 +748,27 @@ test('argument permutations', async () => {
     .toEqualTypeOf<'WithIndexedUnnamedInputs'>
   expectTypeOf(createEventFilter_2.args).toEqualTypeOf<['foo']>()
 
+  const createEventFilter_loose =
+    await contract.createEventFilter.WithMixedNamedInputs({
+      x: 'foo',
+    })
+  expectTypeOf(createEventFilter_loose.strict).toEqualTypeOf<undefined>()
+
+  const createEventFilter_lax =
+    await contract.createEventFilter.WithMixedNamedInputs({
+      x: 'foo',
+    })
+  expectTypeOf(createEventFilter_lax.strict).toEqualTypeOf<undefined>()
+
+  const createEventFilter_strict =
+    await contract.createEventFilter.WithMixedNamedInputs(
+      {
+        x: 'foo',
+      },
+      { strict: true },
+    )
+  expectTypeOf(createEventFilter_strict.strict).toEqualTypeOf<true>()
+
   // watchEvent
   // @ts-expect-error
   contract.watchEvent.WithoutInputs()

@@ -66,7 +66,7 @@ export type GetLogsReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, TAbiEvent, [TAbiEvent], _EventName, TStrict>[]
+> = Log<bigint, number, TAbiEvent, TStrict, [TAbiEvent], _EventName>[]
 
 /**
  * Returns a list of event logs matching the provided parameters.
@@ -93,7 +93,7 @@ export type GetLogsReturnType<
 export async function getLogs<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
-  TStrict extends boolean | undefined,
+  TStrict extends boolean | undefined = undefined,
 >(
   client: PublicClient<Transport, TChain>,
   {
@@ -103,9 +103,11 @@ export async function getLogs<
     toBlock,
     event,
     args,
-    strict,
+    strict: strict_,
   }: GetLogsParameters<TAbiEvent, TStrict> = {},
 ): Promise<GetLogsReturnType<TAbiEvent, TStrict>> {
+  const strict = strict_ ?? false
+
   let topics: LogTopic[] = []
   if (event)
     topics = encodeEventTopics({
@@ -143,11 +145,13 @@ export async function getLogs<
               abi: [event] as [AbiEvent],
               data: log.data,
               topics: log.topics as any,
+              strict,
             })
           : { eventName: undefined, args: undefined }
         return formatLog(log, { args, eventName })
       } catch (err) {
         let eventName
+        let isUnnamed
         if (
           err instanceof DecodeLogDataMismatch ||
           err instanceof DecodeLogTopicsMismatch
@@ -155,10 +159,11 @@ export async function getLogs<
           // If strict mode is on, and log data/topics do not match event definition, skip.
           if (strict) return
           eventName = err.abiItem.name
+          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
         }
 
-        // Set args undefined if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return formatLog(log, { args: undefined, eventName })
+        // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
       }
     })
     .filter(Boolean) as unknown as GetLogsReturnType<TAbiEvent, TStrict>

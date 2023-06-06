@@ -22,6 +22,7 @@ test('default', async () => {
     args: undefined,
     eventName: undefined,
     request,
+    strict: undefined,
   })
   expect(filter.id).toBeDefined()
   expect(filter.type).toBe('event')

@@ -11,17 +11,16 @@ import type {
   GetEventArgs,
 } from './contract.js'
 import type { Hash, Hex } from './misc.js'
-import type { MaybeUndefined } from './utils.js'
 
 export type Log<
   TQuantity = bigint,
   TIndex = number,
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TStrict extends boolean | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
-  TStrict extends boolean | undefined = undefined,
 > = {
   /** The address from which this log originated */
   address: Address
@@ -93,13 +92,14 @@ type GetInferredLogValues<
 > = TAbi extends Abi
   ? TEventName extends string
     ? {
-        args: MaybeUndefined<
-          GetEventArgs<
-            TAbi,
-            TEventName,
-            { EnableUnion: false; IndexedOnly: false; Required: true }
-          >,
-          TStrict extends true ? false : true
+        args: GetEventArgs<
+          TAbi,
+          TEventName,
+          {
+            EnableUnion: false
+            IndexedOnly: false
+            Required: TStrict extends boolean ? TStrict : false
+          }
         >
         /** The event name decoded from `topics`. */
         eventName: TEventName
@@ -108,13 +108,14 @@ type GetInferredLogValues<
       }
     : {
         [TName in _EventNames]: {
-          args: MaybeUndefined<
-            GetEventArgs<
-              TAbi,
-              string,
-              { EnableUnion: false; IndexedOnly: false; Required: true }
-            >,
-            TStrict extends true ? false : true
+          args: GetEventArgs<
+            TAbi,
+            string,
+            {
+              EnableUnion: false
+              IndexedOnly: false
+              Required: TStrict extends boolean ? TStrict : false
+            }
           >
           /** The event name decoded from `topics`. */
           eventName: TName

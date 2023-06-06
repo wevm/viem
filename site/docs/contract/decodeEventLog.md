@@ -86,6 +86,45 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Partial Decode
+
+By default, if the `topics` and `data` does not conform to the ABI (a mismatch between the number of indexed/non-indexed arguments), `decodeEventLog` will throw an error.
+
+For example, the following will throw an error as there is a mismatch in non-`indexed` arguments & `data` length.
+
+```ts {2-4}
+decodeEventLog({
+  abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
+  // `data` should be 64 bytes, but is only 32 bytes.
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001'
+  topics: [
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  ]
+})
+// [DecodeLogDataMismatch]: Data size of 32 bytes is too small for non-indexed event parameters.
+```
+
+It is possible for `decodeEventLog` to try and partially decode the Log, this can be done by setting the `strict` argument to `false`:
+
+```ts {2-4}
+decodeEventLog({
+  abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
+  data: '0x0000000000000000000000000000000000000000000000000000000000000001'
+  topics: [
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  ],
+  strict: true // [!code ++]
+})
+/**
+ * {
+ *   eventName: 'Transfer',
+ *   args: ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266']
+ * }
+ */
+```
+
 ## Return Value
 
 ```ts
@@ -158,6 +197,26 @@ const topics = decodeEventLog({
 - **Type:** `string`
 
 An event name from the ABI. Provide an `eventName` to infer the return type of `decodeEventLog`.
+
+```ts
+const topics = decodeEventLog({
+  abi: wagmiAbi,
+  eventName: 'Transfer', // [!code focus]
+  topics: [
+    '0x406dade31f7ae4b5dbc276258c28dde5ae6d5c2773c5745802c493a2360e55e0', 
+    '0x00000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266', 
+    '0x0000000000000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8'
+  ]
+})
+```
+
+### strict (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+If `true`, `decodeEventLog` will throw an error if the `data` & `topics` lengths to not conform to the event on the ABI. 
+If `false`, `decodeEventLog` will try and [partially decode](#partial-decode).
 
 ```ts
 const topics = decodeEventLog({

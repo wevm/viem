@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import {
   assertType,
   beforeAll,
@@ -165,14 +164,11 @@ describe('events', () => {
       Log<bigint, number, typeof event.default>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
-      | {
-          from: Address
-          to: Address
-          value: bigint
-        }
-      | undefined
-    >()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from?: `0x${string}` | undefined
+      to?: `0x${string}` | undefined
+      value?: bigint | undefined
+    }>()
 
     expect(logs.length).toBe(2)
     expect(logs[0].eventName).toEqual('Transfer')
@@ -221,6 +217,107 @@ describe('events', () => {
       to: '0x9493ACfA6Ce6F907E7C5Dc71288a611811Aa3677',
       value: 995936118n,
     })
+  })
+
+  test('args: strict = true (named)', async () => {
+    const logs = await getLogs(publicClient, {
+      event: event.default,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+      strict: true,
+    })
+
+    assertType<Log<bigint, number, typeof event.default, true>[]>(logs)
+    expect(logs.length).toBe(784)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from: `0x${string}`
+      to: `0x${string}`
+      value: bigint
+    }>()
+    expect(logs[0].args).toEqual({
+      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
+      value: 1162592016924672n,
+    })
+
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: strict = false (named)', async () => {
+    const logs = await getLogs(publicClient, {
+      event: event.default,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+    })
+
+    assertType<Log<bigint, number, typeof event.default, false>[]>(logs)
+    expect(logs.length).toBe(1056)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from?: `0x${string}`
+      to?: `0x${string}`
+      value?: bigint
+    }>()
+    expect(logs[0].args).toEqual({
+      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
+      value: 1162592016924672n,
+    })
+
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: strict = true (unnamed)', async () => {
+    const logs = await getLogs(publicClient, {
+      event: event.unnamed,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+      strict: true,
+    })
+
+    assertType<Log<bigint, number, typeof event.unnamed, true>[]>(logs)
+    expect(logs.length).toBe(784)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      readonly [`0x${string}`, `0x${string}`, bigint]
+    >()
+    expect(logs[0].args).toEqual([
+      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      '0x393ADf60012809316659Af13A3117ec22D093a38',
+      1162592016924672n,
+    ])
+
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: strict = false (unnamed)', async () => {
+    const logs = await getLogs(publicClient, {
+      event: event.unnamed,
+      fromBlock: forkBlockNumber - 5n,
+      toBlock: forkBlockNumber,
+    })
+
+    assertType<Log<bigint, number, typeof event.unnamed, false>[]>(logs)
+    expect(logs.length).toBe(1056)
+
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | readonly []
+      | readonly [`0x${string}`, `0x${string}`, bigint]
+      | readonly [`0x${string}`, `0x${string}`]
+      | readonly [`0x${string}`]
+    >()
+    expect(logs[0].args).toEqual([
+      '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      '0x393ADf60012809316659Af13A3117ec22D093a38',
+      1162592016924672n,
+    ])
+
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: singular `from`', async () => {
