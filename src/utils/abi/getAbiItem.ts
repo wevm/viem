@@ -45,6 +45,7 @@ export function getAbiItem<
     }
     if (!abiItem.inputs) continue
     if (abiItem.inputs.length === 0) continue
+    if (abiItem.inputs.length !== args.length) continue
     const matched = (args as readonly unknown[]).every((arg, index) => {
       const abiParameter = 'inputs' in abiItem && abiItem.inputs![index]
       if (!abiParameter) return false
