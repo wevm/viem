@@ -1,5 +1,40 @@
 # viem
 
+## 1.0.0
+
+### [Migration Guide](https://viem.sh/docs/migration-guide.html)
+
+### Major Changes
+
+* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Released v1.
+
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking (edge case):** `decodeEventLog` no longer attempts to partially decode events. If the log does not conform to the ABI (mismatch between the number of indexed/non-indexed arguments to topics/data), it will throw an error.
+
+* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** `logIndex` & `transactionIndex` on `Log` now return a `number` instead of a `bigint`
+
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `ethersWalletToAccount` adapter.
+
+  This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey.html) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic.html).
+
+  If you still need it, you can copy + paste the [old implementation](https://github.com/wagmi-dev/viem/blob/a9a71507032db896295fa1f3fa2dd6c2bdc85137/src/adapters/ethers.ts).
+
+### Patch Changes
+
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Added Batch JSON-RPC on `http` Transport.
+
+* [#657](https://github.com/wagmi-dev/viem/pull/657) [`af48368`](https://github.com/wagmi-dev/viem/commit/af48368f07856e50cb7afa8cac077e3a0ecc05fb) Thanks [@izayl](https://github.com/izayl)! - Fixed `getAbiItem` from returning mismatched type when overload with different lengths.
+
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Upgraded ENS Universal Resolver contract address.
+
+* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Added support for labels larger than 255 bytes when resolving ENS names.
+
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Added a `strict` parameter to `getLogs`, `createEventFilter` & `createContractEventFilter`.
+
+  When `strict` mode is turned **on**, only logs that conform to the indexed/non-indexed arguments on the event definition/ABI (`event`) will be returned.
+  When `strict` mode is turned **off (default)**, logs that do not conform to the indexed/non-indexed arguments on the event definition/ABI (`event`) will be included, but the `args` property will be `undefined` (as we cannot decode these events).
+
+* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Refactored EIP1193 request fn types.
+
 ## 0.3.50
 
 ### Patch Changes
