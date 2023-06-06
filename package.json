@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "0.3.50",
+  "version": "1.0.0",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
@@ -106,16 +106,36 @@
   },
   "typesVersions": {
     "*": {
-      "abi": ["./dist/types/abi.d.ts"],
-      "accounts": ["./dist/types/accounts/index.d.ts"],
-      "chains": ["./dist/types/chains.d.ts"],
-      "contract": ["./dist/types/contract.d.ts"],
-      "ens": ["./dist/types/ens.d.ts"],
-      "public": ["./dist/types/public.d.ts"],
-      "test": ["./dist/types/test.d.ts"],
-      "utils": ["./dist/types/utils/index.d.ts"],
-      "wallet": ["./dist/types/wallet.d.ts"],
-      "window": ["./dist/types/window.d.ts"]
+      "abi": [
+        "./dist/types/abi.d.ts"
+      ],
+      "accounts": [
+        "./dist/types/accounts/index.d.ts"
+      ],
+      "chains": [
+        "./dist/types/chains.d.ts"
+      ],
+      "contract": [
+        "./dist/types/contract.d.ts"
+      ],
+      "ens": [
+        "./dist/types/ens.d.ts"
+      ],
+      "public": [
+        "./dist/types/public.d.ts"
+      ],
+      "test": [
+        "./dist/types/test.d.ts"
+      ],
+      "utils": [
+        "./dist/types/utils/index.d.ts"
+      ],
+      "wallet": [
+        "./dist/types/wallet.d.ts"
+      ],
+      "window": [
+        "./dist/types/window.d.ts"
+      ]
     }
   },
   "dependencies": {
@@ -155,14 +175,23 @@
   },
   "license": "MIT",
   "repository": "wagmi-dev/viem",
-  "authors": ["awkweb.eth", "jxom.eth"],
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wagmi-dev"
     }
   ],
-  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"],
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3"
+  ],
   "size-limit": [
     {
       "path": "./dist/cjs/index.js"
@@ -180,7 +209,9 @@
       "vitepress@1.0.0-alpha.61": "patches/vitepress@1.0.0-alpha.61.patch"
     },
     "peerDependencyRules": {
-      "ignoreMissing": ["@algolia/client-search"]
+      "ignoreMissing": [
+        "@algolia/client-search"
+      ]
     }
   }
 }
