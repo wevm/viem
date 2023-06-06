@@ -157,18 +157,16 @@ test('overloads: no args', () => {
   `)
 })
 
-test('overload: different lengths', () => {
-  expect(
-    getAbiItem({
-      abi: wagmiContractConfig.abi,
-      name: 'safeTransferFrom',
-      args: [
-        '0x0000000000000000000000000000000000000000',
-        '0x0000000000000000000000000000000000000000',
-        420n,
-      ],
-    }),
-  ).toMatchInlineSnapshot(`
+test('overload: different lengths without abi order define effect', () => {
+  const abis = wagmiContractConfig.abi.filter(
+    (abi) => abi.type === 'function' && abi.name === 'safeTransferFrom',
+  )
+  const shortArgs = [
+    '0x0000000000000000000000000000000000000000',
+    '0x0000000000000000000000000000000000000000',
+    420n,
+  ] as const
+  const shortSnapshot = `
     {
       "inputs": [
         {
@@ -189,20 +187,14 @@ test('overload: different lengths', () => {
       "stateMutability": "nonpayable",
       "type": "function",
     }
-  `)
-
-  expect(
-    getAbiItem({
-      abi: wagmiContractConfig.abi,
-      name: 'safeTransferFrom',
-      args: [
-        '0x0000000000000000000000000000000000000000',
-        '0x0000000000000000000000000000000000000000',
-        420n,
-        '0x0000000000000000000000000000000000000000',
-      ],
-    }),
-  ).toMatchInlineSnapshot(`
+  `
+  const longArgs = [
+    '0x0000000000000000000000000000000000000000',
+    '0x0000000000000000000000000000000000000000',
+    420n,
+    '0x0000000000000000000000000000000000000000',
+  ] as const
+  const longSnapshot = `
     {
       "inputs": [
         {
@@ -227,7 +219,36 @@ test('overload: different lengths', () => {
       "stateMutability": "nonpayable",
       "type": "function",
     }
-  `)
+  `
+  expect(
+    getAbiItem({
+      abi: abis,
+      name: 'safeTransferFrom',
+      args: shortArgs,
+    }),
+  ).toMatchInlineSnapshot(shortSnapshot)
+  expect(
+    getAbiItem({
+      abi: abis.reverse(),
+      name: 'safeTransferFrom',
+      args: shortArgs,
+    }),
+  ).toMatchInlineSnapshot(shortSnapshot)
+
+  expect(
+    getAbiItem({
+      abi: abis,
+      name: 'safeTransferFrom',
+      args: longArgs,
+    }),
+  ).toMatchInlineSnapshot(longSnapshot)
+  expect(
+    getAbiItem({
+      abi: abis.reverse(),
+      name: 'safeTransferFrom',
+      args: longArgs,
+    }),
+  ).toMatchInlineSnapshot(longSnapshot)
 })
 
 test('overload: different types', () => {
