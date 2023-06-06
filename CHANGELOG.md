@@ -2,9 +2,9 @@
 
 ## 1.0.0
 
-### Major Changes
+### [Migration Guide](https://viem.sh/docs/migration-guide.html)
 
-- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking (edge case):** `getLogs`, `getFilterLogs`, `getFilterChanges` no longer attempts to decode event args if it does not match the event definition/ABI (`event`) (ie. mismatch between the number of indexed & non-indexed arguments to `topics` & `data`). If there is an error decoding the event args, `args` will be `undefined` on the log.
+### Major Changes
 
 * [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Released v1.
 
