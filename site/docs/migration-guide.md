@@ -62,9 +62,9 @@ decodeEventLog({
 
 Previously, the above would only decode the `indexed` arguments. 
 
-If you would like to partially decode event logs (previous behavior), you can pass the `strict` argument:
+If you would like to partially decode event logs (previous behavior), you can turn off `strict` mode:
 
-```ts {2-4}
+```ts 
 decodeEventLog({
   abi: parseAbi(['event Transfer(address indexed, address, uint256)']),
   data: '0x0000000000000000000000000000000000000000000000000000000000000001'
@@ -72,7 +72,7 @@ decodeEventLog({
     '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
     '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   ],
-  strict: true // [!code ++]
+  strict: false // [!code ++]
 })
 ```
 
