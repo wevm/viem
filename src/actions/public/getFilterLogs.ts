@@ -28,7 +28,7 @@ export type GetFilterLogsReturnType<
       ? ExtractAbiEvent<TAbi, TEventName>
       : undefined
     : undefined,
-> = Log<bigint, number, _AbiEvent, TAbi, TEventName, TStrict>[]
+> = Log<bigint, number, _AbiEvent, TStrict, TAbi, TEventName>[]
 
 /**
  * Returns a list of event logs since the filter was created.
@@ -61,11 +61,13 @@ export async function getFilterLogs<
   TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
-  TStrict extends boolean | undefined,
+  TStrict extends boolean | undefined = undefined,
 >(
   _client: PublicClient<Transport, TChain>,
   { filter }: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
 ): Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>> {
+  const strict = filter.strict ?? false
+
   const logs = await filter.request({
     method: 'eth_getFilterLogs',
     params: [filter.id],
@@ -79,22 +81,25 @@ export async function getFilterLogs<
                 abi: filter.abi,
                 data: log.data,
                 topics: log.topics as any,
+                strict,
               })
             : { eventName: undefined, args: undefined }
         return formatLog(log, { args, eventName })
       } catch (err) {
         let eventName
+        let isUnnamed
         if (
           err instanceof DecodeLogDataMismatch ||
           err instanceof DecodeLogTopicsMismatch
         ) {
           // If strict mode is on, and log data/topics do not match event definition, skip.
-          if (filter.strict) return
+          if ('strict' in filter && filter.strict) return
           eventName = err.abiItem.name
+          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
         }
 
-        // Set args undefined if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return formatLog(log, { args: undefined, eventName })
+        // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
       }
     })
     .filter(Boolean) as unknown as GetFilterLogsReturnType<

@@ -85,7 +85,7 @@ export async function createContractEventFilter<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
   TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
-  TStrict extends boolean | undefined,
+  TStrict extends boolean | undefined = undefined,
 >(
   client: PublicClient<Transport, TChain>,
   {

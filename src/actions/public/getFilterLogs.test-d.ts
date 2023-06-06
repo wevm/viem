@@ -62,16 +62,13 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
-      | {
-          owner: Address
-          spender: Address
-          foo: Address
-          value: bigint
-          bar: bigint
-        }
-      | undefined
-    >()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
+    }>()
   })
 
   test('args: event: defined as const', async () => {
@@ -116,16 +113,13 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
-      | {
-          owner: Address
-          spender: Address
-          foo: Address
-          value: bigint
-          bar: bigint
-        }
-      | undefined
-    >()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
+    }>()
   })
 
   test('args: event: defined as `AbiEvent`', async () => {
@@ -170,7 +164,9 @@ describe('createEventFilter', () => {
       [] | [`0x${string}`, ...`0x${string}`[]]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<string>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<readonly unknown[] | undefined>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      readonly unknown[] | Record<string, unknown>
+    >()
   })
 
   test('strict: named', async () => {
@@ -304,7 +300,7 @@ describe('createContractEventFilter', () => {
     })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, undefined, typeof abi>[]
+      Log<bigint, number, undefined, false, typeof abi>[]
     >()
     expectTypeOf(logs[0].topics).toEqualTypeOf<
       | [`0x${string}`, `0x${string}`, `0x${string}`]
@@ -315,23 +311,22 @@ describe('createContractEventFilter', () => {
     >()
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | {
-          from: Address
-          to: Address
-          value: bigint
+          from?: Address
+          to?: Address
+          value?: bigint
         }
       | {
-          owner: Address
-          spender: Address
-          value: bigint
+          owner?: Address
+          spender?: Address
+          value?: bigint
         }
       | {
-          owner: Address
-          spender: Address
-          foo: Address
-          value: bigint
-          bar: bigint
+          owner?: Address
+          spender?: Address
+          foo?: Address
+          value?: bigint
+          bar?: bigint
         }
-      | undefined
     >()
   })
 
@@ -348,16 +343,13 @@ describe('createContractEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
-      | {
-          owner: Address
-          spender: Address
-          foo: Address
-          value: bigint
-          bar: bigint
-        }
-      | undefined
-    >()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
+    }>()
   })
 
   test('args: abi: defined inline', async () => {
@@ -404,16 +396,13 @@ describe('createContractEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
-      | {
-          owner: Address
-          spender: Address
-          foo: Address
-          value: bigint
-          bar: bigint
-        }
-      | undefined
-    >()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      owner?: Address
+      spender?: Address
+      foo?: Address
+      value?: bigint
+      bar?: bigint
+    }>()
   })
 
   test('args: abi: declared as `Abi`', async () => {
@@ -461,7 +450,9 @@ describe('createContractEventFilter', () => {
       [] | [`0x${string}`, ...`0x${string}`[]]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<string>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<readonly unknown[] | undefined>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      readonly unknown[] | Record<string, unknown>
+    >()
   })
 
   test('strict', async () => {

@@ -223,9 +223,7 @@ export type GetEventArgs<
     | ([TArgs] extends [never] ? true : false)
     | (readonly unknown[] extends TArgs ? true : false),
 > = true extends FailedToParseArgs
-  ? readonly unknown[]
-  : TArgs extends readonly []
-  ? never
+  ? readonly unknown[] | Record<string, unknown>
   : TArgs
 
 export type GetEventArgsFromTopics<
@@ -233,12 +231,13 @@ export type GetEventArgsFromTopics<
   TEventName extends string,
   TTopics extends LogTopic[],
   TData extends Hex | undefined,
+  TStrict extends boolean = true,
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },
   TArgs = AbiEventParametersToPrimitiveTypes<
     TAbiEvent['inputs'],
-    { EnableUnion: false; IndexedOnly: false; Required: true }
+    { EnableUnion: false; IndexedOnly: false; Required: TStrict }
   >,
 > = TTopics extends readonly []
   ? TData extends undefined

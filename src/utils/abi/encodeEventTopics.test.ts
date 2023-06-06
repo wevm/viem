@@ -63,6 +63,67 @@ test('no args: Transfer(address,address,uint256)', () => {
   ).toEqual([
     '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
   ])
+
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'tokenId',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      eventName: 'Transfer',
+      args: {},
+    }),
+  ).toEqual([
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+  ])
+
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: true,
+              type: 'address',
+            },
+            {
+              indexed: false,
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      eventName: 'Transfer',
+      args: [],
+    }),
+  ).toEqual([
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+  ])
 })
 
 test('named args: Transfer(address,address,uint256)', () => {
@@ -428,7 +489,6 @@ test("errors: event doesn't exist", () => {
         },
       ],
       eventName: 'Foo',
-      // @ts-expect-error
       args: {},
     }),
   ).toMatchInlineSnapshot(`

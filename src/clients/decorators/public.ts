@@ -199,6 +199,7 @@ import {
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
+  MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { FilterType } from '../../types/filter.js'
@@ -277,7 +278,7 @@ export type PublicActions<
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
-    TStrict extends boolean | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
     args: CreateContractEventFilterParameters<TAbi, TEventName, TArgs, TStrict>,
   ) => Promise<
@@ -306,10 +307,12 @@ export type PublicActions<
    */
   createEventFilter: <
     TAbiEvent extends AbiEvent | undefined,
-    TStrict extends boolean | undefined,
-    _Abi extends Abi | readonly unknown[],
-    _EventName extends string | undefined,
-    _Args extends MaybeExtractEventArgsFromAbi<_Abi, _EventName> | undefined,
+    TStrict extends boolean | undefined = undefined,
+    _Abi extends Abi | readonly unknown[] = [TAbiEvent],
+    _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+    _Args extends
+      | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+      | undefined = undefined,
   >(
     args?: CreateEventFilterParameters<
       TAbiEvent,
@@ -804,7 +807,7 @@ export type PublicActions<
     TFilterType extends FilterType,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
-    TStrict extends boolean | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
     args: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,
   ) => Promise<
@@ -839,7 +842,7 @@ export type PublicActions<
   getFilterLogs: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
-    TStrict extends boolean | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
     args: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
   ) => Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>>
@@ -884,7 +887,7 @@ export type PublicActions<
    */
   getLogs: <
     TAbiEvent extends AbiEvent | undefined,
-    TStrict extends boolean | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
     args?: GetLogsParameters<TAbiEvent, TStrict>,
   ) => Promise<GetLogsReturnType<TAbiEvent, TStrict>>
@@ -1295,8 +1298,9 @@ export type PublicActions<
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,
+    TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchContractEventParameters<TAbi, TEventName>,
+    args: WatchContractEventParameters<TAbi, TEventName, TStrict>,
   ) => WatchContractEventReturnType
   /**
    * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
@@ -1329,8 +1333,11 @@ export type PublicActions<
    *   onLogs: (logs) => console.log(logs),
    * })
    */
-  watchEvent: <TAbiEvent extends AbiEvent | undefined>(
-    args: WatchEventParameters<TAbiEvent>,
+  watchEvent: <
+    TAbiEvent extends AbiEvent | undefined,
+    TStrict extends boolean | undefined = undefined,
+  >(
+    args: WatchEventParameters<TAbiEvent, TStrict>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.

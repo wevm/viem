@@ -24,15 +24,18 @@ import { uninstallFilter } from './uninstallFilter.js'
 
 export type OnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TStrict extends boolean | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
+> = Log<bigint, number, TAbiEvent, TStrict, [TAbiEvent], TEventName>[]
 export type OnLogsFn<
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TStrict extends boolean | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = (logs: OnLogsParameter<TAbiEvent, TEventName>) => void
+> = (logs: OnLogsParameter<TAbiEvent, TStrict, TEventName>) => void
 
 export type WatchEventParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TStrict extends boolean | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** The address of the contract. */
@@ -45,17 +48,23 @@ export type WatchEventParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogsFn<TAbiEvent, TEventName>
+  onLogs: OnLogsFn<TAbiEvent, TStrict, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 } & (
   | {
       event: TAbiEvent
       args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
+      /**
+       * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+       * @default false
+       */
+      strict?: TStrict
     }
   | {
       event?: never
       args?: never
+      strict?: never
     }
 )
 
@@ -97,6 +106,7 @@ export function watchEvent<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
   TEventName extends string | undefined,
+  TStrict extends boolean | undefined = undefined,
 >(
   client: PublicClient<Transport, TChain>,
   {
@@ -107,7 +117,8 @@ export function watchEvent<
     onError,
     onLogs,
     pollingInterval = client.pollingInterval,
-  }: WatchEventParameters<TAbiEvent>,
+    strict: strict_,
+  }: WatchEventParameters<TAbiEvent, TStrict>,
 ): WatchEventReturnType {
   const observerId = stringify([
     'watchEvent',
@@ -118,6 +129,7 @@ export function watchEvent<
     event,
     pollingInterval,
   ])
+  const strict = strict_ ?? false
 
   return observe(observerId, { onLogs, onError }, (emit) => {
     let previousBlockNumber: bigint
@@ -132,6 +144,7 @@ export function watchEvent<
               address,
               args,
               event: event!,
+              strict,
             } as unknown as CreateEventFilterParameters)) as unknown as Filter<
               'event',
               [TAbiEvent],

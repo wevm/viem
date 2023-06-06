@@ -858,25 +858,30 @@ type GetEventFilter<
   Options = Prettify<
     Omit<
       CreateContractEventFilterParameters<TAbi, TEventName>,
-      'abi' | 'address' | 'args' | 'eventName'
+      'abi' | 'address' | 'args' | 'eventName' | 'strict'
     >
   >,
   IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
 > = Narrowable extends true
-  ? <TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined>(
+  ? <
+      TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+      TStrict extends boolean | undefined = undefined,
+    >(
       ...parameters: IsNever<IndexedInputs> extends true
-        ? [options?: Options]
+        ? [options?: Options & { strict?: TStrict }]
         : [
             args: Args | (Args extends Narrow<TArgs> ? Narrow<TArgs> : never),
-            options?: Options,
+            options?: Options & { strict?: TStrict },
           ]
-    ) => Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>>
-  : (
+    ) => Promise<
+      CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+    >
+  : <TStrict extends boolean | undefined = undefined>(
       ...parameters:
-        | [options?: Options]
+        | [options?: Options & { strict?: TStrict }]
         | [
             args: readonly unknown[] | CreateContractFilterOptions,
-            options?: Options,
+            options?: Options & { strict?: TStrict },
           ]
     ) => Promise<CreateContractEventFilterReturnType>
 

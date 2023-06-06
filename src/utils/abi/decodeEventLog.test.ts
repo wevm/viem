@@ -522,6 +522,98 @@ test('data + event params mismatch', () => {
   )
 })
 
+test('strict', () => {
+  expect(
+    decodeEventLog({
+      abi: [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: 'address',
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              internalType: 'address',
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              internalType: 'uint256',
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000023c34600',
+      strict: false,
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        '0x00000000000000000000000070e8a65d014918798ba424110d5df658cde1cc58',
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "args": {
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      },
+      "eventName": "Transfer",
+    }
+  `)
+
+  expect(
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'id',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      strict: false,
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+      ],
+    }),
+  ).toMatchInlineSnapshot(
+    `
+    {
+      "args": {
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "id": 1n,
+      },
+      "eventName": "Transfer",
+    }
+  `,
+  )
+})
+
 describe('GitHub repros', () => {
   describe('https://github.com/wagmi-dev/viem/issues/168', () => {
     test('zero data string', () => {
