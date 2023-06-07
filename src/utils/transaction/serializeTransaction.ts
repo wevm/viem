@@ -1,6 +1,4 @@
-import {
-  InvalidLegacyVError,
-} from '../../errors/transaction.js'
+import { InvalidLegacyVError } from '../../errors/transaction.js'
 import type { Signature } from '../../types/misc.js'
 import type {
   TransactionSerializable,

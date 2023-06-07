@@ -5,9 +5,10 @@ import type { AccessList } from '../../types/transaction.js'
 import { isAddress } from '../address/isAddress.js'
 import { type RecursiveArray } from '../encoding/toRlp.js'
 
-export function serializeAccessList(accessList?: AccessList): RecursiveArray<Hex> {
-  if (!accessList || accessList.length === 0)
-    return []
+export function serializeAccessList(
+  accessList?: AccessList,
+): RecursiveArray<Hex> {
+  if (!accessList || accessList.length === 0) return []
 
   const serializedAccessList: RecursiveArray<Hex> = []
   for (let i = 0; i < accessList.length; i++) {

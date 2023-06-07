@@ -26,7 +26,10 @@ export {
   type SignTypedDataReturnType,
   signTypedData,
 } from './utils/signTypedData.js'
-export type { SignTransactionArgs, SignTransactionReturnType } from './utils/signTransaction.js'
+export type {
+  SignTransactionArgs,
+  SignTransactionReturnType,
+} from './utils/signTransaction.js'
 export { sign } from './utils/sign.js'
 export { parseAccount } from './utils/parseAccount.js'
 export { publicKeyToAddress } from './utils/publicKeyToAddress.js'

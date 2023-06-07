@@ -11,7 +11,9 @@ export type Account<TAddress extends Address = Address> =
   | LocalAccount<string, TAddress>
 
 export type AccountSource = Address | CustomSource
-export type CustomSource<TxS extends TransactionSerializable = TransactionSerializable>  = {
+export type CustomSource<
+  TxS extends TransactionSerializable = TransactionSerializable,
+> = {
   address: Address
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: (transaction: TxS) => Promise<Hash>
