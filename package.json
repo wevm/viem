@@ -203,7 +203,7 @@
       "limit": "60 kB"
     },
     {
-      "name": "viem (esm)",
+      "name": "viem (tree-shaking check)",
       "path": "./dist/esm/index.js",
       "limit": "1.5 kB",
       "import": "{ defineBlock }"
