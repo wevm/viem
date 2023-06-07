@@ -44,7 +44,8 @@ export async function sendUnsignedTransaction<
   // TODO - the request parameters should be determined by the chains formatters like SendTransactionParameters are
   request: SendUnsignedTransactionParameters,
 ): Promise<SendUnsignedTransactionReturnType> {
-  const formatter = client.chain?.formatters?.transactionRequest || formatTransactionRequest
+  const formatter =
+    client.chain?.formatters?.transactionRequest || formatTransactionRequest
   const request_ = formatter(request)
   const hash = await client.request({
     method: 'eth_sendUnsignedTransaction',
