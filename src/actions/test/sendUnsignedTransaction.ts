@@ -41,9 +41,11 @@ export async function sendUnsignedTransaction<
   TChain extends Chain | undefined,
 >(
   client: TestClient<TestClientMode, Transport, TChain>,
+  // TODO - the request parameters should be determined by the chains formatters like SendTransactionParameters are
   request: SendUnsignedTransactionParameters,
 ): Promise<SendUnsignedTransactionReturnType> {
-  const request_ = formatTransactionRequest(request)
+  const formatter = client.chain?.formatters?.transactionRequest || formatTransactionRequest
+  const request_ = formatter(request)
   const hash = await client.request({
     method: 'eth_sendUnsignedTransaction',
     params: [request_],
