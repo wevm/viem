@@ -198,7 +198,21 @@
   ],
   "size-limit": [
     {
-      "path": "./dist/cjs/index.js"
+      "name": "viem (cjs)",
+      "path": "./dist/cjs/index.js",
+      "limit": "60 kB"
+    },
+    {
+      "name": "viem (esm)",
+      "path": "./dist/esm/index.js",
+      "limit": "1.5 kB",
+      "import": "{ defineBlock }"
+    },
+    {
+      "name": "viem/chains",
+      "path": "./dist/esm/chains.js",
+      "limit": "1 kB",
+      "import": "{ mainnet }"
     }
   ],
   "simple-git-hooks": {
