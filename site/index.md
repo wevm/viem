@@ -112,7 +112,7 @@ yarn add viem
       <div class="relative w-full h-[168px] max-lg:h-[142px]">
         <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
           <div class="text-xl font-medium text-black dark:text-white">Performant</div>
-          <div class="text-[17px] font-medium text-[#919193]">Optimized architecture compared to alternative libraries like Ethers.js</div>
+          <div class="text-[17px] font-medium text-[#919193]">Optimized architecture compared to alternative libraries</div>
         </div>
         <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
         <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
