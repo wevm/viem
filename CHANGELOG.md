@@ -1,18 +1,24 @@
 # viem
 
+## 1.0.1
+
+### Patch Changes
+
+- [#675](https://github.com/wagmi-dev/viem/pull/675) [`61429677`](https://github.com/wagmi-dev/viem/commit/61429677b28ad5ce8240a4278ef0f0cc1587b57a) Thanks [@tmm](https://github.com/tmm)! - Fixed payable `value` type inference.
+
 ## 1.0.0
 
 ### [Migration Guide](https://viem.sh/docs/migration-guide.html)
 
 ### Major Changes
 
-* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Released v1.
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - Released v1.
 
-- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking (edge case):** `decodeEventLog` no longer attempts to partially decode events. If the log does not conform to the ABI (mismatch between the number of indexed/non-indexed arguments to topics/data), it will throw an error.
+* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking (edge case):** `decodeEventLog` no longer attempts to partially decode events. If the log does not conform to the ABI (mismatch between the number of indexed/non-indexed arguments to topics/data), it will throw an error.
 
-* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** `logIndex` & `transactionIndex` on `Log` now return a `number` instead of a `bigint`
+- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** `logIndex` & `transactionIndex` on `Log` now return a `number` instead of a `bigint`
 
-- [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `ethersWalletToAccount` adapter.
+* [#576](https://github.com/wagmi-dev/viem/pull/576) [`7d42767`](https://github.com/wagmi-dev/viem/commit/7d4276775a6d42cfab850498e522fe31134f0880) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `ethersWalletToAccount` adapter.
 
   This adapter was introduced when viem did not have Private Key & HD Accounts. Since 0.2, viem provides all the utilities needed to create and import [Private Key](https://viem.sh/docs/accounts/privateKey.html) & [HD Accounts](https://viem.sh/docs/accounts/mnemonic.html).
 
