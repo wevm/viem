@@ -1,4 +1,17 @@
-# FAQ
+---
+head:
+  - - meta
+    - property: og:title
+      content: FAQ
+  - - meta
+    - name: description
+      content: Frequently Asked Questions
+  - - meta
+    - property: og:description
+      content: Frequently Asked Questions
+---
+
+# Frequently Asked Questions
 
 Frequently asked questions related to viem.
 
@@ -6,15 +19,25 @@ Frequently asked questions related to viem.
 
 Feel free to add to this document if you notice frequently asked questions that are not covered here.
 
-- [Why are contract function `args` with fully-named inputs represented as unnamed tuple types instead of object types?](#why-are-contract-function-args-with-fully-named-inputs-represented-as-unnamed-tuple-types-instead-of-object-types)
-- [Why is a contract function return type returning an array instead of an object?](#why-is-a-contract-function-return-type-returning-an-array-instead-of-an-object)
-- [Why doesn't Wallet Client support public actions?](#why-doesnt-wallet-client-support-public-actions)
+[[toc]]
 
-<br>
+## Why use the terms "Wallet" & "Account" instead of "Signer"
 
----
+viem attempts to align to the "Wallet" and "Account" [terminology on Ethereum.org](https://ethereum.org/en/glossary/). The term "Signer" was adapted from ethers.js.
 
-<br>
+Let's clear up on some terms before we dive in.
+
+- Wallet: An application or interface that holds Account(s).
+- Account: An object that represents an address, balance, nonce, and optional storage and code.
+- Private Key: Proves ownership of an Account, and can sign messages & transactions.
+
+In the context of viem, a Wallet Client is an interface that can hold an Account. The Account may or may not hold a Private Key.
+
+In viem, there are two types of Accounts:
+- Local Account: can **synchronously & directly** sign messages and transactions using its Private Key. A signature is guarenteed.
+- JSON-RPC Account: **asynchronously requests** signing of messages and transactions from the target Wallet over JSON-RPC (e.g. Browser Extension or WalletConnect). The target Wallet holds the Account & Private Key. A signature is not guarenteed (the target Wallet may not have permitted the Account, or the Wallet may have rejected the request).
+
+We do not use the term "Signer" because there are noticible behavioral differences between signing locally and signing over JSON-RPC.
 
 ## Why are contract function `args` with fully-named inputs represented as unnamed tuple types instead of object types?
 
@@ -116,10 +139,6 @@ type Args = [from: `0x${string}`, to: `0x${string}`, tokenId: bigint]
 ```
 
 These names show up in your editor so you get nice developer experience when using autocomplete, etc. Unfortunately, TypeScript doesn't support dynamic named tuples right now, but we are watching [this issue](https://github.com/microsoft/TypeScript/issues/44939) closely and once it is implemented, we will add it to viem. In the meantime, hang tight!
-
-<div align="right">
-  <a href="#faq">&uarr; back to top</a></b>
-</div>
 
 ## Why is a contract function return type returning an array instead of an object?
 
@@ -225,14 +244,6 @@ The first function returns a set of five items, so viem maps it to an array. The
 
 Another reason is that folks might expect it to be an array (because it is a set of return items). Other libraries, like ethers, mitigates this by returning a hybrid Array/Object type, but that kind of type is not serializable in JavaScript, and viem prefers to not try and "hack" JavaScript types.
 
-<div align="right">
-  <a href="#faq">&uarr; back to top</a></b>
-</div>
-
 ## Why doesn't Wallet Client support public actions?
 
 Wallet Client doesn't support public actions because wallet providers (Injected `window.ethereum`, WalletConnect v2, etc.) may not provide a large majority of "node"/"public" RPC methods like `eth_call`, `eth_newFilter`, `eth_getLogs`, etc. This is because these methods are not required for a wallet provider to function properly. For example, a wallet provider may only support `eth_sendTransaction` and `eth_sign` and nothing else.
-
-<div align="right">
-  <a href="#faq">&uarr; back to top</a></b>
-</div>

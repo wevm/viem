@@ -149,9 +149,9 @@ test('GetEventArgsFromTopics', () => {
   >
   expectTypeOf<Result>().toEqualTypeOf<{
     args: {
-      from?: `0x${string}`
-      to?: `0x${string}`
-      tokenId?: bigint
+      from: `0x${string}`
+      to: `0x${string}`
+      tokenId: bigint
     }
   }>()
 })

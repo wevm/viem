@@ -2,6 +2,10 @@ import type { AbiEvent, Address, Narrow } from 'abitype'
 
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import {
+  DecodeLogDataMismatch,
+  DecodeLogTopicsMismatch,
+} from '../../errors/abi.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -21,18 +25,25 @@ import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+  TStrict extends boolean | undefined = undefined,
+  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** Address or list of addresses from which logs originated */
   address?: Address | Address[]
 } & (
   | {
       event: Narrow<TAbiEvent>
-      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], TEventName>
+      args?: MaybeExtractEventArgsFromAbi<[TAbiEvent], _EventName>
+      /**
+       * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+       * @default false
+       */
+      strict?: TStrict
     }
   | {
       event?: never
       args?: never
+      strict?: never
     }
 ) &
   (
@@ -53,8 +64,9 @@ export type GetLogsParameters<
 
 export type GetLogsReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, TAbiEvent, [TAbiEvent], TEventName>[]
+  TStrict extends boolean | undefined = undefined,
+  _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+> = Log<bigint, number, TAbiEvent, TStrict, [TAbiEvent], _EventName>[]
 
 /**
  * Returns a list of event logs matching the provided parameters.
@@ -81,6 +93,7 @@ export type GetLogsReturnType<
 export async function getLogs<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
+  TStrict extends boolean | undefined = undefined,
 >(
   client: PublicClient<Transport, TChain>,
   {
@@ -90,8 +103,11 @@ export async function getLogs<
     toBlock,
     event,
     args,
-  }: GetLogsParameters<TAbiEvent> = {},
-): Promise<GetLogsReturnType<TAbiEvent>> {
+    strict: strict_,
+  }: GetLogsParameters<TAbiEvent, TStrict> = {},
+): Promise<GetLogsReturnType<TAbiEvent, TStrict>> {
+  const strict = strict_ ?? false
+
   let topics: LogTopic[] = []
   if (event)
     topics = encodeEventTopics({
@@ -129,13 +145,26 @@ export async function getLogs<
               abi: [event] as [AbiEvent],
               data: log.data,
               topics: log.topics as any,
+              strict,
             })
           : { eventName: undefined, args: undefined }
         return formatLog(log, { args, eventName })
-      } catch {
-        // Skip log if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return
+      } catch (err) {
+        let eventName
+        let isUnnamed
+        if (
+          err instanceof DecodeLogDataMismatch ||
+          err instanceof DecodeLogTopicsMismatch
+        ) {
+          // If strict mode is on, and log data/topics do not match event definition, skip.
+          if (strict) return
+          eventName = err.abiItem.name
+          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
+        }
+
+        // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
       }
     })
-    .filter(Boolean) as unknown as GetLogsReturnType<TAbiEvent>
+    .filter(Boolean) as unknown as GetLogsReturnType<TAbiEvent, TStrict>
 }

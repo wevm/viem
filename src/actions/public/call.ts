@@ -208,7 +208,7 @@ async function scheduleMulticall<TChain extends Chain | undefined>(
   args: ScheduleMulticallParameters<TChain>,
 ) {
   const { batchSize = 1024, wait = 0 } =
-    typeof client.batch?.multicall === 'object' ? client.batch?.multicall : {}
+    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
     blockNumber,
     blockTag = 'latest',

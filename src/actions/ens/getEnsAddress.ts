@@ -6,6 +6,10 @@ import {
   singleAddressResolverAbi,
   universalResolverAbi,
 } from '../../constants/abis.js'
+import {
+  ContractFunctionExecutionError,
+  ContractFunctionRevertedError,
+} from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
@@ -82,29 +86,40 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
     })
   }
 
-  const res = await readContract(client, {
-    address: universalResolverAddress,
-    abi: universalResolverAbi,
-    functionName: 'resolve',
-    args: [
-      toHex(packetToBytes(name)),
-      encodeFunctionData({
-        abi: singleAddressResolverAbi,
-        functionName: 'addr',
-        args: [namehash(name)],
-      }),
-    ],
-    blockNumber,
-    blockTag,
-  })
+  try {
+    const res = await readContract(client, {
+      address: universalResolverAddress,
+      abi: universalResolverAbi,
+      functionName: 'resolve',
+      args: [
+        toHex(packetToBytes(name)),
+        encodeFunctionData({
+          abi: singleAddressResolverAbi,
+          functionName: 'addr',
+          args: [namehash(name)],
+        }),
+      ],
+      blockNumber,
+      blockTag,
+    })
 
-  if (res[0] === '0x') return null
+    if (res[0] === '0x') return null
 
-  const address = decodeFunctionResult({
-    abi: singleAddressResolverAbi,
-    functionName: 'addr',
-    data: res[0],
-  })
+    const address = decodeFunctionResult({
+      abi: singleAddressResolverAbi,
+      functionName: 'addr',
+      data: res[0],
+    })
 
-  return trim(address) === '0x00' ? null : address
+    return trim(address) === '0x00' ? null : address
+  } catch (err) {
+    if (err instanceof ContractFunctionExecutionError) {
+      const reason = (err.cause as ContractFunctionRevertedError)?.reason
+      if (
+        reason?.includes('Wildcard on non-extended resolvers is not supported')
+      )
+        return null
+    }
+    throw err
+  }
 }

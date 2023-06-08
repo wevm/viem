@@ -2,6 +2,10 @@ import type { Abi, AbiEvent, ExtractAbiEvent } from 'abitype'
 
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import {
+  DecodeLogDataMismatch,
+  DecodeLogTopicsMismatch,
+} from '../../errors/abi.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
@@ -11,18 +15,20 @@ import { formatLog } from '../../utils/formatters/log.js'
 export type GetFilterLogsParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string | undefined = string,
+  TStrict extends boolean | undefined = undefined,
 > = {
-  filter: Filter<'event', TAbi, TEventName, any>
+  filter: Filter<'event', TAbi, TEventName, any, TStrict>
 }
 export type GetFilterLogsReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string | undefined = string,
+  TStrict extends boolean | undefined = undefined,
   _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
     ? TEventName extends string
       ? ExtractAbiEvent<TAbi, TEventName>
       : undefined
     : undefined,
-> = Log<bigint, number, _AbiEvent, TAbi, TEventName>[]
+> = Log<bigint, number, _AbiEvent, TStrict, TAbi, TEventName>[]
 
 /**
  * Returns a list of event logs since the filter was created.
@@ -55,10 +61,13 @@ export async function getFilterLogs<
   TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
+  TStrict extends boolean | undefined = undefined,
 >(
   _client: PublicClient<Transport, TChain>,
-  { filter }: GetFilterLogsParameters<TAbi, TEventName>,
-): Promise<GetFilterLogsReturnType<TAbi, TEventName>> {
+  { filter }: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
+): Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>> {
+  const strict = filter.strict ?? false
+
   const logs = await filter.request({
     method: 'eth_getFilterLogs',
     params: [filter.id],
@@ -72,13 +81,30 @@ export async function getFilterLogs<
                 abi: filter.abi,
                 data: log.data,
                 topics: log.topics as any,
+                strict,
               })
             : { eventName: undefined, args: undefined }
         return formatLog(log, { args, eventName })
-      } catch {
-        // Skip log if there is an error decoding (e.g. indexed/non-indexed params mismatch).
-        return
+      } catch (err) {
+        let eventName
+        let isUnnamed
+        if (
+          err instanceof DecodeLogDataMismatch ||
+          err instanceof DecodeLogTopicsMismatch
+        ) {
+          // If strict mode is on, and log data/topics do not match event definition, skip.
+          if ('strict' in filter && filter.strict) return
+          eventName = err.abiItem.name
+          isUnnamed = err.abiItem.inputs?.some((x) => !('name' in x && x.name))
+        }
+
+        // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+        return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
       }
     })
-    .filter(Boolean) as unknown as GetFilterLogsReturnType<TAbi, TEventName>
+    .filter(Boolean) as unknown as GetFilterLogsReturnType<
+    TAbi,
+    TEventName,
+    TStrict
+  >
 }

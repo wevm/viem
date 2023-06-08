@@ -32,6 +32,13 @@ const signature = await walletClient.signMessage({ // [!code focus:99]
   message: 'hello world',
 })
 // "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
+
+const signature = await walletClient.signMessage({
+  account,
+  // Hex data representation of message.
+  message: { raw: '0x68656c6c6f20776f726c64' },
+})
+// "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 ```
 
 ```ts [config.ts]
@@ -120,14 +127,25 @@ const signature = await walletClient.signMessage({
 
 ### data
 
-- **Type:** `string`
+- **Type:** `string | { raw: Hex | ByteArray }`
 
 Message to sign.
+
+By default, viem signs the UTF-8 representation of the message.
 
 ```ts
 const signature = await walletClient.signMessage({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   message: 'hello world', // [!code focus:1]
+})
+```
+
+To sign the data representation of the message, you can use the `raw` attribute.
+
+```ts
+const signature = await walletClient.signMessage({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus:1]
 })
 ```
 

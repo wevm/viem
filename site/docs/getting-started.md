@@ -48,7 +48,7 @@ yarn add viem
 
 Firstly, set up your [Client](/docs/clients/intro) with a desired [Transport](/docs/clients/intro) & [Chain](/docs/clients/chains).
 
-```tsx {4-8}
+```tsx {4-7}
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 

@@ -14,7 +14,7 @@ head:
 
 # estimateContractGas
 
-Estimates the gas required to successfully execute a contract write function call. 
+Estimates the gas required to successfully execute a contract write function call.
 
 Internally, `estimateContractGas` uses a [Public Client](/docs/clients/public) to call the [`estimateGas` action](/docs/actions/public/estimateGas) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 
@@ -81,7 +81,7 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 
 ::: code-group
 
-```ts {9} [example.ts]
+```ts {8} [example.ts]
 import { account, publicClient } from './config'
 import { wagmiAbi } from './abi'
 
@@ -216,7 +216,6 @@ const { result } = await publicClient.estimateContractGas({
   account,
 })
 ```
-
 
 ### args (optional)
 

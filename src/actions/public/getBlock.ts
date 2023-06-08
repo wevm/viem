@@ -89,12 +89,12 @@ export async function getBlock<
 
   let block: RpcBlock | null = null
   if (blockHash) {
-    block = await client.request({
+    block = await (client as PublicClient).request({
       method: 'eth_getBlockByHash',
       params: [blockHash, includeTransactions],
     })
   } else {
-    block = await client.request({
+    block = await (client as PublicClient).request({
       method: 'eth_getBlockByNumber',
       params: [blockNumberHex || blockTag, includeTransactions],
     })

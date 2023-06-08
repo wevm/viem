@@ -42,8 +42,14 @@ export async function setBalance<TChain extends Chain | undefined>(
   client: TestClient<TestClientMode, Transport, TChain>,
   { address, value }: SetBalanceParameters,
 ) {
-  await client.request({
-    method: `${client.mode}_setBalance`,
-    params: [address, numberToHex(value)],
-  })
+  if (client.mode === 'ganache')
+    await client.request({
+      method: 'evm_setAccountBalance',
+      params: [address, numberToHex(value)],
+    })
+  else
+    await client.request({
+      method: `${client.mode}_setBalance`,
+      params: [address, numberToHex(value)],
+    })
 }

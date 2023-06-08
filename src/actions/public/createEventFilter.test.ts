@@ -5,8 +5,7 @@ import { createHttpServer, publicClient } from '../../_test/utils.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
-import type { Requests } from '../../types/eip1193.js'
-
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { createEventFilter } from './createEventFilter.js'
 
 const event = {
@@ -51,7 +50,7 @@ const event = {
   },
 } as const
 
-const request = (() => {}) as unknown as Requests['request']
+const request = (() => {}) as unknown as EIP1193RequestFn
 
 describe('default', () => {
   test('no args', async () => {
@@ -83,6 +82,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter.args).toBeUndefined()
@@ -107,6 +107,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter.args).toEqual({
@@ -130,6 +131,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter2.args).toEqual({
@@ -152,6 +154,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter3.args).toEqual({
@@ -172,6 +175,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter1.args).toEqual([accounts[0].address, accounts[1].address])
@@ -188,6 +192,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter2.args).toEqual([[accounts[0].address, accounts[1].address]])
@@ -204,6 +209,7 @@ describe('default', () => {
       eventName: 'Transfer',
       id: '0x',
       request,
+      strict: undefined,
       type: 'event',
     })
     expect(filter3.args).toEqual([null, accounts[0].address])

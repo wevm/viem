@@ -6,11 +6,10 @@ import { createHttpServer, publicClient } from '../../_test/utils.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
-import type { Requests } from '../../types/eip1193.js'
-
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 
-const request = (() => {}) as unknown as Requests['request']
+const request = (() => {}) as unknown as EIP1193RequestFn
 
 test('default', async () => {
   const filter = await createContractEventFilter(publicClient, {
@@ -23,6 +22,7 @@ test('default', async () => {
     args: undefined,
     eventName: undefined,
     request,
+    strict: undefined,
   })
   expect(filter.id).toBeDefined()
   expect(filter.type).toBe('event')

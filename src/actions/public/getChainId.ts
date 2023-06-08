@@ -36,6 +36,8 @@ export async function getChainId<
     | PublicClient<Transport, TChain>
     | WalletClient<Transport, TChain, TAccount>,
 ): Promise<GetChainIdReturnType> {
-  const chainIdHex = await client.request({ method: 'eth_chainId' })
+  const chainIdHex = await (client as PublicClient).request({
+    method: 'eth_chainId',
+  })
   return hexToNumber(chainIdHex)
 }

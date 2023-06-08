@@ -199,6 +199,7 @@ import {
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
+  MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { FilterType } from '../../types/filter.js'
@@ -277,9 +278,12 @@ export type PublicActions<
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
-    args: CreateContractEventFilterParameters<TAbi, TEventName, TArgs>,
-  ) => Promise<CreateContractEventFilterReturnType<TAbi, TEventName, TArgs>>
+    args: CreateContractEventFilterParameters<TAbi, TEventName, TArgs, TStrict>,
+  ) => Promise<
+    CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+  >
   /**
    * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
    *
@@ -303,12 +307,23 @@ export type PublicActions<
    */
   createEventFilter: <
     TAbiEvent extends AbiEvent | undefined,
-    TAbi extends Abi | readonly unknown[],
-    TEventName extends string | undefined,
-    TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+    TStrict extends boolean | undefined = undefined,
+    _Abi extends Abi | readonly unknown[] = [TAbiEvent],
+    _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
+    _Args extends
+      | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+      | undefined = undefined,
   >(
-    args?: CreateEventFilterParameters<TAbiEvent, TAbi, TEventName, TArgs>,
-  ) => Promise<CreateEventFilterReturnType<TAbiEvent, TAbi, TEventName, TArgs>>
+    args?: CreateEventFilterParameters<
+      TAbiEvent,
+      TStrict,
+      _Abi,
+      _EventName,
+      _Args
+    >,
+  ) => Promise<
+    CreateEventFilterReturnType<TAbiEvent, TStrict, _Abi, _EventName, _Args>
+  >
   /**
    * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
    *
@@ -792,9 +807,12 @@ export type PublicActions<
     TFilterType extends FilterType,
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
-    args: GetFilterChangesParameters<TFilterType, TAbi, TEventName>,
-  ) => Promise<GetFilterChangesReturnType<TFilterType, TAbi, TEventName>>
+    args: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,
+  ) => Promise<
+    GetFilterChangesReturnType<TFilterType, TAbi, TEventName, TStrict>
+  >
   /**
    * Returns a list of event logs since the filter was created.
    *
@@ -824,9 +842,10 @@ export type PublicActions<
   getFilterLogs: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
+    TStrict extends boolean | undefined = undefined,
   >(
-    args: GetFilterLogsParameters<TAbi, TEventName>,
-  ) => Promise<GetFilterLogsReturnType<TAbi, TEventName>>
+    args: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
+  ) => Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>>
   /**
    * Returns the current price of gas (in wei).
    *
@@ -866,9 +885,12 @@ export type PublicActions<
    * })
    * const logs = await client.getLogs()
    */
-  getLogs: <TAbiEvent extends AbiEvent | undefined>(
-    args?: GetLogsParameters<TAbiEvent>,
-  ) => Promise<GetLogsReturnType<TAbiEvent>>
+  getLogs: <
+    TAbiEvent extends AbiEvent | undefined,
+    TStrict extends boolean | undefined = undefined,
+  >(
+    args?: GetLogsParameters<TAbiEvent, TStrict>,
+  ) => Promise<GetLogsReturnType<TAbiEvent, TStrict>>
   /**
    * Returns the value from a storage slot at a given address.
    *
@@ -1276,8 +1298,9 @@ export type PublicActions<
   watchContractEvent: <
     TAbi extends Abi | readonly unknown[],
     TEventName extends string,
+    TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchContractEventParameters<TAbi, TEventName>,
+    args: WatchContractEventParameters<TAbi, TEventName, TStrict>,
   ) => WatchContractEventReturnType
   /**
    * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
@@ -1310,8 +1333,11 @@ export type PublicActions<
    *   onLogs: (logs) => console.log(logs),
    * })
    */
-  watchEvent: <TAbiEvent extends AbiEvent | undefined>(
-    args: WatchEventParameters<TAbiEvent>,
+  watchEvent: <
+    TAbiEvent extends AbiEvent | undefined,
+    TStrict extends boolean | undefined = undefined,
+  >(
+    args: WatchEventParameters<TAbiEvent, TStrict>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.

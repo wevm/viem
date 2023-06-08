@@ -54,36 +54,38 @@ describe('http', () => {
   })
 
   test('invalid rpc params', async () => {
-    await expect(() =>
+    await expect(
       rpc.http(localHttpUrl, {
         body: { method: 'eth_getBlockByHash', params: ['0x0', false] },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
+    ).resolves.toMatchInlineSnapshot(
       `
-      "RPC Request failed.
-
-      URL: http://localhost
-      Request body: {\\"method\\":\\"eth_getBlockByHash\\",\\"params\\":[\\"0x0\\",false]}
-
-      Details: invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes
-      Version: viem@1.0.2"
+      {
+        "error": {
+          "code": -32602,
+          "message": "invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes",
+        },
+        "id": 2,
+        "jsonrpc": "2.0",
+      }
     `,
     )
   })
 
   test('invalid request', async () => {
-    expect(
+    await expect(
       rpc.http(localHttpUrl, {
         body: { method: 'eth_wagmi' },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "RPC Request failed.
-
-      URL: http://localhost
-      Request body: {\\"method\\":\\"eth_wagmi\\"}
-
-      Details: Method not found
-      Version: viem@1.0.2"
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32601,
+          "message": "Method not found",
+        },
+        "id": 3,
+        "jsonrpc": "2.0",
+      }
     `)
   })
 
@@ -253,6 +255,172 @@ describe('http', () => {
   })
 })
 
+describe('http (batch)', () => {
+  test('valid request', async () => {
+    expect(
+      await rpc.http(localHttpUrl, {
+        body: [
+          { method: 'web3_clientVersion' },
+          { method: 'web3_clientVersion' },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "id": 67,
+          "jsonrpc": "2.0",
+          "result": "anvil/v0.1.0",
+        },
+        {
+          "id": 68,
+          "jsonrpc": "2.0",
+          "result": "anvil/v0.1.0",
+        },
+      ]
+    `)
+  })
+
+  test('invalid rpc params', async () => {
+    expect(
+      await rpc.http(localHttpUrl, {
+        body: [
+          { method: 'web3_clientVersion' },
+          { method: 'eth_getBlockByHash', params: ['0x0', false] },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "id": 69,
+          "jsonrpc": "2.0",
+          "result": "anvil/v0.1.0",
+        },
+        {
+          "error": {
+            "code": -32602,
+            "message": "invalid length 1, expected a (both 0x-prefixed or not) hex string or byte array containing 32 bytes",
+          },
+          "id": 70,
+          "jsonrpc": "2.0",
+        },
+      ]
+    `)
+  })
+
+  test('invalid request', async () => {
+    expect(
+      await rpc.http(localHttpUrl, {
+        body: [{ method: 'web3_clientVersion' }, { method: 'eth_wagmi' }],
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "id": 71,
+          "jsonrpc": "2.0",
+          "result": "anvil/v0.1.0",
+        },
+        {
+          "error": {
+            "code": -32601,
+            "message": "Method not found",
+          },
+          "id": 72,
+          "jsonrpc": "2.0",
+        },
+      ]
+    `)
+  })
+
+  test('http error', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(500, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: 'ngmi' }))
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: [
+          { method: 'web3_clientVersion' },
+          {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(forkBlockNumber), false],
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+
+      Details: \\"ngmi\\"
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('http error', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(500)
+      res.end()
+    })
+
+    await expect(() =>
+      rpc.http(server.url, {
+        body: [
+          { method: 'web3_clientVersion' },
+          {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(forkBlockNumber), false],
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      "HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+
+      Details: Internal Server Error
+      Version: viem@1.0.2"
+    `,
+    )
+  })
+
+  test('unknown', async () => {
+    const mock = vi
+      .spyOn(withTimeout, 'withTimeout')
+      .mockRejectedValueOnce(new Error('foo'))
+
+    await expect(() =>
+      rpc.http('http://127.0.0.1', {
+        body: [
+          { method: 'web3_clientVersion' },
+          {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(forkBlockNumber), false],
+          },
+        ],
+        timeout: 10000,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "HTTP request failed.
+
+      URL: http://localhost
+      Request body: [{\\"method\\":\\"web3_clientVersion\\"},{\\"method\\":\\"eth_getBlockByNumber\\",\\"params\\":[\\"0xf86cc2\\",false]}]
+
+      Details: foo
+      Version: viem@1.0.2"
+    `)
+
+    mock.mockRestore()
+  })
+})
+
 describe('getSocket', () => {
   test('creates WebSocket instance', async () => {
     const socket = await getSocket(localWsUrl)
@@ -277,11 +445,10 @@ describe('getSocket', () => {
 describe('webSocket', () => {
   test('valid request', async () => {
     const socket = await getSocket(localWsUrl)
-    const { id, ...version } = await new Promise<any>((resolve, reject) =>
+    const { id, ...version } = await new Promise<any>((resolve) =>
       rpc.webSocket(socket, {
         body: { method: 'web3_clientVersion' },
-        onData: resolve,
-        onError: reject,
+        onResponse: resolve,
       }),
     )
     expect(id).toBeDefined()
@@ -296,14 +463,13 @@ describe('webSocket', () => {
 
   test('valid request', async () => {
     const socket = await getSocket(localWsUrl)
-    const { id, ...block } = await new Promise<any>((resolve, reject) =>
+    const { id, ...block } = await new Promise<any>((resolve) =>
       rpc.webSocket(socket, {
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(forkBlockNumber), false],
         },
-        onData: resolve,
-        onError: reject,
+        onResponse: resolve,
       }),
     )
     expect(id).toBeDefined()
@@ -475,25 +641,24 @@ describe('webSocket', () => {
   test('invalid request', async () => {
     const socket = await getSocket(localWsUrl)
     await expect(
-      () =>
-        new Promise<any>((resolve, reject) =>
-          rpc.webSocket(socket, {
-            body: {
-              method: 'wagmi_lol',
-            },
-            onData: resolve,
-            onError: reject,
-          }),
-        ),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      new Promise<any>((resolve) =>
+        rpc.webSocket(socket, {
+          body: {
+            method: 'wagmi_lol',
+          },
+          onResponse: resolve,
+        }),
+      ),
+    ).resolves.toMatchInlineSnapshot(
       `
-      "RPC Request failed.
-
-      URL: http://localhost
-      Request body: {\\"method\\":\\"wagmi_lol\\"}
-
-      Details: data did not match any variant of untagged enum EthRpcCall
-      Version: viem@1.0.2"
+      {
+        "error": {
+          "code": -32602,
+          "message": "data did not match any variant of untagged enum EthRpcCall",
+        },
+        "id": 79,
+        "jsonrpc": "2.0",
+      }
     `,
     )
     expect(socket.requests.size).toBe(0)
@@ -505,13 +670,12 @@ describe('webSocket', () => {
     socket.close()
     await expect(
       () =>
-        new Promise<any>((resolve, reject) =>
+        new Promise<any>((resolve) =>
           rpc.webSocket(socket, {
             body: {
               method: 'wagmi_lol',
             },
-            onData: resolve,
-            onError: reject,
+            onResponse: resolve,
           }),
         ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -534,13 +698,12 @@ describe('webSocket', () => {
     await wait(1000)
     await expect(
       () =>
-        new Promise<any>((resolve, reject) =>
+        new Promise<any>((resolve) =>
           rpc.webSocket(socket, {
             body: {
               method: 'wagmi_lol',
             },
-            onData: resolve,
-            onError: reject,
+            onResponse: resolve,
           }),
         ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -566,7 +729,7 @@ describe('webSocket (subscription)', () => {
         method: 'eth_subscribe',
         params: ['newHeads'],
       },
-      onData: (data) => data_.push(data),
+      onResponse: (data) => data_.push(data),
     })
     await wait(2000)
     expect(socket.subscriptions.size).toBe(1)
@@ -592,7 +755,7 @@ describe('webSocket (subscription)', () => {
         method: 'eth_subscribe',
         params: ['newHeads'],
       },
-      onData: (data) => s1.push(data),
+      onResponse: (data) => s1.push(data),
     })
 
     const s2: RpcResponse[] = []
@@ -601,7 +764,7 @@ describe('webSocket (subscription)', () => {
         method: 'eth_subscribe',
         params: ['newHeads'],
       },
-      onData: (data) => s2.push(data),
+      onResponse: (data) => s2.push(data),
     })
 
     const s3: RpcResponse[] = []
@@ -610,7 +773,7 @@ describe('webSocket (subscription)', () => {
         method: 'eth_subscribe',
         params: ['newPendingTransactions'],
       },
-      onData: (data) => s3.push(data),
+      onResponse: (data) => s3.push(data),
     })
 
     await wait(2000)
@@ -657,25 +820,26 @@ describe('webSocket (subscription)', () => {
 
   test('invalid subscription', async () => {
     const socket = await getSocket(localWsUrl)
-    let err_: Error | undefined
+    let err_: RpcResponse | undefined
     rpc.webSocket(socket, {
       body: {
         method: 'eth_subscribe',
         params: ['fakeHeadz'],
       },
-      onError: (err) => (err_ = err),
+      onResponse: (err) => (err_ = err),
     })
     await wait(500)
     expect(socket.requests.size).toBe(0)
     expect(socket.subscriptions.size).toBe(0)
     expect(err_).toMatchInlineSnapshot(`
-      [RpcRequestError: RPC Request failed.
-
-      URL: http://localhost
-      Request body: {"method":"eth_subscribe","params":["fakeHeadz"]}
-
-      Details: data did not match any variant of untagged enum EthRpcCall
-      Version: viem@1.0.2]
+      {
+        "error": {
+          "code": -32602,
+          "message": "data did not match any variant of untagged enum EthRpcCall",
+        },
+        "id": 88,
+        "jsonrpc": "2.0",
+      }
     `)
   })
 })
@@ -915,21 +1079,22 @@ describe('webSocketAsync', () => {
 
   test('invalid request', async () => {
     const socket = await getSocket(localWsUrl)
-    await expect(() =>
+    await expect(
       rpc.webSocketAsync(socket, {
         body: {
           method: 'wagmi_lol',
         },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
+    ).resolves.toThrowErrorMatchingInlineSnapshot(
       `
-      "RPC Request failed.
-
-      URL: http://localhost
-      Request body: {\\"method\\":\\"wagmi_lol\\"}
-
-      Details: data did not match any variant of untagged enum EthRpcCall
-      Version: viem@1.0.2"
+      {
+        "error": {
+          "code": -32602,
+          "message": "data did not match any variant of untagged enum EthRpcCall",
+        },
+        "id": 201,
+        "jsonrpc": "2.0",
+      }
     `,
     )
   })

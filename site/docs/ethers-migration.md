@@ -402,7 +402,7 @@ client.getTransaction(...)
 
 #### Ethers
 
-```ts {8-10}
+```ts {8-9}
 import { providers } from 'ethers'
 
 const provider = new providers.Web3Provider(window.ethereum)
@@ -417,7 +417,7 @@ signer.signMessage(...)
 
 #### viem
 
-```ts {4,7}
+```ts {12-13}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -536,7 +536,7 @@ await contract.deploy()
 
 #### viem
 
-```ts {13-17}
+```ts {12-16}
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { abi, bytecode } from './abi'

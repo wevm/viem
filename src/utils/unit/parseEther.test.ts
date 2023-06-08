@@ -111,10 +111,10 @@ test('converts to rounded wei', () => {
     '1000000000000000001n',
   )
   expect(parseEther('69.59000000000000000059')).toMatchInlineSnapshot(
-    '69590000000000000000n',
+    '69590000000000000001n',
   )
   expect(parseEther('1.2345678000000000912345222')).toMatchInlineSnapshot(
-    '1234567800000000100n',
+    '1234567800000000091n',
   )
   expect(parseEther('-0.0000000000000000001')).toMatchInlineSnapshot('0n')
   expect(parseEther('-0.00000000000000000059')).toMatchInlineSnapshot('-1n')
@@ -122,9 +122,9 @@ test('converts to rounded wei', () => {
     '-1000000000000000001n',
   )
   expect(parseEther('-69.59000000000000000059')).toMatchInlineSnapshot(
-    '-69590000000000000000n',
+    '-69590000000000000001n',
   )
   expect(parseEther('-1.2345678000000000912345222')).toMatchInlineSnapshot(
-    '-1234567800000000100n',
+    '-1234567800000000091n',
   )
 })

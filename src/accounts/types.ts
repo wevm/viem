@@ -2,7 +2,7 @@ import type { HDKey } from '@scure/bip32'
 
 import type { Address, TypedData } from 'abitype'
 
-import type { Hash, Hex } from '../types/misc.js'
+import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type { TransactionSerializable } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
 
@@ -13,7 +13,7 @@ export type Account<TAddress extends Address = Address> =
 export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
-  signMessage: ({ message }: { message: string }) => Promise<Hash>
+  signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: (transaction: TransactionSerializable) => Promise<Hash>
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },

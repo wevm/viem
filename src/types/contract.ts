@@ -20,7 +20,13 @@ import type {
 
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
-import type { Filter, IsNarrowable, NoUndefined } from './utils.js'
+import type {
+  Filter,
+  IsNarrowable,
+  MaybeRequired,
+  NoUndefined,
+  Prettify,
+} from './utils.js'
 
 export type AbiItem = Abi[number]
 
@@ -226,9 +232,7 @@ export type GetEventArgs<
     | ([TArgs] extends [never] ? true : false)
     | (readonly unknown[] extends TArgs ? true : false),
 > = true extends FailedToParseArgs
-  ? readonly unknown[]
-  : TArgs extends readonly []
-  ? never
+  ? readonly unknown[] | Record<string, unknown>
   : TArgs
 
 export type GetEventArgsFromTopics<
@@ -236,12 +240,13 @@ export type GetEventArgsFromTopics<
   TEventName extends string,
   TTopics extends LogTopic[],
   TData extends Hex | undefined,
+  TStrict extends boolean = true,
   TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent & { type: 'event' },
   TArgs = AbiEventParametersToPrimitiveTypes<
     TAbiEvent['inputs'],
-    { EnableUnion: false; IndexedOnly: false }
+    { EnableUnion: false; IndexedOnly: false; Required: TStrict }
   >,
 > = TTopics extends readonly []
   ? TData extends undefined
@@ -255,10 +260,12 @@ export type GetEventArgsFromTopics<
 type EventParameterOptions = {
   EnableUnion?: boolean
   IndexedOnly?: boolean
+  Required?: boolean
 }
 type DefaultEventParameterOptions = {
   EnableUnion: true
   IndexedOnly: true
+  Required: false
 }
 
 type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
@@ -331,10 +338,13 @@ export type AbiEventParametersToPrimitiveTypes<
             },
           ]
         // Distribute over tuple to represent optional parameters
-        | (Filtered extends readonly [
-            ...infer Head extends readonly AbiParameter[],
-            infer _,
-          ]
+        | (Options['Required'] extends true
+            ? never
+            : // Distribute over tuple to represent optional parameters
+            Filtered extends readonly [
+                ...infer Head extends readonly AbiParameter[],
+                infer _,
+              ]
             ? AbiEventParametersToPrimitiveTypes<
                 readonly [...{ [K in keyof Head]: Omit<Head[K], 'name'> }],
                 Options
@@ -349,6 +359,11 @@ export type AbiEventParametersToPrimitiveTypes<
             ? Name
             : never]?: AbiEventParameterToPrimitiveType<Parameter, Options>
       } extends infer Mapped
-    ? Mapped
+    ? Prettify<
+        MaybeRequired<
+          Mapped,
+          Options['Required'] extends boolean ? Options['Required'] : false
+        >
+      >
     : never
   : never

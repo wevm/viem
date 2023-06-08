@@ -591,6 +591,10 @@ test('empty abi', () => {
     walletClient,
   })
   expectTypeOf<keyof typeof contract>().toEqualTypeOf<'address' | 'abi'>()
+  expectTypeOf(contract.abi).toEqualTypeOf<[]>()
+  expectTypeOf(
+    contract.address,
+  ).toEqualTypeOf<'0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'>()
 })
 
 test('argument permutations', async () => {
@@ -743,6 +747,27 @@ test('argument permutations', async () => {
   expectTypeOf(createEventFilter_2.eventName)
     .toEqualTypeOf<'WithIndexedUnnamedInputs'>
   expectTypeOf(createEventFilter_2.args).toEqualTypeOf<['foo']>()
+
+  const createEventFilter_loose =
+    await contract.createEventFilter.WithMixedNamedInputs({
+      x: 'foo',
+    })
+  expectTypeOf(createEventFilter_loose.strict).toEqualTypeOf<undefined>()
+
+  const createEventFilter_lax =
+    await contract.createEventFilter.WithMixedNamedInputs({
+      x: 'foo',
+    })
+  expectTypeOf(createEventFilter_lax.strict).toEqualTypeOf<undefined>()
+
+  const createEventFilter_strict =
+    await contract.createEventFilter.WithMixedNamedInputs(
+      {
+        x: 'foo',
+      },
+      { strict: true },
+    )
+  expectTypeOf(createEventFilter_strict.strict).toEqualTypeOf<true>()
 
   // watchEvent
   // @ts-expect-error

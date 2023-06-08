@@ -12,6 +12,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'TypeScript', link: '/docs/typescript' },
         { text: 'Benchmarks', link: '/docs/benchmarks' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
+        { text: 'FAQ', link: '/docs/faq' },
       ],
     },
     {

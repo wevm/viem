@@ -9,9 +9,13 @@ test('converts number to unit of a given length', () => {
   expect(parseUnits('20', 9)).toMatchInlineSnapshot('20000000000n')
   expect(parseUnits('40', 18)).toMatchInlineSnapshot('40000000000000000000n')
   expect(parseUnits('1.2345', 4)).toMatchInlineSnapshot('12345n')
+  expect(parseUnits('1.0045', 4)).toMatchInlineSnapshot('10045n')
   expect(parseUnits('1.2345000', 4)).toMatchInlineSnapshot('12345n')
   expect(parseUnits('6942069420.12345678912345', 18)).toMatchInlineSnapshot(
     '6942069420123456789123450000n',
+  )
+  expect(parseUnits('6942069420.00045678912345', 18)).toMatchInlineSnapshot(
+    '6942069420000456789123450000n',
   )
   expect(
     parseUnits('6942123123123069420.1234544444678912345', 50),
@@ -44,11 +48,19 @@ test('decimals < fraction length', () => {
   expect(parseUnits('69.23521', 2)).toMatchInlineSnapshot('6924n')
   expect(parseUnits('69.23221', 2)).toMatchInlineSnapshot('6923n')
   expect(parseUnits('69.23261', 3)).toMatchInlineSnapshot('69233n')
-  expect(parseUnits('69.23221', 3)).toMatchInlineSnapshot('69232n')
+  expect(parseUnits('999999.99999', 3)).toMatchInlineSnapshot('1000000000n')
+  expect(parseUnits('699999.99999', 3)).toMatchInlineSnapshot('700000000n')
+  expect(parseUnits('699999.98999', 3)).toMatchInlineSnapshot('699999990n')
+  expect(parseUnits('699959.99999', 3)).toMatchInlineSnapshot('699960000n')
+  expect(parseUnits('699099.99999', 3)).toMatchInlineSnapshot('699100000n')
+  expect(parseUnits('100000.000999', 3)).toMatchInlineSnapshot('100000001n')
+  expect(parseUnits('100000.990999', 3)).toMatchInlineSnapshot('100000991n')
+  expect(parseUnits('69.00221', 3)).toMatchInlineSnapshot('69002n')
   expect(parseUnits('0.00000000059', 9)).toMatchInlineSnapshot('1n')
   expect(parseUnits('0.0000000003', 9)).toMatchInlineSnapshot('0n')
   expect(parseUnits('69.00000000000', 9)).toMatchInlineSnapshot('69000000000n')
   expect(parseUnits('69.00000000019', 9)).toMatchInlineSnapshot('69000000000n')
   expect(parseUnits('69.00000000059', 9)).toMatchInlineSnapshot('69000000001n')
   expect(parseUnits('69.59000000059', 9)).toMatchInlineSnapshot('69590000001n')
+  expect(parseUnits('69.59000002359', 9)).toMatchInlineSnapshot('69590000024n')
 })

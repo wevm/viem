@@ -16,6 +16,7 @@ export type Log<
   TQuantity = bigint,
   TIndex = number,
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TStrict extends boolean | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
@@ -37,7 +38,7 @@ export type Log<
   transactionIndex: TIndex | null
   /** `true` if this filter has been destroyed and is invalid */
   removed: boolean
-} & GetInferredLogValues<TAbiEvent, TAbi, TEventName>
+} & GetInferredLogValues<TAbiEvent, TAbi, TEventName, TStrict>
 
 type Topics<
   THead extends AbiEvent['inputs'],
@@ -82,6 +83,7 @@ type GetInferredLogValues<
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
+  TStrict extends boolean | undefined = undefined,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
@@ -93,7 +95,11 @@ type GetInferredLogValues<
         args: GetEventArgs<
           TAbi,
           TEventName,
-          { EnableUnion: false; IndexedOnly: false }
+          {
+            EnableUnion: false
+            IndexedOnly: false
+            Required: TStrict extends boolean ? TStrict : false
+          }
         >
         /** The event name decoded from `topics`. */
         eventName: TEventName
@@ -105,7 +111,11 @@ type GetInferredLogValues<
           args: GetEventArgs<
             TAbi,
             string,
-            { EnableUnion: false; IndexedOnly: false }
+            {
+              EnableUnion: false
+              IndexedOnly: false
+              Required: TStrict extends boolean ? TStrict : false
+            }
           >
           /** The event name decoded from `topics`. */
           eventName: TName

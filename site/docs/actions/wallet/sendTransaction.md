@@ -119,7 +119,7 @@ const hash = await walletClient.sendTransaction({
 
 ### to
 
-- **Type:** `number`
+- **Type:** `0x${string}`
 
 The transaction recipient or contract address.
 
@@ -249,7 +249,7 @@ const hash = await walletClient.sendTransaction({
 
 ### value (optional)
 
-- **Type:** `number`
+- **Type:** `bigint`
 
 Value in wei sent with this transaction.
 

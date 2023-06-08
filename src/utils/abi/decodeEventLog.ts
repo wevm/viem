@@ -24,10 +24,12 @@ export type DecodeEventLogParameters<
   TEventName extends string | undefined = string,
   TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
+  TStrict extends boolean = true,
 > = {
   abi: Narrow<TAbi>
   data?: TData
   eventName?: InferEventName<TAbi, TEventName>
+  strict?: TStrict
   topics: [signature: Hex, ...args: TTopics] | []
 }
 
@@ -36,6 +38,7 @@ export type DecodeEventLogReturnType<
   TEventName extends string | undefined = string,
   TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
+  TStrict extends boolean = true,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
       ? string
@@ -45,13 +48,13 @@ export type DecodeEventLogReturnType<
   ? Prettify<
       {
         eventName: TEventName
-      } & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData>
+      } & GetEventArgsFromTopics<TAbi, TEventName, TTopics, TData, TStrict>
     >
   : {
       [TName in _EventNames]: Prettify<
         {
           eventName: TName
-        } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData>
+        } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData, TStrict>
       >
     }[_EventNames]
 
@@ -62,16 +65,20 @@ export function decodeEventLog<
   TEventName extends string | undefined = undefined,
   TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,
+  TStrict extends boolean = true,
 >({
   abi,
   data,
+  strict: strict_,
   topics,
 }: DecodeEventLogParameters<
   TAbi,
   TEventName,
   TTopics,
-  TData
->): DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData> {
+  TData,
+  TStrict
+>): DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData, TStrict> {
+  const strict = strict_ ?? true
   const [signature, ...argTopics] = topics
   if (!signature)
     throw new AbiEventSignatureEmptyTopicsError({
@@ -82,7 +89,7 @@ export function decodeEventLog<
       x.type === 'event' &&
       signature === getEventSelector(formatAbiItem(x) as EventDefinition),
   )
-  if (!(abiItem && 'name' in abiItem))
+  if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
     throw new AbiEventSignatureNotFoundError(signature, {
       docsPath,
     })
@@ -109,32 +116,50 @@ export function decodeEventLog<
 
   // Decode data (non-indexed args).
   const nonIndexedInputs = inputs.filter((x) => !('indexed' in x && x.indexed))
-  if (data && data !== '0x') {
-    try {
-      const decodedData = decodeAbiParameters(nonIndexedInputs, data)
-      if (decodedData) {
-        if (isUnnamed) args = [...args, ...decodedData]
-        else {
-          for (let i = 0; i < nonIndexedInputs.length; i++) {
-            args[nonIndexedInputs[i].name!] = decodedData[i]
+  if (nonIndexedInputs.length > 0) {
+    if (data && data !== '0x') {
+      try {
+        const decodedData = decodeAbiParameters(nonIndexedInputs, data)
+        if (decodedData) {
+          if (isUnnamed) args = [...args, ...decodedData]
+          else {
+            for (let i = 0; i < nonIndexedInputs.length; i++) {
+              args[nonIndexedInputs[i].name!] = decodedData[i]
+            }
           }
         }
+      } catch (err) {
+        if (strict) {
+          if (err instanceof AbiDecodingDataSizeTooSmallError)
+            throw new DecodeLogDataMismatch({
+              abiItem,
+              data: err.data,
+              params: err.params,
+              size: err.size,
+            })
+          throw err
+        }
       }
-    } catch (err) {
-      if (err instanceof AbiDecodingDataSizeTooSmallError)
-        throw new DecodeLogDataMismatch({
-          data: err.data,
-          params: err.params,
-          size: err.size,
-        })
-      throw err
+    } else if (strict) {
+      throw new DecodeLogDataMismatch({
+        abiItem,
+        data: '0x',
+        params: nonIndexedInputs,
+        size: 0,
+      })
     }
   }
 
   return {
     eventName: name,
     args: Object.values(args).length > 0 ? args : undefined,
-  } as unknown as DecodeEventLogReturnType<TAbi, TEventName, TTopics, TData>
+  } as unknown as DecodeEventLogReturnType<
+    TAbi,
+    TEventName,
+    TTopics,
+    TData,
+    TStrict
+  >
 }
 
 function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {
