@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { hashFunction } from './hashFunction.js'
+import { hashAbiFunction, hashFunction } from './hashFunction.js'
 
 test('hashes functions', () => {
   expect(hashFunction('Transfer(address,address,uint256)')).toEqual(
@@ -62,4 +62,65 @@ test('hashes functions', () => {
   expect(hashFunction('function ownerOf(uint256 tokenId)')).toBe(
     '0x6352211e6566aa027e75ac9dbf2423197fbd9b82b9d981a3ab367d355866aa1c',
   )
+})
+
+test('hashes `AbiFunction`', () => {
+  expect(
+    hashAbiFunction({
+      name: 'drawNumber',
+      type: 'function',
+      inputs: [],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual(
+    '0xd80ffb20d597d029eb14b9def3d14da7e6d862943d830906185b1b0b576d8f26',
+  )
+
+  expect(
+    hashAbiFunction({
+      name: 'BlackListMultipleAddresses',
+      type: 'function',
+      inputs: [
+        { name: 'address[]', type: 'address[]' },
+        { name: 'bool', type: 'bool' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual(
+    '0x170cd84eddb1952bf41adcce9be0e44b66ff38f07cddda1cf64d32708742bd2d',
+  )
+
+  expect(
+    hashAbiFunction({
+      name: 'checkBatch',
+      type: 'function',
+      inputs: [{ name: 'bytes', type: 'bytes' }],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual(
+    '0x9b6f373667d9cf576e3a17e6aa047c5d864fcb7f41836b11613215db446698d8',
+  )
+
+  expect(
+    hashAbiFunction({
+      name: 'balanceOf',
+      type: 'function',
+      inputs: [{ name: 'owner', type: 'address' }],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toBe('0x70a08231b98ef4ca268c9cc3f6b4590e4bfec28280db06bb5d45e689f2a360be')
+
+  expect(
+    hashAbiFunction({
+      name: 'ownerOf',
+      type: 'function',
+      inputs: [{ name: 'tokenId', type: 'uint256' }],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toBe('0x6352211e6566aa027e75ac9dbf2423197fbd9b82b9d981a3ab367d355866aa1c')
 })
