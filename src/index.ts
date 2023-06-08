@@ -473,6 +473,10 @@ export {
   type FeeValuesLegacy,
 } from './types/fee.js'
 export {
+  type Formatter,
+  type Formatters,
+} from './types/formatter.js'
+export {
   type GetTypedDataDomain,
   type GetTypedDataMessage,
   type GetTypedDataPrimaryType,
