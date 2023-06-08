@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { hashAbiEvent, hashAbiFunction, hashFunction } from './hashFunction.js'
+import { hashAbiItem, hashFunction } from './hashFunction.js'
 
 test('hashes functions', () => {
   expect(hashFunction('Transfer(address,address,uint256)')).toEqual(
@@ -66,7 +66,7 @@ test('hashes functions', () => {
 
 test('hashes `AbiFunction`', () => {
   expect(
-    hashAbiFunction({
+    hashAbiItem({
       name: 'drawNumber',
       type: 'function',
       inputs: [],
@@ -78,7 +78,7 @@ test('hashes `AbiFunction`', () => {
   )
 
   expect(
-    hashAbiFunction({
+    hashAbiItem({
       name: 'BlackListMultipleAddresses',
       type: 'function',
       inputs: [
@@ -93,7 +93,7 @@ test('hashes `AbiFunction`', () => {
   )
 
   expect(
-    hashAbiFunction({
+    hashAbiItem({
       name: 'checkBatch',
       type: 'function',
       inputs: [{ name: 'bytes', type: 'bytes' }],
@@ -105,7 +105,7 @@ test('hashes `AbiFunction`', () => {
   )
 
   expect(
-    hashAbiFunction({
+    hashAbiItem({
       name: 'balanceOf',
       type: 'function',
       inputs: [{ name: 'owner', type: 'address' }],
@@ -115,7 +115,7 @@ test('hashes `AbiFunction`', () => {
   ).toBe('0x70a08231b98ef4ca268c9cc3f6b4590e4bfec28280db06bb5d45e689f2a360be')
 
   expect(
-    hashAbiFunction({
+    hashAbiItem({
       name: 'ownerOf',
       type: 'function',
       inputs: [{ name: 'tokenId', type: 'uint256' }],
@@ -127,7 +127,7 @@ test('hashes `AbiFunction`', () => {
 
 test('hashes `AbiEvent`', () => {
   expect(
-    hashAbiEvent({
+    hashAbiItem({
       name: 'Transfer',
       type: 'event',
       inputs: [
@@ -141,7 +141,7 @@ test('hashes `AbiEvent`', () => {
   )
 
   expect(
-    hashAbiEvent({
+    hashAbiItem({
       name: 'ProcessedAccountDividendTracker',
       type: 'event',
       inputs: [
@@ -159,7 +159,7 @@ test('hashes `AbiEvent`', () => {
   )
 
   expect(
-    hashAbiEvent({
+    hashAbiItem({
       name: 'Approval',
       type: 'event',
       inputs: [
@@ -171,7 +171,7 @@ test('hashes `AbiEvent`', () => {
   ).toBe('0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925')
 
   expect(
-    hashAbiEvent({
+    hashAbiItem({
       name: 'ApprovalForAll',
       type: 'event',
       inputs: [
@@ -183,7 +183,7 @@ test('hashes `AbiEvent`', () => {
   ).toBe('0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31')
 
   expect(
-    hashAbiEvent({
+    hashAbiItem({
       name: 'BlackListMultipleAddresses',
       type: 'event',
       inputs: [

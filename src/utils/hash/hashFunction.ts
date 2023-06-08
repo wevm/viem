@@ -15,12 +15,6 @@ export function hashFunction(def: string) {
   return hash(`${name}(${params.map(({ type }) => type).join(',')})`)
 }
 
-export function hashAbiFunction(def: AbiFunction) {
+export function hashAbiItem(def: AbiFunction | AbiEvent) {
   return hash(`${def.name}(${def.inputs.map(({ type }) => type).join(',')})`)
-}
-
-export function hashAbiEvent(event: AbiEvent) {
-  return hash(
-    `${event.name}(${event.inputs.map(({ type }) => type).join(',')})`,
-  )
 }
