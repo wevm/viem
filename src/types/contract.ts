@@ -20,7 +20,7 @@ import type {
 
 import type { Hex, LogTopic } from './misc.js'
 import type { TransactionRequest } from './transaction.js'
-import type { Filter, NoUndefined } from './utils.js'
+import type { Filter, IsNarrowable, NoUndefined } from './utils.js'
 
 export type AbiItem = Abi[number]
 
@@ -64,11 +64,14 @@ export type GetValue<
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
-> = TAbiFunction['stateMutability'] extends 'payable'
-  ? { value: NoUndefined<TValueType> }
-  : TAbiFunction['payable'] extends true
-  ? { value: NoUndefined<TValueType> }
-  : { value?: never }
+  _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
+> = _Narrowable extends true
+  ? TAbiFunction['stateMutability'] extends 'payable'
+    ? { value: NoUndefined<TValueType> }
+    : TAbiFunction['payable'] extends true
+    ? { value: NoUndefined<TValueType> }
+    : { value?: never }
+  : { value?: TValueType }
 
 export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
   TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined

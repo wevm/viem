@@ -1,4 +1,4 @@
-import type { ResolvedConfig } from 'abitype'
+import type { Abi, ResolvedConfig } from 'abitype'
 import type { seaportAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
@@ -174,6 +174,22 @@ test('GetValue', () => {
   }>()
   expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<{
     value?: never
+  }>()
+
+  // unknown abi
+  expectTypeOf<GetValue<Abi, 'foo'>>().toEqualTypeOf<{
+    value?: bigint | undefined
+  }>()
+  const abi = [
+    {
+      type: 'function',
+      name: 'foo',
+      inputs: [],
+      outputs: [{ type: 'uint256' }],
+    },
+  ]
+  expectTypeOf<GetValue<typeof abi, 'foo'>>().toEqualTypeOf<{
+    value?: bigint | undefined
   }>()
 })
 
