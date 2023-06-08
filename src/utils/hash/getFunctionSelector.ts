@@ -1,5 +1,5 @@
 import { slice } from '../data/slice.js'
-import { AbiFunction } from 'abitype'
+import type { AbiFunction } from 'abitype'
 
 import { hashAbiItem, hashFunction } from './hashFunction.js'
 

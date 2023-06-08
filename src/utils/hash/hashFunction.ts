@@ -3,7 +3,7 @@ import {
   extractFunctionParams,
 } from '../contract/extractFunctionParts.js'
 import { toBytes } from '../encoding/toBytes.js'
-import { AbiEvent, AbiFunction } from 'abitype'
+import type { AbiEvent, AbiFunction } from 'abitype'
 
 import { keccak256 } from './keccak256.js'
 

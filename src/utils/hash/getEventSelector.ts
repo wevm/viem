@@ -1,5 +1,5 @@
 import type { EventDefinition } from '../../types/contract.js'
-import { AbiEvent } from 'abitype'
+import type { AbiEvent } from 'abitype'
 
 import { hashAbiItem, hashFunction } from './hashFunction.js'
 
