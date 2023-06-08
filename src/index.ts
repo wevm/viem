@@ -1,6 +1,5 @@
 export {
   type Abi,
-  type AbiFunction,
   type Address,
   type ResolvedConfig,
   type ParseAbi,

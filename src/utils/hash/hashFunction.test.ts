@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { hashAbiFunction, hashFunction } from './hashFunction.js'
+import { hashAbiEvent, hashAbiFunction, hashFunction } from './hashFunction.js'
 
 test('hashes functions', () => {
   expect(hashFunction('Transfer(address,address,uint256)')).toEqual(
@@ -123,4 +123,75 @@ test('hashes `AbiFunction`', () => {
       stateMutability: 'nonpayable',
     }),
   ).toBe('0x6352211e6566aa027e75ac9dbf2423197fbd9b82b9d981a3ab367d355866aa1c')
+})
+
+test('hashes `AbiEvent`', () => {
+  expect(
+    hashAbiEvent({
+      name: 'Transfer',
+      type: 'event',
+      inputs: [
+        { name: 'from', type: 'address', indexed: true },
+        { name: 'to', type: 'address', indexed: true },
+        { name: 'amount', type: 'uint256', indexed: false },
+      ],
+    }),
+  ).toEqual(
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+  )
+
+  expect(
+    hashAbiEvent({
+      name: 'ProcessedAccountDividendTracker',
+      type: 'event',
+      inputs: [
+        { name: 'lastProcessedIndex', type: 'uint256', indexed: false },
+        { name: 'iterationsUntilProcessed', type: 'uint256', indexed: false },
+        { name: 'withdrawableDividends', type: 'uint256', indexed: false },
+        { name: 'totalDividends', type: 'uint256', indexed: false },
+        { name: 'process', type: 'bool', indexed: false },
+        { name: 'gas', type: 'uint256', indexed: false },
+        { name: 'rewardsToken', type: 'address', indexed: false },
+      ],
+    }),
+  ).toEqual(
+    '0x4a73985b7c9415b88fbbfbb5e2fb377c08586d96f5c42646ecef7e3717587f6a',
+  )
+
+  expect(
+    hashAbiEvent({
+      name: 'Approval',
+      type: 'event',
+      inputs: [
+        { name: 'owner', type: 'address', indexed: true },
+        { name: 'approved', type: 'address', indexed: true },
+        { name: 'tokenId', type: 'uint256', indexed: true },
+      ],
+    }),
+  ).toBe('0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925')
+
+  expect(
+    hashAbiEvent({
+      name: 'ApprovalForAll',
+      type: 'event',
+      inputs: [
+        { name: 'owner', type: 'address', indexed: true },
+        { name: 'operator', type: 'address', indexed: true },
+        { name: 'approved', type: 'bool', indexed: false },
+      ],
+    }),
+  ).toBe('0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31')
+
+  expect(
+    hashAbiEvent({
+      name: 'BlackListMultipleAddresses',
+      type: 'event',
+      inputs: [
+        { name: 'addresses', type: 'address[]', indexed: false },
+        { name: 'isBlackListed', type: 'bool', indexed: false },
+      ],
+    }),
+  ).toEqual(
+    '0x170cd84eddb1952bf41adcce9be0e44b66ff38f07cddda1cf64d32708742bd2d',
+  )
 })
