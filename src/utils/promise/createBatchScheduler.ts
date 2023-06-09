@@ -29,7 +29,7 @@ export type CreateBatchSchedulerReturnType<
     : (args: TParameters) => Promise<Resolved<TReturnType>>
 }
 
-const schedulerCache = new Map<number | string, SchedulerItem[]>()
+const schedulerCache = /*#__PURE__*/ new Map<number | string, SchedulerItem[]>()
 
 export function createBatchScheduler<
   TParameters,

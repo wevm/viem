@@ -11,7 +11,7 @@ import { defineTransactionReceipt } from './utils/formatters/transactionReceipt.
 import { defineTransactionRequest } from './utils/formatters/transactionRequest.js'
 
 const celoFormatters = {
-  block: defineBlock({
+  block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
     format: (block) => ({
       randomness: block.randomness as {
@@ -20,7 +20,7 @@ const celoFormatters = {
       },
     }),
   }),
-  transaction: defineTransaction({
+  transaction: /*#__PURE__*/ defineTransaction({
     format: (transaction) => ({
       feeCurrency: transaction.feeCurrency as Address | null,
       gatewayFee: transaction.gatewayFee
@@ -29,7 +29,7 @@ const celoFormatters = {
       gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
     }),
   }),
-  transactionReceipt: defineTransactionReceipt({
+  transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
     format: (transaction) => ({
       feeCurrency: transaction.feeCurrency as Address | null,
       gatewayFee: transaction.gatewayFee
@@ -38,7 +38,7 @@ const celoFormatters = {
       gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
     }),
   }),
-  transactionRequest: defineTransactionRequest({
+  transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format: (transactionRequest) => ({
       feeCurrency: transactionRequest.feeCurrency as Address | undefined,
       gatewayFee: transactionRequest.gatewayFee as Quantity | undefined,
@@ -48,107 +48,130 @@ const celoFormatters = {
     }),
   }),
 }
-
-export const arbitrum = defineChain(chains.arbitrum)
-export const arbitrumGoerli = defineChain(chains.arbitrumGoerli)
-export const aurora = defineChain(chains.aurora)
-export const auroraTestnet = defineChain(chains.auroraTestnet)
-export const avalanche = defineChain(chains.avalanche)
-export const avalancheFuji = defineChain(chains.avalancheFuji)
-export const baseGoerli = defineChain(chains.baseGoerli)
-export const boba = defineChain(chains.boba)
-export const bronos = defineChain(chains.bronos)
-export const bronosTestnet = defineChain(chains.bronosTestnet)
-export const bsc = defineChain(chains.bsc)
-export const bscTestnet = defineChain(chains.bscTestnet)
-export const canto = defineChain(chains.canto)
-export const celo = defineChain({
+export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
+export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
+export const aurora = /*#__PURE__*/ defineChain(chains.aurora)
+export const auroraTestnet = /*#__PURE__*/ defineChain(chains.auroraTestnet)
+export const avalanche = /*#__PURE__*/ defineChain(chains.avalanche)
+export const avalancheFuji = /*#__PURE__*/ defineChain(chains.avalancheFuji)
+export const baseGoerli = /*#__PURE__*/ defineChain(chains.baseGoerli)
+export const boba = /*#__PURE__*/ defineChain(chains.boba)
+export const bronos = /*#__PURE__*/ defineChain(chains.bronos)
+export const bronosTestnet = /*#__PURE__*/ defineChain(chains.bronosTestnet)
+export const bsc = /*#__PURE__*/ defineChain(chains.bsc)
+export const bscTestnet = /*#__PURE__*/ defineChain(chains.bscTestnet)
+export const canto = /*#__PURE__*/ defineChain(chains.canto)
+export const celo = /*#__PURE__*/ defineChain({
   ...chains.celo,
   formatters: celoFormatters,
 })
-export const celoAlfajores = defineChain({
+export const celoAlfajores = /*#__PURE__*/ defineChain({
   ...chains.celoAlfajores,
   formatters: celoFormatters,
 })
-export const celoCannoli = defineChain({
+export const celoCannoli = /*#__PURE__*/ defineChain({
   ...chains.celoCannoli,
   formatters: celoFormatters,
 })
-export const cronos = defineChain(chains.cronos)
-export const crossbell = defineChain(chains.crossbell)
-export const dfk = defineChain(chains.dfk)
-export const dogechain = defineChain(chains.dogechain)
-export const evmos = defineChain(chains.evmos)
-export const evmosTestnet = defineChain(chains.evmosTestnet)
-export const fantom = defineChain(chains.fantom)
-export const fantomTestnet = defineChain(chains.fantomTestnet)
-export const filecoin = defineChain(chains.filecoin)
-export const filecoinCalibration = defineChain(chains.filecoinCalibration)
-export const filecoinHyperspace = defineChain(chains.filecoinHyperspace)
-export const flare = defineChain(chains.flare)
-export const flareTestnet = defineChain(chains.flareTestnet)
-export const foundry = defineChain(chains.foundry)
-export const iotex = defineChain(chains.iotex)
-export const iotexTestnet = defineChain(chains.iotexTestnet)
-export const goerli = defineChain(chains.goerli)
-export const gnosis = defineChain(chains.gnosis)
-export const gnosisChiado = defineChain(chains.gnosisChiado)
-export const haqqMainnet = defineChain(chains.haqqMainnet)
-export const haqqTestedge2 = defineChain(chains.haqqTestedge2)
-export const hardhat = defineChain(chains.hardhat)
-export const harmonyOne = defineChain(chains.harmonyOne)
-export const klaytn = defineChain(chains.klaytn)
-export const lineaTestnet = defineChain(chains.lineaTestnet)
-export const localhost = defineChain(chains.localhost)
-export const mainnet = defineChain(chains.mainnet)
-export const metis = defineChain(chains.metis)
-export const metisGoerli = defineChain(chains.metisGoerli)
-export const moonbaseAlpha = defineChain(chains.moonbaseAlpha)
-export const moonbeam = defineChain(chains.moonbeam)
-export const moonriver = defineChain(chains.moonriver)
-export const nexi = defineChain(chains.nexi)
-export const okc = defineChain(chains.okc)
-export const optimism = defineChain(chains.optimism)
-export const optimismGoerli = defineChain(chains.optimismGoerli)
-export const polygon = defineChain(chains.polygon)
-export const polygonMumbai = defineChain(chains.polygonMumbai)
-export const polygonZkEvm = defineChain(chains.polygonZkEvm)
-export const polygonZkEvmTestnet = defineChain(chains.polygonZkEvmTestnet)
-export const pulsechain = defineChain(chains.pulsechain)
-export const pulsechainV4 = defineChain(chains.pulsechainV4)
-export const scrollTestnet = defineChain(chains.scrollTestnet)
-export const sepolia = defineChain(chains.sepolia)
-export const skaleBlockBrawlers = defineChain(chains.skaleBlockBrawlers)
-export const skaleCalypso = defineChain(chains.skaleCalypso)
-export const skaleCalypsoTestnet = defineChain(chains.skaleCalypsoTestnet)
-export const skaleChaosTestnet = defineChain(chains.skaleChaosTestnet)
-export const skaleCryptoBlades = defineChain(chains.skaleCryptoBlades)
-export const skaleCryptoColosseum = defineChain(chains.skaleCryptoColosseum)
-export const skaleEuropa = defineChain(chains.skaleEuropa)
-export const skaleEuropaTestnet = defineChain(chains.skaleEuropaTestnet)
-export const skaleExorde = defineChain(chains.skaleExorde)
-export const skaleHumanProtocol = defineChain(chains.skaleHumanProtocol)
-export const skaleNebula = defineChain(chains.skaleNebula)
-export const skaleNebulaTestnet = defineChain(chains.skaleNebulaTestnet)
-export const skaleRazor = defineChain(chains.skaleRazor)
-export const skaleTitan = defineChain(chains.skaleTitan)
-export const skaleTitanTestnet = defineChain(chains.skaleTitanTestnet)
-export const songbird = defineChain(chains.songbird)
-export const songbirdTestnet = defineChain(chains.songbirdTestnet)
-export const shardeumSphinx = defineChain(chains.shardeumSphinx)
-export const syscoin = defineChain(chains.syscoin)
-export const taraxa = defineChain(chains.taraxa)
-export const taraxaTestnet = defineChain(chains.taraxaTestnet)
-export const telos = defineChain(chains.telos)
-export const telosTestnet = defineChain(chains.telosTestnet)
-export const thunderTestnet = defineChain(chains.thunderTestnet)
-export const wanchain = defineChain(chains.wanchain)
-export const wanchainTestnet = defineChain(chains.wanchainTestnet)
-export const xdc = defineChain(chains.xdc)
-export const xdcTestnet = defineChain(chains.xdcTestnet)
-export const zhejiang = defineChain(chains.zhejiang)
-export const zkSync = defineChain(chains.zkSync)
-export const zkSyncTestnet = defineChain(chains.zkSyncTestnet)
-export const zoraTestnet = defineChain(chains.zoraTestnet)
+export const cronos = /*#__PURE__*/ defineChain(chains.cronos)
+export const crossbell = /*#__PURE__*/ defineChain(chains.crossbell)
+export const dfk = /*#__PURE__*/ defineChain(chains.dfk)
+export const dogechain = /*#__PURE__*/ defineChain(chains.dogechain)
+export const evmos = /*#__PURE__*/ defineChain(chains.evmos)
+export const evmosTestnet = /*#__PURE__*/ defineChain(chains.evmosTestnet)
+export const fantom = /*#__PURE__*/ defineChain(chains.fantom)
+export const fantomTestnet = /*#__PURE__*/ defineChain(chains.fantomTestnet)
+export const filecoin = /*#__PURE__*/ defineChain(chains.filecoin)
+export const filecoinCalibration = /*#__PURE__*/ defineChain(
+  chains.filecoinCalibration,
+)
+export const filecoinHyperspace = /*#__PURE__*/ defineChain(
+  chains.filecoinHyperspace,
+)
+export const flare = /*#__PURE__*/ defineChain(chains.flare)
+export const flareTestnet = /*#__PURE__*/ defineChain(chains.flareTestnet)
+export const foundry = /*#__PURE__*/ defineChain(chains.foundry)
+export const iotex = /*#__PURE__*/ defineChain(chains.iotex)
+export const iotexTestnet = /*#__PURE__*/ defineChain(chains.iotexTestnet)
+export const goerli = /*#__PURE__*/ defineChain(chains.goerli)
+export const gnosis = /*#__PURE__*/ defineChain(chains.gnosis)
+export const gnosisChiado = /*#__PURE__*/ defineChain(chains.gnosisChiado)
+export const haqqMainnet = /*#__PURE__*/ defineChain(chains.haqqMainnet)
+export const haqqTestedge2 = /*#__PURE__*/ defineChain(chains.haqqTestedge2)
+export const hardhat = /*#__PURE__*/ defineChain(chains.hardhat)
+export const harmonyOne = /*#__PURE__*/ defineChain(chains.harmonyOne)
+export const klaytn = /*#__PURE__*/ defineChain(chains.klaytn)
+export const lineaTestnet = /*#__PURE__*/ defineChain(chains.lineaTestnet)
+export const localhost = /*#__PURE__*/ defineChain(chains.localhost)
+export const mainnet = /*#__PURE__*/ defineChain(chains.mainnet)
+export const metis = /*#__PURE__*/ defineChain(chains.metis)
+export const metisGoerli = /*#__PURE__*/ defineChain(chains.metisGoerli)
+export const moonbaseAlpha = /*#__PURE__*/ defineChain(chains.moonbaseAlpha)
+export const moonbeam = /*#__PURE__*/ defineChain(chains.moonbeam)
+export const moonriver = /*#__PURE__*/ defineChain(chains.moonriver)
+export const nexi = /*#__PURE__*/ defineChain(chains.nexi)
+export const okc = /*#__PURE__*/ defineChain(chains.okc)
+export const optimism = /*#__PURE__*/ defineChain(chains.optimism)
+export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli)
+export const polygon = /*#__PURE__*/ defineChain(chains.polygon)
+export const polygonMumbai = /*#__PURE__*/ defineChain(chains.polygonMumbai)
+export const polygonZkEvm = /*#__PURE__*/ defineChain(chains.polygonZkEvm)
+export const polygonZkEvmTestnet = /*#__PURE__*/ defineChain(
+  chains.polygonZkEvmTestnet,
+)
+export const pulsechain = /*#__PURE__*/ defineChain(chains.pulsechain)
+export const pulsechainV4 = /*#__PURE__*/ defineChain(chains.pulsechainV4)
+export const scrollTestnet = /*#__PURE__*/ defineChain(chains.scrollTestnet)
+export const sepolia = /*#__PURE__*/ defineChain(chains.sepolia)
+export const skaleBlockBrawlers = /*#__PURE__*/ defineChain(
+  chains.skaleBlockBrawlers,
+)
+export const skaleCalypso = /*#__PURE__*/ defineChain(chains.skaleCalypso)
+export const skaleCalypsoTestnet = /*#__PURE__*/ defineChain(
+  chains.skaleCalypsoTestnet,
+)
+export const skaleChaosTestnet = /*#__PURE__*/ defineChain(
+  chains.skaleChaosTestnet,
+)
+export const skaleCryptoBlades = /*#__PURE__*/ defineChain(
+  chains.skaleCryptoBlades,
+)
+export const skaleCryptoColosseum = /*#__PURE__*/ defineChain(
+  chains.skaleCryptoColosseum,
+)
+export const skaleEuropa = /*#__PURE__*/ defineChain(chains.skaleEuropa)
+export const skaleEuropaTestnet = /*#__PURE__*/ defineChain(
+  chains.skaleEuropaTestnet,
+)
+export const skaleExorde = /*#__PURE__*/ defineChain(chains.skaleExorde)
+export const skaleHumanProtocol = /*#__PURE__*/ defineChain(
+  chains.skaleHumanProtocol,
+)
+export const skaleNebula = /*#__PURE__*/ defineChain(chains.skaleNebula)
+export const skaleNebulaTestnet = /*#__PURE__*/ defineChain(
+  chains.skaleNebulaTestnet,
+)
+export const skaleRazor = /*#__PURE__*/ defineChain(chains.skaleRazor)
+export const skaleTitan = /*#__PURE__*/ defineChain(chains.skaleTitan)
+export const skaleTitanTestnet = /*#__PURE__*/ defineChain(
+  chains.skaleTitanTestnet,
+)
+export const songbird = /*#__PURE__*/ defineChain(chains.songbird)
+export const songbirdTestnet = /*#__PURE__*/ defineChain(chains.songbirdTestnet)
+export const shardeumSphinx = /*#__PURE__*/ defineChain(chains.shardeumSphinx)
+export const syscoin = /*#__PURE__*/ defineChain(chains.syscoin)
+export const taraxa = /*#__PURE__*/ defineChain(chains.taraxa)
+export const taraxaTestnet = /*#__PURE__*/ defineChain(chains.taraxaTestnet)
+export const telos = /*#__PURE__*/ defineChain(chains.telos)
+export const telosTestnet = /*#__PURE__*/ defineChain(chains.telosTestnet)
+export const thunderTestnet = /*#__PURE__*/ defineChain(chains.thunderTestnet)
+export const wanchain = /*#__PURE__*/ defineChain(chains.wanchain)
+export const wanchainTestnet = /*#__PURE__*/ defineChain(chains.wanchainTestnet)
+export const xdc = /*#__PURE__*/ defineChain(chains.xdc)
+export const xdcTestnet = /*#__PURE__*/ defineChain(chains.xdcTestnet)
+export const zhejiang = /*#__PURE__*/ defineChain(chains.zhejiang)
+export const zkSync = /*#__PURE__*/ defineChain(chains.zkSync)
+export const zkSyncTestnet = /*#__PURE__*/ defineChain(chains.zkSyncTestnet)
+export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet)
 
 export type { Chain } from './types/chain.js'
