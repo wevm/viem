@@ -63,6 +63,8 @@ export function serializeTransaction<
   ) as SerializedTransactionReturnType<TTransactionSerializable>
 }
 
+export type SerializeTransactionFn = typeof serializeTransaction
+
 function serializeTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,
   signature?: Signature,

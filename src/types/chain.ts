@@ -3,9 +3,13 @@ import type { Address } from 'abitype'
 
 import type { Formatters } from './formatter.js'
 import type { IsUndefined } from './utils.js'
+import { serializeTransaction } from '../index.js'
 
-export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
+type SerializeTransaction = typeof serializeTransaction
+
+export type Chain<TFormatters extends Formatters = Formatters, TSerializer extends SerializeTransaction = SerializeTransaction > = Chain_ & {
   formatters?: TFormatters
+  serializer?: TSerializer
 }
 
 export type ChainContract = {

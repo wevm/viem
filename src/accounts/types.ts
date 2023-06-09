@@ -5,16 +5,17 @@ import type { Address, TypedData } from 'abitype'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type { TransactionSerializable } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
+import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Account<TAddress extends Address = Address> =
   | JsonRpcAccount<TAddress>
   | LocalAccount<string, TAddress>
 
 export type AccountSource = Address | CustomSource
-export type CustomSource = {
+export type CustomSource<S extends SerializeTransactionFn = SerializeTransactionFn> = {
   address: Address
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
-  signTransaction: (transaction: TransactionSerializable) => Promise<Hash>
+  signTransaction: (transaction: Parameters<S> | TransactionSerializable, serializer?: S) => Promise<Hash>
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string = string,
