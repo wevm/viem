@@ -1,5 +1,11 @@
 # viem
 
+## 1.0.2
+
+### Patch Changes
+
+- [#677](https://github.com/wagmi-dev/viem/pull/677) [`a0a2ebb`](https://github.com/wagmi-dev/viem/commit/a0a2ebb6b53354be1c1492eed3bfd1b218ac71e4) Thanks [@hexcowboy](https://github.com/hexcowboy)! - Added ability to pass an `AbiFunction` to `getFunctionSelector`, and `AbiEvent` to `getEventSelector`.
+
 ## 1.0.1
 
 ### Patch Changes
