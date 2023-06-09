@@ -23,9 +23,9 @@ export {
   type MulticallReturnType,
   multicall,
 } from './actions/public/multicall.js'
-export {
-  type OnLogsFn,
-  type OnLogsParameter,
+export type {
+  OnLogsFn,
+  OnLogsParameter,
 } from './actions/public/watchEvent.js'
 export {
   type ReadContractParameters,
