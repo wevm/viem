@@ -32,6 +32,18 @@ const selector = getEventSelector('Transfer(address,address,uint256)')
 
 const selector = getEventSelector('Transfer(address indexed from, address indexed to, uint256 amount)')
 // 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+
+// or from an `AbiEvent` on your contract ABI
+const selector = getEventSelector({
+  name: 'Transfer',
+  type: 'event',
+  inputs: [
+    { name: 'from', type: 'address', indexed: true },
+    { name: 'to', type: 'address', indexed: true },
+    { name: 'amount', type: 'uint256', indexed: false },
+  ],
+})
+// 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
 ```
 
 ## Returns
@@ -44,7 +56,7 @@ The selector as a hex value.
 
 ### event
 
-- **Type:** `string`
+- **Type:** `string |`[`AbiEvent`](https://abitype.dev/api/types.html#abievent)
 
 The event to generate a selector for.
 

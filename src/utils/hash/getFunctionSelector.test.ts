@@ -22,3 +22,100 @@ test('creates function signature', () => {
   expect(getFunctionSelector('claimed()')).toEqual('0xe834a834')
   expect(getFunctionSelector('function claimed()')).toEqual('0xe834a834')
 })
+
+test('creates function signature from `AbiFunction`', () => {
+  expect(
+    getFunctionSelector({
+      name: '_compound',
+      type: 'function',
+      inputs: [
+        { name: 'a', type: 'uint256' },
+        { name: 'b', type: 'uint256' },
+        { name: 'c', type: 'uint256' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual('0xf4fbb312')
+
+  expect(
+    getFunctionSelector({
+      name: '_compound',
+      type: 'function',
+      inputs: [
+        { name: 'a', type: 'uint256' },
+        { name: 'b', type: 'uint256' },
+        { name: 'c', type: 'uint256' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual('0xf4fbb312')
+
+  expect(
+    getFunctionSelector({
+      name: 'ownerOf',
+      type: 'function',
+      inputs: [{ name: 'tokenId', type: 'uint256' }],
+      outputs: [],
+      stateMutability: 'view',
+    }),
+  ).toEqual('0x6352211e')
+
+  expect(
+    getFunctionSelector({
+      name: 'ownerOf',
+      type: 'function',
+      inputs: [{ name: '', type: 'uint256' }],
+      outputs: [],
+      stateMutability: 'view',
+    }),
+  ).toEqual('0x6352211e')
+
+  expect(
+    getFunctionSelector({
+      name: 'processInvestment',
+      type: 'function',
+      inputs: [
+        { name: '', type: 'address' },
+        { name: '', type: 'uint256' },
+        { name: '', type: 'bool' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual('0xcf4b8f61')
+
+  expect(
+    getFunctionSelector({
+      name: 'processAccount',
+      type: 'function',
+      inputs: [
+        { name: '', type: 'uint256' },
+        { name: '', type: 'address' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ).toEqual('0x73933128')
+
+  expect(
+    getFunctionSelector({
+      name: 'claimed',
+      type: 'function',
+      inputs: [],
+      outputs: [],
+      stateMutability: 'view',
+    }),
+  ).toEqual('0xe834a834')
+
+  expect(
+    getFunctionSelector({
+      name: 'claimed',
+      type: 'function',
+      inputs: [],
+      outputs: [],
+      stateMutability: 'view',
+    }),
+  ).toEqual('0xe834a834')
+})

@@ -32,6 +32,16 @@ const selector = getFunctionSelector('function ownerOf(uint256 tokenId)')
 
 const selector = getFunctionSelector('ownerOf(uint256)')
 // 0x6352211e
+
+// or from an `AbiFunction` on your contract ABI
+const selector = getFunctionSelector({
+  name: 'ownerOf',
+  type: 'function',
+  inputs: [{ name: 'tokenId', type: 'uint256' }],
+  outputs: [],
+  stateMutability: 'view',
+})
+// 0x6352211e
 ```
 
 ## Returns
@@ -44,7 +54,7 @@ The selector as a hex value.
 
 ### function
 
-- **Type:** `string`
+- **Type:** `string |`[`AbiFunction`](https://abitype.dev/api/types.html#abifunction)
 
 The function to generate a selector for.
 
