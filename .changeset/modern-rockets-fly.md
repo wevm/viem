@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-marked package as side effects free
+Marked package as side effects free
