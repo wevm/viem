@@ -67,4 +67,6 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
   return transaction_ as Transaction
 }
 
-export const defineTransaction = defineFormatter({ format: formatTransaction })
+export const defineTransaction = /*#__PURE__*/ defineFormatter({
+  format: formatTransaction,
+})

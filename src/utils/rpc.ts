@@ -144,7 +144,7 @@ export type Socket = WebSocket & {
   subscriptions: CallbackMap
 }
 
-const sockets = new Map<string, Socket>()
+const sockets = /*#__PURE__*/ new Map<string, Socket>()
 
 export async function getSocket(url_: string) {
   const url = new URL(url_)

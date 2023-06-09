@@ -56,6 +56,6 @@ export function formatTransactionRequest(
   } as RpcTransactionRequest
 }
 
-export const defineTransactionRequest = defineFormatter({
+export const defineTransactionRequest = /*#__PURE__*/ defineFormatter({
   format: formatTransactionRequest,
 })

@@ -67,6 +67,6 @@ export function formatTransactionReceipt(
   } as TransactionReceipt
 }
 
-export const defineTransactionReceipt = defineFormatter({
+export const defineTransactionReceipt = /*#__PURE__*/ defineFormatter({
   format: formatTransactionReceipt,
 })
