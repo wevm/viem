@@ -189,7 +189,7 @@ You can access the custom error through the `data` attribute of the error:
 ::: code-group
 
 ```ts {13-27} [example.ts]
-import { BaseError, ContractFunctionRevertedError } from 'viem';
+import { ContractFunctionExecutionError, ContractFunctionRevertedError } from 'viem';
 import { account, walletClient, publicClient } from './config'
 import { wagmiAbi } from './abi'
 
@@ -201,7 +201,7 @@ try {
     account,
   })
 } catch (err) {
-  if (err instanceof BaseError) {
+  if (err instanceof ContractFunctionExecutionError) {
     // Option 1: checking the instance of the error
     if (err.cause instanceof ContractFunctionRevertedError) {
       const cause: ContractFunctionRevertedError = err.cause;
