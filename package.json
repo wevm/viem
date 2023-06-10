@@ -207,7 +207,7 @@
     {
       "name": "viem/chains",
       "path": "./dist/esm/chains.js",
-      "limit": "3 kB",
+      "limit": "1100 B",
       "import": "{ mainnet }"
     }
   ],
