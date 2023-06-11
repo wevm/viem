@@ -19,10 +19,8 @@ export function parseUnits(value: `${number}`, decimals: number) {
     ]
 
     const rounded = Math.round(Number(`${unit}.${right}`))
-    if (rounded > 9) {
-      const leftLen = left.length;
-      fraction = `${BigInt(left) + BigInt(1)}0`.padStart(leftLen + 1, "0");
-    }
+    if (rounded > 9)
+      fraction = `${BigInt(left) + BigInt(1)}0`.padStart(left.length + 1, '0')
     else fraction = `${left}${rounded}`
 
     if (fraction.length > decimals) {
