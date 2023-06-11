@@ -1,5 +1,15 @@
 # viem
 
+## 1.0.3
+
+### Patch Changes
+
+- [#687](https://github.com/wagmi-dev/viem/pull/687) [`a274ab33`](https://github.com/wagmi-dev/viem/commit/a274ab335688ce84d7fa8ca72427de7fe9937b13) Thanks [@jeetiss](https://github.com/jeetiss)! - Added `/*#__PURE__*/` annotatations for better tree-shaking
+
+* [#672](https://github.com/wagmi-dev/viem/pull/672) [`e033f467`](https://github.com/wagmi-dev/viem/commit/e033f467082bcfa6f42c490ede1d7df50f497456) Thanks [@sambacha](https://github.com/sambacha)! - Turned off `esModuleInterop` & `allowSyntheticDefaultImports` in tsconfig.
+
+- [#683](https://github.com/wagmi-dev/viem/pull/683) [`fe259a0e`](https://github.com/wagmi-dev/viem/commit/fe259a0ed6e4f7e264a7c5c761fea3a8ca68efc9) Thanks [@jeetiss](https://github.com/jeetiss)! - Marked package as side effects free
+
 ## 1.0.2
 
 ### Patch Changes
