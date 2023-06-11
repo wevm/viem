@@ -1,5 +1,11 @@
 # viem
 
+## 1.0.4
+
+### Patch Changes
+
+- [`8407fdcc`](https://github.com/wagmi-dev/viem/commit/8407fdcc16e97a5346a07382c25cb1681a50d5e8) Thanks [@jxom](https://github.com/jxom)! - Fixed fraction length overflow edge-case.
+
 ## 1.0.3
 
 ### Patch Changes
