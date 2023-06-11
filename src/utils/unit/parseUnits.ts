@@ -18,13 +18,11 @@ export function parseUnits(value: `${number}`, decimals: number) {
       fraction.slice(decimals),
     ]
 
-    const zeroes = left.match(/^0+/)?.[0].length ?? 0
-
     const rounded = Math.round(Number(`${unit}.${right}`))
-    if (rounded > 9)
-      fraction = `${zeroes ? left.slice(0, zeroes - 1) : ''}${
-        BigInt(left) + 1n
-      }0`
+    if (rounded > 9) {
+      const leftLen = left.length;
+      fraction = `${BigInt(left) + BigInt(1)}0`.padStart(leftLen + 1, "0");
+    }
     else fraction = `${left}${rounded}`
 
     if (fraction.length > decimals) {

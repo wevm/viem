@@ -17,6 +17,7 @@ test('converts number to unit of a given length', () => {
   expect(parseUnits('6942069420.00045678912345', 18)).toMatchInlineSnapshot(
     '6942069420000456789123450000n',
   )
+  expect(parseUnits('1.0536059576998882', 7)).toMatchInlineSnapshot('10536060n')
   expect(
     parseUnits('6942123123123069420.1234544444678912345', 50),
   ).toMatchInlineSnapshot(
