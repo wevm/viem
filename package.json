@@ -7,7 +7,7 @@
     "bench:ci": "CI=true vitest bench",
     "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types",
     "build:cjs": "tsc --project tsconfig.build.json --module commonjs --outDir ./dist/cjs --removeComments --verbatimModuleSyntax false && echo > ./dist/cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm --removeComments && echo > ./dist/esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
+    "build:esm": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm && echo > ./dist/esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
     "build:types": "tsc --project tsconfig.build.json --module esnext --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
@@ -207,7 +207,7 @@
     {
       "name": "viem/chains",
       "path": "./dist/esm/chains.js",
-      "limit": "3 kB",
+      "limit": "1100 B",
       "import": "{ mainnet }"
     }
   ],

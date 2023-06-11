@@ -4,7 +4,7 @@ import { pad } from '../data/pad.js'
 
 import { assertSize } from './fromHex.js'
 
-const hexes = Array.from({ length: 256 }, (_v, i) =>
+const hexes = /*#__PURE__*/ Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
 )
 
@@ -201,7 +201,7 @@ export type StringToHexOpts = {
   size?: number
 }
 
-const encoder = new TextEncoder()
+const encoder = /*#__PURE__*/ new TextEncoder()
 
 /**
  * Encodes a UTF-8 string into a hex string
