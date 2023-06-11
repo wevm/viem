@@ -61,12 +61,12 @@ export class BaseError extends Error {
   }
 
   walk(fn?: (err: unknown) => boolean) {
-    return this.#walk(this, fn)
+    return walk(this, fn)
   }
+}
 
-  #walk(err: unknown, fn?: (err: unknown) => boolean): unknown {
-    if (fn?.(err)) return err
-    if ((err as Error).cause) return this.#walk((err as Error).cause, fn)
-    return err
-  }
+function walk(err: unknown, fn?: (err: unknown) => boolean): unknown {
+  if (fn?.(err)) return err
+  if ((err as Error).cause) return walk((err as Error).cause, fn)
+  return err
 }
