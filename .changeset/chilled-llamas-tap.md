@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added pure annotatations for better tree-shaking
+Added `/*#__PURE__*/` annotatations for better tree-shaking
