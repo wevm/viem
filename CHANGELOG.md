@@ -1,5 +1,11 @@
 # viem
 
+## 1.0.6
+
+### Patch Changes
+
+- [`90fd40ba`](https://github.com/wagmi-dev/viem/commit/90fd40ba0d5b7e248c7494ca5cbfa46eac281753) Thanks [@jxom](https://github.com/jxom)! - Fixed potential nullish `chainId` conflict in `sendTransaction` (for Local Accounts).
+
 ## 1.0.5
 
 ### Patch Changes
