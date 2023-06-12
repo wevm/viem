@@ -147,8 +147,8 @@ export async function sendTransaction<
 
       if (!chainId) chainId = await getChainId(client)
       const signedRequest = (await account.signTransaction({
-        chainId,
         ...request,
+        chainId,
       } as TransactionSerializable)) as Hash
       return await client.request({
         method: 'eth_sendRawTransaction',
