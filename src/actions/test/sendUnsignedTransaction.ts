@@ -4,11 +4,27 @@ import type {
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
+import type { Formatter } from '../../types/formatter.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import type { MergeIntersectionProperties } from '../../types/utils.js'
+import { extract } from '../../utils/formatters/extract.js'
+import { type Formatted, format } from '../../utils/formatters/format.js'
+import {
+  type TransactionRequestFormatter,
+  formatTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
 
-export type SendUnsignedTransactionParameters = TransactionRequest
+type FormattedTransactionRequest<
+  TFormatter extends Formatter | undefined = Formatter,
+> = MergeIntersectionProperties<
+  Formatted<TFormatter, TransactionRequest, true>,
+  TransactionRequest
+>
+
+export type SendUnsignedTransactionParameters<
+  TChain extends Chain | undefined = Chain | undefined,
+> = FormattedTransactionRequest<TransactionRequestFormatter<TChain>>
 
 export type SendUnsignedTransactionReturnType = Hash
 
@@ -41,15 +57,45 @@ export async function sendUnsignedTransaction<
   TChain extends Chain | undefined,
 >(
   client: TestClient<TestClientMode, Transport, TChain>,
-  // TODO - the request parameters should be determined by the chains formatters like SendTransactionParameters are
-  request: SendUnsignedTransactionParameters,
+  args: SendUnsignedTransactionParameters<TChain>,
 ): Promise<SendUnsignedTransactionReturnType> {
-  const formatter =
-    client.chain?.formatters?.transactionRequest || formatTransactionRequest
-  const request_ = formatter(request)
+  const {
+    accessList,
+    data,
+    from,
+    gas,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    nonce,
+    to,
+    value,
+    ...rest
+  } = args
+
+  const formatter = client.chain?.formatters?.transactionRequest
+  const request = format(
+    {
+      accessList,
+      data,
+      from,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter }),
+    } as TransactionRequest,
+    {
+      formatter: formatter || formatTransactionRequest,
+    },
+  )
   const hash = await client.request({
     method: 'eth_sendUnsignedTransaction',
-    params: [request_],
+    params: [request],
   })
   return hash
 }
