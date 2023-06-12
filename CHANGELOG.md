@@ -1,5 +1,11 @@
 # viem
 
+## 1.0.5
+
+### Patch Changes
+
+- [#699](https://github.com/wagmi-dev/viem/pull/699) [`79d1b4af`](https://github.com/wagmi-dev/viem/commit/79d1b4af5037eee4b408af9d0e3cf5e228d2601d) Thanks [@jxom](https://github.com/jxom)! - Support custom transaction formatters on `sendUnsignedTransaction`.
+
 ## 1.0.4
 
 ### Patch Changes
