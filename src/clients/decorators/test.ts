@@ -328,8 +328,8 @@ export type TestActions = {
    *   value: 1000000000000000000n,
    * })
    */
-  sendUnsignedTransaction: (
-    args: SendUnsignedTransactionParameters,
+  sendUnsignedTransaction: <TChain extends Chain | undefined>(
+    args: SendUnsignedTransactionParameters<TChain>,
   ) => Promise<SendUnsignedTransactionReturnType>
   /**
    * Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
@@ -681,7 +681,8 @@ export function testActions<TChain extends Chain | undefined>(
     removeBlockTimestampInterval: () => removeBlockTimestampInterval(client),
     reset: (args) => reset(client, args),
     revert: (args) => revert(client, args),
-    sendUnsignedTransaction: (args) => sendUnsignedTransaction(client, args),
+    sendUnsignedTransaction: (args) =>
+      sendUnsignedTransaction(client, args as any),
     setAutomine: (args) => setAutomine(client, args),
     setBalance: (args) => setBalance(client, args),
     setBlockGasLimit: (args) => setBlockGasLimit(client, args),
