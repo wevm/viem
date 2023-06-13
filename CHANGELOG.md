@@ -1,5 +1,11 @@
 # viem
 
+## 1.0.7
+
+### Patch Changes
+
+- [#707](https://github.com/wagmi-dev/viem/pull/707) [`3fc045d1`](https://github.com/wagmi-dev/viem/commit/3fc045d152a11edb698bd86aecb38909f6a3f811) Thanks [@tmm](https://github.com/tmm)! - Made TypeScript requirement explicit (was missing previously).
+
 ## 1.0.6
 
 ### Patch Changes
