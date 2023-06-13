@@ -138,6 +138,14 @@
       ]
     }
   },
+  "peerDependencies": {
+    "typescript": ">=5.0.4"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@adraffy/ens-normalize": "1.9.0",
     "@noble/curves": "1.0.0",
