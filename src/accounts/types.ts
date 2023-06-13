@@ -12,10 +12,17 @@ export type Account<TAddress extends Address = Address> =
   | LocalAccount<string, TAddress>
 
 export type AccountSource = Address | CustomSource
-export type CustomSource<S extends SerializeTransactionFn = SerializeTransactionFn> = {
+export type CustomSource = {
   address: Address
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
-  signTransaction: (transaction: Parameters<S> | TransactionSerializable, serializer?: S) => Promise<Hash>
+  signTransaction: <
+    S extends SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  >(
+    transaction: S extends undefined
+      ? TransactionSerializable
+      : Parameters<S>[0],
+    serializer?: S,
+  ) => Promise<Hash>
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string = string,

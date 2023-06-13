@@ -59,7 +59,7 @@ export function serializeTransaction<
 }
 
 export type SerializeTransactionFn<
-  TTransactionSerializable extends TransactionSerializable,
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > = (
   transaction: TTransactionSerializable,
   signature?: Signature,
