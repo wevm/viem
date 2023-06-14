@@ -1,4 +1,4 @@
-import { assertType, describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '../../_test/constants.js'
 import type {
@@ -14,6 +14,8 @@ import type {
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
 import { signTransaction } from './signTransaction.js'
+import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
+import { concatHex, toHex, toRlp } from '../../index.js'
 
 const base = {
   gas: 21000n,
@@ -236,6 +238,67 @@ describe('eip2930', () => {
       }),
     ).toMatchInlineSnapshot(
       '"0x01f854018203118504a817c800825208808080c080a058e29913bc928a79e0536fc588e8fe372464d1ff4feff691c344c0163280c97ea037780b5c99301a67aaacfbe98c83139fd026e30925fc103b7898b53af9cb0658"',
+    )
+  })
+})
+
+describe('with custom EIP2718 serializer', () => {
+  type ExampleTransaction = TransactionSerializable & {
+    type: 'cip42'
+    chainId: number
+    additionalField: `0x${string}`
+  }
+
+  test('default', async () => {
+    const exampleSerializer: SerializeTransactionFn<ExampleTransaction> = vi.fn(
+      function (transaction) {
+        const {
+          chainId,
+          nonce,
+          gas,
+          to,
+          value,
+          additionalField,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          data,
+        } = transaction
+
+        const serializedTransaction = [
+          toHex(chainId),
+          nonce ? toHex(nonce) : '0x',
+          maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
+          maxFeePerGas ? toHex(maxFeePerGas) : '0x',
+          gas ? toHex(gas) : '0x',
+          additionalField ?? '0x',
+          to ?? '0x',
+          value ? toHex(value) : '0x',
+          data ?? '0x',
+          [],
+        ]
+
+        return concatHex(['0x08', toRlp(serializedTransaction)])
+      },
+    )
+
+    const example2718Transaction: ExampleTransaction = {
+      ...base,
+      type: 'cip42',
+      additionalField: '0x0000',
+      chainId: 42240,
+    }
+
+    const signature = await signTransaction({
+      transaction: example2718Transaction,
+      privateKey: accounts[0].privateKey,
+      serializer: exampleSerializer,
+    })
+    assertType(signature)
+
+    expect(exampleSerializer).toHaveBeenCalledWith(example2718Transaction)
+
+    expect(signature).toMatchInlineSnapshot(
+      '"0x08d282a5008203118080825208820000808080c0"',
     )
   })
 })
