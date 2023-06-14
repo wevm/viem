@@ -109,6 +109,27 @@ test('formats', () => {
   `)
 })
 
+test('unknown type', () => {
+  expect(
+    formatTransactionReceipt({
+      type: '0x7e',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blockNumber": null,
+      "contractAddress": null,
+      "cumulativeGasUsed": null,
+      "effectiveGasPrice": null,
+      "gasUsed": null,
+      "logs": null,
+      "status": null,
+      "to": null,
+      "transactionIndex": null,
+      "type": "0x7e",
+    }
+  `)
+})
+
 test('nullish values', () => {
   expect(
     formatTransactionReceipt({
