@@ -62,7 +62,9 @@ export function formatTransactionReceipt(
       ? statuses[transactionReceipt.status]
       : null,
     type: transactionReceipt.type
-      ? transactionType[transactionReceipt.type]
+      ? transactionType[
+          transactionReceipt.type as keyof typeof transactionType
+        ] || transactionReceipt.type
       : null,
   } as TransactionReceipt
 }

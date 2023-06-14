@@ -20,6 +20,12 @@ describe('type', () => {
     assertType<'legacy'>(type)
     expect(type).toEqual('legacy')
   })
+
+  test('other', () => {
+    const type = getTransactionType({ type: '0x7e' } as const)
+    assertType<'0x7e'>(type)
+    expect(type).toEqual('0x7e')
+  })
 })
 
 describe('attributes', () => {

@@ -49,18 +49,18 @@ export function serializeTransaction<
     return serializeTransactionEIP1559(
       transaction as TransactionSerializableEIP1559,
       signature,
-    ) as SerializedTransactionReturnType
+    ) as SerializedTransactionReturnType<TTransactionSerializable>
 
   if (type === 'eip2930')
     return serializeTransactionEIP2930(
       transaction as TransactionSerializableEIP2930,
       signature,
-    ) as SerializedTransactionReturnType
+    ) as SerializedTransactionReturnType<TTransactionSerializable>
 
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
     signature,
-  ) as SerializedTransactionReturnType
+  ) as SerializedTransactionReturnType<TTransactionSerializable>
 }
 
 function serializeTransactionEIP1559(
