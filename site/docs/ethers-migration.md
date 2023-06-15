@@ -1843,7 +1843,7 @@ import { utils } from 'ethers'
 const transaction = utils.parseTransaction('0x02ef0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0')
 ```
 
-#### Ethers
+#### viem
 
 ```ts
 import { parseTransaction } from 'viem'
