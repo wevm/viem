@@ -239,7 +239,7 @@ export {
 } from './transaction/assertTransaction.js'
 export { parseTransaction } from './transaction/parseTransaction.js'
 export { prepareRequest } from './transaction/prepareRequest.js'
-export { serializeTransaction } from './transaction/serializeTransaction.js'
+export { serializeTransaction, type SerializeTransactionFn } from './transaction/serializeTransaction.js'
 export { serializeAccessList } from './transaction/serializeAccessList.js'
 export { formatEther } from './unit/formatEther.js'
 export { formatGwei } from './unit/formatGwei.js'
