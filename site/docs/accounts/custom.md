@@ -33,15 +33,15 @@ import { getAddress, signMessage, signTransaction } from './sign-utils' // [!cod
 const privateKey = '0x...' // [!code focus:13]
 const account = toAccount({
   address: getAddress(privateKey),
-  signMessage(message) {
-    return signMessage(message, privateKey)
+  async signMessage({ message }) {
+    return signMessage({ message, privateKey })
   },
-  signTransaction(transaction) {
-    return signTransaction(transaction, privateKey)
+  async signTransaction(transaction, serializer) {
+    return signTransaction({ privateKey, transaction, serializer })
   },
-  signTypedData(typedData) {
-    return signTypedData(typedData, privateKey)
-  }
+  async signTypedData(typedData) {
+    return signTypedData({ ...typedData, privateKey })
+  },
 })
 
 const client = createWalletClient({
@@ -62,15 +62,15 @@ The Address of the Account.
 ```ts
 const account = toAccount({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // [!code focus]
-  signMessage(message) {
-    return signMessage(message, privateKey)
+  async signMessage({ message }) {
+    return signMessage({ message, privateKey })
   },
-  signTransaction(transaction) {
-    return signTransaction(transaction, privateKey)
+  async signTransaction(transaction, serializer) {
+    return signTransaction({ privateKey, transaction, serializer })
   },
-  signTypedData(typedData) {
-    return signTypedData(typedData, privateKey)
-  }
+  async signTypedData(typedData) {
+    return signTypedData({ ...typedData, privateKey })
+  },
 })
 ```
 
@@ -81,15 +81,16 @@ Function to sign a message in [EIP-191 format](https://eips.ethereum.org/EIPS/ei
 ```ts
 const account = toAccount({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  signMessage(message) { // [!code focus:3]
-    return signMessage(message, privateKey)
+
+  async signMessage({ message }) { // [!code focus:3]
+    return signMessage({ message, privateKey })
   },
-  signTransaction(transaction) {
-    return signTransaction(transaction, privateKey)
+  async signTransaction(transaction, serializer) {
+    return signTransaction({ privateKey, transaction, serializer })
   },
-  signTypedData(typedData) {
-    return signTypedData(typedData, privateKey)
-  }
+  async signTypedData(typedData) {
+    return signTypedData({ ...typedData, privateKey })
+  },
 })
 ```
 
@@ -100,15 +101,15 @@ Function to sign a transaction.
 ```ts
 const account = toAccount({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  signMessage(message) { 
-    return signMessage(message, privateKey)
+  async signMessage({ message }) {
+    return signMessage({ message, privateKey })
   },
-  signTransaction(transaction) { // [!code focus:3]
-    return signTransaction(transaction, privateKey)
+  async signTransaction(transaction, serializer) {  // [!code focus:3]
+    return signTransaction({ privateKey, transaction, serializer })
   },
-  signTypedData(typedData) {
-    return signTypedData(typedData, privateKey)
-  }
+  async signTypedData(typedData) {
+    return signTypedData({ ...typedData, privateKey })
+  },
 })
 ```
 
@@ -119,14 +120,14 @@ Function to sign [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
 ```ts
 const account = toAccount({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  signMessage(message) { 
-    return signMessage(message, privateKey)
+  async signMessage({ message }) {
+    return signMessage({ message, privateKey })
   },
-  signTransaction(transaction) {
-    return signTransaction(transaction, privateKey)
+  async signTransaction(transaction, serializer) {
+    return signTransaction({ privateKey, transaction, serializer })
   },
-  signTypedData(typedData) { // [!code focus:3]
-    return signTypedData(typedData, privateKey)
-  }
+  async signTypedData(typedData) {  // [!code focus:3]
+    return signTypedData({ ...typedData, privateKey })
+  },
 })
 ```
