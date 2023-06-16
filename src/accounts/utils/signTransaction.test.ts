@@ -16,7 +16,6 @@ import type { SerializeTransactionFn } from '../../utils/transaction/serializeTr
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { signTransaction } from './signTransaction.js'
 
-
 const base = {
   gas: 21000n,
   nonce: 785,
