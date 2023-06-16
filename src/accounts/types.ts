@@ -3,11 +3,10 @@ import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
-import type { TransactionSerializable,  } from '../types/transaction.js'
+import type { TransactionSerializable } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { NoUndefined } from '../types/utils.js'
-
+import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { SignTransactionReturnType } from './utils/signTransaction.js'
 
 export type Account<TAddress extends Address = Address> =
@@ -25,7 +24,9 @@ export type CustomSource = {
       ? TransactionSerializable
       : Parameters<Serializer>[0],
     serializer?: Serializer,
-  ) => Promise<SignTransactionReturnType<NoUndefined<Parameters<Serializer>[0]>>>
+  ) => Promise<
+    SignTransactionReturnType<NoUndefined<Parameters<Serializer>[0]>>
+  >
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string = string,

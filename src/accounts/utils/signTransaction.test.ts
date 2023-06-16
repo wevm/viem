@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '../../_test/constants.js'
+import { concatHex, toHex, toRlp } from '../../index.js'
 import type {
   TransactionSerializable,
   TransactionSerializableBase,
@@ -11,11 +12,10 @@ import type {
   TransactionSerializedEIP2930,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
-import { parseGwei } from '../../utils/unit/parseGwei.js'
-
-import { signTransaction } from './signTransaction.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
-import { concatHex, toHex, toRlp } from '../../index.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { signTransaction } from './signTransaction.js'
+
 
 const base = {
   gas: 21000n,
