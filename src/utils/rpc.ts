@@ -170,7 +170,7 @@ export async function getSocket(url_: string) {
           .default
       else WebSocket = WebSocket.WebSocket
 
-      const webSocket = new WebSocket(url)
+      const webSocket = new WebSocket(urlKey)
 
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
