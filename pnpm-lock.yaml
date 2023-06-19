@@ -101,8 +101,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
       vite:
-        specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        specifier: ^4.3.9
+        version: 4.3.9(@types/node@18.16.3)
       vitest:
         specifier: ~0.30.1
         version: 0.30.1(@vitest/ui@0.30.1)
@@ -118,7 +118,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/blocks/fetching-blocks:
     dependencies:
@@ -131,7 +131,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/blocks/watching-blocks:
     dependencies:
@@ -144,7 +144,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/clients/public-client:
     dependencies:
@@ -157,7 +157,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/clients/wallet-client:
     dependencies:
@@ -185,7 +185,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/contracts/deploying-contracts:
     dependencies:
@@ -213,7 +213,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/contracts/multicall:
     dependencies:
@@ -226,7 +226,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/contracts/reading-contracts:
     dependencies:
@@ -239,7 +239,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/contracts/writing-to-contracts:
     dependencies:
@@ -267,7 +267,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/ens:
     dependencies:
@@ -280,7 +280,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/filters-and-logs/block-event-logs:
     dependencies:
@@ -293,7 +293,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/filters-and-logs/event-logs:
     dependencies:
@@ -306,7 +306,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/signing/typed-data:
     dependencies:
@@ -334,7 +334,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/transactions/fetching-transactions:
     dependencies:
@@ -347,7 +347,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   examples/transactions/sending-transactions:
     dependencies:
@@ -375,7 +375,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   playgrounds/browser:
     dependencies:
@@ -403,7 +403,7 @@ importers:
         version: 5.0.3
       vite:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@18.16.3)
+        version: 4.1.4
 
   playgrounds/bun:
     dependencies:
@@ -2340,7 +2340,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.20.12)
       magic-string: 0.27.0
       react-refresh: 0.14.0
-      vite: 4.1.4(@types/node@18.16.3)
+      vite: 4.1.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2476,7 +2476,7 @@ packages:
       '@vue/shared': 3.2.47
       estree-walker: 2.0.2
       magic-string: 0.25.9
-      postcss: 8.4.21
+      postcss: 8.4.24
       source-map: 0.6.1
     dev: true
 
@@ -5221,6 +5221,12 @@ packages:
     hasBin: true
     dev: true
 
+  /nanoid@3.3.6:
+    resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+    dev: true
+
   /nanospinner@1.1.0:
     resolution: {integrity: sha512-yFvNYMig4AthKYfHFl1sLj7B2nkHL4lzdig4osvl9/LdGbXwrdFRoqBS98gsEsOakr0yH+r5NZ/1Y9gdVB8trA==}
     dependencies:
@@ -5631,6 +5637,15 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
+  /postcss@8.4.24:
+    resolution: {integrity: sha512-M0RzbcI0sO/XJNucsGjvWU9ERWxb/ytp1w6dKtxTKgixdtQDq4rmx/g8W1hnaheq9jgwL/oyEdH5Bc4WwJKMqg==}
+    engines: {node: ^10 || ^12 || >=14}
+    dependencies:
+      nanoid: 3.3.6
+      picocolors: 1.0.0
+      source-map-js: 1.0.2
+    dev: true
+
   /preact@10.4.1:
     resolution: {integrity: sha512-WKrRpCSwL2t3tpOOGhf2WfTpcmbpxaWtDbdJdKdjd0aEiTkvOmS4NBkG6kzlaAHI9AkQ3iVqbFWM3Ei7mZ4o1Q==}
     dev: true
@@ -5905,6 +5920,14 @@ packages:
 
   /rollup@3.20.0:
     resolution: {integrity: sha512-YsIfrk80NqUDrxrjWPXUa7PWvAfegZEXHuPsEZg58fGCdjL1I9C1i/NaG+L+27kxxwkrG/QEDEQc8s/ynXWWGQ==}
+    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /rollup@3.25.1:
+    resolution: {integrity: sha512-tywOR+rwIt5m2ZAWSe5AIJcTat8vGlnPFAv15ycCrw33t6iFsXZ6mzHVFh2psSjxQPmI+xgzMZZizUAukBI4aQ==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -6603,7 +6626,7 @@ packages:
       mlly: 1.2.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.1.4(@types/node@18.16.3)
+      vite: 4.3.9(@types/node@18.16.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -6614,7 +6637,7 @@ packages:
       - terser
     dev: true
 
-  /vite@4.1.4(@types/node@18.16.3):
+  /vite@4.1.4:
     resolution: {integrity: sha512-3knk/HsbSTKEin43zHu7jTwYWv81f8kgAL99G5NWBcA1LKvtvcVAC4JjBH1arBunO9kQka+1oGbrMKOjk4ZrBg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -6639,7 +6662,6 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 18.16.3
       esbuild: 0.16.17
       postcss: 8.4.21
       resolve: 1.22.1
@@ -6677,6 +6699,39 @@ packages:
       postcss: 8.4.21
       resolve: 1.22.1
       rollup: 3.20.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite@4.3.9(@types/node@18.16.3):
+    resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 18.16.3
+      esbuild: 0.17.7
+      postcss: 8.4.24
+      rollup: 3.25.1
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -6764,7 +6819,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.4.0
-      vite: 4.1.4(@types/node@18.16.3)
+      vite: 4.3.9(@types/node@18.16.3)
       vite-node: 0.30.1(@types/node@18.16.3)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

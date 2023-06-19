@@ -178,28 +178,19 @@
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
     "typescript": "^5.0.4",
-    "vite": "^4.1.4",
+    "vite": "^4.3.9",
     "vitest": "~0.30.1"
   },
   "license": "MIT",
   "repository": "wagmi-dev/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wagmi-dev"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ],
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"],
   "size-limit": [
     {
       "name": "viem (cjs)",
