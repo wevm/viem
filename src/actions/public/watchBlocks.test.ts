@@ -50,6 +50,7 @@ describe('poll', () => {
     unwatch()
     expect(blocks.length).toBe(4)
     expect(prevBlocks.length).toBe(3)
+    expect(typeof blocks[0].number).toBe('bigint')
   })
 
   test('args: includeTransactions', async () => {
@@ -586,6 +587,7 @@ describe('subscribe', () => {
     unwatch()
     expect(blocks.length).toBe(5)
     expect(prevBlocks.length).toBe(4)
+    expect(typeof blocks[0].number).toBe('bigint')
   })
 
   describe('behavior', () => {
