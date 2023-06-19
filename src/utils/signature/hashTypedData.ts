@@ -16,15 +16,15 @@ type MessageTypeProperty = {
 }
 
 export type HashTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  TTypedData extends TypedData | Record<string, unknown> = TypedData,
+  TPrimaryType extends keyof TTypedData = keyof TTypedData,
 > = TypedDataDefinition<TTypedData, TPrimaryType>
 
 export type HashTypedDataReturnType = Hex
 
 export function hashTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
+  const TTypedData extends TypedData | Record<string, unknown>, // `Record<string, unknown>` allows for non-const asserted types
+  TPrimaryType extends keyof TTypedData,
 >({
   domain: domain_,
   message,

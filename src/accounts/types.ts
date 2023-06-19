@@ -16,8 +16,8 @@ export type CustomSource = {
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
   signTransaction: (transaction: TransactionSerializable) => Promise<Hash>
   signTypedData: <
-    TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string = string,
+    const TTypedData extends TypedData | Record<string, unknown>,
+    TPrimaryType extends keyof TTypedData = keyof TTypedData,
   >(
     typedData: TypedDataDefinition<TTypedData, TPrimaryType>,
   ) => Promise<Hash>

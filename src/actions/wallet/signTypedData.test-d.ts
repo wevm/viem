@@ -150,9 +150,7 @@ test('`types` not const asserted', () => {
   type Result = Parameters<
     typeof walletClient.signTypedData<typeof types_, typeof primaryType>
   >[0]
-  expectTypeOf<Result['message']>().toEqualTypeOf<{
-    [key: string]: unknown
-  }>()
+  expectTypeOf<Result['message']>().toEqualTypeOf<Record<string, unknown>>()
 })
 
 test('`types` declared as `TypedData`', () => {
@@ -176,7 +174,5 @@ test('`types` declared as `TypedData`', () => {
   type Result = Parameters<
     typeof walletClient.signTypedData<typeof types_, typeof primaryType>
   >[0]
-  expectTypeOf<Result['message']>().toEqualTypeOf<{
-    [key: string]: unknown
-  }>()
+  expectTypeOf<Result['message']>().toEqualTypeOf<Record<string, unknown>>()
 })

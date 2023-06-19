@@ -11,8 +11,8 @@ import { sign } from './sign.js'
 import { signatureToHex } from './signatureToHex.js'
 
 export type SignTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  TTypedData extends TypedData | Record<string, unknown> = TypedData,
+  TPrimaryType extends keyof TTypedData = keyof TTypedData,
 > = TypedDataDefinition<TTypedData, TPrimaryType> & {
   /** The private key to sign with. */
   privateKey: Hex
@@ -27,8 +27,8 @@ export type SignTypedDataReturnType = Hex
  * @returns The signature.
  */
 export async function signTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
+  const TTypedData extends TypedData | Record<string, unknown>, // `Record<string, unknown>` allows for non-const asserted types
+  TPrimaryType extends keyof TTypedData,
 >({
   privateKey,
   ...typedData

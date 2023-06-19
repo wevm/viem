@@ -1,81 +1,72 @@
 import type {
-  Narrow,
   TypedData,
   TypedDataDomain,
   TypedDataToPrimitiveTypes,
 } from 'abitype'
 
 export type TypedDataDefinition<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = {
-  primaryType: GetTypedDataPrimaryType<TTypedData, TPrimaryType>
-} & GetTypedDataMessage<TTypedData, TPrimaryType> &
+  TTypedData extends TypedData | Record<string, unknown> =
+    | TypedData
+    | Record<string, unknown>,
+  TPrimaryType extends keyof TTypedData | 'EIP712Domain' = keyof TTypedData,
+> = GetTypedDataPrimaryType<TTypedData, TPrimaryType> &
+  GetTypedDataMessage<TTypedData, TPrimaryType> &
   GetTypedDataTypes<TTypedData, TPrimaryType> &
   GetTypedDataDomain<TTypedData, TPrimaryType>
 
 export type GetTypedDataDomain<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TSchema = TTypedData extends TypedData
+  TTypedData extends TypedData | Record<string, unknown>,
+  TPrimaryType extends keyof TTypedData | 'EIP712Domain',
+  ///
+  Schema extends Record<string, unknown> = TTypedData extends TypedData
     ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
-  TDomain = TSchema extends { EIP712Domain: infer Domain }
+    : { [_: string]: any },
+  TDomain = Schema extends { EIP712Domain: infer Domain }
     ? Domain
     : TypedDataDomain,
 > = TPrimaryType extends 'EIP712Domain'
-  ? {
-      domain: TDomain
-    }
-  : {
-      domain?: TDomain
-    }
+  ? { domain: TDomain }
+  : { domain?: TDomain }
 
 export type GetTypedDataMessage<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-  TSchema = TTypedData extends TypedData
+  TTypedData extends TypedData | Record<string, unknown>,
+  TPrimaryType extends keyof TTypedData | 'EIP712Domain',
+  ///
+  Schema extends Record<string, unknown> = TTypedData extends TypedData
     ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
-  TMessage = TSchema[TPrimaryType extends keyof TSchema
+    : { [_: string]: any },
+  Message extends Schema[keyof Schema] = Schema[TPrimaryType extends keyof Schema
     ? TPrimaryType
-    : keyof TSchema],
+    : keyof Schema],
 > = TPrimaryType extends 'EIP712Domain'
   ? {}
-  : { [key: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
+  : { [key: string]: any } extends Message // Check if we were able to infer the shape of typed data
   ? {
       /**
        * Data to sign
        *
        * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
        */
-      message: { [key: string]: unknown }
+      message: Record<string, unknown>
     }
   : {
       /** Data to sign */
-      message: TMessage
+      message: Message
     }
 
 export type GetTypedDataPrimaryType<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
-> = TTypedData extends TypedData
-  ? keyof TTypedData extends infer AbiFunctionNames
-    ?
-        | AbiFunctionNames
-        | (TPrimaryType extends AbiFunctionNames ? TPrimaryType : never)
-        | (TypedData extends TTypedData ? string : never)
-        | 'EIP712Domain'
-    : never
-  : TPrimaryType
+  TTypedData extends TypedData | Record<string, unknown>,
+  TPrimaryType extends keyof TTypedData,
+> = {
+  primaryType:
+    | TPrimaryType // infer value
+    | keyof TTypedData // show all values
+    | 'EIP712Domain'
+}
 
 export type GetTypedDataTypes<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  TTypedData extends TypedData | Record<string, unknown>,
+  TPrimaryType extends keyof TTypedData | 'EIP712Domain',
 > = TPrimaryType extends 'EIP712Domain'
-  ? {
-      types?: Narrow<TTypedData>
-    }
-  : {
-      types: Narrow<TTypedData>
-    }
+  ? { types?: TTypedData }
+  : { types: TTypedData }

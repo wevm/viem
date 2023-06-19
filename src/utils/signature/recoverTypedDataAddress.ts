@@ -7,16 +7,16 @@ import { hashTypedData } from './hashTypedData.js'
 import { recoverAddress } from './recoverAddress.js'
 
 export type RecoverTypedDataAddressParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  TTypedData extends TypedData | Record<string, unknown> = TypedData,
+  TPrimaryType extends keyof TTypedData = keyof TTypedData,
 > = TypedDataDefinition<TTypedData, TPrimaryType> & {
   signature: Hex | ByteArray
 }
 export type RecoverTypedDataAddressReturnType = Address
 
 export async function recoverTypedDataAddress<
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
+  const TTypedData extends TypedData | Record<string, unknown>, // `Record<string, unknown>` allows for non-const asserted types
+  TPrimaryType extends keyof TTypedData,
 >({
   domain,
   message,

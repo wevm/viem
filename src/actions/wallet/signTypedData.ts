@@ -14,8 +14,8 @@ import { stringify } from '../../utils/stringify.js'
 import { validateTypedData } from '../../utils/typedData.js'
 
 export type SignTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  TTypedData extends TypedData | Record<string, unknown> = TypedData,
+  TPrimaryType extends keyof TTypedData = keyof TTypedData,
   TAccount extends Account | undefined = undefined,
 > = GetAccountParameter<TAccount> &
   TypedDataDefinition<TTypedData, TPrimaryType>
@@ -121,8 +121,8 @@ export type SignTypedDataReturnType = Hex
  * })
  */
 export async function signTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string,
+  const TTypedData extends TypedData | Record<string, unknown>, // `Record<string, unknown>` allows for non-const asserted types
+  TPrimaryType extends keyof TTypedData,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(

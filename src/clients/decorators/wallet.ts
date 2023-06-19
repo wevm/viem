@@ -410,8 +410,8 @@ export type WalletActions<
    * })
    */
   signTypedData: <
-    TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string,
+    const TTypedData extends TypedData | Record<string, unknown>,
+    TPrimaryType extends keyof TTypedData,
   >(
     args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
   ) => Promise<SignTypedDataReturnType>

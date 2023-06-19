@@ -453,7 +453,6 @@ export type {
   EIP1193Provider,
   EIP1193RequestFn,
   EIP1474Methods,
-  ProviderRpcError as EIP1193ProviderRpcError,
   ProviderConnectInfo,
   ProviderMessage,
   PublicRpcSchema,
@@ -466,6 +465,7 @@ export type {
   WalletPermission,
   WalletRpcSchema,
 } from './types/eip1193.js'
+export { ProviderRpcError as EIP1193ProviderRpcError } from './types/eip1193.js'
 export type {
   FeeHistory,
   FeeValues,
@@ -479,7 +479,6 @@ export type {
 export type {
   GetTypedDataDomain,
   GetTypedDataMessage,
-  GetTypedDataPrimaryType,
   GetTypedDataTypes,
   TypedDataDefinition,
 } from './types/typedData.js'

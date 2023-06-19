@@ -11,8 +11,8 @@ import {
 } from './recoverTypedDataAddress.js'
 
 export type VerifyTypedDataParameters<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
-  TPrimaryType extends string = string,
+  TTypedData extends TypedData | Record<string, unknown> = TypedData,
+  TPrimaryType extends keyof TTypedData = keyof TTypedData,
 > = TypedDataDefinition<TTypedData, TPrimaryType> & {
   /** The address to verify the typed data for. */
   address: Address
@@ -35,8 +35,8 @@ export type VerifyTypedDataReturnType = boolean
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
 export async function verifyTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
+  const TTypedData extends TypedData | Record<string, unknown>, // `Record<string, unknown>` allows for non-const asserted types
+  TPrimaryType extends keyof TTypedData,
 >({
   address,
   domain,

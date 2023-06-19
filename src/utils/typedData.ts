@@ -11,8 +11,8 @@ import { numberToHex } from './encoding/toHex.js'
 import { bytesRegex, integerRegex } from './regex.js'
 
 export function validateTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
-  TPrimaryType extends string = string,
+  const TTypedData extends TypedData | Record<string, unknown>, // `Record<string, unknown>` allows for non-const asserted types
+  TPrimaryType extends keyof TTypedData,
 >({
   domain,
   message,
@@ -68,7 +68,7 @@ export function validateTypedData<
 
   if (primaryType !== 'EIP712Domain') {
     // Validate message types.
-    const type = types[primaryType]
+    const type = types[primaryType as string]
     validateData(type, message as Record<string, unknown>)
   }
 }
