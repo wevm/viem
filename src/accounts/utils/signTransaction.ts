@@ -2,7 +2,6 @@ import type { Hex } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerialized,
-  TransactionType,
 } from '../../types/transaction.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
@@ -22,8 +21,7 @@ export type SignTransactionArgs<
 }
 export type SignTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
-  TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,
-> = TransactionSerialized<TTransactionType>
+> = TransactionSerialized<GetTransactionType<TTransactionSerializable>>
 
 export async function signTransaction<
   TTransactionSerializable extends TransactionSerializable,

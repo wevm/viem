@@ -701,7 +701,11 @@ export { parseGwei } from './utils/unit/parseGwei.js'
 export { parseTransaction } from './utils/transaction/parseTransaction.js'
 export { parseUnits } from './utils/unit/parseUnits.js'
 export { prepareRequest } from './utils/transaction/prepareRequest.js'
-export { serializeTransaction } from './utils/transaction/serializeTransaction.js'
+export { serializeAccessList } from './utils/transaction/serializeAccessList.js'
+export {
+  serializeTransaction,
+  type SerializeTransactionFn,
+} from './utils/transaction/serializeTransaction.js'
 export { size } from './utils/data/size.js'
 export { slice, sliceBytes, sliceHex } from './utils/data/slice.js'
 export { stringify } from './utils/stringify.js'

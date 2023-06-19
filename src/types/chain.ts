@@ -1,15 +1,15 @@
+import type { TransactionSerializable } from '../types/transaction.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Formatters } from './formatter.js'
 import type { IsUndefined } from './utils.js'
 import type { Chain as Chain_ } from '@wagmi/chains'
 import type { Address } from 'abitype'
 
-export type Chain<
-  TFormatters extends Formatters = Formatters,
-  TSerializer extends SerializeTransactionFn = SerializeTransactionFn,
-> = Chain_ & {
+export type Chain<TFormatters extends Formatters = Formatters> = Chain_ & {
   formatters?: TFormatters
-  serializer?: TSerializer
+  serializers?: {
+    transaction?: SerializeTransactionFn<TransactionSerializable>
+  }
 }
 
 export type ChainContract = {

@@ -144,6 +144,7 @@ test('exports utils', () => {
         "webSocket": [Function],
         "webSocketAsync": [Function],
       },
+      "serializeAccessList": [Function],
       "serializeTransaction": [Function],
       "size": [Function],
       "slice": [Function],

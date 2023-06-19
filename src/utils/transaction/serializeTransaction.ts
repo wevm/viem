@@ -32,6 +32,10 @@ export type SerializedTransactionReturnType<
   TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,
 > = TransactionSerialized<TTransactionType>
 
+export type SerializeTransactionFn<
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+> = typeof serializeTransaction<TTransactionSerializable>
+
 export function serializeTransaction<
   TTransactionSerializable extends TransactionSerializable,
 >(
@@ -57,16 +61,6 @@ export function serializeTransaction<
     signature,
   ) as SerializedTransactionReturnType<TTransactionSerializable>
 }
-
-export type SerializeTransactionFn<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
-> = (
-  transaction: TTransactionSerializable,
-  signature?: Signature,
-) => SerializedTransactionReturnType<
-  TTransactionSerializable,
-  GetTransactionType<TTransactionSerializable>
->
 
 function serializeTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,

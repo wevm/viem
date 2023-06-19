@@ -36,7 +36,7 @@ const account = toAccount({
   async signMessage({ message }) {
     return signMessage({ message, privateKey })
   },
-  async signTransaction(transaction, serializer) {
+  async signTransaction(transaction, { serializer }) {
     return signTransaction({ privateKey, transaction, serializer })
   },
   async signTypedData(typedData) {
@@ -65,7 +65,7 @@ const account = toAccount({
   async signMessage({ message }) {
     return signMessage({ message, privateKey })
   },
-  async signTransaction(transaction, serializer) {
+  async signTransaction(transaction, { serializer }) {
     return signTransaction({ privateKey, transaction, serializer })
   },
   async signTypedData(typedData) {
@@ -85,7 +85,7 @@ const account = toAccount({
   async signMessage({ message }) { // [!code focus:3]
     return signMessage({ message, privateKey })
   },
-  async signTransaction(transaction, serializer) {
+  async signTransaction(transaction, { serializer }) {
     return signTransaction({ privateKey, transaction, serializer })
   },
   async signTypedData(typedData) {
@@ -104,7 +104,7 @@ const account = toAccount({
   async signMessage({ message }) {
     return signMessage({ message, privateKey })
   },
-  async signTransaction(transaction, serializer) {  // [!code focus:3]
+  async signTransaction(transaction, { serializer }) {  // [!code focus:3]
     return signTransaction({ privateKey, transaction, serializer })
   },
   async signTypedData(typedData) {
@@ -123,7 +123,7 @@ const account = toAccount({
   async signMessage({ message }) {
     return signMessage({ message, privateKey })
   },
-  async signTransaction(transaction, serializer) {
+  async signTransaction(transaction, { serializer }) {
     return signTransaction({ privateKey, transaction, serializer })
   },
   async signTypedData(typedData) {  // [!code focus:3]
