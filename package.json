@@ -106,36 +106,16 @@
   },
   "typesVersions": {
     "*": {
-      "abi": [
-        "./dist/types/abi.d.ts"
-      ],
-      "accounts": [
-        "./dist/types/accounts/index.d.ts"
-      ],
-      "chains": [
-        "./dist/types/chains.d.ts"
-      ],
-      "contract": [
-        "./dist/types/contract.d.ts"
-      ],
-      "ens": [
-        "./dist/types/ens.d.ts"
-      ],
-      "public": [
-        "./dist/types/public.d.ts"
-      ],
-      "test": [
-        "./dist/types/test.d.ts"
-      ],
-      "utils": [
-        "./dist/types/utils/index.d.ts"
-      ],
-      "wallet": [
-        "./dist/types/wallet.d.ts"
-      ],
-      "window": [
-        "./dist/types/window.d.ts"
-      ]
+      "abi": ["./dist/types/abi.d.ts"],
+      "accounts": ["./dist/types/accounts/index.d.ts"],
+      "chains": ["./dist/types/chains.d.ts"],
+      "contract": ["./dist/types/contract.d.ts"],
+      "ens": ["./dist/types/ens.d.ts"],
+      "public": ["./dist/types/public.d.ts"],
+      "test": ["./dist/types/test.d.ts"],
+      "utils": ["./dist/types/utils/index.d.ts"],
+      "wallet": ["./dist/types/wallet.d.ts"],
+      "window": ["./dist/types/window.d.ts"]
     }
   },
   "peerDependencies": {
@@ -153,7 +133,7 @@
     "@scure/bip32": "1.3.0",
     "@scure/bip39": "1.2.0",
     "@wagmi/chains": "1.1.0",
-    "abitype": "0.8.7",
+    "abitype": "0.8.11",
     "isomorphic-ws": "5.0.0",
     "ws": "8.12.0"
   },
@@ -222,9 +202,7 @@
       "vitepress@1.0.0-alpha.61": "patches/vitepress@1.0.0-alpha.61.patch"
     },
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "@algolia/client-search"
-      ]
+      "ignoreMissing": ["@algolia/client-search"]
     }
   }
 }
