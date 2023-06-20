@@ -23,7 +23,13 @@ export type EstimateContractGasParameters<
   TAccount extends Account | undefined = undefined,
 > = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   Omit<EstimateGasParameters<TChain, TAccount>, 'data' | 'to' | 'value'> &
-  GetValue<TAbi, TFunctionName, EstimateGasParameters<TChain>['value']>
+  GetValue<
+    TAbi,
+    TFunctionName,
+    EstimateGasParameters<TChain> extends EstimateGasParameters
+      ? EstimateGasParameters<TChain>['value']
+      : undefined
+  >
 
 export type EstimateContractGasReturnType = bigint
 

@@ -38,7 +38,13 @@ export type SimulateContractParameters<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
     'batch' | 'to' | 'data' | 'value'
   > &
-  GetValue<TAbi, TFunctionName, CallParameters<TChain>['value']>
+  GetValue<
+    TAbi,
+    TFunctionName,
+    CallParameters<TChain> extends CallParameters
+      ? CallParameters<TChain>['value']
+      : undefined
+  >
 
 export type SimulateContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,

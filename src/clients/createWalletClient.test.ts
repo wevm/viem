@@ -259,6 +259,7 @@ describe('args: transport', () => {
         "account": undefined,
         "addChain": [Function],
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -279,6 +280,7 @@ describe('args: transport', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "deployContract": [Function],
         "getAddresses": [Function],

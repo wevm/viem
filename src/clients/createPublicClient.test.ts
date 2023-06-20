@@ -136,6 +136,7 @@ describe('transports', () => {
         "batch": undefined,
         "call": [Function],
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -156,6 +157,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "createBlockFilter": [Function],
         "createContractEventFilter": [Function],
@@ -227,6 +229,7 @@ describe('transports', () => {
         "batch": undefined,
         "call": [Function],
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -247,6 +250,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "createBlockFilter": [Function],
         "createContractEventFilter": [Function],

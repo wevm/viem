@@ -87,6 +87,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -107,6 +108,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "dropTransaction": [Function],
         "getAutomine": [Function],
@@ -167,6 +169,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -187,6 +190,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "dropTransaction": [Function],
         "getAutomine": [Function],

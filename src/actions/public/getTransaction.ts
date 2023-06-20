@@ -6,10 +6,8 @@ import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
-import { format } from '../../utils/formatters/format.js'
 import {
   type FormattedTransaction,
-  type TransactionFormatter,
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
 
@@ -51,7 +49,7 @@ export type GetTransactionParameters =
     }
 
 export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
-  FormattedTransaction<TransactionFormatter<TChain>>
+  FormattedTransaction<TChain>
 
 /**
  * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) given a hash or block identifier.
@@ -117,7 +115,6 @@ export async function getTransaction<TChain extends Chain | undefined>(
       index,
     })
 
-  return format(transaction, {
-    formatter: client.chain?.formatters?.transaction || formatTransaction,
-  })
+  const format = client.chain?.formatters?.transaction || formatTransaction
+  return format(transaction)
 }

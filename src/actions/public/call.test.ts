@@ -17,7 +17,6 @@ import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { trim } from '../../utils/data/trim.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
@@ -97,7 +96,7 @@ test('custom formatter', async () => {
   })
 
   const { data } = await call(client, {
-    gatewayFee: numberToHex(1n),
+    gatewayFee: 1n,
     data: name4bytes,
     account: sourceAccount.address,
     to: wagmiContractAddress,

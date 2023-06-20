@@ -72,6 +72,7 @@ describe('defineChain', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "formatters": undefined,
         "id": 42220,
         "name": "Celo",
         "nativeCurrency": {
@@ -92,6 +93,7 @@ describe('defineChain', () => {
             ],
           },
         },
+        "serializers": undefined,
       }
     `)
   })

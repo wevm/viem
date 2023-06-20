@@ -118,32 +118,23 @@ export { size } from './data/size.js'
 export { slice, sliceBytes, sliceHex } from './data/slice.js'
 export { trim } from './data/trim.js'
 export {
-  type BlockFormatter,
   type FormattedBlock,
   defineBlock,
   formatBlock,
 } from './formatters/block.js'
-export {
-  type ExtractFormatter,
-  type Formatted,
-  defineFormatter,
-  format,
-} from './formatters/format.js'
+export { defineFormatter } from './formatters/formatter.js'
 export {
   type FormattedTransaction,
-  type TransactionFormatter,
   defineTransaction,
   formatTransaction,
   transactionType,
 } from './formatters/transaction.js'
 export {
   type FormattedTransactionReceipt,
-  type TransactionReceiptFormatter,
   defineTransactionReceipt,
 } from './formatters/transactionReceipt.js'
 export {
   type FormattedTransactionRequest,
-  type TransactionRequestFormatter,
   defineTransactionRequest,
   formatTransactionRequest,
 } from './formatters/transactionRequest.js'

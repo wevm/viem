@@ -1,23 +1,14 @@
 import type { Block } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Formatter, Formatters } from '../../types/formatter.js'
+import type { ExtractFormatterReturnType } from '../../types/formatter.js'
 import type { RpcBlock } from '../../types/rpc.js'
 
-import {
-  type ExtractFormatter,
-  type Formatted,
-  defineFormatter,
-} from './format.js'
+import { defineFormatter } from './formatter.js'
 import { formatTransaction } from './transaction.js'
 
-export type BlockFormatter<TChain extends Chain | undefined = Chain> =
-  TChain extends Chain
-    ? ExtractFormatter<TChain, 'block', NonNullable<Formatters['block']>>
-    : Formatters['block']
-
 export type FormattedBlock<
-  TFormatter extends Formatter | undefined = Formatter,
-> = Formatted<TFormatter, Block>
+  TChain extends Chain | undefined = Chain | undefined,
+> = ExtractFormatterReturnType<TChain, 'block', Block>
 
 export function formatBlock(block: Partial<RpcBlock>) {
   // TODO: Properly format transactions with a custom formatter
@@ -44,6 +35,4 @@ export function formatBlock(block: Partial<RpcBlock>) {
   } as Block
 }
 
-export const defineBlock = /*#__PURE__*/ defineFormatter({
-  format: formatBlock,
-})
+export const defineBlock = /*#__PURE__*/ defineFormatter(formatBlock)

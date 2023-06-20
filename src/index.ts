@@ -476,6 +476,7 @@ export type {
   Formatter,
   Formatters,
 } from './types/formatter.js'
+export type { Serializers } from './types/serializer.js'
 export type {
   GetTypedDataDomain,
   GetTypedDataMessage,
@@ -507,7 +508,6 @@ export type {
 export { labelhash } from './utils/ens/labelhash.js'
 export { namehash } from './utils/ens/namehash.js'
 export {
-  type BlockFormatter,
   type FormattedBlock,
   defineBlock,
   formatBlock,
@@ -559,25 +559,19 @@ export {
   type EncodeFunctionResultParameters,
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
-export type {
-  ExtractFormatter,
-  Formatted,
-} from './utils/formatters/format.js'
+export { defineFormatter } from './utils/formatters/formatter.js'
 export {
   type FormattedTransaction,
-  type TransactionFormatter,
   defineTransaction,
   formatTransaction,
   transactionType,
 } from './utils/formatters/transaction.js'
 export {
   type FormattedTransactionReceipt,
-  type TransactionReceiptFormatter,
   defineTransactionReceipt,
 } from './utils/formatters/transactionReceipt.js'
 export {
   type FormattedTransactionRequest,
-  type TransactionRequestFormatter,
   defineTransactionRequest,
   formatTransactionRequest,
 } from './utils/formatters/transactionRequest.js'

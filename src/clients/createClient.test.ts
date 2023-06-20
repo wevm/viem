@@ -56,6 +56,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -76,6 +77,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "key": "base",
         "name": "Base Client",
@@ -106,6 +108,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -126,6 +129,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "key": "base",
         "name": "Base Client",

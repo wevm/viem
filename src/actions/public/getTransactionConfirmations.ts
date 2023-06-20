@@ -2,10 +2,7 @@ import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import type {
-  FormattedTransactionReceipt,
-  TransactionReceiptFormatter,
-} from '../../utils/formatters/transactionReceipt.js'
+import type { FormattedTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 
 import { getBlockNumber } from './getBlockNumber.js'
 import { getTransaction } from './getTransaction.js'
@@ -21,9 +18,7 @@ export type GetTransactionConfirmationsParameters<
   | {
       hash?: never
       /** The transaction receipt. */
-      transactionReceipt: FormattedTransactionReceipt<
-        TransactionReceiptFormatter<TChain>
-      >
+      transactionReceipt: FormattedTransactionReceipt<TChain>
     }
 
 export type GetTransactionConfirmationsReturnType = bigint

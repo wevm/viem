@@ -8,31 +8,25 @@ import type { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Formatter } from '../../types/formatter.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { MergeIntersectionProperties } from '../../types/utils.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getEstimateGasError } from '../../utils/errors/getEstimateGasError.js'
 import { extract } from '../../utils/formatters/extract.js'
-import { type Formatted, format } from '../../utils/formatters/format.js'
 import {
-  type TransactionRequestFormatter,
+  type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 
 export type FormattedEstimateGas<
-  TFormatter extends Formatter | undefined = Formatter,
-> = MergeIntersectionProperties<
-  Omit<Formatted<TFormatter, TransactionRequest, true>, 'from'>,
-  TransactionRequest
->
+  TChain extends Chain | undefined = Chain | undefined,
+> = FormattedTransactionRequest<TChain>
 
 export type EstimateGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = undefined,
-> = FormattedEstimateGas<TransactionRequestFormatter<TChain>> &
+> = Omit<FormattedEstimateGas<TChain>, 'from'> &
   GetAccountParameter<TAccount> &
   (
     | {
@@ -114,26 +108,22 @@ export async function estimateGas<
 
     assertRequest(args)
 
-    const formatter = client.chain?.formatters?.transactionRequest
-    const request = format(
-      {
-        from: account.address,
-        accessList,
-        data,
-        gas,
-        gasPrice,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        to,
-        value,
-        // Pick out extra data that might exist on the chain's transaction request type.
-        ...extract(rest, { formatter }),
-      } as TransactionRequest,
-      {
-        formatter: formatter || formatTransactionRequest,
-      },
-    )
+    const format =
+      client.chain?.formatters?.transactionRequest || formatTransactionRequest
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter: format }),
+      from: account.address,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+    } as TransactionRequest)
 
     const balance = await (client as PublicClient).request({
       method: 'eth_estimateGas',
