@@ -61,10 +61,10 @@ describe('nft', () => {
     expect(
       await parseAvatarRecord(publicClient, {
         record:
-          'eip155:1/erc1155:0x495f947276749Ce646f68AC8c248420045cb7b5e/8112316025873927737505937898915153732580103913704334048512380490797008551937',
+          'eip155:1/erc1155:0xb32979486938aa9694bfc898f35dbed459f44424/10063',
       }),
     ).toMatchInlineSnapshot(
-      '"https://i.seadn.io/gae/hKHZTZSTmcznonu8I6xcVZio1IF76fq0XmcxnvUykC-FGuVJ75UPdLDlKJsfgVXH9wOSmkyHw0C39VAYtsGyxT7WNybjQ6s3fM3macE?w=500&auto=format"',
+      '"https://ipfs.io/ipfs/QmSP4nq9fnN9dAiCj42ug9Wa79rqmQerZXZch82VqpiH7U/image.gif"',
     )
   })
 })
