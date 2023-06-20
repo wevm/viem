@@ -56,8 +56,6 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   from: Address
   /** Gas provided for transaction execution */
   gas: TQuantity
-  /** Base fee per gas. */
-  gasPrice: TQuantity
   /** Hash of this transaction */
   hash: Hash
   /** Contract code or a hashed method call */
