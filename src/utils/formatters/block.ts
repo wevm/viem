@@ -11,7 +11,6 @@ export type FormattedBlock<
 > = ExtractFormatterReturnType<TChain, 'block', Block>
 
 export function formatBlock(block: Partial<RpcBlock>) {
-  // TODO: Properly format transactions with a custom formatter
   const transactions = block.transactions?.map((transaction) => {
     if (typeof transaction === 'string') return transaction
     return formatTransaction(transaction)
