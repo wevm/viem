@@ -132,7 +132,6 @@ test('exports actions', () => {
       "decodeFunctionResult": [Function],
       "defineBlock": [Function],
       "defineChain": [Function],
-      "defineFormatter": [Function],
       "defineTransaction": [Function],
       "defineTransactionReceipt": [Function],
       "defineTransactionRequest": [Function],

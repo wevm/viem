@@ -86,6 +86,7 @@ test('chain w/ custom block type', async () => {
       "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
       "transactionIndex": 0,
       "type": "legacy",
+      "typeHex": "0x0",
       "v": 84476n,
       "value": 0n,
     }

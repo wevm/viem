@@ -559,7 +559,6 @@ export {
   type EncodeFunctionResultParameters,
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
-export { defineFormatter } from './utils/formatters/formatter.js'
 export {
   type FormattedTransaction,
   defineTransaction,

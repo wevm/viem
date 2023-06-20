@@ -1,7 +1,8 @@
 import * as chains from '@wagmi/chains'
 
 import { defineChain } from '../utils/chain.js'
-import { celoFormatters } from './formatters.js'
+import { celoFormatters } from './formatters/celo.js'
+import { optimismFormatters } from './formatters/optimism.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
 export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
@@ -63,8 +64,12 @@ export const moonbeam = /*#__PURE__*/ defineChain(chains.moonbeam)
 export const moonriver = /*#__PURE__*/ defineChain(chains.moonriver)
 export const nexi = /*#__PURE__*/ defineChain(chains.nexi)
 export const okc = /*#__PURE__*/ defineChain(chains.okc)
-export const optimism = /*#__PURE__*/ defineChain(chains.optimism)
-export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli)
+export const optimism = /*#__PURE__*/ defineChain(chains.optimism, {
+  formatters: optimismFormatters,
+})
+export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli, {
+  formatters: optimismFormatters,
+})
 export const polygon = /*#__PURE__*/ defineChain(chains.polygon)
 export const polygonMumbai = /*#__PURE__*/ defineChain(chains.polygonMumbai)
 export const polygonZkEvm = /*#__PURE__*/ defineChain(chains.polygonZkEvm)

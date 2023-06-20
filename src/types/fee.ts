@@ -13,14 +13,11 @@ export type FeeHistory<TQuantity = bigint> = {
 }
 
 export type FeeValuesLegacy<TQuantity = bigint> = {
-  /** Base fee per gas. */
-  gasPrice: TQuantity
   maxFeePerGas?: never
   maxPriorityFeePerGas?: never
 }
 
 export type FeeValuesEIP1559<TQuantity = bigint> = {
-  gasPrice?: never
   /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
   maxFeePerGas: TQuantity
   /** Max priority fee per gas (in wei). */

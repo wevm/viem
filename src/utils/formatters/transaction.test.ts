@@ -38,6 +38,7 @@ test('legacy transaction', () => {
       "to": "0x1",
       "transactionIndex": 1,
       "type": "legacy",
+      "typeHex": "0x0",
       "v": 1n,
       "value": 1n,
     }
@@ -96,6 +97,7 @@ test('eip2930 transaction', () => {
       "to": "0x1",
       "transactionIndex": 1,
       "type": "eip2930",
+      "typeHex": "0x1",
       "v": 1n,
       "value": 1n,
     }
@@ -155,6 +157,7 @@ test('eip1559 transaction', () => {
       "to": "0x1",
       "transactionIndex": 1,
       "type": "eip1559",
+      "typeHex": "0x2",
       "v": 1n,
       "value": 1n,
     }
@@ -214,6 +217,7 @@ test('pending transaction', () => {
       "to": "0x1",
       "transactionIndex": null,
       "type": "eip1559",
+      "typeHex": "0x2",
       "v": 1n,
       "value": 1n,
     }
@@ -272,6 +276,7 @@ test('nullish values', () => {
       "to": null,
       "transactionIndex": 1,
       "type": undefined,
+      "typeHex": undefined,
       "v": undefined,
       "value": undefined,
     }
@@ -314,6 +319,7 @@ test('contract deployment transaction', () => {
       "to": null,
       "transactionIndex": 1,
       "type": "legacy",
+      "typeHex": "0x0",
       "v": 1n,
       "value": 1n,
     }

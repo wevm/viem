@@ -37,6 +37,7 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
       ? Number(transaction.transactionIndex)
       : null,
     type: transaction.type ? transactionType[transaction.type] : undefined,
+    typeHex: transaction.type ? transaction.type : undefined,
     value: transaction.value ? BigInt(transaction.value) : undefined,
     v: transaction.v ? BigInt(transaction.v) : undefined,
   }

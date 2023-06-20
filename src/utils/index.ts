@@ -122,7 +122,6 @@ export {
   defineBlock,
   formatBlock,
 } from './formatters/block.js'
-export { defineFormatter } from './formatters/formatter.js'
 export {
   type FormattedTransaction,
   defineTransaction,
