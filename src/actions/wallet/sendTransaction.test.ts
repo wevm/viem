@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, localHttpUrl } from '../../_test/constants.js'
 import {
@@ -12,8 +12,13 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import { type Hex } from '../../types/misc.js'
+import { type TransactionSerializable } from '../../types/transaction.js'
 import { defineChain } from '../../utils/chain.js'
+import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
+import { toHex } from '../../utils/encoding/toHex.js'
+import { toRlp } from '../../utils/encoding/toRlp.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { getBalance } from '../public/getBalance.js'
@@ -22,7 +27,6 @@ import { getTransaction } from '../public/getTransaction.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
-
 import { sendTransaction } from './sendTransaction.js'
 
 const sourceAccount = accounts[0]
@@ -106,6 +110,66 @@ test('sends transaction (w/ formatter)', async () => {
   expect(
     await getBalance(publicClient, { address: sourceAccount.address }),
   ).toBeLessThan(sourceAccount.balance)
+})
+
+test('sends transaction (w/ serializer)', async () => {
+  await setup()
+
+  const serializer = vi.fn(
+    (
+      txn: TransactionSerializable & {
+        additionalField?: Hex
+      },
+    ) => {
+      const {
+        chainId,
+        nonce,
+        gas,
+        to,
+        value,
+        additionalField,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        data,
+      } = txn
+
+      const serializedTransaction = [
+        chainId ? toHex(chainId) : '0x',
+        nonce ? toHex(nonce) : '0x',
+        maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
+        maxFeePerGas ? toHex(maxFeePerGas) : '0x',
+        gas ? toHex(gas) : '0x',
+        additionalField ?? '0x',
+        to ?? '0x',
+        value ? toHex(value) : '0x',
+        data ?? '0x',
+        [],
+      ]
+
+      return concatHex(['0x08', toRlp(serializedTransaction)])
+    },
+  )
+
+  const chain = defineChain({
+    ...localhost,
+    id: 1,
+    serializers: {
+      transaction: serializer,
+    },
+  })
+
+  await expect(() =>
+    sendTransaction(walletClient, {
+      chain,
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowError()
+
+  expect(serializer).toReturnWith(
+    '0x08f3018201798459682f00850324a9a700825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+  )
 })
 
 // TODO: This test is flaky. Need to figure out how to mitigate.

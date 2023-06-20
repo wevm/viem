@@ -201,6 +201,7 @@ export type TransactionSerializableGeneric<
   TIndex = number,
 > = TransactionSerializableBase<TQuantity, TIndex> & {
   accessList?: AccessList
+  chainId?: number
   gasPrice?: TQuantity
   maxFeePerGas?: TQuantity
   maxPriorityFeePerGas?: TQuantity

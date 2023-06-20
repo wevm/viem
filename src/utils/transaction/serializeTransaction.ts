@@ -1,11 +1,6 @@
-import { InvalidAddressError } from '../../errors/address.js'
-import {
-  InvalidLegacyVError,
-  InvalidStorageKeySizeError,
-} from '../../errors/transaction.js'
-import type { Hex, Signature } from '../../types/misc.js'
+import { InvalidLegacyVError } from '../../errors/transaction.js'
+import type { Signature } from '../../types/misc.js'
 import type {
-  AccessList,
   TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
@@ -16,11 +11,10 @@ import type {
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
-import { isAddress } from '../address/isAddress.js'
 import { concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
 import { toHex } from '../encoding/toHex.js'
-import { type RecursiveArray, toRlp } from '../encoding/toRlp.js'
+import { toRlp } from '../encoding/toRlp.js'
 
 import {
   assertTransactionEIP1559,
@@ -31,11 +25,16 @@ import {
   type GetTransactionType,
   getTransactionType,
 } from './getTransactionType.js'
+import { serializeAccessList } from './serializeAccessList.js'
 
 export type SerializedTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
   TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,
 > = TransactionSerialized<TTransactionType>
+
+export type SerializeTransactionFn<
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+> = typeof serializeTransaction<TTransactionSerializable>
 
 export function serializeTransaction<
   TTransactionSerializable extends TransactionSerializable,
@@ -182,26 +181,4 @@ function serializeTransactionLegacy(
   }
 
   return toRlp(serializedTransaction)
-}
-
-function serializeAccessList(accessList?: AccessList): RecursiveArray<Hex> {
-  if (!accessList || accessList.length === 0) return []
-
-  const serializedAccessList: RecursiveArray<Hex> = []
-  for (let i = 0; i < accessList.length; i++) {
-    const { address, storageKeys } = accessList[i]
-
-    for (let j = 0; j < storageKeys.length; j++) {
-      if (storageKeys[j].length - 2 !== 64) {
-        throw new InvalidStorageKeySizeError({ storageKey: storageKeys[j] })
-      }
-    }
-
-    if (!isAddress(address)) {
-      throw new InvalidAddressError({ address })
-    }
-
-    serializedAccessList.push([address, storageKeys])
-  }
-  return serializedAccessList
 }

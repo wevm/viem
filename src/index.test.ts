@@ -276,6 +276,7 @@ test('exports actions', () => {
       "recoverMessageAddress": [Function],
       "recoverPublicKey": [Function],
       "recoverTypedDataAddress": [Function],
+      "serializeAccessList": [Function],
       "serializeTransaction": [Function],
       "size": [Function],
       "slice": [Function],

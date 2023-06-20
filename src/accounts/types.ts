@@ -3,8 +3,14 @@ import type { HDKey } from '@scure/bip32'
 import type { Address, TypedData } from 'abitype'
 
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
-import type { TransactionSerializable } from '../types/transaction.js'
+import type {
+  TransactionSerializable,
+  TransactionSerialized,
+} from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
+import type { IsNarrowable } from '../types/utils.js'
+import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
+import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Account<TAddress extends Address = Address> =
   | JsonRpcAccount<TAddress>
@@ -14,7 +20,19 @@ export type AccountSource = Address | CustomSource
 export type CustomSource = {
   address: Address
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hash>
-  signTransaction: (transaction: TransactionSerializable) => Promise<Hash>
+  signTransaction: <TTransactionSerializable extends TransactionSerializable>(
+    transaction: TTransactionSerializable,
+    args?: {
+      serializer?: SerializeTransactionFn<TTransactionSerializable>
+    },
+  ) => Promise<
+    IsNarrowable<
+      TransactionSerialized<GetTransactionType<TTransactionSerializable>>,
+      Hash
+    > extends true
+      ? TransactionSerialized<GetTransactionType<TTransactionSerializable>>
+      : Hash
+  >
   signTypedData: <
     TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string = string,

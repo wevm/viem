@@ -2,11 +2,13 @@ import type { Hex } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerialized,
-  TransactionType,
 } from '../../types/transaction.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
-import { serializeTransaction } from '../../utils/transaction/serializeTransaction.js'
+import {
+  type SerializeTransactionFn,
+  serializeTransaction,
+} from '../../utils/transaction/serializeTransaction.js'
 
 import { sign } from './sign.js'
 
@@ -15,23 +17,24 @@ export type SignTransactionArgs<
 > = {
   privateKey: Hex
   transaction: TTransactionSerializable
+  serializer?: SerializeTransactionFn<TTransactionSerializable>
 }
 export type SignTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
-  TTransactionType extends TransactionType = GetTransactionType<TTransactionSerializable>,
-> = TransactionSerialized<TTransactionType>
+> = TransactionSerialized<GetTransactionType<TTransactionSerializable>>
 
 export async function signTransaction<
   TTransactionSerializable extends TransactionSerializable,
 >({
   privateKey,
   transaction,
+  serializer = serializeTransaction,
 }: SignTransactionArgs<TTransactionSerializable>): Promise<
   SignTransactionReturnType<TTransactionSerializable>
 > {
   const signature = await sign({
-    hash: keccak256(serializeTransaction(transaction)),
+    hash: keccak256(serializer(transaction)),
     privateKey,
   })
-  return serializeTransaction(transaction, signature)
+  return serializer(transaction, signature)
 }
