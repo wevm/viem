@@ -9,7 +9,7 @@ import {
   publicClient,
   publicClientMainnet,
 } from '../../_test/utils.js'
-import { celo, mainnet } from '../../chains.js'
+import { celo, mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { aggregate3Signature } from '../../constants/contract.js'

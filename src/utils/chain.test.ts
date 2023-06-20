@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { mainnet, optimism, polygon } from '../chains.js'
+import { mainnet, optimism, polygon } from '../chains/index.js'
 
 import {
   assertCurrentChain,

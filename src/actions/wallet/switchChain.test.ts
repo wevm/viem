@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { walletClient } from '../../_test/utils.js'
-import { avalanche, fantom } from '../../chains.js'
+import { avalanche, fantom } from '../../chains/index.js'
 
 import { switchChain } from './switchChain.js'
 

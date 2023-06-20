@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { accounts } from '../../_test/constants.js'
 import { walletClient, walletClientWithAccount } from '../../_test/utils.js'
-import { avalanche } from '../../chains.js'
+import { avalanche } from '../../chains/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
 import { walletActions } from './wallet.js'

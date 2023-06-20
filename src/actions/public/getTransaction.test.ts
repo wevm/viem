@@ -4,7 +4,7 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
-import { celo } from '../../chains.js'
+import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Transaction } from '../../types/transaction.js'

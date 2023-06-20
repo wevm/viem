@@ -1,7 +1,7 @@
 import * as chains from '@wagmi/chains'
 
-import { defineChain } from './utils/chain.js'
-import { celoFormatters } from './utils/formatters/chains.js'
+import { defineChain } from '../utils/chain.js'
+import { celoFormatters } from './formatters.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
 export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
@@ -126,4 +126,4 @@ export const zkSync = /*#__PURE__*/ defineChain(chains.zkSync)
 export const zkSyncTestnet = /*#__PURE__*/ defineChain(chains.zkSyncTestnet)
 export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet)
 
-export type { Chain } from './types/chain.js'
+export type { Chain } from '../types/chain.js'

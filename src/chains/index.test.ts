@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as chains from './chains.js'
+import * as chains from './index.js'
 
 test('exports chains', () => {
   expect(Object.keys(chains)).toMatchInlineSnapshot(`

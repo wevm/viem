@@ -1,4 +1,4 @@
-import type { Chain } from '../../chains.js'
+import type { Chain } from '../../chains/index.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ByteArray, Hex } from '../../types/misc.js'

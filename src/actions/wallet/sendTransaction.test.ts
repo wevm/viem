@@ -9,7 +9,7 @@ import {
   walletClientWithAccount,
 } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { celo, localhost, mainnet, optimism } from '../../chains.js'
+import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { type Hex } from '../../types/misc.js'
