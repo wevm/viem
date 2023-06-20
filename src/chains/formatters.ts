@@ -1,6 +1,8 @@
 import type { Address } from 'abitype'
 
+import type { Block } from '../types/block.js'
 import type { Hex } from '../types/misc.js'
+import type { Transaction } from '../types/transaction.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
 import { numberToHex } from '../utils/encoding/toHex.js'
 import { defineBlock } from '../utils/formatters/block.js'
@@ -15,12 +17,21 @@ export const celoFormatters = {
         committed: Hex
         revealed: Hex
       }
+      transactions: Block<
+        bigint,
+        Transaction & {
+          feeCurrency: Address | null
+          gatewayFee: bigint | null
+          gatewayFeeRecipient: Address | null
+        }
+      >['transactions']
     }) => ({
       difficulty: undefined,
       gasLimit: undefined,
       mixHash: undefined,
       nonce: undefined,
       randomness: args.randomness,
+      transactions: args.transactions,
       uncles: undefined,
     }),
   ),
