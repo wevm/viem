@@ -84,6 +84,8 @@ const client = createPublicClient({
 - `telos`
 - `telosTestnet`
 - `zhejiang`
+- `zora`
+- `zoraTestnet`
 - `zkSync`
 - `zkSyncTestnet`
 - `foundry`

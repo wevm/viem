@@ -129,6 +129,7 @@ export const xdcTestnet = /*#__PURE__*/ defineChain(chains.xdcTestnet)
 export const zhejiang = /*#__PURE__*/ defineChain(chains.zhejiang)
 export const zkSync = /*#__PURE__*/ defineChain(chains.zkSync)
 export const zkSyncTestnet = /*#__PURE__*/ defineChain(chains.zkSyncTestnet)
+export const zora = /*#__PURE__*/ defineChain(chains.zora)
 export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet)
 
 export type { Chain } from '../types/chain.js'
