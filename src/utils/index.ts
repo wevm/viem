@@ -128,6 +128,7 @@ export {
   formatTransaction,
   transactionType,
 } from './formatters/transaction.js'
+export { formatLog } from './formatters/log.js'
 export {
   type FormattedTransactionReceipt,
   defineTransactionReceipt,
