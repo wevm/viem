@@ -42,5 +42,6 @@ export function formatTransactionRequest(
 }
 
 export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
+  'transactionRequest',
   formatTransactionRequest,
 )

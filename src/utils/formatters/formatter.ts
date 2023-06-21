@@ -1,6 +1,7 @@
 import type { Assign, Prettify } from '../../types/utils.js'
 
-export function defineFormatter<TParameters, TReturnType>(
+export function defineFormatter<TType extends string, TParameters, TReturnType>(
+  type: TType,
   format: (_: TParameters) => TReturnType,
 ) {
   return <
@@ -14,19 +15,22 @@ export function defineFormatter<TParameters, TReturnType>(
     exclude?: TExclude
     format: (_: TOverrideParameters) => TOverrideReturnType
   }) => {
-    return (args: TParameters & TOverrideParameters) => {
-      const formatted = format(args)
-      if (exclude) {
-        for (const key of exclude) {
-          delete (formatted as any)[key]
+    return {
+      format: (args: TParameters & TOverrideParameters) => {
+        const formatted = format(args)
+        if (exclude) {
+          for (const key of exclude) {
+            delete (formatted as any)[key]
+          }
         }
-      }
-      return {
-        ...formatted,
-        ...overrides(args),
-      } as Prettify<Assign<TReturnType, TOverrideReturnType>> & {
-        [K in TExclude[number]]: never
-      }
+        return {
+          ...formatted,
+          ...overrides(args),
+        } as Prettify<Assign<TReturnType, TOverrideReturnType>> & {
+          [K in TExclude[number]]: never
+        }
+      },
+      type,
     }
   }
 }

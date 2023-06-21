@@ -34,4 +34,4 @@ export function formatBlock(block: Partial<RpcBlock>) {
   } as Block
 }
 
-export const defineBlock = /*#__PURE__*/ defineFormatter(formatBlock)
+export const defineBlock = /*#__PURE__*/ defineFormatter('block', formatBlock)

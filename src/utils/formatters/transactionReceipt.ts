@@ -56,5 +56,6 @@ export function formatTransactionReceipt(
 }
 
 export const defineTransactionReceipt = /*#__PURE__*/ defineFormatter(
+  'transactionReceipt',
   formatTransactionReceipt,
 )

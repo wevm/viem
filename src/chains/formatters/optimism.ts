@@ -1,5 +1,5 @@
-import { defineBlock, formatTransaction } from '../../index.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
+import { type Formatters } from '../../types/formatter.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type {
   Index,
@@ -11,7 +11,11 @@ import type {
   TransactionBase,
 } from '../../types/transaction.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
-import { defineTransaction } from '../../utils/formatters/transaction.js'
+import { defineBlock } from '../../utils/formatters/block.js'
+import {
+  defineTransaction,
+  formatTransaction,
+} from '../../utils/formatters/transaction.js'
 
 type RpcTransaction = RpcTransaction_ & {
   isSystemTx?: undefined
@@ -19,7 +23,7 @@ type RpcTransaction = RpcTransaction_ & {
   sourceHash?: undefined
 }
 
-type RpcDepositTransaction = TransactionBase<Quantity, Index> &
+export type RpcDepositTransaction = TransactionBase<Quantity, Index> &
   FeeValuesEIP1559<Quantity> & {
     isSystemTx?: boolean
     mint?: Hex
@@ -33,7 +37,7 @@ type Transaction = Transaction_ & {
   sourceHash?: undefined
 }
 
-type DepositTransaction = TransactionBase &
+export type DepositTransaction = TransactionBase &
   FeeValuesEIP1559 & {
     isSystemTx?: boolean
     mint?: bigint
@@ -51,7 +55,6 @@ type OptimismOverrides = {
 
 export const optimismFormatters = {
   block: /*#__PURE__*/ defineBlock({
-    exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
     format(args: OptimismOverrides['RpcBlock']) {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
@@ -85,4 +88,4 @@ export const optimismFormatters = {
       return transaction
     },
   }),
-} as const
+} as const satisfies Formatters

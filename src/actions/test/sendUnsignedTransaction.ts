@@ -64,10 +64,11 @@ export async function sendUnsignedTransaction<
   } = args
 
   const format =
-    client.chain?.formatters?.transactionRequest || formatTransactionRequest
+    client.chain?.formatters?.transactionRequest?.format ||
+    formatTransactionRequest
   const request = format({
     // Pick out extra data that might exist on the chain's transaction request type.
-    ...extract(rest, { formatter: format }),
+    ...extract(rest, { format }),
     accessList,
     data,
     from,

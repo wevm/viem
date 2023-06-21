@@ -12,7 +12,7 @@ export type Serializers<
     TFormatters extends Formatters
       ? TFormatters['transactionRequest'] extends Formatter
         ? TransactionSerializableGeneric &
-            Parameters<TFormatters['transactionRequest']>[0]
+            Parameters<TFormatters['transactionRequest']['format']>[0]
         : TransactionSerializable
       : TransactionSerializable
   >

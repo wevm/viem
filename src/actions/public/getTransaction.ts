@@ -115,6 +115,7 @@ export async function getTransaction<TChain extends Chain | undefined>(
       index,
     })
 
-  const format = client.chain?.formatters?.transaction || formatTransaction
+  const format =
+    client.chain?.formatters?.transaction?.format || formatTransaction
   return format(transaction)
 }

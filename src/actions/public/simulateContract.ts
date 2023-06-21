@@ -43,7 +43,7 @@ export type SimulateContractParameters<
     TFunctionName,
     CallParameters<TChain> extends CallParameters
       ? CallParameters<TChain>['value']
-      : undefined
+      : CallParameters['value']
   >
 
 export type SimulateContractReturnType<

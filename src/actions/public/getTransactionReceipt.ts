@@ -53,6 +53,7 @@ export async function getTransactionReceipt<TChain extends Chain | undefined>(
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })
 
   const format =
-    client.chain?.formatters?.transactionReceipt || formatTransactionReceipt
+    client.chain?.formatters?.transactionReceipt?.format ||
+    formatTransactionReceipt
   return format(receipt) as GetTransactionReceiptReturnType<TChain>
 }

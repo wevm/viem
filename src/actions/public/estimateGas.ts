@@ -80,7 +80,7 @@ export async function estimateGas<
     | WalletClient<Transport, TChain, TAccount>,
   args: EstimateGasParameters<TChain, TAccount>,
 ): Promise<EstimateGasReturnType> {
-  const account_ = args.account ?? (client as WalletClient).account
+  const account_ = args.account ?? (client as unknown as WalletClient).account
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/public/estimateGas',
@@ -109,10 +109,11 @@ export async function estimateGas<
     assertRequest(args)
 
     const format =
-      client.chain?.formatters?.transactionRequest || formatTransactionRequest
+      client.chain?.formatters?.transactionRequest?.format ||
+      formatTransactionRequest
     const request = format({
       // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { formatter: format }),
+      ...extract(rest, { format }),
       from: account.address,
       accessList,
       data,

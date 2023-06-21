@@ -111,10 +111,11 @@ export async function call<TChain extends Chain | undefined>(
     const block = blockNumberHex || blockTag
 
     const format =
-      client.chain?.formatters?.transactionRequest || formatTransactionRequest
+      client.chain?.formatters?.transactionRequest?.format ||
+      formatTransactionRequest
     const request = format({
       // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { formatter: format }),
+      ...extract(rest, { format }),
       from: account?.address,
       accessList,
       data,

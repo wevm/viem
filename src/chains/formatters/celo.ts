@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import { type Formatters } from '../../types/formatter.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
@@ -99,4 +100,4 @@ export const celoFormatters = {
       }
     },
   }),
-} as const
+} as const satisfies Formatters

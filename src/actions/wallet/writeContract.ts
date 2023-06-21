@@ -29,7 +29,17 @@ export type WriteContractParameters<
     'chain' | 'to' | 'data' | 'value'
   > &
   GetChain<TChain, TChainOverride> &
-  GetValue<TAbi, TFunctionName, SendTransactionParameters<TChain>['value']> & {
+  GetValue<
+    TAbi,
+    TFunctionName,
+    SendTransactionParameters<
+      TChain,
+      TAccount,
+      TChainOverride
+    > extends SendTransactionParameters
+      ? SendTransactionParameters<TChain, TAccount, TChainOverride>['value']
+      : SendTransactionParameters['value']
+  > & {
     /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
     dataSuffix?: Hex
   }

@@ -171,7 +171,8 @@ export function watchBlocks<
           params: ['newHeads'],
           onData(data: any) {
             if (!active) return
-            const format = client.chain?.formatters?.block || formatBlock
+            const format =
+              client.chain?.formatters?.block?.format || formatBlock
             const block = format(data.result)
             onBlock(block, prevBlock)
             prevBlock = block

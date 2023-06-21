@@ -28,7 +28,7 @@ export type EstimateContractGasParameters<
     TFunctionName,
     EstimateGasParameters<TChain> extends EstimateGasParameters
       ? EstimateGasParameters<TChain>['value']
-      : undefined
+      : EstimateGasParameters['value']
   >
 
 export type EstimateContractGasReturnType = bigint
