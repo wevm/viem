@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.1
+
+### Patch Changes
+
+- [`5dd98d3e`](https://github.com/wagmi-dev/viem/commit/5dd98d3e57e993a7cae27030c8c10944cf5e204b) Thanks [@jxom](https://github.com/jxom)! - Exported `formatLog`
+
 ## 1.1.0
 
 ### Minor Changes
