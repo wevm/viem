@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.2
+
+### Patch Changes
+
+- [`c974c25f`](https://github.com/wagmi-dev/viem/commit/c974c25ff28f9eec5bf5d4030146db2b215614d5) Thanks [@jxom](https://github.com/jxom)! - Added `zora` as a supported chain.
+
 ## 1.1.1
 
 ### Patch Changes
