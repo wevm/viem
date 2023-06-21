@@ -4,7 +4,6 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { formatBlock } from '../../utils/formatters/block.js'
-import { format } from '../../utils/formatters/format.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
@@ -172,9 +171,8 @@ export function watchBlocks<
           params: ['newHeads'],
           onData(data: any) {
             if (!active) return
-            const block = format(data.result, {
-              formatter: client.chain?.formatters?.block || formatBlock,
-            })
+            const format = client.chain?.formatters?.block || formatBlock
+            const block = format(data.result)
             onBlock(block, prevBlock)
             prevBlock = block
           },

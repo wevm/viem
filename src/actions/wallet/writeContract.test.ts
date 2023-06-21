@@ -9,7 +9,7 @@ import {
   walletClient,
   walletClientWithAccount,
 } from '../../_test/utils.js'
-import { optimism } from '../../chains.js'
+import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { simulateContract } from '../public/simulateContract.js'

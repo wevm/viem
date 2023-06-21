@@ -1,28 +1,13 @@
 import type { Chain } from '../../types/chain.js'
-import type { Formatter, Formatters } from '../../types/formatter.js'
+import type { ExtractFormatterParameters } from '../../types/formatter.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import { numberToHex } from '../encoding/toHex.js'
-
-import {
-  type ExtractFormatter,
-  type Formatted,
-  defineFormatter,
-} from './format.js'
-
-export type TransactionRequestFormatter<
-  TChain extends Chain | undefined = Chain,
-> = TChain extends Chain
-  ? ExtractFormatter<
-      TChain,
-      'transactionRequest',
-      NonNullable<Formatters['transactionRequest']>
-    >
-  : Formatters['transactionRequest']
+import { defineFormatter } from './formatter.js'
 
 export type FormattedTransactionRequest<
-  TFormatter extends Formatter | undefined = Formatter,
-> = Formatted<TFormatter, RpcTransactionRequest>
+  TChain extends Chain | undefined = Chain | undefined,
+> = ExtractFormatterParameters<TChain, 'transactionRequest', TransactionRequest>
 
 export function formatTransactionRequest(
   transactionRequest: Partial<TransactionRequest>,
@@ -56,6 +41,6 @@ export function formatTransactionRequest(
   } as RpcTransactionRequest
 }
 
-export const defineTransactionRequest = /*#__PURE__*/ defineFormatter({
-  format: formatTransactionRequest,
-})
+export const defineTransactionRequest = /*#__PURE__*/ defineFormatter(
+  formatTransactionRequest,
+)

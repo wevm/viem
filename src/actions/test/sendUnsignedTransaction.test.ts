@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { accounts, address } from '../../_test/constants.js'
 import { publicClient, testClient } from '../../_test/utils.js'
-import { celo } from '../../chains.js'
+import { celo } from '../../chains/index.js'
 import { createTestClient } from '../../clients/createTestClient.js'
 import { defineChain } from '../../utils/chain.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -58,10 +58,9 @@ test('sends unsigned transaction', async () => {
 })
 
 test('sends unsigned transaction (w/ formatter)', async () => {
-  const chain = defineChain({
-    ...testClient.chain,
+  const chain = defineChain(testClient.chain, {
     formatters: {
-      transactionRequest: celo.formatters.transactionRequest,
+      transactionRequest: celo.formatters!.transactionRequest,
     },
   })
   const testClient2 = createTestClient({

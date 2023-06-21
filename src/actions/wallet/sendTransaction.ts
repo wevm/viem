@@ -6,37 +6,27 @@ import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
-import type { Formatter } from '../../types/formatter.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,
 } from '../../types/transaction.js'
-import type { MergeIntersectionProperties } from '../../types/utils.js'
 import { assertCurrentChain } from '../../utils/chain.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
-import { type Formatted, format } from '../../utils/formatters/format.js'
 import {
-  type TransactionRequestFormatter,
+  type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 import { getChainId } from '../public/getChainId.js'
 
-export type FormattedTransactionRequest<
-  TFormatter extends Formatter | undefined = Formatter,
-> = MergeIntersectionProperties<
-  Omit<Formatted<TFormatter, TransactionRequest, true>, 'from'>,
-  TransactionRequest
->
-
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain,
-> = FormattedTransactionRequest<TransactionRequestFormatter<TChainOverride>> &
+> = Omit<FormattedTransactionRequest<TChainOverride>, 'from'> &
   GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride>
 
@@ -161,26 +151,22 @@ export async function sendTransaction<
       })
     }
 
-    const formatter = chain?.formatters?.transactionRequest
-    const request = format(
-      {
-        accessList,
-        data,
-        from: account.address,
-        gas,
-        gasPrice,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        to,
-        value,
-        // Pick out extra data that might exist on the chain's transaction request type.
-        ...extract(rest, { formatter }),
-      } as TransactionRequest,
-      {
-        formatter: formatter || formatTransactionRequest,
-      },
-    )
+    const format =
+      chain?.formatters?.transactionRequest || formatTransactionRequest
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter: format }),
+      accessList,
+      data,
+      from: account.address,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+    } as TransactionRequest)
     return await client.request({
       method: 'eth_sendTransaction',
       params: [request],

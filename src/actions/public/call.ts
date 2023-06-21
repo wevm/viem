@@ -14,35 +14,29 @@ import {
 import { RawContractError } from '../../errors/contract.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Formatter } from '../../types/formatter.js'
 import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { MergeIntersectionProperties } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getCallError } from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
-import { type Formatted, format } from '../../utils/formatters/format.js'
 import {
-  type TransactionRequestFormatter,
+  type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type FormattedCall<
-  TFormatter extends Formatter | undefined = Formatter,
-> = MergeIntersectionProperties<
-  Omit<Formatted<TFormatter, TransactionRequest, true>, 'from'>,
-  TransactionRequest
->
+  TChain extends Chain | undefined = Chain | undefined,
+> = FormattedTransactionRequest<TChain>
 
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
-> = FormattedCall<TransactionRequestFormatter<TChain>> & {
+> = Omit<FormattedCall<TChain>, 'from'> & {
   account?: Account | Address
   batch?: boolean
 } & (
@@ -116,26 +110,22 @@ export async function call<TChain extends Chain | undefined>(
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    const formatter = client.chain?.formatters?.transactionRequest
-    const request = format(
-      {
-        from: account?.address,
-        accessList,
-        data,
-        gas,
-        gasPrice,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        to,
-        value,
-        // Pick out extra data that might exist on the chain's transaction request type.
-        ...extract(rest, { formatter }),
-      } as TransactionRequest,
-      {
-        formatter: formatter || formatTransactionRequest,
-      },
-    ) as TransactionRequest
+    const format =
+      client.chain?.formatters?.transactionRequest || formatTransactionRequest
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { formatter: format }),
+      from: account?.address,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value,
+    } as TransactionRequest) as TransactionRequest
 
     if (batch && shouldPerformMulticall({ request })) {
       try {

@@ -2,13 +2,14 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { forkBlockNumber } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
-import { celo } from '../../chains.js'
+import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
-import type { Hex } from '../../types/misc.js'
-
+import type { Hash, Hex } from '../../types/misc.js'
+import type { Transaction } from '../../types/transaction.js'
 import { getBlock } from './getBlock.js'
+import type { Address } from 'abitype'
 
 test('gets latest block', async () => {
   const block = await getBlock(publicClient)
@@ -49,14 +50,47 @@ test('chain w/ custom block type', async () => {
   })
   const block = await getBlock(client, {
     blockNumber: 16645775n,
+    includeTransactions: true,
   })
 
   assertType<
     Omit<Block, 'difficulty' | 'gasLimit' | 'mixHash' | 'nonce' | 'uncles'> & {
       randomness: { committed: Hex; revealed: Hex }
+      transactions:
+        | Hash[]
+        | (Transaction & {
+            feeCurrency: Address | null
+            gatewayFee: bigint | null
+            gatewayFeeRecipient: Address | null
+          })[]
     }
   >(block)
-  const { extraData: _extraData, ...rest } = block
+  const { extraData: _extraData, transactions, ...rest } = block
+  expect(transactions[0]).toMatchInlineSnapshot(`
+    {
+      "blockHash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
+      "blockNumber": 16645775n,
+      "chainId": undefined,
+      "ethCompatible": false,
+      "feeCurrency": null,
+      "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
+      "gas": 1527520n,
+      "gasPrice": 562129081n,
+      "gatewayFee": 0n,
+      "gatewayFeeRecipient": null,
+      "hash": "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
+      "input": "0x389ec778",
+      "nonce": 714820,
+      "r": "0x1c0c8776e2e9d97b9a95435d2c2439d5f634e1afc35a5a0f0bd02093dd4724e0",
+      "s": "0xde418ff749f2430a85e60a4b3f81af9f8e2117cffbe32c719b9b784c01be774",
+      "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
+      "transactionIndex": 0,
+      "type": "legacy",
+      "typeHex": "0x0",
+      "v": 84476n,
+      "value": 0n,
+    }
+  `)
   expect(rest).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": null,
@@ -76,44 +110,6 @@ test('chain w/ custom block type', async () => {
       "stateRoot": "0x051c8e40ed3d8afabbad5321a4bb6b9d686a8a62d9b696b3e5a5c769c3623d48",
       "timestamp": 1670896907n,
       "totalDifficulty": 16645776n,
-      "transactions": [
-        "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
-        "0x3aa054b868fb0ce99388d74165b6128a5aca0992a785eb73a84fb7532f02a6a3",
-        "0x7273f2bf436b14621094de5694d5aced028666389c7a89f4a863ac33d653cf52",
-        "0xe5240102364623faf753498c52102de4a5f9641ceb6f99d9c92b032716e2f8f9",
-        "0x92c31e9e4397e08a5abcccd8cc466e73d554be16da1ca7cac6a01b643f806524",
-        "0x0acc190dfc0bbc6c9823dc17ff815c94e1494b60f9be9b6e045cbad572fdbdb1",
-        "0x27c8cff64388e80b279407758d6801fe0dfe3410bacc7051deddf6c49c16710c",
-        "0x6d4e4a0a01b1ebbb8be5cddede5de036779bd230ffc22e465eaa6128bd552ecb",
-        "0xa80107ba2f636428883a71b7ce8a23171faf5076bae51e3a68e046c143434ed9",
-        "0xcdadac0ee4a8901992ee365b7d251ff567134b007d2ad2d6a2285f7091998d60",
-        "0xdff49ec96503acbd0110a8200f0f18b9924978bc5db32ae5c47a0986bcb58b58",
-        "0xb0591b97ed1f7779e5cd548a9acfdad535d9073a3879d5bd4e3ff053bce31c5f",
-        "0xa58e9da5702648d3f3f81e44952d5072b07b10eb13477a877cf3d957443b5605",
-        "0x00d3bf8dc0ed9b62a786ce2fe1bec7de9d0ba286421acd3c4942b055b0741c0c",
-        "0xf02343c58c6ef8007e86840e8ac9f8c2a6c52c7877b7554e87711efaab49d50a",
-        "0x063f62e3c507eb0102f9dbe887520db4a1d3d34c4279f646bc3fc2c76e074369",
-        "0xbeb28f46cc143db996e14fa35591cb5de4dcc92a569422f68f87f3f6a72a0e64",
-        "0x9a38f385833a2c1ea159031f12c3e1af4033860c389afb69d77d1b897f37c452",
-        "0xae6dbf3554a531e0ad6c51ec1e2201b41859f466dbb0ca3364fa7237fb0c60f3",
-        "0x789aca8285c9e0ce2deb306f2c2f0f53df9b3601e295bdc0838a8622bd697be6",
-        "0x230ebdcd6c3282992c8793f23eb847f955220f2a6c14bb82b38bc48ccf0cf1c4",
-        "0xad7f4b13ac995055b681cb64f90bfe2863582e49d1179b837ebde353117ab2b4",
-        "0xe40fc6bbacf5cfc1f6c41f06737d7df6274aef89a9c46bbe4fb8cb8484ffa54b",
-        "0xa78f1aa9b1a0a2130477c0ed9df303c033c5c852240689a9ec34347333defa42",
-        "0x3b10b4297066dbac52031920159034ef43544b77fc82c5fcc561df7208064b2f",
-        "0x5d73e6bb86089544825ca8c8ca2091744b7fd25bdd36a8b4d9941968be76a845",
-        "0x2f5d0deb26329807564b18ecbf24d9cb9d802d92369ea48c78fb973e1ea78994",
-        "0x086a6ff358bce56bcbc022978b1b84448143ae66de7f9e0c3f7a68bce7664135",
-        "0x8f36d90a6da392b377162caa1f81a5f0e3882c48794bea979bf79f119bb9284d",
-        "0xe0a475e8a6f9495b00a55d8472b108171bf11a51cb8db131c98c25a17d0ac78c",
-        "0x8ba00695bd7b524ff55fbbda3f17c6e93056e6895089de2ee29d58541e11b88f",
-        "0xf971ed0462249050dbeaa4a812c2b881957d4225587dcd10c88581ca6b096a36",
-        "0x229ab6e46f4be57cb81f8c7b2070f19827e55d4162c72b4abf26e618521eaaee",
-        "0x99601bf74f39ef88dabd853b40e86bc9653899a93af85518fe73ecf372578588",
-        "0x5deaa0abfd7689d3c33543a3d3b1bebc3dba46acd72246775fabb0bb5561e410",
-        "0x413bada477356cdf02680950e2d0368ce3614eccc4a6c245fabd54ee07253f60",
-      ],
       "transactionsRoot": "0xb293e2c4ce20a9eac253241e750a5592c9d3c1b27bf090d0fc2fa4756a038866",
     }
   `)

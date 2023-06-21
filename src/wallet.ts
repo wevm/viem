@@ -17,7 +17,6 @@ export {
 } from './actions/wallet/requestPermissions.js'
 export {
   sendTransaction,
-  type FormattedTransactionRequest,
   type SendTransactionParameters,
   type SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'

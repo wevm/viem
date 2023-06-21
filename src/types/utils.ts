@@ -122,20 +122,20 @@ export type MaybeUndefined<
 > = TUndefinedish extends true ? T | undefined : T
 
 /**
- * @description Merges the intersection properties of T and U.
+ * @description Assigns the properties of U onto T.
  *
  * @example
- * MergeIntersectionProperties<{ a: string, b: number }, { a: number, c: boolean }>
- * => { a: number, b: number }
+ * Assign<{ a: string, b: number }, { a: undefined, c: boolean }>
+ * => { a: undefined, b: number, c: boolean }
  */
-export type MergeIntersectionProperties<T, U> = {
+export type Assign<T, U> = {
   [K in
     keyof T as K extends keyof U
       ? U[K] extends void
         ? never
         : K
       : K]: K extends keyof U ? U[K] : T[K]
-}
+} & U
 
 /**
  * @description Makes nullable properties from T optional.

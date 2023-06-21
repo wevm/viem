@@ -3,7 +3,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 import { accounts, localWsUrl } from '../_test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
-import { localhost } from '../chains.js'
+import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, WalletRpcSchema } from '../types/eip1193.js'
 import { createWalletClient } from './createWalletClient.js'
 import { createTransport } from './transports/createTransport.js'
@@ -259,6 +259,7 @@ describe('args: transport', () => {
         "account": undefined,
         "addChain": [Function],
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -279,6 +280,7 @@ describe('args: transport', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "deployContract": [Function],
         "getAddresses": [Function],

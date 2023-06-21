@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localWsUrl } from '../_test/constants.js'
-import { localhost } from '../chains.js'
+import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { createClient } from './createClient.js'
 import { createTransport } from './transports/createTransport.js'
@@ -56,6 +56,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -76,6 +77,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "key": "base",
         "name": "Base Client",
@@ -106,6 +108,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -126,6 +129,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "key": "base",
         "name": "Base Client",

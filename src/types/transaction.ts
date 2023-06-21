@@ -70,6 +70,8 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   to: Address | null
   /** Index of this transaction in the block or `null` if pending */
   transactionIndex: TIndex | null
+  /** The type represented as hex. */
+  typeHex: Hex | null
   /** ECDSA recovery ID */
   v: TQuantity
   /** Value in wei sent with this transaction */

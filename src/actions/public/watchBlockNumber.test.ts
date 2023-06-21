@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { localHttpUrl } from '../../_test/constants.js'
 import { publicClient, testClient, webSocketClient } from '../../_test/utils.js'
-import { localhost } from '../../chains.js'
+import { localhost } from '../../chains/index.js'
 import {
   type PublicClient,
   createPublicClient,

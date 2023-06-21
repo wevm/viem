@@ -3,10 +3,8 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { TransactionReceiptNotFoundError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import { format } from '../../utils/formatters/format.js'
 import {
   type FormattedTransactionReceipt,
-  type TransactionReceiptFormatter,
   formatTransactionReceipt,
 } from '../../utils/formatters/transactionReceipt.js'
 
@@ -17,7 +15,7 @@ export type GetTransactionReceiptParameters = {
 
 export type GetTransactionReceiptReturnType<
   TChain extends Chain | undefined = Chain | undefined,
-> = FormattedTransactionReceipt<TransactionReceiptFormatter<TChain>>
+> = FormattedTransactionReceipt<TChain>
 
 /**
  * Returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash.
@@ -54,8 +52,7 @@ export async function getTransactionReceipt<TChain extends Chain | undefined>(
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })
 
-  return format(receipt, {
-    formatter:
-      client.chain?.formatters?.transactionReceipt || formatTransactionReceipt,
-  }) as GetTransactionReceiptReturnType<TChain>
+  const format =
+    client.chain?.formatters?.transactionReceipt || formatTransactionReceipt
+  return format(receipt) as GetTransactionReceiptReturnType<TChain>
 }

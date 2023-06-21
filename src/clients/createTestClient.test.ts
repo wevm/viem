@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localWsUrl } from '../_test/constants.js'
-import { localhost } from '../chains.js'
+import { localhost } from '../chains/index.js'
 
 import { type EIP1193RequestFn, type TestRpcSchema } from '../index.js'
 import { createTestClient } from './createTestClient.js'
@@ -87,6 +87,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -107,6 +108,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "dropTransaction": [Function],
         "getAutomine": [Function],
@@ -167,6 +169,7 @@ describe('transports', () => {
     expect(client).toMatchInlineSnapshot(`
       {
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -187,6 +190,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "dropTransaction": [Function],
         "getAutomine": [Function],

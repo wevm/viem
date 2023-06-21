@@ -7,7 +7,7 @@ import {
   walletClient,
   webSocketClient,
 } from '../../_test/utils.js'
-import { celo, localhost } from '../../chains.js'
+import { celo, localhost } from '../../chains/index.js'
 import {
   type PublicClient,
   createPublicClient,

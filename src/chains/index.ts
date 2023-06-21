@@ -1,53 +1,9 @@
 import * as chains from '@wagmi/chains'
 
-import type { Address } from 'abitype'
+import { defineChain } from '../utils/chain.js'
+import { celoFormatters } from './formatters/celo.js'
+import { optimismFormatters } from './formatters/optimism.js'
 
-import type { Hex } from './types/misc.js'
-import type { Quantity } from './types/rpc.js'
-import { defineChain } from './utils/chain.js'
-import { defineBlock } from './utils/formatters/block.js'
-import { defineTransaction } from './utils/formatters/transaction.js'
-import { defineTransactionReceipt } from './utils/formatters/transactionReceipt.js'
-import { defineTransactionRequest } from './utils/formatters/transactionRequest.js'
-
-const celoFormatters = {
-  block: /*#__PURE__*/ defineBlock({
-    exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
-    format: (block) => ({
-      randomness: block.randomness as {
-        committed: Hex
-        revealed: Hex
-      },
-    }),
-  }),
-  transaction: /*#__PURE__*/ defineTransaction({
-    format: (transaction) => ({
-      feeCurrency: transaction.feeCurrency as Address | null,
-      gatewayFee: transaction.gatewayFee
-        ? BigInt(transaction.gatewayFee as Quantity)
-        : null,
-      gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
-    }),
-  }),
-  transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format: (transaction) => ({
-      feeCurrency: transaction.feeCurrency as Address | null,
-      gatewayFee: transaction.gatewayFee
-        ? BigInt(transaction.gatewayFee as Quantity)
-        : null,
-      gatewayFeeRecipient: transaction.gatewayFeeRecipient as Address | null,
-    }),
-  }),
-  transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    format: (transactionRequest) => ({
-      feeCurrency: transactionRequest.feeCurrency as Address | undefined,
-      gatewayFee: transactionRequest.gatewayFee as Quantity | undefined,
-      gatewayFeeRecipient: transactionRequest.gatewayFeeRecipient as
-        | Address
-        | undefined,
-    }),
-  }),
-}
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
 export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
 export const aurora = /*#__PURE__*/ defineChain(chains.aurora)
@@ -61,16 +17,13 @@ export const bronosTestnet = /*#__PURE__*/ defineChain(chains.bronosTestnet)
 export const bsc = /*#__PURE__*/ defineChain(chains.bsc)
 export const bscTestnet = /*#__PURE__*/ defineChain(chains.bscTestnet)
 export const canto = /*#__PURE__*/ defineChain(chains.canto)
-export const celo = /*#__PURE__*/ defineChain({
-  ...chains.celo,
+export const celo = /*#__PURE__*/ defineChain(chains.celo, {
   formatters: celoFormatters,
 })
-export const celoAlfajores = /*#__PURE__*/ defineChain({
-  ...chains.celoAlfajores,
+export const celoAlfajores = /*#__PURE__*/ defineChain(chains.celoAlfajores, {
   formatters: celoFormatters,
 })
-export const celoCannoli = /*#__PURE__*/ defineChain({
-  ...chains.celoCannoli,
+export const celoCannoli = /*#__PURE__*/ defineChain(chains.celoCannoli, {
   formatters: celoFormatters,
 })
 export const cronos = /*#__PURE__*/ defineChain(chains.cronos)
@@ -111,8 +64,12 @@ export const moonbeam = /*#__PURE__*/ defineChain(chains.moonbeam)
 export const moonriver = /*#__PURE__*/ defineChain(chains.moonriver)
 export const nexi = /*#__PURE__*/ defineChain(chains.nexi)
 export const okc = /*#__PURE__*/ defineChain(chains.okc)
-export const optimism = /*#__PURE__*/ defineChain(chains.optimism)
-export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli)
+export const optimism = /*#__PURE__*/ defineChain(chains.optimism, {
+  formatters: optimismFormatters,
+})
+export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli, {
+  formatters: optimismFormatters,
+})
 export const polygon = /*#__PURE__*/ defineChain(chains.polygon)
 export const polygonMumbai = /*#__PURE__*/ defineChain(chains.polygonMumbai)
 export const polygonZkEvm = /*#__PURE__*/ defineChain(chains.polygonZkEvm)
@@ -174,4 +131,4 @@ export const zkSync = /*#__PURE__*/ defineChain(chains.zkSync)
 export const zkSyncTestnet = /*#__PURE__*/ defineChain(chains.zkSyncTestnet)
 export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet)
 
-export type { Chain } from './types/chain.js'
+export type { Chain } from '../types/chain.js'

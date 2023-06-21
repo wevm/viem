@@ -19,7 +19,7 @@ import {
 } from '../../_test/constants.js'
 import { gh434ABI } from '../../_test/generated.js'
 import { anvilChain, deploy, publicClient } from '../../_test/utils.js'
-import { mainnet } from '../../chains.js'
+import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'

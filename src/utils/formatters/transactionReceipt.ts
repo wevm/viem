@@ -1,30 +1,16 @@
 import type { Chain } from '../../types/chain.js'
-import type { Formatter, Formatters } from '../../types/formatter.js'
+import type { ExtractFormatterReturnType } from '../../types/formatter.js'
 import type { RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 
-import {
-  type ExtractFormatter,
-  type Formatted,
-  defineFormatter,
-} from './format.js'
+import { defineFormatter } from './formatter.js'
 import { formatLog } from './log.js'
 import { transactionType } from './transaction.js'
 
-export type TransactionReceiptFormatter<
-  TChain extends Chain | undefined = Chain,
-> = TChain extends Chain
-  ? ExtractFormatter<
-      TChain,
-      'transactionReceipt',
-      NonNullable<Formatters['transactionReceipt']>
-    >
-  : Formatters['transactionReceipt']
-
 export type FormattedTransactionReceipt<
-  TFormatter extends Formatter | undefined = Formatter,
-> = Formatted<TFormatter, TransactionReceipt>
+  TChain extends Chain | undefined = Chain | undefined,
+> = ExtractFormatterReturnType<TChain, 'transactionReceipt', TransactionReceipt>
 
 const statuses = {
   '0x0': 'reverted',
@@ -69,6 +55,6 @@ export function formatTransactionReceipt(
   } as TransactionReceipt
 }
 
-export const defineTransactionReceipt = /*#__PURE__*/ defineFormatter({
-  format: formatTransactionReceipt,
-})
+export const defineTransactionReceipt = /*#__PURE__*/ defineFormatter(
+  formatTransactionReceipt,
+)

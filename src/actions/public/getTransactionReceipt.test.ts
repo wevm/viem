@@ -4,7 +4,7 @@ import { assertType, describe, expect, it, test } from 'vitest'
 
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
-import { celo } from '../../chains.js'
+import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { TransactionReceipt } from '../../types/transaction.js'

@@ -9,7 +9,7 @@ import {
   walletClientWithAccount,
 } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { celo, localhost, mainnet, optimism } from '../../chains.js'
+import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { type Hex } from '../../types/misc.js'
@@ -78,13 +78,17 @@ test('sends transaction', async () => {
 test('sends transaction (w/ formatter)', async () => {
   await setup()
 
-  const chain = defineChain({
-    ...localhost,
-    id: 1,
-    formatters: {
-      transactionRequest: celo.formatters.transactionRequest,
+  const chain = defineChain(
+    {
+      ...localhost,
+      id: 1,
     },
-  })
+    {
+      formatters: {
+        transactionRequest: celo.formatters!.transactionRequest,
+      },
+    },
+  )
 
   expect(
     await getBalance(publicClient, { address: targetAccount.address }),
@@ -150,13 +154,14 @@ test('sends transaction (w/ serializer)', async () => {
     },
   )
 
-  const chain = defineChain({
-    ...localhost,
-    id: 1,
-    serializers: {
-      transaction: serializer,
+  const chain = defineChain(
+    { ...localhost, id: 1 },
+    {
+      serializers: {
+        transaction: serializer,
+      },
     },
-  })
+  )
 
   await expect(() =>
     sendTransaction(walletClient, {
