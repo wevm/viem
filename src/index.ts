@@ -512,6 +512,7 @@ export {
   defineBlock,
   formatBlock,
 } from './utils/formatters/block.js'
+export { formatLog } from './utils/formatters/log.js'
 export {
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,
