@@ -1,5 +1,21 @@
 # viem
 
+## 1.1.0
+
+### Minor Changes
+
+- [#691](https://github.com/wagmi-dev/viem/pull/691) [`6e65789f`](https://github.com/wagmi-dev/viem/commit/6e65789fb596ac3e64a9e5e7de1c18257fa50a59) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Added custom chain serializers via `chain.serializers`.
+
+* [#740](https://github.com/wagmi-dev/viem/pull/740) [`d435351d`](https://github.com/wagmi-dev/viem/commit/d435351d8637e096b1542da8bb1762858d006363) Thanks [@jxom](https://github.com/jxom)! - Added support for Optimism Deposit Transactions.
+
+### Patch Changes
+
+- [#709](https://github.com/wagmi-dev/viem/pull/709) [`043b2cba`](https://github.com/wagmi-dev/viem/commit/043b2cbaf8877ae67cf163d2ea19df9f08eb3808) Thanks [@jxom](https://github.com/jxom)! - Refactored serializable/serialized transaction types.
+
+* [#735](https://github.com/wagmi-dev/viem/pull/735) [`e7ee66c8`](https://github.com/wagmi-dev/viem/commit/e7ee66c8f92262def25fe59403f19ecfbac47ad8) Thanks [@holic](https://github.com/holic)! - Fixed block formatting in `watchBlocks` for WebSocket subscriptions.
+
+- [`1f3f2834`](https://github.com/wagmi-dev/viem/commit/1f3f2834a443165a71b27d2d0d46fa13532ccdd1) Thanks [@jxom](https://github.com/jxom)! - Added `typeHex` to `Transaction` type.
+
 ## 1.0.7
 
 ### Patch Changes
