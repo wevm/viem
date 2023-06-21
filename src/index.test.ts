@@ -150,6 +150,7 @@ test('exports actions', () => {
       "formatBlock": [Function],
       "formatEther": [Function],
       "formatGwei": [Function],
+      "formatLog": [Function],
       "formatTransaction": [Function],
       "formatTransactionRequest": [Function],
       "formatUnits": [Function],
