@@ -118,4 +118,52 @@ test('creates function signature from `AbiFunction`', () => {
       stateMutability: 'view',
     }),
   ).toEqual('0xe834a834')
+
+  expect(
+    getFunctionSelector({
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'card',
+          type: 'uint256',
+        },
+        {
+          components: [
+            {
+              internalType: 'uint256',
+              name: 'Onetime',
+              type: 'uint256',
+            },
+            {
+              internalType: 'uint256',
+              name: 'Daily',
+              type: 'uint256',
+            },
+            {
+              internalType: 'uint256',
+              name: 'Monthly',
+              type: 'uint256',
+            },
+            {
+              internalType: 'uint32',
+              name: 'Seqno',
+              type: 'uint32',
+            },
+            {
+              internalType: 'bool',
+              name: 'Enabled',
+              type: 'bool',
+            },
+          ],
+          internalType: 'struct WhalesCardV1.PendingLimits',
+          name: 'limits',
+          type: 'tuple',
+        },
+      ],
+      name: 'setLimits',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    }),
+  ).toEqual('0xbc75a138')
 })

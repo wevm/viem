@@ -16,5 +16,16 @@ export function hashFunction(def: string) {
 }
 
 export function hashAbiItem(def: AbiFunction | AbiEvent) {
-  return hash(`${def.name}(${def.inputs.map(({ type }) => type).join(',')})`)
+  return hash(
+    `${def.name}(${def.inputs
+      .map((input) => {
+        const maybeComponents = (input as any).components
+        let typeReplacement: string | null = null
+        if (input.type === 'tuple' && Array.isArray(maybeComponents)) {
+          typeReplacement = `(${maybeComponents.map((a) => a.type).join(',')})`
+        }
+        return typeReplacement ?? input.type
+      })
+      .join(',')})`,
+  )
 }
