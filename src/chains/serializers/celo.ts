@@ -1,12 +1,14 @@
 import type {
+  AccessList,
   TransactionSerializable,
-  TransactionSerializableGeneric,
+  TransactionSerializableBase,
 } from '../../types/transaction.js'
 
 import {
   type Address,
   BaseError,
   FeeCapTooHighError,
+  type FeeValuesEIP1559,
   InvalidAddressError,
   InvalidChainIdError,
   type SerializeTransactionFn,
@@ -21,13 +23,19 @@ import {
   trim,
 } from '../../index.js'
 
-export type TransactionSerializableCIP42 = TransactionSerializableGeneric & {
-  feeCurrency?: Address
-  gatewayFeeRecipient?: Address
-  gatewayFee?: bigint
-  chainId: number
-  type: 'cip42'
-}
+export type TransactionSerializableCIP42<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  FeeValuesEIP1559<TQuantity> & {
+    accessList?: AccessList
+    gasPrice?: never
+    feeCurrency?: Address
+    gatewayFeeRecipient?: Address
+    gatewayFee?: TQuantity
+    chainId: number
+    type?: 'cip42'
+  }
 
 export type TransactionSerializableIncludingCIP42 =
   | TransactionSerializableCIP42
