@@ -49,6 +49,18 @@ test('no domain', () => {
   )
 })
 
+test('domain: empty name', () => {
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { name: '' },
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    '"0xc3f4f9ebd774352940f60aebbc83fcee20d0b17eb42bd1b20c91a748001ecb53"',
+  )
+})
+
 test('minimal valid typed message', function () {
   const hash = hashTypedData({
     types: {

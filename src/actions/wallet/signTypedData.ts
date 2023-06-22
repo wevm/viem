@@ -143,9 +143,12 @@ export async function signTypedData<
 
   const types = {
     EIP712Domain: [
-      domain?.name && { name: 'name', type: 'string' },
+      typeof domain?.name === 'string' && { name: 'name', type: 'string' },
       domain?.version && { name: 'version', type: 'string' },
-      domain?.chainId && { name: 'chainId', type: 'uint256' },
+      typeof domain?.chainId === 'number' && {
+        name: 'chainId',
+        type: 'uint256',
+      },
       domain?.verifyingContract && {
         name: 'verifyingContract',
         type: 'address',
