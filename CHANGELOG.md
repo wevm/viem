@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.3
+
+### Patch Changes
+
+- [#758](https://github.com/wagmi-dev/viem/pull/758) [`67b628df`](https://github.com/wagmi-dev/viem/commit/67b628df19edead79d8c6ef4755b407b3ce0486f) Thanks [@jxom](https://github.com/jxom)! - Added support for empty string in EIP712Domain name field.
+
 ## 1.1.2
 
 ### Patch Changes
