@@ -203,6 +203,30 @@ describe('args: domain: empty', () => {
 })
 
 describe('args: domain: chainId', () => {
+  test('zeroish chainId', async () => {
+    const signature = await signTypedData(walletClient, {
+      ...typedData.complex,
+      domain: {
+        chainId: 0,
+      },
+      account: jsonRpcAccount,
+      primaryType: 'Mail',
+    })
+    expect(signature).toEqual(
+      '0x0ab57c83d3eebb0015ea5382d70aae9a5724a35fb9904f52c505bf783c10364639c126471a542ac6a1b5dcd8f1dc2dc5b1ce346f063ff6104750d53029a7c8cb1c',
+    )
+    expect(
+      await recoverTypedDataAddress({
+        ...typedData.complex,
+        domain: {
+          chainId: 0,
+        },
+        primaryType: 'Mail',
+        signature,
+      }),
+    ).toEqual(getAddress(jsonRpcAccount))
+  })
+
   test('json-rpc account', async () => {
     const signature = await signTypedData(walletClient, {
       ...typedData.complex,
