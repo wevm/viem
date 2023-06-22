@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.4
+
+### Patch Changes
+
+- [`75745a60`](https://github.com/wagmi-dev/viem/commit/75745a60fc83a13c3bec20ff04829b82d0852c07) Thanks [@jxom](https://github.com/jxom)! - Lax `parseUnits` value parameter.
+
 ## 1.1.3
 
 ### Patch Changes
