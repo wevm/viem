@@ -207,16 +207,40 @@
       "limit": "60 kB"
     },
     {
+      "name": "viem",
+      "path": "./dist/esm/index.js",
+      "limit": "50 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/chains",
+      "path": "./dist/esm/chains/index.js",
+      "limit": "11 kB",
+      "import": "*"
+    },
+    {
+      "name": "viem/ens",
+      "path": "./dist/esm/ens.js",
+      "limit": "45 kB",
+      "import": "*"
+    },
+    {
       "name": "viem (tree-shaking check)",
       "path": "./dist/esm/index.js",
       "limit": "1.5 kB",
       "import": "{ defineBlock }"
     },
     {
-      "name": "viem/chains",
-      "path": "./dist/esm/chains.js",
-      "limit": "1100 B",
+      "name": "viem/chains (tree-shaking check)",
+      "path": "./dist/esm/chains/index.js",
+      "limit": "900 B",
       "import": "{ mainnet }"
+    },
+    {
+      "name": "viem/ens (tree-shaking check)",
+      "path": "./dist/esm/ens.js",
+      "limit": "18 kB",
+      "import": "{ getEnsAvatar }"
     }
   ],
   "simple-git-hooks": {
