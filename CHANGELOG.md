@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.6
+
+### Patch Changes
+
+- [`ec58ed1b`](https://github.com/wagmi-dev/viem/commit/ec58ed1b8be60973817ff401f1bf340fda854208) Thanks [@jxom](https://github.com/jxom)! - Fixed type narrowing on EIP1474 schemas
+
 ## 1.1.5
 
 ### Patch Changes
