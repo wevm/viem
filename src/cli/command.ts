@@ -1,8 +1,8 @@
-import * as fs from 'fs'
 import type { PublicClient } from '../clients/createPublicClient.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
-import { ChainMaps } from './constants.js'
 import { http } from '../clients/transports/http.js'
+import { ChainMaps } from './constants.js'
+import * as fs from 'fs'
 
 export interface Command {
   name: string
@@ -14,6 +14,7 @@ export interface Command {
 
 export interface GetClientProps {
   chain: string
+  rpc: string
 }
 
 export interface WriteOutputProps {
@@ -24,10 +25,13 @@ export interface WriteOutputProps {
 
 export default class CliHelper {
   public static getClient(props: GetClientProps): PublicClient | null {
-    if (ChainMaps[props.chain]) {
+    if (
+      (props.chain === 'custom' && props.rpc !== '') ||
+      ChainMaps[props.chain]
+    ) {
       return createPublicClient({
         chain: ChainMaps[props.chain],
-        transport: http(),
+        transport: props.rpc !== '' ? http(props.rpc) : http(),
       })
     }
 

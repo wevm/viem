@@ -1,21 +1,25 @@
+import { ChainArgvs, WriteOutputArgvs } from '../../argvs.js'
 import type { Command } from '../../command.js'
 import CliHelper from '../../command.js'
-import { ChainArgvs, WriteOutputArgvs } from '../../argvs.js'
 
 export default class GetBlock implements Command {
   public readonly name: string = 'getBlock'
   public readonly describe: string = 'Get block data by number or hash'
 
   public async execute(argv: any) {
-    const client = CliHelper.getClient({ chain: argv.chain.toLowerCase() })
+    const client = CliHelper.getClient({
+      chain: argv.chain.toLowerCase(),
+      rpc: argv.rpc,
+    })
 
     if (!client) {
       console.log(`Chain ${argv.chain} is not supported!`)
     } else {
-      const block =
-        argv.number || argv.hash
-          ? await client.getBlock(argv.number ? argv.number : argv.hash)
-          : await client.getBlock()
+      const block = await client.getBlock({
+        includeTransactions: argv.full,
+        blockNumber: argv.number ? argv.number : undefined,
+        blockHash: argv.hash ? argv.hash : undefined,
+      })
 
       CliHelper.writeOutput({
         format: argv.output,
@@ -39,6 +43,11 @@ export default class GetBlock implements Command {
         type: 'string',
         default: '',
         describe: 'The block hash being queried',
+      },
+      full: {
+        type: 'boolean',
+        default: false,
+        describe: 'Get block transaction objects',
       },
     })
   }

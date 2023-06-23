@@ -37,6 +37,9 @@ importers:
       abitype:
         specifier: 0.8.7
         version: 0.8.7(typescript@5.0.4)
+      bignumber.js:
+        specifier: ^9.1.1
+        version: 9.1.1
       isomorphic-ws:
         specifier: 5.0.0
         version: 5.0.0(ws@8.12.0)
@@ -3051,6 +3054,10 @@ packages:
     dependencies:
       is-windows: 1.0.2
     dev: true
+
+  /bignumber.js@9.1.1:
+    resolution: {integrity: sha512-pHm4LsMJ6lzgNGVfZHjMoO8sdoRhOzOH4MLmY65Jg70bpxCKu5iOHNJyfF6OyvYw7t8Fpf35RuzUyqnQsj8Vig==}
+    dev: false
 
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}

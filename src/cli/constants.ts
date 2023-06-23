@@ -1,7 +1,40 @@
-import { mainnet } from '../chains/index.js'
+import {
+  arbitrum,
+  aurora,
+  avalanche,
+  bsc,
+  canto,
+  celo,
+  cronos,
+  fantom,
+  foundry,
+  gnosis,
+  goerli,
+  mainnet,
+  optimism,
+  polygon,
+  polygonZkEvm,
+  zkSync,
+} from '../chains/index.js'
 import type { Chain } from '../types/chain.js'
 
 export const ChainMaps: { [key: string]: Chain } = {
   ethereum: mainnet,
   mainnet: mainnet,
+
+  arbitrum: arbitrum,
+  aurora: aurora,
+  avalanche: avalanche,
+  bsc: bsc,
+  canto: canto,
+  celo: celo,
+  cronos: cronos,
+  fantom: fantom,
+  foundry: foundry,
+  goerli: goerli,
+  gnosis: gnosis,
+  optimism: optimism,
+  polygon: polygon,
+  polygonZkEvm: polygonZkEvm,
+  zkSync: zkSync,
 }

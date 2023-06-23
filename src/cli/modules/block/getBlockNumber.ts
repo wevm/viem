@@ -1,13 +1,16 @@
+import { ChainArgvs, WriteOutputArgvs } from '../../argvs.js'
 import type { Command } from '../../command.js'
 import CliHelper from '../../command.js'
-import { ChainArgvs, WriteOutputArgvs } from '../../argvs.js'
 
 export default class GetBlockNumber implements Command {
   public readonly name: string = 'getBlockNumber'
   public readonly describe: string = 'Get latest block number'
 
   public async execute(argv: any) {
-    const client = CliHelper.getClient({ chain: argv.chain.toLowerCase() })
+    const client = CliHelper.getClient({
+      chain: argv.chain.toLowerCase(),
+      rpc: argv.rpc,
+    })
 
     if (!client) {
       console.log(`Chain ${argv.chain} is not supported!`)

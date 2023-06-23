@@ -4,6 +4,11 @@ export const ChainArgvs: any = {
     default: 'ethereum',
     describe: 'The blockchain name, ex: ethereum, mainnet, ...',
   },
+  rpc: {
+    type: 'string',
+    default: '',
+    describe: 'Using a custom EVM-compatible RPC endpoint',
+  },
 }
 
 export const WriteOutputArgvs: any = {
