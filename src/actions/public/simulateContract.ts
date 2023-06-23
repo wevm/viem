@@ -127,7 +127,6 @@ export async function simulateContract<
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   try {
     const { data } = await call(client, {
-      batch: false,
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,

@@ -168,7 +168,6 @@ test('args: dataSuffix', async () => {
   })
   expect(spy).toHaveBeenCalledWith(publicClient, {
     account: accounts[0].address,
-    batch: false,
     data: '0x1249c58b12345678',
     to: wagmiContractConfig.address,
   })
