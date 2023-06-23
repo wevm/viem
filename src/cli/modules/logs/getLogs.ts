@@ -1,3 +1,4 @@
+import { formatLog } from '../../../utils/formatters/log.js'
 import { ChainArgvs, WriteOutputArgvs } from '../../argvs.js'
 import type { Command } from '../../command.js'
 import CliHelper from '../../command.js'
@@ -15,17 +16,24 @@ export default class GetLogs implements Command {
     if (!client) {
       console.log(`Chain ${argv.chain} is not supported!`)
     } else {
-      const logs = await client.getLogs({
-        address: argv.address ? argv.address : undefined,
-        event: argv.topic !== '' ? argv.topic : undefined,
-        fromBlock: argv.fromBlock ? argv.fromBlock : undefined,
-        toBlock: argv.toBlock ? argv.toBlock : undefined,
+      const logs = await client.request({
+        method: 'eth_getLogs',
+        params: [
+          {
+            address: argv.address ? argv.address : undefined,
+            topics: argv.topic ? [argv.topic] : undefined,
+            fromBlock: argv.fromBlock ? argv.fromBlock : undefined,
+            toBlock: argv.toBlock ? argv.toBlock : undefined,
+          },
+        ],
       })
+
+      const formattedLogs = logs.map((item) => formatLog(item))
 
       CliHelper.writeOutput({
         format: argv.output,
         filePath: argv.file,
-        data: logs,
+        data: formattedLogs,
       })
     }
   }
