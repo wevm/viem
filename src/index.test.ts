@@ -126,6 +126,7 @@ test('exports actions', () => {
       "createWalletClient": [Function],
       "custom": [Function],
       "decodeAbiParameters": [Function],
+      "decodeDeployData": [Function],
       "decodeErrorResult": [Function],
       "decodeEventLog": [Function],
       "decodeFunctionData": [Function],

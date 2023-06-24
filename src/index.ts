@@ -518,6 +518,11 @@ export {
   decodeAbiParameters,
 } from './utils/abi/decodeAbiParameters.js'
 export {
+  type DecodeDeployDataParameters,
+  type DecodeDeployDataReturnType,
+  decodeDeployData,
+} from './utils/abi/decodeDeployData.js'
+export {
   type DecodeErrorResultParameters,
   type DecodeErrorResultReturnType,
   decodeErrorResult,
