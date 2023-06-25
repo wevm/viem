@@ -4,10 +4,25 @@ import { createHttpServer } from '../_test/utils.js'
 import { BaseError } from '../errors/base.js'
 import { HttpRequestError, TimeoutError } from '../errors/request.js'
 import {
+  ChainDisconnectedError,
   InternalRpcError,
+  InvalidInputRpcError,
+  InvalidParamsRpcError,
+  InvalidRequestRpcError,
+  JsonRpcVersionUnsupportedError,
   LimitExceededRpcError,
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
   ParseRpcError,
+  ProviderDisconnectedError,
+  ResourceNotFoundRpcError,
+  ResourceUnavailableRpcError,
+  SwitchChainError,
+  TransactionRejectedRpcError,
+  UnauthorizedProviderError,
   UnknownRpcError,
+  UnsupportedProviderMethodError,
+  UserRejectedRequestError,
 } from '../errors/rpc.js'
 
 import { buildRequest, isDeterministicError } from './buildRequest.js'
@@ -46,7 +61,11 @@ describe('args', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+      res.end(
+        JSON.stringify({
+          error: { code: InternalRpcError.code, message: 'message' },
+        }),
+      )
     })
 
     await expect(() =>
@@ -66,7 +85,11 @@ describe('args', () => {
       res.writeHead(200, {
         'Content-Type': 'application/json',
       })
-      res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+      res.end(
+        JSON.stringify({
+          error: { code: InternalRpcError.code, message: 'message' },
+        }),
+      )
     })
 
     await expect(() =>
@@ -98,7 +121,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32700, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: ParseRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -119,7 +146,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32600, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InvalidRequestRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -140,7 +171,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32601, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: MethodNotFoundRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -161,7 +196,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32602, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InvalidParamsRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -183,7 +222,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InternalRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -204,7 +247,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32000, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InvalidInputRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -226,7 +273,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32001, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: ResourceNotFoundRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -247,7 +298,14 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32002, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: {
+              code: ResourceUnavailableRpcError.code,
+              message: 'message',
+            },
+          }),
+        )
       })
 
       await expect(() =>
@@ -268,7 +326,14 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32003, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: {
+              code: TransactionRejectedRpcError.code,
+              message: 'message',
+            },
+          }),
+        )
       })
 
       await expect(() =>
@@ -291,7 +356,14 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32004, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: {
+              code: MethodNotSupportedRpcError.code,
+              message: 'message',
+            },
+          }),
+        )
       })
 
       await expect(() =>
@@ -312,7 +384,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32005, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: LimitExceededRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -333,7 +409,14 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32006, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: {
+              code: JsonRpcVersionUnsupportedError.code,
+              message: 'message',
+            },
+          }),
+        )
       })
 
       await expect(() =>
@@ -354,7 +437,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: 4001, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: UserRejectedRequestError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -375,7 +462,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: 4100, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: UnauthorizedProviderError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -396,7 +487,14 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: 4200, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: {
+              code: UnsupportedProviderMethodError.code,
+              message: 'message',
+            },
+          }),
+        )
       })
 
       await expect(() =>
@@ -417,7 +515,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: 4900, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: ProviderDisconnectedError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -438,7 +540,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: 4901, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: ChainDisconnectedError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -459,7 +565,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: 4902, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: SwitchChainError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -480,7 +590,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32602, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InvalidParamsRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -488,27 +602,6 @@ describe('behavior', () => {
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "Invalid parameters were provided to the RPC method.
         Double check you have provided the correct parameters.
-
-        URL: http://localhost
-        Request body: {\\"method\\":\\"eth_blockNumber\\"}
-
-        Details: message
-        Version: viem@1.0.2"
-      `)
-    })
-
-    test('MethodNotSupportedRpcError', async () => {
-      const server = await createHttpServer((_req, res) => {
-        res.writeHead(200, {
-          'Content-Type': 'application/json',
-        })
-        res.end(JSON.stringify({ error: { code: -32042, message: 'message' } }))
-      })
-
-      await expect(() =>
-        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "Method is not implemented.
 
         URL: http://localhost
         Request body: {\\"method\\":\\"eth_blockNumber\\"}
@@ -559,7 +652,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32603, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InternalRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -575,7 +672,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32005, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: LimitExceededRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
@@ -769,7 +870,11 @@ describe('behavior', () => {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
-        res.end(JSON.stringify({ error: { code: -32602, message: 'message' } }))
+        res.end(
+          JSON.stringify({
+            error: { code: InvalidParamsRpcError.code, message: 'message' },
+          }),
+        )
       })
 
       await expect(() =>
