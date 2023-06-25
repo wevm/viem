@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.7
+
+### Patch Changes
+
+- [`d0b4619e`](https://github.com/wagmi-dev/viem/commit/d0b4619e55ee697c9b8e03e9818b93c6a25b3ba2) Thanks [@jxom](https://github.com/jxom)! - Exported `decodeDeployData`.
+
 ## 1.1.6
 
 ### Patch Changes
