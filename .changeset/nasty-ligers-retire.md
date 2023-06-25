@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Refactor the rpc error code to improve readability and maintainability.
+Added a static `code` property to RPC Error classes.
