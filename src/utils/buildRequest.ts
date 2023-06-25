@@ -71,27 +71,65 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
           const err = err_ as unknown as RpcError<
             RpcErrorCode | ProviderRpcErrorCode
           >
-          if (err.code === -32700) throw new ParseRpcError(err)
-          if (err.code === -32600) throw new InvalidRequestRpcError(err)
-          if (err.code === -32601) throw new MethodNotFoundRpcError(err)
-          if (err.code === -32602) throw new InvalidParamsRpcError(err)
-          if (err.code === -32603) throw new InternalRpcError(err)
-          if (err.code === -32000) throw new InvalidInputRpcError(err)
-          if (err.code === -32001) throw new ResourceNotFoundRpcError(err)
-          if (err.code === -32002) throw new ResourceUnavailableRpcError(err)
-          if (err.code === -32003) throw new TransactionRejectedRpcError(err)
-          if (err.code === -32004) throw new MethodNotSupportedRpcError(err)
-          if (err.code === -32005) throw new LimitExceededRpcError(err)
-          if (err.code === -32006) throw new JsonRpcVersionUnsupportedError(err)
-          if (err.code === -32042) throw new MethodNotSupportedRpcError(err)
-          if (err.code === 4001) throw new UserRejectedRequestError(err)
-          if (err.code === 4100) throw new UnauthorizedProviderError(err)
-          if (err.code === 4200) throw new UnsupportedProviderMethodError(err)
-          if (err.code === 4900) throw new ProviderDisconnectedError(err)
-          if (err.code === 4901) throw new ChainDisconnectedError(err)
-          if (err.code === 4902) throw new SwitchChainError(err)
-          if (err_ instanceof BaseError) throw err_
-          throw new UnknownRpcError(err as Error)
+          switch (err.code) {
+            // -32700
+            case ParseRpcError.code:
+              throw new ParseRpcError(err)
+            // -32600
+            case InvalidRequestRpcError.code:
+              throw new InvalidRequestRpcError(err)
+            // -32601
+            case MethodNotFoundRpcError.code:
+              throw new MethodNotFoundRpcError(err)
+            // -32602
+            case InvalidParamsRpcError.code:
+              throw new InvalidParamsRpcError(err)
+            // -32603
+            case InternalRpcError.code:
+              throw new InternalRpcError(err)
+            // -32000
+            case InvalidInputRpcError.code:
+              throw new InvalidInputRpcError(err)
+            // -32001
+            case ResourceNotFoundRpcError.code:
+              throw new ResourceNotFoundRpcError(err)
+            // -32002
+            case ResourceUnavailableRpcError.code:
+              throw new ResourceUnavailableRpcError(err)
+            // -32003
+            case TransactionRejectedRpcError.code:
+              throw new TransactionRejectedRpcError(err)
+            // -32004
+            case MethodNotSupportedRpcError.code:
+              throw new MethodNotSupportedRpcError(err)
+            // -32005
+            case LimitExceededRpcError.code:
+              throw new LimitExceededRpcError(err)
+            // -32006
+            case JsonRpcVersionUnsupportedError.code:
+              throw new JsonRpcVersionUnsupportedError(err)
+            // 4001
+            case UserRejectedRequestError.code:
+              throw new UserRejectedRequestError(err)
+            // 4100
+            case UnauthorizedProviderError.code:
+              throw new UnauthorizedProviderError(err)
+            // 4200
+            case UnsupportedProviderMethodError.code:
+              throw new UnsupportedProviderMethodError(err)
+            // 4900
+            case ProviderDisconnectedError.code:
+              throw new ProviderDisconnectedError(err)
+            // 4901
+            case ChainDisconnectedError.code:
+              throw new ChainDisconnectedError(err)
+            // 4902
+            case SwitchChainError.code:
+              throw new SwitchChainError(err)
+            default:
+              if (err_ instanceof BaseError) throw err_
+              throw new UnknownRpcError(err as Error)
+          }
         }
       },
       {
