@@ -1,5 +1,11 @@
 # viem
 
+## 1.1.8
+
+### Patch Changes
+
+- [#783](https://github.com/wagmi-dev/viem/pull/783) [`91e85c76`](https://github.com/wagmi-dev/viem/commit/91e85c76df0ee665fb26dbadd473da5ec87e5029) Thanks [@izayl](https://github.com/izayl)! - Added a static `code` property to RPC Error classes.
+
 ## 1.1.7
 
 ### Patch Changes
