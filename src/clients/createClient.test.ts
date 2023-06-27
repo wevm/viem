@@ -4,6 +4,7 @@ import { localWsUrl } from '../_test/constants.js'
 import { localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { createClient } from './createClient.js'
+import { publicActions } from './decorators/public.js'
 import { createTransport } from './transports/createTransport.js'
 import { custom } from './transports/custom.js'
 import { http } from './transports/http.js'
@@ -365,14 +366,13 @@ describe('extends', () => {
     const { uid: _, ...client } = createClient({
       chain: localhost,
       transport: http(),
-    }).extend((client) => ({
-      getChainId: () => client.chain.id,
-    }))
+    }).extend(publicActions)
 
     expect(client).toMatchInlineSnapshot(`
       {
         "account": undefined,
         "batch": undefined,
+        "call": [Function],
         "chain": {
           "formatters": undefined,
           "id": 1337,
@@ -397,12 +397,41 @@ describe('extends', () => {
           },
           "serializers": undefined,
         },
+        "createBlockFilter": [Function],
+        "createContractEventFilter": [Function],
+        "createEventFilter": [Function],
+        "createPendingTransactionFilter": [Function],
+        "estimateContractGas": [Function],
+        "estimateGas": [Function],
         "extend": [Function],
+        "getBalance": [Function],
+        "getBlock": [Function],
+        "getBlockNumber": [Function],
+        "getBlockTransactionCount": [Function],
+        "getBytecode": [Function],
         "getChainId": [Function],
+        "getEnsAddress": [Function],
+        "getEnsAvatar": [Function],
+        "getEnsName": [Function],
+        "getEnsResolver": [Function],
+        "getEnsText": [Function],
+        "getFeeHistory": [Function],
+        "getFilterChanges": [Function],
+        "getFilterLogs": [Function],
+        "getGasPrice": [Function],
+        "getLogs": [Function],
+        "getStorageAt": [Function],
+        "getTransaction": [Function],
+        "getTransactionConfirmations": [Function],
+        "getTransactionCount": [Function],
+        "getTransactionReceipt": [Function],
         "key": "base",
+        "multicall": [Function],
         "name": "Base Client",
         "pollingInterval": 4000,
+        "readContract": [Function],
         "request": [Function],
+        "simulateContract": [Function],
         "transport": {
           "key": "http",
           "name": "HTTP JSON-RPC",
@@ -414,6 +443,15 @@ describe('extends', () => {
           "url": undefined,
         },
         "type": "base",
+        "uninstallFilter": [Function],
+        "verifyMessage": [Function],
+        "verifyTypedData": [Function],
+        "waitForTransactionReceipt": [Function],
+        "watchBlockNumber": [Function],
+        "watchBlocks": [Function],
+        "watchContractEvent": [Function],
+        "watchEvent": [Function],
+        "watchPendingTransactions": [Function],
       }
     `)
   })
