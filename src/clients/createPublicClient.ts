@@ -5,35 +5,25 @@ import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type PublicActions, publicActions } from './decorators/public.js'
 import type { Transport } from './transports/createTransport.js'
 
-export type MulticallBatchOptions = {
-  /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
-  batchSize?: number
-  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
-  wait?: number
-}
-
 export type PublicClientConfig<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
 > = Pick<
   ClientConfig<TTransport, TChain>,
-  'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
-> & {
-  /** Flags for batch settings. */
-  batch?: {
-    /** Toggle to enable `eth_call` multicall aggregation. */
-    multicall?: boolean | MulticallBatchOptions
-  }
-}
+  'batch' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+>
 
 export type PublicClient<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
-  TIncludeActions extends boolean = true,
 > = Prettify<
-  Client<TTransport, PublicRpcSchema, TChain> &
-    Pick<PublicClientConfig, 'batch'> &
-    (TIncludeActions extends true ? PublicActions<TTransport, TChain> : unknown)
+  Client<
+    TTransport,
+    TChain,
+    undefined,
+    PublicRpcSchema,
+    PublicActions<TTransport, TChain>
+  >
 >
 
 /**
@@ -65,24 +55,14 @@ export function createPublicClient<
   name = 'Public Client',
   transport,
   pollingInterval,
-}: PublicClientConfig<TTransport, TChain>): PublicClient<
-  TTransport,
-  TChain,
-  true
-> {
-  const client = {
+}: PublicClientConfig<TTransport, TChain>): PublicClient<TTransport, TChain> {
+  return createClient({
     batch,
-    ...(createClient({
-      chain,
-      key,
-      name,
-      pollingInterval,
-      transport,
-      type: 'publicClient',
-    }) as PublicClient<TTransport, TChain>),
-  }
-  return {
-    ...client,
-    ...publicActions(client),
-  }
+    chain,
+    key,
+    name,
+    pollingInterval,
+    transport,
+    type: 'publicClient',
+  }).extend(publicActions)
 }

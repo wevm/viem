@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 import { readContract } from '../../../actions/public/readContract.js'
-import type { PublicClient } from '../../../clients/createPublicClient.js'
+import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import {
   EnsAvatarInvalidMetadataError,
@@ -213,7 +213,7 @@ export function parseNftUri(uri: string): ParsedNft {
 }
 
 export async function getNftTokenUri<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   { nft }: { nft: ParsedNft },
 ) {
   if (nft.namespace === 'erc721') {

@@ -1,7 +1,7 @@
 import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
@@ -103,7 +103,7 @@ export async function writeContract<
   TFunctionName extends string,
   TChainOverride extends Chain | undefined = undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   {
     abi,
     address,

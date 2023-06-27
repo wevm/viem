@@ -196,6 +196,7 @@ import {
   type WatchPendingTransactionsReturnType,
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
@@ -203,12 +204,13 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { FilterType } from '../../types/filter.js'
-import type { PublicClient } from '../createPublicClient.js'
+import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type PublicActions<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
 > = {
   /**
    * Executes a new message call immediately without submitting a transaction to the network.
@@ -375,7 +377,7 @@ export type PublicActions<
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
-    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain>,
+    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
   ) => Promise<EstimateContractGasReturnType>
   /**
    * Estimates the gas necessary to complete a transaction without submitting it to the network.
@@ -401,7 +403,7 @@ export type PublicActions<
    * })
    */
   estimateGas: (
-    args: EstimateGasParameters<TChain>,
+    args: EstimateGasParameters<TChain, TAccount>,
   ) => Promise<EstimateGasReturnType>
   /**
    * Returns the balance of an address in wei.
@@ -1372,23 +1374,19 @@ export type PublicActions<
   ) => WatchPendingTransactionsReturnType
 }
 
-export const publicActions: <
+export const publicActions = <
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
-) => PublicActions<TTransport, TChain> = <
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
->(
-  client: PublicClient<TTransport, TChain>,
-): PublicActions<TTransport, TChain> => ({
+  client: Client<TTransport, TChain, TAccount>,
+): PublicActions<TTransport, TChain, TAccount> => ({
   call: (args) => call(client, args),
   createBlockFilter: () => createBlockFilter(client),
   createContractEventFilter: (args) => createContractEventFilter(client, args),
   createEventFilter: (args) => createEventFilter(client, args),
   createPendingTransactionFilter: () => createPendingTransactionFilter(client),
-  estimateContractGas: (args) => estimateContractGas(client, args),
+  estimateContractGas: (args) => estimateContractGas(client, args as any),
   estimateGas: (args) => estimateGas(client, args),
   getBalance: (args) => getBalance(client, args),
   getBlock: (args) => getBlock(client, args),

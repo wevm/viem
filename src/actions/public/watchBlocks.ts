@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -84,7 +84,7 @@ export function watchBlocks<
   TTransport extends Transport,
   TChain extends Chain | undefined,
 >(
-  client: PublicClient<TTransport, TChain>,
+  client: Client<TTransport, TChain>,
   {
     blockTag = 'latest',
     emitMissed = false,

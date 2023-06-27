@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
@@ -36,7 +36,7 @@ export async function uninstallFilter<
   TTransport extends Transport,
   TChain extends Chain | undefined,
 >(
-  _client: PublicClient<TTransport, TChain>,
+  _client: Client<TTransport, TChain>,
   { filter }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
   return filter.request({

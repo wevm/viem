@@ -1,5 +1,5 @@
 import type { Chain } from '../../chains/index.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ByteArray, Hex, SignableMessage } from '../../types/misc.js'
 import { hashMessage } from '../../utils/index.js'
@@ -29,7 +29,7 @@ export type VerifyMessageReturnType = boolean
  * @returns Whether or not the signature is valid. {@link VerifyMessageReturnType}
  */
 export async function verifyMessage<TChain extends Chain | undefined,>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   { address, message, signature, ...callRequest }: VerifyMessageParameters,
 ): Promise<VerifyMessageReturnType> {
   const hash = hashMessage(message)

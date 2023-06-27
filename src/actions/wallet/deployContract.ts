@@ -1,7 +1,7 @@
 import type { Abi, Narrow } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { GetConstructorArgs } from '../../types/contract.js'
@@ -63,7 +63,7 @@ export function deployContract<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,
 >(
-  walletClient: WalletClient<Transport, TChain, TAccount>,
+  walletClient: Client<Transport, TChain, TAccount>,
   {
     abi,
     args,

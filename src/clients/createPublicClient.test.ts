@@ -2,8 +2,10 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localWsUrl } from '../_test/constants.js'
 import { localhost } from '../chains/index.js'
-import type { EIP1193RequestFn, PublicRpcSchema } from '../index.js'
+import { type EIP1193RequestFn, type PublicRpcSchema } from '../index.js'
 import { createPublicClient } from './createPublicClient.js'
+import { testActions } from './decorators/test.js'
+import { walletActions } from './decorators/wallet.js'
 import { createTransport } from './transports/createTransport.js'
 import { custom } from './transports/custom.js'
 import { http } from './transports/http.js'
@@ -27,6 +29,7 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
+      "account": undefined,
       "batch": undefined,
       "call": [Function],
       "chain": undefined,
@@ -36,6 +39,7 @@ test('creates', () => {
       "createPendingTransactionFilter": [Function],
       "estimateContractGas": [Function],
       "estimateGas": [Function],
+      "extend": [Function],
       "getBalance": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
@@ -133,6 +137,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
         "batch": undefined,
         "call": [Function],
         "chain": {
@@ -165,6 +170,7 @@ describe('transports', () => {
         "createPendingTransactionFilter": [Function],
         "estimateContractGas": [Function],
         "estimateGas": [Function],
+        "extend": [Function],
         "getBalance": [Function],
         "getBlock": [Function],
         "getBlockNumber": [Function],
@@ -226,6 +232,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
         "batch": undefined,
         "call": [Function],
         "chain": {
@@ -258,6 +265,7 @@ describe('transports', () => {
         "createPendingTransactionFilter": [Function],
         "estimateContractGas": [Function],
         "estimateGas": [Function],
+        "extend": [Function],
         "getBalance": [Function],
         "getBlock": [Function],
         "getBlockNumber": [Function],
@@ -319,6 +327,7 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
         "batch": undefined,
         "call": [Function],
         "chain": undefined,
@@ -328,6 +337,7 @@ describe('transports', () => {
         "createPendingTransactionFilter": [Function],
         "estimateContractGas": [Function],
         "estimateGas": [Function],
+        "extend": [Function],
         "getBalance": [Function],
         "getBlock": [Function],
         "getBlockNumber": [Function],
@@ -378,4 +388,140 @@ describe('transports', () => {
       }
     `)
   })
+})
+
+test('extend', () => {
+  const { uid: _, ...client } = createPublicClient({
+    chain: localhost,
+    transport: http(),
+  })
+    .extend(walletActions)
+    .extend(testActions({ mode: 'anvil' }))
+
+  expect(client).toMatchInlineSnapshot(`
+    {
+      "account": undefined,
+      "addChain": [Function],
+      "batch": undefined,
+      "call": [Function],
+      "chain": {
+        "formatters": undefined,
+        "id": 1337,
+        "name": "Localhost",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "localhost",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+          "public": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+        },
+        "serializers": undefined,
+      },
+      "createBlockFilter": [Function],
+      "createContractEventFilter": [Function],
+      "createEventFilter": [Function],
+      "createPendingTransactionFilter": [Function],
+      "deployContract": [Function],
+      "dropTransaction": [Function],
+      "estimateContractGas": [Function],
+      "estimateGas": [Function],
+      "extend": [Function],
+      "getAddresses": [Function],
+      "getAutomine": [Function],
+      "getBalance": [Function],
+      "getBlock": [Function],
+      "getBlockNumber": [Function],
+      "getBlockTransactionCount": [Function],
+      "getBytecode": [Function],
+      "getChainId": [Function],
+      "getEnsAddress": [Function],
+      "getEnsAvatar": [Function],
+      "getEnsName": [Function],
+      "getEnsResolver": [Function],
+      "getEnsText": [Function],
+      "getFeeHistory": [Function],
+      "getFilterChanges": [Function],
+      "getFilterLogs": [Function],
+      "getGasPrice": [Function],
+      "getLogs": [Function],
+      "getPermissions": [Function],
+      "getStorageAt": [Function],
+      "getTransaction": [Function],
+      "getTransactionConfirmations": [Function],
+      "getTransactionCount": [Function],
+      "getTransactionReceipt": [Function],
+      "getTxpoolContent": [Function],
+      "getTxpoolStatus": [Function],
+      "impersonateAccount": [Function],
+      "increaseTime": [Function],
+      "inspectTxpool": [Function],
+      "key": "public",
+      "mine": [Function],
+      "multicall": [Function],
+      "name": "Public Client",
+      "pollingInterval": 4000,
+      "readContract": [Function],
+      "removeBlockTimestampInterval": [Function],
+      "request": [Function],
+      "requestAddresses": [Function],
+      "requestPermissions": [Function],
+      "reset": [Function],
+      "revert": [Function],
+      "sendTransaction": [Function],
+      "sendUnsignedTransaction": [Function],
+      "setAutomine": [Function],
+      "setBalance": [Function],
+      "setBlockGasLimit": [Function],
+      "setBlockTimestampInterval": [Function],
+      "setCode": [Function],
+      "setCoinbase": [Function],
+      "setIntervalMining": [Function],
+      "setLoggingEnabled": [Function],
+      "setMinGasPrice": [Function],
+      "setNextBlockBaseFeePerGas": [Function],
+      "setNextBlockTimestamp": [Function],
+      "setNonce": [Function],
+      "setRpcUrl": [Function],
+      "setStorageAt": [Function],
+      "signMessage": [Function],
+      "signTypedData": [Function],
+      "simulateContract": [Function],
+      "snapshot": [Function],
+      "stopImpersonatingAccount": [Function],
+      "switchChain": [Function],
+      "transport": {
+        "key": "http",
+        "name": "HTTP JSON-RPC",
+        "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
+        "timeout": 10000,
+        "type": "http",
+        "url": undefined,
+      },
+      "type": "publicClient",
+      "uninstallFilter": [Function],
+      "verifyMessage": [Function],
+      "verifyTypedData": [Function],
+      "waitForTransactionReceipt": [Function],
+      "watchAsset": [Function],
+      "watchBlockNumber": [Function],
+      "watchBlocks": [Function],
+      "watchContractEvent": [Function],
+      "watchEvent": [Function],
+      "watchPendingTransactions": [Function],
+      "writeContract": [Function],
+    }
+  `)
 })

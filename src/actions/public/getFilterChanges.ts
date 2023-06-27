@@ -1,6 +1,6 @@
 import type { Abi, AbiEvent, ExtractAbiEvent } from 'abitype'
 
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   DecodeLogDataMismatch,
@@ -126,7 +126,7 @@ export async function getFilterChanges<
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
 >(
-  _client: PublicClient<TTransport, TChain>,
+  _client: Client<TTransport, TChain>,
   {
     filter,
   }: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,

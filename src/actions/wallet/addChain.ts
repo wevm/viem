@@ -1,5 +1,5 @@
 import type { Account } from '../../accounts/types.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -31,10 +31,7 @@ export type AddChainParameters = {
 export async function addChain<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
->(
-  client: WalletClient<Transport, TChain, TAccount>,
-  { chain }: AddChainParameters,
-) {
+>(client: Client<Transport, TChain, TAccount>, { chain }: AddChainParameters) {
   const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain
   await client.request({
     method: 'wallet_addEthereumChain',

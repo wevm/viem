@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
 
-import type { IsUndefined } from './utils.js'
+import type { IsUndefined, Prettify } from './utils.js'
 
 export type GetAccountParameter<
   TAccount extends Account | undefined = Account | undefined,
@@ -10,10 +10,14 @@ export type GetAccountParameter<
   ? { account: Account | Address }
   : { account?: Account | Address }
 
-export type ParseAccount<TAccount extends Account | Address | undefined> =
-  | (TAccount extends Account ? TAccount : never)
-  | (TAccount extends Address ? JsonRpcAccount : never)
-  | (TAccount extends undefined ? undefined : never)
+export type ParseAccount<
+  TAccountOrAddress extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
+> = TAccountOrAddress extends Address
+  ? Prettify<JsonRpcAccount<TAccountOrAddress>>
+  : TAccountOrAddress
 
 export type {
   Account,

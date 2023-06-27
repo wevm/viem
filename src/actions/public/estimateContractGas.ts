@@ -2,7 +2,7 @@ import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
@@ -12,8 +12,6 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
-
-import type { WalletClient } from '../../clients/createWalletClient.js'
 import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
 
 export type EstimateContractGasParameters<
@@ -66,9 +64,7 @@ export async function estimateContractGas<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client:
-    | PublicClient<Transport, TChain>
-    | WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   {
     abi,
     address,

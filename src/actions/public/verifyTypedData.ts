@@ -1,9 +1,9 @@
 import type { Chain } from '../../chains/index.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import { hashTypedData } from '../../utils/index.js'
+import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { type VerifyHashParameters, verifyHash } from './verifyHash.js'
 import type { Address, TypedData } from 'abitype'
 
@@ -30,7 +30,7 @@ export type VerifyTypedDataReturnType = boolean
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
 export async function verifyTypedData<TChain extends Chain | undefined,>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     address,
     signature,

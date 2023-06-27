@@ -1,6 +1,5 @@
 import type { Account } from '../../accounts/types.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 
@@ -29,12 +28,8 @@ export type GetGasPriceReturnType = bigint
 export async function getGasPrice<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
->(
-  client:
-    | PublicClient<Transport, TChain>
-    | WalletClient<Transport, TChain, TAccount>,
-): Promise<GetGasPriceReturnType> {
-  const gasPrice = await (client as PublicClient).request({
+>(client: Client<Transport, TChain, TAccount>): Promise<GetGasPriceReturnType> {
+  const gasPrice = await client.request({
     method: 'eth_gasPrice',
   })
   return BigInt(gasPrice)

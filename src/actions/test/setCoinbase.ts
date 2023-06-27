@@ -5,6 +5,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 
 export type SetCoinbaseParameters = {
@@ -34,8 +35,11 @@ export type SetCoinbaseParameters = {
  *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
  * })
  */
-export async function setCoinbase<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function setCoinbase<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { address }: SetCoinbaseParameters,
 ) {
   await client.request({

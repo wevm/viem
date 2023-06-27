@@ -1,6 +1,6 @@
 import type { Abi, Address, ExtractAbiEvent, Narrow } from 'abitype'
 
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs, InferEventName } from '../../types/contract.js'
@@ -101,7 +101,7 @@ export function watchContractEvent<
   TEventName extends string,
   TStrict extends boolean | undefined = undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     abi,
     address,

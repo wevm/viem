@@ -1,6 +1,6 @@
 import type { AbiEvent, Address, Narrow } from 'abitype'
 
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   DecodeLogDataMismatch,
@@ -95,7 +95,7 @@ export async function getLogs<
   TAbiEvent extends AbiEvent | undefined,
   TStrict extends boolean | undefined = undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     address,
     blockHash,

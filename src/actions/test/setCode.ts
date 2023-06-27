@@ -5,6 +5,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 
@@ -38,8 +39,11 @@ export type SetCodeParameters = {
  *   bytecode: '0x60806040526000600355600019600955600c80546001600160a01b031916737a250d5630b4cf539739df…',
  * })
  */
-export async function setCode<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function setCode<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { address, bytecode }: SetCodeParameters,
 ) {
   await client.request({

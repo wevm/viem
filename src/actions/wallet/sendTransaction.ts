@@ -1,6 +1,6 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
@@ -88,7 +88,7 @@ export async function sendTransaction<
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SendTransactionReturnType> {
   const {

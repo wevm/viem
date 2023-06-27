@@ -3,6 +3,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 
@@ -31,8 +32,11 @@ export type SetBlockGasLimitParameters = {
  * })
  * await setBlockGasLimit(client, { gasLimit: 420_000n })
  */
-export async function setBlockGasLimit<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function setBlockGasLimit<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { gasLimit }: SetBlockGasLimitParameters,
 ) {
   await client.request({

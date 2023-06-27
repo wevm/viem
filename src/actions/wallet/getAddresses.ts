@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import { checksumAddress } from '../../utils/address/getAddress.js'
@@ -32,7 +32,7 @@ export async function getAddresses<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
 ): Promise<GetAddressesReturnType> {
   const addresses = await client.request({ method: 'eth_accounts' })
   return addresses.map((address) => checksumAddress(address))

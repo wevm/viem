@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../../clients/createPublicClient.js'
+import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
@@ -13,7 +13,7 @@ import {
 } from './utils.js'
 
 export async function parseAvatarRecord<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     gatewayUrls,
     record,
@@ -28,7 +28,7 @@ export async function parseAvatarRecord<TChain extends Chain | undefined>(
 }
 
 async function parseNftAvatarUri<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     gatewayUrls,
     record,

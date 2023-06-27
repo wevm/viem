@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
-import type { Account, JsonRpcAccount } from '../accounts/types.js'
-import { parseAccount } from '../accounts/utils/parseAccount.js'
+import type { Account } from '../accounts/types.js'
+import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
@@ -17,26 +17,22 @@ export type WalletClientConfig<
     | Address
     | undefined,
 > = Pick<
-  ClientConfig<TTransport, TChain>,
-  'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
-> & {
-  /** The Account to use for the Wallet Client. This will be used for Actions that require an account as an argument. */
-  account?: TAccountOrAddress
-}
+  ClientConfig<TTransport, TChain, TAccountOrAddress>,
+  'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+>
 
 export type WalletClient<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TIncludeActions extends boolean = true,
 > = Prettify<
-  Client<TTransport, WalletRpcSchema, TChain> &
-    (TIncludeActions extends true
-      ? WalletActions<TChain, TAccount>
-      : unknown) & {
-      /** The Account to use for the Wallet Client. */
-      account: TAccount
-    }
+  Client<
+    TTransport,
+    TChain,
+    TAccount,
+    WalletRpcSchema,
+    WalletActions<TChain, TAccount>
+  >
 >
 
 /**
@@ -89,30 +85,15 @@ export function createWalletClient<
 }: WalletClientConfig<TTransport, TChain, TAccountOrAddress>): WalletClient<
   TTransport,
   TChain,
-  TAccountOrAddress extends Address
-    ? Prettify<JsonRpcAccount<TAccountOrAddress>>
-    : TAccountOrAddress,
-  true
+  ParseAccount<TAccountOrAddress>
 > {
-  const client = {
-    ...createClient({
-      chain,
-      key,
-      name,
-      pollingInterval,
-      transport: (opts) => transport({ ...opts, retryCount: 0 }),
-      type: 'walletClient',
-    }),
-    account: account ? parseAccount(account) : undefined,
-  } as WalletClient<
-    TTransport,
-    TChain,
-    TAccountOrAddress extends Address
-      ? JsonRpcAccount<TAccountOrAddress>
-      : TAccountOrAddress
-  >
-  return {
-    ...client,
-    ...walletActions(client),
-  }
+  return createClient({
+    account,
+    chain,
+    key,
+    name,
+    pollingInterval,
+    transport: (opts) => transport({ ...opts, retryCount: 0 }),
+    type: 'walletClient',
+  }).extend(walletActions)
 }

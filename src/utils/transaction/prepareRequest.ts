@@ -10,8 +10,7 @@ import { getBlock } from '../../actions/public/getBlock.js'
 import { getGasPrice } from '../../actions/public/getGasPrice.js'
 import { getTransactionCount } from '../../actions/public/getTransactionCount.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
@@ -49,9 +48,7 @@ export async function prepareRequest<
   TAccount extends Account | undefined,
   TParameters extends PrepareRequestParameters<TAccount>,
 >(
-  client:
-    | WalletClient<Transport, TChain, TAccount>
-    | PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain, TAccount>,
   args: TParameters,
 ): Promise<PrepareRequestReturnType<TAccount, TParameters>> {
   const {

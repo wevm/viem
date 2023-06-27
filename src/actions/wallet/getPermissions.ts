@@ -1,5 +1,5 @@
 import type { Account } from '../../accounts/types.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { WalletPermission } from '../../types/eip1193.js'
@@ -29,7 +29,7 @@ export type GetPermissionsReturnType = WalletPermission[]
 export async function getPermissions<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
->(client: WalletClient<Transport, TChain, TAccount>) {
+>(client: Client<Transport, TChain, TAccount>) {
   const permissions = await client.request({ method: 'wallet_getPermissions' })
   return permissions
 }

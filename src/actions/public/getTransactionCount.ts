@@ -1,8 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -53,12 +52,10 @@ export async function getTransactionCount<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client:
-    | PublicClient<Transport, TChain>
-    | WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
-  const count = await (client as PublicClient).request({
+  const count = await client.request({
     method: 'eth_getTransactionCount',
     params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],
   })

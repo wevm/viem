@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Chain } from '../../chains/index.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { universalSignatureValidatorAbi } from '../../constants/abis.js'
 import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
@@ -33,7 +33,7 @@ export type VerifyHashReturnType = boolean
  * @returns Whether or not the signature is valid. {@link VerifyHashReturnType}
  */
 export async function verifyHash<TChain extends Chain | undefined,>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   { address, hash, signature, ...callRequest }: VerifyHashParameters,
 ): Promise<VerifyHashReturnType> {
   const signatureHex = isHex(signature) ? signature : toHex(signature)

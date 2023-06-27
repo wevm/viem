@@ -1,7 +1,6 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
@@ -75,12 +74,10 @@ export async function estimateGas<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
 >(
-  client:
-    | PublicClient<Transport, TChain>
-    | WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   args: EstimateGasParameters<TChain, TAccount>,
 ): Promise<EstimateGasReturnType> {
-  const account_ = args.account ?? (client as unknown as WalletClient).account
+  const account_ = args.account ?? client.account
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/public/estimateGas',
@@ -126,7 +123,7 @@ export async function estimateGas<
       value,
     } as TransactionRequest)
 
-    const balance = await (client as PublicClient).request({
+    const balance = await client.request({
       method: 'eth_estimateGas',
       params: block ? [request, block] : [request],
     })

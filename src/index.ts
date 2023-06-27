@@ -34,10 +34,10 @@ export {
   type GetContractParameters,
   type GetContractReturnType,
 } from './actions/getContract.js'
-export type { AddChainParameters } from './actions/wallet/addChain.js'
-export type {
-  CallParameters,
-  CallReturnType,
+export { type AddChainParameters } from './actions/wallet/addChain.js'
+export {
+  type CallParameters,
+  type CallReturnType,
 } from './actions/public/call.js'
 export type { CreateBlockFilterReturnType } from './actions/public/createBlockFilter.js'
 export type {
@@ -224,6 +224,10 @@ export type {
   WatchAssetReturnType,
 } from './actions/wallet/watchAsset.js'
 export type {
+  VerifyHashParameters,
+  VerifyHashReturnType,
+} from './actions/public/verifyHash.js'
+export type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
 } from './actions/public/watchContractEvent.js'
@@ -261,6 +265,18 @@ export {
   type TestClientConfig,
   createTestClient,
 } from './clients/createTestClient.js'
+export {
+  type PublicActions,
+  publicActions,
+} from './clients/decorators/public.js'
+export {
+  type TestActions,
+  testActions,
+} from './clients/decorators/test.js'
+export {
+  type WalletActions,
+  walletActions,
+} from './clients/decorators/wallet.js'
 export {
   type Transport,
   type TransportConfig,

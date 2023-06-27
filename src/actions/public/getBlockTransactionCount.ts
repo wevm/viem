@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -55,7 +55,7 @@ export type GetBlockTransactionCountReturnType = number
 export async function getBlockTransactionCount<
   TChain extends Chain | undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     blockHash,
     blockNumber,
