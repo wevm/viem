@@ -41,7 +41,7 @@ If we want to dynamically retrieve the Accounts from the Client instead, we can 
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createWalletClient({
+const client = await createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
 }).withJsonRpcAccount({ method: 'request' }) // [!code ++]
