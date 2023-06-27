@@ -163,4 +163,10 @@ function assertTransactionCIP42(transaction: TransactionSerializableCIP42) {
       '`feeCurrency` MUST be a token address for CIP-42 transactions.',
     )
   }
+
+  if (!feeCurrency && !gatewayFeeRecipient) {
+    throw new BaseError(
+      'Either `feeCurrency` or `gatewayFeeRecipient` must be provided for CIP-42 transactions.',
+    )
+  }
 }
