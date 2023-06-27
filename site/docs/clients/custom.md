@@ -60,10 +60,10 @@ import { mainnet } from 'viem/chains'
 const debugClient = createClient({ 
   chain: mainnet,
   transport: http(),
-}).extend(config => ({
+}).extend(client => ({
   ...,
   async traceCall(args: CallParameters) {
-    return config.request({
+    return client.request({
       method: 'debug_traceCall',
       params: [formatTransactionRequest(args), 'latest', {}]
     })
