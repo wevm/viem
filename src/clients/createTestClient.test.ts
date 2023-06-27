@@ -32,6 +32,7 @@ test('creates', () => {
       "account": undefined,
       "batch": undefined,
       "chain": {
+        "formatters": undefined,
         "id": 1337,
         "name": "Localhost",
         "nativeCurrency": {
@@ -52,6 +53,7 @@ test('creates', () => {
             ],
           },
         },
+        "serializers": undefined,
       },
       "dropTransaction": [Function],
       "extend": [Function],
@@ -294,6 +296,7 @@ test('extend', () => {
       "batch": undefined,
       "call": [Function],
       "chain": {
+        "formatters": undefined,
         "id": 1337,
         "name": "Localhost",
         "nativeCurrency": {
@@ -314,6 +317,7 @@ test('extend', () => {
             ],
           },
         },
+        "serializers": undefined,
       },
       "createBlockFilter": [Function],
       "createContractEventFilter": [Function],

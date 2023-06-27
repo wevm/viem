@@ -350,6 +350,7 @@ test('extend', () => {
       "batch": undefined,
       "call": [Function],
       "chain": {
+        "formatters": undefined,
         "id": 1337,
         "name": "Localhost",
         "nativeCurrency": {
@@ -370,6 +371,7 @@ test('extend', () => {
             ],
           },
         },
+        "serializers": undefined,
       },
       "createBlockFilter": [Function],
       "createContractEventFilter": [Function],
