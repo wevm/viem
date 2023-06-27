@@ -266,6 +266,18 @@ export {
   createTestClient,
 } from './clients/createTestClient.js'
 export {
+  type PublicActions,
+  publicActions,
+} from './clients/decorators/public.js'
+export {
+  type TestActions,
+  testActions,
+} from './clients/decorators/test.js'
+export {
+  type WalletActions,
+  walletActions,
+} from './clients/decorators/wallet.js'
+export {
   type Transport,
   type TransportConfig,
   createTransport,

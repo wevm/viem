@@ -274,6 +274,7 @@ test('exports actions', () => {
       "parseTransaction": [Function],
       "parseUnits": [Function],
       "prepareRequest": [Function],
+      "publicActions": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],
       "recoverPublicKey": [Function],
@@ -287,6 +288,7 @@ test('exports actions', () => {
       "stringToBytes": [Function],
       "stringToHex": [Function],
       "stringify": [Function],
+      "testActions": [Function],
       "toBytes": [Function],
       "toHex": [Function],
       "toRlp": [Function],
@@ -299,6 +301,7 @@ test('exports actions', () => {
       "validateTypedData": [Function],
       "verifyMessage": [Function],
       "verifyTypedData": [Function],
+      "walletActions": [Function],
       "webSocket": [Function],
       "weiUnits": {
         "ether": -18,
