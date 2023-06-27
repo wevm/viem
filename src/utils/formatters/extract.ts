@@ -5,10 +5,10 @@ import type { Formatter } from '../../types/formatter.js'
  */
 export function extract(
   value: Record<string, unknown>,
-  { formatter }: { formatter?: Formatter },
+  { format }: { format?: Formatter['format'] },
 ) {
-  if (!formatter) return {}
-  const keys = Object.keys(formatter({}))
+  if (!format) return {}
+  const keys = Object.keys(format({}))
   return keys.reduce((data, key) => {
     if (value?.hasOwnProperty(key)) {
       ;(data as any)[key] = value[key]

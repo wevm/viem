@@ -84,7 +84,7 @@ const client = createPublicClient({
 ### rank (optional)
 
 - **Type:** `boolean | RankOptions`
-- **Default:** `true`
+- **Default:** `false`
 
 Whether or not to automatically rank the Transports based on their latency & stability. Set to `false` to disable automatic ranking.
 

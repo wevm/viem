@@ -1,24 +1,25 @@
 import { InvalidSerializableTransactionError } from '../../errors/transaction.js'
 import type {
-  AccessList,
   TransactionSerializable,
+  TransactionSerializableEIP1559,
+  TransactionSerializableEIP2930,
+  TransactionSerializableGeneric,
+  TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 
 export type GetTransactionType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > =
-  | (TTransactionSerializable['maxFeePerGas'] extends bigint
+  | (TTransactionSerializable extends TransactionSerializableLegacy
+      ? 'legacy'
+      : never)
+  | (TTransactionSerializable extends TransactionSerializableEIP1559
       ? 'eip1559'
       : never)
-  | (TTransactionSerializable['maxPriorityFeePerGas'] extends bigint
-      ? 'eip1559'
+  | (TTransactionSerializable extends TransactionSerializableEIP2930
+      ? 'eip2930'
       : never)
-  | (TTransactionSerializable['gasPrice'] extends bigint
-      ? TTransactionSerializable['accessList'] extends AccessList
-        ? 'eip2930'
-        : 'legacy'
-      : never)
-  | (TTransactionSerializable['type'] extends string
+  | (TTransactionSerializable extends TransactionSerializableGeneric
       ? TTransactionSerializable['type']
       : never)
 

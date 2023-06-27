@@ -8,11 +8,9 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import {
-  type BlockFormatter,
   type FormattedBlock,
   formatBlock,
 } from '../../utils/formatters/block.js'
-import { format } from '../../utils/formatters/format.js'
 
 export type GetBlockParameters = {
   /** Whether or not to include transaction data in the response. */
@@ -43,7 +41,7 @@ export type GetBlockParameters = {
 
 export type GetBlockReturnType<
   TChain extends Chain | undefined = Chain | undefined,
-> = FormattedBlock<BlockFormatter<TChain>>
+> = FormattedBlock<TChain>
 
 /**
  * Returns information about a block at a block number, hash, or tag.
@@ -99,7 +97,6 @@ export async function getBlock<
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
 
-  return format(block, {
-    formatter: client.chain?.formatters?.block || formatBlock,
-  })
+  const format = client.chain?.formatters?.block?.format || formatBlock
+  return format(block)
 }

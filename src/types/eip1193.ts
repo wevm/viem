@@ -149,7 +149,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'web3_clientVersion'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: string
   },
   /**
@@ -173,7 +173,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'net_listening'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: boolean
   },
   /**
@@ -185,7 +185,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'net_peerCount'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -197,7 +197,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'net_version'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -209,7 +209,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_blockNumber'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -237,7 +237,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_chainId'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -248,7 +248,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_coinbase'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Address
   },
   /**
@@ -304,7 +304,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_gasPrice'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -593,7 +593,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_newBlockFilter'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -624,7 +624,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_newPendingTransactionFilter'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -636,7 +636,7 @@ export type PublicRpcSchema = [
    */
   {
     Method: 'eth_protocolVersion'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: string
   },
   /**
@@ -689,7 +689,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: `${TMode}_enableTraces`
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: void
   },
   /**
@@ -707,7 +707,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: `${TMode}_getAutomine`
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: boolean
   },
   /**
@@ -914,7 +914,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: `${TMode}_removeBlockTimestampInterval`
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: void
   },
   /**
@@ -941,7 +941,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'evm_snapshot'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -958,7 +958,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'miner_start'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: void
   },
   /**
@@ -967,7 +967,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'miner_stop'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: void
   },
   /**
@@ -975,7 +975,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'txpool_content'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: {
       pending: Record<Address, Record<string, Transaction>>
       queued: Record<Address, Record<string, Transaction>>
@@ -986,7 +986,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'txpool_inspect'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: {
       pending: Record<Address, Record<string, string>>
       queued: Record<Address, Record<string, string>>
@@ -997,7 +997,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'txpool_status'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: {
       pending: Quantity
       queued: Quantity
@@ -1012,7 +1012,7 @@ export type TestRpcSchema<TMode extends string> = [
    */
   {
     Method: 'eth_mining'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: boolean
   },
   /**
@@ -1053,7 +1053,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'eth_accounts'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Address[]
   },
   /**
@@ -1064,7 +1064,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'eth_chainId'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Quantity
   },
   /**
@@ -1093,7 +1093,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'eth_requestAccounts'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: Address[]
   },
   /**
@@ -1175,7 +1175,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'eth_syncing'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: NetworkSync | false
   },
   /**
@@ -1216,7 +1216,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getPermissions'
-    Parameters?: never
+    Parameters?: undefined
     ReturnType: WalletPermission[]
   },
   /**

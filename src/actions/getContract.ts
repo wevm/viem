@@ -615,7 +615,7 @@ export function getContract<
                 ...options,
                 account:
                   (options as EstimateContractGasParameters).account ??
-                  (walletClient as WalletClient).account,
+                  (walletClient as unknown as WalletClient).account,
               } as EstimateContractGasParameters)
             }
           },

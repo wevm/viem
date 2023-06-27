@@ -29,7 +29,7 @@ describe('toAccount', () => {
         async signMessage() {
           return '0x'
         },
-        async signTransaction() {
+        async signTransaction(_transaction) {
           return '0x'
         },
         async signTypedData() {
@@ -55,7 +55,7 @@ describe('toAccount', () => {
         async signMessage() {
           return '0x'
         },
-        async signTransaction() {
+        async signTransaction(_transaction) {
           return '0x'
         },
         async signTypedData() {

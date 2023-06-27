@@ -9,7 +9,7 @@ import type { ValueOf } from './utils.js'
 
 export type AccessList = { address: Address; storageKeys: Hex[] }[]
 
-export type TransactionType = ValueOf<typeof transactionType>
+export type TransactionType = ValueOf<typeof transactionType> | (string & {})
 
 export type TransactionReceipt<
   TQuantity = bigint,
@@ -70,6 +70,8 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   to: Address | null
   /** Index of this transaction in the block or `null` if pending */
   transactionIndex: TIndex | null
+  /** The type represented as hex. */
+  typeHex: Hex | null
   /** ECDSA recovery ID */
   v: TQuantity
   /** Value in wei sent with this transaction */
@@ -153,10 +155,15 @@ export type TransactionRequest<TQuantity = bigint, TIndex = number> =
 export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedLegacy = Hex
+export type TransactionSerializedGeneric = Hex
 export type TransactionSerialized<TType extends TransactionType = 'legacy'> =
-  | (TType extends 'eip1559' ? TransactionSerializedEIP1559 : never)
-  | (TType extends 'eip2930' ? TransactionSerializedEIP2930 : never)
-  | (TType extends 'legacy' ? TransactionSerializedLegacy : never)
+  TType extends 'eip1559'
+    ? TransactionSerializedEIP1559
+    : TType extends 'eip2930'
+    ? TransactionSerializedEIP2930
+    : TType extends 'legacy'
+    ? TransactionSerializedLegacy
+    : TransactionSerializedGeneric
 
 export type TransactionSerializableBase<
   TQuantity = bigint,
@@ -191,7 +198,20 @@ export type TransactionSerializableEIP1559<
     type?: 'eip1559'
     yParity?: number
   }
+export type TransactionSerializableGeneric<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> & {
+  accessList?: AccessList
+  chainId?: number
+  gasPrice?: TQuantity
+  maxFeePerGas?: TQuantity
+  maxPriorityFeePerGas?: TQuantity
+  type: string
+}
+
 export type TransactionSerializable<TQuantity = bigint, TIndex = number> =
   | TransactionSerializableLegacy<TQuantity, TIndex>
   | TransactionSerializableEIP2930<TQuantity, TIndex>
   | TransactionSerializableEIP1559<TQuantity, TIndex>
+  | TransactionSerializableGeneric<TQuantity, TIndex>

@@ -24,8 +24,8 @@ export function privateKeyToAccount(privateKey: Hex): PrivateKeyAccount {
     async signMessage({ message }) {
       return signMessage({ message, privateKey })
     },
-    async signTransaction(transaction) {
-      return signTransaction({ privateKey, transaction })
+    async signTransaction(transaction, { serializer } = {}) {
+      return signTransaction({ privateKey, transaction, serializer })
     },
     async signTypedData(typedData) {
       return signTypedData({ ...typedData, privateKey })

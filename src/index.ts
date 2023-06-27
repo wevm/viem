@@ -480,6 +480,7 @@ export type {
   Formatter,
   Formatters,
 } from './types/formatter.js'
+export type { Serializers } from './types/serializer.js'
 export type {
   GetTypedDataDomain,
   GetTypedDataMessage,
@@ -511,15 +512,20 @@ export type {
 export { labelhash } from './utils/ens/labelhash.js'
 export { namehash } from './utils/ens/namehash.js'
 export {
-  type BlockFormatter,
   type FormattedBlock,
   defineBlock,
   formatBlock,
 } from './utils/formatters/block.js'
+export { formatLog } from './utils/formatters/log.js'
 export {
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,
 } from './utils/abi/decodeAbiParameters.js'
+export {
+  type DecodeDeployDataParameters,
+  type DecodeDeployDataReturnType,
+  decodeDeployData,
+} from './utils/abi/decodeDeployData.js'
 export {
   type DecodeErrorResultParameters,
   type DecodeErrorResultReturnType,
@@ -563,25 +569,18 @@ export {
   type EncodeFunctionResultParameters,
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
-export type {
-  ExtractFormatter,
-  Formatted,
-} from './utils/formatters/format.js'
 export {
   type FormattedTransaction,
-  type TransactionFormatter,
   defineTransaction,
   formatTransaction,
   transactionType,
 } from './utils/formatters/transaction.js'
 export {
   type FormattedTransactionReceipt,
-  type TransactionReceiptFormatter,
   defineTransactionReceipt,
 } from './utils/formatters/transactionReceipt.js'
 export {
   type FormattedTransactionRequest,
-  type TransactionRequestFormatter,
   defineTransactionRequest,
   formatTransactionRequest,
 } from './utils/formatters/transactionRequest.js'
@@ -705,7 +704,11 @@ export { parseGwei } from './utils/unit/parseGwei.js'
 export { parseTransaction } from './utils/transaction/parseTransaction.js'
 export { parseUnits } from './utils/unit/parseUnits.js'
 export { prepareRequest } from './utils/transaction/prepareRequest.js'
-export { serializeTransaction } from './utils/transaction/serializeTransaction.js'
+export { serializeAccessList } from './utils/transaction/serializeAccessList.js'
+export {
+  serializeTransaction,
+  type SerializeTransactionFn,
+} from './utils/transaction/serializeTransaction.js'
 export { size } from './utils/data/size.js'
 export { slice, sliceBytes, sliceHex } from './utils/data/slice.js'
 export { stringify } from './utils/stringify.js'

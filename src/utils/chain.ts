@@ -21,10 +21,17 @@ export function assertCurrentChain({
 }
 
 export function defineChain<
-  TFormatters extends Formatters = Formatters,
-  TChain extends Chain<TFormatters> = Chain<TFormatters>,
->(chain: TChain) {
-  return chain
+  TChain extends Chain,
+  TFormatters extends Formatters,
+>(
+  chain: TChain,
+  config?: Pick<Chain<TFormatters>, 'formatters' | 'serializers'>,
+) {
+  return {
+    ...chain,
+    formatters: config?.formatters,
+    serializers: config?.serializers,
+  }
 }
 
 export function getChainContractAddress({

@@ -4,12 +4,10 @@ import { extract } from './extract.js'
 
 test('default', () => {
   expect(
-    extract({ foo: 1, bar: 'wagmi' }, { formatter: () => ({ foo: null }) }),
+    extract({ foo: 1, bar: 'wagmi' }, { format: () => ({ foo: null }) }),
   ).toEqual({ foo: 1 })
   expect(
-    extract({ foo: 1, bar: 'wagmi' }, { formatter: () => ({ baz: null }) }),
+    extract({ foo: 1, bar: 'wagmi' }, { format: () => ({ baz: null }) }),
   ).toEqual({})
-  expect(extract({ foo: 1, bar: 'wagmi' }, { formatter: undefined })).toEqual(
-    {},
-  )
+  expect(extract({ foo: 1, bar: 'wagmi' }, { format: undefined })).toEqual({})
 })

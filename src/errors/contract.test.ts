@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { baycContractConfig } from '../_test/abis.js'
 import { address } from '../_test/constants.js'
 import { errorsExampleABI } from '../_test/generated.js'
-import { polygon } from '../chains.js'
+import { polygon } from '../chains/index.js'
 
 import { BaseError } from './base.js'
 import {

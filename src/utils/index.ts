@@ -118,32 +118,23 @@ export { size } from './data/size.js'
 export { slice, sliceBytes, sliceHex } from './data/slice.js'
 export { trim } from './data/trim.js'
 export {
-  type BlockFormatter,
   type FormattedBlock,
   defineBlock,
   formatBlock,
 } from './formatters/block.js'
 export {
-  type ExtractFormatter,
-  type Formatted,
-  defineFormatter,
-  format,
-} from './formatters/format.js'
-export {
   type FormattedTransaction,
-  type TransactionFormatter,
   defineTransaction,
   formatTransaction,
   transactionType,
 } from './formatters/transaction.js'
+export { formatLog } from './formatters/log.js'
 export {
   type FormattedTransactionReceipt,
-  type TransactionReceiptFormatter,
   defineTransactionReceipt,
 } from './formatters/transactionReceipt.js'
 export {
   type FormattedTransactionRequest,
-  type TransactionRequestFormatter,
   defineTransactionRequest,
   formatTransactionRequest,
 } from './formatters/transactionRequest.js'
@@ -183,6 +174,7 @@ export { getCallError } from './errors/getCallError.js'
 export { getContractError } from './errors/getContractError.js'
 export { getEstimateGasError } from './errors/getEstimateGasError.js'
 export { getTransactionError } from './errors/getTransactionError.js'
+export { defineFormatter } from './formatters/formatter.js'
 export { getEventSelector } from './hash/getEventSelector.js'
 export { getFunctionSelector } from './hash/getFunctionSelector.js'
 export { isHash } from './hash/isHash.js'
@@ -239,7 +231,11 @@ export {
 } from './transaction/assertTransaction.js'
 export { parseTransaction } from './transaction/parseTransaction.js'
 export { prepareRequest } from './transaction/prepareRequest.js'
-export { serializeTransaction } from './transaction/serializeTransaction.js'
+export {
+  serializeTransaction,
+  type SerializeTransactionFn,
+} from './transaction/serializeTransaction.js'
+export { serializeAccessList } from './transaction/serializeAccessList.js'
 export { formatEther } from './unit/formatEther.js'
 export { formatGwei } from './unit/formatGwei.js'
 export { formatUnits } from './unit/formatUnits.js'

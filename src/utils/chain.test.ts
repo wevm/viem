@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { mainnet, optimism, polygon } from '../chains.js'
+import { mainnet, optimism, polygon } from '../chains/index.js'
 
 import {
   assertCurrentChain,
@@ -72,6 +72,7 @@ describe('defineChain', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "formatters": undefined,
         "id": 42220,
         "name": "Celo",
         "nativeCurrency": {
@@ -92,6 +93,7 @@ describe('defineChain', () => {
             ],
           },
         },
+        "serializers": undefined,
       }
     `)
   })

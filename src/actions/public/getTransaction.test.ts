@@ -4,7 +4,7 @@ import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
-import { celo } from '../../chains.js'
+import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Transaction } from '../../types/transaction.js'
@@ -44,6 +44,7 @@ test('gets transaction', async () => {
       "to": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
       "transactionIndex": 69,
       "type": "eip1559",
+      "typeHex": "0x2",
       "v": 1n,
       "value": 0n,
     }
@@ -71,6 +72,7 @@ test('gets transaction (legacy)', async () => {
       "to": "0x3d382228c54736d831fac2748f4734d9177c7332",
       "transactionIndex": 0,
       "type": "legacy",
+      "typeHex": "0x0",
       "v": 37n,
       "value": 0n,
     }
@@ -115,6 +117,7 @@ test('gets transaction (eip2930)', async () => {
       "type",
       "accessList",
       "chainId",
+      "typeHex",
     ]
   `)
   expect(transaction.type).toMatchInlineSnapshot('"eip2930"')
@@ -166,6 +169,7 @@ test('chain w/ custom block type', async () => {
       "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
       "transactionIndex": 0,
       "type": "legacy",
+      "typeHex": "0x0",
       "v": 84475n,
       "value": 0n,
     }
@@ -196,6 +200,7 @@ describe('args: hash', () => {
         "to": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "transactionIndex": 98,
         "type": "eip1559",
+        "typeHex": "0x2",
         "v": 1n,
         "value": 0n,
       }
@@ -236,6 +241,7 @@ describe('args: blockHash', () => {
         "to": "0x554ffc77f4251a9fb3c0e3590a6a205f8d4e067d",
         "transactionIndex": 5,
         "type": "legacy",
+        "typeHex": "0x0",
         "v": 28n,
         "value": 0n,
       }
@@ -279,6 +285,7 @@ describe('args: blockNumber', () => {
         "to": "0x554ffc77f4251a9fb3c0e3590a6a205f8d4e067d",
         "transactionIndex": 5,
         "type": "legacy",
+        "typeHex": "0x0",
         "v": 28n,
         "value": 0n,
       }

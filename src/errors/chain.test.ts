@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { mainnet } from '../chains.js'
+import { mainnet } from '../chains/index.js'
 
 import {
   ChainDoesNotSupportContract,

@@ -1,8 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { accounts, localWsUrl } from '../_test/constants.js'
-import { localhost } from '../chains.js'
-
+import { localhost } from '../chains/index.js'
 import { type EIP1193RequestFn, type TestRpcSchema } from '../index.js'
 import { createTestClient } from './createTestClient.js'
 import { publicActions } from './decorators/public.js'
@@ -116,6 +115,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -136,6 +136,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "dropTransaction": [Function],
         "extend": [Function],
@@ -199,6 +200,7 @@ describe('transports', () => {
         "account": undefined,
         "batch": undefined,
         "chain": {
+          "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
           "nativeCurrency": {
@@ -219,6 +221,7 @@ describe('transports', () => {
               ],
             },
           },
+          "serializers": undefined,
         },
         "dropTransaction": [Function],
         "extend": [Function],

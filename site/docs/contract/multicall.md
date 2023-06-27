@@ -101,6 +101,10 @@ export const publicClient = createPublicClient({
 
 An array of results with accompanying status.
 
+Additionally, when [`allowFailure`](#allowfailure-optional) is set to `false`, it directly returns an array of inferred data:
+
+`(<inferred>)[]`
+
 ## Parameters
 
 ### contracts.address

@@ -16,7 +16,7 @@ import {
   deployContract,
 } from '../actions/wallet/deployContract.js'
 import { writeContract } from '../actions/wallet/writeContract.js'
-import { localhost, mainnet } from '../chains.js'
+import { localhost, mainnet } from '../chains/index.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
 import { createTestClient } from '../clients/createTestClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'

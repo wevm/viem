@@ -1,4 +1,4 @@
-export function parseUnits(value: `${number}`, decimals: number) {
+export function parseUnits(value: string, decimals: number) {
   let [integer, fraction = '0'] = value.split('.')
 
   const negative = integer.startsWith('-')

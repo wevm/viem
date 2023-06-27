@@ -12,7 +12,7 @@ import type {
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
 export type Status = '0x0' | '0x1'
-export type TransactionType = '0x0' | '0x1' | '0x2'
+export type TransactionType = '0x0' | '0x1' | '0x2' | (string & {})
 
 export type RpcBlock = Block<Quantity, RpcTransaction>
 export type RpcBlockNumber = BlockNumber<Quantity>
