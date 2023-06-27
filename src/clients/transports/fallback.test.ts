@@ -414,7 +414,10 @@ describe('client', () => {
 
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": undefined,
+        "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 4000,

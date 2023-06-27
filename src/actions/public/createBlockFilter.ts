@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
@@ -28,7 +28,7 @@ export type CreateBlockFilterReturnType = Filter<'block'>
  * // { id: "0x345a6572337856574a76364e457a4366", type: 'block' }
  */
 export async function createBlockFilter<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
 ): Promise<CreateBlockFilterReturnType> {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newBlockFilter',

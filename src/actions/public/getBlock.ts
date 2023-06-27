@@ -1,6 +1,5 @@
 import type { Account } from '../../accounts/types.js'
-import type { PublicClient } from '../../clients/createPublicClient.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BlockNotFoundError } from '../../errors/block.js'
 import type { BlockTag } from '../../types/block.js'
@@ -74,9 +73,7 @@ export async function getBlock<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client:
-    | PublicClient<Transport, TChain>
-    | WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   {
     blockHash,
     blockNumber,
@@ -89,12 +86,12 @@ export async function getBlock<
 
   let block: RpcBlock | null = null
   if (blockHash) {
-    block = await (client as PublicClient).request({
+    block = await client.request({
       method: 'eth_getBlockByHash',
       params: [blockHash, includeTransactions],
     })
   } else {
-    block = await (client as PublicClient).request({
+    block = await client.request({
       method: 'eth_getBlockByNumber',
       params: [blockNumberHex || blockTag, includeTransactions],
     })

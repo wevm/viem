@@ -1,8 +1,9 @@
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { OnResponseFn } from '../../clients/transports/fallback.js'
 import type { Chain } from '../../types/chain.js'
-import type { EIP1193RequestFn, PublicRpcSchema } from '../../types/eip1193.js'
+import type { PublicRpcSchema } from '../../types/eip1193.js'
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Filter } from '../../types/utils.js'
 
@@ -28,7 +29,7 @@ type CreateFilterRequestScopeReturnType = (
  * to the successful filter ID.
  */
 export function createFilterRequestScope<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   { method }: CreateFilterRequestScopeParameters,
 ): CreateFilterRequestScopeReturnType {
   const requestMap: Record<Hex, EIP1193RequestFn> = {}

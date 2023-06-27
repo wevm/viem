@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { panicReasons } from '../../constants/solidity.js'
 import {
@@ -55,7 +55,7 @@ export type GetEnsNameReturnType = string | null
  * // 'wagmi-dev.eth'
  */
 export async function getEnsName<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     address,
     blockNumber,

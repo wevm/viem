@@ -1,6 +1,6 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -66,7 +66,7 @@ export async function signMessage<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
 >(
-  client: WalletClient<Transport, TChain, TAccount>,
+  client: Client<Transport, TChain, TAccount>,
   {
     account: account_ = client.account,
     message,

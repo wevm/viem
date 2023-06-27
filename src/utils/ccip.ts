@@ -1,7 +1,6 @@
 import type { Abi, Address } from 'abitype'
 
 import { type CallParameters, call } from '../actions/public/call.js'
-import type { PublicClient } from '../clients/createPublicClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import { type BaseError } from '../errors/base.js'
 import {
@@ -14,6 +13,7 @@ import type { Chain } from '../types/chain.js'
 import type { GetErrorArgs } from '../types/contract.js'
 import type { Hex } from '../types/misc.js'
 
+import type { Client } from '../clients/createClient.js'
 import { decodeErrorResult } from './abi/decodeErrorResult.js'
 import { encodeAbiParameters } from './abi/encodeAbiParameters.js'
 import { isAddressEqual } from './address/isAddressEqual.js'
@@ -49,8 +49,8 @@ export const offchainLookupAbiItem = {
   ],
 } as const satisfies Abi[number]
 
-export async function offchainLookup<TChain extends Chain | undefined>(
-  client: PublicClient<Transport, TChain>,
+export async function offchainLookup<TChain extends Chain | undefined,>(
+  client: Client<Transport, TChain>,
   {
     blockNumber,
     blockTag,

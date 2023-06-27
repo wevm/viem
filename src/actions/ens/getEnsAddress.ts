@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   singleAddressResolverAbi,
@@ -64,7 +64,7 @@ export type GetEnsAddressReturnType = Address | null
  * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
 export async function getEnsAddress<TChain extends Chain | undefined,>(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     blockNumber,
     blockTag,

@@ -84,9 +84,11 @@ import {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from '../../actions/test/stopImpersonatingAccount.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Quantity } from '../../types/rpc.js'
-import type { TestClient, TestClientMode } from '../createTestClient.js'
+import type { Client } from '../createClient.js'
+import type { TestClientMode } from '../createTestClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type TestActions = {
@@ -666,40 +668,58 @@ export type TestActions = {
   ) => Promise<void>
 }
 
-export function testActions<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
-): TestActions {
-  return {
-    dropTransaction: (args) => dropTransaction(client, args),
-    getAutomine: () => getAutomine(client),
-    getTxpoolContent: () => getTxpoolContent(client),
-    getTxpoolStatus: () => getTxpoolStatus(client),
-    impersonateAccount: (args) => impersonateAccount(client, args),
-    increaseTime: (args) => increaseTime(client, args),
-    inspectTxpool: () => inspectTxpool(client),
-    mine: (args) => mine(client, args),
-    removeBlockTimestampInterval: () => removeBlockTimestampInterval(client),
-    reset: (args) => reset(client, args),
-    revert: (args) => revert(client, args),
-    sendUnsignedTransaction: (args) =>
-      sendUnsignedTransaction(client, args as any),
-    setAutomine: (args) => setAutomine(client, args),
-    setBalance: (args) => setBalance(client, args),
-    setBlockGasLimit: (args) => setBlockGasLimit(client, args),
-    setBlockTimestampInterval: (args) =>
-      setBlockTimestampInterval(client, args),
-    setCode: (args) => setCode(client, args),
-    setCoinbase: (args) => setCoinbase(client, args),
-    setIntervalMining: (args) => setIntervalMining(client, args),
-    setLoggingEnabled: (args) => setLoggingEnabled(client, args),
-    setMinGasPrice: (args) => setMinGasPrice(client, args),
-    setNextBlockBaseFeePerGas: (args) =>
-      setNextBlockBaseFeePerGas(client, args),
-    setNextBlockTimestamp: (args) => setNextBlockTimestamp(client, args),
-    setNonce: (args) => setNonce(client, args),
-    setRpcUrl: (args) => setRpcUrl(client, args),
-    setStorageAt: (args) => setStorageAt(client, args),
-    snapshot: () => snapshot(client),
-    stopImpersonatingAccount: (args) => stopImpersonatingAccount(client, args),
+export function testActions<TMode extends TestClientMode>({
+  mode,
+}: { mode: TMode }): <
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+>(
+  client: Client<TTransport, TChain, TAccount>,
+) => TestActions {
+  return <
+    TTransport extends Transport = Transport,
+    TChain extends Chain | undefined = Chain | undefined,
+    TAccount extends Account | undefined = Account | undefined,
+  >(
+    client_: Client<TTransport, TChain, TAccount>,
+  ): TestActions => {
+    const client = client_.extend(() => ({
+      mode,
+    }))
+    return {
+      dropTransaction: (args) => dropTransaction(client, args),
+      getAutomine: () => getAutomine(client),
+      getTxpoolContent: () => getTxpoolContent(client),
+      getTxpoolStatus: () => getTxpoolStatus(client),
+      impersonateAccount: (args) => impersonateAccount(client, args),
+      increaseTime: (args) => increaseTime(client, args),
+      inspectTxpool: () => inspectTxpool(client),
+      mine: (args) => mine(client, args),
+      removeBlockTimestampInterval: () => removeBlockTimestampInterval(client),
+      reset: (args) => reset(client, args),
+      revert: (args) => revert(client, args),
+      sendUnsignedTransaction: (args) =>
+        sendUnsignedTransaction(client, args as any),
+      setAutomine: (args) => setAutomine(client, args),
+      setBalance: (args) => setBalance(client, args),
+      setBlockGasLimit: (args) => setBlockGasLimit(client, args),
+      setBlockTimestampInterval: (args) =>
+        setBlockTimestampInterval(client, args),
+      setCode: (args) => setCode(client, args),
+      setCoinbase: (args) => setCoinbase(client, args),
+      setIntervalMining: (args) => setIntervalMining(client, args),
+      setLoggingEnabled: (args) => setLoggingEnabled(client, args),
+      setMinGasPrice: (args) => setMinGasPrice(client, args),
+      setNextBlockBaseFeePerGas: (args) =>
+        setNextBlockBaseFeePerGas(client, args),
+      setNextBlockTimestamp: (args) => setNextBlockTimestamp(client, args),
+      setNonce: (args) => setNonce(client, args),
+      setRpcUrl: (args) => setRpcUrl(client, args),
+      setStorageAt: (args) => setStorageAt(client, args),
+      snapshot: () => snapshot(client),
+      stopImpersonatingAccount: (args) =>
+        stopImpersonatingAccount(client, args),
+    }
   }
 }

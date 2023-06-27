@@ -3,6 +3,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 
@@ -35,8 +36,9 @@ export type SetNextBlockBaseFeePerGasParameters = {
  */
 export async function setNextBlockBaseFeePerGas<
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { baseFeePerGas }: SetNextBlockBaseFeePerGasParameters,
 ) {
   await client.request({

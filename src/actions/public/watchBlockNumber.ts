@@ -1,4 +1,4 @@
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
@@ -77,7 +77,7 @@ export function watchBlockNumber<
   TChain extends Chain | undefined,
   TTransport extends Transport,
 >(
-  client: PublicClient<TTransport, TChain>,
+  client: Client<TTransport, TChain>,
   {
     emitOnBegin = false,
     emitMissed = false,

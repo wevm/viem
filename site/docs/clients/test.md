@@ -45,6 +45,27 @@ Then you can consume [Test Actions](/docs/actions/test/introduction):
 const mine = await client.mine({ blocks: 1 }) // [!code focus:10]
 ```
 
+### Extending with Public & Wallet Actions
+
+When interacting with a Ethereum test node, you may also find yourself wanting to interact with [Public Actions](/docs/actions/public/introduction) and [Wallet Actions](/docs/actions/wallet/introduction) with the same `chain` and `transport`. Instead of creating three different Clients, you can instead just extend the Test Client with those actions:
+
+```ts
+import { createTestClient, http, publicActions, walletActions } from 'viem'
+import { foundry } from 'viem/chains'
+
+const client = createTestClient({
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+  .extend(publicActions)
+  .extend(walletActions)
+
+const blockNumber = await client.getBlockNumber() // Public Action
+const hash = await client.sendTransaction({ ... }) // Wallet Action
+const mine = await client.mine({ blocks: 1 }) // Test Action
+```
+
 ## Parameters
 
 ### mode
@@ -72,6 +93,24 @@ const client = createTestClient({
   chain: foundry,
   mode: 'anvil', 
   transport: http(),  // [!code focus]
+})
+```
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+The Account to use for the Client. This will be used for Actions that require an `account` as an argument.
+
+Accepts a [JSON-RPC Account](/docs/accounts/jsonRpc) or [Local Account (Private Key, etc)](/docs/accounts/privateKey).
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts'
+
+const client = createTestClient({
+  account: privateKeyToAccount('0x...') // [!code focus]
+  chain: mainnet,
+  transport: http(),
 })
 ```
 

@@ -1,5 +1,5 @@
 import type { Account } from '../../accounts/types.js'
-import type { WalletClient } from '../../clients/createWalletClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -32,10 +32,7 @@ export type SwitchChainParameters = {
 export async function switchChain<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,
->(
-  client: WalletClient<Transport, TChain, TAccount>,
-  { id }: SwitchChainParameters,
-) {
+>(client: Client<Transport, TChain, TAccount>, { id }: SwitchChainParameters) {
   await client.request({
     method: 'wallet_switchEthereumChain',
     params: [

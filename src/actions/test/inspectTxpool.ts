@@ -5,6 +5,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 
 export type InspectTxpoolReturnType = {
@@ -32,8 +33,11 @@ export type InspectTxpoolReturnType = {
  * })
  * const data = await inspectTxpool(client)
  */
-export async function inspectTxpool<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function inspectTxpool<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
 ): Promise<InspectTxpoolReturnType> {
   return await client.request({
     method: 'txpool_inspect',

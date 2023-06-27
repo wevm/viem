@@ -3,6 +3,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 
@@ -31,8 +32,11 @@ export type GetTxpoolStatusReturnType = {
  * })
  * const status = await getTxpoolStatus(client)
  */
-export async function getTxpoolStatus<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function getTxpoolStatus<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
 ): Promise<GetTxpoolStatusReturnType> {
   const { pending, queued } = await client.request({
     method: 'txpool_status',

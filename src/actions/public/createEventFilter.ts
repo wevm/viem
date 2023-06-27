@@ -1,6 +1,6 @@
 import type { Abi, AbiEvent, Address, Narrow } from 'abitype'
 
-import type { PublicClient } from '../../clients/createPublicClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -109,7 +109,7 @@ export async function createEventFilter<
     | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
     | undefined = undefined,
 >(
-  client: PublicClient<Transport, TChain>,
+  client: Client<Transport, TChain>,
   {
     address,
     args,

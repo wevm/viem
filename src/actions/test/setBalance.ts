@@ -5,6 +5,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 
@@ -38,8 +39,11 @@ export type SetBalanceParameters = {
  *   value: parseEther('1'),
  * })
  */
-export async function setBalance<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function setBalance<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { address, value }: SetBalanceParameters,
 ) {
   if (client.mode === 'ganache')

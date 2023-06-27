@@ -5,6 +5,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -42,8 +43,11 @@ export type SetStorageAtParameters = {
  *   value: '0x0000000000000000000000000000000000000000000000000000000000000069',
  * })
  */
-export async function setStorageAt<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function setStorageAt<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { address, index, value }: SetStorageAtParameters,
 ) {
   await client.request({

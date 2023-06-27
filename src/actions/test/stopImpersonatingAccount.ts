@@ -5,6 +5,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 
 export type StopImpersonatingAccountParameters = {
@@ -36,8 +37,9 @@ export type StopImpersonatingAccountParameters = {
  */
 export async function stopImpersonatingAccount<
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
 >(
-  client: TestClient<TestClientMode, Transport, TChain>,
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { address }: StopImpersonatingAccountParameters,
 ) {
   await client.request({

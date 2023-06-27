@@ -61,7 +61,7 @@ import {
   writeContract,
 } from '../../actions/wallet/writeContract.js'
 import type { Chain } from '../../types/chain.js'
-import type { WalletClient } from '../createWalletClient.js'
+import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
@@ -528,13 +528,13 @@ export const walletActions: <
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: Client<TTransport, TChain, TAccount>,
 ) => WalletActions<TChain, TAccount> = <
   TTransport extends Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
 >(
-  client: WalletClient<TTransport, TChain, TAccount>,
+  client: Client<TTransport, TChain, TAccount>,
 ): WalletActions<TChain, TAccount> => ({
   addChain: (args) => addChain(client, args),
   deployContract: (args) => deployContract(client, args),

@@ -22,6 +22,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'Public Client', link: '/docs/clients/public' },
         { text: 'Wallet Client', link: '/docs/clients/wallet' },
         { text: 'Test Client', link: '/docs/clients/test' },
+        { text: 'Build your own Client', link: '/docs/clients/custom' },
         {
           text: 'Transports',
           items: [

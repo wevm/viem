@@ -19,7 +19,8 @@ A Wallet Client is an interface to interact with [Ethereum Account(s)](https://e
 The `createWalletClient` function sets up a Wallet Client with a given [Transport](/docs/clients/intro).
 
 The Wallet Client supports signing over:
-- [JSON-RPC Accounts](#json-rpc-accounts) (e.g. Browser Extension Wallets, WalletConnect, etc.). 
+
+- [JSON-RPC Accounts](#json-rpc-accounts) (e.g. Browser Extension Wallets, WalletConnect, etc.).
 - [Local Accounts](#local-accounts-private-key-mnemonic-etc) (e.g. private key/mnemonic wallets).
 
 ## Import
@@ -202,6 +203,28 @@ const hash = await client.sendTransaction({
 })
 ```
 
+#### Optional: Extend with Public Actions
+
+When using a Local Account, you may be finding yourself using a [Public Client](/docs/clients/public) instantiated with the same parameters (`transport`, `chain`, etc) as your Wallet Client.
+
+In this case, you can extend your Wallet Client with [Public Actions](/docs/actions/public/introduction) to avoid having to handle multiple Clients.
+
+```ts {12}
+import { createWalletClient, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = privateKeyToAccount('0x...')
+
+const client = createWalletClient({
+  account,
+  chain: mainnet,
+  transport: http()
+}).extend(publicActions) // [!code ++]
+
+const { request } = await client.simulateContract({ ... }) // Public Action
+const { data } = await client.writeContract(request) // Wallet Action
+```
+
 ## Parameters
 
 ### account (optional)
@@ -232,7 +255,7 @@ const hash = await client.sendTransaction({
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
-The [Chain](/docs/clients/chains) of the Wallet Client. 
+The [Chain](/docs/clients/chains) of the Wallet Client.
 
 Used in the [`sendTransaction`](/docs/actions/wallet/sendTransaction) & [`writeContract`](/docs/contract/writeContract) Actions to assert that the chain matches the wallet's active chain.
 

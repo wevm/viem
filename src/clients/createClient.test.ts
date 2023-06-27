@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { localWsUrl } from '../_test/constants.js'
-import { localhost } from '../chains.js'
+import { localhost, mainnet } from '../chains.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { createClient } from './createClient.js'
 import { createTransport } from './transports/createTransport.js'
@@ -26,7 +26,10 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
+      "account": undefined,
+      "batch": undefined,
       "chain": undefined,
+      "extend": [Function],
       "key": "base",
       "name": "Base Client",
       "pollingInterval": 4000,
@@ -55,6 +58,8 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": {
           "id": 1337,
           "name": "Localhost",
@@ -77,6 +82,7 @@ describe('transports', () => {
             },
           },
         },
+        "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 4000,
@@ -105,6 +111,8 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": {
           "id": 1337,
           "name": "Localhost",
@@ -127,6 +135,7 @@ describe('transports', () => {
             },
           },
         },
+        "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 4000,
@@ -155,7 +164,10 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": undefined,
+        "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 4000,
@@ -193,7 +205,10 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": undefined,
+        "extend": [Function],
         "key": "bar",
         "name": "Base Client",
         "pollingInterval": 4000,
@@ -229,7 +244,10 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": undefined,
+        "extend": [Function],
         "key": "base",
         "name": "Mock Client",
         "pollingInterval": 4000,
@@ -265,7 +283,10 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": undefined,
+        "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 10000,
@@ -301,7 +322,10 @@ describe('config', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": undefined,
+        "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 4000,
@@ -318,5 +342,128 @@ describe('config', () => {
         "type": "foo",
       }
     `)
+  })
+})
+
+describe('extends', () => {
+  test('default', () => {
+    const client = createClient({
+      chain: localhost,
+      transport: http(),
+    }).extend((config) => ({
+      getChainId: () => config.chain.id,
+    }))
+
+    expect(client.getChainId()).toEqual(client.chain.id)
+  })
+
+  test('public actions', () => {
+    const { uid: _, ...client } = createClient({
+      chain: localhost,
+      transport: http(),
+    }).extend((client) => ({
+      getChainId: () => client.chain.id,
+    }))
+
+    expect(client).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "batch": undefined,
+        "call": [Function],
+        "chain": {
+          "id": 1337,
+          "name": "Localhost",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "network": "localhost",
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
+            },
+            "public": {
+              "http": [
+                "http://127.0.0.1:8545",
+              ],
+            },
+          },
+        },
+        "createBlockFilter": [Function],
+        "createContractEventFilter": [Function],
+        "createEventFilter": [Function],
+        "createPendingTransactionFilter": [Function],
+        "estimateContractGas": [Function],
+        "estimateGas": [Function],
+        "extend": [Function],
+        "getBalance": [Function],
+        "getBlock": [Function],
+        "getBlockNumber": [Function],
+        "getBlockTransactionCount": [Function],
+        "getBytecode": [Function],
+        "getChainId": [Function],
+        "getEnsAddress": [Function],
+        "getEnsAvatar": [Function],
+        "getEnsName": [Function],
+        "getEnsResolver": [Function],
+        "getEnsText": [Function],
+        "getFeeHistory": [Function],
+        "getFilterChanges": [Function],
+        "getFilterLogs": [Function],
+        "getGasPrice": [Function],
+        "getLogs": [Function],
+        "getStorageAt": [Function],
+        "getTransaction": [Function],
+        "getTransactionConfirmations": [Function],
+        "getTransactionCount": [Function],
+        "getTransactionReceipt": [Function],
+        "key": "base",
+        "multicall": [Function],
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "readContract": [Function],
+        "request": [Function],
+        "simulateContract": [Function],
+        "transport": {
+          "key": "http",
+          "name": "HTTP JSON-RPC",
+          "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
+          "timeout": 10000,
+          "type": "http",
+          "url": undefined,
+        },
+        "type": "base",
+        "uninstallFilter": [Function],
+        "verifyMessage": [Function],
+        "verifyTypedData": [Function],
+        "waitForTransactionReceipt": [Function],
+        "watchBlockNumber": [Function],
+        "watchBlocks": [Function],
+        "watchContractEvent": [Function],
+        "watchEvent": [Function],
+        "watchPendingTransactions": [Function],
+      }
+    `)
+  })
+
+  test('ignores protected properties', () => {
+    test('default', () => {
+      const client = createClient({
+        chain: localhost,
+        transport: http(),
+      })
+      const extended = client.extend(() => ({
+        // @ts-expect-error
+        chain: mainnet,
+      }))
+
+      // @ts-expect-error
+      expect(extended.chain.id).toEqual(client.chain.id)
+    })
   })
 })

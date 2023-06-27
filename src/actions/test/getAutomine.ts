@@ -3,6 +3,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 
 export type GetAutomineReturnType = boolean
@@ -27,8 +28,11 @@ export type GetAutomineReturnType = boolean
  * })
  * const isAutomining = await getAutomine(client)
  */
-export async function getAutomine<TChain extends Chain | undefined>(
-  client: TestClient<TestClientMode, Transport, TChain>,
+export async function getAutomine<
+  TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
+>(
+  client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
 ): Promise<GetAutomineReturnType> {
   if (client.mode === 'ganache')
     return await client.request({

@@ -1,10 +1,12 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { localWsUrl } from '../_test/constants.js'
+import { accounts, localWsUrl } from '../_test/constants.js'
 import { localhost } from '../chains.js'
 
 import { type EIP1193RequestFn, type TestRpcSchema } from '../index.js'
 import { createTestClient } from './createTestClient.js'
+import { publicActions } from './decorators/public.js'
+import { walletActions } from './decorators/wallet.js'
 import { createTransport } from './transports/createTransport.js'
 import { http } from './transports/http.js'
 import { webSocket } from './transports/webSocket.js'
@@ -19,6 +21,7 @@ const mockTransport = () =>
 
 test('creates', () => {
   const { uid, ...client } = createTestClient({
+    chain: localhost,
     mode: 'anvil',
     transport: mockTransport,
   })
@@ -27,8 +30,32 @@ test('creates', () => {
   expect(uid).toBeDefined()
   expect(client).toMatchInlineSnapshot(`
     {
-      "chain": undefined,
+      "account": undefined,
+      "batch": undefined,
+      "chain": {
+        "id": 1337,
+        "name": "Localhost",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "localhost",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+          "public": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+        },
+      },
       "dropTransaction": [Function],
+      "extend": [Function],
       "getAutomine": [Function],
       "getTxpoolContent": [Function],
       "getTxpoolStatus": [Function],
@@ -86,6 +113,8 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": {
           "id": 1337,
           "name": "Localhost",
@@ -109,6 +138,7 @@ describe('transports', () => {
           },
         },
         "dropTransaction": [Function],
+        "extend": [Function],
         "getAutomine": [Function],
         "getTxpoolContent": [Function],
         "getTxpoolStatus": [Function],
@@ -166,6 +196,8 @@ describe('transports', () => {
     expect(uid).toBeDefined()
     expect(client).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "batch": undefined,
         "chain": {
           "id": 1337,
           "name": "Localhost",
@@ -189,6 +221,7 @@ describe('transports', () => {
           },
         },
         "dropTransaction": [Function],
+        "extend": [Function],
         "getAutomine": [Function],
         "getTxpoolContent": [Function],
         "getTxpoolStatus": [Function],
@@ -236,4 +269,144 @@ describe('transports', () => {
       }
     `)
   })
+})
+
+test('extend', () => {
+  const { uid: _, ...client } = createTestClient({
+    account: accounts[0].address,
+    chain: localhost,
+    mode: 'anvil',
+    transport: http(),
+  })
+    .extend(walletActions)
+    .extend(publicActions)
+
+  expect(client).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "addChain": [Function],
+      "batch": undefined,
+      "call": [Function],
+      "chain": {
+        "id": 1337,
+        "name": "Localhost",
+        "nativeCurrency": {
+          "decimals": 18,
+          "name": "Ether",
+          "symbol": "ETH",
+        },
+        "network": "localhost",
+        "rpcUrls": {
+          "default": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+          "public": {
+            "http": [
+              "http://127.0.0.1:8545",
+            ],
+          },
+        },
+      },
+      "createBlockFilter": [Function],
+      "createContractEventFilter": [Function],
+      "createEventFilter": [Function],
+      "createPendingTransactionFilter": [Function],
+      "deployContract": [Function],
+      "dropTransaction": [Function],
+      "estimateContractGas": [Function],
+      "estimateGas": [Function],
+      "extend": [Function],
+      "getAddresses": [Function],
+      "getAutomine": [Function],
+      "getBalance": [Function],
+      "getBlock": [Function],
+      "getBlockNumber": [Function],
+      "getBlockTransactionCount": [Function],
+      "getBytecode": [Function],
+      "getChainId": [Function],
+      "getEnsAddress": [Function],
+      "getEnsAvatar": [Function],
+      "getEnsName": [Function],
+      "getEnsResolver": [Function],
+      "getEnsText": [Function],
+      "getFeeHistory": [Function],
+      "getFilterChanges": [Function],
+      "getFilterLogs": [Function],
+      "getGasPrice": [Function],
+      "getLogs": [Function],
+      "getPermissions": [Function],
+      "getStorageAt": [Function],
+      "getTransaction": [Function],
+      "getTransactionConfirmations": [Function],
+      "getTransactionCount": [Function],
+      "getTransactionReceipt": [Function],
+      "getTxpoolContent": [Function],
+      "getTxpoolStatus": [Function],
+      "impersonateAccount": [Function],
+      "increaseTime": [Function],
+      "inspectTxpool": [Function],
+      "key": "test",
+      "mine": [Function],
+      "mode": "anvil",
+      "multicall": [Function],
+      "name": "Test Client",
+      "pollingInterval": 4000,
+      "readContract": [Function],
+      "removeBlockTimestampInterval": [Function],
+      "request": [Function],
+      "requestAddresses": [Function],
+      "requestPermissions": [Function],
+      "reset": [Function],
+      "revert": [Function],
+      "sendTransaction": [Function],
+      "sendUnsignedTransaction": [Function],
+      "setAutomine": [Function],
+      "setBalance": [Function],
+      "setBlockGasLimit": [Function],
+      "setBlockTimestampInterval": [Function],
+      "setCode": [Function],
+      "setCoinbase": [Function],
+      "setIntervalMining": [Function],
+      "setLoggingEnabled": [Function],
+      "setMinGasPrice": [Function],
+      "setNextBlockBaseFeePerGas": [Function],
+      "setNextBlockTimestamp": [Function],
+      "setNonce": [Function],
+      "setRpcUrl": [Function],
+      "setStorageAt": [Function],
+      "signMessage": [Function],
+      "signTypedData": [Function],
+      "simulateContract": [Function],
+      "snapshot": [Function],
+      "stopImpersonatingAccount": [Function],
+      "switchChain": [Function],
+      "transport": {
+        "key": "http",
+        "name": "HTTP JSON-RPC",
+        "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
+        "timeout": 10000,
+        "type": "http",
+        "url": undefined,
+      },
+      "type": "testClient",
+      "uninstallFilter": [Function],
+      "verifyMessage": [Function],
+      "verifyTypedData": [Function],
+      "waitForTransactionReceipt": [Function],
+      "watchAsset": [Function],
+      "watchBlockNumber": [Function],
+      "watchBlocks": [Function],
+      "watchContractEvent": [Function],
+      "watchEvent": [Function],
+      "watchPendingTransactions": [Function],
+      "writeContract": [Function],
+    }
+  `)
 })

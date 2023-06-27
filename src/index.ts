@@ -34,10 +34,10 @@ export {
   type GetContractParameters,
   type GetContractReturnType,
 } from './actions/getContract.js'
-export type { AddChainParameters } from './actions/wallet/addChain.js'
-export type {
-  CallParameters,
-  CallReturnType,
+export { type AddChainParameters } from './actions/wallet/addChain.js'
+export {
+  type CallParameters,
+  type CallReturnType,
 } from './actions/public/call.js'
 export type { CreateBlockFilterReturnType } from './actions/public/createBlockFilter.js'
 export type {
@@ -223,6 +223,10 @@ export type {
   WatchAssetParameters,
   WatchAssetReturnType,
 } from './actions/wallet/watchAsset.js'
+export type {
+  VerifyHashParameters,
+  VerifyHashReturnType,
+} from './actions/public/verifyHash.js'
 export type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
