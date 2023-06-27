@@ -1374,13 +1374,7 @@ export type PublicActions<
   ) => WatchPendingTransactionsReturnType
 }
 
-export const publicActions: <
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
->(
-  client: Client<TTransport, TChain, TAccount>,
-) => PublicActions<TTransport, TChain, TAccount> = <
+export const publicActions = <
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,

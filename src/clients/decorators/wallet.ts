@@ -523,13 +523,7 @@ export type WalletActions<
   ) => Promise<WriteContractReturnType>
 }
 
-export const walletActions: <
-  TTransport extends Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
->(
-  client: Client<TTransport, TChain, TAccount>,
-) => WalletActions<TChain, TAccount> = <
+export const walletActions = <
   TTransport extends Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
