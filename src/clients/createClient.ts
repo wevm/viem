@@ -147,12 +147,13 @@ export function createClient<
     type,
     uid: uid(),
   }
-  const extend =
-    (client_: typeof client) => (fn: (_: typeof client) => unknown) => {
+  function extend(client_: typeof client) {
+    return (fn: (_: typeof client) => unknown) => {
       const extended = fn(client_) as Extended
       for (const key in client) delete extended[key]
       const nextClient = { ...client_, ...extended }
       return Object.assign(nextClient, { extend: extend(nextClient) })
     }
+  }
   return Object.assign(client, { extend: extend(client) as any })
 }
