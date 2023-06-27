@@ -67,18 +67,12 @@ const hash = await walletClient.sendTransaction({ // [!code focus:99]
 // '0x...'
 ```
 
-```ts {4-6,9} [config.ts (JSON-RPC Account)]
+```ts {3-6} [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
 
-// Retrieve Account from an EIP-1193 Provider.
-const [account] = await window.ethereum.request({ 
-  method: 'eth_requestAccounts' 
-})
-
-export const walletClient = createWalletClient({
-  account,
+export const walletClient = await createWalletClient({
   transport: custom(window.ethereum)
-})
+}).withJsonRpcAccount({ method: 'request' })
 ```
 
 ```ts {5} [config.ts (Local Account)]

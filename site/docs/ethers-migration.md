@@ -19,7 +19,7 @@ You may notice some of the APIs in viem are a little more verbose than Ethers. W
 
 ## Provider → Client
 
-### getDefaultProvider 
+### getDefaultProvider
 
 #### Ethers
 
@@ -65,7 +65,6 @@ const provider = new providers.JsonRpcProvider('https://rpc.ankr.com/fantom/​'
   id: 250
 })
 ```
-
 
 #### viem
 
@@ -311,17 +310,14 @@ signer.sendTransaction({ ... })
 
 #### viem
 
-```ts {4,7}
+```ts {7}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-const client = createWalletClient({
-  account,
+const client = await createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
-})
+}).withJsonRpcAccount()
 
 client.sendTransaction({ ... })
 ```
@@ -417,17 +413,14 @@ signer.signMessage(...)
 
 #### viem
 
-```ts {12-13}
+```ts {9-10}
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-const client = createWalletClient({
-  account,
+const client = await createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum)
-})
+}).withJsonRpcAccount()
 
 client.sendTransaction({ ... })
 client.signMessage({ ... })
@@ -1711,7 +1704,7 @@ keccak256(toBytes('hello world'))
 
 ### encodeBase64/decodeBase64
 
-viem does not provide Base64 encoding utilities. 
+viem does not provide Base64 encoding utilities.
 
 You can use browser native [`atob`](https://developer.mozilla.org/en-US/docs/Web/API/atob) and [`btoa`](https://developer.mozilla.org/en-US/docs/Web/API/btoa) instead.
 

@@ -3,6 +3,7 @@ import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { TestRpcSchema } from '../types/eip1193.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'
+import { type AccountActions, accountActions } from './decorators/account.js'
 import { type TestActions, testActions } from './decorators/test.js'
 import type { Transport } from './transports/createTransport.js'
 import type { Address } from 'abitype'
@@ -36,7 +37,14 @@ export type TestClient<
   TChain,
   TAccount,
   TestRpcSchema<TMode>,
-  TIncludeActions extends true ? TestActions : Record<string, unknown>
+  TIncludeActions extends true
+    ? TestActions &
+        AccountActions<
+          TTransport,
+          TChain,
+          Client<TTransport, TChain, Account, TestRpcSchema<TMode>, TestActions>
+        >
+    : Record<string, unknown>
 > & {
   mode: TMode
 }
@@ -94,4 +102,5 @@ export function createTestClient<
   })
     .extend(() => ({ mode }))
     .extend(testActions({ mode }))
+    .extend(accountActions as any)
 }

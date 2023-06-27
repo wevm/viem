@@ -63,6 +63,7 @@ test('creates', () => {
       },
       "type": "walletClient",
       "watchAsset": [Function],
+      "withJsonRpcAccount": [Function],
       "writeContract": [Function],
     }
   `)
@@ -113,6 +114,7 @@ describe('args: account', () => {
         },
         "type": "walletClient",
         "watchAsset": [Function],
+        "withJsonRpcAccount": [Function],
         "writeContract": [Function],
       }
     `)
@@ -167,6 +169,7 @@ describe('args: account', () => {
         },
         "type": "walletClient",
         "watchAsset": [Function],
+        "withJsonRpcAccount": [Function],
         "writeContract": [Function],
       }
     `)
@@ -212,6 +215,7 @@ describe('args: transport', () => {
         },
         "type": "walletClient",
         "watchAsset": [Function],
+        "withJsonRpcAccount": [Function],
         "writeContract": [Function],
       }
     `)
@@ -256,6 +260,7 @@ describe('args: transport', () => {
         },
         "type": "walletClient",
         "watchAsset": [Function],
+        "withJsonRpcAccount": [Function],
         "writeContract": [Function],
       }
     `)
@@ -325,6 +330,7 @@ describe('args: transport', () => {
         },
         "type": "walletClient",
         "watchAsset": [Function],
+        "withJsonRpcAccount": [Function],
         "writeContract": [Function],
       }
     `)
@@ -466,6 +472,7 @@ test('extend', () => {
       "watchContractEvent": [Function],
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
+      "withJsonRpcAccount": [Function],
       "writeContract": [Function],
     }
   `)

@@ -6,6 +6,7 @@ import type { Chain } from '../types/chain.js'
 import type { WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'
+import { type AccountActions, accountActions } from './decorators/account.js'
 import { type WalletActions, walletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
 
@@ -31,7 +32,18 @@ export type WalletClient<
     TChain,
     TAccount,
     WalletRpcSchema,
-    WalletActions<TChain, TAccount>
+    WalletActions<TChain, TAccount> &
+      AccountActions<
+        TTransport,
+        TChain,
+        Client<
+          TTransport,
+          TChain,
+          Account,
+          WalletRpcSchema,
+          WalletActions<TChain, Account>
+        >
+      >
   >
 >
 
@@ -95,5 +107,7 @@ export function createWalletClient<
     pollingInterval,
     transport: (opts) => transport({ ...opts, retryCount: 0 }),
     type: 'walletClient',
-  }).extend(walletActions)
+  })
+    .extend(walletActions)
+    .extend(accountActions as any)
 }

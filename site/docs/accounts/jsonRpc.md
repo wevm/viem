@@ -34,3 +34,17 @@ const client = createWalletClient({
   transport: custom(window.ethereum)
 })
 ```
+
+If we want to dynamically retrieve the Accounts from the Client instead, we can use the `withJsonRpcAccount` function. This will make a call to `eth_requestAccounts` and set the first Account as the Client's Account:
+
+```ts
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum)
+}).withJsonRpcAccount({ method: 'request' }) // [!code ++]
+```
+
+> [See `withJsonRpcAccount`](/docs/actions/wallet/withJsonRpcAccount).

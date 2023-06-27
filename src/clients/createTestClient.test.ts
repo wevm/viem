@@ -99,6 +99,7 @@ test('creates', () => {
         "type": "mock",
       },
       "type": "testClient",
+      "withJsonRpcAccount": [Function],
     }
   `)
 })
@@ -185,6 +186,7 @@ describe('transports', () => {
           "url": undefined,
         },
         "type": "testClient",
+        "withJsonRpcAccount": [Function],
       }
     `)
   })
@@ -271,6 +273,7 @@ describe('transports', () => {
           "type": "webSocket",
         },
         "type": "testClient",
+        "withJsonRpcAccount": [Function],
       }
     `)
   })
@@ -413,6 +416,7 @@ test('extend', () => {
       "watchContractEvent": [Function],
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
+      "withJsonRpcAccount": [Function],
       "writeContract": [Function],
     }
   `)

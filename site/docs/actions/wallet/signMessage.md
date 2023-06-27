@@ -17,6 +17,7 @@ head:
 Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
 
 With the calculated signature, you can:
+
 - use [`verifyMessage`](/docs/utilities/verifyMessage) to verify the signature,
 - use [`recoverMessageAddress`](/docs/utilities/recoverMessageAddress) to recover the signing address from a signature.
 
@@ -76,18 +77,12 @@ const signature = await walletClient.signMessage({ // [!code focus:99]
 // "0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"
 ```
 
-```ts {4-6,9} [config.ts (JSON-RPC Account)]
+```ts {3-5} [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
 
-// Retrieve Account from an EIP-1193 Provider.
-const [account] = await window.ethereum.request({ 
-  method: 'eth_requestAccounts' 
-})
-
-export const walletClient = createWalletClient({
-  account,
+export const walletClient = await createWalletClient({
   transport: custom(window.ethereum)
-})
+}).withJsonRpcAccount({ method: 'request' })
 ```
 
 ```ts {5} [config.ts (Local Account)]

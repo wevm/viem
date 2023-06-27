@@ -204,6 +204,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               text: 'requestAddresses',
               link: '/docs/actions/wallet/requestAddresses',
             },
+            {
+              text: 'withJsonRpcAccount',
+              link: '/docs/actions/wallet/withJsonRpcAccount',
+            },
           ],
         },
         {

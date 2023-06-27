@@ -66,6 +66,48 @@ const hash = await client.sendTransaction({ ... }) // Wallet Action
 const mine = await client.mine({ blocks: 1 }) // Test Action
 ```
 
+### Attaching an Account
+
+#### JSON-RPC Account
+
+You can attach a [JSON-RPC Account](/docs/accounts/jsonRpc) to your Test Client by using the `withJsonRpcAccount` function:
+
+```ts
+import { createTestClient, http, publicActions, walletActions } from 'viem'
+import { foundry } from 'viem/chains'
+
+const client = await createTestClient({ // [!code focus:8]
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+  .extend(publicActions)
+  .extend(walletActions)
+  .withJsonRpcAccount() // [!code ++]
+
+const hash = await client.sendTransaction({ ... })
+```
+
+#### Local Account
+
+You can attach a Local Account by passing it to the `account` parameter on the Test Client:
+
+```ts
+import { createTestClient, http, publicActions, walletActions } from 'viem'
+import { foundry } from 'viem/chains'
+
+const client = createTestClient({ // [!code focus:8]
+  account: privateKeyToAccount('0x...'), // [!code ++]
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(), 
+})
+  .extend(publicActions)
+  .extend(walletActions)
+
+const hash = await client.sendTransaction({ ... })
+```
+
 ## Parameters
 
 ### mode

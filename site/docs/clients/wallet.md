@@ -62,8 +62,8 @@ const client = createWalletClient({
   transport: custom(window.ethereum)
 })
 
-const [address] = await client.getAddresses() // [!code focus:10]
-// or: const [address] = await client.requestAddresses() // [!code focus:10]
+const [address] = await client.requestAddresses() // [!code focus:10]
+// or: const [address] = await client.getAddresses() // [!code focus:10]
 ```
 
 > Note: Some Wallets (like MetaMask) may require you to request access to Account addresses via [`client.requestAddresses`](/docs/actions/wallet/requestAddresses) first.
@@ -81,7 +81,7 @@ const client = createWalletClient({
   transport: custom(window.ethereum)
 })
 
-const [address] = await client.getAddresses()
+const [address] = await client.requestAddresses()
 
 const hash = await client.sendTransaction({ // [!code focus:10]
   account: address,
@@ -92,19 +92,16 @@ const hash = await client.sendTransaction({ // [!code focus:10]
 
 #### Optional: Hoist the Account
 
-If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account into the Wallet Client.
+If you do not wish to pass an Account around to every Action that requires an `account`, you can also hoist the JSON RPC Account into the Wallet Client using `withJsonRpcAccount`. This function will asynchronously retrieve the Wallet address from an internal `eth_requestAccounts` call to the Wallet.
 
 ```ts
 import { createWalletClient, http } from 'viem'
 import { mainnnet } from 'viem/chains'
 
-const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-const client = createWalletClient({ // [!code focus:99]
-  account, // [!code ++]
+const client = await createWalletClient({ // [!code focus:99]
   chain: mainnet,
   transport: http()
-})
+}).withJsonRpcAccount({ method: 'request' }) // [!code ++]
 
 const hash = await client.sendTransaction({
   account, // [!code --]
@@ -112,6 +109,8 @@ const hash = await client.sendTransaction({
   value: parseEther('0.001')
 })
 ```
+
+> [See `withJsonRpcAccount`](/docs/actions/wallet/withJsonRpcAccount).
 
 ## Local Accounts (Private Key, Mnemonic, etc)
 
