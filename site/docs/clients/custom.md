@@ -61,14 +61,14 @@ const debugClient = createClient({
   chain: mainnet,
   transport: http(),
 }).extend(client => ({
-  ...,
+  // ...
   async traceCall(args: CallParameters) {
     return client.request({
       method: 'debug_traceCall',
       params: [formatTransactionRequest(args), 'latest', {}]
     })
   },
-  ...
+  // ...
 }))
 
 const response = await debugClient.traceCall({
