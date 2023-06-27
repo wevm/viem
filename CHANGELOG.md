@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.0
+
+### Minor Changes
+
+- [#791](https://github.com/wagmi-dev/viem/pull/791) [`98fd9172`](https://github.com/wagmi-dev/viem/commit/98fd9172045c344429d5a716f497e422d85c0348) Thanks [@jxom](https://github.com/jxom)! - Implemented ability to "extend" Clients via `client.extend` & refactored Actions to accept a tree-shakable Client.
+
 ## 1.1.8
 
 ### Patch Changes
