@@ -86,7 +86,7 @@ For a more succinct implementation of using `.extend`, check out viem's [Public 
 
 You can use the Client as-is, with no decorated Actions, to maximize tree-shaking in your app. This is useful if you are pedantic about bundle size and want to only include the Actions you use.
 
-In the example below, instead of calling `getBlock` from `client`, we are importing the Action directly from `viem` and then injecting our Client as the first parameter to the Action.
+In the example below, instead of calling `getBlock` from the Public Client, we are importing the Action directly from `viem` and then injecting our Client as the first parameter to the Action.
 
 ```ts {3,10-11}
 import { createClient, http } from 'viem'
