@@ -14,7 +14,7 @@ head:
 
 # Build your own Client
 
-You can build your own viem Client by using the `createClient` function and optionally extending (`.extend`) it – this is how viem's internal Clients (Public, Wallet, and Test) are built.
+You can build your own viem Client by using the `createClient` function and optionally extending (`.extend`) it – this is how viem's internal Clients ([Public](/docs/clients/public), [Wallet](/docs/clients/wallet), and [Test](/docs/clients/test)) are built.
 
 Building your own Client is useful if you have opinions on what the Client should do, and if you want to extend that Client with custom functionality (ie. create an [EIP-4337 Bundler](https://eips.ethereum.org/EIPS/eip-4337#rpc-methods-eth-namespace) Client, or [geth Debug](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug) Client).
 
