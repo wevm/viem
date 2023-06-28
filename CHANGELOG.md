@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.3
+
+### Patch Changes
+
+- [#802](https://github.com/wagmi-dev/viem/pull/802) [`b610634c`](https://github.com/wagmi-dev/viem/commit/b610634c62547178fe3737dbb37fb8db302e30c6) Thanks [@tmm](https://github.com/tmm)! - Bumped dependencies and exported types.
+
 ## 1.2.2
 
 ### Patch Changes
