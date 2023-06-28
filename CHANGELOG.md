@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.1
+
+### Patch Changes
+
+- [`96cb7534`](https://github.com/wagmi-dev/viem/commit/96cb7534c1be9ab635e70ad463551a29b7f2c553) Thanks [@jxom](https://github.com/jxom)! - Fixed multicall with ABI overrides.
+
 ## 1.2.0
 
 ### Minor Changes
