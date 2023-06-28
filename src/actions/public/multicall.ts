@@ -194,6 +194,7 @@ export async function multicall<
       if (!success) throw new RawContractError({ data: returnData })
       const result = decodeFunctionResult({
         abi,
+        args,
         data: returnData,
         functionName: functionName,
       })
