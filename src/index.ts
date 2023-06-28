@@ -460,6 +460,7 @@ export type {
   Hex,
   LogTopic,
   Signature,
+  SignableMessage,
 } from './types/misc.js'
 export type { Chain } from './types/chain.js'
 export type {
