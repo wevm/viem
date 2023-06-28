@@ -108,14 +108,15 @@ function serializeTransactionCIP42(
   ]) as SerializedCIP42TransactionReturnType
 }
 
-// process as CIP42 if any of these fields are present realistically gatewayfee is not used but is part of spec
+// process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
 function couldBeCIP42(tx: TransactionSerializableIncludingCIP42) {
   const maybeCIP42 = tx as TransactionSerializableCIP42
   if (
-    tx.type === 'cip42' ||
-    maybeCIP42.feeCurrency ||
-    maybeCIP42.gatewayFee ||
-    maybeCIP42.gatewayFeeRecipient
+    maybeCIP42.maxFeePerGas &&
+    maybeCIP42.maxPriorityFeePerGas &&
+    (maybeCIP42.feeCurrency ||
+      maybeCIP42.gatewayFee ||
+      maybeCIP42.gatewayFeeRecipient)
   ) {
     return true
   }
@@ -133,7 +134,6 @@ function assertTransactionCIP42(transaction: TransactionSerializableCIP42) {
     gatewayFee,
     gatewayFeeRecipient,
   } = transaction
-  // TODO  should this throw for any chain id not one of celo's chains or is that to restrictive?
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
   if (gasPrice)
