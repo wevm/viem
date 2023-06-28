@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.2
+
+### Patch Changes
+
+- [`5a8f59d5`](https://github.com/wagmi-dev/viem/commit/5a8f59d5e1d9df27c6897637346dbfe0bfcb2e62) Thanks [@tmm](https://github.com/tmm)! - Exported type
+
 ## 1.2.1
 
 ### Patch Changes
