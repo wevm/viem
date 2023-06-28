@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
