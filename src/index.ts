@@ -1,11 +1,12 @@
 export {
   type Abi,
   type Address,
-  type ResolvedConfig,
+  type Narrow,
   type ParseAbi,
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
+  type ResolvedConfig,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
@@ -238,6 +239,7 @@ export type {
 export {
   type Client,
   type ClientConfig,
+  type MulticallBatchOptions,
   createClient,
 } from './clients/createClient.js'
 export {

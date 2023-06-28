@@ -31,8 +31,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(typescript@5.0.4)
       abitype:
-        specifier: 0.8.7
-        version: 0.8.7(typescript@5.0.4)
+        specifier: 0.8.11
+        version: 0.8.11(typescript@5.0.4)
       isomorphic-ws:
         specifier: 5.0.0
         version: 5.0.0(ws@8.12.0)
@@ -2805,8 +2805,8 @@ packages:
       zod: 3.20.2
     dev: true
 
-  /abitype@0.8.7(typescript@5.0.4):
-    resolution: {integrity: sha512-wQ7hV8Yg/yKmGyFpqrNZufCxbszDe5es4AZGYPBitocfSqXtjrTG9JMWFcc4N30ukl2ve48aBTwt7NJxVQdU3w==}
+  /abitype@0.8.11(typescript@5.0.4):
+    resolution: {integrity: sha512-bM4v2dKvX08sZ9IU38IN5BKmN+ZkOSd2oI4a9f0ejHYZQYV6cDr7j+d95ga0z2XHG36Y4jzoG5Z7qDqxp7fi/A==}
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3 >=3.19.1

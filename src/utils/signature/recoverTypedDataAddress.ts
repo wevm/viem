@@ -33,7 +33,7 @@ export async function recoverTypedDataAddress<
       message,
       primaryType,
       types,
-    } as RecoverTypedDataAddressParameters),
+    } as unknown as RecoverTypedDataAddressParameters),
     signature,
   })
 }
