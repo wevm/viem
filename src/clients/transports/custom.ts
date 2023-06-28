@@ -17,7 +17,11 @@ export type CustomTransportConfig = {
   retryDelay?: TransportConfig['retryDelay']
 }
 
-export type CustomTransport = Transport<'custom', EthereumProvider['request']>
+export type CustomTransport = Transport<
+  'custom',
+  {},
+  EthereumProvider['request']
+>
 
 /**
  * @description Creates a custom transport given an EIP-1193 compliant `request` attribute.

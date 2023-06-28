@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-publish changes
+Bumped dependencies and exported types.
