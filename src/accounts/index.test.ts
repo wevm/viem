@@ -12,6 +12,7 @@ test('exports utils', () => {
       "mnemonicToAccount",
       "privateKeyToAccount",
       "toAccount",
+      "sign",
       "signMessage",
       "signTypedData",
       "parseAccount",

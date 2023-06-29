@@ -16,6 +16,7 @@ export type {
   HDAccount,
   PrivateKeyAccount,
 } from './types.js'
+export { type SignParameters, type SignReturnType, sign } from './utils/sign.js'
 export {
   type SignMessageParameters,
   type SignMessageReturnType,
