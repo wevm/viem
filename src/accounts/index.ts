@@ -17,6 +17,7 @@ export type {
   PrivateKeyAccount,
 } from './types.js'
 export { type SignParameters, type SignReturnType, sign } from './utils/sign.js'
+export { signatureToHex } from './utils/signatureToHex.js'
 export {
   type SignMessageParameters,
   type SignMessageReturnType,
