@@ -69,7 +69,7 @@ export type WatchBlockNumberReturnType = () => void
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const unwatch = await watchBlockNumber(client, {
+ * const unwatch = watchBlockNumber(client, {
  *   onBlockNumber: (blockNumber) => console.log(blockNumber),
  * })
  */
