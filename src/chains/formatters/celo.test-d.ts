@@ -198,7 +198,7 @@ describe('smoke', () => {
       gatewayFeeRecipient: '0x',
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `gasPrice` is not defined
     sendTransaction(client, {
       feeCurrency: '0x',
       gatewayFee: 0n,
@@ -208,7 +208,7 @@ describe('smoke', () => {
       maxPriorityFeePerGas: 0n,
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `gasPrice` is not defined
     sendTransaction(client, {
       feeCurrency: '0x',
       gatewayFee: 0n,
@@ -217,7 +217,7 @@ describe('smoke', () => {
       type: 'eip1559',
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `type` cannot be "legacy"
     sendTransaction(client, {
       feeCurrency: '0x',
       gatewayFee: 0n,
@@ -226,7 +226,7 @@ describe('smoke', () => {
       type: 'legacy',
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `type` cannot be "eip2930"
     sendTransaction(client, {
       feeCurrency: '0x',
       gatewayFee: 0n,
@@ -249,7 +249,7 @@ describe('smoke', () => {
       gatewayFeeRecipient: '0x',
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `gasPrice` is not defined
     sendTransaction(client, {
       chain: celo,
       feeCurrency: '0x',
@@ -260,7 +260,7 @@ describe('smoke', () => {
       maxPriorityFeePerGas: 0n,
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `gasPrice` is not defined
     sendTransaction(client, {
       chain: celo,
       feeCurrency: '0x',
@@ -270,7 +270,7 @@ describe('smoke', () => {
       type: 'eip1559',
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `type` cannot be "legacy"
     sendTransaction(client, {
       chain: celo,
       feeCurrency: '0x',
@@ -280,7 +280,7 @@ describe('smoke', () => {
       type: 'legacy',
     })
 
-    // @ts-expect-error
+    // @ts-expect-error `type` cannot be "eip2930"
     sendTransaction(client, {
       chain: celo,
       feeCurrency: '0x',
