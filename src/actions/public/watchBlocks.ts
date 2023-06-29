@@ -76,7 +76,7 @@ export type WatchBlocksReturnType = () => void
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const unwatch = await watchBlocks(client, {
+ * const unwatch = watchBlocks(client, {
  *   onBlock: (block) => console.log(block),
  * })
  */
