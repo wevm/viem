@@ -13,6 +13,7 @@ test('exports utils', () => {
       "privateKeyToAccount",
       "toAccount",
       "sign",
+      "signatureToHex",
       "signMessage",
       "signTypedData",
       "parseAccount",
