@@ -1,27 +1,51 @@
+import type { Address } from 'abitype'
+
+import { InvalidAddressError } from '../../errors/address.js'
+import { BaseError } from '../../errors/base.js'
+import { InvalidChainIdError } from '../../errors/chain.js'
+import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
+import type { FeeValuesEIP1559 } from '../../types/fee.js'
+import type { Signature } from '../../types/misc.js'
 import type {
   AccessList,
   TransactionSerializable,
   TransactionSerializableBase,
 } from '../../types/transaction.js'
-
+import { isAddress } from '../../utils/address/isAddress.js'
+import { concatHex } from '../../utils/data/concat.js'
+import { trim } from '../../utils/data/trim.js'
+import { toHex } from '../../utils/encoding/toHex.js'
+import { toRlp } from '../../utils/encoding/toRlp.js'
+import { serializeAccessList } from '../../utils/transaction/serializeAccessList.js'
 import {
-  type Address,
-  BaseError,
-  FeeCapTooHighError,
-  type FeeValuesEIP1559,
-  InvalidAddressError,
-  InvalidChainIdError,
   type SerializeTransactionFn,
-  type Signature,
-  TipAboveFeeCapError,
-  concatHex,
-  isAddress,
-  serializeAccessList,
-  serializeTransaction as viemSerializeTransaction,
-  toHex,
-  toRlp,
-  trim,
-} from '../../index.js'
+  serializeTransaction as serializeTransaction_,
+} from '../../utils/transaction/serializeTransaction.js'
+
+export const serializeTransaction: SerializeTransactionFn<
+  TransactionSerializableCelo
+> = (tx, signature) => {
+  // Handle Celo's CIP-42 Transactions
+  if (couldBeCIP42(tx))
+    return serializeTransactionCIP42(
+      tx as TransactionSerializableCIP42,
+      signature,
+    )
+
+  // Handle other transaction types
+  return serializeTransaction_(tx as TransactionSerializable, signature)
+}
+
+export type CeloSerializers = {
+  transaction: typeof serializeTransaction
+}
+
+export const celoSerializers: CeloSerializers = {
+  transaction: serializeTransaction,
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Types
 
 export type TransactionSerializableCIP42<
   TQuantity = bigint,
@@ -37,24 +61,14 @@ export type TransactionSerializableCIP42<
     type?: 'cip42'
   }
 
-export type TransactionSerializableIncludingCIP42 =
+export type TransactionSerializableCelo =
   | TransactionSerializableCIP42
   | TransactionSerializable
 
-type SerializedCIP42TransactionReturnType = `0x7c${string}`
+export type SerializedCIP42TransactionReturnType = `0x7c${string}`
 
-export const serializeTransaction: SerializeTransactionFn<TransactionSerializableIncludingCIP42> =
-  function (tx, signature?: Signature) {
-    // handle celo's feeCurrency Transactions
-    if (couldBeCIP42(tx)) {
-      return serializeTransactionCIP42(
-        tx as TransactionSerializableCIP42,
-        signature,
-      )
-    }
-    // handle rest of tx types
-    return viemSerializeTransaction(tx as TransactionSerializable, signature)
-  }
+//////////////////////////////////////////////////////////////////////////////
+// Serializers
 
 // There shall be a typed transaction with the code 0x7c that has the following format:
 // 0x7c || rlp([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, feecurrency, gatewayFeeRecipient, gatewayfee, destination, amount, data, access_list, signature_y_parity, signature_r, signature_s]).
@@ -108,8 +122,11 @@ function serializeTransactionCIP42(
   ]) as SerializedCIP42TransactionReturnType
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// Utilities
+
 // process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
-function couldBeCIP42(tx: TransactionSerializableIncludingCIP42) {
+function couldBeCIP42(tx: TransactionSerializableCelo) {
   const maybeCIP42 = tx as TransactionSerializableCIP42
   if (
     maybeCIP42.maxFeePerGas &&
@@ -117,11 +134,14 @@ function couldBeCIP42(tx: TransactionSerializableIncludingCIP42) {
     (maybeCIP42.feeCurrency ||
       maybeCIP42.gatewayFee ||
       maybeCIP42.gatewayFeeRecipient)
-  ) {
+  )
     return true
-  }
   return false
 }
+
+// maxFeePerGas must be less than 2^256 - 1: however writing like that caused exceptions to be raised
+const MAX_MAX_FEE_PER_GAS =
+  115792089237316195423570985008687907853269984665640564039457584007913129639935n
 
 function assertTransactionCIP42(transaction: TransactionSerializableCIP42) {
   const {
@@ -140,11 +160,10 @@ function assertTransactionCIP42(transaction: TransactionSerializableCIP42) {
     throw new BaseError(
       '`gasPrice` is not a valid CIP-42 Transaction attribute.',
     )
-  // maxFeePerGas must be less than 2^256 - 1: however writing like that caused exceptions to be raised
-  const MAX_MAX_FEE_PER_GAS =
-    115792089237316195423570985008687907853269984665640564039457584007913129639935n
+
   if (maxFeePerGas && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
     throw new FeeCapTooHighError({ maxFeePerGas })
+
   if (
     maxPriorityFeePerGas &&
     maxFeePerGas &&
