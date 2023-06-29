@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.5
+
+### Patch Changes
+
+- [`81282fc1`](https://github.com/wagmi-dev/viem/commit/81282fc1d9cd4187e2caed051f221b2d4e57ec3a) Thanks [@jxom](https://github.com/jxom)! - Exported `signatureToHex`.
+
 ## 1.2.4
 
 ### Patch Changes
