@@ -140,7 +140,10 @@ function assertTransactionCIP42(transaction: TransactionSerializableCIP42) {
     throw new BaseError(
       '`gasPrice` is not a valid CIP-42 Transaction attribute.',
     )
-  if (maxFeePerGas && maxFeePerGas > 2n ** 256n - 1n)
+  // maxFeePerGas must be less than 2^256 - 1: however writing like that caused exceptions to be raised
+  const MAX_MAX_FEE_PER_GAS =
+    115792089237316195423570985008687907853269984665640564039457584007913129639935n
+  if (maxFeePerGas && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     maxPriorityFeePerGas &&
