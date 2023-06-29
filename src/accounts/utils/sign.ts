@@ -17,10 +17,10 @@ export type SignReturnType = Signature
  *
  * @returns The signature.
  */
-export async function sign({
+export function sign({
   hash,
   privateKey,
-}: SignParameters): Promise<SignReturnType> {
+}: SignParameters): SignReturnType {
   const { r, s, recovery } = secp256k1.sign(hash.slice(2), privateKey.slice(2))
   return {
     r: toHex(r),
