@@ -6,6 +6,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
+import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
@@ -24,7 +25,7 @@ export type WriteContractParameters<
   TAccount extends Account | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
 > = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  Omit<
+  UnionOmit<
     SendTransactionParameters<TChain, TAccount, TChainOverride>,
     'chain' | 'to' | 'data' | 'value'
   > &

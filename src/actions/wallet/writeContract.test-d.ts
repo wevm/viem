@@ -1,7 +1,9 @@
 import { seaportAbi } from 'abitype/test'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import type { WriteContractParameters } from './writeContract.js'
+import { wagmiContractConfig } from '../../_test/abis.js'
+import { walletClientWithAccount } from '../../_test/utils.js'
+import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 test('WriteContractParameters', async () => {
   type Result = WriteContractParameters<typeof seaportAbi, 'cancel'>
@@ -60,5 +62,108 @@ test('WriteContractParameters', async () => {
         },
       ],
     ],
+  })
+})
+
+const args = {
+  ...wagmiContractConfig,
+  functionName: 'mint',
+  args: [69420n],
+} as const
+
+test('legacy', () => {
+  writeContract(walletClientWithAccount, {
+    ...args,
+    gasPrice: 0n,
+  })
+
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'legacy',
+  })
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'legacy',
+  })
+})
+
+test('eip1559', () => {
+  writeContract(walletClientWithAccount, {
+    ...args,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'eip1559',
+  })
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    gasPrice: 0n,
+    type: 'eip1559',
+  })
+})
+
+test('eip2930', () => {
+  writeContract(walletClientWithAccount, {
+    ...args,
+    accessList: [],
+    gasPrice: 0n,
+  })
+
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    accessList: [],
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    accessList: [],
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'eip2930',
+  })
+  // @ts-expect-error
+  writeContract(walletClientWithAccount, {
+    ...args,
+    accessList: [],
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'eip2930',
   })
 })

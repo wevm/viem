@@ -59,6 +59,7 @@ test('tip higher than fee cap', () => {
 
 test('fee conflict', () => {
   expect(() =>
+    // @ts-expect-error
     assertRequest({
       gasPrice: parseGwei('8'),
       maxFeePerGas: parseGwei('10'),
@@ -72,6 +73,7 @@ test('fee conflict', () => {
   `)
 
   expect(() =>
+    // @ts-expect-error
     assertRequest({
       gasPrice: parseGwei('8'),
       maxFeePerGas: parseGwei('10'),
@@ -84,6 +86,7 @@ test('fee conflict', () => {
   `)
 
   expect(() =>
+    // @ts-expect-error
     assertRequest({
       gasPrice: parseGwei('8'),
       maxPriorityFeePerGas: parseGwei('11'),

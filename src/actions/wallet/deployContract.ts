@@ -6,6 +6,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { GetConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
+import type { UnionOmit } from '../../types/utils.js'
 import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
 
 import {
@@ -19,7 +20,7 @@ export type DeployContractParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = undefined,
-> = Omit<
+> = UnionOmit<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
   'accessList' | 'chain' | 'to' | 'data' | 'value'
 > & {

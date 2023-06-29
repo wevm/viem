@@ -11,6 +11,7 @@ import type {
   GetValue,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
+import type { UnionOmit } from '../../types/utils.js'
 import {
   type DecodeFunctionResultParameters,
   decodeFunctionResult,
@@ -34,7 +35,7 @@ export type SimulateContractParameters<
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
   dataSuffix?: Hex
 } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  Omit<
+  UnionOmit<
     CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
     'batch' | 'to' | 'data' | 'value'
   > &
@@ -53,7 +54,7 @@ export type SimulateContractReturnType<
   TChainOverride extends Chain | undefined = undefined,
 > = {
   result: ContractFunctionResult<TAbi, TFunctionName>
-  request: Omit<
+  request: UnionOmit<
     WriteContractParameters<
       TAbi,
       TFunctionName,

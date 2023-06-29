@@ -129,23 +129,29 @@ export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
 export type TransactionRequestLegacy<
   TQuantity = bigint,
   TIndex = number,
+  TTransactionType = 'legacy',
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: never
+    type?: TTransactionType
   }
 export type TransactionRequestEIP2930<
   TQuantity = bigint,
   TIndex = number,
+  TTransactionType = 'eip2930',
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesLegacy<TQuantity>> & {
     accessList?: AccessList
+    type?: TTransactionType
   }
 export type TransactionRequestEIP1559<
   TQuantity = bigint,
   TIndex = number,
+  TTransactionType = 'eip1559',
 > = TransactionRequestBase<TQuantity, TIndex> &
   Partial<FeeValuesEIP1559<TQuantity>> & {
     accessList?: AccessList
+    type?: TTransactionType
   }
 export type TransactionRequest<TQuantity = bigint, TIndex = number> =
   | TransactionRequestLegacy<TQuantity, TIndex>

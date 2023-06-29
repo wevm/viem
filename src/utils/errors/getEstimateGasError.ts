@@ -4,7 +4,11 @@ import type { BaseError } from '../../errors/base.js'
 import { EstimateGasExecutionError } from '../../errors/estimateGas.js'
 import type { Chain } from '../../types/chain.js'
 
-import { containsNodeError, getNodeError } from './getNodeError.js'
+import {
+  type GetNodeErrorParameters,
+  containsNodeError,
+  getNodeError,
+} from './getNodeError.js'
 
 export function getEstimateGasError(
   err: BaseError,
@@ -18,7 +22,8 @@ export function getEstimateGasError(
   },
 ) {
   let cause = err
-  if (containsNodeError(err)) cause = getNodeError(err, args)
+  if (containsNodeError(err))
+    cause = getNodeError(err, args as GetNodeErrorParameters)
   return new EstimateGasExecutionError(cause, {
     docsPath,
     ...args,

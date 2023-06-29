@@ -26,6 +26,7 @@ import type {
   IsUndefined,
   Or,
   Prettify,
+  UnionOmit,
 } from '../types/utils.js'
 
 import {
@@ -444,7 +445,7 @@ export function getContract<
             return (
               ...parameters: [
                 args?: readonly unknown[],
-                options?: Omit<
+                options?: UnionOmit<
                   ReadContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
@@ -471,7 +472,7 @@ export function getContract<
             return (
               ...parameters: [
                 args?: readonly unknown[],
-                options?: Omit<
+                options?: UnionOmit<
                   SimulateContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
@@ -565,7 +566,7 @@ export function getContract<
             return (
               ...parameters: [
                 args?: readonly unknown[],
-                options?: Omit<
+                options?: UnionOmit<
                   WriteContractParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
@@ -599,7 +600,7 @@ export function getContract<
             return (
               ...parameters: [
                 args?: readonly unknown[],
-                options?: Omit<
+                options?: UnionOmit<
                   EstimateContractGasParameters,
                   'abi' | 'address' | 'functionName' | 'args'
                 >,
@@ -616,7 +617,7 @@ export function getContract<
                 account:
                   (options as EstimateContractGasParameters).account ??
                   (walletClient as unknown as WalletClient).account,
-              } as EstimateContractGasParameters)
+              } as any)
             }
           },
         },
@@ -677,7 +678,7 @@ type GetReadFunction<
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
-    Omit<
+    UnionOmit<
       ReadContractParameters<TAbi, TFunctionName>,
       'abi' | 'address' | 'args' | 'functionName'
     >
@@ -705,7 +706,7 @@ type GetEstimateFunction<
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
-    Omit<
+    UnionOmit<
       EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
       'abi' | 'address' | 'args' | 'functionName'
     >
@@ -751,7 +752,7 @@ type GetSimulateFunction<
   ? <
       TChainOverride extends Chain | undefined,
       Options extends Prettify<
-        Omit<
+        UnionOmit<
           SimulateContractParameters<
             TAbi,
             TFunctionName,
@@ -771,7 +772,7 @@ type GetSimulateFunction<
   : <
       TChainOverride extends Chain | undefined,
       Options extends Prettify<
-        Omit<
+        UnionOmit<
           SimulateContractParameters<
             TAbi,
             TFunctionName,
@@ -803,7 +804,7 @@ type GetWriteFunction<
   ? <
       TChainOverride extends Chain | undefined,
       Options extends Prettify<
-        Omit<
+        UnionOmit<
           WriteContractParameters<
             TAbi,
             TFunctionName,
@@ -829,7 +830,7 @@ type GetWriteFunction<
   : <
       TChainOverride extends Chain | undefined,
       Options extends Prettify<
-        Omit<
+        UnionOmit<
           WriteContractParameters<
             TAbi,
             TFunctionName,

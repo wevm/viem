@@ -3,7 +3,11 @@ import type { BaseError } from '../../errors/base.js'
 import { CallExecutionError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 
-import { containsNodeError, getNodeError } from './getNodeError.js'
+import {
+  type GetNodeErrorParameters,
+  containsNodeError,
+  getNodeError,
+} from './getNodeError.js'
 
 export function getCallError(
   err: BaseError,
@@ -16,7 +20,8 @@ export function getCallError(
   },
 ) {
   let cause = err
-  if (containsNodeError(err)) cause = getNodeError(err, args)
+  if (containsNodeError(err))
+    cause = getNodeError(err, args as GetNodeErrorParameters)
   return new CallExecutionError(cause, {
     docsPath,
     ...args,

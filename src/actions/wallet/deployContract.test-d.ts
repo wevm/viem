@@ -1,48 +1,24 @@
 import { test } from 'vitest'
 
 import { wagmiContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
-import {
-  publicClient,
-  walletClient,
-  walletClientWithAccount,
-} from '../../_test/utils.js'
-import { estimateContractGas } from './estimateContractGas.js'
+import { walletClient } from '../../_test/utils.js'
+
+import { deployContract } from './deployContract.js'
 
 const args = {
   ...wagmiContractConfig,
-  functionName: 'mint',
-  args: [69420n],
+  account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+  bytecode: '0x',
 } as const
 
-test('publicClient', () => {
-  estimateContractGas(publicClient, {
-    ...args,
-    account: accounts[0].address,
-  })
-})
-
-test('wallet client without account', () => {
-  estimateContractGas(walletClient, {
-    ...args,
-    account: accounts[0].address,
-  })
-})
-
-test('wallet client with account', () => {
-  estimateContractGas(walletClientWithAccount, {
-    ...args,
-  })
-})
-
 test('legacy', () => {
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -50,7 +26,7 @@ test('legacy', () => {
   })
 
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -58,7 +34,7 @@ test('legacy', () => {
     type: 'legacy',
   })
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
@@ -67,14 +43,14 @@ test('legacy', () => {
 })
 
 test('eip1559', () => {
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -82,7 +58,7 @@ test('eip1559', () => {
   })
 
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     gasPrice: 0n,
     maxFeePerGas: 0n,
@@ -90,7 +66,7 @@ test('eip1559', () => {
     type: 'eip1559',
   })
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
     gasPrice: 0n,
     type: 'eip1559',
@@ -98,34 +74,30 @@ test('eip1559', () => {
 })
 
 test('eip2930', () => {
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
-    accessList: [],
     gasPrice: 0n,
   })
 
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
-    accessList: [],
     gasPrice: 0n,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
   })
 
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
-    accessList: [],
     gasPrice: 0n,
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'eip2930',
   })
   // @ts-expect-error
-  estimateContractGas(walletClientWithAccount, {
+  deployContract(walletClient, {
     ...args,
-    accessList: [],
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'eip2930',
