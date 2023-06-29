@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.4
+
+### Patch Changes
+
+- [`11c844a1`](https://github.com/wagmi-dev/viem/commit/11c844a1804270bfafa903061d1f98605067203d) Thanks [@jxom](https://github.com/jxom)! - Exported `sign` in `viem/accounts`.
+
 ## 1.2.3
 
 ### Patch Changes
