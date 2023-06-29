@@ -17,7 +17,7 @@ import { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 
-import { assertRequest } from './assertRequest.js'
+import { type AssertRequestParameters, assertRequest } from './assertRequest.js'
 
 export type PrepareRequestParameters<
   TAccount extends Account | undefined = undefined,
@@ -112,7 +112,7 @@ export async function prepareRequest<
       account: { address: account.address, type: 'json-rpc' },
     } as EstimateGasParameters)
 
-  assertRequest(request)
+  assertRequest(request as AssertRequestParameters)
 
   return request as PrepareRequestReturnType<TAccount, TParameters>
 }

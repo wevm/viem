@@ -7,6 +7,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
+import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
@@ -20,7 +21,7 @@ export type EstimateContractGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = undefined,
 > = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  Omit<EstimateGasParameters<TChain, TAccount>, 'data' | 'to' | 'value'> &
+  UnionOmit<EstimateGasParameters<TChain, TAccount>, 'data' | 'to' | 'value'> &
   GetValue<
     TAbi,
     TFunctionName,

@@ -4,21 +4,28 @@ import type { BaseError } from '../../errors/base.js'
 import { TransactionExecutionError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
 
-import { containsNodeError, getNodeError } from './getNodeError.js'
+import {
+  type GetNodeErrorParameters,
+  containsNodeError,
+  getNodeError,
+} from './getNodeError.js'
+
+export type GetTransactionErrorParameters = Omit<
+  SendTransactionParameters,
+  'account' | 'chain'
+> & {
+  account: Account
+  chain?: Chain
+  docsPath?: string
+}
 
 export function getTransactionError(
   err: BaseError,
-  {
-    docsPath,
-    ...args
-  }: Omit<SendTransactionParameters, 'account' | 'chain'> & {
-    account: Account
-    chain?: Chain
-    docsPath?: string
-  },
+  { docsPath, ...args }: GetTransactionErrorParameters,
 ) {
   let cause = err
-  if (containsNodeError(err)) cause = getNodeError(err, args)
+  if (containsNodeError(err))
+    cause = getNodeError(err, args as GetNodeErrorParameters)
   return new TransactionExecutionError(cause, {
     docsPath,
     ...args,

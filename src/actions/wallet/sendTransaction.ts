@@ -11,7 +11,7 @@ import type {
   TransactionRequest,
   TransactionSerializable,
 } from '../../types/transaction.js'
-import type { IsUndefined } from '../../types/utils.js'
+import type { IsUndefined, UnionOmit } from '../../types/utils.js'
 import { assertCurrentChain } from '../../utils/chain.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
@@ -27,7 +27,7 @@ export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain,
-> = Omit<
+> = UnionOmit<
   FormattedTransactionRequest<
     IsUndefined<TChain> extends true ? TChainOverride : TChain
   >,

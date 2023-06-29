@@ -6,8 +6,11 @@ import type {
   TransactionEIP2930,
   TransactionLegacy,
   TransactionReceipt,
-  TransactionRequest,
+  TransactionRequestEIP1559,
+  TransactionRequestEIP2930,
+  TransactionRequestLegacy,
 } from './transaction.js'
+import type { UnionOmit } from './utils.js'
 
 export type Index = `0x${string}`
 export type Quantity = `0x${string}`
@@ -27,8 +30,13 @@ export type RpcTransactionReceipt = TransactionReceipt<
   Status,
   TransactionType
 >
-export type RpcTransactionRequest = TransactionRequest<Quantity, Index>
-export type RpcTransaction =
+export type RpcTransactionRequest =
+  | TransactionRequestLegacy<Quantity, Index, '0x0'>
+  | TransactionRequestEIP2930<Quantity, Index, '0x1'>
+  | TransactionRequestEIP1559<Quantity, Index, '0x2'>
+export type RpcTransaction = UnionOmit<
   | TransactionLegacy<Quantity, Index, '0x0'>
   | TransactionEIP2930<Quantity, Index, '0x1'>
-  | TransactionEIP1559<Quantity, Index, '0x2'>
+  | TransactionEIP1559<Quantity, Index, '0x2'>,
+  'typeHex'
+>

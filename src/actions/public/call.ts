@@ -17,6 +17,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
+import type { UnionOmit } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
@@ -29,6 +30,7 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
+import type { AssertRequestParameters } from '../../utils/transaction/assertRequest.js'
 
 export type FormattedCall<
   TChain extends Chain | undefined = Chain | undefined,
@@ -36,7 +38,7 @@ export type FormattedCall<
 
 export type CallParameters<
   TChain extends Chain | undefined = Chain | undefined,
-> = Omit<FormattedCall<TChain>, 'from'> & {
+> = UnionOmit<FormattedCall<TChain>, 'from'> & {
   account?: Account | Address
   batch?: boolean
 } & (
@@ -105,7 +107,7 @@ export async function call<TChain extends Chain | undefined>(
   const account = account_ ? parseAccount(account_) : undefined
 
   try {
-    assertRequest(args)
+    assertRequest(args as AssertRequestParameters)
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag

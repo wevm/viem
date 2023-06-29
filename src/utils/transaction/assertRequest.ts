@@ -6,7 +6,9 @@ import { FeeConflictError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
 import { isAddress } from '../address/isAddress.js'
 
-export function assertRequest(args: Partial<SendTransactionParameters<Chain>>) {
+export type AssertRequestParameters = Partial<SendTransactionParameters<Chain>>
+
+export function assertRequest(args: AssertRequestParameters) {
   const {
     account: account_,
     gasPrice,

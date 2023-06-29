@@ -46,3 +46,88 @@ test('with and without `account`', () => {
     // ^?
   })
 })
+
+test('legacy', () => {
+  sendTransaction(walletClient, {
+    gasPrice: 0n,
+  })
+
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'legacy',
+  })
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'legacy',
+  })
+})
+
+test('eip1559', () => {
+  sendTransaction(walletClient, {
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'eip1559',
+  })
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    gasPrice: 0n,
+    type: 'eip1559',
+  })
+})
+
+test('eip2930', () => {
+  sendTransaction(walletClient, {
+    accessList: [],
+    gasPrice: 0n,
+  })
+
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    accessList: [],
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    accessList: [],
+    gasPrice: 0n,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'eip2930',
+  })
+  // @ts-expect-error
+  sendTransaction(walletClient, {
+    accessList: [],
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+    type: 'eip2930',
+  })
+})

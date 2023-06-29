@@ -8,6 +8,7 @@ import type { GetAccountParameter } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { TransactionRequest } from '../../types/transaction.js'
+import type { UnionOmit } from '../../types/utils.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getEstimateGasError } from '../../utils/errors/getEstimateGasError.js'
 import { extract } from '../../utils/formatters/extract.js'
@@ -15,7 +16,10 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
+import {
+  type AssertRequestParameters,
+  assertRequest,
+} from '../../utils/transaction/assertRequest.js'
 import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 
 export type FormattedEstimateGas<
@@ -25,7 +29,7 @@ export type FormattedEstimateGas<
 export type EstimateGasParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = undefined,
-> = Omit<FormattedEstimateGas<TChain>, 'from'> &
+> = UnionOmit<FormattedEstimateGas<TChain>, 'from'> &
   GetAccountParameter<TAccount> &
   (
     | {
@@ -103,7 +107,7 @@ export async function estimateGas<
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    assertRequest(args)
+    assertRequest(args as AssertRequestParameters)
 
     const format =
       client.chain?.formatters?.transactionRequest?.format ||

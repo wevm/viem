@@ -28,10 +28,9 @@ export function containsNodeError(err: BaseError) {
   )
 }
 
-export function getNodeError(
-  err: BaseError,
-  args: Partial<SendTransactionParameters<any>>,
-) {
+export type GetNodeErrorParameters = Partial<SendTransactionParameters<any>>
+
+export function getNodeError(err: BaseError, args: GetNodeErrorParameters) {
   const message = err.details.toLowerCase()
   if (FeeCapTooHighError.nodeMessage.test(message))
     return new FeeCapTooHighError({
