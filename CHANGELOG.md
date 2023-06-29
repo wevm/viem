@@ -1,5 +1,13 @@
 # viem
 
+## 1.2.6
+
+### Patch Changes
+
+- [#808](https://github.com/wagmi-dev/viem/pull/808) [`7567f58e`](https://github.com/wagmi-dev/viem/commit/7567f58e808b5cf67e46c151bf0569a2820be7bd) Thanks [@jxom](https://github.com/jxom)! - Fixed `RpcTransaction` type to not include `typeHex`.
+
+* [#808](https://github.com/wagmi-dev/viem/pull/808) [`7567f58e`](https://github.com/wagmi-dev/viem/commit/7567f58e808b5cf67e46c151bf0569a2820be7bd) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `TransactionRequest` did not narrow based on type.
+
 ## 1.2.5
 
 ### Patch Changes
