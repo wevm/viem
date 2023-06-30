@@ -1,4 +1,5 @@
 import { accounts } from '../../_test/constants.js'
+import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import {
   FeeCapTooHighError,
   TipAboveFeeCapError,
@@ -60,6 +61,18 @@ describe('cip42', () => {
 
     expect(serializeTransaction(transaction)).toEqual(
       '0x7cf8a282a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080f85bf859940000000000000000000000000000000000000000f842a00000000000000000000000000000000000000000000000000000000000000001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+  })
+
+  test('with signature', async () => {
+    const signed = await signTransaction({
+      privateKey: accounts[0].privateKey,
+      transaction: baseTransaction,
+      serializer: serializeTransaction,
+    })
+
+    expect(signed).toEqual(
+      '0x7cf88982a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c080a01ae1d60446ad5fdd620e1982050dc315ff9a0f61b32bcc2a3cdadd0571a76df7a073aba459b3aef6796d5f2a9979551c29f66586821b5613d5080d00782b07c280',
     )
   })
 
@@ -127,6 +140,45 @@ describe('when param values are not right', () => {
     }
     expect(() => serializeTransaction(transaction)).toThrowError(
       '`feeCurrency` MUST be a token address for CIP-42 transactions.',
+    )
+  })
+
+  test('when gasPrice is defined', () => {
+    const transaction: TransactionSerializableCIP42 = {
+      ...baseTransaction,
+      // @ts-expect-error
+      gasPrice: 1,
+    }
+    expect(() => serializeTransaction(transaction)).toThrowError(
+      '`gasPrice` is not a valid CIP-42 Transaction attribute.',
+    )
+  })
+
+  test('when only one of the gateWayFee fields is defined', () => {
+    const transactionA: TransactionSerializableCIP42 = {
+      ...baseTransaction,
+      gatewayFeeRecipient: accounts[7].address,
+    }
+    expect(() => serializeTransaction(transactionA)).toThrowError(
+      '`gatewayFee` and `gatewayFeeRecipient` must be provided together.',
+    )
+    const transactionB: TransactionSerializableCIP42 = {
+      ...baseTransaction,
+      gatewayFee: 1000023434343n,
+    }
+    expect(() => serializeTransaction(transactionB)).toThrowError(
+      '`gatewayFee` and `gatewayFeeRecipient` must be provided together.',
+    )
+  })
+  test('when the transaction looks like cip42 but does not have values for either feeCurrency or gatewayFee', () => {
+    const transaction = {
+      ...baseTransaction,
+      feeCurrency: undefined,
+      gatewayFee: undefined,
+      gatewayFeeRecipient: undefined,
+    }
+    expect(() => serializeTransaction(transaction)).toThrowError(
+      'Either `feeCurrency` or `gatewayFeeRecipient` must be provided for CIP-42 transactions.',
     )
   })
 })

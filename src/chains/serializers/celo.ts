@@ -131,9 +131,9 @@ function couldBeCIP42(tx: TransactionSerializableCelo) {
   if (
     maybeCIP42.maxFeePerGas &&
     maybeCIP42.maxPriorityFeePerGas &&
-    (maybeCIP42.feeCurrency ||
-      maybeCIP42.gatewayFee ||
-      maybeCIP42.gatewayFeeRecipient)
+    ('feeCurrency' in maybeCIP42 ||
+      'gateWayFee' in maybeCIP42 ||
+      'gatewayFeeRecipient' in maybeCIP42)
   )
     return true
   return false
