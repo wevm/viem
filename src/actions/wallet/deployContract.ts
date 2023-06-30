@@ -22,7 +22,7 @@ export type DeployContractParameters<
   TChainOverride extends Chain | undefined = undefined,
 > = UnionOmit<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
-  'accessList' | 'chain' | 'to' | 'data' | 'value'
+  'accessList' | 'chain' | 'to' | 'data'
 > & {
   abi: Narrow<TAbi>
   bytecode: Hex
