@@ -181,6 +181,16 @@ describe('when param values are not right', () => {
       'Either `feeCurrency` or `gatewayFeeRecipient` must be provided for CIP-42 transactions.',
     )
   })
+  test('when chainID is invalid', () => {
+    const transaction: TransactionSerializableCIP42 = {
+      ...baseTransaction,
+      chainId: -1,
+    }
+
+    expect(() => serializeTransaction(transaction)).toThrowError(
+      `Chain ID "${-1}" is invalid.`
+    )
+  })
 })
 
 describe('when not cip42', () => {
