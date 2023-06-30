@@ -494,6 +494,8 @@ export type {
 export type {
   Formatter,
   Formatters,
+  ExtractFormatterParameters,
+  ExtractFormatterReturnType,
 } from './types/formatter.js'
 export type { Serializers } from './types/serializer.js'
 export type {
