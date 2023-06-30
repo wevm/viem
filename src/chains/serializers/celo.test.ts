@@ -64,6 +64,27 @@ describe('cip42', () => {
     )
   })
 
+  test('args: paying gatewayFee', () => {
+    const transaction: TransactionSerializableCIP42 = {
+      ...baseTransaction,
+      gatewayFeeRecipient: accounts[5].address,
+      gatewayFee: parseEther('0.1'),
+    }
+    expect(serializeTransaction(transaction)).toEqual(
+      '0x7cf86282a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a949965507d1a55bcc2695c58ba16fb37d819b0a4dc88016345785d8a000094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
+    )
+  })
+
+  test('args: nonce', () => {
+    const transaction: TransactionSerializableCIP42 = {
+      ...baseTransaction,
+      nonce: 20,
+    }
+    expect(serializeTransaction(transaction)).toEqual(
+      '0x7cf84682a4ec14847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
+    )
+  })
+
   test('with signature', async () => {
     const signed = await signTransaction({
       privateKey: accounts[0].privateKey,
@@ -188,7 +209,7 @@ describe('when param values are not right', () => {
     }
 
     expect(() => serializeTransaction(transaction)).toThrowError(
-      `Chain ID "${-1}" is invalid.`
+      `Chain ID "${-1}" is invalid.`,
     )
   })
 })
