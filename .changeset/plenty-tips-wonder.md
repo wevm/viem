@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `peerDependenciesMeta` to package.json.
+Added missing `package.json#peerDependenciesMeta`.
