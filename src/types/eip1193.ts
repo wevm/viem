@@ -52,22 +52,22 @@ export type ProviderMessage = {
 }
 
 export type EIP1193EventMap = {
-  connect: (connectInfo: ProviderConnectInfo) => void
-  disconnect: (error: ProviderRpcError) => void
-  chainChanged: (chainId: string) => void
-  accountsChanged: (accounts: Address[]) => void
-  message: (message: ProviderMessage) => void
+  accountsChanged(accounts: Address[]): void
+  chainChanged(chainId: string): void
+  connect(connectInfo: ProviderConnectInfo): void
+  disconnect(error: ProviderRpcError): void
+  message(message: ProviderMessage): void
 }
-export type EIP1193Events = {
-  on: <E extends keyof EIP1193EventMap>(
-    event: E,
-    listener: EIP1193EventMap[E],
-  ) => void
 
-  removeListener: <E extends keyof EIP1193EventMap>(
-    event: E,
-    listener: EIP1193EventMap[E],
-  ) => void
+export type EIP1193Events = {
+  on<TEvent extends keyof EIP1193EventMap>(
+    event: TEvent,
+    listener: EIP1193EventMap[TEvent],
+  ): void
+  removeListener<TEvent extends keyof EIP1193EventMap>(
+    event: TEvent,
+    listener: EIP1193EventMap[TEvent],
+  ): void
 }
 
 //////////////////////////////////////////////////
