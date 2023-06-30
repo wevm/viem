@@ -11,7 +11,6 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
-import { getBalance } from '../public/getBalance.js'
 
 import { deployContract } from './deployContract.js'
 
