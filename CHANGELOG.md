@@ -1,5 +1,13 @@
 # viem
 
+## 1.2.7
+
+### Patch Changes
+
+- [#825](https://github.com/wagmi-dev/viem/pull/825) [`d9e0a64c`](https://github.com/wagmi-dev/viem/commit/d9e0a64c30011d60f873008ec68baa324f70b7ad) Thanks [@tmm](https://github.com/tmm)! - Exported types.
+
+* [#824](https://github.com/wagmi-dev/viem/pull/824) [`9dcec526`](https://github.com/wagmi-dev/viem/commit/9dcec5262c57085f6ff9f220471891e8805ba6b5) Thanks [@frangio](https://github.com/frangio)! - Added missing `package.json#peerDependenciesMeta`.
+
 ## 1.2.6
 
 ### Patch Changes
