@@ -25,7 +25,7 @@ import { http } from '../clients/transports/http.js'
 import { webSocket } from '../clients/transports/webSocket.js'
 import { RpcRequestError } from '../errors/request.js'
 import type { Chain } from '../types/chain.js'
-import { ProviderRpcError } from '../types/eip1193.js'
+import { type EIP1193Provider, ProviderRpcError } from '../types/eip1193.js'
 import type { Hex } from '../types/misc.js'
 import { namehash } from '../utils/ens/namehash.js'
 import { rpc } from '../utils/rpc.js'
@@ -63,8 +63,8 @@ export const anvilChain = {
   },
 } as const satisfies Chain
 
-const provider = {
-  on: (message: string, listener: (...args: any[]) => null) => {
+const provider: EIP1193Provider = {
+  on: (message, listener) => {
     if (message === 'accountsChanged') {
       listener([accounts[0].address] as any)
     }

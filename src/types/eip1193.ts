@@ -51,36 +51,23 @@ export type ProviderMessage = {
   data: unknown
 }
 
+export type EIP1193EventMap = {
+  connect: (connectInfo: ProviderConnectInfo) => void
+  disconnect: (error: ProviderRpcError) => void
+  chainChanged: (chainId: string) => void
+  accountsChanged: (accounts: Address[]) => void
+  message: (message: ProviderMessage) => void
+}
 export type EIP1193Events = {
-  on(
-    event: 'connect',
-    listener: (connectInfo: ProviderConnectInfo) => void,
-  ): void
-  on(event: 'disconnect', listener: (error: ProviderRpcError) => void): void
-  on(event: 'chainChanged', listener: (chainId: string) => void): void
-  on(event: 'accountsChanged', listener: (accounts: string[]) => void): void
-  on(event: 'message', listener: (message: ProviderMessage) => void): void
+  on: <E extends keyof EIP1193EventMap>(
+    event: E,
+    listener: EIP1193EventMap[E],
+  ) => void
 
-  removeListener(
-    event: 'connect',
-    listener: (connectInfo: ProviderConnectInfo) => void,
-  ): void
-  removeListener(
-    event: 'disconnect',
-    listener: (error: ProviderRpcError) => void,
-  ): void
-  removeListener(
-    event: 'chainChanged',
-    listener: (chainId: string) => void,
-  ): void
-  removeListener(
-    event: 'accountsChanged',
-    listener: (accounts: Address[]) => void,
-  ): void
-  removeListener(
-    event: 'message',
-    listener: (message: ProviderMessage) => void,
-  ): void
+  removeListener: <E extends keyof EIP1193EventMap>(
+    event: E,
+    listener: EIP1193EventMap[E],
+  ) => void
 }
 
 //////////////////////////////////////////////////
