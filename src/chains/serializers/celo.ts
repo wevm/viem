@@ -129,10 +129,10 @@ function serializeTransactionCIP42(
 function couldBeCIP42(tx: TransactionSerializableCelo) {
   const maybeCIP42 = tx as TransactionSerializableCIP42
   if (
-    maybeCIP42.maxFeePerGas &&
-    maybeCIP42.maxPriorityFeePerGas &&
+    'maxFeePerGas' in maybeCIP42 &&
+    'maxPriorityFeePerGas' in maybeCIP42 &&
     ('feeCurrency' in maybeCIP42 ||
-      'gateWayFee' in maybeCIP42 ||
+      'gatewayFee' in maybeCIP42 ||
       'gatewayFeeRecipient' in maybeCIP42)
   )
     return true
