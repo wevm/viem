@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { baycContractConfig } from '../../_test/abis.js'
+import { baycContractConfig, payableContractConfig } from '../../_test/abis.js'
 import { accounts } from '../../_test/constants.js'
 import {
   testClient,
@@ -8,6 +8,7 @@ import {
   walletClientWithAccount,
 } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+import { getBalance } from '../public/getBalance.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 
@@ -52,4 +53,24 @@ test('no funds', async () => {
     address: accounts[0].address,
     value: parseEther('10000'),
   })
+})
+
+test('send value to contract', async () => {
+  await setBalance(testClient, {
+    address: accounts[0].address,
+    value: parseEther('2'),
+  })
+
+  const hash = await deployContract(walletClient, {
+    ...payableContractConfig,
+    account: accounts[0].address,
+    value: parseEther('1'),
+  })
+  expect(hash).toBeDefined()
+
+  await mine(testClient, { blocks: 1 })
+
+  expect(
+    await getBalance(testClient, { address: accounts[0].address }),
+  ).toBeLessThan(parseEther('1'))
 })

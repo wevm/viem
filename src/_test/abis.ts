@@ -1,5 +1,17 @@
 import { smartAccountAbi } from '../constants/abis.js'
 
+export const payableContractConfig = {
+  abi: [
+    {
+      inputs: [],
+      stateMutability: 'payable',
+      type: 'constructor',
+    },
+  ],
+  bytecode:
+    '0x608060405260358060116000396000f3006080604052600080fd00a165627a7a72305820f86ff341f0dff29df244305f8aa88abaf10e3a0719fa6ea1dcdd01b8b7d750970029',
+} as const
+
 export const baycContractConfig = {
   address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
   abi: [
