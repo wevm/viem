@@ -3,6 +3,7 @@ import * as chains from '@wagmi/chains'
 import { defineChain } from '../utils/chain.js'
 import { celoFormatters } from './formatters/celo.js'
 import { optimismFormatters } from './formatters/optimism.js'
+import { celoSerializers } from './serializers/celo.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
 export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
@@ -19,12 +20,15 @@ export const bscTestnet = /*#__PURE__*/ defineChain(chains.bscTestnet)
 export const canto = /*#__PURE__*/ defineChain(chains.canto)
 export const celo = /*#__PURE__*/ defineChain(chains.celo, {
   formatters: celoFormatters,
+  serializers: celoSerializers,
 })
 export const celoAlfajores = /*#__PURE__*/ defineChain(chains.celoAlfajores, {
   formatters: celoFormatters,
+  serializers: celoSerializers,
 })
 export const celoCannoli = /*#__PURE__*/ defineChain(chains.celoCannoli, {
   formatters: celoFormatters,
+  serializers: celoSerializers,
 })
 export const cronos = /*#__PURE__*/ defineChain(chains.cronos)
 export const crossbell = /*#__PURE__*/ defineChain(chains.crossbell)
