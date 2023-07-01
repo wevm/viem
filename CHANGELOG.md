@@ -1,5 +1,13 @@
 # viem
 
+## 1.2.8
+
+### Patch Changes
+
+- [#755](https://github.com/wagmi-dev/viem/pull/755) [`064cc09e`](https://github.com/wagmi-dev/viem/commit/064cc09e40dfb0b436b84c01aafdb448928153b3) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Added serializer for Celo CIP-42 transactions.
+
+* [#822](https://github.com/wagmi-dev/viem/pull/822) [`9a1e42bd`](https://github.com/wagmi-dev/viem/commit/9a1e42bd5d3ceef6527e04275499bef5ff4b4a39) Thanks [@RielJ](https://github.com/RielJ)! - Added ability to pass `value` to `deployContract`.
+
 ## 1.2.7
 
 ### Patch Changes
