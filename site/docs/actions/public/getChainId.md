@@ -23,7 +23,7 @@ Returns the chain ID associated with the current network
 ```ts [example.ts]
 import { publicClient } from './client'
 
-const block = await publicClient.getChainId() // [!code focus:99]
+const chainId = await publicClient.getChainId() // [!code focus:99]
 // 1
 ```
 
