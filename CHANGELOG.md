@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.9
+
+### Patch Changes
+
+- [`d24e5bc4`](https://github.com/wagmi-dev/viem/commit/d24e5bc48100afb62a25c8515874be9fddb4c7c3) Thanks [@jxom](https://github.com/jxom)! - Fixed a race condition in `waitForTransactionReceipt` causing multiple parallel instances to not resolve.
+
 ## 1.2.8
 
 ### Patch Changes
