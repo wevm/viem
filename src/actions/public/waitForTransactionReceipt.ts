@@ -126,7 +126,7 @@ export async function waitForTransactionReceipt<
       observerId,
       { onReplaced, resolve, reject },
       (emit) => {
-        const unwatch = watchBlockNumber(client, {
+        const _unwatch = watchBlockNumber(client, {
           emitMissed: true,
           emitOnBegin: true,
           poll: true,
@@ -136,8 +136,8 @@ export async function waitForTransactionReceipt<
 
             let blockNumber = blockNumber_
 
-            const done = async (fn: () => void) => {
-              unwatch()
+            const done = (fn: () => void) => {
+              _unwatch()
               fn()
               _unobserve()
             }
@@ -248,7 +248,6 @@ export async function waitForTransactionReceipt<
             }
           },
         })
-        return unwatch
       },
     )
   })

@@ -41,6 +41,54 @@ test('waits for transaction (send -> mine -> wait)', async () => {
   expect(status).toBe('success')
 })
 
+test('waits for transaction (multiple waterfall)', async () => {
+  const hash = await sendTransaction(walletClient, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  const receipt_1 = await waitForTransactionReceipt(publicClient, {
+    hash,
+  })
+  const receipt_2 = await waitForTransactionReceipt(publicClient, {
+    hash,
+  })
+  const receipt_3 = await waitForTransactionReceipt(publicClient, {
+    hash,
+  })
+  const receipt_4 = await waitForTransactionReceipt(publicClient, {
+    hash,
+  })
+  expect(receipt_1).toEqual(receipt_2)
+  expect(receipt_2).toEqual(receipt_3)
+  expect(receipt_3).toEqual(receipt_4)
+})
+
+test('waits for transaction (multiple parallel)', async () => {
+  const hash = await sendTransaction(walletClient, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  const [receipt_1, receipt_2, receipt_3, receipt_4] = await Promise.all([
+    waitForTransactionReceipt(publicClient, {
+      hash,
+    }),
+    waitForTransactionReceipt(publicClient, {
+      hash,
+    }),
+    waitForTransactionReceipt(publicClient, {
+      hash,
+    }),
+    waitForTransactionReceipt(publicClient, {
+      hash,
+    }),
+  ])
+  expect(receipt_1).toEqual(receipt_2)
+  expect(receipt_2).toEqual(receipt_3)
+  expect(receipt_3).toEqual(receipt_4)
+})
+
 describe('replaced transactions', () => {
   test('repriced', async () => {
     await mine(testClient, { blocks: 10 })
