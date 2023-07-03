@@ -10,6 +10,7 @@ export function RequestAddresses({ client }: { client: WalletClient }) {
           const addresses = await client.requestAddresses()
           setAddresses(addresses)
         }}
+        type='button'
       >
         request addresses
       </button>

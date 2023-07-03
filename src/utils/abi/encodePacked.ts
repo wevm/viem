@@ -62,7 +62,7 @@ export function encodePacked<
 function encode<TPackedAbiType extends PackedAbiType | unknown>(
   type: TPackedAbiType,
   value: EncodePackedValues<[TPackedAbiType]>[0],
-  isArray: boolean = false,
+  isArray = false,
 ): Hex {
   if (type === 'address') {
     const address = value as Address

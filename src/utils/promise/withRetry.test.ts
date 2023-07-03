@@ -96,7 +96,7 @@ test('retryCount', async () => {
 
 test('delay: number', async () => {
   const start = Date.now()
-  let end: number = 0
+  let end = 0
   const server = await createHttpServer((_req, res) => {
     end = Date.now() - start
     res.writeHead(500)
@@ -118,7 +118,7 @@ test('delay: number', async () => {
 
 test('delay: fn', async () => {
   const start = Date.now()
-  let end: number = 0
+  let end = 0
   const server = await createHttpServer((_req, res) => {
     end = Date.now() - start
     res.writeHead(500, {

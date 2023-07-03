@@ -102,19 +102,19 @@ test('without const assertion on `abi`', () => {
       [_ in string]: Function
     }
     estimateGas: {
-      [_: string]: Function
+      [_1: string]: Function
     }
     read: {
-      [_: string]: Function
+      [_2: string]: Function
     }
     simulate: {
-      [_: string]: Function
+      [_3: string]: Function
     }
     watchEvent: {
-      [_: string]: Function
+      [_4: string]: Function
     }
     write: {
-      [_: string]: Function
+      [_5: string]: Function
     }
   }>()
 })
@@ -135,19 +135,19 @@ test('`abi` declared as `Abi` type', () => {
       [_ in string]: Function
     }
     estimateGas: {
-      [_: string]: Function
+      [_1: string]: Function
     }
     read: {
-      [_: string]: Function
+      [_2: string]: Function
     }
     simulate: {
-      [_: string]: Function
+      [_3: string]: Function
     }
     watchEvent: {
-      [_: string]: Function
+      [_4: string]: Function
     }
     write: {
-      [_: string]: Function
+      [_5: string]: Function
     }
   }>()
 })

@@ -9,9 +9,10 @@ export function extract(
 ) {
   if (!format) return {}
   const keys = Object.keys(format({}))
-  return keys.reduce((data, key) => {
+  return keys.reduce((data: Record<string, unknown>, key) => {
+    // rome-ignore lint/suspicious/noPrototypeBuiltins:
     if (value?.hasOwnProperty(key)) {
-      ;(data as any)[key] = value[key]
+      data[key] = value[key]
     }
     return data
   }, {})

@@ -1,8 +1,15 @@
 {
   "files": {
     "ignore": [
-      "**/node_modules", "CHANGELOG.md", "cache", "coverage", "dist",
-      "tsconfig.json", "tsconfig.*.json", "generated.ts", "pnpm-lock.yaml"
+      "**/node_modules",
+      "CHANGELOG.md",
+      "cache",
+      "coverage",
+      "dist",
+      "tsconfig.json",
+      "tsconfig.*.json",
+      "generated.ts",
+      "pnpm-lock.yaml"
     ]
   },
   "formatter": {
@@ -16,6 +23,12 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "a11y": {
+        "useButtonType": "off"
+      },
+      "complexity": {
+        "noExtraSemicolon": "off"
+      },
       "correctness": {
         "noUnusedVariables": "error"
       },
@@ -28,6 +41,7 @@
       },
       "suspicious": {
         "noArrayIndexKey": "off",
+        "noAssignInExpressions": "off",
         "noExplicitAny": "off"
       }
     }

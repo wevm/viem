@@ -15,11 +15,11 @@ export type TypedDataDefinition<
   GetTypedDataDomain<TTypedData, TPrimaryType>
 
 export type GetTypedDataDomain<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
+  TTypedData extends TypedData | { [key_1: string]: unknown } = TypedData,
   TPrimaryType extends string = string,
   TSchema = TTypedData extends TypedData
     ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
+    : { [key_2: string]: any },
   TDomain = TSchema extends { EIP712Domain: infer Domain }
     ? Domain
     : TypedDataDomain,
@@ -32,24 +32,24 @@ export type GetTypedDataDomain<
     }
 
 export type GetTypedDataMessage<
-  TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
+  TTypedData extends TypedData | { [key_1: string]: unknown } = TypedData,
   TPrimaryType extends string = string,
   TSchema = TTypedData extends TypedData
     ? TypedDataToPrimitiveTypes<TTypedData>
-    : { [key: string]: any },
+    : { [key_2: string]: any },
   TMessage = TSchema[TPrimaryType extends keyof TSchema
     ? TPrimaryType
     : keyof TSchema],
 > = TPrimaryType extends 'EIP712Domain'
   ? {}
-  : { [key: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
+  : { [key_3: string]: any } extends TMessage // Check if we were able to infer the shape of typed data
   ? {
       /**
        * Data to sign
        *
        * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link types} for type inference.
        */
-      message: { [key: string]: unknown }
+      message: { [key_4: string]: unknown }
     }
   : {
       /** Data to sign */

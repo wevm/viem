@@ -35,7 +35,7 @@ function GetTransactionByHash({ client }: { client: PublicClient }) {
       <div>
         <div>
           <input
-            placeholder="block hash (0x123)"
+            placeholder='block hash (0x123)'
             onChange={(e) => setHash(e.target.value as Address)}
             value={hash}
           />
@@ -76,12 +76,12 @@ function GetTransactionByHashAndIndex({ client }: { client: PublicClient }) {
       <div>
         <div>
           <input
-            placeholder="block hash (0x123)"
+            placeholder='block hash (0x123)'
             onChange={(e) => setBlockHash(e.target.value as Address)}
             value={blockHash}
           />
           <input
-            placeholder="txn index (0)"
+            placeholder='txn index (0)'
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           />
@@ -123,12 +123,12 @@ function GetTransactionByNumberAndIndex({ client }: { client: PublicClient }) {
       <div>
         <div>
           <input
-            placeholder="block number (15394198)"
+            placeholder='block number (15394198)'
             onChange={(e) => setBlockNumber(e.target.value)}
             value={blockNumber}
           />
           <input
-            placeholder="txn index (0)"
+            placeholder='txn index (0)'
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           />
@@ -171,7 +171,7 @@ function GetTransactionByTagAndIndex({ client }: { client: PublicClient }) {
       <div>
         <div>
           <input
-            placeholder="block tag (latest)"
+            placeholder='block tag (latest)'
             onChange={(e) =>
               setBlockTag(
                 e.target.value as GetTransactionParameters['blockTag'],
@@ -180,7 +180,7 @@ function GetTransactionByTagAndIndex({ client }: { client: PublicClient }) {
             value={blockTag}
           />
           <input
-            placeholder="txn index (0)"
+            placeholder='txn index (0)'
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           />
