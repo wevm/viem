@@ -1,5 +1,5 @@
 diff --git a/dist/client/theme-default/without-fonts.js b/dist/client/theme-default/without-fonts.js
-index 92e11165e7de09ffe1ad7332709f051271963843..6e2f989490aba5bad7abfa6da060d68e95c240ab 100644
+index 2b760aa398b7ac1881551ab146d7d308ef2277a3..10345c287c92c29761d417686a0eaec172343b3f 100644
 --- a/dist/client/theme-default/without-fonts.js
 +++ b/dist/client/theme-default/without-fonts.js
 @@ -11,10 +11,13 @@ import Layout from './Layout.vue';

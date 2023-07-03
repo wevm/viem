@@ -68,6 +68,8 @@ export default defineConfig({
       text: 'Edit this page on GitHub',
     },
 
+    externalLinkIcon: true,
+
     footer: {
       message: 'Released under the MIT License.',
       copyright: 'Copyright © 2023-present weth, LLC',
