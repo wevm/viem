@@ -132,7 +132,7 @@ const contract = getContract({
 const balance = await contract.read.balanceOf([
   '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
 ])
-const hash = await contract.write.transferFrom([69420])
+const hash = await contract.write.mint([69420])
 const unwatch = contract.watchEvent.Transfer(
   {
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
