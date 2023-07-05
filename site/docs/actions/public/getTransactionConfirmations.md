@@ -77,7 +77,7 @@ The number of blocks passed since the transaction was processed. If confirmation
 
 ### transactionReceipt
 
-- **Type:** [`TransactionReceipt`](/docs/glossary/types#transaction-receipt)
+- **Type:** [`TransactionReceipt`](/docs/glossary/types#transactionreceipt)
 
 The transaction receipt.
 
