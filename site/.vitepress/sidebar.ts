@@ -390,10 +390,22 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsed: true,
       items: [
         { text: 'JSON-RPC', link: '/docs/accounts/jsonRpc' },
-        { text: 'Private Key', link: '/docs/accounts/privateKey' },
-        { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
-        { text: 'Hierarchical Deterministic (HD)', link: '/docs/accounts/hd' },
-        { text: 'Custom', link: '/docs/accounts/custom' },
+        {
+          text: 'Local',
+          link: '/docs/accounts/local',
+          items: [
+            { text: 'Private Key', link: '/docs/accounts/privateKey' },
+            { text: 'Mnemonic', link: '/docs/accounts/mnemonic' },
+            {
+              text: 'Hierarchical Deterministic (HD)',
+              link: '/docs/accounts/hd',
+            },
+            { text: 'Custom', link: '/docs/accounts/custom' },
+            { text: 'signMessage', link: '/docs/accounts/signMessage' },
+            { text: 'signTransaction', link: '/docs/accounts/signTransaction' },
+            { text: 'signTypedData', link: '/docs/accounts/signTypedData' },
+          ],
+        },
       ],
     },
     {

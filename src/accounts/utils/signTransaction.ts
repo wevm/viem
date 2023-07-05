@@ -17,7 +17,9 @@ export type SignTransactionArgs<
 > = {
   privateKey: Hex
   transaction: TTransactionSerializable
-  serializer?: SerializeTransactionFn<TTransactionSerializable>
+  serializer?: SerializeTransactionFn<
+    TransactionSerializable & TTransactionSerializable
+  >
 }
 export type SignTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
@@ -36,5 +38,8 @@ export async function signTransaction<
     hash: keccak256(serializer(transaction)),
     privateKey,
   })
-  return serializer(transaction, signature)
+  return serializer(
+    transaction,
+    signature,
+  ) as SignTransactionReturnType<TTransactionSerializable>
 }
