@@ -72,7 +72,7 @@ export async function prepareRequest<
       blockTag: 'pending',
     })
 
-  if (block.baseFeePerGas !== null) {
+  if (typeof block.baseFeePerGas === 'bigint') {
     if (typeof gasPrice !== 'undefined')
       throw new BaseError('Chain does not support legacy `gasPrice`.')
 
