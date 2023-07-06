@@ -35,7 +35,7 @@ export type TransactionReceipt<
   logs: Log<TQuantity, TIndex>[]
   /** Logs bloom filter */
   logsBloom: Hex
-  /** `1` if this transaction was successful or `0` if it failed */
+  /** `success` if this transaction was successful or `reverted` if it failed */
   status: TStatus
   /** Transaction recipient or `null` if deploying a contract */
   to: Address | null

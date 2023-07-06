@@ -53,7 +53,7 @@ export const publicClient = createPublicClient({
 
 ## Returns
 
-[`TransactionReceipt`](/docs/glossary/types#transaction-receipt)
+[`TransactionReceipt`](/docs/glossary/types#transactionreceipt)
 
 The transaction receipt.
 
