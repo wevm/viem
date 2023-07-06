@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.10
+
+### Patch Changes
+
+- [#853](https://github.com/wagmi-dev/viem/pull/853) [`a955007e`](https://github.com/wagmi-dev/viem/commit/a955007e00f9076f4d2faefb5473df0fb968de8e) Thanks [@johngrantuk](https://github.com/johngrantuk)! - Allow using EIP-1559 transactions on chains with 0 base fee.
+
 ## 1.2.9
 
 ### Patch Changes
