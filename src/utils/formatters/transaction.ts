@@ -1,3 +1,4 @@
+import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractFormatterReturnType } from '../../types/formatter.js'
 import type { RpcTransaction } from '../../types/rpc.js'
@@ -7,7 +8,12 @@ import { defineFormatter } from './formatter.js'
 
 export type FormattedTransaction<
   TChain extends Chain | undefined = Chain | undefined,
-> = ExtractFormatterReturnType<TChain, 'transaction', Transaction>
+  TBlockTag extends BlockTag = BlockTag,
+> = ExtractFormatterReturnType<
+  TChain,
+  'transaction',
+  Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>
+>
 
 export const transactionType = {
   '0x0': 'legacy',

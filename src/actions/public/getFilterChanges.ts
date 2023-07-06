@@ -6,6 +6,7 @@ import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
@@ -18,8 +19,18 @@ export type GetFilterChangesParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string | undefined = string,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
-  filter: Filter<TFilterType, TAbi, TEventName, any, TStrict>
+  filter: Filter<
+    TFilterType,
+    TAbi,
+    TEventName,
+    any,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >
 }
 
 export type GetFilterChangesReturnType<
@@ -27,13 +38,18 @@ export type GetFilterChangesReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TEventName extends string | undefined = string,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
     ? TEventName extends string
       ? ExtractAbiEvent<TAbi, TEventName>
       : undefined
     : undefined,
+  _Pending extends boolean =
+    | (TFromBlock extends 'pending' ? true : false)
+    | (TToBlock extends 'pending' ? true : false),
 > = TFilterType extends 'event'
-  ? Log<bigint, number, _AbiEvent, TStrict, TAbi, TEventName>[]
+  ? Log<bigint, number, _Pending, _AbiEvent, TStrict, TAbi, TEventName>[]
   : Hash[]
 
 /**
@@ -125,12 +141,30 @@ export async function getFilterChanges<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
   _client: Client<TTransport, TChain>,
   {
     filter,
-  }: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,
-) {
+  }: GetFilterChangesParameters<
+    TFilterType,
+    TAbi,
+    TEventName,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >,
+): Promise<
+  GetFilterChangesReturnType<
+    TFilterType,
+    TAbi,
+    TEventName,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >
+> {
   const strict = 'strict' in filter && filter.strict
 
   const logs = await filter.request({
@@ -172,6 +206,8 @@ export async function getFilterChanges<
     TFilterType,
     TAbi,
     TEventName,
-    TStrict
+    TStrict,
+    TFromBlock,
+    TToBlock
   >
 }

@@ -3,6 +3,7 @@ import { expectTypeOf, test } from 'vitest'
 
 import { publicClient } from '../../_test/utils.js'
 
+import type { Hash, Hex } from '../../types/misc.js'
 import { getLogs } from './getLogs.js'
 
 test('event: const assertion', async () => {
@@ -225,4 +226,45 @@ test('strict: unnamed', async () => {
   expectTypeOf(logs[0]['args']).toEqualTypeOf<
     readonly [`0x${string}`, `0x${string}`, bigint, string, string]
   >()
+})
+
+test('non-pending logs', async () => {
+  const logs = await getLogs(publicClient)
+  expectTypeOf(logs[0].blockHash).toEqualTypeOf<Hex>()
+  expectTypeOf(logs[0].blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(logs[0].logIndex).toEqualTypeOf<number>()
+  expectTypeOf(logs[0].transactionHash).toEqualTypeOf<Hash>()
+  expectTypeOf(logs[0].transactionIndex).toEqualTypeOf<number>()
+})
+
+test('pending logs', async () => {
+  const logs_fromPending = await getLogs(publicClient, { fromBlock: 'pending' })
+  expectTypeOf(logs_fromPending[0].blockHash).toEqualTypeOf<Hex | null>()
+  expectTypeOf(logs_fromPending[0].blockNumber).toEqualTypeOf<bigint | null>()
+  expectTypeOf(logs_fromPending[0].logIndex).toEqualTypeOf<number | null>()
+  expectTypeOf(logs_fromPending[0].transactionHash).toEqualTypeOf<Hash | null>()
+  expectTypeOf(logs_fromPending[0].transactionIndex).toEqualTypeOf<
+    number | null
+  >()
+
+  const logs_toPending = await getLogs(publicClient, {
+    toBlock: 'pending',
+  })
+  expectTypeOf(logs_toPending[0].blockHash).toEqualTypeOf<Hex | null>()
+  expectTypeOf(logs_toPending[0].blockNumber).toEqualTypeOf<bigint | null>()
+  expectTypeOf(logs_toPending[0].logIndex).toEqualTypeOf<number | null>()
+  expectTypeOf(logs_toPending[0].transactionHash).toEqualTypeOf<Hash | null>()
+  expectTypeOf(logs_toPending[0].transactionIndex).toEqualTypeOf<
+    number | null
+  >()
+
+  const logs_bothPending = await getLogs(publicClient, {
+    fromBlock: 'pending',
+    toBlock: 'pending',
+  })
+  expectTypeOf(logs_bothPending[0].blockHash).toEqualTypeOf<null>()
+  expectTypeOf(logs_bothPending[0].blockNumber).toEqualTypeOf<null>()
+  expectTypeOf(logs_bothPending[0].logIndex).toEqualTypeOf<null>()
+  expectTypeOf(logs_bothPending[0].transactionHash).toEqualTypeOf<null>()
+  expectTypeOf(logs_bothPending[0].transactionIndex).toEqualTypeOf<null>()
 })

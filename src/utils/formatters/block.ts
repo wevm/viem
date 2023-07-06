@@ -1,6 +1,7 @@
-import type { Block } from '../../types/block.js'
+import type { Block, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractFormatterReturnType } from '../../types/formatter.js'
+import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 
 import { defineFormatter } from './formatter.js'
@@ -8,7 +9,22 @@ import { formatTransaction } from './transaction.js'
 
 export type FormattedBlock<
   TChain extends Chain | undefined = Chain | undefined,
-> = ExtractFormatterReturnType<TChain, 'block', Block>
+  TIncludeTransactions extends boolean = boolean,
+  TBlockTag extends BlockTag = BlockTag,
+  _ExtractedFormat = ExtractFormatterReturnType<
+    TChain,
+    'block',
+    Block<bigint, TBlockTag>
+  >,
+  _Transactions = TIncludeTransactions extends true
+    ? _ExtractedFormat extends { transactions: infer Transactions }
+      ? // Extract the object type from the `block.transactions` union.
+        Extract<Transactions, Record<string, unknown>[]>
+      : never
+    : Hash[],
+> = Omit<_ExtractedFormat, 'transactions'> & {
+  transactions: _Transactions
+}
 
 export function formatBlock(block: Partial<RpcBlock>) {
   const transactions = block.transactions?.map((transaction) => {

@@ -26,7 +26,7 @@ export type WatchEventOnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, TAbiEvent, TStrict, [TAbiEvent], TEventName>[]
+> = Log<bigint, number, false, TAbiEvent, TStrict, [TAbiEvent], TEventName>[]
 export type WatchEventOnLogsFn<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,

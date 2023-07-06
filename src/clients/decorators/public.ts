@@ -197,6 +197,7 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import type { Account } from '../../types/account.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
@@ -281,10 +282,26 @@ export type PublicActions<
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: CreateContractEventFilterParameters<TAbi, TEventName, TArgs, TStrict>,
+    args: CreateContractEventFilterParameters<
+      TAbi,
+      TEventName,
+      TArgs,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
   ) => Promise<
-    CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+    CreateContractEventFilterReturnType<
+      TAbi,
+      TEventName,
+      TArgs,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >
   >
   /**
    * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
@@ -310,6 +327,8 @@ export type PublicActions<
   createEventFilter: <
     TAbiEvent extends AbiEvent | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
     _Abi extends Abi | readonly unknown[] = [TAbiEvent],
     _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
     _Args extends
@@ -319,12 +338,22 @@ export type PublicActions<
     args?: CreateEventFilterParameters<
       TAbiEvent,
       TStrict,
+      TFromBlock,
+      TToBlock,
       _Abi,
       _EventName,
       _Args
     >,
   ) => Promise<
-    CreateEventFilterReturnType<TAbiEvent, TStrict, _Abi, _EventName, _Args>
+    CreateEventFilterReturnType<
+      TAbiEvent,
+      TStrict,
+      TFromBlock,
+      TToBlock,
+      _Abi,
+      _EventName,
+      _Args
+    >
   >
   /**
    * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
@@ -890,9 +919,11 @@ export type PublicActions<
   getLogs: <
     TAbiEvent extends AbiEvent | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args?: GetLogsParameters<TAbiEvent, TStrict>,
-  ) => Promise<GetLogsReturnType<TAbiEvent, TStrict>>
+    args?: GetLogsParameters<TAbiEvent, TStrict, TFromBlock, TToBlock>,
+  ) => Promise<GetLogsReturnType<TAbiEvent, TStrict, TFromBlock, TToBlock>>
   /**
    * Returns the value from a storage slot at a given address.
    *
@@ -1265,8 +1296,16 @@ export type PublicActions<
    *   onBlock: (block) => console.log(block),
    * })
    */
-  watchBlocks: (
-    args: WatchBlocksParameters<TTransport, TChain>,
+  watchBlocks: <
+    TBlockTag extends BlockTag = 'latest',
+    TIncludeTransactions extends boolean = false,
+  >(
+    args: WatchBlocksParameters<
+      TTransport,
+      TChain,
+      TBlockTag,
+      TIncludeTransactions
+    >,
   ) => WatchBlocksReturnType
   /**
    * Watches and returns emitted contract event logs.
@@ -1406,7 +1445,7 @@ export function publicActions<
     getFilterChanges: (args) => getFilterChanges(client, args),
     getFilterLogs: (args) => getFilterLogs(client, args),
     getGasPrice: () => getGasPrice(client),
-    getLogs: (args) => getLogs(client, args),
+    getLogs: (args) => getLogs(client, args as any),
     getStorageAt: (args) => getStorageAt(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>

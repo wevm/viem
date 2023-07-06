@@ -4,6 +4,7 @@ import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { optimism } from '../index.js'
@@ -39,13 +40,18 @@ describe('smoke', () => {
       chain: optimism,
       transport: http(),
     })
+
     const block = await getBlock(client, {
+      blockNumber: 16645775n,
+    })
+    expectTypeOf(block.transactions).toEqualTypeOf<Hash[]>()
+
+    const block_includeTransactions = await getBlock(client, {
       blockNumber: 16645775n,
       includeTransactions: true,
     })
-
-    expectTypeOf(block.transactions).toEqualTypeOf<
-      `0x${string}`[] | (Transaction | DepositTransaction)[]
+    expectTypeOf(block_includeTransactions.transactions).toEqualTypeOf<
+      (Transaction | DepositTransaction)[]
     >()
   })
 

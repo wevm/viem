@@ -210,7 +210,14 @@ describe('contract events', () => {
     })
 
     assertType<
-      Log<bigint, number, undefined, false, typeof usdcContractConfig.abi>[]
+      Log<
+        bigint,
+        number,
+        boolean,
+        undefined,
+        false,
+        typeof usdcContractConfig.abi
+      >[]
     >(logs)
     expect(logs.length).toBe(3)
     expect(logs[0].args).toEqual({
@@ -264,6 +271,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -298,6 +306,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -321,6 +330,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         true,
         typeof usdcContractConfig.abi,
@@ -364,6 +374,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -413,6 +424,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -468,6 +480,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -517,6 +530,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -689,7 +703,7 @@ describe('events', () => {
     let logs = await getFilterChanges(publicClient, { filter })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, typeof event.default>[]
+      Log<bigint, number, false, typeof event.default>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
@@ -741,7 +755,7 @@ describe('events', () => {
     })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.default>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
     expect(logs[0].args).toEqual({
       from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
@@ -764,7 +778,7 @@ describe('events', () => {
 
     let logs = await getFilterChanges(publicClient, { filter })
 
-    assertType<Log<bigint, number, typeof event.default, true>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
 
     expect(logs.length).toBe(784)
 
@@ -794,7 +808,9 @@ describe('events', () => {
 
     let logs = await getFilterChanges(publicClient, { filter })
 
-    assertType<Log<bigint, number, typeof event.default, false>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
+      logs,
+    )
 
     expect(logs.length).toBe(1056)
 
@@ -824,7 +840,7 @@ describe('events', () => {
     })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.unnamed, true>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
 
     expect(logs.length).toBe(784)
 
@@ -851,7 +867,9 @@ describe('events', () => {
     })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.unnamed, false>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
+      logs,
+    )
 
     expect(logs.length).toBe(1056)
 

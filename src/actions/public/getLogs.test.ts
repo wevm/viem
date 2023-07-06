@@ -161,7 +161,7 @@ describe('events', () => {
     })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, typeof event.default>[]
+      Log<bigint, number, false, typeof event.default>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
@@ -191,7 +191,7 @@ describe('events', () => {
       fromBlock: forkBlockNumber - 5n,
       toBlock: forkBlockNumber,
     })
-    assertType<Log<bigint, number, typeof event.default>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
     expect(logs[0].eventName).toEqual('Transfer')
     expect(logs[0].args).toEqual({
@@ -209,7 +209,7 @@ describe('events', () => {
       event: event.default,
       blockHash: block.hash!,
     })
-    assertType<Log<bigint, number, typeof event.default>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
     expect(logs.length).toBe(118)
     expect(logs[0].eventName).toEqual('Transfer')
     expect(logs[0].args).toEqual({
@@ -227,7 +227,7 @@ describe('events', () => {
       strict: true,
     })
 
-    assertType<Log<bigint, number, typeof event.default, true>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
     expect(logs.length).toBe(784)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
@@ -252,7 +252,9 @@ describe('events', () => {
       toBlock: forkBlockNumber,
     })
 
-    assertType<Log<bigint, number, typeof event.default, false>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
+      logs,
+    )
     expect(logs.length).toBe(1056)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
@@ -278,7 +280,7 @@ describe('events', () => {
       strict: true,
     })
 
-    assertType<Log<bigint, number, typeof event.unnamed, true>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
     expect(logs.length).toBe(784)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
@@ -301,7 +303,9 @@ describe('events', () => {
       toBlock: forkBlockNumber,
     })
 
-    assertType<Log<bigint, number, typeof event.unnamed, false>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
+      logs,
+    )
     expect(logs.length).toBe(1056)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<

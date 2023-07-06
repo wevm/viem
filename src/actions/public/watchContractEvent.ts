@@ -1,4 +1,4 @@
-import type { Abi, Address, ExtractAbiEvent, Narrow } from 'abitype'
+import type { Abi, AbiEvent, Address, ExtractAbiEvent, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -20,7 +20,7 @@ import {
 } from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
-import { type GetLogsParameters, getLogs } from './getLogs.js'
+import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
 export type WatchContractEventOnLogsParameter<
@@ -28,7 +28,7 @@ export type WatchContractEventOnLogsParameter<
   TEventName extends string = string,
   TStrict extends boolean | undefined = undefined,
 > = TAbi extends Abi
-  ? Log<bigint, number, ExtractAbiEvent<TAbi, TEventName>, TStrict>[]
+  ? Log<bigint, number, false, ExtractAbiEvent<TAbi, TEventName>, TStrict>[]
   : Log[]
 export type WatchContractEventOnLogsFn<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
@@ -173,8 +173,8 @@ export function watchContractEvent<
                 event: getAbiItem({
                   abi,
                   name: eventName,
-                } as unknown as GetAbiItemParameters),
-              } as unknown as GetLogsParameters)
+                } as unknown as GetAbiItemParameters) as AbiEvent,
+              })
             } else {
               logs = []
             }
