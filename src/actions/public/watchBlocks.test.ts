@@ -33,7 +33,7 @@ describe('poll', () => {
     const prevBlocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
       onBlock: (block, prevBlock) => {
-        block.number
+        blocks.push(block)
         prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
       },
       poll: true,
