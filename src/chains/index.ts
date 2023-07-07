@@ -1,9 +1,9 @@
 import * as chains from '@wagmi/chains'
 
 import { defineChain } from '../utils/chain.js'
-import { celoFormatters } from './formatters/celo.js'
-import { optimismFormatters } from './formatters/optimism.js'
-import { celoSerializers } from './serializers/celo.js'
+import { formattersCelo } from './formatters/celo.js'
+import { formattersOptimism } from './formatters/optimism.js'
+import { serializersCelo } from './serializers/celo.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
 export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
@@ -19,16 +19,16 @@ export const bsc = /*#__PURE__*/ defineChain(chains.bsc)
 export const bscTestnet = /*#__PURE__*/ defineChain(chains.bscTestnet)
 export const canto = /*#__PURE__*/ defineChain(chains.canto)
 export const celo = /*#__PURE__*/ defineChain(chains.celo, {
-  formatters: celoFormatters,
-  serializers: celoSerializers,
+  formatters: formattersCelo,
+  serializers: serializersCelo,
 })
 export const celoAlfajores = /*#__PURE__*/ defineChain(chains.celoAlfajores, {
-  formatters: celoFormatters,
-  serializers: celoSerializers,
+  formatters: formattersCelo,
+  serializers: serializersCelo,
 })
 export const celoCannoli = /*#__PURE__*/ defineChain(chains.celoCannoli, {
-  formatters: celoFormatters,
-  serializers: celoSerializers,
+  formatters: formattersCelo,
+  serializers: serializersCelo,
 })
 export const cronos = /*#__PURE__*/ defineChain(chains.cronos)
 export const crossbell = /*#__PURE__*/ defineChain(chains.crossbell)
@@ -69,10 +69,10 @@ export const moonriver = /*#__PURE__*/ defineChain(chains.moonriver)
 export const nexi = /*#__PURE__*/ defineChain(chains.nexi)
 export const okc = /*#__PURE__*/ defineChain(chains.okc)
 export const optimism = /*#__PURE__*/ defineChain(chains.optimism, {
-  formatters: optimismFormatters,
+  formatters: formattersOptimism,
 })
 export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli, {
-  formatters: optimismFormatters,
+  formatters: formattersOptimism,
 })
 export const polygon = /*#__PURE__*/ defineChain(chains.polygon)
 export const polygonMumbai = /*#__PURE__*/ defineChain(chains.polygonMumbai)

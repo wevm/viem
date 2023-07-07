@@ -14,7 +14,7 @@ import {
 import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 
-export type CeloOverrides = {
+export type CeloFormatOverrides = {
   RpcBlock: {
     randomness: {
       committed: Hex
@@ -49,10 +49,11 @@ export type CeloOverrides = {
     gatewayFeeRecipient: Address | null
   }
 }
-export const celoFormatters = {
+
+export const formattersCelo = {
   block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
-    format(args: CeloOverrides['RpcBlock']) {
+    format(args: CeloFormatOverrides['RpcBlock']) {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         return {
@@ -63,7 +64,7 @@ export const celoFormatters = {
             : null,
           gatewayFeeRecipient: transaction.gatewayFeeRecipient,
         }
-      }) as Hash[] | (Transaction & CeloOverrides['Transaction'])[]
+      }) as Hash[] | (Transaction & CeloFormatOverrides['Transaction'])[]
       return {
         randomness: args.randomness,
         transactions,
@@ -71,7 +72,7 @@ export const celoFormatters = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    format(args: CeloOverrides['RpcTransaction']) {
+    format(args: CeloFormatOverrides['RpcTransaction']) {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
@@ -80,7 +81,7 @@ export const celoFormatters = {
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format(args: CeloOverrides['RpcTransactionReceipt']) {
+    format(args: CeloFormatOverrides['RpcTransactionReceipt']) {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
@@ -89,7 +90,7 @@ export const celoFormatters = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    format(args: CeloOverrides['TransactionRequest']) {
+    format(args: CeloFormatOverrides['TransactionRequest']) {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee:

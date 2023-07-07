@@ -23,6 +23,12 @@ type RpcTransaction = RpcTransaction_ & {
   sourceHash?: undefined
 }
 
+type Transaction = Transaction_ & {
+  isSystemTx?: undefined
+  mint?: undefined
+  sourceHash?: undefined
+}
+
 export type RpcDepositTransaction = TransactionBase<Quantity, Index> &
   FeeValuesEIP1559<Quantity> & {
     isSystemTx?: boolean
@@ -30,12 +36,6 @@ export type RpcDepositTransaction = TransactionBase<Quantity, Index> &
     sourceHash: Hex
     type: '0x7e'
   }
-
-type Transaction = Transaction_ & {
-  isSystemTx?: undefined
-  mint?: undefined
-  sourceHash?: undefined
-}
 
 export type DepositTransaction = TransactionBase &
   FeeValuesEIP1559 & {
@@ -45,22 +45,22 @@ export type DepositTransaction = TransactionBase &
     type: 'deposit'
   }
 
-type OptimismOverrides = {
+export type OptimismFormatOverrides = {
   RpcBlock: {
-    transactions: Hash[] | OptimismOverrides['RpcTransaction'][]
+    transactions: Hash[] | OptimismFormatOverrides['RpcTransaction'][]
   }
   RpcTransaction: RpcTransaction | RpcDepositTransaction
   Transaction: Transaction | DepositTransaction
 }
 
-export const optimismFormatters = {
+export const formattersOptimism = {
   block: /*#__PURE__*/ defineBlock({
-    format(args: OptimismOverrides['RpcBlock']) {
+    format(args: OptimismFormatOverrides['RpcBlock']) {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         const formatted = formatTransaction(
           transaction as RpcTransaction,
-        ) as OptimismOverrides['Transaction']
+        ) as OptimismFormatOverrides['Transaction']
         if (formatted.typeHex === '0x7e') {
           formatted.isSystemTx = transaction.isSystemTx
           formatted.mint = transaction.mint
@@ -70,15 +70,15 @@ export const optimismFormatters = {
           formatted.type = 'deposit'
         }
         return formatted
-      }) as Hash[] | OptimismOverrides['Transaction'][]
+      }) as Hash[] | OptimismFormatOverrides['Transaction'][]
       return {
         transactions,
       }
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    format(args: OptimismOverrides['RpcTransaction']) {
-      const transaction = {} as OptimismOverrides['Transaction']
+    format(args: OptimismFormatOverrides['RpcTransaction']) {
+      const transaction = {} as OptimismFormatOverrides['Transaction']
       if (args.type === '0x7e') {
         transaction.isSystemTx = args.isSystemTx
         transaction.mint = args.mint ? hexToBigInt(args.mint) : undefined

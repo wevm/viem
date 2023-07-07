@@ -10,11 +10,11 @@ import { optimism } from '../index.js'
 import {
   type DepositTransaction,
   type RpcDepositTransaction,
-  optimismFormatters,
+  formattersOptimism,
 } from './optimism.js'
 
 describe('block', () => {
-  expectTypeOf(optimismFormatters.block.format).parameter(0).toEqualTypeOf<
+  expectTypeOf(formattersOptimism.block.format).parameter(0).toEqualTypeOf<
     Partial<RpcBlock> & {
       transactions: `0x${string}`[] | (RpcTransaction | RpcDepositTransaction)[]
     }
@@ -23,13 +23,13 @@ describe('block', () => {
 
 describe('transaction', () => {
   expectTypeOf<
-    ReturnType<typeof optimismFormatters.transaction.format>['sourceHash']
+    ReturnType<typeof formattersOptimism.transaction.format>['sourceHash']
   >().toEqualTypeOf<`0x${string}` | undefined>()
   expectTypeOf<
-    ReturnType<typeof optimismFormatters.transaction.format>['mint']
+    ReturnType<typeof formattersOptimism.transaction.format>['mint']
   >().toEqualTypeOf<bigint | undefined>()
   expectTypeOf<
-    ReturnType<typeof optimismFormatters.transaction.format>['isSystemTx']
+    ReturnType<typeof formattersOptimism.transaction.format>['isSystemTx']
   >().toEqualTypeOf<boolean | undefined>()
 })
 

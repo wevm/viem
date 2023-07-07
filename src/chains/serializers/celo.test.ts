@@ -11,7 +11,7 @@ import {
 } from '../../index.js'
 import {
   type TransactionSerializableCIP42,
-  serializeTransaction,
+  serializeTransactionCelo,
 } from './celo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -32,7 +32,7 @@ describe('cip42', () => {
       ...baseCip42,
     }
 
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84682a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -51,7 +51,7 @@ describe('cip42', () => {
       ],
     }
 
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf8a282a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080f85bf859940000000000000000000000000000000000000000f842a00000000000000000000000000000000000000000000000000000000000000001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
     )
   })
@@ -61,7 +61,7 @@ describe('cip42', () => {
       ...baseCip42,
       data: '0x1234',
     }
-    const serialized = serializeTransaction(args)
+    const serialized = serializeTransactionCelo(args)
     expect(serialized).toEqual(
       '0x7cf84882a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a7640000821234c0',
     )
@@ -75,7 +75,7 @@ describe('cip42', () => {
       feeCurrency: undefined,
     }
 
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84e82a4ec8084773594008477359400808094f39fd6e51aad88f6f4ce6ab8827279cfffb9226688016345785d8a000094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -85,7 +85,7 @@ describe('cip42', () => {
       ...baseCip42,
       gas: 69420n,
     }
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84982a4ec808477359400847735940083010f2c94765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -95,7 +95,7 @@ describe('cip42', () => {
       ...baseCip42,
       gas: undefined,
     }
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84682a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -106,7 +106,7 @@ describe('cip42', () => {
       gatewayFeeRecipient: accounts[5].address,
       gatewayFee: parseEther('0.1'),
     }
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf86282a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a949965507d1a55bcc2695c58ba16fb37d819b0a4dc88016345785d8a000094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -117,7 +117,7 @@ describe('cip42', () => {
       // @ts-expect-error
       maxFeePerGas: undefined,
     }
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84282a4ec808477359400808094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -128,7 +128,7 @@ describe('cip42', () => {
       // @ts-expect-error
       maxPriorityFeePerGas: undefined,
     }
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84282a4ec808084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -138,7 +138,7 @@ describe('cip42', () => {
       ...baseCip42,
       nonce: 20,
     }
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84682a4ec14847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -148,7 +148,7 @@ describe('cip42', () => {
       ...baseCip42,
       to: undefined,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = serializeTransactionCelo(args)
     expect(serialized).toEqual(
       '0x7cf282a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808080880de0b6b3a764000080c0',
     )
@@ -159,7 +159,7 @@ describe('cip42', () => {
       ...baseCip42,
       value: undefined,
     }
-    const serialized = serializeTransaction(args)
+    const serialized = serializeTransactionCelo(args)
     expect(serialized).toEqual(
       '0x7cf83e82a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb922668080c0',
     )
@@ -172,7 +172,7 @@ describe('cip42', () => {
       type: undefined,
     }
 
-    expect(serializeTransaction(transaction)).toEqual(
+    expect(serializeTransactionCelo(transaction)).toEqual(
       '0x7cf84682a4ec80847735940084773594008094d8763cba276a3738e6de85b4b3bf5fded6d6ca73808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )
   })
@@ -182,7 +182,7 @@ test('signed', async () => {
   const signed = await signTransaction({
     privateKey: accounts[0].privateKey,
     transaction: baseCip42,
-    serializer: serializeTransaction,
+    serializer: serializeTransactionCelo,
   })
 
   expect(signed).toEqual(
@@ -192,7 +192,7 @@ test('signed', async () => {
 
 test('signature', () => {
   expect(
-    serializeTransaction(
+    serializeTransactionCelo(
       baseCip42,
 
       {
@@ -205,7 +205,7 @@ test('signature', () => {
     '0x7cf88982a4ec80847735940084773594008094765de816845861e75a25fca122bb6898b8b1282a808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c001a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
   )
   expect(
-    serializeTransaction(
+    serializeTransactionCelo(
       baseCip42,
 
       {
@@ -225,7 +225,7 @@ describe('invalid params', () => {
       ...baseCip42,
       to: '0xdeadbeef',
     }
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       InvalidAddressError,
     )
   })
@@ -236,7 +236,7 @@ describe('invalid params', () => {
       maxPriorityFeePerGas: parseGwei('5000000000'),
       maxFeePerGas: parseGwei('1'),
     }
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       TipAboveFeeCapError,
     )
   })
@@ -248,7 +248,7 @@ describe('invalid params', () => {
       maxFeePerGas:
         115792089237316195423570985008687907853269984665640564039457584007913129639938n,
     }
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       FeeCapTooHighError,
     )
   })
@@ -259,7 +259,7 @@ describe('invalid params', () => {
       // @ts-expect-error
       feeCurrency: 'CUSD',
     }
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       '`feeCurrency` MUST be a token address for CIP-42 transactions.',
     )
   })
@@ -270,7 +270,7 @@ describe('invalid params', () => {
       // @ts-expect-error
       gasPrice: 1,
     }
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       '`gasPrice` is not a valid CIP-42 Transaction attribute.',
     )
   })
@@ -280,14 +280,14 @@ describe('invalid params', () => {
       ...baseCip42,
       gatewayFeeRecipient: accounts[7].address,
     }
-    expect(() => serializeTransaction(transactionA)).toThrowError(
+    expect(() => serializeTransactionCelo(transactionA)).toThrowError(
       '`gatewayFee` and `gatewayFeeRecipient` must be provided together.',
     )
     const transactionB: TransactionSerializableCIP42 = {
       ...baseCip42,
       gatewayFee: 1000023434343n,
     }
-    expect(() => serializeTransaction(transactionB)).toThrowError(
+    expect(() => serializeTransactionCelo(transactionB)).toThrowError(
       '`gatewayFee` and `gatewayFeeRecipient` must be provided together.',
     )
   })
@@ -299,7 +299,7 @@ describe('invalid params', () => {
       gatewayFee: undefined,
       gatewayFeeRecipient: undefined,
     }
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       'Either `feeCurrency` or `gatewayFeeRecipient` must be provided for CIP-42 transactions.',
     )
   })
@@ -310,7 +310,7 @@ describe('invalid params', () => {
       chainId: -1,
     }
 
-    expect(() => serializeTransaction(transaction)).toThrowError(
+    expect(() => serializeTransactionCelo(transaction)).toThrowError(
       `Chain ID "${-1}" is invalid.`,
     )
   })
@@ -326,8 +326,8 @@ describe('not cip42', () => {
     value: parseEther('1'),
   }
 
-  test('it calls the standard serializeTransaction', () => {
-    const serialized = serializeTransaction(transaction)
+  test('it calls the standard serializeTransactionCelo', () => {
+    const serialized = serializeTransactionCelo(transaction)
     expect(serialized).toEqual(
       '0x02ed0180847735940084773594008094f39fd6e51aad88f6f4ce6ab8827279cfffb92266880de0b6b3a764000080c0',
     )

@@ -6,6 +6,7 @@ import { InvalidChainIdError } from '../../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Signature } from '../../types/misc.js'
+import type { Serializers } from '../../types/serializer.js'
 import type {
   AccessList,
   TransactionSerializable,
@@ -19,30 +20,26 @@ import { toRlp } from '../../utils/encoding/toRlp.js'
 import { serializeAccessList } from '../../utils/transaction/serializeAccessList.js'
 import {
   type SerializeTransactionFn,
-  serializeTransaction as serializeTransaction_,
+  serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
 
-export const serializeTransaction: SerializeTransactionFn<
+export const serializeTransactionCelo: SerializeTransactionFn<
   TransactionSerializableCelo
 > = (tx, signature) => {
-  // Handle Celo's CIP-42 Transactions
-  if (couldBeCIP42(tx))
+  // Handle CIP-42 transactions
+  if (isCIP42(tx))
     return serializeTransactionCIP42(
       tx as TransactionSerializableCIP42,
       signature,
     )
 
   // Handle other transaction types
-  return serializeTransaction_(tx as TransactionSerializable, signature)
+  return serializeTransaction(tx as TransactionSerializable, signature)
 }
 
-export type CeloSerializers = {
-  transaction: typeof serializeTransaction
-}
-
-export const celoSerializers: CeloSerializers = {
-  transaction: serializeTransaction,
-}
+export const serializersCelo = {
+  transaction: serializeTransactionCelo,
+} as const satisfies Serializers
 
 //////////////////////////////////////////////////////////////////////////////
 // Types
@@ -126,14 +123,13 @@ function serializeTransactionCIP42(
 // Utilities
 
 // process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
-function couldBeCIP42(tx: TransactionSerializableCelo) {
-  const maybeCIP42 = tx as TransactionSerializableCIP42
+function isCIP42(transaction: TransactionSerializableCelo) {
   if (
-    'maxFeePerGas' in maybeCIP42 &&
-    'maxPriorityFeePerGas' in maybeCIP42 &&
-    ('feeCurrency' in maybeCIP42 ||
-      'gatewayFee' in maybeCIP42 ||
-      'gatewayFeeRecipient' in maybeCIP42)
+    'maxFeePerGas' in transaction &&
+    'maxPriorityFeePerGas' in transaction &&
+    ('feeCurrency' in transaction ||
+      'gatewayFee' in transaction ||
+      'gatewayFeeRecipient' in transaction)
   )
     return true
   return false
