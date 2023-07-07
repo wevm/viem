@@ -46,11 +46,18 @@ test('extend', () => {
   const client = createClient({
     chain: localhost,
     transport: http(),
-  }).extend((config) => ({
-    getChainId: () => config.chain?.id,
-    foo: 'bar',
-  }))
-  expectTypeOf(client).toMatchTypeOf<Client>()
-  expectTypeOf(client.foo).toEqualTypeOf<'bar'>()
-  expectTypeOf(client.getChainId).toEqualTypeOf<() => 1337>()
+  })
+
+  const extended = client
+    .extend((config) => ({
+      getChainId: () => config.chain.id,
+      foo: 'bar',
+    }))
+    .extend(() => ({}))
+    .extend((config) => ({ bar: `${config.foo}baz` }))
+
+  expectTypeOf(extended).toMatchTypeOf<Client>()
+  expectTypeOf(extended.bar).toEqualTypeOf<'barbaz'>()
+  expectTypeOf(extended.foo).toEqualTypeOf<'bar'>()
+  expectTypeOf(extended.getChainId).toEqualTypeOf<() => 1337>()
 })

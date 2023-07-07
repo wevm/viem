@@ -1,4 +1,3 @@
-import type { Chain as Chain_ } from '@wagmi/chains'
 import type { Address } from 'abitype'
 
 import type { Formatters } from './formatter.js'
@@ -6,13 +5,13 @@ import type { Serializers } from './serializer.js'
 import type { IsUndefined } from './utils.js'
 
 export type Chain<
-  TFormatters extends Formatters | undefined = Formatters | undefined,
-  TSerializers extends Serializers<TFormatters> | undefined =
-    | Serializers<TFormatters>
+  formatters extends Formatters | undefined = Formatters | undefined,
+  serializers extends Serializers<formatters> | undefined =
+    | Serializers<formatters>
     | undefined,
-> = Chain_ & {
-  formatters?: TFormatters
-  serializers?: TSerializers
+> = import('@wagmi/chains').Chain & {
+  formatters?: formatters | undefined
+  serializers?: serializers | undefined
 }
 
 export type ChainContract = {

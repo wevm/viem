@@ -10,28 +10,30 @@ import { type WalletActions, walletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
 
 export type WalletClientConfig<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccountOrAddress extends Account | Address | undefined =
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  accountOrAddress extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
-> = Pick<
-  ClientConfig<TTransport, TChain, TAccountOrAddress>,
-  'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+> = Prettify<
+  Pick<
+    ClientConfig<transport, chain, accountOrAddress>,
+    'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+  >
 >
 
 export type WalletClient<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
 > = Prettify<
   Client<
-    TTransport,
-    TChain,
-    TAccount,
+    transport,
+    chain,
+    account,
     WalletRpcSchema,
-    WalletActions<TChain, TAccount>
+    WalletActions<chain, account>
   >
 >
 
@@ -72,28 +74,23 @@ export type WalletClient<
  * })
  */
 export function createWalletClient<
-  TTransport extends Transport,
-  TChain extends Chain | undefined = undefined,
-  TAccountOrAddress extends Account | Address | undefined = undefined,
->({
-  account,
-  chain,
-  transport,
-  key = 'wallet',
-  name = 'Wallet Client',
-  pollingInterval,
-}: WalletClientConfig<TTransport, TChain, TAccountOrAddress>): WalletClient<
-  TTransport,
-  TChain,
-  ParseAccount<TAccountOrAddress>
-> {
-  return createClient({
-    account,
-    chain,
+  transport extends Transport,
+  chain extends Chain | undefined = undefined,
+  accountOrAddress extends Account | Address | undefined = undefined,
+>(
+  parameters: WalletClientConfig<transport, chain, accountOrAddress>,
+): WalletClient<transport, chain, ParseAccount<accountOrAddress>>
+
+export function createWalletClient(
+  parameters: WalletClientConfig,
+): WalletClient {
+  const { key = 'wallet', name = 'Wallet Client', transport } = parameters
+  const client = createClient({
+    ...parameters,
     key,
     name,
-    pollingInterval,
     transport: (opts) => transport({ ...opts, retryCount: 0 }),
     type: 'walletClient',
-  }).extend(walletActions)
+  })
+  return client.extend(walletActions)
 }
