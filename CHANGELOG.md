@@ -1,6 +1,6 @@
 # viem
 
-## 1.3.0
+## 1.2.11
 
 ### Minor Changes
 
