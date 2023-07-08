@@ -1,5 +1,11 @@
 # viem
 
+## 1.3.0
+
+### Minor Changes
+
+- [#857](https://github.com/wagmi-dev/viem/pull/857) [`513a7b9a`](https://github.com/wagmi-dev/viem/commit/513a7b9a4c037591b0fe4dd4fb4364bf8fed9726) Thanks [@tmm](https://github.com/tmm)! - Prettify-ed client types
+
 ## 1.2.10
 
 ### Patch Changes
