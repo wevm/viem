@@ -1,7 +1,6 @@
-import type { Address, Narrow } from 'abitype'
+import type { Address } from 'abitype'
 
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
-import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type {
   EIP1193RequestFn,
@@ -13,60 +12,82 @@ import { parseAccount } from '../utils/accounts.js'
 import { uid } from '../utils/uid.js'
 import type { Transport } from './transports/createTransport.js'
 
-export type MulticallBatchOptions = {
-  /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
-  batchSize?: number
-  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
-  wait?: number
-}
-
 export type ClientConfig<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccountOrAddress extends Account | Address | undefined =
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  accountOrAddress extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
-  account?: TAccountOrAddress
+  account?: accountOrAddress extends Account | Address
+    ? accountOrAddress | Account | Address // `accountOrAddress` defined, add for inference
+    : Account | Address | undefined // `accountOrAddress` undefined, show possible types for autocomplete
   /** Flags for batch settings. */
-  batch?: {
-    /** Toggle to enable `eth_call` multicall aggregation. */
-    multicall?: boolean | MulticallBatchOptions
-  }
+  batch?:
+    | {
+        /** Toggle to enable `eth_call` multicall aggregation. */
+        multicall?: boolean | Prettify<MulticallBatchOptions> | undefined
+      }
+    | undefined
   /** Chain for the client. */
-  chain?: TChain
+  chain?: chain extends Chain
+    ? chain // `chain` defined, add for inference
+    : Chain | undefined // `chain` undefined, show possible types for autocomplete
   /** A key for the client. */
-  key?: string
+  key?: string | undefined
   /** A name for the client. */
-  name?: string
+  name?: string | undefined
   /**
    * Frequency (in ms) for polling enabled actions & events.
    * @default 4_000
    */
-  pollingInterval?: number
+  pollingInterval?: number | undefined
   /** The RPC transport */
-  transport: TTransport
+  transport: transport
   /** The type of client. */
-  type?: string
+  type?: string | undefined
 }
 
+// TODO: Move `transport` to slot index 2 since `chain` and `account` used more frequently.
+// Otherwise, we end up with a lot of `Client<Transport, chain, account>` in actions.
+export type Client<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
+  extended extends Extended | undefined = Extended | undefined,
+> = Prettify<
+  Prettify<Client_Base<transport, chain, account, rpcSchema>> & {
+    extend: <const client extends Extended>(
+      fn: (
+        client: Client<transport, chain, account, rpcSchema, extended>,
+      ) => client,
+    ) => Prettify<
+      Client<
+        transport,
+        chain,
+        account,
+        rpcSchema,
+        Prettify<client> & (extended extends Extended ? extended : unknown)
+      >
+    >
+  } & (extended extends Extended ? extended : unknown)
+>
+
 type Client_Base<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TRpcSchema extends RpcSchema | undefined = undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 > = {
   /** The Account of the Client. */
-  account: TAccount
+  account: account
   /** Flags for batch settings. */
-  batch?: {
-    /** Toggle to enable `eth_call` multicall aggregation. */
-    multicall?: boolean | MulticallBatchOptions
-  }
+  batch?: ClientConfig['batch']
   /** Chain for the client. */
-  chain: TChain
+  chain: chain
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -74,86 +95,89 @@ type Client_Base<
   /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
-  request: TRpcSchema extends undefined
-    ? EIP1193RequestFn<EIP1474Methods>
-    : EIP1193RequestFn<TRpcSchema>
+  request: EIP1193RequestFn<
+    rpcSchema extends undefined ? EIP1474Methods : rpcSchema
+  >
   /** The RPC transport */
-  transport: ReturnType<TTransport>['config'] & ReturnType<TTransport>['value']
+  transport: ReturnType<transport>['config'] & ReturnType<transport>['value']
   /** The type of client. */
   type: string
   /** A unique ID for the client. */
   uid: string
 }
 
-type Extended = { [K in keyof Client_Base]?: undefined } & {
-  [key: string]: unknown
+type Extended = Prettify<
+  // disallow redefining base properties
+  { [K in keyof Client_Base]?: undefined } & {
+    [key: string]: unknown
+  }
+>
+
+export type MulticallBatchOptions = {
+  /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
+  batchSize?: number | undefined
+  /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
+  wait?: number | undefined
 }
 
-export type Client<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends Account | undefined = Account | undefined,
-  TRpcSchema extends RpcSchema | undefined = undefined,
-  TExtended extends Extended | undefined = Extended | undefined,
-> = Client_Base<TTransport, TChain, TAccount, TRpcSchema> & {
-  extend: <TNextExtended extends Extended = Extended>(
-    fn: (
-      client: Client<TTransport, TChain, TAccount, TRpcSchema, TExtended>,
-    ) => Narrow<TNextExtended>,
-  ) => Client<
-    TTransport,
-    TChain,
-    TAccount,
-    TRpcSchema,
-    (TExtended extends Extended ? TExtended : {}) & TNextExtended
-  >
-} & (TExtended extends Extended ? TExtended : {})
-
 /**
- * @description Creates a base client with the given transport.
+ * Creates a base client with the given transport.
  */
 export function createClient<
-  TTransport extends Transport,
-  TChain extends Chain | undefined = undefined,
-  TAccountOrAddress extends Account | Address | undefined = undefined,
->({
-  account,
-  batch,
-  chain,
-  key = 'base',
-  name = 'Base Client',
-  pollingInterval = 4_000,
+  transport extends Transport,
+  chain extends Chain | undefined = undefined,
+  accountOrAddress extends Account | Address | undefined = undefined,
+>(
+  parameters: ClientConfig<transport, chain, accountOrAddress>,
+): Client<
   transport,
-  type = 'base',
-}: ClientConfig<TTransport, TChain, TAccountOrAddress>): Client<
-  TTransport,
-  TChain,
-  TAccountOrAddress extends Address
-    ? Prettify<JsonRpcAccount<TAccountOrAddress>>
-    : TAccountOrAddress
-> {
-  const { config, request, value } = transport({ chain, pollingInterval })
-  const client = {
-    account: (account
-      ? parseAccount(account)
-      : undefined) as ParseAccount<TAccountOrAddress>,
+  chain,
+  accountOrAddress extends Address
+    ? Prettify<JsonRpcAccount<accountOrAddress>>
+    : accountOrAddress
+>
+
+export function createClient(parameters: ClientConfig): Client {
+  const {
     batch,
-    chain: chain as TChain,
+    key = 'base',
+    name = 'Base Client',
+    pollingInterval = 4_000,
+    type = 'base',
+  } = parameters
+
+  const chain = parameters.chain
+  const account = parameters.account
+    ? parseAccount(parameters.account)
+    : undefined
+  const { config, request, value } = parameters.transport({
+    chain,
+    pollingInterval,
+  })
+  const transport = { ...config, ...value }
+
+  const client = {
+    account,
+    batch,
+    chain,
     key,
     name,
     pollingInterval,
     request,
-    transport: { ...config, ...value },
+    transport,
     type,
     uid: uid(),
   }
-  function extend(client_: typeof client) {
-    return (fn: (_: typeof client) => unknown) => {
-      const extended = fn(client_) as Extended
+
+  function extend(base: typeof client) {
+    type ExtendFn = (base: typeof client) => unknown
+    return (extendFn: ExtendFn) => {
+      const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
-      const nextClient = { ...client_, ...extended }
-      return Object.assign(nextClient, { extend: extend(nextClient) })
+      const combined = { ...base, ...extended }
+      return Object.assign(combined, { extend: extend(combined) })
     }
   }
+
   return Object.assign(client, { extend: extend(client) as any })
 }

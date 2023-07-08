@@ -14,9 +14,7 @@ test('with chain', () => {
 })
 
 test('without chain', () => {
-  const client = createPublicClient({
-    transport: http(),
-  })
+  const client = createPublicClient({ transport: http() })
   expectTypeOf(client).toMatchTypeOf<PublicClient>()
   expectTypeOf(client.chain).toEqualTypeOf(undefined)
 })

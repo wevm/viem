@@ -523,24 +523,26 @@ export type WalletActions<
   ) => Promise<WriteContractReturnType>
 }
 
-export const walletActions = <
+export function walletActions<
   TTransport extends Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
 >(
   client: Client<TTransport, TChain, TAccount>,
-): WalletActions<TChain, TAccount> => ({
-  addChain: (args) => addChain(client, args),
-  deployContract: (args) => deployContract(client, args),
-  getAddresses: () => getAddresses(client),
-  getChainId: () => getChainId(client),
-  getPermissions: () => getPermissions(client),
-  requestAddresses: () => requestAddresses(client),
-  requestPermissions: (args) => requestPermissions(client, args),
-  sendTransaction: (args) => sendTransaction(client, args),
-  signMessage: (args) => signMessage(client, args),
-  signTypedData: (args) => signTypedData(client, args),
-  switchChain: (args) => switchChain(client, args),
-  watchAsset: (args) => watchAsset(client, args),
-  writeContract: (args) => writeContract(client, args),
-})
+): WalletActions<TChain, TAccount> {
+  return {
+    addChain: (args) => addChain(client, args),
+    deployContract: (args) => deployContract(client, args),
+    getAddresses: () => getAddresses(client),
+    getChainId: () => getChainId(client),
+    getPermissions: () => getPermissions(client),
+    requestAddresses: () => requestAddresses(client),
+    requestPermissions: (args) => requestPermissions(client, args),
+    sendTransaction: (args) => sendTransaction(client, args),
+    signMessage: (args) => signMessage(client, args),
+    signTypedData: (args) => signTypedData(client, args),
+    switchChain: (args) => switchChain(client, args),
+    watchAsset: (args) => watchAsset(client, args),
+    writeContract: (args) => writeContract(client, args),
+  }
+}

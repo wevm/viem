@@ -6,23 +6,25 @@ import { type PublicActions, publicActions } from './decorators/public.js'
 import type { Transport } from './transports/createTransport.js'
 
 export type PublicClientConfig<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-> = Pick<
-  ClientConfig<TTransport, TChain>,
-  'batch' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+> = Prettify<
+  Pick<
+    ClientConfig<transport, chain>,
+    'batch' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+  >
 >
 
 export type PublicClient<
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
 > = Prettify<
   Client<
-    TTransport,
-    TChain,
+    transport,
+    chain,
     undefined,
     PublicRpcSchema,
-    PublicActions<TTransport, TChain>
+    PublicActions<transport, chain>
   >
 >
 
@@ -46,23 +48,21 @@ export type PublicClient<
  * })
  */
 export function createPublicClient<
-  TTransport extends Transport,
-  TChain extends Chain | undefined = undefined,
->({
-  batch,
-  chain,
-  key = 'public',
-  name = 'Public Client',
-  transport,
-  pollingInterval,
-}: PublicClientConfig<TTransport, TChain>): PublicClient<TTransport, TChain> {
-  return createClient({
-    batch,
-    chain,
+  transport extends Transport,
+  chain extends Chain | undefined = undefined,
+>(
+  parameters: PublicClientConfig<transport, chain>,
+): PublicClient<transport, chain>
+
+export function createPublicClient(
+  parameters: PublicClientConfig,
+): PublicClient {
+  const { key = 'public', name = 'Public Client' } = parameters
+  const client = createClient({
+    ...parameters,
     key,
     name,
-    pollingInterval,
-    transport,
     type: 'publicClient',
-  }).extend(publicActions)
+  })
+  return client.extend(publicActions)
 }

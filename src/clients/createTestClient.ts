@@ -2,6 +2,7 @@ import type { Account } from '../accounts/types.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { TestRpcSchema } from '../types/eip1193.js'
+import type { Prettify } from '../types/utils.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type TestActions, testActions } from './decorators/test.js'
 import type { Transport } from './transports/createTransport.js'
@@ -10,36 +11,38 @@ import type { Address } from 'abitype'
 export type TestClientMode = 'anvil' | 'hardhat' | 'ganache'
 
 export type TestClientConfig<
-  TMode extends TestClientMode = TestClientMode,
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccountOrAddress extends Account | Address | undefined =
+  mode extends TestClientMode = TestClientMode,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  accountOrAddress extends Account | Address | undefined =
     | Account
     | Address
     | undefined,
-> = Pick<
-  ClientConfig<TTransport, TChain, TAccountOrAddress>,
-  'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
-> & {
-  /** Mode of the test client. Available: "anvil" | "hardhat" | "ganache" */
-  mode: TMode
-}
+> = Prettify<
+  Pick<
+    ClientConfig<transport, chain, accountOrAddress>,
+    'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+  > & {
+    /** Mode of the test client. */
+    mode: mode | ('anvil' | 'hardhat' | 'ganache') // TODO: Type utility that expands `TestClientMode`
+  }
+>
 
 export type TestClient<
   TMode extends TestClientMode = TestClientMode,
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TIncludeActions extends boolean = true,
-> = Client<
-  TTransport,
-  TChain,
-  TAccount,
-  TestRpcSchema<TMode>,
-  TIncludeActions extends true ? TestActions : Record<string, unknown>
-> & {
-  mode: TMode
-}
+> = Prettify<
+  { mode: TMode } & Client<
+    transport,
+    chain,
+    TAccount,
+    TestRpcSchema<TMode>,
+    TIncludeActions extends true ? TestActions : Record<string, unknown>
+  >
+>
 
 /**
  * @description Creates a test client with a given transport.
@@ -65,33 +68,24 @@ export type TestClient<
  * })
  */
 export function createTestClient<
-  TMode extends TestClientMode,
-  TTransport extends Transport,
-  TChain extends Chain | undefined = undefined,
-  TAccountOrAddress extends Account | Address | undefined = undefined,
->({
-  account,
-  chain,
-  key = 'test',
-  name = 'Test Client',
-  mode,
-  pollingInterval,
-  transport,
-}: TestClientConfig<TMode, TTransport, TChain, TAccountOrAddress>): TestClient<
-  TMode,
-  TTransport,
-  TChain,
-  ParseAccount<TAccountOrAddress>
-> {
-  return createClient({
-    account,
-    chain,
+  mode extends 'anvil' | 'hardhat' | 'ganache', // TODO: Type utility that expands `TestClientMode`
+  transport extends Transport,
+  chain extends Chain | undefined = undefined,
+  accountOrAddress extends Account | Address | undefined = undefined,
+>(
+  parameters: TestClientConfig<mode, transport, chain, accountOrAddress>,
+): TestClient<mode, transport, chain, ParseAccount<accountOrAddress>>
+
+export function createTestClient(parameters: TestClientConfig): TestClient {
+  const { key = 'test', name = 'Test Client', mode } = parameters
+  const client = createClient({
+    ...parameters,
     key,
     name,
-    pollingInterval,
-    transport,
     type: 'testClient',
   })
-    .extend(() => ({ mode }))
-    .extend(testActions({ mode }))
+  return client.extend((config) => ({
+    mode,
+    ...testActions({ mode })(config),
+  }))
 }
