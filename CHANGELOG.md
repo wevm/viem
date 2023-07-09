@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.12
+
+### Patch Changes
+
+- [#864](https://github.com/wagmi-dev/viem/pull/864) [`b851c41b`](https://github.com/wagmi-dev/viem/commit/b851c41b87dce60af6be1e518e3c7a1b16e99b63) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `dataSuffix` was not being provided to the `request` returned from `simulateTransaction`.
+
 ## 1.2.11
 
 ### Minor Changes
