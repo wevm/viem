@@ -160,7 +160,7 @@ describe('wagmi', () => {
 
 test('args: dataSuffix', async () => {
   const spy = vi.spyOn(call, 'call')
-  await simulateContract(publicClient, {
+  const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
@@ -172,6 +172,7 @@ test('args: dataSuffix', async () => {
     data: '0x1249c58b12345678',
     to: wagmiContractConfig.address,
   })
+  expect(request.dataSuffix).toEqual('0x12345678')
 })
 
 describe('BAYC', () => {

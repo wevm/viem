@@ -145,6 +145,7 @@ export async function simulateContract<
         abi,
         address,
         args,
+        dataSuffix,
         functionName,
         ...callRequest,
       },
