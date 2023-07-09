@@ -26,7 +26,7 @@ import { decodeFunctionData } from 'viem'
 
 ## Usage
 
-Below is a very basic example of how to encode a function to calldata.
+Below is a very basic example of how to decode a function to calldata.
 
 ::: code-group
 
