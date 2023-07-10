@@ -153,3 +153,13 @@ test('walk: predicate fn', () => {
     Version: viem@1.0.2]
   `)
 })
+
+test('walk: predicate fn (no match)', () => {
+  class FooError extends BaseError {}
+  class BarError extends BaseError {}
+
+  const err = new BaseError('test1', {
+    cause: new Error('test2', { cause: new BarError('test3') }),
+  })
+  expect(err.walk((err) => err instanceof FooError)).toBeNull()
+})
