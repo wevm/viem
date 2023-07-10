@@ -36,10 +36,6 @@ const client = createPublicClient({
 })
 ```
 
-::: warning
-If no `url` is provided, then the transport will fall back to a public RPC URL on the chain. It is highly recommended to provide an authenticated RPC URL to prevent rate-limiting.
-:::
-
 ## Parameters
 
 ### url
