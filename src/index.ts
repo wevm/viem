@@ -491,6 +491,7 @@ export type {
   FeeValuesEIP1559,
   FeeValuesLegacy,
 } from './types/fee.js'
+export type { Filter } from './types/filter.js'
 export type {
   Formatter,
   Formatters,
