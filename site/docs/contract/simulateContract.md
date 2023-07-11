@@ -201,20 +201,11 @@ try {
     account,
   })
 } catch (err) {
-  if (err instanceof BaseError) {
-    // Option 1: checking the instance of the error
-    if (err.cause instanceof ContractFunctionRevertedError) {
-      const cause: ContractFunctionRevertedError = err.cause;
-      const errorName = cause.data?.errorName ?? "";
-      // do something with `errorName`
-    }
-  
-    // Option 2: using `walk` method from `BaseError`
-    const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
-    if (revertError) {
-      const errorName = revertError.data?.errorName ?? "";
-      // do something with `errorName`
-    }
+  const revertError = err instanceof BaseError
+    && err.walk(err => err instanceof ContractFunctionRevertedError)
+  if (revertError instanceof ContractFunctionRevertedError) {
+    const errorName = revertError.data?.errorName ?? "";
+    // do something with `errorName`
   }
 }
 
