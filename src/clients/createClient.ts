@@ -55,8 +55,19 @@ export type Client<
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
 > = Client_Base<transport, chain, account, rpcSchema> &
-  (extended extends Extended ? extended : unknown) &
-  ExtendFn<transport, chain, account, rpcSchema, extended>
+  (extended extends Extended ? extended : unknown) & {
+    extend: <const client extends Extended>(
+      fn: (
+        client: Client<transport, chain, account, rpcSchema, extended>,
+      ) => client,
+    ) => Client<
+      transport,
+      chain,
+      account,
+      rpcSchema,
+      Prettify<client> & (extended extends Extended ? extended : unknown)
+    >
+  }
 
 type Client_Base<
   transport extends Transport = Transport,
@@ -88,30 +99,10 @@ type Client_Base<
   uid: string
 }
 
-type ExtendFn<
-  transport extends Transport = Transport,
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  rpcSchema extends RpcSchema | undefined = undefined,
-  extended extends Extended | undefined = Extended | undefined,
-> = {
-  extend: <const client extends Extended>(
-    fn: (
-      client: Client<transport, chain, account, rpcSchema, extended>,
-    ) => client,
-  ) => Client<
-    transport,
-    chain,
-    account,
-    rpcSchema,
-    Prettify<client> & (extended extends Extended ? extended : unknown)
-  >
-}
-
 type Extended = Prettify<
-  { [key: string]: unknown } & {
-    // disallow redefining base properties
-    [K in keyof Client_Base]?: undefined
+  // disallow redefining base properties
+  { [K in keyof Client_Base]?: undefined } & {
+    [key: string]: unknown
   }
 >
 
