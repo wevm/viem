@@ -33,7 +33,7 @@ export function getContractError(
     err instanceof RawContractError
       ? err
       : err instanceof BaseError
-      ? err.walk((err) => 'data' in (err as Error))
+      ? err.walk((err) => 'data' in (err as Error)) || err.walk()
       : {}
   ) as RawContractError
 
