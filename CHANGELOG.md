@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.13
+
+### Patch Changes
+
+- [#874](https://github.com/wagmi-dev/viem/pull/874) [`a9bc9f6d`](https://github.com/wagmi-dev/viem/commit/a9bc9f6d182052a536e51dc6fa75afda91de331a) Thanks [@Alexsey](https://github.com/Alexsey)! - Fixed `BaseError.walk` to return `null` if the predicate callback is not satisfied.
+
 ## 1.2.12
 
 ### Patch Changes
