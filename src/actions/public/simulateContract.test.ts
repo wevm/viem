@@ -572,8 +572,6 @@ describe('node errors', () => {
     ).rejects.toThrowError('cannot be lower than the block base fee')
   })
 
-  // TODO:  Waiting for Anvil fix – should fail with "nonce too low" reason
-  //        This test will fail when Anvil is fixed.
   test('nonce too low', async () => {
     await expect(() =>
       simulateContract(publicClient, {
@@ -584,7 +582,8 @@ describe('node errors', () => {
         nonce: 0,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The amount of gas provided for the transaction exceeds the limit allowed for the block.
+      "Nonce provided for the transaction is lower than the current nonce of the account.
+      Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
 
       Raw Call Arguments:
         from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
@@ -599,13 +598,11 @@ describe('node errors', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract.html
-      Details: intrinsic gas too high
+      Details: nonce too low
       Version: viem@1.0.2"
     `)
   })
 
-  // TODO:  Waiting for Anvil fix – should fail with "nonce too low" reason
-  //        This test will fail when Anvil is fixed.
   test('insufficient funds', async () => {
     await expect(() =>
       simulateContract(publicClient, {
@@ -617,8 +614,17 @@ describe('node errors', () => {
         value: parseEther('100000'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The amount of gas provided for the transaction exceeds the limit allowed for the block.
+      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
       Raw Call Arguments:
         from:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
@@ -632,7 +638,7 @@ describe('node errors', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/simulateContract.html
-      Details: intrinsic gas too high
+      Details: Insufficient funds for gas * price + value
       Version: viem@1.0.2"
     `)
 

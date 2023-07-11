@@ -60,7 +60,9 @@ export class BaseError extends Error {
     this.shortMessage = shortMessage
   }
 
-  walk(fn?: (err: unknown) => boolean) {
+  walk(): Error
+  walk(fn: (err: unknown) => boolean): Error | null
+  walk(fn?: any): any {
     return walk(this, fn)
   }
 }
