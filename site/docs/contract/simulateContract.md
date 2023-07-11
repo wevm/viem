@@ -201,11 +201,12 @@ try {
     account,
   })
 } catch (err) {
-  const revertError = err instanceof BaseError
-    && err.walk(err => err instanceof ContractFunctionRevertedError)
-  if (revertError instanceof ContractFunctionRevertedError) {
-    const errorName = revertError.data?.errorName ?? "";
-    // do something with `errorName`
+  if (err instanceof BaseError) {
+    const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+    if (revertError instanceof ContractFunctionRevertedError) {
+      const errorName = revertError.data?.errorName ?? ''
+      // do something with `errorName`
+    }
   }
 }
 
