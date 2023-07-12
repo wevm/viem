@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.14
+
+### Patch Changes
+
+- [#883](https://github.com/wagmi-dev/viem/pull/883) [`ad96d39f`](https://github.com/wagmi-dev/viem/commit/ad96d39f6c9266dc6965013e255990952fa9323d) Thanks [@tmm](https://github.com/tmm)! - Exported missing types
+
 ## 1.2.13
 
 ### Patch Changes
