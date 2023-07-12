@@ -55,6 +55,7 @@ export type {
   DeployContractReturnType,
 } from './actions/wallet/deployContract.js'
 export type { DropTransactionParameters } from './actions/test/dropTransaction.js'
+export type { GetAutomineReturnType } from './actions/test/getAutomine.js'
 export type {
   EstimateContractGasParameters,
   EstimateContractGasReturnType,
@@ -181,6 +182,9 @@ export type {
   RequestPermissionsReturnType,
   RequestPermissionsParameters,
 } from './actions/wallet/requestPermissions.js'
+export type { GetTxpoolContentReturnType } from './actions/test/getTxpoolContent.js'
+export type { GetTxpoolStatusReturnType } from './actions/test/getTxpoolStatus.js'
+export type { InspectTxpoolReturnType } from './actions/test/inspectTxpool.js'
 export type { ResetParameters } from './actions/test/reset.js'
 export type { RevertParameters } from './actions/test/revert.js'
 export type {

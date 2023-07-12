@@ -2,9 +2,18 @@ export {
   dropTransaction,
   type DropTransactionParameters,
 } from './actions/test/dropTransaction.js'
-export { getAutomine } from './actions/test/getAutomine.js'
-export { getTxpoolContent } from './actions/test/getTxpoolContent.js'
-export { getTxpoolStatus } from './actions/test/getTxpoolStatus.js'
+export {
+  getAutomine,
+  type GetAutomineReturnType,
+} from './actions/test/getAutomine.js'
+export {
+  getTxpoolContent,
+  type GetTxpoolContentReturnType,
+} from './actions/test/getTxpoolContent.js'
+export {
+  getTxpoolStatus,
+  type GetTxpoolStatusReturnType,
+} from './actions/test/getTxpoolStatus.js'
 export {
   impersonateAccount,
   type ImpersonateAccountParameters,
@@ -13,7 +22,10 @@ export {
   increaseTime,
   type IncreaseTimeParameters,
 } from './actions/test/increaseTime.js'
-export { inspectTxpool } from './actions/test/inspectTxpool.js'
+export {
+  inspectTxpool,
+  type InspectTxpoolReturnType,
+} from './actions/test/inspectTxpool.js'
 export { mine, type MineParameters } from './actions/test/mine.js'
 export { removeBlockTimestampInterval } from './actions/test/removeBlockTimestampInterval.js'
 export { reset, type ResetParameters } from './actions/test/reset.js'

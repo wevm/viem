@@ -21,9 +21,7 @@ export type ClientConfig<
     | undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
-  account?: accountOrAddress extends Account | Address
-    ? accountOrAddress | Account | Address // `accountOrAddress` defined, add for inference
-    : Account | Address | undefined // `accountOrAddress` undefined, show possible types for autocomplete
+  account?: accountOrAddress | Account | Address | undefined
   /** Flags for batch settings. */
   batch?:
     | {
@@ -32,9 +30,7 @@ export type ClientConfig<
       }
     | undefined
   /** Chain for the client. */
-  chain?: chain extends Chain
-    ? chain // `chain` defined, add for inference
-    : Chain | undefined // `chain` undefined, show possible types for autocomplete
+  chain?: Chain | undefined | chain
   /** A key for the client. */
   key?: string | undefined
   /** A name for the client. */
@@ -58,23 +54,20 @@ export type Client<
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
-> = Prettify<
-  Prettify<Client_Base<transport, chain, account, rpcSchema>> & {
+> = Client_Base<transport, chain, account, rpcSchema> &
+  (extended extends Extended ? extended : unknown) & {
     extend: <const client extends Extended>(
       fn: (
         client: Client<transport, chain, account, rpcSchema, extended>,
       ) => client,
-    ) => Prettify<
-      Client<
-        transport,
-        chain,
-        account,
-        rpcSchema,
-        Prettify<client> & (extended extends Extended ? extended : unknown)
-      >
+    ) => Client<
+      transport,
+      chain,
+      account,
+      rpcSchema,
+      Prettify<client> & (extended extends Extended ? extended : unknown)
     >
-  } & (extended extends Extended ? extended : unknown)
->
+  }
 
 type Client_Base<
   transport extends Transport = Transport,
@@ -129,12 +122,14 @@ export function createClient<
   accountOrAddress extends Account | Address | undefined = undefined,
 >(
   parameters: ClientConfig<transport, chain, accountOrAddress>,
-): Client<
-  transport,
-  chain,
-  accountOrAddress extends Address
-    ? Prettify<JsonRpcAccount<accountOrAddress>>
-    : accountOrAddress
+): Prettify<
+  Client<
+    transport,
+    chain,
+    accountOrAddress extends Address
+      ? Prettify<JsonRpcAccount<accountOrAddress>>
+      : accountOrAddress
+  >
 >
 
 export function createClient(parameters: ClientConfig): Client {
