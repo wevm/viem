@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-canary changes
+Exported missing types
