@@ -43,7 +43,21 @@ export const multicall3Abi = [
   },
 ] as const
 
-export const universalResolverAbi = [
+const universalResolverErrors = [
+  {
+    inputs: [],
+    name: 'ResolverNotFound',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'ResolverWildcardNotSupported',
+    type: 'error',
+  },
+] as const
+
+export const universalResolverResolveAbi = [
+  ...universalResolverErrors,
   {
     name: 'resolve',
     type: 'function',
@@ -55,6 +69,22 @@ export const universalResolverAbi = [
     outputs: [
       { name: '', type: 'bytes' },
       { name: 'address', type: 'address' },
+    ],
+  },
+] as const
+
+export const universalResolverReverseAbi = [
+  ...universalResolverErrors,
+  {
+    name: 'reverse',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes', name: 'reverseName' }],
+    outputs: [
+      { type: 'string', name: 'resolvedName' },
+      { type: 'address', name: 'resolvedAddress' },
+      { type: 'address', name: 'reverseResolver' },
+      { type: 'address', name: 'resolver' },
     ],
   },
 ] as const
