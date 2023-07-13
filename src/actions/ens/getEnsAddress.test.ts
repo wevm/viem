@@ -115,18 +115,15 @@ test('custom universal resolver address', async () => {
 })
 
 describe('universal resolver with custom errors', () => {
-  test('gets address for name', async () => {
+  test('name without resolver', async () => {
     await expect(
       getEnsAddress(publicClient, {
-        name: 'awkweb.eth',
+        name: 'random123.zzz',
         universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
       }),
-    ).resolves.toMatchInlineSnapshot(
-      '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
-    )
+    ).resolves.toBeNull()
   })
-
-  test('name without address', async () => {
+  test('name with invalid wildcard resolver', async () => {
     await expect(
       getEnsAddress(publicClient, {
         name: 'another-unregistered-name.eth',

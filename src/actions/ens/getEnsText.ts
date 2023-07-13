@@ -12,7 +12,7 @@ import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
-import { checkNullUniversalResolverError } from '../../utils/ens/checkNullUniversalResolverError.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
@@ -113,7 +113,7 @@ export async function getEnsText<TChain extends Chain | undefined>(
 
     return record === '' ? null : record
   } catch (err) {
-    if (checkNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
   }
 }

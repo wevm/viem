@@ -7,7 +7,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
-import { checkNullUniversalResolverError } from '../../utils/ens/checkNullUniversalResolverError.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
   type ReadContractParameters,
@@ -86,7 +86,7 @@ export async function getEnsName<TChain extends Chain | undefined>(
     })
     return res[0]
   } catch (err) {
-    if (checkNullUniversalResolverError(err, 'reverse')) return null
+    if (isNullUniversalResolverError(err, 'reverse')) return null
     throw err
   }
 }

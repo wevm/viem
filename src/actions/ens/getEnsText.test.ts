@@ -41,6 +41,15 @@ test('name with resolver that does not support text()', async () => {
   ).resolves.toBeNull()
 })
 
+test('name without resolver', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'random1223232222.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
 test('custom universal resolver address', async () => {
   await expect(
     getEnsText(publicClient, {
@@ -52,20 +61,19 @@ test('custom universal resolver address', async () => {
 })
 
 describe('universal resolver with custom errors', () => {
-  test('gets text record for name', async () => {
+  test('name without resolver', async () => {
     await expect(
       getEnsText(publicClient, {
-        name: 'wagmi-dev.eth',
+        name: 'random123.zzz',
         key: 'com.twitter',
         universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
       }),
-    ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
+    ).resolves.toBeNull()
   })
-
-  test('name without text record', async () => {
+  test('name with invalid wildcard resolver', async () => {
     await expect(
       getEnsText(publicClient, {
-        name: 'unregistered-name.eth',
+        name: 'random1223232222.eth',
         key: 'com.twitter',
         universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
       }),

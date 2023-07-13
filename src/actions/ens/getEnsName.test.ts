@@ -46,19 +46,18 @@ test('custom universal resolver address', async () => {
 })
 
 describe('universal resolver with custom errors', () => {
-  test('gets primary name for address', async () => {
-    await expect(
-      getEnsName(publicClient, {
-        address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
-      }),
-    ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
-  })
-
   test('address with no primary name', async () => {
     await expect(
       getEnsName(publicClient, {
         address: address.burn,
+        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
+      }),
+    ).resolves.toMatchInlineSnapshot('null')
+  })
+  test('address with primary name that has no resolver', async () => {
+    await expect(
+      getEnsName(publicClient, {
+        address: '0x00000000000061aD8EE190710508A818aE5325C3',
         universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
       }),
     ).resolves.toMatchInlineSnapshot('null')

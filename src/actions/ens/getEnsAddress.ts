@@ -13,7 +13,7 @@ import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { trim } from '../../utils/data/trim.js'
 import { toHex } from '../../utils/encoding/toHex.js'
-import { checkNullUniversalResolverError } from '../../utils/ens/checkNullUniversalResolverError.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
@@ -110,7 +110,7 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
 
     return trim(address) === '0x00' ? null : address
   } catch (err) {
-    if (checkNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
   }
 }
