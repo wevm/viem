@@ -5,7 +5,7 @@ import {
   hexToBigInt,
   hexToNumber,
   isHex,
-  parseTransaction as parseTransaction_,
+  parseTransaction,
   sliceHex,
 } from '../../index.js'
 import {
@@ -21,7 +21,7 @@ import {
 
 import type { RecursiveArray } from '../../utils/encoding/toRlp.js'
 
-export function parseTransaction(
+export function parseTransactionCelo(
   serializedTransaction:
     | TransactionSerialized
     | SerializedCIP42TransactionReturnType,
@@ -34,7 +34,7 @@ export function parseTransaction(
     )
   }
 
-  return parseTransaction_(serializedTransaction)
+  return parseTransaction(serializedTransaction)
 }
 
 function parseTransactionCIP42(
@@ -115,4 +115,3 @@ function parseTransactionCIP42(
 
   return transaction as TransactionSerializableCIP42
 }
-

@@ -190,4 +190,3 @@ export function assertTransactionCIP42(
     )
   }
 }
-

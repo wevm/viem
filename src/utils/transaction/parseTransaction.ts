@@ -141,8 +141,7 @@ function parseTransactionEIP2930(
   serializedTransaction: TransactionSerializedEIP2930,
 ): Omit<TransactionRequestEIP2930, 'from'> &
   ({ chainId: number } | ({ chainId: number } & Signature)) {
-    const transactionArray = toTransactionArray(serializedTransaction)
-
+  const transactionArray = toTransactionArray(serializedTransaction)
 
   const [chainId, nonce, gasPrice, gas, to, value, data, accessList, v, r, s] =
     transactionArray
