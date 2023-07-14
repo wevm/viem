@@ -113,7 +113,17 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
-      "universalResolverAbi": [
+      "universalResolverResolveAbi": [
+        {
+          "inputs": [],
+          "name": "ResolverNotFound",
+          "type": "error",
+        },
+        {
+          "inputs": [],
+          "name": "ResolverWildcardNotSupported",
+          "type": "error",
+        },
         {
           "inputs": [
             {
@@ -133,6 +143,47 @@ test('exports abis', () => {
             },
             {
               "name": "address",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
+      "universalResolverReverseAbi": [
+        {
+          "inputs": [],
+          "name": "ResolverNotFound",
+          "type": "error",
+        },
+        {
+          "inputs": [],
+          "name": "ResolverWildcardNotSupported",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
+              "name": "reverseName",
+              "type": "bytes",
+            },
+          ],
+          "name": "reverse",
+          "outputs": [
+            {
+              "name": "resolvedName",
+              "type": "string",
+            },
+            {
+              "name": "resolvedAddress",
+              "type": "address",
+            },
+            {
+              "name": "reverseResolver",
+              "type": "address",
+            },
+            {
+              "name": "resolver",
               "type": "address",
             },
           ],
