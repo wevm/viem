@@ -1,5 +1,11 @@
 # viem
 
+## 1.2.15
+
+### Patch Changes
+
+- [#885](https://github.com/wagmi-dev/viem/pull/885) [`020c744d`](https://github.com/wagmi-dev/viem/commit/020c744d85e4150b4248407eae8a52ce390cfa9d) Thanks [@TateB](https://github.com/TateB)! - Added `null` resolver check to ENS Actions.
+
 ## 1.2.14
 
 ### Patch Changes
