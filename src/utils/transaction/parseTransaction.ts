@@ -66,10 +66,7 @@ export function parseTransaction<TSerialized extends TransactionSerialized>(
 function parseTransactionEIP1559(
   serializedTransaction: TransactionSerializedEIP1559,
 ): TransactionSerializableEIP1559 {
-  const transactionArray = fromRlp(
-    `0x${serializedTransaction.slice(4)}` as Hex,
-    'hex',
-  )
+  const transactionArray = toTransactionArray(serializedTransaction)
 
   const [
     chainId,
@@ -136,14 +133,16 @@ function parseTransactionEIP1559(
   return { ...signature, ...transaction }
 }
 
+export function toTransactionArray(serializedTransaction: string) {
+  return fromRlp(`0x${serializedTransaction.slice(4)}` as Hex, 'hex')
+}
+
 function parseTransactionEIP2930(
   serializedTransaction: TransactionSerializedEIP2930,
 ): Omit<TransactionRequestEIP2930, 'from'> &
   ({ chainId: number } | ({ chainId: number } & Signature)) {
-  const transactionArray = fromRlp(
-    `0x${serializedTransaction.slice(4)}` as Hex,
-    'hex',
-  )
+    const transactionArray = toTransactionArray(serializedTransaction)
+
 
   const [chainId, nonce, gasPrice, gas, to, value, data, accessList, v, r, s] =
     transactionArray
@@ -263,7 +262,7 @@ function parseTransactionLegacy(
   return transaction
 }
 
-function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
+export function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
   const accessList: AccessList = []
   for (let i = 0; i < accessList_.length; i++) {
     const [address, storageKeys] = accessList_[i] as [Hex, Hex[]]
