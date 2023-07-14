@@ -50,7 +50,7 @@ export type TransactionReceipt<
 export type TransactionBase<
   TQuantity = bigint,
   TIndex = number,
-  TPending extends boolean = false,
+  TPending extends boolean = boolean,
 > = {
   /** Hash of block containing this transaction or `null` if pending */
   blockHash: TPending extends true ? null : Hash
@@ -84,7 +84,7 @@ export type TransactionBase<
 export type TransactionLegacy<
   TQuantity = bigint,
   TIndex = number,
-  TPending extends boolean = false,
+  TPending extends boolean = boolean,
   TType = 'legacy',
 > = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesLegacy<TQuantity> & {
@@ -95,7 +95,7 @@ export type TransactionLegacy<
 export type TransactionEIP2930<
   TQuantity = bigint,
   TIndex = number,
-  TPending extends boolean = false,
+  TPending extends boolean = boolean,
   TType = 'eip2930',
 > = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesLegacy<TQuantity> & {
@@ -106,7 +106,7 @@ export type TransactionEIP2930<
 export type TransactionEIP1559<
   TQuantity = bigint,
   TIndex = number,
-  TPending extends boolean = false,
+  TPending extends boolean = boolean,
   TType = 'eip1559',
 > = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesEIP1559<TQuantity> & {
@@ -117,7 +117,7 @@ export type TransactionEIP1559<
 export type Transaction<
   TQuantity = bigint,
   TIndex = number,
-  TPending extends boolean = false,
+  TPending extends boolean = boolean,
 > =
   | TransactionLegacy<TQuantity, TIndex, TPending>
   | TransactionEIP2930<TQuantity, TIndex, TPending>

@@ -15,7 +15,7 @@ import type { Hash, Hex } from './misc.js'
 export type Log<
   TQuantity = bigint,
   TIndex = number,
-  TPending extends boolean = false,
+  TPending extends boolean = boolean,
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   TAbi extends Abi | readonly unknown[] = [TAbiEvent],
