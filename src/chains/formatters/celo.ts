@@ -1,9 +1,19 @@
 import type { Address } from 'abitype'
 
+import type { Block } from '../../types/block.js'
 import { type Formatters } from '../../types/formatter.js'
 import type { Hash, Hex } from '../../types/misc.js'
-import type { RpcTransaction } from '../../types/rpc.js'
-import type { Transaction } from '../../types/transaction.js'
+import type {
+  RpcBlock,
+  RpcTransaction,
+  RpcTransactionReceipt,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
+import type {
+  Transaction,
+  TransactionReceipt,
+  TransactionRequest,
+} from '../../types/transaction.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { defineBlock } from '../../utils/formatters/block.js'
@@ -14,46 +24,74 @@ import {
 import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 
-export type CeloFormatOverrides = {
-  RpcBlock: {
-    randomness: {
-      committed: Hex
-      revealed: Hex
-    }
-    transactions:
-      | Hash[]
-      | (RpcTransaction & {
-          feeCurrency: Address | null
-          gatewayFee: Hex | null
-          gatewayFeeRecipient: Address | null
-        })[]
+type BlockOverrides = {
+  randomness: {
+    committed: Hex
+    revealed: Hex
   }
-  RpcTransaction: {
-    feeCurrency: Address | null
-    gatewayFee: Hex | null
-    gatewayFeeRecipient: Address | null
-  }
-  RpcTransactionReceipt: {
-    feeCurrency: Address | null
-    gatewayFee: Hex | null
-    gatewayFeeRecipient: Address | null
-  }
-  TransactionRequest: {
-    feeCurrency?: Address
-    gatewayFee?: bigint
-    gatewayFeeRecipient?: Address
-  }
-  Transaction: {
-    feeCurrency: Address | null
-    gatewayFee: bigint | null
-    gatewayFeeRecipient: Address | null
-  }
+  transactions: Hash[] | CeloTransaction[]
 }
+export type CeloBlock = Block & BlockOverrides
+
+type RpcBlockOverrides = {
+  randomness: {
+    committed: Hex
+    revealed: Hex
+  }
+  transactions: Hash[] | CeloRpcTransaction[]
+}
+export type CeloRpcBlock = RpcBlock & RpcBlockOverrides
+
+type RpcTransactionOverrides = {
+  feeCurrency: Address | null
+  gatewayFee: Hex | null
+  gatewayFeeRecipient: Address | null
+}
+export type CeloRpcTransaction = RpcTransaction & RpcTransactionOverrides
+
+type RpcTransactionReceiptOverrides = {
+  feeCurrency: Address | null
+  gatewayFee: Hex | null
+  gatewayFeeRecipient: Address | null
+}
+export type CeloRpcTransactionReceipt = RpcTransactionReceipt &
+  RpcTransactionReceiptOverrides
+
+type RpcTransactionRequestOverrides = {
+  feeCurrency?: Address
+  gatewayFee?: Hex
+  gatewayFeeRecipient?: Address
+}
+export type CeloRpcTransactionRequest = RpcTransactionRequest &
+  RpcTransactionRequestOverrides
+
+type TransactionOverrides = {
+  feeCurrency: Address | null
+  gatewayFee: bigint | null
+  gatewayFeeRecipient: Address | null
+}
+export type CeloTransaction = Transaction & TransactionOverrides
+
+type TransactionReceiptOverrides = {
+  feeCurrency: Address | null
+  gatewayFee: bigint | null
+  gatewayFeeRecipient: Address | null
+}
+export type CeloTransactionReceipt = TransactionReceipt &
+  TransactionReceiptOverrides
+
+type TransactionRequestOverrides = {
+  feeCurrency?: Address
+  gatewayFee?: bigint
+  gatewayFeeRecipient?: Address
+}
+export type CeloTransactionRequest = TransactionRequest &
+  TransactionRequestOverrides
 
 export const formattersCelo = {
   block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
-    format(args: CeloFormatOverrides['RpcBlock']) {
+    format(args: RpcBlockOverrides): BlockOverrides {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         return {
@@ -64,7 +102,7 @@ export const formattersCelo = {
             : null,
           gatewayFeeRecipient: transaction.gatewayFeeRecipient,
         }
-      }) as Hash[] | (Transaction & CeloFormatOverrides['Transaction'])[]
+      }) as Hash[] | CeloTransaction[]
       return {
         randomness: args.randomness,
         transactions,
@@ -72,7 +110,7 @@ export const formattersCelo = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    format(args: CeloFormatOverrides['RpcTransaction']) {
+    format(args: RpcTransactionOverrides): TransactionOverrides {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
@@ -81,7 +119,7 @@ export const formattersCelo = {
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format(args: CeloFormatOverrides['RpcTransactionReceipt']) {
+    format(args: RpcTransactionReceiptOverrides): TransactionReceiptOverrides {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
@@ -90,7 +128,7 @@ export const formattersCelo = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    format(args: CeloFormatOverrides['TransactionRequest']) {
+    format(args: TransactionRequestOverrides): RpcTransactionRequestOverrides {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee:
