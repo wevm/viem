@@ -4,12 +4,8 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   singleAddressResolverAbi,
-  universalResolverAbi,
+  universalResolverResolveAbi,
 } from '../../constants/abis.js'
-import {
-  ContractFunctionExecutionError,
-  ContractFunctionRevertedError,
-} from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
@@ -17,6 +13,7 @@ import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { trim } from '../../utils/data/trim.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
@@ -89,7 +86,7 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
   try {
     const res = await readContract(client, {
       address: universalResolverAddress,
-      abi: universalResolverAbi,
+      abi: universalResolverResolveAbi,
       functionName: 'resolve',
       args: [
         toHex(packetToBytes(name)),
@@ -113,13 +110,7 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
 
     return trim(address) === '0x00' ? null : address
   } catch (err) {
-    if (err instanceof ContractFunctionExecutionError) {
-      const reason = (err.cause as ContractFunctionRevertedError)?.reason
-      if (
-        reason?.includes('Wildcard on non-extended resolvers is not supported')
-      )
-        return null
-    }
+    if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
   }
 }

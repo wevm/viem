@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import { localHttpUrl } from '../../_test/constants.js'
 import {
@@ -13,7 +13,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 beforeAll(async () => {
-  await setBlockNumber(16966590n)
+  await setBlockNumber(17431812n)
   await setVitalikResolver()
 })
 
@@ -112,6 +112,25 @@ test('custom universal resolver address', async () => {
   ).resolves.toMatchInlineSnapshot(
     '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
   )
+})
+
+describe('universal resolver with custom errors', () => {
+  test('name without resolver', async () => {
+    await expect(
+      getEnsAddress(publicClient, {
+        name: 'random123.zzz',
+        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
+      }),
+    ).resolves.toBeNull()
+  })
+  test('name with invalid wildcard resolver', async () => {
+    await expect(
+      getEnsAddress(publicClient, {
+        name: 'another-unregistered-name.eth',
+        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
+      }),
+    ).resolves.toBeNull()
+  })
 })
 
 test('chain not provided', async () => {

@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import { localHttpUrl } from '../../_test/constants.js'
 import {
@@ -13,7 +13,7 @@ import { http } from '../../clients/transports/http.js'
 import { getEnsText } from './getEnsText.js'
 
 beforeAll(async () => {
-  await setBlockNumber(16966590n)
+  await setBlockNumber(17431812n)
   await setVitalikResolver()
 })
 
@@ -41,6 +41,15 @@ test('name with resolver that does not support text()', async () => {
   ).resolves.toBeNull()
 })
 
+test('name without resolver', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'random1223232222.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
 test('custom universal resolver address', async () => {
   await expect(
     getEnsText(publicClient, {
@@ -49,6 +58,27 @@ test('custom universal resolver address', async () => {
       universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
     }),
   ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
+})
+
+describe('universal resolver with custom errors', () => {
+  test('name without resolver', async () => {
+    await expect(
+      getEnsText(publicClient, {
+        name: 'random123.zzz',
+        key: 'com.twitter',
+        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
+      }),
+    ).resolves.toBeNull()
+  })
+  test('name with invalid wildcard resolver', async () => {
+    await expect(
+      getEnsText(publicClient, {
+        name: 'random1223232222.eth',
+        key: 'com.twitter',
+        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
+      }),
+    ).resolves.toBeNull()
+  })
 })
 
 test('chain not provided', async () => {

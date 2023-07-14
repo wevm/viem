@@ -2,13 +2,17 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { textResolverAbi, universalResolverAbi } from '../../constants/abis.js'
+import {
+  textResolverAbi,
+  universalResolverResolveAbi,
+} from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
@@ -82,29 +86,34 @@ export async function getEnsText<TChain extends Chain | undefined>(
     })
   }
 
-  const res = await readContract(client, {
-    address: universalResolverAddress,
-    abi: universalResolverAbi,
-    functionName: 'resolve',
-    args: [
-      toHex(packetToBytes(name)),
-      encodeFunctionData({
-        abi: textResolverAbi,
-        functionName: 'text',
-        args: [namehash(name), key],
-      }),
-    ],
-    blockNumber,
-    blockTag,
-  })
+  try {
+    const res = await readContract(client, {
+      address: universalResolverAddress,
+      abi: universalResolverResolveAbi,
+      functionName: 'resolve',
+      args: [
+        toHex(packetToBytes(name)),
+        encodeFunctionData({
+          abi: textResolverAbi,
+          functionName: 'text',
+          args: [namehash(name), key],
+        }),
+      ],
+      blockNumber,
+      blockTag,
+    })
 
-  if (res[0] === '0x') return null
+    if (res[0] === '0x') return null
 
-  const record = decodeFunctionResult({
-    abi: textResolverAbi,
-    functionName: 'text',
-    data: res[0],
-  })
+    const record = decodeFunctionResult({
+      abi: textResolverAbi,
+      functionName: 'text',
+      data: res[0],
+    })
 
-  return record === '' ? null : record
+    return record === '' ? null : record
+  } catch (err) {
+    if (isNullUniversalResolverError(err, 'resolve')) return null
+    throw err
+  }
 }

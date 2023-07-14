@@ -2,15 +2,12 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { panicReasons } from '../../constants/solidity.js'
-import {
-  ContractFunctionExecutionError,
-  type ContractFunctionRevertedError,
-} from '../../errors/contract.js'
+import { universalResolverReverseAbi } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
   type ReadContractParameters,
@@ -81,33 +78,15 @@ export async function getEnsName<TChain extends Chain | undefined>(
   try {
     const res = await readContract(client, {
       address: universalResolverAddress,
-      abi: [
-        {
-          name: 'reverse',
-          type: 'function',
-          stateMutability: 'view',
-          inputs: [{ type: 'bytes', name: 'reverseName' }],
-          outputs: [
-            { type: 'string', name: 'resolvedName' },
-            { type: 'address', name: 'resolvedAddress' },
-            { type: 'address', name: 'reverseResolver' },
-            { type: 'address', name: 'resolver' },
-          ],
-        },
-      ],
+      abi: universalResolverReverseAbi,
       functionName: 'reverse',
       args: [toHex(packetToBytes(reverseNode))],
       blockNumber,
       blockTag,
     })
     return res[0]
-  } catch (error) {
-    if (
-      error instanceof ContractFunctionExecutionError &&
-      (error.cause as ContractFunctionRevertedError).reason === panicReasons[50]
-    )
-      // No primary name set for address.
-      return null
-    throw error
+  } catch (err) {
+    if (isNullUniversalResolverError(err, 'reverse')) return null
+    throw err
   }
 }
