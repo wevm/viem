@@ -1,5 +1,14 @@
 # viem
 
+## 1.3.0
+
+### Minor Changes
+
+- [`30a88482`](https://github.com/wagmi-dev/viem/commit/30a88482d541a346990eac9630b7fa1f1550c90a) Thanks [@jxom](https://github.com/jxom)! - Added chains:
+  - `base`
+  - `mev`
+  - `mevTestnet`
+
 ## 1.2.15
 
 ### Patch Changes
