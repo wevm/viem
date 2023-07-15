@@ -28,8 +28,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       '@wagmi/chains':
-        specifier: 1.2.0
-        version: 1.2.0(typescript@5.0.4)
+        specifier: 1.6.0
+        version: 1.6.0(typescript@5.0.4)
       abitype:
         specifier: 0.8.11
         version: 0.8.11(typescript@5.0.4)
@@ -2722,8 +2722,8 @@ packages:
       typescript: 5.0.4
     dev: true
 
-  /@wagmi/chains@1.2.0(typescript@5.0.4):
-    resolution: {integrity: sha512-dmDRipsE54JfyudOBkuhEexqQWcrZqxn/qiujG8SBzMh/az/AH5xlJSA+j1CPWTx9+QofSMF3B7A4gb6XRmSaQ==}
+  /@wagmi/chains@1.6.0(typescript@5.0.4):
+    resolution: {integrity: sha512-5FRlVxse5P4ZaHG3GTvxwVANSmYJas1eQrTBHhjxVtqXoorm0aLmCHbhmN8Xo1yu09PaWKlleEvfE98yH4AgIw==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
