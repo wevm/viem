@@ -18,10 +18,10 @@ describe('assertCurrentChain', () => {
     expect(() =>
       assertCurrentChain({ currentChainId: mainnet.id, chain: optimism }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
       Current Chain ID:  1
-      Expected Chain ID: 10 – Optimism
+      Expected Chain ID: 10 – OP Mainnet
 
       Version: viem@1.0.2"
     `)

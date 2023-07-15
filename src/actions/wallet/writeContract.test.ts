@@ -49,10 +49,10 @@ test('client chain mismatch', async () => {
       functionName: 'mint',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
-    Expected Chain ID: 10 – Optimism
+    Expected Chain ID: 10 – OP Mainnet
      
     Request Arguments:
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
@@ -112,13 +112,13 @@ describe('args: chain', () => {
         chain: optimism,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
       Current Chain ID:  1
-      Expected Chain ID: 10 – Optimism
+      Expected Chain ID: 10 – OP Mainnet
        
       Request Arguments:
-        chain:  Optimism (id: 10)
+        chain:  OP Mainnet (id: 10)
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:   0x1249c58b
@@ -216,13 +216,13 @@ test('w/ simulateContract (args chain mismatch)', async () => {
   await expect(() =>
     writeContract(walletClient, request),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
-    Expected Chain ID: 10 – Optimism
+    Expected Chain ID: 10 – OP Mainnet
      
     Request Arguments:
-      chain:  Optimism (id: 10)
+      chain:  OP Mainnet (id: 10)
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
       data:   0x1249c58b
@@ -244,10 +244,10 @@ test('w/ simulateContract (client chain mismatch)', async () => {
   await expect(() =>
     writeContract(walletClient, request),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+    "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
-    Expected Chain ID: 10 – Optimism
+    Expected Chain ID: 10 – OP Mainnet
      
     Request Arguments:
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266

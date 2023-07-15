@@ -110,7 +110,7 @@ test('universal resolver contract not configured for chain', async () => {
       },
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "Chain \\"Optimism\\" does not support contract \\"ensUniversalResolver\\".
+    "Chain \\"OP Mainnet\\" does not support contract \\"ensUniversalResolver\\".
 
     This could be due to any of the following:
     - The chain does not have the contract \\"ensUniversalResolver\\" configured.

@@ -571,13 +571,13 @@ describe('args: chain', async () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – Optimism).
+      "The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
       Current Chain ID:  1
-      Expected Chain ID: 10 – Optimism
+      Expected Chain ID: 10 – OP Mainnet
        
       Request Arguments:
-        chain:  Optimism (id: 10)
+        chain:  OP Mainnet (id: 10)
         from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
         value:  1 ETH
