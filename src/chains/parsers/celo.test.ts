@@ -7,7 +7,10 @@ import {
   toRlp,
 } from '../../index.js'
 
-import { serializeTransactionCelo } from '../serializers/celo.js'
+import {
+  type TransactionSerializableCIP42,
+  serializeTransactionCelo,
+} from '../serializers/celo.js'
 
 import { parseTransactionCelo } from './celo.js'
 import { describe, expect, test } from 'vitest'
@@ -69,6 +72,70 @@ describe('parseTransaction', () => {
         "nonce": 785,
         "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
         "type": "cip42",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('should parse a CIP42 transaction with access list', () => {
+    const transactionWithAccessList: TransactionSerializableCIP42 = {
+      ...transaction,
+      chainId: 42270,
+      accessList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          storageKeys: [
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+            '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          ],
+        },
+      ],
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithAccessList)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+      {
+        "accessList": [
+          {
+            "address": "0x0000000000000000000000000000000000000000",
+            "storageKeys": [
+              "0x0000000000000000000000000000000000000000000000000000000000000001",
+              "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+            ],
+          },
+        ],
+        "chainId": 42270,
+        "gas": 21001n,
+        "maxFeePerGas": 2000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "nonce": 785,
+        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('should parse a CIP42 transaction with data', () => {
+    const transactionWithData: TransactionSerializableCIP42 = {
+      ...transaction,
+      chainId: 42270,
+      data: '0x1234',
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithData)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+      {
+        "chainId": 42270,
+        "data": "0x1234",
+        "gas": 21001n,
+        "maxFeePerGas": 2000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "nonce": 785,
+        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+        "type": "eip1559",
         "value": 1000000000000000000n,
       }
     `)
