@@ -112,6 +112,19 @@ export const singleAddressResolverAbi = [
   },
 ] as const
 
+export const coinTypeAddressResolverAbi = [
+  {
+    name: 'addr',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'name', type: 'bytes32' },
+      { name: 'coinType', type: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bytes' }],
+  },
+] as const
+
 // ERC-1271
 // isValidSignature(bytes32 hash, bytes signature) → bytes4 magicValue
 export const smartAccountAbi = [
