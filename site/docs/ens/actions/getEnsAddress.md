@@ -70,6 +70,19 @@ const ensName = await publicClient.getEnsAddress({
 })
 ```
 
+### coinType
+
+- **Type:** `bigint`
+
+The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type to fetch the address for
+
+```ts
+const ensName = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'), 
+  coinType: 60n, // [!code focus]
+})
+```
+
 ### blockNumber (optional)
 
 - **Type:** `number`
