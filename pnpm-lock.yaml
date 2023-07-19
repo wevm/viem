@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 overrides:
   viem: workspace:*
@@ -31,8 +35,8 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(typescript@5.0.4)
       abitype:
-        specifier: 0.8.11
-        version: 0.8.11(typescript@5.0.4)
+        specifier: 0.9.3
+        version: 0.9.3(typescript@5.0.4)
       isomorphic-ws:
         specifier: 5.0.0
         version: 5.0.0(ws@8.12.0)
@@ -2903,12 +2907,14 @@ packages:
       zod: 3.20.2
     dev: true
 
-  /abitype@0.8.11(typescript@5.0.4):
-    resolution: {integrity: sha512-bM4v2dKvX08sZ9IU38IN5BKmN+ZkOSd2oI4a9f0ejHYZQYV6cDr7j+d95ga0z2XHG36Y4jzoG5Z7qDqxp7fi/A==}
+  /abitype@0.9.3(typescript@5.0.4):
+    resolution: {integrity: sha512-dz4qCQLurx97FQhnb/EIYTk/ldQ+oafEDUqC0VVIeQS1Q48/YWt/9YNfMmp9SLFqN41ktxny3c8aYxHjmFIB/w==}
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3 >=3.19.1
     peerDependenciesMeta:
+      typescript:
+        optional: true
       zod:
         optional: true
     dependencies:
