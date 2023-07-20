@@ -1,6 +1,12 @@
 export {
   type Abi,
+  type AbiFunction,
+  type AbiParameter,
+  type AbiStateMutability,
+  type AbiParameterKind,
+  type AbiParameterToPrimitiveType,
   type Address,
+  type ExtractAbiFunction,
   type Narrow,
   type ParseAbi,
   type ParseAbiItem,
