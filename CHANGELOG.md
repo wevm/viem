@@ -1,5 +1,11 @@
 # viem
 
+## 1.3.1
+
+### Patch Changes
+
+- [#907](https://github.com/wagmi-dev/viem/pull/907) [`319cdb61`](https://github.com/wagmi-dev/viem/commit/319cdb615f0ac6cff0385bb371be9a7da51abe80) Thanks [@Raiden1411](https://github.com/Raiden1411)! - Updated `abitype` to 0.9.3
+
 ## 1.3.0
 
 ### Minor Changes
