@@ -1,5 +1,15 @@
 # viem
 
+## 1.4.0
+
+### Minor Changes
+
+- [#908](https://github.com/wagmi-dev/viem/pull/908) [`988c65f8`](https://github.com/wagmi-dev/viem/commit/988c65f8218c9ce0549c04b3779efb5f685da75f) Thanks [@moldy530](https://github.com/moldy530)! - Added coin type support for `getEnsAddress`.
+
+### Patch Changes
+
+- [#878](https://github.com/wagmi-dev/viem/pull/878) [`4e227303`](https://github.com/wagmi-dev/viem/commit/4e2273036f8bbc7973b13467d7cb9baa2f17a460) Thanks [@salieflewis](https://github.com/salieflewis)! - Exported `Filter` type.
+
 ## 1.3.1
 
 ### Patch Changes
