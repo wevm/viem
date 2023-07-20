@@ -502,13 +502,7 @@ export type {
   ExtractFormatterReturnType,
 } from './types/formatter.js'
 export type { Serializers } from './types/serializer.js'
-export type {
-  GetTypedDataDomain,
-  GetTypedDataMessage,
-  GetTypedDataPrimaryType,
-  GetTypedDataTypes,
-  TypedDataDefinition,
-} from './types/typedData.js'
+export type { TypedDataDefinition } from './types/typedData.js'
 export type { GetTransportConfig } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'

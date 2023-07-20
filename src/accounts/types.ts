@@ -1,5 +1,4 @@
 import type { HDKey } from '@scure/bip32'
-
 import type { Address, TypedData } from 'abitype'
 
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
@@ -34,10 +33,10 @@ export type CustomSource = {
       : Hash
   >
   signTypedData: <
-    TTypedData extends TypedData | { [key: string]: unknown },
-    TPrimaryType extends string = string,
+    const typedData extends TypedData | Record<string, unknown>,
+    primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   >(
-    typedData: TypedDataDefinition<TTypedData, TPrimaryType>,
+    typedDataDefinition: TypedDataDefinition<typedData, primaryType>,
   ) => Promise<Hash>
 }
 

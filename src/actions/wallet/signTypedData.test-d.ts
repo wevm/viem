@@ -39,7 +39,7 @@ const domain = {
 test('SignTypedDataParameters', () => {
   type Result = SignTypedDataParameters<typeof types, 'Mail'>
   expectTypeOf<Result['primaryType']>().toEqualTypeOf<
-    'Mail' | 'Person' | 'Name' | 'EIP712Domain'
+    'Mail' | 'Person' | 'Name'
   >()
   expectTypeOf<Result['message']>().toEqualTypeOf<{
     timestamp: bigint
@@ -150,9 +150,7 @@ test('`types` not const asserted', () => {
   type Result = Parameters<
     typeof walletClient.signTypedData<typeof types_, typeof primaryType>
   >[0]
-  expectTypeOf<Result['message']>().toEqualTypeOf<{
-    [key: string]: unknown
-  }>()
+  expectTypeOf<Result['message']>().toEqualTypeOf<Record<string, unknown>>()
 })
 
 test('`types` declared as `TypedData`', () => {
@@ -176,7 +174,5 @@ test('`types` declared as `TypedData`', () => {
   type Result = Parameters<
     typeof walletClient.signTypedData<typeof types_, typeof primaryType>
   >[0]
-  expectTypeOf<Result['message']>().toEqualTypeOf<{
-    [key: string]: unknown
-  }>()
+  expectTypeOf<Result['message']>().toEqualTypeOf<Record<string, unknown>>()
 })
