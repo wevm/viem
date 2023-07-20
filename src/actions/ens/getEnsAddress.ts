@@ -3,7 +3,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
-  singleAddressResolverAbi,
+  addressResolverAbi,
   universalResolverResolveAbi,
 } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
@@ -23,6 +23,8 @@ import {
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
+    /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
+    coinType?: number
     /** Name to get the address for. */
     name: string
     /** Address of ENS Universal Resolver Contract. */
@@ -65,6 +67,7 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
   {
     blockNumber,
     blockTag,
+    coinType,
     name,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsAddressParameters,
@@ -84,31 +87,37 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
   }
 
   try {
+    const functionData = encodeFunctionData({
+      abi: addressResolverAbi,
+      functionName: 'addr',
+      ...(coinType != null
+        ? { args: [namehash(name), BigInt(coinType)] }
+        : { args: [namehash(name)] }),
+    })
+
     const res = await readContract(client, {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
-      args: [
-        toHex(packetToBytes(name)),
-        encodeFunctionData({
-          abi: singleAddressResolverAbi,
-          functionName: 'addr',
-          args: [namehash(name)],
-        }),
-      ],
+      args: [toHex(packetToBytes(name)), functionData],
       blockNumber,
       blockTag,
     })
 
     if (res[0] === '0x') return null
 
-    const address = decodeFunctionResult({
-      abi: singleAddressResolverAbi,
-      functionName: 'addr',
-      data: res[0],
-    })
+    const address = trim(
+      decodeFunctionResult({
+        abi: addressResolverAbi,
+        args: coinType != null ? [namehash(name), BigInt(coinType)] : undefined,
+        functionName: 'addr',
+        data: res[0],
+      }),
+    )
 
-    return trim(address) === '0x00' ? null : address
+    if (address === '0x') return null
+    if (trim(address) === '0x00') return null
+    return address
   } catch (err) {
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
