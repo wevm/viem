@@ -23,10 +23,10 @@ import {
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** Name to get the address for. */
-    name: string
     /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
     coinType?: number
+    /** Name to get the address for. */
+    name: string
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
@@ -67,8 +67,8 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
   {
     blockNumber,
     blockTag,
-    name,
     coinType,
+    name,
     universalResolverAddress: universalResolverAddress_,
   }: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {

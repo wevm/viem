@@ -70,19 +70,6 @@ const ensName = await publicClient.getEnsAddress({
 })
 ```
 
-### coinType
-
-- **Type:** `bigint`
-
-The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type to fetch the address for
-
-```ts
-const ensName = await publicClient.getEnsAddress({
-  name: normalize('wagmi-dev.eth'), 
-  coinType: 60, // [!code focus]
-})
-```
-
 ### blockNumber (optional)
 
 - **Type:** `number`
@@ -107,6 +94,19 @@ The block tag to perform the read against.
 const ensName = await publicClient.getEnsAddress({
   name: normalize('wagmi-dev.eth'),
   blockTag: 'safe', // [!code focus]
+})
+```
+
+### coinType (optional)
+
+- **Type:** `bigint`
+
+The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type to fetch the address for
+
+```ts
+const ensName = await publicClient.getEnsAddress({
+  name: normalize('wagmi-dev.eth'), 
+  coinType: 60, // [!code focus]
 })
 ```
 
