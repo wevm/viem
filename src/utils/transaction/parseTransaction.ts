@@ -133,10 +133,6 @@ function parseTransactionEIP1559(
   return { ...signature, ...transaction }
 }
 
-export function toTransactionArray(serializedTransaction: string) {
-  return fromRlp(`0x${serializedTransaction.slice(4)}` as Hex, 'hex')
-}
-
 function parseTransactionEIP2930(
   serializedTransaction: TransactionSerializedEIP2930,
 ): Omit<TransactionRequestEIP2930, 'from'> &
@@ -259,6 +255,10 @@ function parseTransactionLegacy(
   transaction.r = r as Hex
 
   return transaction
+}
+
+export function toTransactionArray(serializedTransaction: string) {
+  return fromRlp(`0x${serializedTransaction.slice(4)}` as Hex, 'hex')
 }
 
 export function parseAccessList(accessList_: RecursiveArray<Hex>): AccessList {
