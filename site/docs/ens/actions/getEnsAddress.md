@@ -99,7 +99,7 @@ const ensName = await publicClient.getEnsAddress({
 
 ### coinType (optional)
 
-- **Type:** `bigint`
+- **Type:** `number`
 
 The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type to fetch the address for
 
