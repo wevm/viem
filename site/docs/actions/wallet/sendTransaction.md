@@ -125,8 +125,8 @@ The transaction recipient or contract address.
 
 ```ts
 const hash = await walletClient.sendTransaction({
-  account, // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: 1000000000000000000n,
   nonce: 69
 })
