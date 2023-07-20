@@ -27,7 +27,7 @@ test('gets address for name', async () => {
 
 test('gets address for name with coinType', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 60n }),
+    getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 60 }),
   ).resolves.toMatchInlineSnapshot(
     '"0xa0cf798816d4b9b9866b5330eea46a18382f251e"',
   )
@@ -35,7 +35,7 @@ test('gets address for name with coinType', async () => {
 
 test('name without address with coinType', async () => {
   await expect(
-    getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 61n }),
+    getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 61 }),
   ).resolves.toBeNull()
 })
 

@@ -102,7 +102,7 @@ export const textResolverAbi = [
   },
 ] as const
 
-export const singleAddressResolverAbi = [
+export const addressResolverAbi = [
   {
     name: 'addr',
     type: 'function',
@@ -110,9 +110,6 @@ export const singleAddressResolverAbi = [
     inputs: [{ name: 'name', type: 'bytes32' }],
     outputs: [{ name: '', type: 'address' }],
   },
-] as const
-
-export const coinTypeAddressResolverAbi = [
   {
     name: 'addr',
     type: 'function',

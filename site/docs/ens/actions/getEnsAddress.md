@@ -79,7 +79,7 @@ The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multich
 ```ts
 const ensName = await publicClient.getEnsAddress({
   name: normalize('wagmi-dev.eth'), 
-  coinType: 60n, // [!code focus]
+  coinType: 60, // [!code focus]
 })
 ```
 

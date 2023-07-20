@@ -3,8 +3,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
-  coinTypeAddressResolverAbi,
-  singleAddressResolverAbi,
+  addressResolverAbi,
   universalResolverResolveAbi,
 } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
@@ -27,7 +26,7 @@ export type GetEnsAddressParameters = Prettify<
     /** Name to get the address for. */
     name: string
     /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
-    coinType?: bigint
+    coinType?: number
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
@@ -88,18 +87,13 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
   }
 
   try {
-    const functionData =
-      coinType != null
-        ? encodeFunctionData({
-            abi: coinTypeAddressResolverAbi,
-            functionName: 'addr',
-            args: [namehash(name), coinType],
-          })
-        : encodeFunctionData({
-            abi: singleAddressResolverAbi,
-            functionName: 'addr',
-            args: [namehash(name)],
-          })
+    const functionData = encodeFunctionData({
+      abi: addressResolverAbi,
+      functionName: 'addr',
+      ...(coinType != null
+        ? { args: [namehash(name), BigInt(coinType)] }
+        : { args: [namehash(name)] }),
+    })
 
     const res = await readContract(client, {
       address: universalResolverAddress,
@@ -112,20 +106,20 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
 
     if (res[0] === '0x') return null
 
-    const address =
-      coinType != null
-        ? decodeFunctionResult({
-            abi: coinTypeAddressResolverAbi,
-            functionName: 'addr',
-            data: res[0],
-          })
-        : decodeFunctionResult({
-            abi: singleAddressResolverAbi,
-            functionName: 'addr',
-            data: res[0],
-          })
+    const address = trim(
+      decodeFunctionResult({
+        abi: addressResolverAbi,
+        args: coinType != null ? [namehash(name), BigInt(coinType)] : undefined,
+        functionName: 'addr',
+        data: res[0],
+      }),
+    )
 
-    return new Set(['0x00', '0x']).has(trim(address)) ? null : address
+    if (address === '0x00' || address === '0x') {
+      return null
+    }
+
+    return address
   } catch (err) {
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
