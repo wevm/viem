@@ -3,17 +3,37 @@ import type { Chain } from '../../types/chain.js'
 import type { ExtractFormatterReturnType } from '../../types/formatter.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
+import type { UnionOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { defineFormatter } from './formatter.js'
+
+type TransactionPendingDependencies =
+  | 'blockHash'
+  | 'blockNumber'
+  | 'transactionIndex'
 
 export type FormattedTransaction<
   TChain extends Chain | undefined = Chain | undefined,
   TBlockTag extends BlockTag = BlockTag,
-> = ExtractFormatterReturnType<
-  TChain,
-  'transaction',
-  Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>
->
+  _FormatterReturnType = ExtractFormatterReturnType<
+    TChain,
+    'transaction',
+    Transaction
+  >,
+  _ExcludedDependencies extends string = {
+    [Key in
+      TransactionPendingDependencies]: Key extends keyof _FormatterReturnType
+      ? _FormatterReturnType[Key] extends never
+        ? Key
+        : never
+      : never
+  }[TransactionPendingDependencies],
+> = UnionOmit<_FormatterReturnType, TransactionPendingDependencies> & {
+  [K in _ExcludedDependencies]: never
+} & Pick<
+    Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
+    TransactionPendingDependencies
+  >
 
 export const transactionType = {
   '0x0': 'legacy',

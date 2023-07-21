@@ -116,7 +116,9 @@ export function watchBlocks<
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
   const includeTransactions = includeTransactions_ ?? false
 
-  let prevBlock: GetBlockReturnType<TChain> | undefined
+  let prevBlock:
+    | GetBlockReturnType<TChain, false | TIncludeTransactions, 'latest'>
+    | undefined
 
   const pollBlocks = () => {
     const observerId = stringify([

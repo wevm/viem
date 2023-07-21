@@ -12,10 +12,7 @@ import type {
   RpcTransaction,
   RpcTransactionReceipt,
 } from '../../types/rpc.js'
-import type {
-  Transaction,
-  TransactionRequest,
-} from '../../types/transaction.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 import { sendTransaction } from '../../wallet.js'
 import { celo } from '../index.js'
 import { formattersCelo } from './celo.js'
@@ -146,13 +143,15 @@ describe('smoke', () => {
       blockNumber: 16645775n,
       includeTransactions: true,
     })
-    expectTypeOf(block_includeTransactions.transactions).toEqualTypeOf<
-      | (Transaction & {
-          feeCurrency: `0x${string}` | null
-          gatewayFee: bigint | null
-          gatewayFeeRecipient: `0x${string}` | null
-        })[]
-    >()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].feeCurrency,
+    ).toEqualTypeOf<`0x${string}` | null>()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].gatewayFee,
+    ).toEqualTypeOf<bigint | null>()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].gatewayFeeRecipient,
+    ).toEqualTypeOf<`0x${string}` | null>()
   })
 
   test('transaction', async () => {

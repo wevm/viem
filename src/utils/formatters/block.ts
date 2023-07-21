@@ -3,24 +3,37 @@ import type { Chain } from '../../types/chain.js'
 import type { ExtractFormatterReturnType } from '../../types/formatter.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
+import type { Prettify } from '../../types/utils.js'
 
 import { defineFormatter } from './formatter.js'
-import { formatTransaction } from './transaction.js'
+import { type FormattedTransaction, formatTransaction } from './transaction.js'
+
+type BlockPendingDependencies = 'hash' | 'logsBloom' | 'nonce' | 'number'
 
 export type FormattedBlock<
   TChain extends Chain | undefined = Chain | undefined,
   TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
-  _ExtractedFormat = ExtractFormatterReturnType<
+  _FormatterReturnType = ExtractFormatterReturnType<
     TChain,
     'block',
-    Block<bigint, TIncludeTransactions, TBlockTag>
+    Block<bigint, TIncludeTransactions>
   >,
-  _Transactions = TIncludeTransactions extends true
-    ? _ExtractedFormat extends { transactions: infer Transactions }
-      ? // Extract the object type from the `block.transactions` union.
-        Extract<Transactions, Record<string, unknown>[]>
+  _ExcludedDependencies extends string = {
+    [Key in BlockPendingDependencies]: Key extends keyof _FormatterReturnType
+      ? _FormatterReturnType[Key] extends never
+        ? Key
+        : never
       : never
+  }[BlockPendingDependencies],
+  _ExtractedFormat = Omit<_FormatterReturnType, BlockPendingDependencies> & {
+    [K in _ExcludedDependencies]: never
+  } & Pick<
+      Block<bigint, TIncludeTransactions, TBlockTag>,
+      BlockPendingDependencies
+    >,
+  _Transactions = TIncludeTransactions extends true
+    ? Prettify<FormattedTransaction<TChain, TBlockTag>>[]
     : Hash[],
 > = Omit<_ExtractedFormat, 'transactions'> & {
   transactions: _Transactions
