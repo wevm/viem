@@ -38,7 +38,7 @@ export type GetBlockParameters<
        * The block tag.
        * @default 'latest'
        */
-      blockTag?: TBlockTag
+      blockTag?: TBlockTag | BlockTag
     }
 )
 

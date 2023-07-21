@@ -34,7 +34,7 @@ export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
       blockHash?: never
       blockNumber?: never
       /** The block tag. */
-      blockTag: TBlockTag
+      blockTag: TBlockTag | BlockTag
       hash?: never
       /** The index of the transaction on the block. */
       index: number

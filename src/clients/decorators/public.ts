@@ -491,7 +491,12 @@ export type PublicActions<
    * })
    * const block = await client.getBlock()
    */
-  getBlock: (args?: GetBlockParameters) => Promise<GetBlockReturnType<TChain>>
+  getBlock: <
+    TIncludeTransactions extends boolean = false,
+    TBlockTag extends BlockTag = 'latest',
+  >(
+    args?: GetBlockParameters<TIncludeTransactions, TBlockTag>,
+  ) => Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>>
   /**
    * Returns the number of the most recent block seen.
    *
@@ -839,10 +844,26 @@ export type PublicActions<
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,
+    args: GetFilterChangesParameters<
+      TFilterType,
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
   ) => Promise<
-    GetFilterChangesReturnType<TFilterType, TAbi, TEventName, TStrict>
+    GetFilterChangesReturnType<
+      TFilterType,
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >
   >
   /**
    * Returns a list of event logs since the filter was created.
@@ -874,9 +895,19 @@ export type PublicActions<
     TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
-  ) => Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>>
+    args: GetFilterLogsParameters<
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
+  ) => Promise<
+    GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+  >
   /**
    * Returns the current price of gas (in wei).
    *
@@ -972,9 +1003,9 @@ export type PublicActions<
    *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
    * })
    */
-  getTransaction: (
-    args: GetTransactionParameters,
-  ) => Promise<GetTransactionReturnType<TChain>>
+  getTransaction: <TBlockTag extends BlockTag = 'latest'>(
+    args: GetTransactionParameters<TBlockTag>,
+  ) => Promise<GetTransactionReturnType<TChain, TBlockTag>>
   /**
    * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
    *
