@@ -13,8 +13,8 @@ import {
 } from '../../utils/formatters/block.js'
 
 export type GetBlockParameters<
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 > = {
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: TIncludeTransactions
@@ -44,8 +44,8 @@ export type GetBlockParameters<
 
 export type GetBlockReturnType<
   TChain extends Chain | undefined = Chain | undefined,
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 > = FormattedBlock<TChain, TIncludeTransactions, TBlockTag>
 
 /**
@@ -75,8 +75,8 @@ export type GetBlockReturnType<
 export async function getBlock<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 >(
   client: Client<Transport, TChain, TAccount>,
   {
@@ -84,8 +84,8 @@ export async function getBlock<
     blockNumber,
     blockTag: blockTag_,
     includeTransactions: includeTransactions_,
-  }: GetBlockParameters<TBlockTag, TIncludeTransactions> = {},
-): Promise<GetBlockReturnType<TChain, TBlockTag, TIncludeTransactions>> {
+  }: GetBlockParameters<TIncludeTransactions, TBlockTag> = {},
+): Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>> {
   const blockTag = blockTag_ ?? 'latest'
   const includeTransactions = includeTransactions_ ?? false
 

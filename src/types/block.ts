@@ -5,6 +5,7 @@ import type { Transaction } from './transaction.js'
 
 export type Block<
   TQuantity = bigint,
+  TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
   TTransaction = Transaction<
     bigint,
@@ -50,7 +51,7 @@ export type Block<
   /** Total difficulty of the chain until this block */
   totalDifficulty: TQuantity | null
   /** List of transaction objects or hashes */
-  transactions: Hash[] | TTransaction[]
+  transactions: TIncludeTransactions extends true ? TTransaction[] : Hash[]
   /** Root of this block’s transaction trie */
   transactionsRoot: Hash
   /** List of uncle hashes */
@@ -77,10 +78,11 @@ export type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
 
 export type Uncle<
   TQuantity = bigint,
+  TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
   TTransaction = Transaction<
     bigint,
     number,
     TBlockTag extends 'pending' ? true : false
   >,
-> = Block<TQuantity, TBlockTag, TTransaction>
+> = Block<TQuantity, TIncludeTransactions, TBlockTag, TTransaction>

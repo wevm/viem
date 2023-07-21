@@ -14,7 +14,7 @@ export type FormattedBlock<
   _ExtractedFormat = ExtractFormatterReturnType<
     TChain,
     'block',
-    Block<bigint, TBlockTag>
+    Block<bigint, TIncludeTransactions, TBlockTag>
   >,
   _Transactions = TIncludeTransactions extends true
     ? _ExtractedFormat extends { transactions: infer Transactions }

@@ -460,8 +460,8 @@ describe('poll', () => {
         .mockResolvedValueOnce({ number: null } as Block)
 
       const blocks: [
-        OnBlockParameter<Chain, 'pending'>,
-        OnBlockParameter<Chain, 'pending'> | undefined,
+        OnBlockParameter<Chain, boolean, 'pending'>,
+        OnBlockParameter<Chain, boolean, 'pending'> | undefined,
       ][] = []
       const unwatch = watchBlocks(publicClient, {
         pollingInterval: 100,

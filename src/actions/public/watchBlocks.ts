@@ -12,24 +12,24 @@ import { type GetBlockReturnType, getBlock } from './getBlock.js'
 
 export type OnBlockParameter<
   TChain extends Chain | undefined = Chain,
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
-> = GetBlockReturnType<TChain, TBlockTag, TIncludeTransactions>
+  TBlockTag extends BlockTag = 'latest',
+> = GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>
 
 export type OnBlock<
   TChain extends Chain | undefined = Chain,
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 > = (
-  block: OnBlockParameter<TChain, TBlockTag, TIncludeTransactions>,
+  block: OnBlockParameter<TChain, TIncludeTransactions, TBlockTag>,
   prevBlock:
-    | OnBlockParameter<TChain, TBlockTag, TIncludeTransactions>
+    | OnBlockParameter<TChain, TIncludeTransactions, TBlockTag>
     | undefined,
 ) => void
 
 type PollOptions<
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 > = {
   /** The block tag. Defaults to "latest". */
   blockTag?: TBlockTag | BlockTag
@@ -46,11 +46,11 @@ type PollOptions<
 export type WatchBlocksParameters<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain,
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 > = {
   /** The callback to call when a new block is received. */
-  onBlock: OnBlock<TChain, TBlockTag, TIncludeTransactions>
+  onBlock: OnBlock<TChain, TIncludeTransactions, TBlockTag>
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
 } & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
@@ -64,8 +64,8 @@ export type WatchBlocksParameters<
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions<TBlockTag, TIncludeTransactions> & { poll?: true })
-  : PollOptions<TBlockTag, TIncludeTransactions> & { poll?: true })
+      | (PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
+  : PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
 
 export type WatchBlocksReturnType = () => void
 
@@ -97,8 +97,8 @@ export type WatchBlocksReturnType = () => void
 export function watchBlocks<
   TTransport extends Transport,
   TChain extends Chain | undefined,
-  TBlockTag extends BlockTag = 'latest',
   TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 >(
   client: Client<TTransport, TChain>,
   {
@@ -110,7 +110,7 @@ export function watchBlocks<
     includeTransactions: includeTransactions_,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlocksParameters<TTransport, TChain, TBlockTag, TIncludeTransactions>,
+  }: WatchBlocksParameters<TTransport, TChain, TIncludeTransactions, TBlockTag>,
 ): WatchBlocksReturnType {
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'

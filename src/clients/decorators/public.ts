@@ -1297,14 +1297,14 @@ export type PublicActions<
    * })
    */
   watchBlocks: <
-    TBlockTag extends BlockTag = 'latest',
     TIncludeTransactions extends boolean = false,
+    TBlockTag extends BlockTag = 'latest',
   >(
     args: WatchBlocksParameters<
       TTransport,
       TChain,
-      TBlockTag,
-      TIncludeTransactions
+      TIncludeTransactions,
+      TBlockTag
     >,
   ) => WatchBlocksReturnType
   /**
