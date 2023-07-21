@@ -19,15 +19,15 @@ export type FormattedBlock<
     'block',
     Block<bigint, TIncludeTransactions>
   >,
-  _ExcludedDependencies extends string = {
+  _ExcludedPendingDependencies extends string = {
     [Key in BlockPendingDependencies]: Key extends keyof _FormatterReturnType
       ? _FormatterReturnType[Key] extends never
         ? Key
         : never
       : never
   }[BlockPendingDependencies],
-  _ExtractedFormat = Omit<_FormatterReturnType, BlockPendingDependencies> & {
-    [K in _ExcludedDependencies]: never
+  _Formatted = Omit<_FormatterReturnType, BlockPendingDependencies> & {
+    [K in _ExcludedPendingDependencies]: never
   } & Pick<
       Block<bigint, TIncludeTransactions, TBlockTag>,
       BlockPendingDependencies
@@ -35,7 +35,7 @@ export type FormattedBlock<
   _Transactions = TIncludeTransactions extends true
     ? Prettify<FormattedTransaction<TChain, TBlockTag>>[]
     : Hash[],
-> = Omit<_ExtractedFormat, 'transactions'> & {
+> = Omit<_Formatted, 'transactions'> & {
   transactions: _Transactions
 }
 

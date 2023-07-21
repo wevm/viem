@@ -20,7 +20,7 @@ export type FormattedTransaction<
     'transaction',
     Transaction
   >,
-  _ExcludedDependencies extends string = {
+  _ExcludedPendingDependencies extends string = {
     [Key in
       TransactionPendingDependencies]: Key extends keyof _FormatterReturnType
       ? _FormatterReturnType[Key] extends never
@@ -29,7 +29,7 @@ export type FormattedTransaction<
       : never
   }[TransactionPendingDependencies],
 > = UnionOmit<_FormatterReturnType, TransactionPendingDependencies> & {
-  [K in _ExcludedDependencies]: never
+  [K in _ExcludedPendingDependencies]: never
 } & Pick<
     Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,
     TransactionPendingDependencies
