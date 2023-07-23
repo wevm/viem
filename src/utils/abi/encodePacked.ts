@@ -104,6 +104,7 @@ function encode<TPackedAbiType extends PackedAbiType | unknown>(
     for (let i = 0; i < value.length; i++) {
       data.push(encode(childType, value[i], true))
     }
+    if (data.length === 0) return '0x'
     return concat(data)
   }
 

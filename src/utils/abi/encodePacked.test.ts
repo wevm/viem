@@ -147,6 +147,11 @@ test.each([
     expected: '0xbeef',
   },
   {
+    types: ['bytes[]'],
+    values: [[]],
+    expected: '0x',
+  },
+  {
     types: ['bool[]'],
     values: [[true, false, true]],
     expected:
