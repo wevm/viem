@@ -12,6 +12,15 @@ export type Formatters = {
   transactionRequest?: Formatter<'transactionRequest'>
 }
 
+export type ExtractFormatterExclude<
+  TChain extends Chain | undefined,
+  TType extends keyof Formatters,
+> = TChain extends Chain<infer _Formatters extends Formatters>
+  ? _Formatters[TType] extends { exclude: infer Exclude }
+    ? Extract<Exclude, string[]>[number]
+    : ''
+  : ''
+
 export type ExtractFormatterParameters<
   TChain extends Chain | undefined,
   TType extends keyof Formatters,
