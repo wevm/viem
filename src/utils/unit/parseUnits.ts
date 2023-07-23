@@ -9,7 +9,8 @@ export function parseUnits(value: string, decimals: number) {
 
   // round off if the fraction is larger than the number of decimals.
   if (decimals === 0) {
-    integer = `${Math.round(Number(`${integer}.${fraction}`))}`
+    if (Math.round(Number(`.${fraction}`)) === 1)
+      integer = `${BigInt(integer) + 1n}`
     fraction = ''
   } else if (fraction.length > decimals) {
     const [left, unit, right] = [
