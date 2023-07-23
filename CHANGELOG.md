@@ -1,5 +1,13 @@
 # viem
 
+## 1.4.1
+
+### Patch Changes
+
+- [`789592dc`](https://github.com/wagmi-dev/viem/commit/789592dc5d4ca264f2ef4f3f0f4fa721fb9522fc) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where calling `encodePacked` with an empty `bytes[]` array would return an `Uint8Array` instead of `Hex` value.
+
+* [#922](https://github.com/wagmi-dev/viem/pull/922) [`71c9c933`](https://github.com/wagmi-dev/viem/commit/71c9c9338904d142248a32f1acd99ea25a6e6e58) Thanks [@mikemcdonald](https://github.com/mikemcdonald)! - Fixed an issue where `parseUnits` would throw `Cannot convert to a BigInt` for large numbers with a fraction component.
+
 ## 1.4.0
 
 ### Minor Changes
