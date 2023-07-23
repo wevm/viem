@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed parseUnits to properly handle large numbers when decimals = 0
+Fixed an issue where `parseUnits` would throw `Cannot convert to a BigInt` for large numbers with a fraction component.

@@ -50,6 +50,9 @@ test('decimals === 0', () => {
   expect(parseUnits('12301000000000000020000.5', 0)).toMatchInlineSnapshot(
     '12301000000000000020001n',
   )
+  expect(parseUnits('99999999999999999999999.5', 0)).toMatchInlineSnapshot(
+    '100000000000000000000000n',
+  )
 })
 
 test('decimals < fraction length', () => {
