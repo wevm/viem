@@ -7,7 +7,7 @@ import type {
 
 type MAXIMUM_DEPTH = 20
 
-export type Contract<
+type Contract<
   TAbi extends Abi | readonly unknown[] = Abi | readonly unknown[],
   TFunctionName extends string = string,
 > = { abi: TAbi; functionName: TFunctionName }
