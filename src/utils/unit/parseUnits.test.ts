@@ -41,6 +41,18 @@ test('decimals === 0', () => {
   expect(
     parseUnits('69.5952141234124125231523412312', 0),
   ).toMatchInlineSnapshot('70n')
+  expect(parseUnits('12301000000000000020000', 0)).toMatchInlineSnapshot(
+    '12301000000000000020000n',
+  )
+  expect(parseUnits('12301000000000000020000.123', 0)).toMatchInlineSnapshot(
+    '12301000000000000020000n',
+  )
+  expect(parseUnits('12301000000000000020000.5', 0)).toMatchInlineSnapshot(
+    '12301000000000000020001n',
+  )
+  expect(parseUnits('99999999999999999999999.5', 0)).toMatchInlineSnapshot(
+    '100000000000000000000000n',
+  )
 })
 
 test('decimals < fraction length', () => {

@@ -5,6 +5,46 @@ import * as abis from './abis.js'
 test('exports abis', () => {
   expect(abis).toMatchInlineSnapshot(`
     {
+      "addressResolverAbi": [
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes32",
+            },
+          ],
+          "name": "addr",
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes32",
+            },
+            {
+              "name": "coinType",
+              "type": "uint256",
+            },
+          ],
+          "name": "addr",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
       "multicall3Abi": [
         {
           "inputs": [
@@ -42,25 +82,6 @@ test('exports abis', () => {
               ],
               "name": "returnData",
               "type": "tuple[]",
-            },
-          ],
-          "stateMutability": "view",
-          "type": "function",
-        },
-      ],
-      "singleAddressResolverAbi": [
-        {
-          "inputs": [
-            {
-              "name": "name",
-              "type": "bytes32",
-            },
-          ],
-          "name": "addr",
-          "outputs": [
-            {
-              "name": "",
-              "type": "address",
             },
           ],
           "stateMutability": "view",

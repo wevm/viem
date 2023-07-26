@@ -1,5 +1,29 @@
 # viem
 
+## 1.4.1
+
+### Patch Changes
+
+- [`789592dc`](https://github.com/wagmi-dev/viem/commit/789592dc5d4ca264f2ef4f3f0f4fa721fb9522fc) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where calling `encodePacked` with an empty `bytes[]` array would return an `Uint8Array` instead of `Hex` value.
+
+* [#922](https://github.com/wagmi-dev/viem/pull/922) [`71c9c933`](https://github.com/wagmi-dev/viem/commit/71c9c9338904d142248a32f1acd99ea25a6e6e58) Thanks [@mikemcdonald](https://github.com/mikemcdonald)! - Fixed an issue where `parseUnits` would throw `Cannot convert to a BigInt` for large numbers with a fraction component.
+
+## 1.4.0
+
+### Minor Changes
+
+- [#908](https://github.com/wagmi-dev/viem/pull/908) [`988c65f8`](https://github.com/wagmi-dev/viem/commit/988c65f8218c9ce0549c04b3779efb5f685da75f) Thanks [@moldy530](https://github.com/moldy530)! - Added coin type support for `getEnsAddress`.
+
+### Patch Changes
+
+- [#878](https://github.com/wagmi-dev/viem/pull/878) [`4e227303`](https://github.com/wagmi-dev/viem/commit/4e2273036f8bbc7973b13467d7cb9baa2f17a460) Thanks [@salieflewis](https://github.com/salieflewis)! - Exported `Filter` type.
+
+## 1.3.1
+
+### Patch Changes
+
+- [#907](https://github.com/wagmi-dev/viem/pull/907) [`319cdb61`](https://github.com/wagmi-dev/viem/commit/319cdb615f0ac6cff0385bb371be9a7da51abe80) Thanks [@Raiden1411](https://github.com/Raiden1411)! - Updated `abitype` to 0.9.3
+
 ## 1.3.0
 
 ### Minor Changes

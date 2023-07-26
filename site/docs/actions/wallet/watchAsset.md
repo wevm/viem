@@ -141,4 +141,4 @@ const success = await walletClient.watchAsset({
 
 ## JSON-RPC Methods
 
-[`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-747)
+[`wallet_watchAsset`](https://eips.ethereum.org/EIPS/eip-747)
