@@ -25,10 +25,10 @@ export {
 } from './actions/public/multicall.js'
 export type {
   WatchEventOnLogsFn,
-  /** @deprecated - use WatchEventOnLogsFn instead. */
+  /** @deprecated - use `WatchEventOnLogsFn` instead. */
   WatchEventOnLogsFn as OnLogsFn,
   WatchEventOnLogsParameter,
-  /** @deprecated - use WatchEventOnLogsParameter instead. */
+  /** @deprecated - use `WatchEventOnLogsParameter` instead. */
   WatchEventOnLogsParameter as OnLogsParameter,
 } from './actions/public/watchEvent.js'
 export {
