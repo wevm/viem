@@ -115,10 +115,10 @@ export {
 export {
   watchEvent,
   type WatchEventOnLogsFn,
-  /** @deprecated - use WatchEventOnLogsFn instead. */
+  /** @deprecated - use `WatchEventOnLogsFn` instead. */
   type WatchEventOnLogsFn as OnLogsFn,
   type WatchEventOnLogsParameter,
-  /** @deprecated - use WatchEventOnLogsParameter instead. */
+  /** @deprecated - use `WatchEventOnLogsParameter` instead. */
   type WatchEventOnLogsParameter as OnLogsParameter,
 } from './actions/public/watchEvent.js'
 export {
