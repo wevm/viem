@@ -15,6 +15,7 @@ import { getAbiItem } from '../utils/abi/getAbiItem.js'
 import { formatEther } from '../utils/unit/formatEther.js'
 import { formatGwei } from '../utils/unit/formatGwei.js'
 
+import { AbiErrorSignatureNotFoundError } from './abi.js'
 import { BaseError } from './base.js'
 import { prettyPrint } from './transaction.js'
 import { getContractAddress } from './utils.js'
@@ -154,6 +155,7 @@ export class ContractFunctionRevertedError extends BaseError {
 
   data?: DecodeErrorResultReturnType
   reason?: string
+  signature?: Hex
 
   constructor({
     abi,
@@ -161,56 +163,75 @@ export class ContractFunctionRevertedError extends BaseError {
     functionName,
     message,
   }: { abi: Abi; data?: Hex; functionName: string; message?: string }) {
+    let cause: Error | undefined
     let decodedData: DecodeErrorResultReturnType | undefined = undefined
     let metaMessages
     let reason
     if (data && data !== '0x') {
-      decodedData = decodeErrorResult({ abi, data })
-      const { abiItem, errorName, args: errorArgs } = decodedData
-      if (errorName === 'Error') {
-        reason = (errorArgs as [string])[0]
-      } else if (errorName === 'Panic') {
-        const [firstArg] = errorArgs as [number]
-        reason = panicReasons[firstArg as keyof typeof panicReasons]
-      } else {
-        const errorWithParams = abiItem
-          ? formatAbiItem(abiItem, { includeName: true })
-          : undefined
-        const formattedArgs =
-          abiItem && errorArgs
-            ? formatAbiItemWithArgs({
-                abiItem,
-                args: errorArgs,
-                includeFunctionName: false,
-                includeName: false,
-              })
+      try {
+        decodedData = decodeErrorResult({ abi, data })
+        const { abiItem, errorName, args: errorArgs } = decodedData
+        if (errorName === 'Error') {
+          reason = (errorArgs as [string])[0]
+        } else if (errorName === 'Panic') {
+          const [firstArg] = errorArgs as [number]
+          reason = panicReasons[firstArg as keyof typeof panicReasons]
+        } else {
+          const errorWithParams = abiItem
+            ? formatAbiItem(abiItem, { includeName: true })
             : undefined
+          const formattedArgs =
+            abiItem && errorArgs
+              ? formatAbiItemWithArgs({
+                  abiItem,
+                  args: errorArgs,
+                  includeFunctionName: false,
+                  includeName: false,
+                })
+              : undefined
 
-        metaMessages = [
-          errorWithParams ? `Error: ${errorWithParams}` : '',
-          formattedArgs && formattedArgs !== '()'
-            ? `       ${[...Array(errorName?.length ?? 0).keys()]
-                .map(() => ' ')
-                .join('')}${formattedArgs}`
-            : '',
-        ]
+          metaMessages = [
+            errorWithParams ? `Error: ${errorWithParams}` : '',
+            formattedArgs && formattedArgs !== '()'
+              ? `       ${[...Array(errorName?.length ?? 0).keys()]
+                  .map(() => ' ')
+                  .join('')}${formattedArgs}`
+              : '',
+          ]
+        }
+      } catch (err) {
+        cause = err as Error
       }
     } else if (message) reason = message
 
+    let signature: Hex | undefined
+    if (cause instanceof AbiErrorSignatureNotFoundError) {
+      signature = cause.signature
+      metaMessages = [
+        `Unable to decode signature "${signature}" as it was not found on the provided ABI.`,
+        'Make sure you are using the correct ABI and that the error exists on it.',
+        `You can look up the decoded signature here: https://openchain.xyz/signatures?query=${signature}.`,
+      ]
+    }
+
     super(
-      reason && reason !== 'execution reverted'
+      (reason && reason !== 'execution reverted') || signature
         ? [
-            `The contract function "${functionName}" reverted with the following reason:`,
-            reason,
+            `The contract function "${functionName}" reverted with the following ${
+              signature ? 'signature' : 'reason'
+            }:`,
+            reason || signature,
           ].join('\n')
         : `The contract function "${functionName}" reverted.`,
       {
+        cause,
         metaMessages,
       },
     )
 
-    this.reason = reason
     this.data = decodedData
+    this.reason = reason
+    this.signature = signature
   }
 }
 

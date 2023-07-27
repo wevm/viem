@@ -163,17 +163,21 @@ export class AbiErrorNotFoundError extends BaseError {
 
 export class AbiErrorSignatureNotFoundError extends BaseError {
   override name = 'AbiErrorSignatureNotFoundError'
+
+  signature: Hex
+
   constructor(signature: Hex, { docsPath }: { docsPath: string }) {
     super(
       [
         `Encoded error signature "${signature}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the error exists on it.',
-        `You can look up the signature here: https://openchain.xyz/signatures?query=${signature}.`,
+        `You can look up the decoded signature here: https://openchain.xyz/signatures?query=${signature}.`,
       ].join('\n'),
       {
         docsPath,
       },
     )
+    this.signature = signature
   }
 }
 

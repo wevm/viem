@@ -211,7 +211,7 @@ test("errors: error doesn't exist", () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     "Encoded error signature \\"0xa3741467\\" not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
-    You can look up the signature here: https://openchain.xyz/signatures?query=0xa3741467.
+    You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeErrorResult.html
     Version: viem@1.0.2"

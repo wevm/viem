@@ -328,6 +328,36 @@ describe('contract errors', () => {
       Version: viem@1.0.2]
     `)
   })
+
+  test('custom error does not exist on abi', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    const abi = errorsExampleABI.filter(
+      (abiItem) => abiItem.name !== 'SimpleError',
+    )
+
+    await expect(() =>
+      readContract(publicClient, {
+        abi,
+        address: contractAddress!,
+        functionName: 'simpleCustomRead',
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted with the following signature:
+      0xf9006398
+
+      Unable to decode signature "0xf9006398" as it was not found on the provided ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  simpleCustomRead()
+
+      Docs: https://viem.sh/docs/contract/decodeErrorResult.html
+      Version: viem@1.0.2]
+    `)
+  })
 })
 
 test('fake contract address', async () => {
