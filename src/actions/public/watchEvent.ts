@@ -22,16 +22,16 @@ import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
-export type OnLogsParameter<
+export type WatchEventOnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = Log<bigint, number, TAbiEvent, TStrict, [TAbiEvent], TEventName>[]
-export type OnLogsFn<
+export type WatchEventOnLogsFn<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   TEventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = (logs: OnLogsParameter<TAbiEvent, TStrict, TEventName>) => void
+> = (logs: WatchEventOnLogsParameter<TAbiEvent, TStrict, TEventName>) => void
 
 export type WatchEventParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -48,7 +48,7 @@ export type WatchEventParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogsFn<TAbiEvent, TStrict, TEventName>
+  onLogs: WatchEventOnLogsFn<TAbiEvent, TStrict, TEventName>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
 } & (
