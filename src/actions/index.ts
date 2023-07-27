@@ -161,10 +161,10 @@ export {
 } from './public/watchBlockNumber.js'
 export {
   type WatchEventOnLogsFn,
-  /** @deprecated */
+  /** @deprecated - use WatchEventOnLogsFn instead. */
   type WatchEventOnLogsFn as OnLogsFn,
   type WatchEventOnLogsParameter,
-  /** @deprecated */
+  /** @deprecated - use WatchEventOnLogsParameter instead. */
   type WatchEventOnLogsParameter as OnLogsParameter,
   type WatchEventParameters,
   type WatchEventReturnType,
