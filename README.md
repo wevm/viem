@@ -32,7 +32,7 @@
       <img src="https://img.shields.io/npm/l/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="MIT License">
     </picture>
   </a>
-  <a href="https://www.npmjs.com/package/wagmi">
+  <a href="https://www.npmjs.com/package/viem">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/npm/dm/viem?colorA=21262d&colorB=21262d&style=flat">
       <img src="https://img.shields.io/npm/dm/viem?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="Downloads per month">
