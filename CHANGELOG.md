@@ -1,5 +1,14 @@
 # viem
 
+## 1.4.2
+
+### Patch Changes
+
+- [#941](https://github.com/wagmi-dev/viem/pull/941) [`12c685a1`](https://github.com/wagmi-dev/viem/commit/12c685a1adc5ab4531d3084cdfa9e281456c4793) Thanks [@jxom](https://github.com/jxom)! - Capture error signatures that do not exist on the ABI in `ContractFunctionRevertedError`.
+
+* [#942](https://github.com/wagmi-dev/viem/pull/942) [`e26e356c`](https://github.com/wagmi-dev/viem/commit/e26e356cf43618af23a9a67ee5eaa897921d4160) Thanks [@alexfertel](https://github.com/alexfertel)! - Deprecated `OnLogParameter` & `OnLogFn` in favor of `WatchEventOnLogParameter` & `WatchEventOnLogFn` types.
+  Added `WatchContractEventOnLogParameter` & `WatchContractEventOnLogFn` types.
+
 ## 1.4.1
 
 ### Patch Changes
