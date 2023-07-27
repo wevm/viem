@@ -17,8 +17,13 @@ import {
   forkBlockNumber,
   localHttpUrl,
 } from '../../_test/constants.js'
-import { gh434ABI } from '../../_test/generated.js'
-import { anvilChain, deploy, publicClient } from '../../_test/utils.js'
+import { errorsExampleABI, gh434ABI } from '../../_test/generated.js'
+import {
+  anvilChain,
+  deploy,
+  deployErrorExample,
+  publicClient,
+} from '../../_test/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -370,6 +375,65 @@ describe('errors', async () => {
         ]
       `)
     })
+
+    test('contract revert: error not found on abi', async () => {
+      const { contractAddress } = await deployErrorExample()
+
+      const abi = errorsExampleABI.filter(
+        (abiItem) => abiItem.name !== 'SimpleError',
+      )
+
+      expect(
+        await multicall(publicClient, {
+          blockNumber: forkBlockNumber,
+          contracts: [
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.vitalik],
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.vitalik],
+            },
+            {
+              abi,
+              address: contractAddress!,
+              functionName: 'simpleCustomRead',
+            },
+          ] as const,
+        }),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "result": 231481998602n,
+            "status": "success",
+          },
+          {
+            "result": 231481998602n,
+            "status": "success",
+          },
+          {
+            "error": [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted with the following signature:
+        0xf9006398
+
+        Unable to decode signature "0xf9006398" as it was not found on the provided ABI.
+        Make sure you are using the correct ABI and that the error exists on it.
+        You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
+         
+        Contract Call:
+          address:   0x0000000000000000000000000000000000000000
+          function:  simpleCustomRead()
+
+        Docs: https://viem.sh/docs/contract/decodeErrorResult.html
+        Version: viem@1.0.2],
+            "result": undefined,
+            "status": "failure",
+          },
+        ]
+      `)
+    })
   })
 
   describe('allowFailure is falsy', async () => {
@@ -527,6 +591,52 @@ describe('errors', async () => {
         Version: viem@1.0.2]
       `)
     })
+  })
+
+  test('contract revert: error not found on abi', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    const abi = errorsExampleABI.filter(
+      (abiItem) => abiItem.name !== 'SimpleError',
+    )
+
+    await expect(() =>
+      multicall(publicClient, {
+        allowFailure: false,
+        blockNumber: forkBlockNumber,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            abi,
+            address: contractAddress!,
+            functionName: 'simpleCustomRead',
+          },
+        ] as const,
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted with the following signature:
+      0xf9006398
+
+      Unable to decode signature "0xf9006398" as it was not found on the provided ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  simpleCustomRead()
+
+      Docs: https://viem.sh/docs/contract/decodeErrorResult.html
+      Version: viem@1.0.2]
+    `)
   })
 })
 
