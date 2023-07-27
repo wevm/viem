@@ -156,8 +156,12 @@ export type {
   WatchBlockNumberReturnType,
 } from './actions/public/watchBlockNumber.js'
 export type {
-  OnLogsFn,
-  OnLogsParameter,
+  WatchEventOnLogsFn,
+  /** @deprecated */
+  WatchEventOnLogsFn as OnLogFn,
+  WatchEventOnLogsParameter,
+  /** @deprecated */
+  WatchEventOnLogsParameter as OnLogParameter,
   WatchEventParameters,
   WatchEventReturnType,
 } from './actions/public/watchEvent.js'
@@ -233,6 +237,7 @@ export type {
   VerifyHashReturnType,
 } from './actions/public/verifyHash.js'
 export type {
+  WatchContractEventOnLogsParameter,
   WatchContractEventParameters,
   WatchContractEventReturnType,
 } from './actions/public/watchContractEvent.js'

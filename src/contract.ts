@@ -24,8 +24,12 @@ export {
   multicall,
 } from './actions/public/multicall.js'
 export type {
-  OnLogsFn,
-  OnLogsParameter,
+  WatchEventOnLogsFn,
+  /** @deprecated */
+  WatchEventOnLogsFn as OnLogsFn,
+  WatchEventOnLogsParameter,
+  /** @deprecated */
+  WatchEventOnLogsParameter as OnLogsParameter,
 } from './actions/public/watchEvent.js'
 export {
   type ReadContractParameters,

@@ -160,8 +160,12 @@ export {
   watchBlockNumber,
 } from './public/watchBlockNumber.js'
 export {
-  type OnLogsFn,
-  type OnLogsParameter,
+  type WatchEventOnLogsFn,
+  /** @deprecated */
+  type WatchEventOnLogsFn as OnLogsFn,
+  type WatchEventOnLogsParameter,
+  /** @deprecated */
+  type WatchEventOnLogsParameter as OnLogsParameter,
   type WatchEventParameters,
   type WatchEventReturnType,
   watchEvent,

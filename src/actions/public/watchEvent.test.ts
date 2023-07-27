@@ -15,7 +15,7 @@ import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
 import * as getLogs from './getLogs.js'
-import { type OnLogsParameter, watchEvent } from './watchEvent.js'
+import { type WatchEventOnLogsParameter, watchEvent } from './watchEvent.js'
 
 const event = {
   transfer: {
@@ -88,7 +88,7 @@ beforeAll(async () => {
 test(
   'default',
   async () => {
-    const logs: OnLogsParameter[] = []
+    const logs: WatchEventOnLogsParameter[] = []
 
     const unwatch = watchEvent(publicClient, {
       onLogs: (logs_) => logs.push(logs_),
@@ -125,7 +125,7 @@ test(
 )
 
 test('args: batch', async () => {
-  const logs: OnLogsParameter[] = []
+  const logs: WatchEventOnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     batch: false,
@@ -162,8 +162,8 @@ test('args: batch', async () => {
 })
 
 test('args: address', async () => {
-  const logs: OnLogsParameter[] = []
-  const logs2: OnLogsParameter[] = []
+  const logs: WatchEventOnLogsParameter[] = []
+  const logs2: WatchEventOnLogsParameter[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -190,8 +190,8 @@ test('args: address', async () => {
 })
 
 test('args: address + event', async () => {
-  const logs: OnLogsParameter<typeof event.transfer>[] = []
-  const logs2: OnLogsParameter<typeof event.approval>[] = []
+  const logs: WatchEventOnLogsParameter<typeof event.transfer>[] = []
+  const logs2: WatchEventOnLogsParameter<typeof event.approval>[] = []
 
   const unwatch = watchEvent(publicClient, {
     address: usdcContractConfig.address,
@@ -241,7 +241,7 @@ describe('`getLogs` fallback', () => {
         new Error('foo'),
       )
 
-      const logs: OnLogsParameter[] = []
+      const logs: WatchEventOnLogsParameter[] = []
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),
@@ -291,7 +291,7 @@ describe('`getLogs` fallback', () => {
         new Error('foo'),
       )
 
-      const logs: OnLogsParameter[] = []
+      const logs: WatchEventOnLogsParameter[] = []
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),
