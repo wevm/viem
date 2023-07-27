@@ -157,10 +157,10 @@ export type {
 } from './actions/public/watchBlockNumber.js'
 export type {
   WatchEventOnLogsFn,
-  /** @deprecated - use WatchEventOnLogsFn instead. */
+  /** @deprecated - use `WatchEventOnLogsFn` instead. */
   WatchEventOnLogsFn as OnLogFn,
   WatchEventOnLogsParameter,
-  /** @deprecated - use WatchEventOnLogsParameter instead. */
+  /** @deprecated - use `WatchEventOnLogsParameter` instead. */
   WatchEventOnLogsParameter as OnLogParameter,
   WatchEventParameters,
   WatchEventReturnType,
