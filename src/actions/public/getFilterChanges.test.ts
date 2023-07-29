@@ -57,6 +57,27 @@ const event = {
     name: 'Transfer',
     type: 'event',
   },
+  approve: {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
   invalid: {
     inputs: [
       {
@@ -711,6 +732,65 @@ describe('events', () => {
       value: 1n,
     })
     expect(logs[1].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[2].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(1)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[2].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
+  test('args: events', async () => {
+    const filter = await createEventFilter(publicClient, {
+      events: [event.default, event.approve],
+    })
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    let logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+
+    expect(logs.length).toBe(2)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[0].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
+    expect(logs[1].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(accounts[1].address),
+      value: 1n,
+    })
+    expect(logs[1].eventName).toEqual('Approval')
 
     logs = await getFilterChanges(publicClient, { filter })
     expect(logs.length).toBe(0)

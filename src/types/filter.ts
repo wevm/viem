@@ -16,7 +16,7 @@ type FilterRpcSchema = Filter_<
 
 export type Filter<
   TFilterType extends FilterType = 'event',
-  TAbi extends Abi | readonly unknown[] = Abi,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
   TEventName extends string | undefined = undefined,
   TArgs extends
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>

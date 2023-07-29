@@ -15,8 +15,8 @@ import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
+  TEventName extends string | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
 > = {
   filter: Filter<TFilterType, TAbi, TEventName, any, TStrict>
@@ -24,8 +24,8 @@ export type GetFilterChangesParameters<
 
 export type GetFilterChangesReturnType<
   TFilterType extends FilterType = FilterType,
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
+  TEventName extends string | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
     ? TEventName extends string
@@ -122,7 +122,7 @@ export async function getFilterChanges<
   TTransport extends Transport,
   TChain extends Chain | undefined,
   TFilterType extends FilterType,
-  TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[] | undefined,
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
 >(

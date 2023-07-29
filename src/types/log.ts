@@ -17,7 +17,9 @@ export type Log<
   TIndex = number,
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
+    ? [TAbiEvent]
+    : undefined,
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
@@ -79,7 +81,9 @@ type GetTopics<
 
 type GetInferredLogValues<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
+    ? [TAbiEvent]
+    : undefined,
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
@@ -110,7 +114,7 @@ type GetInferredLogValues<
         [TName in _EventNames]: {
           args: GetEventArgs<
             TAbi,
-            string,
+            TName,
             {
               EnableUnion: false
               IndexedOnly: false

@@ -13,15 +13,15 @@ import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetFilterLogsParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
+  TEventName extends string | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
 > = {
   filter: Filter<'event', TAbi, TEventName, any, TStrict>
 }
 export type GetFilterLogsReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
+  TEventName extends string | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
   _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
     ? TEventName extends string
@@ -59,7 +59,7 @@ export type GetFilterLogsReturnType<
  */
 export async function getFilterLogs<
   TChain extends Chain | undefined,
-  TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[] | undefined,
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
 >(
