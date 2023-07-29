@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-**Type Change**: `TIncludeTransactions` & `TBlockTag` has been added to slot 1 & 2 of the `Block` generic.
+**Type Change**: `TIncludeTransactions` & `TBlockTag` has been added to slot 1 & 2 of the `Block` generics.
 
 ```diff
 type Block<
