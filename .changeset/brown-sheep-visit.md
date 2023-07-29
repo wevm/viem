@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-**Type Change**: `TPending` has been added to slot 2 of the `Log` generic.
+**Type Change**: `TPending` has been added to slot 2 of the `Log` generics.
 
 ```diff
 type Log<
