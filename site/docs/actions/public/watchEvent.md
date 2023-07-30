@@ -16,13 +16,13 @@ head:
 
 Watches and returns emitted [Event Logs](/docs/glossary/terms#event-log).
 
-This Action will batch up all the Event Logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onLogs).
+This Action will batch up all the Event Logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onlogs).
 
 `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter.html) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
 
 ## Usage
 
-By default, you can watch all broadcasted events to the blockchain by just passing `onLogs`. 
+By default, you can watch all broadcasted events to the blockchain by just passing `onLogs`.
 
 These events will be batched up into [Event Logs](/docs/glossary/terms#event-log) and sent to `onLogs`:
 
@@ -157,7 +157,7 @@ export const publicClient = createPublicClient({
 
 ### Arguments
 
-`watchEvents` can be scoped to given **_indexed_ arguments** on the event:
+`watchEvent` can be scoped to given **_indexed_ arguments** on the event:
 
 ::: code-group
 
@@ -210,6 +210,22 @@ const unwatch = publicClient.watchEvent({
   onLogs: logs => console.log(logs)
 })
 ```
+
+### Multiple Events
+
+`watchEvent` can be scoped to **multiple events**:
+
+```ts
+const unwatch = publicClient.watchEvent({
+  events: parseAbi([ // [!code focus:5]
+    'event Approval(address indexed owner, address indexed sender, uint256 value)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  onLogs: logs => console.log(logs)
+})
+```
+
+Note: `watchEvent` scoped to multiple events cannot be also scoped with [indexed arguments](#arguments) (`args`).
 
 ## Returns
 
@@ -285,6 +301,7 @@ const unwatch = publicClient.watchEvent(
   }
 )
 ```
+
 ### batch (optional)
 
 - **Type:** `boolean`
