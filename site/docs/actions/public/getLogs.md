@@ -14,7 +14,7 @@ head:
 
 # getLogs
 
-Returns a list of **event** logs matching the provided parameters. 
+Returns a list of **event** logs matching the provided parameters.
 
 ## Usage
 
@@ -82,7 +82,7 @@ By default, `event` accepts the [`AbiEvent`](/docs/glossary/types#abievent) type
 ```ts [example.ts]
 import { publicClient } from './client'
 
-const filter = await publicClient.getLogs(publicClient, {
+const logs = await publicClient.getLogs(publicClient, {
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: { // [!code focus:8]
     name: 'Transfer', 
@@ -115,14 +115,14 @@ export const publicClient = createPublicClient({
 
 ### Address
 
-A Filter can be scoped to an **address**:
+Logs can be scoped to an **address**:
 
 ::: code-group
 
 ```ts [example.ts]
 import { publicClient } from './client'
 
-const filter = await publicClient.getLogs({
+const logs = await publicClient.getLogs({
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2' // [!code focus]
 })
 ```
@@ -141,7 +141,7 @@ export const publicClient = createPublicClient({
 
 ### Event
 
-A Filter can be scoped to an **event**.
+Logs can be scoped to an **event**.
 
 The `event` argument takes in an event in ABI format – we have a [`parseAbiItem` utility](/docs/abi/parseAbiItem) that you can use to convert from a human-readable event signature → ABI.
 
@@ -151,7 +151,7 @@ The `event` argument takes in an event in ABI format – we have a [`parseAbiIte
 import { parseAbiItem } from 'viem' // [!code focus]
 import { publicClient } from './client'
 
-const filter = await publicClient.getLogs({
+const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
 })
@@ -171,10 +171,10 @@ export const publicClient = createPublicClient({
 
 ### Arguments
 
-A Filter can be scoped to given **_indexed_ arguments**:
+Logs can be scoped to given **_indexed_ arguments**:
 
 ```ts
-const filter = await publicClient.getLogs({
+const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:4]
@@ -186,10 +186,10 @@ const filter = await publicClient.getLogs({
 
 Only indexed arguments in `event` are candidates for `args`.
 
-A Filter Argument can also be an array to indicate that other values can exist in the position:
+An argument can also be an array to indicate that other values can exist in the position:
 
 ```ts
-const filter = await publicClient.getLogs({
+const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   args: { // [!code focus:8]
@@ -205,10 +205,10 @@ const filter = await publicClient.getLogs({
 
 ### Block Range
 
-A Filter can be scoped to a **block range**:
+Logs can be scoped to a **block range**:
 
 ```ts
-const filter = await publicClient.getLogs({
+const logs = await publicClient.getLogs({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
   fromBlock: 16330000n, // [!code focus]
@@ -216,9 +216,24 @@ const filter = await publicClient.getLogs({
 })
 ```
 
+### Multiple Events
+
+Logs can be scoped to **multiple events**:
+
+```ts
+const logs = await publicClient.getLogs({
+  events: parseAbi([ // [!code focus:4]
+    'event Approval(address indexed owner, address indexed sender, uint256 value)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+})
+```
+
+Note: Logs scoped to multiple events cannot be also scoped with [indexed arguments](#arguments) (`args`).
+
 ### Strict Mode
 
-By default, `getLogs` will include logs that [do not conform](/docs/glossary/terms.html#non-conforming-log) to the indexed & non-indexed arguments on the `event`. 
+By default, `getLogs` will include logs that [do not conform](/docs/glossary/terms.html#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
 viem will not return a value for arguments that do not conform to the ABI, thus, some arguments on `args` may be undefined.
 
 ```ts {7}
