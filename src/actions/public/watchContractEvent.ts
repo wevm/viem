@@ -56,6 +56,8 @@ export type WatchContractEventParameters<
   onLogs: WatchContractEventOnLogsFn<TAbi, TEventName, TStrict>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
+  /** The number of consecutive filter change errors that must occur before resetting the filter. */
+  consecutiveErrorResetThreshold?: number
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
    * @default false
@@ -111,6 +113,7 @@ export function watchContractEvent<
     onError,
     onLogs,
     pollingInterval = client.pollingInterval,
+    consecutiveErrorResetThreshold = 5,
     strict: strict_,
   }: WatchContractEventParameters<TAbi, TEventName, TStrict>,
 ): WatchContractEventReturnType {
@@ -129,6 +132,7 @@ export function watchContractEvent<
     let previousBlockNumber: bigint
     let filter: Filter<'event', TAbi, TEventName> | undefined
     let initialized = false
+    let consecutiveErrors = 0
 
     const unwatch = poll(
       async () => {
@@ -181,10 +185,16 @@ export function watchContractEvent<
             previousBlockNumber = blockNumber
           }
 
+          consecutiveErrors = 0
+
           if (logs.length === 0) return
           if (batch) emit.onLogs(logs as any)
           else logs.forEach((log) => emit.onLogs([log] as any))
         } catch (err) {
+          consecutiveErrors++
+          if (consecutiveErrors >= consecutiveErrorResetThreshold) {
+            initialized = false
+          }
           emit.onError?.(err as Error)
         }
       },

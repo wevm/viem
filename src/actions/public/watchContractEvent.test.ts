@@ -596,4 +596,33 @@ describe('errors', () => {
     },
     { retry: 3 },
   )
+
+  test('reinitializes filter after the consecutive error reset threshold is reached', async () => {
+    const CONSECUTIVE_ERROR_THRESHOLD = 3
+
+    // Fail 3 times to trigger a filter reinitalization.
+    vi.spyOn(getFilterChanges, 'getFilterChanges')
+      .mockRejectedValueOnce(new Error('first fail'))
+      .mockRejectedValueOnce(new Error('second fail'))
+      .mockRejectedValueOnce(new Error('third fail'))
+
+    const eventFilterCreationSpy = vi.spyOn(
+      createContractEventFilter,
+      'createContractEventFilter',
+    )
+
+    const unwatch = watchContractEvent(publicClient, {
+      ...usdcContractConfig,
+      consecutiveErrorResetThreshold: CONSECUTIVE_ERROR_THRESHOLD,
+      pollingInterval: 200,
+      onLogs: () => null,
+      onError: () => null,
+    })
+
+    await wait(1000)
+
+    // Check that event filter creation function was called twice
+    expect(eventFilterCreationSpy).toBeCalledTimes(2)
+    unwatch()
+  })
 })
