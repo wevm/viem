@@ -4,14 +4,10 @@ import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransaction } from '../../types/rpc.js'
-import type { Transaction } from '../../types/transaction.js'
 import { optimism } from '../index.js'
-import {
-  type DepositTransaction,
-  type RpcDepositTransaction,
-  formattersOptimism,
-} from './optimism.js'
+import { type RpcDepositTransaction, formattersOptimism } from './optimism.js'
 
 describe('block', () => {
   expectTypeOf(formattersOptimism.block.format).parameter(0).toEqualTypeOf<
@@ -39,14 +35,27 @@ describe('smoke', () => {
       chain: optimism,
       transport: http(),
     })
+
     const block = await getBlock(client, {
+      blockNumber: 16645775n,
+    })
+    expectTypeOf(block.transactions).toEqualTypeOf<Hash[]>()
+
+    const block_includeTransactions = await getBlock(client, {
       blockNumber: 16645775n,
       includeTransactions: true,
     })
-
-    expectTypeOf(block.transactions).toEqualTypeOf<
-      `0x${string}`[] | (Transaction | DepositTransaction)[]
-    >()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].sourceHash,
+    ).toEqualTypeOf<`0x${string}` | undefined>()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].type === 'deposit' &&
+        block_includeTransactions.transactions[0].sourceHash,
+    ).toEqualTypeOf<false | `0x${string}`>()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].type === 'eip1559' &&
+        block_includeTransactions.transactions[0].sourceHash,
+    ).toEqualTypeOf<false | undefined>()
   })
 
   test('transaction', async () => {

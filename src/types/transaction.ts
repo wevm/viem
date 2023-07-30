@@ -47,11 +47,15 @@ export type TransactionReceipt<
   type: TType
 }
 
-export type TransactionBase<TQuantity = bigint, TIndex = number> = {
+export type TransactionBase<
+  TQuantity = bigint,
+  TIndex = number,
+  TPending extends boolean = boolean,
+> = {
   /** Hash of block containing this transaction or `null` if pending */
-  blockHash: Hash | null
+  blockHash: TPending extends true ? null : Hash
   /** Number of block containing this transaction or `null` if pending */
-  blockNumber: TQuantity | null
+  blockNumber: TPending extends true ? null : TQuantity
   /** Transaction sender */
   from: Address
   /** Gas provided for transaction execution */
@@ -69,7 +73,7 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
   /** Transaction recipient or `null` if deploying a contract */
   to: Address | null
   /** Index of this transaction in the block or `null` if pending */
-  transactionIndex: TIndex | null
+  transactionIndex: TPending extends true ? null : TIndex
   /** The type represented as hex. */
   typeHex: Hex | null
   /** ECDSA recovery ID */
@@ -80,8 +84,9 @@ export type TransactionBase<TQuantity = bigint, TIndex = number> = {
 export type TransactionLegacy<
   TQuantity = bigint,
   TIndex = number,
+  TPending extends boolean = boolean,
   TType = 'legacy',
-> = TransactionBase<TQuantity, TIndex> &
+> = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesLegacy<TQuantity> & {
     accessList?: never
     chainId?: TIndex
@@ -90,8 +95,9 @@ export type TransactionLegacy<
 export type TransactionEIP2930<
   TQuantity = bigint,
   TIndex = number,
+  TPending extends boolean = boolean,
   TType = 'eip2930',
-> = TransactionBase<TQuantity, TIndex> &
+> = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesLegacy<TQuantity> & {
     accessList: AccessList
     chainId: TIndex
@@ -100,17 +106,22 @@ export type TransactionEIP2930<
 export type TransactionEIP1559<
   TQuantity = bigint,
   TIndex = number,
+  TPending extends boolean = boolean,
   TType = 'eip1559',
-> = TransactionBase<TQuantity, TIndex> &
+> = TransactionBase<TQuantity, TIndex, TPending> &
   FeeValuesEIP1559<TQuantity> & {
     accessList: AccessList
     chainId: TIndex
     type: TType
   }
-export type Transaction<TQuantity = bigint, TIndex = number> =
-  | TransactionLegacy<TQuantity, TIndex>
-  | TransactionEIP2930<TQuantity, TIndex>
-  | TransactionEIP1559<TQuantity, TIndex>
+export type Transaction<
+  TQuantity = bigint,
+  TIndex = number,
+  TPending extends boolean = boolean,
+> =
+  | TransactionLegacy<TQuantity, TIndex, TPending>
+  | TransactionEIP2930<TQuantity, TIndex, TPending>
+  | TransactionEIP1559<TQuantity, TIndex, TPending>
 
 export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Contract code or a hashed method call with encoded args */

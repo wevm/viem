@@ -26,6 +26,8 @@ import { formatLog } from '../../utils/formatters/log.js'
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** Address or list of addresses from which logs originated */
@@ -49,9 +51,9 @@ export type GetLogsParameters<
   (
     | {
         /** Block number or tag after which to include logs */
-        fromBlock?: BlockNumber<bigint> | BlockTag
+        fromBlock?: TFromBlock | BlockNumber | BlockTag
         /** Block number or tag before which to include logs */
-        toBlock?: BlockNumber<bigint> | BlockTag
+        toBlock?: TToBlock | BlockNumber | BlockTag
         blockHash?: never
       }
     | {
@@ -65,8 +67,13 @@ export type GetLogsParameters<
 export type GetLogsReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
-> = Log<bigint, number, TAbiEvent, TStrict, [TAbiEvent], _EventName>[]
+  _Pending extends boolean =
+    | (TFromBlock extends 'pending' ? true : false)
+    | (TToBlock extends 'pending' ? true : false),
+> = Log<bigint, number, _Pending, TAbiEvent, TStrict, [TAbiEvent], _EventName>[]
 
 /**
  * Returns a list of event logs matching the provided parameters.
@@ -94,6 +101,8 @@ export async function getLogs<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
   client: Client<Transport, TChain>,
   {
@@ -104,8 +113,8 @@ export async function getLogs<
     event,
     args,
     strict: strict_,
-  }: GetLogsParameters<TAbiEvent, TStrict> = {},
-): Promise<GetLogsReturnType<TAbiEvent, TStrict>> {
+  }: GetLogsParameters<TAbiEvent, TStrict, TFromBlock, TToBlock> = {},
+): Promise<GetLogsReturnType<TAbiEvent, TStrict, TFromBlock, TToBlock>> {
   const strict = strict_ ?? false
 
   let topics: LogTopic[] = []
@@ -166,5 +175,10 @@ export async function getLogs<
         return formatLog(log, { args: isUnnamed ? [] : {}, eventName })
       }
     })
-    .filter(Boolean) as unknown as GetLogsReturnType<TAbiEvent, TStrict>
+    .filter(Boolean) as unknown as GetLogsReturnType<
+    TAbiEvent,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >
 }

@@ -7,7 +7,7 @@ import {
   walletClient,
   webSocketClient,
 } from '../../_test/utils.js'
-import { celo, localhost } from '../../chains/index.js'
+import { type Chain, celo, localhost } from '../../chains/index.js'
 import {
   type PublicClient,
   createPublicClient,
@@ -459,7 +459,10 @@ describe('poll', () => {
         .mockResolvedValueOnce({ number: null } as Block)
         .mockResolvedValueOnce({ number: null } as Block)
 
-      const blocks: [OnBlockParameter, OnBlockParameter | undefined][] = []
+      const blocks: [
+        OnBlockParameter<Chain, boolean, 'pending'>,
+        OnBlockParameter<Chain, boolean, 'pending'> | undefined,
+      ][] = []
       const unwatch = watchBlocks(publicClient, {
         pollingInterval: 100,
         poll: true,
