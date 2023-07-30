@@ -52,6 +52,27 @@ const event = {
     name: 'Transfer',
     type: 'event',
   },
+  approve: {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
   invalid: {
     inputs: [
       {
@@ -659,6 +680,42 @@ describe('raw events', () => {
       value: 1n,
     })
     expect(logs[1].eventName).toEqual('Transfer')
+  })
+
+  test('args: events', async () => {
+    const filter = await createEventFilter(publicClient, {
+      events: [event.default, event.approve],
+    })
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    const logs = await getFilterLogs(publicClient, { filter })
+    expect(logs.length).toBe(2)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[0].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
+    expect(logs[1].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(accounts[1].address),
+      value: 1n,
+    })
+    expect(logs[1].eventName).toEqual('Approval')
   })
 
   test('args: fromBlock/toBlock', async () => {
