@@ -9,7 +9,7 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
-import type { LogTopic } from '../../types/misc.js'
+import type { Hex, LogTopic } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import {
   type EncodeEventTopicsParameters,
@@ -21,6 +21,8 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
@@ -28,8 +30,8 @@ export type CreateEventFilterParameters<
     | undefined = undefined,
 > = {
   address?: Address | Address[]
-  fromBlock?: BlockNumber | BlockTag
-  toBlock?: BlockNumber | BlockTag
+  fromBlock?: TFromBlock | BlockNumber | BlockTag
+  toBlock?: TToBlock | BlockNumber | BlockTag
 } & (MaybeExtractEventArgsFromAbi<
   _Abi,
   _EventName
@@ -69,12 +71,16 @@ export type CreateEventFilterParameters<
 export type CreateEventFilterReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
     | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
     | undefined = undefined,
-> = Prettify<Filter<'event', _Abi, _EventName, _Args, TStrict>>
+> = Prettify<
+  Filter<'event', _Abi, _EventName, _Args, TStrict, TFromBlock, TToBlock>
+>
 
 /**
  * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
@@ -103,6 +109,8 @@ export async function createEventFilter<
   TChain extends Chain | undefined,
   TAbiEvent extends AbiEvent | undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
   _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
@@ -120,12 +128,22 @@ export async function createEventFilter<
   }: CreateEventFilterParameters<
     TAbiEvent,
     TStrict,
+    TFromBlock,
+    TToBlock,
     _Abi,
     _EventName,
     _Args
   > = {} as any,
 ): Promise<
-  CreateEventFilterReturnType<TAbiEvent, TStrict, _Abi, _EventName, _Args>
+  CreateEventFilterReturnType<
+    TAbiEvent,
+    TStrict,
+    TFromBlock,
+    TToBlock,
+    _Abi,
+    _EventName,
+    _Args
+  >
 > {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
@@ -139,7 +157,7 @@ export async function createEventFilter<
       args,
     } as EncodeEventTopicsParameters)
 
-  const id = await client.request({
+  const id: Hex = await client.request({
     method: 'eth_newFilter',
     params: [
       {
@@ -156,13 +174,17 @@ export async function createEventFilter<
     abi: event ? [event] : undefined,
     args,
     eventName: event ? (event as AbiEvent).name : undefined,
+    fromBlock,
     id,
     request: getRequest(id),
     strict,
+    toBlock,
     type: 'event',
   } as unknown as CreateEventFilterReturnType<
     TAbiEvent,
     TStrict,
+    TFromBlock,
+    TToBlock,
     _Abi,
     _EventName,
     _Args

@@ -10,23 +10,35 @@ import { stringify } from '../../utils/stringify.js'
 
 import { type GetBlockReturnType, getBlock } from './getBlock.js'
 
-export type OnBlockParameter<TChain extends Chain | undefined = Chain> =
-  GetBlockReturnType<TChain>
+export type OnBlockParameter<
+  TChain extends Chain | undefined = Chain,
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
+> = GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>
 
-export type OnBlock<TChain extends Chain | undefined = Chain> = (
-  block: OnBlockParameter<TChain>,
-  prevBlock: OnBlockParameter<TChain> | undefined,
+export type OnBlock<
+  TChain extends Chain | undefined = Chain,
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
+> = (
+  block: OnBlockParameter<TChain, TIncludeTransactions, TBlockTag>,
+  prevBlock:
+    | OnBlockParameter<TChain, TIncludeTransactions, TBlockTag>
+    | undefined,
 ) => void
 
-type PollOptions = {
+type PollOptions<
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
+> = {
   /** The block tag. Defaults to "latest". */
-  blockTag?: BlockTag
+  blockTag?: TBlockTag | BlockTag
   /** Whether or not to emit the missed blocks to the callback. */
   emitMissed?: boolean
   /** Whether or not to emit the block to the callback when the subscription opens. */
   emitOnBegin?: boolean
   /** Whether or not to include transaction data in the response. */
-  includeTransactions?: boolean
+  includeTransactions?: TIncludeTransactions
   /** Polling frequency (in ms). Defaults to the client's pollingInterval config. */
   pollingInterval?: number
 }
@@ -34,9 +46,11 @@ type PollOptions = {
 export type WatchBlocksParameters<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain,
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 > = {
   /** The callback to call when a new block is received. */
-  onBlock: OnBlock<TChain>
+  onBlock: OnBlock<TChain, TIncludeTransactions, TBlockTag>
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
 } & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
@@ -50,8 +64,8 @@ export type WatchBlocksParameters<
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions & { poll?: true })
-  : PollOptions & { poll?: true })
+      | (PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
+  : PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
 
 export type WatchBlocksReturnType = () => void
 
@@ -83,6 +97,8 @@ export type WatchBlocksReturnType = () => void
 export function watchBlocks<
   TTransport extends Transport,
   TChain extends Chain | undefined,
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 >(
   client: Client<TTransport, TChain>,
   {
@@ -91,15 +107,18 @@ export function watchBlocks<
     emitOnBegin = false,
     onBlock,
     onError,
-    includeTransactions = false,
+    includeTransactions: includeTransactions_,
     poll: poll_,
     pollingInterval = client.pollingInterval,
-  }: WatchBlocksParameters<TTransport, TChain>,
+  }: WatchBlocksParameters<TTransport, TChain, TIncludeTransactions, TBlockTag>,
 ): WatchBlocksReturnType {
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
+  const includeTransactions = includeTransactions_ ?? false
 
-  let prevBlock: GetBlockReturnType<TChain> | undefined
+  let prevBlock:
+    | GetBlockReturnType<TChain, false | TIncludeTransactions, 'latest'>
+    | undefined
 
   const pollBlocks = () => {
     const observerId = stringify([
@@ -132,7 +151,7 @@ export function watchBlocks<
                     blockNumber: i,
                     includeTransactions,
                   })
-                  emit.onBlock(block, prevBlock)
+                  emit.onBlock(block as any, prevBlock as any)
                   prevBlock = block
                 }
               }
@@ -147,8 +166,8 @@ export function watchBlocks<
               // We don't want to emit blocks in the past.
               (block.number && block.number > prevBlock.number)
             ) {
-              emit.onBlock(block, prevBlock)
-              prevBlock = block
+              emit.onBlock(block as any, prevBlock as any)
+              prevBlock = block as any
             }
           } catch (err) {
             emit.onError?.(err as Error)
@@ -174,7 +193,7 @@ export function watchBlocks<
             const format =
               client.chain?.formatters?.block?.format || formatBlock
             const block = format(data.result)
-            onBlock(block, prevBlock)
+            onBlock(block, prevBlock as any)
             prevBlock = block
           },
           onError(error: Error) {

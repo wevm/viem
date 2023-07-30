@@ -12,9 +12,12 @@ import {
   formatBlock,
 } from '../../utils/formatters/block.js'
 
-export type GetBlockParameters = {
+export type GetBlockParameters<
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
+> = {
   /** Whether or not to include transaction data in the response. */
-  includeTransactions?: boolean
+  includeTransactions?: TIncludeTransactions
 } & (
   | {
       /** Hash of the block. */
@@ -35,13 +38,15 @@ export type GetBlockParameters = {
        * The block tag.
        * @default 'latest'
        */
-      blockTag?: BlockTag
+      blockTag?: TBlockTag | BlockTag
     }
 )
 
 export type GetBlockReturnType<
   TChain extends Chain | undefined = Chain | undefined,
-> = FormattedBlock<TChain>
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
+> = FormattedBlock<TChain, TIncludeTransactions, TBlockTag>
 
 /**
  * Returns information about a block at a block number, hash, or tag.
@@ -70,15 +75,20 @@ export type GetBlockReturnType<
 export async function getBlock<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
+  TIncludeTransactions extends boolean = false,
+  TBlockTag extends BlockTag = 'latest',
 >(
   client: Client<Transport, TChain, TAccount>,
   {
     blockHash,
     blockNumber,
-    blockTag = 'latest',
-    includeTransactions = false,
-  }: GetBlockParameters = {},
-): Promise<GetBlockReturnType<TChain>> {
+    blockTag: blockTag_,
+    includeTransactions: includeTransactions_,
+  }: GetBlockParameters<TIncludeTransactions, TBlockTag> = {},
+): Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>> {
+  const blockTag = blockTag_ ?? 'latest'
+  const includeTransactions = includeTransactions_ ?? false
+
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
