@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address, Narrow } from 'abitype'
+import type { AbiEvent, Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -20,20 +20,23 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 
 export type CreateEventFilterParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
   TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
   TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
-    | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+    | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
     | undefined = undefined,
 > = {
   address?: Address | Address[]
   fromBlock?: TFromBlock | BlockNumber | BlockTag
   toBlock?: TToBlock | BlockNumber | BlockTag
 } & (MaybeExtractEventArgsFromAbi<
-  _Abi,
+  TAbiEvents,
   _EventName
 > extends infer TEventFilterArgs
   ?
@@ -42,6 +45,7 @@ export type CreateEventFilterParameters<
             | TEventFilterArgs
             | (_Args extends TEventFilterArgs ? _Args : never)
           event: Narrow<TAbiEvent>
+          events?: never
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
@@ -51,6 +55,7 @@ export type CreateEventFilterParameters<
       | {
           args?: never
           event?: Narrow<TAbiEvent>
+          events?: never
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
@@ -60,26 +65,41 @@ export type CreateEventFilterParameters<
       | {
           args?: never
           event?: never
+          events: Narrow<TAbiEvents>
+          /**
+           * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+           * @default false
+           */
+          strict?: TStrict
+        }
+      | {
+          args?: never
+          event?: never
+          events?: never
           strict?: never
         }
   : {
       args?: never
       event?: never
+      events?: never
       strict?: never
     })
 
 export type CreateEventFilterReturnType<
   TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
   TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
   TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-  _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
-    | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+    | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
     | undefined = undefined,
 > = Prettify<
-  Filter<'event', _Abi, _EventName, _Args, TStrict, TFromBlock, TToBlock>
+  Filter<'event', TAbiEvents, _EventName, _Args, TStrict, TFromBlock, TToBlock>
 >
 
 /**
@@ -107,14 +127,17 @@ export type CreateEventFilterReturnType<
  */
 export async function createEventFilter<
   TChain extends Chain | undefined,
-  TAbiEvent extends AbiEvent | undefined,
+  TAbiEvent extends AbiEvent | undefined = undefined,
+  TAbiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
   TFromBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
   TToBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
-  _Abi extends Abi | readonly unknown[] = [TAbiEvent],
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
   _Args extends
-    | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+    | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
     | undefined = undefined,
 >(
   client: Client<Transport, TChain>,
@@ -122,40 +145,49 @@ export async function createEventFilter<
     address,
     args,
     event,
+    events: events_,
     fromBlock,
     strict,
     toBlock,
   }: CreateEventFilterParameters<
     TAbiEvent,
+    TAbiEvents,
     TStrict,
     TFromBlock,
     TToBlock,
-    _Abi,
     _EventName,
     _Args
   > = {} as any,
 ): Promise<
   CreateEventFilterReturnType<
     TAbiEvent,
+    TAbiEvents,
     TStrict,
     TFromBlock,
     TToBlock,
-    _Abi,
     _EventName,
     _Args
   >
 > {
+  const events = events_ ?? (event ? [event] : undefined)
+
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
   })
 
   let topics: LogTopic[] = []
-  if (event)
-    topics = encodeEventTopics({
-      abi: [event],
-      eventName: (event as AbiEvent).name,
-      args,
-    } as EncodeEventTopicsParameters)
+  if (events) {
+    topics = [
+      (events as AbiEvent[]).flatMap((event) =>
+        encodeEventTopics({
+          abi: [event],
+          eventName: (event as AbiEvent).name,
+          args,
+        } as EncodeEventTopicsParameters),
+      ),
+    ]
+    if (event) topics = topics[0] as LogTopic[]
+  }
 
   const id: Hex = await client.request({
     method: 'eth_newFilter',
@@ -171,7 +203,7 @@ export async function createEventFilter<
   })
 
   return {
-    abi: event ? [event] : undefined,
+    abi: events,
     args,
     eventName: event ? (event as AbiEvent).name : undefined,
     fromBlock,
@@ -182,10 +214,10 @@ export async function createEventFilter<
     type: 'event',
   } as unknown as CreateEventFilterReturnType<
     TAbiEvent,
+    TAbiEvents,
     TStrict,
     TFromBlock,
     TToBlock,
-    _Abi,
     _EventName,
     _Args
   >

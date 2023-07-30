@@ -325,32 +325,35 @@ export type PublicActions<
    * })
    */
   createEventFilter: <
-    TAbiEvent extends AbiEvent | undefined,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
     TToBlock extends BlockNumber | BlockTag | undefined = undefined,
-    _Abi extends Abi | readonly unknown[] = [TAbiEvent],
     _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
     _Args extends
-      | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+      | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
       | undefined = undefined,
   >(
     args?: CreateEventFilterParameters<
       TAbiEvent,
+      TAbiEvents,
       TStrict,
       TFromBlock,
       TToBlock,
-      _Abi,
       _EventName,
       _Args
     >,
   ) => Promise<
     CreateEventFilterReturnType<
       TAbiEvent,
+      TAbiEvents,
       TStrict,
       TFromBlock,
       TToBlock,
-      _Abi,
       _EventName,
       _Args
     >
@@ -841,7 +844,7 @@ export type PublicActions<
    */
   getFilterChanges: <
     TFilterType extends FilterType,
-    TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[] | undefined,
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -892,7 +895,7 @@ export type PublicActions<
    * const logs = await client.getFilterLogs({ filter })
    */
   getFilterLogs: <
-    TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[] | undefined,
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -948,13 +951,25 @@ export type PublicActions<
    * const logs = await client.getLogs()
    */
   getLogs: <
-    TAbiEvent extends AbiEvent | undefined,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
     TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args?: GetLogsParameters<TAbiEvent, TStrict, TFromBlock, TToBlock>,
-  ) => Promise<GetLogsReturnType<TAbiEvent, TStrict, TFromBlock, TToBlock>>
+    args?: GetLogsParameters<
+      TAbiEvent,
+      TAbiEvents,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
+  ) => Promise<
+    GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
+  >
   /**
    * Returns the value from a storage slot at a given address.
    *
@@ -1406,10 +1421,14 @@ export type PublicActions<
    * })
    */
   watchEvent: <
-    TAbiEvent extends AbiEvent | undefined,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchEventParameters<TAbiEvent, TStrict>,
+    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.

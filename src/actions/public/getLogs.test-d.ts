@@ -41,7 +41,6 @@ test('event: const assertion', async () => {
   const logs = await getLogs(publicClient, {
     event,
   })
-  logs[0].topics
   expectTypeOf(logs[0]['eventName']).toEqualTypeOf<'Transfer'>()
   expectTypeOf(logs[0]['topics']).toEqualTypeOf<
     [`0x${string}`, `0x${string}`, `0x${string}`]

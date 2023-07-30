@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
-import { usdcContractConfig } from '../../_test/abis.js'
+import { usdcContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { accounts, address } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { getAddress } from '../../utils/address/getAddress.js'
@@ -225,6 +225,101 @@ test('args: address + event', async () => {
     value: 1n,
   })
 })
+
+test('args: address + events', async () => {
+  const logs: WatchEventOnLogsParameter<
+    undefined,
+    [typeof event.transfer, typeof event.approval]
+  >[] = []
+
+  const unwatch = watchEvent(publicClient, {
+    address: usdcContractConfig.address,
+    events: [event.transfer, event.approval],
+    onLogs: (logs_) => logs.push(logs_),
+  })
+
+  await wait(1000)
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
+    account: address.vitalik,
+  })
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'approve',
+    args: [accounts[1].address, 2n],
+    account: address.vitalik,
+  })
+  await mine(testClient, { blocks: 1 })
+  await wait(2000)
+  unwatch()
+
+  expect(logs.length).toBe(1)
+  expect(logs[0].length).toBe(2)
+
+  expect(logs[0][0].eventName).toEqual('Transfer')
+  expect(logs[0][0].args).toEqual({
+    from: getAddress(address.vitalik),
+    to: getAddress(accounts[0].address),
+    value: 1n,
+  })
+
+  expect(logs[0][1].eventName).toEqual('Approval')
+  expect(logs[0][1].args).toEqual({
+    owner: getAddress(address.vitalik),
+    spender: getAddress(accounts[1].address),
+    value: 2n,
+  })
+})
+
+test(
+  'args: events',
+  async () => {
+    const logs: WatchEventOnLogsParameter<
+      undefined,
+      [typeof event.transfer, typeof event.approval]
+    >[] = []
+
+    const unwatch = watchEvent(publicClient, {
+      events: [event.transfer, event.approval],
+      onLogs: (logs_) => logs.push(logs_),
+    })
+
+    await wait(1000)
+    await writeContract(walletClient, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 2n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(2000)
+    unwatch()
+
+    expect(logs.length).toBe(1)
+    expect(logs[0].length).toBe(2)
+
+    expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][0].args).toEqual({
+      from: address.burn,
+      to: getAddress(address.vitalik),
+    })
+
+    expect(logs[0][1].eventName).toEqual('Approval')
+    expect(logs[0][1].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(accounts[1].address),
+      value: 2n,
+    })
+  },
+  { retry: 3 },
+)
 
 test.todo('args: args')
 
