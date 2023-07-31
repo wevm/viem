@@ -734,6 +734,7 @@ export {
   type HashTypedDataReturnType,
   hashTypedData,
 } from './utils/signature/hashTypedData.js'
+export { hexToSignature } from './utils/signature/hexToSignature.js'
 export {
   type RecoverAddressParameters,
   type RecoverAddressReturnType,
@@ -754,6 +755,7 @@ export {
   type RecoverTypedDataAddressReturnType,
   recoverTypedDataAddress,
 } from './utils/signature/recoverTypedDataAddress.js'
+export { signatureToHex } from './utils/signature/signatureToHex.js'
 export { type ToRlpReturnType, toRlp } from './utils/encoding/toRlp.js'
 export {
   type VerifyMessageParameters,
