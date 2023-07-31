@@ -31,6 +31,7 @@ test('creates', () => {
     {
       "account": undefined,
       "batch": undefined,
+      "cacheTime": 4000,
       "chain": {
         "formatters": undefined,
         "id": 1337,
@@ -116,6 +117,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": {
           "formatters": undefined,
           "id": 1337,
@@ -201,6 +203,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": {
           "formatters": undefined,
           "id": 1337,
@@ -294,6 +297,7 @@ test('extend', () => {
       },
       "addChain": [Function],
       "batch": undefined,
+      "cacheTime": 4000,
       "call": [Function],
       "chain": {
         "formatters": undefined,

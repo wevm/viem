@@ -47,25 +47,23 @@ The number of the block.
 
 ## Parameters
 
-### maxAge (optional)
+### cacheTime (optional)
 
 - **Type:** `number`
-- **Default:** [Client's `pollingInterval`](/docs/clients/public#pollinginterval-optional)
+- **Default:** [Client's `cacheTime`](/docs/clients/public#cachetime-optional)
 
-The maximum age (in ms) of the cached value. 
+Time (in ms) that cached block number will remain in memory.
 
 ```ts
 const block = await publicClient.getBlockNumber({
-  maxAge: 4_000 // [!code focus]
+  cacheTime: 4_000 // [!code focus]
 })
 ```
 
-By default, block numbers are cached for the period of the [Client's `pollingInterval`](/docs/clients/public#pollinginterval-optional).
+By default, block numbers are cached for the period of the [Client's `cacheTime`](/docs/clients/public#cacheTime-optional).
 
 - Setting a value of above zero will make block number remain in the cache for that period.
 - Setting a value of `0` will disable the cache, and always retrieve a fresh block number.
-
-
 
 ## Example
 
