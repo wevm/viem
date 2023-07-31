@@ -109,7 +109,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const client = createTestClient({
   account: privateKeyToAccount('0x...') // [!code focus]
-  chain: mainnet,
+  chain: foundry,
+  mode: 'anvil',
   transport: http(),
 })
 ```
@@ -125,6 +126,22 @@ const client = createTestClient({
   chain: foundry, // [!code focus]
   mode: 'anvil',
   transport: http(), 
+})
+```
+
+### cacheTime (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Time (in ms) that cached data will remain in memory.
+
+```ts
+const client = createTestClient({
+  cacheTime: 10_000, // [!code focus]
+  chain: foundry,
+  mode: 'anvil',
+  transport: http(),
 })
 ```
 

@@ -31,6 +31,7 @@ test('creates', () => {
     {
       "account": undefined,
       "batch": undefined,
+      "cacheTime": 4000,
       "call": [Function],
       "chain": undefined,
       "createBlockFilter": [Function],
@@ -139,6 +140,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "call": [Function],
         "chain": {
           "formatters": undefined,
@@ -234,6 +236,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "call": [Function],
         "chain": {
           "formatters": undefined,
@@ -329,6 +332,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "call": [Function],
         "chain": undefined,
         "createBlockFilter": [Function],
@@ -403,6 +407,7 @@ test('extend', () => {
       "account": undefined,
       "addChain": [Function],
       "batch": undefined,
+      "cacheTime": 4000,
       "call": [Function],
       "chain": {
         "formatters": undefined,

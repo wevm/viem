@@ -29,6 +29,7 @@ test('creates', () => {
     {
       "account": undefined,
       "batch": undefined,
+      "cacheTime": 4000,
       "chain": undefined,
       "extend": [Function],
       "key": "base",
@@ -61,6 +62,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": {
           "formatters": undefined,
           "id": 1337,
@@ -116,6 +118,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": {
           "formatters": undefined,
           "id": 1337,
@@ -171,6 +174,7 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -193,6 +197,45 @@ describe('transports', () => {
 })
 
 describe('config', () => {
+  test('cacheTime', () => {
+    const mockTransport = () =>
+      createTransport({
+        key: 'mock',
+        name: 'Mock Transport',
+        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
+        type: 'mock',
+      })
+    const { uid, ...client } = createClient({
+      cacheTime: 10_000,
+      transport: mockTransport,
+    })
+
+    expect(uid).toBeDefined()
+    expect(client).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "batch": undefined,
+        "cacheTime": 10000,
+        "chain": undefined,
+        "extend": [Function],
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "transport": {
+          "key": "mock",
+          "name": "Mock Transport",
+          "request": [MockFunction spy],
+          "retryCount": 3,
+          "retryDelay": 150,
+          "timeout": undefined,
+          "type": "mock",
+        },
+        "type": "base",
+      }
+    `)
+  })
+
   test('key', () => {
     const mockTransport = () =>
       createTransport({
@@ -212,6 +255,7 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": undefined,
         "extend": [Function],
         "key": "bar",
@@ -251,6 +295,7 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -290,6 +335,7 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 10000,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -329,6 +375,7 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "chain": undefined,
         "extend": [Function],
         "key": "base",
@@ -372,6 +419,7 @@ describe('extends', () => {
       {
         "account": undefined,
         "batch": undefined,
+        "cacheTime": 4000,
         "call": [Function],
         "chain": {
           "formatters": undefined,
