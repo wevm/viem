@@ -699,6 +699,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/hashTypedData',
             },
             {
+              text: 'hexToSignature',
+              link: '/docs/utilities/hexToSignature',
+            },
+            {
               text: 'recoverAddress',
               link: '/docs/utilities/recoverAddress',
             },
@@ -713,6 +717,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'recoverTypedDataAddress',
               link: '/docs/utilities/recoverTypedDataAddress',
+            },
+            {
+              text: 'signatureToHex',
+              link: '/docs/utilities/signatureToHex',
             },
             {
               text: 'verifyMessage',
