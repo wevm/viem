@@ -50,7 +50,7 @@ The Public Client also supports [`eth_call` Aggregation](#multicall) for improve
 
 ### `eth_call` Aggregation (via Multicall)
 
-The Public Client supports the aggregation of `eth_call` requests into a single multicall (`aggregate3`) request. 
+The Public Client supports the aggregation of `eth_call` requests into a single multicall (`aggregate3`) request.
 
 This means for every Action that utilizes an `eth_call` request (ie. `readContract`), the Public Client will batch the requests (over a timed period) and send it to the RPC Provider in a single multicall request. This can dramatically improve network performance, and decrease the amount of [Compute Units (CU)](https://docs.alchemy.com/reference/compute-units) used by RPC Providers like Alchemy, Infura, etc.
 
@@ -93,7 +93,7 @@ const [name, totalSupply, symbol, tokenUri, balance] = await Promise.all([
 
 - **Type:** [Transport](/docs/glossary/types#transport)
 
-The [Transport](/docs/clients/intro) of the Public Client. 
+The [Transport](/docs/clients/intro) of the Public Client.
 
 ```ts
 const client = createPublicClient({
@@ -106,7 +106,7 @@ const client = createPublicClient({
 
 - **Type:** [Chain](/docs/glossary/types#chain)
 
-The [Chain](/docs/clients/chains) of the Public Client. 
+The [Chain](/docs/clients/chains) of the Public Client.
 
 ```ts
 const client = createPublicClient({
@@ -171,6 +171,21 @@ const client = createPublicClient({
       wait: 16, // [!code focus]
     },
   },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### cacheTime (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Time (in ms) that cached data will remain in memory.
+
+```ts
+const client = createPublicClient({
+  cacheTime: 10_000, // [!code focus]
   chain: mainnet,
   transport: http(),
 })

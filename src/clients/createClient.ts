@@ -29,6 +29,11 @@ export type ClientConfig<
         multicall?: boolean | Prettify<MulticallBatchOptions> | undefined
       }
     | undefined
+  /**
+   * Time (in ms) that cached data will remain in memory.
+   * @default 4_000
+   */
+  cacheTime?: number | undefined
   /** Chain for the client. */
   chain?: Chain | undefined | chain
   /** A key for the client. */
@@ -79,6 +84,8 @@ type Client_Base<
   account: account
   /** Flags for batch settings. */
   batch?: ClientConfig['batch']
+  /** Time (in ms) that cached data will remain in memory. */
+  cacheTime: number
   /** Chain for the client. */
   chain: chain
   /** A key for the client. */
@@ -135,6 +142,7 @@ export function createClient<
 export function createClient(parameters: ClientConfig): Client {
   const {
     batch,
+    cacheTime = parameters.pollingInterval ?? 4_000,
     key = 'base',
     name = 'Base Client',
     pollingInterval = 4_000,
@@ -154,6 +162,7 @@ export function createClient(parameters: ClientConfig): Client {
   const client = {
     account,
     batch,
+    cacheTime,
     chain,
     key,
     name,

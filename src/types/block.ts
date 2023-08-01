@@ -3,7 +3,16 @@ import type { Address } from 'abitype'
 import type { Hash, Hex } from './misc.js'
 import type { Transaction } from './transaction.js'
 
-export type Block<TQuantity = bigint, TTransaction = Transaction> = {
+export type Block<
+  TQuantity = bigint,
+  TIncludeTransactions extends boolean = boolean,
+  TBlockTag extends BlockTag = BlockTag,
+  TTransaction = Transaction<
+    bigint,
+    number,
+    TBlockTag extends 'pending' ? true : false
+  >,
+> = {
   /** Base fee per gas */
   baseFeePerGas: TQuantity | null
   /** Difficulty for this block */
@@ -15,17 +24,17 @@ export type Block<TQuantity = bigint, TTransaction = Transaction> = {
   /** Total used gas by all transactions in this block */
   gasUsed: TQuantity
   /** Block hash or `null` if pending */
-  hash: Hash | null
+  hash: TBlockTag extends 'pending' ? null : Hash
   /** Logs bloom filter or `null` if pending */
-  logsBloom: Hex | null
+  logsBloom: TBlockTag extends 'pending' ? null : Hex
   /** Address that received this block’s mining rewards */
   miner: Address
   /** Unique identifier for the block. */
   mixHash: Hash
   /** Proof-of-work hash or `null` if pending */
-  nonce: Hex | null
+  nonce: TBlockTag extends 'pending' ? null : Hex
   /** Block number or `null` if pending */
-  number: TQuantity | null
+  number: TBlockTag extends 'pending' ? null : TQuantity
   /** Parent block hash */
   parentHash: Hash
   /** Root of the this block’s receipts trie */
@@ -42,7 +51,7 @@ export type Block<TQuantity = bigint, TTransaction = Transaction> = {
   /** Total difficulty of the chain until this block */
   totalDifficulty: TQuantity | null
   /** List of transaction objects or hashes */
-  transactions: Hash[] | TTransaction[]
+  transactions: TIncludeTransactions extends true ? TTransaction[] : Hash[]
   /** Root of this block’s transaction trie */
   transactionsRoot: Hash
   /** List of uncle hashes */
@@ -67,7 +76,13 @@ export type BlockNumber<TQuantity = bigint> = TQuantity
 
 export type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
 
-export type Uncle<TQuantity = bigint, TTransaction = Transaction> = Block<
-  TQuantity,
-  TTransaction
->
+export type Uncle<
+  TQuantity = bigint,
+  TIncludeTransactions extends boolean = boolean,
+  TBlockTag extends BlockTag = BlockTag,
+  TTransaction = Transaction<
+    bigint,
+    number,
+    TBlockTag extends 'pending' ? true : false
+  >,
+> = Block<TQuantity, TIncludeTransactions, TBlockTag, TTransaction>

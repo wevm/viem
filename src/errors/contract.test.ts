@@ -393,4 +393,24 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@1.0.2]
     `)
   })
+
+  test('data: error signature does not exist on ABI', () => {
+    expect(
+      new ContractFunctionRevertedError({
+        abi: errorsExampleABI,
+        data: '0xdb731cfa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000',
+        functionName: 'totalSupply',
+      }),
+    ).toMatchInlineSnapshot(`
+      [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following signature:
+      0xdb731cfa
+
+      Unable to decode signature "0xdb731cfa" as it was not found on the provided ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdb731cfa.
+
+      Docs: https://viem.sh/docs/contract/decodeErrorResult.html
+      Version: viem@1.0.2]
+    `)
+  })
 })

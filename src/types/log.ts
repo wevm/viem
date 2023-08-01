@@ -15,9 +15,12 @@ import type { Hash, Hex } from './misc.js'
 export type Log<
   TQuantity = bigint,
   TIndex = number,
+  TPending extends boolean = boolean,
   TAbiEvent extends AbiEvent | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
+    ? [TAbiEvent]
+    : undefined,
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
@@ -25,17 +28,17 @@ export type Log<
   /** The address from which this log originated */
   address: Address
   /** Hash of block containing this log or `null` if pending */
-  blockHash: Hash | null
+  blockHash: TPending extends true ? null : Hash
   /** Number of block containing this log or `null` if pending */
-  blockNumber: TQuantity | null
+  blockNumber: TPending extends true ? null : TQuantity
   /** Contains the non-indexed arguments of the log */
   data: Hex
   /** Index of this log within its block or `null` if pending */
-  logIndex: TIndex | null
+  logIndex: TPending extends true ? null : TIndex
   /** Hash of the transaction that created this log or `null` if pending */
-  transactionHash: Hash | null
+  transactionHash: TPending extends true ? null : Hash
   /** Index of the transaction that created this log or `null` if pending */
-  transactionIndex: TIndex | null
+  transactionIndex: TPending extends true ? null : TIndex
   /** `true` if this filter has been destroyed and is invalid */
   removed: boolean
 } & GetInferredLogValues<TAbiEvent, TAbi, TEventName, TStrict>
@@ -79,7 +82,9 @@ type GetTopics<
 
 type GetInferredLogValues<
   TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+  TAbi extends Abi | readonly unknown[] | undefined = TAbiEvent extends AbiEvent
+    ? [TAbiEvent]
+    : undefined,
   TEventName extends string | undefined = TAbiEvent extends AbiEvent
     ? TAbiEvent['name']
     : undefined,
@@ -110,7 +115,7 @@ type GetInferredLogValues<
         [TName in _EventNames]: {
           args: GetEventArgs<
             TAbi,
-            string,
+            TName,
             {
               EnableUnion: false
               IndexedOnly: false

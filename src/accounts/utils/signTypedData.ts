@@ -6,9 +6,9 @@ import {
   type HashTypedDataParameters,
   hashTypedData,
 } from '../../utils/signature/hashTypedData.js'
+import { signatureToHex } from '../../utils/signature/signatureToHex.js'
 
 import { sign } from './sign.js'
-import { signatureToHex } from './signatureToHex.js'
 
 export type SignTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

@@ -1,4 +1,4 @@
-import type { Abi, Address, ExtractAbiEvent, Narrow } from 'abitype'
+import type { Abi, AbiEvent, Address, ExtractAbiEvent, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -20,21 +20,21 @@ import {
 } from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
-import { type GetLogsParameters, getLogs } from './getLogs.js'
+import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
-export type OnLogsParameter<
+export type WatchContractEventOnLogsParameter<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
   TEventName extends string = string,
   TStrict extends boolean | undefined = undefined,
 > = TAbi extends Abi
-  ? Log<bigint, number, ExtractAbiEvent<TAbi, TEventName>, TStrict>[]
+  ? Log<bigint, number, false, ExtractAbiEvent<TAbi, TEventName>, TStrict>[]
   : Log[]
-export type OnLogsFn<
+export type WatchContractEventOnLogsFn<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
   TEventName extends string = string,
   TStrict extends boolean | undefined = undefined,
-> = (logs: OnLogsParameter<TAbi, TEventName, TStrict>) => void
+> = (logs: WatchContractEventOnLogsParameter<TAbi, TEventName, TStrict>) => void
 
 export type WatchContractEventParameters<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],
@@ -53,7 +53,7 @@ export type WatchContractEventParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
-  onLogs: OnLogsFn<TAbi, TEventName, TStrict>
+  onLogs: WatchContractEventOnLogsFn<TAbi, TEventName, TStrict>
   /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
   pollingInterval?: number
   /**
@@ -173,8 +173,8 @@ export function watchContractEvent<
                 event: getAbiItem({
                   abi,
                   name: eventName,
-                } as unknown as GetAbiItemParameters),
-              } as unknown as GetLogsParameters)
+                } as unknown as GetAbiItemParameters) as AbiEvent,
+              })
             } else {
               logs = []
             }

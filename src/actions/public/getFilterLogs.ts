@@ -6,6 +6,7 @@ import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
@@ -13,22 +14,29 @@ import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import { formatLog } from '../../utils/formatters/log.js'
 
 export type GetFilterLogsParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
+  TEventName extends string | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
-  filter: Filter<'event', TAbi, TEventName, any, TStrict>
+  filter: Filter<'event', TAbi, TEventName, any, TStrict, TFromBlock, TToBlock>
 }
 export type GetFilterLogsReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
+  TAbi extends Abi | readonly unknown[] | undefined = undefined,
+  TEventName extends string | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   _AbiEvent extends AbiEvent | undefined = TAbi extends Abi
     ? TEventName extends string
       ? ExtractAbiEvent<TAbi, TEventName>
       : undefined
     : undefined,
-> = Log<bigint, number, _AbiEvent, TStrict, TAbi, TEventName>[]
+  _Pending extends boolean =
+    | (TFromBlock extends 'pending' ? true : false)
+    | (TToBlock extends 'pending' ? true : false),
+> = Log<bigint, number, _Pending, _AbiEvent, TStrict, TAbi, TEventName>[]
 
 /**
  * Returns a list of event logs since the filter was created.
@@ -59,13 +67,19 @@ export type GetFilterLogsReturnType<
  */
 export async function getFilterLogs<
   TChain extends Chain | undefined,
-  TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[] | undefined,
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
   _client: Client<Transport, TChain>,
-  { filter }: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
-): Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>> {
+  {
+    filter,
+  }: GetFilterLogsParameters<TAbi, TEventName, TStrict, TFromBlock, TToBlock>,
+): Promise<
+  GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+> {
   const strict = filter.strict ?? false
 
   const logs = await filter.request({
@@ -105,6 +119,8 @@ export async function getFilterLogs<
     .filter(Boolean) as unknown as GetFilterLogsReturnType<
     TAbi,
     TEventName,
-    TStrict
+    TStrict,
+    TFromBlock,
+    TToBlock
   >
 }

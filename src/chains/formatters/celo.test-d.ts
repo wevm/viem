@@ -6,15 +6,13 @@ import { getTransactionReceipt } from '../../actions/public/getTransactionReceip
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { Hash } from '../../types/misc.js'
 import type {
   RpcBlock,
   RpcTransaction,
   RpcTransactionReceipt,
 } from '../../types/rpc.js'
-import type {
-  Transaction,
-  TransactionRequest,
-} from '../../types/transaction.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 import { sendTransaction } from '../../wallet.js'
 import { celo } from '../index.js'
 import { formattersCelo } from './celo.js'
@@ -128,7 +126,6 @@ describe('smoke', () => {
     })
     const block = await getBlock(client, {
       blockNumber: 16645775n,
-      includeTransactions: true,
     })
 
     expectTypeOf(block.difficulty).toEqualTypeOf<never>()
@@ -140,14 +137,21 @@ describe('smoke', () => {
       committed: `0x${string}`
       revealed: `0x${string}`
     }>()
-    expectTypeOf(block.transactions).toEqualTypeOf<
-      | `0x${string}`[]
-      | (Transaction & {
-          feeCurrency: `0x${string}` | null
-          gatewayFee: bigint | null
-          gatewayFeeRecipient: `0x${string}` | null
-        })[]
-    >()
+    expectTypeOf(block.transactions).toEqualTypeOf<Hash[]>()
+
+    const block_includeTransactions = await getBlock(client, {
+      blockNumber: 16645775n,
+      includeTransactions: true,
+    })
+    expectTypeOf(
+      block_includeTransactions.transactions[0].feeCurrency,
+    ).toEqualTypeOf<`0x${string}` | null>()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].gatewayFee,
+    ).toEqualTypeOf<bigint | null>()
+    expectTypeOf(
+      block_includeTransactions.transactions[0].gatewayFeeRecipient,
+    ).toEqualTypeOf<`0x${string}` | null>()
   })
 
   test('transaction', async () => {

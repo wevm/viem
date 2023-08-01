@@ -11,7 +11,13 @@ export type PublicClientConfig<
 > = Prettify<
   Pick<
     ClientConfig<transport, chain>,
-    'batch' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+    | 'batch'
+    | 'cacheTime'
+    | 'chain'
+    | 'key'
+    | 'name'
+    | 'pollingInterval'
+    | 'transport'
   >
 >
 

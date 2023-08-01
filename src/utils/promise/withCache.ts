@@ -27,8 +27,8 @@ export function getCache<TData>(cacheKey: string) {
 export type WithCacheParameters = {
   /** The key to cache the data against. */
   cacheKey: string
-  /** The maximum age (in ms) of the cached value. Default: Infinity (no expiry) */
-  maxAge?: number
+  /** The time that cached data will remain in memory. Default: Infinity (no expiry) */
+  cacheTime?: number
 }
 
 /**
@@ -37,7 +37,7 @@ export type WithCacheParameters = {
  */
 export async function withCache<TData>(
   fn: () => Promise<TData>,
-  { cacheKey, maxAge = Infinity }: WithCacheParameters,
+  { cacheKey, cacheTime = Infinity }: WithCacheParameters,
 ) {
   const cache = getCache<TData>(cacheKey)
 
@@ -45,9 +45,9 @@ export async function withCache<TData>(
   // and do not invoke the promise.
   // If the max age is 0, the cache is disabled.
   const response = cache.response.get()
-  if (response && maxAge > 0) {
+  if (response && cacheTime > 0) {
     const age = new Date().getTime() - response.created.getTime()
-    if (age < maxAge) return response.data
+    if (age < cacheTime) return response.data
   }
 
   let promise = cache.promise.get()

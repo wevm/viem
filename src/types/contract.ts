@@ -83,9 +83,13 @@ export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
   TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
 
 export type MaybeExtractEventArgsFromAbi<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = undefined,
-> = TEventName extends string ? GetEventArgs<TAbi, TEventName> : undefined
+  TAbi extends Abi | readonly unknown[] | undefined,
+  TEventName extends string | undefined,
+> = TAbi extends Abi | readonly unknown[]
+  ? TEventName extends string
+    ? GetEventArgs<TAbi, TEventName>
+    : undefined
+  : undefined
 
 //////////////////////////////////////////////////////////////////////
 // ABI item name

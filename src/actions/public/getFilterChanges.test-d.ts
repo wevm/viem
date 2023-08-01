@@ -4,6 +4,7 @@ import { describe, expectTypeOf, test } from 'vitest'
 import { usdcContractConfig } from '../../_test/abis.js'
 import { publicClient } from '../../_test/utils.js'
 import type { Log } from '../../types/log.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
@@ -19,6 +20,63 @@ describe('createEventFilter', () => {
     >()
     expectTypeOf(logs[0]).not.toHaveProperty('eventName')
     expectTypeOf(logs[0]).not.toHaveProperty('args')
+  })
+
+  test('non-pending logs', async () => {
+    const filter = await createEventFilter(publicClient)
+    const logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+    expectTypeOf(logs[0].blockHash).toEqualTypeOf<Hex>()
+    expectTypeOf(logs[0].blockNumber).toEqualTypeOf<bigint>()
+    expectTypeOf(logs[0].logIndex).toEqualTypeOf<number>()
+    expectTypeOf(logs[0].transactionHash).toEqualTypeOf<Hash>()
+    expectTypeOf(logs[0].transactionIndex).toEqualTypeOf<number>()
+  })
+
+  test('pending logs', async () => {
+    const filter_fromPending = await createEventFilter(publicClient, {
+      fromBlock: 'pending',
+    })
+    const logs_fromPending = await getFilterChanges(publicClient, {
+      filter: filter_fromPending,
+    })
+    expectTypeOf(logs_fromPending[0].blockHash).toEqualTypeOf<Hex | null>()
+    expectTypeOf(logs_fromPending[0].blockNumber).toEqualTypeOf<bigint | null>()
+    expectTypeOf(logs_fromPending[0].logIndex).toEqualTypeOf<number | null>()
+    expectTypeOf(
+      logs_fromPending[0].transactionHash,
+    ).toEqualTypeOf<Hash | null>()
+    expectTypeOf(logs_fromPending[0].transactionIndex).toEqualTypeOf<
+      number | null
+    >()
+
+    const filter_toPending = await createEventFilter(publicClient, {
+      toBlock: 'pending',
+    })
+    const logs_toPending = await getFilterChanges(publicClient, {
+      filter: filter_toPending,
+    })
+    expectTypeOf(logs_toPending[0].blockHash).toEqualTypeOf<Hex | null>()
+    expectTypeOf(logs_toPending[0].blockNumber).toEqualTypeOf<bigint | null>()
+    expectTypeOf(logs_toPending[0].logIndex).toEqualTypeOf<number | null>()
+    expectTypeOf(logs_toPending[0].transactionHash).toEqualTypeOf<Hash | null>()
+    expectTypeOf(logs_toPending[0].transactionIndex).toEqualTypeOf<
+      number | null
+    >()
+
+    const filter_bothPending = await createEventFilter(publicClient, {
+      fromBlock: 'pending',
+      toBlock: 'pending',
+    })
+    const logs_bothPending = await getFilterChanges(publicClient, {
+      filter: filter_bothPending,
+    })
+    expectTypeOf(logs_bothPending[0].blockHash).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].blockNumber).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].logIndex).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].transactionHash).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].transactionIndex).toEqualTypeOf<null>()
   })
 
   test('args: event: defined inline', async () => {
@@ -169,6 +227,95 @@ describe('createEventFilter', () => {
     >()
   })
 
+  test('args: events', async () => {
+    const filter = await createEventFilter(publicClient, {
+      events: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'value',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+        {
+          type: 'event',
+          name: 'Approval',
+          inputs: [
+            {
+              indexed: true,
+              name: 'owner',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'spender',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'value',
+              type: 'uint256',
+            },
+          ],
+        },
+      ],
+    })
+    const logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+    expectTypeOf(logs[0].topics).toEqualTypeOf<
+      [`0x${string}`, `0x${string}`, `0x${string}`]
+    >()
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<
+      | {
+          from?: Address
+          to?: Address
+          value?: bigint
+        }
+      | {
+          owner?: Address
+          spender?: Address
+          value?: bigint
+        }
+    >()
+
+    expectTypeOf(
+      logs[0].eventName === 'Transfer' && logs[0].args,
+    ).toEqualTypeOf<
+      | false
+      | {
+          from?: Address
+          to?: Address
+          value?: bigint
+        }
+    >()
+    expectTypeOf(
+      logs[0].eventName === 'Approval' && logs[0].args,
+    ).toEqualTypeOf<
+      | false
+      | {
+          owner?: Address
+          spender?: Address
+          value?: bigint
+        }
+    >()
+  })
+
   test('strict: named', async () => {
     const filter = await createEventFilter(publicClient, {
       event: {
@@ -300,7 +447,7 @@ describe('createContractEventFilter', () => {
     })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, undefined, false, typeof abi>[]
+      Log<bigint, number, false, undefined, false, typeof abi>[]
     >()
     expectTypeOf(logs[0].topics).toEqualTypeOf<
       | [`0x${string}`, `0x${string}`, `0x${string}`]
@@ -328,6 +475,99 @@ describe('createContractEventFilter', () => {
           bar?: bigint
         }
     >()
+
+    expectTypeOf(
+      logs[0].eventName === 'Transfer' && logs[0].args,
+    ).toEqualTypeOf<
+      | false
+      | {
+          from?: Address
+          to?: Address
+          value?: bigint
+        }
+    >()
+    expectTypeOf(
+      logs[0].eventName === 'Approval' && logs[0].args,
+    ).toEqualTypeOf<
+      | false
+      | {
+          owner?: Address
+          spender?: Address
+          value?: bigint
+        }
+    >()
+    expectTypeOf(logs[0].eventName === 'Foo' && logs[0].args).toEqualTypeOf<
+      | false
+      | {
+          owner?: Address
+          spender?: Address
+          foo?: Address
+          value?: bigint
+          bar?: bigint
+        }
+    >()
+  })
+
+  test('non-pending logs', async () => {
+    const filter = await createContractEventFilter(publicClient, {
+      abi,
+    })
+    const logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+    expectTypeOf(logs[0].blockHash).toEqualTypeOf<Hex>()
+    expectTypeOf(logs[0].blockNumber).toEqualTypeOf<bigint>()
+    expectTypeOf(logs[0].logIndex).toEqualTypeOf<number>()
+    expectTypeOf(logs[0].transactionHash).toEqualTypeOf<Hash>()
+    expectTypeOf(logs[0].transactionIndex).toEqualTypeOf<number>()
+  })
+
+  test('pending logs', async () => {
+    const filter_fromPending = await createContractEventFilter(publicClient, {
+      abi,
+      fromBlock: 'pending',
+    })
+    const logs_fromPending = await getFilterChanges(publicClient, {
+      filter: filter_fromPending,
+    })
+    expectTypeOf(logs_fromPending[0].blockHash).toEqualTypeOf<Hex | null>()
+    expectTypeOf(logs_fromPending[0].blockNumber).toEqualTypeOf<bigint | null>()
+    expectTypeOf(logs_fromPending[0].logIndex).toEqualTypeOf<number | null>()
+    expectTypeOf(
+      logs_fromPending[0].transactionHash,
+    ).toEqualTypeOf<Hash | null>()
+    expectTypeOf(logs_fromPending[0].transactionIndex).toEqualTypeOf<
+      number | null
+    >()
+
+    const filter_toPending = await createContractEventFilter(publicClient, {
+      abi,
+      toBlock: 'pending',
+    })
+    const logs_toPending = await getFilterChanges(publicClient, {
+      filter: filter_toPending,
+    })
+    expectTypeOf(logs_toPending[0].blockHash).toEqualTypeOf<Hex | null>()
+    expectTypeOf(logs_toPending[0].blockNumber).toEqualTypeOf<bigint | null>()
+    expectTypeOf(logs_toPending[0].logIndex).toEqualTypeOf<number | null>()
+    expectTypeOf(logs_toPending[0].transactionHash).toEqualTypeOf<Hash | null>()
+    expectTypeOf(logs_toPending[0].transactionIndex).toEqualTypeOf<
+      number | null
+    >()
+
+    const filter_bothPending = await createContractEventFilter(publicClient, {
+      abi,
+      fromBlock: 'pending',
+      toBlock: 'pending',
+    })
+    const logs_bothPending = await getFilterChanges(publicClient, {
+      filter: filter_bothPending,
+    })
+    expectTypeOf(logs_bothPending[0].blockHash).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].blockNumber).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].logIndex).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].transactionHash).toEqualTypeOf<null>()
+    expectTypeOf(logs_bothPending[0].transactionIndex).toEqualTypeOf<null>()
   })
 
   test('args: eventName', async () => {
