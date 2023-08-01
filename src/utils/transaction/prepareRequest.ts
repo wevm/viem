@@ -78,10 +78,16 @@ export async function prepareRequest<
 
     // EIP-1559 fees
     if (typeof maxFeePerGas === 'undefined') {
-      // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
-      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultTip
-      request.maxFeePerGas =
-        (block.baseFeePerGas * 120n) / 100n + request.maxPriorityFeePerGas
+      // Set fees to zero when running anvil with zero base fee
+      if (block.baseFeePerGas === 0n) {
+        request.maxFeePerGas = 0n
+        request.maxPriorityFeePerGas = 0n
+      } else {
+        // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
+        request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultTip
+        request.maxFeePerGas =
+          (block.baseFeePerGas * 120n) / 100n + request.maxPriorityFeePerGas
+      }
     } else {
       if (
         typeof maxPriorityFeePerGas === 'undefined' &&
