@@ -14,9 +14,9 @@ head:
 
 # getEnsText
 
-Gets a text record for specified ENS name.
+Gets a text record(s) for specified ENS name.
 
-Calls `resolve(bytes, bytes)` on ENS Universal Resolver Contract.
+Calls `resolve(bytes, bytes[])` on ENS Universal Resolver Contract.
 
 ## Usage
 
@@ -52,9 +52,11 @@ Since ENS names prohibit certain forbidden characters (e.g. underscore) and have
 
 ## Returns
 
-`string | null`
+`string | null` when given a single key.
 
-The text record for ENS name.
+`(string | null)[]) | null` when given an array of keys.
+
+The text record(s) for ENS name.
 
 Returns `null` if name does not have text assigned.
 
@@ -75,14 +77,23 @@ const ensText = await publicClient.getEnsText({
 
 ### key
 
-- **Type:** `string`
+- **Type:** `string` | `string[]`
 
-ENS key to get Text for.
+ENS key(s) to get Text for.
 
 ```ts
 const ensText = await publicClient.getEnsText({
   name: normalize('wagmi-dev.eth'),
   key: 'com.twitter', // [!code focus]
+})
+```
+
+or
+
+```ts
+const ensText = await publicClient.getEnsText({
+  name: normalize('wagmi-dev.eth'),
+  key: ['com.twitter', 'description', 'url'], // [!code focus]
 })
 ```
 
