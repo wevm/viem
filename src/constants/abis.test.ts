@@ -171,6 +171,43 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "universalResolverResolveArrayAbi": [
+        {
+          "inputs": [],
+          "name": "ResolverNotFound",
+          "type": "error",
+        },
+        {
+          "inputs": [],
+          "name": "ResolverWildcardNotSupported",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
+              "name": "name",
+              "type": "bytes",
+            },
+            {
+              "name": "data",
+              "type": "bytes[]",
+            },
+          ],
+          "name": "resolve",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes[]",
+            },
+            {
+              "name": "address",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
       "universalResolverReverseAbi": [
         {
           "inputs": [],

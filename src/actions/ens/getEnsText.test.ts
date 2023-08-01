@@ -23,6 +23,17 @@ test('gets text record for name', async () => {
   ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
 })
 
+test('gets multiple text records for name', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'wagmi-dev.eth',
+      key: ['com.twitter', 'description', 'url'],
+    }),
+  ).resolves.toMatchInlineSnapshot(
+    '["wagmi_sh", "React Hooks for Ethereum", "wagmi.sh"]',
+  )
+})
+
 test('name without text record', async () => {
   await expect(
     getEnsText(publicClient, {
@@ -30,6 +41,24 @@ test('name without text record', async () => {
       key: 'com.twitter',
     }),
   ).resolves.toBeNull()
+})
+
+test('name with some empty text records', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'wagmi-dev.eth',
+      key: ['com.twitter', 'emptyrecord'],
+    }),
+  ).resolves.toMatchInlineSnapshot('["wagmi_sh", null]')
+})
+
+test('name with all empty text records', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'wagmi-dev.eth',
+      key: ['emptyrecord1', 'emptyrecord2'],
+    }),
+  ).resolves.toMatchInlineSnapshot('[null, null]')
 })
 
 test('name with resolver that does not support text()', async () => {
@@ -46,6 +75,15 @@ test('name without resolver', async () => {
     getEnsText(publicClient, {
       name: 'random1223232222.eth',
       key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
+test('name without resolver and multiple keys', async () => {
+  await expect(
+    getEnsText(publicClient, {
+      name: 'random1223232222.eth',
+      key: ['com.twitter', 'description', 'url'],
     }),
   ).resolves.toBeNull()
 })

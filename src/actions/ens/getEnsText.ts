@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   textResolverAbi,
-  universalResolverResolveAbi,
+  universalResolverResolveArrayAbi,
 } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
@@ -20,21 +20,24 @@ import {
   readContract,
 } from '../public/readContract.js'
 
-export type GetEnsTextParameters = Prettify<
+export type GetEnsTextParameters<TKeys> = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get Text for. */
     name: string
-    /** Text record to retrieve. */
-    key: string
+    /** Text record(s) to retrieve. */
+    key: TKeys
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address
   }
 >
 
-export type GetEnsTextReturnType = string | null
+// if a single key is passed, return a single string or null. otherwise, return an array of strings or nulls.
+export type GetEnsTextReturnType<T> = T extends string
+  ? string | null
+  : (string | null)[] | null
 
 /**
- * Gets a text record for specified ENS name.
+ * Gets a text record(s) for specified ENS name.
  *
  * - Docs: https://viem.sh/docs/ens/actions/getEnsResolver.html
  * - Examples: https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/ens
@@ -62,7 +65,10 @@ export type GetEnsTextReturnType = string | null
  * })
  * // 'wagmi_sh'
  */
-export async function getEnsText<TChain extends Chain | undefined>(
+export async function getEnsText<
+  TChain extends Chain | undefined,
+  TKeys extends string | string[],
+>(
   client: Client<Transport, TChain>,
   {
     blockNumber,
@@ -70,8 +76,8 @@ export async function getEnsText<TChain extends Chain | undefined>(
     name,
     key,
     universalResolverAddress: universalResolverAddress_,
-  }: GetEnsTextParameters,
-): Promise<GetEnsTextReturnType> {
+  }: GetEnsTextParameters<TKeys>,
+): Promise<GetEnsTextReturnType<TKeys>> {
   let universalResolverAddress = universalResolverAddress_
   if (!universalResolverAddress) {
     if (!client.chain)
@@ -86,32 +92,48 @@ export async function getEnsText<TChain extends Chain | undefined>(
     })
   }
 
+  // If a single key is passed, push it into an array so we can use the same logic for both cases
+  const keys: string[] = Array.isArray(key) ? key : [key]
+
   try {
     const res = await readContract(client, {
       address: universalResolverAddress,
-      abi: universalResolverResolveAbi,
+      abi: universalResolverResolveArrayAbi,
       functionName: 'resolve',
       args: [
         toHex(packetToBytes(name)),
-        encodeFunctionData({
-          abi: textResolverAbi,
-          functionName: 'text',
-          args: [namehash(name), key],
-        }),
+        keys.map((k) =>
+          encodeFunctionData({
+            abi: textResolverAbi,
+            functionName: 'text',
+            args: [namehash(name), k],
+          }),
+        ),
       ],
       blockNumber,
       blockTag,
     })
 
-    if (res[0] === '0x') return null
+    const decodedRecords: (string | null)[] = []
 
-    const record = decodeFunctionResult({
-      abi: textResolverAbi,
-      functionName: 'text',
-      data: res[0],
-    })
+    for (const encodedRecord of res[0]) {
+      if (encodedRecord === '0x') {
+        decodedRecords.push(null)
+        continue
+      }
 
-    return record === '' ? null : record
+      const record = decodeFunctionResult({
+        abi: textResolverAbi,
+        functionName: 'text',
+        data: encodedRecord,
+      })
+
+      decodedRecords.push(record === '' ? null : record)
+    }
+
+    return (
+      decodedRecords.length === 1 ? decodedRecords[0] : decodedRecords
+    ) as GetEnsTextReturnType<TKeys>
   } catch (err) {
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err

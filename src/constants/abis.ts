@@ -73,6 +73,23 @@ export const universalResolverResolveAbi = [
   },
 ] as const
 
+export const universalResolverResolveArrayAbi = [
+  ...universalResolverErrors,
+  {
+    name: 'resolve',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'name', type: 'bytes' },
+      { name: 'data', type: 'bytes[]' },
+    ],
+    outputs: [
+      { name: '', type: 'bytes[]' },
+      { name: 'address', type: 'address' },
+    ],
+  },
+] as const
+
 export const universalResolverReverseAbi = [
   ...universalResolverErrors,
   {
