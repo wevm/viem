@@ -26,7 +26,7 @@ import { getChainId } from '../public/getChainId.js'
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+  TChainOverride extends Chain | undefined = Chain,
 > = UnionOmit<
   FormattedTransactionRequest<
     IsUndefined<TChain> extends true ? TChainOverride : TChain
@@ -34,9 +34,8 @@ export type SendTransactionParameters<
   'from'
 > &
   GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride> & {
-    chainOverride?: TChainOverride
-  }
+  GetChain<TChain, TChainOverride>
+
 export type SendTransactionReturnType = Hash
 
 /**
