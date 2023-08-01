@@ -11,6 +11,7 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
@@ -597,32 +598,37 @@ describe('errors', () => {
     { retry: 3 },
   )
 
-  test('reinitializes filter after the consecutive error reset threshold is reached', async () => {
-    const CONSECUTIVE_ERROR_THRESHOLD = 3
-
-    // Fail 3 times to trigger a filter reinitalization.
-    vi.spyOn(getFilterChanges, 'getFilterChanges')
-      .mockRejectedValueOnce(new Error('first fail'))
-      .mockRejectedValueOnce(new Error('second fail'))
-      .mockRejectedValueOnce(new Error('third fail'))
-
-    const eventFilterCreationSpy = vi.spyOn(
+  test('re-initializes the filter if the active filter uninstalls', async () => {
+    const filterCreator = vi.spyOn(
       createContractEventFilter,
       'createContractEventFilter',
     )
 
     const unwatch = watchContractEvent(publicClient, {
       ...usdcContractConfig,
-      consecutiveErrorResetThreshold: CONSECUTIVE_ERROR_THRESHOLD,
-      pollingInterval: 200,
       onLogs: () => null,
       onError: () => null,
+      pollingInterval: 200,
     })
 
-    await wait(1000)
+    await wait(250)
+    expect(filterCreator).toBeCalledTimes(1)
 
-    // Check that event filter creation function was called twice
-    expect(eventFilterCreationSpy).toBeCalledTimes(2)
+    vi.spyOn(getFilterChanges, 'getFilterChanges').mockRejectedValueOnce(
+      new InvalidInputRpcError(
+        new RpcRequestError({
+          body: { foo: 'bar' },
+          url: 'url',
+          error: {
+            code: -32000,
+            message: 'message',
+          },
+        }),
+      ),
+    )
+
+    await wait(500)
+    expect(filterCreator).toBeCalledTimes(2)
     unwatch()
   })
 })
