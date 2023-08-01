@@ -1,4 +1,10 @@
-import type { Block, BlockIdentifier, BlockNumber, Uncle } from './block.js'
+import type {
+  Block,
+  BlockIdentifier,
+  BlockNumber,
+  BlockTag,
+  Uncle,
+} from './block.js'
 import type { FeeHistory, FeeValues } from './fee.js'
 import type { Log } from './log.js'
 import type {
@@ -17,7 +23,15 @@ export type Quantity = `0x${string}`
 export type Status = '0x0' | '0x1'
 export type TransactionType = '0x0' | '0x1' | '0x2' | (string & {})
 
-export type RpcBlock = Block<Quantity, RpcTransaction>
+export type RpcBlock<
+  TBlockTag extends BlockTag = BlockTag,
+  TIncludeTransactions extends boolean = boolean,
+> = Block<
+  Quantity,
+  TIncludeTransactions,
+  TBlockTag,
+  RpcTransaction<TBlockTag extends 'pending' ? true : false>
+>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>
@@ -34,9 +48,9 @@ export type RpcTransactionRequest =
   | TransactionRequestLegacy<Quantity, Index, '0x0'>
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
   | TransactionRequestEIP1559<Quantity, Index, '0x2'>
-export type RpcTransaction = UnionOmit<
-  | TransactionLegacy<Quantity, Index, '0x0'>
-  | TransactionEIP2930<Quantity, Index, '0x1'>
-  | TransactionEIP1559<Quantity, Index, '0x2'>,
+export type RpcTransaction<TPending extends boolean = boolean> = UnionOmit<
+  | TransactionLegacy<Quantity, Index, TPending, '0x0'>
+  | TransactionEIP2930<Quantity, Index, TPending, '0x1'>
+  | TransactionEIP1559<Quantity, Index, TPending, '0x2'>,
   'typeHex'
 >

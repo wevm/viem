@@ -16,6 +16,7 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
     format: (_: TOverrideParameters) => TOverrideReturnType
   }) => {
     return {
+      exclude,
       format: (args: TParameters & TOverrideParameters) => {
         const formatted = format(args)
         if (exclude) {

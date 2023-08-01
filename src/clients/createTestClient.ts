@@ -21,7 +21,13 @@ export type TestClientConfig<
 > = Prettify<
   Pick<
     ClientConfig<transport, chain, accountOrAddress>,
-    'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+    | 'account'
+    | 'cacheTime'
+    | 'chain'
+    | 'key'
+    | 'name'
+    | 'pollingInterval'
+    | 'transport'
   > & {
     /** Mode of the test client. */
     mode: mode | ('anvil' | 'hardhat' | 'ganache') // TODO: Type utility that expands `TestClientMode`

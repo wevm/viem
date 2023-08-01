@@ -11,7 +11,7 @@ import {
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
 
-export type GetTransactionParameters =
+export type GetTransactionParameters<TBlockTag extends BlockTag = 'latest'> =
   | {
       /** The block hash */
       blockHash: Hash
@@ -34,7 +34,7 @@ export type GetTransactionParameters =
       blockHash?: never
       blockNumber?: never
       /** The block tag. */
-      blockTag: BlockTag
+      blockTag: TBlockTag | BlockTag
       hash?: never
       /** The index of the transaction on the block. */
       index: number
@@ -48,8 +48,10 @@ export type GetTransactionParameters =
       index?: number
     }
 
-export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
-  FormattedTransaction<TChain>
+export type GetTransactionReturnType<
+  TChain extends Chain | undefined = Chain,
+  TBlockTag extends BlockTag = 'latest',
+> = FormattedTransaction<TChain, TBlockTag>
 
 /**
  * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) given a hash or block identifier.
@@ -75,16 +77,21 @@ export type GetTransactionReturnType<TChain extends Chain | undefined = Chain> =
  *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
  * })
  */
-export async function getTransaction<TChain extends Chain | undefined>(
+export async function getTransaction<
+  TChain extends Chain | undefined,
+  TBlockTag extends BlockTag = 'latest',
+>(
   client: Client<Transport, TChain>,
   {
     blockHash,
     blockNumber,
-    blockTag = 'latest',
+    blockTag: blockTag_,
     hash,
     index,
-  }: GetTransactionParameters,
-): Promise<GetTransactionReturnType<TChain>> {
+  }: GetTransactionParameters<TBlockTag>,
+): Promise<GetTransactionReturnType<TChain, TBlockTag>> {
+  const blockTag = blockTag_ || 'latest'
+
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 

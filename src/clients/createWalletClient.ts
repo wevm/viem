@@ -19,7 +19,13 @@ export type WalletClientConfig<
 > = Prettify<
   Pick<
     ClientConfig<transport, chain, accountOrAddress>,
-    'account' | 'chain' | 'key' | 'name' | 'pollingInterval' | 'transport'
+    | 'account'
+    | 'cacheTime'
+    | 'chain'
+    | 'key'
+    | 'name'
+    | 'pollingInterval'
+    | 'transport'
   >
 >
 

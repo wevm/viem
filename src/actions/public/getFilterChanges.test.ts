@@ -57,6 +57,27 @@ const event = {
     name: 'Transfer',
     type: 'event',
   },
+  approve: {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
   invalid: {
     inputs: [
       {
@@ -210,7 +231,14 @@ describe('contract events', () => {
     })
 
     assertType<
-      Log<bigint, number, undefined, false, typeof usdcContractConfig.abi>[]
+      Log<
+        bigint,
+        number,
+        boolean,
+        undefined,
+        false,
+        typeof usdcContractConfig.abi
+      >[]
     >(logs)
     expect(logs.length).toBe(3)
     expect(logs[0].args).toEqual({
@@ -264,6 +292,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -298,6 +327,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -321,6 +351,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         true,
         typeof usdcContractConfig.abi,
@@ -364,6 +395,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -413,6 +445,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -468,6 +501,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -517,6 +551,7 @@ describe('contract events', () => {
       Log<
         bigint,
         number,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi,
@@ -689,7 +724,7 @@ describe('events', () => {
     let logs = await getFilterChanges(publicClient, { filter })
 
     expectTypeOf(logs).toEqualTypeOf<
-      Log<bigint, number, typeof event.default>[]
+      Log<bigint, number, false, typeof event.default>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expectTypeOf(logs[0].args).toEqualTypeOf<{
@@ -733,6 +768,65 @@ describe('events', () => {
     expect(logs[0].eventName).toEqual('Transfer')
   })
 
+  test('args: events', async () => {
+    const filter = await createEventFilter(publicClient, {
+      events: [event.default, event.approve],
+    })
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    let logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+
+    expect(logs.length).toBe(2)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[0].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
+    expect(logs[1].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(accounts[1].address),
+      value: 1n,
+    })
+    expect(logs[1].eventName).toEqual('Approval')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[2].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(1)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[2].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
+  })
+
   test('args: fromBlock/toBlock', async () => {
     const filter = await createEventFilter(publicClient, {
       event: event.default,
@@ -741,7 +835,7 @@ describe('events', () => {
     })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.default>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
     expect(logs[0].args).toEqual({
       from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
@@ -764,7 +858,7 @@ describe('events', () => {
 
     let logs = await getFilterChanges(publicClient, { filter })
 
-    assertType<Log<bigint, number, typeof event.default, true>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
 
     expect(logs.length).toBe(784)
 
@@ -794,7 +888,9 @@ describe('events', () => {
 
     let logs = await getFilterChanges(publicClient, { filter })
 
-    assertType<Log<bigint, number, typeof event.default, false>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
+      logs,
+    )
 
     expect(logs.length).toBe(1056)
 
@@ -824,7 +920,7 @@ describe('events', () => {
     })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.unnamed, true>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
 
     expect(logs.length).toBe(784)
 
@@ -851,7 +947,9 @@ describe('events', () => {
     })
 
     let logs = await getFilterChanges(publicClient, { filter })
-    assertType<Log<bigint, number, typeof event.unnamed, false>[]>(logs)
+    assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
+      logs,
+    )
 
     expect(logs.length).toBe(1056)
 

@@ -30,6 +30,27 @@ const event = {
     name: 'Transfer',
     type: 'event',
   },
+  approve: {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
   unnamed: {
     inputs: [
       {
@@ -88,6 +109,23 @@ describe('default', () => {
     expect(filter.args).toBeUndefined()
     expect(filter.abi).toEqual([event.default])
     expect(filter.eventName).toEqual('Transfer')
+  })
+
+  test('args: events', async () => {
+    const filter = await createEventFilter(publicClient, {
+      events: [event.default, event.approve],
+    })
+    assertType<typeof filter>({
+      abi: [event.default, event.approve],
+      eventName: undefined,
+      id: '0x',
+      request,
+      strict: undefined,
+      type: 'event',
+    })
+    expect(filter.args).toBeUndefined()
+    expect(filter.abi).toEqual([event.default, event.approve])
+    expect(filter.eventName).toBeUndefined()
   })
 
   test('args: args (named)', async () => {

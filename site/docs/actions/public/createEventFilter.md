@@ -184,6 +184,21 @@ const filter = await publicClient.createEventFilter({
 })
 ```
 
+### Multiple Events
+
+A Filter can be scoped to **multiple events**:
+
+```ts
+const filter = await publicClient.createEventFilter({
+  events: parseAbi([ // [!code focus:4]
+    'event Approval(address indexed owner, address indexed sender, uint256 value)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+})
+```
+
+Note: A Filter scoped to multiple events cannot be also scoped with [indexed arguments](#arguments) (`args`).
+
 ### Strict Mode
 
 By default, `createEventFilter` will include logs that [do not conform](/docs/glossary/terms.html#non-conforming-log) to the indexed & non-indexed arguments on the `event`.
@@ -202,7 +217,7 @@ logs[0].args
 
 You can turn on `strict` mode to only return logs that conform to the indexed & non-indexed arguments on the `event`, meaning that `args` will always be defined. The trade-off is that non-conforming logs will be filtered out.
 
-```ts {8}
+```ts {9}
 const filter = await publicClient.createEventFilter({
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),

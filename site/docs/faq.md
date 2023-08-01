@@ -177,45 +177,7 @@ res
 // ^? const res: [bigint, bigint, bigint, bigint, bigint]
 ```
 
-This is expected. `"latestRoundData"` `outputs` is an array of types, so you get an array of decoded values as the return type. viem only maps explicitly typed tuples as objects.
-
-If you’d prefer an object as the return type, you could convert the parameters to a tuple and it should still work.
-
-```diff
-[
-  {
-    inputs: [],
-    name: "latestRoundData",
-    outputs: [
-+     {
-+       components: [
-          { name: "roundId", type: "uint80" },
-          { name: "answer", type: "int256" },
-          { name: "startedAt", type: "uint256" },
-          { name: "updatedAt", type: "uint256" },
-          { name: "answeredInRound", type: "uint80" },
-+       ],
-+       type: "tuple",
-+     },
-    ],
-    stateMutability: "view",
-    type: "function",
-  }
-]
-```
-
-```ts
-import { createPublicClient, parseAbi } from 'viem'
-
-const client = createPublicClient(…)
-const res = await client.readContract({
-  address: '0x…',
-  abi: […], // updated abi from above
-  functionName: 'latestRoundData',
-})
-res
-// ^? const res: { roundId: bigint; answer: bigint; startedAt: bigint; updatedAt: bigint; answeredInRound: bigint; }
-```
+This is expected. `"latestRoundData"` `outputs` is an array of types, so you get an array of decoded values as the return type. viem only maps explicitly typed tuples as objects
 
 Why does viem follow this approach? Here is the contract function definition for `latestRoundData` with two different return types:
 
