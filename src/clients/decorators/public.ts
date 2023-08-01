@@ -197,6 +197,7 @@ import {
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
 import type { Account } from '../../types/account.js'
+import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
@@ -281,10 +282,26 @@ export type PublicActions<
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: CreateContractEventFilterParameters<TAbi, TEventName, TArgs, TStrict>,
+    args: CreateContractEventFilterParameters<
+      TAbi,
+      TEventName,
+      TArgs,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
   ) => Promise<
-    CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+    CreateContractEventFilterReturnType<
+      TAbi,
+      TEventName,
+      TArgs,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >
   >
   /**
    * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
@@ -308,23 +325,38 @@ export type PublicActions<
    * })
    */
   createEventFilter: <
-    TAbiEvent extends AbiEvent | undefined,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
-    _Abi extends Abi | readonly unknown[] = [TAbiEvent],
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
     _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
     _Args extends
-      | MaybeExtractEventArgsFromAbi<_Abi, _EventName>
+      | MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
       | undefined = undefined,
   >(
     args?: CreateEventFilterParameters<
       TAbiEvent,
+      TAbiEvents,
       TStrict,
-      _Abi,
+      TFromBlock,
+      TToBlock,
       _EventName,
       _Args
     >,
   ) => Promise<
-    CreateEventFilterReturnType<TAbiEvent, TStrict, _Abi, _EventName, _Args>
+    CreateEventFilterReturnType<
+      TAbiEvent,
+      TAbiEvents,
+      TStrict,
+      TFromBlock,
+      TToBlock,
+      _EventName,
+      _Args
+    >
   >
   /**
    * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).
@@ -462,7 +494,12 @@ export type PublicActions<
    * })
    * const block = await client.getBlock()
    */
-  getBlock: (args?: GetBlockParameters) => Promise<GetBlockReturnType<TChain>>
+  getBlock: <
+    TIncludeTransactions extends boolean = false,
+    TBlockTag extends BlockTag = 'latest',
+  >(
+    args?: GetBlockParameters<TIncludeTransactions, TBlockTag>,
+  ) => Promise<GetBlockReturnType<TChain, TIncludeTransactions, TBlockTag>>
   /**
    * Returns the number of the most recent block seen.
    *
@@ -807,13 +844,29 @@ export type PublicActions<
    */
   getFilterChanges: <
     TFilterType extends FilterType,
-    TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[] | undefined,
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: GetFilterChangesParameters<TFilterType, TAbi, TEventName, TStrict>,
+    args: GetFilterChangesParameters<
+      TFilterType,
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
   ) => Promise<
-    GetFilterChangesReturnType<TFilterType, TAbi, TEventName, TStrict>
+    GetFilterChangesReturnType<
+      TFilterType,
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >
   >
   /**
    * Returns a list of event logs since the filter was created.
@@ -842,12 +895,22 @@ export type PublicActions<
    * const logs = await client.getFilterLogs({ filter })
    */
   getFilterLogs: <
-    TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[] | undefined,
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args: GetFilterLogsParameters<TAbi, TEventName, TStrict>,
-  ) => Promise<GetFilterLogsReturnType<TAbi, TEventName, TStrict>>
+    args: GetFilterLogsParameters<
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
+  ) => Promise<
+    GetFilterLogsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+  >
   /**
    * Returns the current price of gas (in wei).
    *
@@ -888,11 +951,25 @@ export type PublicActions<
    * const logs = await client.getLogs()
    */
   getLogs: <
-    TAbiEvent extends AbiEvent | undefined,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
   >(
-    args?: GetLogsParameters<TAbiEvent, TStrict>,
-  ) => Promise<GetLogsReturnType<TAbiEvent, TStrict>>
+    args?: GetLogsParameters<
+      TAbiEvent,
+      TAbiEvents,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
+  ) => Promise<
+    GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
+  >
   /**
    * Returns the value from a storage slot at a given address.
    *
@@ -941,9 +1018,9 @@ export type PublicActions<
    *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
    * })
    */
-  getTransaction: (
-    args: GetTransactionParameters,
-  ) => Promise<GetTransactionReturnType<TChain>>
+  getTransaction: <TBlockTag extends BlockTag = 'latest'>(
+    args: GetTransactionParameters<TBlockTag>,
+  ) => Promise<GetTransactionReturnType<TChain, TBlockTag>>
   /**
    * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
    *
@@ -1265,8 +1342,16 @@ export type PublicActions<
    *   onBlock: (block) => console.log(block),
    * })
    */
-  watchBlocks: (
-    args: WatchBlocksParameters<TTransport, TChain>,
+  watchBlocks: <
+    TIncludeTransactions extends boolean = false,
+    TBlockTag extends BlockTag = 'latest',
+  >(
+    args: WatchBlocksParameters<
+      TTransport,
+      TChain,
+      TIncludeTransactions,
+      TBlockTag
+    >,
   ) => WatchBlocksReturnType
   /**
    * Watches and returns emitted contract event logs.
@@ -1336,10 +1421,14 @@ export type PublicActions<
    * })
    */
   watchEvent: <
-    TAbiEvent extends AbiEvent | undefined,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchEventParameters<TAbiEvent, TStrict>,
+    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.
@@ -1406,7 +1495,7 @@ export function publicActions<
     getFilterChanges: (args) => getFilterChanges(client, args),
     getFilterLogs: (args) => getFilterLogs(client, args),
     getGasPrice: () => getGasPrice(client),
-    getLogs: (args) => getLogs(client, args),
+    getLogs: (args) => getLogs(client, args as any),
     getStorageAt: (args) => getStorageAt(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>

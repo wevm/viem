@@ -3,9 +3,9 @@ import type { TypedData } from 'abitype'
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
+import { signatureToHex } from '../../utils/signature/signatureToHex.js'
 
 import { sign } from './sign.js'
-import { signatureToHex } from './signatureToHex.js'
 
 export type SignTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,

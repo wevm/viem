@@ -9,6 +9,7 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
+import type { Hex } from '../../types/misc.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
@@ -23,17 +24,19 @@ export type CreateContractEventFilterParameters<
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   address?: Address | Address[]
   abi: Narrow<TAbi>
   eventName?: InferEventName<TAbi, TEventName>
-  fromBlock?: BlockNumber | BlockTag
+  fromBlock?: TFromBlock | BlockNumber | BlockTag
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments in the event ABI item.
    * @default false
    */
   strict?: TStrict
-  toBlock?: BlockNumber | BlockTag
+  toBlock?: TToBlock | BlockNumber | BlockTag
 } & (undefined extends TEventName
   ? {
       args?: never
@@ -56,7 +59,9 @@ export type CreateContractEventFilterReturnType<
     | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
     | undefined = undefined,
   TStrict extends boolean | undefined = undefined,
-> = Filter<'event', TAbi, TEventName, TArgs, TStrict>
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+> = Filter<'event', TAbi, TEventName, TArgs, TStrict, TFromBlock, TToBlock>
 
 /**
  * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
@@ -86,6 +91,8 @@ export async function createContractEventFilter<
   TEventName extends string | undefined,
   TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
   TStrict extends boolean | undefined = undefined,
+  TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+  TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 >(
   client: Client<Transport, TChain>,
   {
@@ -96,9 +103,23 @@ export async function createContractEventFilter<
     fromBlock,
     strict,
     toBlock,
-  }: CreateContractEventFilterParameters<TAbi, TEventName, TArgs, TStrict>,
+  }: CreateContractEventFilterParameters<
+    TAbi,
+    TEventName,
+    TArgs,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >,
 ): Promise<
-  CreateContractEventFilterReturnType<TAbi, TEventName, TArgs, TStrict>
+  CreateContractEventFilterReturnType<
+    TAbi,
+    TEventName,
+    TArgs,
+    TStrict,
+    TFromBlock,
+    TToBlock
+  >
 > {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
@@ -111,7 +132,7 @@ export async function createContractEventFilter<
         eventName,
       } as unknown as EncodeEventTopicsParameters)
     : undefined
-  const id = await client.request({
+  const id: Hex = await client.request({
     method: 'eth_newFilter',
     params: [
       {
@@ -136,6 +157,8 @@ export async function createContractEventFilter<
     TAbi,
     TEventName,
     TArgs,
-    TStrict
+    TStrict,
+    TFromBlock,
+    TToBlock
   >
 }

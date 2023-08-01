@@ -4,7 +4,9 @@ import type { Chain } from '../../types/chain.js'
 import { getCache, withCache } from '../../utils/promise/withCache.js'
 
 export type GetBlockNumberParameters = {
-  /** The maximum age (in ms) of the cached value. */
+  /** Time (in ms) that cached block number will remain in memory. */
+  cacheTime?: number
+  /** @deprecated use `cacheTime` instead. */
   maxAge?: number
 }
 
@@ -41,14 +43,14 @@ export function getBlockNumberCache(id: string) {
  */
 export async function getBlockNumber<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
-  { maxAge = client.pollingInterval }: GetBlockNumberParameters = {},
+  { cacheTime = client.cacheTime, maxAge }: GetBlockNumberParameters = {},
 ): Promise<GetBlockNumberReturnType> {
   const blockNumberHex = await withCache(
     () =>
       client.request({
         method: 'eth_blockNumber',
       }),
-    { cacheKey: cacheKey(client.uid), maxAge },
+    { cacheKey: cacheKey(client.uid), cacheTime: maxAge ?? cacheTime },
   )
   return BigInt(blockNumberHex)
 }

@@ -1,5 +1,119 @@
 # viem
 
+## 1.5.0
+
+### Minor Changes
+
+- [#847](https://github.com/wagmi-dev/viem/pull/847) [`1e5d4545`](https://github.com/wagmi-dev/viem/commit/1e5d4545736282c2d8dedb38907f2433ce1c72f4) Thanks [@jxom](https://github.com/jxom)! - Narrowed `getBlock`, `watchBlocks`, `getFilterChanges`, `getFilterLogs` & `getLogs` return types for when `blockTag` or `includeTransactions` is provided.
+
+  - When `blockTag !== 'pending'`, the return type will now include some non-nullish properties if it were dependent on pending blocks. Example: For `getBlock`, the `block.number` type is now non-nullish since `blockTag !== 'pending'`.
+  - On the other hand, when `blockTag: 'pending'`, some properties will be nullish. Example: For `getBlock`, the `block.number` type is now `null` since `blockTag === 'pending'`.
+  - When `includeTransactions` is provided, the return type of will narrow the `transactions` property type. Example: `block.transactions` will be `Transaction[]` when `includeTransactions: true` instead of `Hash[] | Transaction[]`.
+
+  TLDR;
+
+  ```ts
+  // Before
+  const block = publicClient.getBlock({ includeTransactions: true });
+  block.transactions;
+  //    ^? Hash[] | Transaction[]
+  block.transactions[0].blockNumber;
+  //                    ^? bigint | null
+
+  // After
+  const block = publicClient.getBlock({ includeTransactions: true });
+  block.transactions;
+  //    ^? Transaction[]
+  block.transactions[0].blockNumber;
+  //                    ^? bigint
+
+  // Before
+  const block = publicClient.getBlock({
+    blockTag: "pending",
+    includeTransactions: true
+  });
+  block.number;
+  //    ^? number | null
+  block.transactions[0].blockNumber;
+  //                    ^? bigint | null
+
+  // After
+  const block = publicClient.getBlock({
+    blockTag: "pending",
+    includeTransactions: true
+  });
+  block.number;
+  //    ^? null
+  block.transactions[0].blockNumber;
+  //                    ^? null
+  ```
+
+* [#847](https://github.com/wagmi-dev/viem/pull/847) [`1e5d4545`](https://github.com/wagmi-dev/viem/commit/1e5d4545736282c2d8dedb38907f2433ce1c72f4) Thanks [@jxom](https://github.com/jxom)! - **Type Change**: `TPending` has been added to slot 2 of the `Log` generics.
+
+  ```diff
+  type Log<
+    TQuantity = bigint,
+    TIndex = number,
+  + TPending extends boolean = boolean,
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TStrict extends boolean | undefined = undefined,
+    TAbi extends Abi | readonly unknown[] = [TAbiEvent],
+    TEventName extends string | undefined = TAbiEvent extends AbiEvent
+      ? TAbiEvent['name']
+      : undefined,
+  >
+  ```
+
+- [#958](https://github.com/wagmi-dev/viem/pull/958) [`f7976fd0`](https://github.com/wagmi-dev/viem/commit/f7976fd0486079247a76ff3d3cecfbc2f6f2dae9) Thanks [@jxom](https://github.com/jxom)! - Added `cacheTime` as a parameter to `getBlockNumber` & `createClient`.
+
+* [`28a82125`](https://github.com/wagmi-dev/viem/commit/28a82125f2678ed6ceb3bfaab065bfb9ffc8a367) Thanks [@jxom](https://github.com/jxom)! - Exported number constants (ie. `maxInt128`, `maxUint256`, etc).
+
+- [#951](https://github.com/wagmi-dev/viem/pull/951) [`c75d3b60`](https://github.com/wagmi-dev/viem/commit/c75d3b60fbacaf4d3ff23460e91dc2b75baed15d) Thanks [@jxom](https://github.com/jxom)! - Added support for multiple `events` on Filters/Log Actions:
+
+  - `createEventFilter`
+  - `getLogs`
+  - `watchEvent`
+
+  Example:
+
+  ```ts
+  import { parseAbi } from "viem";
+  import { publicClient } from "./client";
+
+  const logs = publicClient.getLogs({
+    events: parseAbi([
+      "event Approval(address indexed owner, address indexed sender, uint256 value)",
+      "event Transfer(address indexed from, address indexed to, uint256 value)"
+    ])
+  });
+  ```
+
+* [#957](https://github.com/wagmi-dev/viem/pull/957) [`7950df80`](https://github.com/wagmi-dev/viem/commit/7950df80c2416772861b7fc99a6d40095725b87c) Thanks [@jxom](https://github.com/jxom)! - Added `hexToSignature` & `signatureToHex`.
+
+- [#847](https://github.com/wagmi-dev/viem/pull/847) [`1e5d4545`](https://github.com/wagmi-dev/viem/commit/1e5d4545736282c2d8dedb38907f2433ce1c72f4) Thanks [@jxom](https://github.com/jxom)! - **Type Change**: `TIncludeTransactions` & `TBlockTag` has been added to slot 1 & 2 of the `Block` generics.
+
+  ```diff
+  type Block<
+    TQuantity = bigint,
+  + TIncludeTransactions extends boolean = boolean,
+  + TBlockTag extends BlockTag = BlockTag,
+    TTransaction = Transaction<
+      bigint,
+      number,
+      TBlockTag extends 'pending' ? true : false
+    >,
+  >
+  ```
+
+## 1.4.2
+
+### Patch Changes
+
+- [#941](https://github.com/wagmi-dev/viem/pull/941) [`12c685a1`](https://github.com/wagmi-dev/viem/commit/12c685a1adc5ab4531d3084cdfa9e281456c4793) Thanks [@jxom](https://github.com/jxom)! - Capture error signatures that do not exist on the ABI in `ContractFunctionRevertedError`.
+
+* [#942](https://github.com/wagmi-dev/viem/pull/942) [`e26e356c`](https://github.com/wagmi-dev/viem/commit/e26e356cf43618af23a9a67ee5eaa897921d4160) Thanks [@alexfertel](https://github.com/alexfertel)! - Deprecated `OnLogParameter` & `OnLogFn` in favor of `WatchEventOnLogParameter` & `WatchEventOnLogFn` types.
+  Added `WatchContractEventOnLogParameter` & `WatchContractEventOnLogFn` types.
+
 ## 1.4.1
 
 ### Patch Changes

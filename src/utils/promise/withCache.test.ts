@@ -18,13 +18,13 @@ test('caches responses', async () => {
   expect(fn).toBeCalledTimes(1)
 })
 
-describe('args: maxAge', () => {
-  test('invalidates when maxAge = 0', async () => {
+describe('args: cacheTime', () => {
+  test('invalidates when cacheTime = 0', async () => {
     const fn = vi.fn().mockResolvedValue('bar')
 
     let data = await withCache(fn, { cacheKey: 'foo' })
     expect(data).toBe('bar')
-    data = await withCache(fn, { cacheKey: 'foo', maxAge: 0 })
+    data = await withCache(fn, { cacheKey: 'foo', cacheTime: 0 })
     expect(data).toBe('bar')
     expect(fn).toBeCalledTimes(2)
   })
@@ -39,7 +39,7 @@ describe('args: maxAge', () => {
     expect(fn).toBeCalledTimes(1)
 
     await wait(150)
-    data = await withCache(fn, { cacheKey: 'foo', maxAge: 100 })
+    data = await withCache(fn, { cacheKey: 'foo', cacheTime: 100 })
     expect(data).toBe('bar')
     expect(fn).toBeCalledTimes(2)
   })

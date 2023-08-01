@@ -66,7 +66,6 @@ An address.
 
 Re-exported from [ABIType](https://abitype.dev/api/types.html#address).
 
-
 ## `Block`
 
 A type for a [Block](/docs/glossary/terms#block).
@@ -104,6 +103,12 @@ Type for a hex value – a "0x"-prefixed string: `"0x${string}"`
 A type for [Event Logs](/docs/glossary/terms#event-log).
 
 [See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/log.ts)
+
+## `Signature`
+
+A type for a structured signature.
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/misc.ts)
 
 ## `Transaction`
 

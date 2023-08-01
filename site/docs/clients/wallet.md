@@ -266,6 +266,21 @@ const client = createWalletClient({
 })
 ```
 
+### cacheTime (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Time (in ms) that cached data will remain in memory.
+
+```ts
+const client = createWalletClient({
+  cacheTime: 10_000, // [!code focus]
+  chain: mainnet,
+  transport: custom(window.ethereum)
+})
+```
+
 ### key (optional)
 
 - **Type:** `string`
