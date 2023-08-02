@@ -27,6 +27,9 @@ importers:
       '@scure/bip39':
         specifier: 1.2.0
         version: 1.2.0
+      '@types/ws':
+        specifier: ^8.5.4
+        version: 8.5.4
       '@wagmi/chains':
         specifier: 1.6.0
         version: 1.6.0(typescript@5.0.4)
@@ -58,9 +61,6 @@ importers:
       '@types/fs-extra':
         specifier: ^9.0.13
         version: 9.0.13
-      '@types/ws':
-        specifier: ^8.5.4
-        version: 8.5.4
       '@viem/anvil':
         specifier: 0.0.5
         version: 0.0.5
@@ -2302,7 +2302,6 @@ packages:
 
   /@types/node@18.15.12:
     resolution: {integrity: sha512-Wha1UwsB3CYdqUm2PPzh/1gujGCNtWVUYF0mB00fJFoR4gTyWTDPjSm+zBF787Ahw8vSGgBja90MkgFwvB86Dg==}
-    dev: true
 
   /@types/node@18.15.13:
     resolution: {integrity: sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==}
@@ -2354,7 +2353,7 @@ packages:
     resolution: {integrity: sha512-zdQDHKUgcX/zBc4GrwsE/7dVdAD8JR4EuiAXiiUhhfyIJXXb2+PrGshFyeXWQPMmmZ2XxgaqclgpIC7eTXc1mg==}
     dependencies:
       '@types/node': 18.15.12
-    dev: true
+    dev: false
 
   /@types/yauzl@2.10.0:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
