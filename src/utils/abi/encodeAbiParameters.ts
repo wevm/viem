@@ -194,28 +194,25 @@ function encodeBytes<TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
 ): PreparedParam {
-  const [_, size_] = param.type.split('bytes')
-  if (!size_) {
-    const partsLength = Math.ceil(size(value) / 32)
-    const parts: Hex[] = []
-    for (let i = 0; i < partsLength; i++) {
-      parts.push(
-        padHex(slice(value, i * 32, (i + 1) * 32), {
-          dir: 'right',
-        }),
-      )
-    }
+  const [, paramSize] = param.type.split('bytes')
+  const size_ = size(value)
+  if (!paramSize) {
+    let bytesHex = value
+    // If the size is not divisible by 32 bytes, pad the end
+    // with empty bytes to the ceiling 32 bytes.
+    if (size_ % 32 !== 0)
+      bytesHex = padHex(bytesHex, {
+        dir: 'right',
+        size: Math.ceil((value.length - 2) / 2 / 32) * 32,
+      })
     return {
       dynamic: true,
-      encoded: concat([
-        padHex(numberToHex(size(value), { size: 32 })),
-        ...parts,
-      ]),
+      encoded: concat([padHex(numberToHex(size_, { size: 32 })), bytesHex]),
     }
   }
-  if (size(value) !== parseInt(size_))
+  if (size_ !== parseInt(paramSize))
     throw new AbiEncodingBytesSizeMismatchError({
-      expectedSize: parseInt(size_),
+      expectedSize: parseInt(paramSize),
       value,
     })
   return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }

@@ -144,7 +144,7 @@ describe('ABI Encode', () => {
     )
   })
 
-  bench.skip('ethers@6: `AbiCoder.encode`', () => {
+  bench('ethers@6: `AbiCoder.encode`', () => {
     const coder = new AbiCoderV6()
     coder.encode(
       [
@@ -600,7 +600,7 @@ describe('Seaport function', () => {
     )
   })
 
-  bench.skip('ethers@6: `AbiCoder.encode`', () => {
+  bench('ethers@6: `AbiCoder.encode`', () => {
     const coder = new ethersV5Utils.AbiCoder()
     coder.encode(
       [
