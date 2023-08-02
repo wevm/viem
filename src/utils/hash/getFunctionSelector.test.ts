@@ -118,4 +118,42 @@ test('creates function signature from `AbiFunction`', () => {
       stateMutability: 'view',
     }),
   ).toEqual('0xe834a834')
+
+  expect(
+    getFunctionSelector({
+      inputs: [
+        {
+          components: [
+            {
+              internalType: 'uint64',
+              name: 'position',
+              type: 'uint64',
+            },
+            {
+              internalType: 'address',
+              name: 'owner',
+              type: 'address',
+            },
+            {
+              internalType: 'enum UsingStratagemsTypes.Color',
+              name: 'color',
+              type: 'uint8',
+            },
+            {
+              internalType: 'uint8',
+              name: 'life',
+              type: 'uint8',
+            },
+          ],
+          internalType: 'struct IStratagemsDebug.SimpleCell[]',
+          name: 'cells',
+          type: 'tuple[]',
+        },
+      ],
+      name: 'forceSimpleCells',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    }),
+  ).toEqual('0xd703f50a')
 })
