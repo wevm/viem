@@ -20,7 +20,9 @@ import {
   readContract,
 } from '../public/readContract.js'
 
-export type GetEnsTextParameters<TKeys extends  string | readonly string[] = string | readonly string[]> = Prettify<
+export type GetEnsTextParameters<
+  TKeys extends string | readonly string[] = string | readonly string[],
+> = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get Text for. */
     name: string
@@ -31,8 +33,10 @@ export type GetEnsTextParameters<TKeys extends  string | readonly string[] = str
   }
 >
 
-// if a single key is passed, return a single string or null. otherwise, return an array of strings or nulls.
-export type GetEnsTextReturnType<TKeys extends  string | readonly string[] = string | readonly string[]> =
+// If a single key is passed, return a single string or null. Otherwise, return an array of strings or nulls.
+export type GetEnsTextReturnType<
+  TKeys extends string | readonly string[] = string | readonly string[],
+> =
   | (TKeys extends string ? string | null : never)
   | (TKeys extends readonly string[] ? (string | null)[] | null : never)
 
@@ -135,7 +139,9 @@ export async function getEnsText<
       decodedRecords.length === 1 ? decodedRecords[0] : decodedRecords
     ) as GetEnsTextReturnType<TKeys>
   } catch (err) {
-    if (isNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err, 'resolve')) {
+      return null as GetEnsTextReturnType<TKeys>
+    }
     throw err
   }
 }
