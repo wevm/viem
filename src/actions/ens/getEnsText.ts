@@ -20,7 +20,7 @@ import {
   readContract,
 } from '../public/readContract.js'
 
-export type GetEnsTextParameters<TKeys> = Prettify<
+export type GetEnsTextParameters<TKeys extends  string | readonly string[] = string | readonly string[]> = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
     /** ENS name to get Text for. */
     name: string
@@ -32,9 +32,9 @@ export type GetEnsTextParameters<TKeys> = Prettify<
 >
 
 // if a single key is passed, return a single string or null. otherwise, return an array of strings or nulls.
-export type GetEnsTextReturnType<T> = T extends string
-  ? string | null
-  : (string | null)[] | null
+export type GetEnsTextReturnType<TKeys extends  string | readonly string[] = string | readonly string[]> =
+  | (TKeys extends string ? string | null : never)
+  | (TKeys extends readonly string[] ? (string | null)[] | null : never)
 
 /**
  * Gets a text record(s) for specified ENS name.
@@ -67,7 +67,7 @@ export type GetEnsTextReturnType<T> = T extends string
  */
 export async function getEnsText<
   TChain extends Chain | undefined,
-  TKeys extends string | string[],
+  TKeys extends string | readonly string[],
 >(
   client: Client<Transport, TChain>,
   {
