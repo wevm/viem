@@ -191,4 +191,55 @@ test('creates event signature for `AbiEvent`', () => {
       ],
     }),
   ).toBe('0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31')
+
+  expect(
+    getEventSelector({
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'smolRecipeId',
+          type: 'uint256',
+        },
+        {
+          components: [
+            {
+              components: [
+                {
+                  internalType: 'uint24',
+                  name: 'background',
+                  type: 'uint24',
+                },
+                { internalType: 'uint24', name: 'body', type: 'uint24' },
+                { internalType: 'uint24', name: 'clothes', type: 'uint24' },
+                { internalType: 'uint24', name: 'mouth', type: 'uint24' },
+                { internalType: 'uint24', name: 'glasses', type: 'uint24' },
+                { internalType: 'uint24', name: 'hat', type: 'uint24' },
+                { internalType: 'uint24', name: 'hair', type: 'uint24' },
+                { internalType: 'uint24', name: 'skin', type: 'uint24' },
+                { internalType: 'uint8', name: 'gender', type: 'uint8' },
+                { internalType: 'uint8', name: 'headSize', type: 'uint8' },
+              ],
+              internalType: 'struct Smol',
+              name: 'smol',
+              type: 'tuple',
+            },
+            { internalType: 'bool', name: 'exists', type: 'bool' },
+            {
+              internalType: 'uint8',
+              name: 'smolInputAmount',
+              type: 'uint8',
+            },
+          ],
+          indexed: false,
+          internalType: 'struct Transmolgrifier.SmolData',
+          name: 'smolData',
+          type: 'tuple',
+        },
+      ],
+      name: 'SmolRecipeAdded',
+      type: 'event',
+    }),
+  ).toBe('0x2cc6298312f9877815b420162c5268cf83c13ba43ac9ac9af8ac68611ce6752e')
 })
