@@ -164,7 +164,7 @@ describe('errors', () => {
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         gas:   100
 
-      Details: intrinsic gas too high
+      Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
       Version: viem@1.0.2"
     `)
 
