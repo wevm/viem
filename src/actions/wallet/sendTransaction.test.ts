@@ -1006,7 +1006,7 @@ describe('errors', () => {
         value:  1 ETH
         gas:    100000000
 
-      Details: intrinsic gas too high
+      Details: intrinsic gas too high -- tx.gas_limit > env.block.gas_limit
       Version: viem@1.0.2"
     `)
   })
