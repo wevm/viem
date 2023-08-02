@@ -1233,7 +1233,7 @@ const address = utils.getCreate2Address(from, salt, initCodeHash);
 #### viem
 
 ```ts {3-8}
-import { getContractAddress } from 'ethers'
+import { getContractAddress } from 'viem'
 
 const address = getContractAddress({
   bytecode: '0x6394198df16000526103ff60206004601c335afa6040516060f3',
