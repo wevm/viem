@@ -146,7 +146,11 @@ export type Socket = WebSocket & {
 
 const sockets = /*#__PURE__*/ new Map<string, Socket>()
 
-export async function getSocket(url_: string) {
+export async function getSocket(
+	url_: string, 
+	reconnect=true,
+	reconnectAttempts=5,
+	reconnectTimeout=5000) {
   const url = new URL(url_)
   const urlKey = url.toString()
 
@@ -177,7 +181,15 @@ export async function getSocket(url_: string) {
 
       // Set up a cache for subscriptions (eth_subscribe).
       const subscriptions = new Map<Id, CallbackFn>()
-
+      const onError = () => {
+	if (reconnect && reconnectAttempts > 0) {
+          // delay reconnection
+          setTimeout(() => {
+            reconnectAttempts -= 1
+            schedule().catch(console.error) // log error during reconnection
+          }, reconnectTimeout) // delay for 5 second default
+        }
+      }	
       const onMessage: (event: MessageEvent) => void = ({ data }) => {
         const message: RpcResponse = JSON.parse(data as string)
         const isSubscription = message.method === 'eth_subscription'
@@ -191,11 +203,13 @@ export async function getSocket(url_: string) {
         sockets.delete(urlKey)
         webSocket.removeEventListener('close', onClose)
         webSocket.removeEventListener('message', onMessage)
+        webSocket.removeEventListener('error', onError)
       }
 
       // Setup event listeners for RPC & subscription responses.
       webSocket.addEventListener('close', onClose)
       webSocket.addEventListener('message', onMessage)
+      webSocket.addEventListener('error', onError)
 
       // Wait for the socket to open.
       if (webSocket.readyState === WebSocket.CONNECTING) {
