@@ -2,7 +2,12 @@ import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import {
+  publicClient,
+  testClient,
+  walletClient,
+  webSocketClient,
+} from '../../_test/utils.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
@@ -631,4 +636,67 @@ describe('errors', () => {
     expect(filterCreator).toBeCalledTimes(2)
     unwatch()
   })
+})
+
+describe('subscribe', () => {
+  test(
+    'default',
+    async () => {
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
+
+      const unwatch = watchContractEvent(webSocketClient, {
+        ...usdcContractConfig,
+        onLogs: (logs_) => {
+          assertType<typeof logs_[0]['args']>({
+            owner: '0x',
+            spender: '0x',
+            value: 0n,
+          })
+          assertType<typeof logs_[0]['args']>({
+            from: '0x',
+            to: '0x',
+            value: 0n,
+          })
+          logs.push(logs_)
+        },
+      })
+
+      await wait(1000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await wait(1000)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await wait(2000)
+
+      unwatch()
+
+      expect(logs.length).toBe(2)
+
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
+    },
+    { timeout: 10_000 },
+  )
 })
