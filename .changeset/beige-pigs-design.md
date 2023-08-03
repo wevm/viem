@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Tweaked ABI encoding for dynamic bytes.
+Fixed performance bottleneck in ABI encoding for dynamic bytes.
