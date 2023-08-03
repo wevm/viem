@@ -1,5 +1,11 @@
 # viem
 
+## 1.5.3
+
+### Patch Changes
+
+- [#971](https://github.com/wagmi-dev/viem/pull/971) [`283b65bf`](https://github.com/wagmi-dev/viem/commit/283b65bf4db940cd6045d83084426719cbc81986) Thanks [@jxom](https://github.com/jxom)! - Fixed performance bottleneck in ABI encoding for dynamic bytes.
+
 ## 1.5.2
 
 ### Patch Changes
