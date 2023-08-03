@@ -255,11 +255,13 @@ export function watchContractEvent<
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
-        const topics: LogTopic[] = encodeEventTopics({
-          abi: abi,
-          eventName: eventName,
-          args,
-        } as EncodeEventTopicsParameters)
+        const topics: LogTopic[] = eventName
+          ? encodeEventTopics({
+              abi: abi,
+              eventName: eventName,
+              args,
+            } as EncodeEventTopicsParameters)
+          : []
 
         const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
           params: ['logs', { address, topics }],
