@@ -24,6 +24,11 @@ export {
   signMessage,
 } from './utils/signMessage.js'
 export {
+  type SignTransactionParameters,
+  type SignTransactionReturnType,
+  signTransaction,
+} from './utils/signTransaction.js'
+export {
   type SignTypedDataParameters,
   type SignTypedDataReturnType,
   signTypedData,
