@@ -1,4 +1,4 @@
-import type { AbiEvent, Address, Narrow } from 'abitype'
+import type { Abi, AbiEvent, Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -9,11 +9,23 @@ import type {
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
+import type { LogTopic } from '../../types/misc.js'
+import type { GetTransportConfig } from '../../types/transport.js'
+import type { EncodeEventTopicsParameters } from '../../utils/index.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
 
+import {
+  DecodeLogDataMismatch,
+  DecodeLogTopicsMismatch,
+} from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
+import {
+  decodeEventLog,
+  encodeEventTopics,
+  formatLog,
+} from '../../utils/index.js'
 import {
   type CreateEventFilterParameters,
   createEventFilter,
@@ -22,6 +34,19 @@ import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { type GetLogsParameters, getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
+
+type PollOptions = {
+  /**
+   * Whether or not the transaction hashes should be batched on each invocation.
+   * @default true
+   */
+  batch?: boolean
+  /**
+   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
+   * @default client.pollingInterval
+   */
+  pollingInterval?: number
+}
 
 export type WatchEventOnLogsParameter<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -55,45 +80,59 @@ export type WatchEventParameters<
 > = {
   /** The address of the contract. */
   address?: Address | Address[]
-  /**
-   * Whether or not the event logs should be batched on each invocation.
-   * @default true
-   */
-  batch?: boolean
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
   onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
-  /** Polling frequency (in ms). Defaults to Client's pollingInterval config. */
-  pollingInterval?: number
-} & (
-  | {
-      event: Narrow<TAbiEvent>
-      events?: never
-      args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
-      /**
-       * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
-       * @default false
-       */
-      strict?: TStrict
-    }
-  | {
-      event?: never
-      events?: Narrow<TAbiEvents>
-      args?: never
-      /**
-       * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
-       * @default false
-       */
-      strict?: TStrict
-    }
-  | {
-      event?: never
-      events?: never
-      args?: never
-      strict?: never
-    }
-)
+} & (GetTransportConfig<Transport>['type'] extends 'webSocket'
+  ?
+      | {
+          batch?: never
+          /**
+           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
+           * @default false
+           */
+          poll?: false
+          pollingInterval?: never
+        }
+      | (PollOptions & {
+          /**
+           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
+           * @default true
+           */
+          poll?: true
+        })
+  : PollOptions & {
+      poll?: true
+    }) &
+  (
+    | {
+        event: Narrow<TAbiEvent>
+        events?: never
+        args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
+        /**
+         * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+         * @default false
+         */
+        strict?: TStrict
+      }
+    | {
+        event?: never
+        events?: Narrow<TAbiEvents>
+        args?: never
+        /**
+         * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
+         * @default false
+         */
+        strict?: TStrict
+      }
+    | {
+        event?: never
+        events?: never
+        args?: never
+        strict?: never
+      }
+  )
 
 export type WatchEventReturnType = () => void
 
@@ -148,94 +187,176 @@ export function watchEvent<
     events,
     onError,
     onLogs,
+    poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
   }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
 ): WatchEventReturnType {
-  const observerId = stringify([
-    'watchEvent',
-    address,
-    args,
-    batch,
-    client.uid,
-    event,
-    pollingInterval,
-  ])
+  const enablePolling =
+    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
   const strict = strict_ ?? false
 
-  return observe(observerId, { onLogs, onError }, (emit) => {
-    let previousBlockNumber: bigint
-    let filter: Filter<'event', TAbiEvents, _EventName, any>
-    let initialized = false
+  const pollEvent = () => {
+    const observerId = stringify([
+      'watchEvent',
+      address,
+      args,
+      batch,
+      client.uid,
+      event,
+      pollingInterval,
+    ])
 
-    const unwatch = poll(
-      async () => {
-        if (!initialized) {
-          try {
-            filter = (await createEventFilter(client, {
-              address,
-              args,
-              event: event!,
-              events,
-              strict,
-            } as unknown as CreateEventFilterParameters)) as unknown as Filter<
-              'event',
-              TAbiEvents,
-              _EventName
-            >
-          } catch {}
-          initialized = true
-          return
-        }
+    return observe(observerId, { onLogs, onError }, (emit) => {
+      let previousBlockNumber: bigint
+      let filter: Filter<'event', TAbiEvents, _EventName, any>
+      let initialized = false
 
-        try {
-          let logs: Log[]
-          if (filter) {
-            logs = await getFilterChanges(client, { filter })
-          } else {
-            // If the filter doesn't exist, we will fall back to use `getLogs`.
-            // The fall back exists because some RPC Providers do not support filters.
-
-            // Fetch the block number to use for `getLogs`.
-            const blockNumber = await getBlockNumber(client)
-
-            // If the block number has changed, we will need to fetch the logs.
-            // If the block number doesn't exist, we are yet to reach the first poll interval,
-            // so do not emit any logs.
-            if (previousBlockNumber && previousBlockNumber !== blockNumber) {
-              logs = await getLogs(client, {
+      const unwatch = poll(
+        async () => {
+          if (!initialized) {
+            try {
+              filter = (await createEventFilter(client, {
                 address,
                 args,
                 event: event!,
                 events,
-                fromBlock: previousBlockNumber + 1n,
-                toBlock: blockNumber,
-              } as unknown as GetLogsParameters)
-            } else {
-              logs = []
-            }
-            previousBlockNumber = blockNumber
+                strict,
+              } as unknown as CreateEventFilterParameters)) as unknown as Filter<
+                'event',
+                TAbiEvents,
+                _EventName
+              >
+            } catch {}
+            initialized = true
+            return
           }
 
-          if (logs.length === 0) return
-          if (batch) emit.onLogs(logs as any)
-          else logs.forEach((log) => emit.onLogs([log] as any))
-        } catch (err) {
-          // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
-          // Reinitalize the filter when this occurs
-          if (filter && err instanceof InvalidInputRpcError) initialized = false
-          emit.onError?.(err as Error)
-        }
-      },
-      {
-        emitOnBegin: true,
-        interval: pollingInterval,
-      },
-    )
+          try {
+            let logs: Log[]
+            if (filter) {
+              logs = await getFilterChanges(client, { filter })
+            } else {
+              // If the filter doesn't exist, we will fall back to use `getLogs`.
+              // The fall back exists because some RPC Providers do not support filters.
 
-    return async () => {
-      if (filter) await uninstallFilter(client, { filter })
-      unwatch()
-    }
-  })
+              // Fetch the block number to use for `getLogs`.
+              const blockNumber = await getBlockNumber(client)
+
+              // If the block number has changed, we will need to fetch the logs.
+              // If the block number doesn't exist, we are yet to reach the first poll interval,
+              // so do not emit any logs.
+              if (previousBlockNumber && previousBlockNumber !== blockNumber) {
+                logs = await getLogs(client, {
+                  address,
+                  args,
+                  event: event!,
+                  events,
+                  fromBlock: previousBlockNumber + 1n,
+                  toBlock: blockNumber,
+                } as unknown as GetLogsParameters)
+              } else {
+                logs = []
+              }
+              previousBlockNumber = blockNumber
+            }
+
+            if (logs.length === 0) return
+            if (batch) emit.onLogs(logs as any)
+            else logs.forEach((log) => emit.onLogs([log] as any))
+          } catch (err) {
+            // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
+            // Reinitalize the filter when this occurs
+            if (filter && err instanceof InvalidInputRpcError)
+              initialized = false
+            emit.onError?.(err as Error)
+          }
+        },
+        {
+          emitOnBegin: true,
+          interval: pollingInterval,
+        },
+      )
+
+      return async () => {
+        if (filter) await uninstallFilter(client, { filter })
+        unwatch()
+      }
+    })
+  }
+
+  const subscribeEvent = () => {
+    let active = true
+    let unsubscribe = () => (active = false)
+    ;(async () => {
+      try {
+        const events_ = events ?? (event ? [event] : undefined)
+        let topics: LogTopic[] = []
+        if (events_) {
+          topics = [
+            (events_ as AbiEvent[]).flatMap((event) =>
+              encodeEventTopics({
+                abi: [event],
+                eventName: (event as AbiEvent).name,
+                args,
+              } as EncodeEventTopicsParameters),
+            ),
+          ]
+          if (event) topics = topics[0] as LogTopic[]
+        }
+
+        const { unsubscribe: unsubscribe_ } = await client.transport.subscribe({
+          params: ['logs', { address, topics }],
+          onData(data: any) {
+            if (!active) return
+            const log = data.result
+            try {
+              const { eventName, args } = decodeEventLog({
+                abi: events_ as Abi,
+                data: log.data,
+                topics: log.topics as any,
+                strict,
+              })
+              const formatted = formatLog(log, {
+                args,
+                eventName: eventName as string,
+              })
+              onLogs([formatted] as any)
+            } catch (err) {
+              let eventName
+              let isUnnamed
+              if (
+                err instanceof DecodeLogDataMismatch ||
+                err instanceof DecodeLogTopicsMismatch
+              ) {
+                // If strict mode is on, and log data/topics do not match event definition, skip.
+                if (strict_) return
+                eventName = err.abiItem.name
+                isUnnamed = err.abiItem.inputs?.some(
+                  (x) => !('name' in x && x.name),
+                )
+              }
+
+              // Set args to empty if there is an error decoding (e.g. indexed/non-indexed params mismatch).
+              const formatted = formatLog(log, {
+                args: isUnnamed ? [] : {},
+                eventName,
+              })
+              onLogs([formatted] as any)
+            }
+          },
+          onError(error: Error) {
+            onError?.(error)
+          },
+        })
+        unsubscribe = unsubscribe_
+        if (!active) unsubscribe()
+      } catch (err) {
+        onError?.(err as Error)
+      }
+    })()
+    return unsubscribe
+  }
+
+  return enablePolling ? pollEvent() : subscribeEvent()
 }
