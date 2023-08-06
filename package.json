@@ -72,15 +72,15 @@
       "import": "./dist/esm/chains/index.js",
       "default": "./dist/cjs/chains/index.js"
     },
-    "./chains/formatters": {
-      "types": "./dist/types/chains/formatters/index.d.ts",
-      "import": "./dist/esm/chains/formatters/index.js",
-      "default": "./dist/cjs/chains/formatters/index.js"
+    "./chains/celo": {
+      "types": "./dist/types/chains/celo/index.d.ts",
+      "import": "./dist/esm/chains/celo/index.js",
+      "default": "./dist/cjs/chains/celo/index.js"
     },
-    "./chains/serializers": {
-      "types": "./dist/types/chains/serializers/index.d.ts",
-      "import": "./dist/esm/chains/serializers/index.js",
-      "default": "./dist/cjs/chains/serializers/index.js"
+    "./chains/optimism": {
+      "types": "./dist/types/chains/optimism/index.d.ts",
+      "import": "./dist/esm/chains/optimism/index.js",
+      "default": "./dist/cjs/chains/optimism/index.js"
     },
     "./contract": {
       "types": "./dist/types/contract.d.ts",

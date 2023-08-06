@@ -5,8 +5,12 @@ import * as actions from './index.js'
 test('exports', () => {
   expect(Object.keys(actions)).toMatchInlineSnapshot(`
     [
+      "celo",
+      "celoAlfajores",
+      "celoCannoli",
       "formattersCelo",
-      "formattersOptimism",
+      "serializeTransactionCelo",
+      "serializersCelo",
     ]
   `)
 })
