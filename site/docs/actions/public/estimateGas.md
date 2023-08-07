@@ -56,7 +56,7 @@ The gas estimate (in wei).
 
 ## Parameters
 
-### account (optional)
+### account
 
 - **Type:** `Account | Address`
 
