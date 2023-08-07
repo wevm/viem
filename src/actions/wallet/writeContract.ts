@@ -1,22 +1,22 @@
-import type { Abi } from "abitype";
+import type { Abi } from 'abitype'
 
-import type { Account } from "../../accounts/types.js";
-import type { Client } from "../../clients/createClient.js";
-import type { Transport } from "../../clients/transports/createTransport.js";
-import type { Chain, GetChain } from "../../types/chain.js";
-import type { ContractFunctionConfig, GetValue } from "../../types/contract.js";
-import type { Hex } from "../../types/misc.js";
-import type { UnionOmit } from "../../types/utils.js";
+import type { Account } from '../../accounts/types.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain, GetChain } from '../../types/chain.js'
+import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
-} from "../../utils/abi/encodeFunctionData.js";
+} from '../../utils/abi/encodeFunctionData.js'
 
 import {
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
-} from "./sendTransaction.js";
+} from './sendTransaction.js'
 
 export type WriteContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -24,10 +24,10 @@ export type WriteContractParameters<
   TChain extends Chain | undefined = Chain,
   TAccount extends Account | undefined = undefined,
   TChainOverride extends Chain | undefined = undefined,
-> = ContractFunctionConfig<TAbi, TFunctionName, "payable" | "nonpayable"> &
+> = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
   UnionOmit<
     SendTransactionParameters<TChain, TAccount, TChainOverride>,
-    "chain" | "to" | "data" | "value"
+    'chain' | 'to' | 'data' | 'value'
   > &
   GetChain<TChain, TChainOverride> &
   Partial<
@@ -39,15 +39,15 @@ export type WriteContractParameters<
         TAccount,
         TChainOverride
       > extends SendTransactionParameters
-        ? SendTransactionParameters<TChain, TAccount, TChainOverride>["value"]
-        : SendTransactionParameters["value"]
+        ? SendTransactionParameters<TChain, TAccount, TChainOverride>['value']
+        : SendTransactionParameters['value']
     >
   > & {
     /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
-    dataSuffix?: Hex;
-  };
+    dataSuffix?: Hex
+  }
 
-export type WriteContractReturnType = SendTransactionReturnType;
+export type WriteContractReturnType = SendTransactionReturnType
 
 /**
  * Executes a write function on a contract.
@@ -126,11 +126,11 @@ export async function writeContract<
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>);
+  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   const hash = await sendTransaction(client, {
-    data: `${data}${dataSuffix ? dataSuffix.replace("0x", "") : ""}`,
+    data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,
-  } as unknown as SendTransactionParameters<TChain, TAccount, TChainOverride>);
-  return hash;
+  } as unknown as SendTransactionParameters<TChain, TAccount, TChainOverride>)
+  return hash
 }
