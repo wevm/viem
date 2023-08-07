@@ -11,6 +11,7 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
@@ -596,4 +597,38 @@ describe('errors', () => {
     },
     { retry: 3 },
   )
+
+  test('re-initializes the filter if the active filter uninstalls', async () => {
+    const filterCreator = vi.spyOn(
+      createContractEventFilter,
+      'createContractEventFilter',
+    )
+
+    const unwatch = watchContractEvent(publicClient, {
+      ...usdcContractConfig,
+      onLogs: () => null,
+      onError: () => null,
+      pollingInterval: 200,
+    })
+
+    await wait(250)
+    expect(filterCreator).toBeCalledTimes(1)
+
+    vi.spyOn(getFilterChanges, 'getFilterChanges').mockRejectedValueOnce(
+      new InvalidInputRpcError(
+        new RpcRequestError({
+          body: { foo: 'bar' },
+          url: 'url',
+          error: {
+            code: -32000,
+            message: 'message',
+          },
+        }),
+      ),
+    )
+
+    await wait(500)
+    expect(filterCreator).toBeCalledTimes(2)
+    unwatch()
+  })
 })

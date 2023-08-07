@@ -1,5 +1,25 @@
 # viem
 
+## 1.5.3
+
+### Patch Changes
+
+- [`ae4ab844`](https://github.com/wagmi-dev/viem/commit/ae4ab8442fcdaa073a98a71599762a1cb54c3cf0) Thanks [@jxom](https://github.com/jxom)! - Fixed performance bottleneck in ABI encoding for dynamic bytes.
+
+## 1.5.2
+
+### Patch Changes
+
+- [#974](https://github.com/wagmi-dev/viem/pull/974) [`11410bab`](https://github.com/wagmi-dev/viem/commit/11410bab795c390734adab093ab78da127fb68c4) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `getFunctionSelector` & `getEventSelector` were returning incorrect selectors for tuple parameters.
+
+## 1.5.1
+
+### Patch Changes
+
+- [#954](https://github.com/wagmi-dev/viem/pull/954) [`e98e2651`](https://github.com/wagmi-dev/viem/commit/e98e2651528e015a62a8c1181a66060dd155124e) Thanks [@jaxernst](https://github.com/jaxernst)! - Added filter reinitialization logic for `watchContractEvent` and `watchEvent` for when a filter has been uninstalled.
+
+* [#967](https://github.com/wagmi-dev/viem/pull/967) [`eb8954a0`](https://github.com/wagmi-dev/viem/commit/eb8954a003a198b843835231cb406e88ffccf1d1) Thanks [@Zil-B](https://github.com/Zil-B)! - Moved `@types/ws` into dependencies to fix an issue where required runtime types weren't being exported.
+
 ## 1.5.0
 
 ### Minor Changes

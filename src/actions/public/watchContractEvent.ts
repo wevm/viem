@@ -14,6 +14,7 @@ import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
 
+import { InvalidInputRpcError } from '../../index.js'
 import {
   type CreateContractEventFilterParameters,
   createContractEventFilter,
@@ -185,6 +186,9 @@ export function watchContractEvent<
           if (batch) emit.onLogs(logs as any)
           else logs.forEach((log) => emit.onLogs([log] as any))
         } catch (err) {
+          // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
+          // Reinitalize the filter when this occurs
+          if (filter && err instanceof InvalidInputRpcError) initialized = false
           emit.onError?.(err as Error)
         }
       },
