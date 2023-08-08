@@ -198,20 +198,34 @@ describe('prepareRequest', () => {
     `)
   })
 
-  test('args: gasPrice (on eip1559 chain)', async () => {
+  test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    await expect(() =>
-      prepareRequest(walletClient, {
+    expect(
+      await prepareRequest(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
         value: parseEther('1'),
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support legacy \`gasPrice\`.
-
-      Version: viem@1.0.2"
+    ).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "gasPrice": 10000000000n,
+        "nonce": 375,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": 1000000000000000000n,
+      }
     `)
   })
 
@@ -362,6 +376,60 @@ describe('prepareRequest', () => {
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "value": 1000000000000000000n,
       }
+    `)
+  })
+
+  test('args: gasPrice + maxFeePerGas', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareRequest(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        gasPrice: parseGwei('10'),
+        maxFeePerGas: parseGwei('20'),
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
+      Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
+
+      Estimate Gas Arguments:
+        from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:         1 ETH
+        gasPrice:      10 gwei
+        maxFeePerGas:  20 gwei
+        nonce:         375
+
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('args: gasPrice + maxPriorityFeePerGas', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareRequest(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        gasPrice: parseGwei('10'),
+        maxPriorityFeePerGas: parseGwei('20'),
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
+      Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
+
+      Estimate Gas Arguments:
+        from:                  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:                 1 ETH
+        gasPrice:              10 gwei
+        maxPriorityFeePerGas:  20 gwei
+        nonce:                 375
+
+      Version: viem@1.0.2"
     `)
   })
 
