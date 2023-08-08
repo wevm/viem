@@ -108,7 +108,7 @@ VITE_NETWORK_TRANSPORT_MODE=http
 
 - `pnpm test` — runs tests in watch mode
 
-Sometimes the tests are *brittle* and will fail (as they are run on multiple threads). You can press `f` to rerun them and they should pass. 
+Sometimes there may be some tests which fail unexpectedly – you can press `f` to rerun them and they should pass. 
 
 When adding new features or fixing bugs, it's important to add test cases to cover the new/updated behavior.
 
