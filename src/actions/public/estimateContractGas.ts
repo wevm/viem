@@ -92,7 +92,7 @@ export async function estimateContractGas<
       abi: abi as Abi,
       address,
       args,
-      docsPath: '/docs/contract/simulateContract',
+      docsPath: '/docs/contract/estimateContractGas',
       functionName,
       sender: account?.address,
     })
