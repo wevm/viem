@@ -198,7 +198,7 @@ import 'viem/window';
 
 if (typeof window !== 'undefined') {
   const transaction = await window.ethereum.request({
-//      ^? Transaction        
+//      ^? const transaction: Transaction        
     method: 'eth_getTransactionByHash',
 //  ^? (property) method: "eth_blockNumber" | "eth_call" | ...
     params: ['0x...']
