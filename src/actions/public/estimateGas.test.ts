@@ -133,25 +133,15 @@ describe('local account', () => {
     ).toMatchInlineSnapshot('26040n')
   })
 
-  test('args: gasPrice (on eip1559)', async () => {
-    await expect(() =>
-      estimateGas(publicClient, {
+  test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
+    expect(
+      await estimateGas(publicClient, {
         account: privateKeyToAccount(accounts[0].privateKey),
         to: accounts[1].address,
         gasPrice: parseGwei('33'),
         value: parseEther('1'),
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Chain does not support legacy \`gasPrice\`.
-
-      Estimate Gas Arguments:
-        from:      0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-        to:        0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-        value:     1 ETH
-        gasPrice:  33 gwei
-
-      Version: viem@1.0.2"
-    `)
+    ).toMatchInlineSnapshot('21000n')
   })
 
   test('args: gasPrice (on legacy)', async () => {
