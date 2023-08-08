@@ -189,24 +189,20 @@ The following utilities support type inference when you use const assertions or 
 
 For advanced use-cases, you may want to configure viem's internal types. Most of viem's types relating to ABIs and EIP-712 Typed Data are powered by [ABIType](https://abitype.dev). See ABIType's [documentation](https://abitype.dev/config.html) for more info on how to configure types.
 
-## Ethereum Provider
+## `window` Polyfill
 
-Importing `viem/window` will type `window.ethereum` as `EIP1193Provider | undefined`, allowing type-safe interactions with the Ethereum provider in the browser. It will be `undefined` in case no browser extension (like MetaMask) is detected. 
-
+By importing the `viem/window` Polyfill, the global `window.ethereum` will typed as an [`EIP1193Provider`](https://github.com/wagmi-dev/viem/blob/4bdbf15be0d61b52a195e11c97201e707fb616cc/src/types/eip1193.ts#L24-L26) (including a fully-typed `request` function & typed events). It may be `undefined` in cases where no browser extension Wallet is detected, or if rendered on the server.
 
 ```ts
-import "viem/window";
+import 'viem/window';
 
-if (window.ethereum) {
-  window.ethereum
-    .request({ method: "eth_chainId" })
-    .then((chainId: string) => console.log(`Connected to chain: ${chainId}`))
-    .catch((error: Error) =>
-      console.error(`Error getting chainId: ${error.message}`)
-    );
-} else {
-  console.log("Ethereum provider is not available");
+if (typeof window !== 'undefined') {
+  const transaction = await window.ethereum.request({
+//      ^? Transaction        
+    method: 'eth_getTransactionByHash',
+//  ^? (property) method: "eth_blockNumber" | "eth_call" | ...
+    params: ['0x...']
+//  ^? (property) params: [hash: Hash]
+  })
 }
 ```
-
-This provides a type-safe interface when using the standard Ethereum [JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) methods.
