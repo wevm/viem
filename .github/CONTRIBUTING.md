@@ -104,9 +104,11 @@ VITE_ANVIL_BLOCK_NUMBER=16280770
 VITE_NETWORK_TRANSPORT_MODE=http
 ```
 
-`ANVIL_FORK_URL` can be for any RPC service provider (e.g. Alchemy or Infura). Now you are ready to run the tests! In one terminal session, spin up Anvil using `pnpm anvil`. Next, in a different terminal session, you have the following options for running tests:
+`VITE_ANVIL_FORK_URL` can be for any RPC service provider (e.g. Alchemy or Infura) for the mainnet. Now you are ready to run the tests! 
 
 - `pnpm test` — runs tests in watch mode
+
+Sometimes there may be some tests which fail unexpectedly – you can press `f` to rerun them and they should pass. 
 
 When adding new features or fixing bugs, it's important to add test cases to cover the new/updated behavior.
 
