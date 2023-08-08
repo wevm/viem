@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-fix estimateContractGas' error docsPath
+Fixed `docsPath` value in `estimateContractGas`.
