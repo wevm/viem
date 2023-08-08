@@ -1,5 +1,13 @@
 # viem
 
+## 1.5.4
+
+### Patch Changes
+
+- [#1000](https://github.com/wagmi-dev/viem/pull/1000) [`4bdbf15b`](https://github.com/wagmi-dev/viem/commit/4bdbf15be0d61b52a195e11c97201e707fb616cc) Thanks [@jxom](https://github.com/jxom)! - Fixed `docsPath` value in `estimateContractGas`.
+
+* [#999](https://github.com/wagmi-dev/viem/pull/999) [`de94d81f`](https://github.com/wagmi-dev/viem/commit/de94d81f41689ae9155c1295c8f7b80e4a7c9540) Thanks [@jxom](https://github.com/jxom)! - Support passing `gasPrice` for chains that include `baseFeePerGas` but do not support EIP-1559 Transactions (e.g. BSC).
+
 ## 1.5.3
 
 ### Patch Changes
