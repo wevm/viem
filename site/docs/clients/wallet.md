@@ -96,7 +96,7 @@ If you do not wish to pass an account around to every Action that requires an `a
 
 ```ts
 import { createWalletClient, http } from 'viem'
-import { mainnnet } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 
 const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
 

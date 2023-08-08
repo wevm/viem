@@ -1,3 +1,4 @@
+import { formatAbiItem } from '../abi/formatAbiItem.js'
 import {
   extractFunctionName,
   extractFunctionParams,
@@ -15,6 +16,6 @@ export function hashFunction(def: string) {
   return hash(`${name}(${params.map(({ type }) => type).join(',')})`)
 }
 
-export function hashAbiItem(def: AbiFunction | AbiEvent) {
-  return hash(`${def.name}(${def.inputs.map(({ type }) => type).join(',')})`)
+export function hashAbiItem(abiItem: AbiFunction | AbiEvent) {
+  return hash(formatAbiItem(abiItem))
 }
