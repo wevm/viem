@@ -72,10 +72,10 @@ export async function prepareRequest<
       blockTag: 'pending',
     })
 
-  if (typeof block.baseFeePerGas === 'bigint') {
-    if (typeof gasPrice !== 'undefined')
-      throw new BaseError('Chain does not support legacy `gasPrice`.')
-
+  if (
+    typeof block.baseFeePerGas === 'bigint' &&
+    typeof gasPrice === 'undefined'
+  ) {
     // EIP-1559 fees
     if (typeof maxFeePerGas === 'undefined') {
       // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
@@ -93,17 +93,16 @@ export async function prepareRequest<
       request.maxFeePerGas = maxFeePerGas
       request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultTip
     }
-  } else {
+  } else if (typeof gasPrice === 'undefined') {
+    // Legacy fees
     if (
       typeof maxFeePerGas !== 'undefined' ||
       typeof maxPriorityFeePerGas !== 'undefined'
     )
       throw new BaseError('Chain does not support EIP-1559 fees.')
 
-    // Legacy fees
-    if (typeof gasPrice === 'undefined')
-      // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
-      request.gasPrice = ((await getGasPrice(client)) * 120n) / 100n
+    // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
+    request.gasPrice = ((await getGasPrice(client)) * 120n) / 100n
   }
 
   if (typeof gas === 'undefined')
