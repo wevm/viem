@@ -72,6 +72,7 @@ describe('defineChain', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "fees": undefined,
         "formatters": undefined,
         "id": 42220,
         "name": "Celo",
