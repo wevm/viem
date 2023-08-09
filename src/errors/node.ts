@@ -88,7 +88,8 @@ export class NonceTooHighError extends BaseError {
 }
 
 export class NonceTooLowError extends BaseError {
-  static nodeMessage = /nonce too low|transaction already imported/
+  static nodeMessage =
+    /nonce too low|transaction already imported|already known/
   override name = 'NonceTooLowError'
   constructor({ cause, nonce }: { cause?: BaseError; nonce?: number } = {}) {
     super(
