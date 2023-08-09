@@ -571,7 +571,30 @@ export type {
   Signature,
   SignableMessage,
 } from './types/misc.js'
-export type { Chain } from './types/chain.js'
+export type {
+  Chain,
+  ChainContract,
+  ChainFees,
+  ChainFormatter,
+  /** @deprecated use `ChainFormatter` instead. */
+  ChainFormatter as Formatter,
+  ChainFormatters,
+  /** @deprecated use `ChainFormatters` instead. */
+  ChainFormatters as Formatters,
+  ChainSerializers,
+  /** @deprecated use `ChainSerializers` instead. */
+  ChainSerializers as Serializers,
+  ExtractChainFormatterExclude,
+  /** @deprecated use `ExtractChainFormatterExclude` instead. */
+  ExtractChainFormatterExclude as ExtractFormatterExclude,
+  ExtractChainFormatterParameters,
+  /** @deprecated use `ExtractChainFormatterParameters` instead. */
+  ExtractChainFormatterParameters as ExtractFormatterParameters,
+  ExtractChainFormatterReturnType,
+  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
+  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
+  GetChain,
+} from './types/chain.js'
 export type {
   AddEthereumChainParameter,
   EIP1193Events,
@@ -599,13 +622,6 @@ export type {
   FeeValuesLegacy,
 } from './types/fee.js'
 export type { Filter } from './types/filter.js'
-export type {
-  Formatter,
-  Formatters,
-  ExtractFormatterParameters,
-  ExtractFormatterReturnType,
-} from './types/formatter.js'
-export type { Serializers } from './types/serializer.js'
 export type {
   GetTypedDataDomain,
   GetTypedDataMessage,

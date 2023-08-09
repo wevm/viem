@@ -3,8 +3,7 @@ import {
   ChainMismatchError,
   ChainNotFoundError,
 } from '../errors/chain.js'
-import type { Chain, ChainContract } from '../types/chain.js'
-import type { Formatters } from '../types/formatter.js'
+import type { Chain, ChainContract, ChainFormatters } from '../types/chain.js'
 
 export type AssertCurrentChainParameters = {
   chain?: Chain
@@ -22,7 +21,7 @@ export function assertCurrentChain({
 
 export function defineChain<
   TChain extends Chain,
-  TFormatters extends Formatters,
+  TFormatters extends ChainFormatters,
 >(
   chain: TChain,
   config?: Pick<Chain<TFormatters>, 'fees' | 'formatters' | 'serializers'>,

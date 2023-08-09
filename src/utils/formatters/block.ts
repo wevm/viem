@@ -1,9 +1,9 @@
 import type { Block, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ExtractFormatterExclude,
-  ExtractFormatterReturnType,
-} from '../../types/formatter.js'
+  ExtractChainFormatterExclude,
+  ExtractChainFormatterReturnType,
+} from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -19,13 +19,13 @@ export type FormattedBlock<
     | undefined,
   TIncludeTransactions extends boolean = boolean,
   TBlockTag extends BlockTag = BlockTag,
-  _FormatterReturnType = ExtractFormatterReturnType<
+  _FormatterReturnType = ExtractChainFormatterReturnType<
     TChain,
     'block',
     Block<bigint, TIncludeTransactions>
   >,
   _ExcludedPendingDependencies extends string = BlockPendingDependencies &
-    ExtractFormatterExclude<TChain, 'block'>,
+    ExtractChainFormatterExclude<TChain, 'block'>,
   _Formatted = Omit<_FormatterReturnType, BlockPendingDependencies> & {
     [K in _ExcludedPendingDependencies]: never
   } & Pick<

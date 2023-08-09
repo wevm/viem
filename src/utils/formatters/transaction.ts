@@ -1,9 +1,9 @@
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ExtractFormatterExclude,
-  ExtractFormatterReturnType,
-} from '../../types/formatter.js'
+  ExtractChainFormatterExclude,
+  ExtractChainFormatterReturnType,
+} from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -20,13 +20,13 @@ export type FormattedTransaction<
     | { formatters?: Chain['formatters'] }
     | undefined,
   TBlockTag extends BlockTag = BlockTag,
-  _FormatterReturnType = ExtractFormatterReturnType<
+  _FormatterReturnType = ExtractChainFormatterReturnType<
     TChain,
     'transaction',
     Transaction
   >,
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
-    ExtractFormatterExclude<TChain, 'transaction'>,
+    ExtractChainFormatterExclude<TChain, 'transaction'>,
 > = UnionOmit<_FormatterReturnType, TransactionPendingDependencies> & {
   [K in _ExcludedPendingDependencies]: never
 } & Pick<

@@ -1,4 +1,4 @@
-import { type Formatters } from '../../types/formatter.js'
+import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -82,4 +82,4 @@ export const formattersCelo = {
       }
     },
   }),
-} as const satisfies Formatters
+} as const satisfies ChainFormatters
