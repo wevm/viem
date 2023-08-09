@@ -66,6 +66,7 @@ test('exports chains', () => {
       "polygonZkEvmTestnet",
       "pulsechain",
       "pulsechainV4",
+      "scrollSepolia",
       "scrollTestnet",
       "sepolia",
       "skaleBlockBrawlers",
