@@ -15,7 +15,7 @@ import type {
 import type { TransactionRequest } from '../../types/transaction.js'
 import { sendTransaction } from '../../wallet.js'
 import { celo } from '../index.js'
-import { formattersCelo } from './celo.js'
+import { formattersCelo } from './formatters.js'
 
 describe('block', () => {
   expectTypeOf(formattersCelo.block.format).parameter(0).toEqualTypeOf<
@@ -152,6 +152,21 @@ describe('smoke', () => {
     expectTypeOf(
       block_includeTransactions.transactions[0].gatewayFeeRecipient,
     ).toEqualTypeOf<`0x${string}` | null>()
+
+    const block_pending = await getBlock(client, {
+      blockTag: 'pending',
+      includeTransactions: true,
+    })
+    expectTypeOf(block_pending.hash).toEqualTypeOf<null>()
+    expectTypeOf(block_pending.logsBloom).toEqualTypeOf<null>()
+    expectTypeOf(block_pending.number).toEqualTypeOf<null>()
+    expectTypeOf(block_pending.transactions[0].blockHash).toEqualTypeOf<null>()
+    expectTypeOf(
+      block_pending.transactions[0].blockNumber,
+    ).toEqualTypeOf<null>()
+    expectTypeOf(
+      block_pending.transactions[0].transactionIndex,
+    ).toEqualTypeOf<null>()
   })
 
   test('transaction', async () => {

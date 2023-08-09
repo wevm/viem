@@ -156,6 +156,17 @@ export type OptionalNullable<T> = {
 }
 
 /**
+ * @description Make properties K of type T never.
+ *
+ * @example
+ * NeverBy<{ a: string, b: boolean, c: number }, 'a' | 'c'>
+ * => { a: never, b: boolean, c: never }
+ */
+export type NeverBy<T, K extends keyof T> = {
+  [U in keyof T]: U extends K ? never : T[U]
+}
+
+/**
  * @description Constructs a type by excluding `undefined` from `T`.
  *
  * @example

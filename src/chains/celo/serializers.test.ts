@@ -12,7 +12,7 @@ import {
 import {
   type TransactionSerializableCIP42,
   serializeTransactionCelo,
-} from './celo.js'
+} from './serializers.js'
 import { describe, expect, test } from 'vitest'
 
 const baseCip42: TransactionSerializableCIP42 = {
