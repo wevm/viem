@@ -1,4 +1,11 @@
-export { optimism, optimismGoerli } from '../index.js'
+export {
+  base,
+  baseGoerli,
+  optimism,
+  optimismGoerli,
+  zora,
+  zoraTestnet,
+} from '../index.js'
 
 export { formattersOptimism } from './formatters.js'
 
