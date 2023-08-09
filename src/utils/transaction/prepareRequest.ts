@@ -15,24 +15,34 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
-
+import type { Chain, GetChain } from '../../types/chain.js'
+import type { UnionOmit } from '../../types/utils.js'
+import type { FormattedTransactionRequest } from '../index.js'
 import { type AssertRequestParameters, assertRequest } from './assertRequest.js'
 
 export type PrepareRequestParameters<
-  TAccount extends Account | undefined = undefined,
-> = GetAccountParameter<TAccount> & {
-  gas?: SendTransactionParameters['gas']
-  gasPrice?: SendTransactionParameters['gasPrice']
-  maxFeePerGas?: SendTransactionParameters['maxFeePerGas']
-  maxPriorityFeePerGas?: SendTransactionParameters['maxPriorityFeePerGas']
-  nonce?: SendTransactionParameters['nonce']
-}
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
+> = UnionOmit<
+  FormattedTransactionRequest<
+    TChainOverride extends Chain ? TChainOverride : TChain
+  >,
+  'from'
+> &
+  GetAccountParameter<TAccount> &
+  GetChain<TChain, TChainOverride>
 
 export type PrepareRequestReturnType<
-  TAccount extends Account | undefined = undefined,
-  TParameters extends PrepareRequestParameters<TAccount> = PrepareRequestParameters<TAccount>,
-> = TParameters & {
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
+  TArgs extends PrepareRequestParameters<
+    TChain,
+    TAccount,
+    TChainOverride
+  > = PrepareRequestParameters<TChain, TAccount, TChainOverride>,
+> = TArgs & {
   from: Address
   gas: SendTransactionParameters['gas']
   gasPrice?: SendTransactionParameters['gasPrice']
@@ -46,11 +56,12 @@ export const defaultTip = 1_500_000_000n // 1.5 gwei
 export async function prepareRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TParameters extends PrepareRequestParameters<TAccount>,
+  TChainOverride extends Chain | undefined,
+  TArgs extends PrepareRequestParameters<TChain, TAccount, TChainOverride>,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: TParameters,
-): Promise<PrepareRequestReturnType<TAccount, TParameters>> {
+  args: TArgs,
+): Promise<PrepareRequestReturnType<TChain, TAccount, TChainOverride, TArgs>> {
   const {
     account: account_,
     gas,
@@ -113,5 +124,10 @@ export async function prepareRequest<
 
   assertRequest(request as AssertRequestParameters)
 
-  return request as PrepareRequestReturnType<TAccount, TParameters>
+  return request as PrepareRequestReturnType<
+    TChain,
+    TAccount,
+    TChainOverride,
+    TArgs
+  >
 }

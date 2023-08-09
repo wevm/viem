@@ -25,10 +25,11 @@ export function defineChain<
   TFormatters extends Formatters,
 >(
   chain: TChain,
-  config?: Pick<Chain<TFormatters>, 'formatters' | 'serializers'>,
+  config?: Pick<Chain<TFormatters>, 'fees' | 'formatters' | 'serializers'>,
 ) {
   return {
     ...chain,
+    fees: config?.fees,
     formatters: config?.formatters,
     serializers: config?.serializers,
   }

@@ -19,7 +19,7 @@ export type DeployContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
 > = UnionOmit<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
   'accessList' | 'chain' | 'to' | 'data'

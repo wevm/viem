@@ -13,29 +13,29 @@ export type Formatters = {
 }
 
 export type ExtractFormatterExclude<
-  TChain extends Chain | undefined,
+  TChain extends { formatters?: Chain['formatters'] } | undefined,
   TType extends keyof Formatters,
-> = TChain extends Chain<infer _Formatters extends Formatters>
+> = TChain extends { formatters?: infer _Formatters extends Formatters }
   ? _Formatters[TType] extends { exclude: infer Exclude }
     ? Extract<Exclude, string[]>[number]
     : ''
   : ''
 
 export type ExtractFormatterParameters<
-  TChain extends Chain | undefined,
+  TChain extends { formatters?: Chain['formatters'] } | undefined,
   TType extends keyof Formatters,
   TFallback,
-> = TChain extends Chain<infer _Formatters extends Formatters>
+> = TChain extends { formatters?: infer _Formatters extends Formatters }
   ? _Formatters[TType] extends Formatter
     ? Parameters<_Formatters[TType]['format']>[0]
     : TFallback
   : TFallback
 
 export type ExtractFormatterReturnType<
-  TChain extends Chain | undefined,
+  TChain extends { formatters?: Chain['formatters'] } | undefined,
   TType extends keyof Formatters,
   TFallback,
-> = TChain extends Chain<infer _Formatters extends Formatters>
+> = TChain extends { formatters?: infer _Formatters extends Formatters }
   ? _Formatters[TType] extends Formatter
     ? ReturnType<_Formatters[TType]['format']>
     : TFallback

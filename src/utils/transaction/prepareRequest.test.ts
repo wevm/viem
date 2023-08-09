@@ -437,8 +437,8 @@ describe('prepareRequest', () => {
     await setup()
 
     await expect(() =>
+      // @ts-expect-error
       prepareRequest(walletClient, {
-        // @ts-expect-error
         to: targetAccount.address,
         value: parseEther('1'),
       }),

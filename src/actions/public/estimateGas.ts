@@ -102,7 +102,10 @@ export async function estimateGas<
       to,
       value,
       ...rest
-    } = account.type === 'local' ? await prepareRequest(client, args) : args
+    } =
+      account.type === 'local'
+        ? await prepareRequest(client, args as any)
+        : args
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag

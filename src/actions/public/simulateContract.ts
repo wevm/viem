@@ -29,7 +29,7 @@ export type SimulateContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = any,
   TChain extends Chain | undefined = Chain | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
 > = {
   chain?: TChainOverride
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
@@ -51,7 +51,7 @@ export type SimulateContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
   TChain extends Chain | undefined = Chain | undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
 > = {
   result: ContractFunctionResult<TAbi, TFunctionName>
   request: UnionOmit<
