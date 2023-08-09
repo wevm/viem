@@ -1,9 +1,9 @@
 import * as chains from '@wagmi/chains'
 
 import { defineChain } from '../utils/chain.js'
-import { formattersCelo } from './formatters/celo.js'
-import { formattersOptimism } from './formatters/optimism.js'
-import { serializersCelo } from './serializers/celo.js'
+import { formattersCelo } from './celo/formatters.js'
+import { serializersCelo } from './celo/serializers.js'
+import { formattersOptimism } from './optimism/formatters.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
 export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)

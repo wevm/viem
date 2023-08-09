@@ -24,7 +24,7 @@ import {
 } from '../../utils/transaction/serializeTransaction.js'
 
 export const serializeTransactionCelo: SerializeTransactionFn<
-  TransactionSerializableCelo
+  CeloTransactionSerializable
 > = (tx, signature) => {
   // Handle CIP-42 transactions
   if (isCIP42(tx))
@@ -58,7 +58,7 @@ export type TransactionSerializableCIP42<
     type?: 'cip42'
   }
 
-export type TransactionSerializableCelo =
+export type CeloTransactionSerializable =
   | TransactionSerializableCIP42
   | TransactionSerializable
 
@@ -123,7 +123,7 @@ function serializeTransactionCIP42(
 // Utilities
 
 // process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
-function isCIP42(transaction: TransactionSerializableCelo) {
+function isCIP42(transaction: CeloTransactionSerializable) {
   if (
     'maxFeePerGas' in transaction &&
     'maxPriorityFeePerGas' in transaction &&

@@ -26,12 +26,8 @@ export type TransactionType = '0x0' | '0x1' | '0x2' | (string & {})
 export type RpcBlock<
   TBlockTag extends BlockTag = BlockTag,
   TIncludeTransactions extends boolean = boolean,
-> = Block<
-  Quantity,
-  TIncludeTransactions,
-  TBlockTag,
-  RpcTransaction<TBlockTag extends 'pending' ? true : false>
->
+  TTransaction = RpcTransaction<TBlockTag extends 'pending' ? true : false>,
+> = Block<Quantity, TIncludeTransactions, TBlockTag, TTransaction>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>
