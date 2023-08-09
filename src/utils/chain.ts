@@ -20,11 +20,11 @@ export function assertCurrentChain({
 }
 
 export function defineChain<
-  TChain extends Chain,
-  TFormatters extends ChainFormatters,
+  chain extends Chain,
+  formatters extends ChainFormatters,
 >(
-  chain: TChain,
-  config?: Pick<Chain<TFormatters>, 'fees' | 'formatters' | 'serializers'>,
+  chain: chain,
+  config?: Pick<Chain<formatters>, 'fees' | 'formatters' | 'serializers'>,
 ) {
   return {
     ...chain,

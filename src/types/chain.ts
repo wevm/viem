@@ -7,7 +7,7 @@ import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
 } from './transaction.js'
-import type { IsUndefined } from './utils.js'
+import type { IsUndefined, Prettify } from './utils.js'
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
@@ -29,7 +29,7 @@ export type ChainFees<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   getDefaultPriorityFee(args: {
-    block: FormattedBlock<{ formatters: formatters }>
+    block: Prettify<FormattedBlock<{ formatters: formatters }>>
     request: PrepareRequestParameters<
       Omit<Chain, 'formatters'> & { formatters: formatters }
     >
@@ -43,19 +43,19 @@ export type ChainFormatters = {
   transactionRequest?: ChainFormatter<'transactionRequest'>
 }
 
-export type ChainFormatter<TType extends string = string> = {
+export type ChainFormatter<type extends string = string> = {
   format: (args: any) => any
-  type: TType
+  type: type
 }
 
 export type ChainSerializers<
-  TFormatters extends ChainFormatters | undefined = undefined,
+  formatters extends ChainFormatters | undefined = undefined,
 > = {
   transaction?: SerializeTransactionFn<
-    TFormatters extends ChainFormatters
-      ? TFormatters['transactionRequest'] extends ChainFormatter
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
         ? TransactionSerializableGeneric &
-            Parameters<TFormatters['transactionRequest']['format']>[0]
+            Parameters<formatters['transactionRequest']['format']>[0]
         : TransactionSerializable
       : TransactionSerializable
   >
@@ -65,37 +65,37 @@ export type ChainSerializers<
 // Utils
 
 export type ExtractChainFormatterExclude<
-  TChain extends { formatters?: Chain['formatters'] } | undefined,
-  TType extends keyof ChainFormatters,
-> = TChain extends { formatters?: infer _Formatters extends ChainFormatters }
-  ? _Formatters[TType] extends { exclude: infer Exclude }
+  chain extends { formatters?: Chain['formatters'] } | undefined,
+  type extends keyof ChainFormatters,
+> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
+  ? _Formatters[type] extends { exclude: infer Exclude }
     ? Extract<Exclude, string[]>[number]
     : ''
   : ''
 
 export type ExtractChainFormatterParameters<
-  TChain extends { formatters?: Chain['formatters'] } | undefined,
-  TType extends keyof ChainFormatters,
-  TFallback,
-> = TChain extends { formatters?: infer _Formatters extends ChainFormatters }
-  ? _Formatters[TType] extends ChainFormatter
-    ? Parameters<_Formatters[TType]['format']>[0]
-    : TFallback
-  : TFallback
+  chain extends { formatters?: Chain['formatters'] } | undefined,
+  type extends keyof ChainFormatters,
+  fallback,
+> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
+  ? _Formatters[type] extends ChainFormatter
+    ? Parameters<_Formatters[type]['format']>[0]
+    : fallback
+  : fallback
 
 export type ExtractChainFormatterReturnType<
-  TChain extends { formatters?: Chain['formatters'] } | undefined,
-  TType extends keyof ChainFormatters,
-  TFallback,
-> = TChain extends { formatters?: infer _Formatters extends ChainFormatters }
-  ? _Formatters[TType] extends ChainFormatter
-    ? ReturnType<_Formatters[TType]['format']>
-    : TFallback
-  : TFallback
+  chain extends { formatters?: Chain['formatters'] } | undefined,
+  type extends keyof ChainFormatters,
+  fallback,
+> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
+  ? _Formatters[type] extends ChainFormatter
+    ? ReturnType<_Formatters[type]['format']>
+    : fallback
+  : fallback
 
 export type GetChain<
-  TChain extends Chain | undefined,
-  TChainOverride extends Chain | undefined = undefined,
-> = IsUndefined<TChain> extends true
-  ? { chain: TChainOverride | null }
-  : { chain?: TChainOverride | null }
+  chain extends Chain | undefined,
+  chainOverride extends Chain | undefined = undefined,
+> = IsUndefined<chain> extends true
+  ? { chain: chainOverride | null }
+  : { chain?: chainOverride | null }
