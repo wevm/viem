@@ -383,6 +383,7 @@ describe('prepareRequest', () => {
     await setup()
 
     await expect(() =>
+      // @ts-expect-error
       prepareRequest(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -410,6 +411,7 @@ describe('prepareRequest', () => {
     await setup()
 
     await expect(() =>
+      // @ts-expect-error
       prepareRequest(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
