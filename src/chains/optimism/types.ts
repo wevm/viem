@@ -49,7 +49,7 @@ type RpcTransaction<TPending extends boolean = boolean> =
   }
 
 export type OptimismRpcDepositTransaction<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
+  Omit<TransactionBase<Quantity, Index, TPending>, 'typeHex'> &
     FeeValuesEIP1559<Quantity> & {
       isSystemTx?: boolean
       mint?: Hex
@@ -64,7 +64,7 @@ export type OptimismRpcTransactionReceiptOverrides = {
   l1GasPrice: Hex | null
   l1GasUsed: Hex | null
   l1Fee: Hex | null
-  l1FeeScalar: Hex | null
+  l1FeeScalar: `${number}` | null
 }
 export type OptimismRpcTransactionReceipt = RpcTransactionReceipt &
   OptimismRpcTransactionReceiptOverrides

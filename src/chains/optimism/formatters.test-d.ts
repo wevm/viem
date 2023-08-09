@@ -7,16 +7,22 @@ import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
+import type { Assign } from '../../types/utils.js'
 import { optimism } from '../index.js'
 import { formattersOptimism } from './formatters.js'
-import type { OptimismRpcTransaction } from './types.js'
+import type {
+  OptimismRpcBlockOverrides,
+  OptimismRpcTransaction,
+} from './types.js'
 
 describe('block', () => {
   expectTypeOf(formattersOptimism.block.format).parameter(0).toEqualTypeOf<
-    Partial<RpcBlock> & {
-      stateRoot: `0x${string}`
-      transactions: Hash[] | OptimismRpcTransaction[]
-    }
+    Assign<
+      Partial<RpcBlock>,
+      OptimismRpcBlockOverrides & {
+        transactions: `0x${string}`[] | OptimismRpcTransaction[]
+      }
+    >
   >()
 })
 
