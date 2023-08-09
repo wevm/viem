@@ -5,13 +5,12 @@
 Added `fees` to `chain` config that includes a `getDefaultPriorityFee` for setting a default priority fee for a chain.
 
 ```ts
-import type { Chain } from 'viem'
+import { defineChain } from 'viem'
+import { zora } from 'viem/chains'
 
-export const example = {
-  // ...
+export const example = defineChain(zora, {
   fees: {
     getDefaultPriorityFee: () => 1_000_000n, // 0.001 gwei
   },
-  // ...
-} as const satifies Chain
+})
 ```
