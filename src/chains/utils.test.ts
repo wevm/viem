@@ -1,16 +1,14 @@
 import { expect, test } from 'vitest'
 
-import * as actions from './index.js'
+import * as utils from './utils.js'
 
 test('exports', () => {
-  expect(Object.keys(actions)).toMatchInlineSnapshot(`
+  expect(Object.keys(utils)).toMatchInlineSnapshot(`
     [
-      "celo",
-      "celoAlfajores",
-      "celoCannoli",
       "formattersCelo",
       "serializeTransactionCelo",
       "serializersCelo",
+      "formattersOptimism",
     ]
   `)
 })

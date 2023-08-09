@@ -72,15 +72,10 @@
       "import": "./dist/esm/chains/index.js",
       "default": "./dist/cjs/chains/index.js"
     },
-    "./chains/celo": {
-      "types": "./dist/types/chains/celo/index.d.ts",
-      "import": "./dist/esm/chains/celo/index.js",
-      "default": "./dist/cjs/chains/celo/index.js"
-    },
-    "./chains/optimism": {
-      "types": "./dist/types/chains/optimism/index.d.ts",
-      "import": "./dist/esm/chains/optimism/index.js",
-      "default": "./dist/cjs/chains/optimism/index.js"
+    "./chains/utils": {
+      "types": "./dist/types/chains/utils.d.ts",
+      "import": "./dist/esm/chains/utils.js",
+      "default": "./dist/cjs/chains/utils.js"
     },
     "./contract": {
       "types": "./dist/types/contract.d.ts",
