@@ -51,8 +51,6 @@ export type PrepareRequestReturnType<
   nonce: SendTransactionParameters['nonce']
 }
 
-export const defaultTip = 1_500_000_000n // 1.5 gwei
-
 export async function prepareRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
@@ -64,6 +62,7 @@ export async function prepareRequest<
 ): Promise<PrepareRequestReturnType<TChain, TAccount, TChainOverride, TArgs>> {
   const {
     account: account_,
+    chain = client.chain,
     gas,
     gasPrice,
     maxFeePerGas,
@@ -87,22 +86,28 @@ export async function prepareRequest<
     typeof block.baseFeePerGas === 'bigint' &&
     typeof gasPrice === 'undefined'
   ) {
+    const defaultPriorityFee =
+      (await chain?.fees?.getDefaultPriorityFee({
+        block,
+        request: request as PrepareRequestParameters,
+      })) || 1_500_000_000n // 1.5 gwei
+
     // EIP-1559 fees
     if (typeof maxFeePerGas === 'undefined') {
       // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
-      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultTip
+      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultPriorityFee
       request.maxFeePerGas =
         (block.baseFeePerGas * 120n) / 100n + request.maxPriorityFeePerGas
     } else {
       if (
         typeof maxPriorityFeePerGas === 'undefined' &&
-        maxFeePerGas < defaultTip
+        maxFeePerGas < defaultPriorityFee
       )
         throw new BaseError(
           '`maxFeePerGas` cannot be less than the default `maxPriorityFeePerGas` (1.5 gwei).',
         )
       request.maxFeePerGas = maxFeePerGas
-      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultTip
+      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultPriorityFee
     }
   } else if (typeof gasPrice === 'undefined') {
     // Legacy fees
