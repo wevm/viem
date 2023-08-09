@@ -3,7 +3,13 @@ import {
   ChainMismatchError,
   ChainNotFoundError,
 } from '../errors/chain.js'
-import type { Chain, ChainContract, ChainFormatters } from '../types/chain.js'
+import type {
+  Chain,
+  ChainConfig,
+  ChainContract,
+  ChainFormatters,
+} from '../types/chain.js'
+import type { Assign } from '../types/utils.js'
 
 export type AssertCurrentChainParameters = {
   chain?: Chain
@@ -24,14 +30,19 @@ export function defineChain<
   formatters extends ChainFormatters,
 >(
   chain: chain,
-  config?: Pick<Chain<formatters>, 'fees' | 'formatters' | 'serializers'>,
-) {
+  config?: ChainConfig<formatters>,
+): Assign<chain, ChainConfig<formatters>> {
+  const {
+    fees = chain.fees,
+    formatters = chain.formatters,
+    serializers = chain.serializers,
+  } = config || {}
   return {
     ...chain,
-    fees: config?.fees,
-    formatters: config?.formatters,
-    serializers: config?.serializers,
-  }
+    fees,
+    formatters,
+    serializers,
+  } as unknown as Assign<chain, ChainConfig<formatters>>
 }
 
 export function getChainContractAddress({

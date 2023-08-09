@@ -11,12 +11,13 @@ import type { IsUndefined, Prettify } from './utils.js'
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  serializers extends ChainSerializers<formatters> | undefined =
-    | ChainSerializers<formatters>
-    | undefined,
-> = import('@wagmi/chains').Chain & {
+> = import('@wagmi/chains').Chain & ChainConfig<formatters>
+
+export type ChainConfig<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = {
   formatters?: formatters | undefined
-  serializers?: serializers | undefined
+  serializers?: ChainSerializers<formatters> | undefined
   fees?: ChainFees<formatters> | undefined
 }
 
