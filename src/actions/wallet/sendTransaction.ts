@@ -11,7 +11,7 @@ import type {
   TransactionRequest,
   TransactionSerializable,
 } from '../../types/transaction.js'
-import type { IsUndefined, UnionOmit } from '../../types/utils.js'
+import type { UnionOmit } from '../../types/utils.js'
 import { assertCurrentChain } from '../../utils/chain.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
@@ -19,17 +19,20 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
+import {
+  type AssertRequestParameters,
+  assertRequest,
+} from '../../utils/transaction/assertRequest.js'
 import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 import { getChainId } from '../public/getChainId.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain,
+  TChainOverride extends Chain | undefined = Chain | undefined,
 > = UnionOmit<
   FormattedTransactionRequest<
-    IsUndefined<TChain> extends true ? TChainOverride : TChain
+    TChainOverride extends Chain ? TChainOverride : TChain
   >,
   'from'
 > &
@@ -113,7 +116,7 @@ export async function sendTransaction<
   const account = parseAccount(account_)
 
   try {
-    assertRequest(args)
+    assertRequest(args as AssertRequestParameters)
 
     let chainId
     if (chain !== null) {
@@ -139,7 +142,7 @@ export async function sendTransaction<
         to,
         value,
         ...rest,
-      })
+      } as any)
 
       if (!chainId) chainId = await getChainId(client)
 

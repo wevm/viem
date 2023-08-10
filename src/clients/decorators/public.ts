@@ -1206,9 +1206,9 @@ export type PublicActions<
    * })
    */
   simulateContract: <
-    TAbi extends Abi | readonly unknown[] = Abi,
-    TFunctionName extends string = any,
-    TChainOverride extends Chain | undefined = undefined,
+    TAbi extends Abi | readonly unknown[],
+    TFunctionName extends string,
+    TChainOverride extends Chain | undefined,
   >(
     args: SimulateContractParameters<
       TAbi,

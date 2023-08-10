@@ -1,11 +1,11 @@
-import type { Formatter } from '../../types/formatter.js'
+import type { ChainFormatter } from '../../types/chain.js'
 
 /**
  * @description Picks out the keys from `value` that exist in the formatter.
  */
 export function extract(
   value: Record<string, unknown>,
-  { format }: { format?: Formatter['format'] },
+  { format }: { format?: ChainFormatter['format'] },
 ) {
   if (!format) return {}
   const keys = Object.keys(format({}))
