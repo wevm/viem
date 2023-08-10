@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-Added `fees` to `chain` config that includes a `defaultPriorityFee` for setting a default priority fee (`maxFeePerGas`) for a chain.
+Added `fees` to `chain` config that includes a `defaultPriorityFee` for setting a default priority fee (`maxPriorityFeePerGas`) for a chain.
 
 ```ts
 import type { Chain } from 'viem'
