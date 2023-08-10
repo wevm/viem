@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, test, vi } from 'vitest'
 import { usdcContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { accounts, address } from '../../_test/constants.js'
 import {
+  deployErc20InvalidTransferEvent,
   publicClient,
   testClient,
   walletClient,
@@ -17,6 +18,7 @@ import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
 import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
@@ -66,6 +68,27 @@ const event = {
         type: 'uint256',
       },
     ],
+  },
+  invalid: {
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
   },
 } as const
 
@@ -758,6 +781,105 @@ describe('subscribe', () => {
       })
       expect(error).toMatchInlineSnapshot('[Error: error]')
       unwatch()
+    })
+
+    describe('args: strict', () => {
+      test('indexed params mismatch', async () => {
+        const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+        const logs_unstrict: WatchEventOnLogsParameter<
+          typeof event.transfer
+        >[] = []
+        const logs_strict: WatchEventOnLogsParameter<typeof event.transfer>[] =
+          []
+
+        const unwatch_unstrict = watchEvent(webSocketClient, {
+          event: event.transfer,
+          onLogs: (logs_) => logs_unstrict.push(logs_),
+        })
+        const unwatch_strict = watchEvent(webSocketClient, {
+          event: event.transfer,
+          onLogs: (logs_) => logs_strict.push(logs_),
+          strict: true,
+        })
+
+        await writeContract(walletClient, {
+          ...usdcContractConfig,
+          functionName: 'transfer',
+          args: [accounts[0].address, 1n],
+          account: address.vitalik,
+        })
+        await writeContract(walletClient, {
+          abi: erc20InvalidTransferEventABI,
+          address: contractAddress!,
+          functionName: 'transfer',
+          args: [accounts[0].address, 1n],
+          account: address.vitalik,
+        })
+        await writeContract(walletClient, {
+          abi: erc20InvalidTransferEventABI,
+          address: contractAddress!,
+          functionName: 'transfer',
+          args: [accounts[1].address, 1n],
+          account: address.vitalik,
+        })
+        await mine(testClient, { blocks: 1 })
+        await wait(1000)
+
+        unwatch_unstrict()
+        unwatch_strict()
+
+        expect(logs_unstrict.length).toBe(3)
+        expect(logs_strict.length).toBe(1)
+      })
+
+      test('non-indexed params mismatch', async () => {
+        const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+        const logs_unstrict: WatchEventOnLogsParameter<typeof event.invalid>[] =
+          []
+        const logs_strict: WatchEventOnLogsParameter<typeof event.invalid>[] =
+          []
+
+        const unwatch_unstrict = watchEvent(webSocketClient, {
+          event: event.invalid,
+          onLogs: (logs_) => logs_unstrict.push(logs_),
+        })
+        const unwatch_strict = watchEvent(webSocketClient, {
+          event: event.invalid,
+          onLogs: (logs_) => logs_strict.push(logs_),
+          strict: true,
+        })
+
+        await writeContract(walletClient, {
+          ...usdcContractConfig,
+          functionName: 'transfer',
+          args: [accounts[0].address, 1n],
+          account: address.vitalik,
+        })
+        await writeContract(walletClient, {
+          abi: erc20InvalidTransferEventABI,
+          address: contractAddress!,
+          functionName: 'transfer',
+          args: [accounts[0].address, 1n],
+          account: address.vitalik,
+        })
+        await writeContract(walletClient, {
+          abi: erc20InvalidTransferEventABI,
+          address: contractAddress!,
+          functionName: 'transfer',
+          args: [accounts[1].address, 1n],
+          account: address.vitalik,
+        })
+        await mine(testClient, { blocks: 1 })
+        await wait(1000)
+
+        unwatch_unstrict()
+        unwatch_strict()
+
+        expect(logs_unstrict.length).toBe(3)
+        expect(logs_strict.length).toBe(2)
+      })
     })
   })
 })

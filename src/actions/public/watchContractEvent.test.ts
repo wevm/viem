@@ -2,7 +2,9 @@ import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
 import { accounts, address } from '../../_test/constants.js'
+import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
 import {
+  deployErc20InvalidTransferEvent,
   publicClient,
   testClient,
   walletClient,
@@ -980,6 +982,116 @@ describe('subscribe', () => {
       1n,
     ])
     expect(logs[1][0].eventName).toEqual('Transfer')
+  })
+
+  describe('args: strict', () => {
+    test('indexed params mismatch', async () => {
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+      const logs_unstrict: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi,
+        'Transfer'
+      >[] = []
+      const logs_strict: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi,
+        'Transfer'
+      >[] = []
+
+      const unwatch_unstrict = watchContractEvent(webSocketClient, {
+        abi: usdcContractConfig.abi,
+        eventName: 'Transfer',
+        onLogs: (logs_) => logs_unstrict.push(logs_),
+      })
+      const unwatch_strict = watchContractEvent(webSocketClient, {
+        abi: usdcContractConfig.abi,
+        eventName: 'Transfer',
+        onLogs: (logs_) => logs_strict.push(logs_),
+        strict: true,
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(1000)
+
+      unwatch_unstrict()
+      unwatch_strict()
+
+      expect(logs_unstrict.length).toBe(3)
+      expect(logs_strict.length).toBe(1)
+    })
+
+    test('non-indexed params mismatch', async () => {
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+      const logs_unstrict: WatchContractEventOnLogsParameter<
+        typeof erc20InvalidTransferEventABI,
+        'Transfer'
+      >[] = []
+      const logs_strict: WatchContractEventOnLogsParameter<
+        typeof erc20InvalidTransferEventABI,
+        'Transfer'
+      >[] = []
+
+      const unwatch_unstrict = watchContractEvent(webSocketClient, {
+        abi: erc20InvalidTransferEventABI,
+        eventName: 'Transfer',
+        onLogs: (logs_) => logs_unstrict.push(logs_),
+      })
+      const unwatch_strict = watchContractEvent(webSocketClient, {
+        abi: erc20InvalidTransferEventABI,
+        eventName: 'Transfer',
+        onLogs: (logs_) => logs_strict.push(logs_),
+        strict: true,
+      })
+
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        abi: erc20InvalidTransferEventABI,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(1000)
+
+      unwatch_unstrict()
+      unwatch_strict()
+
+      expect(logs_unstrict.length).toBe(3)
+      expect(logs_strict.length).toBe(2)
+    })
   })
 
   describe('errors', () => {
