@@ -1,16 +1,19 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts, localHttpUrl } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
 import { setBalance } from '../../actions/test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFeePerGas.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { http } from '../../clients/transports/http.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
-import { defaultTip, prepareRequest } from './prepareRequest.js'
+import { anvilChain } from '../../_test/utils.js'
+import { prepareRequest } from './prepareRequest.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -29,8 +32,6 @@ async function setup() {
   })
   await mine(testClient, { blocks: 1 })
 }
-
-test('defaultTip', () => expect(defaultTip).toBe(parseGwei('1.5')))
 
 describe('prepareRequest', () => {
   test('default', async () => {
@@ -383,6 +384,7 @@ describe('prepareRequest', () => {
     await setup()
 
     await expect(() =>
+      // @ts-expect-error
       prepareRequest(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -410,6 +412,7 @@ describe('prepareRequest', () => {
     await setup()
 
     await expect(() =>
+      // @ts-expect-error
       prepareRequest(walletClient, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
@@ -433,12 +436,123 @@ describe('prepareRequest', () => {
     `)
   })
 
+  test('chain default priority fee', async () => {
+    await setup()
+
+    const block = await getBlock.getBlock(publicClient)
+
+    // client chain
+    const client_1 = createWalletClient({
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: () => parseGwei('69'),
+        },
+      },
+      transport: http(localHttpUrl),
+    })
+    const request_1 = await prepareRequest(client_1, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_1.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // client chain (async)
+    const client_2 = createWalletClient({
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: async () => parseGwei('69'),
+        },
+      },
+      transport: http(localHttpUrl),
+    })
+    const request_2 = await prepareRequest(client_2, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_2.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // client chain (bigint)
+    const client_3 = createWalletClient({
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: parseGwei('69'),
+        },
+      },
+      transport: http(localHttpUrl),
+    })
+    const request_3 = await prepareRequest(client_3, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_3.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // chain override (bigint)
+    const request_4 = await prepareRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: () => parseGwei('69'),
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_4.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // chain override (async)
+    const request_5 = await prepareRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: async () => parseGwei('69'),
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_5.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // chain override (bigint)
+    const request_6 = await prepareRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: parseGwei('69'),
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_6.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+  })
+
   test('no account', async () => {
     await setup()
 
     await expect(() =>
+      // @ts-expect-error
       prepareRequest(walletClient, {
-        // @ts-expect-error
         to: targetAccount.address,
         value: parseEther('1'),
       }),

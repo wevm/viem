@@ -3,6 +3,7 @@ import * as chains from '@wagmi/chains'
 import { defineChain } from '../utils/chain.js'
 import { formattersCelo } from './celo/formatters.js'
 import { serializersCelo } from './celo/serializers.js'
+import { feesOptimism } from './optimism/fees.js'
 import { formattersOptimism } from './optimism/formatters.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
@@ -11,8 +12,14 @@ export const aurora = /*#__PURE__*/ defineChain(chains.aurora)
 export const auroraTestnet = /*#__PURE__*/ defineChain(chains.auroraTestnet)
 export const avalanche = /*#__PURE__*/ defineChain(chains.avalanche)
 export const avalancheFuji = /*#__PURE__*/ defineChain(chains.avalancheFuji)
-export const base = /*#__PURE__*/ defineChain(chains.base)
-export const baseGoerli = /*#__PURE__*/ defineChain(chains.baseGoerli)
+export const base = /*#__PURE__*/ defineChain(chains.base, {
+  fees: feesOptimism,
+  formatters: formattersOptimism,
+})
+export const baseGoerli = /*#__PURE__*/ defineChain(chains.baseGoerli, {
+  fees: feesOptimism,
+  formatters: formattersOptimism,
+})
 export const boba = /*#__PURE__*/ defineChain(chains.boba)
 export const bronos = /*#__PURE__*/ defineChain(chains.bronos)
 export const bronosTestnet = /*#__PURE__*/ defineChain(chains.bronosTestnet)
@@ -72,9 +79,11 @@ export const moonriver = /*#__PURE__*/ defineChain(chains.moonriver)
 export const nexi = /*#__PURE__*/ defineChain(chains.nexi)
 export const okc = /*#__PURE__*/ defineChain(chains.okc)
 export const optimism = /*#__PURE__*/ defineChain(chains.optimism, {
+  fees: feesOptimism,
   formatters: formattersOptimism,
 })
 export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli, {
+  fees: feesOptimism,
   formatters: formattersOptimism,
 })
 export const polygon = /*#__PURE__*/ defineChain(chains.polygon)
@@ -136,7 +145,13 @@ export const xdcTestnet = /*#__PURE__*/ defineChain(chains.xdcTestnet)
 export const zhejiang = /*#__PURE__*/ defineChain(chains.zhejiang)
 export const zkSync = /*#__PURE__*/ defineChain(chains.zkSync)
 export const zkSyncTestnet = /*#__PURE__*/ defineChain(chains.zkSyncTestnet)
-export const zora = /*#__PURE__*/ defineChain(chains.zora)
-export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet)
+export const zora = /*#__PURE__*/ defineChain(chains.zora, {
+  fees: feesOptimism,
+  formatters: formattersOptimism,
+})
+export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet, {
+  fees: feesOptimism,
+  formatters: formattersOptimism,
+})
 
 export type { Chain } from '../types/chain.js'

@@ -48,13 +48,13 @@ yarn add viem
   </div>
   <!-- TODO: Extract Bundle Size, Coverage badge data from respective APIs. -->
   <div class="flex justify-between space-x-2">
-  <a href="https://bundlephobia.com/package/viem" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
+  <a href="https://github.com/wagmi-dev/viem/stargazers" class="cursor-pointer h-10 max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style="color: inherit;" rel="noreferrer noopener" target="_blank">
     <div class="absolute flex z-0 p-[6px] h-full w-full">
       <div class="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
-        <span class="font-medium text-[15px] opacity-80 w-full text-center">size</span>
+        <span class="font-medium text-[15px] opacity-80 w-full text-center">stars</span>
       </div>
       <div class="flex items-center h-full px-2">
-        <span class="font-medium text-[15px] text-center w-full text-black dark:text-white">35kB</span>
+        <span class="font-medium text-[15px] text-center w-full text-black dark:text-white">1.3k</span>
       </div>
     </div>
     <div class="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/10 z-[-1]" />
@@ -100,9 +100,10 @@ yarn add viem
     </div>
     <div class="pl-2 pr-2 max-sm:px-0 max-lg:pb-3 max-lg:pr-0 w-1/4 max-lg:w-1/2 max-sm:w-full">
       <div class="relative w-full h-[168px] max-lg:h-[142px]">
-        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col w-full">
           <div class="text-xl font-medium text-black dark:text-white">Lightweight</div>
-          <div class="text-[17px] font-medium text-[#919193]">Tiny (only 35kB!) bundle size optimized for tree-shaking</div>
+          <div class="mt-[14px] text-[17px] font-medium text-[#919193]">Tiny bundle size optimized for tree-shaking</div>
+          <a href="/docs/introduction.html#bundle-size" class="text-[17px] font-medium">See more</a>
         </div>
         <div class="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
         <div class="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
@@ -246,9 +247,9 @@ Help support future development and make wagmi a sustainable open-source project
     font-size: 22px;
   }
   
-  /* .vp-code-group {
+  /*.vp-code-group {
     width: 100% !important;
-  } */
+}*/
 
   .tabs {
     display: flex;

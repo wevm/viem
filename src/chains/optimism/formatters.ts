@@ -1,4 +1,4 @@
-import { type Formatters } from '../../types/formatter.js'
+import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import { type RpcTransaction } from '../../types/rpc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
@@ -71,4 +71,4 @@ export const formattersOptimism = {
       }
     },
   }),
-} as const satisfies Formatters
+} as const satisfies ChainFormatters

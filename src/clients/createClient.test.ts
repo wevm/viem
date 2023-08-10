@@ -64,6 +64,7 @@ describe('transports', () => {
         "batch": undefined,
         "cacheTime": 4000,
         "chain": {
+          "fees": undefined,
           "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
@@ -120,6 +121,7 @@ describe('transports', () => {
         "batch": undefined,
         "cacheTime": 4000,
         "chain": {
+          "fees": undefined,
           "formatters": undefined,
           "id": 1337,
           "name": "Localhost",
@@ -422,6 +424,7 @@ describe('extends', () => {
         "cacheTime": 4000,
         "call": [Function],
         "chain": {
+          "fees": undefined,
           "formatters": undefined,
           "id": 1337,
           "name": "Localhost",

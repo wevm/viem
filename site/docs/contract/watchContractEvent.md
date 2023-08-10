@@ -16,7 +16,7 @@ head:
 
 Watches and returns emitted contract event logs.
 
-This Action will batch up all the event logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onLogs).
+This Action will batch up all the event logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onlogs).
 
 `watchContractEvent` will attempt to create an [Event Filter](/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
 
@@ -285,6 +285,33 @@ const unwatch = publicClient.watchContractEvent({
 })
 ```
 
+### poll (optional)
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket Clients, `true` for non-WebSocket Clients
+
+Whether or not to use a polling mechanism to check for new logs instead of a WebSocket subscription.
+
+This option is only configurable for Clients with a [WebSocket Transport](/docs/clients/transports/websocket).
+
+```ts
+import { createPublicClient, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: webSocket()
+})
+
+const unwatch = publicClient.watchContractEvent(
+  { 
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    abi: wagmiAbi,
+    poll: true, // [!code focus]
+  }
+)
+```
+
 ### pollingInterval (optional)
 
 - **Type:** `number`
@@ -299,3 +326,18 @@ const unwatch = publicClient.watchContractEvent({
   onLogs: logs => console.log(logs)
 })
 ```
+
+## JSON-RPC Methods
+
+**When poll `true` and RPC Provider supports `eth_newFilter`:**
+
+- Calls [`eth_newFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter) to create a filter (called on initialize).
+- On a polling interval, it will call [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges).
+
+**When poll `true` RPC Provider does not support `eth_newFilter`:**
+
+- Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) for each block between the polling interval.
+
+**When poll `false` and WebSocket Transport:**
+
+- Uses a WebSocket subscription via `eth_subscribe` and the "logs" event.

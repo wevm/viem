@@ -1,5 +1,7 @@
-import type { Chain } from '../../types/chain.js'
-import type { ExtractFormatterParameters } from '../../types/formatter.js'
+import type {
+  Chain,
+  ExtractChainFormatterParameters,
+} from '../../types/chain.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import { numberToHex } from '../encoding/toHex.js'
@@ -7,7 +9,11 @@ import { defineFormatter } from './formatter.js'
 
 export type FormattedTransactionRequest<
   TChain extends Chain | undefined = Chain | undefined,
-> = ExtractFormatterParameters<TChain, 'transactionRequest', TransactionRequest>
+> = ExtractChainFormatterParameters<
+  TChain,
+  'transactionRequest',
+  TransactionRequest
+>
 
 export function formatTransactionRequest(
   transactionRequest: Partial<TransactionRequest>,

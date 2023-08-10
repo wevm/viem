@@ -20,7 +20,10 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
+import {
+  type PrepareRequestParameters,
+  prepareRequest,
+} from '../../utils/transaction/prepareRequest.js'
 
 export type FormattedEstimateGas<
   TChain extends Chain | undefined = Chain | undefined,
@@ -102,7 +105,13 @@ export async function estimateGas<
       to,
       value,
       ...rest
-    } = account.type === 'local' ? await prepareRequest(client, args) : args
+    } =
+      account.type === 'local'
+        ? ((await prepareRequest(
+            client,
+            args as PrepareRequestParameters,
+          )) as EstimateGasParameters)
+        : args
 
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
