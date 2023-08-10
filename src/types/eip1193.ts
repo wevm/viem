@@ -51,7 +51,7 @@ export type ProviderMessage = {
   data: unknown
 }
 
-type EIP1193EventMap = {
+export type EIP1193EventMap = {
   accountsChanged(accounts: Address[]): void
   chainChanged(chainId: string): void
   connect(connectInfo: ProviderConnectInfo): void
