@@ -29,12 +29,14 @@ export type ChainContract = {
 export type ChainFees<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
-  getDefaultPriorityFee(args: {
-    block: Prettify<FormattedBlock<{ formatters: formatters }>>
-    request: PrepareRequestParameters<
-      Omit<Chain, 'formatters'> & { formatters: formatters }
-    >
-  }): Promise<bigint> | bigint
+  defaultPriorityFee:
+    | bigint
+    | ((args: {
+        block: Prettify<FormattedBlock<{ formatters: formatters }>>
+        request: PrepareRequestParameters<
+          Omit<Chain, 'formatters'> & { formatters: formatters }
+        >
+      }) => Promise<bigint> | bigint)
 }
 
 export type ChainFormatters = {

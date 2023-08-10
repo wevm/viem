@@ -86,11 +86,16 @@ export async function prepareRequest<
     typeof block.baseFeePerGas === 'bigint' &&
     typeof gasPrice === 'undefined'
   ) {
-    const defaultPriorityFee =
-      (await chain?.fees?.getDefaultPriorityFee({
-        block,
-        request: request as PrepareRequestParameters,
-      })) || 1_500_000_000n // 1.5 gwei
+    let defaultPriorityFee = 1_500_000_000n // 1.5 gwei
+    if (typeof chain?.fees?.defaultPriorityFee !== 'undefined') {
+      defaultPriorityFee =
+        typeof chain.fees.defaultPriorityFee === 'bigint'
+          ? chain.fees.defaultPriorityFee
+          : await chain.fees.defaultPriorityFee({
+              block,
+              request: request as PrepareRequestParameters,
+            })
+    }
 
     // EIP-1559 fees
     if (typeof maxFeePerGas === 'undefined') {

@@ -446,7 +446,7 @@ describe('prepareRequest', () => {
       chain: {
         ...anvilChain,
         fees: {
-          getDefaultPriorityFee: () => parseGwei('69'),
+          defaultPriorityFee: () => parseGwei('69'),
         },
       },
       transport: http(localHttpUrl),
@@ -465,7 +465,7 @@ describe('prepareRequest', () => {
       chain: {
         ...anvilChain,
         fees: {
-          getDefaultPriorityFee: async () => parseGwei('69'),
+          defaultPriorityFee: async () => parseGwei('69'),
         },
       },
       transport: http(localHttpUrl),
@@ -479,15 +479,18 @@ describe('prepareRequest', () => {
       (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
     )
 
-    // chain override
-    const request_3 = await prepareRequest(walletClient, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
+    // client chain (bigint)
+    const client_3 = createWalletClient({
       chain: {
         ...anvilChain,
         fees: {
-          getDefaultPriorityFee: () => parseGwei('69'),
+          defaultPriorityFee: parseGwei('69'),
         },
       },
+      transport: http(localHttpUrl),
+    })
+    const request_3 = await prepareRequest(client_3, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
     })
@@ -495,19 +498,51 @@ describe('prepareRequest', () => {
       (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
     )
 
-    // chain override (async)
+    // chain override (bigint)
     const request_4 = await prepareRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       chain: {
         ...anvilChain,
         fees: {
-          getDefaultPriorityFee: async () => parseGwei('69'),
+          defaultPriorityFee: () => parseGwei('69'),
         },
       },
       to: targetAccount.address,
       value: parseEther('1'),
     })
     expect(request_4.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // chain override (async)
+    const request_5 = await prepareRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: async () => parseGwei('69'),
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_5.maxFeePerGas).toEqual(
+      (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
+    )
+
+    // chain override (bigint)
+    const request_6 = await prepareRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: parseGwei('69'),
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_6.maxFeePerGas).toEqual(
       (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
     )
   })
