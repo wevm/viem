@@ -351,9 +351,9 @@ const publicClient = createPublicClient({
   transport: webSocket()
 })
 
-const unwatch = publicClient.watchBlocks(
+const unwatch = publicClient.watchEvent(
   { 
-    onBlock: block => console.log(block),
+    onLogs: logs => console.log(logs),
     poll: true, // [!code focus]
   }
 )

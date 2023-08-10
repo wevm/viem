@@ -16,7 +16,7 @@ head:
 
 Watches and returns emitted contract event logs.
 
-This Action will batch up all the event logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onLogs).
+This Action will batch up all the event logs found within the [`pollingInterval`](#pollinginterval-optional), and invoke them via [`onLogs`](#onlogs).
 
 `watchContractEvent` will attempt to create an [Event Filter](/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (ie. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](/docs/actions/public/getLogs) instead.
 
@@ -303,9 +303,10 @@ const publicClient = createPublicClient({
   transport: webSocket()
 })
 
-const unwatch = publicClient.watchBlocks(
+const unwatch = publicClient.watchContractEvent(
   { 
-    onBlock: block => console.log(block),
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    abi: wagmiAbi,
     poll: true, // [!code focus]
   }
 )
