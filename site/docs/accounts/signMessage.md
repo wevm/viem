@@ -24,7 +24,7 @@ With the calculated signature, you can:
 ## Usage
 
 ```ts
-import { privateKeyToAccount } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 

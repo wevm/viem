@@ -21,7 +21,7 @@ Signs typed data and calculates an Ethereum-specific signature in [https://eips.
 ::: code-group
 
 ```ts [example.ts]
-import { privateKeyToAccount } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { domain, types } from './data'
 
 const account = privateKeyToAccount('0x...')

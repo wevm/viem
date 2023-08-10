@@ -12,7 +12,7 @@ import {
 
 import { sign } from './sign.js'
 
-export type SignTransactionArgs<
+export type SignTransactionParameters<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > = {
   privateKey: Hex
@@ -31,7 +31,7 @@ export async function signTransaction<
   privateKey,
   transaction,
   serializer = serializeTransaction,
-}: SignTransactionArgs<TTransactionSerializable>): Promise<
+}: SignTransactionParameters<TTransactionSerializable>): Promise<
   SignTransactionReturnType<TTransactionSerializable>
 > {
   const signature = await sign({
