@@ -19,7 +19,7 @@ viem is a TypeScript interface for Ethereum that provides low-level stateless pr
 
 - **Developer experience** Automatic [type safety and inference](/docs/typescript), comprehensive documentation, composable APIs.
 - **Stability** Test suite runs against forked Ethereum networks, complete [test coverage](https://app.codecov.io/gh/wagmi-dev/viem).
-- **Bundle size** Modular, tree-shakable, [35kB](https://bundlephobia.com/package/viem) bundle.
+- **Bundle size** Tree-shakable lightweight modules.
 - **Performance** Optimized encoding/parsing, async tasks only when necessary, consistently #1 in [benchmarks](/docs/benchmarks).
 
 You can learn more about the rationale behind the project in the [Why viem](/docs/introduction) section.
@@ -62,7 +62,7 @@ const client = createPublicClient({
 In a production app, it is highly recommended to pass through your authenticated RPC provider URL (Alchemy, Infura, Ankr, etc). If no URL is provided, viem will default to a public RPC provider. [Read more](/docs/clients/transports/http.html#usage).
 :::
 
-### 2. Consume Actions!
+### 2. Consume Actions
 
 Now that you have a Client set up, you can now interact with Ethereum and consume [Actions](/docs/actions/public/introduction)!
 
