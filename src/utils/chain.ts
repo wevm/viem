@@ -30,13 +30,13 @@ export function defineChain<
   formatters extends ChainFormatters,
 >(
   chain: chain,
-  config?: ChainConfig<formatters>,
+  config: ChainConfig<formatters> = {},
 ): Assign<chain, ChainConfig<formatters>> {
   const {
     fees = chain.fees,
     formatters = chain.formatters,
     serializers = chain.serializers,
-  } = config || {}
+  } = config
   return {
     ...chain,
     fees,
