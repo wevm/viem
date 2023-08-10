@@ -19,7 +19,8 @@ Signs a transaction with the Account's private key.
 ## Usage
 
 ```ts
-import { privateKeyToAccount, parseGwei } from 'viem'
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
@@ -38,7 +39,8 @@ const signature = await account.signTransaction({
 viem has a built-in serializer for **Legacy**, **EIP-2930** (`0x01`) and **EIP-1559** (`0x02`) transaction types. If you would like to serialize on another transaction type that viem does not support internally, you can pass a custom serializer.
 
 ```ts
-import { privateKeyToAccount, parseGwei } from 'viem'
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 

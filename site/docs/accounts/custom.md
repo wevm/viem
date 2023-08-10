@@ -26,9 +26,14 @@ import { toAccount } from 'viem/accounts'
 
 ```ts
 import { createWalletClient, http } from 'viem'
-import { toAccount } from 'viem/accounts' // [!code focus]
+import {  // [!code focus:7]
+  signMessage, 
+  signTransaction, 
+  signTypedData, 
+  privateKeyToAddress,
+  toAccount 
+} from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { getAddress, signMessage, signTransaction } from './sign-utils' // [!code focus]
 
 const privateKey = '0x...' // [!code focus:13]
 const account = toAccount({

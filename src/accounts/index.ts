@@ -24,12 +24,18 @@ export {
   signMessage,
 } from './utils/signMessage.js'
 export {
+  type SignTransactionParameters,
+  type SignTransactionReturnType,
+  signTransaction,
+} from './utils/signTransaction.js'
+export {
   type SignTypedDataParameters,
   type SignTypedDataReturnType,
   signTypedData,
 } from './utils/signTypedData.js'
 export { parseAccount } from './utils/parseAccount.js'
 export { publicKeyToAddress } from './utils/publicKeyToAddress.js'
+export { privateKeyToAddress } from './utils/privateKeyToAddress.js'
 export { czech } from './wordlists/czech.js'
 export { english } from './wordlists/english.js'
 export { french } from './wordlists/french.js'
