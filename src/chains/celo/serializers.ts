@@ -4,9 +4,9 @@ import { InvalidAddressError } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import { InvalidChainIdError } from '../../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
+import type { ChainSerializers } from '../../types/chain.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Signature } from '../../types/misc.js'
-import type { Serializers } from '../../types/serializer.js'
 import type {
   AccessList,
   TransactionSerializable,
@@ -39,7 +39,7 @@ export const serializeTransactionCelo: SerializeTransactionFn<
 
 export const serializersCelo = {
   transaction: serializeTransactionCelo,
-} as const satisfies Serializers
+} as const satisfies ChainSerializers
 
 //////////////////////////////////////////////////////////////////////////////
 // Types

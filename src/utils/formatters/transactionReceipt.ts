@@ -1,5 +1,7 @@
-import type { Chain } from '../../types/chain.js'
-import type { ExtractFormatterReturnType } from '../../types/formatter.js'
+import type {
+  Chain,
+  ExtractChainFormatterReturnType,
+} from '../../types/chain.js'
 import type { RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import { hexToNumber } from '../encoding/fromHex.js'
@@ -10,7 +12,11 @@ import { transactionType } from './transaction.js'
 
 export type FormattedTransactionReceipt<
   TChain extends Chain | undefined = Chain | undefined,
-> = ExtractFormatterReturnType<TChain, 'transactionReceipt', TransactionReceipt>
+> = ExtractChainFormatterReturnType<
+  TChain,
+  'transactionReceipt',
+  TransactionReceipt
+>
 
 const statuses = {
   '0x0': 'reverted',

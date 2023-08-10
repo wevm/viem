@@ -3,6 +3,7 @@ import type { Abi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
@@ -11,7 +12,7 @@ import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-
+import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import {
   type SendTransactionParameters,
   type SendTransactionReturnType,
@@ -22,14 +23,17 @@ export type WriteContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
   TChain extends Chain | undefined = Chain,
-  TAccount extends Account | undefined = undefined,
-  TChainOverride extends Chain | undefined = undefined,
+  TAccount extends Account | undefined = Account | undefined,
+  TChainOverride extends Chain | undefined = Chain | undefined,
 > = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  UnionOmit<
-    SendTransactionParameters<TChain, TAccount, TChainOverride>,
-    'chain' | 'to' | 'data' | 'value'
-  > &
+  GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride> &
+  UnionOmit<
+    FormattedTransactionRequest<
+      TChainOverride extends Chain ? TChainOverride : TChain
+    >,
+    'from' | 'to' | 'data' | 'value'
+  > &
   GetValue<
     TAbi,
     TFunctionName,
@@ -102,7 +106,7 @@ export async function writeContract<
   TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TChainOverride extends Chain | undefined = undefined,
+  TChainOverride extends Chain | undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   {
