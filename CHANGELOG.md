@@ -1,5 +1,51 @@
 # viem
 
+## 1.6.0
+
+### Minor Changes
+
+- [#984](https://github.com/wagmi-dev/viem/pull/984) [`e1032c7b`](https://github.com/wagmi-dev/viem/commit/e1032c7bd9effb3fb0d57ebf90cdd37c7e1c06c1) Thanks [@holic](https://github.com/holic)! - Added `signTransaction` & `privateKeyToAddress` exports to `viem/accounts` entrypoint.
+
+* [#1006](https://github.com/wagmi-dev/viem/pull/1006) [`7311e201`](https://github.com/wagmi-dev/viem/commit/7311e201d273776d93471f459f55dd598a4f6e52) Thanks [@jxom](https://github.com/jxom)! - Added `fees` to `chain` config that includes a `defaultPriorityFee` for setting a default priority fee (`maxPriorityFeePerGas`) for a chain.
+
+  ```ts
+  import type { Chain } from 'viem'
+
+  export const example = {
+    // ...
+    fees: {
+      defaultPriorityFee: 1_000_000n, // 0.001 gwei
+      // or
+      async defaultPriorityFee() {
+        // ... some async behavior to derive the fee.
+      }
+    },
+    // ...
+  } as const satifies Chain
+  ```
+
+- [#886](https://github.com/wagmi-dev/viem/pull/886) [`fef66bfb`](https://github.com/wagmi-dev/viem/commit/fef66bfbb9d0c9a94f3f607867738432bcbfef85) Thanks [@jxom](https://github.com/jxom)! - Added formatter for Optimism transaction receipts (format `l1GasPrice`, `l1GasUsed`, etc).
+
+* [#886](https://github.com/wagmi-dev/viem/pull/886) [`fef66bfb`](https://github.com/wagmi-dev/viem/commit/fef66bfbb9d0c9a94f3f607867738432bcbfef85) Thanks [@jxom](https://github.com/jxom)! - Added entrypoints for chain utilities (`viem/chains/utils`) with exports for chain-specific chains, formatters, serializers, and types.
+
+  Examples:
+
+  ```ts
+  import {
+    type CeloBlock,
+    type CeloTransaction,
+    type OptimismBlock,
+    type OptimismTransaction,
+    serializeTransactionCelo,
+  } from 'viem/chains/utils'
+  ```
+
+### Patch Changes
+
+- [`99332168`](https://github.com/wagmi-dev/viem/commit/993321689b3e2220976504e7e170fe47731297ce) Thanks [@jxom](https://github.com/jxom)! - Updated `@noble/curves`
+
+* [#1008](https://github.com/wagmi-dev/viem/pull/1008) [`9d93953f`](https://github.com/wagmi-dev/viem/commit/9d93953ffc66d70ccbe7e05862edfeadb1334a9e) Thanks [@holic](https://github.com/holic)! - Added `"already known"` as a node message matcher to `NonceTooLowError`.
+
 ## 1.5.4
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
@@ -116,17 +116,39 @@
   },
   "typesVersions": {
     "*": {
-      "abi": ["./dist/types/abi.d.ts"],
-      "accounts": ["./dist/types/accounts/index.d.ts"],
-      "actions": ["./dist/types/actions/index.d.ts"],
-      "chains": ["./dist/types/chains.d.ts"],
-      "contract": ["./dist/types/contract.d.ts"],
-      "ens": ["./dist/types/ens.d.ts"],
-      "public": ["./dist/types/public.d.ts"],
-      "test": ["./dist/types/test.d.ts"],
-      "utils": ["./dist/types/utils/index.d.ts"],
-      "wallet": ["./dist/types/wallet.d.ts"],
-      "window": ["./dist/types/window.d.ts"]
+      "abi": [
+        "./dist/types/abi.d.ts"
+      ],
+      "accounts": [
+        "./dist/types/accounts/index.d.ts"
+      ],
+      "actions": [
+        "./dist/types/actions/index.d.ts"
+      ],
+      "chains": [
+        "./dist/types/chains.d.ts"
+      ],
+      "contract": [
+        "./dist/types/contract.d.ts"
+      ],
+      "ens": [
+        "./dist/types/ens.d.ts"
+      ],
+      "public": [
+        "./dist/types/public.d.ts"
+      ],
+      "test": [
+        "./dist/types/test.d.ts"
+      ],
+      "utils": [
+        "./dist/types/utils/index.d.ts"
+      ],
+      "wallet": [
+        "./dist/types/wallet.d.ts"
+      ],
+      "window": [
+        "./dist/types/window.d.ts"
+      ]
     }
   },
   "peerDependencies": {
@@ -174,14 +196,23 @@
   },
   "license": "MIT",
   "repository": "wagmi-dev/viem",
-  "authors": ["awkweb.eth", "jxom.eth"],
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wagmi-dev"
     }
   ],
-  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"],
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3"
+  ],
   "size-limit": [
     {
       "name": "viem (cjs)",
@@ -234,7 +265,9 @@
       "viem": "workspace:*"
     },
     "peerDependencyRules": {
-      "ignoreMissing": ["@algolia/client-search"]
+      "ignoreMissing": [
+        "@algolia/client-search"
+      ]
     },
     "patchedDependencies": {
       "vitepress@1.0.0-beta.4": "patches/vitepress@1.0.0-beta.4.patch"
