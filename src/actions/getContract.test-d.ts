@@ -742,14 +742,14 @@ test('argument permutations', async () => {
   expectTypeOf(createEventFilter_1.eventName)
     .toEqualTypeOf<'WithIndexedNamedInputs'>
   expectTypeOf(createEventFilter_1.args).toEqualTypeOf<{
-    readonly x: 'foo'
-    readonly y: null
+    x: 'foo'
+    y: null
   }>()
   const createEventFilter_2 =
     await contract.createEventFilter.WithIndexedUnnamedInputs(['foo'])
   expectTypeOf(createEventFilter_2.eventName)
     .toEqualTypeOf<'WithIndexedUnnamedInputs'>
-  expectTypeOf(createEventFilter_2.args).toEqualTypeOf<readonly ['foo']>()
+  expectTypeOf(createEventFilter_2.args).toEqualTypeOf<['foo']>()
 
   const createEventFilter_loose =
     await contract.createEventFilter.WithMixedNamedInputs({

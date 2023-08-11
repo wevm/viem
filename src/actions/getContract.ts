@@ -8,6 +8,7 @@ import type {
   ExtractAbiEventNames,
   ExtractAbiFunction,
   ExtractAbiFunctionNames,
+  Narrow,
 } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
@@ -872,7 +873,7 @@ type GetEventFilter<
       ...parameters: IsNever<IndexedInputs> extends true
         ? [options?: Options & { strict?: TStrict }]
         : [
-            args: Args | (Args extends TArgs ? TArgs : never),
+            args: Args | (Args extends Narrow<TArgs> ? Narrow<TArgs> : never),
             options?: Options & { strict?: TStrict },
           ]
     ) => Promise<
