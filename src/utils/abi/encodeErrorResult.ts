@@ -1,4 +1,4 @@
-import type { Abi, Narrow } from 'abitype'
+import type { Abi } from 'abitype'
 
 import {
   AbiErrorInputsNotFoundError,
@@ -26,13 +26,13 @@ export type EncodeErrorResultParameters<
 > = {
   errorName?: _ErrorName
 } & (TErrorName extends string
-  ? { abi: Narrow<TAbi> } & GetErrorArgs<TAbi, TErrorName>
+  ? { abi: TAbi } & GetErrorArgs<TAbi, TErrorName>
   : _ErrorName extends string
-  ? { abi: [Narrow<TAbi[number]>] } & GetErrorArgs<TAbi, _ErrorName>
+  ? { abi: [TAbi[number]] } & GetErrorArgs<TAbi, _ErrorName>
   : never)
 
 export function encodeErrorResult<
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TErrorName extends string | undefined = undefined,
 >({ abi, errorName, args }: EncodeErrorResultParameters<TAbi, TErrorName>) {
   let abiItem = abi[0] as AbiItem

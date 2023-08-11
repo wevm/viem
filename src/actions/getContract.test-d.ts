@@ -591,7 +591,7 @@ test('empty abi', () => {
     walletClient,
   })
   expectTypeOf<keyof typeof contract>().toEqualTypeOf<'address' | 'abi'>()
-  expectTypeOf(contract.abi).toEqualTypeOf<[]>()
+  expectTypeOf(contract.abi).toEqualTypeOf<readonly []>()
   expectTypeOf(
     contract.address,
   ).toEqualTypeOf<'0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'>()
@@ -741,12 +741,15 @@ test('argument permutations', async () => {
     })
   expectTypeOf(createEventFilter_1.eventName)
     .toEqualTypeOf<'WithIndexedNamedInputs'>
-  expectTypeOf(createEventFilter_1.args).toEqualTypeOf<{ x: 'foo'; y: null }>()
+  expectTypeOf(createEventFilter_1.args).toEqualTypeOf<{
+    readonly x: 'foo'
+    readonly y: null
+  }>()
   const createEventFilter_2 =
     await contract.createEventFilter.WithIndexedUnnamedInputs(['foo'])
   expectTypeOf(createEventFilter_2.eventName)
     .toEqualTypeOf<'WithIndexedUnnamedInputs'>
-  expectTypeOf(createEventFilter_2.args).toEqualTypeOf<['foo']>()
+  expectTypeOf(createEventFilter_2.args).toEqualTypeOf<readonly ['foo']>()
 
   const createEventFilter_loose =
     await contract.createEventFilter.WithMixedNamedInputs({

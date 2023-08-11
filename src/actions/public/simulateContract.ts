@@ -102,7 +102,7 @@ export type SimulateContractReturnType<
  */
 export async function simulateContract<
   TChain extends Chain | undefined,
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TChainOverride extends Chain | undefined,
 >(

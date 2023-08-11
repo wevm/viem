@@ -121,7 +121,7 @@ export type SignTypedDataReturnType = Hex
  * })
  */
 export async function signTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
+  const TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,

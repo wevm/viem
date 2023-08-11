@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address, Narrow } from 'abitype'
+import type { Abi, AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -107,7 +107,7 @@ export type WatchEventParameters<
     }) &
   (
     | {
-        event: Narrow<TAbiEvent>
+        event: TAbiEvent
         events?: never
         args?: MaybeExtractEventArgsFromAbi<TAbiEvents, _EventName>
         /**
@@ -118,7 +118,7 @@ export type WatchEventParameters<
       }
     | {
         event?: never
-        events?: Narrow<TAbiEvents>
+        events?: TAbiEvents
         args?: never
         /**
          * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -170,8 +170,8 @@ export type WatchEventReturnType = () => void
  */
 export function watchEvent<
   TChain extends Chain | undefined,
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  const TAbiEvent extends AbiEvent | undefined = undefined,
+  const TAbiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
     | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,

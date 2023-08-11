@@ -1,4 +1,4 @@
-import type { Abi, Narrow } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
@@ -24,7 +24,7 @@ export type DeployContractParameters<
   SendTransactionParameters<TChain, TAccount, TChainOverride>,
   'accessList' | 'chain' | 'to' | 'data'
 > & {
-  abi: Narrow<TAbi>
+  abi: TAbi
   bytecode: Hex
 } & GetChain<TChain, TChainOverride> &
   GetConstructorArgs<TAbi>
@@ -59,7 +59,7 @@ export type DeployContractReturnType = SendTransactionReturnType
  * })
  */
 export function deployContract<
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,

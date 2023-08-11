@@ -278,7 +278,7 @@ export type PublicActions<
    * })
    */
   createContractEventFilter: <
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
@@ -406,7 +406,7 @@ export type PublicActions<
    */
   estimateContractGas: <
     TChain extends Chain | undefined,
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
     args: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
@@ -1170,7 +1170,7 @@ export type PublicActions<
    * // 424122n
    */
   readContract: <
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
     args: ReadContractParameters<TAbi, TFunctionName>,
@@ -1206,7 +1206,7 @@ export type PublicActions<
    * })
    */
   simulateContract: <
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
     TChainOverride extends Chain | undefined,
   >(
@@ -1383,7 +1383,7 @@ export type PublicActions<
    * })
    */
   watchContractEvent: <
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TEventName extends string,
     TStrict extends boolean | undefined = undefined,
   >(
