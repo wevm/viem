@@ -865,9 +865,7 @@ type GetEventFilter<
   IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
 > = Narrowable extends true
   ? <
-      const TArgs extends
-        | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
-        | undefined,
+      TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
       TStrict extends boolean | undefined = undefined,
     >(
       ...parameters: IsNever<IndexedInputs> extends true
