@@ -32,10 +32,10 @@ importers:
         version: 8.5.4
       '@wagmi/chains':
         specifier: 1.6.0
-        version: 1.6.0(typescript@5.1.6)
+        version: 1.6.0(typescript@5.0.4)
       abitype:
         specifier: 0.9.3
-        version: 0.9.3(typescript@5.1.6)
+        version: 0.9.3(typescript@5.0.4)
       isomorphic-ws:
         specifier: 5.0.0
         version: 5.0.0(ws@8.12.0)
@@ -72,7 +72,7 @@ importers:
         version: 0.30.1
       '@wagmi/cli':
         specifier: ^0.1.6
-        version: 0.1.6(typescript@5.1.6)
+        version: 0.1.6(typescript@5.0.4)
       bun:
         specifier: ^0.5.9
         version: 0.5.9
@@ -98,8 +98,8 @@ importers:
         specifier: ^8.2.4
         version: 8.2.4
       typescript:
-        specifier: ^5.0.4
-        version: 5.1.6
+        specifier: 5.0.4
+        version: 5.0.4
       vite:
         specifier: ^4.4.2
         version: 4.4.2(@types/node@18.16.3)
@@ -2721,7 +2721,7 @@ packages:
       - vue
     dev: true
 
-  /@wagmi/chains@0.2.7(typescript@5.1.6):
+  /@wagmi/chains@0.2.7(typescript@5.0.4):
     resolution: {integrity: sha512-Oqnkl5n9MTBdMzgIwwdSKEDfm0Vdv2CYBaDyTa5SiTjFNaIfT6MRATLg7KbI3JydfxqJphsVFL+TZZqFvkte/g==}
     peerDependencies:
       typescript: '>=4.9.4'
@@ -2729,10 +2729,10 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.1.6
+      typescript: 5.0.4
     dev: true
 
-  /@wagmi/chains@1.6.0(typescript@5.1.6):
+  /@wagmi/chains@1.6.0(typescript@5.0.4):
     resolution: {integrity: sha512-5FRlVxse5P4ZaHG3GTvxwVANSmYJas1eQrTBHhjxVtqXoorm0aLmCHbhmN8Xo1yu09PaWKlleEvfE98yH4AgIw==}
     peerDependencies:
       typescript: '>=5.0.4'
@@ -2740,10 +2740,10 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.1.6
+      typescript: 5.0.4
     dev: false
 
-  /@wagmi/cli@0.1.6(typescript@5.1.6):
+  /@wagmi/cli@0.1.6(typescript@5.0.4):
     resolution: {integrity: sha512-4ri/QATYDnLNZKVbnulW1Skfu2K5Jc+O0joULoHC6Ag/8Z1QlMEHl9GRXhO+6q68tv382EnVxjIUm6VuzbWpqA==}
     engines: {node: '>=14'}
     hasBin: true
@@ -2760,8 +2760,8 @@ packages:
         optional: true
     dependencies:
       '@ethersproject/address': 5.7.0
-      '@wagmi/chains': 0.2.7(typescript@5.1.6)
-      abitype: 0.3.0(typescript@5.1.6)(zod@3.20.2)
+      '@wagmi/chains': 0.2.7(typescript@5.0.4)
+      abitype: 0.3.0(typescript@5.0.4)(zod@3.20.2)
       abort-controller: 3.0.0
       bundle-require: 3.1.2(esbuild@0.15.13)
       cac: 6.7.14
@@ -2781,7 +2781,7 @@ packages:
       pathe: 1.1.0
       picocolors: 1.0.0
       prettier: 2.8.3
-      typescript: 5.1.6
+      typescript: 5.0.4
       zod: 3.20.2
     dev: true
 
@@ -2899,7 +2899,7 @@ packages:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
     dev: true
 
-  /abitype@0.3.0(typescript@5.1.6)(zod@3.20.2):
+  /abitype@0.3.0(typescript@5.0.4)(zod@3.20.2):
     resolution: {integrity: sha512-0YokyAV4hKMcy97Pl+6QgZBlBdZJN2llslOs7kiFY+cu7kMlVXDBpxMExfv0krzBCQt2t7hNovpQ3y/zvEm18A==}
     engines: {pnpm: '>=7'}
     peerDependencies:
@@ -2909,11 +2909,11 @@ packages:
       zod:
         optional: true
     dependencies:
-      typescript: 5.1.6
+      typescript: 5.0.4
       zod: 3.20.2
     dev: true
 
-  /abitype@0.9.3(typescript@5.1.6):
+  /abitype@0.9.3(typescript@5.0.4):
     resolution: {integrity: sha512-dz4qCQLurx97FQhnb/EIYTk/ldQ+oafEDUqC0VVIeQS1Q48/YWt/9YNfMmp9SLFqN41ktxny3c8aYxHjmFIB/w==}
     peerDependencies:
       typescript: '>=5.0.4'
@@ -2924,7 +2924,7 @@ packages:
       zod:
         optional: true
     dependencies:
-      typescript: 5.1.6
+      typescript: 5.0.4
     dev: false
 
   /abort-controller@3.0.0:
@@ -6653,9 +6653,9 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@5.1.6:
-    resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
-    engines: {node: '>=14.17'}
+  /typescript@5.0.4:
+    resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
+    engines: {node: '>=12.20'}
     hasBin: true
 
   /ufo@1.1.1:
