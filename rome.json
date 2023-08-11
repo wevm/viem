@@ -26,6 +26,9 @@
       "a11y": {
         "useButtonType": "off"
       },
+      "complexity": {
+        "noExtraSemicolon": "off"
+      },
       "correctness": {
         "noUnusedVariables": "error"
       },
