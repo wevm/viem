@@ -123,6 +123,7 @@ describe('poll', () => {
 
       const unwatch = watchEvent(publicClient, {
         onLogs: (logs_) => logs.push(logs_),
+        poll: true,
       })
 
       await wait(1000)
@@ -161,6 +162,7 @@ describe('poll', () => {
     const unwatch = watchEvent(publicClient, {
       batch: false,
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await wait(1000)
@@ -199,10 +201,12 @@ describe('poll', () => {
     const unwatch = watchEvent(publicClient, {
       address: usdcContractConfig.address,
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
     const unwatch2 = watchEvent(publicClient, {
       address: '0x0000000000000000000000000000000000000000',
       onLogs: (logs_) => logs2.push(logs_),
+      poll: true,
     })
 
     await wait(1000)
@@ -228,11 +232,13 @@ describe('poll', () => {
       address: usdcContractConfig.address,
       event: event.transfer,
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
     const unwatch2 = watchEvent(publicClient, {
       address: usdcContractConfig.address,
       event: event.approval,
       onLogs: (logs_) => logs2.push(logs_),
+      poll: true,
     })
 
     await wait(1000)
@@ -267,6 +273,7 @@ describe('poll', () => {
       address: usdcContractConfig.address,
       events: [event.transfer, event.approval],
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await wait(1000)
@@ -315,6 +322,7 @@ describe('poll', () => {
       const unwatch = watchEvent(publicClient, {
         events: [event.transfer, event.approval],
         onLogs: (logs_) => logs.push(logs_),
+        poll: true,
       })
 
       await wait(1000)
@@ -374,6 +382,7 @@ describe('poll', () => {
 
         const unwatch = watchEvent(publicClient, {
           onLogs: (logs_) => logs.push(logs_),
+          poll: true,
         })
 
         await wait(1000)
@@ -427,6 +436,7 @@ describe('poll', () => {
 
         const unwatch = watchEvent(publicClient, {
           onLogs: (logs_) => logs.push(logs_),
+          poll: true,
         })
 
         await wait(1000)
@@ -492,6 +502,7 @@ describe('poll', () => {
         unwatch = watchEvent(publicClient, {
           onLogs: () => null,
           onError: resolve,
+          poll: true,
         })
       })
       expect(error).toMatchInlineSnapshot('[Error: foo]')
@@ -510,6 +521,7 @@ describe('poll', () => {
           unwatch = watchEvent(publicClient, {
             onLogs: () => null,
             onError: resolve,
+            poll: true,
           })
         })
         expect(error).toMatchInlineSnapshot('[Error: bar]')
@@ -525,6 +537,7 @@ describe('poll', () => {
         ...usdcContractConfig,
         onLogs: () => null,
         onError: () => null,
+        poll: true,
         pollingInterval: 200,
       })
 
