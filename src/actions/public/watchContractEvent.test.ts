@@ -74,6 +74,7 @@ describe('poll', () => {
           })
           logs.push(logs_)
         },
+        poll: true,
       })
 
       await writeContract(walletClient, {
@@ -132,6 +133,7 @@ describe('poll', () => {
       ...usdcContractConfig,
       batch: false,
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await writeContract(walletClient, {
@@ -179,6 +181,7 @@ describe('poll', () => {
         })
         logs.push(logs_)
       },
+      poll: true,
     })
 
     await writeContract(walletClient, {
@@ -233,6 +236,7 @@ describe('poll', () => {
         to: accounts[0].address,
       },
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await writeContract(walletClient, {
@@ -281,6 +285,7 @@ describe('poll', () => {
         to: [accounts[0].address, accounts[1].address],
       },
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await writeContract(walletClient, {
@@ -335,6 +340,7 @@ describe('poll', () => {
         from: address.usdcHolder,
       },
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await writeContract(walletClient, {
@@ -399,6 +405,7 @@ describe('poll', () => {
       abi: unnamedAbi,
       eventName: 'Transfer',
       onLogs: (logs_) => logs.push(logs_),
+      poll: true,
     })
 
     await writeContract(walletClient, {
@@ -463,6 +470,7 @@ describe('poll', () => {
         const unwatch = watchContractEvent(publicClient, {
           abi: usdcContractConfig.abi,
           onLogs: (logs_) => logs.push(logs_),
+          poll: true,
         })
 
         await wait(1000)
@@ -518,6 +526,7 @@ describe('poll', () => {
         const unwatch = watchContractEvent(publicClient, {
           abi: usdcContractConfig.abi,
           onLogs: (logs_) => logs.push(logs_),
+          poll: true,
         })
 
         await wait(1000)
@@ -586,6 +595,7 @@ describe('poll', () => {
           ...usdcContractConfig,
           onLogs: () => null,
           onError: resolve,
+          poll: true,
         })
       })
       expect(error).toMatchInlineSnapshot('[Error: foo]')
@@ -605,6 +615,7 @@ describe('poll', () => {
             ...usdcContractConfig,
             onLogs: () => null,
             onError: resolve,
+            poll: true,
           })
         })
         expect(error).toMatchInlineSnapshot('[Error: bar]')
@@ -624,6 +635,7 @@ describe('poll', () => {
         onLogs: () => null,
         onError: () => null,
         pollingInterval: 200,
+        poll: true,
       })
 
       await wait(250)
