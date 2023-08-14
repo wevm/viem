@@ -1,5 +1,11 @@
 # viem
 
+## 1.6.1
+
+### Patch Changes
+
+- [#1011](https://github.com/wagmi-dev/viem/pull/1011) [`582cb017`](https://github.com/wagmi-dev/viem/commit/582cb0170def5c5077dca2f96034eba11f09ec88) Thanks [@dghelm](https://github.com/dghelm)! - Added Scroll Sepolia testnet
+
 ## 1.6.0
 
 ### Minor Changes
