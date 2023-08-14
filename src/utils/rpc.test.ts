@@ -1,8 +1,6 @@
 import WebSocket from 'isomorphic-ws'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { IncomingHttpHeaders } from 'http'
-
 import {
   forkBlockNumber,
   localHttpUrl,
@@ -14,6 +12,7 @@ import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
 import { type RpcResponse, getSocket, rpc } from './rpc.js'
 import { wait } from './wait.js'
+import type { IncomingHttpHeaders } from 'http'
 
 test('rpc', () => {
   expect(rpc).toMatchInlineSnapshot(`
@@ -35,7 +34,7 @@ describe('http', () => {
       {
         "id": 0,
         "jsonrpc": "2.0",
-        "result": "anvil/v0.2.0",
+        "result": "anvil/v0.1.0",
       }
     `)
   })
@@ -49,7 +48,7 @@ describe('http', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v0.2.0",
+        "result": "anvil/v0.1.0",
       }
     `)
   })
@@ -270,12 +269,12 @@ describe('http (batch)', () => {
         {
           "id": 67,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.2.0",
+          "result": "anvil/v0.1.0",
         },
         {
           "id": 68,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.2.0",
+          "result": "anvil/v0.1.0",
         },
       ]
     `)
@@ -294,7 +293,7 @@ describe('http (batch)', () => {
         {
           "id": 69,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.2.0",
+          "result": "anvil/v0.1.0",
         },
         {
           "error": {
@@ -318,7 +317,7 @@ describe('http (batch)', () => {
         {
           "id": 71,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.2.0",
+          "result": "anvil/v0.1.0",
         },
         {
           "error": {
@@ -456,7 +455,7 @@ describe('webSocket', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v0.2.0",
+        "result": "anvil/v0.1.0",
       }
     `)
     expect(socket.requests.size).toBe(0)
@@ -855,7 +854,7 @@ describe('webSocketAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v0.2.0",
+        "result": "anvil/v0.1.0",
       }
     `)
     expect(socket.requests.size).toBe(0)

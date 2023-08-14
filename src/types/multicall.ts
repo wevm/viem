@@ -1,4 +1,4 @@
-import type { Abi, ExtractAbiFunctionNames } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type {
   ContractFunctionConfig,
@@ -7,16 +7,13 @@ import type {
 
 type MAXIMUM_DEPTH = 20
 
-export type MulticallContract<
+export type Contract<
   TAbi extends Abi | readonly unknown[] = Abi | readonly unknown[],
-  TFunctionName extends ExtractAbiFunctionNames<
-    TAbi extends Abi ? TAbi : Abi,
-    'pure' | 'view'
-  > = string,
+  TFunctionName extends string = string,
 > = { abi: TAbi; functionName: TFunctionName }
 
 export type MulticallContracts<
-  TContracts extends readonly MulticallContract[],
+  TContracts extends Contract[],
   TProperties extends Record<string, any> = object,
   Result extends any[] = [],
   Depth extends readonly number[] = [],
@@ -24,14 +21,14 @@ export type MulticallContracts<
   ? (ContractFunctionConfig & TProperties)[]
   : TContracts extends []
   ? []
-  : TContracts extends [infer Head extends MulticallContract]
+  : TContracts extends [infer Head extends Contract]
   ? [
       ...Result,
       ContractFunctionConfig<Head['abi'], Head['functionName']> & TProperties,
     ]
   : TContracts extends [
-      infer Head extends MulticallContract,
-      ...infer Tail extends readonly MulticallContract[],
+      infer Head extends Contract,
+      ...infer Tail extends Contract[],
     ]
   ? MulticallContracts<
       [...Tail],
@@ -68,7 +65,7 @@ export type MulticallResult<
   : Result
 
 export type MulticallResults<
-  TContracts extends readonly MulticallContract[],
+  TContracts extends Contract[],
   TAllowFailure extends boolean = true,
   Result extends any[] = [],
   Depth extends readonly number[] = [],
@@ -76,7 +73,7 @@ export type MulticallResults<
   ? MulticallResult<ContractFunctionResult, TAllowFailure>[]
   : TContracts extends []
   ? []
-  : TContracts extends [infer Head extends MulticallContract]
+  : TContracts extends [infer Head extends Contract]
   ? [
       ...Result,
       MulticallResult<
@@ -85,8 +82,8 @@ export type MulticallResults<
       >,
     ]
   : TContracts extends [
-      infer Head extends MulticallContract,
-      ...infer Tail extends readonly MulticallContract[],
+      infer Head extends Contract,
+      ...infer Tail extends Contract[],
     ]
   ? MulticallResults<
       [...Tail],

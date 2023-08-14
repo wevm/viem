@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address, ExtractAbiEvent } from 'abitype'
+import type { Abi, AbiEvent, Address, ExtractAbiEvent, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -68,7 +68,7 @@ export type WatchContractEventParameters<
   /** The address of the contract. */
   address?: Address | Address[]
   /** Contract ABI. */
-  abi: TAbi
+  abi: Narrow<TAbi>
   args?: GetEventArgs<TAbi, TEventName>
   /** Contract event. */
   eventName?: InferEventName<TAbi, TEventName>
@@ -137,7 +137,7 @@ export type WatchContractEventReturnType = () => void
  */
 export function watchContractEvent<
   TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[],
   TEventName extends string,
   TStrict extends boolean | undefined = undefined,
 >(

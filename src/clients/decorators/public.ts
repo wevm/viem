@@ -278,7 +278,7 @@ export type PublicActions<
    * })
    */
   createContractEventFilter: <
-    const TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[],
     TEventName extends string | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
@@ -325,8 +325,8 @@ export type PublicActions<
    * })
    */
   createEventFilter: <
-    const TAbiEvent extends AbiEvent | undefined = undefined,
-    const TAbiEvents extends
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
       | readonly AbiEvent[]
       | readonly unknown[]
       | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
@@ -406,7 +406,7 @@ export type PublicActions<
    */
   estimateContractGas: <
     TChain extends Chain | undefined,
-    const TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
     args: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
@@ -844,7 +844,7 @@ export type PublicActions<
    */
   getFilterChanges: <
     TFilterType extends FilterType,
-    const TAbi extends Abi | readonly unknown[] | undefined,
+    TAbi extends Abi | readonly unknown[] | undefined,
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -895,7 +895,7 @@ export type PublicActions<
    * const logs = await client.getFilterLogs({ filter })
    */
   getFilterLogs: <
-    const TAbi extends Abi | readonly unknown[] | undefined,
+    TAbi extends Abi | readonly unknown[] | undefined,
     TEventName extends string | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -951,8 +951,8 @@ export type PublicActions<
    * const logs = await client.getLogs()
    */
   getLogs: <
-    const TAbiEvent extends AbiEvent | undefined = undefined,
-    const TAbiEvents extends
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
       | readonly AbiEvent[]
       | readonly unknown[]
       | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
@@ -1133,12 +1133,7 @@ export type PublicActions<
    * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
    */
   multicall: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    const TContracts extends readonly ContractFunctionConfig<
-      TAbi,
-      TFunctionName
-    >[],
+    TContracts extends ContractFunctionConfig[],
     TAllowFailure extends boolean = true,
   >(
     args: MulticallParameters<TContracts, TAllowFailure>,
@@ -1175,7 +1170,7 @@ export type PublicActions<
    * // 424122n
    */
   readContract: <
-    const TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
   >(
     args: ReadContractParameters<TAbi, TFunctionName>,
@@ -1211,7 +1206,7 @@ export type PublicActions<
    * })
    */
   simulateContract: <
-    const TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
     TChainOverride extends Chain | undefined,
   >(
@@ -1388,7 +1383,7 @@ export type PublicActions<
    * })
    */
   watchContractEvent: <
-    const TAbi extends Abi | readonly unknown[],
+    TAbi extends Abi | readonly unknown[],
     TEventName extends string,
     TStrict extends boolean | undefined = undefined,
   >(
@@ -1426,8 +1421,8 @@ export type PublicActions<
    * })
    */
   watchEvent: <
-    const TAbiEvent extends AbiEvent | undefined = undefined,
-    const TAbiEvents extends
+    TAbiEvent extends AbiEvent | undefined = undefined,
+    TAbiEvents extends
       | readonly AbiEvent[]
       | readonly unknown[]
       | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
@@ -1507,7 +1502,7 @@ export function publicActions<
       getTransactionConfirmations(client, args),
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
-    multicall: (args) => multicall(client, args as any) as any,
+    multicall: (args) => multicall(client, args),
     readContract: (args) => readContract(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),

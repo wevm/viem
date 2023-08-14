@@ -34,7 +34,7 @@ export type CustomSource = {
       : Hash
   >
   signTypedData: <
-    const TTypedData extends TypedData | { [key: string]: unknown },
+    TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string = string,
   >(
     typedData: TypedDataDefinition<TTypedData, TPrimaryType>,
