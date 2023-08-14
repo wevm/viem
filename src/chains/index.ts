@@ -94,6 +94,7 @@ export const polygonZkEvmTestnet = /*#__PURE__*/ defineChain(
 )
 export const pulsechain = /*#__PURE__*/ defineChain(chains.pulsechain)
 export const pulsechainV4 = /*#__PURE__*/ defineChain(chains.pulsechainV4)
+export const scrollSepolia = /*#__PURE__*/ defineChain(chains.scrollSepolia)
 export const scrollTestnet = /*#__PURE__*/ defineChain(chains.scrollTestnet)
 export const sepolia = /*#__PURE__*/ defineChain(chains.sepolia)
 export const skaleBlockBrawlers = /*#__PURE__*/ defineChain(
