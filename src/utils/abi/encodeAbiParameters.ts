@@ -2,6 +2,7 @@ import type {
   AbiParameter,
   AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
+  Narrow,
 } from 'abitype'
 
 import {
@@ -26,9 +27,9 @@ export type EncodeAbiParametersReturnType = Hex
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
  */
 export function encodeAbiParameters<
-  const TParams extends readonly AbiParameter[] | readonly unknown[],
+  TParams extends readonly AbiParameter[] | readonly unknown[],
 >(
-  params: TParams,
+  params: Narrow<TParams>,
   values: TParams extends readonly AbiParameter[]
     ? AbiParametersToPrimitiveTypes<TParams>
     : never,
@@ -55,11 +56,11 @@ type PreparedParam = { dynamic: boolean; encoded: Hex }
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
 
-function prepareParams<const TParams extends readonly AbiParameter[]>({
+function prepareParams<TParams extends readonly AbiParameter[]>({
   params,
   values,
 }: {
-  params: TParams
+  params: Narrow<TParams>
   values: AbiParametersToPrimitiveTypes<TParams>
 }) {
   const preparedParams: PreparedParam[] = []
@@ -69,7 +70,7 @@ function prepareParams<const TParams extends readonly AbiParameter[]>({
   return preparedParams
 }
 
-function prepareParam<const TParam extends AbiParameter>({
+function prepareParam<TParam extends AbiParameter>({
   param,
   value,
 }: {
@@ -144,7 +145,7 @@ function encodeAddress(value: Hex): PreparedParam {
   return { dynamic: false, encoded: padHex(value.toLowerCase() as Hex) }
 }
 
-function encodeArray<const TParam extends AbiParameter>(
+function encodeArray<TParam extends AbiParameter>(
   value: AbiParameterToPrimitiveType<TParam>,
   {
     length,
@@ -189,7 +190,7 @@ function encodeArray<const TParam extends AbiParameter>(
   }
 }
 
-function encodeBytes<const TParam extends AbiParameter>(
+function encodeBytes<TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
 ): PreparedParam {
@@ -255,7 +256,7 @@ function encodeString(value: string): PreparedParam {
 }
 
 function encodeTuple<
-  const TParam extends AbiParameter & { components: readonly AbiParameter[] },
+  TParam extends AbiParameter & { components: readonly AbiParameter[] },
 >(
   value: AbiParameterToPrimitiveType<TParam>,
   { param }: { param: TParam },

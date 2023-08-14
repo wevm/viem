@@ -1,4 +1,4 @@
-import type { Abi } from 'abitype'
+import type { Abi, Narrow } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
@@ -22,16 +22,16 @@ export type EncodeFunctionResultParameters<
 > = {
   functionName?: _FunctionName
 } & (TFunctionName extends string
-  ? { abi: TAbi; result?: ContractFunctionResult<TAbi, TFunctionName> }
+  ? { abi: Narrow<TAbi>; result?: ContractFunctionResult<TAbi, TFunctionName> }
   : _FunctionName extends string
   ? {
-      abi: [TAbi[number]]
+      abi: [Narrow<TAbi[number]>]
       result?: ContractFunctionResult<TAbi, _FunctionName>
     }
   : never)
 
 export function encodeFunctionResult<
-  const TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[],
   TFunctionName extends string | undefined = undefined,
 >({
   abi,

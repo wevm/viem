@@ -633,7 +633,6 @@ export type { GetTransportConfig } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
-  MulticallContract,
   MulticallContracts,
   MulticallResult,
   MulticallResults,

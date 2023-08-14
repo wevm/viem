@@ -2,6 +2,7 @@ import type {
   AbiParameterToPrimitiveType,
   AbiType,
   Address,
+  Narrow,
   SolidityAddress,
   SolidityArrayWithoutTuple,
   SolidityBool,
@@ -31,17 +32,18 @@ type PackedAbiType =
   | SolidityString
   | SolidityArrayWithoutTuple
 
-type EncodePackedValues<
-  TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
-> = {
+type EncodePackedValues<TPackedAbiTypes extends PackedAbiType[] | unknown[]> = {
   [K in keyof TPackedAbiTypes]: TPackedAbiTypes[K] extends AbiType
     ? AbiParameterToPrimitiveType<{ type: TPackedAbiTypes[K] }>
     : unknown
 }
 
 export function encodePacked<
-  const TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
->(types: TPackedAbiTypes, values: EncodePackedValues<TPackedAbiTypes>): Hex {
+  TPackedAbiTypes extends PackedAbiType[] | unknown[],
+>(
+  types: Narrow<TPackedAbiTypes>,
+  values: EncodePackedValues<TPackedAbiTypes>,
+): Hex {
   if (types.length !== values.length)
     throw new AbiEncodingLengthMismatchError({
       expectedLength: types.length as number,
@@ -57,7 +59,7 @@ export function encodePacked<
   return concat(data)
 }
 
-function encode<const TPackedAbiType extends PackedAbiType | unknown>(
+function encode<TPackedAbiType extends PackedAbiType | unknown>(
   type: TPackedAbiType,
   value: EncodePackedValues<[TPackedAbiType]>[0],
   isArray = false,

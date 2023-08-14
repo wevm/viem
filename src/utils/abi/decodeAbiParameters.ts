@@ -2,6 +2,7 @@ import type {
   AbiParameter,
   AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
+  Narrow,
 } from 'abitype'
 
 import {
@@ -32,8 +33,8 @@ export type DecodeAbiParametersReturnType<
 >
 
 export function decodeAbiParameters<
-  const TParams extends readonly AbiParameter[] | readonly unknown[],
->(params: TParams, data: Hex): DecodeAbiParametersReturnType<TParams> {
+  TParams extends readonly AbiParameter[] | readonly unknown[],
+>(params: Narrow<TParams>, data: Hex): DecodeAbiParametersReturnType<TParams> {
   if (data === '0x' && (params as unknown[]).length > 0)
     throw new AbiDecodingZeroDataError()
   if (size(data) && size(data) < 32)
@@ -52,7 +53,7 @@ export function decodeAbiParameters<
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 
-function decodeParams<const TParams extends readonly AbiParameter[]>({
+function decodeParams<TParams extends readonly AbiParameter[]>({
   data,
   params,
 }: { data: Hex; params: TParams }) {
@@ -125,7 +126,7 @@ function decodeAddress(value: Hex) {
   return { consumed: 32, value: checksumAddress(slice(value, -20)) }
 }
 
-function decodeArray<const TParam extends AbiParameter>(
+function decodeArray<TParam extends AbiParameter>(
   data: Hex,
   {
     param,
@@ -210,7 +211,7 @@ function decodeBool(value: Hex) {
   return { consumed: 32, value: hexToBool(value) }
 }
 
-function decodeBytes<const TParam extends AbiParameter>(
+function decodeBytes<TParam extends AbiParameter>(
   data: Hex,
   { param, position }: { param: TParam; position: number },
 ) {
@@ -238,7 +239,7 @@ function decodeBytes<const TParam extends AbiParameter>(
   return { consumed: 32, value }
 }
 
-function decodeNumber<const TParam extends AbiParameter>(
+function decodeNumber<TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
 ) {
@@ -267,7 +268,7 @@ function decodeString(data: Hex, { position }: { position: number }) {
 }
 
 function decodeTuple<
-  const TParam extends AbiParameter & { components: readonly AbiParameter[] },
+  TParam extends AbiParameter & { components: readonly AbiParameter[] },
 >(data: Hex, { param, position }: { param: TParam; position: number }) {
   // Tuples can have unnamed components (i.e. they are arrays), so we must
   // determine whether the tuple is named or unnamed. In the case of a named

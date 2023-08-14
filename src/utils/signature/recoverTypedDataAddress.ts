@@ -15,7 +15,7 @@ export type RecoverTypedDataAddressParameters<
 export type RecoverTypedDataAddressReturnType = Address
 
 export async function recoverTypedDataAddress<
-  const TTypedData extends TypedData | { [key: string]: unknown },
+  TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
   domain,
