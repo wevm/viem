@@ -1,4 +1,4 @@
-import type { Abi, AbiParameter, Address } from 'abitype'
+import type { Abi, AbiParameter, Address, Narrow } from 'abitype'
 
 import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
 import { isAddress } from '../address/isAddress.js'
@@ -7,7 +7,7 @@ export type GetAbiItemParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
   TItemName extends string = string,
 > = {
-  abi: TAbi
+  abi: Narrow<TAbi>
   name: InferItemName<TAbi, TItemName>
 } & Partial<GetFunctionArgs<TAbi, TItemName>>
 
@@ -22,7 +22,7 @@ export type GetAbiItemReturnType<
 >
 
 export function getAbiItem<
-  const TAbi extends Abi | readonly unknown[],
+  TAbi extends Abi | readonly unknown[],
   TItemName extends string,
 >({
   abi,

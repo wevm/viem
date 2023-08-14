@@ -11,7 +11,7 @@ import { numberToHex } from './encoding/toHex.js'
 import { bytesRegex, integerRegex } from './regex.js'
 
 export function validateTypedData<
-  const TTypedData extends TypedData | { [key: string]: unknown },
+  TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
   domain,
@@ -63,7 +63,8 @@ export function validateTypedData<
   }
 
   // Validate domain types.
-  if (types.EIP712Domain && domain) validateData(types.EIP712Domain, domain)
+  if (types['EIP712Domain'] && domain)
+    validateData(types['EIP712Domain'], domain)
 
   if (primaryType !== 'EIP712Domain') {
     // Validate message types.

@@ -21,17 +21,17 @@ test('default', async () => {
 
   expectTypeOf(result).toEqualTypeOf<{
     abiItem: {
-      readonly inputs: readonly [
+      inputs: [
         {
-          readonly name: 'foo'
-          readonly type: 'string'
+          name: 'foo'
+          type: 'string'
         },
       ]
-      readonly name: 'FooError'
-      readonly type: 'error'
+      name: 'FooError'
+      type: 'error'
     }
     errorName: 'FooError'
-    args: readonly [string]
+    args: [string]
   }>()
 })
 
@@ -65,31 +65,31 @@ test('multiple', async () => {
   expectTypeOf(result).toEqualTypeOf<
     | {
         abiItem: {
-          readonly inputs: readonly [
+          inputs: [
             {
-              readonly name: 'bar'
-              readonly type: 'uint256'
+              name: 'bar'
+              type: 'uint256'
             },
           ]
-          readonly name: 'BarError'
-          readonly type: 'error'
+          name: 'BarError'
+          type: 'error'
         }
         errorName: 'BarError'
-        args: readonly [bigint]
+        args: [bigint]
       }
     | {
         abiItem: {
-          readonly inputs: readonly [
+          inputs: [
             {
-              readonly name: 'foo'
-              readonly type: 'string'
+              name: 'foo'
+              type: 'string'
             },
           ]
-          readonly name: 'FooError'
-          readonly type: 'error'
+          name: 'FooError'
+          type: 'error'
         }
         errorName: 'FooError'
-        args: readonly [string]
+        args: [string]
       }
   >()
 })

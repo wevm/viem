@@ -1,4 +1,9 @@
-import type { Abi, ExtractAbiError, ExtractAbiErrorNames } from 'abitype'
+import type {
+  Abi,
+  ExtractAbiError,
+  ExtractAbiErrorNames,
+  Narrow,
+} from 'abitype'
 
 import { solidityError, solidityPanic } from '../../constants/solidity.js'
 import {
@@ -15,7 +20,7 @@ import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeErrorResultParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
-> = { abi?: TAbi; data: Hex }
+> = { abi?: Narrow<TAbi>; data: Hex }
 
 export type DecodeErrorResultReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -32,7 +37,7 @@ export type DecodeErrorResultReturnType<
   }
 }[_ErrorNames]
 
-export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>({
+export function decodeErrorResult<TAbi extends Abi | readonly unknown[]>({
   abi,
   data,
 }: DecodeErrorResultParameters<TAbi>): DecodeErrorResultReturnType<TAbi> {

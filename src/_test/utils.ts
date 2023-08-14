@@ -1,9 +1,6 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 
-import { type RequestListener, createServer } from 'http'
-import type { AddressInfo } from 'net'
-
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
@@ -47,6 +44,8 @@ import {
   errorsExampleABI,
   offchainLookupExampleABI,
 } from './generated.js'
+import { type RequestListener, createServer } from 'http'
+import type { AddressInfo } from 'net'
 
 export const anvilChain = {
   ...localhost,
@@ -195,7 +194,7 @@ export function createHttpServer(
   })
 }
 
-export async function deploy<const TAbi extends Abi | readonly unknown[]>(
+export async function deploy<TAbi extends Abi | readonly unknown[],>(
   args: DeployContractParameters<
     TAbi,
     typeof walletClientWithAccount['chain'],
