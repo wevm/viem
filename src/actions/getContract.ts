@@ -8,7 +8,6 @@ import type {
   ExtractAbiEventNames,
   ExtractAbiFunction,
   ExtractAbiFunctionNames,
-  Narrow,
 } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
@@ -72,7 +71,7 @@ export type GetContractParameters<
   TAddress extends Address = Address,
 > = {
   /** Contract ABI */
-  abi: Narrow<TAbi>
+  abi: TAbi
   /** Contract address */
   address: TAddress
   /**
@@ -385,7 +384,7 @@ export type GetContractReturnType<
 export function getContract<
   TTransport extends Transport,
   TAddress extends Address,
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TPublicClient extends PublicClient<TTransport, TChain> | undefined =
@@ -865,13 +864,15 @@ type GetEventFilter<
   IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
 > = Narrowable extends true
   ? <
-      TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
+      const TArgs extends
+        | MaybeExtractEventArgsFromAbi<TAbi, TEventName>
+        | undefined,
       TStrict extends boolean | undefined = undefined,
     >(
       ...parameters: IsNever<IndexedInputs> extends true
         ? [options?: Options & { strict?: TStrict }]
         : [
-            args: Args | (Args extends Narrow<TArgs> ? Narrow<TArgs> : never),
+            args: Args | (Args extends TArgs ? Readonly<TArgs> : never),
             options?: Options & { strict?: TStrict },
           ]
     ) => Promise<

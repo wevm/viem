@@ -23,7 +23,7 @@ export type HashTypedDataParameters<
 export type HashTypedDataReturnType = Hex
 
 export function hashTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
+  const TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
   domain: domain_,

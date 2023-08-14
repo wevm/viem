@@ -138,7 +138,7 @@ export async function getFilterChanges<
   TTransport extends Transport,
   TChain extends Chain | undefined,
   TFilterType extends FilterType,
-  TAbi extends Abi | readonly unknown[] | undefined,
+  const TAbi extends Abi | readonly unknown[] | undefined,
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
   TFromBlock extends BlockNumber | BlockTag | undefined = undefined,

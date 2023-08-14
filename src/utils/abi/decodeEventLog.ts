@@ -1,4 +1,4 @@
-import type { Abi, AbiParameter, ExtractAbiEventNames, Narrow } from 'abitype'
+import type { Abi, AbiParameter, ExtractAbiEventNames } from 'abitype'
 
 import {
   AbiDecodingDataSizeTooSmallError,
@@ -26,7 +26,7 @@ export type DecodeEventLogParameters<
   TData extends Hex | undefined = undefined,
   TStrict extends boolean = true,
 > = {
-  abi: Narrow<TAbi>
+  abi: TAbi
   data?: TData
   eventName?: InferEventName<TAbi, TEventName>
   strict?: TStrict
@@ -61,7 +61,7 @@ export type DecodeEventLogReturnType<
 const docsPath = '/docs/contract/decodeEventLog'
 
 export function decodeEventLog<
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined = undefined,
   TTopics extends Hex[] = Hex[],
   TData extends Hex | undefined = undefined,

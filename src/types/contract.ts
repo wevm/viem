@@ -15,7 +15,6 @@ import type {
   ExtractAbiEventNames,
   ExtractAbiFunction,
   ExtractAbiFunctionNames,
-  Narrow,
 } from 'abitype'
 
 import type { Hex, LogTopic } from './misc.js'
@@ -38,7 +37,7 @@ export type ContractFunctionConfig<
   TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
 > = {
   /** Contract ABI */
-  abi: Narrow<TAbi>
+  abi: TAbi
   /** Contract address */
   address: Address
   /** Function to invoke on the contract */

@@ -1,4 +1,4 @@
-import type { AbiEvent, Address, Narrow } from 'abitype'
+import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -44,7 +44,7 @@ export type CreateEventFilterParameters<
           args:
             | TEventFilterArgs
             | (_Args extends TEventFilterArgs ? _Args : never)
-          event: Narrow<TAbiEvent>
+          event: TAbiEvent
           events?: never
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -54,7 +54,7 @@ export type CreateEventFilterParameters<
         }
       | {
           args?: never
-          event?: Narrow<TAbiEvent>
+          event?: TAbiEvent
           events?: never
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
@@ -65,7 +65,7 @@ export type CreateEventFilterParameters<
       | {
           args?: never
           event?: never
-          events: Narrow<TAbiEvents>
+          events: TAbiEvents
           /**
            * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
            * @default false
@@ -127,8 +127,8 @@ export type CreateEventFilterReturnType<
  */
 export async function createEventFilter<
   TChain extends Chain | undefined,
-  TAbiEvent extends AbiEvent | undefined = undefined,
-  TAbiEvents extends
+  const TAbiEvent extends AbiEvent | undefined = undefined,
+  const TAbiEvents extends
     | readonly AbiEvent[]
     | readonly unknown[]
     | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
