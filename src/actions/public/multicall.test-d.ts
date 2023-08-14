@@ -67,3 +67,47 @@ test('mixed', async () => {
   })
   expectTypeOf(res).toEqualTypeOf<[bigint, unknown, bigint, string]>()
 })
+
+test('dynamic', async () => {
+  const res = await multicall(publicClient, {
+    allowFailure: false,
+    contracts: [
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'balanceOf',
+        args: [address.vitalik],
+      },
+      {
+        ...baycContractConfig,
+        functionName: 'name',
+      },
+    ].map((x) => ({ ...x })),
+  })
+  expectTypeOf(res).toEqualTypeOf<unknown[]>()
+
+  const res2 = await multicall(publicClient, {
+    allowFailure: false,
+    contracts: (
+      [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'name',
+        },
+      ] as const
+    ).map((x) => ({ ...x })),
+  })
+  expectTypeOf(res2).toEqualTypeOf<(string | bigint)[]>()
+})
