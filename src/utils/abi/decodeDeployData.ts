@@ -1,4 +1,4 @@
-import type { Abi, Narrow } from 'abitype'
+import type { Abi } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,
@@ -14,7 +14,7 @@ const docsPath = '/docs/contract/decodeDeployData'
 export type DecodeDeployDataParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
 > = {
-  abi: Narrow<TAbi>
+  abi: TAbi
   bytecode: Hex
   data: Hex
 }
@@ -24,7 +24,7 @@ export type DecodeDeployDataReturnType<
   bytecode: Hex
 } & GetConstructorArgs<TAbi>
 
-export function decodeDeployData<TAbi extends Abi | readonly unknown[]>({
+export function decodeDeployData<const TAbi extends Abi | readonly unknown[]>({
   abi,
   bytecode,
   data,

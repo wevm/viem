@@ -67,7 +67,7 @@ export type GetFilterLogsReturnType<
  */
 export async function getFilterLogs<
   TChain extends Chain | undefined,
-  TAbi extends Abi | readonly unknown[] | undefined,
+  const TAbi extends Abi | readonly unknown[] | undefined,
   TEventName extends string | undefined,
   TStrict extends boolean | undefined = undefined,
   TFromBlock extends BlockNumber | BlockTag | undefined = undefined,

@@ -64,7 +64,7 @@ export type ReadContractReturnType<
  */
 export async function readContract<
   TChain extends Chain | undefined,
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
 >(
   client: Client<Transport, TChain>,

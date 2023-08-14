@@ -1,4 +1,4 @@
-import type { Abi, Address, Narrow } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -28,7 +28,7 @@ export type CreateContractEventFilterParameters<
   TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   address?: Address | Address[]
-  abi: Narrow<TAbi>
+  abi: TAbi
   eventName?: InferEventName<TAbi, TEventName>
   fromBlock?: TFromBlock | BlockNumber | BlockTag
   /**
@@ -87,7 +87,7 @@ export type CreateContractEventFilterReturnType<
  */
 export async function createContractEventFilter<
   TChain extends Chain | undefined,
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined,
   TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
   TStrict extends boolean | undefined = undefined,

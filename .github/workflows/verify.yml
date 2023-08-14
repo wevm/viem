@@ -48,6 +48,9 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      matrix:
+        typescript-version: ['5.0.4', 'latest']
 
     steps:
       - name: Clone repository
@@ -55,6 +58,8 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
 
       - name: Build contracts
         shell: bash

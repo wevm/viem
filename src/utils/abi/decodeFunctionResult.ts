@@ -1,4 +1,4 @@
-import type { Abi, ExtractAbiFunctionNames, Narrow } from 'abitype'
+import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
@@ -25,11 +25,9 @@ export type DecodeFunctionResultParameters<
   functionName?: _FunctionName
   data: Hex
 } & (TFunctionName extends string
-  ? { abi: Narrow<TAbi> } & Partial<GetFunctionArgs<TAbi, TFunctionName>>
+  ? { abi: TAbi } & Partial<GetFunctionArgs<TAbi, TFunctionName>>
   : _FunctionName extends string
-  ? { abi: [Narrow<TAbi[number]>] } & Partial<
-      GetFunctionArgs<TAbi, _FunctionName>
-    >
+  ? { abi: [TAbi[number]] } & Partial<GetFunctionArgs<TAbi, _FunctionName>>
   : never)
 
 export type DecodeFunctionResultReturnType<
@@ -45,7 +43,7 @@ export type DecodeFunctionResultReturnType<
   : ContractFunctionResult<TAbi, _FunctionName>
 
 export function decodeFunctionResult<
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string | undefined = undefined,
 >({
   abi,

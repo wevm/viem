@@ -1,5 +1,4 @@
 import type {
-  Narrow,
   TypedData,
   TypedDataDomain,
   TypedDataToPrimitiveTypes,
@@ -74,8 +73,8 @@ export type GetTypedDataTypes<
   TPrimaryType extends string = string,
 > = TPrimaryType extends 'EIP712Domain'
   ? {
-      types?: Narrow<TTypedData>
+      types?: TTypedData
     }
   : {
-      types: Narrow<TTypedData>
+      types: TTypedData
     }

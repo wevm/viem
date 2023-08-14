@@ -36,7 +36,7 @@ test('with and without `account`', () => {
   })
 })
 
-test('with and without `account`', () => {
+test('with and without `chain`', () => {
   sendTransaction(walletClient, {
     chain: anvilChain as Chain | undefined,
     // ^?
