@@ -182,8 +182,6 @@ describe('formatAbiItem', () => {
           },
         ],
         name: 'VoterEvent',
-        outputs: [],
-        stateMutability: 'nonpayable',
         type: 'event',
       }),
     ).toEqual('VoterEvent((uint256,bool,address,uint256),string[],bytes)')
@@ -223,8 +221,6 @@ describe('formatAbiItem', () => {
             },
           ],
           name: 'VoterEvent',
-          outputs: [],
-          stateMutability: 'nonpayable',
           type: 'event',
         },
         { includeName: true },
@@ -270,8 +266,6 @@ describe('formatAbiItem', () => {
           },
         ],
         name: 'VoterError',
-        outputs: [],
-        stateMutability: 'nonpayable',
         type: 'error',
       }),
     ).toEqual('VoterError((uint256,bool,address,uint256),string[],bytes)')

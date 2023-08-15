@@ -104,7 +104,7 @@ export type WriteContractReturnType = SendTransactionReturnType
 export async function writeContract<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TChainOverride extends Chain | undefined,
 >(

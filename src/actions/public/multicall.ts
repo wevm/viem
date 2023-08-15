@@ -80,8 +80,8 @@ export type MulticallReturnType<
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
-  TChain extends Chain | undefined,
   TContracts extends ContractFunctionConfig[],
+  TChain extends Chain | undefined,
   TAllowFailure extends boolean = true,
 >(
   client: Client<Transport, TChain>,
@@ -92,7 +92,7 @@ export async function multicall<
     batchSize: batchSize_,
     blockNumber,
     blockTag,
-    contracts: contracts_,
+    contracts,
     multicallAddress: multicallAddress_,
   } = args
 
@@ -101,9 +101,6 @@ export async function multicall<
     ((typeof client.batch?.multicall === 'object' &&
       client.batch.multicall.batchSize) ||
       1_024)
-
-  // Fix type cast from `Narrow` in type definition.
-  const contracts = contracts_ as readonly [...MulticallContracts<TContracts>]
 
   let multicallAddress = multicallAddress_
   if (!multicallAddress) {
@@ -129,7 +126,9 @@ export async function multicall<
   let currentChunk = 0
   let currentChunkSize = 0
   for (let i = 0; i < contracts.length; i++) {
-    const { abi, address, args, functionName } = contracts[i]
+    const { abi, address, args, functionName } = contracts[
+      i
+    ] as ContractFunctionConfig
     try {
       const callData = encodeFunctionData({
         abi,
@@ -188,7 +187,9 @@ export async function multicall<
   return results.flat().map(({ returnData, success }, i) => {
     const calls = chunkedCalls.flat()
     const { callData } = calls[i]
-    const { abi, address, functionName, args } = contracts[i]
+    const { abi, address, functionName, args } = contracts[
+      i
+    ] as ContractFunctionConfig
     try {
       if (callData === '0x') throw new AbiDecodingZeroDataError()
       if (!success) throw new RawContractError({ data: returnData })
@@ -196,7 +197,7 @@ export async function multicall<
         abi,
         args,
         data: returnData,
-        functionName: functionName,
+        functionName,
       })
       return allowFailure ? { result, status: 'success' } : result
     } catch (err) {
