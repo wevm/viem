@@ -58,8 +58,7 @@ export function validateTypedData<
   }
 
   // Validate domain types.
-  if (types['EIP712Domain'] && domain)
-    validateData(types['EIP712Domain'], domain)
+  if (types.EIP712Domain && domain) validateData(types.EIP712Domain, domain)
 
   if (primaryType !== 'EIP712Domain') {
     // Validate message types.

@@ -21,7 +21,7 @@ export function poll<TData>(
   const unwatch = () => (active = false)
 
   const watch = async () => {
-    let data: TData | void
+    let data: TData | void = undefined
     if (emitOnBegin) data = await fn({ unpoll: unwatch })
 
     const initialWait = (await initialWaitTime?.(data)) ?? interval

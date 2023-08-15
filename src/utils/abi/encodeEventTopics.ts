@@ -1,9 +1,4 @@
-import type {
-  Abi,
-  AbiParameter,
-  AbiParameterToPrimitiveType,
-  Narrow,
-} from 'abitype'
+import type { Abi, AbiParameter, AbiParameterToPrimitiveType } from 'abitype'
 
 import { AbiEventNotFoundError } from '../../errors/abi.js'
 import { FilterTypeNotSupportedError } from '../../errors/log.js'
@@ -29,13 +24,13 @@ export type EncodeEventTopicsParameters<
 > = {
   eventName?: _EventName
 } & (TEventName extends string
-  ? { abi: Narrow<TAbi>; args?: GetEventArgs<TAbi, TEventName> }
+  ? { abi: TAbi; args?: GetEventArgs<TAbi, TEventName> }
   : _EventName extends string
-  ? { abi: [Narrow<TAbi[number]>]; args?: GetEventArgs<TAbi, _EventName> }
+  ? { abi: [TAbi[number]]; args?: GetEventArgs<TAbi, _EventName> }
   : never)
 
 export function encodeEventTopics<
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TEventName extends string | undefined = undefined,
 >({ abi, eventName, args }: EncodeEventTopicsParameters<TAbi, TEventName>) {
   let abiItem = abi[0] as AbiItem

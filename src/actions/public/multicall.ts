@@ -1,4 +1,4 @@
-import type { Address, Narrow } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -10,6 +10,7 @@ import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
+  MulticallContract,
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
@@ -25,18 +26,18 @@ import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 
 export type MulticallParameters<
-  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
+  TContracts extends readonly MulticallContract[] = readonly MulticallContract[],
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
   /** The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit. @default 1_024 */
   batchSize?: number
-  contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
+  contracts: readonly [...MulticallContracts<TContracts>]
   multicallAddress?: Address
 }
 
 export type MulticallReturnType<
-  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
+  TContracts extends readonly MulticallContract[] = readonly MulticallContract[],
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
 
@@ -80,8 +81,13 @@ export type MulticallReturnType<
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
+  const TAbi extends Abi | readonly unknown[],
+  TFunctionName extends string,
+  const TContracts extends readonly ContractFunctionConfig<
+    TAbi,
+    TFunctionName
+  >[],
   TChain extends Chain | undefined,
-  TContracts extends ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 >(
   client: Client<Transport, TChain>,
@@ -92,7 +98,7 @@ export async function multicall<
     batchSize: batchSize_,
     blockNumber,
     blockTag,
-    contracts: contracts_,
+    contracts,
     multicallAddress: multicallAddress_,
   } = args
 
@@ -101,9 +107,6 @@ export async function multicall<
     ((typeof client.batch?.multicall === 'object' &&
       client.batch.multicall.batchSize) ||
       1_024)
-
-  // Fix type cast from `Narrow` in type definition.
-  const contracts = contracts_ as readonly [...MulticallContracts<TContracts>]
 
   let multicallAddress = multicallAddress_
   if (!multicallAddress) {
@@ -129,7 +132,9 @@ export async function multicall<
   let currentChunk = 0
   let currentChunkSize = 0
   for (let i = 0; i < contracts.length; i++) {
-    const { abi, address, args, functionName } = contracts[i]
+    const { abi, address, args, functionName } = contracts[
+      i
+    ] as ContractFunctionConfig
     try {
       const callData = encodeFunctionData({
         abi,
@@ -188,7 +193,9 @@ export async function multicall<
   return results.flat().map(({ returnData, success }, i) => {
     const calls = chunkedCalls.flat()
     const { callData } = calls[i]
-    const { abi, address, functionName, args } = contracts[i]
+    const { abi, address, functionName, args } = contracts[
+      i
+    ] as ContractFunctionConfig
     try {
       if (callData === '0x') throw new AbiDecodingZeroDataError()
       if (!success) throw new RawContractError({ data: returnData })
@@ -196,7 +203,7 @@ export async function multicall<
         abi,
         args,
         data: returnData,
-        functionName: functionName,
+        functionName,
       })
       return allowFailure ? { result, status: 'success' } : result
     } catch (err) {

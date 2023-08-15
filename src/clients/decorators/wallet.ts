@@ -112,7 +112,7 @@ export type WalletActions<
    * })
    */
   deployContract: <
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TChainOverride extends Chain | undefined,
   >(
     args: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
@@ -410,7 +410,7 @@ export type WalletActions<
    * })
    */
   signTypedData: <
-    TTypedData extends TypedData | { [key: string]: unknown },
+    const TTypedData extends TypedData | { [key: string]: unknown },
     TPrimaryType extends string,
   >(
     args: SignTypedDataParameters<TTypedData, TPrimaryType, TAccount>,
@@ -509,7 +509,7 @@ export type WalletActions<
    * const hash = await client.writeContract(request)
    */
   writeContract: <
-    TAbi extends Abi | readonly unknown[],
+    const TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
     TChainOverride extends Chain | undefined,
   >(
