@@ -83,10 +83,7 @@ export type MulticallReturnType<
 export async function multicall<
   const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  const TContracts extends readonly ContractFunctionConfig<
-    TAbi,
-    TFunctionName
-  >[],
+  const TContracts extends readonly MulticallContract<TAbi, TFunctionName>[],
   TChain extends Chain | undefined,
   TAllowFailure extends boolean = true,
 >(
