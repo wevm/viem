@@ -1,3 +1,4 @@
+import type { Abi, AbiEvent, Address } from 'abitype'
 import { describe, expectTypeOf, test } from 'vitest'
 
 import { usdcContractConfig } from '../../_test/abis.js'
@@ -7,7 +8,6 @@ import type { Hash, Hex } from '../../types/misc.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
 import { getFilterLogs } from './getFilterLogs.js'
-import type { Abi, AbiEvent, Address } from 'abitype'
 
 describe('createEventFilter', () => {
   test('default', async () => {
@@ -354,7 +354,7 @@ describe('createEventFilter', () => {
     const logs = await getFilterLogs(publicClient, {
       filter,
     })
-    expectTypeOf(logs[0]['args']).toEqualTypeOf<{
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: `0x${string}`
       to: `0x${string}`
       value: bigint
@@ -396,7 +396,7 @@ describe('createEventFilter', () => {
     const logs = await getFilterLogs(publicClient, {
       filter,
     })
-    expectTypeOf(logs[0]['args']).toEqualTypeOf<
+    expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint, string, string]
     >()
   })

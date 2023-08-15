@@ -27,7 +27,7 @@ export type SignTypedDataReturnType = Hex
  * @returns The signature.
  */
 export async function signTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
+  const TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
   privateKey,

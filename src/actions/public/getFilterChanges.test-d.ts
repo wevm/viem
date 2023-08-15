@@ -354,7 +354,7 @@ describe('createEventFilter', () => {
     const logs = await getFilterChanges(publicClient, {
       filter,
     })
-    expectTypeOf(logs[0]['args']).toEqualTypeOf<{
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: `0x${string}`
       to: `0x${string}`
       value: bigint
@@ -396,7 +396,7 @@ describe('createEventFilter', () => {
     const logs = await getFilterChanges(publicClient, {
       filter,
     })
-    expectTypeOf(logs[0]['args']).toEqualTypeOf<
+    expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint, string, string]
     >()
   })

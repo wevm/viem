@@ -60,7 +60,7 @@ export type EstimateContractGasReturnType = bigint
  * })
  */
 export async function estimateContractGas<
-  TAbi extends Abi | readonly unknown[],
+  const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
   TChain extends Chain | undefined,
   TAccount extends Account | undefined = undefined,

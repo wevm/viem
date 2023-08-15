@@ -35,7 +35,7 @@ export type VerifyTypedDataReturnType = boolean
  * @returns Whether or not the signature is valid. {@link VerifyTypedDataReturnType}
  */
 export async function verifyTypedData<
-  TTypedData extends TypedData | { [key: string]: unknown },
+  const TTypedData extends TypedData | { [key: string]: unknown },
   TPrimaryType extends string = string,
 >({
   address,
