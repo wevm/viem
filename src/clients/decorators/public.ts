@@ -200,11 +200,11 @@ import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
+  ContractFunctionConfig,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { FilterType } from '../../types/filter.js'
-import type { MulticallContract } from '../../types/multicall.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
@@ -1133,9 +1133,7 @@ export type PublicActions<
    * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
    */
   multicall: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    const TContracts extends readonly MulticallContract<TAbi, TFunctionName>[],
+    TContracts extends ContractFunctionConfig[],
     TAllowFailure extends boolean = true,
   >(
     args: MulticallParameters<TContracts, TAllowFailure>,

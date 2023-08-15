@@ -1,4 +1,4 @@
-import type { Abi, Address, Narrow } from 'abitype'
+import type { Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -10,7 +10,6 @@ import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
-  MulticallContract,
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
@@ -26,7 +25,7 @@ import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 
 export type MulticallParameters<
-  TContracts extends readonly MulticallContract[] = readonly MulticallContract[],
+  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: TAllowFailure
@@ -37,7 +36,7 @@ export type MulticallParameters<
 }
 
 export type MulticallReturnType<
-  TContracts extends readonly MulticallContract[] = readonly MulticallContract[],
+  TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
 
@@ -81,9 +80,7 @@ export type MulticallReturnType<
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  const TContracts extends readonly MulticallContract<TAbi, TFunctionName>[],
+  TContracts extends ContractFunctionConfig[],
   TChain extends Chain | undefined,
   TAllowFailure extends boolean = true,
 >(
@@ -156,7 +153,7 @@ export async function multicall<
       ]
     } catch (err) {
       const error = getContractError(err as BaseError, {
-        abi: abi as Abi,
+        abi,
         address,
         args,
         docsPath: '/docs/contract/multicall',
