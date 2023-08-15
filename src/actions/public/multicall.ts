@@ -1,4 +1,4 @@
-import type { Abi, Address } from 'abitype'
+import type { Abi, Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -32,7 +32,7 @@ export type MulticallParameters<
   allowFailure?: TAllowFailure
   /** The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit. @default 1_024 */
   batchSize?: number
-  contracts: readonly [...MulticallContracts<TContracts>]
+  contracts: Narrow<readonly [...MulticallContracts<TContracts>]>
   multicallAddress?: Address
 }
 
@@ -132,7 +132,9 @@ export async function multicall<
   let currentChunk = 0
   let currentChunkSize = 0
   for (let i = 0; i < contracts.length; i++) {
-    const { abi, address, args, functionName } = contracts[i]
+    const { abi, address, args, functionName } = contracts[
+      i
+    ] as ContractFunctionConfig
     try {
       const callData = encodeFunctionData({
         abi,
@@ -191,20 +193,22 @@ export async function multicall<
   return results.flat().map(({ returnData, success }, i) => {
     const calls = chunkedCalls.flat()
     const { callData } = calls[i]
-    const { abi, address, functionName, args } = contracts[i]
+    const { abi, address, functionName, args } = contracts[
+      i
+    ] as ContractFunctionConfig
     try {
       if (callData === '0x') throw new AbiDecodingZeroDataError()
       if (!success) throw new RawContractError({ data: returnData })
       const result = decodeFunctionResult({
-        abi: abi as Abi,
-        args: args as readonly unknown[],
+        abi,
+        args,
         data: returnData,
-        functionName: functionName as string,
+        functionName,
       })
       return allowFailure ? { result, status: 'success' } : result
     } catch (err) {
       const error = getContractError(err as BaseError, {
-        abi: abi as Abi,
+        abi,
         address,
         args,
         docsPath: '/docs/contract/multicall',
