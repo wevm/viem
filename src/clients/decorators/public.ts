@@ -1133,12 +1133,7 @@ export type PublicActions<
    * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
    */
   multicall: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    const TContracts extends readonly ContractFunctionConfig<
-      TAbi,
-      TFunctionName
-    >[],
+    const TContracts extends readonly ContractFunctionConfig[],
     TAllowFailure extends boolean = true,
   >(
     args: MulticallParameters<TContracts, TAllowFailure>,
@@ -1507,7 +1502,7 @@ export function publicActions<
       getTransactionConfirmations(client, args),
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
-    multicall: (args) => multicall(client, args as any) as any,
+    multicall: (args) => multicall(client, args),
     readContract: (args) => readContract(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),

@@ -43,7 +43,11 @@ export type ContractParameters<
     ? ExtractAbiFunctionNames<abi, stateMutability>
     : string,
   abiFunction extends AbiFunction = abi extends Abi
-    ? ExtractAbiFunction<abi, functionName, stateMutability>
+    ? ExtractAbiFunction<
+        abi,
+        functionName extends functionNames ? functionName : functionNames, // fallback to all function names if `functionName` is invalid
+        stateMutability
+      >
     : AbiFunction,
   types = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs'>,
   args =

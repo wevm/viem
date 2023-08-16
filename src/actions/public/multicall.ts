@@ -1,4 +1,4 @@
-import type { Abi, Address } from 'abitype'
+import type { Address, Narrow } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -13,7 +13,6 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
-  MulticallContract,
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
@@ -29,7 +28,7 @@ import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 
 export type MulticallParameters<
-  contracts extends readonly MulticallContract[] = readonly MulticallContract[],
+  contracts extends readonly ContractParameters[] = readonly ContractParameters[],
   allowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: allowFailure | undefined
@@ -38,12 +37,12 @@ export type MulticallParameters<
    * @default 1_024
    */
   batchSize?: number | undefined
-  contracts: readonly [...MulticallContracts<contracts>]
+  contracts: readonly [...MulticallContracts<Narrow<contracts>>]
   multicallAddress?: Address | undefined
 }
 
 export type MulticallReturnType<
-  contracts extends readonly MulticallContract[] = readonly MulticallContract[],
+  contracts extends readonly ContractParameters[] = readonly ContractParameters[],
   allowFailure extends boolean = true,
 > = MulticallResults<contracts, allowFailure>
 
@@ -87,13 +86,7 @@ export type MulticallReturnType<
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
-  const abi extends Abi | readonly unknown[],
-  functionName extends string,
-  const contracts extends readonly ContractParameters<
-    abi,
-    'pure' | 'view',
-    functionName
-  >[],
+  const contracts extends readonly ContractParameters[],
   chain extends Chain | undefined,
   allowFailure extends boolean = true,
 >(
