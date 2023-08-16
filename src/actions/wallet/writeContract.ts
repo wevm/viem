@@ -1,11 +1,11 @@
-import type { Abi, ExtractAbiFunctionNames } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
-import type { ContractParameters, GetValue } from '../../types/contract.js'
+import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -21,14 +21,11 @@ import {
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ExtractAbiFunctionNames<
-    abi extends Abi ? abi : Abi,
-    'payable' | 'nonpayable'
-  > = string,
+  functionName extends string = string,
   chain extends Chain | undefined = Chain,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-> = ContractParameters<abi, 'payable' | 'nonpayable', functionName> &
+> = ContractFunctionConfig<abi, functionName, 'payable' | 'nonpayable'> &
   UnionOmit<
     FormattedTransactionRequest<
       chainOverride extends Chain ? chainOverride : chain

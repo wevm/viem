@@ -1,12 +1,12 @@
-import type { Abi, ExtractAbiFunctionNames } from 'abitype'
+import type { Abi } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type {
+  ContractFunctionConfig,
   ContractFunctionResult,
-  ContractParameters,
 } from '../../types/contract.js'
 import {
   type DecodeFunctionResultParameters,
@@ -22,12 +22,9 @@ import { type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ExtractAbiFunctionNames<
-    abi extends Abi ? abi : Abi,
-    'view' | 'pure'
-  > = string,
+  functionName extends string = string,
 > = Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'> &
-  ContractParameters<abi, 'view' | 'pure', functionName>
+  ContractFunctionConfig<abi, functionName, 'view' | 'pure'>
 
 export type ReadContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
