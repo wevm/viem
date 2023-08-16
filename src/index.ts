@@ -514,6 +514,8 @@ export { SizeExceedsPaddingSizeError } from './errors/data.js'
 export { UrlRequiredError } from './errors/transport.js'
 export type {
   AbiItem,
+  ContractParameters,
+  ContractReturnType,
   ContractFunctionConfig,
   ContractFunctionResult,
   GetConstructorArgs,

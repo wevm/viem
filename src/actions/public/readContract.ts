@@ -1,12 +1,12 @@
-import type { Abi } from 'abitype'
+import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
   ContractFunctionResult,
+  ContractParameters,
 } from '../../types/contract.js'
 import {
   type DecodeFunctionResultParameters,
@@ -21,10 +21,13 @@ import { getContractError } from '../../utils/errors/getContractError.js'
 import { type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ExtractAbiFunctionNames<
+    abi extends Abi ? abi : Abi,
+    'view' | 'pure'
+  > = string,
 > = Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'> &
-  ContractFunctionConfig<TAbi, TFunctionName, 'view' | 'pure'>
+  ContractParameters<abi, 'view' | 'pure', functionName>
 
 export type ReadContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -63,24 +66,19 @@ export type ReadContractReturnType<
  * // 424122n
  */
 export async function readContract<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[],
+  functionName extends string,
 >(
-  client: Client<Transport, TChain>,
-  {
-    abi,
-    address,
-    args,
-    functionName,
-    ...callRequest
-  }: ReadContractParameters<TAbi, TFunctionName>,
-): Promise<ReadContractReturnType<TAbi, TFunctionName>> {
+  client: Client<Transport, chain>,
+  parameters: ReadContractParameters<abi, functionName>,
+): Promise<ReadContractReturnType<abi, functionName>> {
+  const { abi, address, args, functionName, ...callRequest } = parameters
   const calldata = encodeFunctionData({
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
+  } as unknown as EncodeFunctionDataParameters<abi, functionName>)
   try {
     const { data } = await call(client, {
       data: calldata,
@@ -93,9 +91,9 @@ export async function readContract<
       functionName,
       data: data || '0x',
     } as DecodeFunctionResultParameters<
-      TAbi,
-      TFunctionName
-    >) as ReadContractReturnType<TAbi, TFunctionName>
+      abi,
+      functionName
+    >) as ReadContractReturnType<abi, functionName>
   } catch (err) {
     throw getContractError(err as BaseError, {
       abi: abi as Abi,

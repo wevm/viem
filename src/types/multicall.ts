@@ -1,108 +1,114 @@
-import type { Abi, ExtractAbiFunctionNames } from 'abitype'
+import type { Abi, AbiStateMutability, ExtractAbiFunctionNames } from 'abitype'
 
-import type {
-  ContractFunctionConfig,
-  ContractFunctionResult,
-} from './contract.js'
+import type { ContractParameters, ContractReturnType } from './contract.js'
 
+// Avoid TS depth-limit error in case of large array literal
 type MAXIMUM_DEPTH = 20
 
 export type MulticallContract<
-  TAbi extends Abi | readonly unknown[] = Abi | readonly unknown[],
-  TFunctionName extends ExtractAbiFunctionNames<
-    TAbi extends Abi ? TAbi : Abi,
-    'pure' | 'view'
+  abi extends Abi | readonly unknown[] = Abi | readonly unknown[],
+  stateMutability extends AbiStateMutability = AbiStateMutability,
+  functionName extends ExtractAbiFunctionNames<
+    abi extends Abi ? abi : Abi,
+    stateMutability
   > = string,
-> = { abi: TAbi; functionName: TFunctionName }
+> = { abi: abi; functionName: functionName }
 
 export type MulticallContracts<
-  TContracts extends readonly MulticallContract[],
-  TProperties extends Record<string, any> = object,
-  Result extends any[] = [],
-  Depth extends readonly number[] = [],
-> = Depth['length'] extends MAXIMUM_DEPTH
-  ? (ContractFunctionConfig & TProperties)[]
-  : TContracts extends []
+  contracts extends readonly MulticallContract[],
+  properties extends Record<string, any> = object,
+  ///
+  result extends any[] = [],
+  depth extends readonly number[] = [],
+> = depth['length'] extends MAXIMUM_DEPTH
+  ? (ContractParameters & properties)[]
+  : contracts extends []
   ? []
-  : TContracts extends [infer Head extends MulticallContract]
+  : contracts extends [infer head extends MulticallContract]
   ? [
-      ...Result,
-      ContractFunctionConfig<Head['abi'], Head['functionName']> & TProperties,
+      ...result,
+      ContractParameters<head['abi'], 'pure' | 'view', head['functionName']> &
+        properties,
     ]
-  : TContracts extends [
-      infer Head extends MulticallContract,
-      ...infer Tail extends readonly MulticallContract[],
+  : contracts extends [
+      infer head extends MulticallContract,
+      ...infer tail extends readonly MulticallContract[],
     ]
   ? MulticallContracts<
-      [...Tail],
-      TProperties,
+      [...tail],
+      properties,
       [
-        ...Result,
-        ContractFunctionConfig<Head['abi'], Head['functionName']> & TProperties,
+        ...result,
+        ContractParameters<head['abi'], 'pure' | 'view', head['functionName']> &
+          properties,
       ],
-      [...Depth, 1]
+      [...depth, 1]
     >
-  : unknown[] extends TContracts
-  ? TContracts
-  : // If `TContracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
+  : unknown[] extends contracts
+  ? contracts
+  : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
   // use this to infer the param types in the case of Array.map() argument
-  TContracts extends ContractFunctionConfig<infer TAbi, infer TFunctionName>[]
-  ? (ContractFunctionConfig<TAbi, TFunctionName> & TProperties)[]
-  : (ContractFunctionConfig & TProperties)[]
-
-export type MulticallResult<
-  Result,
-  TAllowFailure extends boolean = true,
-> = TAllowFailure extends true
-  ?
-      | {
-          error?: undefined
-          result: Result
-          status: 'success'
-        }
-      | {
-          error: Error
-          result?: undefined
-          status: 'failure'
-        }
-  : Result
+  contracts extends ContractParameters<infer abi, infer _, infer functionName>[]
+  ? (ContractParameters<abi, 'pure' | 'view', functionName> & properties)[]
+  : // Fallback
+    (ContractParameters & properties)[]
 
 export type MulticallResults<
-  TContracts extends readonly MulticallContract[],
-  TAllowFailure extends boolean = true,
-  Result extends any[] = [],
-  Depth extends readonly number[] = [],
-> = Depth['length'] extends MAXIMUM_DEPTH
-  ? MulticallResult<ContractFunctionResult, TAllowFailure>[]
-  : TContracts extends []
+  contracts extends readonly MulticallContract[],
+  allowFailure extends boolean = true,
+  ///
+  result extends any[] = [],
+  depth extends readonly number[] = [],
+> = depth['length'] extends MAXIMUM_DEPTH
+  ? MulticallResult<ContractReturnType, allowFailure>[]
+  : contracts extends []
   ? []
-  : TContracts extends [infer Head extends MulticallContract]
+  : contracts extends [infer head extends MulticallContract]
   ? [
-      ...Result,
+      ...result,
       MulticallResult<
-        ContractFunctionResult<Head['abi'], Head['functionName']>,
-        TAllowFailure
+        ContractReturnType<head['abi'], 'pure' | 'view', head['functionName']>,
+        allowFailure
       >,
     ]
-  : TContracts extends [
-      infer Head extends MulticallContract,
-      ...infer Tail extends readonly MulticallContract[],
+  : contracts extends [
+      infer head extends MulticallContract,
+      ...infer tail extends readonly MulticallContract[],
     ]
   ? MulticallResults<
-      [...Tail],
-      TAllowFailure,
+      [...tail],
+      allowFailure,
       [
-        ...Result,
+        ...result,
         MulticallResult<
-          ContractFunctionResult<Head['abi'], Head['functionName']>,
-          TAllowFailure
+          ContractReturnType<
+            head['abi'],
+            'pure' | 'view',
+            head['functionName']
+          >,
+          allowFailure
         >,
       ],
-      [...Depth, 1]
+      [...depth, 1]
     >
-  : TContracts extends ContractFunctionConfig<infer TAbi, infer TFunctionName>[]
-  ? MulticallResult<
-      ContractFunctionResult<TAbi, TFunctionName>,
-      TAllowFailure
+  : contracts extends ContractParameters<
+      infer abi,
+      infer _,
+      infer functionName
     >[]
-  : MulticallResult<ContractFunctionResult, TAllowFailure>[]
+  ? // Dynamic-size (homogenous) UseQueryOptions array: map directly to array of results
+    MulticallResult<
+      ContractReturnType<abi, 'pure' | 'view', functionName>,
+      allowFailure
+    >[]
+  : // Fallback
+    MulticallResult<ContractReturnType, allowFailure>[]
+
+export type MulticallResult<
+  result,
+  allowFailure extends boolean = true,
+> = allowFailure extends true
+  ?
+      | { error?: undefined; result: result; status: 'success' }
+      | { error: Error; result?: undefined; status: 'failure' }
+  : result

@@ -1,11 +1,11 @@
-import type { Abi } from 'abitype'
+import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
-import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
+import type { ContractParameters, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -20,29 +20,32 @@ import {
 } from './sendTransaction.js'
 
 export type WriteContractParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-  TChain extends Chain | undefined = Chain,
-  TAccount extends Account | undefined = Account | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
-> = ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
-  GetAccountParameter<TAccount> &
-  GetChain<TChain, TChainOverride> &
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ExtractAbiFunctionNames<
+    abi extends Abi ? abi : Abi,
+    'payable' | 'nonpayable'
+  > = string,
+  chain extends Chain | undefined = Chain,
+  account extends Account | undefined = Account | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
+> = ContractParameters<abi, 'payable' | 'nonpayable', functionName> &
   UnionOmit<
     FormattedTransactionRequest<
-      TChainOverride extends Chain ? TChainOverride : TChain
+      chainOverride extends Chain ? chainOverride : chain
     >,
-    'from' | 'to' | 'data' | 'value'
+    'data' | 'from' | 'to' | 'value'
   > &
+  GetAccountParameter<account> &
+  GetChain<chain, chainOverride> &
   GetValue<
-    TAbi,
-    TFunctionName,
+    abi,
+    functionName,
     SendTransactionParameters<
-      TChain,
-      TAccount,
-      TChainOverride
+      chain,
+      account,
+      chainOverride
     > extends SendTransactionParameters
-      ? SendTransactionParameters<TChain, TAccount, TChainOverride>['value']
+      ? SendTransactionParameters<chain, account, chainOverride>['value']
       : SendTransactionParameters['value']
   > & {
     /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
@@ -102,37 +105,32 @@ export type WriteContractReturnType = SendTransactionReturnType
  * const hash = await writeContract(client, request)
  */
 export async function writeContract<
-  TChain extends Chain | undefined,
-  TAccount extends Account | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  TChainOverride extends Chain | undefined,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  const abi extends Abi | readonly unknown[],
+  functionName extends string,
+  chainOverride extends Chain | undefined,
 >(
-  client: Client<Transport, TChain, TAccount>,
-  {
+  client: Client<Transport, chain, account>,
+  parameters: WriteContractParameters<
     abi,
-    address,
-    args,
-    dataSuffix,
     functionName,
-    ...request
-  }: WriteContractParameters<
-    TAbi,
-    TFunctionName,
-    TChain,
-    TAccount,
-    TChainOverride
+    chain,
+    account,
+    chainOverride
   >,
 ): Promise<WriteContractReturnType> {
+  const { abi, address, args, dataSuffix, functionName, ...request } =
+    parameters
   const data = encodeFunctionData({
     abi,
     args,
     functionName,
-  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
+  } as unknown as EncodeFunctionDataParameters<abi, functionName>)
   const hash = await sendTransaction(client, {
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,
-  } as unknown as SendTransactionParameters<TChain, TAccount, TChainOverride>)
+  } as unknown as SendTransactionParameters<chain, account, chainOverride>)
   return hash
 }

@@ -7,7 +7,10 @@ import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import type { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
-import type { ContractFunctionConfig } from '../../types/contract.js'
+import type {
+  ContractFunctionConfig,
+  ContractParameters,
+} from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
   MulticallContract,
@@ -26,20 +29,23 @@ import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 
 export type MulticallParameters<
-  TContracts extends readonly MulticallContract[] = readonly MulticallContract[],
-  TAllowFailure extends boolean = true,
+  contracts extends readonly MulticallContract[] = readonly MulticallContract[],
+  allowFailure extends boolean = true,
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
-  allowFailure?: TAllowFailure
-  /** The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit. @default 1_024 */
-  batchSize?: number
-  contracts: readonly [...MulticallContracts<TContracts>]
-  multicallAddress?: Address
+  allowFailure?: allowFailure | undefined
+  /**
+   * The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit.
+   * @default 1_024
+   */
+  batchSize?: number | undefined
+  contracts: readonly [...MulticallContracts<contracts>]
+  multicallAddress?: Address | undefined
 }
 
 export type MulticallReturnType<
-  TContracts extends readonly MulticallContract[] = readonly MulticallContract[],
-  TAllowFailure extends boolean = true,
-> = MulticallResults<TContracts, TAllowFailure>
+  contracts extends readonly MulticallContract[] = readonly MulticallContract[],
+  allowFailure extends boolean = true,
+> = MulticallResults<contracts, allowFailure>
 
 /**
  * Similar to [`readContract`](https://viem.sh/docs/contract/readContract.html), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
@@ -81,18 +87,19 @@ export type MulticallReturnType<
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  const TContracts extends readonly ContractFunctionConfig<
-    TAbi,
-    TFunctionName
+  const abi extends Abi | readonly unknown[],
+  functionName extends string,
+  const contracts extends readonly ContractParameters<
+    abi,
+    'pure' | 'view',
+    functionName
   >[],
-  TChain extends Chain | undefined,
-  TAllowFailure extends boolean = true,
+  chain extends Chain | undefined,
+  allowFailure extends boolean = true,
 >(
-  client: Client<Transport, TChain>,
-  args: MulticallParameters<TContracts, TAllowFailure>,
-): Promise<MulticallReturnType<TContracts, TAllowFailure>> {
+  client: Client<Transport, chain>,
+  parameters: MulticallParameters<contracts, allowFailure>,
+): Promise<MulticallReturnType<contracts, allowFailure>> {
   const {
     allowFailure = true,
     batchSize: batchSize_,
@@ -100,7 +107,7 @@ export async function multicall<
     blockTag,
     contracts,
     multicallAddress: multicallAddress_,
-  } = args
+  } = parameters
 
   const batchSize =
     batchSize_ ??
@@ -217,5 +224,5 @@ export async function multicall<
       if (!allowFailure) throw error
       return { error, result: undefined, status: 'failure' }
     }
-  }) as MulticallResults<TContracts, TAllowFailure>
+  }) as MulticallResults<contracts, allowFailure>
 }
