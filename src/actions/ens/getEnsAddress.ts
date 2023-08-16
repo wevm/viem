@@ -16,6 +16,7 @@ import { toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
+import { pad } from '../../utils/index.js'
 import {
   type ReadContractParameters,
   readContract,
@@ -117,7 +118,7 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
 
     if (address === '0x') return null
     if (trim(address) === '0x00') return null
-    return address
+    return pad(address, { size: 20 })
   } catch (err) {
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
