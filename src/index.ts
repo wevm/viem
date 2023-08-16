@@ -7,6 +7,7 @@ export {
   type AbiParameterToPrimitiveType,
   type Address,
   type ExtractAbiFunction,
+  type ExtractAbiFunctionNames,
   type Narrow,
   type ParseAbi,
   type ParseAbiItem,
