@@ -1,5 +1,13 @@
 # viem
 
+## 1.6.2
+
+### Patch Changes
+
+- [#1028](https://github.com/wagmi-dev/viem/pull/1028) [`b8fa9b4e`](https://github.com/wagmi-dev/viem/commit/b8fa9b4e553b8a1568a19bf995af3d496f126245) Thanks [@tmm](https://github.com/tmm)! - Fixed TypeScript 5.1.6 support
+
+* [`1a30f344`](https://github.com/wagmi-dev/viem/commit/1a30f344fe061a5d6b8314d8ee9b17856bc711e4) Thanks [@jxom](https://github.com/jxom)! - Fixed number constants.
+
 ## 1.6.1
 
 ### Patch Changes
