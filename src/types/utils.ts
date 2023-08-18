@@ -242,3 +242,36 @@ export type Trim<T, Chars extends string = ' '> = TrimLeft<
  * => string | number
  */
 export type ValueOf<T> = T[keyof T]
+
+export type UnionToTuple<
+  union,
+  ///
+  last = LastInUnion<union>,
+> = [union] extends [never] ? [] : [...UnionToTuple<Exclude<union, last>>, last]
+type LastInUnion<U> = UnionToIntersection<
+  U extends unknown ? (x: U) => 0 : never
+> extends (x: infer l) => 0
+  ? l
+  : never
+type UnionToIntersection<union> = (
+  union extends unknown
+    ? (arg: union) => 0
+    : never
+) extends (arg: infer i) => 0
+  ? i
+  : never
+
+export type IsUnion<
+  union,
+  ///
+  union2 = union,
+> = union extends union2 ? ([union2] extends [union] ? false : true) : never
+
+export type MaybePartial<
+  type,
+  enabled extends boolean | undefined,
+> = enabled extends true ? ExactPartial<type> : type
+
+export type ExactPartial<type> = {
+  [key in keyof type]?: type[key] | undefined
+}

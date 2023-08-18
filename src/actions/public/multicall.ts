@@ -7,20 +7,14 @@ import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import type { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
-import type {
-  ContractFunctionConfig,
-  ContractParameters,
-} from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
+  MulticallContract,
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import {
-  type EncodeFunctionDataParameters,
-  encodeFunctionData,
-} from '../../utils/abi/encodeFunctionData.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 
@@ -28,23 +22,33 @@ import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 
 export type MulticallParameters<
-  contracts extends readonly ContractParameters[] = readonly ContractParameters[],
+  contracts extends readonly unknown[] = readonly MulticallContract[],
   allowFailure extends boolean = true,
+  options extends {
+    optional?: boolean
+    properties?: Record<string, any>
+  } = {},
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
   allowFailure?: allowFailure | undefined
-  /**
-   * The maximum size (in bytes) for each calldata chunk. Set to `0` to disable the size limit.
-   * @default 1_024
-   */
   batchSize?: number | undefined
-  contracts: readonly [...MulticallContracts<Narrow<contracts>>]
+  contracts: MulticallContracts<
+    Narrow<contracts>,
+    { mutability: 'pure' | 'view' } & options
+  >
   multicallAddress?: Address | undefined
 }
 
 export type MulticallReturnType<
-  contracts extends readonly ContractParameters[] = readonly ContractParameters[],
+  contracts extends readonly unknown[] = readonly MulticallContract[],
   allowFailure extends boolean = true,
-> = MulticallResults<contracts, allowFailure>
+  options extends {
+    error?: Error
+  } = { error: Error },
+> = MulticallResults<
+  contracts,
+  allowFailure,
+  { mutability: 'pure' | 'view' } & options
+>
 
 /**
  * Similar to [`readContract`](https://viem.sh/docs/contract/readContract.html), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
@@ -86,7 +90,7 @@ export type MulticallReturnType<
  * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
  */
 export async function multicall<
-  const contracts extends readonly ContractParameters[],
+  const contracts extends readonly unknown[],
   chain extends Chain | undefined,
   allowFailure extends boolean = true,
 >(
@@ -98,9 +102,9 @@ export async function multicall<
     batchSize: batchSize_,
     blockNumber,
     blockTag,
-    contracts,
     multicallAddress: multicallAddress_,
   } = parameters
+  const contracts = parameters.contracts as MulticallContract[]
 
   const batchSize =
     batchSize_ ??
@@ -132,16 +136,9 @@ export async function multicall<
   let currentChunk = 0
   let currentChunkSize = 0
   for (let i = 0; i < contracts.length; i++) {
-    const { abi, address, args, functionName } = contracts[
-      i
-    ] as ContractFunctionConfig
+    const { abi, address, args, functionName } = contracts[i]
     try {
-      const callData = encodeFunctionData({
-        abi,
-        args,
-        functionName,
-      } as unknown as EncodeFunctionDataParameters)
-
+      const callData = encodeFunctionData({ abi, args, functionName })
       currentChunkSize += callData.length
       if (batchSize > 0 && currentChunkSize > batchSize) {
         currentChunk++
@@ -193,9 +190,7 @@ export async function multicall<
   return results.flat().map(({ returnData, success }, i) => {
     const calls = chunkedCalls.flat()
     const { callData } = calls[i]
-    const { abi, address, functionName, args } = contracts[
-      i
-    ] as ContractFunctionConfig
+    const { abi, address, functionName, args } = contracts[i]
     try {
       if (callData === '0x') throw new AbiDecodingZeroDataError()
       if (!success) throw new RawContractError({ data: returnData })

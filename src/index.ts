@@ -638,7 +638,7 @@ export type { Log } from './types/log.js'
 export type {
   MulticallContract,
   MulticallContracts,
-  MulticallResult,
+  MulticallResponse,
   MulticallResults,
 } from './types/multicall.js'
 export type { ParseAccount } from './types/account.js'

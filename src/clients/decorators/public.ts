@@ -200,7 +200,6 @@ import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
@@ -1133,11 +1132,11 @@ export type PublicActions<
    * // [{ result: 424122n, status: 'success' }, { result: 1000000n, status: 'success' }]
    */
   multicall: <
-    const TContracts extends readonly ContractFunctionConfig[],
-    TAllowFailure extends boolean = true,
+    const contracts extends readonly unknown[],
+    allowFailure extends boolean = true,
   >(
-    args: MulticallParameters<TContracts, TAllowFailure>,
-  ) => Promise<MulticallReturnType<TContracts, TAllowFailure>>
+    args: MulticallParameters<contracts, allowFailure>,
+  ) => Promise<MulticallReturnType<contracts, allowFailure>>
   /**
    * Calls a read-only function on a contract, and returns the response.
    *

@@ -141,27 +141,26 @@ test('args: multicallAddress', async () => {
 describe('errors', async () => {
   describe('allowFailure is truthy', async () => {
     test('function not found', async () => {
-      expect(
-        await multicall(publicClient, {
-          blockNumber: forkBlockNumber,
-          contracts: [
-            {
-              ...usdcContractConfig,
-              // @ts-expect-error
-              functionName: 'lol',
-            },
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'totalSupply',
-            },
-          ],
-        }),
-      ).toMatchInlineSnapshot(`
+      const res = await multicall(publicClient, {
+        blockNumber: forkBlockNumber,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            // @ts-expect-error
+            functionName: 'lol',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      })
+      expect(res).toMatchInlineSnapshot(`
         [
           {
             "error": [ContractFunctionExecutionError: The contract function "lol" returned no data ("0x").
@@ -192,28 +191,27 @@ describe('errors', async () => {
     })
 
     test('invalid params', async () => {
-      expect(
-        await multicall(publicClient, {
-          blockNumber: forkBlockNumber,
-          // @ts-expect-error
-          contracts: [
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik, 1n],
-            },
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'totalSupply',
-            },
-          ] as const,
-        }),
-      ).toMatchInlineSnapshot(`
+      const res = await multicall(publicClient, {
+        blockNumber: forkBlockNumber,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            // @ts-expect-error invalid args
+            args: [address.vitalik, 1n],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      })
+      expect(res).toMatchInlineSnapshot(`
         [
           {
             "error": [ContractFunctionExecutionError: The contract function "balanceOf" returned no data ("0x").
@@ -300,37 +298,38 @@ describe('errors', async () => {
     })
 
     test('contract revert', async () => {
-      expect(
-        await multicall(publicClient, {
-          blockNumber: forkBlockNumber,
-          contracts: [
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...wagmiContractConfig,
-              functionName: 'transferFrom',
-              args: [address.vitalik, accounts[0].address, 1n],
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'totalSupply',
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'tokenOfOwnerByIndex',
-              args: [address.vitalik, 1n],
-            },
-          ] as const,
-        }),
-      ).toMatchInlineSnapshot(`
+      const res = await multicall(publicClient, {
+        blockNumber: forkBlockNumber,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...wagmiContractConfig,
+            // @ts-expect-error non-pure/view function
+            functionName: 'transferFrom',
+            // @ts-expect-error args invalid
+            args: [address.vitalik, accounts[0].address, 1n],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [address.vitalik, 1n],
+          },
+        ],
+      })
+      expect(res).toMatchInlineSnapshot(`
         [
           {
             "result": 231481998602n,
@@ -438,27 +437,26 @@ describe('errors', async () => {
 
   describe('allowFailure is falsy', async () => {
     test('function not found', async () => {
-      await expect(() =>
-        multicall(publicClient, {
-          allowFailure: false,
-          contracts: [
-            {
-              ...usdcContractConfig,
-              // @ts-expect-error
-              functionName: 'lol',
-            },
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'totalSupply',
-            },
-          ],
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+      const res = multicall(publicClient, {
+        allowFailure: false,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            // @ts-expect-error
+            functionName: 'lol',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      })
+      await expect(() => res).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: Function "lol" not found on ABI.
         Make sure you are using the correct ABI and that the function exists on it.
 
@@ -471,28 +469,27 @@ describe('errors', async () => {
     })
 
     test('invalid params', async () => {
-      await expect(() =>
-        multicall(publicClient, {
-          allowFailure: false,
-          // @ts-expect-error
-          contracts: [
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik, 1n],
-            },
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'totalSupply',
-            },
-          ] as const,
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+      const res = multicall(publicClient, {
+        allowFailure: false,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            // @ts-expect-error
+            args: [address.vitalik, 1n],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      })
+      await expect(() => res).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: ABI encoding params/values length mismatch.
         Expected length (params): 1
         Given length (values): 2
@@ -548,37 +545,38 @@ describe('errors', async () => {
     })
 
     test('contract revert', async () => {
-      await expect(() =>
-        multicall(publicClient, {
-          allowFailure: false,
-          contracts: [
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...usdcContractConfig,
-              functionName: 'balanceOf',
-              args: [address.vitalik],
-            },
-            {
-              ...wagmiContractConfig,
-              functionName: 'transferFrom',
-              args: [address.vitalik, accounts[0].address, 1n],
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'totalSupply',
-            },
-            {
-              ...baycContractConfig,
-              functionName: 'tokenOfOwnerByIndex',
-              args: [address.vitalik, 1n],
-            },
-          ] as const,
-        }),
-      ).rejects.toMatchInlineSnapshot(`
+      const res = multicall(publicClient, {
+        allowFailure: false,
+        contracts: [
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...wagmiContractConfig,
+            // @ts-expect-error non-pure/view function
+            functionName: 'transferFrom',
+            // @ts-expect-error args invalid
+            args: [address.vitalik, accounts[0].address, 1n],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [address.vitalik, 1n],
+          },
+        ],
+      })
+      await expect(() => res).rejects.toMatchInlineSnapshot(`
         [ContractFunctionExecutionError: The contract function "transferFrom" reverted with the following reason:
         ERC721: transfer caller is not owner nor approved
 

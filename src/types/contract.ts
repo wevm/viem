@@ -15,6 +15,7 @@ import type {
   ExtractAbiEventNames,
   ExtractAbiFunction,
   ExtractAbiFunctionNames,
+  ResolvedConfig,
 } from 'abitype'
 
 import type { Hex, LogTopic } from './misc.js'
@@ -22,10 +23,110 @@ import type { TransactionRequest } from './transaction.js'
 import type {
   Filter,
   IsNarrowable,
+  IsUnion,
   MaybeRequired,
   NoUndefined,
   Prettify,
+  UnionToTuple,
 } from './utils.js'
+
+export type FunctionName<
+  abi extends Abi = Abi,
+  mutability extends AbiStateMutability = AbiStateMutability,
+> = ExtractAbiFunctionNames<abi, mutability>
+
+export type Args<
+  abi extends Abi = Abi,
+  mutability extends AbiStateMutability = AbiStateMutability,
+  functionName extends ExtractAbiFunctionNames<
+    abi,
+    mutability
+  > = ExtractAbiFunctionNames<abi, mutability>,
+> = AbiParametersToPrimitiveTypes<
+  ExtractAbiFunction<abi, functionName, mutability>['inputs'],
+  'inputs'
+>
+
+export type Widen<type> =
+  | (type extends Function ? type : never)
+  | (type extends ResolvedConfig['BigIntType'] ? bigint : never)
+  | (type extends boolean ? boolean : never)
+  | (type extends ResolvedConfig['IntType'] ? number : never)
+  | (type extends string
+      ? type extends ResolvedConfig['AddressType']
+        ? ResolvedConfig['AddressType']
+        : type extends ResolvedConfig['BytesType']['inputs']
+        ? ResolvedConfig['BytesType']
+        : string
+      : never)
+  | (type extends readonly [] ? readonly [] : never)
+  | (type extends Record<string, unknown>
+      ? { [K in keyof type]: Widen<type[K]> }
+      : never)
+  | (type extends { length: number }
+      ? {
+          [K in keyof type]: Widen<type[K]>
+        } extends infer Val extends readonly unknown[]
+        ? readonly [...Val]
+        : never
+      : never)
+
+export type ExtractAbiFunctionForArgs<
+  abi extends Abi,
+  mutability extends AbiStateMutability,
+  functionName extends FunctionName<abi, mutability>,
+  args extends Args<abi, mutability, functionName>,
+> = ExtractAbiFunction<
+  abi,
+  functionName,
+  mutability
+> extends infer abiFunction extends AbiFunction
+  ? IsUnion<abiFunction> extends true // narrow overloads using `args` by converting to tuple and filtering out overloads that don't match
+    ? UnionToTuple<abiFunction> extends infer abiFunctions extends readonly AbiFunction[]
+      ? {
+          [k in keyof abiFunctions]: args extends AbiParametersToPrimitiveTypes<
+            abiFunctions[k]['inputs'],
+            'inputs'
+          >
+            ? abiFunctions[k]
+            : never
+        }[number] // convert back to union (removes `never` tuple entries: `['foo', never, 'bar'][number]` => `'foo' | 'bar'`)
+      : never
+    : abiFunction
+  : never
+
+export type ContractFunctionReturnType<
+  contract,
+  mutability extends AbiStateMutability,
+> = contract extends {
+  abi: infer abi extends Abi
+  functionName?: infer functionName extends string
+  args?: infer args
+}
+  ? Abi extends abi
+    ? unknown
+    : AbiParametersToPrimitiveTypes<
+        ExtractAbiFunctionForArgs<
+          abi,
+          mutability,
+          functionName,
+          // fallback to `readonly []` if `args` is not defined (e.g. not required `"inputs": []`)
+          (
+            readonly [] extends args
+              ? readonly []
+              : args
+          ) extends infer args2 extends Args<abi, mutability, functionName>
+            ? args2
+            : never
+        >['outputs']
+      > extends infer types
+    ? types extends readonly []
+      ? void
+      : types extends readonly [infer type]
+      ? type
+      : types
+    : never
+  : unknown
 
 export type AbiItem = Abi[number]
 

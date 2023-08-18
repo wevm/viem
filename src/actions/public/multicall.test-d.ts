@@ -1,4 +1,5 @@
-import type { Abi } from 'abitype'
+import { type Abi, type Address, parseAbi } from 'abitype'
+import { erc20Abi, seaportAbi, wagmiMintExampleAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
 import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
@@ -17,6 +18,26 @@ test('single result', async () => {
     ],
   })
   expectTypeOf(res).toEqualTypeOf<[bigint]>()
+})
+
+test('const asserted', async () => {
+  const contracts = [
+    {
+      ...usdcContractConfig,
+      functionName: 'totalSupply',
+    },
+    {
+      ...usdcContractConfig,
+      functionName: 'balanceOf',
+      args: [address.vitalik],
+    },
+    {
+      ...baycContractConfig,
+      functionName: 'name',
+    },
+  ] as const
+  const res = await multicall(publicClient, { allowFailure: false, contracts })
+  expectTypeOf(res).toEqualTypeOf<readonly [bigint, bigint, string]>()
 })
 
 test('all known', async () => {
@@ -87,7 +108,7 @@ test('dynamic', async () => {
       },
     ].map((x) => ({ ...x })),
   })
-  expectTypeOf(res).toEqualTypeOf<unknown[]>()
+  expectTypeOf(res).toEqualTypeOf<(string | number | bigint | boolean)[]>()
 
   const res2 = await multicall(publicClient, {
     allowFailure: false,
@@ -110,4 +131,179 @@ test('dynamic', async () => {
     ).map((x) => ({ ...x })),
   })
   expectTypeOf(res2).toEqualTypeOf<(string | bigint)[]>()
+})
+
+test('with unknown', async () => {
+  const abi__unknown = [
+    {
+      type: 'function',
+      name: 'balanceOf',
+      stateMutability: 'view',
+      inputs: [{ name: 'account', type: 'address' }],
+      outputs: [{ type: 'uint256' }],
+    },
+    {
+      type: 'function',
+      name: 'decimals',
+      stateMutability: 'view',
+      inputs: [],
+      outputs: [{ type: 'uint8' }],
+    },
+  ]
+
+  const res = await multicall(publicClient, {
+    allowFailure: false,
+    contracts: [
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+      {
+        address: '0x',
+        abi: abi__unknown,
+        functionName: 'allowance',
+        args: ['0x', '0x'],
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'balanceOf',
+        args: [address.vitalik],
+      },
+      {
+        ...baycContractConfig,
+        functionName: 'name',
+      },
+    ],
+  })
+  expectTypeOf(res).toEqualTypeOf<[bigint, unknown, bigint, string]>()
+})
+
+test('many contracts of differing types', async () => {
+  const abi__unknown = [
+    {
+      type: 'function',
+      name: 'balanceOf',
+      stateMutability: 'view',
+      inputs: [{ name: 'account', type: 'address' }],
+      outputs: [{ type: 'uint256' }],
+    },
+    {
+      type: 'function',
+      name: 'decimals',
+      stateMutability: 'view',
+      inputs: [],
+      outputs: [{ type: 'uint8' }],
+    },
+  ]
+
+  const res = await multicall(publicClient, {
+    allowFailure: false,
+    contracts: [
+      {
+        address: '0x',
+        abi: seaportAbi,
+        functionName: 'getContractOffererNonce',
+        args: ['0x'],
+      },
+      {
+        address: '0x',
+        abi: wagmiMintExampleAbi,
+        functionName: 'totalSupply',
+        args: [],
+      },
+      {
+        address: '0x',
+        functionName: 'balanceOf',
+        args: ['0x'],
+        abi: wagmiMintExampleAbi,
+      },
+      {
+        address: '0x',
+        abi: wagmiMintExampleAbi,
+        functionName: 'tokenURI',
+        args: [123n],
+      },
+      {
+        address: '0x',
+        abi: seaportAbi as Abi,
+        functionName: 'name',
+      },
+      {
+        address: '0x',
+        abi: erc20Abi,
+        functionName: 'allowance',
+        args: ['0x', '0x'],
+      },
+      {
+        address: '0x',
+        abi: abi__unknown,
+        functionName: 'allowance',
+        args: ['0x', '0x'],
+      },
+      {
+        address: '0x',
+        abi: parseAbi([
+          'function foo() view returns (int8)',
+          'function foo(address) view returns (string)',
+          'function foo(address, address) view returns ((address foo, address bar))',
+          'function bar() view returns (int8)',
+        ]),
+        functionName: 'foo',
+        args: ['0x', '0x'],
+      },
+    ],
+  })
+  res
+  // ^?
+  expectTypeOf(res).toEqualTypeOf<
+    [
+      bigint,
+      bigint,
+      bigint,
+      string,
+      unknown,
+      bigint,
+      unknown,
+      {
+        foo: `0x${string}`
+        bar: `0x${string}`
+      },
+    ]
+  >()
+})
+
+test('overloads', async () => {
+  const abi = parseAbi([
+    'function foo() view returns (int8)',
+    'function foo(address) view returns (string)',
+    'function foo(address, address) view returns ((address foo, address bar))',
+    'function bar() view returns (int8)',
+  ])
+
+  const res = await multicall(publicClient, {
+    allowFailure: false,
+    contracts: [
+      {
+        address: '0x',
+        abi,
+        functionName: 'foo',
+      },
+      {
+        address: '0x',
+        abi,
+        functionName: 'foo',
+        args: ['0x'],
+      },
+      {
+        address: '0x',
+        abi,
+        functionName: 'foo',
+        args: ['0x', '0x'],
+      },
+    ],
+  })
+
+  expectTypeOf(res).toEqualTypeOf<
+    [number, string, { foo: Address; bar: Address }]
+  >()
 })

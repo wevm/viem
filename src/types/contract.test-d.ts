@@ -1,13 +1,17 @@
-import type { Abi, ResolvedConfig } from 'abitype'
-import type { seaportAbi } from 'abitype/test'
+import { type Abi, type Address, type ResolvedConfig, parseAbi } from 'abitype'
+import { seaportAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
 import type {
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
   AbiEventTopicToPrimitiveType,
+  Args,
   ContractFunctionConfig,
   ContractFunctionResult,
+  ContractFunctionReturnType,
+  ExtractAbiFunctionForArgs,
+  FunctionName,
   GetConstructorArgs,
   GetErrorArgs,
   GetEventArgs,
@@ -19,8 +23,162 @@ import type {
   InferFunctionName,
   InferItemName,
   LogTopicType,
+  Widen,
 } from './contract.js'
 import type { Hex } from './misc.js'
+
+test('FunctionName', () => {
+  expectTypeOf<FunctionName<typeof seaportAbi>>().toEqualTypeOf<
+    | 'cancel'
+    | 'fulfillBasicOrder'
+    | 'fulfillBasicOrder_efficient_6GL6yc'
+    | 'fulfillOrder'
+    | 'fulfillAdvancedOrder'
+    | 'fulfillAvailableOrders'
+    | 'fulfillAvailableAdvancedOrders'
+    | 'getContractOffererNonce'
+    | 'getOrderHash'
+    | 'getOrderStatus'
+    | 'getCounter'
+    | 'incrementCounter'
+    | 'information'
+    | 'name'
+    | 'matchAdvancedOrders'
+    | 'matchOrders'
+    | 'validate'
+  >()
+
+  expectTypeOf<
+    FunctionName<typeof seaportAbi, 'pure' | 'view'>
+  >().toEqualTypeOf<
+    | 'name'
+    | 'getContractOffererNonce'
+    | 'getCounter'
+    | 'getOrderHash'
+    | 'getOrderStatus'
+    | 'information'
+  >()
+})
+
+test('Args', () => {
+  expectTypeOf<
+    Args<typeof seaportAbi, 'pure' | 'view', 'getOrderStatus'>
+  >().toEqualTypeOf<readonly [Address]>()
+
+  const abi = parseAbi([
+    'function foo() view returns (int8)',
+    'function foo(address) view returns (string)',
+    'function foo(address, address) view returns ((address foo, address bar))',
+    'function bar() view returns (int8)',
+  ])
+  expectTypeOf<Args<typeof abi, 'pure' | 'view', 'foo'>>().toEqualTypeOf<
+    readonly [] | readonly [Address] | readonly [Address, Address]
+  >()
+})
+
+test('Widen', () => {
+  expectTypeOf<Widen<1>>().toEqualTypeOf<number>()
+  expectTypeOf<Widen<1n>>().toEqualTypeOf<bigint>()
+  expectTypeOf<Widen<true>>().toEqualTypeOf<boolean>()
+  expectTypeOf<Widen<'foo'>>().toEqualTypeOf<string>()
+  expectTypeOf<Widen<'0x123'>>().toEqualTypeOf<Address>()
+  expectTypeOf<Widen<'0xbytes'>>().toEqualTypeOf<
+    ResolvedConfig['BytesType']['inputs']
+  >()
+
+  expectTypeOf<Widen<[]>>().toEqualTypeOf<readonly []>()
+
+  expectTypeOf<Widen<{ foo: 'bar'; boo: 123n }>>().toEqualTypeOf<{
+    foo: string
+    boo: bigint
+  }>()
+  expectTypeOf<Widen<{ foo: 'bar'; boo: [123n] }>>().toEqualTypeOf<{
+    foo: string
+    boo: readonly [bigint]
+  }>()
+
+  expectTypeOf<Widen<[123n]>>().toEqualTypeOf<readonly [bigint]>()
+  expectTypeOf<Widen<[{ foo: 'bar'; boo: 123n }]>>().toEqualTypeOf<
+    readonly [{ foo: string; boo: bigint }]
+  >()
+
+  expectTypeOf<Widen<123n[]>>().toEqualTypeOf<readonly bigint[]>()
+  expectTypeOf<Widen<(123n | '0x')[]>>().toEqualTypeOf<
+    readonly (bigint | Address)[]
+  >()
+})
+
+test('ExtractAbiFunctionForArgs', () => {
+  const abi = parseAbi([
+    'function foo() view returns (int8)',
+    'function foo(address) view returns (string)',
+    'function foo(address, address) view returns ((address foo, address bar))',
+    'function bar() view returns (int8)',
+  ])
+
+  expectTypeOf<
+    ExtractAbiFunctionForArgs<typeof abi, 'pure' | 'view', 'foo', []>
+  >().toEqualTypeOf<typeof abi[0]>()
+  expectTypeOf<
+    ExtractAbiFunctionForArgs<typeof abi, 'pure' | 'view', 'foo', ['0x']>
+  >().toEqualTypeOf<typeof abi[1]>()
+  expectTypeOf<
+    ExtractAbiFunctionForArgs<typeof abi, 'pure' | 'view', 'foo', ['0x', '0x']>
+  >().toEqualTypeOf<typeof abi[2]>()
+
+  expectTypeOf<
+    ExtractAbiFunctionForArgs<typeof abi, 'payable', never, never>
+  >().toEqualTypeOf<never>()
+})
+
+test('ContractFunctionReturnType', () => {
+  const abi = parseAbi([
+    'function foo() view returns (int8)',
+    'function foo(address) view returns (string)',
+    'function foo(address, address) view returns ((address foo, address bar))',
+    'function bar() view returns (int8)',
+  ])
+
+  expectTypeOf<
+    ContractFunctionReturnType<
+      {
+        abi: typeof abi
+        functionName: 'foo'
+        args: readonly []
+      },
+      'pure' | 'view'
+    >
+  >().toEqualTypeOf<number>()
+  expectTypeOf<
+    ContractFunctionReturnType<
+      {
+        abi: typeof abi
+        functionName: 'foo'
+      },
+      'pure' | 'view'
+    >
+  >().toEqualTypeOf<number>()
+  expectTypeOf<
+    ContractFunctionReturnType<
+      {
+        abi: typeof abi
+        functionName: 'foo'
+        args: readonly ['0x']
+      },
+      'pure' | 'view'
+    >
+  >().toEqualTypeOf<string>()
+  expectTypeOf<
+    ContractFunctionReturnType<
+      {
+        abi: typeof abi
+        functionName: 'foo'
+        args: readonly ['0x', '0x']
+      },
+      'pure' | 'view'
+    >
+  >().toEqualTypeOf<{ foo: Address; bar: Address }>()
+})
 
 test('ContractFunctionConfig', async () => {
   type Result = ContractFunctionConfig<typeof seaportAbi, 'getOrderStatus'>
