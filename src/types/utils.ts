@@ -72,24 +72,6 @@ export type Or<T extends readonly unknown[],> = T extends readonly [
  */
 export type IsUndefined<T> = [undefined] extends [T] ? true : false
 
-/**
- * Excludes empty attributes from T if TMaybeExclude is true.
- *
- * @example
- * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: [] }, true>
- * //   ^? type Result = { a: string, b: number }
- * @example
- * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: [] }, false>
- * //   ^? type Result = { a: string, b: number, c: [] }
- * @example
- * type Result = MaybeExcludeEmpty<{ a: string, b: number, c: undefined }, true>
- * //   ^? type Result = { a: string, b: number }
- */
-export type MaybeExcludeEmpty<
-  T,
-  TMaybeExclude extends boolean,
-> = TMaybeExclude extends true ? Exclude<T, [] | null | undefined> : T
-
 export type MaybePromise<T> = T | Promise<T>
 
 /**
@@ -107,33 +89,6 @@ export type MaybeRequired<T, TRequired extends boolean> = TRequired extends true
   : T
 
 /**
- * @description Makes the attribute on the type T allow undefined if TUndefinedish is true.
- *
- * @example
- * MaybeUndefined<string, true>
- * => string | undefined
- *
- * MaybeUndefined<string, false>
- * => string
- */
-export type MaybeUndefined<
-  T,
-  TUndefinedish extends boolean,
-> = TUndefinedish extends true ? T | undefined : T
-
-/**
- * @private Helper for `Assign`. This is a workaround for tsc generating errorneous type definitions.
- */
-export type Assign_<T, U> = {
-  [K in
-    keyof T as K extends keyof U
-      ? U[K] extends void
-        ? never
-        : K
-      : K]: K extends keyof U ? U[K] : T[K]
-}
-
-/**
  * @description Assigns the properties of U onto T.
  *
  * @example
@@ -141,18 +96,13 @@ export type Assign_<T, U> = {
  * => { a: undefined, b: number, c: boolean }
  */
 export type Assign<T, U> = Assign_<T, U> & U
-
-/**
- * @description Makes nullable properties from T optional.
- *
- * @example
- * OptionalNullable<{ a: string | undefined, c: number }>
- * => { a?: string | undefined, c: number }
- */
-export type OptionalNullable<T> = {
-  [K in keyof T as T[K] extends NonNullable<unknown> ? K : never]: T[K]
-} & {
-  [K in keyof T as T[K] extends NonNullable<unknown> ? never : K]?: T[K]
+type Assign_<T, U> = {
+  [K in
+    keyof T as K extends keyof U
+      ? U[K] extends void
+        ? never
+        : K
+      : K]: K extends keyof U ? U[K] : T[K]
 }
 
 /**
@@ -186,15 +136,6 @@ export type UnionOmit<T, K extends keyof any> = T extends any
   : never
 
 /**
- * @description Creates a type that is a partial of T, but with the required keys K.
- *
- * @example
- * PartialBy<{ a: string, b: number }, 'a'>
- * => { a?: string, b: number }
- */
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-
-/**
  * @description Combines members of an intersection into a readable type.
  *
  * @see {@link https://twitter.com/mattpocockuk/status/1622730173446557697?s=20&t=NdpAcmEFXY01xkqU3KO0Mg}
@@ -205,34 +146,6 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
-
-type TrimLeft<T, Chars extends string = ' '> = T extends `${Chars}${infer R}`
-  ? TrimLeft<R>
-  : T
-type TrimRight<T, Chars extends string = ' '> = T extends `${infer R}${Chars}`
-  ? TrimRight<R>
-  : T
-
-/**
- * @description Creates a type with required keys K from T.
- *
- * @example
- * type Result = RequiredBy<{ a?: string, b?: number, c: number }, 'a' | 'c'>
- * //   ^? { a: string, b?: number, c: number }
- */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
-
-/**
- * @description Trims empty space from type T.
- *
- * @example
- * Trim<'      lol  '>
- * => 'lol'
- */
-export type Trim<T, Chars extends string = ' '> = TrimLeft<
-  TrimRight<T, Chars>,
-  Chars
->
 
 /**
  * @description Creates a type that extracts the values of T.

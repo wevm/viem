@@ -156,3 +156,6 @@ export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet, {
 })
 
 export type { Chain } from '../types/chain.js'
+
+// required for type inference since in explicit return type
+export type { Assign } from '../types/utils.js'

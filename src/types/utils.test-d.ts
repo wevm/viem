@@ -9,7 +9,6 @@ import type {
   IsUnion,
   MaybePartial,
   Or,
-  RequiredBy,
   UnionToTuple,
 } from './utils.js'
 
@@ -53,12 +52,6 @@ test('IsUndefined', () => {
 test('Or', () => {
   expectTypeOf<Or<[true, false, true]>>().toEqualTypeOf<true>()
   expectTypeOf<Or<[false, false, false]>>().toEqualTypeOf<false>()
-})
-
-test('RequiredBy', () => {
-  expectTypeOf<
-    RequiredBy<{ a?: number; b?: string; c: boolean }, 'a' | 'c'>
-  >().toEqualTypeOf<{ a: number; b?: string; c: boolean }>()
 })
 
 test('UnionToTuple', () => {
