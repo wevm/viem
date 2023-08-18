@@ -48,6 +48,7 @@ export type Args<
 >
 
 export type Widen<type> =
+  | ([unknown] extends [type] ? unknown : never)
   | (type extends Function ? type : never)
   | (type extends ResolvedConfig['BigIntType'] ? bigint : never)
   | (type extends boolean ? boolean : never)

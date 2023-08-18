@@ -307,3 +307,35 @@ test('overloads', async () => {
     [number, string, { foo: Address; bar: Address }]
   >()
 })
+
+test('MulticallParameters', async () => {
+  const abi = parseAbi([
+    'function foo() view returns (int8)',
+    'function foo(address) view returns (string)',
+    'function foo(address, address) view returns ((address foo, address bar))',
+    'function bar() view returns (int8)',
+  ])
+
+  type Result = Parameters<
+    typeof multicall<
+      [
+        {
+          address: '0x'
+          abi: typeof abi
+          functionName: 'foo'
+        },
+      ],
+      typeof publicClient.chain
+    >
+  >[1]['contracts'][0]
+  expectTypeOf<Result>().toEqualTypeOf<{
+    address: Address
+    abi: typeof abi
+    functionName: 'foo' | 'bar'
+    args?:
+      | readonly []
+      | readonly [Address]
+      | readonly [Address, Address]
+      | undefined
+  }>()
+})

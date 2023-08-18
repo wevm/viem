@@ -106,6 +106,8 @@ test('Widen', () => {
   expectTypeOf<Widen<(123n | '0x')[]>>().toEqualTypeOf<
     readonly (bigint | Address)[]
   >()
+
+  expectTypeOf<Widen<readonly unknown[]>>().toEqualTypeOf<readonly unknown[]>()
 })
 
 test('ExtractAbiFunctionForArgs', () => {
