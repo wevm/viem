@@ -44,9 +44,9 @@ export type MulticallContract<
     }
 
 export type MulticallResponse<
-  allowFailure extends boolean = true,
   result = unknown,
   error = unknown,
+  allowFailure extends boolean = true,
 > = allowFailure extends true
   ?
       | { error?: undefined; result: result; status: 'success' }
@@ -138,7 +138,6 @@ export type MulticallResults<
   } = { error: Error; mutability: AbiStateMutability },
 > = {
   [index in keyof contracts]: MulticallResponse<
-    allowFailure,
     ContractFunctionReturnType<
       contracts[index],
       options['mutability']
@@ -148,7 +147,8 @@ export type MulticallResults<
         ? unknown
         : result
       : unknown,
-    options['error']
+    options['error'],
+    allowFailure
   >
 }
 
