@@ -45,7 +45,7 @@ export type MulticallReturnType<
     error?: Error
   } = { error: Error },
 > = MulticallResults<
-  contracts,
+  Narrow<contracts>,
   allowFailure,
   { mutability: 'pure' | 'view' } & options
 >

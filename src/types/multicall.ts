@@ -43,20 +43,6 @@ export type MulticallContract<
         | Args<abi extends Abi ? abi : Abi, mutability, functionName>
     }
 
-export type MulticallResponse<
-  result = unknown,
-  error = unknown,
-  allowFailure extends boolean = true,
-> = allowFailure extends true
-  ?
-      | { error?: undefined; result: result; status: 'success' }
-      | {
-          error: unknown extends error ? Error : error
-          result?: undefined
-          status: 'failure'
-        }
-  : result
-
 export type MulticallContracts<
   contracts extends readonly unknown[],
   options extends {
@@ -137,20 +123,29 @@ export type MulticallResults<
     mutability: AbiStateMutability
   } = { error: Error; mutability: AbiStateMutability },
 > = {
-  [index in keyof contracts]: MulticallResponse<
-    ContractFunctionReturnType<
-      contracts[index],
-      options['mutability']
-    > extends infer result
-      ? // If `result` is `never`, then `contracts` could be unknown type (e.g. non-const-asserted array)
-        [result] extends [never]
-        ? unknown
-        : result
-      : unknown,
-    options['error'],
-    allowFailure
-  >
+  [index in keyof contracts]: ContractFunctionReturnType<
+    contracts[index],
+    options['mutability']
+  > extends infer result
+    ? [result] extends [never]
+      ? MulticallResponse<unknown, options['error'], allowFailure>
+      : MulticallResponse<result, options['error'], allowFailure>
+    : never
 }
+
+export type MulticallResponse<
+  result = unknown,
+  error = unknown,
+  allowFailure extends boolean = true,
+> = allowFailure extends true
+  ?
+      | { error?: undefined; result: result; status: 'success' }
+      | {
+          error: unknown extends error ? Error : error
+          result?: undefined
+          status: 'failure'
+        }
+  : result
 
 type GetMulticallContract<
   contract,

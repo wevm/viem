@@ -5,6 +5,7 @@ import { expectTypeOf, test } from 'vitest'
 import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
 import { address } from '../../_test/constants.js'
 import { publicClient } from '../../_test/utils.js'
+import type { MulticallResponse } from '../../types/multicall.js'
 import { multicall } from './multicall.js'
 
 test('single result', async () => {
@@ -338,4 +339,32 @@ test('MulticallParameters', async () => {
       | readonly [Address, Address]
       | undefined
   }>()
+})
+
+test('allowFailure: true', async () => {
+  const res = await multicall(publicClient, {
+    allowFailure: true,
+    contracts: [
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'symbol',
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'balanceOf',
+        args: ['0x'],
+      },
+    ],
+  })
+  expectTypeOf(res).toEqualTypeOf<
+    [
+      MulticallResponse<bigint>,
+      MulticallResponse<string>,
+      MulticallResponse<bigint>,
+    ]
+  >()
 })
