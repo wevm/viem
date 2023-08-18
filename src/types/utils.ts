@@ -183,7 +183,7 @@ export type IsUnion<
 export type MaybePartial<
   type,
   enabled extends boolean | undefined,
-> = enabled extends true ? ExactPartial<type> : type
+> = enabled extends true ? Prettify<ExactPartial<type>> : type
 
 export type ExactPartial<type> = {
   [key in keyof type]?: type[key] | undefined
