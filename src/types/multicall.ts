@@ -123,14 +123,18 @@ export type MulticallResults<
     mutability: AbiStateMutability
   } = { error: Error; mutability: AbiStateMutability },
 > = {
-  [index in keyof contracts]: ContractFunctionReturnType<
-    contracts[index],
-    options['mutability']
-  > extends infer result
-    ? [result] extends [never]
-      ? MulticallResponse<unknown, options['error'], allowFailure>
-      : MulticallResponse<result, options['error'], allowFailure>
-    : never
+  [index in keyof contracts]: MulticallResponse<
+    ContractFunctionReturnType<
+      contracts[index],
+      options['mutability']
+    > extends infer result
+      ? [result] extends [never]
+        ? unknown
+        : result
+      : unknown,
+    options['error'],
+    allowFailure
+  >
 }
 
 export type MulticallResponse<
