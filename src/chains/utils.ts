@@ -5,6 +5,9 @@ export {
   serializeTransactionCelo,
   serializersCelo,
 } from './celo/serializers.js'
+
+export { parseTransactionCelo } from './celo/parsers.js'
+
 export type {
   CeloBlock,
   CeloBlockOverrides,

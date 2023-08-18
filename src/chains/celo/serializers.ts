@@ -139,7 +139,9 @@ function isCIP42(transaction: CeloTransactionSerializable) {
 const MAX_MAX_FEE_PER_GAS =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n
 
-function assertTransactionCIP42(transaction: TransactionSerializableCIP42) {
+export function assertTransactionCIP42(
+  transaction: TransactionSerializableCIP42,
+) {
   const {
     chainId,
     maxPriorityFeePerGas,
