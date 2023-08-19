@@ -89,8 +89,8 @@ importers:
         specifier: ^4.4.1
         version: 4.4.1
       rome:
-        specifier: ~12.1.3
-        version: 12.1.3
+        specifier: 12.1.3-nightly.4c8cf32
+        version: 12.1.3-nightly.4c8cf32
       simple-git-hooks:
         specifier: ^2.8.1
         version: 2.8.1
@@ -2117,48 +2117,48 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@rometools/cli-darwin-arm64@12.1.3:
-    resolution: {integrity: sha512-AmFTUDYjBuEGQp/Wwps+2cqUr+qhR7gyXAUnkL5psCuNCz3807TrUq/ecOoct5MIavGJTH6R4aaSL6+f+VlBEg==}
+  /@rometools/cli-darwin-arm64@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-BOQWMQYQI4UUMTJ3Iw9w2PxYzAFlv74RDfu1azA1hJpfof4Ls7uEhC5LL+2S5WIZYZXCa2zJbd3JoVHIPxN28A==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-darwin-x64@12.1.3:
-    resolution: {integrity: sha512-k8MbWna8q4LRlb005N2X+JS1UQ+s3ZLBBvwk4fP8TBxlAJXUz17jLLu/Fi+7DTTEmMhM84TWj4FDKW+rNar28g==}
+  /@rometools/cli-darwin-x64@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-RHRNJzij7y1WeG69exeNvaF4ZloWjgcru6w6r9zDTHq1W1mBjplRG58zzZadkYekc6SnqTr2qMck4G2ion2+lw==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-linux-arm64@12.1.3:
-    resolution: {integrity: sha512-X/uLhJ2/FNA3nu5TiyeNPqiD3OZoFfNfRvw6a3ut0jEREPvEn72NI7WPijH/gxSz55znfQ7UQ6iM4DZumUknJg==}
+  /@rometools/cli-linux-arm64@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-G2ZV0dlpuzqlT8jozgc2jcdOMc1U5oApPV4qthjVyzExrKM/kg89MH/4mm6OsHxzcDpGMu74lOQiW8rkvco+bA==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-linux-x64@12.1.3:
-    resolution: {integrity: sha512-csP17q1eWiUXx9z6Jr/JJPibkplyKIwiWPYNzvPCGE8pHlKhwZj3YHRuu7Dm/4EOqx0XFIuqqWZUYm9bkIC8xg==}
+  /@rometools/cli-linux-x64@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-yN2Iuim2CpoYjOh4wLP9/TkMbDiwgTzWzhX8AZHHTgDr/0VgVsKkLBwRRpFaCfQAMAwpNxl/LlgAsCR8IEC1xQ==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-win32-arm64@12.1.3:
-    resolution: {integrity: sha512-RymHWeod57EBOJY4P636CgUwYA6BQdkQjh56XKk4pLEHO6X1bFyMet2XL7KlHw5qOTalzuzf5jJqUs+vf3jdXQ==}
+  /@rometools/cli-win32-arm64@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-sgvCQoYPfNwmZ5n6PQevZ/sp15YM/B/LiUCTpHcdaT7EGeJG1WhCUXm8bbaHRTVve9zshtBnG6KOYmGOKfqQWg==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rometools/cli-win32-x64@12.1.3:
-    resolution: {integrity: sha512-yHSKYidqJMV9nADqg78GYA+cZ0hS1twANAjiFibQdXj9aGzD+s/IzIFEIi/U/OBLvWYg/SCw0QVozi2vTlKFDQ==}
+  /@rometools/cli-win32-x64@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-AfNHKTOReaFFhrwZVGt17NnNoentdXaMkQvrhvO/oS8sCtjK0ng2Cp4nVL/AA3TbCT23X9Ybf6T7e2heeVqI7g==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
@@ -6055,18 +6055,18 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /rome@12.1.3:
-    resolution: {integrity: sha512-e+ff72hxDpe/t5/Us7YRBVw3PBET7SeczTQNn6tvrWdrCaAw3qOukQQ+tDCkyFtS4yGsnhjrJbm43ctNbz27Yg==}
+  /rome@12.1.3-nightly.4c8cf32:
+    resolution: {integrity: sha512-OkFHawPV85RfszDA/OAYCggO4+CY4t1XN8m26l2JA6cdGfA1XnzENz7KmGdHoXLUMPD8oIgWPI6J/QlGCMholA==}
     engines: {node: '>=14.*'}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@rometools/cli-darwin-arm64': 12.1.3
-      '@rometools/cli-darwin-x64': 12.1.3
-      '@rometools/cli-linux-arm64': 12.1.3
-      '@rometools/cli-linux-x64': 12.1.3
-      '@rometools/cli-win32-arm64': 12.1.3
-      '@rometools/cli-win32-x64': 12.1.3
+      '@rometools/cli-darwin-arm64': 12.1.3-nightly.4c8cf32
+      '@rometools/cli-darwin-x64': 12.1.3-nightly.4c8cf32
+      '@rometools/cli-linux-arm64': 12.1.3-nightly.4c8cf32
+      '@rometools/cli-linux-x64': 12.1.3-nightly.4c8cf32
+      '@rometools/cli-win32-arm64': 12.1.3-nightly.4c8cf32
+      '@rometools/cli-win32-x64': 12.1.3-nightly.4c8cf32
     dev: true
 
   /run-parallel@1.2.0:

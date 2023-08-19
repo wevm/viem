@@ -12,23 +12,23 @@ export function App() {
       <div style={{ display: 'flex', flexDirection: 'row', gap: 16 }}>
         <div>
           <input
-            type='radio'
-            id='http-public'
-            name='rpc'
+            type="radio"
+            id="http-public"
+            name="rpc"
             onChange={() => setRpc('http-public')}
             checked={rpc === 'http-public'}
           />
-          <label htmlFor='http-public'>Public: HTTP</label>
+          <label htmlFor="http-public">Public: HTTP</label>
         </div>
         <div>
           <input
-            type='radio'
-            id='injected-wallet'
-            name='rpc'
+            type="radio"
+            id="injected-wallet"
+            name="rpc"
             onChange={() => setRpc('injected-wallet')}
             checked={rpc === 'injected-wallet'}
           />
-          <label htmlFor='injected-wallet'>Wallet: Injected</label>
+          <label htmlFor="injected-wallet">Wallet: Injected</label>
         </div>
       </div>
       {rpc === 'http-public' && <HttpPublic />}

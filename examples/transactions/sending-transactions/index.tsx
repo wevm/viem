@@ -59,8 +59,8 @@ function Example() {
     return (
       <>
         <div>Connected: {account}</div>
-        <input ref={addressInput} placeholder='address' />
-        <input ref={valueInput} placeholder='value (ether)' />
+        <input ref={addressInput} placeholder="address" />
+        <input ref={valueInput} placeholder="value (ether)" />
         <button onClick={sendTransaction}>Send</button>
         {receipt && (
           <div>
