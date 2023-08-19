@@ -1,5 +1,13 @@
 # viem
 
+## 1.6.3
+
+### Patch Changes
+
+- [#1013](https://github.com/wagmi-dev/viem/pull/1013) [`dd1e1028`](https://github.com/wagmi-dev/viem/commit/dd1e102874ef006d55d286b622e74e5d210c2293) Thanks [@avasisht23](https://github.com/avasisht23)! - Added `EIP1193EventMap` type.
+
+* [#1033](https://github.com/wagmi-dev/viem/pull/1033) [`51ccc6c9`](https://github.com/wagmi-dev/viem/commit/51ccc6c9453538b98e7e580cec44d9b15f0d3500) Thanks [@skeithc](https://github.com/skeithc)! - Fixed `getEnsAddress` for addresses that start with `0`.
+
 ## 1.6.2
 
 ### Patch Changes
