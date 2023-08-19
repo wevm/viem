@@ -107,18 +107,16 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
 
     if (res[0] === '0x') return null
 
-    const address = trim(
-      decodeFunctionResult({
-        abi: addressResolverAbi,
-        args: coinType != null ? [namehash(name), BigInt(coinType)] : undefined,
-        functionName: 'addr',
-        data: res[0],
-      }),
-    )
+    const address = decodeFunctionResult({
+      abi: addressResolverAbi,
+      args: coinType != null ? [namehash(name), BigInt(coinType)] : undefined,
+      functionName: 'addr',
+      data: res[0],
+    })
 
     if (address === '0x') return null
     if (trim(address) === '0x00') return null
-    return pad(address, { size: 20 })
+    return address
   } catch (err) {
     if (isNullUniversalResolverError(err, 'resolve')) return null
     throw err
