@@ -25,6 +25,14 @@ test('gets address for name', async () => {
   )
 })
 
+test('gets address that starts with 0s for name', async () => {
+  await expect(
+    getEnsAddress(publicClient, { name: 'skeith.eth' }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0x00A59Ec1F4BF9718EeE07078141b540272BAB807"',
+  )
+})
+
 test('gets address for name with coinType', async () => {
   await expect(
     getEnsAddress(publicClient, { name: 'awkweb.eth', coinType: 60 }),
