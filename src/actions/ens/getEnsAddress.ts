@@ -16,7 +16,6 @@ import { toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { packetToBytes } from '../../utils/ens/packetToBytes.js'
-import { pad } from '../../utils/index.js'
 import {
   type ReadContractParameters,
   readContract,
