@@ -146,17 +146,14 @@ export type Socket = WebSocket & {
 
 const sockets = /*#__PURE__*/ new Map<string, Socket>()
 
-export async function getSocket(url_: string) {
-  const url = new URL(url_)
-  const urlKey = url.toString()
-
-  let socket = sockets.get(urlKey)
+export async function getSocket(url: string) {
+  let socket = sockets.get(url)
 
   // If the socket already exists, return it.
   if (socket) return socket
 
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
-    id: urlKey,
+    id: url,
     fn: async () => {
       let WebSocket = await import('isomorphic-ws')
       // Workaround for Vite.
@@ -188,7 +185,7 @@ export async function getSocket(url_: string) {
         if (!isSubscription) cache.delete(id)
       }
       const onClose = () => {
-        sockets.delete(urlKey)
+        sockets.delete(url)
         webSocket.removeEventListener('close', onClose)
         webSocket.removeEventListener('message', onMessage)
       }
@@ -211,7 +208,7 @@ export async function getSocket(url_: string) {
         requests,
         subscriptions,
       })
-      sockets.set(urlKey, socket)
+      sockets.set(url, socket)
 
       return [socket]
     },
