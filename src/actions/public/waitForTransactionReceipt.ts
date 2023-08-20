@@ -193,8 +193,6 @@ export async function waitForTransactionReceipt<
                   err instanceof TransactionReceiptNotFoundError)
               ) {
                 try {
-
-
                   replacedTransaction = transaction
 
                   // Let's retrieve the transactions from the current block.

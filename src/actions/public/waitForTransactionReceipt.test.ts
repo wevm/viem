@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
@@ -11,6 +11,7 @@ import { mine } from '../test/mine.js'
 import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import * as getBlock from './getBlock.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const sourceAccount = accounts[0]
@@ -376,4 +377,48 @@ describe('errors', () => {
     },
     { timeout: 20_000 },
   )
+
+  test('throws when transaction replaced and getBlock fails', async () => {
+    vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
+
+    await mine(testClient, { blocks: 10 })
+    await setIntervalMining(testClient, { interval: 0 })
+
+    const nonce = hexToNumber(
+      (await publicClient.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    await expect(() =>
+      Promise.all([
+        waitForTransactionReceipt(publicClient, {
+          hash,
+        }),
+        (async () => {
+          await wait(100)
+
+          // speed up
+          await sendTransaction(walletClient, {
+            account: sourceAccount.address,
+            to: targetAccount.address,
+            value: parseEther('2'),
+            nonce,
+            maxFeePerGas: parseGwei('20'),
+          })
+
+          await setIntervalMining(testClient, { interval: 1 })
+        })(),
+      ]),
+    ).rejects.toThrowErrorMatchingInlineSnapshot('"foo"')
+  })
 })
