@@ -6,12 +6,12 @@ import type {
   AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
   AbiEventTopicToPrimitiveType,
-  Args,
+  ContractFunctionArgs,
   ContractFunctionConfig,
+  ContractFunctionName,
   ContractFunctionResult,
   ContractFunctionReturnType,
   ExtractAbiFunctionForArgs,
-  FunctionName,
   GetConstructorArgs,
   GetErrorArgs,
   GetEventArgs,
@@ -28,7 +28,7 @@ import type {
 import type { Hex } from './misc.js'
 
 test('FunctionName', () => {
-  expectTypeOf<FunctionName<typeof seaportAbi>>().toEqualTypeOf<
+  expectTypeOf<ContractFunctionName<typeof seaportAbi>>().toEqualTypeOf<
     | 'cancel'
     | 'fulfillBasicOrder'
     | 'fulfillBasicOrder_efficient_6GL6yc'
@@ -49,7 +49,7 @@ test('FunctionName', () => {
   >()
 
   expectTypeOf<
-    FunctionName<typeof seaportAbi, 'pure' | 'view'>
+    ContractFunctionName<typeof seaportAbi, 'pure' | 'view'>
   >().toEqualTypeOf<
     | 'name'
     | 'getContractOffererNonce'
@@ -62,7 +62,7 @@ test('FunctionName', () => {
 
 test('Args', () => {
   expectTypeOf<
-    Args<typeof seaportAbi, 'pure' | 'view', 'getOrderStatus'>
+    ContractFunctionArgs<typeof seaportAbi, 'pure' | 'view', 'getOrderStatus'>
   >().toEqualTypeOf<readonly [Address]>()
 
   const abi = parseAbi([
@@ -71,7 +71,9 @@ test('Args', () => {
     'function foo(address, address) view returns ((address foo, address bar))',
     'function bar() view returns (int8)',
   ])
-  expectTypeOf<Args<typeof abi, 'pure' | 'view', 'foo'>>().toEqualTypeOf<
+  expectTypeOf<
+    ContractFunctionArgs<typeof abi, 'pure' | 'view', 'foo'>
+  >().toEqualTypeOf<
     readonly [] | readonly [Address] | readonly [Address, Address]
   >()
 })
@@ -142,42 +144,25 @@ test('ContractFunctionReturnType', () => {
   ])
 
   expectTypeOf<
-    ContractFunctionReturnType<
-      {
-        abi: typeof abi
-        functionName: 'foo'
-        args: readonly []
-      },
-      'pure' | 'view'
-    >
+    ContractFunctionReturnType<typeof abi, 'pure' | 'view', 'foo', readonly []>
+  >().toEqualTypeOf<number>()
+  expectTypeOf<
+    ContractFunctionReturnType<typeof abi, 'pure' | 'view', 'foo'>
   >().toEqualTypeOf<number>()
   expectTypeOf<
     ContractFunctionReturnType<
-      {
-        abi: typeof abi
-        functionName: 'foo'
-      },
-      'pure' | 'view'
-    >
-  >().toEqualTypeOf<number>()
-  expectTypeOf<
-    ContractFunctionReturnType<
-      {
-        abi: typeof abi
-        functionName: 'foo'
-        args: readonly ['0x']
-      },
-      'pure' | 'view'
+      typeof abi,
+      'pure' | 'view',
+      'foo',
+      readonly ['0x']
     >
   >().toEqualTypeOf<string>()
   expectTypeOf<
     ContractFunctionReturnType<
-      {
-        abi: typeof abi
-        functionName: 'foo'
-        args: readonly ['0x', '0x']
-      },
-      'pure' | 'view'
+      typeof abi,
+      'pure' | 'view',
+      'foo',
+      readonly ['0x', '0x']
     >
   >().toEqualTypeOf<{ foo: Address; bar: Address }>()
 })

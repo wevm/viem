@@ -107,7 +107,7 @@ test('dynamic', async () => {
         ...baycContractConfig,
         functionName: 'name',
       },
-    ].map((x) => ({ ...x })),
+    ].map((x) => x),
   })
   expectTypeOf(res).toEqualTypeOf<(string | number | bigint | boolean)[]>()
 

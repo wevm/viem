@@ -200,6 +200,8 @@ import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
@@ -1169,11 +1171,12 @@ export type PublicActions<
    * // 424122n
    */
   readContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   >(
-    args: ReadContractParameters<TAbi, TFunctionName>,
-  ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+    args: ReadContractParameters<abi, functionName, args>,
+  ) => Promise<ReadContractReturnType<abi, functionName, args>>
   /**
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *

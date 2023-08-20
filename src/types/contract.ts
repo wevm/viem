@@ -30,22 +30,37 @@ import type {
   UnionToTuple,
 } from './utils.js'
 
-export type FunctionName<
-  abi extends Abi = Abi,
+export type ContractFunctionName<
+  abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
-> = ExtractAbiFunctionNames<abi, mutability>
+> = ExtractAbiFunctionNames<
+  abi extends Abi ? abi : Abi,
+  mutability
+> extends infer functionName extends string
+  ? [functionName] extends [never]
+    ? string
+    : functionName
+  : string
 
-export type Args<
-  abi extends Abi = Abi,
+export type ContractFunctionArgs<
+  abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ExtractAbiFunctionNames<
+  functionName extends ContractFunctionName<
     abi,
     mutability
-  > = ExtractAbiFunctionNames<abi, mutability>,
+  > = ContractFunctionName<abi, mutability>,
 > = AbiParametersToPrimitiveTypes<
-  ExtractAbiFunction<abi, functionName, mutability>['inputs'],
+  ExtractAbiFunction<
+    abi extends Abi ? abi : Abi,
+    functionName,
+    mutability
+  >['inputs'],
   'inputs'
->
+> extends infer args
+  ? [args] extends [never]
+    ? readonly unknown[]
+    : args
+  : readonly unknown[]
 
 export type Widen<type> =
   | ([unknown] extends [type] ? unknown : never)
@@ -75,8 +90,8 @@ export type Widen<type> =
 export type ExtractAbiFunctionForArgs<
   abi extends Abi,
   mutability extends AbiStateMutability,
-  functionName extends FunctionName<abi, mutability>,
-  args extends Args<abi, mutability, functionName>,
+  functionName extends ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<abi, mutability, functionName>,
 > = ExtractAbiFunction<
   abi,
   functionName,
@@ -96,14 +111,59 @@ export type ExtractAbiFunctionForArgs<
     : abiFunction
   : never
 
+export type ContractFunctionParameters<
+  abi extends Abi | readonly unknown[] = Abi,
+  mutability extends AbiStateMutability = AbiStateMutability,
+  functionName extends ContractFunctionName<
+    abi,
+    mutability
+  > = ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<
+    abi,
+    mutability,
+    functionName
+  > = ContractFunctionArgs<abi, mutability, functionName>,
+  ///
+  allArgs = ContractFunctionArgs<abi, mutability, functionName>,
+  allFunctionNames = ContractFunctionName<abi, mutability>,
+  // when `args` is inferred to `readonly []` ("inputs": []) or `never` (`abi` declared as `Abi` or not inferrable), allow `args` to be optional.
+  // important that both branches return same structural type
+> = readonly [] extends allArgs
+  ? {
+      address: Address
+      abi: abi
+      functionName:
+        | allFunctionNames // show all options
+        | (functionName extends allFunctionNames ? functionName : never) // infer value
+      args?:
+        | allArgs // show all options
+        | (args extends allArgs ? Widen<args> : never) // infer value, widen inferred value of `args` conditionally to match `allArgs`
+        | undefined
+    }
+  : {
+      address: Address
+      abi: abi
+      functionName:
+        | allFunctionNames // show all options
+        | (functionName extends allFunctionNames ? functionName : never) // infer value
+      args:
+        | allArgs // show all options
+        | Widen<args> // infer value, widen inferred value of `args` match `allArgs` (e.g. avoid union `args: readonly [123n] | readonly [bigint]`)
+    }
+
 export type ContractFunctionReturnType<
-  contract,
-  mutability extends AbiStateMutability,
-> = contract extends {
-  abi: infer abi extends Abi
-  functionName?: infer functionName extends string
-  args?: infer args
-}
+  abi extends Abi | readonly unknown[] = Abi,
+  mutability extends AbiStateMutability = AbiStateMutability,
+  functionName extends ContractFunctionName<
+    abi,
+    mutability
+  > = ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<
+    abi,
+    mutability,
+    functionName
+  > = ContractFunctionArgs<abi, mutability, functionName>,
+> = abi extends Abi
   ? Abi extends abi
     ? unknown
     : AbiParametersToPrimitiveTypes<
@@ -111,14 +171,7 @@ export type ContractFunctionReturnType<
           abi,
           mutability,
           functionName,
-          // fallback to `readonly []` if `args` is not defined (e.g. not required `"inputs": []`)
-          (
-            readonly [] extends args
-              ? readonly []
-              : args
-          ) extends infer args2 extends Args<abi, mutability, functionName>
-            ? args2
-            : never
+          readonly [] extends args ? readonly [] : args
         >['outputs']
       > extends infer types
     ? types extends readonly []

@@ -1,4 +1,4 @@
-import { type Abi, type ResolvedConfig, parseAbi } from 'abitype'
+import { type Abi, type Address, type ResolvedConfig, parseAbi } from 'abitype'
 import {
   wagmiMintExampleAbi,
   wagmiMintExampleHumanReadableAbi,
@@ -7,7 +7,6 @@ import {
 import { assertType, expectTypeOf, test } from 'vitest'
 
 import { publicClient } from '../../_test/utils.js'
-
 import { type ReadContractParameters, readContract } from './readContract.js'
 
 test('ReadContractParameters', () => {
@@ -96,7 +95,7 @@ test('behavior', () => {
       // @ts-expect-error Trying to use non-read function
       functionName: 'approve',
     })
-    assertType<void>(result)
+    assertType<bigint | string>(result)
   })
 
   test('without const assertion', async () => {
@@ -161,10 +160,8 @@ test('behavior', () => {
       functionName: 'bar',
       args: ['0x'],
     })
-    type Result1 = typeof result1
-    type Result2 = typeof result2
-    assertType<Result1>('hello')
-    assertType<Result2>('0x123')
+    expectTypeOf(result1).toEqualTypeOf<unknown>()
+    expectTypeOf(result2).toEqualTypeOf<unknown>()
   })
 
   test('defined inline', async () => {
@@ -209,10 +206,8 @@ test('behavior', () => {
       functionName: 'bar',
       args: ['0x'],
     })
-    type Result1 = typeof result1
-    type Result2 = typeof result2
-    assertType<Result1>('hello')
-    assertType<Result2>('0x123')
+    expectTypeOf(result1).toEqualTypeOf<string>()
+    expectTypeOf(result2).toEqualTypeOf<Address>()
   })
 
   test('human readable', async () => {
@@ -223,5 +218,25 @@ test('behavior', () => {
       args: ['0x'],
     })
     assertType<bigint>(result)
+  })
+
+  test('overloads', async () => {
+    const abi = parseAbi([
+      'function foo() view returns (int8)',
+      'function foo(address) view returns (string)',
+      'function foo(address, address) view returns ((address foo, address bar))',
+      'function bar() view returns (int8)',
+    ])
+
+    const result = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+      args: ['0x', '0x'],
+    })
+    assertType<{
+      foo: `0x${string}`
+      bar: `0x${string}`
+    }>(result)
   })
 })

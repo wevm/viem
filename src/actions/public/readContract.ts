@@ -5,8 +5,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
-  ContractFunctionResult,
+  ContractFunctionArgs,
+  ContractFunctionName,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
 } from '../../types/contract.js'
 import {
   type DecodeFunctionResultParameters,
@@ -17,19 +19,34 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
-
 import { type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends string = string,
+  functionName extends ContractFunctionName<
+    abi,
+    'pure' | 'view'
+  > = ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 > = Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'> &
-  ContractFunctionConfig<abi, functionName, 'view' | 'pure'>
+  ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>
 
 export type ReadContractReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-> = ContractFunctionResult<TAbi, TFunctionName>
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ContractFunctionName<
+    abi,
+    'pure' | 'view'
+  > = ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+> = ContractFunctionReturnType<abi, 'pure' | 'view', functionName, args>
 
 /**
  * Calls a read-only function on a contract, and returns the response.
@@ -65,11 +82,12 @@ export type ReadContractReturnType<
 export async function readContract<
   chain extends Chain | undefined,
   const abi extends Abi | readonly unknown[],
-  functionName extends string,
+  functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 >(
   client: Client<Transport, chain>,
-  parameters: ReadContractParameters<abi, functionName>,
-): Promise<ReadContractReturnType<abi, functionName>> {
+  parameters: ReadContractParameters<abi, functionName, args>,
+): Promise<ReadContractReturnType<abi, functionName, args>> {
   const { abi, address, args, functionName, ...callRequest } = parameters
   const calldata = encodeFunctionData({
     abi,

@@ -515,6 +515,10 @@ export { SizeExceedsPaddingSizeError } from './errors/data.js'
 export { UrlRequiredError } from './errors/transport.js'
 export type {
   AbiItem,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
+  ContractFunctionName,
+  ContractFunctionArgs,
   ContractParameters,
   ContractReturnType,
   ContractFunctionConfig,
@@ -636,7 +640,6 @@ export type { GetTransportConfig } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
-  MulticallContract,
   MulticallContracts,
   MulticallResponse,
   MulticallResults,

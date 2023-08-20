@@ -7,9 +7,9 @@ import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import type { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
+import type { ContractFunctionParameters } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {
-  MulticallContract,
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
@@ -17,12 +17,11 @@ import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getChainContractAddress } from '../../utils/chain.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
-
 import type { CallParameters } from './call.js'
 import { readContract } from './readContract.js'
 
 export type MulticallParameters<
-  contracts extends readonly unknown[] = readonly MulticallContract[],
+  contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
   allowFailure extends boolean = true,
   options extends {
     optional?: boolean
@@ -39,7 +38,7 @@ export type MulticallParameters<
 }
 
 export type MulticallReturnType<
-  contracts extends readonly unknown[] = readonly MulticallContract[],
+  contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
   allowFailure extends boolean = true,
   options extends {
     error?: Error
@@ -104,7 +103,7 @@ export async function multicall<
     blockTag,
     multicallAddress: multicallAddress_,
   } = parameters
-  const contracts = parameters.contracts as MulticallContract[]
+  const contracts = parameters.contracts as ContractFunctionParameters[]
 
   const batchSize =
     batchSize_ ??
