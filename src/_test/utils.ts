@@ -8,6 +8,7 @@ import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferE
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
 import offchainLookupExample from '../../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
+import payable from '../../contracts/out/Payable.sol/Payable.json'
 
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '../actions/test/impersonateAccount.js'
@@ -46,6 +47,7 @@ import {
   erc20InvalidTransferEventABI,
   errorsExampleABI,
   offchainLookupExampleABI,
+  payableABI,
 } from './generated.js'
 
 export const anvilChain = {
@@ -250,6 +252,14 @@ export async function deployOffchainLookupExample({
     bytecode: offchainLookupExample.bytecode.object as Hex,
     account: accounts[0].address,
     args: [urls],
+  })
+}
+
+export async function deployPayable() {
+  return deploy({
+    abi: payableABI,
+    bytecode: payable.bytecode.object as Hex,
+    account: accounts[0].address,
   })
 }
 

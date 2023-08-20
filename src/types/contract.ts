@@ -73,9 +73,9 @@ export type GetValue<
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = _Narrowable extends true
   ? TAbiFunction['stateMutability'] extends 'payable'
-    ? { value: NoUndefined<TValueType> }
+    ? { value?: NoUndefined<TValueType> }
     : TAbiFunction['payable'] extends true
-    ? { value: NoUndefined<TValueType> }
+    ? { value?: NoUndefined<TValueType> }
     : { value?: never }
   : { value?: TValueType }
 
