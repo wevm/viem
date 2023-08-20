@@ -1,5 +1,13 @@
 # viem
 
+## 1.6.4
+
+### Patch Changes
+
+- [#1040](https://github.com/wagmi-dev/viem/pull/1040) [`1e5bd4a0`](https://github.com/wagmi-dev/viem/commit/1e5bd4a000f8e8ebdb71674bca26cfb51eb8f275) Thanks [@jxom](https://github.com/jxom)! - Made `value` optional on `writeContract`/`simulateContract` for `payable` functions.
+
+* [#1022](https://github.com/wagmi-dev/viem/pull/1022) [`2eb56bc7`](https://github.com/wagmi-dev/viem/commit/2eb56bc7df4094b1b92f31ad926e72271ff27add) Thanks [@Songkeys](https://github.com/Songkeys)! - Fixed an issue where `waitForTransactionReceipt` would be infinitely pending when an error is thrown after a transaction has been replaced.
+
 ## 1.6.3
 
 ### Patch Changes
