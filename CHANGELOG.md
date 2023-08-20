@@ -1,5 +1,11 @@
 # viem
 
+## 1.6.5
+
+### Patch Changes
+
+- [#1041](https://github.com/wagmi-dev/viem/pull/1041) [`fa3353e9`](https://github.com/wagmi-dev/viem/commit/fa3353e9de1b27d8471531f1c4d35e7f34f7ef39) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket instantiation in React Native environment.
+
 ## 1.6.4
 
 ### Patch Changes
