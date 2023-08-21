@@ -2,10 +2,10 @@ import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
-import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {

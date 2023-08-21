@@ -206,9 +206,9 @@ import {
   type WatchPendingTransactionsReturnType,
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
+import type { Chain } from '../../chains/types.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
-import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
   MaybeAbiEventName,

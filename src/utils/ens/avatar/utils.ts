@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import { readContract } from '../../../actions/public/readContract.js'
+import type { Chain } from '../../../chains/types.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import {
@@ -9,7 +10,6 @@ import {
   EnsAvatarUnsupportedNamespaceError,
   EnsAvatarUriResolutionError,
 } from '../../../errors/ens.js'
-import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
 
 type UriItem = {

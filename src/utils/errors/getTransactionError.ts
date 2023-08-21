@@ -1,8 +1,8 @@
 import type { Account } from '../../accounts/types.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import type { Chain } from '../../chains/types.js'
 import type { BaseError } from '../../errors/base.js'
 import { TransactionExecutionError } from '../../errors/transaction.js'
-import type { Chain } from '../../types/chain.js'
 
 import {
   type GetNodeErrorParameters,

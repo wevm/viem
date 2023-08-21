@@ -599,7 +599,7 @@ export type {
   /** @deprecated use `ExtractChainFormatterReturnType` instead. */
   ExtractChainFormatterReturnType as ExtractFormatterReturnType,
   GetChain,
-} from './types/chain.js'
+} from './chains/types.js'
 export type {
   AddEthereumChainParameter,
   EIP1193EventMap,

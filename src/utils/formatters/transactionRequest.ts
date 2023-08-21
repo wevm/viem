@@ -1,7 +1,7 @@
 import type {
   Chain,
   ExtractChainFormatterParameters,
-} from '../../types/chain.js'
+} from '../../chains/types.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import { numberToHex } from '../encoding/toHex.js'

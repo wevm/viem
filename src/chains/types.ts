@@ -3,16 +3,16 @@ import type { Address } from 'abitype'
 import type { EstimateFeesPerGasReturnType } from '../actions/public/estimateFeesPerGas.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
-import type { FormattedBlock } from '../utils/formatters/block.js'
-import type { PrepareRequestParameters } from '../utils/transaction/prepareRequest.js'
-import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { Account } from './account.js'
-import type { FeeValuesType } from './fee.js'
+import type { Account } from '../types/account.js'
+import type { FeeValuesType } from '../types/fee.js'
 import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
-} from './transaction.js'
-import type { IsUndefined, Prettify } from './utils.js'
+} from '../types/transaction.js'
+import type { IsUndefined, Prettify } from '../types/utils.js'
+import type { FormattedBlock } from '../utils/formatters/block.js'
+import type { PrepareRequestParameters } from '../utils/transaction/prepareRequest.js'
+import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
@@ -21,8 +21,14 @@ export type Chain<
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
+  /**
+   * Modifies how chain data structures (ie. Blocks, Transactions, etc)
+   * are formatted & typed.
+   */
   formatters?: formatters | undefined
+  /** Modifies how data (ie. Transactions) is serialized. */
   serializers?: ChainSerializers<formatters> | undefined
+  /** Modifies how fees are derived. */
   fees?: ChainFees<formatters> | undefined
 }
 
@@ -31,7 +37,71 @@ export type ChainContract = {
   blockCreated?: number
 }
 
-type FeesFnParameters<
+export type ChainFees<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = {
+  /**
+   * The fee multiplier to use to account for fee fluctuations.
+   * Used in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
+   *
+   * @default 1.2
+   */
+  baseFeeMultiplier?:
+    | number
+    | ((args: ChainFeesFnParameters<formatters>) => Promise<number> | number)
+  /**
+   * The default `maxPriorityFeePerGas` to use when a priority
+   * fee is not defined upon sending a transaction.
+   *
+   * Overrides the return value in the [`estimateMaxPriorityFeePerGas` Action](/docs/actions/public/estimateMaxPriorityFeePerGas).
+   */
+  defaultPriorityFee?:
+    | bigint
+    | ((args: ChainFeesFnParameters<formatters>) => Promise<bigint> | bigint)
+  /**
+   * Allows customization of fee per gas values (e.g. `maxFeePerGas`/`maxPriorityFeePerGas`).
+   *
+   * Overrides the return value in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
+   */
+  estimateFeesPerGas?: (
+    args: ChainEstimateFeesPerGasFnParameters<formatters>,
+  ) => Promise<EstimateFeesPerGasReturnType> | bigint
+}
+
+export type ChainFormatters = {
+  /** Modifies how the Block structure is formatted & typed. */
+  block?: ChainFormatter<'block'>
+  /** Modifies how the Transaction structure is formatted & typed. */
+  transaction?: ChainFormatter<'transaction'>
+  /** Modifies how the TransactionReceipt structure is formatted & typed. */
+  transactionReceipt?: ChainFormatter<'transactionReceipt'>
+  /** Modifies how the TransactionRequest structure is formatted & typed. */
+  transactionRequest?: ChainFormatter<'transactionRequest'>
+}
+
+export type ChainFormatter<type extends string = string> = {
+  format: (args: any) => any
+  type: type
+}
+
+export type ChainSerializers<
+  formatters extends ChainFormatters | undefined = undefined,
+> = {
+  /** Modifies how Transactions are serialized. */
+  transaction?: SerializeTransactionFn<
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable
+  >
+}
+
+/////////////////////////////////////////////////////////////////////
+// Parameters
+
+export type ChainFeesFnParameters<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   /** The latest block. */
@@ -49,70 +119,18 @@ type FeesFnParameters<
   >
 }
 
-export type ChainFees<
+export type ChainEstimateFeesPerGasFnParameters<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   /**
-   * The fee multiplier to use to account for fee fluctuations.
-   * Used in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
-   *
-   * @default 1.2
+   * A function to multiply the base fee based on the `baseFeeMultiplier` value.
    */
-  baseFeeMultiplier?:
-    | number
-    | ((args: FeesFnParameters<formatters>) => Promise<number> | number)
+  multiply(x: bigint): bigint
   /**
-   * The default `maxPriorityFeePerGas` to use when a priority
-   * fee is not defined upon sending a transaction.
-   *
-   * Overrides the return value in the [`estimateMaxPriorityFeePerGas` Action](/docs/actions/public/estimateMaxPriorityFeePerGas).
+   * The type of fees to return.
    */
-  defaultPriorityFee?:
-    | bigint
-    | ((args: FeesFnParameters<formatters>) => Promise<bigint> | bigint)
-  /**
-   * Allows customization of fee per gas values (e.g. `maxFeePerGas`/`maxPriorityFeePerGas`).
-   *
-   * Overrides the return value in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
-   */
-  estimateFeesPerGas?: (
-    args: {
-      /**
-       * A function to multiply the base fee based on the `baseFeeMultiplier` value.
-       */
-      multiply(x: bigint): bigint
-      /**
-       * The type of fees to return.
-       */
-      type: FeeValuesType
-    } & FeesFnParameters<formatters>,
-  ) => Promise<EstimateFeesPerGasReturnType> | bigint
-}
-
-export type ChainFormatters = {
-  block?: ChainFormatter<'block'>
-  transaction?: ChainFormatter<'transaction'>
-  transactionReceipt?: ChainFormatter<'transactionReceipt'>
-  transactionRequest?: ChainFormatter<'transactionRequest'>
-}
-
-export type ChainFormatter<type extends string = string> = {
-  format: (args: any) => any
-  type: type
-}
-
-export type ChainSerializers<
-  formatters extends ChainFormatters | undefined = undefined,
-> = {
-  transaction?: SerializeTransactionFn<
-    formatters extends ChainFormatters
-      ? formatters['transactionRequest'] extends ChainFormatter
-        ? TransactionSerializableGeneric &
-            Parameters<formatters['transactionRequest']['format']>[0]
-        : TransactionSerializable
-      : TransactionSerializable
-  >
-}
+  type: FeeValuesType
+} & ChainFeesFnParameters<formatters>
 
 /////////////////////////////////////////////////////////////////////
 // Utils
@@ -120,7 +138,7 @@ export type ChainSerializers<
 export type ExtractChainFormatterExclude<
   chain extends { formatters?: Chain['formatters'] } | undefined,
   type extends keyof ChainFormatters,
-> = chain extends { formatters: infer _Formatters extends ChainFormatters }
+> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
   ? _Formatters[type] extends { exclude: infer Exclude }
     ? Extract<Exclude, string[]>[number]
     : ''
@@ -130,7 +148,7 @@ export type ExtractChainFormatterParameters<
   chain extends { formatters?: Chain['formatters'] } | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> = chain extends { formatters: infer _Formatters extends ChainFormatters }
+> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
   ? _Formatters[type] extends ChainFormatter
     ? Parameters<_Formatters[type]['format']>[0]
     : fallback
@@ -140,7 +158,7 @@ export type ExtractChainFormatterReturnType<
   chain extends { formatters?: Chain['formatters'] } | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> = chain extends { formatters: infer _Formatters extends ChainFormatters }
+> = chain extends { formatters?: infer _Formatters extends ChainFormatters }
   ? _Formatters[type] extends ChainFormatter
     ? ReturnType<_Formatters[type]['format']>
     : fallback

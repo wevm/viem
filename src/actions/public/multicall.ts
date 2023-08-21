@@ -1,12 +1,12 @@
 import type { Address, Narrow } from 'abitype'
 
+import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import type { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
-import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type {

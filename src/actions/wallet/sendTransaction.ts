@@ -1,11 +1,11 @@
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { Chain, GetChain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,

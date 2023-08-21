@@ -1,4 +1,4 @@
-import type { ChainFormatter } from '../../types/chain.js'
+import type { ChainFormatter } from '../../chains/types.js'
 
 /**
  * @description Picks out the keys from `value` that exist in the formatter.

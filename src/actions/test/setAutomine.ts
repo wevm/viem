@@ -1,10 +1,10 @@
+import type { Chain } from '../../chains/types.js'
 import type {
   TestClient,
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
 
 /**
  * Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.

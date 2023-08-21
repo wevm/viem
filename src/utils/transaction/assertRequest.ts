@@ -1,9 +1,9 @@
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import type { Chain } from '../../chains/types.js'
 import { InvalidAddressError } from '../../errors/address.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
 import { FeeConflictError } from '../../errors/transaction.js'
-import type { Chain } from '../../types/chain.js'
 import { isAddress } from '../address/isAddress.js'
 
 export type AssertRequestParameters = Partial<SendTransactionParameters<Chain>>

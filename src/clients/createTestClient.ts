@@ -1,6 +1,6 @@
 import type { Account } from '../accounts/types.js'
+import type { Chain } from '../chains/types.js'
 import type { ParseAccount } from '../types/account.js'
-import type { Chain } from '../types/chain.js'
 import type { TestRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'

@@ -1,4 +1,4 @@
-import type { Chain } from '../types/chain.js'
+import type { Chain } from '../chains/types.js'
 import type { PublicRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'

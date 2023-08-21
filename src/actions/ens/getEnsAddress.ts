@@ -1,12 +1,12 @@
 import type { Address } from 'abitype'
 
+import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   addressResolverAbi,
   universalResolverResolveAbi,
 } from '../../constants/abis.js'
-import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'

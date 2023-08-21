@@ -10,6 +10,7 @@ import {
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransactionCount } from '../../actions/public/getTransactionCount.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
+import type { Chain, GetChain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
@@ -18,7 +19,6 @@ import {
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
 import type { UnionOmit } from '../../types/utils.js'
 import { type FormattedTransactionRequest } from '../index.js'
 import { type AssertRequestParameters, assertRequest } from './assertRequest.js'

@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
-import type { Chain } from '../types/chain.js'
+import type { Chain } from '../chains/types.js'
 import type {
   EIP1193RequestFn,
   EIP1474Methods,

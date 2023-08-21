@@ -5,9 +5,9 @@ import { test } from 'vitest'
 import { localHttpUrl } from '../../_test/constants.js'
 import { anvilChain } from '../../_test/utils.js'
 import type { Account } from '../../accounts/types.js'
+import type { Chain } from '../../chains/types.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
-import type { Chain } from '../../types/chain.js'
 
 import { sendTransaction } from './sendTransaction.js'
 

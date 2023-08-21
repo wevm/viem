@@ -1,3 +1,9 @@
+import type {
+  Chain,
+  ChainEstimateFeesPerGasFnParameters,
+  ChainFeesFnParameters,
+  GetChain,
+} from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
@@ -5,7 +11,6 @@ import {
   Eip1559FeesNotSupportedError,
 } from '../../errors/fee.js'
 import type { Block } from '../../types/block.js'
-import type { Chain, GetChain } from '../../types/chain.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesLegacy,
@@ -94,9 +99,9 @@ export async function internal_estimateFeesPerGas<
     if (typeof chain?.fees?.baseFeeMultiplier === 'function')
       return chain.fees.baseFeeMultiplier({
         block: block_ as Block,
-        client: client as Client<Transport, Chain>,
+        client,
         request,
-      })
+      } as ChainFeesFnParameters)
     return chain?.fees?.baseFeeMultiplier ?? 1.2
   })()
   if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
@@ -111,11 +116,11 @@ export async function internal_estimateFeesPerGas<
   if (typeof chain?.fees?.estimateFeesPerGas === 'function')
     return chain.fees.estimateFeesPerGas({
       block: block_ as Block,
-      client: client as Client<Transport, Chain>,
+      client,
       multiply,
       request,
       type,
-    }) as unknown as EstimateFeesPerGasReturnType<type>
+    } as ChainEstimateFeesPerGasFnParameters) as unknown as EstimateFeesPerGasReturnType<type>
 
   if (type === 'eip1559') {
     if (typeof block.baseFeePerGas !== 'bigint')

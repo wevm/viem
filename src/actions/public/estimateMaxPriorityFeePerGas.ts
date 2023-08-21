@@ -1,8 +1,12 @@
+import type {
+  Chain,
+  ChainFeesFnParameters,
+  GetChain,
+} from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { Eip1559FeesNotSupportedError } from '../../errors/fee.js'
 import type { Account } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import type { PrepareRequestParameters } from '../../utils/transaction/prepareRequest.js'
 import { getBlock } from './getBlock.js'
@@ -59,14 +63,14 @@ export async function internal_estimateMaxPriorityFeePerGas<
     >
   },
 ): Promise<EstimateMaxPriorityFeePerGasReturnType> {
-  const { chain = client.chain } = args || {}
+  const { chain = client.chain, request } = args || {}
   if (typeof chain?.fees?.defaultPriorityFee === 'function') {
     const block = await getBlock(client)
     return chain.fees.defaultPriorityFee({
       block,
-      client: client as Client<Transport, Chain>,
-      request: args?.request as PrepareRequestParameters,
-    })
+      client,
+      request,
+    } as ChainFeesFnParameters)
   } else if (chain?.fees?.defaultPriorityFee)
     return chain?.fees?.defaultPriorityFee
 

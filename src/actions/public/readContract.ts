@@ -1,9 +1,9 @@
 import type { Abi } from 'abitype'
 
+import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
-import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionConfig,
   ContractFunctionResult,

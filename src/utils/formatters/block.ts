@@ -1,9 +1,9 @@
-import type { Block, BlockTag } from '../../types/block.js'
-import type { Chain } from '../../types/chain.js'
+import type { Chain } from '../../chains/types.js'
 import type {
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
-} from '../../types/chain.js'
+} from '../../chains/types.js'
+import type { Block, BlockTag } from '../../types/block.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import type { Prettify } from '../../types/utils.js'
