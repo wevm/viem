@@ -572,6 +572,18 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
+   * @description Returns the current maxPriorityFeePerGas in wei.
+   * @link https://ethereum.github.io/execution-apis/api-documentation/
+   * @example
+   * provider.request({ method: 'eth_maxPriorityFeePerGas' })
+   * // => '0x5f5e100'
+   */
+  {
+    Method: 'eth_maxPriorityFeePerGas'
+    Parameters?: undefined
+    ReturnType: Quantity
+  },
+  /**
    * @description Creates a filter to listen for new blocks that can be used with `eth_getFilterChanges`
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example

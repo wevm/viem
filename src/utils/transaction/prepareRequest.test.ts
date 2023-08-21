@@ -1,18 +1,21 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, localHttpUrl } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { accounts } from '../../_test/constants.js'
+import {
+  anvilChain,
+  publicClient,
+  testClient,
+  walletClient,
+} from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
 import { setBalance } from '../../actions/test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFeePerGas.js'
-import { createWalletClient } from '../../clients/createWalletClient.js'
-import { http } from '../../clients/transports/http.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
-import { anvilChain } from '../../_test/utils.js'
+import { createWalletClient, http } from '../../index.js'
 import { prepareRequest } from './prepareRequest.js'
 
 const sourceAccount = accounts[0]
@@ -40,6 +43,7 @@ describe('prepareRequest', () => {
     const block = await getBlock.getBlock(publicClient)
     const {
       maxFeePerGas,
+      maxPriorityFeePerGas,
       nonce: _nonce,
       ...rest
     } = await prepareRequest(walletClient, {
@@ -48,8 +52,7 @@ describe('prepareRequest', () => {
       value: parseEther('1'),
     })
     expect(maxFeePerGas).toEqual(
-      // 1.2x base fee + tip
-      (block.baseFeePerGas! * 120n) / 100n + parseGwei('1.5'),
+      (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas!,
     )
     expect(rest).toMatchInlineSnapshot(`
       {
@@ -64,7 +67,6 @@ describe('prepareRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxPriorityFeePerGas": 1500000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "value": 1000000000000000000n,
       }
@@ -128,7 +130,7 @@ describe('prepareRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxPriorityFeePerGas": 1500000000n,
+        "maxPriorityFeePerGas": 18500000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "value": 1000000000000000000n,
       }
@@ -160,7 +162,7 @@ describe('prepareRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxPriorityFeePerGas": 1500000000n,
+        "maxPriorityFeePerGas": 18500000000n,
         "nonce": 5,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "value": 1000000000000000000n,
@@ -236,7 +238,7 @@ describe('prepareRequest', () => {
     const { nonce: _nonce, ...rest } = await prepareRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
-      maxFeePerGas: parseGwei('10'),
+      maxFeePerGas: parseGwei('100'),
       value: parseEther('1'),
     })
     expect(rest).toMatchInlineSnapshot(`
@@ -252,8 +254,8 @@ describe('prepareRequest', () => {
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 10000000000n,
-        "maxPriorityFeePerGas": 1500000000n,
+        "maxFeePerGas": 100000000000n,
+        "maxPriorityFeePerGas": 18500000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "value": 1000000000000000000n,
       }
@@ -271,7 +273,7 @@ describe('prepareRequest', () => {
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "\`maxFeePerGas\` cannot be less than the default \`maxPriorityFeePerGas\` (1.5 gwei).
+      "\`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (18.5 gwei).
 
       Version: viem@1.0.2"
     `)
@@ -449,7 +451,7 @@ describe('prepareRequest', () => {
           defaultPriorityFee: () => parseGwei('69'),
         },
       },
-      transport: http(localHttpUrl),
+      transport: http(),
     })
     const request_1 = await prepareRequest(client_1, {
       account: privateKeyToAccount(sourceAccount.privateKey),
@@ -468,7 +470,7 @@ describe('prepareRequest', () => {
           defaultPriorityFee: async () => parseGwei('69'),
         },
       },
-      transport: http(localHttpUrl),
+      transport: http(),
     })
     const request_2 = await prepareRequest(client_2, {
       account: privateKeyToAccount(sourceAccount.privateKey),
@@ -487,7 +489,7 @@ describe('prepareRequest', () => {
           defaultPriorityFee: parseGwei('69'),
         },
       },
-      transport: http(localHttpUrl),
+      transport: http(),
     })
     const request_3 = await prepareRequest(client_3, {
       account: privateKeyToAccount(sourceAccount.privateKey),

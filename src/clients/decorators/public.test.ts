@@ -44,10 +44,12 @@ test('default', async () => {
       "getEnsResolver": [Function],
       "getEnsText": [Function],
       "getFeeHistory": [Function],
+      "estimateFeesPerGas": [Function],
       "getFilterChanges": [Function],
       "getFilterLogs": [Function],
       "getGasPrice": [Function],
       "getLogs": [Function],
+      "estimateMaxPriorityFeePerGas": [Function],
       "getStorageAt": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
@@ -227,6 +229,10 @@ describe('smoke test', () => {
     ).toBeDefined()
   })
 
+  test('estimateFeesPerGas', async () => {
+    expect(await publicClient.estimateFeesPerGas()).toBeDefined()
+  })
+
   test('getFilterChanges', async () => {
     const filter = await publicClient.createPendingTransactionFilter()
     expect(
@@ -251,6 +257,10 @@ describe('smoke test', () => {
 
   test('getLogs', async () => {
     expect(await publicClient.getLogs()).toBeDefined()
+  })
+
+  test('estimateMaxPriorityFeePerGas', async () => {
+    expect(await publicClient.estimateMaxPriorityFeePerGas()).toBeDefined()
   })
 
   test('getStorageAt', async () => {

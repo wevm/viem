@@ -436,6 +436,11 @@ export {
   RawContractError,
 } from './errors/contract.js'
 export {
+  BaseFeeScalarError,
+  Eip1559FeesNotSupportedError,
+  MaxFeePerGasTooLowError,
+} from './errors/fee.js'
+export {
   ChainDisconnectedError,
   InternalRpcError,
   InvalidInputRpcError,
@@ -621,6 +626,7 @@ export type {
   FeeValues,
   FeeValuesEIP1559,
   FeeValuesLegacy,
+  FeeValuesType,
 } from './types/fee.js'
 export type { Filter } from './types/filter.js'
 export type {

@@ -54,10 +54,20 @@ import {
   estimateContractGas,
 } from '../../actions/public/estimateContractGas.js'
 import {
+  type EstimateFeesPerGasParameters,
+  type EstimateFeesPerGasReturnType,
+  estimateFeesPerGas,
+} from '../../actions/public/estimateFeesPerGas.js'
+import {
   type EstimateGasParameters,
   type EstimateGasReturnType,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
+import {
+  type EstimateMaxPriorityFeePerGasParameters,
+  type EstimateMaxPriorityFeePerGasReturnType,
+  estimateMaxPriorityFeePerGas,
+} from '../../actions/public/estimateMaxPriorityFeePerGas.js'
 import {
   type GetBalanceParameters,
   type GetBalanceReturnType,
@@ -204,6 +214,7 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
+import type { FeeValuesType } from '../../types/fee.js'
 import type { FilterType } from '../../types/filter.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
@@ -765,6 +776,33 @@ export type PublicActions<
     args: GetFeeHistoryParameters,
   ) => Promise<GetFeeHistoryReturnType>
   /**
+   * Returns an estimate for the fees per gas for a transaction to be included
+   * in the next block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/estimateFeesPerGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateFeesPerGasParameters}
+   * @returns An estimate (in wei) for the fees per gas. {@link EstimateFeesPerGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const maxPriorityFeePerGas = await client.estimateFeesPerGas()
+   * // { maxFeePerGas: ..., maxPriorityFeePerGas: ... }
+   */
+  estimateFeesPerGas: <
+    TChainOverride extends Chain | undefined,
+    TType extends FeeValuesType = 'eip1559',
+  >(
+    args?: EstimateFeesPerGasParameters<TChain, TChainOverride, TType>,
+  ) => Promise<EstimateFeesPerGasReturnType>
+  /**
    * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
    *
    * - Docs: https://viem.sh/docs/actions/public/getFilterChanges.html
@@ -970,6 +1008,29 @@ export type PublicActions<
   ) => Promise<
     GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
   >
+  /**
+   * Returns an estimate for the max priority fee per gas (in wei) for a transaction
+   * to be included in the next block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/estimateMaxPriorityFeePerGas.html
+   *
+   * @param client - Client to use
+   * @returns An estimate (in wei) for the max priority fee per gas. {@link EstimateMaxPriorityFeePerGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const maxPriorityFeePerGas = await client.estimateMaxPriorityFeePerGas()
+   * // 10000000n
+   */
+  estimateMaxPriorityFeePerGas: <TChainOverride extends Chain | undefined,>(
+    args?: EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>,
+  ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
    * Returns the value from a storage slot at a given address.
    *
@@ -1492,10 +1553,13 @@ export function publicActions<
     getEnsResolver: (args) => getEnsResolver(client, args),
     getEnsText: (args) => getEnsText(client, args),
     getFeeHistory: (args) => getFeeHistory(client, args),
+    estimateFeesPerGas: (args) => estimateFeesPerGas(client, args),
     getFilterChanges: (args) => getFilterChanges(client, args),
     getFilterLogs: (args) => getFilterLogs(client, args),
     getGasPrice: () => getGasPrice(client),
     getLogs: (args) => getLogs(client, args as any),
+    estimateMaxPriorityFeePerGas: (args) =>
+      estimateMaxPriorityFeePerGas(client, args),
     getStorageAt: (args) => getStorageAt(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>
