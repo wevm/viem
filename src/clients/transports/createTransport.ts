@@ -1,6 +1,7 @@
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { buildRequest } from '../../utils/buildRequest.js'
+import type { RpcRequest } from '../../utils/index.js'
 import type { ClientConfig } from '../createClient.js'
 
 export type TransportConfig<
@@ -13,6 +14,10 @@ export type TransportConfig<
   key: string
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
   request: TEIP1193RequestFn
+  /** On request */
+  onRequest?: (request: RpcRequest[]) => void
+  /** On response */
+  onResponse?: (response: any) => void
   /** The base delay (in ms) between retries. */
   retryDelay?: number
   /** The max number of times to retry. */
@@ -51,6 +56,8 @@ export function createTransport<
     key,
     name,
     request,
+    onRequest,
+    onResponse,
     retryCount = 3,
     retryDelay = 150,
     timeout,
@@ -60,7 +67,12 @@ export function createTransport<
 ): ReturnType<Transport<TType, TRpcAttributes>> {
   return {
     config: { key, name, request, retryCount, retryDelay, timeout, type },
-    request: buildRequest(request, { retryCount, retryDelay }),
+    request: buildRequest(request, {
+      retryCount,
+      retryDelay,
+      onRequest,
+      onResponse,
+    }),
     value,
   }
 }
