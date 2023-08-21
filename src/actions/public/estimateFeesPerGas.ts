@@ -2,7 +2,6 @@ import type {
   Chain,
   ChainEstimateFeesPerGasFnParameters,
   ChainFeesFnParameters,
-  GetChain,
 } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -11,6 +10,7 @@ import {
   Eip1559FeesNotSupportedError,
 } from '../../errors/fee.js'
 import type { Block } from '../../types/block.js'
+import type { GetChain } from '../../types/chain.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesLegacy,

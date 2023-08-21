@@ -1,12 +1,9 @@
-import type {
-  Chain,
-  ChainFeesFnParameters,
-  GetChain,
-} from '../../chains/types.js'
+import type { Chain, ChainFeesFnParameters } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { Eip1559FeesNotSupportedError } from '../../errors/fee.js'
 import type { Account } from '../../types/account.js'
+import type { GetChain } from '../../types/chain.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import type { PrepareRequestParameters } from '../../utils/transaction/prepareRequest.js'
 import { getBlock } from './getBlock.js'

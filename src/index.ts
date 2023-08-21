@@ -245,6 +245,29 @@ export type {
   WriteContractParameters,
   WriteContractReturnType,
 } from './actions/wallet/writeContract.js'
+export type {
+  Chain,
+  ChainContract,
+  ChainFees,
+  ChainFormatter,
+  /** @deprecated use `ChainFormatter` instead. */
+  ChainFormatter as Formatter,
+  ChainFormatters,
+  /** @deprecated use `ChainFormatters` instead. */
+  ChainFormatters as Formatters,
+  ChainSerializers,
+  /** @deprecated use `ChainSerializers` instead. */
+  ChainSerializers as Serializers,
+  ExtractChainFormatterExclude,
+  /** @deprecated use `ExtractChainFormatterExclude` instead. */
+  ExtractChainFormatterExclude as ExtractFormatterExclude,
+  ExtractChainFormatterParameters,
+  /** @deprecated use `ExtractChainFormatterParameters` instead. */
+  ExtractChainFormatterParameters as ExtractFormatterParameters,
+  ExtractChainFormatterReturnType,
+  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
+  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
+} from './chains/types.js'
 export {
   type Client,
   type ClientConfig,
@@ -576,30 +599,7 @@ export type {
   Signature,
   SignableMessage,
 } from './types/misc.js'
-export type {
-  Chain,
-  ChainContract,
-  ChainFees,
-  ChainFormatter,
-  /** @deprecated use `ChainFormatter` instead. */
-  ChainFormatter as Formatter,
-  ChainFormatters,
-  /** @deprecated use `ChainFormatters` instead. */
-  ChainFormatters as Formatters,
-  ChainSerializers,
-  /** @deprecated use `ChainSerializers` instead. */
-  ChainSerializers as Serializers,
-  ExtractChainFormatterExclude,
-  /** @deprecated use `ExtractChainFormatterExclude` instead. */
-  ExtractChainFormatterExclude as ExtractFormatterExclude,
-  ExtractChainFormatterParameters,
-  /** @deprecated use `ExtractChainFormatterParameters` instead. */
-  ExtractChainFormatterParameters as ExtractFormatterParameters,
-  ExtractChainFormatterReturnType,
-  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
-  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
-  GetChain,
-} from './chains/types.js'
+export type { GetChain } from './types/chain.js'
 export type {
   AddEthereumChainParameter,
   EIP1193EventMap,

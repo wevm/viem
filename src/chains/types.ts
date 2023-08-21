@@ -9,7 +9,7 @@ import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
 } from '../types/transaction.js'
-import type { IsUndefined, Prettify } from '../types/utils.js'
+import type { Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
 import type { PrepareRequestParameters } from '../utils/transaction/prepareRequest.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
@@ -163,10 +163,3 @@ export type ExtractChainFormatterReturnType<
     ? ReturnType<_Formatters[type]['format']>
     : fallback
   : fallback
-
-export type GetChain<
-  chain extends Chain | undefined,
-  chainOverride extends Chain | undefined = undefined,
-> = IsUndefined<chain> extends true
-  ? { chain: chainOverride | null }
-  : { chain?: chainOverride | null }
