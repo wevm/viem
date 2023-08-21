@@ -24,6 +24,7 @@ import {
   UnsupportedProviderMethodError,
   UserRejectedRequestError,
 } from '../errors/rpc.js'
+import type { TransportConfig } from '../index.js'
 
 import { withRetry } from './promise/withRetry.js'
 
@@ -55,18 +56,35 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
   {
     retryDelay = 150,
     retryCount = 3,
+    onRequest,
+    onResponse,
   }: {
     // The base delay (in ms) between retries.
     retryDelay?: number
     // The max number of times to retry.
     retryCount?: number
+    // Request debugger helper
+    onRequest?: TransportConfig['onRequest']
+    // Response debugger helper
+    onResponse?: TransportConfig['onResponse']
+
   } = {},
 ) {
   return (async (args: any) =>
     withRetry(
       async () => {
         try {
-          return await request(args)
+          if (onRequest) {
+            onRequest(args)
+          }
+
+          const response = await request(args)
+
+          if (onResponse) {
+            onResponse(response)
+          }
+
+          return response
         } catch (err_) {
           const err = err_ as unknown as RpcError<
             RpcErrorCode | ProviderRpcErrorCode
