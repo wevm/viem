@@ -27,6 +27,7 @@ import type {
   MaybeRequired,
   NoUndefined,
   Prettify,
+  UnionEvaluate,
   UnionToTuple,
 } from './utils.js'
 
@@ -128,28 +129,30 @@ export type ContractFunctionParameters<
   allFunctionNames = ContractFunctionName<abi, mutability>,
   // when `args` is inferred to `readonly []` ("inputs": []) or `never` (`abi` declared as `Abi` or not inferrable), allow `args` to be optional.
   // important that both branches return same structural type
-> = readonly [] extends allArgs
-  ? {
-      address: Address
-      abi: abi
-      functionName:
-        | allFunctionNames // show all options
-        | (functionName extends allFunctionNames ? functionName : never) // infer value
-      args?:
-        | allArgs // show all options
-        | (args extends allArgs ? Widen<args> : never) // infer value, widen inferred value of `args` conditionally to match `allArgs`
-        | undefined
-    }
-  : {
-      address: Address
-      abi: abi
-      functionName:
-        | allFunctionNames // show all options
-        | (functionName extends allFunctionNames ? functionName : never) // infer value
-      args:
-        | allArgs // show all options
-        | Widen<args> // infer value, widen inferred value of `args` match `allArgs` (e.g. avoid union `args: readonly [123n] | readonly [bigint]`)
-    }
+> = {
+  address: Address
+  abi: abi
+  functionName:
+    | allFunctionNames // show all options
+    | (functionName extends allFunctionNames ? functionName : never) // infer value
+  args?:
+    | allArgs // show all options
+    | (args extends allArgs ? Widen<args> : never) // infer value, widen inferred value of `args` conditionally to match `allArgs`
+    | undefined
+} & UnionEvaluate<
+  readonly [] extends allArgs
+    ? {
+        args?:
+          | allArgs // show all options
+          | (args extends allArgs ? Widen<args> : never) // infer value, widen inferred value of `args` conditionally to match `allArgs`
+          | undefined
+      }
+    : {
+        args:
+          | allArgs // show all options
+          | (Widen<args> & (args extends allArgs ? unknown : never)) // infer value, widen inferred value of `args` match `allArgs` (e.g. avoid union `args: readonly [123n] | readonly [bigint]`)
+      }
+>
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,

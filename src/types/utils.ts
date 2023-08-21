@@ -147,6 +147,8 @@ export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
+export type UnionEvaluate<type> = type extends object ? Prettify<type> : type
+
 /**
  * @description Creates a type that extracts the values of T.
  *
