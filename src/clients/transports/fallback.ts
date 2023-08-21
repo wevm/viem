@@ -71,6 +71,10 @@ export type FallbackTransportConfig = {
   retryCount?: TransportConfig['retryCount']
   /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay']
+  /** On request debug helper */
+  onRequest?: TransportConfig['onRequest']
+  /** On response */
+  onResponse?: TransportConfig['onResponse']
 }
 
 export type FallbackTransport = Transport<
@@ -91,6 +95,8 @@ export function fallback(
     rank = false,
     retryCount,
     retryDelay,
+    onRequest,
+    onResponse: onResponse_,
   } = config
   return ({ chain, pollingInterval = 4_000, timeout }) => {
     let transports = transports_
@@ -143,6 +149,8 @@ export function fallback(
         },
         retryCount,
         retryDelay,
+        onRequest,
+        onResponse: onResponse_,
         type: 'fallback',
       },
       {
