@@ -53,7 +53,7 @@ test('args: chain `estimateFeesPerGas` override', async () => {
   expect(maxPriorityFeePerGas).toBe(1n)
 })
 
-test('args: chain `baseFeeMultiplier` override', async () => {
+test('args: chain `baseFeeMultiplier` override (value)', async () => {
   const block = await getBlock.getBlock(publicClient)
 
   const client = createPublicClient({
@@ -66,6 +66,56 @@ test('args: chain `baseFeeMultiplier` override', async () => {
         ...anvilChain,
         fees: {
           baseFeeMultiplier: 1.5,
+        },
+      },
+    },
+  )
+  expect(maxFeePerGas).toBe(
+    (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
+  )
+  expect(maxPriorityFeePerGas).toBeDefined()
+})
+
+test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
+  const block = await getBlock.getBlock(publicClient)
+
+  const client = createPublicClient({
+    transport: http(localHttpUrl),
+  })
+  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
+    client,
+    {
+      chain: {
+        ...anvilChain,
+        fees: {
+          baseFeeMultiplier() {
+            return 1.5
+          },
+        },
+      },
+    },
+  )
+  expect(maxFeePerGas).toBe(
+    (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
+  )
+  expect(maxPriorityFeePerGas).toBeDefined()
+})
+
+test('args: chain `baseFeeMultiplier` override (async fn)', async () => {
+  const block = await getBlock.getBlock(publicClient)
+
+  const client = createPublicClient({
+    transport: http(localHttpUrl),
+  })
+  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
+    client,
+    {
+      chain: {
+        ...anvilChain,
+        fees: {
+          async baseFeeMultiplier() {
+            return 1.5
+          },
         },
       },
     },

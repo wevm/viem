@@ -17,7 +17,7 @@ export type EstimateMaxPriorityFeePerGasReturnType = bigint
 /**
  * Returns an estimate for the max priority fee per gas (in wei) for a
  * transaction to be likely included in the next block.
- * Defaults to [`chain.fees.defaultPriorityFee`](#TODO) if set.
+ * Defaults to [`chain.fees.defaultPriorityFee`](/docs/clients/chains.html#fees-defaultpriorityfee) if set.
  *
  * - Docs: https://viem.sh/docs/actions/public/estimateMaxPriorityFeePerGas.html
  *

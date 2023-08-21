@@ -333,3 +333,29 @@ const receipt = await client.getTransactionReceipt({ hash: '0x...' }) // [!code 
 ```
 
 ### Serializers
+
+#### `serializers.transaction`
+
+- **Type**: `(transaction: Transaction, signature?: Signature) => "0x${string}"`
+
+You can modify how Transactions are serialized by using the `serializers.transaction` property on the Chain.
+
+**Parameters**
+
+- `transaction`: The transaction to serialize.
+- `signature`: The transaction signature (if exists).
+
+```ts
+import { defineChain, serializeTransaction } from 'viem'
+
+const example = defineChain(
+  { /* ... */ },
+  { // [!code focus:7]
+    serializers: {
+      transaction(transaction, signature) {
+        return serializeTransaction(transaction, signature)
+      }
+    }
+  }
+)
+```

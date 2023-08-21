@@ -41,7 +41,7 @@ export type EstimateFeesPerGasReturnType<
 /**
  * Returns an estimate for the fees per gas (in wei) for a
  * transaction to be likely included in the next block.
- * Defaults to [`chain.fees.estimateFeesPerGas`](#TODO) if set.
+ * Defaults to [`chain.fees.estimateFeesPerGas`](/docs/clients/chains.html#fees-estimatefeespergas) if set.
  *
  * - Docs: https://viem.sh/docs/actions/public/estimateFeesPerGas.html
  *
@@ -90,7 +90,15 @@ export async function internal_estimateFeesPerGas<
     type = 'eip1559',
   } = args || {}
 
-  const baseFeeMultiplier = chain?.fees?.baseFeeMultiplier ?? 1.2
+  const baseFeeMultiplier = await (async () => {
+    if (typeof chain?.fees?.baseFeeMultiplier === 'function')
+      return chain.fees.baseFeeMultiplier({
+        block: block_ as Block,
+        client: client as Client<Transport, Chain>,
+        request,
+      })
+    return chain?.fees?.baseFeeMultiplier ?? 1.2
+  })()
   if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
 
   const decimals = baseFeeMultiplier.toString().split('.')[1].length
