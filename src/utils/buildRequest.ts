@@ -67,7 +67,6 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
     onRequest?: TransportConfig['onRequest']
     // Response debugger helper
     onResponse?: TransportConfig['onResponse']
-
   } = {},
 ) {
   return (async (args: any) =>
