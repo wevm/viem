@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest'
+
 import { accounts } from '../../_test/constants.js'
 import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import {
@@ -9,11 +11,8 @@ import {
   parseGwei,
   parseTransaction,
 } from '../../index.js'
-import {
-  type TransactionSerializableCIP42,
-  serializeTransactionCelo,
-} from './serializers.js'
-import { describe, expect, test } from 'vitest'
+import { serializeTransactionCelo } from './serializers.js'
+import type { TransactionSerializableCIP42 } from './types.js'
 
 const baseCip42: TransactionSerializableCIP42 = {
   to: accounts[0].address,
