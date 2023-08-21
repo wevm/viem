@@ -14,7 +14,14 @@ const apiKey = 'PjT72qifrAFZ4WV_drrd30N5onftY5VA'
 export const clients = {
   mainnet: createPublicClient({
     chain: mainnet,
-    transport: http(`${mainnet.rpcUrls.alchemy.http[0]}/${apiKey}`),
+    transport: http(`${mainnet.rpcUrls.alchemy.http[0]}/${apiKey}`, {
+      onRequest(request) {
+        console.log('request', request)
+      },
+      onResponse(response) {
+        console.log('response', response)
+      },
+    }),
   }),
   polygon: createPublicClient({
     chain: polygon,
