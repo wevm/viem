@@ -14,7 +14,11 @@ import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
-import { parseTransaction } from './parseTransaction.js'
+import {
+  parseAccessList,
+  parseTransaction,
+  toTransactionArray,
+} from './parseTransaction.js'
 import { serializeTransaction } from './serializeTransaction.js'
 
 const base = {
@@ -691,4 +695,53 @@ describe('errors', () => {
     `,
     )
   })
+})
+
+test('toTransactionArray', () => {
+  expect(
+    toTransactionArray(
+      serializeTransaction({
+        ...base,
+        chainId: 1,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 1n,
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [
+      "0x01",
+      "0x0311",
+      "0x01",
+      "0x01",
+      "0x",
+      "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "0x0de0b6b3a7640000",
+      "0x",
+      [],
+    ]
+  `)
+})
+
+test('parseAccessList', () => {
+  expect(
+    parseAccessList([
+      [
+        '0x1234512345123451234512345123451234512345',
+        [
+          '0x1234512345123451234512345123451234512345',
+          '0x1234512345123451234512345123451234512345',
+        ],
+      ],
+    ]),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "address": "0x1234512345123451234512345123451234512345",
+        "storageKeys": [
+          "0x1234512345123451234512345123451234512345",
+          "0x1234512345123451234512345123451234512345",
+        ],
+      },
+    ]
+  `)
 })
