@@ -4,7 +4,7 @@ import { BaseError } from './base.js'
 export class BaseFeeScalarError extends BaseError {
   override name = 'BaseFeeScalarError'
   constructor() {
-    super('`baseFeeScalar` must be greater than 1.')
+    super('`baseFeeMultiplier` must be greater than 1.')
   }
 }
 

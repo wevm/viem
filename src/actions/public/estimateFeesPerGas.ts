@@ -90,13 +90,13 @@ export async function internal_estimateFeesPerGas<
     type = 'eip1559',
   } = args || {}
 
-  const baseFeeScalar = chain?.fees?.baseFeeScalar ?? 1.2
-  if (baseFeeScalar < 1) throw new BaseFeeScalarError()
+  const baseFeeMultiplier = chain?.fees?.baseFeeMultiplier ?? 1.2
+  if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
 
-  const decimals = baseFeeScalar.toString().split('.')[1].length
+  const decimals = baseFeeMultiplier.toString().split('.')[1].length
   const denominator = 10 ** decimals
-  const scale = (base: bigint) =>
-    (base * BigInt(baseFeeScalar * denominator)) / BigInt(denominator)
+  const multiply = (base: bigint) =>
+    (base * BigInt(baseFeeMultiplier * denominator)) / BigInt(denominator)
 
   const block = block_ ? block_ : await getBlock(client)
 
@@ -104,8 +104,8 @@ export async function internal_estimateFeesPerGas<
     return chain.fees.estimateFeesPerGas({
       block: block_ as Block,
       client: client as Client<Transport, Chain>,
+      multiply,
       request,
-      scale,
       type,
     }) as unknown as EstimateFeesPerGasReturnType<type>
 
@@ -123,7 +123,7 @@ export async function internal_estimateFeesPerGas<
           },
         )
 
-    const baseFeePerGas = scale(block.baseFeePerGas)
+    const baseFeePerGas = multiply(block.baseFeePerGas)
     const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas
 
     return {
@@ -132,7 +132,7 @@ export async function internal_estimateFeesPerGas<
     } as EstimateFeesPerGasReturnType<type>
   }
 
-  const gasPrice = scale(await getGasPrice(client))
+  const gasPrice = multiply(await getGasPrice(client))
   return {
     gasPrice,
   } as EstimateFeesPerGasReturnType<type>

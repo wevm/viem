@@ -53,7 +53,7 @@ test('args: chain `estimateFeesPerGas` override', async () => {
   expect(maxPriorityFeePerGas).toBe(1n)
 })
 
-test('args: chain `baseFeeScalar` override', async () => {
+test('args: chain `baseFeeMultiplier` override', async () => {
   const block = await getBlock.getBlock(publicClient)
 
   const client = createPublicClient({
@@ -65,7 +65,7 @@ test('args: chain `baseFeeScalar` override', async () => {
       chain: {
         ...anvilChain,
         fees: {
-          baseFeeScalar: 1.5,
+          baseFeeMultiplier: 1.5,
         },
       },
     },
@@ -76,7 +76,7 @@ test('args: chain `baseFeeScalar` override', async () => {
   expect(maxPriorityFeePerGas).toBeDefined()
 })
 
-test('args: chain `baseFeeScalar` override < 1', async () => {
+test('args: chain `baseFeeMultiplier` override < 1', async () => {
   const client = createPublicClient({
     transport: http(localHttpUrl),
   })
@@ -85,12 +85,12 @@ test('args: chain `baseFeeScalar` override < 1', async () => {
       chain: {
         ...anvilChain,
         fees: {
-          baseFeeScalar: 0.8,
+          baseFeeMultiplier: 0.8,
         },
       },
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    "\`baseFeeScalar\` must be greater than 1.
+    "\`baseFeeMultiplier\` must be greater than 1.
 
     Version: viem@1.0.2"
   `)
@@ -115,14 +115,14 @@ test('client: chain `estimateFeesPerGas` override', async () => {
   expect(maxPriorityFeePerGas).toBe(1n)
 })
 
-test('client: chain `baseFeeScalar` override', async () => {
+test('client: chain `baseFeeMultiplier` override', async () => {
   const block = await getBlock.getBlock(publicClient)
 
   const client = createPublicClient({
     chain: {
       ...anvilChain,
       fees: {
-        baseFeeScalar: 1.5,
+        baseFeeMultiplier: 1.5,
       },
     },
     transport: http(),

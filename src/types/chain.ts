@@ -30,7 +30,7 @@ export type ChainContract = {
   blockCreated?: number
 }
 
-type RequestParameters<
+type FeesFnParameters<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   /** The latest block. */
@@ -50,12 +50,12 @@ export type ChainFees<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
 > = {
   /**
-   * The fee scalar to use to account for fee fluctuations.
-   * Used in the [`estimateFeesPerGas` Action](TODO).
+   * The fee multiplier to use to account for fee fluctuations.
+   * Used in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
    *
    * @default 1.2
    */
-  baseFeeScalar?: number
+  baseFeeMultiplier?: number
   /**
    * The default `maxPriorityFeePerGas` to use when a priority
    * fee is not defined upon sending a transaction.
@@ -64,7 +64,7 @@ export type ChainFees<
    */
   defaultPriorityFee?:
     | bigint
-    | ((args: RequestParameters<formatters>) => Promise<bigint> | bigint)
+    | ((args: FeesFnParameters<formatters>) => Promise<bigint> | bigint)
   /**
    * Allows customization of fee per gas values (e.g. `maxFeePerGas`/`maxPriorityFeePerGas`).
    *
@@ -73,14 +73,14 @@ export type ChainFees<
   estimateFeesPerGas?: (
     args: {
       /**
-       * A function to scale the base fee based on the `baseFeeScalar`.
+       * A function to multiply the base fee based on the `baseFeeMultiplier`.
        */
-      scale(x: bigint): bigint
+      multiply(x: bigint): bigint
       /**
        * The type of fees to return.
        */
       type: FeeValuesType
-    } & RequestParameters<formatters>,
+    } & FeesFnParameters<formatters>,
   ) => Promise<EstimateFeesPerGasReturnType> | bigint
 }
 

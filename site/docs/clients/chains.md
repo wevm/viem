@@ -14,7 +14,7 @@ head:
 
 # Chains
 
-The `viem/chains` entrypoint proxies the [`@wagmi/chains` NPM package](https://npm.im/@wagmi/chains), an official wagmi package which contains references to popular EVM-compatible chains such as: Polygon, Optimism, Avalanche, and more.
+The `viem/chains` entrypoint proxies the [`@wagmi/chains` NPM package](https://npm.im/@wagmi/chains), an official wagmi package which contains references to popular EVM-compatible chains such as: Polygon, Optimism, Avalanche, Base, Zora, and more.
 
 ## Usage
 
@@ -22,107 +22,164 @@ Import your chain from the entrypoint and use them in the consuming viem code:
 
 ```tsx {2,5}
 import { createPublicClient, http } from 'viem'
-import { avalanche } from 'viem/chains'
+import { zora } from 'viem/chains'
 
 const client = createPublicClient({
-  chain: avalanche,
+  chain: zora,
   transport: http()
 })
 ```
 
-### Supported chains
+[See here for a list of supported chains](https://github.com/wagmi-dev/references/tree/main/packages/chains/src).
 
-- `mainnet`
-- `goerli`
-- `arbitrum`
-- `arbitrumGoerli`
-- `aurora`
-- `auroraTestnet`
-- `avalanche`
-- `avalancheFuji`
-- `baseGoerli`
-- `boba`
-- `bronos`
-- `bronosTestnet`
-- `bsc`
-- `bscTestnet`
-- `canto`
-- `celo`
-- `celoAlfajores`
-- `crossbell`
-- `evmos`
-- `evmosTestnet`
-- `fantom`
-- `fantomTestnet`
-- `filecoin`
-- `filecoinCalibration`
-- `filecoinHyperspace`
-- `flare`
-- `flareTestnet`
-- `gnosis`
-- `gnosisChiado`
-- `harmonyOne`
-- `iotex`
-- `iotexTestnet`
-- `metis`
-- `metisGoerli`
-- `moonbaseAlpha`
-- `moonbeam`
-- `moonriver`
-- `okc`
-- `optimism`
-- `optimismGoerli`
-- `polygon`
-- `polygonMumbai`
-- `polygonZkEvmTestnet`
-- `sepolia`
-- `shardeumSphinx`
-- `songbird`
-- `songbirdTestnet`
-- `taraxa`
-- `taraxaTestnet`
-- `telos`
-- `telosTestnet`
-- `zhejiang`
-- `zora`
-- `zoraTestnet`
-- `zkSync`
-- `zkSyncTestnet`
-- `foundry`
-- `hardhat`
-- `localhost`
-
-> Want to add a chain that's not listed here? Head to the [wagmi References monorepo](https://github.com/wagmi-dev/references) and read the [Contributing Guide](https://github.com/wagmi-dev/references/blob/main/.github/CONTRIBUTING.md) before opening a pull request.
-
-## Build your own
+## Custom Chains
 
 You can also extend wagmi to support other EVM-compatible chains by building your own chain object that inherits the `Chain` type.
 
 ```ts
-import { Chain } from 'viem'
+import { defineChain } from 'viem'
 
-export const avalanche = {
-  id: 43_114,
-  name: 'Avalanche',
-  network: 'avalanche',
+export const base = defineChain({
+  id: 7777777,
+  name: 'Zora',
+  network: 'zora',
   nativeCurrency: {
     decimals: 18,
-    name: 'Avalanche',
-    symbol: 'AVAX',
+    name: 'Ether',
+    symbol: 'ETH',
   },
   rpcUrls: {
-    public: { http: ['https://api.avax.network/ext/bc/C/rpc'] },
-    default: { http: ['https://api.avax.network/ext/bc/C/rpc'] },
+    default: {
+      http: ['https://rpc.zora.energy'],
+      webSocket: ['wss://rpc.zora.energy'],
+    },
+    public: {
+      http: ['https://rpc.zora.energy'],
+      webSocket: ['wss://rpc.zora.energy'],
+    },
   },
   blockExplorers: {
-    etherscan: { name: 'SnowTrace', url: 'https://snowtrace.io' },
-    default: { name: 'SnowTrace', url: 'https://snowtrace.io' },
+    default: { name: 'Explorer', url: 'https://explorer.zora.energy' },
   },
   contracts: {
     multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 11_907_934,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 5882,
     },
   },
-} as const satisfies Chain
+})
 ```
+
+## Chain Configuration
+
+You can optionally pass a second parameter to `defineChain` to set configuration such as: fees, formatters, and transaction serializers.
+
+### Fees
+
+You can modify how fees are derived by using the `fees` property on the Chain.
+
+#### `fees.baseFeeMultiplier`
+
+- **Type**: `number`
+- **Default**: `1.2`
+
+The fee multiplier to use to account for fee fluctuations. Used in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas) against the latest block's base fee per gas to derive a final `maxFeePerGas` (EIP-1193), or gas price to derive a final `gasPrice` (Legacy).
+
+**Parameters**
+
+- `block`: The latest block.
+- `client`: The Client instance.
+- `request`: The transaction request (if exists).
+
+```ts
+import { defineChain } from 'viem'
+
+const zora = defineChain(
+  { /* ... */ },
+  { // [!code focus:10]
+    fees: {
+      baseFeeMultiplier: 1.2,
+      // or
+      async baseFeeMultiplier({ block, request }) {
+        // some async work
+        return // ...
+      }
+    }
+  }
+)
+```
+
+#### `fees.defaultPriorityFee`
+
+- **Type**: `number | ((args: FeesFnParameters) => Promise<bigint> | bigint)`
+
+The default `maxPriorityFeePerGas` to use when a priority fee is not defined upon sending a transaction.
+
+Also overrides the return value in the [`estimateMaxPriorityFeePerGas` Action](/docs/actions/public/estimateMaxPriorityFeePerGas) and `maxPriorityFeePerGas` value in [`estimateFeesPerGas`](/docs/actions/public/estimateFeesPerGas).
+
+**Parameters**
+
+- `block`: The latest block.
+- `client`: The Client instance.
+- `request`: The transaction request (if exists).
+
+```ts
+import { defineChain } from 'viem'
+
+const zora = defineChain(
+  { /* ... */ },
+  { // [!code focus:9]
+    fees: {
+      defaultPriorityFee: parseGwei('0.01'),
+      // or
+      async defaultPriorityFee({ block, request }) {
+        // some async work
+        return // ...
+      }
+    }
+  }
+)
+```
+
+#### `fees.estimateFeesPerGas`
+
+- **Type**: `(args: FeesFnParameters) => Promise<EstimateFeesPerGasResponse>`
+
+Allows customization of fee per gas values (ie. `maxFeePerGas`, `maxPriorityFeePerGas`, `gasPrice`).
+
+Also overrides the return value in [`estimateFeesPerGas`](/docs/actions/public/estimateFeesPerGas).
+
+**Parameters**
+
+- `block`: The latest block.
+- `client`: The Client instance.
+- `multiply`: A function to apply the `baseFeeMultiplier` to the provided value.
+- `request`: The transaction request (if exists).
+- `type`: The transaction type (ie. `legacy` or `eip1559`).
+
+```ts
+import { defineChain } from 'viem'
+
+const zora = defineChain(
+  { /* ... */ },
+  { // [!code focus:14]
+    fees: {
+      async estimateFeesPerGas({ client, multiply, type }) {
+        const gasPrice = // ...
+        const baseFeePerGas = // ...
+        const maxPriorityFeePerGas = // ...
+
+        if (type === 'legacy') return { gasPrice: multiply(gasPrice) }
+        return {
+          maxFeePerGas: multiply(baseFeePerGas) + maxPriorityFeePerGas,
+          maxPriorityFeePerGas
+        }
+      }
+    }
+  }
+)
+```
+
+### Formatters
+
+### Serializers
