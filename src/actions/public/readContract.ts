@@ -10,14 +10,8 @@ import type {
   ContractFunctionParameters,
   ContractFunctionReturnType,
 } from '../../types/contract.js'
-import {
-  type DecodeFunctionResultParameters,
-  decodeFunctionResult,
-} from '../../utils/abi/decodeFunctionResult.js'
-import {
-  type EncodeFunctionDataParameters,
-  encodeFunctionData,
-} from '../../utils/abi/encodeFunctionData.js'
+import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 import { type CallParameters, call } from './call.js'
 
@@ -88,30 +82,24 @@ export async function readContract<
   client: Client<Transport, chain>,
   parameters: ReadContractParameters<abi, functionName, args>,
 ): Promise<ReadContractReturnType<abi, functionName, args>> {
-  const { abi, address, args, functionName, ...callRequest } = parameters
-  const calldata = encodeFunctionData({
-    abi,
-    args,
-    functionName,
-  } as unknown as EncodeFunctionDataParameters<abi, functionName>)
+  const { abi, address, args, functionName, ...rest } =
+    parameters as ReadContractParameters
+  const calldata = encodeFunctionData({ abi, args, functionName })
   try {
     const { data } = await call(client, {
+      ...(rest as CallParameters),
       data: calldata,
       to: address,
-      ...callRequest,
-    } as unknown as CallParameters)
+    })
     return decodeFunctionResult({
       abi,
       args,
       functionName,
       data: data || '0x',
-    } as DecodeFunctionResultParameters<
+    }) as ReadContractReturnType<abi, functionName>
+  } catch (error) {
+    throw getContractError(error as BaseError, {
       abi,
-      functionName
-    >) as ReadContractReturnType<abi, functionName>
-  } catch (err) {
-    throw getContractError(err as BaseError, {
-      abi: abi as Abi,
       address,
       args,
       docsPath: '/docs/contract/readContract',

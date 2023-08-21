@@ -5,13 +5,15 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
-import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
+  ContractFunctionParameters,
+  GetValue,
+} from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
-import {
-  type EncodeFunctionDataParameters,
-  encodeFunctionData,
-} from '../../utils/abi/encodeFunctionData.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import {
   type SendTransactionParameters,
@@ -21,11 +23,24 @@ import {
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends string = string,
+  functionName extends ContractFunctionName<
+    abi,
+    'nonpayable' | 'payable'
+  > = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'nonpayable' | 'payable',
+    functionName
+  > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   chain extends Chain | undefined = Chain,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-> = ContractFunctionConfig<abi, functionName, 'payable' | 'nonpayable'> &
+> = ContractFunctionParameters<
+  abi,
+  'nonpayable' | 'payable',
+  functionName,
+  args
+> &
   UnionOmit<
     FormattedTransactionRequest<
       chainOverride extends Chain ? chainOverride : chain
@@ -105,29 +120,27 @@ export async function writeContract<
   chain extends Chain | undefined,
   account extends Account | undefined,
   const abi extends Abi | readonly unknown[],
-  functionName extends string,
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   chainOverride extends Chain | undefined,
 >(
   client: Client<Transport, chain, account>,
   parameters: WriteContractParameters<
     abi,
     functionName,
+    args,
     chain,
     account,
     chainOverride
   >,
 ): Promise<WriteContractReturnType> {
   const { abi, address, args, dataSuffix, functionName, ...request } =
-    parameters
-  const data = encodeFunctionData({
-    abi,
-    args,
-    functionName,
-  } as unknown as EncodeFunctionDataParameters<abi, functionName>)
+    parameters as WriteContractParameters
+  const data = encodeFunctionData({ abi, args, functionName })
   const hash = await sendTransaction(client, {
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,
-  } as unknown as SendTransactionParameters<chain, account, chainOverride>)
+  })
   return hash
 }

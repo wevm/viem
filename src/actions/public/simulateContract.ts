@@ -6,67 +6,95 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type {
-  ContractFunctionConfig,
-  ContractFunctionResult,
+  ContractFunctionArgs,
+  ContractFunctionName,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
   GetValue,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
-import {
-  type DecodeFunctionResultParameters,
-  decodeFunctionResult,
-} from '../../utils/abi/decodeFunctionResult.js'
-import {
-  type EncodeFunctionDataParameters,
-  encodeFunctionData,
-} from '../../utils/abi/encodeFunctionData.js'
+import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 
 import { type CallParameters, call } from './call.js'
 
 export type SimulateContractParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = any,
-  TChain extends Chain | undefined = Chain | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ContractFunctionName<
+    abi,
+    'nonpayable' | 'payable'
+  > = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'nonpayable' | 'payable',
+    functionName
+  > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+  chain extends Chain | undefined = Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
 > = {
-  chain?: TChainOverride
+  chain?: chainOverride
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
   dataSuffix?: Hex
-} & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'> &
+} & ContractFunctionParameters<
+  abi,
+  'nonpayable' | 'payable',
+  functionName,
+  args
+> &
   UnionOmit<
-    CallParameters<TChainOverride extends Chain ? TChainOverride : TChain>,
+    CallParameters<chainOverride extends Chain ? chainOverride : chain>,
     'batch' | 'to' | 'data' | 'value'
   > &
   GetValue<
-    TAbi,
-    TFunctionName,
-    CallParameters<TChain> extends CallParameters
-      ? CallParameters<TChain>['value']
+    abi,
+    functionName,
+    CallParameters<chain> extends CallParameters
+      ? CallParameters<chain>['value']
       : CallParameters['value']
   >
 
 export type SimulateContractReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-  TChain extends Chain | undefined = Chain | undefined,
-  TChainOverride extends Chain | undefined = Chain | undefined,
+  abi extends Abi | readonly unknown[] = Abi,
+  functionName extends ContractFunctionName<
+    abi,
+    'nonpayable' | 'payable'
+  > = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'nonpayable' | 'payable',
+    functionName
+  > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+  chain extends Chain | undefined = Chain | undefined,
+  chainOverride extends Chain | undefined = Chain | undefined,
 > = {
-  result: ContractFunctionResult<TAbi, TFunctionName>
+  result: ContractFunctionReturnType<
+    abi,
+    'nonpayable' | 'payable',
+    functionName,
+    args
+  >
   request: UnionOmit<
     WriteContractParameters<
-      TAbi,
-      TFunctionName,
-      TChain,
+      abi,
+      functionName,
+      args,
+      chain,
       undefined,
-      TChainOverride
+      chainOverride
     >,
     'chain' | 'functionName'
   > & {
-    chain: TChainOverride
-    functionName: TFunctionName
-  } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
+    chain: chainOverride
+    functionName: functionName
+  } & ContractFunctionParameters<
+      abi,
+      'nonpayable' | 'payable',
+      functionName,
+      args
+    >
 }
 
 /**
@@ -101,44 +129,47 @@ export type SimulateContractReturnType<
  * })
  */
 export async function simulateContract<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  TChainOverride extends Chain | undefined,
->(
-  client: Client<Transport, TChain>,
-  {
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  args extends ContractFunctionArgs<
     abi,
-    address,
-    args,
-    dataSuffix,
+    'nonpayable' | 'payable',
+    functionName
+  >,
+  chainOverride extends Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: SimulateContractParameters<
+    abi,
     functionName,
-    ...callRequest
-  }: SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>,
+    args,
+    chain,
+    chainOverride
+  >,
 ): Promise<
-  SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+  SimulateContractReturnType<abi, functionName, args, chain, chainOverride>
 > {
+  const { abi, address, args, dataSuffix, functionName, ...callRequest } =
+    parameters as SimulateContractParameters
+
   const account = callRequest.account
     ? parseAccount(callRequest.account)
     : undefined
-  const calldata = encodeFunctionData({
-    abi,
-    args,
-    functionName,
-  } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
+  const calldata = encodeFunctionData({ abi, args, functionName })
   try {
     const { data } = await call(client, {
       batch: false,
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
-    } as unknown as CallParameters<TChain>)
+    })
     const result = decodeFunctionResult({
       abi,
       args,
       functionName,
       data: data || '0x',
-    } as DecodeFunctionResultParameters)
+    })
     return {
       result,
       request: {
@@ -150,14 +181,15 @@ export async function simulateContract<
         ...callRequest,
       },
     } as unknown as SimulateContractReturnType<
-      TAbi,
-      TFunctionName,
-      TChain,
-      TChainOverride
+      abi,
+      functionName,
+      args,
+      chain,
+      chainOverride
     >
-  } catch (err) {
-    throw getContractError(err as BaseError, {
-      abi: abi as Abi,
+  } catch (error) {
+    throw getContractError(error as BaseError, {
+      abi,
       address,
       args,
       docsPath: '/docs/contract/simulateContract',

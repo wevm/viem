@@ -1,8 +1,8 @@
-import { test } from 'vitest'
+import { parseAbi } from 'abitype'
+import { assertType, test } from 'vitest'
 
 import { wagmiContractConfig } from '../../_test/abis.js'
 import { publicClient } from '../../_test/utils.js'
-
 import { simulateContract } from './simulateContract.js'
 
 const args = {
@@ -107,4 +107,39 @@ test('eip2930', () => {
     maxPriorityFeePerGas: 0n,
     type: 'eip2930',
   })
+})
+
+test('overloads', async () => {
+  const abi = parseAbi([
+    'function foo() returns (int8)',
+    'function foo(address) returns (string)',
+    'function foo(address, address) returns ((address foo, address bar))',
+    'function bar() returns (int8)',
+  ])
+
+  const res1 = await simulateContract(publicClient, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+  })
+  assertType<number>(res1.result)
+
+  const res2 = await simulateContract(publicClient, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x'],
+  })
+  assertType<string>(res2.result)
+
+  const res3 = await simulateContract(publicClient, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x', '0x'],
+  })
+  assertType<{
+    foo: `0x${string}`
+    bar: `0x${string}`
+  }>(res3.result)
 })

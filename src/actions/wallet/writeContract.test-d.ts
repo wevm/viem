@@ -71,6 +71,14 @@ const args = {
   args: [69420n],
 } as const
 
+test('infers args', () => {
+  writeContract(walletClientWithAccount, {
+    ...wagmiContractConfig,
+    functionName: 'transferFrom',
+    args: ['0x', '0x', 123n],
+  })
+})
+
 test('legacy', () => {
   writeContract(walletClientWithAccount, {
     ...args,

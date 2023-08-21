@@ -7,7 +7,6 @@ import type {
   AbiEventParametersToPrimitiveTypes,
   AbiEventTopicToPrimitiveType,
   ContractFunctionArgs,
-  ContractFunctionConfig,
   ContractFunctionName,
   ContractFunctionResult,
   ContractFunctionReturnType,
@@ -165,34 +164,6 @@ test('ContractFunctionReturnType', () => {
       readonly ['0x', '0x']
     >
   >().toEqualTypeOf<{ foo: Address; bar: Address }>()
-})
-
-test('ContractFunctionConfig', async () => {
-  type Result = ContractFunctionConfig<typeof seaportAbi, 'getOrderStatus'>
-  //   ^?
-  expectTypeOf<Result>().toEqualTypeOf<{
-    abi: typeof seaportAbi
-    address: ResolvedConfig['AddressType']
-    functionName:
-      | 'cancel'
-      | 'fulfillBasicOrder'
-      | 'fulfillBasicOrder_efficient_6GL6yc'
-      | 'fulfillOrder'
-      | 'fulfillAdvancedOrder'
-      | 'fulfillAvailableOrders'
-      | 'fulfillAvailableAdvancedOrders'
-      | 'getContractOffererNonce'
-      | 'getOrderHash'
-      | 'getOrderStatus'
-      | 'getCounter'
-      | 'incrementCounter'
-      | 'information'
-      | 'name'
-      | 'matchAdvancedOrders'
-      | 'matchOrders'
-      | 'validate'
-    args: readonly [ResolvedConfig['BytesType']['inputs']]
-  }>()
 })
 
 test('ContractFunctionResult', () => {

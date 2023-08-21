@@ -188,3 +188,12 @@ export type MaybePartial<
 export type ExactPartial<type> = {
   [key in keyof type]?: type[key] | undefined
 }
+
+export type OneOf<
+  union extends object,
+  ///
+  keys extends KeyofUnion<union> = KeyofUnion<union>,
+> = union extends infer Item
+  ? Prettify<Item & { [K in Exclude<keys, keyof Item>]?: undefined }>
+  : never
+type KeyofUnion<type> = type extends type ? keyof type : never

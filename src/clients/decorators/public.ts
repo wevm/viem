@@ -407,10 +407,21 @@ export type PublicActions<
    */
   estimateContractGas: <
     TChain extends Chain | undefined,
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
   >(
-    args: EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
+    args: EstimateContractGasParameters<
+      abi,
+      functionName,
+      args,
+      TChain,
+      TAccount
+    >,
   ) => Promise<EstimateContractGasReturnType>
   /**
    * Estimates the gas necessary to complete a transaction without submitting it to the network.
@@ -1208,18 +1219,24 @@ export type PublicActions<
    * })
    */
   simulateContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
     TChainOverride extends Chain | undefined,
   >(
     args: SimulateContractParameters<
-      TAbi,
-      TFunctionName,
+      abi,
+      functionName,
+      args,
       TChain,
       TChainOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+    SimulateContractReturnType<abi, functionName, args, TChain, TChainOverride>
   >
   verifyMessage: (
     args: VerifyMessageParameters,

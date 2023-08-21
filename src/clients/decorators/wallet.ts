@@ -61,6 +61,10 @@ import {
   writeContract,
 } from '../../actions/wallet/writeContract.js'
 import type { Chain } from '../../types/chain.js'
+import {
+  type ContractFunctionArgs,
+  type ContractFunctionName,
+} from '../../types/contract.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
@@ -509,13 +513,15 @@ export type WalletActions<
    * const hash = await client.writeContract(request)
    */
   writeContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'payable' | 'nonpayable'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
     TChainOverride extends Chain | undefined,
   >(
     args: WriteContractParameters<
-      TAbi,
-      TFunctionName,
+      abi,
+      functionName,
+      args,
       TChain,
       TAccount,
       TChainOverride

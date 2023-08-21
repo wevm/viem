@@ -17,6 +17,7 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
+  ContractFunctionArgs,
   ContractFunctionName,
   MaybeExtractEventArgsFromAbi,
 } from '../types/contract.js'
@@ -192,7 +193,12 @@ export type GetContractReturnType<
                     TPublicClient['chain'],
                     undefined,
                     TAbi,
-                    functionName
+                    functionName extends ContractFunctionName<
+                      TAbi,
+                      'nonpayable' | 'payable'
+                    >
+                      ? functionName
+                      : never
                   >
                 }
                 /**
@@ -224,7 +230,12 @@ export type GetContractReturnType<
                     _Narrowable,
                     TPublicClient['chain'],
                     TAbi,
-                    functionName
+                    functionName extends ContractFunctionName<
+                      TAbi,
+                      'nonpayable' | 'payable'
+                    >
+                      ? functionName
+                      : never
                   >
                 }
               }) &
@@ -321,7 +332,12 @@ export type GetContractReturnType<
                   TWalletClient['chain'],
                   TWalletClient['account'],
                   TAbi,
-                  functionName
+                  functionName extends ContractFunctionName<
+                    TAbi,
+                    'nonpayable' | 'payable'
+                  >
+                    ? functionName
+                    : never
                 >
               }
               /**
@@ -356,7 +372,12 @@ export type GetContractReturnType<
                   TWalletClient['chain'],
                   TWalletClient['account'],
                   TAbi,
-                  functionName
+                  functionName extends ContractFunctionName<
+                    TAbi,
+                    'nonpayable' | 'payable'
+                  >
+                    ? functionName
+                    : never
                 >
               }
             }
@@ -585,13 +606,8 @@ export function getContract<
                 address,
                 functionName,
                 args,
-                ...options,
-              } as unknown as WriteContractParameters<
-                TAbi,
-                typeof functionName,
-                TChain,
-                TAccount
-              >)
+                ...(options as any),
+              })
             }
           },
         },
@@ -680,13 +696,18 @@ type GetReadFunction<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends ContractFunctionName<TAbi, 'pure' | 'view'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'pure' | 'view',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'pure' | 'view', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     UnionOmit<
-      ReadContractParameters<TAbi, TFunctionName>,
+      ReadContractParameters<TAbi, TFunctionName, TArgs>,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
@@ -695,7 +716,7 @@ type GetReadFunction<
       ...parameters: Args extends readonly []
         ? [options?: Options]
         : [args: Args, options?: Options]
-    ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+    ) => Promise<ReadContractReturnType<TAbi, TFunctionName, TArgs>>
   : (
       ...parameters:
         | [options?: Options]
@@ -707,14 +728,25 @@ type GetEstimateFunction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'nonpayable' | 'payable',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
   Args = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
   Options = Prettify<
     UnionOmit<
-      EstimateContractGasParameters<TAbi, TFunctionName, TChain, TAccount>,
+      EstimateContractGasParameters<
+        TAbi,
+        TFunctionName,
+        TArgs,
+        TChain,
+        TAccount
+      >,
       'abi' | 'address' | 'args' | 'functionName'
     >
   >,
@@ -750,7 +782,12 @@ type GetSimulateFunction<
   Narrowable extends boolean,
   TChain extends Chain | undefined,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'nonpayable' | 'payable',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
@@ -763,6 +800,7 @@ type GetSimulateFunction<
           SimulateContractParameters<
             TAbi,
             TFunctionName,
+            TArgs,
             TChain,
             TChainOverride
           >,
@@ -774,7 +812,13 @@ type GetSimulateFunction<
         ? [options?: Options]
         : [args: Args, options?: Options]
     ) => Promise<
-      SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>
+      SimulateContractReturnType<
+        TAbi,
+        TFunctionName,
+        TArgs,
+        TChain,
+        TChainOverride
+      >
     >
   : <
       TChainOverride extends Chain | undefined,
@@ -783,6 +827,7 @@ type GetSimulateFunction<
           SimulateContractParameters<
             TAbi,
             TFunctionName,
+            TArgs,
             TChain,
             TChainOverride
           >,
@@ -800,7 +845,12 @@ type GetWriteFunction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TArgs extends ContractFunctionArgs<
+    TAbi,
+    'nonpayable' | 'payable',
+    TFunctionName
+  > = ContractFunctionArgs<TAbi, 'nonpayable' | 'payable', TFunctionName>,
   TAbiFunction extends AbiFunction = TAbi extends Abi
     ? ExtractAbiFunction<TAbi, TFunctionName>
     : AbiFunction,
@@ -815,6 +865,7 @@ type GetWriteFunction<
           WriteContractParameters<
             TAbi,
             TFunctionName,
+            TArgs,
             TChain,
             TAccount,
             TChainOverride
@@ -841,6 +892,7 @@ type GetWriteFunction<
           WriteContractParameters<
             TAbi,
             TFunctionName,
+            TArgs,
             TChain,
             TAccount,
             TChainOverride

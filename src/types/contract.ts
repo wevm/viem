@@ -1,21 +1,21 @@
-import type {
-  Abi,
-  AbiConstructor,
-  AbiError,
-  AbiEvent,
-  AbiFunction,
-  AbiParameter,
-  AbiParameterToPrimitiveType,
-  AbiParametersToPrimitiveTypes,
-  AbiStateMutability,
-  Address,
-  ExtractAbiError,
-  ExtractAbiErrorNames,
-  ExtractAbiEvent,
-  ExtractAbiEventNames,
-  ExtractAbiFunction,
-  ExtractAbiFunctionNames,
-  ResolvedConfig,
+import {
+  type Abi,
+  type AbiConstructor,
+  type AbiError,
+  type AbiEvent,
+  type AbiFunction,
+  type AbiParameter,
+  type AbiParameterToPrimitiveType,
+  type AbiParametersToPrimitiveTypes,
+  type AbiStateMutability,
+  type Address,
+  type ExtractAbiError,
+  type ExtractAbiErrorNames,
+  type ExtractAbiEvent,
+  type ExtractAbiEventNames,
+  type ExtractAbiFunction,
+  type ExtractAbiFunctionNames,
+  type ResolvedConfig,
 } from 'abitype'
 
 import type { Hex, LogTopic } from './misc.js'
@@ -185,78 +185,6 @@ export type ContractFunctionReturnType<
 export type AbiItem = Abi[number]
 
 export type EventDefinition = `${string}(${string})`
-
-export type ContractParameters<
-  abi extends Abi | readonly unknown[] = readonly unknown[],
-  stateMutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ExtractAbiFunctionNames<
-    abi extends Abi ? abi : Abi,
-    stateMutability
-  > = string,
-  ///
-  functionNames extends string = abi extends Abi
-    ? ExtractAbiFunctionNames<abi, stateMutability>
-    : string,
-  abiFunction extends AbiFunction = abi extends Abi
-    ? ExtractAbiFunction<
-        abi,
-        functionName extends functionNames ? functionName : functionNames, // fallback to all function names if `functionName` is invalid
-        stateMutability
-      >
-    : AbiFunction,
-  types = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs'>,
-  args =
-    | types // show all values
-    | (Abi extends abi ? readonly unknown[] | undefined : never) // `abi` declared as `Abi`
-    | (readonly [] extends types ? undefined : never), // `abiFunction` has no inputs
-  isArgsOptional extends boolean = Abi extends abi
-    ? true
-    : readonly [] extends types
-    ? true
-    : false,
-> = {
-  abi: abi
-  address: Address
-  functionName:
-    | functionNames // show all values
-    | (functionName extends functionNames ? functionName : never) // validate `functionName`
-    | ([functionNames] extends [never] ? string : never) // `abi` declared as `Abi`
-} & (isArgsOptional extends true ? { args?: args | undefined } : { args: args })
-
-export type ContractReturnType<
-  abi extends Abi | readonly unknown[] = readonly unknown[],
-  stateMutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ExtractAbiFunctionNames<
-    abi extends Abi ? abi : Abi,
-    stateMutability
-  > = string,
-  ///
-  abiFunction extends AbiFunction = abi extends Abi
-    ? ExtractAbiFunction<abi, functionName, stateMutability>
-    : AbiFunction,
-  types = AbiParametersToPrimitiveTypes<abiFunction['outputs'], 'outputs'>,
-> = [abiFunction] extends [never]
-  ? unknown // `abiFunction` was not inferrable (e.g. `abi` declared as `Abi`)
-  : readonly unknown[] extends types
-  ? unknown // `abiFunction` was not inferrable (e.g. `abi` not const asserted)
-  : types extends readonly [] // unwrap `types`
-  ? void // no outputs
-  : types extends readonly [infer type]
-  ? type // single output
-  : types
-
-export type ContractFunctionConfig<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-  TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
-> = {
-  /** Contract ABI */
-  abi: TAbi
-  /** Contract address */
-  address: Address
-  /** Function to invoke on the contract */
-  functionName: InferFunctionName<TAbi, TFunctionName, TAbiStateMutability>
-} & GetFunctionArgs<TAbi, TFunctionName>
 
 export type ContractFunctionResult<
   TAbi extends Abi | readonly unknown[] = Abi,
