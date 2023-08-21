@@ -1,4 +1,3 @@
-import type { ChainSerializers } from '../../chains/types.js'
 import { InvalidAddressError } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import { InvalidChainIdError } from '../../errors/chain.js'
@@ -15,6 +14,7 @@ import {
   type SerializeTransactionFn,
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
+import type { ChainSerializers } from '../types.js'
 import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,
