@@ -37,6 +37,10 @@ export type HttpTransportConfig = {
   retryDelay?: TransportConfig['retryDelay']
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout']
+  /** On request debug helper */
+  onRequest?: (request: RpcRequest[]) => void
+  /** On response */
+  onResponse?: (response: any) => void
 }
 
 export type HttpTransport = Transport<
@@ -60,6 +64,8 @@ export function http(
     key = 'http',
     name = 'HTTP JSON-RPC',
     retryDelay,
+    onRequest,
+    onResponse,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const { batchSize = 1000, wait = 0 } =
@@ -105,6 +111,8 @@ export function http(
         },
         retryCount,
         retryDelay,
+        onRequest,
+        onResponse,
         timeout,
         type: 'http',
       },
