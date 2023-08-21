@@ -1,17 +1,10 @@
-import type { Address } from 'abitype'
-
 import { InvalidAddressError } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import { InvalidChainIdError } from '../../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
 import type { ChainSerializers } from '../../types/chain.js'
-import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Signature } from '../../types/misc.js'
-import type {
-  AccessList,
-  TransactionSerializable,
-  TransactionSerializableBase,
-} from '../../types/transaction.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { trim } from '../../utils/data/trim.js'
@@ -22,6 +15,11 @@ import {
   type SerializeTransactionFn,
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
+import type {
+  CeloTransactionSerializable,
+  TransactionSerializableCIP42,
+  TransactionSerializedCIP42,
+} from './types.js'
 
 export const serializeTransactionCelo: SerializeTransactionFn<
   CeloTransactionSerializable
@@ -42,30 +40,9 @@ export const serializersCelo = {
 } as const satisfies ChainSerializers
 
 //////////////////////////////////////////////////////////////////////////////
-// Types
-
-export type TransactionSerializableCIP42<
-  TQuantity = bigint,
-  TIndex = number,
-> = TransactionSerializableBase<TQuantity, TIndex> &
-  FeeValuesEIP1559<TQuantity> & {
-    accessList?: AccessList
-    gasPrice?: never
-    feeCurrency?: Address
-    gatewayFeeRecipient?: Address
-    gatewayFee?: TQuantity
-    chainId: number
-    type?: 'cip42'
-  }
-
-export type CeloTransactionSerializable =
-  | TransactionSerializableCIP42
-  | TransactionSerializable
-
-export type SerializedCIP42TransactionReturnType = `0x7c${string}`
-
-//////////////////////////////////////////////////////////////////////////////
 // Serializers
+
+export type SerializeTransactionCIP42ReturnType = TransactionSerializedCIP42
 
 // There shall be a typed transaction with the code 0x7c that has the following format:
 // 0x7c || rlp([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, feecurrency, gatewayFeeRecipient, gatewayfee, destination, amount, data, access_list, signature_y_parity, signature_r, signature_s]).
@@ -73,7 +50,7 @@ export type SerializedCIP42TransactionReturnType = `0x7c${string}`
 function serializeTransactionCIP42(
   transaction: TransactionSerializableCIP42,
   signature?: Signature,
-): SerializedCIP42TransactionReturnType {
+): SerializeTransactionCIP42ReturnType {
   assertTransactionCIP42(transaction)
   const {
     chainId,
@@ -116,7 +93,7 @@ function serializeTransactionCIP42(
   return concatHex([
     '0x7c',
     toRlp(serializedTransaction),
-  ]) as SerializedCIP42TransactionReturnType
+  ]) as SerializeTransactionCIP42ReturnType
 }
 
 //////////////////////////////////////////////////////////////////////////////

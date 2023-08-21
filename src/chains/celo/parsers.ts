@@ -1,44 +1,50 @@
 import { InvalidSerializedTransactionError } from '../../errors/transaction.js'
+import type { Hex } from '../../types/misc.js'
+import { isHex } from '../../utils/data/isHex.js'
+import { sliceHex } from '../../utils/data/slice.js'
+import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
+import type { RecursiveArray } from '../../utils/encoding/toRlp.js'
+import type { GetSerializedTransactionType } from '../../utils/transaction/getSerializedTransactionType.js'
 import {
-  type Hex,
-  type TransactionSerialized,
-  hexToBigInt,
-  hexToNumber,
-  isHex,
-  parseTransaction,
-  sliceHex,
-} from '../../index.js'
-import {
+  type ParseTransactionReturnType,
   parseAccessList,
+  parseTransaction,
   toTransactionArray,
 } from '../../utils/transaction/parseTransaction.js'
-import {
-  type CeloTransactionSerializable,
-  type SerializedCIP42TransactionReturnType,
-  type TransactionSerializableCIP42,
-  assertTransactionCIP42,
-} from './serializers.js'
+import { assertTransactionCIP42 } from './serializers.js'
+import type {
+  CeloTransactionSerialized,
+  CeloTransactionType,
+  TransactionSerializableCIP42,
+  TransactionSerializedCIP42,
+} from './types.js'
 
-import type { RecursiveArray } from '../../utils/encoding/toRlp.js'
+export type ParseTransactionCeloReturnType<
+  TSerialized extends CeloTransactionSerialized = CeloTransactionSerialized,
+  TType extends CeloTransactionType = GetSerializedTransactionType<TSerialized>,
+> = TSerialized extends TransactionSerializedCIP42
+  ? TransactionSerializableCIP42
+  : ParseTransactionReturnType<TSerialized, TType>
 
-export function parseTransactionCelo(
-  serializedTransaction:
-    | TransactionSerialized
-    | SerializedCIP42TransactionReturnType,
-): CeloTransactionSerializable {
+export function parseTransactionCelo<
+  TSerialized extends CeloTransactionSerialized,
+>(
+  serializedTransaction: TSerialized,
+): ParseTransactionCeloReturnType<TSerialized> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
 
-  if (serializedType === '0x7c') {
+  if (serializedType === '0x7c')
     return parseTransactionCIP42(
-      serializedTransaction as SerializedCIP42TransactionReturnType,
-    )
-  }
+      serializedTransaction as TransactionSerializedCIP42,
+    ) as ParseTransactionCeloReturnType<TSerialized>
 
-  return parseTransaction(serializedTransaction)
+  return parseTransaction(
+    serializedTransaction,
+  ) as ParseTransactionCeloReturnType<TSerialized>
 }
 
 function parseTransactionCIP42(
-  serializedTransaction: SerializedCIP42TransactionReturnType,
+  serializedTransaction: TransactionSerializedCIP42,
 ): TransactionSerializableCIP42 {
   const transactionArray = toTransactionArray(serializedTransaction)
 
