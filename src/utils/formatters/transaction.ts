@@ -1,9 +1,9 @@
-import type { Chain } from '../../chains/types.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import type {
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
-} from '../../chains/types.js'
-import type { BlockTag } from '../../types/block.js'
+} from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'

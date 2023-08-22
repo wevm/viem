@@ -1,10 +1,10 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 

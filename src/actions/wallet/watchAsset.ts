@@ -1,7 +1,7 @@
 import type { Account } from '../../accounts/types.js'
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 import type { WatchAssetParams } from '../../types/eip1193.js'
 
 export type WatchAssetParameters = WatchAssetParams

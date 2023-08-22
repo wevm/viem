@@ -1,12 +1,12 @@
 import type { Address } from 'abitype'
 
-import type { Chain } from '../../chains/types.js'
 import type {
   TestClient,
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
+import type { Chain } from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 
 export type GetTxpoolContentReturnType = {

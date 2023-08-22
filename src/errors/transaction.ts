@@ -1,7 +1,7 @@
 import type { Account } from '../accounts/types.js'
 import type { SendTransactionParameters } from '../actions/wallet/sendTransaction.js'
-import type { Chain } from '../chains/types.js'
 import type { BlockTag } from '../types/block.js'
+import type { Chain } from '../types/chain.js'
 import type { Hash, Hex } from '../types/misc.js'
 import type { TransactionType } from '../types/transaction.js'
 import { formatEther } from '../utils/unit/formatEther.js'

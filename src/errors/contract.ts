@@ -2,8 +2,8 @@ import type { Abi, Address } from 'abitype'
 
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import type { CallParameters } from '../actions/public/call.js'
-import type { Chain } from '../chains/types.js'
 import { panicReasons } from '../constants/solidity.js'
+import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
 import {
   type DecodeErrorResultReturnType,

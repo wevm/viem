@@ -155,14 +155,4 @@ export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet, {
   formatters: formattersOptimism,
 })
 
-export type {
-  Chain,
-  ChainContract,
-  ChainFees,
-  ChainFormatter,
-  ChainFormatters,
-  ChainSerializers,
-  ExtractChainFormatterExclude,
-  ExtractChainFormatterParameters,
-  ExtractChainFormatterReturnType,
-} from './types.js'
+export type { Chain } from '../types/chain.js'

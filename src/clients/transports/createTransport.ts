@@ -1,4 +1,4 @@
-import type { Chain } from '../../chains/types.js'
+import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { buildRequest } from '../../utils/buildRequest.js'
 import type { ClientConfig } from '../createClient.js'

@@ -1,4 +1,4 @@
-import type { Chain } from '../chains/types.js'
+import type { Chain } from '../types/chain.js'
 
 import { BaseError } from './base.js'
 

@@ -1,6 +1,6 @@
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 import type { AssetGatewayUrls } from '../../types/ens.js'
 import type { Prettify } from '../../types/utils.js'
 import { parseAvatarRecord } from '../../utils/ens/avatar/parseAvatarRecord.js'

@@ -1,7 +1,7 @@
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { formatBlock } from '../../utils/formatters/block.js'
 import { observe } from '../../utils/observe.js'

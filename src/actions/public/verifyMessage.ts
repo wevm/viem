@@ -1,10 +1,11 @@
-import type { Chain } from '../../chains/index.js'
+import type { Address } from 'abitype'
+
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex, SignableMessage } from '../../types/misc.js'
 import { hashMessage } from '../../utils/index.js'
 import { type VerifyHashParameters, verifyHash } from './verifyHash.js'
-import type { Address } from 'abitype'
 
 export type VerifyMessageParameters = Omit<VerifyHashParameters, 'hash'> & {
   /** The address that signed the original message. */

@@ -2,6 +2,7 @@ import { InvalidAddressError } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
 import { InvalidChainIdError } from '../../errors/chain.js'
 import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
+import type { ChainSerializers } from '../../types/chain.js'
 import type { Signature } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import { isAddress } from '../../utils/address/isAddress.js'
@@ -14,7 +15,6 @@ import {
   type SerializeTransactionFn,
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
-import type { ChainSerializers } from '../types.js'
 import type {
   CeloTransactionSerializable,
   TransactionSerializableCIP42,

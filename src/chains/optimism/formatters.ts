@@ -1,3 +1,4 @@
+import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import { type RpcTransaction } from '../../types/rpc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
@@ -7,7 +8,6 @@ import {
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
-import { type ChainFormatters } from '../types.js'
 import type {
   OptimismBlockOverrides,
   OptimismRpcBlockOverrides,

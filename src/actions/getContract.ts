@@ -11,10 +11,10 @@ import type {
 } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
-import type { Chain } from '../chains/types.js'
 import type { PublicClient } from '../clients/createPublicClient.js'
 import type { WalletClient } from '../clients/createWalletClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
+import type { Chain } from '../types/chain.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
   MaybeExtractEventArgsFromAbi,

@@ -1,14 +1,14 @@
-import type {
-  Chain,
-  ChainConfig,
-  ChainContract,
-  ChainFormatters,
-} from '../chains/types.js'
 import {
   ChainDoesNotSupportContract,
   ChainMismatchError,
   ChainNotFoundError,
 } from '../errors/chain.js'
+import type {
+  Chain,
+  ChainConfig,
+  ChainContract,
+  ChainFormatters,
+} from '../types/chain.js'
 import type { Assign } from '../types/utils.js'
 
 export type AssertCurrentChainParameters = {

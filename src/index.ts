@@ -275,7 +275,7 @@ export type {
   ExtractChainFormatterReturnType,
   /** @deprecated use `ExtractChainFormatterReturnType` instead. */
   ExtractChainFormatterReturnType as ExtractFormatterReturnType,
-} from './chains/types.js'
+} from './types/chain.js'
 export {
   type Client,
   type ClientConfig,

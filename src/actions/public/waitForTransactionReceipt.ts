@@ -1,4 +1,3 @@
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
@@ -6,6 +5,7 @@ import {
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from '../../errors/transaction.js'
+import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { observe } from '../../utils/observe.js'

@@ -1,9 +1,9 @@
 import type { Abi, AbiEvent, Address, ExtractAbiEvent } from 'abitype'
 
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { EncodeEventTopicsParameters, LogTopic } from '../../index.js'
+import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs, InferEventName } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'

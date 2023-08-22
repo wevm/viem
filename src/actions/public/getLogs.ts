@@ -1,6 +1,5 @@
 import type { Abi, AbiEvent, Address } from 'abitype'
 
-import type { Chain } from '../../chains/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
@@ -8,6 +7,7 @@ import {
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,

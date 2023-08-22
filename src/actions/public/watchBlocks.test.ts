@@ -7,13 +7,14 @@ import {
   walletClient,
   webSocketClient,
 } from '../../_test/utils.js'
-import { type Chain, celo, localhost } from '../../chains/index.js'
+import { celo, localhost } from '../../chains/index.js'
 import {
   type PublicClient,
   createPublicClient,
 } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'

@@ -1,3 +1,4 @@
+import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -8,7 +9,6 @@ import {
 } from '../../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import { type ChainFormatters } from '../types.js'
 import type {
   CeloBlockOverrides,
   CeloRpcTransaction,

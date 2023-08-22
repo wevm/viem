@@ -1,6 +1,6 @@
 import type { Account } from '../accounts/types.js'
 import type { EstimateGasParameters } from '../actions/public/estimateGas.js'
-import type { Chain } from '../chains/types.js'
+import type { Chain } from '../types/chain.js'
 import { formatEther } from '../utils/unit/formatEther.js'
 import { formatGwei } from '../utils/unit/formatGwei.js'
 

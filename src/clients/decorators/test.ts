@@ -84,8 +84,8 @@ import {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from '../../actions/test/stopImpersonatingAccount.js'
-import type { Chain } from '../../chains/types.js'
 import type { Account } from '../../types/account.js'
+import type { Chain } from '../../types/chain.js'
 import type { Quantity } from '../../types/rpc.js'
 import type { Client } from '../createClient.js'
 import type { TestClientMode } from '../createTestClient.js'
