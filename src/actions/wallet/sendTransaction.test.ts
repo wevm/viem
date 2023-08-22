@@ -21,6 +21,7 @@ import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
@@ -173,7 +174,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f3018201798459682f00850324a9a700825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f40182017985044eaf9900850719f11100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -591,7 +592,7 @@ describe('local account', () => {
   test('default', async () => {
     await setup()
 
-    const block = await getBlock(publicClient)
+    const fees = await estimateFeesPerGas(publicClient)
 
     expect(
       await getBalance(publicClient, { address: targetAccount.address }),
@@ -617,10 +618,8 @@ describe('local account', () => {
     ).toBeLessThan(sourceAccount.balance)
 
     const transaction = await getTransaction(publicClient, { hash })
-    expect(transaction.maxFeePerGas).toBe(
-      // 1.2x base fee + 1.5 gwei tip
-      (block.baseFeePerGas! * 120n) / 100n + parseGwei('1.5'),
-    )
+    expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
+    expect(transaction.maxPriorityFeePerGas).toBe(fees.maxPriorityFeePerGas)
     expect(transaction.gas).toBe(21000n)
   })
 
@@ -745,7 +744,7 @@ describe('local account', () => {
     test('sends transaction', async () => {
       await setup()
 
-      const block = await getBlock(publicClient)
+      const fees = await estimateFeesPerGas(publicClient)
 
       expect(
         await getBalance(publicClient, { address: targetAccount.address }),
@@ -758,7 +757,7 @@ describe('local account', () => {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         value: parseEther('1'),
-        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
+        maxFeePerGas: fees.maxFeePerGas,
       })
       expect(hash).toBeDefined()
 
@@ -772,7 +771,7 @@ describe('local account', () => {
       ).toBeLessThan(sourceAccount.balance)
 
       const transaction = await getTransaction(publicClient, { hash })
-      expect(transaction.maxFeePerGas).toBe(block.baseFeePerGas!)
+      expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
     })
 
     test('errors when account has insufficient funds', async () => {
