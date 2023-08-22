@@ -9,7 +9,7 @@ import type {
   ChainContract,
   ChainFormatters,
 } from '../types/chain.js'
-import type { Assign } from '../types/utils.js'
+import type { Assign, Prettify } from '../types/utils.js'
 
 export type AssertCurrentChainParameters = {
   chain?: Chain
@@ -31,7 +31,7 @@ export function defineChain<
 >(
   chain: chain,
   config: ChainConfig<formatters> = {},
-): Assign<chain, ChainConfig<formatters>> {
+): Prettify<Assign<chain, ChainConfig<formatters>>> {
   const {
     fees = chain.fees,
     formatters = chain.formatters,
