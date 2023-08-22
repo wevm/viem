@@ -38,9 +38,9 @@ export type HttpTransportConfig = {
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout']
   /** On request debug helper */
-  onRequest?: (request: RpcRequest[]) => void
+  onRequest?: TransportConfig['onRequest']
   /** On response */
-  onResponse?: (response: any) => void
+  onResponse?: TransportConfig['onResponse']
 }
 
 export type HttpTransport = Transport<
