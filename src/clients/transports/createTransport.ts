@@ -17,7 +17,7 @@ export type TransportConfig<
   /** On request */
   onRequest?: (request: RpcRequest[]) => void
   /** On response */
-  onResponse?: (response: any) => void
+  onResponse?: (response: unknown) => void
   /** The base delay (in ms) between retries. */
   retryDelay?: number
   /** The max number of times to retry. */
