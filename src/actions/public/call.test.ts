@@ -795,7 +795,7 @@ describe('batch call', () => {
           Math.ceil((batch2Length * (name4bytes.length - 2)) / batchSize),
       )
     },
-    { timeout: 30_000 },
+    { timeout: 30_000, retry: 3 },
   )
 })
 

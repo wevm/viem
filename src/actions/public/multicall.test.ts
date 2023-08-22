@@ -739,25 +739,29 @@ test('multicall contract deployed on later block', async () => {
   `)
 })
 
-test('stress', async () => {
-  const client = createPublicClient({
-    chain: mainnet,
-    transport: http(),
-  })
-
-  const contracts = []
-  for (let i = 0; i < 10_000; i++) {
-    contracts.push({
-      ...usdcContractConfig,
-      functionName: 'totalSupply',
+test(
+  'stress',
+  async () => {
+    const client = createPublicClient({
+      chain: mainnet,
+      transport: http(),
     })
-  }
 
-  await multicall(client, {
-    batchSize: 1024,
-    contracts,
-  })
-})
+    const contracts = []
+    for (let i = 0; i < 10_000; i++) {
+      contracts.push({
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      })
+    }
+
+    await multicall(client, {
+      batchSize: 1024,
+      contracts,
+    })
+  },
+  { retry: 3 },
+)
 
 test('batchSize on client', async () => {
   const client = createPublicClient({
