@@ -43,7 +43,7 @@ import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
 import { customRpc } from './rpc'
 
-const client = createWalletClient({ 
+const client = createWalletClient({
   chain: mainnet,
   transport: custom({
     async request({ method, params }) {
@@ -83,7 +83,7 @@ A key for the Transport.
 ```ts
 const transport = custom(
   window.ethereum,
-  { 
+  {
     key: 'windowProvider', // [!code focus]
   }
 )
@@ -99,7 +99,7 @@ A name for the Transport
 ```ts
 const transport = custom(
   window.ethereum,
-  { 
+  {
     name: 'Window Ethereum Provider', // [!code focus]
   }
 )
@@ -128,6 +128,32 @@ The base delay (in ms) between retries. By default, the Transport will use [expo
 ```ts
 const transport = custom(window.ethereum, {
   retryDelay: 100, // [!code focus]
+})
+```
+
+### onRequest (optional)
+
+- **Type:** `(request: RpcRequest[]) => void`
+- **Default:** `undefined`
+
+A callback that is called when a request is sent.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  onRequest: (request) => console.log(request), // [!code focus]
+})
+```
+
+### onResponse (optional)
+
+- **Type:** `(response: unknown) => void`
+- **Default:** `undefined`
+
+A callback that is called when a response is received without errors.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  onResponse: (response) => console.log(response), // [!code focus]
 })
 ```
 

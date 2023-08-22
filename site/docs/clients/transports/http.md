@@ -48,7 +48,7 @@ The Transport will batch up Actions over a given period and execute them in a si
 
 You can enable Batch JSON-RPC by setting the `batch` flag to `true`:
 
-```ts 
+```ts
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: true // [!code focus]
 })
@@ -85,7 +85,7 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
 
 Toggle to enable Batch JSON-RPC
 
-```ts 
+```ts
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: true // [!code focus]
 })
@@ -98,7 +98,7 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The maximum number of JSON-RPC requests to send in a batch.
 
-```ts 
+```ts
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: {
     batchSize: 2_000 // [!code focus]
@@ -113,7 +113,7 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 
 The maximum number of milliseconds to wait before sending a batch.
 
-```ts 
+```ts
 const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
   batch: {
     wait: 16 // [!code focus]
@@ -202,3 +202,28 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 })
 ```
 
+### onRequest (optional)
+
+- **Type:** `(request: RpcRequest[]) => void`
+- **Default:** `undefined`
+
+A callback that is called when a request is sent.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  onRequest: (request) => console.log(request), // [!code focus]
+})
+```
+
+### onResponse (optional)
+
+- **Type:** `(response: unknown) => void`
+- **Default:** `undefined`
+
+A callback that is called when a response is received without errors.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  onResponse: (response) => console.log(response), // [!code focus]
+})
+```

@@ -39,11 +39,11 @@ const client = createPublicClient({
 
 ### Transport Ranking
 
-Transport Ranking enables each of the Transports passed to the `fallback` Transport are automatically ranked based on their **latency** & **stability** via a weighted moving score algorithm. 
+Transport Ranking enables each of the Transports passed to the `fallback` Transport are automatically ranked based on their **latency** & **stability** via a weighted moving score algorithm.
 
-Every 10 seconds (`interval`), the `fallback` Transport will ping each transport in the list. For the past 10 pings (`sampleCount`), they will be ranked based on if they responded (stability) and how fast they responded (latency). The algorithm applies a weight of `0.7` to the stability score, and a weight of `0.3` to the latency score to derive the final score which it is ranked on. 
+Every 10 seconds (`interval`), the `fallback` Transport will ping each transport in the list. For the past 10 pings (`sampleCount`), they will be ranked based on if they responded (stability) and how fast they responded (latency). The algorithm applies a weight of `0.7` to the stability score, and a weight of `0.3` to the latency score to derive the final score which it is ranked on.
 
-The Transport that has the best latency & stability score over the sample period is prioritized first. 
+The Transport that has the best latency & stability score over the sample period is prioritized first.
 
 You can turn on automated ranking with the `rank` option:
 
@@ -180,7 +180,7 @@ const transport = fallback([alchemy, infura], {
 - **Type:** `number`
 - **Default:** `3`
 
-The max number of times to retry when a request fails. 
+The max number of times to retry when a request fails.
 
 > Note: The fallback will first try all the Transports before retrying.
 
@@ -203,3 +203,28 @@ const transport = fallback([alchemy, infura], {
 })
 ```
 
+### onRequest (optional)
+
+- **Type:** `(request: RpcRequest[]) => void`
+- **Default:** `undefined`
+
+A callback that is called when a request is sent.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  onRequest: (request) => console.log(request), // [!code focus]
+})
+```
+
+### onResponse (optional)
+
+- **Type:** `(response: unknown) => void`
+- **Default:** `undefined`
+
+A callback that is called when a response is received without errors.
+
+```ts
+const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+  onResponse: (response) => console.log(response), // [!code focus]
+})
+```
