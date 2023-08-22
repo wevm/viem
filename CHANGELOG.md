@@ -1,5 +1,11 @@
 # viem
 
+## 1.6.6
+
+### Patch Changes
+
+- [#1035](https://github.com/wagmi-dev/viem/pull/1035) [`7981fa99`](https://github.com/wagmi-dev/viem/commit/7981fa994d092f7f638c5a627cb009b8e5a23883) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Added `parseTransactionCelo` to the `viem/chains/utils` entrypoint.
+
 ## 1.6.5
 
 ### Patch Changes
