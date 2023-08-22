@@ -64,6 +64,14 @@ export type {
   EstimateGasParameters,
   EstimateGasReturnType,
 } from './actions/public/estimateGas.js'
+export type {
+  EstimateFeesPerGasParameters,
+  EstimateFeesPerGasReturnType,
+} from './actions/public/estimateFeesPerGas.js'
+export type {
+  EstimateMaxPriorityFeePerGasParameters,
+  EstimateMaxPriorityFeePerGasReturnType,
+} from './actions/public/estimateMaxPriorityFeePerGas.js'
 export type { GetAddressesReturnType } from './actions/wallet/getAddresses.js'
 export type {
   GetBalanceParameters,
