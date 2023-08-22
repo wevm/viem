@@ -2,8 +2,10 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { wagmiContractConfig } from '../../_test/abis.js'
 import { accounts, localHttpUrl } from '../../_test/constants.js'
+import { payableABI } from '../../_test/generated.js'
 import {
   anvilChain,
+  deployPayable,
   publicClient,
   testClient,
   walletClient,
@@ -12,6 +14,7 @@ import {
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import { getTransaction } from '../public/getTransaction.js'
 import { simulateContract } from '../public/simulateContract.js'
 import { mine } from '../test/mine.js'
 
@@ -141,6 +144,25 @@ test('args: dataSuffix', async () => {
     data: '0x1249c58b12345678',
     to: wagmiContractConfig.address,
   })
+})
+
+test('args: value', async () => {
+  const { contractAddress } = await deployPayable()
+
+  const hash_1 = await writeContract(walletClientWithAccount, {
+    abi: payableABI,
+    address: contractAddress!,
+    functionName: 'pay',
+  })
+  const hash_2 = await writeContract(walletClientWithAccount, {
+    abi: payableABI,
+    address: contractAddress!,
+    functionName: 'pay',
+    value: 1n,
+  })
+
+  expect((await getTransaction(publicClient, { hash: hash_1 })).value).toBe(0n)
+  expect((await getTransaction(publicClient, { hash: hash_2 })).value).toBe(1n)
 })
 
 test('overloaded function', async () => {

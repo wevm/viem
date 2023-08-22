@@ -1,5 +1,33 @@
 # viem
 
+## 1.6.6
+
+### Patch Changes
+
+- [#1035](https://github.com/wagmi-dev/viem/pull/1035) [`7981fa99`](https://github.com/wagmi-dev/viem/commit/7981fa994d092f7f638c5a627cb009b8e5a23883) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Added `parseTransactionCelo` to the `viem/chains/utils` entrypoint.
+
+## 1.6.5
+
+### Patch Changes
+
+- [#1041](https://github.com/wagmi-dev/viem/pull/1041) [`fa3353e9`](https://github.com/wagmi-dev/viem/commit/fa3353e9de1b27d8471531f1c4d35e7f34f7ef39) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket instantiation in React Native environment.
+
+## 1.6.4
+
+### Patch Changes
+
+- [#1040](https://github.com/wagmi-dev/viem/pull/1040) [`1e5bd4a0`](https://github.com/wagmi-dev/viem/commit/1e5bd4a000f8e8ebdb71674bca26cfb51eb8f275) Thanks [@jxom](https://github.com/jxom)! - Made `value` optional on `writeContract`/`simulateContract` for `payable` functions.
+
+* [#1022](https://github.com/wagmi-dev/viem/pull/1022) [`2eb56bc7`](https://github.com/wagmi-dev/viem/commit/2eb56bc7df4094b1b92f31ad926e72271ff27add) Thanks [@Songkeys](https://github.com/Songkeys)! - Fixed an issue where `waitForTransactionReceipt` would be infinitely pending when an error is thrown after a transaction has been replaced.
+
+## 1.6.3
+
+### Patch Changes
+
+- [#1013](https://github.com/wagmi-dev/viem/pull/1013) [`dd1e1028`](https://github.com/wagmi-dev/viem/commit/dd1e102874ef006d55d286b622e74e5d210c2293) Thanks [@avasisht23](https://github.com/avasisht23)! - Added `EIP1193EventMap` type.
+
+* [#1033](https://github.com/wagmi-dev/viem/pull/1033) [`51ccc6c9`](https://github.com/wagmi-dev/viem/commit/51ccc6c9453538b98e7e580cec44d9b15f0d3500) Thanks [@skeithc](https://github.com/skeithc)! - Fixed `getEnsAddress` for addresses that start with `0`.
+
 ## 1.6.2
 
 ### Patch Changes

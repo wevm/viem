@@ -607,6 +607,7 @@ export type {
 } from './types/chain.js'
 export type {
   AddEthereumChainParameter,
+  EIP1193EventMap,
   EIP1193Events,
   EIP1193Parameters,
   EIP1193Provider,

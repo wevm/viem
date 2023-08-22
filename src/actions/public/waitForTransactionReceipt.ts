@@ -192,56 +192,60 @@ export async function waitForTransactionReceipt<
                 (err instanceof TransactionNotFoundError ||
                   err instanceof TransactionReceiptNotFoundError)
               ) {
-                replacedTransaction = transaction
+                try {
+                  replacedTransaction = transaction
 
-                // Let's retrieve the transactions from the current block.
-                const block = await getBlock(client, {
-                  blockNumber,
-                  includeTransactions: true,
-                })
-
-                const replacementTransaction = (
-                  block.transactions as Transaction[]
-                ).find(
-                  ({ from, nonce }) =>
-                    from === replacedTransaction!.from &&
-                    nonce === replacedTransaction!.nonce,
-                )
-
-                // If we couldn't find a replacement transaction, continue polling.
-                if (!replacementTransaction) return
-
-                // If we found a replacement transaction, return it's receipt.
-                receipt = await getTransactionReceipt(client, {
-                  hash: replacementTransaction.hash,
-                })
-
-                // Check if we have enough confirmations. If not, continue polling.
-                if (blockNumber - receipt.blockNumber + 1n < confirmations)
-                  return
-
-                let reason: ReplacementReason = 'replaced'
-                if (
-                  replacementTransaction.to === replacedTransaction.to &&
-                  replacementTransaction.value === replacedTransaction.value
-                ) {
-                  reason = 'repriced'
-                } else if (
-                  replacementTransaction.from === replacementTransaction.to &&
-                  replacementTransaction.value === 0n
-                ) {
-                  reason = 'cancelled'
-                }
-
-                done(() => {
-                  emit.onReplaced?.({
-                    reason,
-                    replacedTransaction: replacedTransaction!,
-                    transaction: replacementTransaction,
-                    transactionReceipt: receipt,
+                  // Let's retrieve the transactions from the current block.
+                  const block = await getBlock(client, {
+                    blockNumber,
+                    includeTransactions: true,
                   })
-                  emit.resolve(receipt)
-                })
+
+                  const replacementTransaction = (
+                    block.transactions as Transaction[]
+                  ).find(
+                    ({ from, nonce }) =>
+                      from === replacedTransaction!.from &&
+                      nonce === replacedTransaction!.nonce,
+                  )
+
+                  // If we couldn't find a replacement transaction, continue polling.
+                  if (!replacementTransaction) return
+
+                  // If we found a replacement transaction, return it's receipt.
+                  receipt = await getTransactionReceipt(client, {
+                    hash: replacementTransaction.hash,
+                  })
+
+                  // Check if we have enough confirmations. If not, continue polling.
+                  if (blockNumber - receipt.blockNumber + 1n < confirmations)
+                    return
+
+                  let reason: ReplacementReason = 'replaced'
+                  if (
+                    replacementTransaction.to === replacedTransaction.to &&
+                    replacementTransaction.value === replacedTransaction.value
+                  ) {
+                    reason = 'repriced'
+                  } else if (
+                    replacementTransaction.from === replacementTransaction.to &&
+                    replacementTransaction.value === 0n
+                  ) {
+                    reason = 'cancelled'
+                  }
+
+                  done(() => {
+                    emit.onReplaced?.({
+                      reason,
+                      replacedTransaction: replacedTransaction!,
+                      transaction: replacementTransaction,
+                      transactionReceipt: receipt,
+                    })
+                    emit.resolve(receipt)
+                  })
+                } catch (err_) {
+                  done(() => emit.reject(err_))
+                }
               } else {
                 done(() => emit.reject(err))
               }

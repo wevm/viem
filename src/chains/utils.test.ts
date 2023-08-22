@@ -8,6 +8,7 @@ test('exports', () => {
       "formattersCelo",
       "serializeTransactionCelo",
       "serializersCelo",
+      "parseTransactionCelo",
       "formattersOptimism",
     ]
   `)

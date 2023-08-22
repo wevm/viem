@@ -1,7 +1,7 @@
 import { seaportAbi } from 'abitype/test'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { wagmiContractConfig } from '../../_test/abis.js'
+import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { walletClientWithAccount } from '../../_test/utils.js'
 import { type WriteContractParameters, writeContract } from './writeContract.js'
 
@@ -173,5 +173,33 @@ test('eip2930', () => {
     maxFeePerGas: 0n,
     maxPriorityFeePerGas: 0n,
     type: 'eip2930',
+  })
+})
+
+test('args: value', () => {
+  // payable function
+  writeContract(walletClientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+    value: 5n,
+  })
+
+  // payable function (undefined)
+  writeContract(walletClientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'mintApe',
+    args: [69n],
+  })
+
+  // nonpayable function
+  writeContract(walletClientWithAccount, {
+    abi: baycContractConfig.abi,
+    address: '0x',
+    functionName: 'approve',
+    // @ts-expect-error
+    value: 5n,
   })
 })

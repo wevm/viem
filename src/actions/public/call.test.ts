@@ -9,7 +9,7 @@ import {
   publicClient,
   publicClientMainnet,
 } from '../../_test/utils.js'
-import { celo, mainnet } from '../../chains/index.js'
+import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { aggregate3Signature } from '../../constants/contract.js'
@@ -753,50 +753,6 @@ describe('batch call', () => {
       ]
     `)
   })
-
-  test(
-    'stress',
-    async () => {
-      const batchSize = 2048
-      const batch1Length = 500
-      const batch2Length = 10_000
-
-      const client = createPublicClient({
-        chain: mainnet,
-        batch: { multicall: true },
-        transport: http(),
-      })
-
-      const spy = vi.spyOn(client, 'request')
-
-      const p = []
-      for (let i = 0; i < batch1Length; i++) {
-        p.push(
-          call(client, {
-            data: name4bytes,
-            to: wagmiContractAddress,
-          }),
-        )
-      }
-      await wait(1)
-      for (let i = 0; i < batch2Length; i++) {
-        p.push(
-          call(client, {
-            data: name4bytes,
-            to: wagmiContractAddress,
-          }),
-        )
-      }
-
-      await Promise.all(p)
-
-      expect(spy).toBeCalledTimes(
-        Math.ceil((batch1Length * (name4bytes.length - 2)) / batchSize) +
-          Math.ceil((batch2Length * (name4bytes.length - 2)) / batchSize),
-      )
-    },
-    { timeout: 30_000 },
-  )
 })
 
 describe('getRevertErrorData', () => {
