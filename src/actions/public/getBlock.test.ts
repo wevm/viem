@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { forkBlockNumber } from '../../_test/constants.js'
@@ -9,7 +10,6 @@ import type { Block } from '../../types/block.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { getBlock } from './getBlock.js'
-import type { Address } from 'abitype'
 
 test('gets latest block', async () => {
   const block = await getBlock(publicClient)

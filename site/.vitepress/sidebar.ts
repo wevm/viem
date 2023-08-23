@@ -97,8 +97,16 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Fee',
           items: [
             {
+              text: 'estimateFeesPerGas',
+              link: '/docs/actions/public/estimateFeesPerGas',
+            },
+            {
               text: 'estimateGas',
               link: '/docs/actions/public/estimateGas',
+            },
+            {
+              text: 'estimateMaxPriorityFeePerGas',
+              link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
             },
             {
               text: 'getFeeHistory',

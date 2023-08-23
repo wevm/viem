@@ -1,11 +1,12 @@
-import type { Chain } from '../../chains/index.js'
+import type { Address, TypedData } from 'abitype'
+
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { type VerifyHashParameters, verifyHash } from './verifyHash.js'
-import type { Address, TypedData } from 'abitype'
 
 export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,

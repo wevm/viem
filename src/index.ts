@@ -64,6 +64,14 @@ export type {
   EstimateGasParameters,
   EstimateGasReturnType,
 } from './actions/public/estimateGas.js'
+export type {
+  EstimateFeesPerGasParameters,
+  EstimateFeesPerGasReturnType,
+} from './actions/public/estimateFeesPerGas.js'
+export type {
+  EstimateMaxPriorityFeePerGasParameters,
+  EstimateMaxPriorityFeePerGasReturnType,
+} from './actions/public/estimateMaxPriorityFeePerGas.js'
 export type { GetAddressesReturnType } from './actions/wallet/getAddresses.js'
 export type {
   GetBalanceParameters,
@@ -245,6 +253,29 @@ export type {
   WriteContractParameters,
   WriteContractReturnType,
 } from './actions/wallet/writeContract.js'
+export type {
+  Chain,
+  ChainContract,
+  ChainFees,
+  ChainFormatter,
+  /** @deprecated use `ChainFormatter` instead. */
+  ChainFormatter as Formatter,
+  ChainFormatters,
+  /** @deprecated use `ChainFormatters` instead. */
+  ChainFormatters as Formatters,
+  ChainSerializers,
+  /** @deprecated use `ChainSerializers` instead. */
+  ChainSerializers as Serializers,
+  ExtractChainFormatterExclude,
+  /** @deprecated use `ExtractChainFormatterExclude` instead. */
+  ExtractChainFormatterExclude as ExtractFormatterExclude,
+  ExtractChainFormatterParameters,
+  /** @deprecated use `ExtractChainFormatterParameters` instead. */
+  ExtractChainFormatterParameters as ExtractFormatterParameters,
+  ExtractChainFormatterReturnType,
+  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
+  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
+} from './types/chain.js'
 export {
   type Client,
   type ClientConfig,
@@ -436,6 +467,11 @@ export {
   RawContractError,
 } from './errors/contract.js'
 export {
+  BaseFeeScalarError,
+  Eip1559FeesNotSupportedError,
+  MaxFeePerGasTooLowError,
+} from './errors/fee.js'
+export {
   ChainDisconnectedError,
   InternalRpcError,
   InvalidInputRpcError,
@@ -571,30 +607,7 @@ export type {
   Signature,
   SignableMessage,
 } from './types/misc.js'
-export type {
-  Chain,
-  ChainContract,
-  ChainFees,
-  ChainFormatter,
-  /** @deprecated use `ChainFormatter` instead. */
-  ChainFormatter as Formatter,
-  ChainFormatters,
-  /** @deprecated use `ChainFormatters` instead. */
-  ChainFormatters as Formatters,
-  ChainSerializers,
-  /** @deprecated use `ChainSerializers` instead. */
-  ChainSerializers as Serializers,
-  ExtractChainFormatterExclude,
-  /** @deprecated use `ExtractChainFormatterExclude` instead. */
-  ExtractChainFormatterExclude as ExtractFormatterExclude,
-  ExtractChainFormatterParameters,
-  /** @deprecated use `ExtractChainFormatterParameters` instead. */
-  ExtractChainFormatterParameters as ExtractFormatterParameters,
-  ExtractChainFormatterReturnType,
-  /** @deprecated use `ExtractChainFormatterReturnType` instead. */
-  ExtractChainFormatterReturnType as ExtractFormatterReturnType,
-  GetChain,
-} from './types/chain.js'
+export type { GetChain } from './types/chain.js'
 export type {
   AddEthereumChainParameter,
   EIP1193EventMap,
@@ -621,6 +634,7 @@ export type {
   FeeValues,
   FeeValuesEIP1559,
   FeeValuesLegacy,
+  FeeValuesType,
 } from './types/fee.js'
 export type { Filter } from './types/filter.js'
 export type {

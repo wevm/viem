@@ -2,22 +2,26 @@ import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import { internal_estimateFeesPerGas } from '../../actions/public/estimateFeesPerGas.js'
 import {
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
 import { getBlock } from '../../actions/public/getBlock.js'
-import { getGasPrice } from '../../actions/public/getGasPrice.js'
 import { getTransactionCount } from '../../actions/public/getTransactionCount.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
-import { BaseError } from '../../errors/base.js'
+import {
+  Eip1559FeesNotSupportedError,
+  MaxFeePerGasTooLowError,
+} from '../../errors/fee.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import type { Chain } from '../../types/chain.js'
+import type { GetChain } from '../../types/chain.js'
 import type { UnionOmit } from '../../types/utils.js'
-import type { FormattedTransactionRequest } from '../index.js'
+import { type FormattedTransactionRequest } from '../index.js'
 import { type AssertRequestParameters, assertRequest } from './assertRequest.js'
 
 export type PrepareRequestParameters<
@@ -60,15 +64,7 @@ export async function prepareRequest<
   client: Client<Transport, TChain, TAccount>,
   args: TArgs,
 ): Promise<PrepareRequestReturnType<TChain, TAccount, TChainOverride, TArgs>> {
-  const {
-    account: account_,
-    chain = client.chain,
-    gas,
-    gasPrice,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    nonce,
-  } = args
+  const { account: account_, chain, gas, gasPrice, nonce } = args
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
@@ -86,44 +82,40 @@ export async function prepareRequest<
     typeof block.baseFeePerGas === 'bigint' &&
     typeof gasPrice === 'undefined'
   ) {
-    let defaultPriorityFee = 1_500_000_000n // 1.5 gwei
-    if (typeof chain?.fees?.defaultPriorityFee !== 'undefined') {
-      defaultPriorityFee =
-        typeof chain.fees.defaultPriorityFee === 'bigint'
-          ? chain.fees.defaultPriorityFee
-          : await chain.fees.defaultPriorityFee({
-              block,
-              request: request as PrepareRequestParameters,
-            })
-    }
-
     // EIP-1559 fees
-    if (typeof maxFeePerGas === 'undefined') {
-      // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
-      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultPriorityFee
-      request.maxFeePerGas =
-        (block.baseFeePerGas * 120n) / 100n + request.maxPriorityFeePerGas
-    } else {
-      if (
-        typeof maxPriorityFeePerGas === 'undefined' &&
-        maxFeePerGas < defaultPriorityFee
-      )
-        throw new BaseError(
-          '`maxFeePerGas` cannot be less than the default `maxPriorityFeePerGas` (1.5 gwei).',
-        )
-      request.maxFeePerGas = maxFeePerGas
-      request.maxPriorityFeePerGas = maxPriorityFeePerGas ?? defaultPriorityFee
-    }
+    const { maxFeePerGas, maxPriorityFeePerGas } =
+      await internal_estimateFeesPerGas(client, {
+        block,
+        chain,
+        request: request as PrepareRequestParameters,
+      })
+
+    if (
+      typeof args.maxPriorityFeePerGas === 'undefined' &&
+      args.maxFeePerGas &&
+      args.maxFeePerGas < maxPriorityFeePerGas
+    )
+      throw new MaxFeePerGasTooLowError({
+        maxPriorityFeePerGas,
+      })
+
+    request.maxPriorityFeePerGas = maxPriorityFeePerGas
+    request.maxFeePerGas = args.maxFeePerGas ?? maxFeePerGas
   } else if (typeof gasPrice === 'undefined') {
     // Legacy fees
     if (
-      typeof maxFeePerGas !== 'undefined' ||
-      typeof maxPriorityFeePerGas !== 'undefined'
+      typeof args.maxFeePerGas !== 'undefined' ||
+      typeof args.maxPriorityFeePerGas !== 'undefined'
     )
-      throw new BaseError('Chain does not support EIP-1559 fees.')
+      throw new Eip1559FeesNotSupportedError()
 
-    // Set a buffer of 1.2x on top of the base fee to account for fluctuations.
-    request.gasPrice = ((await getGasPrice(client)) * 120n) / 100n
+    const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(client, {
+      block,
+      chain,
+      request: request as PrepareRequestParameters,
+      type: 'legacy',
+    })
+    request.gasPrice = gasPrice_
   }
 
   if (typeof gas === 'undefined')

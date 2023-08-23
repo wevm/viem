@@ -31,3 +31,5 @@ export type FeeValuesEIP1559<TQuantity = bigint> = {
 export type FeeValues<TQuantity = bigint> =
   | FeeValuesLegacy<TQuantity>
   | FeeValuesEIP1559<TQuantity>
+
+export type FeeValuesType = 'legacy' | 'eip1559'

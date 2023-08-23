@@ -54,6 +54,11 @@ export {
   type GetFeeHistoryReturnType,
 } from './actions/public/getFeeHistory.js'
 export {
+  estimateFeesPerGas,
+  type EstimateFeesPerGasParameters,
+  type EstimateFeesPerGasReturnType,
+} from './actions/public/estimateFeesPerGas.js'
+export {
   getFilterChanges,
   type GetFilterChangesParameters,
   type GetFilterChangesReturnType,
@@ -68,6 +73,11 @@ export {
   getGasPrice,
   type GetGasPriceReturnType,
 } from './actions/public/getGasPrice.js'
+export {
+  estimateMaxPriorityFeePerGas,
+  type EstimateMaxPriorityFeePerGasParameters,
+  type EstimateMaxPriorityFeePerGasReturnType,
+} from './actions/public/estimateMaxPriorityFeePerGas.js'
 export {
   getTransaction,
   type GetTransactionParameters,

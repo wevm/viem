@@ -5,7 +5,8 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, GetChain } from '../../types/chain.js'
+import type { Chain } from '../../types/chain.js'
+import type { GetChain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type {
   TransactionRequest,
