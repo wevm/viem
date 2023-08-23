@@ -1,5 +1,13 @@
 # viem
 
+## 1.7.0
+
+### Minor Changes
+
+- [#1044](https://github.com/wagmi-dev/viem/pull/1044) [`3daedbf5`](https://github.com/wagmi-dev/viem/commit/3daedbf50828c4ea01c5096a05d94e8c7205644f) Thanks [@jxom](https://github.com/jxom)! - Added `estimateFeesPerGas` & `estimateMaxPriorityFeesPerGas` Actions.
+
+* [#1044](https://github.com/wagmi-dev/viem/pull/1044) [`3daedbf5`](https://github.com/wagmi-dev/viem/commit/3daedbf50828c4ea01c5096a05d94e8c7205644f) Thanks [@jxom](https://github.com/jxom)! - Added `estimateFeesPerGas` & `baseFeeMultiplier` to the Chain Fees configuration (`chain.fees`).
+
 ## 1.6.6
 
 ### Patch Changes
