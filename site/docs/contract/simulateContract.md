@@ -163,7 +163,7 @@ export const wagmiAbi = [
 ```
 
 ```ts [config.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -171,6 +171,11 @@ import { mainnet } from 'viem/chains'
 export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 // Local Account
 export const account = privateKeyToAccount(...)
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum)
+})
 
 export const publicClient = createPublicClient({
   chain: mainnet,
@@ -249,7 +254,7 @@ contract WagmiExample {
 ```
 
 ```ts [config.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, custom, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -257,6 +262,11 @@ import { mainnet } from 'viem/chains'
 export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 // Local Account
 export const account = privateKeyToAccount(...)
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum)
+})
 
 export const publicClient = createPublicClient({
   chain: mainnet,
