@@ -7,7 +7,10 @@ import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { MethodNotSupportedRpcError } from '../../errors/rpc.js'
 import { buildRequest } from '../../utils/buildRequest.js'
-import { estimateMaxPriorityFeePerGas } from './estimateMaxPriorityFeePerGas.js'
+import {
+  estimateMaxPriorityFeePerGas,
+  internal_estimateMaxPriorityFeePerGas,
+} from './estimateMaxPriorityFeePerGas.js'
 import * as getBlock from './getBlock.js'
 
 test('default', async () => {
@@ -149,5 +152,18 @@ describe('mainnet smoke', () => {
       transport: http('https://cloudflare-eth.com'),
     })
     expect(await estimateMaxPriorityFeePerGas(mainnetClient)).toBeDefined()
+  })
+})
+
+describe('internal_estimateMaxPriorityFeePerGas', () => {
+  test('args: block', async () => {
+    const block = await getBlock.getBlock(publicClient)
+    const maxPriorityFeePerGas = await internal_estimateMaxPriorityFeePerGas(
+      publicClient,
+      {
+        block,
+      },
+    )
+    expect(maxPriorityFeePerGas).toBeDefined()
   })
 })

@@ -2,6 +2,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { Eip1559FeesNotSupportedError } from '../../errors/fee.js'
 import type { Account } from '../../types/account.js'
+import type { Block } from '../../types/block.js'
 import type { Chain, ChainFeesFnParameters } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
@@ -53,6 +54,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
 >(
   client: Client<Transport, chain>,
   args: EstimateMaxPriorityFeePerGasParameters<chain, chainOverride> & {
+    block?: Block
     request?: PrepareRequestParameters<
       chain,
       Account | undefined,
@@ -60,9 +62,9 @@ export async function internal_estimateMaxPriorityFeePerGas<
     >
   },
 ): Promise<EstimateMaxPriorityFeePerGasReturnType> {
-  const { chain = client.chain, request } = args || {}
+  const { block: block_, chain = client.chain, request } = args || {}
   if (typeof chain?.fees?.defaultPriorityFee === 'function') {
-    const block = await getBlock(client)
+    const block = block_ || (await getBlock(client))
     return chain.fees.defaultPriorityFee({
       block,
       client,
@@ -81,7 +83,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
     // fall back to calculating it manually via `gasPrice - baseFeePerGas`.
     // See: https://github.com/ethereum/pm/issues/328#:~:text=eth_maxPriorityFeePerGas%20after%20London%20will%20effectively%20return%20eth_gasPrice%20%2D%20baseFee
     const [block, gasPrice] = await Promise.all([
-      getBlock(client),
+      block_ ? Promise.resolve(block_) : getBlock(client),
       getGasPrice(client),
     ])
 
