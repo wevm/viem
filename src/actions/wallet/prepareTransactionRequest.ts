@@ -1,5 +1,3 @@
-import type { Address } from 'abitype'
-
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { internal_estimateFeesPerGas } from '../../actions/public/estimateFeesPerGas.js'
@@ -9,7 +7,6 @@ import {
 } from '../../actions/public/estimateGas.js'
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransactionCount } from '../../actions/public/getTransactionCount.js'
-import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
@@ -20,11 +17,14 @@ import {
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { type FormattedTransactionRequest } from '../index.js'
-import { type AssertRequestParameters, assertRequest } from './assertRequest.js'
+import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import type { AssertRequestParameters } from '../../utils/transaction/assertRequest.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
+import { getTransactionType } from '../../utils/transaction/getTransactionType.js'
 
-export type PrepareRequestParameters<
+export type PrepareTransactionRequestParameters<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
@@ -37,34 +37,70 @@ export type PrepareRequestParameters<
   GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride>
 
-export type PrepareRequestReturnType<
+export type PrepareTransactionRequestReturnType<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-  TArgs extends PrepareRequestParameters<
-    TChain,
-    TAccount,
-    TChainOverride
-  > = PrepareRequestParameters<TChain, TAccount, TChainOverride>,
-> = TArgs & {
-  from: Address
-  gas: SendTransactionParameters['gas']
-  gasPrice?: SendTransactionParameters['gasPrice']
-  maxFeePerGas?: SendTransactionParameters['maxFeePerGas']
-  maxPriorityFeePerGas?: SendTransactionParameters['maxPriorityFeePerGas']
-  nonce: SendTransactionParameters['nonce']
-}
+> = UnionOmit<
+  FormattedTransactionRequest<
+    TChainOverride extends Chain ? TChainOverride : TChain
+  >,
+  'from'
+> &
+  GetAccountParameter<TAccount> &
+  GetChain<TChain, TChainOverride>
 
-export async function prepareRequest<
+/**
+ * Prepares a transaction request for signing.
+ *
+ * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html
+ *
+ * @param args - {@link PrepareTransactionRequestParameters}
+ * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
+ *
+ * @example
+ * import { createWalletClient, custom } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { prepareTransactionRequest } from 'viem/actions'
+ *
+ * const client = createWalletClient({
+ *   chain: mainnet,
+ *   transport: custom(window.ethereum),
+ * })
+ * const request = await prepareTransactionRequest(client, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   to: '0x0000000000000000000000000000000000000000',
+ *   value: 1n,
+ * })
+ *
+ * @example
+ * // Account Hoisting
+ * import { createWalletClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { mainnet } from 'viem/chains'
+ * import { prepareTransactionRequest } from 'viem/actions'
+ *
+ * const client = createWalletClient({
+ *   account: privateKeyToAccount('0x…'),
+ *   chain: mainnet,
+ *   transport: custom(window.ethereum),
+ * })
+ * const request = await prepareTransactionRequest(client, {
+ *   to: '0x0000000000000000000000000000000000000000',
+ *   value: 1n,
+ * })
+ */
+export async function prepareTransactionRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
   TChainOverride extends Chain | undefined,
-  TArgs extends PrepareRequestParameters<TChain, TAccount, TChainOverride>,
 >(
   client: Client<Transport, TChain, TAccount>,
-  args: TArgs,
-): Promise<PrepareRequestReturnType<TChain, TAccount, TChainOverride, TArgs>> {
-  const { account: account_, chain, gas, gasPrice, nonce } = args
+  args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+): Promise<
+  PrepareTransactionRequestReturnType<TChain, TAccount, TChainOverride>
+> {
+  const { account: account_ = client.account, chain, gas, nonce, type } = args
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
@@ -78,16 +114,25 @@ export async function prepareRequest<
       blockTag: 'pending',
     })
 
-  if (
-    typeof block.baseFeePerGas === 'bigint' &&
-    typeof gasPrice === 'undefined'
-  ) {
+  if (typeof type === 'undefined') {
+    try {
+      request.type = getTransactionType(
+        request as TransactionSerializable,
+      ) as any
+    } catch {
+      // infer type from block
+      request.type =
+        typeof block.baseFeePerGas === 'bigint' ? 'eip1559' : 'legacy'
+    }
+  }
+
+  if (request.type === 'eip1559') {
     // EIP-1559 fees
     const { maxFeePerGas, maxPriorityFeePerGas } =
       await internal_estimateFeesPerGas(client, {
         block,
         chain,
-        request: request as PrepareRequestParameters,
+        request: request as PrepareTransactionRequestParameters,
       })
 
     if (
@@ -100,8 +145,8 @@ export async function prepareRequest<
       })
 
     request.maxPriorityFeePerGas = maxPriorityFeePerGas
-    request.maxFeePerGas = args.maxFeePerGas ?? maxFeePerGas
-  } else if (typeof gasPrice === 'undefined') {
+    request.maxFeePerGas = maxFeePerGas
+  } else {
     // Legacy fees
     if (
       typeof args.maxFeePerGas !== 'undefined' ||
@@ -112,7 +157,7 @@ export async function prepareRequest<
     const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(client, {
       block,
       chain,
-      request: request as PrepareRequestParameters,
+      request: request as PrepareTransactionRequestParameters,
       type: 'legacy',
     })
     request.gasPrice = gasPrice_
@@ -126,10 +171,9 @@ export async function prepareRequest<
 
   assertRequest(request as AssertRequestParameters)
 
-  return request as PrepareRequestReturnType<
+  return request as PrepareTransactionRequestReturnType<
     TChain,
     TAccount,
-    TChainOverride,
-    TArgs
+    TChainOverride
   >
 }

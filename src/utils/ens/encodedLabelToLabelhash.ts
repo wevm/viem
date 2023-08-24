@@ -1,5 +1,5 @@
-import type { Hex } from '../../index.js'
-import { isHex } from '../index.js'
+import type { Hex } from '../../types/misc.js'
+import { isHex } from '../data/isHex.js'
 
 export function encodedLabelToLabelhash(label: string): Hex | null {
   if (label.length !== 66) return null

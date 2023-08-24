@@ -34,6 +34,7 @@ test('legacy transaction', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -69,6 +70,7 @@ test('eip2930 transaction', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -105,6 +107,7 @@ test('eip1559 transaction', () => {
       "maxPriorityFeePerGas": "0x45",
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -126,6 +129,7 @@ test('nullish gas', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -147,6 +151,7 @@ test('nullish gasPrice', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -168,6 +173,7 @@ test('nullish maxFeePerGas', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -189,6 +195,7 @@ test('nullish maxPriorityFeePerGas', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -210,6 +217,7 @@ test('nullish nonce', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": undefined,
       "to": "0x1",
+      "type": undefined,
       "value": "0x1",
     }
   `)
@@ -231,6 +239,7 @@ test('nullish value', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
+      "type": undefined,
       "value": undefined,
     }
   `)

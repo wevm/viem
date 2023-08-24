@@ -204,6 +204,12 @@ export type {
   SendTransactionReturnType,
 } from './actions/wallet/sendTransaction.js'
 export type {
+  PrepareTransactionRequestParameters,
+  PrepareTransactionRequestReturnType,
+  /** @deprecated import `prepareTransactionRequest` from `viem/actions` instead. */
+  prepareTransactionRequest as prepareRequest,
+} from './actions/wallet/prepareTransactionRequest.js'
+export type {
   SendUnsignedTransactionParameters,
   SendUnsignedTransactionReturnType,
 } from './actions/test/sendUnsignedTransaction.js'
@@ -740,6 +746,7 @@ export {
   type FormattedTransactionRequest,
   defineTransactionRequest,
   formatTransactionRequest,
+  rpcTransactionType,
 } from './utils/formatters/transactionRequest.js'
 export {
   type GetAbiItemParameters,
@@ -862,7 +869,6 @@ export { parseEther } from './utils/unit/parseEther.js'
 export { parseGwei } from './utils/unit/parseGwei.js'
 export { parseTransaction } from './utils/transaction/parseTransaction.js'
 export { parseUnits } from './utils/unit/parseUnits.js'
-export { prepareRequest } from './utils/transaction/prepareRequest.js'
 export { serializeAccessList } from './utils/transaction/serializeAccessList.js'
 export {
   serializeTransaction,

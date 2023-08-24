@@ -639,7 +639,7 @@ export type PublicRpcSchema = [
     ReturnType: string
   },
   /**
-   * @description Sends and already-signed transaction to the network
+   * @description Sends a **signed** transaction to the network
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example
    * provider.request({ method: 'eth_sendRawTransaction', params: ['0x...'] })

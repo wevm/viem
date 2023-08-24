@@ -1,5 +1,3 @@
-import type { Address } from 'abitype'
-
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '../../_test/constants.js'
@@ -142,13 +140,6 @@ test('chain w/ custom block type', async () => {
     index: 0,
   })
 
-  assertType<
-    Transaction & {
-      feeCurrency: Address | null
-      gatewayFee: bigint | null
-      gatewayFeeRecipient: Address | null
-    }
-  >(transaction)
   expect(transaction).toMatchInlineSnapshot(`
     {
       "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",

@@ -20,6 +20,7 @@ import {
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from './public.js'
 
 test('default', async () => {
@@ -56,7 +57,9 @@ test('default', async () => {
       "getTransactionCount": [Function],
       "getTransactionReceipt": [Function],
       "multicall": [Function],
+      "prepareTransactionRequest": [Function],
       "readContract": [Function],
+      "sendRawTransaction": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
       "verifyMessage": [Function],
@@ -330,6 +333,30 @@ describe('smoke test', () => {
           },
         ],
         multicallAddress: '0xca11bde05977b3631167028862be2a173976ca11',
+      }),
+    ).toBeDefined()
+  })
+
+  test('prepareTransactionRequest', async () => {
+    expect(
+      await publicClient.prepareTransactionRequest({
+        account: accounts[6].address,
+        to: accounts[7].address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined()
+  })
+
+  test('sendRawTransaction', async () => {
+    const request = await publicClient.prepareTransactionRequest({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    const serializedTransaction = await walletClient.signTransaction(request)
+    expect(
+      await publicClient.sendRawTransaction({
+        serializedTransaction,
       }),
     ).toBeDefined()
   })

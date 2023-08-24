@@ -772,11 +772,12 @@ describe('transactionRequest', () => {
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
         "gasPrice": undefined,
-        "gatewayFee": "0x4",
+        "gatewayFee": 4n,
         "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
+        "type": undefined,
         "value": "0x1",
       }
     `)
@@ -798,11 +799,11 @@ describe('transactionRequest', () => {
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x1",
         "gasPrice": undefined,
-        "gatewayFee": undefined,
         "gatewayFeeRecipient": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x1",
+        "type": undefined,
         "value": "0x1",
       }
     `)

@@ -23,6 +23,11 @@ import {
   getPermissions,
 } from '../../actions/wallet/getPermissions.js'
 import {
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+} from '../../actions/wallet/prepareTransactionRequest.js'
+import {
   type RequestAddressesReturnType,
   requestAddresses,
 } from '../../actions/wallet/requestAddresses.js'
@@ -31,6 +36,11 @@ import {
   type RequestPermissionsReturnType,
   requestPermissions,
 } from '../../actions/wallet/requestPermissions.js'
+import {
+  type SendRawTransactionParameters,
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from '../../actions/wallet/sendRawTransaction.js'
 import {
   type SendTransactionParameters,
   type SendTransactionReturnType,
@@ -41,6 +51,11 @@ import {
   type SignMessageReturnType,
   signMessage,
 } from '../../actions/wallet/signMessage.js'
+import {
+  type SignTransactionParameters,
+  type SignTransactionReturnType,
+  signTransaction,
+} from '../../actions/wallet/signTransaction.js'
 import {
   type SignTypedDataParameters,
   type SignTypedDataReturnType,
@@ -176,6 +191,47 @@ export type WalletActions<
    */
   getPermissions: () => Promise<GetPermissionsReturnType>
   /**
+   * Prepares a transaction request for signing.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html
+   *
+   * @param args - {@link PrepareTransactionRequestParameters}
+   * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   */
+  prepareTransactionRequest: <TChainOverride extends Chain | undefined,>(
+    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+  ) => Promise<PrepareTransactionRequestReturnType>
+  /**
    * Requests a list of accounts managed by a wallet.
    *
    * - Docs: https://viem.sh/docs/actions/wallet/requestAddresses.html
@@ -222,6 +278,33 @@ export type WalletActions<
   requestPermissions: (
     args: RequestPermissionsParameters,
   ) => Promise<RequestPermissionsReturnType>
+  /**
+   * Sends a **signed** transaction to the network
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransaction.html
+   * - JSON-RPC Method: [`eth_sendRawTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SendRawTransactionParameters}
+   * @returns The transaction hash. {@link SendRawTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { sendRawTransaction } from 'viem/wallet'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const hash = await client.sendRawTransaction({
+   *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
+   * })
+   */
+  sendRawTransaction: (
+    args: SendRawTransactionParameters,
+  ) => Promise<SendRawTransactionReturnType>
   /**
    * Creates, signs, and sends a new transaction to the network.
    *
@@ -313,6 +396,52 @@ export type WalletActions<
   signMessage: (
     args: SignMessageParameters<TAccount>,
   ) => Promise<SignMessageReturnType>
+  /**
+   * Signs a transaction.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/signTransaction.html
+   * - JSON-RPC Methods:
+   *   - JSON-RPC Accounts: [`eth_signTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
+   *   - Local Accounts: Signs locally. No JSON-RPC request.
+   *
+   * @param args - {@link SignTransactionParameters}
+   * @returns The signed message. {@link SignTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   * const signature = await client.signTransaction(request)
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   * const signature = await client.signTransaction(request)
+   */
+  signTransaction: <TChainOverride extends Chain | undefined,>(
+    args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
+  ) => Promise<SignTransactionReturnType>
   /**
    * Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *
@@ -536,10 +665,14 @@ export function walletActions<
     getAddresses: () => getAddresses(client),
     getChainId: () => getChainId(client),
     getPermissions: () => getPermissions(client),
+    prepareTransactionRequest: (args) =>
+      prepareTransactionRequest(client as any, args as any),
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
+    sendRawTransaction: (args) => sendRawTransaction(client, args),
     sendTransaction: (args) => sendTransaction(client, args),
     signMessage: (args) => signMessage(client, args),
+    signTransaction: (args) => signTransaction(client, args),
     signTypedData: (args) => signTypedData(client, args),
     switchChain: (args) => switchChain(client, args),
     watchAsset: (args) => watchAsset(client, args),

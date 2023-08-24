@@ -206,6 +206,16 @@ import {
   type WatchPendingTransactionsReturnType,
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
+import {
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+} from '../../actions/wallet/prepareTransactionRequest.js'
+import {
+  type SendRawTransactionParameters,
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from '../../actions/wallet/sendRawTransaction.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -1200,6 +1210,47 @@ export type PublicActions<
     args: MulticallParameters<TContracts, TAllowFailure>,
   ) => Promise<MulticallReturnType<TContracts, TAllowFailure>>
   /**
+   * Prepares a transaction request for signing.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html
+   *
+   * @param args - {@link PrepareTransactionRequestParameters}
+   * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   */
+  prepareTransactionRequest: <TChainOverride extends Chain | undefined,>(
+    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+  ) => Promise<PrepareTransactionRequestReturnType>
+  /**
    * Calls a read-only function on a contract, and returns the response.
    *
    * - Docs: https://viem.sh/docs/contract/readContract.html
@@ -1236,6 +1287,33 @@ export type PublicActions<
   >(
     args: ReadContractParameters<TAbi, TFunctionName>,
   ) => Promise<ReadContractReturnType<TAbi, TFunctionName>>
+  /**
+   * Sends a **signed** transaction to the network
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransaction.html
+   * - JSON-RPC Method: [`eth_sendRawTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SendRawTransactionParameters}
+   * @returns The transaction hash. {@link SendRawTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { sendRawTransaction } from 'viem/wallet'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const hash = await client.sendRawTransaction({
+   *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
+   * })
+   */
+  sendRawTransaction: (
+    args: SendRawTransactionParameters,
+  ) => Promise<SendRawTransactionReturnType>
   /**
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *
@@ -1567,7 +1645,10 @@ export function publicActions<
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
     multicall: (args) => multicall(client, args as any) as any,
+    prepareTransactionRequest: (args) =>
+      prepareTransactionRequest(client as any, args as any),
     readContract: (args) => readContract(client, args),
+    sendRawTransaction: (args) => sendRawTransaction(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
     verifyTypedData: (args) => verifyTypedData(client, args),
