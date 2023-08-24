@@ -7,7 +7,10 @@ import type {
   TransactionRequestLegacy,
 } from '../../types/transaction.js'
 
-import { formatTransactionRequest } from './transactionRequest.js'
+import {
+  formatTransactionRequest,
+  rpcTransactionType,
+} from './transactionRequest.js'
 
 const base: TransactionRequest = {
   data: '0x1',
@@ -23,6 +26,7 @@ test('legacy transaction', () => {
     formatTransactionRequest({
       ...base,
       gasPrice: 69n,
+      type: 'legacy',
     } as TransactionRequestLegacy),
   ).toMatchInlineSnapshot(`
     {
@@ -34,7 +38,7 @@ test('legacy transaction', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
-      "type": undefined,
+      "type": "0x0",
       "value": "0x1",
     }
   `)
@@ -51,6 +55,7 @@ test('eip2930 transaction', () => {
         },
       ],
       gasPrice: 69n,
+      type: 'eip2930',
     } as TransactionRequestEIP2930),
   ).toMatchInlineSnapshot(`
     {
@@ -70,7 +75,7 @@ test('eip2930 transaction', () => {
       "maxPriorityFeePerGas": undefined,
       "nonce": "0x1",
       "to": "0x1",
-      "type": undefined,
+      "type": "0x1",
       "value": "0x1",
     }
   `)
@@ -88,6 +93,7 @@ test('eip1559 transaction', () => {
       ],
       maxFeePerGas: 69n,
       maxPriorityFeePerGas: 69n,
+      type: 'eip1559',
     } as TransactionRequestEIP1559),
   ).toMatchInlineSnapshot(`
     {
@@ -107,7 +113,7 @@ test('eip1559 transaction', () => {
       "maxPriorityFeePerGas": "0x45",
       "nonce": "0x1",
       "to": "0x1",
-      "type": undefined,
+      "type": "0x2",
       "value": "0x1",
     }
   `)
@@ -241,6 +247,16 @@ test('nullish value', () => {
       "to": "0x1",
       "type": undefined,
       "value": undefined,
+    }
+  `)
+})
+
+test('rpcTransactionType', () => {
+  expect(rpcTransactionType).toMatchInlineSnapshot(`
+    {
+      "eip1559": "0x2",
+      "eip2930": "0x1",
+      "legacy": "0x0",
     }
   `)
 })

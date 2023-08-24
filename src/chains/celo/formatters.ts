@@ -69,17 +69,15 @@ export const formattersCelo = {
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
-      let request = {} as CeloRpcTransactionRequest
-      if (args.type === 'cip42')
-        request = {
-          feeCurrency: args.feeCurrency,
-          gatewayFee:
-            typeof args.gatewayFee !== 'undefined'
-              ? numberToHex(args.gatewayFee)
-              : undefined,
-          gatewayFeeRecipient: args.gatewayFeeRecipient,
-          type: '0x7c',
-        } as CeloRpcTransactionRequest
+      const request = {
+        feeCurrency: args.feeCurrency,
+        gatewayFee:
+          typeof args.gatewayFee !== 'undefined'
+            ? numberToHex(args.gatewayFee)
+            : undefined,
+        gatewayFeeRecipient: args.gatewayFeeRecipient,
+      } as CeloRpcTransactionRequest
+      if (args.type === 'cip42') request.type = '0x7c'
       return request
     },
   }),
