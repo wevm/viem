@@ -113,6 +113,11 @@ export const sponsors = [
         url: 'https://celo.org',
         img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/celo-light.svg',
       },
+      {
+        name: 'Zora',
+        url: 'https://zora.co',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/zora-light.svg',
+      },
     ],
   },
 ] satisfies Sponsors
