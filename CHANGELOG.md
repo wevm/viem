@@ -1,5 +1,11 @@
 # viem
 
+## 1.7.1
+
+### Patch Changes
+
+- [`da45ec2d`](https://github.com/wagmi-dev/viem/commit/da45ec2d519ccabef5eef0c4bc8efae05c12bcb3) Thanks [@jxom](https://github.com/jxom)! - Deduped block retrieval in `estimateMaxPriorityFeePerGas`.
+
 ## 1.7.0
 
 ### Minor Changes
