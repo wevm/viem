@@ -195,11 +195,12 @@ describe('errors', async () => {
       expect(
         await multicall(publicClient, {
           blockNumber: forkBlockNumber,
-          // @ts-expect-error
+          // @ts-ignore
           contracts: [
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
+              // @ts-ignore
               args: [address.vitalik, 1n],
             },
             {
@@ -474,11 +475,12 @@ describe('errors', async () => {
       await expect(() =>
         multicall(publicClient, {
           allowFailure: false,
-          // @ts-expect-error
+          // @ts-ignore
           contracts: [
             {
               ...usdcContractConfig,
               functionName: 'balanceOf',
+              // @ts-ignore
               args: [address.vitalik, 1n],
             },
             {
