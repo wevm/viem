@@ -65,7 +65,7 @@ export const account = privateKeyToAccount(...)
 
 ::: code-group
 
-```ts {7} [example.ts]
+```ts {8} [example.ts]
 import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
 import { account, walletClient } from './config'
