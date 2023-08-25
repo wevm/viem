@@ -60,7 +60,7 @@ export type ProviderRpcErrorCode =
   | 4200 // Unsupported Method
   | 4900 // Disconnected
   | 4901 // Chain Disconnected
-  | 4902 // Chain Not Recongnized
+  | 4902 // Chain Not Recognized
 
 /**
  * Error subclass implementing Ethereum Provider errors per EIP-1193.
