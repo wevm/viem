@@ -125,7 +125,7 @@ const signature = await walletClient.signMessage({
 })
 ```
 
-### data
+### message
 
 - **Type:** `string | { raw: Hex | ByteArray }`
 
