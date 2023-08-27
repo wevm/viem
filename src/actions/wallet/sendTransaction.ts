@@ -24,8 +24,9 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import { prepareRequest } from '../../utils/transaction/prepareRequest.js'
 import { getChainId } from '../public/getChainId.js'
+import { prepareTransactionRequest } from './prepareTransactionRequest.js'
+import { sendRawTransaction } from './sendRawTransaction.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -130,7 +131,7 @@ export async function sendTransaction<
 
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await prepareRequest(client, {
+      const request = await prepareTransactionRequest(client, {
         account,
         accessList,
         chain,
@@ -148,16 +149,15 @@ export async function sendTransaction<
       if (!chainId) chainId = await getChainId(client)
 
       const serializer = chain?.serializers?.transaction
-      const signedRequest = (await account.signTransaction(
+      const serializedTransaction = (await account.signTransaction(
         {
           ...request,
           chainId,
         } as TransactionSerializable,
         { serializer },
       )) as Hash
-      return await client.request({
-        method: 'eth_sendRawTransaction',
-        params: [signedRequest],
+      return await sendRawTransaction(client, {
+        serializedTransaction,
       })
     }
 

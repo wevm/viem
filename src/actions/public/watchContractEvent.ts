@@ -2,7 +2,6 @@ import type { Abi, AbiEvent, Address, ExtractAbiEvent } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { EncodeEventTopicsParameters, LogTopic } from '../../index.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs, InferEventName } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
@@ -17,14 +16,18 @@ import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
 
-import { DecodeLogDataMismatch } from '../../errors/abi.js'
 import {
+  DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
-  InvalidInputRpcError,
-  decodeEventLog,
+} from '../../errors/abi.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
+import type { LogTopic } from '../../types/misc.js'
+import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
+import {
+  type EncodeEventTopicsParameters,
   encodeEventTopics,
-  formatLog,
-} from '../../index.js'
+} from '../../utils/abi/encodeEventTopics.js'
+import { formatLog } from '../../utils/formatters/log.js'
 import {
   type CreateContractEventFilterParameters,
   createContractEventFilter,

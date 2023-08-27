@@ -16,7 +16,7 @@ import type {
   FeeValuesLegacy,
   FeeValuesType,
 } from '../../types/fee.js'
-import type { PrepareRequestParameters } from '../../utils/transaction/prepareRequest.js'
+import type { PrepareTransactionRequestParameters } from '../wallet/prepareTransactionRequest.js'
 import { internal_estimateMaxPriorityFeePerGas } from './estimateMaxPriorityFeePerGas.js'
 import { getBlock } from './getBlock.js'
 import { getGasPrice } from './getGasPrice.js'
@@ -85,7 +85,7 @@ export async function internal_estimateFeesPerGas<
   client: Client<Transport, chain>,
   args: EstimateFeesPerGasParameters<chain, chainOverride, type> & {
     block?: Block
-    request?: PrepareRequestParameters
+    request?: PrepareTransactionRequestParameters
   },
 ): Promise<EstimateFeesPerGasReturnType<type>> {
   const {
@@ -138,7 +138,8 @@ export async function internal_estimateFeesPerGas<
         )
 
     const baseFeePerGas = multiply(block.baseFeePerGas)
-    const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas
+    const maxFeePerGas =
+      request?.maxFeePerGas ?? baseFeePerGas + maxPriorityFeePerGas
 
     return {
       maxFeePerGas,
@@ -146,7 +147,7 @@ export async function internal_estimateFeesPerGas<
     } as EstimateFeesPerGasReturnType<type>
   }
 
-  const gasPrice = multiply(await getGasPrice(client))
+  const gasPrice = request?.gasPrice ?? multiply(await getGasPrice(client))
   return {
     gasPrice,
   } as EstimateFeesPerGasReturnType<type>

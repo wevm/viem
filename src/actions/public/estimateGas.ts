@@ -21,9 +21,9 @@ import {
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
 import {
-  type PrepareRequestParameters,
-  prepareRequest,
-} from '../../utils/transaction/prepareRequest.js'
+  type PrepareTransactionRequestParameters,
+  prepareTransactionRequest,
+} from '../wallet/prepareTransactionRequest.js'
 
 export type FormattedEstimateGas<
   TChain extends Chain | undefined = Chain | undefined,
@@ -107,9 +107,9 @@ export async function estimateGas<
       ...rest
     } =
       account.type === 'local'
-        ? ((await prepareRequest(
+        ? ((await prepareTransactionRequest(
             client,
-            args as PrepareRequestParameters,
+            args as PrepareTransactionRequestParameters,
           )) as EstimateGasParameters)
         : args
 

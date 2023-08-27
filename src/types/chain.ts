@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { EstimateFeesPerGasReturnType } from '../actions/public/estimateFeesPerGas.js'
+import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Account } from '../types/account.js'
@@ -11,7 +12,6 @@ import type {
 } from '../types/transaction.js'
 import type { IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
-import type { PrepareRequestParameters } from '../utils/transaction/prepareRequest.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
 export type Chain<
@@ -112,7 +112,7 @@ export type ChainFeesFnParameters<
    * is outside of a transaction request context (e.g. a direct call to
    * the `estimateFeesPerGas` Action).
    */
-  request?: PrepareRequestParameters<
+  request?: PrepareTransactionRequestParameters<
     Omit<Chain, 'formatters'> & { formatters: formatters },
     Account | undefined,
     undefined

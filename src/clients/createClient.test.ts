@@ -482,8 +482,10 @@ describe('extends', () => {
         "multicall": [Function],
         "name": "Base Client",
         "pollingInterval": 4000,
+        "prepareTransactionRequest": [Function],
         "readContract": [Function],
         "request": [Function],
+        "sendRawTransaction": [Function],
         "simulateContract": [Function],
         "transport": {
           "key": "http",

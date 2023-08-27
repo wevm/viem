@@ -6,7 +6,7 @@ import type { Block } from '../../types/block.js'
 import type { Chain, ChainFeesFnParameters } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
-import type { PrepareRequestParameters } from '../../utils/transaction/prepareRequest.js'
+import type { PrepareTransactionRequestParameters } from '../wallet/prepareTransactionRequest.js'
 import { getBlock } from './getBlock.js'
 import { getGasPrice } from './getGasPrice.js'
 
@@ -55,7 +55,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
   client: Client<Transport, chain>,
   args: EstimateMaxPriorityFeePerGasParameters<chain, chainOverride> & {
     block?: Block
-    request?: PrepareRequestParameters<
+    request?: PrepareTransactionRequestParameters<
       chain,
       Account | undefined,
       chainOverride

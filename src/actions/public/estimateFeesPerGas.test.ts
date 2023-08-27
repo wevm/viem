@@ -229,4 +229,21 @@ describe('internal_estimateFeesPerGas', () => {
       (baseFeePerGas * 120n) / 100n + maxPriorityFeePerGas,
     )
   })
+
+  test('maxFeePerGas request args', async () => {
+    const maxFeePerGas_ = 69n
+    const { maxFeePerGas } = await internal_estimateFeesPerGas(publicClient, {
+      request: { maxFeePerGas: maxFeePerGas_ } as any,
+    })
+    expect(maxFeePerGas).toBe(maxFeePerGas_)
+  })
+
+  test('gasPrice request args', async () => {
+    const gasPrice_ = 69n
+    const { gasPrice } = await internal_estimateFeesPerGas(publicClient, {
+      request: { gasPrice: gasPrice_ } as any,
+      type: 'legacy',
+    })
+    expect(gasPrice).toBe(gasPrice_)
+  })
 })
