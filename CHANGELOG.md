@@ -1,5 +1,11 @@
 # viem
 
+## 1.8.0
+
+### Minor Changes
+
+- [#1058](https://github.com/wagmi-dev/viem/pull/1058) [`533b5900`](https://github.com/wagmi-dev/viem/commit/533b59006b3344b947485ef372f0c78b111f6dc3) Thanks [@jxom](https://github.com/jxom)! - Added `prepareTransactionRequest`, `signTransaction`, and `sendRawTransaction`.
+
 ## 1.7.1
 
 ### Patch Changes
