@@ -121,5 +121,5 @@ const client = createWalletClient({
 }).extend(publicActions) // [!code ++]
 
 const { request } = await client.simulateContract({ ... }) // Public Action
-const { data } = await client.writeContract(request) // Wallet Action
+const hash = await client.writeContract(request) // Wallet Action
 ```

@@ -84,6 +84,12 @@ A type for fee history.
 
 [See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/fee.ts)
 
+## `FeeValues`
+
+A type for fee values.
+
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/fee.ts)
+
 ## `Filter`
 
 A type for a [Filter](/docs/glossary/terms#filter).

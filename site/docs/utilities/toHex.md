@@ -127,7 +127,7 @@ stringToHex('Hello World!', { size: 32 })
 Encodes a byte array to a hex value.
 
 ```ts
-import { stringToHex } from 'viem'
+import { bytesToHex } from 'viem'
 
 bytesToHex(
   new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
@@ -148,11 +148,11 @@ bytesToHex(
 Encodes a boolean to a hex value.
 
 ```ts
-import { stringToHex } from 'viem'
+import { boolToHex } from 'viem'
 
-bytesToHex(true)
+boolToHex(true)
 // "0x1"
 
-bytesToHex(true, { size: 32 })
+boolToHex(true, { size: 32 })
 // "0x0000000000000000000000000000000000000000000000000000000000000001"
 ```

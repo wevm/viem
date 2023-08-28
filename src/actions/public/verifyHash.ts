@@ -1,11 +1,11 @@
 import type { Address } from 'abitype'
 
-import type { Chain } from '../../chains/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { universalSignatureValidatorAbi } from '../../constants/abis.js'
 import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
 import { CallExecutionError } from '../../errors/contract.js'
+import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import { isBytesEqual } from '../../utils/data/isBytesEqual.js'
 import { encodeDeployData, isHex, toHex } from '../../utils/index.js'

@@ -225,10 +225,25 @@ export {
 export { type ResetParameters, reset } from './test/reset.js'
 export { type RevertParameters, revert } from './test/revert.js'
 export {
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+} from './wallet/prepareTransactionRequest.js'
+export {
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
 } from './wallet/sendTransaction.js'
+export {
+  type SignTransactionParameters,
+  type SignTransactionReturnType,
+  signTransaction,
+} from './wallet/signTransaction.js'
+export {
+  type SendRawTransactionParameters,
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from './wallet/sendRawTransaction.js'
 export {
   type SendUnsignedTransactionParameters,
   type SendUnsignedTransactionReturnType,

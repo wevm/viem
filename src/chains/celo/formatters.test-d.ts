@@ -3,32 +3,32 @@ import { describe, expectTypeOf, test } from 'vitest'
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
+import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
+import { signTransaction } from '../../actions/wallet/signTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hash } from '../../types/misc.js'
-import type {
-  RpcBlock,
-  RpcTransaction,
-  RpcTransactionReceipt,
-} from '../../types/rpc.js'
+import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
+import type { Assign } from '../../types/utils.js'
 import { sendTransaction } from '../../wallet.js'
 import { celo } from '../index.js'
 import { formattersCelo } from './formatters.js'
+import type {
+  CeloBlockOverrides,
+  CeloRpcTransaction,
+  CeloTransactionRequest,
+} from './types.js'
 
 describe('block', () => {
   expectTypeOf(formattersCelo.block.format).parameter(0).toEqualTypeOf<
-    Partial<RpcBlock> & {
-      randomness: { committed: `0x${string}`; revealed: `0x${string}` }
-      transactions:
-        | `0x${string}`[]
-        | (RpcTransaction & {
-            feeCurrency: `0x${string}` | null
-            gatewayFee: `0x${string}` | null
-            gatewayFeeRecipient: `0x${string}` | null
-          })[]
-    }
+    Assign<
+      Partial<RpcBlock>,
+      CeloBlockOverrides & {
+        transactions: `0x${string}`[] | CeloRpcTransaction[]
+      }
+    >
   >()
   expectTypeOf<
     ReturnType<typeof formattersCelo.block.format>['difficulty']
@@ -54,13 +54,6 @@ describe('block', () => {
 })
 
 describe('transaction', () => {
-  expectTypeOf(formattersCelo.transaction.format).parameter(0).toEqualTypeOf<
-    Partial<RpcTransaction> & {
-      feeCurrency: `0x${string}` | null
-      gatewayFee: `0x${string}` | null
-      gatewayFeeRecipient: `0x${string}` | null
-    }
-  >()
   expectTypeOf<
     ReturnType<typeof formattersCelo.transaction.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | null>()
@@ -99,11 +92,7 @@ describe('transactionRequest', () => {
   expectTypeOf(formattersCelo.transactionRequest.format)
     .parameter(0)
     .toEqualTypeOf<
-      Partial<TransactionRequest> & {
-        feeCurrency?: `0x${string}` | undefined
-        gatewayFee?: bigint | undefined
-        gatewayFeeRecipient?: `0x${string}` | undefined
-      }
+      Assign<Partial<TransactionRequest>, CeloTransactionRequest>
     >()
   expectTypeOf<
     ReturnType<typeof formattersCelo.transactionRequest.format>['feeCurrency']
@@ -185,6 +174,9 @@ describe('smoke', () => {
     expectTypeOf(transaction.gatewayFeeRecipient).toEqualTypeOf<
       `0x${string}` | null
     >()
+    expectTypeOf(transaction.type).toEqualTypeOf<
+      'legacy' | 'eip2930' | 'eip1559' | 'cip42'
+    >()
   })
 
   test('transactionReceipt', async () => {
@@ -204,7 +196,67 @@ describe('smoke', () => {
     >()
   })
 
-  test('transactionRequest', async () => {
+  test('transactionRequest (prepareTransactionRequest)', async () => {
+    const client = createWalletClient({
+      account: '0x',
+      chain: celo,
+      transport: http(),
+    })
+
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      maxFeePerGas: 0n,
+      maxPriorityFeePerGas: 0n,
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      type: 'cip42',
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      type: 'eip1559',
+    })
+
+    // @ts-expect-error `type` cannot be "legacy"
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      maxFeePerGas: 0n,
+      type: 'legacy',
+    })
+
+    // @ts-expect-error `type` cannot be "eip2930"
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      maxFeePerGas: 0n,
+      type: 'eip2930',
+    })
+  })
+
+  test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
       account: '0x',
       chain: celo,
@@ -225,6 +277,15 @@ describe('smoke', () => {
       gasPrice: 0n,
       maxFeePerGas: 0n,
       maxPriorityFeePerGas: 0n,
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    sendTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      type: 'cip42',
     })
 
     // @ts-expect-error `gasPrice` is not defined
@@ -255,6 +316,66 @@ describe('smoke', () => {
     })
   })
 
+  test('transactionRequest (signTransaction)', async () => {
+    const client = createWalletClient({
+      account: '0x',
+      chain: celo,
+      transport: http(),
+    })
+
+    signTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    signTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      maxFeePerGas: 0n,
+      maxPriorityFeePerGas: 0n,
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    signTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      type: 'cip42',
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    signTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      type: 'eip1559',
+    })
+
+    // @ts-expect-error `type` cannot be "legacy"
+    signTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      maxFeePerGas: 0n,
+      type: 'legacy',
+    })
+
+    // @ts-expect-error `type` cannot be "eip2930"
+    signTransaction(client, {
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      maxFeePerGas: 0n,
+      type: 'eip2930',
+    })
+  })
+
   test('transactionRequest (chain on action)', async () => {
     const client = createWalletClient({
       account: '0x',
@@ -277,6 +398,16 @@ describe('smoke', () => {
       gasPrice: 0n,
       maxFeePerGas: 0n,
       maxPriorityFeePerGas: 0n,
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    sendTransaction(client, {
+      chain: celo,
+      feeCurrency: '0x',
+      gatewayFee: 0n,
+      gatewayFeeRecipient: '0x',
+      gasPrice: 0n,
+      type: 'cip42',
     })
 
     // @ts-expect-error `gasPrice` is not defined

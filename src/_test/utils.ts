@@ -1,9 +1,6 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 
-import { type RequestListener, createServer } from 'http'
-import type { AddressInfo } from 'net'
-
 import erc20InvalidTransferEvent from '../../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
 import ensAvatarTokenUri from '../../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
 import errorsExample from '../../contracts/out/ErrorsExample.sol/ErrorsExample.json'
@@ -49,6 +46,8 @@ import {
   offchainLookupExampleABI,
   payableABI,
 } from './generated.js'
+import { type RequestListener, createServer } from 'http'
+import type { AddressInfo } from 'net'
 
 export const anvilChain = {
   ...localhost,

@@ -54,10 +54,20 @@ import {
   estimateContractGas,
 } from '../../actions/public/estimateContractGas.js'
 import {
+  type EstimateFeesPerGasParameters,
+  type EstimateFeesPerGasReturnType,
+  estimateFeesPerGas,
+} from '../../actions/public/estimateFeesPerGas.js'
+import {
   type EstimateGasParameters,
   type EstimateGasReturnType,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
+import {
+  type EstimateMaxPriorityFeePerGasParameters,
+  type EstimateMaxPriorityFeePerGasReturnType,
+  estimateMaxPriorityFeePerGas,
+} from '../../actions/public/estimateMaxPriorityFeePerGas.js'
 import {
   type GetBalanceParameters,
   type GetBalanceReturnType,
@@ -196,6 +206,16 @@ import {
   type WatchPendingTransactionsReturnType,
   watchPendingTransactions,
 } from '../../actions/public/watchPendingTransactions.js'
+import {
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+} from '../../actions/wallet/prepareTransactionRequest.js'
+import {
+  type SendRawTransactionParameters,
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from '../../actions/wallet/sendRawTransaction.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -205,6 +225,7 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
+import type { FeeValuesType } from '../../types/fee.js'
 import type { FilterType } from '../../types/filter.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
@@ -777,6 +798,33 @@ export type PublicActions<
     args: GetFeeHistoryParameters,
   ) => Promise<GetFeeHistoryReturnType>
   /**
+   * Returns an estimate for the fees per gas for a transaction to be included
+   * in the next block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/estimateFeesPerGas.html
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateFeesPerGasParameters}
+   * @returns An estimate (in wei) for the fees per gas. {@link EstimateFeesPerGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const maxPriorityFeePerGas = await client.estimateFeesPerGas()
+   * // { maxFeePerGas: ..., maxPriorityFeePerGas: ... }
+   */
+  estimateFeesPerGas: <
+    TChainOverride extends Chain | undefined,
+    TType extends FeeValuesType = 'eip1559',
+  >(
+    args?: EstimateFeesPerGasParameters<TChain, TChainOverride, TType>,
+  ) => Promise<EstimateFeesPerGasReturnType>
+  /**
    * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.
    *
    * - Docs: https://viem.sh/docs/actions/public/getFilterChanges.html
@@ -983,6 +1031,29 @@ export type PublicActions<
     GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
   >
   /**
+   * Returns an estimate for the max priority fee per gas (in wei) for a transaction
+   * to be included in the next block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/estimateMaxPriorityFeePerGas.html
+   *
+   * @param client - Client to use
+   * @returns An estimate (in wei) for the max priority fee per gas. {@link EstimateMaxPriorityFeePerGasReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const maxPriorityFeePerGas = await client.estimateMaxPriorityFeePerGas()
+   * // 10000000n
+   */
+  estimateMaxPriorityFeePerGas: <TChainOverride extends Chain | undefined,>(
+    args?: EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>,
+  ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
+  /**
    * Returns the value from a storage slot at a given address.
    *
    * - Docs: https://viem.sh/docs/contract/getStorageAt.html
@@ -1151,6 +1222,47 @@ export type PublicActions<
     args: MulticallParameters<contracts, allowFailure>,
   ) => Promise<MulticallReturnType<contracts, allowFailure>>
   /**
+   * Prepares a transaction request for signing.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html
+   *
+   * @param args - {@link PrepareTransactionRequestParameters}
+   * @returns The transaction request. {@link PrepareTransactionRequestReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const request = await client.prepareTransactionRequest({
+   *   to: '0x0000000000000000000000000000000000000000',
+   *   value: 1n,
+   * })
+   */
+  prepareTransactionRequest: <TChainOverride extends Chain | undefined,>(
+    args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
+  ) => Promise<PrepareTransactionRequestReturnType>
+  /**
    * Calls a read-only function on a contract, and returns the response.
    *
    * - Docs: https://viem.sh/docs/contract/readContract.html
@@ -1188,6 +1300,33 @@ export type PublicActions<
   >(
     args: ReadContractParameters<abi, functionName, args>,
   ) => Promise<ReadContractReturnType<abi, functionName, args>>
+  /**
+   * Sends a **signed** transaction to the network
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransaction.html
+   * - JSON-RPC Method: [`eth_sendRawTransaction`](https://ethereum.github.io/execution-apis/api-documentation/)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SendRawTransactionParameters}
+   * @returns The transaction hash. {@link SendRawTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { sendRawTransaction } from 'viem/wallet'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const hash = await client.sendRawTransaction({
+   *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
+   * })
+   */
+  sendRawTransaction: (
+    args: SendRawTransactionParameters,
+  ) => Promise<SendRawTransactionReturnType>
   /**
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *
@@ -1511,10 +1650,13 @@ export function publicActions<
     getEnsResolver: (args) => getEnsResolver(client, args),
     getEnsText: (args) => getEnsText(client, args),
     getFeeHistory: (args) => getFeeHistory(client, args),
+    estimateFeesPerGas: (args) => estimateFeesPerGas(client, args),
     getFilterChanges: (args) => getFilterChanges(client, args),
     getFilterLogs: (args) => getFilterLogs(client, args),
     getGasPrice: () => getGasPrice(client),
     getLogs: (args) => getLogs(client, args as any),
+    estimateMaxPriorityFeePerGas: (args) =>
+      estimateMaxPriorityFeePerGas(client, args),
     getStorageAt: (args) => getStorageAt(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>
@@ -1522,7 +1664,10 @@ export function publicActions<
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
     multicall: (args) => multicall(client, args),
+    prepareTransactionRequest: (args) =>
+      prepareTransactionRequest(client as any, args as any),
     readContract: (args) => readContract(client, args),
+    sendRawTransaction: (args) => sendRawTransaction(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
     verifyTypedData: (args) => verifyTypedData(client, args),

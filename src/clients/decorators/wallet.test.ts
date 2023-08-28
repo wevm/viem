@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
 import { accounts } from '../../_test/constants.js'
 import { walletClient, walletClientWithAccount } from '../../_test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { avalanche } from '../../chains/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
@@ -16,10 +17,13 @@ test('default', async () => {
       "getAddresses": [Function],
       "getChainId": [Function],
       "getPermissions": [Function],
+      "prepareTransactionRequest": [Function],
       "requestAddresses": [Function],
       "requestPermissions": [Function],
+      "sendRawTransaction": [Function],
       "sendTransaction": [Function],
       "signMessage": [Function],
+      "signTransaction": [Function],
       "signTypedData": [Function],
       "switchChain": [Function],
       "watchAsset": [Function],
@@ -70,6 +74,39 @@ describe('smoke test', () => {
     ).toBeDefined()
   })
 
+  test('prepareTransactionRequest', async () => {
+    expect(
+      await walletClient.prepareTransactionRequest({
+        account: accounts[6].address,
+        to: accounts[7].address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined()
+  })
+
+  test('prepareTransactionRequest (inferred account)', async () => {
+    expect(
+      await walletClientWithAccount.prepareTransactionRequest({
+        to: accounts[7].address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined()
+  })
+
+  test('sendRawTransaction', async () => {
+    const request = await walletClient.prepareTransactionRequest({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    const serializedTransaction = await walletClient.signTransaction(request)
+    expect(
+      await walletClient.sendRawTransaction({
+        serializedTransaction,
+      }),
+    ).toBeDefined()
+  })
+
   test('sendTransaction', async () => {
     expect(
       await walletClient.sendTransaction({
@@ -104,6 +141,15 @@ describe('smoke test', () => {
         message: '0xdeadbeaf',
       }),
     ).toBeDefined()
+  })
+
+  test('signTransaction', async () => {
+    const request = await walletClient.prepareTransactionRequest({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    expect(await walletClient.signTransaction(request)).toBeDefined()
   })
 
   test('signTypedData', async () => {

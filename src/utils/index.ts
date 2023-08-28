@@ -230,7 +230,10 @@ export {
   assertTransactionLegacy,
 } from './transaction/assertTransaction.js'
 export { parseTransaction } from './transaction/parseTransaction.js'
-export { prepareRequest } from './transaction/prepareRequest.js'
+export {
+  /** @deprecated import `prepareTransactionRequest` from `viem/actions` instead. */
+  prepareTransactionRequest,
+} from '../actions/wallet/prepareTransactionRequest.js'
 export {
   serializeTransaction,
   type SerializeTransactionFn,

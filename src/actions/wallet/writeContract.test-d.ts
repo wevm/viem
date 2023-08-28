@@ -79,7 +79,7 @@ test('infers args', () => {
   })
 })
 
-test('legacy', () => {
+test('type: legacy', () => {
   writeContract(walletClientWithAccount, {
     ...args,
     gasPrice: 0n,
@@ -110,7 +110,7 @@ test('legacy', () => {
   })
 })
 
-test('eip1559', () => {
+test('type: eip1559', () => {
   writeContract(walletClientWithAccount, {
     ...args,
     maxFeePerGas: 0n,
@@ -141,7 +141,7 @@ test('eip1559', () => {
   })
 })
 
-test('eip2930', () => {
+test('type: eip2930', () => {
   writeContract(walletClientWithAccount, {
     ...args,
     accessList: [],

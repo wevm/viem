@@ -133,7 +133,7 @@ test('exports utils', () => {
       "parseGwei": [Function],
       "parseTransaction": [Function],
       "parseUnits": [Function],
-      "prepareRequest": [Function],
+      "prepareTransactionRequest": [Function],
       "publicKeyToAddress": [Function],
       "recoverAddress": [Function],
       "recoverMessageAddress": [Function],

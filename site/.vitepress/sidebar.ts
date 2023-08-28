@@ -97,8 +97,16 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Fee',
           items: [
             {
+              text: 'estimateFeesPerGas',
+              link: '/docs/actions/public/estimateFeesPerGas',
+            },
+            {
               text: 'estimateGas',
               link: '/docs/actions/public/estimateGas',
+            },
+            {
+              text: 'estimateMaxPriorityFeePerGas',
+              link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
             },
             {
               text: 'getFeeHistory',
@@ -165,6 +173,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           items: [
             { text: 'call', link: '/docs/actions/public/call' },
             {
+              text: 'prepareTransactionRequest',
+              link: '/docs/actions/public/prepareTransactionRequest',
+            },
+            {
               text: 'getTransaction',
               link: '/docs/actions/public/getTransaction',
             },
@@ -175,6 +187,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'getTransactionReceipt',
               link: '/docs/actions/public/getTransactionReceipt',
+            },
+            {
+              text: 'sendRawTransaction',
+              link: '/docs/actions/public/sendRawTransaction',
             },
             {
               text: 'waitForTransactionReceipt',
@@ -258,11 +274,19 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Transaction',
           items: [
             {
+              text: 'prepareTransactionRequest',
+              link: '/docs/actions/wallet/prepareTransactionRequest',
+            },
+            {
+              text: 'sendRawTransaction',
+              link: '/docs/actions/wallet/sendRawTransaction',
+            },
+            {
               text: 'sendTransaction',
               link: '/docs/actions/wallet/sendTransaction',
             },
             {
-              text: 'signTransaction 🚧',
+              text: 'signTransaction',
               link: '/docs/actions/wallet/signTransaction',
             },
           ],

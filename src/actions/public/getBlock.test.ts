@@ -6,10 +6,7 @@ import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
-import type { Hash, Hex } from '../../types/misc.js'
-import type { Transaction } from '../../types/transaction.js'
 import { getBlock } from './getBlock.js'
-import type { Address } from 'abitype'
 
 test('gets latest block', async () => {
   const block = await getBlock(publicClient)
@@ -53,18 +50,6 @@ test('chain w/ custom block type', async () => {
     includeTransactions: true,
   })
 
-  assertType<
-    Omit<Block, 'difficulty' | 'gasLimit' | 'mixHash' | 'nonce' | 'uncles'> & {
-      randomness: { committed: Hex; revealed: Hex }
-      transactions:
-        | Hash[]
-        | (Transaction & {
-            feeCurrency: Address | null
-            gatewayFee: bigint | null
-            gatewayFeeRecipient: Address | null
-          })[]
-    }
-  >(block)
   const { extraData: _extraData, transactions, ...rest } = block
   expect(transactions[0]).toMatchInlineSnapshot(`
     {

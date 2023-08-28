@@ -1,5 +1,6 @@
 import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
+import type { RpcTransaction } from '../../types/rpc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { defineBlock } from '../../utils/formatters/block.js'
@@ -12,13 +13,11 @@ import { defineTransactionRequest } from '../../utils/formatters/transactionRequ
 import type {
   CeloBlockOverrides,
   CeloRpcTransaction,
-  CeloRpcTransactionOverrides,
   CeloRpcTransactionReceiptOverrides,
-  CeloRpcTransactionRequestOverrides,
+  CeloRpcTransactionRequest,
   CeloTransaction,
-  CeloTransactionOverrides,
   CeloTransactionReceiptOverrides,
-  CeloTransactionRequestOverrides,
+  CeloTransactionRequest,
 } from './types.js'
 
 export const formattersCelo = {
@@ -34,7 +33,7 @@ export const formattersCelo = {
       const transactions = args.transactions?.map((transaction) => {
         if (typeof transaction === 'string') return transaction
         return {
-          ...formatTransaction(transaction),
+          ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
           gatewayFee: transaction.gatewayFee
             ? hexToBigInt(transaction.gatewayFee)
@@ -49,12 +48,12 @@ export const formattersCelo = {
     },
   }),
   transaction: /*#__PURE__*/ defineTransaction({
-    format(args: CeloRpcTransactionOverrides): CeloTransactionOverrides {
+    format(args: CeloRpcTransaction): CeloTransaction {
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
         gatewayFeeRecipient: args.gatewayFeeRecipient,
-      }
+      } as CeloTransaction
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
@@ -69,17 +68,17 @@ export const formattersCelo = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    format(
-      args: CeloTransactionRequestOverrides,
-    ): CeloRpcTransactionRequestOverrides {
-      return {
+    format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
+      const request = {
         feeCurrency: args.feeCurrency,
         gatewayFee:
           typeof args.gatewayFee !== 'undefined'
             ? numberToHex(args.gatewayFee)
             : undefined,
         gatewayFeeRecipient: args.gatewayFeeRecipient,
-      }
+      } as CeloRpcTransactionRequest
+      if (args.type === 'cip42') request.type = '0x7c'
+      return request
     },
   }),
 } as const satisfies ChainFormatters

@@ -1,4 +1,5 @@
 export type Sponsors = {
+  tier?: string
   size?: 'medium' | 'big'
   items: Sponsor[]
 }[]
@@ -12,6 +13,7 @@ export type Sponsor = {
 export const sponsors = [
   {
     size: 'big',
+    tier: 'Collaborators',
     items: [
       {
         name: 'Paradigm',
@@ -22,6 +24,7 @@ export const sponsors = [
   },
   {
     size: 'medium',
+    tier: 'Large Enterprises',
     items: [
       {
         name: 'LooksRare',
@@ -42,6 +45,7 @@ export const sponsors = [
   },
   {
     size: 'medium',
+    tier: 'Small Enterprises',
     items: [
       {
         name: 'Family',
@@ -112,6 +116,16 @@ export const sponsors = [
         name: 'Celo',
         url: 'https://celo.org',
         img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/celo-light.svg',
+      },
+      {
+        name: 'Rainbow',
+        url: 'https://rainbow.me',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/rainbow-light.svg',
+      },
+      {
+        name: 'Zora',
+        url: 'https://zora.co',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/zora-light.svg',
       },
     ],
   },

@@ -2,19 +2,19 @@
 head:
   - - meta
     - property: og:title
-      content: signTransaction
+      content: prepareTransactionRequest
   - - meta
     - name: description
-      content: Signs a transaction.
+      content: Prepares a transaction request for signing.
   - - meta
     - property: og:description
-      content: Signs a transaction.
+      content: Prepares a transaction request for signing.
 
 ---
 
-# signTransaction
+# prepareTransactionRequest
 
-Signs a transaction.
+Prepares a transaction request for signing by populating a nonce, gas limit, fee values, and a transaction type.
 
 ## Usage
 
@@ -23,15 +23,24 @@ Signs a transaction.
 ```ts [example.ts]
 import { account, walletClient } from './config'
  
-const request = await walletClient.prepareTransactionRequest({
+const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
+/**
+ * {
+ *   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+ *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ *   maxFeePerGas: 150000000000n,
+ *   maxPriorityFeePerGas: 1000000000n,
+ *   nonce: 69,
+ *   type: 'eip1559',
+ *   value: 1000000000000000000n
+ * }
+ */
 
-const signature = await walletClient.signTransaction(request) // [!code focus:2]
-// 0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33
-
+const signature = await walletClient.signTransaction(request)
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
@@ -64,14 +73,23 @@ If you do not wish to pass an `account` to every `prepareTransactionRequest`, yo
 ```ts [example.ts]
 import { walletClient } from './config'
  
-const request = await walletClient.prepareTransactionRequest({
+const request = await walletClient.prepareTransactionRequest({ // [!code focus:16]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
 })
+/**
+ * {
+ *   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+ *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ *   maxFeePerGas: 150000000000n,
+ *   maxPriorityFeePerGas: 1000000000n,
+ *   nonce: 69,
+ *   type: 'eip1559',
+ *   value: 1000000000000000000n
+ * }
+ */
 
-const signature = await walletClient.signTransaction(request) // [!code focus:2]
-// 0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33
-
+const signature = await walletClient.signTransaction(request)
 const hash = await walletClient.sendRawTransaction(signature)
 ```
 
@@ -103,9 +121,9 @@ export const walletClient = createWalletClient({
 
 ## Returns
 
-[`Hex`](/docs/glossary/types#hex)
+[`TransactionRequest`](/docs/glossary/types#transactionrequest)
 
-The signed serialized transaction.
+The transaction request.
 
 ## Parameters
 
@@ -118,7 +136,7 @@ The Account to send the transaction from.
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
@@ -132,7 +150,7 @@ const signature = await walletClient.signTransaction({
 The transaction recipient or contract address.
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   value: 1000000000000000000n,
@@ -147,7 +165,7 @@ const signature = await walletClient.signTransaction({
 The access list.
 
 ```ts
-const signature = await publicClient.signTransaction({
+const request = await publicClient.prepareSendTransaction({
   accessList: [ // [!code focus:6]
     {
       address: '0x1',
@@ -166,12 +184,12 @@ const signature = await publicClient.signTransaction({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `signTransaction`).
+The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `prepareSendTransaction`).
 
 ```ts
 import { optimism } from 'viem/chains' // [!code focus]
 
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   chain: optimism, // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -186,7 +204,7 @@ const signature = await walletClient.signTransaction({
 A contract hashed method call with encoded args.
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -201,7 +219,7 @@ const signature = await walletClient.signTransaction({
 The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account,
   gasPrice: parseGwei('20'), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -216,7 +234,7 @@ const signature = await walletClient.signTransaction({
 Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account,
   maxFeePerGas: parseGwei('20'),  // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -231,7 +249,7 @@ const signature = await walletClient.signTransaction({
 Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account,
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'), // [!code focus]
@@ -247,7 +265,7 @@ const signature = await walletClient.signTransaction({
 Unique number identifying this transaction.
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n,
@@ -262,7 +280,7 @@ const signature = await walletClient.signTransaction({
 Value in wei sent with this transaction.
 
 ```ts
-const signature = await walletClient.signTransaction({
+const request = await walletClient.prepareSendTransaction({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1'), // [!code focus]
