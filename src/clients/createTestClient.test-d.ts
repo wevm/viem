@@ -1,6 +1,6 @@
-import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'
 
+import { localhost } from '../chains/index.js'
 import { type TestClient, createTestClient } from './createTestClient.js'
 import { http } from './transports/http.js'
 

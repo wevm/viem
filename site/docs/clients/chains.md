@@ -14,7 +14,7 @@ head:
 
 # Chains
 
-The `viem/chains` entrypoint proxies the [`@wagmi/chains` NPM package](https://npm.im/@wagmi/chains), an official wagmi package which contains references to popular EVM-compatible chains such as: Polygon, Optimism, Avalanche, Base, Zora, and more.
+The `viem/chains` entrypoint contains references to popular EVM-compatible chains such as: Polygon, Optimism, Avalanche, Base, Zora, and more.
 
 ## Usage
 
