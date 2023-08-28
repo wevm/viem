@@ -1,5 +1,11 @@
 # viem
 
+## 1.8.1
+
+### Patch Changes
+
+- [#1072](https://github.com/wagmi-dev/viem/pull/1072) [`edf264f3`](https://github.com/wagmi-dev/viem/commit/edf264f385e1bb24d4f7b242d1446124a6d3fcb4) Thanks [@linchengzzz](https://github.com/linchengzzz)! - Added Linea chain.
+
 ## 1.8.0
 
 ### Minor Changes
