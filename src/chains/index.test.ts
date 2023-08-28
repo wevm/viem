@@ -46,6 +46,7 @@ test('exports chains', () => {
       "hardhat",
       "harmonyOne",
       "klaytn",
+      "linea",
       "lineaTestnet",
       "localhost",
       "mainnet",
