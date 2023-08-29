@@ -4,6 +4,8 @@ Thanks for your interest in contributing to viem! Please take a moment to review
 
 If you want to contribute, but aren't sure where to start, you can create a [new discussion](https://github.com/wagmi-dev/viem/discussions).
 
+If you are contributing to add a new chain to `viem/chains`, please read the [Chains section](#chains).
+
 > **Note**
 >
 > **Please ask first before starting work on any significant new features.**
