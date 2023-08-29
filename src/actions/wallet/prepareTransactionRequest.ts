@@ -41,11 +41,8 @@ export type PrepareTransactionRequestReturnType<
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TChainOverride extends Chain | undefined = Chain | undefined,
-> = UnionOmit<
-  FormattedTransactionRequest<
-    TChainOverride extends Chain ? TChainOverride : TChain
-  >,
-  'from'
+> = FormattedTransactionRequest<
+  TChainOverride extends Chain ? TChainOverride : TChain
 > &
   GetAccountParameter<TAccount> &
   GetChain<TChain, TChainOverride>
@@ -171,7 +168,7 @@ export async function prepareTransactionRequest<
 
   assertRequest(request as AssertRequestParameters)
 
-  return request as PrepareTransactionRequestReturnType<
+  return request as unknown as PrepareTransactionRequestReturnType<
     TChain,
     TAccount,
     TChainOverride
