@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-canary changes
+Refactored types to work with transformations downstream.
