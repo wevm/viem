@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-multicall performance improve
+Improved multicall performance.
