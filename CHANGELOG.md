@@ -1,5 +1,11 @@
 # viem
 
+## 1.9.1
+
+### Patch Changes
+
+- [#1081](https://github.com/wagmi-dev/viem/pull/1081) [`29ba250f`](https://github.com/wagmi-dev/viem/commit/29ba250f19213348af28e535aac7df176f673ae0) Thanks [@witem](https://github.com/witem)! - Improved multicall performance.
+
 ## 1.9.0
 
 ### Minor Changes
