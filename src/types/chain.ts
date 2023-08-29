@@ -29,8 +29,8 @@ export type ChainBlockExplorer = {
 export type ChainConstants = {
   /** Collection of block explorers */
   blockExplorers?: {
-    [key: string]: ChainBlockExplorer
     default: ChainBlockExplorer
+    etherscan?: ChainBlockExplorer
   }
   /** Collection of contracts */
   contracts?: {
@@ -42,7 +42,10 @@ export type ChainConstants = {
   id: number
   /** Human-readable name */
   name: string
-  /** Internal network name */
+  /**
+   * Internal network name
+   * @deprecated will be removed in v2 - use `id` instead.
+   */
   network: string
   /** Currency used by chain */
   nativeCurrency: ChainNativeCurrency
@@ -56,6 +59,9 @@ export type ChainConstants = {
   sourceId?: number
   /** Flag for test networks */
   testnet?: boolean
+
+  // TODO(v2): remove `rpcUrls` in favor of `publicRpcUrls`.
+  // publicRpcUrls: ChainRpcUrls,
 }
 
 export type ChainContract = {
