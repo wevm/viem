@@ -1,5 +1,11 @@
 # viem
 
+## 1.9.2
+
+### Patch Changes
+
+- [`0b0167ef`](https://github.com/wagmi-dev/viem/commit/0b0167ef7ecdd11d59310d04cde3a074dcf5abcd) Thanks [@jxom](https://github.com/jxom)! - Fixed `PrepareTransactionRequestReturnType` type.
+
 ## 1.9.1
 
 ### Patch Changes
