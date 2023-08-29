@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
@@ -144,7 +144,6 @@
     "@scure/bip32": "1.3.0",
     "@scure/bip39": "1.2.0",
     "@types/ws": "8.5.4",
-    "@wagmi/chains": "1.7.0",
     "abitype": "0.9.8",
     "isomorphic-ws": "5.0.0",
     "ws": "8.12.0"
@@ -186,18 +185,18 @@
     {
       "name": "viem (cjs)",
       "path": "./dist/cjs/index.js",
-      "limit": "60 kB"
+      "limit": "73 kB"
     },
     {
       "name": "viem",
       "path": "./dist/esm/index.js",
-      "limit": "50 kB",
+      "limit": "63 kB",
       "import": "*"
     },
     {
       "name": "viem/chains",
       "path": "./dist/esm/chains/index.js",
-      "limit": "11 kB",
+      "limit": "16 kB",
       "import": "*"
     },
     {
@@ -215,13 +214,13 @@
     {
       "name": "viem/chains (tree-shaking check)",
       "path": "./dist/esm/chains/index.js",
-      "limit": "900 B",
+      "limit": "500 B",
       "import": "{ mainnet }"
     },
     {
       "name": "viem/ens (tree-shaking check)",
       "path": "./dist/esm/ens.js",
-      "limit": "18 kB",
+      "limit": "19 kB",
       "import": "{ getEnsAvatar }"
     }
   ],

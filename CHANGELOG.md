@@ -1,5 +1,11 @@
 # viem
 
+## 1.9.0
+
+### Minor Changes
+
+- [`e14eeb3b`](https://github.com/wagmi-dev/viem/commit/e14eeb3bd287a45e0c4fbed81847f7477b3e80e6) Thanks [@jxom](https://github.com/jxom)! - Migrated `@wagmi/chains` into viem and removed the `@wagmi/chains` dependency.
+
 ## 1.8.1
 
 ### Patch Changes

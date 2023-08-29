@@ -76,7 +76,7 @@ A type for a [Block](/docs/glossary/terms#block).
 
 A type for a [Chain](/docs/glossary/terms#chain).
 
-Re-exported from [@wagmi/chains](https://github.com/wagmi-dev/references/blob/main/packages/chains/src/types.ts)
+[See Type](https://github.com/wagmi-dev/viem/blob/main/src/types/chain.ts)
 
 ## `FeeHistory`
 
