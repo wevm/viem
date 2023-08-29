@@ -27,6 +27,8 @@ This guide is intended to help you get started with contributing. By following t
 7. [Submitting a pull request](#submitting-a-pull-request)
 8. [Versioning](#versioning)
 
+---
+
 ### Cloning the repository
 
 To start contributing to the project, clone it to your local machine using git:
@@ -44,6 +46,8 @@ gh repo clone wagmi-dev/viem -- --recurse-submodules
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
+
+---
 
 ### Installing Node.js and pnpm
 
@@ -65,6 +69,8 @@ If the versions are not correct or you don't have Node.js or pnpm installed, dow
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
 
+---
+
 ### Installing Foundry
 
 viem uses [Foundry](https://book.getfoundry.sh/) for testing. We run a local [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) instance against a forked Ethereum node, where we can also use tools like [Forge](https://book.getfoundry.sh/forge/) to deploy test contracts to it.
@@ -74,6 +80,12 @@ Install Foundry using the following command:
 ```bash
 curl -L https://foundry.paradigm.xyz | bash
 ```
+
+<div align="right">
+  <a href="#basic-guide">&uarr; back to top</a></b>
+</div>
+
+---
 
 ### Installing dependencies
 
@@ -88,6 +100,8 @@ After the install completes, pnpm links packages across the project for developm
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
+
+---
 
 ### Running the test suite
 
@@ -112,6 +126,8 @@ When adding new features or fixing bugs, it's important to add test cases to cov
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
 
+---
+
 ### Writing documentation
 
 Documentation is crucial to helping developers of all experience levels use viem. viem uses [VitePress](https://github.com/vuejs/vitepress) and Markdown for the documentation site (located at [`site`](../site)). To start the site in dev mode, run:
@@ -126,6 +142,8 @@ Try to keep documentation brief and use plain language so folks of all experienc
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
 
+---
+
 ### Submitting a pull request
 
 When you're ready to submit a pull request, you can follow these naming conventions:
@@ -139,7 +157,7 @@ When you submit a pull request, GitHub will automatically lint, build, and test 
   <a href="#basic-guide">&uarr; back to top</a></b>
 </div>
 
-<br>
+---
 
 ### Versioning
 
@@ -157,6 +175,8 @@ Even though you can technically use any markdown formatting you like, headings s
 
 If your PR is making changes to an area that already has a changeset (e.g. there’s an existing changeset covering theme API changes but you’re making further changes to the same API), you should update the existing changeset in your PR rather than creating a new one.
 
+---
+
 <br>
 
 <div>
@@ -166,6 +186,8 @@ If your PR is making changes to an area that already has a changeset (e.g. there
 <div align="right">
   <a href="#advanced-guide">&uarr; back to top</a></b>
 </div>
+
+---
 
 ## Chains
 
@@ -205,6 +227,109 @@ The [`Chain` type](../src/types/chain.ts) has a number of important attributes, 
   - `ensRegistry` is optional – not all Chains have an ENS Registry. See [ENS Deployments](https://docs.ens.domains/ens-deployments) for more info.
   - `ensUniversalResolver` is optional – not all Chains have an ENS Universal Resolver.
 - `testnet`: Whether or not the Chain is a testnet.
+
+### Adding a chain
+
+#### 1. Read the contributing guide
+
+Read the [Basic Guide](#basic-guide) to contributing to set up your environment.
+
+#### 2. Create a chain file
+
+Create a file for your chain in [`src/chains/definitions/`](../src/chains/definitions/).
+
+Example:
+
+```diff
+
+ src/
+ ├─ chains/
+ │  ├─ definitions/
+ │  │  ├─ avalanche.ts
+ │  │  ├─ ...
++│  │  ├─ example.ts
+ │  │  ├─ ...
+ │  │  ├─ zora.ts
+ │  ├─ index.ts
+```
+
+#### 3. Define your chain
+
+Define your chain data in `defineChain`.
+
+Example:
+
+```ts
+// src/chains/definitions/example.ts
+import { defineChain } from '../../utils/chain.js'
+
+export const mainnet = /*#__PURE__*/ defineChain({
+  id: 1,
+  network: 'example',
+  name: 'Example Chain',
+  nativeCurrency: { name: 'Example', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://example.com'],
+    },
+    public: {
+      http: ['https://example.com'],
+    },
+  },
+  blockExplorers: {
+    etherscan: {
+      name: 'Etherscan',
+      url: 'https://etherscan.io',
+    },
+    default: {
+      name: 'Etherscan',
+      url: 'https://etherscan.io',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 69420,
+    },
+  },
+})
+```
+
+#### 4. Export your chain
+
+Export the chain in [`src/chains/index.ts`](../src/chains/index.ts).
+
+Example:
+
+```diff
+export type { Chain } from '../types/chain.js'
+
+export { arbitrum } from './definitions/arbitrum.js'
+...
++export { example } from './definitions/example.js'
+...
+export { zora } from './definitions/zora.js'
+```
+
+#### 4. Add changeset
+
+Add a `patch` changeset with the description `"Added <your chain here> chain."`.
+
+```diff
+> pnpm changeset
+
+What kind of change is this for viem?
++ patch
+
+Please enter a summary for this change
++ Added Example chain.
+```
+
+#### 5. Open your PR
+
+Now you are ready to open your Pull Request.
+
+---
 
 <div align="right">
   <a href="#advanced-guide">&uarr; back to top</a></b>
