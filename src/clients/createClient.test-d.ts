@@ -1,7 +1,7 @@
-import { localhost } from '@wagmi/chains'
 import { expectTypeOf, test } from 'vitest'
 
 import type { JsonRpcAccount } from '../accounts/types.js'
+import { localhost } from '../chains/index.js'
 import { type Client, createClient } from './createClient.js'
 import { http } from './transports/http.js'
 

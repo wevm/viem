@@ -16,7 +16,73 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = import('@wagmi/chains').Chain & ChainConfig<formatters>
+> = ChainConstants & ChainConfig<formatters>
+
+/////////////////////////////////////////////////////////////////////
+// Constants
+
+export type ChainBlockExplorer = {
+  name: string
+  url: string
+}
+
+export type ChainConstants = {
+  /** Collection of block explorers */
+  blockExplorers?: {
+    default: ChainBlockExplorer
+    etherscan?: ChainBlockExplorer
+  }
+  /** Collection of contracts */
+  contracts?: {
+    ensRegistry?: ChainContract
+    ensUniversalResolver?: ChainContract
+    multicall3?: ChainContract
+  }
+  /** ID in number form */
+  id: number
+  /** Human-readable name */
+  name: string
+  /**
+   * Internal network name
+   * @deprecated will be removed in v2 - use `id` instead.
+   */
+  network: string
+  /** Currency used by chain */
+  nativeCurrency: ChainNativeCurrency
+  /** Collection of RPC endpoints */
+  rpcUrls: {
+    [key: string]: ChainRpcUrls
+    default: ChainRpcUrls
+    public: ChainRpcUrls
+  }
+  /** Source Chain ID (ie. the L1 chain) */
+  sourceId?: number
+  /** Flag for test networks */
+  testnet?: boolean
+
+  // TODO(v2): remove `rpcUrls` in favor of `publicRpcUrls`.
+  // publicRpcUrls: ChainRpcUrls,
+}
+
+export type ChainContract = {
+  address: Address
+  blockCreated?: number
+}
+
+export type ChainNativeCurrency = {
+  name: string
+  /** 2-6 characters long */
+  symbol: string
+  decimals: number
+}
+
+export type ChainRpcUrls = {
+  http: readonly string[]
+  webSocket?: readonly string[]
+}
+
+/////////////////////////////////////////////////////////////////////
+// Config
 
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
@@ -30,11 +96,6 @@ export type ChainConfig<
   serializers?: ChainSerializers<formatters> | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters> | undefined
-}
-
-export type ChainContract = {
-  address: Address
-  blockCreated?: number
 }
 
 export type ChainFees<

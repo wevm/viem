@@ -26,7 +26,7 @@ export function assertCurrentChain({
 }
 
 export function defineChain<
-  chain extends Chain,
+  const chain extends Chain,
   formatters extends ChainFormatters,
 >(
   chain: chain,
