@@ -1,159 +1,133 @@
-import * as chains from '@wagmi/chains'
-
-import { defineChain } from '../utils/chain.js'
-import { formattersCelo } from './celo/formatters.js'
-import { serializersCelo } from './celo/serializers.js'
-import { feesOptimism } from './optimism/fees.js'
-import { formattersOptimism } from './optimism/formatters.js'
-
-export const arbitrum = /*#__PURE__*/ defineChain(chains.arbitrum)
-export const arbitrumGoerli = /*#__PURE__*/ defineChain(chains.arbitrumGoerli)
-export const aurora = /*#__PURE__*/ defineChain(chains.aurora)
-export const auroraTestnet = /*#__PURE__*/ defineChain(chains.auroraTestnet)
-export const avalanche = /*#__PURE__*/ defineChain(chains.avalanche)
-export const avalancheFuji = /*#__PURE__*/ defineChain(chains.avalancheFuji)
-export const base = /*#__PURE__*/ defineChain(chains.base, {
-  fees: feesOptimism,
-  formatters: formattersOptimism,
-})
-export const baseGoerli = /*#__PURE__*/ defineChain(chains.baseGoerli, {
-  fees: feesOptimism,
-  formatters: formattersOptimism,
-})
-export const boba = /*#__PURE__*/ defineChain(chains.boba)
-export const bronos = /*#__PURE__*/ defineChain(chains.bronos)
-export const bronosTestnet = /*#__PURE__*/ defineChain(chains.bronosTestnet)
-export const bsc = /*#__PURE__*/ defineChain(chains.bsc)
-export const bscTestnet = /*#__PURE__*/ defineChain(chains.bscTestnet)
-export const canto = /*#__PURE__*/ defineChain(chains.canto)
-export const celo = /*#__PURE__*/ defineChain(chains.celo, {
-  formatters: formattersCelo,
-  serializers: serializersCelo,
-})
-export const celoAlfajores = /*#__PURE__*/ defineChain(chains.celoAlfajores, {
-  formatters: formattersCelo,
-  serializers: serializersCelo,
-})
-export const celoCannoli = /*#__PURE__*/ defineChain(chains.celoCannoli, {
-  formatters: formattersCelo,
-  serializers: serializersCelo,
-})
-export const cronos = /*#__PURE__*/ defineChain(chains.cronos)
-export const crossbell = /*#__PURE__*/ defineChain(chains.crossbell)
-export const dfk = /*#__PURE__*/ defineChain(chains.dfk)
-export const dogechain = /*#__PURE__*/ defineChain(chains.dogechain)
-export const evmos = /*#__PURE__*/ defineChain(chains.evmos)
-export const evmosTestnet = /*#__PURE__*/ defineChain(chains.evmosTestnet)
-export const fantom = /*#__PURE__*/ defineChain(chains.fantom)
-export const fantomTestnet = /*#__PURE__*/ defineChain(chains.fantomTestnet)
-export const filecoin = /*#__PURE__*/ defineChain(chains.filecoin)
-export const filecoinCalibration = /*#__PURE__*/ defineChain(
-  chains.filecoinCalibration,
-)
-export const filecoinHyperspace = /*#__PURE__*/ defineChain(
-  chains.filecoinHyperspace,
-)
-export const flare = /*#__PURE__*/ defineChain(chains.flare)
-export const flareTestnet = /*#__PURE__*/ defineChain(chains.flareTestnet)
-export const foundry = /*#__PURE__*/ defineChain(chains.foundry)
-export const iotex = /*#__PURE__*/ defineChain(chains.iotex)
-export const iotexTestnet = /*#__PURE__*/ defineChain(chains.iotexTestnet)
-export const goerli = /*#__PURE__*/ defineChain(chains.goerli)
-export const gnosis = /*#__PURE__*/ defineChain(chains.gnosis)
-export const gnosisChiado = /*#__PURE__*/ defineChain(chains.gnosisChiado)
-export const haqqMainnet = /*#__PURE__*/ defineChain(chains.haqqMainnet)
-export const haqqTestedge2 = /*#__PURE__*/ defineChain(chains.haqqTestedge2)
-export const hardhat = /*#__PURE__*/ defineChain(chains.hardhat)
-export const harmonyOne = /*#__PURE__*/ defineChain(chains.harmonyOne)
-export const klaytn = /*#__PURE__*/ defineChain(chains.klaytn)
-export const linea = /*#__PURE__*/ defineChain(chains.linea)
-export const lineaTestnet = /*#__PURE__*/ defineChain(chains.lineaTestnet)
-export const localhost = /*#__PURE__*/ defineChain(chains.localhost)
-export const mainnet = /*#__PURE__*/ defineChain(chains.mainnet)
-export const metis = /*#__PURE__*/ defineChain(chains.metis)
-export const metisGoerli = /*#__PURE__*/ defineChain(chains.metisGoerli)
-export const mev = /*#__PURE__*/ defineChain(chains.mev)
-export const mevTestnet = /*#__PURE__*/ defineChain(chains.mevTestnet)
-export const moonbaseAlpha = /*#__PURE__*/ defineChain(chains.moonbaseAlpha)
-export const moonbeam = /*#__PURE__*/ defineChain(chains.moonbeam)
-export const moonriver = /*#__PURE__*/ defineChain(chains.moonriver)
-export const nexi = /*#__PURE__*/ defineChain(chains.nexi)
-export const okc = /*#__PURE__*/ defineChain(chains.okc)
-export const optimism = /*#__PURE__*/ defineChain(chains.optimism, {
-  fees: feesOptimism,
-  formatters: formattersOptimism,
-})
-export const optimismGoerli = /*#__PURE__*/ defineChain(chains.optimismGoerli, {
-  fees: feesOptimism,
-  formatters: formattersOptimism,
-})
-export const polygon = /*#__PURE__*/ defineChain(chains.polygon)
-export const polygonMumbai = /*#__PURE__*/ defineChain(chains.polygonMumbai)
-export const polygonZkEvm = /*#__PURE__*/ defineChain(chains.polygonZkEvm)
-export const polygonZkEvmTestnet = /*#__PURE__*/ defineChain(
-  chains.polygonZkEvmTestnet,
-)
-export const pulsechain = /*#__PURE__*/ defineChain(chains.pulsechain)
-export const pulsechainV4 = /*#__PURE__*/ defineChain(chains.pulsechainV4)
-export const scrollSepolia = /*#__PURE__*/ defineChain(chains.scrollSepolia)
-export const scrollTestnet = /*#__PURE__*/ defineChain(chains.scrollTestnet)
-export const sepolia = /*#__PURE__*/ defineChain(chains.sepolia)
-export const skaleBlockBrawlers = /*#__PURE__*/ defineChain(
-  chains.skaleBlockBrawlers,
-)
-export const skaleCalypso = /*#__PURE__*/ defineChain(chains.skaleCalypso)
-export const skaleCalypsoTestnet = /*#__PURE__*/ defineChain(
-  chains.skaleCalypsoTestnet,
-)
-export const skaleChaosTestnet = /*#__PURE__*/ defineChain(
-  chains.skaleChaosTestnet,
-)
-export const skaleCryptoBlades = /*#__PURE__*/ defineChain(
-  chains.skaleCryptoBlades,
-)
-export const skaleCryptoColosseum = /*#__PURE__*/ defineChain(
-  chains.skaleCryptoColosseum,
-)
-export const skaleEuropa = /*#__PURE__*/ defineChain(chains.skaleEuropa)
-export const skaleEuropaTestnet = /*#__PURE__*/ defineChain(
-  chains.skaleEuropaTestnet,
-)
-export const skaleExorde = /*#__PURE__*/ defineChain(chains.skaleExorde)
-export const skaleHumanProtocol = /*#__PURE__*/ defineChain(
-  chains.skaleHumanProtocol,
-)
-export const skaleNebula = /*#__PURE__*/ defineChain(chains.skaleNebula)
-export const skaleNebulaTestnet = /*#__PURE__*/ defineChain(
-  chains.skaleNebulaTestnet,
-)
-export const skaleRazor = /*#__PURE__*/ defineChain(chains.skaleRazor)
-export const skaleTitan = /*#__PURE__*/ defineChain(chains.skaleTitan)
-export const skaleTitanTestnet = /*#__PURE__*/ defineChain(
-  chains.skaleTitanTestnet,
-)
-export const songbird = /*#__PURE__*/ defineChain(chains.songbird)
-export const songbirdTestnet = /*#__PURE__*/ defineChain(chains.songbirdTestnet)
-export const shardeumSphinx = /*#__PURE__*/ defineChain(chains.shardeumSphinx)
-export const syscoin = /*#__PURE__*/ defineChain(chains.syscoin)
-export const taraxa = /*#__PURE__*/ defineChain(chains.taraxa)
-export const taraxaTestnet = /*#__PURE__*/ defineChain(chains.taraxaTestnet)
-export const telos = /*#__PURE__*/ defineChain(chains.telos)
-export const telosTestnet = /*#__PURE__*/ defineChain(chains.telosTestnet)
-export const thunderTestnet = /*#__PURE__*/ defineChain(chains.thunderTestnet)
-export const wanchain = /*#__PURE__*/ defineChain(chains.wanchain)
-export const wanchainTestnet = /*#__PURE__*/ defineChain(chains.wanchainTestnet)
-export const xdc = /*#__PURE__*/ defineChain(chains.xdc)
-export const xdcTestnet = /*#__PURE__*/ defineChain(chains.xdcTestnet)
-export const zhejiang = /*#__PURE__*/ defineChain(chains.zhejiang)
-export const zkSync = /*#__PURE__*/ defineChain(chains.zkSync)
-export const zkSyncTestnet = /*#__PURE__*/ defineChain(chains.zkSyncTestnet)
-export const zora = /*#__PURE__*/ defineChain(chains.zora, {
-  fees: feesOptimism,
-  formatters: formattersOptimism,
-})
-export const zoraTestnet = /*#__PURE__*/ defineChain(chains.zoraTestnet, {
-  fees: feesOptimism,
-  formatters: formattersOptimism,
-})
-
 export type { Chain } from '../types/chain.js'
+
+export { arbitrum } from './definitions/arbitrum.js'
+export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
+export { arbitrumNova } from './definitions/arbitrumNova.js'
+export { aurora } from './definitions/aurora.js'
+export { auroraTestnet } from './definitions/auroraTestnet.js'
+export { avalanche } from './definitions/avalanche.js'
+export { avalancheFuji } from './definitions/avalancheFuji.js'
+export { base } from './definitions/base.js'
+export { baseGoerli } from './definitions/baseGoerli.js'
+export { bearNetworkChainMainnet } from './definitions/bearNetworkChainMainnet.js'
+export { bearNetworkChainTestnet } from './definitions/bearNetworkChainTestnet.js'
+export { boba } from './definitions/boba.js'
+export { bronos } from './definitions/bronos.js'
+export { bronosTestnet } from './definitions/bronosTestnet.js'
+export { bsc } from './definitions/bsc.js'
+export { bscTestnet } from './definitions/bscTestnet.js'
+export { bxn } from './definitions/bxn.js'
+export { bxnTestnet } from './definitions/bxnTestnet.js'
+export { canto } from './definitions/canto.js'
+export { celo } from './definitions/celo.js'
+export { celoAlfajores } from './definitions/celoAlfajores.js'
+export { celoCannoli } from './definitions/celoCannoli.js'
+export { classic } from './definitions/classic.js'
+export { confluxESpace } from './definitions/confluxESpace.js'
+export { cronos } from './definitions/cronos.js'
+export { cronosTestnet } from './definitions/cronosTestnet.js'
+export { crossbell } from './definitions/crossbell.js'
+export { dfk } from './definitions/dfk.js'
+export { dogechain } from './definitions/dogechain.js'
+export { edgeware } from './definitions/edgeware.js'
+export { edgewareTestnet } from './definitions/edgewareTestnet.js'
+export { eos } from './definitions/eos.js'
+export { eosTestnet } from './definitions/eosTestnet.js'
+export { evmos } from './definitions/evmos.js'
+export { evmosTestnet } from './definitions/evmosTestnet.js'
+export { ekta } from './definitions/ekta.js'
+export { ektaTestnet } from './definitions/ektaTestnet.js'
+export { fantom } from './definitions/fantom.js'
+export { fantomTestnet } from './definitions/fantomTestnet.js'
+export { fibo } from './definitions/fibo.js'
+export { filecoin } from './definitions/filecoin.js'
+export { filecoinCalibration } from './definitions/filecoinCalibration.js'
+export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
+export { flare } from './definitions/flare.js'
+export { flareTestnet } from './definitions/flareTestnet.js'
+export { foundry } from './definitions/foundry.js'
+export { fuse } from './definitions/fuse.js'
+export { fuseSparknet } from './definitions/fuseSparknet.js'
+export { iotex } from './definitions/iotex.js'
+export { iotexTestnet } from './definitions/iotexTestnet.js'
+export { gobi } from './definitions/gobi.js'
+export { goerli } from './definitions/goerli.js'
+export { gnosis } from './definitions/gnosis.js'
+export { gnosisChiado } from './definitions/gnosisChiado.js'
+export { hardhat } from './definitions/hardhat.js'
+export { harmonyOne } from './definitions/harmonyOne.js'
+export { haqqMainnet } from './definitions/haqqMainnet.js'
+export { haqqTestedge2 } from './definitions/haqqTestedge2.js'
+export { klaytn } from './definitions/klaytn.js'
+export { linea } from './definitions/linea.js'
+export { lineaTestnet } from './definitions/lineaTestnet.js'
+export { localhost } from './definitions/localhost.js'
+export { mainnet } from './definitions/mainnet.js'
+export { mantle } from './definitions/mantle.js'
+export { mantleTestnet } from './definitions/mantleTestnet.js'
+export { metis } from './definitions/metis.js'
+export { metisGoerli } from './definitions/metisGoerli.js'
+export { mev } from './definitions/mev.js'
+export { mevTestnet } from './definitions/mevTestnet.js'
+export { modeTestnet } from './definitions/modeTestnet.js'
+export { moonbaseAlpha } from './definitions/moonbaseAlpha.js'
+export { moonbeam } from './definitions/moonbeam.js'
+export { moonriver } from './definitions/moonriver.js'
+export { neonDevnet } from './definitions/neonDevnet.js'
+export { nexi } from './definitions/nexi.js'
+export { nexilix } from './definitions/nexilix.js'
+export { oasys } from './definitions/oasys.js'
+export { okc } from './definitions/okc.js'
+export { optimism } from './definitions/optimism.js'
+export { optimismGoerli } from './definitions/optimismGoerli.js'
+export { polygon } from './definitions/polygon.js'
+export { polygonMumbai } from './definitions/polygonMumbai.js'
+export { polygonZkEvmTestnet } from './definitions/polygonZkEvmTestnet.js'
+export { polygonZkEvm } from './definitions/polygonZkEvm.js'
+export { pulsechain } from './definitions/pulsechain.js'
+export { pulsechainV4 } from './definitions/pulsechainV4.js'
+export { qMainnet } from './definitions/qMainnet.js'
+export { qTestnet } from './definitions/qTestnet.js'
+export { rollux } from './definitions/rollux.js'
+export { rolluxTestnet } from './definitions/rolluxTestnet.js'
+export { ronin } from './definitions/ronin.js'
+export { saigon } from './definitions/saigon.js'
+export { scrollSepolia } from './definitions/scrollSepolia.js'
+export { scrollTestnet } from './definitions/scrollTestnet.js'
+export { sepolia } from './definitions/sepolia.js'
+export { skaleBlockBrawlers } from './definitions/skale/brawl.js'
+export { skaleCalypso } from './definitions/skale/calypso.js'
+export { skaleCalypsoTestnet } from './definitions/skale/calypsoTestnet.js'
+export { skaleChaosTestnet } from './definitions/skale/chaosTestnet.js'
+export { skaleCryptoBlades } from './definitions/skale/cryptoBlades.js'
+export { skaleCryptoColosseum } from './definitions/skale/cryptoColosseum.js'
+export { skaleEuropa } from './definitions/skale/europa.js'
+export { skaleEuropaTestnet } from './definitions/skale/europaTestnet.js'
+export { skaleExorde } from './definitions/skale/exorde.js'
+export { skaleHumanProtocol } from './definitions/skale/humanProtocol.js'
+export { skaleNebula } from './definitions/skale/nebula.js'
+export { skaleNebulaTestnet } from './definitions/skale/nebulaTestnet.js'
+export { skaleRazor } from './definitions/skale/razor.js'
+export { skaleTitan } from './definitions/skale/titan.js'
+export { skaleTitanTestnet } from './definitions/skale/titanTestnet.js'
+export { songbird } from './definitions/songbird.js'
+export { songbirdTestnet } from './definitions/songbirdTestnet.js'
+export { shardeumSphinx } from './definitions/shardeumSphinx.js'
+export { syscoin } from './definitions/syscoin.js'
+export { syscoinTestnet } from './definitions/syscoinTestnet.js'
+export { taraxa } from './definitions/taraxa.js'
+export { taikoTestnetSepolia } from './definitions/taikoTestnetSepolia.js'
+export { taraxaTestnet } from './definitions/taraxaTestnet.js'
+export { telos } from './definitions/telos.js'
+export { telosTestnet } from './definitions/telosTestnet.js'
+export { thunderTestnet } from './definitions/thunderTestnet.js'
+export { wanchain } from './definitions/wanchain.js'
+export { wanchainTestnet } from './definitions/wanchainTestnet.js'
+export { xdc } from './definitions/xdc.js'
+export { xdcTestnet } from './definitions/xdcTestnet.js'
+export { zhejiang } from './definitions/zhejiang.js'
+export { zkSync } from './definitions/zkSync.js'
+export { zkSyncTestnet } from './definitions/zkSyncTestnet.js'
+export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
+export { zora } from './definitions/zora.js'
+export { zoraTestnet } from './definitions/zoraTestnet.js'
