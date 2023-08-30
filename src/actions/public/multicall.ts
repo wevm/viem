@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig } from '../../types/contract.js'
@@ -249,5 +249,7 @@ export async function multicall<
     }
   }
 
+  if (results.length !== contracts.length)
+    throw new BaseError('multicall results mismatch')
   return results as MulticallResults<TContracts, TAllowFailure>
 }
