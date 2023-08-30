@@ -8,19 +8,15 @@ import type {
   AbiEventTopicToPrimitiveType,
   ContractFunctionArgs,
   ContractFunctionName,
-  ContractFunctionResult,
   ContractFunctionReturnType,
   ExtractAbiFunctionForArgs,
   GetConstructorArgs,
   GetErrorArgs,
   GetEventArgs,
   GetEventArgsFromTopics,
-  GetFunctionArgs,
   GetValue,
   InferErrorName,
   InferEventName,
-  InferFunctionName,
-  InferItemName,
   LogTopicType,
   Widen,
 } from './contract.js'
@@ -166,14 +162,6 @@ test('ContractFunctionReturnType', () => {
   >().toEqualTypeOf<{ foo: Address; bar: Address }>()
 })
 
-test('ContractFunctionResult', () => {
-  type Result = ContractFunctionResult<typeof seaportAbi, 'getOrderStatus'>
-  //   ^?
-  expectTypeOf<Result>().toEqualTypeOf<
-    readonly [boolean, boolean, bigint, bigint]
-  >()
-})
-
 test('GetConstructorArgs', () => {
   type Result = GetConstructorArgs<typeof seaportAbi>
   expectTypeOf<Result>().toEqualTypeOf<{
@@ -272,13 +260,6 @@ test('GetEventArgsFromTopics', () => {
   }>()
 })
 
-test('GetFunctionArgs', () => {
-  type Result = GetFunctionArgs<typeof seaportAbi, 'getOrderStatus'>
-  expectTypeOf<Result>().toEqualTypeOf<{
-    args: readonly [ResolvedConfig['BytesType']['inputs']]
-  }>()
-})
-
 test('GetValue', () => {
   // payable
   type Result = GetValue<typeof seaportAbi, 'fulfillAdvancedOrder'>
@@ -369,102 +350,6 @@ test('InferEventName', () => {
     | 'OrdersMatched'
     | 'OrderValidated'
   >('CounterIncremented')
-})
-
-test('InferFunctionName', () => {
-  type Result = InferFunctionName<typeof seaportAbi, 'getOrderStatus'>
-  expectTypeOf<Result>().toEqualTypeOf<
-    | 'cancel'
-    | 'fulfillBasicOrder'
-    | 'fulfillBasicOrder_efficient_6GL6yc'
-    | 'fulfillOrder'
-    | 'fulfillAdvancedOrder'
-    | 'fulfillAvailableOrders'
-    | 'fulfillAvailableAdvancedOrders'
-    | 'getContractOffererNonce'
-    | 'getOrderHash'
-    | 'getOrderStatus'
-    | 'getCounter'
-    | 'incrementCounter'
-    | 'information'
-    | 'name'
-    | 'matchAdvancedOrders'
-    | 'matchOrders'
-    | 'validate'
-  >('getOrderStatus')
-})
-
-test('InferItemName', () => {
-  type Result = InferItemName<typeof seaportAbi, 'getOrderStatus'>
-  expectTypeOf<Result>().toEqualTypeOf<
-    | 'cancel'
-    | 'fulfillBasicOrder'
-    | 'fulfillBasicOrder_efficient_6GL6yc'
-    | 'fulfillOrder'
-    | 'fulfillAdvancedOrder'
-    | 'fulfillAvailableOrders'
-    | 'fulfillAvailableAdvancedOrders'
-    | 'getContractOffererNonce'
-    | 'getOrderHash'
-    | 'getOrderStatus'
-    | 'getCounter'
-    | 'incrementCounter'
-    | 'information'
-    | 'name'
-    | 'matchAdvancedOrders'
-    | 'matchOrders'
-    | 'validate'
-    | 'CounterIncremented'
-    | 'OrderCancelled'
-    | 'OrderFulfilled'
-    | 'OrdersMatched'
-    | 'OrderValidated'
-    | 'BadContractSignature'
-    | 'BadFraction'
-    | 'BadReturnValueFromERC20OnTransfer'
-    | 'BadSignatureV'
-    | 'CannotCancelOrder'
-    | 'ConsiderationCriteriaResolverOutOfRange'
-    | 'ConsiderationLengthNotEqualToTotalOriginal'
-    | 'ConsiderationNotMet'
-    | 'CriteriaNotEnabledForItem'
-    | 'ERC1155BatchTransferGenericFailure'
-    | 'InexactFraction'
-    | 'InsufficientNativeTokensSupplied'
-    | 'Invalid1155BatchTransferEncoding'
-    | 'InvalidBasicOrderParameterEncoding'
-    | 'InvalidCallToConduit'
-    | 'InvalidConduit'
-    | 'InvalidContractOrder'
-    | 'InvalidERC721TransferAmount'
-    | 'InvalidFulfillmentComponentData'
-    | 'InvalidMsgValue'
-    | 'InvalidNativeOfferItem'
-    | 'InvalidProof'
-    | 'InvalidRestrictedOrder'
-    | 'InvalidSignature'
-    | 'InvalidSigner'
-    | 'InvalidTime'
-    | 'MismatchedFulfillmentOfferAndConsiderationComponents'
-    | 'MissingFulfillmentComponentOnAggregation'
-    | 'MissingItemAmount'
-    | 'MissingOriginalConsiderationItems'
-    | 'NativeTokenTransferGenericFailure'
-    | 'NoContract'
-    | 'NoReentrantCalls'
-    | 'NoSpecifiedOrdersAvailable'
-    | 'OfferAndConsiderationRequiredOnFulfillment'
-    | 'OfferCriteriaResolverOutOfRange'
-    | 'OrderAlreadyFilled'
-    | 'OrderCriteriaResolverOutOfRange'
-    | 'OrderIsCancelled'
-    | 'OrderPartiallyFilled'
-    | 'PartialFillsNotEnabledForOrder'
-    | 'TokenTransferGenericFailure'
-    | 'UnresolvedConsiderationCriteria'
-    | 'UnresolvedOfferCriteria'
-    | 'UnusedItemParameters'
-  >('getOrderStatus')
 })
 
 // -----------------------------------------------------------------------------------------------

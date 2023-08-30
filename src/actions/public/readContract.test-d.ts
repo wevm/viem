@@ -228,7 +228,30 @@ test('behavior', () => {
       'function bar() view returns (int8)',
     ])
 
-    const result = await readContract(publicClient, {
+    const result1 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+    })
+    assertType<number>(result1)
+
+    const result2 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+      args: [],
+    })
+    assertType<number>(result2)
+
+    const result3 = await readContract(publicClient, {
+      address: '0x',
+      abi,
+      functionName: 'foo',
+      args: ['0x'],
+    })
+    assertType<string>(result3)
+
+    const result4 = await readContract(publicClient, {
       address: '0x',
       abi,
       functionName: 'foo',
@@ -237,6 +260,6 @@ test('behavior', () => {
     assertType<{
       foo: `0x${string}`
       bar: `0x${string}`
-    }>(result)
+    }>(result4)
   })
 })

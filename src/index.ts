@@ -561,17 +561,13 @@ export type {
   ContractFunctionReturnType,
   ContractFunctionName,
   ContractFunctionArgs,
-  ContractFunctionResult,
   GetConstructorArgs,
   GetErrorArgs,
   GetEventArgs,
   GetEventArgsFromTopics,
-  GetFunctionArgs,
   GetValue,
   InferErrorName,
   InferEventName,
-  InferFunctionName,
-  InferItemName,
 } from './types/contract.js'
 export type {
   AccessList,
@@ -729,10 +725,12 @@ export {
 } from './utils/abi/encodeEventTopics.js'
 export {
   type EncodeFunctionDataParameters,
+  type EncodeFunctionDataReturnType,
   encodeFunctionData,
 } from './utils/abi/encodeFunctionData.js'
 export {
   type EncodeFunctionResultParameters,
+  type EncodeFunctionResultReturnType,
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
 export {

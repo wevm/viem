@@ -246,7 +246,7 @@ test("error: function doesn't exist", () => {
       ],
       // @ts-expect-error
       functionName: 'baz',
-      result: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
+      result: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
     }),
   ).toThrowErrorMatchingInlineSnapshot(
     `
@@ -297,7 +297,6 @@ test('errors: abi item not a function', () => {
           type: 'error',
         },
       ],
-      result: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
     "Function not found on ABI.

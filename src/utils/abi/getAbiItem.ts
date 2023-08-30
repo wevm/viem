@@ -1,59 +1,95 @@
 import type { Abi, AbiParameter, Address } from 'abitype'
 
-import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
+import type {
+  AbiItem,
+  AbiItemArgs,
+  AbiItemName,
+  ExtractAbiItemForArgs,
+  Widen,
+} from '../../types/contract.js'
+import type { UnionEvaluate } from '../../types/utils.js'
 import { isAddress } from '../address/isAddress.js'
 
 export type GetAbiItemParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TItemName extends string = string,
+  abi extends Abi | readonly unknown[] = Abi,
+  name extends AbiItemName<abi> = AbiItemName<abi>,
+  args extends AbiItemArgs<abi, name> | undefined = AbiItemArgs<abi, name>,
+  ///
+  allArgs = AbiItemArgs<abi, name>,
+  allNames = AbiItemName<abi>,
 > = {
-  abi: TAbi
-  name: InferItemName<TAbi, TItemName>
-} & Partial<GetFunctionArgs<TAbi, TItemName>>
-
-export type GetAbiItemReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TItemName extends string = string,
-> = Extract<
-  TAbi[number],
-  {
-    name: TItemName
-  }
+  abi: abi
+  name:
+    | allNames // show all options
+    | (name extends allNames ? name : never) // infer value
+} & UnionEvaluate<
+  readonly [] extends allArgs
+    ? {
+        args?:
+          | allArgs // show all options
+          // infer value, widen inferred value of `args` conditionally to match `allArgs`
+          | (abi extends Abi
+              ? args extends allArgs
+                ? Widen<args>
+                : never
+              : never)
+          | undefined
+      }
+    : {
+        args?:
+          | allArgs // show all options
+          | (Widen<args> & (args extends allArgs ? unknown : never)) // infer value, widen inferred value of `args` match `allArgs` (e.g. avoid union `args: readonly [123n] | readonly [bigint]`)
+          | undefined
+      }
 >
 
-export function getAbiItem<
-  const TAbi extends Abi | readonly unknown[],
-  TItemName extends string,
->({
-  abi,
-  args = [],
-  name,
-}: GetAbiItemParameters<TAbi, TItemName>): GetAbiItemReturnType<
-  TAbi,
-  TItemName
-> {
-  const abiItems = (abi as Abi).filter((x) => 'name' in x && x.name === name)
+export type GetAbiItemReturnType<
+  abi extends Abi | readonly unknown[] = Abi,
+  name extends AbiItemName<abi> = AbiItemName<abi>,
+  args extends AbiItemArgs<abi, name> | undefined = AbiItemArgs<abi, name>,
+> = abi extends Abi
+  ? Abi extends abi
+    ? AbiItem | undefined
+    : ExtractAbiItemForArgs<
+        abi,
+        name,
+        args extends AbiItemArgs<abi, name> ? args : AbiItemArgs<abi, name>
+      >
+  : AbiItem | undefined
 
-  if (abiItems.length === 0) return undefined as any
-  if (abiItems.length === 1) return abiItems[0] as any
+export function getAbiItem<
+  const abi extends Abi | readonly unknown[],
+  name extends AbiItemName<abi>,
+  args extends AbiItemArgs<abi, name> | undefined = undefined,
+>(
+  parameters: GetAbiItemParameters<abi, name, args>,
+): GetAbiItemReturnType<abi, name, args> {
+  const { abi, args = [], name } = parameters as unknown as GetAbiItemParameters
+  const abiItems = abi.filter((x) => 'name' in x && x.name === name)
+
+  if (abiItems.length === 0)
+    return undefined as GetAbiItemReturnType<abi, name, args>
+  if (abiItems.length === 1)
+    return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
-      if (!abiItem.inputs || abiItem.inputs.length === 0) return abiItem as any
+      if (!abiItem.inputs || abiItem.inputs.length === 0)
+        return abiItem as GetAbiItemReturnType<abi, name, args>
       continue
     }
     if (!abiItem.inputs) continue
     if (abiItem.inputs.length === 0) continue
     if (abiItem.inputs.length !== args.length) continue
-    const matched = (args as readonly unknown[]).every((arg, index) => {
+    const matched = args.every((arg, index) => {
       const abiParameter = 'inputs' in abiItem && abiItem.inputs![index]
       if (!abiParameter) return false
-      return isArgOfType(arg, abiParameter as AbiParameter)
+      return isArgOfType(arg, abiParameter)
     })
-    if (matched) return abiItem as any
+    if (matched) return abiItem as GetAbiItemReturnType<abi, name, args>
   }
-  return abiItems[0] as any
+  return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 }
 
 export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {

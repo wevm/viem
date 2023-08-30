@@ -9,7 +9,7 @@ import type {
   IsUnion,
   MaybePartial,
   Or,
-  // UnionToTuple,
+  UnionToTuple,
 } from './utils.js'
 
 test('Filter', () => {
@@ -55,7 +55,7 @@ test('Or', () => {
 })
 
 test('UnionToTuple', () => {
-  // expectTypeOf<UnionToTuple<'foo' | 'bar'>>().toEqualTypeOf<['foo', 'bar']>()
+  expectTypeOf<UnionToTuple<'foo' | 'bar'>>().toEqualTypeOf<['foo', 'bar']>()
 })
 
 test('IsUnion', () => {

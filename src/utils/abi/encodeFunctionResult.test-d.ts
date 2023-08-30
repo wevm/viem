@@ -1,24 +1,22 @@
+import { type Abi, parseAbi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '../../_test/abis.js'
 import {
-  type DecodeFunctionResultParameters,
-  decodeFunctionResult,
-} from './decodeFunctionResult.js'
-import { type Abi, type Address, parseAbi } from 'abitype'
+  type EncodeFunctionResultParameters,
+  encodeFunctionResult,
+} from './encodeFunctionResult.js'
 
 test('default', () => {
-  const res = decodeFunctionResult({
+  encodeFunctionResult({
     abi: wagmiContractConfig.abi,
     functionName: 'balanceOf',
-    args: ['0x'],
-    data: '0x',
+    result: 123n,
   })
-  expectTypeOf(res).toEqualTypeOf<bigint>()
 })
 
 test('defined inline', () => {
-  const res = decodeFunctionResult({
+  encodeFunctionResult({
     abi: [
       {
         inputs: [
@@ -32,27 +30,20 @@ test('defined inline', () => {
       },
     ],
     functionName: 'approve',
-    args: ['0x', 123n],
-    data: '0x',
   })
-  expectTypeOf(res).toEqualTypeOf<void>()
 })
 
 test('declared as Abi', () => {
-  const res = decodeFunctionResult({
+  encodeFunctionResult({
     abi: wagmiContractConfig.abi as Abi,
     functionName: 'balanceOf',
-    args: ['0x'],
-    data: '0x',
+    result: 123n,
   })
-  expectTypeOf(res).toEqualTypeOf<unknown>()
 
-  const res2 = decodeFunctionResult({
+  encodeFunctionResult({
     abi: wagmiContractConfig.abi as Abi,
-    args: ['0x'],
-    data: '0x',
+    result: 123n,
   })
-  expectTypeOf(res2).toEqualTypeOf<unknown>()
 })
 
 test('no const assertion', () => {
@@ -68,20 +59,16 @@ test('no const assertion', () => {
       type: 'function',
     },
   ]
-  const res = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
     functionName: 'balanceOf',
-    args: ['0x'],
-    data: '0x',
+    result: 123n,
   })
-  expectTypeOf(res).toEqualTypeOf<unknown>()
 
-  const res2 = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
-    args: ['0x'],
-    data: '0x',
+    result: 123n,
   })
-  expectTypeOf(res2).toEqualTypeOf<unknown>()
 })
 
 test('overloads', () => {
@@ -92,68 +79,58 @@ test('overloads', () => {
     'function bar() view returns (int8)',
   ])
 
-  const res = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
     functionName: 'foo',
-    data: '0x',
   })
-  expectTypeOf(res).toEqualTypeOf<number>()
 
-  const res2 = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
     functionName: 'foo',
-    args: [],
-    data: '0x',
+    result: 123,
   })
-  expectTypeOf(res2).toEqualTypeOf<number>()
 
-  const res3 = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
     functionName: 'foo',
-    args: ['0x'],
-    data: '0x',
+    result: 'test',
   })
-  expectTypeOf(res3).toEqualTypeOf<string>()
 
-  const res4 = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
     functionName: 'foo',
-    args: ['0x', '0x'],
-    data: '0x',
+    result: { foo: '0x', bar: '0x' },
   })
-  expectTypeOf(res4).toEqualTypeOf<{ foo: Address; bar: Address }>()
 })
 
 test('single abi function, functionName not required', () => {
   const abi = [
     {
-      inputs: [{ type: 'address' }],
-      name: 'balanceOf',
-      outputs: [{ type: 'uint256' }],
-      stateMutability: 'pure',
+      inputs: [
+        { name: 'to', type: 'address' },
+        { name: 'tokenId', type: 'uint256' },
+      ],
+      name: 'approve',
+      outputs: [],
+      stateMutability: 'nonpayable',
       type: 'function',
     },
   ] as const
-  const res = decodeFunctionResult({
+  encodeFunctionResult({
     abi,
-    args: ['0x'],
-    data: '0x',
   })
-  expectTypeOf(res).toEqualTypeOf<bigint>()
 
-  type Result = DecodeFunctionResultParameters<typeof abi>
-  expectTypeOf<Result['functionName']>().toEqualTypeOf<
-    'balanceOf' | undefined
-  >()
+  type Result = EncodeFunctionResultParameters<typeof abi>
+  expectTypeOf<Result['functionName']>().toEqualTypeOf<'approve' | undefined>()
 })
 
 test('multiple abi functions, functionName required', () => {
   // @ts-expect-error functionName required
-  decodeFunctionResult({
+  encodeFunctionResult({
     abi: wagmiContractConfig.abi,
   })
 
-  type Result = DecodeFunctionResultParameters<typeof wagmiContractConfig.abi>
+  type Result = EncodeFunctionResultParameters<typeof wagmiContractConfig.abi>
   expectTypeOf<Result['functionName']>().not.toEqualTypeOf<undefined>()
   expectTypeOf<Result['functionName']>().toEqualTypeOf<
     | 'symbol'
@@ -174,8 +151,8 @@ test('multiple abi functions, functionName required', () => {
 })
 
 test('abi has no functions', () => {
-  // @ts-expect-error abi has no functions
-  decodeFunctionResult({
+  // @ts-expect-error
+  encodeFunctionResult({
     abi: [
       {
         inputs: [],
@@ -184,6 +161,5 @@ test('abi has no functions', () => {
         type: 'error',
       },
     ],
-    data: '0x',
   })
 })

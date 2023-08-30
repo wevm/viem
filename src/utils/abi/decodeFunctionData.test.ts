@@ -193,7 +193,7 @@ test('returns discrimated union type for abi with multiple abi items', () => {
       }
     | {
         functionName: 'foo'
-        args: undefined
+        args: readonly []
       }
   >()
 })

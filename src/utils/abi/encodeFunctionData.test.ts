@@ -157,7 +157,7 @@ test("errors: function doesn't exist", () => {
 
 test('errors: abi item not a function', () => {
   expect(() =>
-    // @ts-expect-error
+    // @ts-expect-error abi has no functions
     encodeFunctionData({
       abi: [
         {

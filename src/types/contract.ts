@@ -101,7 +101,11 @@ export type ExtractAbiFunctionForArgs<
   ? IsUnion<abiFunction> extends true // narrow overloads using `args` by converting to tuple and filtering out overloads that don't match
     ? UnionToTuple<abiFunction> extends infer abiFunctions extends readonly AbiFunction[]
       ? {
-          [k in keyof abiFunctions]: args extends AbiParametersToPrimitiveTypes<
+          [k in keyof abiFunctions]: (
+            readonly [] extends args
+              ? readonly [] // fallback to `readonly []` if `args` has no value (e.g. `args` property not provided)
+              : args
+          ) extends AbiParametersToPrimitiveTypes<
             abiFunctions[k]['inputs'],
             'inputs'
           >
@@ -135,16 +139,17 @@ export type ContractFunctionParameters<
   functionName:
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
-  args?:
-    | allArgs // show all options
-    | (args extends allArgs ? Widen<args> : never) // infer value, widen inferred value of `args` conditionally to match `allArgs`
-    | undefined
 } & UnionEvaluate<
   readonly [] extends allArgs
     ? {
         args?:
           | allArgs // show all options
-          | (args extends allArgs ? Widen<args> : never) // infer value, widen inferred value of `args` conditionally to match `allArgs`
+          // infer value, widen inferred value of `args` conditionally to match `allArgs`
+          | (abi extends Abi
+              ? args extends allArgs
+                ? Widen<args>
+                : never
+              : never)
           | undefined
       }
     : {
@@ -174,7 +179,7 @@ export type ContractFunctionReturnType<
           abi,
           mutability,
           functionName,
-          readonly [] extends args ? readonly [] : args
+          args
         >['outputs']
       > extends infer types
     ? types extends readonly []
@@ -187,25 +192,61 @@ export type ContractFunctionReturnType<
 
 export type AbiItem = Abi[number]
 
-export type EventDefinition = `${string}(${string})`
+export type ExtractAbiItemNames<abi extends Abi> = Extract<
+  abi[number],
+  { name: string }
+>['name']
 
-export type ContractFunctionResult<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string = string,
-  TAbiFunction extends AbiFunction & {
-    type: 'function'
-  } = TAbi extends Abi ? ExtractAbiFunction<TAbi, TFunctionName> : AbiFunction,
-  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['outputs']>,
-  FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
-> = true extends FailedToParseArgs
-  ? unknown
-  : TArgs extends readonly []
-  ? void
-  : TArgs extends readonly [infer Arg]
-  ? Arg
-  : TArgs
+export type ExtractAbiItem<
+  abi extends Abi,
+  name extends ExtractAbiItemNames<abi>,
+> = Extract<abi[number], { name: name }>
+
+export type AbiItemName<abi extends Abi | readonly unknown[] = Abi> =
+  abi extends Abi ? ExtractAbiItemNames<abi> : string
+
+export type AbiItemArgs<
+  abi extends Abi | readonly unknown[] = Abi,
+  name extends AbiItemName<abi> = AbiItemName<abi>,
+> = AbiParametersToPrimitiveTypes<
+  ExtractAbiItem<abi extends Abi ? abi : Abi, name>['inputs'],
+  'inputs'
+> extends infer args
+  ? [args] extends [never]
+    ? readonly unknown[]
+    : args
+  : readonly unknown[]
+
+export type ExtractAbiItemForArgs<
+  abi extends Abi,
+  name extends AbiItemName<abi>,
+  args extends AbiItemArgs<abi, name>,
+> = ExtractAbiItem<abi, name> extends infer abiItem extends AbiItem & {
+  inputs: readonly AbiParameter[]
+}
+  ? IsUnion<abiItem> extends true // narrow overloads using `args` by converting to tuple and filtering out overloads that don't match
+    ? UnionToTuple<abiItem> extends infer abiItems extends readonly (AbiItem & {
+        inputs: readonly AbiParameter[]
+      })[]
+      ? {
+          [k in keyof abiItems]: (
+            readonly [] extends args
+              ? readonly [] // fallback to `readonly []` if `args` has no value (e.g. `args` property not provided)
+              : args
+          ) extends AbiParametersToPrimitiveTypes<
+            abiItems[k]['inputs'],
+            'inputs'
+          >
+            ? abiItems[k]
+            : never
+        }[number] // convert back to union (removes `never` tuple entries: `['foo', never, 'bar'][number]` => `'foo' | 'bar'`)
+      : never
+    : abiItem
+  : never
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+export type EventDefinition = `${string}(${string})`
 
 export type GetValue<
   TAbi extends Abi | readonly unknown[],
@@ -259,65 +300,8 @@ export type InferEventName<
     : never
   : TEventName
 
-export type InferFunctionName<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TFunctionName extends string | undefined = string,
-  TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
-> = TAbi extends Abi
-  ? ExtractAbiFunctionNames<
-      TAbi,
-      TAbiStateMutability
-    > extends infer AbiFunctionNames
-    ?
-        | AbiFunctionNames
-        | (TFunctionName extends AbiFunctionNames ? TFunctionName : never)
-        | (Abi extends TAbi ? string : never)
-    : never
-  : TFunctionName
-
-export type InferItemName<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TName extends string = string,
-> = TAbi extends Abi
-  ? ExtractAbiItemNames<TAbi> extends infer AbiNames
-    ?
-        | AbiNames
-        | (TName extends AbiNames ? TName : never)
-        | (Abi extends TAbi ? string : never)
-    : never
-  : TName
-type ExtractAbiItemNames<TAbi extends Abi> =
-  | ExtractAbiFunctionNames<TAbi>
-  | ExtractAbiEventNames<TAbi>
-  | ExtractAbiErrorNames<TAbi>
-
 //////////////////////////////////////////////////////////////////////
 // ABI item args
-
-export type GetFunctionArgs<
-  TAbi extends Abi | readonly unknown[],
-  TFunctionName extends string,
-  TAbiFunction extends AbiFunction = TAbi extends Abi
-    ? ExtractAbiFunction<TAbi, TFunctionName>
-    : AbiFunction,
-  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction['inputs']>,
-  FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
-> = true extends FailedToParseArgs
-  ? {
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
-       */
-      args?: readonly unknown[]
-    }
-  : TArgs extends readonly []
-  ? { args?: never }
-  : {
-      /** Arguments to pass contract method */ args: TArgs
-    }
 
 export type GetConstructorArgs<
   TAbi extends Abi | readonly unknown[],
