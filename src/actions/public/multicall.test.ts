@@ -582,7 +582,7 @@ describe('errors', async () => {
       `)
     })
 
-    test('readContract failure', async () => {
+    test('`aggregate3` call failure', async () => {
       vi.spyOn(readContract, 'readContract')
         .mockResolvedValueOnce([
           {
@@ -941,7 +941,7 @@ describe('errors', async () => {
     `)
   })
 
-  test('readContract failure', async () => {
+  test('`aggregate3` call failure', async () => {
     vi.spyOn(readContract, 'readContract')
       .mockResolvedValueOnce([
         {

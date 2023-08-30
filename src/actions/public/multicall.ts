@@ -179,7 +179,7 @@ export async function multicall<
     }
   }
 
-  const results = await Promise.allSettled(
+  const aggregate3Results = await Promise.allSettled(
     chunkedCalls.map((calls) =>
       readContract(client, {
         abi: multicall3Abi,
@@ -192,16 +192,16 @@ export async function multicall<
     ),
   )
 
-  const data = []
-  for (let i = 0; i < results.length; i++) {
-    const result = results[i]
+  const results = []
+  for (let i = 0; i < aggregate3Results.length; i++) {
+    const result = aggregate3Results[i]
 
     // If an error occurred in a `readContract` invocation (ie. network error),
     // then append the failure reason to each contract result.
     if (result.status === 'rejected') {
       if (!allowFailure) throw result.reason
       for (let j = 0; j < chunkedCalls[i].length; j++) {
-        data.push({
+        results.push({
           status: 'failure',
           error: result.reason,
           result: undefined,
@@ -211,9 +211,10 @@ export async function multicall<
     }
 
     // If the `readContract` call was successful, then decode the results.
-    for (let j = 0; j < result.value.length; j++) {
+    const aggregate3Result = result.value
+    for (let j = 0; j < aggregate3Result.length; j++) {
       // Extract the response from `readContract`
-      const { returnData, success } = result.value[j]
+      const { returnData, success } = aggregate3Result[j]
 
       // Extract the request call data from the original call.
       const { callData } = chunkedCalls[i][j]
@@ -221,7 +222,7 @@ export async function multicall<
       // Extract the contract config for this call from the `contracts` argument
       // for decoding.
       const { abi, address, functionName, args } = contracts[
-        data.length
+        results.length
       ] as ContractFunctionConfig
 
       try {
@@ -233,7 +234,7 @@ export async function multicall<
           data: returnData,
           functionName,
         })
-        data.push(allowFailure ? { result, status: 'success' } : result)
+        results.push(allowFailure ? { result, status: 'success' } : result)
       } catch (err) {
         const error = getContractError(err as BaseError, {
           abi,
@@ -243,10 +244,10 @@ export async function multicall<
           functionName,
         })
         if (!allowFailure) throw error
-        data.push({ error, result: undefined, status: 'failure' })
+        results.push({ error, result: undefined, status: 'failure' })
       }
     }
   }
 
-  return data as MulticallResults<TContracts, TAllowFailure>
+  return results as MulticallResults<TContracts, TAllowFailure>
 }
