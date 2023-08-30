@@ -3,7 +3,7 @@
  *        - Complex calldata types
  *        - Complex return types (tuple/structs)
  */
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
 import {
@@ -30,8 +30,10 @@ import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
 
 import { multicall } from './multicall.js'
+import * as readContract from './readContract.js'
 
 test('default', async () => {
+  const spy = vi.spyOn(readContract, 'readContract')
   expect(
     await multicall(publicClient, {
       blockNumber: forkBlockNumber,
@@ -67,6 +69,7 @@ test('default', async () => {
       },
     ]
   `)
+  expect(spy).toHaveBeenCalledOnce()
 })
 
 test('args: allowFailure', async () => {
@@ -97,6 +100,149 @@ test('args: allowFailure', async () => {
       10000n,
     ]
   `)
+})
+
+test('args: batchSize', async () => {
+  const spy_1 = vi.spyOn(readContract, 'readContract')
+  expect(
+    await multicall(publicClient, {
+      batchSize: 64,
+      blockNumber: forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 41119586940119550n,
+        "status": "success",
+      },
+      {
+        "result": 41119586940119550n,
+        "status": "success",
+      },
+      {
+        "result": 231481998602n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+      {
+        "result": 41119586940119550n,
+        "status": "success",
+      },
+      {
+        "result": 231481998602n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+      {
+        "result": 41119586940119550n,
+        "status": "success",
+      },
+      {
+        "result": 231481998602n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+  expect(spy_1).toBeCalledTimes(3)
+
+  const spy_2 = vi.spyOn(readContract, 'readContract')
+  await multicall(publicClient, {
+    batchSize: 32,
+    blockNumber: forkBlockNumber,
+    contracts: [
+      {
+        ...usdcContractConfig,
+        functionName: 'balanceOf',
+        args: [address.vitalik],
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+    ],
+  })
+  expect(spy_2).toBeCalledTimes(2)
+
+  const spy_3 = vi.spyOn(readContract, 'readContract')
+  await multicall(publicClient, {
+    batchSize: 0,
+    blockNumber: forkBlockNumber,
+    contracts: [
+      {
+        ...usdcContractConfig,
+        functionName: 'balanceOf',
+        args: [address.vitalik],
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+      {
+        ...usdcContractConfig,
+        functionName: 'totalSupply',
+      },
+    ],
+  })
+  expect(spy_3).toHaveBeenCalledOnce()
 })
 
 test('args: multicallAddress', async () => {
@@ -435,6 +581,160 @@ describe('errors', async () => {
         ]
       `)
     })
+
+    test('`aggregate3` call failure', async () => {
+      vi.spyOn(readContract, 'readContract')
+        .mockResolvedValueOnce([
+          {
+            success: true,
+            returnData:
+              '0x0000000000000000000000000000000000000000000000000000000000002710',
+          },
+          {
+            success: true,
+            returnData:
+              '0x00000000000000000000000000000000000000000000000000000035e566fd0a',
+          },
+        ])
+        .mockRejectedValueOnce(new Error('err_1'))
+        .mockResolvedValueOnce([
+          {
+            success: true,
+            returnData:
+              '0x0000000000000000000000000000000000000000000000000000000000002710',
+          },
+          {
+            success: true,
+            returnData:
+              '0x00000000000000000000000000000000000000000000000000003648d8f5db0b',
+          },
+        ])
+        .mockRejectedValueOnce(new Error('err_2'))
+
+      expect(
+        await multicall(publicClient, {
+          batchSize: 72,
+          blockNumber: forkBlockNumber,
+          contracts: [
+            {
+              ...baycContractConfig,
+              functionName: 'totalSupply',
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.vitalik],
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.usdcHolder],
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.vitalik],
+            },
+            {
+              ...baycContractConfig,
+              functionName: 'totalSupply',
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.usdcHolder],
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.vitalik],
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.usdcHolder],
+            },
+            {
+              ...usdcContractConfig,
+              functionName: 'balanceOf',
+              args: [address.vitalik],
+            },
+            {
+              ...usdcContractConfig,
+              // @ts-expect-error
+              functionName: 'lol',
+            },
+            {
+              ...baycContractConfig,
+              functionName: 'totalSupply',
+            },
+          ],
+        }),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "result": 10000n,
+            "status": "success",
+          },
+          {
+            "result": 231481998602n,
+            "status": "success",
+          },
+          {
+            "error": [Error: err_1],
+            "result": undefined,
+            "status": "failure",
+          },
+          {
+            "error": [Error: err_1],
+            "result": undefined,
+            "status": "failure",
+          },
+          {
+            "result": 10000n,
+            "status": "success",
+          },
+          {
+            "result": 59686505536267n,
+            "status": "success",
+          },
+          {
+            "error": [Error: err_2],
+            "result": undefined,
+            "status": "failure",
+          },
+          {
+            "error": [Error: err_2],
+            "result": undefined,
+            "status": "failure",
+          },
+          {
+            "result": 231481998602n,
+            "status": "success",
+          },
+          {
+            "error": [ContractFunctionExecutionError: The contract function "lol" returned no data ("0x").
+
+        This could be due to any of the following:
+          - The contract does not have the function "lol",
+          - The parameters passed to the contract function may be invalid, or
+          - The address is not a contract.
+         
+        Contract Call:
+          address:  0x0000000000000000000000000000000000000000
+
+        Docs: https://viem.sh/docs/contract/multicall.html
+        Version: viem@1.0.2],
+            "result": undefined,
+            "status": "failure",
+          },
+          {
+            "result": 10000n,
+            "status": "success",
+          },
+        ]
+      `)
+    })
   })
 
   describe('allowFailure is falsy', async () => {
@@ -639,6 +939,70 @@ describe('errors', async () => {
       Docs: https://viem.sh/docs/contract/decodeErrorResult.html
       Version: viem@1.0.2]
     `)
+  })
+
+  test('`aggregate3` call failure', async () => {
+    vi.spyOn(readContract, 'readContract')
+      .mockResolvedValueOnce([
+        {
+          success: true,
+          returnData:
+            '0x0000000000000000000000000000000000000000000000000000000000002710',
+        },
+        {
+          success: true,
+          returnData:
+            '0x00000000000000000000000000000000000000000000000000000035e566fd0a',
+        },
+      ])
+      .mockRejectedValueOnce(new Error('err_1'))
+
+    await expect(() =>
+      multicall(publicClient, {
+        allowFailure: false,
+        batchSize: 72,
+        blockNumber: forkBlockNumber,
+        contracts: [
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.usdcHolder],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.usdcHolder],
+          },
+          {
+            ...usdcContractConfig,
+            functionName: 'balanceOf',
+            args: [address.vitalik],
+          },
+          {
+            ...baycContractConfig,
+            functionName: 'totalSupply',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot('"err_1"')
   })
 })
 

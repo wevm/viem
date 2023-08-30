@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig } from '../../types/contract.js'
@@ -136,8 +136,16 @@ export async function multicall<
         functionName,
       } as unknown as EncodeFunctionDataParameters)
 
-      currentChunkSize += callData.length
-      if (batchSize > 0 && currentChunkSize > batchSize) {
+      currentChunkSize += (callData.length - 2) / 2
+      // Check to see if we need to create a new chunk.
+      if (
+        // Check if batching is enabled.
+        batchSize > 0 &&
+        // Check if the current size of the batch exceeds the size limit.
+        currentChunkSize > batchSize &&
+        // Check if the current chunk is not already empty.
+        chunkedCalls[currentChunk].length > 0
+      ) {
         currentChunk++
         currentChunkSize = (callData.length - 2) / 2
         chunkedCalls[currentChunk] = []
@@ -171,7 +179,7 @@ export async function multicall<
     }
   }
 
-  const results = await Promise.all(
+  const aggregate3Results = await Promise.allSettled(
     chunkedCalls.map((calls) =>
       readContract(client, {
         abi: multicall3Abi,
@@ -184,33 +192,64 @@ export async function multicall<
     ),
   )
 
-  const calls = chunkedCalls.flat()
+  const results = []
+  for (let i = 0; i < aggregate3Results.length; i++) {
+    const result = aggregate3Results[i]
 
-  return results.flat().map(({ returnData, success }, i) => {
-    const { callData } = calls[i]
-    const { abi, address, functionName, args } = contracts[
-      i
-    ] as ContractFunctionConfig
-    try {
-      if (callData === '0x') throw new AbiDecodingZeroDataError()
-      if (!success) throw new RawContractError({ data: returnData })
-      const result = decodeFunctionResult({
-        abi,
-        args,
-        data: returnData,
-        functionName,
-      })
-      return allowFailure ? { result, status: 'success' } : result
-    } catch (err) {
-      const error = getContractError(err as BaseError, {
-        abi,
-        address,
-        args,
-        docsPath: '/docs/contract/multicall',
-        functionName,
-      })
-      if (!allowFailure) throw error
-      return { error, result: undefined, status: 'failure' }
+    // If an error occurred in a `readContract` invocation (ie. network error),
+    // then append the failure reason to each contract result.
+    if (result.status === 'rejected') {
+      if (!allowFailure) throw result.reason
+      for (let j = 0; j < chunkedCalls[i].length; j++) {
+        results.push({
+          status: 'failure',
+          error: result.reason,
+          result: undefined,
+        })
+      }
+      continue
     }
-  }) as MulticallResults<TContracts, TAllowFailure>
+
+    // If the `readContract` call was successful, then decode the results.
+    const aggregate3Result = result.value
+    for (let j = 0; j < aggregate3Result.length; j++) {
+      // Extract the response from `readContract`
+      const { returnData, success } = aggregate3Result[j]
+
+      // Extract the request call data from the original call.
+      const { callData } = chunkedCalls[i][j]
+
+      // Extract the contract config for this call from the `contracts` argument
+      // for decoding.
+      const { abi, address, functionName, args } = contracts[
+        results.length
+      ] as ContractFunctionConfig
+
+      try {
+        if (callData === '0x') throw new AbiDecodingZeroDataError()
+        if (!success) throw new RawContractError({ data: returnData })
+        const result = decodeFunctionResult({
+          abi,
+          args,
+          data: returnData,
+          functionName,
+        })
+        results.push(allowFailure ? { result, status: 'success' } : result)
+      } catch (err) {
+        const error = getContractError(err as BaseError, {
+          abi,
+          address,
+          args,
+          docsPath: '/docs/contract/multicall',
+          functionName,
+        })
+        if (!allowFailure) throw error
+        results.push({ error, result: undefined, status: 'failure' })
+      }
+    }
+  }
+
+  if (results.length !== contracts.length)
+    throw new BaseError('multicall results mismatch')
+  return results as MulticallResults<TContracts, TAllowFailure>
 }
