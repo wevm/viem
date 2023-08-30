@@ -10,7 +10,6 @@ import {
 } from '../errors/ccip.js'
 import { HttpRequestError } from '../errors/request.js'
 import type { Chain } from '../types/chain.js'
-import type { GetErrorArgs } from '../types/contract.js'
 import type { Hex } from '../types/misc.js'
 
 import type { Client } from '../clients/createClient.js'
@@ -64,10 +63,7 @@ export async function offchainLookup<TChain extends Chain | undefined,>(
   const { args } = decodeErrorResult({
     data,
     abi: [offchainLookupAbiItem],
-  }) as unknown as GetErrorArgs<
-    [typeof offchainLookupAbiItem],
-    'OffchainLookup'
-  >
+  })
   const [sender, urls, callData, callbackSelector, extraData] = args
 
   try {

@@ -133,14 +133,7 @@ test("errors: error doesn't exist", () => {
       ],
       // @ts-expect-error
       errorName: 'AccessDeniedError',
-      args: [
-        {
-          delegate: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-          vote: 41n,
-          voted: true,
-          weight: 69420n,
-        },
-      ],
+      args: [],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
     "Error \\"AccessDeniedError\\" not found on ABI.

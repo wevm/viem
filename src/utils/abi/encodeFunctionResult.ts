@@ -9,11 +9,9 @@ import type {
   ContractFunctionReturnType,
 } from '../../types/contract.js'
 
+import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import {
-  type EncodeAbiParametersReturnType,
-  encodeAbiParameters,
-} from './encodeAbiParameters.js'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeFunctionResult'
@@ -53,7 +51,7 @@ export type EncodeFunctionResultParameters<
 > &
   (hasFunctions extends true ? unknown : never)
 
-export type EncodeFunctionResultReturnType = EncodeAbiParametersReturnType
+export type EncodeFunctionResultReturnType = Hex
 
 export function encodeFunctionResult<
   const abi extends Abi | readonly unknown[],

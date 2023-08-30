@@ -15,8 +15,6 @@ import type {
   GetEventArgs,
   GetEventArgsFromTopics,
   GetValue,
-  InferErrorName,
-  InferEventName,
   LogTopicType,
   Widen,
 } from './contract.js'
@@ -288,68 +286,6 @@ test('GetValue', () => {
   expectTypeOf<GetValue<typeof abi, 'foo'>>().toEqualTypeOf<{
     value?: bigint | undefined
   }>()
-})
-
-test('InferErrorName', () => {
-  type Result = InferErrorName<typeof seaportAbi, 'BadContractSignature'>
-  expectTypeOf<Result>().toEqualTypeOf<
-    | 'BadContractSignature'
-    | 'BadFraction'
-    | 'BadReturnValueFromERC20OnTransfer'
-    | 'BadSignatureV'
-    | 'CannotCancelOrder'
-    | 'ConsiderationCriteriaResolverOutOfRange'
-    | 'ConsiderationLengthNotEqualToTotalOriginal'
-    | 'ConsiderationNotMet'
-    | 'CriteriaNotEnabledForItem'
-    | 'ERC1155BatchTransferGenericFailure'
-    | 'InexactFraction'
-    | 'InsufficientNativeTokensSupplied'
-    | 'Invalid1155BatchTransferEncoding'
-    | 'InvalidBasicOrderParameterEncoding'
-    | 'InvalidCallToConduit'
-    | 'InvalidConduit'
-    | 'InvalidContractOrder'
-    | 'InvalidERC721TransferAmount'
-    | 'InvalidFulfillmentComponentData'
-    | 'InvalidMsgValue'
-    | 'InvalidNativeOfferItem'
-    | 'InvalidProof'
-    | 'InvalidRestrictedOrder'
-    | 'InvalidSignature'
-    | 'InvalidSigner'
-    | 'InvalidTime'
-    | 'MismatchedFulfillmentOfferAndConsiderationComponents'
-    | 'MissingFulfillmentComponentOnAggregation'
-    | 'MissingItemAmount'
-    | 'MissingOriginalConsiderationItems'
-    | 'NativeTokenTransferGenericFailure'
-    | 'NoContract'
-    | 'NoReentrantCalls'
-    | 'NoSpecifiedOrdersAvailable'
-    | 'OfferAndConsiderationRequiredOnFulfillment'
-    | 'OfferCriteriaResolverOutOfRange'
-    | 'OrderAlreadyFilled'
-    | 'OrderCriteriaResolverOutOfRange'
-    | 'OrderIsCancelled'
-    | 'OrderPartiallyFilled'
-    | 'PartialFillsNotEnabledForOrder'
-    | 'TokenTransferGenericFailure'
-    | 'UnresolvedConsiderationCriteria'
-    | 'UnresolvedOfferCriteria'
-    | 'UnusedItemParameters'
-  >('BadContractSignature')
-})
-
-test('InferEventName', () => {
-  type Result = InferEventName<typeof seaportAbi, 'CounterIncremented'>
-  expectTypeOf<Result>().toEqualTypeOf<
-    | 'CounterIncremented'
-    | 'OrderCancelled'
-    | 'OrderFulfilled'
-    | 'OrdersMatched'
-    | 'OrderValidated'
-  >('CounterIncremented')
 })
 
 // -----------------------------------------------------------------------------------------------

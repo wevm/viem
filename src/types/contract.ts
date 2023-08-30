@@ -43,6 +43,24 @@ export type ContractFunctionName<
     : functionName
   : string
 
+export type ContractErrorName<abi extends Abi | readonly unknown[] = Abi> =
+  ExtractAbiErrorNames<
+    abi extends Abi ? abi : Abi
+  > extends infer errorName extends string
+    ? [errorName] extends [never]
+      ? string
+      : errorName
+    : string
+
+export type ContractEventName<abi extends Abi | readonly unknown[] = Abi> =
+  ExtractAbiEventNames<
+    abi extends Abi ? abi : Abi
+  > extends infer eventName extends string
+    ? [eventName] extends [never]
+      ? string
+      : eventName
+    : string
+
 export type ContractFunctionArgs<
   abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
@@ -57,6 +75,29 @@ export type ContractFunctionArgs<
     mutability
   >['inputs'],
   'inputs'
+> extends infer args
+  ? [args] extends [never]
+    ? readonly unknown[]
+    : args
+  : readonly unknown[]
+
+export type ContractErrorArgs<
+  abi extends Abi | readonly unknown[] = Abi,
+  errorName extends ContractErrorName<abi> = ContractErrorName<abi>,
+> = AbiParametersToPrimitiveTypes<
+  ExtractAbiError<abi extends Abi ? abi : Abi, errorName>['inputs'],
+  'inputs'
+> extends infer args
+  ? [args] extends [never]
+    ? readonly unknown[]
+    : args
+  : readonly unknown[]
+
+export type ContractEventArgs<
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractErrorName<abi> = ContractErrorName<abi>,
+> = AbiEventParametersToPrimitiveTypes<
+  ExtractAbiEvent<abi extends Abi ? abi : Abi, eventName>['inputs']
 > extends infer args
   ? [args] extends [never]
     ? readonly unknown[]
@@ -244,8 +285,6 @@ export type ExtractAbiItemForArgs<
     : abiItem
   : never
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
 export type EventDefinition = `${string}(${string})`
 
 export type GetValue<
@@ -264,6 +303,8 @@ export type GetValue<
     : { value?: never }
   : { value?: TValueType }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 export type MaybeAbiEventName<TAbiEvent extends AbiEvent | undefined> =
   TAbiEvent extends AbiEvent ? TAbiEvent['name'] : undefined
 
@@ -275,21 +316,6 @@ export type MaybeExtractEventArgsFromAbi<
     ? GetEventArgs<TAbi, TEventName>
     : undefined
   : undefined
-
-//////////////////////////////////////////////////////////////////////
-// ABI item name
-
-export type InferErrorName<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TErrorName extends string | undefined = string,
-> = TAbi extends Abi
-  ? ExtractAbiErrorNames<TAbi> extends infer AbiErrorNames
-    ?
-        | AbiErrorNames
-        | (TErrorName extends AbiErrorNames ? TErrorName : never)
-        | (Abi extends TAbi ? string : never)
-    : never
-  : TErrorName
 
 export type InferEventName<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -400,55 +426,6 @@ type DefaultEventParameterOptions = {
   Required: false
 }
 
-type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
-
-// TODO: Speed up by returning immediately as soon as named parameter is found.
-type _HasUnnamedAbiParameter<TAbiParameters extends readonly AbiParameter[]> =
-  TAbiParameters extends readonly [
-    infer Head extends AbiParameter,
-    ...infer Tail extends readonly AbiParameter[],
-  ]
-    ? Head extends { name: string }
-      ? Head['name'] extends ''
-        ? true
-        : _HasUnnamedAbiParameter<Tail>
-      : true
-    : false
-
-/**
- * @internal
- */
-export type LogTopicType<
-  TPrimitiveType = Hex,
-  TTopic extends LogTopic = LogTopic,
-> = TTopic extends Hex
-  ? TPrimitiveType
-  : TTopic extends Hex[]
-  ? TPrimitiveType[]
-  : TTopic extends null
-  ? null
-  : never
-
-/**
- * @internal
- */
-export type AbiEventParameterToPrimitiveType<
-  TAbiParameter extends AbiParameter,
-  Options extends EventParameterOptions = DefaultEventParameterOptions,
-  _Type = AbiParameterToPrimitiveType<TAbiParameter>,
-> = Options['EnableUnion'] extends true ? LogTopicType<_Type> : _Type
-
-/**
- * @internal
- */
-export type AbiEventTopicToPrimitiveType<
-  TAbiParameter extends AbiParameter,
-  TTopic extends LogTopic,
-  TPrimitiveType = TAbiParameter['type'] extends HashedEventTypes
-    ? TTopic
-    : AbiParameterToPrimitiveType<TAbiParameter>,
-> = LogTopicType<TPrimitiveType, TTopic>
-
 export type AbiEventParametersToPrimitiveTypes<
   TAbiParameters extends readonly AbiParameter[],
   Options extends EventParameterOptions = DefaultEventParameterOptions,
@@ -499,3 +476,52 @@ export type AbiEventParametersToPrimitiveTypes<
       >
     : never
   : never
+
+// TODO: Speed up by returning immediately as soon as named parameter is found.
+type _HasUnnamedAbiParameter<TAbiParameters extends readonly AbiParameter[]> =
+  TAbiParameters extends readonly [
+    infer Head extends AbiParameter,
+    ...infer Tail extends readonly AbiParameter[],
+  ]
+    ? Head extends { name: string }
+      ? Head['name'] extends ''
+        ? true
+        : _HasUnnamedAbiParameter<Tail>
+      : true
+    : false
+
+/**
+ * @internal
+ */
+export type LogTopicType<
+  TPrimitiveType = Hex,
+  TTopic extends LogTopic = LogTopic,
+> = TTopic extends Hex
+  ? TPrimitiveType
+  : TTopic extends Hex[]
+  ? TPrimitiveType[]
+  : TTopic extends null
+  ? null
+  : never
+
+/**
+ * @internal
+ */
+export type AbiEventParameterToPrimitiveType<
+  TAbiParameter extends AbiParameter,
+  Options extends EventParameterOptions = DefaultEventParameterOptions,
+  _Type = AbiParameterToPrimitiveType<TAbiParameter>,
+> = Options['EnableUnion'] extends true ? LogTopicType<_Type> : _Type
+
+type HashedEventTypes = 'bytes' | 'string' | 'tuple' | `${string}[${string}]`
+
+/**
+ * @internal
+ */
+export type AbiEventTopicToPrimitiveType<
+  TAbiParameter extends AbiParameter,
+  TTopic extends LogTopic,
+  TPrimitiveType = TAbiParameter['type'] extends HashedEventTypes
+    ? TTopic
+    : AbiParameterToPrimitiveType<TAbiParameter>,
+> = LogTopicType<TPrimitiveType, TTopic>

@@ -557,6 +557,7 @@ export { SizeExceedsPaddingSizeError } from './errors/data.js'
 export { UrlRequiredError } from './errors/transport.js'
 export type {
   AbiItem,
+  ContractErrorName,
   ContractFunctionParameters,
   ContractFunctionReturnType,
   ContractFunctionName,
@@ -566,7 +567,6 @@ export type {
   GetEventArgs,
   GetEventArgsFromTopics,
   GetValue,
-  InferErrorName,
   InferEventName,
 } from './types/contract.js'
 export type {
@@ -717,6 +717,7 @@ export {
 } from './utils/abi/encodeDeployData.js'
 export {
   type EncodeErrorResultParameters,
+  type EncodeErrorResultReturnType,
   encodeErrorResult,
 } from './utils/abi/encodeErrorResult.js'
 export {
