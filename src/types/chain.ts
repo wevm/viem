@@ -37,6 +37,41 @@ export type ChainConstants = {
     ensRegistry?: ChainContract
     ensUniversalResolver?: ChainContract
     multicall3?: ChainContract
+    // L1 OP Stack Contracts
+    l1CrossDomainMessenger?: {
+      [chainId: number]: unknown
+    }
+    l1Erc721Bridge?: {
+      [chainId: number]: unknown
+    }
+    l1StandardBridge?: {
+      [chainId: number]: unknown
+    }
+    l2OutputOracle?: {
+      [chainId: number]: unknown
+    }
+    optimismMintableErc20Factory?: {
+      [chainId: number]: unknown
+    }
+    optimismPortal?: {
+      [chainId: number]: unknown
+    }
+    systemConfig?: {
+      [chainId: number]: unknown
+    }
+    systemDictator?: {
+      [chainId: number]: unknown
+    }
+    // L2 OP Stack Contracts
+    // note these are redeploys and always have the same address
+    l2CrossDomainMessenger?: Address
+    l2StandardBridge?: Address
+    optimismMintableERC20Factory?: Address
+    gasPriceOracle?: Address
+    l1Block?: Address
+    l2ToL1MessagePasser?: Address
+    l2Erc721Bridge?: Address
+    optimismMintableErc721Factory?: Address
   }
   /** ID in number form */
   id: number
