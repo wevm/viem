@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address } from 'abitype'
+import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -312,15 +312,12 @@ export function watchEvent<
             const log = data.result
             try {
               const { eventName, args } = decodeEventLog({
-                abi: events_ as Abi,
+                abi: events_ ?? [],
                 data: log.data,
-                topics: log.topics as any,
+                topics: log.topics,
                 strict,
               })
-              const formatted = formatLog(log, {
-                args,
-                eventName: eventName as string,
-              })
+              const formatted = formatLog(log, { args, eventName })
               onLogs([formatted] as any)
             } catch (err) {
               let eventName

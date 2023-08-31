@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address } from 'abitype'
+import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -191,9 +191,9 @@ export async function getLogs<
       try {
         const { eventName, args } = events
           ? decodeEventLog({
-              abi: events as Abi,
+              abi: events,
               data: log.data,
-              topics: log.topics as any,
+              topics: log.topics,
               strict,
             })
           : { eventName: undefined, args: undefined }

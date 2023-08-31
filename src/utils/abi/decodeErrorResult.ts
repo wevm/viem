@@ -1,45 +1,60 @@
-import type { Abi, ExtractAbiError, ExtractAbiErrorNames } from 'abitype'
+import type { Abi, ExtractAbiError } from 'abitype'
 
 import { solidityError, solidityPanic } from '../../constants/solidity.js'
 import {
   AbiDecodingZeroDataError,
   AbiErrorSignatureNotFoundError,
 } from '../../errors/abi.js'
-import type { AbiItem, GetErrorArgs } from '../../types/contract.js'
+import type {
+  AbiItem,
+  ContractErrorArgs,
+  ContractErrorName,
+} from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { slice } from '../data/slice.js'
 import { getFunctionSelector } from '../hash/getFunctionSelector.js'
 
+import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeErrorResultParameters<
-  TAbi extends Abi | readonly unknown[] = Abi,
-> = { abi?: TAbi; data: Hex }
+  abi extends Abi | readonly unknown[] = Abi,
+> = { abi?: abi | undefined; data: Hex }
 
 export type DecodeErrorResultReturnType<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  _ErrorNames extends string = TAbi extends Abi
-    ? Abi extends TAbi
-      ? string
-      : ExtractAbiErrorNames<TAbi>
-    : string,
-> = {
-  [TName in _ErrorNames]: {
-    abiItem: TAbi extends Abi ? ExtractAbiError<TAbi, TName> : AbiItem
-    args: GetErrorArgs<TAbi, TName>['args']
-    errorName: TName
-  }
-}[_ErrorNames]
+  abi extends Abi | readonly unknown[] = Abi,
+  ///
+  allErrorNames extends ContractErrorName<abi> = ContractErrorName<abi>,
+> = IsNarrowable<abi, Abi> extends true
+  ? UnionEvaluate<
+      {
+        [errorName in allErrorNames]: {
+          abiItem: abi extends Abi
+            ? Abi extends abi
+              ? AbiItem
+              : ExtractAbiError<abi, errorName>
+            : AbiItem
+          args: ContractErrorArgs<abi, errorName>
+          errorName: errorName
+        }
+      }[allErrorNames]
+    >
+  : {
+      abiItem: AbiItem
+      args: readonly unknown[] | undefined
+      errorName: string
+    }
 
-export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>({
-  abi,
-  data,
-}: DecodeErrorResultParameters<TAbi>): DecodeErrorResultReturnType<TAbi> {
+export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>(
+  parameters: DecodeErrorResultParameters<TAbi>,
+): DecodeErrorResultReturnType<TAbi> {
+  const { abi, data } = parameters as DecodeErrorResultParameters
+
   const signature = slice(data, 0, 4)
   if (signature === '0x') throw new AbiDecodingZeroDataError()
 
-  const abi_ = [...((abi as Abi) || []), solidityError, solidityPanic]
+  const abi_ = [...(abi || []), solidityError, solidityPanic]
   const abiItem = abi_.find(
     (x) =>
       x.type === 'error' && signature === getFunctionSelector(formatAbiItem(x)),
@@ -50,9 +65,10 @@ export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>({
     })
   return {
     abiItem,
-    args: ('inputs' in abiItem && abiItem.inputs && abiItem.inputs.length > 0
-      ? decodeAbiParameters(abiItem.inputs, slice(data, 4))
-      : undefined) as readonly unknown[] | undefined,
+    args:
+      'inputs' in abiItem && abiItem.inputs && abiItem.inputs.length > 0
+        ? decodeAbiParameters(abiItem.inputs, slice(data, 4))
+        : undefined,
     errorName: (abiItem as { name: string }).name,
   } as DecodeErrorResultReturnType<TAbi>
 }

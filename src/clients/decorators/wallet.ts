@@ -131,10 +131,10 @@ export type WalletActions<
    * })
    */
   deployContract: <
-    const TAbi extends Abi | readonly unknown[],
-    TChainOverride extends Chain | undefined,
+    const abi extends Abi | readonly unknown[],
+    chainOverride extends Chain | undefined,
   >(
-    args: DeployContractParameters<TAbi, TChain, TAccount, TChainOverride>,
+    args: DeployContractParameters<abi, TChain, TAccount, chainOverride>,
   ) => Promise<DeployContractReturnType>
   /**
    * Returns a list of account addresses owned by the wallet or client.

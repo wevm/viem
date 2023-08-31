@@ -10,10 +10,7 @@ import type {
   ContractFunctionName,
   ContractFunctionReturnType,
   ExtractAbiFunctionForArgs,
-  GetConstructorArgs,
-  GetErrorArgs,
   GetEventArgs,
-  GetEventArgsFromTopics,
   GetValue,
   LogTopicType,
   Widen,
@@ -160,29 +157,6 @@ test('ContractFunctionReturnType', () => {
   >().toEqualTypeOf<{ foo: Address; bar: Address }>()
 })
 
-test('GetConstructorArgs', () => {
-  type Result = GetConstructorArgs<typeof seaportAbi>
-  expectTypeOf<Result>().toEqualTypeOf<{
-    args: readonly [`0x${string}`]
-  }>()
-})
-
-test('GetErrorArgs', () => {
-  type Result = GetErrorArgs<
-    typeof seaportAbi,
-    'ERC1155BatchTransferGenericFailure'
-  >
-  expectTypeOf<Result>().toEqualTypeOf<{
-    args: readonly [
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      readonly bigint[],
-      readonly bigint[],
-    ]
-  }>()
-})
-
 test('GetEventArgs', () => {
   type Result = GetEventArgs<
     [
@@ -213,48 +187,6 @@ test('GetEventArgs', () => {
   expectTypeOf<Result>().toEqualTypeOf<{
     from?: `0x${string}` | `0x${string}`[] | null | undefined
     to?: `0x${string}` | `0x${string}`[] | null | undefined
-  }>()
-})
-
-test('GetEventArgsFromTopics', () => {
-  type Result = GetEventArgsFromTopics<
-    [
-      {
-        inputs: [
-          {
-            indexed: true
-            name: 'from'
-            type: 'address'
-          },
-          {
-            indexed: true
-            name: 'to'
-            type: 'address'
-          },
-          {
-            indexed: false
-            name: 'tokenId'
-            type: 'uint256'
-          },
-        ]
-        name: 'Transfer'
-        type: 'event'
-      },
-    ],
-    'Transfer',
-    [
-      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-      '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
-      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-    ],
-    '0x0000000000000000000000000000000000000000000000000000000000000001'
-  >
-  expectTypeOf<Result>().toEqualTypeOf<{
-    args: {
-      from: `0x${string}`
-      to: `0x${string}`
-      tokenId: bigint
-    }
   }>()
 })
 

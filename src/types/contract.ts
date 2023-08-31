@@ -1,7 +1,5 @@
 import {
   type Abi,
-  type AbiConstructor,
-  type AbiError,
   type AbiEvent,
   type AbiFunction,
   type AbiParameter,
@@ -81,6 +79,20 @@ export type ContractFunctionArgs<
     : args
   : readonly unknown[]
 
+export type ContractConstructorArgs<
+  abi extends Abi | readonly unknown[] = Abi,
+> = AbiParametersToPrimitiveTypes<
+  Extract<
+    (abi extends Abi ? abi : Abi)[number],
+    { type: 'constructor' }
+  >['inputs'],
+  'inputs'
+> extends infer args
+  ? [args] extends [never]
+    ? readonly unknown[]
+    : args
+  : readonly unknown[]
+
 export type ContractErrorArgs<
   abi extends Abi | readonly unknown[] = Abi,
   errorName extends ContractErrorName<abi> = ContractErrorName<abi>,
@@ -98,6 +110,19 @@ export type ContractEventArgs<
   eventName extends ContractErrorName<abi> = ContractErrorName<abi>,
 > = AbiEventParametersToPrimitiveTypes<
   ExtractAbiEvent<abi extends Abi ? abi : Abi, eventName>['inputs']
+> extends infer args
+  ? [args] extends [never]
+    ? readonly unknown[]
+    : args
+  : readonly unknown[]
+
+export type ContractEventArgsFromTopics<
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> = ContractEventName<abi>,
+  strict extends boolean = true,
+> = AbiEventParametersToPrimitiveTypes<
+  ExtractAbiEvent<abi extends Abi ? abi : Abi, eventName>['inputs'],
+  { EnableUnion: false; IndexedOnly: false; Required: strict }
 > extends infer args
   ? [args] extends [never]
     ? readonly unknown[]
@@ -329,55 +354,6 @@ export type InferEventName<
 //////////////////////////////////////////////////////////////////////
 // ABI item args
 
-export type GetConstructorArgs<
-  TAbi extends Abi | readonly unknown[],
-  TAbiConstructor extends AbiConstructor = TAbi extends Abi
-    ? Extract<TAbi[number], { type: 'constructor' }>
-    : AbiConstructor,
-  TArgs = AbiParametersToPrimitiveTypes<TAbiConstructor['inputs']>,
-  FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
-> = true extends FailedToParseArgs
-  ? {
-      /**
-       * Arguments to pass contract constructor
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
-       */
-      args?: readonly unknown[]
-    }
-  : TArgs extends readonly []
-  ? { args?: never }
-  : {
-      /** Arguments to pass contract constructor */ args: TArgs
-    }
-
-export type GetErrorArgs<
-  TAbi extends Abi | readonly unknown[],
-  TErrorName extends string,
-  TAbiError extends AbiError = TAbi extends Abi
-    ? ExtractAbiError<TAbi, TErrorName>
-    : AbiError,
-  TArgs = AbiParametersToPrimitiveTypes<TAbiError['inputs']>,
-  FailedToParseArgs =
-    | ([TArgs] extends [never] ? true : false)
-    | (readonly unknown[] extends TArgs ? true : false),
-> = true extends FailedToParseArgs
-  ? {
-      /**
-       * Arguments to pass contract method
-       *
-       * Use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) on {@link abi} for type inference.
-       */
-      args?: readonly unknown[]
-    }
-  : TArgs extends readonly []
-  ? { args?: never }
-  : {
-      /** Arguments to pass contract method */ args: TArgs
-    }
-
 export type GetEventArgs<
   TAbi extends Abi | readonly unknown[],
   TEventName extends string,
@@ -392,25 +368,6 @@ export type GetEventArgs<
 > = true extends FailedToParseArgs
   ? readonly unknown[] | Record<string, unknown>
   : TArgs
-
-export type GetEventArgsFromTopics<
-  TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
-  TTopics extends LogTopic[],
-  TData extends Hex | undefined,
-  TStrict extends boolean = true,
-  TAbiEvent extends AbiEvent & { type: 'event' } = TAbi extends Abi
-    ? ExtractAbiEvent<TAbi, TEventName>
-    : AbiEvent & { type: 'event' },
-  TArgs = AbiEventParametersToPrimitiveTypes<
-    TAbiEvent['inputs'],
-    { EnableUnion: false; IndexedOnly: false; Required: TStrict }
-  >,
-> = TTopics extends readonly []
-  ? TData extends undefined
-    ? { args?: never }
-    : { args?: TArgs }
-  : { args: TArgs }
 
 //////////////////////////////////////////////////////////////////////
 // ABI event types
