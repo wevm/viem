@@ -32,4 +32,14 @@ test('default', () => {
     ),
     v: 27n,
   })
+
+  expect(
+    hexToSignature(
+      '0x602381e57b70f1ada20bd56a806291cfc5cb5088f00f0e791510fd8b8cf05cc40dea7b983e0c7d204f3dc511b1f19a2787a5c82cd72f3bd38da58f10969907841b',
+    ),
+  ).toEqual({
+    r: '0x602381e57b70f1ada20bd56a806291cfc5cb5088f00f0e791510fd8b8cf05cc4',
+    s: '0x0dea7b983e0c7d204f3dc511b1f19a2787a5c82cd72f3bd38da58f1096990784',
+    v: 27n,
+  })
 })
