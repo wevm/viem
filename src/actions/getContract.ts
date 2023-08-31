@@ -17,6 +17,7 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
   AbiEventParametersToPrimitiveTypes,
+  ContractEventName,
   ContractFunctionArgs,
   ContractFunctionName,
   MaybeExtractEventArgsFromAbi,
@@ -297,7 +298,9 @@ export type GetContractReturnType<
                   [EventName in _EventNames]: GetWatchEvent<
                     _Narrowable,
                     TAbi,
-                    EventName
+                    EventName extends ContractEventName<TAbi>
+                      ? EventName
+                      : never
                   >
                 }
               })
@@ -950,7 +953,7 @@ type GetEventFilter<
 type GetWatchEvent<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
+  TEventName extends ContractEventName<TAbi>,
   TAbiEvent extends AbiEvent = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent,

@@ -112,9 +112,9 @@ export type ContractEventArgs<
   ExtractAbiEvent<abi extends Abi ? abi : Abi, eventName>['inputs']
 > extends infer args
   ? [args] extends [never]
-    ? readonly unknown[]
+    ? readonly unknown[] | Record<string, unknown>
     : args
-  : readonly unknown[]
+  : readonly unknown[] | Record<string, unknown>
 
 export type ContractEventArgsFromTopics<
   abi extends Abi | readonly unknown[] = Abi,
@@ -125,9 +125,9 @@ export type ContractEventArgsFromTopics<
   { EnableUnion: false; IndexedOnly: false; Required: strict }
 > extends infer args
   ? [args] extends [never]
-    ? readonly unknown[]
+    ? readonly unknown[] | Record<string, unknown>
     : args
-  : readonly unknown[]
+  : readonly unknown[] | Record<string, unknown>
 
 export type Widen<type> =
   | ([unknown] extends [type] ? unknown : never)

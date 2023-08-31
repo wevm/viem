@@ -220,6 +220,7 @@ import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
+  ContractEventName,
   ContractFunctionArgs,
   ContractFunctionName,
   MaybeAbiEventName,
@@ -1542,7 +1543,7 @@ export type PublicActions<
    */
   watchContractEvent: <
     const TAbi extends Abi | readonly unknown[],
-    TEventName extends string,
+    TEventName extends ContractEventName<TAbi>,
     TStrict extends boolean | undefined = undefined,
   >(
     args: WatchContractEventParameters<TAbi, TEventName, TStrict>,

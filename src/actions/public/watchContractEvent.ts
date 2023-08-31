@@ -3,7 +3,10 @@ import type { Abi, AbiEvent, Address, ExtractAbiEvent } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetEventArgs, InferEventName } from '../../types/contract.js'
+import type {
+  ContractEventArgs,
+  ContractEventName,
+} from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { GetTransportConfig } from '../../types/transport.js'
@@ -37,74 +40,75 @@ import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
-type PollOptions = {
-  /**
-   * Whether or not the transaction hashes should be batched on each invocation.
-   * @default true
-   */
-  batch?: boolean
-  /**
-   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
-   * @default client.pollingInterval
-   */
-  pollingInterval?: number
-}
-
 export type WatchContractEventOnLogsParameter<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string = string,
-  TStrict extends boolean | undefined = undefined,
-> = TAbi extends Abi
-  ? Log<bigint, number, false, ExtractAbiEvent<TAbi, TEventName>, TStrict>[]
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> = ContractEventName<abi>,
+  strict extends boolean | undefined = undefined,
+> = abi extends Abi
+  ? Abi extends abi
+    ? Log[]
+    : Log<bigint, number, false, ExtractAbiEvent<abi, eventName>, strict>[]
   : Log[]
+
 export type WatchContractEventOnLogsFn<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string = string,
-  TStrict extends boolean | undefined = undefined,
-> = (logs: WatchContractEventOnLogsParameter<TAbi, TEventName, TStrict>) => void
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> = ContractEventName<abi>,
+  strict extends boolean | undefined = undefined,
+> = (logs: WatchContractEventOnLogsParameter<abi, eventName, strict>) => void
 
 export type WatchContractEventParameters<
-  TAbi extends Abi | readonly unknown[] = readonly unknown[],
-  TEventName extends string = string,
-  TStrict extends boolean | undefined = undefined,
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> = ContractEventName<abi>,
+  strict extends boolean | undefined = undefined,
 > = {
   /** The address of the contract. */
-  address?: Address | Address[]
+  address?: Address | Address[] | undefined
   /** Contract ABI. */
-  abi: TAbi
-  args?: GetEventArgs<TAbi, TEventName>
+  abi: abi
+  args?: ContractEventArgs<abi, eventName> | undefined
   /** Contract event. */
-  eventName?: InferEventName<TAbi, TEventName>
+  eventName?: eventName | ContractEventName<abi> | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
-  onError?: (error: Error) => void
+  onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
-  onLogs: WatchContractEventOnLogsFn<TAbi, TEventName, TStrict>
+  onLogs: WatchContractEventOnLogsFn<abi, eventName, strict>
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
    * @default false
    */
-  strict?: TStrict
+  strict?: strict | undefined
 } & (GetTransportConfig<Transport>['type'] extends 'webSocket'
   ?
       | {
-          batch?: never
+          batch?: undefined
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
            * @default false
            */
-          poll?: false
-          pollingInterval?: never
+          poll?: false | undefined
+          pollingInterval?: undefined
         }
       | (PollOptions & {
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
            * @default true
            */
-          poll?: true
+          poll?: true | undefined
         })
-  : PollOptions & {
-      poll?: true
-    })
+  : PollOptions & { poll?: true | undefined })
+
+type PollOptions = {
+  /**
+   * Whether or not the transaction hashes should be batched on each invocation.
+   * @default true
+   */
+  batch?: boolean | undefined
+  /**
+   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
+   * @default client.pollingInterval
+   */
+  pollingInterval?: number | undefined
+}
 
 export type WatchContractEventReturnType = () => void
 
@@ -139,13 +143,15 @@ export type WatchContractEventReturnType = () => void
  * })
  */
 export function watchContractEvent<
-  TChain extends Chain | undefined,
-  const TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
-  TStrict extends boolean | undefined = undefined,
+  chain extends Chain | undefined,
+  const abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi>,
+  strict extends boolean | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
-  {
+  client: Client<Transport, chain>,
+  parameters: WatchContractEventParameters<abi, eventName, strict>,
+): WatchContractEventReturnType {
+  const {
     abi,
     address,
     args,
@@ -156,8 +162,8 @@ export function watchContractEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
-  }: WatchContractEventParameters<TAbi, TEventName, TStrict>,
-): WatchContractEventReturnType {
+  } = parameters
+
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
 
@@ -175,7 +181,7 @@ export function watchContractEvent<
 
     return observe(observerId, { onLogs, onError }, (emit) => {
       let previousBlockNumber: bigint
-      let filter: Filter<'event', TAbi, TEventName> | undefined
+      let filter: Filter<'event', abi, eventName> | undefined
       let initialized = false
 
       const unwatch = poll(
@@ -190,8 +196,8 @@ export function watchContractEvent<
                 strict,
               } as unknown as CreateContractEventFilterParameters)) as Filter<
                 'event',
-                TAbi,
-                TEventName
+                abi,
+                eventName
               >
             } catch {}
             initialized = true
@@ -215,7 +221,7 @@ export function watchContractEvent<
               if (previousBlockNumber && previousBlockNumber !== blockNumber) {
                 logs = await getLogs(client, {
                   address,
-                  args,
+                  args: args as any,
                   fromBlock: previousBlockNumber + 1n,
                   toBlock: blockNumber,
                   event: getAbiItem({

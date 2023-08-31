@@ -375,7 +375,7 @@ test('no abi', async () => {
 
   expectTypeOf(event).toEqualTypeOf<{
     eventName: string
-    args: readonly unknown[]
+    args: readonly unknown[] | Record<string, unknown>
   }>()
 })
 
