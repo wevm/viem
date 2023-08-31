@@ -1,5 +1,11 @@
 # viem
 
+## 1.9.3
+
+### Patch Changes
+
+- [#1087](https://github.com/wagmi-dev/viem/pull/1087) [`ac3b7eab`](https://github.com/wagmi-dev/viem/commit/ac3b7eab194d541bcf54098bf22ab068ebfc642a) Thanks [@jxom](https://github.com/jxom)! - Append errors from `aggregate3` to return results if `allowFailure=true` instead of throwing an error.
+
 ## 1.9.2
 
 ### Patch Changes
