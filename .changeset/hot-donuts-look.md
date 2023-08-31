@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-call now takes account hoisting into consideration
+Added account hoisting to `call`.
