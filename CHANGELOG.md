@@ -1,5 +1,11 @@
 # viem
 
+## 1.9.4
+
+### Patch Changes
+
+- [#1098](https://github.com/wagmi-dev/viem/pull/1098) [`970c0f53`](https://github.com/wagmi-dev/viem/commit/970c0f53043241360c108ee2f7c07dd2413ab233) Thanks [@Sz0x](https://github.com/Sz0x)! - Added account hoisting to `call`.
+
 ## 1.9.3
 
 ### Patch Changes
