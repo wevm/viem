@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import {
   universalResolverResolveAbi,
   universalResolverReverseAbi,
@@ -5,7 +6,6 @@ import {
 import { BaseError } from '../../errors/base.js'
 import { ContractFunctionRevertedError } from '../../errors/contract.js'
 import { isNullUniversalResolverError } from './errors.js'
-import { describe, expect, test } from 'vitest'
 
 describe('isNullUniversalResolverError', () => {
   describe.each([

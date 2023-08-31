@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'vitest'
 import { InvalidStorageKeySizeError } from '../../errors/transaction.js'
 import { type AccessList, InvalidAddressError } from '../../index.js'
 import { serializeAccessList } from './serializeAccessList.js'
-import { describe, expect, test } from 'vitest'
 
 describe('serializeAccessList', () => {
   test('when accessList is empty', () => {

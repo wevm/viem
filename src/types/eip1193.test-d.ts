@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+import { expectTypeOf, test } from 'vitest'
 import type {
   EIP1193Parameters,
   EIP1193RequestFn,
@@ -7,8 +9,6 @@ import type {
 } from './eip1193.js'
 import type { Hash, Hex } from './misc.js'
 import type { Quantity, RpcLog, RpcTransaction } from './rpc.js'
-import type { Address } from 'abitype'
-import { expectTypeOf, test } from 'vitest'
 
 test('default', async () => {
   type DefaultRequestFn = EIP1193RequestFn

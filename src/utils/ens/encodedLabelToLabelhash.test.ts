@@ -1,5 +1,5 @@
-import { encodedLabelToLabelhash } from './encodedLabelToLabelhash.js'
 import { expect, test } from 'vitest'
+import { encodedLabelToLabelhash } from './encodedLabelToLabelhash.js'
 
 test.each([
   {

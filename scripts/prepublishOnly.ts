@@ -1,5 +1,5 @@
-import { outputFileSync, readJsonSync, writeJsonSync } from 'fs-extra'
 import path from 'path'
+import { outputFileSync, readJsonSync, writeJsonSync } from 'fs-extra'
 
 type Exports = {
   [key: string]: string | { types?: string; import: string; default: string }

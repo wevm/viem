@@ -1,18 +1,18 @@
-import { wagmiContract } from './contract'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
+  http,
   Address,
   Hash,
   TransactionReceipt,
   createPublicClient,
   createWalletClient,
   custom,
-  http,
   stringify,
 } from 'viem'
 import { goerli } from 'viem/chains'
 import 'viem/window'
+import { wagmiContract } from './contract'
 
 const publicClient = createPublicClient({
   chain: goerli,

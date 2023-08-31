@@ -1,7 +1,7 @@
+import { expectTypeOf, test } from 'vitest'
 import { usdcContractConfig } from '../../_test/abis.js'
 import { publicClient } from '../../_test/utils.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
-import { expectTypeOf, test } from 'vitest'
 
 test('fromBlock/toBlock', async () => {
   const filter = await createContractEventFilter(publicClient, {

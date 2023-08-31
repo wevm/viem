@@ -1,10 +1,10 @@
+import type { AbiEvent, AbiFunction } from 'abitype'
 import { formatAbiItem } from '../abi/formatAbiItem.js'
 import {
   extractFunctionName,
   extractFunctionParams,
 } from '../contract/extractFunctionParts.js'
 import { toBytes } from '../encoding/toBytes.js'
-import type { AbiEvent, AbiFunction } from 'abitype'
 
 import { keccak256 } from './keccak256.js'
 

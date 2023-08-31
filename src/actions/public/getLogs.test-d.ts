@@ -41,11 +41,11 @@ test('event: const assertion', async () => {
   const logs = await getLogs(publicClient, {
     event,
   })
-  expectTypeOf(logs[0]['eventName']).toEqualTypeOf<'Transfer'>()
-  expectTypeOf(logs[0]['topics']).toEqualTypeOf<
+  expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+  expectTypeOf(logs[0].topics).toEqualTypeOf<
     [`0x${string}`, `0x${string}`, `0x${string}`]
   >()
-  expectTypeOf(logs[0]['args']).toEqualTypeOf<{
+  expectTypeOf(logs[0].args).toEqualTypeOf<{
     from?: `0x${string}`
     to?: `0x${string}`
     value?: bigint
@@ -88,11 +88,11 @@ test('event: defined inline', async () => {
       type: 'event',
     },
   })
-  expectTypeOf(logs[0]['eventName']).toEqualTypeOf<'Transfer'>()
-  expectTypeOf(logs[0]['topics']).toEqualTypeOf<
+  expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+  expectTypeOf(logs[0].topics).toEqualTypeOf<
     [`0x${string}`, `0x${string}`, `0x${string}`]
   >()
-  expectTypeOf(logs[0]['args']).toEqualTypeOf<{
+  expectTypeOf(logs[0].args).toEqualTypeOf<{
     from?: `0x${string}`
     to?: `0x${string}`
     value?: bigint
@@ -126,11 +126,11 @@ test('event: declared as `AbiEvent`', async () => {
   const logs = await getLogs(publicClient, {
     event,
   })
-  expectTypeOf(logs[0]['eventName']).toEqualTypeOf<string>()
-  expectTypeOf(logs[0]['topics']).toEqualTypeOf<
+  expectTypeOf(logs[0].eventName).toEqualTypeOf<string>()
+  expectTypeOf(logs[0].topics).toEqualTypeOf<
     [] | [`0x${string}`, ...`0x${string}`[]]
   >()
-  expectTypeOf(logs[0]['args']).toEqualTypeOf<
+  expectTypeOf(logs[0].args).toEqualTypeOf<
     readonly unknown[] | Record<string, unknown>
   >()
 })
@@ -143,9 +143,9 @@ test('inputs: no inputs', async () => {
       type: 'event',
     },
   })
-  expectTypeOf(logs[0]['eventName']).toEqualTypeOf<'Transfer'>()
-  expectTypeOf(logs[0]['topics']).toEqualTypeOf<[`0x${string}`]>()
-  expectTypeOf(logs[0]['args']).toEqualTypeOf<readonly []>()
+  expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+  expectTypeOf(logs[0].topics).toEqualTypeOf<[`0x${string}`]>()
+  expectTypeOf(logs[0].args).toEqualTypeOf<readonly []>()
 })
 
 test('strict: named', async () => {
@@ -183,7 +183,7 @@ test('strict: named', async () => {
     },
     strict: true,
   })
-  expectTypeOf(logs[0]['args']).toEqualTypeOf<{
+  expectTypeOf(logs[0].args).toEqualTypeOf<{
     from: `0x${string}`
     to: `0x${string}`
     value: bigint
@@ -222,7 +222,7 @@ test('strict: unnamed', async () => {
     },
     strict: true,
   })
-  expectTypeOf(logs[0]['args']).toEqualTypeOf<
+  expectTypeOf(logs[0].args).toEqualTypeOf<
     readonly [`0x${string}`, `0x${string}`, bigint, string, string]
   >()
 })

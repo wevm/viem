@@ -15,8 +15,8 @@
     "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
     "dev:docs": "pnpm -r --filter site dev",
-    "format": "rome format . --write",
-    "lint": "rome check .",
+    "format": "biome format . --write",
+    "lint": "biome check .",
     "lint:fix": "pnpm lint --apply",
     "playground": "pnpm --filter playground-browser dev",
     "postinstall": "pnpm contracts:build",
@@ -116,39 +116,17 @@
   },
   "typesVersions": {
     "*": {
-      "abi": [
-        "./dist/types/abi.d.ts"
-      ],
-      "accounts": [
-        "./dist/types/accounts/index.d.ts"
-      ],
-      "actions": [
-        "./dist/types/actions/index.d.ts"
-      ],
-      "chains": [
-        "./dist/types/chains.d.ts"
-      ],
-      "contract": [
-        "./dist/types/contract.d.ts"
-      ],
-      "ens": [
-        "./dist/types/ens.d.ts"
-      ],
-      "public": [
-        "./dist/types/public.d.ts"
-      ],
-      "test": [
-        "./dist/types/test.d.ts"
-      ],
-      "utils": [
-        "./dist/types/utils/index.d.ts"
-      ],
-      "wallet": [
-        "./dist/types/wallet.d.ts"
-      ],
-      "window": [
-        "./dist/types/window.d.ts"
-      ]
+      "abi": ["./dist/types/abi.d.ts"],
+      "accounts": ["./dist/types/accounts/index.d.ts"],
+      "actions": ["./dist/types/actions/index.d.ts"],
+      "chains": ["./dist/types/chains.d.ts"],
+      "contract": ["./dist/types/contract.d.ts"],
+      "ens": ["./dist/types/ens.d.ts"],
+      "public": ["./dist/types/public.d.ts"],
+      "test": ["./dist/types/test.d.ts"],
+      "utils": ["./dist/types/utils/index.d.ts"],
+      "wallet": ["./dist/types/wallet.d.ts"],
+      "window": ["./dist/types/window.d.ts"]
     }
   },
   "peerDependencies": {
@@ -173,6 +151,7 @@
   "devDependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
+    "@biomejs/biome": "1.0.0",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
     "@size-limit/preset-big-lib": "^8.2.4",
@@ -186,7 +165,6 @@
     "ethers@6": "npm:ethers@^6.0.2",
     "fs-extra": "^10.1.0",
     "rimraf": "^4.4.1",
-    "rome": "12.1.3-nightly.4c8cf32",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
     "typescript": "5.0.4",
@@ -195,23 +173,14 @@
   },
   "license": "MIT",
   "repository": "wagmi-dev/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wagmi-dev"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ],
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"],
   "size-limit": [
     {
       "name": "viem (cjs)",
@@ -264,9 +233,7 @@
       "viem": "workspace:*"
     },
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "@algolia/client-search"
-      ]
+      "ignoreMissing": ["@algolia/client-search"]
     },
     "patchedDependencies": {
       "vitepress@1.0.0-beta.4": "patches/vitepress@1.0.0-beta.4.patch"
