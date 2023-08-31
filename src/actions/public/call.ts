@@ -89,7 +89,7 @@ export async function call<TChain extends Chain | undefined>(
   args: CallParameters<TChain>,
 ): Promise<CallReturnType> {
   const {
-    account: account_,
+    account: account_ = client.account,
     batch = Boolean(client.batch?.multicall),
     blockNumber,
     blockTag = 'latest',
