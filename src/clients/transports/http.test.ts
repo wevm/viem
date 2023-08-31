@@ -5,8 +5,8 @@ import { createHttpServer } from '../../_test/utils.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import { type HttpTransport, http } from './http.js'
 import type { IncomingHttpHeaders } from 'http'
+import { http, type HttpTransport } from './http.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')

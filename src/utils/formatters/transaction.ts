@@ -68,13 +68,13 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
   }
 
   if (transaction_.type === 'legacy') {
-    delete transaction_['accessList']
-    delete transaction_['maxFeePerGas']
-    delete transaction_['maxPriorityFeePerGas']
+    delete transaction_.accessList
+    delete transaction_.maxFeePerGas
+    delete transaction_.maxPriorityFeePerGas
   }
   if (transaction_.type === 'eip2930') {
-    delete transaction_['maxFeePerGas']
-    delete transaction_['maxPriorityFeePerGas']
+    delete transaction_.maxFeePerGas
+    delete transaction_.maxPriorityFeePerGas
   }
   return transaction_ as Transaction
 }

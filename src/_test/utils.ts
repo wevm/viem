@@ -31,6 +31,8 @@ import type { Hex } from '../types/misc.js'
 import { namehash } from '../utils/ens/namehash.js'
 import { rpc } from '../utils/rpc.js'
 
+import { type RequestListener, createServer } from 'http'
+import type { AddressInfo } from 'net'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
 import {
   accounts,
@@ -46,8 +48,6 @@ import {
   offchainLookupExampleABI,
   payableABI,
 } from './generated.js'
-import { type RequestListener, createServer } from 'http'
-import type { AddressInfo } from 'net'
 
 export const anvilChain = {
   ...localhost,

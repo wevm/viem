@@ -188,6 +188,12 @@ Check out the following places for more viem-related content:
     <img alt="celo logo" src="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/celo-light.svg" width="auto" height="50">
   </picture>
 </a>
+<a href="https://pimlico.io/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/pimlico-dark.svg">
+    <img alt="pimlico logo" src="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/pimlico-light.svg" width="auto" height="50">
+  </picture>
+</a>
 <a href="https://zora.co/">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/zora-dark.svg">

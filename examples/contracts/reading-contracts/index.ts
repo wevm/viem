@@ -1,6 +1,6 @@
-import { wagmiContract } from './contract'
-import { createPublicClient, http } from 'viem'
+import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
+import { wagmiContract } from './contract'
 
 const client = createPublicClient({
   chain: mainnet,

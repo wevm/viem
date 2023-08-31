@@ -3,8 +3,8 @@ import { test } from 'vitest'
 import { wagmiContractConfig } from '../../_test/abis.js'
 import { walletClient, walletClientWithAccount } from '../../_test/utils.js'
 
-import { deployContract } from './deployContract.js'
 import { type Abi, parseAbi } from 'abitype'
+import { deployContract } from './deployContract.js'
 
 const args = {
   ...wagmiContractConfig,

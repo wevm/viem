@@ -78,8 +78,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        shard: [1, 2, 3]
-        total-shards: [3]
+        shard: [1, 2, 3, 4]
+        total-shards: [4]
         transport-mode: ['http', 'webSocket']
         include:
           - batch-multicall: 'false'
@@ -100,7 +100,7 @@ jobs:
       - name: Run tests
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 20
+          timeout_minutes: 30
           max_attempts: 3
           command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:

@@ -1,5 +1,5 @@
-import SvgImage from './components/SvgImage.vue'
 import defaultTheme from 'vitepress/theme'
+import SvgImage from './components/SvgImage.vue'
 
 import './index.css'
 

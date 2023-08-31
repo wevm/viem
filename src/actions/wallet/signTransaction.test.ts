@@ -5,12 +5,12 @@ import { walletClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
+  http,
   type TransactionRequestBase,
   type TransactionRequestEIP1559,
   type TransactionRequestEIP2930,
   type TransactionRequestLegacy,
   createWalletClient,
-  http,
   parseGwei,
 } from '../../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'

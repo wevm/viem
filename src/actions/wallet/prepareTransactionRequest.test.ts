@@ -15,7 +15,7 @@ import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFe
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
-import { createWalletClient, http } from '../../index.js'
+import { http, createWalletClient } from '../../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 
 const sourceAccount = accounts[0]

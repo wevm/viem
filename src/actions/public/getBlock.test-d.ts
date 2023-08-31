@@ -2,7 +2,7 @@ import { describe, expectTypeOf, test } from 'vitest'
 
 import { publicClient } from '../../_test/utils.js'
 import { optimism } from '../../chains/index.js'
-import { createPublicClient, http } from '../../index.js'
+import { http, createPublicClient } from '../../index.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { getBlock } from './getBlock.js'

@@ -1,5 +1,5 @@
-import { readJsonSync, writeFileSync } from 'fs-extra'
 import path from 'path'
+import { readJsonSync, writeFileSync } from 'fs-extra'
 
 // Writes the current package.json version to `./src/errors/version.ts`.
 const versionFilePath = path.join(__dirname, '../src/errors/version.ts')

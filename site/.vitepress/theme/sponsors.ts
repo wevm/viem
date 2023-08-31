@@ -122,6 +122,16 @@ export const sponsors = [
         url: 'https://rainbow.me',
         img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/rainbow-light.svg',
       },
+    ],
+  },
+  {
+    size: 'medium',
+    items: [
+      {
+        name: 'Pimlico',
+        url: 'https://pimlico.io',
+        img: 'https://raw.githubusercontent.com/wagmi-dev/.github/main/content/sponsors/pimlico-light.svg',
+      },
       {
         name: 'Zora',
         url: 'https://zora.co',

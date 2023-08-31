@@ -1,6 +1,6 @@
+import { expect, test } from 'vitest'
 import type { Hex } from '../../index.js'
 import { encodeLabelhash } from './encodeLabelhash.js'
-import { expect, test } from 'vitest'
 
 test.each([
   {

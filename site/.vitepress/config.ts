@@ -46,7 +46,7 @@ export default defineConfig({
       'script',
       {
         src: 'https://cdn.usefathom.com/script.js',
-        ['data-site']: 'BYCJMNBD',
+        'data-site': 'BYCJMNBD',
         defer: '',
       },
     ],

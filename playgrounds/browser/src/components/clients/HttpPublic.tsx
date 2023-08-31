@@ -1,4 +1,4 @@
-import { createPublicClient, http } from 'viem'
+import { http, createPublicClient } from 'viem'
 import { arbitrum, goerli, mainnet, optimism, polygon } from 'viem/chains'
 
 import { GetBalance } from '../actions/GetBalance'
