@@ -1,5 +1,5 @@
 ---
-"@fake-scope/fake-pkg": patch
+"viem": patch
 ---
 
 Added ENS Registry and ENS Universal Resolver for Sepolia.
