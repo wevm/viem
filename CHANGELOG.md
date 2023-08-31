@@ -1,5 +1,13 @@
 # viem
 
+## 1.9.5
+
+### Patch Changes
+
+- [#1105](https://github.com/wagmi-dev/viem/pull/1105) [`9661b9d8`](https://github.com/wagmi-dev/viem/commit/9661b9d8f4d747391f9ffb14b789c727a6831488) Thanks [@dschlabach](https://github.com/dschlabach)! - Added ENS Registry and ENS Universal Resolver for Sepolia.
+
+* [#1102](https://github.com/wagmi-dev/viem/pull/1102) [`0edea858`](https://github.com/wagmi-dev/viem/commit/0edea858fe28bd9d7cb7c5b9b8ebde72025cf71d) Thanks [@rkalis](https://github.com/rkalis)! - Fixed bug regarding incorrect bigint->bytes32 conversion in hexToSignature
+
 ## 1.9.4
 
 ### Patch Changes
