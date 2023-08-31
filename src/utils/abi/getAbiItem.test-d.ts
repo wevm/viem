@@ -152,19 +152,12 @@ test('overloads', () => {
     readonly stateMutability: 'view'
     readonly type: 'function'
   }>()
-
   const res1 = getAbiItem({
     abi,
     name: 'foo',
     args: [],
   })
-  expectTypeOf(res1).toEqualTypeOf<{
-    readonly name: 'foo'
-    readonly inputs: readonly []
-    readonly outputs: readonly [{ type: 'int8' }]
-    readonly stateMutability: 'view'
-    readonly type: 'function'
-  }>()
+  expectTypeOf(res1).toEqualTypeOf(res0)
 
   const res2 = getAbiItem({
     abi,
