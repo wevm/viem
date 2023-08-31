@@ -10,6 +10,7 @@ import {
 } from '../../errors/contract.js'
 
 const EXECUTION_REVERTED_ERROR_CODE = 3
+const EXECUTION_REVERTED_ERROR_CODE_NEW = -32603
 
 export function getContractError(
   err: BaseError,
@@ -41,7 +42,9 @@ export function getContractError(
   if (err instanceof AbiDecodingZeroDataError) {
     cause = new ContractFunctionZeroDataError({ functionName })
   } else if (
-    code === EXECUTION_REVERTED_ERROR_CODE &&
+    [EXECUTION_REVERTED_ERROR_CODE, EXECUTION_REVERTED_ERROR_CODE_NEW].includes(
+      code,
+    ) &&
     (data || message || shortMessage)
   ) {
     cause = new ContractFunctionRevertedError({
