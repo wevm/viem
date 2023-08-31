@@ -8,6 +8,7 @@ import {
   deployOffchainLookupExample,
   publicClient,
   publicClientMainnet,
+  walletClientWithAccount,
 } from '../../_test/utils.js'
 import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -29,6 +30,8 @@ const mint4bytes = '0x1249c58b'
 const mintWithParams4bytes = '0xa0712d68'
 const fourTwenty =
   '00000000000000000000000000000000000000000000000000000000000001a4'
+const sixHundred =
+  '0000000000000000000000000000000000000000000000000000000000000258'
 
 const sourceAccount = accounts[0]
 
@@ -121,6 +124,34 @@ test('args: blockNumber', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+describe('account hoisting', () => {
+  test('no account hoisted', async () => {
+    await expect(
+      call(publicClient, {
+        data: `${mintWithParams4bytes}${sixHundred}`,
+        to: wagmiContractAddress,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "Execution reverted with reason: ERC721: mint to the zero address.
+
+      Raw Call Arguments:
+        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:  0xa0712d680000000000000000000000000000000000000000000000000000000000000258
+      
+      Details: execution reverted: ERC721: mint to the zero address
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('account hoisted', async () => {
+    const { data } = await call(walletClientWithAccount, {
+      data: `${mintWithParams4bytes}${sixHundred}`,
+      to: wagmiContractAddress,
+    })
+    expect(data).toMatchInlineSnapshot('undefined')
+  })
 })
 
 describe('errors', () => {

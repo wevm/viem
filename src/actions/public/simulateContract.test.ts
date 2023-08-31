@@ -19,12 +19,11 @@ import {
   publicClientMainnet,
   testClient,
   walletClient,
+  walletClientWithAccount,
 } from '../../_test/utils.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
-import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import * as call from './call.js'
 import { simulateContract } from './simulateContract.js'
@@ -181,14 +180,11 @@ describe('BAYC', () => {
       const { contractAddress } = await deployBAYC()
 
       // Set sale state to active
-      // TODO: replace w/ writeContract
-      await sendTransaction(walletClient, {
-        data: encodeFunctionData({
-          abi: baycContractConfig.abi,
-          functionName: 'flipSaleState',
-        }),
+      await walletClient.writeContract({
+        address: contractAddress!,
+        abi: baycContractConfig.abi,
+        functionName: 'flipSaleState',
         account: accounts[0].address,
-        to: contractAddress!,
       })
       await mine(testClient, { blocks: 1 })
 
@@ -218,6 +214,69 @@ describe('BAYC', () => {
             address: contractAddress!,
             functionName: 'reserveApes',
             account: accounts[0].address,
+          })
+        ).result,
+      ).toBe(undefined)
+    })
+  })
+
+  describe('account hoisting', () => {
+    test('no account hoisted', async () => {
+      const { contractAddress } = await deployBAYC()
+
+      // Set sale state to active
+      await walletClient.writeContract({
+        address: contractAddress!,
+        abi: baycContractConfig.abi,
+        functionName: 'flipSaleState',
+        account: accounts[0].address,
+      })
+      await mine(testClient, { blocks: 1 })
+
+      // Mint an Ape!
+      await expect(
+        simulateContract(publicClient, {
+          abi: baycContractConfig.abi,
+          address: contractAddress!,
+          functionName: 'mintApe',
+          args: [1n],
+          value: 1000000000000000000n,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+          "The contract function \\"mintApe\\" reverted with the following reason:
+          ERC721: mint to the zero address
+
+          Contract Call:
+            address:   0x0000000000000000000000000000000000000000
+            function:  mintApe(uint256 numberOfTokens)
+            args:             (1)
+          
+          Docs: https://viem.sh/docs/contract/simulateContract.html
+          Version: viem@1.0.2"
+      `)
+    })
+
+    test('account hoisted', async () => {
+      const { contractAddress } = await deployBAYC()
+
+      // Set sale state to active
+      await walletClient.writeContract({
+        address: contractAddress!,
+        abi: baycContractConfig.abi,
+        functionName: 'flipSaleState',
+        account: accounts[0].address,
+      })
+      await mine(testClient, { blocks: 1 })
+
+      // Mint an Ape!
+      expect(
+        (
+          await simulateContract(walletClientWithAccount, {
+            abi: baycContractConfig.abi,
+            address: contractAddress!,
+            functionName: 'mintApe',
+            args: [1n],
+            value: 1000000000000000000n,
           })
         ).result,
       ).toBe(undefined)
