@@ -85,6 +85,7 @@ test('exports chains', () => {
       "okc",
       "optimism",
       "optimismGoerli",
+      "plinga",
       "polygon",
       "polygonMumbai",
       "polygonZkEvmTestnet",
