@@ -156,19 +156,7 @@ export async function getSocket(url: string) {
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: url,
     fn: async () => {
-      let WebSocket_
-      // Workaround for Vite.
-      // https://github.com/vitejs/vite/issues/9703
-      // TODO: Remove when issue is resolved.
-      if (
-        (WebSocket as unknown as { default?: typeof WebSocket }).default
-          ?.constructor
-      )
-        WebSocket_ = (WebSocket as unknown as { default: typeof WebSocket })
-          .default
-      else WebSocket_ = WebSocket.WebSocket
-
-      const webSocket = new WebSocket_(url)
+      const webSocket = new WebSocket(url)
 
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
