@@ -1,5 +1,4 @@
 import { defineChain } from '../../utils/chain.js'
-import { feesOptimism } from '../optimism/fees.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
 export const zora = /*#__PURE__*/ defineChain(
@@ -33,7 +32,6 @@ export const zora = /*#__PURE__*/ defineChain(
     },
   },
   {
-    fees: feesOptimism,
     formatters: formattersOptimism,
   },
 )
