@@ -1,4 +1,5 @@
-import type { MessageEvent, WebSocket } from 'isomorphic-ws'
+import WebSocket from 'isomorphic-ws'
+import type { MessageEvent } from 'isomorphic-ws'
 
 import {
   HttpRequestError,
@@ -155,18 +156,6 @@ export async function getSocket(url: string) {
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: url,
     fn: async () => {
-      let WebSocket = await import('isomorphic-ws')
-      // Workaround for Vite.
-      // https://github.com/vitejs/vite/issues/9703
-      // TODO: Remove when issue is resolved.
-      if (
-        (WebSocket as unknown as { default?: typeof WebSocket }).default
-          ?.constructor
-      )
-        WebSocket = (WebSocket as unknown as { default: typeof WebSocket })
-          .default
-      else WebSocket = WebSocket.WebSocket
-
       const webSocket = new WebSocket(url)
 
       // Set up a cache for incoming "synchronous" requests.
