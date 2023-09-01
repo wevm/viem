@@ -164,9 +164,8 @@ export async function getSocket(url: string) {
         (WebSocket as unknown as { default?: typeof WebSocket }).default
           ?.constructor
       )
-        WebSocket_ = (
-          WebSocket as unknown as { default: typeof WebSocket }
-        ).default
+        WebSocket_ = (WebSocket as unknown as { default: typeof WebSocket })
+          .default
       else WebSocket_ = WebSocket.WebSocket
 
       const webSocket = new WebSocket_(url)
