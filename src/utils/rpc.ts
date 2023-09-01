@@ -1,4 +1,4 @@
-import { WebSocket } from 'isomorphic-ws'
+import WebSocket from 'isomorphic-ws'
 import type { MessageEvent } from 'isomorphic-ws'
 
 import {
