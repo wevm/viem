@@ -34,6 +34,8 @@ export type ChainConstants = {
   }
   /** Collection of contracts */
   contracts?: {
+    [key: string]: ChainContract | { [chainId: number]: ChainContract }
+  } & {
     ensRegistry?: ChainContract
     ensUniversalResolver?: ChainContract
     multicall3?: ChainContract
