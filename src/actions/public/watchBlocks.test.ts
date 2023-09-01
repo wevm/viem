@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { accounts, localHttpUrl } from '../../_test/constants.js'
 import {
@@ -18,15 +18,10 @@ import type { Chain } from '../../types/chain.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import * as getBlock from './getBlock.js'
 import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
-
-beforeAll(async () => {
-  await setIntervalMining(testClient, { interval: 0 })
-})
 
 describe('poll', () => {
   test('watches for new blocks', async () => {

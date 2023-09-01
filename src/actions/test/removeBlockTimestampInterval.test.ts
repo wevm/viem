@@ -25,4 +25,6 @@ test('removes block timestamp interval', async () => {
   await wait(1000)
   const block3 = await getBlock(publicClient, { blockTag: 'latest' })
   expect(block3.timestamp).toEqual(block2.timestamp + BigInt(interval))
+
+  await setIntervalMining(testClient, { interval: 0 })
 })

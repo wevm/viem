@@ -8,7 +8,6 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import * as getBlock from './getBlock.js'
@@ -93,7 +92,6 @@ test('waits for transaction (multiple parallel)', async () => {
 describe('replaced transactions', () => {
   test('repriced', async () => {
     await mine(testClient, { blocks: 10 })
-    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -127,8 +125,6 @@ describe('replaced transactions', () => {
           nonce,
           maxFeePerGas: parseGwei('20'),
         })
-
-        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -141,7 +137,6 @@ describe('replaced transactions', () => {
 
   test('repriced (skipped blocks)', async () => {
     await mine(testClient, { blocks: 10 })
-    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -180,13 +175,10 @@ describe('replaced transactions', () => {
     ])
 
     expect(receipt !== null).toBeTruthy()
-
-    await setIntervalMining(testClient, { interval: 1 })
   })
 
   test('cancelled', async () => {
     await mine(testClient, { blocks: 10 })
-    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -220,8 +212,6 @@ describe('replaced transactions', () => {
           nonce,
           maxFeePerGas: parseGwei('20'),
         })
-
-        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -234,7 +224,6 @@ describe('replaced transactions', () => {
 
   test('replaced', async () => {
     await mine(testClient, { blocks: 10 })
-    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -268,8 +257,6 @@ describe('replaced transactions', () => {
           nonce,
           maxFeePerGas: parseGwei('20'),
         })
-
-        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -304,7 +291,6 @@ describe('args: confirmations', () => {
 
   test('waits for confirmations (replaced)', async () => {
     await mine(testClient, { blocks: 10 })
-    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -339,7 +325,6 @@ describe('args: confirmations', () => {
         })
 
         await wait(1000)
-        await setIntervalMining(testClient, { interval: 1 })
       })(),
     ])
 
@@ -382,7 +367,6 @@ describe('errors', () => {
     vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
 
     await mine(testClient, { blocks: 10 })
-    await setIntervalMining(testClient, { interval: 0 })
 
     const nonce = hexToNumber(
       (await publicClient.request({
@@ -415,8 +399,6 @@ describe('errors', () => {
             nonce,
             maxFeePerGas: parseGwei('20'),
           })
-
-          await setIntervalMining(testClient, { interval: 1 })
         })(),
       ]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('"foo"')

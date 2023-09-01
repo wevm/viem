@@ -171,6 +171,8 @@ test('subscribe', async () => {
   // Make sure we are no longer receiving blocks.
   await wait(2000)
   expect(blocks.length).toBe(2)
+
+  await setIntervalMining(testClient, { interval: 0 })
 })
 
 test('throws on bogus subscription', async () => {

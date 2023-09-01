@@ -22,4 +22,5 @@ test('sets block timestamp interval', async () => {
   const block3 = await getBlock(publicClient, { blockTag: 'latest' })
   expect(block3.timestamp).toEqual(block2.timestamp + 86400n)
   await setBlockTimestampInterval(testClient, { interval: 1 })
+  await setIntervalMining(testClient, { interval: 0 })
 })
