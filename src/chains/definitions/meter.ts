@@ -18,5 +18,6 @@ export const meter = /*#__PURE__*/ defineChain({
     default: { name: 'MeterScan', url: 'https://scan.meter.io' },
   },
   contracts: {
+    
   },
 })
