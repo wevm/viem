@@ -3,7 +3,7 @@ import type { Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
-import type { WalletRpcSchema } from '../types/eip1193.js'
+import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type WalletActions, walletActions } from './decorators/wallet.js'
@@ -33,14 +33,9 @@ export type WalletClient<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  rpcSchema extends RpcSchema | undefined = WalletRpcSchema,
 > = Prettify<
-  Client<
-    transport,
-    chain,
-    account,
-    WalletRpcSchema,
-    WalletActions<chain, account>
-  >
+  Client<transport, chain, account, rpcSchema, WalletActions<chain, account>>
 >
 
 /**
@@ -83,9 +78,10 @@ export function createWalletClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = WalletRpcSchema,
 >(
   parameters: WalletClientConfig<transport, chain, accountOrAddress>,
-): WalletClient<transport, chain, ParseAccount<accountOrAddress>>
+): WalletClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema>
 
 export function createWalletClient(
   parameters: WalletClientConfig,

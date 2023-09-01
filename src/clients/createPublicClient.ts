@@ -1,5 +1,5 @@
 import type { Chain } from '../types/chain.js'
-import type { PublicRpcSchema } from '../types/eip1193.js'
+import type { PublicRpcSchema, RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { type Client, type ClientConfig, createClient } from './createClient.js'
 import { type PublicActions, publicActions } from './decorators/public.js'
@@ -24,12 +24,13 @@ export type PublicClientConfig<
 export type PublicClient<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
+  rpcSchema extends RpcSchema | undefined = PublicRpcSchema,
 > = Prettify<
   Client<
     transport,
     chain,
     undefined,
-    PublicRpcSchema,
+    rpcSchema,
     PublicActions<transport, chain>
   >
 >
@@ -56,9 +57,10 @@ export type PublicClient<
 export function createPublicClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = PublicRpcSchema,
 >(
   parameters: PublicClientConfig<transport, chain>,
-): PublicClient<transport, chain>
+): PublicClient<transport, chain, rpcSchema>
 
 export function createPublicClient(
   parameters: PublicClientConfig,

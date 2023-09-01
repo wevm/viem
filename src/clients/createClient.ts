@@ -127,6 +127,7 @@ export function createClient<
   transport extends Transport,
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
+  rpcSchema extends RpcSchema | undefined = undefined,
 >(
   parameters: ClientConfig<transport, chain, accountOrAddress>,
 ): Prettify<
@@ -135,7 +136,8 @@ export function createClient<
     chain,
     accountOrAddress extends Address
       ? Prettify<JsonRpcAccount<accountOrAddress>>
-      : accountOrAddress
+      : accountOrAddress,
+    rpcSchema
   >
 >
 
