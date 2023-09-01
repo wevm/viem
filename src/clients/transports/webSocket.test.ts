@@ -6,6 +6,8 @@ import { localWsUrl } from '../../_test/constants.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
+import { testClient } from '../../_test/utils.js'
+import { setIntervalMining } from '../../test.js'
 import { type WebSocketTransport, webSocket } from './webSocket.js'
 
 test('default', () => {
@@ -141,6 +143,8 @@ test('errors: rpc error', async () => {
 })
 
 test('subscribe', async () => {
+  await setIntervalMining(testClient, { interval: 1 })
+
   const transport = webSocket(localWsUrl, {
     key: 'jsonRpc',
     name: 'JSON RPC',

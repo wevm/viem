@@ -6,8 +6,11 @@ import { getBlock } from '../public/getBlock.js'
 
 import { removeBlockTimestampInterval } from './removeBlockTimestampInterval.js'
 import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'
+import { setIntervalMining } from './setIntervalMining.js'
 
 test('removes block timestamp interval', async () => {
+  await setIntervalMining(testClient, { interval: 1 })
+
   let interval = 86400
   await expect(
     setBlockTimestampInterval(testClient, { interval }),
