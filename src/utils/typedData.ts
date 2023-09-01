@@ -1,4 +1,9 @@
-import type { TypedData, TypedDataParameter, TypedDataType } from 'abitype'
+import type {
+  TypedData,
+  TypedDataDomain,
+  TypedDataParameter,
+  TypedDataType,
+} from 'abitype'
 
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
@@ -9,6 +14,7 @@ import { isAddress } from './address/isAddress.js'
 import { size } from './data/size.js'
 import { numberToHex } from './encoding/toHex.js'
 import { bytesRegex, integerRegex } from './regex.js'
+import { hashDomain } from './signature/hashTypedData.js'
 
 export function validateTypedData<
   const TTypedData extends TypedData | { [key: string]: unknown },
@@ -70,4 +76,31 @@ export function validateTypedData<
     const type = types[primaryType]
     validateData(type, message as Record<string, unknown>)
   }
+}
+
+export function getTypesForEIP712Domain({
+  domain,
+}: { domain?: TypedDataDomain }): TypedDataParameter[] {
+  return [
+    typeof domain?.name === 'string' && { name: 'name', type: 'string' },
+    domain?.version && { name: 'version', type: 'string' },
+    typeof domain?.chainId === 'number' && {
+      name: 'chainId',
+      type: 'uint256',
+    },
+    domain?.verifyingContract && {
+      name: 'verifyingContract',
+      type: 'address',
+    },
+    domain?.salt && { name: 'salt', type: 'bytes32' },
+  ].filter(Boolean) as TypedDataParameter[]
+}
+
+export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
+  return hashDomain({
+    domain,
+    types: {
+      EIP712Domain: getTypesForEIP712Domain({ domain }),
+    },
+  })
 }
