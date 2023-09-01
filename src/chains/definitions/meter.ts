@@ -14,7 +14,6 @@ export const meter = /*#__PURE__*/ defineChain({
     public: { http: ['https://rpc.meter.io'] },
   },
   blockExplorers: {
-    etherscan: { name: 'MeterScan', url: 'https://scan.meter.io' },
     default: { name: 'MeterScan', url: 'https://scan.meter.io' },
   },
   contracts: {
