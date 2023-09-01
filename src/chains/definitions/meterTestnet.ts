@@ -16,7 +16,4 @@ export const meterTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: { name: 'MeterTestnetScan', url: 'https://scan-warringstakes.meter.io' },
   },
-  contracts: {
-    
-  },
 })
