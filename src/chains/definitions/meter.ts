@@ -16,7 +16,4 @@ export const meter = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: { name: 'MeterScan', url: 'https://scan.meter.io' },
   },
-  contracts: {
-    
-  },
 })
