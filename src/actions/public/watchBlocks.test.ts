@@ -50,7 +50,7 @@ describe('poll', () => {
   })
 
   test('args: includeTransactions', async () => {
-    const blocks: OnBlockParameter[] = []
+    const blocks: OnBlockParameter<Chain, true>[] = []
     const unwatch = watchBlocks(publicClient, {
       onBlock: (block) => blocks.push(block),
       includeTransactions: true,
