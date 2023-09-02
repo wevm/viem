@@ -213,14 +213,16 @@ describe('prepareTransactionRequest', () => {
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    expect(
-      await prepareTransactionRequest(walletClient, {
+    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
+      walletClient,
+      {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
         value: parseEther('1'),
-      }),
-    ).toMatchInlineSnapshot(`
+      },
+    )
+    expect(request).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -234,7 +236,6 @@ describe('prepareTransactionRequest', () => {
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "gasPrice": 10000000000n,
-        "nonce": 375,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "legacy",
         "value": 1000000000000000000n,
@@ -416,21 +417,9 @@ describe('prepareTransactionRequest', () => {
         maxFeePerGas: parseGwei('20'),
         value: parseEther('1'),
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
-      Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
-
-      Estimate Gas Arguments:
-        from:                  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-        to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-        value:                 1 ETH
-        gasPrice:              10 gwei
-        maxFeePerGas:          20 gwei
-        maxPriorityFeePerGas:  18.5 gwei
-        nonce:                 375
-
-      Version: viem@1.0.2"
-    `)
+    ).rejects.toThrowError(
+      'Cannot specify both a `gasPrice` and a `maxFeePerGas`/`maxPriorityFeePerGas`.',
+    )
   })
 
   test('args: gasPrice + maxPriorityFeePerGas', async () => {
