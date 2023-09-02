@@ -13,6 +13,7 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
@@ -114,6 +115,7 @@ describe('e2e', () => {
       }),
     ).rejects.toThrowError('Transaction receipt with hash')
     await mine(testClient, { blocks: 1 })
+    await wait(500)
 
     const {
       blockHash,
