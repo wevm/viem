@@ -73,11 +73,11 @@ For example, the `constructor` below requires an **address** argument, and it is
 ::: code-group
 
 ```ts {8} [example.ts]
-import { encodeFunctionData } from 'viem'
+import { encodeDeployData } from 'viem'
 import { publicClient } from './client'
 import { wagmiAbi } from './abi'
 
-const data = encodeFunctionData({
+const data = encodeDeployData({
   abi: wagmiAbi,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
@@ -124,7 +124,7 @@ ABI encoded data (bytecode & constructor arguments).
 The contract's ABI.
 
 ```ts
-const data = encodeFunctionData({
+const data = encodeDeployData({
   abi: wagmiAbi, // [!code focus]
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
@@ -138,7 +138,7 @@ const data = encodeFunctionData({
 Contract bytecode.
 
 ```ts
-const data = encodeFunctionData({
+const data = encodeDeployData({
   abi: wagmiAbi,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus]
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC']
@@ -152,7 +152,7 @@ const data = encodeFunctionData({
 Arguments to pass to function call.
 
 ```ts
-const data = encodeFunctionData({
+const data = encodeDeployData({
   abi: wagmiAbi,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'] // [!code focus]
