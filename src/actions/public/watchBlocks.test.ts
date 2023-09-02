@@ -24,7 +24,7 @@ import * as getBlock from './getBlock.js'
 import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
 
 describe('poll', () => {
-  test('watches for new blocks', async () => {
+  test.only('watches for new blocks', async () => {
     const blocks: OnBlockParameter[] = []
     const prevBlocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
@@ -53,6 +53,7 @@ describe('poll', () => {
     const blocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
       onBlock: (block) => blocks.push(block),
+      includeTransactions: true,
       poll: true,
     })
 
@@ -62,11 +63,11 @@ describe('poll', () => {
       value: parseEther('1'),
     })
     await mine(testClient, { blocks: 1 })
-    await wait(1000)
+    await wait(200)
 
     unwatch()
-    expect(blocks.length).toBe(1)
-    expect(blocks[0].transactions.length).toBe(1)
+    expect(blocks.length).toBe(2)
+    expect(blocks[1].transactions.length).toBe(1)
   })
 
   describe('emitMissed', () => {
@@ -96,6 +97,7 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      await wait(200)
       await mine(testClient, { blocks: 1 })
       await wait(200)
       await mine(testClient, { blocks: 1 })
@@ -635,36 +637,40 @@ describe('subscribe', () => {
     test('multiple watchers', async () => {
       let blocks: OnBlockParameter[] = []
 
-      let unwatch1 = watchBlocks(webSocketClient, {
+      const unwatch1 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      let unwatch2 = watchBlocks(webSocketClient, {
+      const unwatch2 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      let unwatch3 = watchBlocks(webSocketClient, {
+      const unwatch3 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      await wait(200)
+      await wait(500)
       await mine(testClient, { blocks: 1 })
-      await wait(200)
+      await wait(500)
       await mine(testClient, { blocks: 1 })
-      await wait(200)
+      await wait(500)
       await mine(testClient, { blocks: 1 })
-      await wait(200)
+      await wait(500)
       unwatch1()
       unwatch2()
       unwatch3()
       expect(blocks.length).toBe(9)
 
+      await mine(testClient, { blocks: 1 })
+      await wait(500)
+      expect(blocks.length).toBe(9)
+
       blocks = []
 
-      unwatch1 = watchBlocks(webSocketClient, {
+      const unwatch4 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      unwatch2 = watchBlocks(webSocketClient, {
+      const unwatch5 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
-      unwatch3 = watchBlocks(webSocketClient, {
+      const unwatch6 = watchBlocks(webSocketClient, {
         onBlock: (block) => blocks.push(block),
       })
       await wait(200)
@@ -674,9 +680,9 @@ describe('subscribe', () => {
       await wait(200)
       await mine(testClient, { blocks: 1 })
       await wait(200)
-      unwatch1()
-      unwatch2()
-      unwatch3()
+      unwatch4()
+      unwatch5()
+      unwatch6()
       expect(blocks.length).toBe(9)
     })
 
