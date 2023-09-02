@@ -89,15 +89,16 @@ describe('poll', () => {
         functionName: 'transfer',
         args: [address.vitalik, 1n],
       })
-      await wait(1000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       await writeContract(walletClient, {
         ...usdcContractConfig,
         account: address.vitalik,
         functionName: 'approve',
         args: [address.vitalik, 1n],
       })
-
-      await wait(2000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       unwatch()
 
       expect(logs.length).toBe(2)
@@ -148,15 +149,16 @@ describe('poll', () => {
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(3)
@@ -196,15 +198,16 @@ describe('poll', () => {
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -251,15 +254,16 @@ describe('poll', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -300,15 +304,16 @@ describe('poll', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -355,15 +360,16 @@ describe('poll', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -420,15 +426,16 @@ describe('poll', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -473,7 +480,7 @@ describe('poll', () => {
           poll: true,
         })
 
-        await wait(1000)
+        await wait(100)
         await writeContract(walletClient, {
           ...usdcContractConfig,
           functionName: 'transfer',
@@ -486,14 +493,16 @@ describe('poll', () => {
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
-        await wait(1000)
+        await mine(testClient, { blocks: 1 })
+        await wait(200)
         await writeContract(walletClient, {
           ...usdcContractConfig,
           functionName: 'transfer',
           args: [accounts[1].address, 1n],
           account: address.vitalik,
         })
-        await wait(2000)
+        await mine(testClient, { blocks: 1 })
+        await wait(200)
         unwatch()
 
         expect(logs.length).toBe(2)
@@ -529,7 +538,7 @@ describe('poll', () => {
           poll: true,
         })
 
-        await wait(1000)
+        await wait(100)
         await writeContract(walletClient, {
           ...usdcContractConfig,
           functionName: 'transfer',
@@ -543,7 +552,7 @@ describe('poll', () => {
           account: address.usdcHolder,
         })
         await mine(testClient, { blocks: 1 })
-        await wait(1000)
+        await wait(200)
         await writeContract(walletClient, {
           ...usdcContractConfig,
           functionName: 'transfer',
@@ -551,7 +560,7 @@ describe('poll', () => {
           account: address.vitalik,
         })
         await mine(testClient, { blocks: 2 })
-        await wait(1000)
+        await wait(200)
         await writeContract(walletClient, {
           ...usdcContractConfig,
           functionName: 'transfer',
@@ -565,7 +574,7 @@ describe('poll', () => {
           account: address.vitalik,
         })
         await mine(testClient, { blocks: 5 })
-        await wait(2000)
+        await wait(200)
         unwatch()
 
         expect(logs.length).toBe(3)
@@ -686,21 +695,23 @@ describe('subscribe', () => {
         },
       })
 
-      await wait(1000)
+      await wait(100)
       await writeContract(walletClient, {
         ...usdcContractConfig,
         account: address.vitalik,
         functionName: 'transfer',
         args: [address.vitalik, 1n],
       })
-      await wait(1000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
       await writeContract(walletClient, {
         ...usdcContractConfig,
         account: address.vitalik,
         functionName: 'approve',
         args: [address.vitalik, 1n],
       })
-      await wait(2000)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
 
       unwatch()
 
@@ -753,15 +764,16 @@ describe('subscribe', () => {
       functionName: 'transfer',
       args: [address.vitalik, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(2)
@@ -806,15 +818,16 @@ describe('subscribe', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -853,15 +866,16 @@ describe('subscribe', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(2)
@@ -906,15 +920,16 @@ describe('subscribe', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -969,15 +984,16 @@ describe('subscribe', () => {
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'approve',
       args: [address.vitalik, 1n],
     })
-
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(2)
@@ -1042,7 +1058,7 @@ describe('subscribe', () => {
         account: address.vitalik,
       })
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
 
       unwatch_unstrict()
       unwatch_strict()
@@ -1096,7 +1112,7 @@ describe('subscribe', () => {
         account: address.vitalik,
       })
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
 
       unwatch_unstrict()
       unwatch_strict()

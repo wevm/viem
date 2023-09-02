@@ -65,6 +65,8 @@ export const anvilChain = {
   },
 } as const satisfies Chain
 
+let id = 0
+
 const provider: EIP1193Provider = {
   on: (message, listener) => {
     if (message === 'accountsChanged') {
@@ -114,6 +116,7 @@ const provider: EIP1193Provider = {
       body: {
         method,
         params,
+        id: id++,
       },
     })
     if (error)
@@ -131,7 +134,7 @@ export const httpClient = createPublicClient({
     multicall: process.env.VITE_BATCH_MULTICALL === 'true',
   },
   chain: anvilChain,
-  pollingInterval: 1_000,
+  pollingInterval: 100,
   transport: http(localHttpUrl, {
     batch: process.env.VITE_BATCH_JSON_RPC === 'true',
   }),
@@ -142,7 +145,7 @@ export const webSocketClient = createPublicClient({
     multicall: process.env.VITE_BATCH_MULTICALL === 'true',
   },
   chain: anvilChain,
-  pollingInterval: 1_000,
+  pollingInterval: 100,
   transport: webSocket(localWsUrl),
 })
 
@@ -175,7 +178,7 @@ export const walletClientWithoutChain = createWalletClient({
 export const testClient = createTestClient({
   chain: anvilChain,
   mode: 'anvil',
-  transport: http(localHttpUrl),
+  transport: custom(provider),
 })
 
 export function createHttpServer(

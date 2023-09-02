@@ -10,13 +10,20 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { setIntervalMining } from '../index.js'
 import * as getBlock from './getBlock.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
+async function setup() {
+  await setIntervalMining(testClient, { interval: 1 })
+}
+
 test('waits for transaction (send -> wait -> mine)', async () => {
+  await setup()
+
   const hash = await sendTransaction(walletClient, {
     account: sourceAccount.address,
     to: targetAccount.address,
@@ -29,6 +36,8 @@ test('waits for transaction (send -> wait -> mine)', async () => {
 })
 
 test('waits for transaction (send -> mine -> wait)', async () => {
+  await setup()
+
   const hash = await sendTransaction(walletClient, {
     account: sourceAccount.address,
     to: targetAccount.address,
@@ -42,6 +51,8 @@ test('waits for transaction (send -> mine -> wait)', async () => {
 })
 
 test('waits for transaction (multiple waterfall)', async () => {
+  await setup()
+
   const hash = await sendTransaction(walletClient, {
     account: sourceAccount.address,
     to: targetAccount.address,
@@ -65,6 +76,8 @@ test('waits for transaction (multiple waterfall)', async () => {
 })
 
 test('waits for transaction (multiple parallel)', async () => {
+  await setup()
+
   const hash = await sendTransaction(walletClient, {
     account: sourceAccount.address,
     to: targetAccount.address,
@@ -91,6 +104,8 @@ test('waits for transaction (multiple parallel)', async () => {
 
 describe('replaced transactions', () => {
   test('repriced', async () => {
+    await setup()
+
     await mine(testClient, { blocks: 10 })
 
     const nonce = hexToNumber(
@@ -136,6 +151,8 @@ describe('replaced transactions', () => {
   })
 
   test('repriced (skipped blocks)', async () => {
+    await setup()
+
     await mine(testClient, { blocks: 10 })
 
     const nonce = hexToNumber(
@@ -178,6 +195,8 @@ describe('replaced transactions', () => {
   })
 
   test('cancelled', async () => {
+    await setup()
+
     await mine(testClient, { blocks: 10 })
 
     const nonce = hexToNumber(
@@ -223,6 +242,8 @@ describe('replaced transactions', () => {
   })
 
   test('replaced', async () => {
+    await setup()
+
     await mine(testClient, { blocks: 10 })
 
     const nonce = hexToNumber(
@@ -270,6 +291,8 @@ describe('replaced transactions', () => {
 
 describe('args: confirmations', () => {
   test('waits for confirmations', async () => {
+    await setup()
+
     const hash = await sendTransaction(walletClient, {
       account: sourceAccount.address,
       to: targetAccount.address,
@@ -290,6 +313,8 @@ describe('args: confirmations', () => {
   })
 
   test('waits for confirmations (replaced)', async () => {
+    await setup()
+
     await mine(testClient, { blocks: 10 })
 
     const nonce = hexToNumber(
@@ -333,6 +358,8 @@ describe('args: confirmations', () => {
 })
 
 test('args: timeout', async () => {
+  await setup()
+
   const hash = await sendTransaction(walletClient, {
     account: sourceAccount.address,
     to: targetAccount.address,
@@ -350,6 +377,8 @@ describe('errors', () => {
   test(
     'throws when transaction not found',
     async () => {
+      await setup()
+
       await expect(() =>
         waitForTransactionReceipt(publicClient, {
           hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98f',
@@ -364,6 +393,8 @@ describe('errors', () => {
   )
 
   test('throws when transaction replaced and getBlock fails', async () => {
+    await setup()
+
     vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
 
     await mine(testClient, { blocks: 10 })

@@ -64,6 +64,7 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      await wait(200)
       await mine(testClient, { blocks: 1 })
       await wait(200)
       await mine(testClient, { blocks: 1 })
@@ -110,7 +111,7 @@ describe('poll', () => {
       await mine(testClient, { blocks: 1 })
       await wait(200)
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(2)
     })
@@ -203,7 +204,7 @@ describe('poll', () => {
       })
       unwatch()
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
       expect(blockNumbers.length).toBe(0)
     })
 
