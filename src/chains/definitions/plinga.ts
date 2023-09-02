@@ -14,12 +14,8 @@ export const plinga = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'plgscan',
-      url: 'https://www.plgscan.com',
-    },
     default: {
-      name: 'NexiScan',
+      name: 'Plgscan',
       url: 'https://www.plgscan.com',
     },
   },
