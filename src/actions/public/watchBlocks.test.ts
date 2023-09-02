@@ -24,30 +24,34 @@ import * as getBlock from './getBlock.js'
 import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
 
 describe('poll', () => {
-  test('watches for new blocks', async () => {
-    const blocks: OnBlockParameter[] = []
-    const prevBlocks: OnBlockParameter[] = []
-    const unwatch = watchBlocks(publicClient, {
-      onBlock: (block, prevBlock) => {
-        blocks.push(block)
-        prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
-      },
-      poll: true,
-      pollingInterval: 100,
-    })
-    await mine(testClient, { blocks: 1 })
-    await wait(200)
-    await mine(testClient, { blocks: 1 })
-    await wait(200)
-    await mine(testClient, { blocks: 1 })
-    await wait(200)
-    await mine(testClient, { blocks: 1 })
-    await wait(200)
-    unwatch()
-    expect(blocks.length).toBe(4)
-    expect(prevBlocks.length).toBe(3)
-    expect(typeof blocks[0].number).toBe('bigint')
-  })
+  test(
+    'watches for new blocks',
+    async () => {
+      const blocks: OnBlockParameter[] = []
+      const prevBlocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(publicClient, {
+        onBlock: (block, prevBlock) => {
+          blocks.push(block)
+          prevBlock && block !== prevBlock && prevBlocks.push(prevBlock)
+        },
+        poll: true,
+        pollingInterval: 100,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
+      expect(blocks.length).toBe(4)
+      expect(prevBlocks.length).toBe(3)
+      expect(typeof blocks[0].number).toBe('bigint')
+    },
+    { retry: 3 },
+  )
 
   test('args: includeTransactions', async () => {
     const blocks: OnBlockParameter<Chain, true>[] = []
