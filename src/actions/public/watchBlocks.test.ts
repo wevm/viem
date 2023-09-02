@@ -24,7 +24,7 @@ import * as getBlock from './getBlock.js'
 import { type OnBlockParameter, watchBlocks } from './watchBlocks.js'
 
 describe('poll', () => {
-  test.only('watches for new blocks', async () => {
+  test('watches for new blocks', async () => {
     const blocks: OnBlockParameter[] = []
     const prevBlocks: OnBlockParameter[] = []
     const unwatch = watchBlocks(publicClient, {
