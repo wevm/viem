@@ -16,7 +16,7 @@ import { setBalance } from './setBalance.js'
 const sourceAccount = {
   address: address.vitalik,
 } as const
-const targetAccount = accounts[0]
+const targetAccount = accounts[9]
 
 test('sends unsigned transaction', async () => {
   await setBalance(testClient, {
