@@ -1,8 +1,4 @@
-import {
-  EthereumProvider,
-  OPTIONAL_EVENTS,
-  OPTIONAL_METHODS,
-} from '@walletconnect/ethereum-provider'
+import { EthereumProvider } from '@walletconnect/ethereum-provider'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
@@ -24,8 +20,6 @@ const projectId = 'fdb8164b4aa07b46f14e131f5c7c5903'
 const provider = await EthereumProvider.init({
   chains: [1],
   projectId,
-  optionalEvents: OPTIONAL_EVENTS,
-  optionalMethods: OPTIONAL_METHODS,
   showQrModal: true,
 })
 
