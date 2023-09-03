@@ -1,5 +1,4 @@
 import { defineChain } from '../../utils/chain.js'
-import { feesOptimism } from '../optimism/fees.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
 export const base = /*#__PURE__*/ defineChain(
@@ -38,7 +37,6 @@ export const base = /*#__PURE__*/ defineChain(
     },
   },
   {
-    fees: feesOptimism,
     formatters: formattersOptimism,
   },
 )
