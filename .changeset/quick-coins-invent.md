@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-added opBNB Mainnet and Testnet Chain 🚀
+Added opBNB Mainnet and Testnet chains.
