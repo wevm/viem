@@ -1,5 +1,5 @@
 ---
-"viem": patch
+"viem": minor
 ---
 
-Added exported 'domainSeparator()' function to calculate domain separator from an EIP712 domain
+Added `domainSeparator` to calculate domain separator from an EIP712 domain.
