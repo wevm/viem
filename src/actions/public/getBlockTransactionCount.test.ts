@@ -1,18 +1,13 @@
-import { beforeAll, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { accounts, forkBlockNumber } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { mine } from '../test/mine.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { getBlock } from './getBlock.js'
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
-
-await beforeAll(async () => {
-  await setIntervalMining(testClient, { interval: 0 })
-})
 
 test('default', async () => {
   expect(await getBlockTransactionCount(publicClient)).toBeDefined()

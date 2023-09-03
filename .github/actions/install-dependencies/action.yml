@@ -11,7 +11,7 @@ runs:
       uses: actions/setup-node@v3
       with:
         cache: pnpm
-        node-version: 18
+        node-version: 20
 
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1

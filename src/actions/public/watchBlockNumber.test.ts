@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { localHttpUrl } from '../../_test/constants.js'
 import { publicClient, testClient, webSocketClient } from '../../_test/utils.js'
@@ -10,17 +10,12 @@ import {
 import { http } from '../../clients/transports/http.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 
 import * as getBlockNumber from './getBlockNumber.js'
 import {
   type OnBlockNumberParameter,
   watchBlockNumber,
 } from './watchBlockNumber.js'
-
-beforeAll(async () => {
-  await setIntervalMining(testClient, { interval: 0 })
-})
 
 describe('poll', () => {
   test('watches for new block numbers', async () => {
@@ -69,6 +64,7 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      await wait(200)
       await mine(testClient, { blocks: 1 })
       await wait(200)
       await mine(testClient, { blocks: 1 })
@@ -115,7 +111,7 @@ describe('poll', () => {
       await mine(testClient, { blocks: 1 })
       await wait(200)
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
       unwatch()
       expect(blockNumbers.length).toBe(2)
     })
@@ -208,7 +204,7 @@ describe('poll', () => {
       })
       unwatch()
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
       expect(blockNumbers.length).toBe(0)
     })
 

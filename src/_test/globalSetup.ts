@@ -1,6 +1,6 @@
 import { startProxy } from '@viem/anvil'
 
-import { blockTime, forkBlockNumber, forkUrl } from './constants.js'
+import { forkBlockNumber, forkUrl } from './constants.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) {
@@ -29,7 +29,7 @@ export default async function () {
     options: {
       forkUrl,
       forkBlockNumber,
-      blockTime,
+      noMining: true,
     },
   })
 }

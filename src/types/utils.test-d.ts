@@ -6,6 +6,7 @@ import type {
   IsNever,
   IsUndefined,
   Or,
+  Prettify,
   RequiredBy,
 } from './utils.js'
 
@@ -53,6 +54,6 @@ test('Or', () => {
 
 test('RequiredBy', () => {
   expectTypeOf<
-    RequiredBy<{ a?: number; b?: string; c: boolean }, 'a' | 'c'>
+    Prettify<RequiredBy<{ a?: number; b?: string; c: boolean }, 'a' | 'c'>>
   >().toEqualTypeOf<{ a: number; b?: string; c: boolean }>()
 })

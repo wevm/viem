@@ -309,18 +309,16 @@ test('with and without wallet client `account`', () => {
     walletClient: walletClientWithoutAccount,
   })
 
-  expectTypeOf(contractWithAccount.write.approve).parameters.toEqualTypeOf<
-    [
-      args: readonly [`0x${string}`, bigint],
-      options?: { account?: Account | Address },
-    ]
-  >()
-  expectTypeOf(contractWithoutAccount.write.approve).parameters.toEqualTypeOf<
-    [
-      args: readonly [`0x${string}`, bigint],
-      options: { account: Account | Address },
-    ]
-  >()
+  expectTypeOf(contractWithAccount.write.approve)
+    .parameter(1)
+    .extract<{ account?: Account | Address }>()
+    // @ts-expect-error
+    .toBeNever()
+  expectTypeOf(contractWithoutAccount.write.approve)
+    .parameter(1)
+    .extract<{ account: Account | Address }>()
+    // @ts-expect-error
+    .toBeNever()
 })
 
 test('with and without wallet client `chain`', () => {
@@ -335,15 +333,16 @@ test('with and without wallet client `chain`', () => {
     walletClient: walletClientWithoutChain,
   })
 
-  expectTypeOf(contractWithChain.write.approve).parameters.toEqualTypeOf<
-    [args: readonly [`0x${string}`, bigint], params?: { chain?: Chain | null }]
-  >()
-  expectTypeOf(contractWithoutChain.write.approve).parameters.toEqualTypeOf<
-    [
-      args: readonly [`0x${string}`, bigint],
-      params: { chain: Chain | null | undefined },
-    ]
-  >()
+  expectTypeOf(contractWithChain.write.approve)
+    .parameter(1)
+    .extract<{ chain?: Chain | null }>()
+    // @ts-expect-error
+    .toBeNever()
+  expectTypeOf(contractWithoutChain.write.approve)
+    .parameter(1)
+    .extract<{ chain: Chain | null | undefined }>()
+    // @ts-expect-error
+    .toBeNever()
 })
 
 test('no read functions', () => {

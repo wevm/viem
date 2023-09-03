@@ -11,7 +11,6 @@ import type { PublicClient } from '../../clients/createPublicClient.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
@@ -25,7 +24,6 @@ describe('poll', () => {
   test(
     'watches for pending transactions',
     async () => {
-      await setIntervalMining(testClient, { interval: 0 })
       await wait(1000)
 
       let transactions: OnTransactionsParameter = []
@@ -51,14 +49,12 @@ describe('poll', () => {
       unwatch()
       expect(transactions.length).toBe(2)
 
-      await setIntervalMining(testClient, { interval: 1 })
       await mine(testClient, { blocks: 1 })
     },
     { timeout: 10_000 },
   )
 
   test('watches for pending transactions (unbatched)', async () => {
-    await setIntervalMining(testClient, { interval: 0 })
     await wait(1000)
 
     let transactions: OnTransactionsParameter = []
@@ -90,7 +86,6 @@ describe('poll', () => {
     unwatch()
     expect(transactions.length).toBe(3)
 
-    await setIntervalMining(testClient, { interval: 1 })
     await mine(testClient, { blocks: 1 })
   })
 
@@ -136,7 +131,6 @@ describe('subscribe', () => {
   test(
     'watches for pending transactions',
     async () => {
-      await setIntervalMining(testClient, { interval: 0 })
       await wait(1000)
 
       let transactions: OnTransactionsParameter = []
@@ -161,7 +155,6 @@ describe('subscribe', () => {
       unwatch()
       expect(transactions.length).toBe(2)
 
-      await setIntervalMining(testClient, { interval: 1 })
       await mine(testClient, { blocks: 1 })
     },
     { timeout: 10_000 },
