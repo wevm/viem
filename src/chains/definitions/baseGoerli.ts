@@ -1,5 +1,4 @@
 import { defineChain } from '../../utils/chain.js'
-import { feesOptimism } from '../optimism/fees.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
 export const baseGoerli = /*#__PURE__*/ defineChain(
@@ -36,7 +35,6 @@ export const baseGoerli = /*#__PURE__*/ defineChain(
     sourceId: 5, // goerli
   },
   {
-    fees: feesOptimism,
     formatters: formattersOptimism,
   },
 )

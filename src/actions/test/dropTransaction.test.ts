@@ -8,14 +8,11 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { dropTransaction } from './dropTransaction.js'
 import { mine } from './mine.js'
-import { setIntervalMining } from './setIntervalMining.js'
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 test('drops transaction', async () => {
-  await setIntervalMining(testClient, { interval: 0 })
-
   const balance = await getBalance(publicClient, {
     address: sourceAccount.address,
   })
@@ -31,6 +28,4 @@ test('drops transaction', async () => {
       address: sourceAccount.address,
     }),
   ).not.toBeLessThan(balance)
-
-  await setIntervalMining(testClient, { interval: 1 })
 })

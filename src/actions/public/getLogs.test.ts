@@ -21,7 +21,6 @@ import { getAddress } from '../../utils/address/getAddress.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
-import { setIntervalMining } from '../test/setIntervalMining.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
 
@@ -113,7 +112,6 @@ const event = {
 } as const
 
 beforeAll(async () => {
-  await setIntervalMining(testClient, { interval: 0 })
   await impersonateAccount(testClient, {
     address: address.vitalik,
   })

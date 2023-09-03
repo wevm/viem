@@ -10,9 +10,6 @@ jobs:
   bench:
     name: Benchmark
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        transport-mode: ['http', 'webSocket']
 
     steps:
       - name: Clone repository
@@ -27,7 +24,6 @@ jobs:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
-          VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
 
       - name: Report benchmarks
         run: pnpm bun ./.github/scripts/bench.ts

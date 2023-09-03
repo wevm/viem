@@ -11,6 +11,7 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 
@@ -90,7 +91,7 @@ test('gets transaction (eip2930)', async () => {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
-    gasPrice: BigInt(block.baseFeePerGas ?? 0),
+    gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
   })
 
   const transaction = await getTransaction(publicClient, {
@@ -304,6 +305,7 @@ describe('args: blockTag', () => {
     })
 
     await mine(testClient, { blocks: 1 })
+    await wait(200)
 
     const transaction = await getTransaction(publicClient, {
       blockTag: 'latest',
