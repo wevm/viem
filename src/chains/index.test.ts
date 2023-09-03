@@ -70,6 +70,8 @@ test('exports chains', () => {
       "mainnet",
       "mantle",
       "mantleTestnet",
+      "meter",
+      "meterTestnet",
       "metis",
       "metisGoerli",
       "mev",
@@ -85,8 +87,8 @@ test('exports chains', () => {
       "okc",
       "optimism",
       "optimismGoerli",
-      "opBNBTestnet"
       "opBNB",
+      "opBNBTestnet",
       "plinga",
       "polygon",
       "polygonMumbai",
