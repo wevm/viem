@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { validateTypedData } from './typedData.js'
+import { pad, toHex } from './index.js'
+import { domainSeparator, validateTypedData } from './typedData.js'
 
 describe('validateTypedData', () => {
   test('default', () => {
@@ -327,5 +328,37 @@ describe('validateTypedData', () => {
         ],
       },
     })
+  })
+})
+
+describe('domainSeparator', () => {
+  const FULL_DOMAIN = {
+    name: 'example.metamask.io',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0x0000000000000000000000000000000000000000',
+    salt: pad(toHex(new Uint8Array([1, 2, 3])), { dir: 'right' }),
+  } as const
+
+  test('basic', () => {
+    expect(domainSeparator({ domain: FULL_DOMAIN })).toMatchInlineSnapshot(
+      '"0x62d1d3234124be639f11bfcb3c421b50cc645b88e2aca76f3a6ddf860a94e5b1"',
+    )
+  })
+
+  test('partial', () => {
+    expect(
+      domainSeparator({
+        domain: { ...FULL_DOMAIN, name: undefined, version: undefined },
+      }),
+    ).toMatchInlineSnapshot(
+      '"0xce6c7b484f565618d511f23172572bdc509ec6d704587a8b328c7158903d4fa1"',
+    )
+  })
+
+  test('empty', () => {
+    expect(domainSeparator({ domain: {} })).toMatchInlineSnapshot(
+      '"0x6192106f129ce05c9075d319c1fa6ea9b3ae37cbd0c1ef92e2be7137bb07baa1"',
+    )
   })
 })

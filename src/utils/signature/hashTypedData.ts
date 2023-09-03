@@ -8,7 +8,7 @@ import { encodeAbiParameters } from '../abi/encodeAbiParameters.js'
 import { concat } from '../data/concat.js'
 import { toHex } from '../encoding/toHex.js'
 import { keccak256 } from '../hash/keccak256.js'
-import { validateTypedData } from '../typedData.js'
+import { getTypesForEIP712Domain, validateTypedData } from '../typedData.js'
 
 type MessageTypeProperty = {
   name: string
@@ -33,19 +33,7 @@ export function hashTypedData<
 }: HashTypedDataParameters<TTypedData, TPrimaryType>): HashTypedDataReturnType {
   const domain: TypedDataDomain = typeof domain_ === 'undefined' ? {} : domain_
   const types = {
-    EIP712Domain: [
-      typeof domain?.name === 'string' && { name: 'name', type: 'string' },
-      domain?.version && { name: 'version', type: 'string' },
-      typeof domain?.chainId === 'number' && {
-        name: 'chainId',
-        type: 'uint256',
-      },
-      domain?.verifyingContract && {
-        name: 'verifyingContract',
-        type: 'address',
-      },
-      domain?.salt && { name: 'salt', type: 'bytes32' },
-    ].filter(Boolean),
+    EIP712Domain: getTypesForEIP712Domain({ domain }),
     ...(types_ as TTypedData),
   }
 
@@ -80,7 +68,7 @@ export function hashTypedData<
   return keccak256(concat(parts))
 }
 
-function hashDomain({
+export function hashDomain({
   domain,
   types,
 }: {
