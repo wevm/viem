@@ -467,6 +467,31 @@ describe('behavior', () => {
       `)
     })
 
+    test('UserRejectedRequestError (CAIP-25 5000 error code)', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: 5000, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "User rejected the request.
+
+        URL: http://localhost
+        Request body: {\\"method\\":\\"eth_blockNumber\\"}
+
+        Details: message
+        Version: viem@1.0.2"
+      `)
+    })
+
     test('UnauthorizedProviderError', async () => {
       const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
