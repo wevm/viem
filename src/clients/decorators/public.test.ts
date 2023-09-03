@@ -21,6 +21,7 @@ import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { wait } from '../../utils/wait.js'
 import { publicActions } from './public.js'
 
 test('default', async () => {
@@ -416,6 +417,8 @@ describe('smoke test', () => {
       to: accounts[7].address,
       value: parseEther('1'),
     })
+    await testClient.mine({ blocks: 1 })
+    await wait(200)
     const { status } = await publicClient.waitForTransactionReceipt({
       hash,
     })

@@ -317,7 +317,7 @@ describe('args: gasPrice', () => {
         account: sourceAccount.address,
         to: targetAccount.address,
         value: parseEther('1'),
-        gasPrice: BigInt(block.baseFeePerGas ?? 0),
+        gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
       }),
     ).toBeDefined()
 
@@ -386,7 +386,7 @@ describe('args: maxFeePerGas', () => {
       account: sourceAccount.address,
       to: targetAccount.address,
       value: parseEther('1'),
-      maxFeePerGas: BigInt(block.baseFeePerGas ?? 0),
+      maxFeePerGas: BigInt((block.baseFeePerGas ?? 0n) * 2n),
     })
     expect(hash).toBeDefined()
 
@@ -400,7 +400,9 @@ describe('args: maxFeePerGas', () => {
     ).toBeLessThan(sourceAccount.balance)
 
     const transaction = await getTransaction(publicClient, { hash })
-    expect(transaction.maxFeePerGas).toBe(block.baseFeePerGas!)
+    expect(transaction.maxFeePerGas).toBe(
+      BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    )
   })
 
   test('errors when account has insufficient funds', async () => {

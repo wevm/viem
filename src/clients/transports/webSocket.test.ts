@@ -7,7 +7,7 @@ import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
 import { testClient } from '../../_test/utils.js'
-import { setIntervalMining } from '../../test.js'
+import { mine } from '../../test.js'
 import { type WebSocketTransport, webSocket } from './webSocket.js'
 
 test('default', () => {
@@ -143,8 +143,6 @@ test('errors: rpc error', async () => {
 })
 
 test('subscribe', async () => {
-  await setIntervalMining(testClient, { interval: 1 })
-
   const transport = webSocket(localWsUrl, {
     key: 'jsonRpc',
     name: 'JSON RPC',
@@ -161,18 +159,18 @@ test('subscribe', async () => {
   expect(subscriptionId).toBeDefined()
 
   // Make sure we are receiving blocks.
-  await wait(2000)
-  expect(blocks.length).toBe(2)
+  await mine(testClient, { blocks: 1 })
+  await wait(200)
+  expect(blocks.length).toBe(1)
 
   // Make sure we unsubscribe.
   const { result } = await unsubscribe()
   expect(result).toBeDefined()
 
   // Make sure we are no longer receiving blocks.
-  await wait(2000)
-  expect(blocks.length).toBe(2)
-
-  await setIntervalMining(testClient, { interval: 0 })
+  await mine(testClient, { blocks: 1 })
+  await wait(200)
+  expect(blocks.length).toBe(1)
 })
 
 test('throws on bogus subscription', async () => {

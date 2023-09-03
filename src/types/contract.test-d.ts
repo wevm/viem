@@ -21,10 +21,13 @@ import type {
   LogTopicType,
 } from './contract.js'
 import type { Hex } from './misc.js'
+import type { Prettify } from './utils.js'
 
 test('ContractFunctionConfig', async () => {
-  type Result = ContractFunctionConfig<typeof seaportAbi, 'getOrderStatus'>
-  //   ^?
+  type Result = Prettify<
+    ContractFunctionConfig<typeof seaportAbi, 'getOrderStatus'>
+    //   ^?
+  >
   expectTypeOf<Result>().toEqualTypeOf<{
     abi: typeof seaportAbi
     address: ResolvedConfig['AddressType']
