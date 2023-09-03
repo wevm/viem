@@ -126,6 +126,10 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
             // 4902
             case SwitchChainError.code:
               throw new SwitchChainError(err)
+            // CAIP-25: User Rejected Error
+            // https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes#rejected-caip-25
+            case 5000:
+              throw new UserRejectedRequestError(err)
             default:
               if (err_ instanceof BaseError) throw err_
               throw new UnknownRpcError(err as Error)
