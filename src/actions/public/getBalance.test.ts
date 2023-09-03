@@ -39,16 +39,12 @@ async function setup() {
   await mine(testClient, { blocks: 1 })
 }
 
-test(
-  'gets balance',
-  async () => {
-    await setup()
-    expect(
-      await getBalance(publicClient, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10006000000000000000000n')
-  },
-  { retry: 3 },
-)
+test('gets balance', async () => {
+  await setup()
+  expect(
+    await getBalance(publicClient, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10006000000000000000000n')
+})
 
 test('gets balance at latest', async () => {
   await setup()

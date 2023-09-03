@@ -5,6 +5,7 @@ import { optimism } from '../../chains/index.js'
 import { http, createPublicClient } from '../../index.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
+import type { Prettify } from '../../types/utils.js'
 import { getBlock } from './getBlock.js'
 
 test('includeTransactions = false', async () => {
@@ -18,7 +19,7 @@ test('includeTransactions = false', async () => {
 test('includeTransactions = true', async () => {
   const block = await getBlock(publicClient, { includeTransactions: true })
   expectTypeOf(block.transactions).toEqualTypeOf<
-    Transaction<bigint, number, false>[]
+    Prettify<Transaction<bigint, number, false>>[]
   >()
 })
 
@@ -43,7 +44,7 @@ test('blockTag = "pending" & includeTransactions = true', async () => {
   expectTypeOf(block.nonce).toEqualTypeOf<null>()
   expectTypeOf(block.number).toEqualTypeOf<null>()
   expectTypeOf(block.transactions).toEqualTypeOf<
-    Transaction<bigint, number, true>[]
+    Prettify<Transaction<bigint, number, true>>[]
   >()
   expectTypeOf(block.transactions[0].blockHash).toEqualTypeOf<null>()
   expectTypeOf(block.transactions[0].blockNumber).toEqualTypeOf<null>()

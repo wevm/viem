@@ -13,22 +13,21 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
-test(
-  'gets transaction receipt',
-  async () => {
-    const transaction = await getTransaction(publicClient, {
-      blockNumber: forkBlockNumber - 1n,
-      index: 0,
-    })
-    const receipt = await getTransactionReceipt(publicClient, {
-      hash: transaction.hash,
-    })
-    assertType<TransactionReceipt>(receipt)
-    expect(receipt).toMatchInlineSnapshot(`
+test('gets transaction receipt', async () => {
+  const transaction = await getTransaction(publicClient, {
+    blockNumber: forkBlockNumber - 1n,
+    index: 0,
+  })
+  const receipt = await getTransactionReceipt(publicClient, {
+    hash: transaction.hash,
+  })
+  assertType<TransactionReceipt>(receipt)
+  expect(receipt).toMatchInlineSnapshot(`
     {
       "blockHash": "0xb932f77cf770d1d1c8f861153eec1e990f5d56b6ffdb4ac06aef3cca51ef37d4",
       "blockNumber": 16280769n,
@@ -46,9 +45,7 @@ test(
       "type": "legacy",
     }
   `)
-  },
-  { retry: 3 },
-)
+})
 
 test('chain w/ custom block type', async () => {
   const client = createPublicClient({
@@ -114,6 +111,7 @@ describe('e2e', () => {
       }),
     ).rejects.toThrowError('Transaction receipt with hash')
     await mine(testClient, { blocks: 1 })
+    await wait(500)
 
     const {
       blockHash,

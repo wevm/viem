@@ -76,15 +76,10 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
-        shard: [1, 2, 3]
-        total-shards: [3]
         transport-mode: ['http', 'webSocket']
-        include:
-          - batch-multicall: 'false'
-          - batch-multicall: 'true'
-            transport-mode: 'http'
 
     steps:
       - name: Clone repository
@@ -98,16 +93,11 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 30
-          max_attempts: 3
-          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+        run: pnpm test:ci
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
-          VITE_BATCH_MULTICALL: ${{ matrix.batch-multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
 
       - name: Upload coverage reports to Codecov
