@@ -76,9 +76,10 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     strategy:
       matrix:
+        shard: [1, 2, 3]
+        total-shards: [3]
         transport-mode: ['http', 'webSocket']
 
     steps:
@@ -93,7 +94,8 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        run: pnpm test:ci
+        run: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+        timeout-minutes: 10
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}

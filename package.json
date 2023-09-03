@@ -24,7 +24,7 @@
     "prepare": "npx simple-git-hooks",
     "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "test": "vitest dev --bail 1",
+    "test": "vitest dev",
     "test:cov": "vitest dev --coverage",
     "test:ci": "CI=true vitest --coverage --retry=3 --bail=1",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck",
