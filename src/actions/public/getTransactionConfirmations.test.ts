@@ -3,6 +3,7 @@ import { expect, test } from 'vitest'
 import { accounts } from '../../_test/constants.js'
 import { publicClient, testClient, walletClient } from '../../_test/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
@@ -16,6 +17,7 @@ test('default', async () => {
     value: parseEther('1'),
   })
   await mine(testClient, { blocks: 1 })
+  await wait(1000)
   const transactionReceipt = await getTransactionReceipt(publicClient, {
     hash,
   })

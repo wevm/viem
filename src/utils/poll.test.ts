@@ -14,7 +14,7 @@ test('polls on a given interval', async () => {
     },
   )
 
-  await wait(500)
+  await wait(450)
   expect(items).toMatchInlineSnapshot(`
     [
       "wagmi",

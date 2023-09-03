@@ -3,7 +3,7 @@ import type { AbiEvent } from 'abitype'
 import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '../_test/abis.js'
-import { accounts } from '../_test/constants.js'
+import { accounts, forkBlockNumber } from '../_test/constants.js'
 import {
   publicClient,
   walletClient,
@@ -43,7 +43,7 @@ test('createEventFilter', async () => {
         from: accounts[0].address,
       },
       {
-        fromBlock: 10_000n,
+        fromBlock: forkBlockNumber - 5n,
       },
     ),
   ).resolves.toBeDefined()

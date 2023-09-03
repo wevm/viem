@@ -116,45 +116,43 @@ beforeAll(async () => {
 })
 
 describe('poll', () => {
-  test(
-    'default',
-    async () => {
-      const logs: WatchEventOnLogsParameter[] = []
+  test('default', async () => {
+    const logs: WatchEventOnLogsParameter[] = []
 
-      const unwatch = watchEvent(publicClient, {
-        onLogs: (logs_) => logs.push(logs_),
-        poll: true,
-      })
+    const unwatch = watchEvent(publicClient, {
+      onLogs: (logs_) => logs.push(logs_),
+      poll: true,
+    })
 
-      await wait(1000)
-      await writeContract(walletClient, {
-        ...usdcContractConfig,
-        functionName: 'transfer',
-        args: [accounts[0].address, 1n],
-        account: address.vitalik,
-      })
-      await writeContract(walletClient, {
-        ...usdcContractConfig,
-        functionName: 'transfer',
-        args: [accounts[0].address, 1n],
-        account: address.vitalik,
-      })
-      await wait(1000)
-      await writeContract(walletClient, {
-        ...usdcContractConfig,
-        functionName: 'transfer',
-        args: [accounts[1].address, 1n],
-        account: address.vitalik,
-      })
-      await wait(2000)
-      unwatch()
+    await wait(200)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[1].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
 
-      expect(logs.length).toBe(2)
-      expect(logs[0].length).toBe(2)
-      expect(logs[1].length).toBe(1)
-    },
-    { retry: 3 },
-  )
+    expect(logs.length).toBe(2)
+    expect(logs[0].length).toBe(2)
+    expect(logs[1].length).toBe(1)
+  })
 
   test('args: batch', async () => {
     const logs: WatchEventOnLogsParameter[] = []
@@ -165,7 +163,7 @@ describe('poll', () => {
       poll: true,
     })
 
-    await wait(1000)
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
@@ -178,14 +176,16 @@ describe('poll', () => {
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(3)
@@ -209,14 +209,15 @@ describe('poll', () => {
       poll: true,
     })
 
-    await wait(1000)
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
     unwatch2()
 
@@ -241,14 +242,15 @@ describe('poll', () => {
       poll: true,
     })
 
-    await wait(1000)
+    await wait(100)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
     unwatch2()
 
@@ -276,7 +278,7 @@ describe('poll', () => {
       poll: true,
     })
 
-    await wait(1000)
+    await wait(100)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
@@ -290,7 +292,7 @@ describe('poll', () => {
       account: address.vitalik,
     })
     await mine(testClient, { blocks: 1 })
-    await wait(2000)
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(1)
@@ -311,181 +313,166 @@ describe('poll', () => {
     })
   })
 
-  test(
-    'args: events',
-    async () => {
-      const logs: WatchEventOnLogsParameter<
-        undefined,
-        [typeof event.transfer, typeof event.approval]
-      >[] = []
+  test('args: events', async () => {
+    const logs: WatchEventOnLogsParameter<
+      undefined,
+      [typeof event.transfer, typeof event.approval]
+    >[] = []
 
-      const unwatch = watchEvent(publicClient, {
-        events: [event.transfer, event.approval],
-        onLogs: (logs_) => logs.push(logs_),
-        poll: true,
-      })
+    const unwatch = watchEvent(publicClient, {
+      events: [event.transfer, event.approval],
+      onLogs: (logs_) => logs.push(logs_),
+      poll: true,
+    })
 
-      await wait(1000)
-      await writeContract(walletClient, {
-        ...wagmiContractConfig,
-        functionName: 'mint',
-        account: address.vitalik,
-      })
-      await writeContract(walletClient, {
-        ...usdcContractConfig,
-        functionName: 'approve',
-        args: [accounts[1].address, 2n],
-        account: address.vitalik,
-      })
-      await mine(testClient, { blocks: 1 })
-      await wait(2000)
-      unwatch()
+    await wait(100)
+    await writeContract(walletClient, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+      account: address.vitalik,
+    })
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 2n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
+    unwatch()
 
-      expect(logs.length).toBe(1)
-      expect(logs[0].length).toBe(2)
+    expect(logs.length).toBe(1)
+    expect(logs[0].length).toBe(2)
 
-      expect(logs[0][0].eventName).toEqual('Transfer')
-      expect(logs[0][0].args).toEqual({
-        from: address.burn,
-        to: getAddress(address.vitalik),
-      })
+    expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][0].args).toEqual({
+      from: address.burn,
+      to: getAddress(address.vitalik),
+    })
 
-      expect(logs[0][1].eventName).toEqual('Approval')
-      expect(logs[0][1].args).toEqual({
-        owner: getAddress(address.vitalik),
-        spender: getAddress(accounts[1].address),
-        value: 2n,
-      })
-    },
-    { retry: 3 },
-  )
+    expect(logs[0][1].eventName).toEqual('Approval')
+    expect(logs[0][1].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(accounts[1].address),
+      value: 2n,
+    })
+  })
 
   test.todo('args: args')
 
   describe('`getLogs` fallback', () => {
-    test(
-      'falls back to `getLogs` if `createEventFilter` throws',
-      async () => {
-        // Something weird going on where the `getFilterChanges` spy is taking
-        // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
-        await wait(1)
-        const getFilterChangesSpy = vi.spyOn(
-          getFilterChanges,
-          'getFilterChanges',
-        )
-        const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
-        vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
-          new Error('foo'),
-        )
+    test('falls back to `getLogs` if `createEventFilter` throws', async () => {
+      // Something weird going on where the `getFilterChanges` spy is taking
+      // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
+      await wait(1)
+      const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
+      const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
+      vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
+        new Error('foo'),
+      )
 
-        const logs: WatchEventOnLogsParameter[] = []
+      const logs: WatchEventOnLogsParameter[] = []
 
-        const unwatch = watchEvent(publicClient, {
-          onLogs: (logs_) => logs.push(logs_),
-          poll: true,
-        })
+      const unwatch = watchEvent(publicClient, {
+        onLogs: (logs_) => logs.push(logs_),
+        poll: true,
+      })
 
-        await wait(1000)
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[0].address, 1n],
-          account: address.vitalik,
-        })
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[0].address, 1n],
-          account: address.vitalik,
-        })
-        await wait(2000)
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[1].address, 1n],
-          account: address.vitalik,
-        })
-        await wait(2000)
-        unwatch()
+      await wait(100)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      unwatch()
 
-        expect(logs.length).toBe(2)
-        expect(logs[0].length).toBe(2)
-        expect(logs[1].length).toBe(1)
-        expect(getFilterChangesSpy).toBeCalledTimes(0)
-        expect(getLogsSpy).toBeCalled()
-      },
-      { retry: 3 },
-    )
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+      expect(getFilterChangesSpy).toBeCalledTimes(0)
+      expect(getLogsSpy).toBeCalled()
+    })
 
-    test(
-      'missed blocks',
-      async () => {
-        // Something weird going on where the `getFilterChanges` spy is taking
-        // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
-        await wait(1)
-        const getFilterChangesSpy = vi.spyOn(
-          getFilterChanges,
-          'getFilterChanges',
-        )
-        const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
-        vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
-          new Error('foo'),
-        )
+    test('missed blocks', async () => {
+      // Something weird going on where the `getFilterChanges` spy is taking
+      // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
+      await wait(1)
+      const getFilterChangesSpy = vi.spyOn(getFilterChanges, 'getFilterChanges')
+      const getLogsSpy = vi.spyOn(getLogs, 'getLogs')
+      vi.spyOn(createEventFilter, 'createEventFilter').mockRejectedValueOnce(
+        new Error('foo'),
+      )
 
-        const logs: WatchEventOnLogsParameter[] = []
+      const logs: WatchEventOnLogsParameter[] = []
 
-        const unwatch = watchEvent(publicClient, {
-          onLogs: (logs_) => logs.push(logs_),
-          poll: true,
-        })
+      const unwatch = watchEvent(publicClient, {
+        onLogs: (logs_) => logs.push(logs_),
+        poll: true,
+      })
 
-        await wait(1000)
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[0].address, 1n],
-          account: address.vitalik,
-        })
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[1].address, 1n],
-          account: address.usdcHolder,
-        })
-        await wait(1000)
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[2].address, 1n],
-          account: address.vitalik,
-        })
-        await mine(testClient, { blocks: 2 })
-        await wait(1000)
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[2].address, 1n],
-          account: address.vitalik,
-        })
-        await writeContract(walletClient, {
-          ...usdcContractConfig,
-          functionName: 'transfer',
-          args: [accounts[2].address, 1n],
-          account: address.vitalik,
-        })
-        await mine(testClient, { blocks: 5 })
-        await wait(2000)
-        unwatch()
+      await wait(100)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.usdcHolder,
+      })
+      await mine(testClient, { blocks: 1 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[2].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 2 })
+      await wait(200)
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[2].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(walletClient, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[2].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(testClient, { blocks: 5 })
+      await wait(200)
+      unwatch()
 
-        expect(logs.length).toBe(3)
-        expect(logs[0].length).toBe(2)
-        expect(logs[1].length).toBe(1)
-        expect(logs[2].length).toBe(2)
-        expect(getFilterChangesSpy).toBeCalledTimes(0)
-        expect(getLogsSpy).toBeCalled()
-      },
-      { retry: 3 },
-    )
+      expect(logs.length).toBe(3)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
+      expect(logs[2].length).toBe(2)
+      expect(getFilterChangesSpy).toBeCalledTimes(0)
+      expect(getLogsSpy).toBeCalled()
+    })
   })
 
   describe('errors', () => {
@@ -509,26 +496,22 @@ describe('poll', () => {
       unwatch()
     })
 
-    test(
-      'handles error thrown from filter changes',
-      async () => {
-        vi.spyOn(getFilterChanges, 'getFilterChanges').mockRejectedValueOnce(
-          new Error('bar'),
-        )
+    test('handles error thrown from filter changes', async () => {
+      vi.spyOn(getFilterChanges, 'getFilterChanges').mockRejectedValueOnce(
+        new Error('bar'),
+      )
 
-        let unwatch: () => void = () => null
-        const error = await new Promise((resolve) => {
-          unwatch = watchEvent(publicClient, {
-            onLogs: () => null,
-            onError: resolve,
-            poll: true,
-          })
+      let unwatch: () => void = () => null
+      const error = await new Promise((resolve) => {
+        unwatch = watchEvent(publicClient, {
+          onLogs: () => null,
+          onError: resolve,
+          poll: true,
         })
-        expect(error).toMatchInlineSnapshot('[Error: bar]')
-        unwatch()
-      },
-      { retry: 3 },
-    )
+      })
+      expect(error).toMatchInlineSnapshot('[Error: bar]')
+      unwatch()
+    })
 
     test('re-initializes the filter if the active filter uninstalls', async () => {
       const filterCreator = vi.spyOn(createEventFilter, 'createEventFilter')
@@ -572,21 +555,23 @@ describe('subscribe', () => {
       onLogs: (logs_) => logs.push(logs_),
     })
 
-    await wait(1000)
+    await wait(100)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await wait(1000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
       account: address.vitalik,
     })
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(2)
@@ -605,14 +590,15 @@ describe('subscribe', () => {
       onLogs: (logs_) => logs2.push(logs_),
     })
 
-    await wait(1000)
+    await wait(100)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[0].address, 1n],
       account: address.vitalik,
     })
-    await wait(2000)
+    await mine(testClient, { blocks: 1 })
+    await wait(200)
     unwatch()
     unwatch2()
 
@@ -635,7 +621,7 @@ describe('subscribe', () => {
       onLogs: (logs_) => logs2.push(logs_),
     })
 
-    await wait(1000)
+    await wait(100)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
@@ -643,7 +629,7 @@ describe('subscribe', () => {
       account: address.vitalik,
     })
     await mine(testClient, { blocks: 1 })
-    await wait(2000)
+    await wait(200)
     unwatch()
     unwatch2()
 
@@ -670,7 +656,7 @@ describe('subscribe', () => {
       onLogs: (logs_) => logs.push(logs_),
     })
 
-    await wait(1000)
+    await wait(100)
     await writeContract(walletClient, {
       ...usdcContractConfig,
       functionName: 'transfer',
@@ -684,7 +670,7 @@ describe('subscribe', () => {
       account: address.vitalik,
     })
     await mine(testClient, { blocks: 1 })
-    await wait(2000)
+    await wait(200)
     unwatch()
 
     expect(logs.length).toBe(2)
@@ -717,7 +703,7 @@ describe('subscribe', () => {
         onLogs: (logs_) => logs.push(logs_),
       })
 
-      await wait(1000)
+      await wait(100)
       await writeContract(walletClient, {
         ...wagmiContractConfig,
         functionName: 'mint',
@@ -730,7 +716,7 @@ describe('subscribe', () => {
         account: address.vitalik,
       })
       await mine(testClient, { blocks: 1 })
-      await wait(1000)
+      await wait(200)
       unwatch()
 
       expect(logs.length).toBe(2)
@@ -837,7 +823,7 @@ describe('subscribe', () => {
           account: address.vitalik,
         })
         await mine(testClient, { blocks: 1 })
-        await wait(1000)
+        await wait(200)
 
         unwatch_unstrict()
         unwatch_strict()
@@ -885,7 +871,7 @@ describe('subscribe', () => {
           account: address.vitalik,
         })
         await mine(testClient, { blocks: 1 })
-        await wait(1000)
+        await wait(200)
 
         unwatch_unstrict()
         unwatch_strict()

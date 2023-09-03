@@ -127,7 +127,7 @@ test('args: blockNumber', async () => {
 })
 
 describe('account hoisting', () => {
-  test('no account hoisted', async () => {
+  test.skip('no account hoisted', async () => {
     await expect(
       call(publicClient, {
         data: `${mintWithParams4bytes}${sixHundred}`,

@@ -8,8 +8,9 @@ import {
   localHttpUrl,
   localWsUrl,
 } from '../_test/constants.js'
-import { createHttpServer } from '../_test/utils.js'
+import { createHttpServer, testClient } from '../_test/utils.js'
 
+import { mine } from '../test.js'
 import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
 import { type RpcResponse, getSocket, rpc } from './rpc.js'
@@ -732,7 +733,13 @@ describe('webSocket (subscription)', () => {
       },
       onResponse: (data) => data_.push(data),
     })
-    await wait(2000)
+
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+
     expect(socket.subscriptions.size).toBe(1)
     expect(data_.length).toBe(3)
 
@@ -743,7 +750,12 @@ describe('webSocket (subscription)', () => {
       },
     })
 
-    await wait(2000)
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+
     expect(socket.subscriptions.size).toBe(0)
     expect(data_.length).toBe(3)
   })
@@ -777,7 +789,12 @@ describe('webSocket (subscription)', () => {
       onResponse: (data) => s3.push(data),
     })
 
-    await wait(2000)
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+
     expect(socket.requests.size).toBe(0)
     expect(socket.subscriptions.size).toBe(3)
     expect(s1.length).toBe(3)
@@ -791,7 +808,12 @@ describe('webSocket (subscription)', () => {
       },
     })
 
-    await wait(2000)
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+    await mine(testClient, { blocks: 1 })
+    await wait(100)
+
     expect(socket.requests.size).toBe(0)
     expect(socket.subscriptions.size).toBe(2)
     expect(s1.length).toBe(3)

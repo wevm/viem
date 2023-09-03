@@ -6,6 +6,7 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { impersonateAccount } from './impersonateAccount.js'
+import { stopImpersonatingAccount } from './stopImpersonatingAccount.js'
 
 test('impersonates account', async () => {
   await expect(
@@ -27,4 +28,6 @@ test('impersonates account', async () => {
       value: parseEther('1'),
     }),
   ).toBeDefined()
+
+  await stopImpersonatingAccount(testClient, { address: address.vitalik })
 })
