@@ -14,6 +14,9 @@ export const meterTestnet = /*#__PURE__*/ defineChain({
     public: { http: ['https://rpctest.meter.io'] },
   },
   blockExplorers: {
-    default: { name: 'MeterTestnetScan', url: 'https://scan-warringstakes.meter.io' },
+    default: {
+      name: 'MeterTestnetScan',
+      url: 'https://scan-warringstakes.meter.io',
+    },
   },
 })
