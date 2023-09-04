@@ -11,7 +11,10 @@ import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { isHex } from '../../utils/data/isHex.js'
 import { stringify } from '../../utils/stringify.js'
-import { validateTypedData } from '../../utils/typedData.js'
+import {
+  getTypesForEIP712Domain,
+  validateTypedData,
+} from '../../utils/typedData.js'
 
 export type SignTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
@@ -143,19 +146,7 @@ export async function signTypedData<
   const account = parseAccount(account_)
 
   const types = {
-    EIP712Domain: [
-      typeof domain?.name === 'string' && { name: 'name', type: 'string' },
-      domain?.version && { name: 'version', type: 'string' },
-      typeof domain?.chainId === 'number' && {
-        name: 'chainId',
-        type: 'uint256',
-      },
-      domain?.verifyingContract && {
-        name: 'verifyingContract',
-        type: 'address',
-      },
-      domain?.salt && { name: 'salt', type: 'bytes32' },
-    ].filter(Boolean),
+    EIP712Domain: getTypesForEIP712Domain({ domain }),
     ...parameters.types,
   }
 

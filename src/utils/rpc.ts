@@ -1,4 +1,5 @@
-import type { MessageEvent, WebSocket } from 'isomorphic-ws'
+import WebSocket from 'isomorphic-ws'
+import type { MessageEvent } from 'isomorphic-ws'
 
 import {
   HttpRequestError,
@@ -40,7 +41,7 @@ type Subscription<TResult, TError> = {
   )
 }
 
-export type RpcRequest = { method: string; params?: any }
+export type RpcRequest = { method: string; params?: any; id?: number }
 
 export type RpcResponse<TResult = any, TError = any> = {
   jsonrpc: `${number}`
@@ -82,11 +83,11 @@ async function http<TBody extends RpcRequest | RpcRequest[]>(
             ? stringify(
                 body.map((body) => ({
                   jsonrpc: '2.0',
-                  id: id++,
+                  id: body.id ?? id++,
                   ...body,
                 })),
               )
-            : stringify({ jsonrpc: '2.0', id: id++, ...body }),
+            : stringify({ jsonrpc: '2.0', id: body.id ?? id++, ...body }),
           headers: {
             ...headers,
             'Content-Type': 'application/json',
@@ -144,10 +145,10 @@ export type Socket = WebSocket & {
   subscriptions: CallbackMap
 }
 
-const sockets = /*#__PURE__*/ new Map<string, Socket>()
+export const socketsCache = /*#__PURE__*/ new Map<string, Socket>()
 
 export async function getSocket(url: string) {
-  let socket = sockets.get(url)
+  let socket = socketsCache.get(url)
 
   // If the socket already exists, return it.
   if (socket) return socket
@@ -155,18 +156,6 @@ export async function getSocket(url: string) {
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: url,
     fn: async () => {
-      let WebSocket = await import('isomorphic-ws')
-      // Workaround for Vite.
-      // https://github.com/vitejs/vite/issues/9703
-      // TODO: Remove when issue is resolved.
-      if (
-        (WebSocket as unknown as { default?: typeof WebSocket }).default
-          ?.constructor
-      )
-        WebSocket = (WebSocket as unknown as { default: typeof WebSocket })
-          .default
-      else WebSocket = WebSocket.WebSocket
-
       const webSocket = new WebSocket(url)
 
       // Set up a cache for incoming "synchronous" requests.
@@ -185,7 +174,7 @@ export async function getSocket(url: string) {
         if (!isSubscription) cache.delete(id)
       }
       const onClose = () => {
-        sockets.delete(url)
+        socketsCache.delete(url)
         webSocket.removeEventListener('close', onClose)
         webSocket.removeEventListener('message', onMessage)
       }
@@ -208,7 +197,7 @@ export async function getSocket(url: string) {
         requests,
         subscriptions,
       })
-      sockets.set(url, socket)
+      socketsCache.set(url, socket)
 
       return [socket]
     },

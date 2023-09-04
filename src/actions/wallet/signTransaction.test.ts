@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, localHttpUrl } from '../../_test/constants.js'
-import { walletClient } from '../../_test/utils.js'
+import { testClient, walletClient } from '../../_test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
@@ -13,6 +13,7 @@ import {
   createWalletClient,
   parseGwei,
 } from '../../index.js'
+import { mine } from '../index.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 import { signTransaction } from './signTransaction.js'
 
@@ -52,12 +53,16 @@ describe('eip1559', () => {
   })
 
   test('w/ prepareTransactionRequest', async () => {
+    await mine(testClient, { blocks: 1 })
+
     const request_1 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       value: 1n,
     })
     const signature_1 = await signTransaction(walletClient, request_1)
     expect(signature_1.match(/^0x02/)).toBeTruthy()
+
+    await mine(testClient, { blocks: 1 })
 
     const request_2 = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
@@ -187,6 +192,7 @@ describe('eip2930', () => {
   })
 
   test('w/ prepareTransactionRequest', async () => {
+    await mine(testClient, { blocks: 1 })
     const request = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       value: 1n,
@@ -275,6 +281,7 @@ describe('legacy', () => {
   })
 
   test('w/ prepareTransactionRequest', async () => {
+    await mine(testClient, { blocks: 1 })
     const request = await prepareTransactionRequest(walletClient, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       value: 1n,

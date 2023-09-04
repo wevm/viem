@@ -6,7 +6,7 @@ import type {
   ContractFunctionParameters,
   ContractFunctionReturnType,
 } from './contract.js'
-import type { MaybePartial } from './utils.js'
+import type { MaybePartial, Prettify } from './utils.js'
 
 export type MulticallContracts<
   contracts extends readonly unknown[],
@@ -23,8 +23,10 @@ export type MulticallContracts<
   ? readonly [
       ...result,
       MaybePartial<
-        GetMulticallContractParameters<contract, options['mutability']> &
-          options['properties'],
+        Prettify<
+          GetMulticallContractParameters<contract, options['mutability']> &
+            options['properties']
+        >,
         options['optional']
       >,
     ]
@@ -35,8 +37,10 @@ export type MulticallContracts<
       [
         ...result,
         MaybePartial<
-          GetMulticallContractParameters<contract, options['mutability']> &
-            options['properties'],
+          Prettify<
+            GetMulticallContractParameters<contract, options['mutability']> &
+              options['properties']
+          >,
           options['optional']
         >,
       ]
@@ -52,18 +56,20 @@ export type MulticallContracts<
       infer args
     >[]
   ? readonly MaybePartial<
-      ContractFunctionParameters<
-        abi,
-        options['mutability'],
-        functionName,
-        args
-      > &
-        options['properties'],
+      Prettify<
+        ContractFunctionParameters<
+          abi,
+          options['mutability'],
+          functionName,
+          args
+        > &
+          options['properties']
+      >,
       options['optional']
     >[]
   : // Fallback
     readonly MaybePartial<
-      ContractFunctionParameters & options['properties'],
+      Prettify<ContractFunctionParameters & options['properties']>,
       options['optional']
     >[]
 

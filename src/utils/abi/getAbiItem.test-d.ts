@@ -12,9 +12,19 @@ test('function', () => {
     args: ['0x'],
   })
   expectTypeOf(res).toEqualTypeOf<{
+    readonly inputs: readonly [
+      {
+        readonly name: 'owner'
+        readonly type: 'address'
+      },
+    ]
     readonly name: 'balanceOf'
-    readonly inputs: readonly [{ name: 'account'; type: 'address' }]
-    readonly outputs: readonly [{ type: 'uint256' }]
+    readonly outputs: readonly [
+      {
+        readonly name: ''
+        readonly type: 'uint256'
+      },
+    ]
     readonly stateMutability: 'view'
     readonly type: 'function'
   }>()
@@ -27,13 +37,25 @@ test('event', () => {
     args: ['0x', '0x', 123n],
   })
   expectTypeOf(res).toEqualTypeOf<{
-    readonly name: 'Transfer'
-    readonly inputs: readonly [
-      { indexed: true; name: 'from'; type: 'address' },
-      { indexed: true; name: 'to'; type: 'address' },
-      { indexed: false; name: 'value'; type: 'uint256' },
-    ]
     readonly anonymous: false
+    readonly inputs: readonly [
+      {
+        readonly indexed: true
+        readonly name: 'from'
+        readonly type: 'address'
+      },
+      {
+        readonly indexed: true
+        readonly name: 'to'
+        readonly type: 'address'
+      },
+      {
+        readonly indexed: true
+        readonly name: 'tokenId'
+        readonly type: 'uint256'
+      },
+    ]
+    readonly name: 'Transfer'
     readonly type: 'event'
   }>()
 })
@@ -74,11 +96,17 @@ test('defined inline', () => {
     args: ['0x', 123n],
   })
   expectTypeOf(res).toEqualTypeOf<{
-    readonly name: 'approve'
     readonly inputs: readonly [
-      { name: 'to'; type: 'address' },
-      { name: 'tokenId'; type: 'uint256' },
+      {
+        readonly name: 'to'
+        readonly type: 'address'
+      },
+      {
+        readonly name: 'tokenId'
+        readonly type: 'uint256'
+      },
     ]
+    readonly name: 'approve'
     readonly outputs: readonly []
     readonly stateMutability: 'nonpayable'
     readonly type: 'function'
@@ -154,30 +182,36 @@ test('overloads', () => {
   expectTypeOf(res1).toEqualTypeOf<{
     readonly name: 'foo'
     readonly inputs: readonly []
-    readonly outputs: readonly [{ type: 'int8' }]
+    readonly outputs: readonly [{ readonly type: 'int8' }]
     readonly stateMutability: 'view'
     readonly type: 'function'
   }>()
 
-  const res2 = getAbiItem({
+  const { inputs, ...res2 } = getAbiItem({
     abi,
     name: 'foo',
     args: ['0x', '0x'],
   })
+  expectTypeOf(inputs[0].type).toEqualTypeOf<'address'>()
   expectTypeOf(res2).toEqualTypeOf<{
-    readonly name: 'foo'
-    readonly inputs: readonly [{ type: 'address' }, { type: 'address' }]
-    readonly outputs: readonly [
+    name: 'foo'
+    type: 'function'
+    stateMutability: 'view'
+    outputs: readonly [
       {
         readonly type: 'tuple'
         readonly components: readonly [
-          { name: 'foo'; type: 'address' },
-          { name: 'bar'; type: 'address' },
+          {
+            readonly type: 'address'
+            readonly name: 'foo'
+          },
+          {
+            readonly type: 'address'
+            readonly name: 'bar'
+          },
         ]
       },
     ]
-    readonly stateMutability: 'view'
-    readonly type: 'function'
   }>()
 
   const res3 = getAbiItem({

@@ -329,6 +329,7 @@ test('exports', () => {
       "stringify",
       "trim",
       "validateTypedData",
+      "domainSeparator",
     ]
   `)
 })

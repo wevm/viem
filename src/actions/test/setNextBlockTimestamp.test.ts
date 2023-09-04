@@ -1,13 +1,15 @@
 import { expect, test } from 'vitest'
 
 import { publicClient, testClient } from '../../_test/utils.js'
-import { wait } from '../../utils/wait.js'
 
 import { getBlock } from '../public/getBlock.js'
 
+import { mine } from './mine.js'
 import { setNextBlockTimestamp } from './setNextBlockTimestamp.js'
 
 test('sets block timestamp interval', async () => {
+  await mine(testClient, { blocks: 1 })
+
   const block1 = await getBlock(publicClient, {
     blockTag: 'latest',
   })
@@ -16,7 +18,9 @@ test('sets block timestamp interval', async () => {
       timestamp: block1.timestamp + 86400n,
     }),
   ).resolves.toBeUndefined()
-  await wait(1000)
+
+  await mine(testClient, { blocks: 1 })
+
   const block2 = await getBlock(publicClient, { blockTag: 'latest' })
   expect(block2.timestamp).toEqual(block1.timestamp + 86400n)
 })

@@ -335,8 +335,8 @@ test('MulticallParameters', async () => {
     functionName: 'foo' | 'bar'
     args?:
       | readonly []
-      | readonly [Address]
-      | readonly [Address, Address]
+      | readonly [`0x${string}`]
+      | readonly [`0x${string}`, `0x${string}`]
       | undefined
   }>()
 })

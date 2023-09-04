@@ -4,7 +4,10 @@ import { address } from '../../_test/constants.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { BaseError } from '../../errors/base.js'
 import { RpcRequestError } from '../../errors/request.js'
-import { TransactionRejectedRpcError } from '../../errors/rpc.js'
+import {
+  InvalidInputRpcError,
+  TransactionRejectedRpcError,
+} from '../../errors/rpc.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 
@@ -364,8 +367,35 @@ test('Unknown node error', () => {
     account: parseAccount(address.vitalik),
   })
   expect(result).toMatchInlineSnapshot(`
-    [TransactionExecutionError: An error occurred while executing: oh no
+    [TransactionExecutionError: Transaction creation failed.
 
+    URL: http://localhost
+    Request body: {}
+     
+    Request Arguments:
+      from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
+
+    Details: oh no
+    Version: viem@1.0.2]
+  `)
+
+  const error2 = new InvalidInputRpcError(
+    new RpcRequestError({
+      body: {},
+      error: { code: -32000, message: 'oh no' },
+      url: '',
+    }),
+  )
+  const result2 = getTransactionError(error2, {
+    account: parseAccount(address.vitalik),
+  })
+  expect(result2).toMatchInlineSnapshot(`
+    [TransactionExecutionError: Missing or invalid parameters.
+    Double check you have provided the correct parameters.
+
+    URL: http://localhost
+    Request body: {}
+     
     Request Arguments:
       from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 

@@ -1,5 +1,60 @@
 # viem
 
+## 1.10.1
+
+### Patch Changes
+
+- [`bf2f7ee1`](https://github.com/wagmi-dev/viem/commit/bf2f7ee124af5eb43f0541200e88bd4302680912) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies:
+
+  - `@adraffy/ens-normalize`
+  - `@noble/curves`
+  - `@noble/hashes`
+  - `@scure/bip32`
+  - `@scure/bip39`
+  - `abitype`
+  - `isomorphic-ws`
+  - `ws`
+
+## 1.10.0
+
+### Minor Changes
+
+- [#1110](https://github.com/wagmi-dev/viem/pull/1110) [`74c7d276`](https://github.com/wagmi-dev/viem/commit/74c7d276305d4e3db4a4902c247e191ead369abd) Thanks [@jxom](https://github.com/jxom)! - Amended `Chain` type to allow arbitrary `contracts` (as well as contracts that could be dependant on chain).
+
+* [#1136](https://github.com/wagmi-dev/viem/pull/1136) [`16699c8c`](https://github.com/wagmi-dev/viem/commit/16699c8c92faccecc4dbd3353879ce5a512bbb35) Thanks [@jxom](https://github.com/jxom)! - Handle CAIP-25 "User Rejected" errors.
+
+- [#1120](https://github.com/wagmi-dev/viem/pull/1120) [`0e4d9320`](https://github.com/wagmi-dev/viem/commit/0e4d932079a449fb7268c24eb0f6391e7b05076c) Thanks [@polygomic](https://github.com/polygomic)! - Added Plinga chain
+
+* [#1108](https://github.com/wagmi-dev/viem/pull/1108) [`2327aa07`](https://github.com/wagmi-dev/viem/commit/2327aa0741bac51058d7038840bdc2895ead5456) Thanks [@simonzg](https://github.com/simonzg)! - Added Meter chain and Meter Testnet chain
+
+- [#1128](https://github.com/wagmi-dev/viem/pull/1128) [`e1728054`](https://github.com/wagmi-dev/viem/commit/e17280544dc113c855166dae0ee634890c8a4e96) Thanks [@karangoraniya](https://github.com/karangoraniya)! - Added opBNB Mainnet and Testnet chains.
+
+* [#1117](https://github.com/wagmi-dev/viem/pull/1117) [`a637ba2b`](https://github.com/wagmi-dev/viem/commit/a637ba2b5fc1ffacc1f483ea4be0121528faf3f4) Thanks [@rkalis](https://github.com/rkalis)! - Added `domainSeparator` to calculate domain separator from an EIP712 domain.
+
+### Patch Changes
+
+- [#1137](https://github.com/wagmi-dev/viem/pull/1137) [`4159c997`](https://github.com/wagmi-dev/viem/commit/4159c9979788798cca6ebb48f38e2284559850ff) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where non-standard "user rejected" errors where being coalesced into an `UnknownNodeError`.
+
+* [`8605c1f1`](https://github.com/wagmi-dev/viem/commit/8605c1f1d048a2d924bd8b83a42b8ce5b0e65900) Thanks [@jxom](https://github.com/jxom)! - Handle `-32603` RPC error codes when deriving a `ContractFunctionRevertedError`.
+
+- [#1109](https://github.com/wagmi-dev/viem/pull/1109) [`0a242120`](https://github.com/wagmi-dev/viem/commit/0a2421204f3878e016502f7e2ec98d043ef88cf6) Thanks [@jxom](https://github.com/jxom)! - Removed hardcoded `defaultPriorityFee` on OP Stack chains in favor of fetching it from `eth_maxPriorityFeePerGas`.
+
+* [#1112](https://github.com/wagmi-dev/viem/pull/1112) [`7da52244`](https://github.com/wagmi-dev/viem/commit/7da5224467ca5a6368f27734a01b56f53c2c0106) Thanks [@RexCloud](https://github.com/RexCloud)! - Added multicall3 for Scroll Sepolia
+
+- [#1139](https://github.com/wagmi-dev/viem/pull/1139) [`86230caf`](https://github.com/wagmi-dev/viem/commit/86230caf872f76975f7f6aaff53a9c9e3b8bfdc7) Thanks [@jxom](https://github.com/jxom)! - Fixed `VerifyMessageParameters` to accept a `raw` property.
+
+* [#1138](https://github.com/wagmi-dev/viem/pull/1138) [`101c94f2`](https://github.com/wagmi-dev/viem/commit/101c94f2841056410ed4c32b76672f7fbd1ebabc) Thanks [@jxom](https://github.com/jxom)! - Amended Base chain `nativeCurreny.name` to "Ether".
+
+- [#1048](https://github.com/wagmi-dev/viem/pull/1048) [`f33086ef`](https://github.com/wagmi-dev/viem/commit/f33086ef88a1c9650b2b0efa6a034490519eead8) Thanks [@brianathere](https://github.com/brianathere)! - Converted `isomorphic-ws` to a synchronous import.
+
+## 1.9.5
+
+### Patch Changes
+
+- [#1105](https://github.com/wagmi-dev/viem/pull/1105) [`9661b9d8`](https://github.com/wagmi-dev/viem/commit/9661b9d8f4d747391f9ffb14b789c727a6831488) Thanks [@dschlabach](https://github.com/dschlabach)! - Added ENS Registry and ENS Universal Resolver for Sepolia.
+
+* [#1102](https://github.com/wagmi-dev/viem/pull/1102) [`0edea858`](https://github.com/wagmi-dev/viem/commit/0edea858fe28bd9d7cb7c5b9b8ebde72025cf71d) Thanks [@rkalis](https://github.com/rkalis)! - Fixed bug regarding incorrect bigint->bytes32 conversion in hexToSignature
+
 ## 1.9.4
 
 ### Patch Changes

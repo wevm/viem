@@ -165,6 +165,9 @@ describe('smoke test', () => {
     await testClient.setIntervalMining({
       interval: 1,
     })
+    await testClient.setIntervalMining({
+      interval: 0,
+    })
   })
 
   test('setLoggingEnabled', async () => {

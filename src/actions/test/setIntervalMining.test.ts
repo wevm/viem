@@ -27,6 +27,4 @@ test('sets mining interval', async () => {
   await wait(2000)
   const blockNumber4 = await getBlockNumber(publicClient, { cacheTime: 0 })
   expect(blockNumber4 - blockNumber3).toBe(0n)
-
-  await setIntervalMining(testClient, { interval: 1 })
 })
