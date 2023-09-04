@@ -1,5 +1,13 @@
 # viem
 
+## 1.10.2
+
+### Patch Changes
+
+- [#1145](https://github.com/wagmi-dev/viem/pull/1145) [`eac50a51`](https://github.com/wagmi-dev/viem/commit/eac50a5138f9e2078e99abda02a9c3468bcd195b) Thanks [@jxom](https://github.com/jxom)! - Support function/event selectors as `name` in `getAbiItem`.
+
+* [#1146](https://github.com/wagmi-dev/viem/pull/1146) [`4875a2af`](https://github.com/wagmi-dev/viem/commit/4875a2aff987709f3f94287d9f77895ec99d9590) Thanks [@darrenvechain](https://github.com/darrenvechain)! - Added Vechain chain.
+
 ## 1.10.1
 
 ### Patch Changes
