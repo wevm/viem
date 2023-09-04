@@ -240,8 +240,6 @@ test('UnknownNodeError', () => {
   expect(error).toMatchInlineSnapshot(`
     [UnknownNodeError: An error occurred while executing: foo
 
-    Version: viem@1.0.2
-
     Version: viem@1.0.2]
   `)
 })

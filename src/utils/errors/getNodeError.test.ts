@@ -309,7 +309,7 @@ test('Unknown node error', () => {
     account: address.vitalik,
   })
   expect(result).toMatchInlineSnapshot(`
-    [UnknownNodeError: An error occurred while executing: oh no
+    [UnknownNodeError: An error occurred while executing: Transaction creation failed.
 
     Details: oh no
     Version: viem@1.0.2]

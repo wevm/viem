@@ -2,13 +2,10 @@ import type { Account } from '../../accounts/types.js'
 import type { EstimateGasParameters } from '../../actions/public/estimateGas.js'
 import type { BaseError } from '../../errors/base.js'
 import { EstimateGasExecutionError } from '../../errors/estimateGas.js'
+import { UnknownNodeError } from '../../errors/node.js'
 import type { Chain } from '../../types/chain.js'
 
-import {
-  type GetNodeErrorParameters,
-  containsNodeError,
-  getNodeError,
-} from './getNodeError.js'
+import { type GetNodeErrorParameters, getNodeError } from './getNodeError.js'
 
 export function getEstimateGasError(
   err: BaseError,
@@ -21,9 +18,8 @@ export function getEstimateGasError(
     docsPath?: string
   },
 ) {
-  let cause = err
-  if (containsNodeError(err))
-    cause = getNodeError(err, args as GetNodeErrorParameters)
+  let cause = getNodeError(err, args as GetNodeErrorParameters)
+  if (cause instanceof UnknownNodeError) cause = err
   return new EstimateGasExecutionError(cause, {
     docsPath,
     ...args,

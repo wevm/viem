@@ -595,7 +595,7 @@ describe('batch call', () => {
           },
         },
         {
-          "reason": [CallExecutionError: An error occurred.
+          "reason": [CallExecutionError: Execution reverted for an unknown reason.
 
       Raw Call Arguments:
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
