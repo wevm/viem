@@ -13,31 +13,31 @@ importers:
   .:
     dependencies:
       '@adraffy/ens-normalize':
-        specifier: 1.9.4
+        specifier: ^1.9.4
         version: 1.9.4
       '@noble/curves':
-        specifier: 1.2.0
+        specifier: ^1.2.0
         version: 1.2.0
       '@noble/hashes':
-        specifier: 1.3.2
+        specifier: ^1.3.2
         version: 1.3.2
       '@scure/bip32':
-        specifier: 1.3.2
+        specifier: ^1.3.2
         version: 1.3.2
       '@scure/bip39':
-        specifier: 1.2.1
+        specifier: ^1.2.1
         version: 1.2.1
       '@types/ws':
         specifier: ^8.5.5
         version: 8.5.5
       abitype:
-        specifier: 0.9.8
+        specifier: ^0.9.8
         version: 0.9.8(typescript@5.0.4)
       isomorphic-ws:
-        specifier: 5.0.0
+        specifier: ^5.0.0
         version: 5.0.0(ws@8.13.0)
       ws:
-        specifier: 8.13.0
+        specifier: ^8.13.0
         version: 8.13.0
     devDependencies:
       '@actions/core':
@@ -47,7 +47,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1
       '@biomejs/biome':
-        specifier: 1.0.0
+        specifier: ^1.0.0
         version: 1.0.0
       '@changesets/changelog-github':
         specifier: ^0.4.5
@@ -2071,10 +2071,6 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@scure/base@1.1.1:
-    resolution: {integrity: sha512-ZxOhsSyxYwLJj3pLZCefNitxsj093tb2vq90mp2txoYeBqbcjDjqFhyM8eUjq/uFm6zJ+mUuqxlS2FkuSY1MTA==}
-    dev: false
-
   /@scure/base@1.1.3:
     resolution: {integrity: sha512-/+SgoRjLq7Xlf0CWuLHq2LUZeL/w65kfzAPG5NH9pcmBhs+nunQTn4gvdwgMTIXnt9b2C/1SeL2XiysZEyIC9Q==}
     dev: false
@@ -2091,7 +2087,7 @@ packages:
     resolution: {integrity: sha512-Z3/Fsz1yr904dduJD0NpiyRHhRYHdcnyh73FZWiV+/qhWi83wNJ3NWolYqCEN+ZWsUz2TWwajJggcRE9r1zUYg==}
     dependencies:
       '@noble/hashes': 1.3.2
-      '@scure/base': 1.1.1
+      '@scure/base': 1.1.3
     dev: false
 
   /@sinclair/typebox@0.27.8:
