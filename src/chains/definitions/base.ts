@@ -6,7 +6,7 @@ export const base = /*#__PURE__*/ defineChain(
     id: 8453,
     network: 'base',
     name: 'Base',
-    nativeCurrency: { name: 'Base', symbol: 'ETH', decimals: 18 },
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
       default: {
         http: ['https://mainnet.base.org'],
