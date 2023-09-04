@@ -1,5 +1,5 @@
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import {
   ExecutionRevertedError,
   FeeCapTooHighError,
@@ -31,8 +31,22 @@ export function containsNodeError(err: BaseError) {
 export type GetNodeErrorParameters = Partial<SendTransactionParameters<any>>
 
 export function getNodeError(err: BaseError, args: GetNodeErrorParameters) {
-  const message = err.details.toLowerCase()
-  if (FeeCapTooHighError.nodeMessage.test(message))
+  const message = (err.details || '').toLowerCase()
+
+  const executionRevertedError = err.walk(
+    (e) => (e as { code: number }).code === ExecutionRevertedError.code,
+  )
+  if (executionRevertedError instanceof BaseError) {
+    return new ExecutionRevertedError({
+      cause: err,
+      message: executionRevertedError.details,
+    })
+  } else if (ExecutionRevertedError.nodeMessage.test(message))
+    return new ExecutionRevertedError({
+      cause: err,
+      message: err.details,
+    })
+  else if (FeeCapTooHighError.nodeMessage.test(message))
     return new FeeCapTooHighError({
       cause: err,
       maxFeePerGas: args?.maxFeePerGas,
@@ -62,16 +76,7 @@ export function getNodeError(err: BaseError, args: GetNodeErrorParameters) {
       maxFeePerGas: args?.maxFeePerGas,
       maxPriorityFeePerGas: args?.maxPriorityFeePerGas,
     })
-  else if (
-    message.match(ExecutionRevertedError.nodeMessage) ||
-    ('code' in (err.cause as BaseError) &&
-      (err.cause as { code: number })?.code === ExecutionRevertedError.code)
-  )
-    return new ExecutionRevertedError({
-      cause: err,
-      message: (err.cause as BaseError).details || err.details,
-    })
   return new UnknownNodeError({
-    cause: (err.cause as BaseError).cause as BaseError,
+    cause: err,
   })
 }
