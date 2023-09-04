@@ -6,7 +6,7 @@ export const baseGoerli = /*#__PURE__*/ defineChain(
     id: 84531,
     network: 'base-goerli',
     name: 'Base Goerli',
-    nativeCurrency: { name: 'Base Goerli', symbol: 'ETH', decimals: 18 },
+    nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
       default: {
         http: ['https://goerli.base.org'],
