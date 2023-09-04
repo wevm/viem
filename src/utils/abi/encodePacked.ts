@@ -18,7 +18,7 @@ import {
 import { InvalidAddressError } from '../../errors/address.js'
 import type { Hex } from '../../types/misc.js'
 import { isAddress } from '../address/isAddress.js'
-import { concat } from '../data/concat.js'
+import { concatHex } from '../data/concat.js'
 import { pad } from '../data/pad.js'
 import { boolToHex, numberToHex, stringToHex } from '../encoding/toHex.js'
 import { arrayRegex, bytesRegex, integerRegex } from '../regex.js'
@@ -54,7 +54,7 @@ export function encodePacked<
     const value = values[i]
     data.push(encode(type, value))
   }
-  return concat(data)
+  return concatHex(data)
 }
 
 function encode<const TPackedAbiType extends PackedAbiType | unknown>(
@@ -103,7 +103,7 @@ function encode<const TPackedAbiType extends PackedAbiType | unknown>(
       data.push(encode(childType, value[i], true))
     }
     if (data.length === 0) return '0x'
-    return concat(data)
+    return concatHex(data)
   }
 
   throw new UnsupportedPackedAbiType(type)
