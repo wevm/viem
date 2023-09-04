@@ -21,12 +21,12 @@ export type Chain<
 /////////////////////////////////////////////////////////////////////
 // Constants
 
-export type ChainBlockExplorer = {
+type ChainBlockExplorer = {
   name: string
   url: string
 }
 
-export type ChainConstants = {
+type ChainConstants = {
   /** Collection of block explorers */
   blockExplorers?:
     | {
@@ -80,14 +80,14 @@ export type ChainContract = {
   blockCreated?: number | undefined
 }
 
-export type ChainNativeCurrency = {
+type ChainNativeCurrency = {
   name: string
   /** 2-6 characters long */
   symbol: string
   decimals: number
 }
 
-export type ChainRpcUrls = {
+type ChainRpcUrls = {
   http: readonly string[]
   webSocket?: readonly string[] | undefined
 }
