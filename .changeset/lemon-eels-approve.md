@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Adding the vechain network
+Added the vechain network to the chains list
