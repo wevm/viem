@@ -126,6 +126,7 @@ test('exports chains', () => {
       "telos",
       "telosTestnet",
       "thunderTestnet",
+      "vechain",
       "wanchain",
       "wanchainTestnet",
       "xdc",

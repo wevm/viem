@@ -19,8 +19,8 @@ export const vechain = /*#__PURE__*/ defineChain({
       url: 'https://explore.vechain.org',
     },
     vechainStats: {
-        name: 'Vechain Stats',
-        url: 'https://vechainstats.com',
-    }
+      name: 'Vechain Stats',
+      url: 'https://vechainstats.com',
+    },
   },
 })
