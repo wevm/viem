@@ -6,6 +6,15 @@ test('exports utils', () => {
   expect(Object.keys(utils)).toMatchInlineSnapshot(`
     [
       "HDKey",
+      "czech",
+      "english",
+      "french",
+      "italian",
+      "japanese",
+      "korean",
+      "simplifiedChinese",
+      "spanish",
+      "traditionalChinese",
       "generateMnemonic",
       "generatePrivateKey",
       "hdKeyToAccount",
@@ -20,15 +29,6 @@ test('exports utils', () => {
       "parseAccount",
       "publicKeyToAddress",
       "privateKeyToAddress",
-      "czech",
-      "english",
-      "french",
-      "italian",
-      "japanese",
-      "korean",
-      "simplifiedChinese",
-      "spanish",
-      "traditionalChinese",
     ]
   `)
 })
