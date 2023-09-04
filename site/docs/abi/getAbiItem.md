@@ -98,6 +98,15 @@ const encodedData = getAbiItem({
 })
 ```
 
+You can also provide the ABI item's 4byte selector:
+
+```ts
+const encodedData = getAbiItem({
+  abi: [...],
+  name: '0x70a08231', // [!code focus]
+})
+```
+
 ### args (optional)
 
 - **Type:** Inferred.

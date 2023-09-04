@@ -1,6 +1,10 @@
 import type { Abi, AbiParameter, Address } from 'abitype'
 
 import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
+import { isHex } from '../../utils/data/isHex.js'
+import { getEventSelector } from '../../utils/hash/getEventSelector.js'
+import { getFunctionSelector } from '../../utils/hash/getFunctionSelector.js'
 import { isAddress } from '../address/isAddress.js'
 
 export type GetAbiItemParameters<
@@ -8,7 +12,7 @@ export type GetAbiItemParameters<
   TItemName extends string = string,
 > = {
   abi: TAbi
-  name: InferItemName<TAbi, TItemName>
+  name: InferItemName<TAbi, TItemName> | Hex
 } & Partial<GetFunctionArgs<TAbi, TItemName>>
 
 export type GetAbiItemReturnType<
@@ -32,7 +36,17 @@ export function getAbiItem<
   TAbi,
   TItemName
 > {
-  const abiItems = (abi as Abi).filter((x) => 'name' in x && x.name === name)
+  const isSelector = isHex(name, { strict: false })
+
+  const abiItems = (abi as Abi).filter((abiItem) => {
+    if (isSelector) {
+      if (abiItem.type === 'function')
+        return getFunctionSelector(abiItem) === name
+      if (abiItem.type === 'event') return getEventSelector(abiItem) === name
+      return false
+    }
+    return 'name' in abiItem && abiItem.name === name
+  })
 
   if (abiItems.length === 0) return undefined as any
   if (abiItems.length === 1) return abiItems[0] as any

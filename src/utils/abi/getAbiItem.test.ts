@@ -35,6 +35,67 @@ test('default', () => {
   `)
 })
 
+describe('selector', () => {
+  test('function', () => {
+    expect(
+      getAbiItem({
+        abi: wagmiContractConfig.abi,
+        name: '0x70a08231',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "inputs": [
+          {
+            "name": "owner",
+            "type": "address",
+          },
+        ],
+        "name": "balanceOf",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256",
+          },
+        ],
+        "stateMutability": "view",
+        "type": "function",
+      }
+    `)
+  })
+
+  test('event', () => {
+    expect(
+      getAbiItem({
+        abi: wagmiContractConfig.abi,
+        name: '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "name": "from",
+            "type": "address",
+          },
+          {
+            "indexed": true,
+            "name": "to",
+            "type": "address",
+          },
+          {
+            "indexed": true,
+            "name": "tokenId",
+            "type": "uint256",
+          },
+        ],
+        "name": "Transfer",
+        "type": "event",
+      }
+    `)
+  })
+})
+
 test('no matching name', () => {
   expect(
     getAbiItem({
