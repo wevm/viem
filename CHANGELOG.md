@@ -1,5 +1,20 @@
 # viem
 
+## 1.10.1
+
+### Patch Changes
+
+- [`bf2f7ee1`](https://github.com/wagmi-dev/viem/commit/bf2f7ee124af5eb43f0541200e88bd4302680912) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies:
+
+  - `@adraffy/ens-normalize`
+  - `@noble/curves`
+  - `@noble/hashes`
+  - `@scure/bip32`
+  - `@scure/bip39`
+  - `abitype`
+  - `isomorphic-ws`
+  - `ws`
+
 ## 1.10.0
 
 ### Minor Changes
