@@ -115,9 +115,6 @@ ethers@6: `encodeRlp` > RLP Encoding (nested array of 128 bytes)
   1.01x faster than viem: `toRlp`
   1.21x faster than ethers@5: `RLP.encode`
 
-viem: `normalize` > Normalize ENS name
-  3.09x faster than @adraffy/ens-normalize: `ens_normalize`
-
 viem: `formatUnits` > Format Unit
   7.98x faster than ethers@6: `formatUnits`
   26.59x faster than ethers@5: `formatUnits`

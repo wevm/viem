@@ -19,7 +19,7 @@ test.each([
 
 test('invalid label extension', () => {
   expect(() => normalize('34--A.eth')).toThrowErrorMatchingInlineSnapshot(
-    '"Invalid label \\"34--A\\"‎: invalid label extension"',
+    '"Invalid label \\"34--A\\"‎: invalid label extension: \\"34--\\""',
   )
 })
 

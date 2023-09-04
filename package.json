@@ -160,20 +160,20 @@
     }
   },
   "dependencies": {
-    "@adraffy/ens-normalize": "1.9.0",
-    "@noble/curves": "1.1.0",
-    "@noble/hashes": "1.3.0",
-    "@scure/bip32": "1.3.0",
-    "@scure/bip39": "1.2.0",
-    "@types/ws": "^8.5.4",
-    "abitype": "0.9.3",
+    "@adraffy/ens-normalize": "1.9.4",
+    "@noble/curves": "1.2.0",
+    "@noble/hashes": "1.3.2",
+    "@scure/bip32": "1.3.2",
+    "@scure/bip39": "1.2.1",
+    "@types/ws": "^8.5.5",
+    "abitype": "0.9.8",
     "isomorphic-ws": "5.0.0",
-    "ws": "8.12.0"
+    "ws": "8.13.0"
   },
   "devDependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "@biomejs/biome": "1.0.0",
+    "@biomejs/biome": "^1.0.0",
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",
     "@size-limit/preset-big-lib": "^8.2.4",
