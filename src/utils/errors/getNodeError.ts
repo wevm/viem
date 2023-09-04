@@ -41,7 +41,7 @@ export function getNodeError(err: BaseError, args: GetNodeErrorParameters) {
       cause: err,
       message: executionRevertedError.details,
     })
-  } else if (message.match(ExecutionRevertedError.nodeMessage))
+  } else if (ExecutionRevertedError.nodeMessage.test(message))
     return new ExecutionRevertedError({
       cause: err,
       message: err.details,
