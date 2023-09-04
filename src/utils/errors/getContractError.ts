@@ -8,9 +8,9 @@ import {
   ContractFunctionZeroDataError,
   RawContractError,
 } from '../../errors/contract.js'
+import { InternalRpcError } from '../../errors/rpc.js'
 
 const EXECUTION_REVERTED_ERROR_CODE = 3
-const EXECUTION_REVERTED_ERROR_CODE_NEW = -32603
 
 export function getContractError(
   err: BaseError,
@@ -42,9 +42,7 @@ export function getContractError(
   if (err instanceof AbiDecodingZeroDataError) {
     cause = new ContractFunctionZeroDataError({ functionName })
   } else if (
-    [EXECUTION_REVERTED_ERROR_CODE, EXECUTION_REVERTED_ERROR_CODE_NEW].includes(
-      code,
-    ) &&
+    [EXECUTION_REVERTED_ERROR_CODE, InternalRpcError.code].includes(code) &&
     (data || message || shortMessage)
   ) {
     cause = new ContractFunctionRevertedError({
