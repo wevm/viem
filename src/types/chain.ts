@@ -16,7 +16,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = ChainConstants & ChainConfig<formatters>
+> = Prettify<ChainConstants & ChainConfig<formatters>>
 
 /////////////////////////////////////////////////////////////////////
 // Constants
@@ -28,18 +28,27 @@ export type ChainBlockExplorer = {
 
 export type ChainConstants = {
   /** Collection of block explorers */
-  blockExplorers?: {
-    default: ChainBlockExplorer
-    etherscan?: ChainBlockExplorer
-  }
+  blockExplorers?:
+    | {
+        default: ChainBlockExplorer
+        etherscan?: ChainBlockExplorer | undefined
+      }
+    | undefined
   /** Collection of contracts */
-  contracts?: {
-    [key: string]: ChainContract | { [chainId: number]: ChainContract }
-  } & {
-    ensRegistry?: ChainContract
-    ensUniversalResolver?: ChainContract
-    multicall3?: ChainContract
-  }
+  contracts?:
+    | Prettify<
+        {
+          [key: string]:
+            | ChainContract
+            | { [chainId: number]: ChainContract | undefined }
+            | undefined
+        } & {
+          ensRegistry?: ChainContract | undefined
+          ensUniversalResolver?: ChainContract | undefined
+          multicall3?: ChainContract | undefined
+        }
+      >
+    | undefined
   /** ID in number form */
   id: number
   /** Human-readable name */
@@ -58,9 +67,9 @@ export type ChainConstants = {
     public: ChainRpcUrls
   }
   /** Source Chain ID (ie. the L1 chain) */
-  sourceId?: number
+  sourceId?: number | undefined
   /** Flag for test networks */
-  testnet?: boolean
+  testnet?: boolean | undefined
 
   // TODO(v2): remove `rpcUrls` in favor of `publicRpcUrls`.
   // publicRpcUrls: ChainRpcUrls,
@@ -68,7 +77,7 @@ export type ChainConstants = {
 
 export type ChainContract = {
   address: Address
-  blockCreated?: number
+  blockCreated?: number | undefined
 }
 
 export type ChainNativeCurrency = {
@@ -80,7 +89,7 @@ export type ChainNativeCurrency = {
 
 export type ChainRpcUrls = {
   http: readonly string[]
-  webSocket?: readonly string[]
+  webSocket?: readonly string[] | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -121,25 +130,29 @@ export type ChainFees<
   defaultPriorityFee?:
     | bigint
     | ((args: ChainFeesFnParameters<formatters>) => Promise<bigint> | bigint)
+    | undefined
   /**
    * Allows customization of fee per gas values (e.g. `maxFeePerGas`/`maxPriorityFeePerGas`).
    *
    * Overrides the return value in the [`estimateFeesPerGas` Action](/docs/actions/public/estimateFeesPerGas).
    */
-  estimateFeesPerGas?: (
-    args: ChainEstimateFeesPerGasFnParameters<formatters>,
-  ) => Promise<EstimateFeesPerGasReturnType> | bigint
+  estimateFeesPerGas?:
+    | ((
+        args: ChainEstimateFeesPerGasFnParameters<formatters>,
+      ) => Promise<EstimateFeesPerGasReturnType>)
+    | bigint
+    | undefined
 }
 
 export type ChainFormatters = {
   /** Modifies how the Block structure is formatted & typed. */
-  block?: ChainFormatter<'block'>
+  block?: ChainFormatter<'block'> | undefined
   /** Modifies how the Transaction structure is formatted & typed. */
-  transaction?: ChainFormatter<'transaction'>
+  transaction?: ChainFormatter<'transaction'> | undefined
   /** Modifies how the TransactionReceipt structure is formatted & typed. */
-  transactionReceipt?: ChainFormatter<'transactionReceipt'>
+  transactionReceipt?: ChainFormatter<'transactionReceipt'> | undefined
   /** Modifies how the TransactionRequest structure is formatted & typed. */
-  transactionRequest?: ChainFormatter<'transactionRequest'>
+  transactionRequest?: ChainFormatter<'transactionRequest'> | undefined
 }
 
 export type ChainFormatter<type extends string = string> = {
@@ -151,14 +164,16 @@ export type ChainSerializers<
   formatters extends ChainFormatters | undefined = undefined,
 > = {
   /** Modifies how Transactions are serialized. */
-  transaction?: SerializeTransactionFn<
-    formatters extends ChainFormatters
-      ? formatters['transactionRequest'] extends ChainFormatter
-        ? TransactionSerializableGeneric &
-            Parameters<formatters['transactionRequest']['format']>[0]
-        : TransactionSerializable
-      : TransactionSerializable
-  >
+  transaction?:
+    | SerializeTransactionFn<
+        formatters extends ChainFormatters
+          ? formatters['transactionRequest'] extends ChainFormatter
+            ? TransactionSerializableGeneric &
+                Parameters<formatters['transactionRequest']['format']>[0]
+            : TransactionSerializable
+          : TransactionSerializable
+      >
+    | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -175,11 +190,13 @@ export type ChainFeesFnParameters<
    * is outside of a transaction request context (e.g. a direct call to
    * the `estimateFeesPerGas` Action).
    */
-  request?: PrepareTransactionRequestParameters<
-    Omit<Chain, 'formatters'> & { formatters: formatters },
-    Account | undefined,
-    undefined
-  >
+  request?:
+    | PrepareTransactionRequestParameters<
+        Omit<Chain, 'formatters'> & { formatters: formatters },
+        Account | undefined,
+        undefined
+      >
+    | undefined
 }
 
 export type ChainEstimateFeesPerGasFnParameters<
