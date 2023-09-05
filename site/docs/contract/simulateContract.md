@@ -116,7 +116,7 @@ import { mainnet } from 'viem/chains'
 
 // JSON-RPC Account
 export const [account] = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-// Local Account 
+// Local Account
 export const account = privateKeyToAccount(...)
 
 export const publicClient = createPublicClient({
@@ -187,7 +187,7 @@ export const publicClient = createPublicClient({
 
 ### Handling Custom Errors
 
-In the example below, we are **catching** a [custom error](https://blog.soliditylang.org/2021/04/21/custom-errors/) thrown by the `simulateContract`. It is important to include the custom error item in the contract `abi`. 
+In the example below, we are **catching** a [custom error](https://blog.soliditylang.org/2021/04/21/custom-errors/) thrown by the `simulateContract`. It is important to include the custom error item in the contract `abi`.
 
 You can access the custom error through the `data` attribute of the error:
 
@@ -228,10 +228,10 @@ export const wagmiAbi = [
     type: "function",
   },
   // Custom solidity error
-  { 
-    type: 'error', 
-    inputs: [], 
-    name: 'MintIsDisabled' 
+  {
+    type: 'error',
+    inputs: [],
+    name: 'MintIsDisabled'
   },
   ...
 ] as const;
@@ -359,7 +359,7 @@ const { result } = await publicClient.simulateContract({
   accessList: [{ // [!code focus:4]
     address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
     storageKeys: ['0x1'],
-  }], 
+  }],
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 })
 ```
@@ -385,7 +385,7 @@ const { result } = await publicClient.simulateContract({
 
 - **Type:** `Hex`
 
-Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). 
+Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f).
 
 ```ts
 const { result } = await publicClient.simulateContract({
@@ -394,6 +394,22 @@ const { result } = await publicClient.simulateContract({
   functionName: 'mint',
   args: [69420],
   dataSuffix: '0xdeadbeef' // [!code focus]
+})
+```
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+The gas limit for the transaction.
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  gas: 69420n, // [!code focus]
 })
 ```
 
