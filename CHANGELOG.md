@@ -1,5 +1,11 @@
 # viem
 
+## 1.10.3
+
+### Patch Changes
+
+- [#1147](https://github.com/wagmi-dev/viem/pull/1147) [`5001e9f7`](https://github.com/wagmi-dev/viem/commit/5001e9f72cada8be8fed8c858c37d59d1bea8425) Thanks [@holic](https://github.com/holic)! - Fixed `encodePacked` for empty arrays.
+
 ## 1.10.2
 
 ### Patch Changes
