@@ -15,10 +15,10 @@ export const polygonMumbai = /*#__PURE__*/ defineChain({
       webSocket: ['wss://polygon-mumbai.infura.io/ws/v3'],
     },
     default: {
-      http: ['https://matic-mumbai.chainstacklabs.com'],
+      http: ['https://rpc-mumbai.matic.today'],
     },
     public: {
-      http: ['https://matic-mumbai.chainstacklabs.com'],
+      http: ['https://rpc-mumbai.matic.today'],
     },
   },
   blockExplorers: {
