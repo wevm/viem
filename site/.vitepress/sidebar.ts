@@ -701,6 +701,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getFunctionSelector',
             },
             {
+              text: 'getFunctionSignature',
+              link: '/docs/utilities/getFunctionSignature',
+            },
+            {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
