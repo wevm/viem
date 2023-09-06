@@ -1,5 +1,5 @@
 import { parseAbi } from 'abitype'
-import { assertType, test } from 'vitest'
+import { assertType, expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '../../_test/abis.js'
 import { publicClient } from '../../_test/utils.js'
@@ -123,6 +123,9 @@ test('overloads', async () => {
     functionName: 'foo',
   })
   assertType<number>(res1.result)
+  expectTypeOf(res1.request.abi).toEqualTypeOf(
+    parseAbi(['function foo() returns (int8)']),
+  )
 
   const res2 = await simulateContract(publicClient, {
     address: '0x',
@@ -131,6 +134,9 @@ test('overloads', async () => {
     args: ['0x'],
   })
   assertType<string>(res2.result)
+  expectTypeOf(res2.request.abi).toEqualTypeOf(
+    parseAbi(['function foo(address) returns (string)']),
+  )
 
   const res3 = await simulateContract(publicClient, {
     address: '0x',
@@ -142,4 +148,9 @@ test('overloads', async () => {
     foo: `0x${string}`
     bar: `0x${string}`
   }>(res3.result)
+  expectTypeOf(res3.request.abi).toEqualTypeOf(
+    parseAbi([
+      'function foo(address, address) returns ((address foo, address bar))',
+    ]),
+  )
 })

@@ -10,10 +10,11 @@ import type {
   ContractFunctionName,
   ContractFunctionParameters,
   ContractFunctionReturnType,
+  ExtractAbiFunctionForArgs,
   GetValue,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
@@ -69,32 +70,45 @@ export type SimulateContractReturnType<
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
+  ///
+  minimizedAbi extends Abi = readonly [
+    ExtractAbiFunctionForArgs<
+      abi extends Abi ? abi : Abi,
+      'nonpayable' | 'payable',
+      functionName,
+      args
+    >,
+  ],
 > = {
   result: ContractFunctionReturnType<
-    abi,
+    minimizedAbi,
     'nonpayable' | 'payable',
     functionName,
     args
   >
-  request: UnionOmit<
-    WriteContractParameters<
-      abi,
-      functionName,
-      args,
-      chain,
-      undefined,
-      chainOverride
-    >,
-    'chain' | 'functionName'
-  > & {
-    chain: chainOverride
-    functionName: functionName
-  } & ContractFunctionParameters<
-      abi,
-      'nonpayable' | 'payable',
-      functionName,
-      args
-    >
+  request: Prettify<
+    UnionEvaluate<
+      UnionOmit<
+        WriteContractParameters<
+          minimizedAbi,
+          functionName,
+          args,
+          chain,
+          undefined,
+          chainOverride
+        >,
+        'abi' | 'args' | 'chain' | 'functionName'
+      >
+    > &
+      ContractFunctionParameters<
+        minimizedAbi,
+        'nonpayable' | 'payable',
+        functionName,
+        args
+      > & {
+        chain: chainOverride
+      }
+  >
 }
 
 /**
@@ -170,10 +184,14 @@ export async function simulateContract<
       functionName,
       data: data || '0x',
     })
+    const minimizedAbi = abi.filter(
+      (abiItem) =>
+        'name' in abiItem && abiItem.name === parameters.functionName,
+    )
     return {
       result,
       request: {
-        abi,
+        abi: minimizedAbi,
         address,
         args,
         dataSuffix,

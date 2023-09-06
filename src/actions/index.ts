@@ -183,6 +183,10 @@ export {
   readContract,
 } from './public/readContract.js'
 export {
+  type GetAddressesReturnType,
+  getAddresses,
+} from './wallet/getAddresses.js'
+export {
   type GetPermissionsReturnType,
   getPermissions,
 } from './wallet/getPermissions.js'

@@ -6,8 +6,6 @@ export {
   type AbiParameterKind,
   type AbiParameterToPrimitiveType,
   type Address,
-  type ExtractAbiFunction,
-  type ExtractAbiFunctionNames,
   type Narrow,
   type ParseAbi,
   type ParseAbiItem,
@@ -561,6 +559,7 @@ export { SizeExceedsPaddingSizeError } from './errors/data.js'
 export { UrlRequiredError } from './errors/transport.js'
 export type {
   AbiItem,
+  ExtractAbiFunctionForArgs,
   ContractErrorArgs,
   ContractErrorName,
   ContractEventArgs,
