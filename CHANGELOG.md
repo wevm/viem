@@ -1,5 +1,11 @@
 # viem
 
+## 1.10.6
+
+### Patch Changes
+
+- [#1166](https://github.com/wagmi-dev/viem/pull/1166) [`d828894a`](https://github.com/wagmi-dev/viem/commit/d828894abedcd4eb8a35f04825858f27140fbe2c) Thanks [@jxom](https://github.com/jxom)! - Updated Polygon Mumbai RPC URL.
+
 ## 1.10.5
 
 ### Patch Changes
