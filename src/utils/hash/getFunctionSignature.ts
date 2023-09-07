@@ -1,7 +1,7 @@
 import type { AbiFunction } from 'abitype'
 
 import { formatAbiItem } from '../abi/formatAbiItem.js'
-import { extractFunctionName, extractFunctionParams } from '../index.js'
+import { extractFunctionName, extractFunctionParams } from '../contract/extractFunctionParts.js'
 
 export const getFunctionSignature = (fn: string | AbiFunction) => {
   if (typeof fn === 'string') {
