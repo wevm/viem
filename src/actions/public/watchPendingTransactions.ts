@@ -35,9 +35,9 @@ export type WatchPendingTransactionsParameters<
   onError?: (error: Error) => void
   /** The callback to call when new transactions are received. */
   onTransactions: OnTransactionsFn
-} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
-  ?
-      | {
+} & (
+  | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+      ? {
           batch?: never
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
@@ -46,16 +46,11 @@ export type WatchPendingTransactionsParameters<
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions & {
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default true
-           */
-          poll?: true
-        })
-  : PollOptions & {
+      : never)
+  | (PollOptions & {
       poll?: true
     })
+)
 
 export type WatchPendingTransactionsReturnType = () => void
 

@@ -88,9 +88,9 @@ export type WatchContractEventParameters<
    * @default false
    */
   strict?: strict | undefined
-} & (GetTransportConfig<transport>['type'] extends 'webSocket'
-  ?
-      | {
+} & (
+  | (GetTransportConfig<transport>['type'] extends 'webSocket'
+      ? {
           batch?: undefined
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
@@ -99,14 +99,9 @@ export type WatchContractEventParameters<
           poll?: false | undefined
           pollingInterval?: undefined
         }
-      | (PollOptions & {
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default true
-           */
-          poll?: true | undefined
-        })
-  : PollOptions & { poll?: true | undefined })
+      : never)
+  | (PollOptions & { poll?: true | undefined })
+)
 
 type PollOptions = {
   /**

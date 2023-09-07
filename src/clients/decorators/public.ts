@@ -1587,7 +1587,7 @@ export type PublicActions<
       | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
     TStrict extends boolean | undefined = undefined,
   >(
-    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
+    args: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
   ) => WatchEventReturnType
   /**
    * Watches and returns pending transaction hashes.

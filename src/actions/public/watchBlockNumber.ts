@@ -34,17 +34,18 @@ export type WatchBlockNumberParameters<
   onBlockNumber: OnBlockNumberFn
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: (error: Error) => void
-} & (GetTransportConfig<TTransport>['type'] extends 'webSocket'
-  ?
-      | {
+} & (
+  | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+      ? {
           emitMissed?: never
           emitOnBegin?: never
           /** Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`. */
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions & { poll: true })
-  : PollOptions & { poll?: true })
+      : never)
+  | (PollOptions & { poll?: true })
+)
 
 export type WatchBlockNumberReturnType = () => void
 

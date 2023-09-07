@@ -76,6 +76,7 @@ export type WatchEventParameters<
     | readonly unknown[]
     | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
+  TTransport extends Transport = Transport,
   _EventName extends string | undefined = MaybeAbiEventName<TAbiEvent>,
 > = {
   /** The address of the contract. */
@@ -84,9 +85,9 @@ export type WatchEventParameters<
   onError?: (error: Error) => void
   /** The callback to call when new event logs are received. */
   onLogs: WatchEventOnLogsFn<TAbiEvent, TAbiEvents, TStrict, _EventName>
-} & (GetTransportConfig<Transport>['type'] extends 'webSocket'
-  ?
-      | {
+} & (
+  | (GetTransportConfig<TTransport>['type'] extends 'webSocket'
+      ? {
           batch?: never
           /**
            * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
@@ -95,16 +96,9 @@ export type WatchEventParameters<
           poll?: false
           pollingInterval?: never
         }
-      | (PollOptions & {
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default true
-           */
-          poll?: true
-        })
-  : PollOptions & {
-      poll?: true
-    }) &
+      : never)
+  | (PollOptions & { poll?: true })
+) &
   (
     | {
         event: TAbiEvent
@@ -176,9 +170,10 @@ export function watchEvent<
     | readonly unknown[]
     | undefined = TAbiEvent extends AbiEvent ? [TAbiEvent] : undefined,
   TStrict extends boolean | undefined = undefined,
+  TTransport extends Transport = Transport,
   _EventName extends string | undefined = undefined,
 >(
-  client: Client<Transport, TChain>,
+  client: Client<TTransport, TChain>,
   {
     address,
     args,
@@ -190,7 +185,7 @@ export function watchEvent<
     poll: poll_,
     pollingInterval = client.pollingInterval,
     strict: strict_,
-  }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict>,
+  }: WatchEventParameters<TAbiEvent, TAbiEvents, TStrict, TTransport>,
 ): WatchEventReturnType {
   const enablePolling =
     typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
