@@ -52,6 +52,16 @@ export {
   estimateContractGas,
 } from './public/estimateContractGas.js'
 export {
+  type EstimateFeesPerGasParameters,
+  type EstimateFeesPerGasReturnType,
+  estimateFeesPerGas,
+} from './public/estimateFeesPerGas.js'
+export {
+  type EstimateMaxPriorityFeePerGasParameters,
+  type EstimateMaxPriorityFeePerGasReturnType,
+  estimateMaxPriorityFeePerGas,
+} from './public/estimateMaxPriorityFeePerGas.js'
+export {
   type EstimateGasParameters,
   type EstimateGasReturnType,
   estimateGas,
