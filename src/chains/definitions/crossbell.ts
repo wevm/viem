@@ -22,8 +22,8 @@ export const crossbell = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xBB9759009cDaC82774EfC84D94cD9F7440f75Fcf',
-      blockCreated: 23_499_787,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 38_246_031,
     },
   },
 })
