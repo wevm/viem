@@ -60,6 +60,7 @@ export type WatchContractEventParameters<
   abi extends Abi | readonly unknown[] = Abi,
   eventName extends ContractEventName<abi> = ContractEventName<abi>,
   strict extends boolean | undefined = undefined,
+  transport extends Transport = Transport,
 > = {
   /** The address of the contract. */
   address?: Address | Address[] | undefined
@@ -77,7 +78,7 @@ export type WatchContractEventParameters<
    * @default false
    */
   strict?: strict | undefined
-} & (GetTransportConfig<Transport>['type'] extends 'webSocket'
+} & (GetTransportConfig<transport>['type'] extends 'webSocket'
   ?
       | {
           batch?: undefined
@@ -147,9 +148,10 @@ export function watchContractEvent<
   const abi extends Abi | readonly unknown[],
   eventName extends ContractEventName<abi>,
   strict extends boolean | undefined = undefined,
+  transport extends Transport = Transport,
 >(
-  client: Client<Transport, chain>,
-  parameters: WatchContractEventParameters<abi, eventName, strict>,
+  client: Client<transport, chain>,
+  parameters: WatchContractEventParameters<abi, eventName, strict, transport>,
 ): WatchContractEventReturnType {
   const {
     abi,

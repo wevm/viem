@@ -83,7 +83,7 @@ type Client_Base<
   /** The Account of the Client. */
   account: account
   /** Flags for batch settings. */
-  batch?: ClientConfig['batch']
+  batch?: ClientConfig['batch'] | undefined
   /** Time (in ms) that cached data will remain in memory. */
   cacheTime: number
   /** Chain for the client. */
