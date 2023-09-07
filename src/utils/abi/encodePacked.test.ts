@@ -6,6 +6,11 @@ import { encodePacked } from './encodePacked.js'
 
 test.each([
   {
+    types: [],
+    values: [],
+    expected: '0x',
+  },
+  {
     types: ['address'],
     values: [address.vitalik],
     expected: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
