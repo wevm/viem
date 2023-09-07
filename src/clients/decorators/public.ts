@@ -302,7 +302,7 @@ export type PublicActions<
    */
   createContractEventFilter: <
     const TAbi extends Abi | readonly unknown[],
-    TEventName extends string | undefined,
+    TEventName extends ContractEventName<TAbi> | undefined,
     TArgs extends MaybeExtractEventArgsFromAbi<TAbi, TEventName> | undefined,
     TStrict extends boolean | undefined = undefined,
     TFromBlock extends BlockNumber | BlockTag | undefined = undefined,

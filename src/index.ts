@@ -570,7 +570,6 @@ export type {
   ContractFunctionName,
   GetEventArgs,
   GetValue,
-  InferEventName,
 } from './types/contract.js'
 export type {
   AccessList,

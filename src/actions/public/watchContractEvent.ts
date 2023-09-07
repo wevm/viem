@@ -31,10 +31,7 @@ import {
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import {
-  type CreateContractEventFilterParameters,
-  createContractEventFilter,
-} from './createContractEventFilter.js'
+import { createContractEventFilter } from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { getLogs } from './getLogs.js'
@@ -58,7 +55,7 @@ export type WatchContractEventOnLogsFn<
 
 export type WatchContractEventParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  eventName extends ContractEventName<abi> = ContractEventName<abi>,
+  eventName extends ContractEventName<abi> | undefined = ContractEventName<abi>,
   strict extends boolean | undefined = undefined,
   transport extends Transport = Transport,
 > = {
@@ -66,13 +63,26 @@ export type WatchContractEventParameters<
   address?: Address | Address[] | undefined
   /** Contract ABI. */
   abi: abi
-  args?: ContractEventArgs<abi, eventName> | undefined
+  args?:
+    | ContractEventArgs<
+        abi,
+        eventName extends ContractEventName<abi>
+          ? eventName
+          : ContractEventName<abi>
+      >
+    | undefined
   /** Contract event. */
   eventName?: eventName | ContractEventName<abi> | undefined
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
   /** The callback to call when new event logs are received. */
-  onLogs: WatchContractEventOnLogsFn<abi, eventName, strict>
+  onLogs: WatchContractEventOnLogsFn<
+    abi,
+    eventName extends ContractEventName<abi>
+      ? eventName
+      : ContractEventName<abi>,
+    strict
+  >
   /**
    * Whether or not the logs must match the indexed/non-indexed arguments on `event`.
    * @default false
@@ -146,7 +156,7 @@ export type WatchContractEventReturnType = () => void
 export function watchContractEvent<
   chain extends Chain | undefined,
   const abi extends Abi | readonly unknown[],
-  eventName extends ContractEventName<abi>,
+  eventName extends ContractEventName<abi> | undefined = undefined,
   strict extends boolean | undefined = undefined,
   transport extends Transport = Transport,
 >(
@@ -193,14 +203,10 @@ export function watchContractEvent<
               filter = (await createContractEventFilter(client, {
                 abi,
                 address,
-                args,
-                eventName,
-                strict,
-              } as unknown as CreateContractEventFilterParameters)) as Filter<
-                'event',
-                abi,
-                eventName
-              >
+                args: args as any,
+                eventName: eventName as any,
+                strict: strict as any,
+              })) as Filter<'event', abi, eventName>
             } catch {}
             initialized = true
             return

@@ -107,7 +107,7 @@ export type ContractErrorArgs<
 
 export type ContractEventArgs<
   abi extends Abi | readonly unknown[] = Abi,
-  eventName extends ContractErrorName<abi> = ContractErrorName<abi>,
+  eventName extends ContractEventName<abi> = ContractEventName<abi>,
 > = AbiEventParametersToPrimitiveTypes<
   ExtractAbiEvent<abi extends Abi ? abi : Abi, eventName>['inputs']
 > extends infer args
@@ -341,15 +341,6 @@ export type MaybeExtractEventArgsFromAbi<
     ? GetEventArgs<TAbi, TEventName>
     : undefined
   : undefined
-
-export type InferEventName<
-  TAbi extends Abi | readonly unknown[] = Abi,
-  TEventName extends string | undefined = string,
-> = TAbi extends Abi
-  ? ExtractAbiEventNames<TAbi> extends infer AbiEventNames
-    ? AbiEventNames | (TEventName extends AbiEventNames ? TEventName : never)
-    : never
-  : TEventName
 
 //////////////////////////////////////////////////////////////////////
 // ABI item args

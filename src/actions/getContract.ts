@@ -265,7 +265,9 @@ export type GetContractReturnType<
                   [EventName in _EventNames]: GetEventFilter<
                     _Narrowable,
                     TAbi,
-                    EventName
+                    EventName extends ContractEventName<TAbi>
+                      ? EventName
+                      : never
                   >
                 }
                 /**
@@ -913,7 +915,7 @@ type GetWriteFunction<
 type GetEventFilter<
   Narrowable extends boolean,
   TAbi extends Abi | readonly unknown[],
-  TEventName extends string,
+  TEventName extends ContractEventName<TAbi>,
   TAbiEvent extends AbiEvent = TAbi extends Abi
     ? ExtractAbiEvent<TAbi, TEventName>
     : AbiEvent,
