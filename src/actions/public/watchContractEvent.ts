@@ -2,6 +2,11 @@ import type { Abi, AbiEvent, Address, ExtractAbiEvent } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import {
+  DecodeLogDataMismatch,
+  DecodeLogTopicsMismatch,
+} from '../../errors/abi.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractEventArgs,
@@ -9,28 +14,21 @@ import type {
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
-import type { GetTransportConfig } from '../../types/transport.js'
-
-import {
-  type GetAbiItemParameters,
-  getAbiItem,
-} from '../../utils/abi/getAbiItem.js'
-import { observe } from '../../utils/observe.js'
-import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
-
-import {
-  DecodeLogDataMismatch,
-  DecodeLogTopicsMismatch,
-} from '../../errors/abi.js'
-import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { LogTopic } from '../../types/misc.js'
+import type { GetPollOptions } from '../../types/transport.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
+import {
+  type GetAbiItemParameters,
+  getAbiItem,
+} from '../../utils/abi/getAbiItem.js'
 import { formatLog } from '../../utils/formatters/log.js'
+import { observe } from '../../utils/observe.js'
+import { poll } from '../../utils/poll.js'
+import { stringify } from '../../utils/stringify.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
@@ -88,33 +86,7 @@ export type WatchContractEventParameters<
    * @default false
    */
   strict?: strict | undefined
-} & (
-  | (GetTransportConfig<transport>['type'] extends 'webSocket'
-      ? {
-          batch?: undefined
-          /**
-           * Whether or not the WebSocket Transport should poll the JSON-RPC, rather than using `eth_subscribe`.
-           * @default false
-           */
-          poll?: false | undefined
-          pollingInterval?: undefined
-        }
-      : never)
-  | (PollOptions & { poll?: true | undefined })
-)
-
-type PollOptions = {
-  /**
-   * Whether or not the transaction hashes should be batched on each invocation.
-   * @default true
-   */
-  batch?: boolean | undefined
-  /**
-   * Polling frequency (in ms). Defaults to Client's pollingInterval config.
-   * @default client.pollingInterval
-   */
-  pollingInterval?: number | undefined
-}
+} & GetPollOptions<transport>
 
 export type WatchContractEventReturnType = () => void
 

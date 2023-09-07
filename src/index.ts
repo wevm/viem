@@ -651,7 +651,7 @@ export type {
 } from './types/fee.js'
 export type { Filter } from './types/filter.js'
 export type { TypedDataDefinition } from './types/typedData.js'
-export type { GetTransportConfig } from './types/transport.js'
+export type { GetTransportConfig, GetPollOptions } from './types/transport.js'
 export type { HDKey } from '@scure/bip32'
 export type { Log } from './types/log.js'
 export type {
