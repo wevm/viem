@@ -19,4 +19,5 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
       url: 'https://blockscout.chiadochain.net',
     },
   },
+  testnet: true,
 })

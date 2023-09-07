@@ -1,5 +1,25 @@
 # viem
 
+## 1.10.7
+
+### Patch Changes
+
+- [#1169](https://github.com/wagmi-dev/viem/pull/1169) [`eb37c760`](https://github.com/wagmi-dev/viem/commit/eb37c76077141e1288d1de372ffc6fc62654c322) Thanks [@Songkeys](https://github.com/Songkeys)! - Updated multicall3 address on Crossbell.
+
+* [#1170](https://github.com/wagmi-dev/viem/pull/1170) [`828f48e3`](https://github.com/wagmi-dev/viem/commit/828f48e31e992c20c57f4e006e3ec3e8724da7df) Thanks [@jxom](https://github.com/jxom)! - Added `testnet` property to Gnosis Chiadao.
+
+## 1.10.6
+
+### Patch Changes
+
+- [#1166](https://github.com/wagmi-dev/viem/pull/1166) [`d828894a`](https://github.com/wagmi-dev/viem/commit/d828894abedcd4eb8a35f04825858f27140fbe2c) Thanks [@jxom](https://github.com/jxom)! - Updated Polygon Mumbai RPC URL.
+
+## 1.10.5
+
+### Patch Changes
+
+- [`8fe2467b`](https://github.com/wagmi-dev/viem/commit/8fe2467be17d09fb15a3eccc29f3155887d821af) Thanks [@jxom](https://github.com/jxom)! - Added `estimateFeesPerGas` and `estimateMaxPriorityFeePerGas` exports to `viem/actions`.
+
 ## 1.10.4
 
 ### Patch Changes
