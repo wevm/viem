@@ -10,6 +10,9 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate } from '../../types/utils.js'
 import { isAddress } from '../address/isAddress.js'
+import { isHex } from '../data/isHex.js'
+import { getEventSelector } from '../hash/getEventSelector.js'
+import { getFunctionSelector } from '../hash/getFunctionSelector.js'
 
 export type GetAbiItemParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -67,7 +70,17 @@ export function getAbiItem<
   parameters: GetAbiItemParameters<abi, name, args>,
 ): GetAbiItemReturnType<abi, name, args> {
   const { abi, args = [], name } = parameters as unknown as GetAbiItemParameters
-  const abiItems = abi.filter((x) => 'name' in x && x.name === name)
+
+  const isSelector = isHex(name, { strict: false })
+  const abiItems = (abi as Abi).filter((abiItem) => {
+    if (isSelector) {
+      if (abiItem.type === 'function')
+        return getFunctionSelector(abiItem) === name
+      if (abiItem.type === 'event') return getEventSelector(abiItem) === name
+      return false
+    }
+    return 'name' in abiItem && abiItem.name === name
+  })
 
   if (abiItems.length === 0)
     return undefined as GetAbiItemReturnType<abi, name, args>
