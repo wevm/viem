@@ -1,5 +1,11 @@
 # viem
 
+## 1.10.5
+
+### Patch Changes
+
+- [`8fe2467b`](https://github.com/wagmi-dev/viem/commit/8fe2467be17d09fb15a3eccc29f3155887d821af) Thanks [@jxom](https://github.com/jxom)! - Added `estimateFeesPerGas` and `estimateMaxPriorityFeePerGas` exports to `viem/actions`.
+
 ## 1.10.4
 
 ### Patch Changes
