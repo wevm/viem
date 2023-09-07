@@ -1,5 +1,25 @@
 # viem
 
+## 1.10.4
+
+### Patch Changes
+
+- [#1153](https://github.com/wagmi-dev/viem/pull/1153) [`040dda64`](https://github.com/wagmi-dev/viem/commit/040dda64340fd70602d951efea1454afe9e7c198) Thanks [@vmichalik](https://github.com/vmichalik)! - Updated Polygon Mumbai RPC URL.
+
+## 1.10.3
+
+### Patch Changes
+
+- [#1147](https://github.com/wagmi-dev/viem/pull/1147) [`5001e9f7`](https://github.com/wagmi-dev/viem/commit/5001e9f72cada8be8fed8c858c37d59d1bea8425) Thanks [@holic](https://github.com/holic)! - Fixed `encodePacked` for empty arrays.
+
+## 1.10.2
+
+### Patch Changes
+
+- [#1145](https://github.com/wagmi-dev/viem/pull/1145) [`eac50a51`](https://github.com/wagmi-dev/viem/commit/eac50a5138f9e2078e99abda02a9c3468bcd195b) Thanks [@jxom](https://github.com/jxom)! - Support function/event selectors as `name` in `getAbiItem`.
+
+* [#1146](https://github.com/wagmi-dev/viem/pull/1146) [`4875a2af`](https://github.com/wagmi-dev/viem/commit/4875a2aff987709f3f94287d9f77895ec99d9590) Thanks [@darrenvechain](https://github.com/darrenvechain)! - Added Vechain chain.
+
 ## 1.10.1
 
 ### Patch Changes

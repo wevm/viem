@@ -7,6 +7,7 @@ import type {
   ExtractAbiItemForArgs,
   Widen,
 } from '../../types/contract.js'
+import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate } from '../../types/utils.js'
 import { isAddress } from '../address/isAddress.js'
 
@@ -22,6 +23,7 @@ export type GetAbiItemParameters<
   name:
     | allNames // show all options
     | (name extends allNames ? name : never) // infer value
+    | Hex // function selector
 } & UnionEvaluate<
   readonly [] extends allArgs
     ? {

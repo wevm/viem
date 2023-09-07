@@ -178,7 +178,7 @@ Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
 const unwatch = publicClient.watchBlocks(
   { 
     onBlock: block => console.log(block),
-    pollingInterval: true, // [!code focus]
+    pollingInterval: 1_000, // [!code focus]
   }
 )
 ```

@@ -16,13 +16,13 @@ head:
 
 Executes a write function on a contract.
 
-A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](/docs/glossary/terms) is needed to be broadcast in order to change the state. 
+A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](/docs/glossary/terms) is needed to be broadcast in order to change the state.
 
 Internally, `writeContract` uses a [Wallet Client](/docs/clients/wallet) to call the [`sendTransaction` action](/docs/actions/wallet/sendTransaction) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 
 ::: warning
 
-The `writeContract` internally sends a transaction – it **does not** validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `simulateContract`](#usage) before you execute it. 
+The `writeContract` internally sends a transaction – it **does not** validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `simulateContract`](#usage) before you execute it.
 
 :::
 
@@ -289,7 +289,7 @@ await walletClient.writeContract({
   accessList: [{ // [!code focus:4]
     address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
     storageKeys: ['0x1'],
-  }], 
+  }],
 })
 ```
 
@@ -333,7 +333,7 @@ await walletClient.writeContract({
 
 - **Type:** `Hex`
 
-Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). 
+Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f).
 
 ```ts
 await walletClient.writeContract({
@@ -342,6 +342,22 @@ await walletClient.writeContract({
   functionName: 'mint',
   args: [69420],
   dataSuffix: '0xdeadbeef' // [!code focus]
+})
+```
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+The gas limit for the transaction. Note that passing a gas limit also skips the gas estimation step.
+
+```ts
+await walletClient.writeContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  gas: 69420n, // [!code focus]
 })
 ```
 
