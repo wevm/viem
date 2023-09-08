@@ -156,7 +156,9 @@ export async function getSocket(url: string) {
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: url,
     fn: async () => {
-      const webSocket = new WebSocket(url)
+      let WebSocket_ = WebSocket
+      if (!WebSocket.constructor) WebSocket_ = WebSocket.WebSocket
+      const webSocket = new WebSocket_(url)
 
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()

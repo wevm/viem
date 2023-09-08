@@ -1,5 +1,11 @@
 # viem
 
+## 1.10.8
+
+### Patch Changes
+
+- [#1177](https://github.com/wagmi-dev/viem/pull/1177) [`8d05e410`](https://github.com/wagmi-dev/viem/commit/8d05e410e1db43cbcddab2741e1f7dc22b5ffbec) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where some environments would throw `WebSocket.default is not a constructor`.
+
 ## 1.10.7
 
 ### Patch Changes
