@@ -16,7 +16,7 @@ jobs:
       - name: Publish snapshots
         uses: seek-oss/changesets-snapshot@v0
         with:
-          pre-publish: pnpm bun scripts/updateVersion.ts && pnpm build
+          pre-publish: pnpm changeset:snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

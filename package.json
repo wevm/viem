@@ -11,6 +11,7 @@
     "build:types": "tsc --project tsconfig.build.json --module esnext --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
+    "changeset:snapshot": "pnpm bun scripts/updateVersion.ts && pnpm build",
     "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm bun scripts/updateVersion.ts",
     "clean": "rimraf dist",
     "contracts:build": "wagmi generate",
