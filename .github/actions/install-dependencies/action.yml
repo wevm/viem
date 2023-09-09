@@ -10,7 +10,6 @@ runs:
     - name: Set up node
       uses: actions/setup-node@v3
       with:
-        cache: bun
         node-version: 20
 
     - name: Set up foundry
