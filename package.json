@@ -5,13 +5,13 @@
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
     "build": "bun run clean && bun run build:cjs && bun run build:esm && bun run build:types",
-    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./package/dist/cjs --removeComments --verbatimModuleSyntax false && echo > ./package/dist/cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./package/dist/esm && echo > ./package/dist/esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
-    "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./package/dist/types --emitDeclarationOnly --declaration --declarationMap",
+    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./package/_cjs --removeComments --verbatimModuleSyntax false && echo > ./package/_cjs/package.json '{\"type\":\"commonjs\"}'",
+    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./package/_esm && echo > ./package/_esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
+    "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./package/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
     "changeset:release": "bun run build && changeset publish",
     "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
-    "clean": "rimraf package/dist",
+    "clean": "rimraf package/_esm package/_cjs package/_types",
     "contracts:build": "wagmi generate -c ./test/wagmi.config.ts",
     "dev:docs": "cd site && bun run dev",
     "format": "biome format . --write",
@@ -52,42 +52,42 @@
   "size-limit": [
     {
       "name": "viem (cjs)",
-      "path": "./package/dist/cjs/index.js",
+      "path": "./package/_cjs/index.js",
       "limit": "73 kB"
     },
     {
       "name": "viem",
-      "path": "./package/dist/esm/index.js",
+      "path": "./package/_esm/index.js",
       "limit": "63 kB",
       "import": "*"
     },
     {
       "name": "viem/chains",
-      "path": "./package/dist/esm/chains/index.js",
+      "path": "./package/_esm/chains/index.js",
       "limit": "16 kB",
       "import": "*"
     },
     {
       "name": "viem/ens",
-      "path": "./package/dist/esm/ens.js",
+      "path": "./package/_esm/ens.js",
       "limit": "45 kB",
       "import": "*"
     },
     {
       "name": "viem (tree-shaking check)",
-      "path": "./package/dist/esm/index.js",
+      "path": "./package/_esm/index.js",
       "limit": "1.5 kB",
       "import": "{ defineBlock }"
     },
     {
       "name": "viem/chains (tree-shaking check)",
-      "path": "./package/dist/esm/chains/index.js",
+      "path": "./package/_esm/chains/index.js",
       "limit": "500 B",
       "import": "{ mainnet }"
     },
     {
       "name": "viem/ens (tree-shaking check)",
-      "path": "./package/dist/esm/ens.js",
+      "path": "./package/_esm/ens.js",
       "limit": "19 kB",
       "import": "{ getEnsAvatar }"
     }

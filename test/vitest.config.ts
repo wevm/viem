@@ -15,7 +15,9 @@ export default defineConfig({
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [
         '**/errors/utils.ts',
-        '**/dist/**',
+        '**/_cjs/**',
+        '**/_esm/**',
+        '**/_types/**',
         '**/*.test.ts',
         '**/test/**',
       ],

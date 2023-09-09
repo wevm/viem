@@ -3,13 +3,13 @@
   "description": "TypeScript Interface for Ethereum",
   "version": "1.10.7",
   "type": "module",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
-  "typings": "./dist/types/index.d.ts",
+  "main": "./_cjs/index.js",
+  "module": "./_esm/index.js",
+  "types": "./_types/index.d.ts",
+  "typings": "./_types/index.d.ts",
   "sideEffects": false,
   "files": [
-    "dist",
+    "*",
     "!**/*.tsbuildinfo",
     "!**/*.test.ts",
     "!**/*.test-d.ts",
@@ -18,85 +18,85 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
+      "types": "./_types/index.d.ts",
+      "import": "./_esm/index.js",
+      "default": "./_cjs/index.js"
     },
     "./abi": {
-      "types": "./dist/types/abi.d.ts",
-      "import": "./dist/esm/abi.js",
-      "default": "./dist/cjs/abi.js"
+      "types": "./_types/abi.d.ts",
+      "import": "./_esm/abi.js",
+      "default": "./_cjs/abi.js"
     },
     "./accounts": {
-      "types": "./dist/types/accounts/index.d.ts",
-      "import": "./dist/esm/accounts/index.js",
-      "default": "./dist/cjs/accounts/index.js"
+      "types": "./_types/accounts/index.d.ts",
+      "import": "./_esm/accounts/index.js",
+      "default": "./_cjs/accounts/index.js"
     },
     "./actions": {
-      "types": "./dist/types/actions/index.d.ts",
-      "import": "./dist/esm/actions/index.js",
-      "default": "./dist/cjs/actions/index.js"
+      "types": "./_types/actions/index.d.ts",
+      "import": "./_esm/actions/index.js",
+      "default": "./_cjs/actions/index.js"
     },
     "./chains": {
-      "types": "./dist/types/chains/index.d.ts",
-      "import": "./dist/esm/chains/index.js",
-      "default": "./dist/cjs/chains/index.js"
+      "types": "./_types/chains/index.d.ts",
+      "import": "./_esm/chains/index.js",
+      "default": "./_cjs/chains/index.js"
     },
     "./chains/utils": {
-      "types": "./dist/types/chains/utils.d.ts",
-      "import": "./dist/esm/chains/utils.js",
-      "default": "./dist/cjs/chains/utils.js"
+      "types": "./_types/chains/utils.d.ts",
+      "import": "./_esm/chains/utils.js",
+      "default": "./_cjs/chains/utils.js"
     },
     "./contract": {
-      "types": "./dist/types/contract.d.ts",
-      "import": "./dist/esm/contract.js",
-      "default": "./dist/cjs/contract.js"
+      "types": "./_types/contract.d.ts",
+      "import": "./_esm/contract.js",
+      "default": "./_cjs/contract.js"
     },
     "./ens": {
-      "types": "./dist/types/ens.d.ts",
-      "import": "./dist/esm/ens.js",
-      "default": "./dist/cjs/ens.js"
+      "types": "./_types/ens.d.ts",
+      "import": "./_esm/ens.js",
+      "default": "./_cjs/ens.js"
     },
     "./public": {
-      "types": "./dist/types/public.d.ts",
-      "import": "./dist/esm/public.js",
-      "default": "./dist/cjs/public.js"
+      "types": "./_types/public.d.ts",
+      "import": "./_esm/public.js",
+      "default": "./_cjs/public.js"
     },
     "./test": {
-      "types": "./dist/types/test.d.ts",
-      "import": "./dist/esm/test.js",
-      "default": "./dist/cjs/test.js"
+      "types": "./_types/test.d.ts",
+      "import": "./_esm/test.js",
+      "default": "./_cjs/test.js"
     },
     "./utils": {
-      "types": "./dist/types/utils/index.d.ts",
-      "import": "./dist/esm/utils/index.js",
-      "default": "./dist/cjs/utils/index.js"
+      "types": "./_types/utils/index.d.ts",
+      "import": "./_esm/utils/index.js",
+      "default": "./_cjs/utils/index.js"
     },
     "./wallet": {
-      "types": "./dist/types/wallet.d.ts",
-      "import": "./dist/esm/wallet.js",
-      "default": "./dist/cjs/wallet.js"
+      "types": "./_types/wallet.d.ts",
+      "import": "./_esm/wallet.js",
+      "default": "./_cjs/wallet.js"
     },
     "./window": {
-      "types": "./dist/types/window.d.ts",
-      "import": "./dist/esm/window.js",
-      "default": "./dist/cjs/window.js"
+      "types": "./_types/window.d.ts",
+      "import": "./_esm/window.js",
+      "default": "./_cjs/window.js"
     },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
-      "abi": ["./dist/types/abi.d.ts"],
-      "accounts": ["./dist/types/accounts/index.d.ts"],
-      "actions": ["./dist/types/actions/index.d.ts"],
-      "chains": ["./dist/types/chains.d.ts"],
-      "contract": ["./dist/types/contract.d.ts"],
-      "ens": ["./dist/types/ens.d.ts"],
-      "public": ["./dist/types/public.d.ts"],
-      "test": ["./dist/types/test.d.ts"],
-      "utils": ["./dist/types/utils/index.d.ts"],
-      "wallet": ["./dist/types/wallet.d.ts"],
-      "window": ["./dist/types/window.d.ts"]
+      "abi": ["./_types/abi.d.ts"],
+      "accounts": ["./_types/accounts/index.d.ts"],
+      "actions": ["./_types/actions/index.d.ts"],
+      "chains": ["./_types/chains.d.ts"],
+      "contract": ["./_types/contract.d.ts"],
+      "ens": ["./_types/ens.d.ts"],
+      "public": ["./_types/public.d.ts"],
+      "test": ["./_types/test.d.ts"],
+      "utils": ["./_types/utils/index.d.ts"],
+      "wallet": ["./_types/wallet.d.ts"],
+      "window": ["./_types/window.d.ts"]
     }
   },
   "peerDependencies": {

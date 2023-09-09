@@ -2,11 +2,13 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
     "ignore": [
+      "_cjs",
+      "_esm",
+      "_types",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
       "coverage",
-      "dist",
       "tsconfig.json",
       "tsconfig.*.json",
       "generated.ts"
