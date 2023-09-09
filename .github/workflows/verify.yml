@@ -17,7 +17,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Lint code
-        run: pnpm format && pnpm lint:fix
+        run: bun format && bun lint:fix
       
       - uses: stefanzweifel/git-auto-commit-action@v4
         env:
@@ -41,7 +41,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: pnpm build
+        run: bun build
 
   types:
     name: Types
@@ -59,17 +59,17 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+      - run: bun i -d typescript@${{ matrix.typescript-version }}
 
       - name: Build contracts
         shell: bash
-        run: pnpm contracts:build
+        run: bun run contracts:build
 
       - name: Check types
-        run: pnpm typecheck
+        run: bun run typecheck
 
       - name: Test types
-        run: pnpm test:typecheck
+        run: bun run test:typecheck
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
 
@@ -91,14 +91,14 @@ jobs:
 
       - name: Build contracts
         shell: bash
-        run: pnpm contracts:build
+        run: bun run contracts:build
 
       - name: Run tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: bun run test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}

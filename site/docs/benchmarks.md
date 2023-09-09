@@ -14,7 +14,7 @@ head:
 # Benchmarks
 
 ```bash
-❯ pnpm bench
+❯ bun run bench
 
 BENCH  Summary
 

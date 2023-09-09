@@ -9,8 +9,7 @@
       "dist",
       "tsconfig.json",
       "tsconfig.*.json",
-      "generated.ts",
-      "pnpm-lock.yaml"
+      "generated.ts"
     ]
   },
   "formatter": {

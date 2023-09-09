@@ -1,0 +1,131 @@
+{
+  "name": "viem",
+  "description": "TypeScript Interface for Ethereum",
+  "version": "1.10.7",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "typings": "./dist/types/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "!**/*.test.ts",
+    "!**/*.test-d.ts",
+    "!**/*.bench.ts",
+    "!tsconfig.build.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    },
+    "./abi": {
+      "types": "./dist/types/abi.d.ts",
+      "import": "./dist/esm/abi.js",
+      "default": "./dist/cjs/abi.js"
+    },
+    "./accounts": {
+      "types": "./dist/types/accounts/index.d.ts",
+      "import": "./dist/esm/accounts/index.js",
+      "default": "./dist/cjs/accounts/index.js"
+    },
+    "./actions": {
+      "types": "./dist/types/actions/index.d.ts",
+      "import": "./dist/esm/actions/index.js",
+      "default": "./dist/cjs/actions/index.js"
+    },
+    "./chains": {
+      "types": "./dist/types/chains/index.d.ts",
+      "import": "./dist/esm/chains/index.js",
+      "default": "./dist/cjs/chains/index.js"
+    },
+    "./chains/utils": {
+      "types": "./dist/types/chains/utils.d.ts",
+      "import": "./dist/esm/chains/utils.js",
+      "default": "./dist/cjs/chains/utils.js"
+    },
+    "./contract": {
+      "types": "./dist/types/contract.d.ts",
+      "import": "./dist/esm/contract.js",
+      "default": "./dist/cjs/contract.js"
+    },
+    "./ens": {
+      "types": "./dist/types/ens.d.ts",
+      "import": "./dist/esm/ens.js",
+      "default": "./dist/cjs/ens.js"
+    },
+    "./public": {
+      "types": "./dist/types/public.d.ts",
+      "import": "./dist/esm/public.js",
+      "default": "./dist/cjs/public.js"
+    },
+    "./test": {
+      "types": "./dist/types/test.d.ts",
+      "import": "./dist/esm/test.js",
+      "default": "./dist/cjs/test.js"
+    },
+    "./utils": {
+      "types": "./dist/types/utils/index.d.ts",
+      "import": "./dist/esm/utils/index.js",
+      "default": "./dist/cjs/utils/index.js"
+    },
+    "./wallet": {
+      "types": "./dist/types/wallet.d.ts",
+      "import": "./dist/esm/wallet.js",
+      "default": "./dist/cjs/wallet.js"
+    },
+    "./window": {
+      "types": "./dist/types/window.d.ts",
+      "import": "./dist/esm/window.js",
+      "default": "./dist/cjs/window.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "abi": ["./dist/types/abi.d.ts"],
+      "accounts": ["./dist/types/accounts/index.d.ts"],
+      "actions": ["./dist/types/actions/index.d.ts"],
+      "chains": ["./dist/types/chains.d.ts"],
+      "contract": ["./dist/types/contract.d.ts"],
+      "ens": ["./dist/types/ens.d.ts"],
+      "public": ["./dist/types/public.d.ts"],
+      "test": ["./dist/types/test.d.ts"],
+      "utils": ["./dist/types/utils/index.d.ts"],
+      "wallet": ["./dist/types/wallet.d.ts"],
+      "window": ["./dist/types/window.d.ts"]
+    }
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.4"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@adraffy/ens-normalize": "1.9.4",
+    "@noble/curves": "1.2.0",
+    "@noble/hashes": "1.3.2",
+    "@scure/bip32": "1.3.2",
+    "@scure/bip39": "1.2.1",
+    "@types/ws": "^8.5.5",
+    "abitype": "0.9.8",
+    "isomorphic-ws": "5.0.0",
+    "ws": "8.13.0"
+  },
+  "license": "MIT",
+  "repository": "wagmi-dev/viem",
+  "authors": ["awkweb.eth", "jxom.eth"],
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/wagmi-dev"
+    }
+  ],
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"]
+}

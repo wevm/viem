@@ -36,8 +36,8 @@ npm i viem
 pnpm i viem
 ```
 
-```bash [yarn]
-yarn add viem
+```bash [bun]
+bun i viem
 ```
 
 :::

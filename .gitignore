@@ -2,7 +2,6 @@
 .DS_Store
 .eslintcache
 .next
-.pnpm-debug.log*
 bench
 cache
 coverage
