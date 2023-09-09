@@ -16,8 +16,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "viem": ["../../src"],
-      "viem/*": ["../../src/*"]
+      "viem": ["../../package"],
+      "viem/*": ["../../package/*"]
     }
   }
 }
