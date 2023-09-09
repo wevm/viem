@@ -41,7 +41,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: bun build
+        run: bun run build
 
   types:
     name: Types

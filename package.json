@@ -18,7 +18,7 @@
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
     "postinstall": "bun run contracts:build",
-    "prepare": "bunx simple-git-hooks",
+    "prepare": "bun x simple-git-hooks",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
     "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
