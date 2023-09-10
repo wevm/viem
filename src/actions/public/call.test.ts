@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { offchainLookupExampleABI } from '~test/generated.js'
+import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
 import { createCcipServer } from '~test/src/ccip.js'
 import { accounts, forkBlockNumber } from '~test/src/constants.js'
@@ -55,7 +55,7 @@ describe('ccip', () => {
     })
 
     const calldata = encodeFunctionData({
-      abi: offchainLookupExampleABI,
+      abi: OffchainLookupExample.abi,
       functionName: 'getAddress',
       args: ['jxom.viem'],
     })
@@ -77,7 +77,7 @@ describe('ccip', () => {
     })
 
     const calldata = encodeFunctionData({
-      abi: offchainLookupExampleABI,
+      abi: OffchainLookupExample.abi,
       functionName: 'getAddress',
       args: ['fake.viem'],
     })

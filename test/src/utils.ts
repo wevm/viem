@@ -1,12 +1,6 @@
 /* c8 ignore start */
 import type { Abi } from 'abitype'
 
-import erc20InvalidTransferEvent from '../contracts/out/ERC20InvalidTransferEvent.sol/ERC20InvalidTransferEvent.json'
-import ensAvatarTokenUri from '../contracts/out/EnsAvatarTokenUri.sol/EnsAvatarTokenUri.json'
-import errorsExample from '../contracts/out/ErrorsExample.sol/ErrorsExample.json'
-import offchainLookupExample from '../contracts/out/OffchainLookupExample.sol/OffchainLookupExample.json'
-import payable from '../contracts/out/Payable.sol/Payable.json'
-
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
@@ -27,19 +21,18 @@ import { webSocket } from '~viem/clients/transports/webSocket.js'
 import { RpcRequestError } from '~viem/errors/request.js'
 import type { Chain } from '~viem/types/chain.js'
 import { type EIP1193Provider, ProviderRpcError } from '~viem/types/eip1193.js'
-import type { Hex } from '~viem/types/misc.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
 import { rpc } from '~viem/utils/rpc.js'
 
 import { type RequestListener, createServer } from 'http'
 import type { AddressInfo } from 'net'
 import {
-  ensAvatarTokenUriABI,
-  erc20InvalidTransferEventABI,
-  errorsExampleABI,
-  offchainLookupExampleABI,
-  payableABI,
-} from '../generated.js'
+  ERC20InvalidTransferEvent,
+  EnsAvatarTokenUri,
+  ErrorsExample,
+  OffchainLookupExample,
+  Payable,
+} from '../contracts/generated.js'
 import { baycContractConfig, ensRegistryConfig } from './abis.js'
 import {
   accounts,
@@ -224,24 +217,24 @@ export async function deployBAYC() {
 
 export async function deployErrorExample() {
   return deploy({
-    abi: errorsExampleABI,
-    bytecode: errorsExample.bytecode.object as Hex,
+    abi: ErrorsExample.abi,
+    bytecode: ErrorsExample.bytecode.object,
     account: accounts[0].address,
   })
 }
 
 export async function deployEnsAvatarTokenUri() {
   return deploy({
-    abi: ensAvatarTokenUriABI,
-    bytecode: ensAvatarTokenUri.bytecode.object as Hex,
+    abi: EnsAvatarTokenUri.abi,
+    bytecode: EnsAvatarTokenUri.bytecode.object,
     account: accounts[0].address,
   })
 }
 
 export async function deployErc20InvalidTransferEvent() {
   return deploy({
-    abi: erc20InvalidTransferEventABI,
-    bytecode: erc20InvalidTransferEvent.bytecode.object as Hex,
+    abi: ERC20InvalidTransferEvent.abi,
+    bytecode: ERC20InvalidTransferEvent.bytecode.object,
     account: accounts[0].address,
   })
 }
@@ -250,8 +243,8 @@ export async function deployOffchainLookupExample({
   urls,
 }: { urls: string[] }) {
   return deploy({
-    abi: offchainLookupExampleABI,
-    bytecode: offchainLookupExample.bytecode.object as Hex,
+    abi: OffchainLookupExample.abi,
+    bytecode: OffchainLookupExample.bytecode.object,
     account: accounts[0].address,
     args: [urls],
   })
@@ -259,8 +252,8 @@ export async function deployOffchainLookupExample({
 
 export async function deployPayable() {
   return deploy({
-    abi: payableABI,
-    bytecode: payable.bytecode.object as Hex,
+    abi: Payable.abi,
+    bytecode: Payable.bytecode.object,
     account: accounts[0].address,
   })
 }

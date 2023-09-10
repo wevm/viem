@@ -6,7 +6,7 @@
  */
 import { describe, expect, test } from 'vitest'
 
-import { errorsExampleABI } from '~test/generated.js'
+import { ErrorsExample } from '~test/contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { address, forkBlockNumber } from '~test/src/constants.js'
 import { deployErrorExample, publicClient } from '~test/src/utils.js'
@@ -154,7 +154,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'revertRead',
       }),
@@ -176,7 +176,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'assertRead',
       }),
@@ -198,7 +198,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'overflowRead',
       }),
@@ -220,7 +220,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'divideByZeroRead',
       }),
@@ -242,7 +242,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'requireRead',
       }),
@@ -263,7 +263,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'simpleCustomRead',
       }),
@@ -287,7 +287,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'simpleCustomReadNoArgs',
       }),
@@ -310,7 +310,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       readContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'complexCustomRead',
       }),
@@ -332,7 +332,7 @@ describe('contract errors', () => {
   test('custom error does not exist on abi', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    const abi = errorsExampleABI.filter(
+    const abi = ErrorsExample.abi.filter(
       (abiItem) => abiItem.name !== 'SimpleError',
     )
 

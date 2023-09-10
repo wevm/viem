@@ -11,7 +11,7 @@ import { forkBlockNumber, poolId } from './src/constants.js'
 import { setBlockNumber, testClient } from './src/utils.js'
 
 beforeAll(() => {
-  vi.mock('../package/errors/utils.ts', () => ({
+  vi.mock('../src/errors/utils.ts', () => ({
     getContractAddress: vi
       .fn()
       .mockReturnValue('0x0000000000000000000000000000000000000000'),

@@ -4,8 +4,11 @@
 
 :root {
   --vp-c-brand: var(--vp-c-yellow);
-  --vp-c-brand-light: var(--vp-c-yellow-light);
+  --vp-c-brand-1: var(--vp-c-brand);
+  --vp-c-brand-2: var(--vp-c-brand);
+  --vp-c-brand-3: var(--vp-c-brand);
   --vp-c-brand-lighter: var(--vp-c-yellow-lighter);
+  --vp-c-brand-light: var(--vp-c-yellow-light);
   --vp-c-brand-dark: var(--vp-c-yellow-dark);
   --vp-c-brand-darker: var(--vp-c-yellow-darker);
   --vp-c-text-light-1: var(--vp-c-black-soft);
@@ -19,7 +22,8 @@
   --vp-button-sponsor-hover-text: var(--vp-c-brand);
   --vp-code-line-highlight-color: rgb(255 197 22 / 8%);
   --vp-code-font-size: 15px;
-  --vp-code-tab-divider: var(--vp-c-mute-dark);
+  --vp-code-tab-divider: var(--vp-c-gray-soft);
+  --vp-custom-block-tip-bg: var(--vp-c-gray-soft);
 }
 
 .dark {
@@ -53,6 +57,10 @@
   font-weight: 400 !important;
 }
 
+.VPSidebarItem a:hover {
+  text-decoration: unset !important;
+}
+
 .VPDoc iframe {
   margin-left: -32px;
   height: 500px;
@@ -65,4 +73,11 @@
 
 h3.vp-sponsor-tier {
   margin: 0 0 4px
+}
+
+a {
+  text-decoration: unset !important;
+}
+a:hover {
+  text-decoration: underline !important;
 }

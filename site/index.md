@@ -190,6 +190,8 @@ Help support future development and make wagmi a sustainable open-source project
 - [wagmi-dev.eth](https://etherscan.io/enslookup-search?search=wagmi-dev.eth)
 
 <div class="h-8" />
+<h1>Sponsors</h1>
+<hr class="h-2" />
 
 <HomeSponsors />
 </div>

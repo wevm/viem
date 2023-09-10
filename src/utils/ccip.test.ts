@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { offchainLookupExampleABI } from '~test/generated.js'
+import { OffchainLookupExample } from '~test/contracts/generated.js'
 import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import {
@@ -27,7 +27,7 @@ describe('offchainLookup', () => {
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({
-          abi: offchainLookupExampleABI,
+          abi: OffchainLookupExample.abi,
           functionName: 'getAddress',
           args: ['jxom.viem'],
         })
@@ -58,7 +58,7 @@ describe('offchainLookup', () => {
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({
-          abi: offchainLookupExampleABI,
+          abi: OffchainLookupExample.abi,
           functionName: 'getAddress',
           args: ['fake.viem'],
         })

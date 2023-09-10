@@ -7,7 +7,7 @@ import {
   test,
 } from 'vitest'
 
-import { erc20InvalidTransferEventABI } from '~test/generated.js'
+import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
 import {
@@ -640,14 +640,14 @@ describe('events', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
@@ -676,14 +676,14 @@ describe('events', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],

@@ -9,7 +9,7 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { errorsExampleABI } from '~test/generated.js'
+import { ErrorsExample } from '~test/contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import {
@@ -320,7 +320,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'revertWrite',
         account: accounts[0].address,
@@ -344,7 +344,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'assertWrite',
         account: accounts[0].address,
@@ -368,7 +368,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'overflowWrite',
         account: accounts[0].address,
@@ -392,7 +392,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'divideByZeroWrite',
         account: accounts[0].address,
@@ -416,7 +416,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'requireWrite',
         account: accounts[0].address,
@@ -439,7 +439,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'simpleCustomWrite',
         account: accounts[0].address,
@@ -465,7 +465,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       simulateContract(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'complexCustomWrite',
         account: accounts[0].address,

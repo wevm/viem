@@ -8,7 +8,7 @@ import {
   test,
 } from 'vitest'
 
-import { erc20InvalidTransferEventABI } from '~test/generated.js'
+import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
 import {
@@ -18,16 +18,21 @@ import {
   walletClient,
 } from '~test/src/utils.js'
 import type { Log } from '../../types/log.js'
+import type { Hash } from '../../types/misc.js'
 import { getAddress } from '../../utils/address/getAddress.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import { writeContract } from '../wallet/writeContract.js'
 
+import { createBlockFilter } from './createBlockFilter.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'
-import { getFilterLogs } from './getFilterLogs.js'
+import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
+import { getFilterChanges } from './getFilterChanges.js'
 
 const event = {
   default: {
@@ -136,11 +141,61 @@ beforeAll(async () => {
 })
 
 test('default', async () => {
+  const filter = await createPendingTransactionFilter(publicClient)
+  expect(
+    await getFilterChanges(publicClient, { filter }),
+  ).toMatchInlineSnapshot('[]')
+})
+
+test('pending txns', async () => {
+  const filter = await createPendingTransactionFilter(publicClient)
+
+  await sendTransaction(walletClient, {
+    account: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
+  await sendTransaction(walletClient, {
+    account: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
+
+  let hashes = await getFilterChanges(publicClient, { filter })
+  assertType<Hash[]>(hashes)
+  expect(hashes.length).toBe(2)
+
+  mine(testClient, { blocks: 1 })
+
+  hashes = await getFilterChanges(publicClient, { filter })
+  expect(hashes.length).toBe(0)
+
+  await sendTransaction(walletClient, {
+    account: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
+
+  hashes = await getFilterChanges(publicClient, { filter })
+  expect(hashes.length).toBe(1)
+})
+
+test('new blocks', async () => {
+  const filter = await createBlockFilter(publicClient)
+
+  await mine(testClient, { blocks: 2 })
+
+  let hashes = await getFilterChanges(publicClient, { filter })
+  assertType<Hash[]>(hashes)
+  expect(hashes.length).toBe(2)
+
+  hashes = await getFilterChanges(publicClient, { filter })
+  expect(hashes.length).toBe(0)
+
   await mine(testClient, { blocks: 1 })
-  const filter = await createEventFilter(publicClient)
-  expect(await getFilterLogs(publicClient, { filter })).toMatchInlineSnapshot(
-    '[]',
-  )
+
+  hashes = await getFilterChanges(publicClient, { filter })
+  expect(hashes.length).toBe(1)
 })
 
 describe('contract events', () => {
@@ -169,34 +224,20 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, {
+    const logs = await getFilterChanges(publicClient, {
       filter,
     })
 
-    expectTypeOf(logs).toEqualTypeOf<
+    assertType<
       Log<
         bigint,
         number,
-        false,
+        boolean,
         undefined,
         false,
         typeof usdcContractConfig.abi
       >[]
-    >()
-    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
-      | {
-          from?: Address
-          to?: Address
-          value?: bigint
-        }
-      | {
-          owner?: Address
-          spender?: Address
-          value?: bigint
-        }
-    >()
-
+    >(logs)
     expect(logs.length).toBe(3)
     expect(logs[0].args).toEqual({
       from: getAddress(address.vitalik),
@@ -244,7 +285,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -279,7 +320,7 @@ describe('contract events', () => {
       toBlock: forkBlockNumber,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -303,7 +344,7 @@ describe('contract events', () => {
       strict: true,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -347,7 +388,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -397,7 +438,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -453,7 +494,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -503,7 +544,7 @@ describe('contract events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    const logs = await getFilterChanges(publicClient, { filter })
     assertType<
       Log<
         bigint,
@@ -549,14 +590,14 @@ describe('contract events', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
@@ -564,10 +605,10 @@ describe('contract events', () => {
       })
       await mine(testClient, { blocks: 1 })
 
-      const strictLogs = await getFilterLogs(publicClient, {
+      const strictLogs = await getFilterChanges(publicClient, {
         filter: strictFilter,
       })
-      const looseLogs = await getFilterLogs(publicClient, {
+      const looseLogs = await getFilterChanges(publicClient, {
         filter: looseFilter,
       })
       expect(strictLogs.length).toBe(1)
@@ -578,11 +619,11 @@ describe('contract events', () => {
       const { contractAddress } = await deployErc20InvalidTransferEvent()
 
       const strictFilter = await createContractEventFilter(publicClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         strict: true,
       })
       const looseFilter = await createContractEventFilter(publicClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
       })
 
       await writeContract(walletClient, {
@@ -592,14 +633,14 @@ describe('contract events', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
@@ -607,10 +648,10 @@ describe('contract events', () => {
       })
       await mine(testClient, { blocks: 1 })
 
-      const strictLogs = await getFilterLogs(publicClient, {
+      const strictLogs = await getFilterChanges(publicClient, {
         filter: strictFilter,
       })
-      const looseLogs = await getFilterLogs(publicClient, {
+      const looseLogs = await getFilterChanges(publicClient, {
         filter: looseFilter,
       })
       expect(strictLogs.length).toBe(2)
@@ -619,7 +660,7 @@ describe('contract events', () => {
   })
 })
 
-describe('raw events', () => {
+describe('events', () => {
   test('no args', async () => {
     const filter = await createEventFilter(publicClient)
 
@@ -633,14 +674,29 @@ describe('raw events', () => {
       ...usdcContractConfig,
       functionName: 'transfer',
       args: [accounts[1].address, 1n],
-      account: address.usdcHolder,
+      account: address.vitalik,
     })
 
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    let logs = await getFilterChanges(publicClient, { filter })
     assertType<Log[]>(logs)
     expect(logs.length).toBe(2)
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[2].address, 1n],
+      account: address.vitalik,
+    })
+
+    await mine(testClient, { blocks: 1 })
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(1)
   })
 
   test('args: event', async () => {
@@ -663,8 +719,18 @@ describe('raw events', () => {
 
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
-    assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
+    let logs = await getFilterChanges(publicClient, { filter })
+
+    expectTypeOf(logs).toEqualTypeOf<
+      Log<bigint, number, false, typeof event.default>[]
+    >()
+    expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
+    expectTypeOf(logs[0].args).toEqualTypeOf<{
+      from?: Address
+      to?: Address
+      value?: bigint
+    }>()
+
     expect(logs.length).toBe(2)
     expect(logs[0].args).toEqual({
       from: getAddress(address.vitalik),
@@ -678,6 +744,26 @@ describe('raw events', () => {
       value: 1n,
     })
     expect(logs[1].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[2].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(1)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[2].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: events', async () => {
@@ -700,7 +786,10 @@ describe('raw events', () => {
 
     await mine(testClient, { blocks: 1 })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    let logs = await getFilterChanges(publicClient, {
+      filter,
+    })
+
     expect(logs.length).toBe(2)
     expect(logs[0].args).toEqual({
       from: getAddress(address.vitalik),
@@ -714,6 +803,26 @@ describe('raw events', () => {
       value: 1n,
     })
     expect(logs[1].eventName).toEqual('Approval')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
+
+    await writeContract(walletClient, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[2].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(testClient, { blocks: 1 })
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(1)
+    expect(logs[0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[2].address),
+      value: 1n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
   })
 
   test('args: fromBlock/toBlock', async () => {
@@ -723,9 +832,18 @@ describe('raw events', () => {
       toBlock: forkBlockNumber,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    let logs = await getFilterChanges(publicClient, { filter })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
     expect(logs.length).toBe(1056)
+    expect(logs[0].args).toEqual({
+      from: '0x00000000003b3cc22aF3aE1EAc0440BcEe416B40',
+      to: '0x393ADf60012809316659Af13A3117ec22D093a38',
+      value: 1162592016924672n,
+    })
+    expect(logs[0].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
   })
 
   test('args: strict = true (named)', async () => {
@@ -736,7 +854,7 @@ describe('raw events', () => {
       strict: true,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    let logs = await getFilterChanges(publicClient, { filter })
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
 
@@ -754,6 +872,9 @@ describe('raw events', () => {
     })
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
   })
 
   test('args: strict = false (named)', async () => {
@@ -763,7 +884,7 @@ describe('raw events', () => {
       toBlock: forkBlockNumber,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
+    let logs = await getFilterChanges(publicClient, { filter })
 
     assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
       logs,
@@ -783,6 +904,9 @@ describe('raw events', () => {
     })
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
   })
 
   test('args: strict = true (unnamed)', async () => {
@@ -793,8 +917,7 @@ describe('raw events', () => {
       strict: true,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
-
+    let logs = await getFilterChanges(publicClient, { filter })
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
 
     expect(logs.length).toBe(784)
@@ -809,6 +932,9 @@ describe('raw events', () => {
     ])
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
   })
 
   test('args: strict = false (unnamed)', async () => {
@@ -818,8 +944,7 @@ describe('raw events', () => {
       toBlock: forkBlockNumber,
     })
 
-    const logs = await getFilterLogs(publicClient, { filter })
-
+    let logs = await getFilterChanges(publicClient, { filter })
     assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
       logs,
     )
@@ -837,8 +962,12 @@ describe('raw events', () => {
       '0x393ADf60012809316659Af13A3117ec22D093a38',
       1162592016924672n,
     ])
+
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
     expect(logs[0].eventName).toEqual('Transfer')
+
+    logs = await getFilterChanges(publicClient, { filter })
+    expect(logs.length).toBe(0)
   })
 
   test('args: singular `from`', async () => {
@@ -869,7 +998,7 @@ describe('raw events', () => {
       ...usdcContractConfig,
       account: address.vitalik,
       functionName: 'transfer',
-      args: [accounts[1].address, 1n],
+      args: [accounts[2].address, 1n],
     })
     await writeContract(walletClient, {
       ...usdcContractConfig,
@@ -879,7 +1008,9 @@ describe('raw events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const namedLogs = await getFilterLogs(publicClient, { filter: namedFilter })
+    const namedLogs = await getFilterChanges(publicClient, {
+      filter: namedFilter,
+    })
     expect(namedLogs.length).toBe(2)
     expect(namedLogs[0].args).toEqual({
       from: getAddress(address.vitalik),
@@ -889,12 +1020,12 @@ describe('raw events', () => {
     expect(namedLogs[0].eventName).toEqual('Transfer')
     expect(namedLogs[1].args).toEqual({
       from: getAddress(address.vitalik),
-      to: getAddress(accounts[1].address),
+      to: getAddress(accounts[2].address),
       value: 1n,
     })
     expect(namedLogs[1].eventName).toEqual('Transfer')
 
-    const unnamedLogs = await getFilterLogs(publicClient, {
+    const unnamedLogs = await getFilterChanges(publicClient, {
       filter: unnamedFilter,
     })
     expect(unnamedLogs.length).toBe(2)
@@ -907,7 +1038,7 @@ describe('raw events', () => {
     expect(unnamedLogs[0].eventName).toEqual('Transfer')
     expect(unnamedLogs[1].args).toEqual([
       getAddress(address.vitalik),
-      getAddress(accounts[1].address),
+      getAddress(accounts[2].address),
       1n,
     ])
     expect(unnamedLogs[1].eventName).toEqual('Transfer')
@@ -951,25 +1082,51 @@ describe('raw events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const namedLogs = await getFilterLogs(publicClient, { filter: namedFilter })
+    const namedLogs = await getFilterChanges(publicClient, {
+      filter: namedFilter,
+    })
     expect(namedLogs.length).toBe(3)
-    expect(namedLogs[0].eventName).toEqual('Transfer')
     expect(namedLogs[0].args).toEqual({
       from: getAddress(address.usdcHolder),
       to: getAddress(accounts[0].address),
       value: 1n,
     })
+    expect(namedLogs[0].eventName).toEqual('Transfer')
+    expect(namedLogs[1].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[1].address),
+      value: 1n,
+    })
+    expect(namedLogs[1].eventName).toEqual('Transfer')
+    expect(namedLogs[2].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(accounts[1].address),
+      value: 1n,
+    })
+    expect(namedLogs[2].eventName).toEqual('Transfer')
 
-    const unnamedLogs = await getFilterLogs(publicClient, {
+    const unnamedLogs = await getFilterChanges(publicClient, {
       filter: unnamedFilter,
     })
     expect(unnamedLogs.length).toBe(3)
-    expect(unnamedLogs[0].eventName).toEqual('Transfer')
     expect(unnamedLogs[0].args).toEqual([
       getAddress(address.usdcHolder),
       getAddress(accounts[0].address),
       1n,
     ])
+    expect(unnamedLogs[0].eventName).toEqual('Transfer')
+    expect(unnamedLogs[1].args).toEqual([
+      getAddress(address.vitalik),
+      getAddress(accounts[1].address),
+      1n,
+    ])
+    expect(unnamedLogs[1].eventName).toEqual('Transfer')
+    expect(unnamedLogs[2].args).toEqual([
+      getAddress(address.vitalik),
+      getAddress(accounts[1].address),
+      1n,
+    ])
+    expect(unnamedLogs[2].eventName).toEqual('Transfer')
   })
 
   test('args: singular `to`', async () => {
@@ -1010,20 +1167,20 @@ describe('raw events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const namedLogs = await getFilterLogs(publicClient, { filter: namedFilter })
+    const namedLogs = await getFilterChanges(publicClient, {
+      filter: namedFilter,
+    })
     expect(namedLogs.length).toBe(1)
-    expect(namedLogs[0].eventName).toEqual('Transfer')
     expect(namedLogs[0].args).toEqual({
       from: getAddress(address.usdcHolder),
       to: getAddress(accounts[0].address),
       value: 1n,
     })
 
-    const unnamedLogs = await getFilterLogs(publicClient, {
+    const unnamedLogs = await getFilterChanges(publicClient, {
       filter: unnamedFilter,
     })
     expect(unnamedLogs.length).toBe(1)
-    expect(unnamedLogs[0].eventName).toEqual('Transfer')
     expect(unnamedLogs[0].args).toEqual([
       getAddress(address.usdcHolder),
       getAddress(accounts[0].address),
@@ -1069,20 +1226,20 @@ describe('raw events', () => {
     })
     await mine(testClient, { blocks: 1 })
 
-    const namedLogs = await getFilterLogs(publicClient, { filter: namedFilter })
+    const namedLogs = await getFilterChanges(publicClient, {
+      filter: namedFilter,
+    })
     expect(namedLogs.length).toBe(3)
-    expect(namedLogs[0].eventName).toEqual('Transfer')
     expect(namedLogs[0].args).toEqual({
       from: getAddress(address.usdcHolder),
       to: getAddress(accounts[0].address),
       value: 1n,
     })
 
-    const unnamedLogs = await getFilterLogs(publicClient, {
+    const unnamedLogs = await getFilterChanges(publicClient, {
       filter: unnamedFilter,
     })
     expect(unnamedLogs.length).toBe(3)
-    expect(unnamedLogs[0].eventName).toEqual('Transfer')
     expect(unnamedLogs[0].args).toEqual([
       getAddress(address.usdcHolder),
       getAddress(accounts[0].address),
@@ -1109,14 +1266,14 @@ describe('raw events', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
@@ -1124,10 +1281,10 @@ describe('raw events', () => {
       })
       await mine(testClient, { blocks: 1 })
 
-      const strictLogs = await getFilterLogs(publicClient, {
+      const strictLogs = await getFilterChanges(publicClient, {
         filter: strictFilter,
       })
-      const looseLogs = await getFilterLogs(publicClient, {
+      const looseLogs = await getFilterChanges(publicClient, {
         filter: looseFilter,
       })
       expect(strictLogs.length).toBe(1)
@@ -1152,14 +1309,14 @@ describe('raw events', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
@@ -1167,10 +1324,10 @@ describe('raw events', () => {
       })
       await mine(testClient, { blocks: 1 })
 
-      const strictLogs = await getFilterLogs(publicClient, {
+      const strictLogs = await getFilterChanges(publicClient, {
         filter: strictFilter,
       })
-      const looseLogs = await getFilterLogs(publicClient, {
+      const looseLogs = await getFilterChanges(publicClient, {
         filter: looseFilter,
       })
       expect(strictLogs.length).toBe(2)

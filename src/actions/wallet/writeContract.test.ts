@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { payableABI } from '~test/generated.js'
+import { Payable } from '~test/contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, localHttpUrl } from '~test/src/constants.js'
 import {
@@ -150,12 +150,12 @@ test('args: value', async () => {
   const { contractAddress } = await deployPayable()
 
   const hash_1 = await writeContract(walletClientWithAccount, {
-    abi: payableABI,
+    abi: Payable.abi,
     address: contractAddress!,
     functionName: 'pay',
   })
   const hash_2 = await writeContract(walletClientWithAccount, {
-    abi: payableABI,
+    abi: Payable.abi,
     address: contractAddress!,
     functionName: 'pay',
     value: 1n,

@@ -214,7 +214,7 @@ If your Chain satisfies the necessary criteria, you may submit a pull request fo
 
 ### Attribute reference
 
-The [`Chain` type](../package/types/chain.ts) has a number of important attributes, and you may get stuck on what to add to these. Most of these attributes exist within the [`ethereum-lists/chains` repository](https://github.com/ethereum-lists/chains/tree/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains).
+The [`Chain` type](../src/types/chain.ts) has a number of important attributes, and you may get stuck on what to add to these. Most of these attributes exist within the [`ethereum-lists/chains` repository](https://github.com/ethereum-lists/chains/tree/3fbd4eeac7ce116579634bd042b84e2b1d89886a/_data/chains).
 
 - `id`: The Chain ID for the network. This can be found by typing the network name into [ChainList](https://chainlist.org/). Example: "Ethereum Mainnet" has a Chain ID of `1`.
 - `name`: A human readable name for the network. Example: "Binance Smart Chain Mainnet"
@@ -236,13 +236,13 @@ Read the [Basic Guide](#basic-guide) to contributing to set up your environment.
 
 #### 2. Create a chain file
 
-Create a file for your chain in [`package/chains/definitions/`](../package/chains/definitions/).
+Create a file for your chain in [`src/chains/definitions/`](../src/chains/definitions/).
 
 Example:
 
 ```diff
 
- package/
+ src/
  ├─ chains/
  │  ├─ definitions/
  │  │  ├─ avalanche.ts
@@ -297,7 +297,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
 
 #### 4. Export your chain
 
-Export the chain in [`package/chains/index.ts`](../package/chains/index.ts).
+Export the chain in [`src/chains/index.ts`](../src/chains/index.ts).
 
 Example:
 

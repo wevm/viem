@@ -17,8 +17,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "viem": ["../../package"],
-      "viem/*": ["../../package/*"]
+      "viem": ["../../src"],
+      "viem/*": ["../../src/*"]
     }
   },
   "include": ["src"],

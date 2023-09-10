@@ -1,18 +1,19 @@
 {
-  "workspaces": ["examples/*", "package", "playgrounds/*", "site", "test"],
+  "workspaces": ["examples/*", "playgrounds/*", "site", "src", "test"],
   "private": true,
+  "type": "module",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
     "build": "bun run clean && bun run build:cjs && bun run build:esm && bun run build:types",
-    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./package/_cjs --removeComments --verbatimModuleSyntax false && echo > ./package/_cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./package/_esm && echo > ./package/_esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
-    "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./package/_types --emitDeclarationOnly --declaration --declarationMap",
+    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && echo > ./src/_cjs/package.json '{\"type\":\"commonjs\"}'",
+    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./src/_esm && echo > ./src/_esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
+    "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
     "changeset:release": "bun run build && changeset publish",
     "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
-    "clean": "rimraf package/_esm package/_cjs package/_types",
-    "contracts:build": "wagmi generate -c ./test/wagmi.config.ts",
+    "clean": "rimraf src/_esm src/_cjs src/_types",
+    "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
     "dev:docs": "cd site && bun run dev",
     "format": "biome format . --write",
     "lint": "biome check .",
@@ -38,10 +39,11 @@
     "@viem/anvil": "0.0.5",
     "@vitest/coverage-v8": "^0.34.3",
     "@vitest/ui": "^0.34.3",
-    "@wagmi/cli": "^0.1.6",
+    "bun-types": "^1.0.1",
     "ethers": "^5.7.2",
     "ethers@6": "npm:ethers@^6.0.2",
     "fs-extra": "^10.1.0",
+    "globby": "^13.2.2",
     "rimraf": "^4.4.1",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
@@ -52,42 +54,42 @@
   "size-limit": [
     {
       "name": "viem (cjs)",
-      "path": "./package/_cjs/index.js",
+      "path": "./src/_cjs/index.js",
       "limit": "73 kB"
     },
     {
       "name": "viem",
-      "path": "./package/_esm/index.js",
+      "path": "./src/_esm/index.js",
       "limit": "63 kB",
       "import": "*"
     },
     {
       "name": "viem/chains",
-      "path": "./package/_esm/chains/index.js",
+      "path": "./src/_esm/chains/index.js",
       "limit": "16 kB",
       "import": "*"
     },
     {
       "name": "viem/ens",
-      "path": "./package/_esm/ens.js",
+      "path": "./src/_esm/ens.js",
       "limit": "45 kB",
       "import": "*"
     },
     {
       "name": "viem (tree-shaking check)",
-      "path": "./package/_esm/index.js",
+      "path": "./src/_esm/index.js",
       "limit": "1.5 kB",
       "import": "{ defineBlock }"
     },
     {
       "name": "viem/chains (tree-shaking check)",
-      "path": "./package/_esm/chains/index.js",
+      "path": "./src/_esm/chains/index.js",
       "limit": "500 B",
       "import": "{ mainnet }"
     },
     {
       "name": "viem/ens (tree-shaking check)",
-      "path": "./package/_esm/ens.js",
+      "path": "./src/_esm/ens.js",
       "limit": "19 kB",
       "import": "{ getEnsAvatar }"
     }

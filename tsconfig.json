@@ -1,15 +1,14 @@
 {
   // This configuration is used for local development and type checking.
   "extends": "./tsconfig.base.json",
-  "include": ["package", "test"],
+  "include": ["src", "test"],
   "exclude": [],
-  "references": [{ "path": "./tsconfig.node.json" }],
+  "references": [{ "path": "./scripts/tsconfig.json" }],
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "~viem/*": ["./package/*"],
+      "~viem/*": ["./src/*"],
       "~test/*": ["./test/*"],
-    },
-    // Json import is used in `package/test/utils.ts`.
-    "resolveJsonModule": true // TODO: Try to avoid this. Maybe generate .ts files for bytecode too with wagmi?
+    }
   }
 }
