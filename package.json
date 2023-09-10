@@ -52,15 +52,15 @@
   },
   "size-limit": [
     {
-      "name": "viem (cjs)",
-      "path": "./src/_cjs/index.js",
-      "limit": "73 kB"
-    },
-    {
-      "name": "viem",
+      "name": "viem (esm)",
       "path": "./src/_esm/index.js",
       "limit": "63 kB",
       "import": "*"
+    },
+    {
+      "name": "viem (cjs)",
+      "path": "./src/_cjs/index.js",
+      "limit": "73 kB"
     },
     {
       "name": "viem/chains",
