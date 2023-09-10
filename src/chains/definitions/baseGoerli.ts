@@ -8,6 +8,10 @@ export const baseGoerli = /*#__PURE__*/ defineChain(
     name: 'Base Goerli',
     nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
+      alchemy: {
+        http: ['https://base-goerli.g.alchemy.com/v2'],
+        webSocket: ['wss://base-goerli.g.alchemy.com/v2'],
+      },
       default: {
         http: ['https://goerli.base.org'],
       },
