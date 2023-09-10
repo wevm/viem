@@ -51,6 +51,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Report bundle size
         uses: andresz1/size-limit-action@master
         with:
