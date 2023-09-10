@@ -1,4 +1,4 @@
-import { Contract, Typed } from 'ethers@6'
+import { Contract, Typed } from 'ethers'
 
 import { bench, describe } from 'vitest'
 
