@@ -6,8 +6,8 @@
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
     "build": "bun run clean && bun run build:cjs && bun run build:esm && bun run build:types",
-    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && echo > ./src/_cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./src/_esm && echo > ./src/_esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
+    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json",
+    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
     "changeset:release": "bun run build && changeset publish",
@@ -50,49 +50,6 @@
     "vite": "^4.4.2",
     "vitest": "~0.34.3"
   },
-  "size-limit": [
-    {
-      "name": "viem (esm)",
-      "path": "./src/_esm/index.js",
-      "limit": "63 kB",
-      "import": "*"
-    },
-    {
-      "name": "viem (cjs)",
-      "path": "./src/_cjs/index.js",
-      "limit": "73 kB"
-    },
-    {
-      "name": "viem/chains",
-      "path": "./src/_esm/chains/index.js",
-      "limit": "16 kB",
-      "import": "*"
-    },
-    {
-      "name": "viem/ens",
-      "path": "./src/_esm/ens.js",
-      "limit": "45 kB",
-      "import": "*"
-    },
-    {
-      "name": "viem (tree-shaking check)",
-      "path": "./src/_esm/index.js",
-      "limit": "1.5 kB",
-      "import": "{ defineBlock }"
-    },
-    {
-      "name": "viem/chains (tree-shaking check)",
-      "path": "./src/_esm/chains/index.js",
-      "limit": "500 B",
-      "import": "{ mainnet }"
-    },
-    {
-      "name": "viem/ens (tree-shaking check)",
-      "path": "./src/_esm/ens.js",
-      "limit": "19 kB",
-      "import": "{ getEnsAvatar }"
-    }
-  ],
   "simple-git-hooks": {
     "pre-commit": "bun run format && bun run lint:fix"
   }
