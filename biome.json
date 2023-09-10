@@ -8,6 +8,7 @@
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
+      "test/contracts",
       "coverage",
       "tsconfig.json",
       "tsconfig.*.json",
