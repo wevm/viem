@@ -8,6 +8,7 @@
     "src/**/*.bench.ts"
   ],
   "compilerOptions": {
+    "moduleResolution": "node",
     "sourceMap": true,
     "rootDir": "./src"
   }
