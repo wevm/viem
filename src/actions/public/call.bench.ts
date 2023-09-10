@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, ethersV6Provider } from '~test/src/bench.js'
+import { ethersProvider } from '~test/src/bench.js'
 import { accounts } from '~test/src/constants.js'
 import { publicClient } from '~test/src/utils.js'
 
@@ -18,16 +18,8 @@ describe('Call', () => {
     })
   })
 
-  bench('ethers@5: `call`', async () => {
+  bench('ethers: `call`', async () => {
     await ethersProvider.call({
-      data: name4bytes,
-      from: accounts[0].address,
-      to: wagmiContractAddress,
-    })
-  })
-
-  bench('ethers@6: `call`', async () => {
-    await ethersV6Provider.call({
       data: name4bytes,
       from: accounts[0].address,
       to: wagmiContractAddress,

@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, ethersV6Provider } from '~test/src/bench.js'
+import { ethersProvider } from '~test/src/bench.js'
 import { publicClient } from '~test/src/utils.js'
 
 import { getBlockNumber } from './getBlockNumber.js'
@@ -10,11 +10,7 @@ describe('Get Block Number', () => {
     await getBlockNumber(publicClient)
   })
 
-  bench('ethers@5: `getBlockNumber`', async () => {
+  bench('ethers: `getBlockNumber`', async () => {
     await ethersProvider.getBlockNumber()
-  })
-
-  bench('ethers@6: `getBlockNumber`', async () => {
-    await ethersV6Provider.getBlockNumber()
   })
 })

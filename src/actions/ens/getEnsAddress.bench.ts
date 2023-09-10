@@ -1,6 +1,6 @@
 import { beforeAll, bench, describe } from 'vitest'
 
-import { ethersProvider, ethersV6Provider } from '~test/src/bench.js'
+import { ethersProvider } from '~test/src/bench.js'
 import { publicClient, setBlockNumber } from '~test/src/utils.js'
 
 import { getEnsAddress } from './getEnsAddress.js'
@@ -16,9 +16,5 @@ describe('Get ENS Name', () => {
 
   bench('ethers: `resolveName`', async () => {
     await ethersProvider.resolveName('awkweb.eth')
-  })
-
-  bench('ethers@6: `resolveName`', async () => {
-    await ethersV6Provider.resolveName('awkweb.eth')
   })
 })
