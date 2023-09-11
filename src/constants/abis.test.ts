@@ -102,7 +102,6 @@ test('exports abis', () => {
           "name": "allowance",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -123,7 +122,6 @@ test('exports abis', () => {
           "name": "approve",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -140,7 +138,6 @@ test('exports abis', () => {
           "name": "balanceOf",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -152,7 +149,6 @@ test('exports abis', () => {
           "name": "decimals",
           "outputs": [
             {
-              "name": "",
               "type": "uint8",
             },
           ],
@@ -164,7 +160,6 @@ test('exports abis', () => {
           "name": "name",
           "outputs": [
             {
-              "name": "",
               "type": "string",
             },
           ],
@@ -176,7 +171,6 @@ test('exports abis', () => {
           "name": "symbol",
           "outputs": [
             {
-              "name": "",
               "type": "string",
             },
           ],
@@ -188,7 +182,6 @@ test('exports abis', () => {
           "name": "totalSupply",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -209,7 +202,6 @@ test('exports abis', () => {
           "name": "transfer",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -234,7 +226,6 @@ test('exports abis', () => {
           "name": "transferFrom",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -299,7 +290,6 @@ test('exports abis', () => {
           "name": "allowance",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -320,7 +310,6 @@ test('exports abis', () => {
           "name": "approve",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -337,7 +326,6 @@ test('exports abis', () => {
           "name": "balanceOf",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -349,7 +337,6 @@ test('exports abis', () => {
           "name": "decimals",
           "outputs": [
             {
-              "name": "",
               "type": "uint8",
             },
           ],
@@ -361,7 +348,6 @@ test('exports abis', () => {
           "name": "name",
           "outputs": [
             {
-              "name": "",
               "type": "bytes32",
             },
           ],
@@ -373,7 +359,6 @@ test('exports abis', () => {
           "name": "symbol",
           "outputs": [
             {
-              "name": "",
               "type": "bytes32",
             },
           ],
@@ -385,7 +370,6 @@ test('exports abis', () => {
           "name": "totalSupply",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -406,7 +390,6 @@ test('exports abis', () => {
           "name": "transfer",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -431,7 +414,6 @@ test('exports abis', () => {
           "name": "transferFrom",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -557,7 +539,6 @@ test('exports abis', () => {
           "name": "allowance",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -578,7 +559,6 @@ test('exports abis', () => {
           "name": "approve",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -607,7 +587,6 @@ test('exports abis', () => {
           "name": "balanceOf",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -868,7 +847,6 @@ test('exports abis', () => {
           "name": "totalSupply",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -889,7 +867,6 @@ test('exports abis', () => {
           "name": "transfer",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -914,7 +891,6 @@ test('exports abis', () => {
           "name": "transferFrom",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -1037,7 +1013,6 @@ test('exports abis', () => {
           "name": "balanceOf",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -1054,7 +1029,6 @@ test('exports abis', () => {
           "name": "getApproved",
           "outputs": [
             {
-              "name": "",
               "type": "address",
             },
           ],
@@ -1075,7 +1049,6 @@ test('exports abis', () => {
           "name": "isApprovedForAll",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
@@ -1087,7 +1060,6 @@ test('exports abis', () => {
           "name": "name",
           "outputs": [
             {
-              "name": "",
               "type": "string",
             },
           ],
@@ -1176,7 +1148,6 @@ test('exports abis', () => {
           "name": "symbol",
           "outputs": [
             {
-              "name": "",
               "type": "string",
             },
           ],
@@ -1193,7 +1164,6 @@ test('exports abis', () => {
           "name": "tokenByIndex",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
@@ -1231,7 +1201,6 @@ test('exports abis', () => {
           "name": "tokenURI",
           "outputs": [
             {
-              "name": "",
               "type": "string",
             },
           ],
@@ -1243,7 +1212,6 @@ test('exports abis', () => {
           "name": "totalSupply",
           "outputs": [
             {
-              "name": "",
               "type": "uint256",
             },
           ],
