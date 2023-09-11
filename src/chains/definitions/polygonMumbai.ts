@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain.js'
 
 export const polygonMumbai = /*#__PURE__*/ defineChain({
   id: 80_001,
-  name: 'Polygon Mumbai',
+  name: 'Mumbai Testnet',
   network: 'maticmum',
   nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   rpcUrls: {

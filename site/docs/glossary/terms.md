@@ -22,7 +22,7 @@ A block is a bundled unit of information that include an ordered list of transac
 
 A Chain refers to a specific blockchain network or protocol that maintains a decentralized, distributed ledger of transactions and other data. Each Chain has its own rules, consensus mechanism, and native cryptocurrency (if any).
 
-Examples of Chains include: Ethereum Mainnet, Polygon, Optimism, Avalanche, Binance Smart Chain, etc.
+Examples of Chains include: Ethereum Mainnet, Polygon PoS, Optimism, Avalanche, Binance Smart Chain, etc.
 
 ## EIP-1559 Transaction
 

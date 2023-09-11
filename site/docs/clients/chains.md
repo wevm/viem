@@ -14,7 +14,7 @@ head:
 
 # Chains
 
-The `viem/chains` entrypoint contains references to popular EVM-compatible chains such as: Polygon, Optimism, Avalanche, Base, Zora, and more.
+The `viem/chains` entrypoint contains references to popular EVM-compatible chains such as: Polygon PoS, Optimism, Avalanche, Base, Zora, and more.
 
 ## Usage
 

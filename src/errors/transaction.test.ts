@@ -200,7 +200,7 @@ describe('TransactionExecutionError', () => {
       [TransactionExecutionError: error
 
       Request Arguments:
-        chain:  Polygon (id: 137)
+        chain:  Polygon PoS (id: 137)
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
         value:  0.00000000000000042 MATIC
@@ -232,7 +232,7 @@ describe('TransactionExecutionError', () => {
       omggg!
        
       Request Arguments:
-        chain:  Polygon (id: 137)
+        chain:  Polygon PoS (id: 137)
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
         value:  0.00000000000000042 MATIC
