@@ -224,7 +224,6 @@ export const erc20Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -245,7 +244,6 @@ export const erc20Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -262,7 +260,6 @@ export const erc20Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -274,7 +271,6 @@ export const erc20Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'uint8',
       },
     ],
@@ -286,7 +282,6 @@ export const erc20Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'string',
       },
     ],
@@ -298,7 +293,6 @@ export const erc20Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'string',
       },
     ],
@@ -310,7 +304,6 @@ export const erc20Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -331,7 +324,6 @@ export const erc20Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -356,7 +348,6 @@ export const erc20Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -426,7 +417,6 @@ export const erc20Abi_bytes32 = [
     ],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -447,7 +437,6 @@ export const erc20Abi_bytes32 = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -464,7 +453,6 @@ export const erc20Abi_bytes32 = [
     ],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -476,7 +464,6 @@ export const erc20Abi_bytes32 = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'uint8',
       },
     ],
@@ -488,7 +475,6 @@ export const erc20Abi_bytes32 = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'bytes32',
       },
     ],
@@ -500,7 +486,6 @@ export const erc20Abi_bytes32 = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'bytes32',
       },
     ],
@@ -512,7 +497,6 @@ export const erc20Abi_bytes32 = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -533,7 +517,6 @@ export const erc20Abi_bytes32 = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -558,7 +541,6 @@ export const erc20Abi_bytes32 = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -658,7 +640,6 @@ export const erc721Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -675,7 +656,6 @@ export const erc721Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'address',
       },
     ],
@@ -696,7 +676,6 @@ export const erc721Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -708,7 +687,6 @@ export const erc721Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'string',
       },
     ],
@@ -797,7 +775,6 @@ export const erc721Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'string',
       },
     ],
@@ -814,7 +791,6 @@ export const erc721Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -852,7 +828,6 @@ export const erc721Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'string',
       },
     ],
@@ -864,7 +839,6 @@ export const erc721Abi = [
     inputs: [],
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -1010,7 +984,6 @@ export const erc4626Abi = [
     name: 'allowance',
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -1031,7 +1004,6 @@ export const erc4626Abi = [
     name: 'approve',
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -1060,7 +1032,6 @@ export const erc4626Abi = [
     name: 'balanceOf',
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -1321,7 +1292,6 @@ export const erc4626Abi = [
     name: 'totalSupply',
     outputs: [
       {
-        name: '',
         type: 'uint256',
       },
     ],
@@ -1342,7 +1312,6 @@ export const erc4626Abi = [
     name: 'transfer',
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
@@ -1367,7 +1336,6 @@ export const erc4626Abi = [
     name: 'transferFrom',
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],
