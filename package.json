@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "1.10.8",
+  "version": "1.10.9",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
@@ -21,7 +21,6 @@
     "lint:fix": "pnpm lint --apply",
     "playground": "pnpm --filter playground-browser dev",
     "postinstall": "pnpm contracts:build",
-    "preinstall": "npx only-allow pnpm",
     "prepare": "npx simple-git-hooks",
     "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",
     "size": "size-limit",

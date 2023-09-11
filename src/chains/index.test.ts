@@ -126,6 +126,7 @@ test('exports chains', () => {
       "syscoin",
       "syscoinTestnet",
       "taraxa",
+      "taikoJolnir",
       "taikoTestnetSepolia",
       "taraxaTestnet",
       "telos",

@@ -8,6 +8,10 @@ export const base = /*#__PURE__*/ defineChain(
     name: 'Base',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
+      alchemy: {
+        http: ['https://base-mainnet.g.alchemy.com/v2'],
+        webSocket: ['wss://base-mainnet.g.alchemy.com/v2'],
+      },
       default: {
         http: ['https://mainnet.base.org'],
       },
