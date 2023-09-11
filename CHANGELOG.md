@@ -1,5 +1,13 @@
 # viem
 
+## 1.10.9
+
+### Patch Changes
+
+- [#1182](https://github.com/wagmi-dev/viem/pull/1182) [`5f048586`](https://github.com/wagmi-dev/viem/commit/5f0485869edd55605544c56c07258c8a4dcb2800) Thanks [@MarcusWentz](https://github.com/MarcusWentz)! - Added Chain: Taiko Jolnir L2.
+
+* [#1175](https://github.com/wagmi-dev/viem/pull/1175) [`d6972937`](https://github.com/wagmi-dev/viem/commit/d69729375a31fdfa7d92d33ed50d21e954b671f3) Thanks [@avasisht23](https://github.com/avasisht23)! - Added Alchemy RPC URLs for Base chain.
+
 ## 1.10.8
 
 ### Patch Changes
