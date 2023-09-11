@@ -19,6 +19,7 @@
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
     "postinstall": "bun run contracts:build",
+    "preinstall": "bun ./scripts/preinstall.ts",
     "prepare": "bun x simple-git-hooks",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
@@ -36,6 +37,7 @@
     "@changesets/cli": "^2.23.2",
     "@size-limit/preset-big-lib": "^8.2.4",
     "@types/fs-extra": "^9.0.13",
+    "@types/which-pm-runs": "^1.0.0",
     "@viem/anvil": "0.0.5",
     "@vitest/coverage-v8": "^0.34.3",
     "@vitest/ui": "^0.34.3",
@@ -48,7 +50,8 @@
     "size-limit": "^8.2.4",
     "typescript": "5.0.4",
     "vite": "^4.4.2",
-    "vitest": "~0.34.3"
+    "vitest": "~0.34.3",
+    "which-pm-runs": "^1.1.0"
   },
   "simple-git-hooks": {
     "pre-commit": "bun run format && bun run lint:fix"
