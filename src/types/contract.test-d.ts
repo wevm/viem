@@ -8,6 +8,7 @@ import type {
   AbiEventTopicToPrimitiveType,
   ContractFunctionArgs,
   ContractFunctionName,
+  ContractFunctionParameters,
   ContractFunctionReturnType,
   ExtractAbiFunctionForArgs,
   GetEventArgs,
@@ -17,7 +18,7 @@ import type {
 } from './contract.js'
 import type { Hex } from './misc.js'
 
-test('FunctionName', () => {
+test('ContractFunctionName', () => {
   expectTypeOf<ContractFunctionName<typeof seaportAbi>>().toEqualTypeOf<
     | 'cancel'
     | 'fulfillBasicOrder'
@@ -50,7 +51,7 @@ test('FunctionName', () => {
   >()
 })
 
-test('Args', () => {
+test('ContractFunctionArgs', () => {
   expectTypeOf<
     ContractFunctionArgs<typeof seaportAbi, 'pure' | 'view', 'getOrderStatus'>
   >().toEqualTypeOf<readonly [Address]>()
@@ -65,6 +66,26 @@ test('Args', () => {
     ContractFunctionArgs<typeof abi, 'pure' | 'view', 'foo'>
   >().toEqualTypeOf<
     readonly [] | readonly [Address] | readonly [Address, Address]
+  >()
+})
+
+test('ContractFunctionParameters', () => {
+  type Result = ContractFunctionParameters<
+    typeof seaportAbi,
+    'pure' | 'view',
+    'getOrderStatus'
+  >
+  expectTypeOf<Result['args']>().toEqualTypeOf<readonly [Address]>()
+})
+
+test('ContractFunctionReturnType', () => {
+  type Result = ContractFunctionReturnType<
+    typeof seaportAbi,
+    'pure' | 'view',
+    'getOrderStatus'
+  >
+  expectTypeOf<Result>().toEqualTypeOf<
+    readonly [boolean, boolean, bigint, bigint]
   >()
 })
 

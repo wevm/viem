@@ -349,7 +349,13 @@ export {
   type WebSocketTransportConfig,
   webSocket,
 } from './clients/transports/webSocket.js'
-export { multicall3Abi } from './constants/abis.js'
+export {
+  multicall3Abi,
+  erc20Abi,
+  erc20Abi_bytes32,
+  erc721Abi,
+  erc4626Abi,
+} from './constants/abis.js'
 export { zeroAddress } from './constants/address.js'
 export { etherUnits, gweiUnits, weiUnits } from './constants/unit.js'
 export {
