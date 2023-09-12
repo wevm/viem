@@ -106,10 +106,17 @@ export async function internal_estimateFeesPerGas<
   })()
   if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
 
-  const decimals = baseFeeMultiplier.toString().split('.')[1].length
-  const denominator = 10 ** decimals
-  const multiply = (base: bigint) =>
-    (base * BigInt(baseFeeMultiplier * denominator)) / BigInt(denominator)
+  const multiply = (base: bigint) => {
+    if (Number.isInteger(baseFeeMultiplier)) {
+      return base * BigInt(baseFeeMultiplier)
+    }
+    const decimals = baseFeeMultiplier.toString().split('.')[1].length
+    const denominator = 10 ** decimals
+
+    return (
+      (base * BigInt(baseFeeMultiplier * denominator)) / BigInt(denominator)
+    )
+  }
 
   const block = block_ ? block_ : await getBlock(client)
 
