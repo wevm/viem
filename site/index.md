@@ -39,8 +39,8 @@ npm i viem
 pnpm i viem
 ```
 
-```bash [yarn]
-yarn add viem
+```bash [bun]
+bun i viem
 ```
 
 :::
@@ -90,7 +90,7 @@ yarn add viem
   <div class="flex justify-between flex-wrap mt-16 max-sm:hidden">
     <div class="pr-2 w-1/4 max-lg:pb-3 max-sm:px-0 max-lg:w-1/2 max-sm:w-full">
       <div class="relative w-full h-[168px] max-lg:h-[142px] overflow-hidden">
-        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+        <div class="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
           <div class="text-xl font-medium text-black dark:text-white">Modular</div>
           <div class="text-[17px] font-medium text-[#919193]">Composable modules to build apps & libraries with speed</div>
         </div>
@@ -100,7 +100,7 @@ yarn add viem
     </div>
     <div class="pl-2 pr-2 max-sm:px-0 max-lg:pb-3 max-lg:pr-0 w-1/4 max-lg:w-1/2 max-sm:w-full">
       <div class="relative w-full h-[168px] max-lg:h-[142px]">
-        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col w-full">
+        <div class="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col w-full">
           <div class="text-xl font-medium text-black dark:text-white">Lightweight</div>
           <div class="mt-[14px] text-[17px] font-medium text-[#919193]">Tiny bundle size optimized for tree-shaking</div>
           <a href="/docs/introduction.html#bundle-size" class="text-[17px] font-medium">See more</a>
@@ -111,7 +111,7 @@ yarn add viem
     </div>
     <div class="pl-2 pr-2 max-lg:pb-3 max-sm:px-0 max-lg:pl-0 w-1/4 max-lg:w-1/2 max-sm:w-full">
       <div class="relative w-full h-[168px] max-lg:h-[142px]">
-        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+        <div class="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
           <div class="text-xl font-medium text-black dark:text-white">Performant</div>
           <div class="text-[17px] font-medium text-[#919193]">Optimized architecture compared to alternative libraries</div>
         </div>
@@ -121,7 +121,7 @@ yarn add viem
     </div>
     <div class="pl-2 w-1/4 max-sm:px-0 max-lg:w-1/2 max-sm:w-full">
       <div class="relative w-full h-[168px] max-lg:h-[142px]">
-        <div class="border-white border border-solid border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+        <div class="border-black dark:border-white border border-solid border-opacity-10 dark:border-opacity-10 rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
           <div class="text-xl font-medium text-black dark:text-white">Typed APIs</div>
           <div class="text-[17px] font-medium text-[#919193]">Flexible programmatic APIs with extensive TypeScript typing</div>
         </div>
@@ -190,6 +190,8 @@ Help support future development and make wagmi a sustainable open-source project
 - [wagmi-dev.eth](https://etherscan.io/enslookup-search?search=wagmi-dev.eth)
 
 <div class="h-8" />
+<h1>Sponsors</h1>
+<hr class="h-2" />
 
 <HomeSponsors />
 </div>

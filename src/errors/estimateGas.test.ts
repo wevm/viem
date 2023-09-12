@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { address } from '../_test/constants.js'
+import { address } from '~test/src/constants.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
 import { polygon } from '../chains/index.js'
 

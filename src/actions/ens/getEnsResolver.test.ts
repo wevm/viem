@@ -1,7 +1,7 @@
 import { beforeAll, expect, test } from 'vitest'
 
-import { localHttpUrl } from '../../_test/constants.js'
-import { publicClient, setBlockNumber } from '../../_test/utils.js'
+import { localHttpUrl } from '~test/src/constants.js'
+import { publicClient, setBlockNumber } from '~test/src/utils.js'
 import { optimism } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

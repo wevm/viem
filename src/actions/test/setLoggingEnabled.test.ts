@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { testClient } from '../../_test/utils.js'
+import { testClient } from '~test/src/utils.js'
 
 import { setLoggingEnabled } from './setLoggingEnabled.js'
 

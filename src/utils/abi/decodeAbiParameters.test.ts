@@ -1,8 +1,8 @@
 import { type Address } from 'abitype'
 import { assertType, describe, expect, test } from 'vitest'
 
-import { seaportContractConfig } from '../../_test/abis.js'
-import { address } from '../../_test/constants.js'
+import { seaportContractConfig } from '~test/src/abis.js'
+import { address } from '~test/src/constants.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import type { Hex } from '../../types/misc.js'
 import { getAddress } from '../address/getAddress.js'

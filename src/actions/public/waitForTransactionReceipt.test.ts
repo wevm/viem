@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'

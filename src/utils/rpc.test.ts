@@ -1,4 +1,4 @@
-import WebSocket from 'isomorphic-ws'
+import { WebSocket } from 'unws'
 import { describe, expect, test, vi } from 'vitest'
 
 import type { IncomingHttpHeaders } from 'http'
@@ -7,8 +7,8 @@ import {
   forkBlockNumber,
   localHttpUrl,
   localWsUrl,
-} from '../_test/constants.js'
-import { createHttpServer, testClient } from '../_test/utils.js'
+} from '~test/src/constants.js'
+import { createHttpServer, testClient } from '~test/src/utils.js'
 
 import { mine } from '../test.js'
 import { numberToHex } from './encoding/toHex.js'

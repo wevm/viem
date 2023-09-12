@@ -6,16 +6,16 @@
  */
 import { describe, expect, test } from 'vitest'
 
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
-import { errorsExampleABI } from '../../_test/generated.js'
+import { ErrorsExample } from '~test/contracts/generated.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
 import {
   deployBAYC,
   deployErrorExample,
   publicClient,
   testClient,
   walletClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { mine } from '../test/mine.js'
@@ -220,7 +220,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'revertWrite',
         account: accounts[0].address,
@@ -244,7 +244,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'assertWrite',
         account: accounts[0].address,
@@ -268,7 +268,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'overflowWrite',
         account: accounts[0].address,
@@ -292,7 +292,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'divideByZeroWrite',
         account: accounts[0].address,
@@ -316,7 +316,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'requireWrite',
         account: accounts[0].address,
@@ -339,7 +339,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'simpleCustomWrite',
         account: accounts[0].address,
@@ -365,7 +365,7 @@ describe('contract errors', () => {
 
     await expect(() =>
       estimateContractGas(publicClient, {
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         address: contractAddress!,
         functionName: 'complexCustomWrite',
         account: accounts[0].address,

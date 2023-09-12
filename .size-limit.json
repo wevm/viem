@@ -1,0 +1,79 @@
+[
+  {
+    "name": "viem (esm)",
+    "path": "./src/_esm/index.js",
+    "limit": "58 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem (cjs)",
+    "path": "./src/_cjs/index.js",
+    "limit": "73 kB"
+  },
+  {
+    "name": "viem (minimal surface - tree-shaking)",
+    "path": "./src/_esm/index.js",
+    "limit": "4 kB",
+    "import": "{ createClient, http }"
+  },
+  {
+    "name": "viem/accounts",
+    "path": "./src/_esm/accounts/index.js",
+    "limit": "91 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem/accounts (tree-shaking)",
+    "path": "./src/_esm/accounts/index.js",
+    "limit": "20 kB",
+    "import": "{ privateKeyToAccount }"
+  },
+  {
+    "name": "viem/actions",
+    "path": "./src/_esm/ens.js",
+    "limit": "45 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem/actions (tree-shaking)",
+    "path": "./src/_esm/actions/index.js",
+    "limit": "1 kB",
+    "import": "{ getBlockNumber }"
+  },
+  {
+    "name": "viem/chains",
+    "path": "./src/_esm/chains/index.js",
+    "limit": "17 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem/chains (tree-shaking)",
+    "path": "./src/_esm/chains/index.js",
+    "limit": "500 B",
+    "import": "{ mainnet }"
+  },
+  {
+    "name": "viem/chains/utils",
+    "path": "./src/_esm/chains/utils.js",
+    "limit": "8 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem/chains/utils (tree-shaking)",
+    "path": "./src/_esm/chains/utils.js",
+    "limit": "5 kB",
+    "import": "{ parseTransactionCelo }"
+  },
+  {
+    "name": "viem/ens",
+    "path": "./src/_esm/ens.js",
+    "limit": "45 kB",
+    "import": "*"
+  },
+  {
+    "name": "viem/ens (tree-shaking)",
+    "path": "./src/_esm/ens.js",
+    "limit": "19 kB",
+    "import": "{ getEnsAvatar }"
+  }
+]

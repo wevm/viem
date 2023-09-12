@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { forkBlockNumber } from '../../_test/constants.js'
-import { publicClient, testClient } from '../../_test/utils.js'
+import { forkBlockNumber } from '~test/src/constants.js'
+import { publicClient, testClient } from '~test/src/utils.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
 
 import { mine } from './mine.js'

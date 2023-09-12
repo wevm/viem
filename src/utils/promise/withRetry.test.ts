@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer } from '../../_test/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 
 import { withRetry } from './withRetry.js'
 

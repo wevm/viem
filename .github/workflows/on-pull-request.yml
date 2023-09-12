@@ -28,14 +28,14 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run benchmarks
-        run: pnpm bench:ci
+        run: bun run bench:ci
         env:
           VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
           VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
 
       - name: Report benchmarks
-        run: pnpm bun ./.github/scripts/bench.ts
+        run: bun ./.github/scripts/bench.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -51,7 +51,8 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Report build size
-        uses: preactjs/compressed-size-action@v2
+      - name: Report bundle size
+        uses: andresz1/size-limit-action@master
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: bun

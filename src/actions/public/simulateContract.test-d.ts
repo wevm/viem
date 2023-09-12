@@ -1,7 +1,7 @@
 import { test } from 'vitest'
 
-import { wagmiContractConfig } from '../../_test/abis.js'
-import { publicClient } from '../../_test/utils.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { publicClient } from '~test/src/utils.js'
 
 import { simulateContract } from './simulateContract.js'
 

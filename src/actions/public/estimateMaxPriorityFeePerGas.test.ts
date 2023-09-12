@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '../../_test/constants.js'
-import { anvilChain, publicClient } from '../../_test/utils.js'
+import { localHttpUrl } from '~test/src/constants.js'
+import { anvilChain, publicClient } from '~test/src/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

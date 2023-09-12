@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts } from '~test/src/constants.js'
 
 import { signMessage } from './signMessage.js'
 

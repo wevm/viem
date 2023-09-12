@@ -1,12 +1,12 @@
-import { WebSocket } from 'isomorphic-ws'
+import { WebSocket } from 'unws'
 
 import { assertType, describe, expect, test } from 'vitest'
 
-import { localWsUrl } from '../../_test/constants.js'
+import { localWsUrl } from '~test/src/constants.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import { testClient } from '../../_test/utils.js'
+import { testClient } from '~test/src/utils.js'
 import { mine } from '../../test.js'
 import { type WebSocketTransport, webSocket } from './webSocket.js'
 

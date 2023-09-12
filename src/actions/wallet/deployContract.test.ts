@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { baycContractConfig, payableContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
+import { baycContractConfig, payableContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
 import {
   testClient,
   walletClient,
   walletClientWithAccount,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { mine } from '../test/mine.js'

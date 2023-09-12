@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
-import { publicClient, testClient } from '../../_test/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { publicClient, testClient } from '~test/src/utils.js'
 
 import { setStorageAt } from './setStorageAt.js'
 

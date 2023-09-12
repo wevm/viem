@@ -1,15 +1,18 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
-import { usdcContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { accounts, address } from '../../_test/constants.js'
+import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
+import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { accounts, address } from '~test/src/constants.js'
 import {
   deployErc20InvalidTransferEvent,
   publicClient,
   testClient,
   walletClient,
   webSocketClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
+
 import type { PublicClient } from '../../index.js'
+import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
@@ -17,9 +20,6 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { stopImpersonatingAccount } from '../test/stopImpersonatingAccount.js'
 import { writeContract } from '../wallet/writeContract.js'
-
-import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
-import { InvalidInputRpcError, RpcRequestError } from '../../index.js'
 import * as createEventFilter from './createEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
@@ -809,14 +809,14 @@ describe('subscribe', () => {
           account: address.vitalik,
         })
         await writeContract(walletClient, {
-          abi: erc20InvalidTransferEventABI,
+          abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
         await writeContract(walletClient, {
-          abi: erc20InvalidTransferEventABI,
+          abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[1].address, 1n],
@@ -857,14 +857,14 @@ describe('subscribe', () => {
           account: address.vitalik,
         })
         await writeContract(walletClient, {
-          abi: erc20InvalidTransferEventABI,
+          abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[0].address, 1n],
           account: address.vitalik,
         })
         await writeContract(walletClient, {
-          abi: erc20InvalidTransferEventABI,
+          abi: ERC20InvalidTransferEvent.abi,
           address: contractAddress!,
           functionName: 'transfer',
           args: [accounts[1].address, 1n],

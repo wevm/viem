@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'

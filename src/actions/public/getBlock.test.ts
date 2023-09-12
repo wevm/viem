@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { forkBlockNumber } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
+import { forkBlockNumber } from '~test/src/constants.js'
+import { publicClient } from '~test/src/utils.js'
 import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

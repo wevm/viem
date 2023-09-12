@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { typedData } from '../../_test/constants.js'
+import { typedData } from '~test/src/constants.js'
 import { pad } from '../data/pad.js'
 import { toHex } from '../encoding/toHex.js'
 

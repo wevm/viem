@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { publicClient } from '../../_test/utils.js'
+import { publicClient } from '~test/src/utils.js'
 
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
 

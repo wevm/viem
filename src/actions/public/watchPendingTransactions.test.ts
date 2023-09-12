@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import {
   publicClient,
   testClient,
   walletClient,
   webSocketClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'

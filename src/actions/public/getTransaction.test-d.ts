@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { publicClient } from '../../_test/utils.js'
+import { publicClient } from '~test/src/utils.js'
 import { optimism } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

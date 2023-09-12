@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { wagmiContractConfig } from '../../_test/abis.js'
-import { accounts, localHttpUrl } from '../../_test/constants.js'
-import { payableABI } from '../../_test/generated.js'
+import { Payable } from '~test/contracts/generated.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { accounts, localHttpUrl } from '~test/src/constants.js'
 import {
   anvilChain,
   deployPayable,
@@ -10,7 +10,7 @@ import {
   testClient,
   walletClient,
   walletClientWithAccount,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -150,12 +150,12 @@ test('args: value', async () => {
   const { contractAddress } = await deployPayable()
 
   const hash_1 = await writeContract(walletClientWithAccount, {
-    abi: payableABI,
+    abi: Payable.abi,
     address: contractAddress!,
     functionName: 'pay',
   })
   const hash_2 = await writeContract(walletClientWithAccount, {
-    abi: payableABI,
+    abi: Payable.abi,
     address: contractAddress!,
     functionName: 'pay',
     value: 1n,

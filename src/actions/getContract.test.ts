@@ -2,13 +2,13 @@ import type { AbiEvent } from 'abitype'
 
 import { describe, expect, test } from 'vitest'
 
-import { wagmiContractConfig } from '../_test/abis.js'
-import { accounts, forkBlockNumber } from '../_test/constants.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import {
   publicClient,
   walletClient,
   walletClientWithAccount,
-} from '../_test/utils.js'
+} from '~test/src/utils.js'
 
 import {
   getContract,

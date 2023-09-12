@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, forkBlockNumber, forkUrl } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { accounts, forkBlockNumber, forkUrl } from '~test/src/constants.js'
+import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'

@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, localHttpUrl } from '../../_test/constants.js'
+import { accounts, localHttpUrl } from '~test/src/constants.js'
 import {
   publicClient,
   testClient,
   walletClient,
   webSocketClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { celo, localhost } from '../../chains/index.js'
 import {
   type PublicClient,

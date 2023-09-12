@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { publicClient, testClient } from '../../_test/utils.js'
+import { publicClient, testClient } from '~test/src/utils.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 
 import { getBlock } from '../public/getBlock.js'

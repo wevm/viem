@@ -1,7 +1,7 @@
 import { test } from 'vitest'
 
-import { wagmiContractConfig } from '../../_test/abis.js'
-import { walletClient } from '../../_test/utils.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { walletClient } from '~test/src/utils.js'
 
 import { deployContract } from './deployContract.js'
 

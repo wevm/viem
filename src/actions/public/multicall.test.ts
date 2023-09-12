@@ -5,29 +5,27 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import gh434 from '../../../contracts/out/GH434.sol/GH434.json'
+import { ErrorsExample, GH434 } from '~test/contracts/generated.js'
 import {
   baycContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '../../_test/abis.js'
+} from '~test/src/abis.js'
 import {
   accounts,
   address,
   forkBlockNumber,
   localHttpUrl,
-} from '../../_test/constants.js'
-import { errorsExampleABI, gh434ABI } from '../../_test/generated.js'
+} from '~test/src/constants.js'
 import {
   anvilChain,
   deploy,
   deployErrorExample,
   publicClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import type { Hex } from '../../types/misc.js'
 
 import { multicall } from './multicall.js'
 import * as readContract from './readContract.js'
@@ -526,7 +524,7 @@ describe('errors', async () => {
     test('contract revert: error not found on abi', async () => {
       const { contractAddress } = await deployErrorExample()
 
-      const abi = errorsExampleABI.filter(
+      const abi = ErrorsExample.abi.filter(
         (abiItem) => abiItem.name !== 'SimpleError',
       )
 
@@ -898,7 +896,7 @@ describe('errors', async () => {
   test('contract revert: error not found on abi', async () => {
     const { contractAddress } = await deployErrorExample()
 
-    const abi = errorsExampleABI.filter(
+    const abi = ErrorsExample.abi.filter(
       (abiItem) => abiItem.name !== 'SimpleError',
     )
 
@@ -1132,8 +1130,8 @@ test('batchSize on client', async () => {
 describe('GitHub repros', () => {
   test('https://github.com/wagmi-dev/viem/issues/434', async () => {
     const { contractAddress } = await deploy({
-      abi: gh434ABI,
-      bytecode: gh434.bytecode.object as Hex,
+      abi: GH434.abi,
+      bytecode: GH434.bytecode.object,
       account: accounts[0].address,
     })
 
@@ -1143,17 +1141,17 @@ describe('GitHub repros', () => {
         blockNumber: forkBlockNumber,
         contracts: [
           {
-            abi: gh434ABI,
+            abi: GH434.abi,
             address: contractAddress!,
             functionName: 'foo',
           },
           {
-            abi: gh434ABI,
+            abi: GH434.abi,
             address: contractAddress!,
             functionName: 'bar',
           },
           {
-            abi: gh434ABI,
+            abi: GH434.abi,
             address: contractAddress!,
             functionName: 'baz',
           },

@@ -2,8 +2,8 @@ import type { Address } from 'abitype'
 
 import { test } from 'vitest'
 
-import { localHttpUrl } from '../../_test/constants.js'
-import { anvilChain } from '../../_test/utils.js'
+import { localHttpUrl } from '~test/src/constants.js'
+import { anvilChain } from '~test/src/utils.js'
 import type { Account } from '../../accounts/types.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'

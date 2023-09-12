@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { address } from '../../_test/constants.js'
+import { address } from '~test/src/constants.js'
 
 import { encodePacked } from './encodePacked.js'
 

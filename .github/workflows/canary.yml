@@ -26,10 +26,10 @@ jobs:
         run: |
           npm --no-git-tag-version version 0.0.0
           npm --no-git-tag-version version $(npm pkg get version | sed 's/"//g')-$(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//').$(date +'%Y%m%dT%H%M%S')
-          pnpm bun scripts/updateVersion.ts
+          bun scripts/updateVersion.ts
 
       - name: Build
-        run: pnpm build
+        run: bun run build
 
       - name: Publish to npm
         run: npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')

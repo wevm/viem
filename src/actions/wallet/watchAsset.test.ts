@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '../../_test/utils.js'
+import { walletClient } from '~test/src/utils.js'
 
 import { watchAsset } from './watchAsset.js'
 

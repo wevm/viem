@@ -2,8 +2,8 @@ import type { Address } from 'abitype'
 
 import { assertType, describe, expect, it, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
