@@ -1,7 +1,7 @@
-name: Main
+name: Alpha
 on:
   push:
-    branches: [main]
+    branches: [alpha]
   workflow_dispatch:
 
 concurrency:
@@ -9,11 +9,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Verify
-    uses: ./.github/workflows/verify.yml
-    secrets: inherit
-
   changesets:
     name: Changesets
     runs-on: ubuntu-latest
@@ -35,12 +30,12 @@ jobs:
           version: bun run changeset:version
           commit: 'chore: version package'
           title: 'chore: version package'
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Release
-    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -54,6 +49,7 @@ jobs:
       - name: Publish to NPM
         uses: changesets/action@v1
         with:
+          createGithubReleases: false
           publish: bun run changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,8 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "viem": "2.0.0-alpha.0"
+  },
+  "changesets": []
+}
