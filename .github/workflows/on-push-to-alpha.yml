@@ -1,8 +1,7 @@
-name: Main
+name: Alpha
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [alpha]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -35,6 +34,7 @@ jobs:
           version: bun run changeset:version
           commit: 'chore: version package'
           title: 'chore: version package'
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -54,7 +54,8 @@ jobs:
       - name: Publish to NPM
         uses: changesets/action@v1
         with:
-          publish: bun run changeset:publish
+          createGithubReleases: false
+          publish: bun run changeset:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
