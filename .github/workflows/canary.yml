@@ -24,14 +24,16 @@ jobs:
 
       - name: Set version
         run: |
+          jq --arg prop "workspaces" 'del(.[$prop])' package.json > package.tmp.json && rm package.json && cp package.tmp.json package.json && rm package.tmp.json
+          cd src
           npm --no-git-tag-version version 0.0.0
           npm --no-git-tag-version version $(npm pkg get version | sed 's/"//g')-$(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//').$(date +'%Y%m%dT%H%M%S')
-          bun scripts/updateVersion.ts
+          bun ../scripts/updateVersion.ts
 
       - name: Build
         run: bun run build
 
       - name: Publish to npm
-        run: npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
+        run: cd src && npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
