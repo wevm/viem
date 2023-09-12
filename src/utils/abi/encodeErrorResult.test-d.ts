@@ -1,7 +1,7 @@
 import { type Abi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { seaportContractConfig } from '../../_test/abis.js'
+import { seaportContractConfig } from '~test/src/abis.js'
 import {
   type EncodeErrorResultParameters,
   encodeErrorResult,

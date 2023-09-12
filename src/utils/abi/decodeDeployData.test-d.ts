@@ -1,7 +1,7 @@
+import type { Abi, Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import type { Abi, Address } from 'abitype'
-import { wagmiContractConfig } from '../../_test/abis.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
 import { decodeDeployData } from './decodeDeployData.js'
 
 test('default', async () => {

@@ -1,8 +1,8 @@
 import type { Abi, Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { usdcContractConfig } from '../../_test/abis.js'
-import { publicClient } from '../../_test/utils.js'
+import { usdcContractConfig } from '~test/src/abis.js'
+import { publicClient } from '~test/src/utils.js'
 import type { Log } from '../../types/log.js'
 import { watchContractEvent } from './watchContractEvent.js'
 
