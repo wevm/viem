@@ -1,12 +1,12 @@
 import { test } from 'vitest'
 
-import { wagmiContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
 import {
   publicClient,
   walletClient,
   walletClientWithAccount,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { estimateContractGas } from './estimateContractGas.js'
 
 const args = {

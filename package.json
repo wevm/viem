@@ -1,174 +1,34 @@
 {
-  "name": "viem",
-  "description": "TypeScript Interface for Ethereum",
-  "version": "1.10.9",
+  "workspaces": ["examples/*", "playgrounds/*", "site", "src", "test"],
+  "private": true,
+  "type": "module",
   "scripts": {
     "bench": "vitest bench",
     "bench:ci": "CI=true vitest bench",
-    "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types",
-    "build:cjs": "tsc --project tsconfig.build.json --module commonjs --outDir ./dist/cjs --removeComments --verbatimModuleSyntax false && echo > ./dist/cjs/package.json '{\"type\":\"commonjs\"}'",
-    "build:esm": "tsc --project tsconfig.build.json --module es2015 --outDir ./dist/esm && echo > ./dist/esm/package.json '{\"type\":\"module\",\"sideEffects\":false}'",
-    "build:types": "tsc --project tsconfig.build.json --module esnext --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
+    "build": "bun run clean && bun run build:cjs && bun run build:esm && bun run build:types",
+    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json",
+    "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
+    "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
-    "changeset:release": "pnpm build && changeset publish",
-    "changeset:snapshot": "pnpm bun scripts/updateVersion.ts && pnpm build",
-    "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm bun scripts/updateVersion.ts",
-    "clean": "rimraf dist",
-    "contracts:build": "wagmi generate",
-    "dev:docs": "pnpm -r --filter site dev",
+    "changeset:release": "bun run build && changeset publish",
+    "changeset:snapshot": "bun scripts/updateVersion.ts && bun run build",
+    "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
+    "clean": "rimraf src/_esm src/_cjs src/_types",
+    "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
+    "dev:docs": "cd site && bun run dev",
     "format": "biome format . --write",
     "lint": "biome check .",
-    "lint:fix": "pnpm lint --apply",
-    "playground": "pnpm --filter playground-browser dev",
-    "postinstall": "pnpm contracts:build",
-    "prepare": "npx simple-git-hooks",
-    "prepublishOnly": "pnpm bun scripts/prepublishOnly.ts",
+    "lint:fix": "bun run lint --apply",
+    "postinstall": "bun run contracts:build",
+    "preinstall": "bun ./scripts/preinstall.ts",
+    "prepare": "bun x simple-git-hooks",
     "size": "size-limit",
-    "test": "vitest dev",
-    "test:cov": "vitest dev --coverage",
-    "test:ci": "CI=true vitest --coverage --retry=3 --bail=1",
-    "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck",
-    "test:ui": "vitest dev --ui",
+    "test": "vitest -c ./test/vitest.config.ts dev",
+    "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
+    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
+    "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck -c ./test/vitest.config.ts",
+    "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
     "typecheck": "tsc --noEmit"
-  },
-  "type": "module",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
-  "typings": "./dist/types/index.d.ts",
-  "sideEffects": false,
-  "files": [
-    "dist",
-    "!dist/**/*.tsbuildinfo",
-    "src/**/*.ts",
-    "!src/**/*.test.ts",
-    "!src/**/*.test-d.ts",
-    "!src/**/*.bench.ts",
-    "!src/_test/**/*"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
-    },
-    "./abi": {
-      "types": "./dist/types/abi.d.ts",
-      "import": "./dist/esm/abi.js",
-      "default": "./dist/cjs/abi.js"
-    },
-    "./accounts": {
-      "types": "./dist/types/accounts/index.d.ts",
-      "import": "./dist/esm/accounts/index.js",
-      "default": "./dist/cjs/accounts/index.js"
-    },
-    "./actions": {
-      "types": "./dist/types/actions/index.d.ts",
-      "import": "./dist/esm/actions/index.js",
-      "default": "./dist/cjs/actions/index.js"
-    },
-    "./chains": {
-      "types": "./dist/types/chains/index.d.ts",
-      "import": "./dist/esm/chains/index.js",
-      "default": "./dist/cjs/chains/index.js"
-    },
-    "./chains/utils": {
-      "types": "./dist/types/chains/utils.d.ts",
-      "import": "./dist/esm/chains/utils.js",
-      "default": "./dist/cjs/chains/utils.js"
-    },
-    "./contract": {
-      "types": "./dist/types/contract.d.ts",
-      "import": "./dist/esm/contract.js",
-      "default": "./dist/cjs/contract.js"
-    },
-    "./ens": {
-      "types": "./dist/types/ens.d.ts",
-      "import": "./dist/esm/ens.js",
-      "default": "./dist/cjs/ens.js"
-    },
-    "./public": {
-      "types": "./dist/types/public.d.ts",
-      "import": "./dist/esm/public.js",
-      "default": "./dist/cjs/public.js"
-    },
-    "./test": {
-      "types": "./dist/types/test.d.ts",
-      "import": "./dist/esm/test.js",
-      "default": "./dist/cjs/test.js"
-    },
-    "./utils": {
-      "types": "./dist/types/utils/index.d.ts",
-      "import": "./dist/esm/utils/index.js",
-      "default": "./dist/cjs/utils/index.js"
-    },
-    "./wallet": {
-      "types": "./dist/types/wallet.d.ts",
-      "import": "./dist/esm/wallet.js",
-      "default": "./dist/cjs/wallet.js"
-    },
-    "./window": {
-      "types": "./dist/types/window.d.ts",
-      "import": "./dist/esm/window.js",
-      "default": "./dist/cjs/window.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "abi": [
-        "./dist/types/abi.d.ts"
-      ],
-      "accounts": [
-        "./dist/types/accounts/index.d.ts"
-      ],
-      "actions": [
-        "./dist/types/actions/index.d.ts"
-      ],
-      "chains": [
-        "./dist/types/chains.d.ts"
-      ],
-      "contract": [
-        "./dist/types/contract.d.ts"
-      ],
-      "ens": [
-        "./dist/types/ens.d.ts"
-      ],
-      "public": [
-        "./dist/types/public.d.ts"
-      ],
-      "test": [
-        "./dist/types/test.d.ts"
-      ],
-      "utils": [
-        "./dist/types/utils/index.d.ts"
-      ],
-      "wallet": [
-        "./dist/types/wallet.d.ts"
-      ],
-      "window": [
-        "./dist/types/window.d.ts"
-      ]
-    }
-  },
-  "peerDependencies": {
-    "typescript": ">=5.0.4"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
-  },
-  "dependencies": {
-    "@adraffy/ens-normalize": "1.9.4",
-    "@noble/curves": "1.2.0",
-    "@noble/hashes": "1.3.2",
-    "@scure/bip32": "1.3.2",
-    "@scure/bip39": "1.2.1",
-    "@types/ws": "^8.5.5",
-    "abitype": "0.9.8",
-    "isomorphic-ws": "5.0.0",
-    "ws": "8.13.0"
   },
   "devDependencies": {
     "@actions/core": "^1.10.0",
@@ -178,98 +38,23 @@
     "@changesets/cli": "^2.23.2",
     "@size-limit/preset-big-lib": "^8.2.4",
     "@types/fs-extra": "^9.0.13",
+    "@types/which-pm-runs": "^1.0.0",
     "@viem/anvil": "0.0.5",
     "@vitest/coverage-v8": "^0.34.3",
     "@vitest/ui": "^0.34.3",
-    "@wagmi/cli": "^0.1.6",
-    "bun": "^0.5.9",
-    "ethers": "^5.7.2",
-    "ethers@6": "npm:ethers@^6.0.2",
+    "bun-types": "^1.0.1",
+    "ethers": "^6.0.2",
     "fs-extra": "^10.1.0",
+    "globby": "^13.2.2",
     "rimraf": "^4.4.1",
     "simple-git-hooks": "^2.8.1",
     "size-limit": "^8.2.4",
     "typescript": "5.0.4",
     "vite": "^4.4.2",
-    "vitest": "~0.34.3"
+    "vitest": "~0.34.3",
+    "which-pm-runs": "^1.1.0"
   },
-  "license": "MIT",
-  "repository": "wagmi-dev/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
-  "funding": [
-    {
-      "type": "github",
-      "url": "https://github.com/sponsors/wagmi-dev"
-    }
-  ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ],
-  "size-limit": [
-    {
-      "name": "viem (cjs)",
-      "path": "./dist/cjs/index.js",
-      "limit": "73 kB"
-    },
-    {
-      "name": "viem",
-      "path": "./dist/esm/index.js",
-      "limit": "63 kB",
-      "import": "*"
-    },
-    {
-      "name": "viem/chains",
-      "path": "./dist/esm/chains/index.js",
-      "limit": "16 kB",
-      "import": "*"
-    },
-    {
-      "name": "viem/ens",
-      "path": "./dist/esm/ens.js",
-      "limit": "45 kB",
-      "import": "*"
-    },
-    {
-      "name": "viem (tree-shaking check)",
-      "path": "./dist/esm/index.js",
-      "limit": "1.5 kB",
-      "import": "{ defineBlock }"
-    },
-    {
-      "name": "viem/chains (tree-shaking check)",
-      "path": "./dist/esm/chains/index.js",
-      "limit": "500 B",
-      "import": "{ mainnet }"
-    },
-    {
-      "name": "viem/ens (tree-shaking check)",
-      "path": "./dist/esm/ens.js",
-      "limit": "19 kB",
-      "import": "{ getEnsAvatar }"
-    }
-  ],
   "simple-git-hooks": {
-    "pre-commit": "pnpm format && pnpm lint:fix"
-  },
-  "packageManager": "pnpm@8.3.1",
-  "pnpm": {
-    "overrides": {
-      "viem": "workspace:*"
-    },
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "@algolia/client-search"
-      ]
-    },
-    "patchedDependencies": {
-      "vitepress@1.0.0-beta.4": "patches/vitepress@1.0.0-beta.4.patch"
-    }
+    "pre-commit": "bun run format && bun run lint:fix"
   }
 }

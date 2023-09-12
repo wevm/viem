@@ -1,15 +1,16 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
-import { createCcipServer } from '../../_test/ccip.js'
-import { accounts, forkBlockNumber } from '../../_test/constants.js'
-import { offchainLookupExampleABI } from '../../_test/generated.js'
+import { OffchainLookupExample } from '~test/contracts/generated.js'
+import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
+import { createCcipServer } from '~test/src/ccip.js'
+import { accounts, forkBlockNumber } from '~test/src/constants.js'
 import {
   deployOffchainLookupExample,
   publicClient,
   publicClientMainnet,
   walletClientWithAccount,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
+
 import { celo } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -54,7 +55,7 @@ describe('ccip', () => {
     })
 
     const calldata = encodeFunctionData({
-      abi: offchainLookupExampleABI,
+      abi: OffchainLookupExample.abi,
       functionName: 'getAddress',
       args: ['jxom.viem'],
     })
@@ -76,7 +77,7 @@ describe('ccip', () => {
     })
 
     const calldata = encodeFunctionData({
-      abi: offchainLookupExampleABI,
+      abi: OffchainLookupExample.abi,
       functionName: 'getAddress',
       args: ['fake.viem'],
     })

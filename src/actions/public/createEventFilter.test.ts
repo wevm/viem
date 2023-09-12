@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { accounts, forkBlockNumber } from '../../_test/constants.js'
-import { createHttpServer, publicClient } from '../../_test/utils.js'
+import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { createHttpServer, publicClient } from '~test/src/utils.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'

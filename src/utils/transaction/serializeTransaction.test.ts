@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { sign } from '../../accounts/utils/sign.js'
 import type {
   TransactionSerializableBase,

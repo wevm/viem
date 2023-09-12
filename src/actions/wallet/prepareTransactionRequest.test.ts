@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import {
   anvilChain,
   publicClient,
   testClient,
   walletClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'

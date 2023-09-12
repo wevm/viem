@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, typedData } from '../../_test/constants.js'
-import { walletClient, walletClientWithAccount } from '../../_test/utils.js'
+import { accounts, typedData } from '~test/src/constants.js'
+import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { recoverTypedDataAddress } from '../../utils/signature/recoverTypedDataAddress.js'

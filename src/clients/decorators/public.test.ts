@@ -4,19 +4,19 @@ import {
   smartAccountConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '../../_test/abis.js'
+} from '~test/src/abis.js'
 import {
   accounts,
   address,
   forkBlockNumber,
   typedData,
-} from '../../_test/constants.js'
+} from '~test/src/constants.js'
 import {
   publicClient,
   setBlockNumber,
   testClient,
   walletClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 

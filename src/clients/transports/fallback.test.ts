@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { createHttpServer } from '../../_test/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'

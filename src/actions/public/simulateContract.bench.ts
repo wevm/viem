@@ -1,13 +1,11 @@
-import { Contract } from 'ethers'
-
-import { Contract as ContractV6, Typed } from 'ethers@6'
+import { Contract, Typed } from 'ethers'
 
 import { bench, describe } from 'vitest'
 
-import { wagmiContractConfig } from '../../_test/abis.js'
-import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
-import { accounts } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { ethersProvider } from '~test/src/bench.js'
+import { accounts } from '~test/src/constants.js'
+import { publicClient } from '~test/src/utils.js'
 
 import { simulateContract } from './simulateContract.js'
 
@@ -21,22 +19,11 @@ describe('Simulate Contract', () => {
     })
   })
 
-  bench('ethers@5: `callStatic`', async () => {
+  bench('ethers: `callStatic`', async () => {
     const wagmi = new Contract(
       wagmiContractConfig.address,
       wagmiContractConfig.abi,
       ethersProvider,
-    )
-    await wagmi.callStatic['mint(uint256)'](42111, {
-      from: accounts[0].address,
-    })
-  })
-
-  bench('ethers@6: `callStatic`', async () => {
-    const wagmi = new ContractV6(
-      wagmiContractConfig.address,
-      wagmiContractConfig.abi,
-      ethersV6Provider,
     )
     await wagmi.mint.staticCall(Typed.uint(42111), {
       from: accounts[0].address,

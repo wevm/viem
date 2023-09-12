@@ -1,5 +1,4 @@
-import { utils } from 'ethers'
-import { parseUnits as parseUnitsV6 } from 'ethers@6'
+import { parseUnits as parseUnitsV6 } from 'ethers'
 import { bench, describe } from 'vitest'
 
 import { parseUnits } from './parseUnits.js'
@@ -9,11 +8,7 @@ describe('Parse Unit', () => {
     parseUnits('40', 18)
   })
 
-  bench('ethers@5: `parseUnits`', () => {
-    utils.parseUnits('40', 18)
-  })
-
-  bench('ethers@6: `parseUnits`', () => {
+  bench('ethers: `parseUnits`', () => {
     parseUnitsV6('40', 18)
   })
 })

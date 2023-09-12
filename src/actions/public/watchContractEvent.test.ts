@@ -1,15 +1,15 @@
 import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
-import { usdcContractConfig } from '../../_test/abis.js'
-import { accounts, address } from '../../_test/constants.js'
-import { erc20InvalidTransferEventABI } from '../../_test/generated.js'
+import { ERC20InvalidTransferEvent } from '~test/contracts/generated.js'
+import { usdcContractConfig } from '~test/src/abis.js'
+import { accounts, address } from '~test/src/constants.js'
 import {
   deployErc20InvalidTransferEvent,
   publicClient,
   testClient,
   walletClient,
   webSocketClient,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import type { PublicClient } from '../../clients/createPublicClient.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
@@ -1022,14 +1022,14 @@ describe('subscribe', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],
@@ -1049,21 +1049,21 @@ describe('subscribe', () => {
       const { contractAddress } = await deployErc20InvalidTransferEvent()
 
       const logs_unstrict: WatchContractEventOnLogsParameter<
-        typeof erc20InvalidTransferEventABI,
+        typeof ERC20InvalidTransferEvent.abi,
         'Transfer'
       >[] = []
       const logs_strict: WatchContractEventOnLogsParameter<
-        typeof erc20InvalidTransferEventABI,
+        typeof ERC20InvalidTransferEvent.abi,
         'Transfer'
       >[] = []
 
       const unwatch_unstrict = watchContractEvent(webSocketClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         eventName: 'Transfer',
         onLogs: (logs_) => logs_unstrict.push(logs_),
       })
       const unwatch_strict = watchContractEvent(webSocketClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         eventName: 'Transfer',
         onLogs: (logs_) => logs_strict.push(logs_),
         strict: true,
@@ -1076,14 +1076,14 @@ describe('subscribe', () => {
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[0].address, 1n],
         account: address.vitalik,
       })
       await writeContract(walletClient, {
-        abi: erc20InvalidTransferEventABI,
+        abi: ERC20InvalidTransferEvent.abi,
         address: contractAddress!,
         functionName: 'transfer',
         args: [accounts[1].address, 1n],

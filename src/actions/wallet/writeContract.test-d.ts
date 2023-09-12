@@ -1,8 +1,8 @@
 import { seaportAbi } from 'abitype/test'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { walletClientWithAccount } from '../../_test/utils.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { walletClientWithAccount } from '~test/src/utils.js'
 import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 test('WriteContractParameters', async () => {

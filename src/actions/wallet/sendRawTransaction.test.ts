@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { accounts } from '../../_test/constants.js'
-import { walletClient } from '../../_test/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { prepareTransactionRequest } from './prepareTransactionRequest.js'
 import { sendRawTransaction } from './sendRawTransaction.js'

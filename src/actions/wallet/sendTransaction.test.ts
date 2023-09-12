@@ -1,13 +1,13 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { accounts, localHttpUrl } from '../../_test/constants.js'
+import { accounts, localHttpUrl } from '~test/src/constants.js'
 import {
   anvilChain,
   publicClient,
   testClient,
   walletClient,
   walletClientWithAccount,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'

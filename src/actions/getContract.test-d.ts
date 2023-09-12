@@ -9,9 +9,9 @@ import {
 
 import { expectTypeOf, test } from 'vitest'
 
-import { wagmiContractConfig } from '../_test/abis.js'
-import { localHttpUrl } from '../_test/constants.js'
-import { anvilChain, publicClient } from '../_test/utils.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { localHttpUrl } from '~test/src/constants.js'
+import { anvilChain, publicClient } from '~test/src/utils.js'
 import type { Account } from '../accounts/types.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'

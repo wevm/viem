@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { localWsUrl } from '../_test/constants.js'
+import { localWsUrl } from '~test/src/constants.js'
 import { localhost } from '../chains/index.js'
 import { type EIP1193RequestFn, type PublicRpcSchema } from '../index.js'
 import { createPublicClient } from './createPublicClient.js'

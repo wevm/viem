@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { accounts, address } from '../../_test/constants.js'
-import { publicClient, testClient } from '../../_test/utils.js'
+import { accounts, address } from '~test/src/constants.js'
+import { publicClient, testClient } from '~test/src/utils.js'
 import { celo } from '../../chains/index.js'
 import { createTestClient } from '../../clients/createTestClient.js'
 import { defineChain } from '../../utils/chain.js'

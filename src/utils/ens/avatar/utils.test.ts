@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { createHttpServer, publicClient } from '../../../_test/utils.js'
+import { createHttpServer, publicClient } from '~test/src/utils.js'
 
 import {
   getGateway,

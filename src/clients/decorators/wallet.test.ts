@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { baycContractConfig, wagmiContractConfig } from '../../_test/abis.js'
-import { accounts } from '../../_test/constants.js'
-import { walletClient, walletClientWithAccount } from '../../_test/utils.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
+import { walletClient, walletClientWithAccount } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { avalanche } from '../../chains/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'

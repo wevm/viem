@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer, publicClient } from '../../_test/utils.js'
+import { createHttpServer, publicClient } from '~test/src/utils.js'
 import { createBlockFilter } from '../../actions/public/createBlockFilter.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'

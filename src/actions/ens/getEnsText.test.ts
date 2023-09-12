@@ -1,11 +1,11 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { localHttpUrl } from '../../_test/constants.js'
+import { localHttpUrl } from '~test/src/constants.js'
 import {
   publicClient,
   setBlockNumber,
   setVitalikResolver,
-} from '../../_test/utils.js'
+} from '~test/src/utils.js'
 import { optimism } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'

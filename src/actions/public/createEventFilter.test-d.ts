@@ -1,5 +1,5 @@
 import { expectTypeOf, test } from 'vitest'
-import { publicClient } from '../../_test/utils.js'
+import { publicClient } from '~test/src/utils.js'
 import { createEventFilter } from './createEventFilter.js'
 
 test('fromBlock/toBlock', async () => {

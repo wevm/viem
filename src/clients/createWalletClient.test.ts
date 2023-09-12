@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { accounts, localWsUrl } from '../_test/constants.js'
+import { accounts, localWsUrl } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'

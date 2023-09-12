@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { forkUrl } from '../../_test/constants.js'
-import { testClient } from '../../_test/utils.js'
+import { forkUrl } from '~test/src/constants.js'
+import { testClient } from '~test/src/utils.js'
 
 import { setRpcUrl } from './setRpcUrl.js'
 

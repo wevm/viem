@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { VPButton, VPIconHeart, VPSponsors } from 'vitepress/theme'
+import { VPButton, VPSponsors } from 'vitepress/theme'
 import { sponsors } from '../sponsors'
 </script>
 
 <template>
   <section class="VPHomeSponsors">
     <div class="container">
-      <div class="header">
-        <div class="love"><VPIconHeart class="icon" /></div>
-        <div class="message">A massive thanks to our sponsors.</div>
-      </div>
-
       <div class="sponsors">
         <VPSponsors :data="sponsors" />
       </div>
@@ -29,7 +24,6 @@ import { sponsors } from '../sponsors'
 <style scoped>
 .VPHomeSponsors {
   margin-top: 0 !important;
-  padding-top: 40px;
   background-color: var(--vp-c-bg);
 }
 

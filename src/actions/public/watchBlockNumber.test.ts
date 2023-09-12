@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { localHttpUrl } from '../../_test/constants.js'
-import { publicClient, testClient, webSocketClient } from '../../_test/utils.js'
+import { localHttpUrl } from '~test/src/constants.js'
+import { publicClient, testClient, webSocketClient } from '~test/src/utils.js'
 import { localhost } from '../../chains/index.js'
 import {
   type PublicClient,

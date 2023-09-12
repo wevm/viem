@@ -1,7 +1,7 @@
 import { assertType, expect, test } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
-import { publicClient, testClient, walletClient } from '../../_test/utils.js'
+import { accounts } from '~test/src/constants.js'
+import { publicClient, testClient, walletClient } from '~test/src/utils.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import { parseEther } from '../../utils/unit/parseEther.js'

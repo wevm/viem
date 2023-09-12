@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 import { sidebar } from './sidebar'
 
 const require = createRequire(import.meta.url)
-const pkg = require('../../package.json')
+const pkg = require('../../src/package.json')
 
 const title = 'viem'
 const description =
@@ -51,10 +51,6 @@ export default defineConfig({
       },
     ],
   ],
-
-  markdown: {
-    theme: 'github-dark',
-  },
 
   themeConfig: {
     algolia: {

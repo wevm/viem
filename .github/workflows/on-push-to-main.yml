@@ -32,7 +32,7 @@ jobs:
       - name: Create Version Pull Request
         uses: changesets/action@v1
         with:
-          version: pnpm changeset:version
+          version: bun run changeset:version
           commit: 'chore: version package'
           title: 'chore: version package'
         env:
@@ -54,7 +54,7 @@ jobs:
       - name: Publish to NPM
         uses: changesets/action@v1
         with:
-          publish: pnpm changeset:release
+          publish: bun run changeset:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

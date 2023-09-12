@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { concatHex, toHex, toRlp } from '../../index.js'
 import type {
   TransactionSerializable,

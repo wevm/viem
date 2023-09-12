@@ -1,10 +1,8 @@
-import { utils as ethersV5Utils } from 'ethers'
-
-import { Transaction } from 'ethers@6'
+import { Transaction } from 'ethers'
 
 import { bench, describe } from 'vitest'
 
-import { accounts } from '../../_test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import type { TransactionSerializableBase } from '../../types/transaction.js'
 import { parseEther } from '../unit/parseEther.js'
 
@@ -35,11 +33,7 @@ describe('Parse Transaction (Legacy)', () => {
     parseTransaction(legacy)
   })
 
-  bench('ethers@5: `parseTransaction`', () => {
-    ethersV5Utils.parseTransaction(legacy)
-  })
-
-  bench('ethers@6: `Transaction.from`', () => {
+  bench('ethers: `Transaction.from`', () => {
     Transaction.from(legacy)
   })
 })
@@ -49,11 +43,7 @@ describe('Parse Transaction (EIP1559)', () => {
     parseTransaction(eip1559)
   })
 
-  bench('ethers@5: `parseTransaction`', () => {
-    ethersV5Utils.parseTransaction(eip1559)
-  })
-
-  bench('ethers@6: `Transaction.from`', () => {
+  bench('ethers: `Transaction.from`', () => {
     Transaction.from(eip1559)
   })
 })
@@ -63,11 +53,7 @@ describe('Parse Transaction (EIP2930)', () => {
     parseTransaction(eip2930)
   })
 
-  bench('ethers@5: `parseTransaction`', () => {
-    ethersV5Utils.parseTransaction(eip2930)
-  })
-
-  bench('ethers@6: `Transaction.from`', () => {
+  bench('ethers: `Transaction.from`', () => {
     Transaction.from(eip2930)
   })
 })

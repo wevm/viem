@@ -4,7 +4,7 @@ import {
   deployEnsAvatarTokenUri,
   publicClient,
   setBlockNumber,
-} from '../../../_test/utils.js'
+} from '~test/src/utils.js'
 
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 

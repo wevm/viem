@@ -2,9 +2,10 @@ import { type Abi, type Address, parseAbi } from 'abitype'
 import { erc20Abi, seaportAbi, wagmiMintExampleAbi } from 'abitype/test'
 import { expectTypeOf, test } from 'vitest'
 
-import { baycContractConfig, usdcContractConfig } from '../../_test/abis.js'
-import { address } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
+import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
+import { address } from '~test/src/constants.js'
+import { publicClient } from '~test/src/utils.js'
+
 import type { MulticallResponse } from '../../types/multicall.js'
 import { multicall } from './multicall.js'
 

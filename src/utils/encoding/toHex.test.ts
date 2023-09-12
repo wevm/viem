@@ -21,7 +21,7 @@ describe('converts numbers to hex', () => {
     expect(numberToHex(420)).toMatchInlineSnapshot('"0x1a4"')
 
     expect(() =>
-      // rome-ignore lint/correctness/noPrecisionLoss: precision loss expected for test
+      // biome-ignore lint/correctness/noPrecisionLoss: precision loss expected for test
       numberToHex(420182738912731283712937129),
     ).toThrowErrorMatchingInlineSnapshot(
       `

@@ -1,7 +1,7 @@
 import { bench, describe } from 'vitest'
 
-import { ethersProvider, ethersV6Provider } from '../../_test/bench.js'
-import { publicClient } from '../../_test/utils.js'
+import { ethersProvider } from '~test/src/bench.js'
+import { publicClient } from '~test/src/utils.js'
 
 import { getTransaction } from './getTransaction.js'
 
@@ -14,12 +14,7 @@ describe('Get Transaction', () => {
       hash,
     })
   })
-
-  bench('ethers@5: `getTransaction`', async () => {
+  bench('ethers: `getTransaction`', async () => {
     await ethersProvider.getTransaction(hash)
-  })
-
-  bench('ethers@6: `getTransaction`', async () => {
-    await ethersV6Provider.getTransaction(hash)
   })
 })

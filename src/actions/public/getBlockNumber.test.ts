@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { publicClient } from '../../_test/utils.js'
+import { publicClient } from '~test/src/utils.js'
 
 import { getBlockNumber, getBlockNumberCache } from './getBlockNumber.js'
 

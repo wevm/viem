@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { baycContractConfig } from '../_test/abis.js'
-import { address } from '../_test/constants.js'
-import { errorsExampleABI } from '../_test/generated.js'
+import { ErrorsExample } from '~test/contracts/generated.js'
+import { baycContractConfig } from '~test/src/abis.js'
+import { address } from '~test/src/constants.js'
 import { polygon } from '../chains/index.js'
 
 import { BaseError } from './base.js'
@@ -321,7 +321,7 @@ describe('ContractFunctionRevertedError', () => {
   test('default', () => {
     expect(
       new ContractFunctionRevertedError({
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         message: 'oh no',
         functionName: 'totalSupply',
       }),
@@ -336,7 +336,7 @@ describe('ContractFunctionRevertedError', () => {
   test('data: Error(string)', () => {
     expect(
       new ContractFunctionRevertedError({
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         data: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000022456e756d657261626c655365743a20696e646578206f7574206f6620626f756e6473000000000000000000000000000000000000000000000000000000000000',
         functionName: 'totalSupply',
       }),
@@ -351,7 +351,7 @@ describe('ContractFunctionRevertedError', () => {
   test('data: Panic(uint256)', () => {
     expect(
       new ContractFunctionRevertedError({
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000001',
         functionName: 'totalSupply',
       }),
@@ -366,7 +366,7 @@ describe('ContractFunctionRevertedError', () => {
   test('data: custom error', () => {
     expect(
       new ContractFunctionRevertedError({
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         data: '0xdb731cf4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000',
         functionName: 'customComplexError',
       }),
@@ -383,7 +383,7 @@ describe('ContractFunctionRevertedError', () => {
   test('data: zero data', () => {
     expect(
       new ContractFunctionRevertedError({
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         data: '0x',
         functionName: 'customComplexError',
       }),
@@ -397,7 +397,7 @@ describe('ContractFunctionRevertedError', () => {
   test('data: error signature does not exist on ABI', () => {
     expect(
       new ContractFunctionRevertedError({
-        abi: errorsExampleABI,
+        abi: ErrorsExample.abi,
         data: '0xdb731cfa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000',
         functionName: 'totalSupply',
       }),

@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest'
 
-import { createCcipServer } from '../_test/ccip.js'
-import { accounts } from '../_test/constants.js'
-import { offchainLookupExampleABI } from '../_test/generated.js'
+import { OffchainLookupExample } from '~test/contracts/generated.js'
+import { createCcipServer } from '~test/src/ccip.js'
+import { accounts } from '~test/src/constants.js'
 import {
   createHttpServer,
   deployOffchainLookupExample,
   publicClient,
-} from '../_test/utils.js'
+} from '~test/src/utils.js'
 import { getUrl } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 
@@ -23,11 +23,11 @@ describe('offchainLookup', () => {
       urls: [`${server.url}/{sender}/{data}`],
     })
 
-    // rome-ignore lint/suspicious/noAsyncPromiseExecutor:
+    // biome-ignore lint/suspicious/noAsyncPromiseExecutor:
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({
-          abi: offchainLookupExampleABI,
+          abi: OffchainLookupExample.abi,
           functionName: 'getAddress',
           args: ['jxom.viem'],
         })
@@ -54,11 +54,11 @@ describe('offchainLookup', () => {
       urls: [`${server.url}/{sender}/{data}`],
     })
 
-    // rome-ignore lint/suspicious/noAsyncPromiseExecutor:
+    // biome-ignore lint/suspicious/noAsyncPromiseExecutor:
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({
-          abi: offchainLookupExampleABI,
+          abi: OffchainLookupExample.abi,
           functionName: 'getAddress',
           args: ['fake.viem'],
         })

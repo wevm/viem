@@ -1,11 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import {
-  ensPublicResolverConfig,
-  smartAccountConfig,
-} from '../../_test/abis.js'
-import { accounts, address } from '../../_test/constants.js'
-import { publicClient } from '../../_test/utils.js'
+import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
+import { accounts, address } from '~test/src/constants.js'
+import { publicClient } from '~test/src/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { hashMessage, toBytes } from '../../utils/index.js'
 import { verifyHash } from './verifyHash.js'

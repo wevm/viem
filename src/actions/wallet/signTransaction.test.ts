@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, localHttpUrl } from '../../_test/constants.js'
-import { testClient, walletClient } from '../../_test/utils.js'
+import { accounts, localHttpUrl } from '~test/src/constants.js'
+import { testClient, walletClient } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
