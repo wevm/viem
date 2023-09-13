@@ -7,7 +7,7 @@ import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
 import { testClient } from '~test/src/utils.js'
-import { mine } from '../../test.js'
+import { mine } from '../../test/index.js'
 import { type WebSocketTransport, webSocket } from './webSocket.js'
 
 test('default', () => {

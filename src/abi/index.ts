@@ -1,15 +1,15 @@
 export {
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,
-} from './utils/abi/decodeAbiParameters.js'
+} from '../utils/abi/decodeAbiParameters.js'
 export {
   type EncodeAbiParametersReturnType,
   encodeAbiParameters,
-} from './utils/abi/encodeAbiParameters.js'
+} from '../utils/abi/encodeAbiParameters.js'
 export {
   type GetAbiItemParameters,
   getAbiItem,
-} from './utils/abi/getAbiItem.js'
+} from '../utils/abi/getAbiItem.js'
 export {
   type ParseAbi,
   type ParseAbiItem,
@@ -20,4 +20,4 @@ export {
   parseAbiParameter,
   parseAbiParameters,
 } from 'abitype'
-export { encodePacked } from './utils/abi/encodePacked.js'
+export { encodePacked } from '../utils/abi/encodePacked.js'

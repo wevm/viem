@@ -10,7 +10,7 @@ import {
 } from '~test/src/constants.js'
 import { createHttpServer, testClient } from '~test/src/utils.js'
 
-import { mine } from '../test.js'
+import { mine } from '../test/index.js'
 import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
 import { type RpcResponse, getSocket, rpc } from './rpc.js'

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as wallet from './wallet.js'
+import * as wallet from './index.js'
 
 test('exports wallet actions', () => {
   expect(Object.keys(wallet)).toMatchInlineSnapshot(`
