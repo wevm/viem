@@ -1,3 +1,5 @@
+// TODO(v2): Remove this entrypoint. Favor importing from actions entrypoint (`viem/actions`).
+
 export {
   addChain,
   type AddChainParameters,

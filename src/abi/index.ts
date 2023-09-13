@@ -1,3 +1,5 @@
+// TODO(v2): Remove this entrypoint. Favor importing from root entrypoint (`viem`).
+
 export {
   type ParseAbi,
   type ParseAbiItem,
