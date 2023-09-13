@@ -11,7 +11,7 @@
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
     "changeset": "changeset",
     "changeset:release": "bun run build && changeset publish",
-    "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/updateVersion.ts",
+    "changeset:version": "changeset version && bun scripts/updateVersion.ts && bun install --lockfile-only",
     "clean": "rimraf src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./test/foundry.toml && bun ./scripts/generateTypedArtifacts.ts",
     "dev:docs": "cd site && bun run dev",
