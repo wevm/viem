@@ -667,6 +667,8 @@ export type {
 } from './types/multicall.js'
 export type { ParseAccount } from './types/account.js'
 export type {
+  Index,
+  Quantity,
   RpcBlock,
   RpcBlockIdentifier,
   RpcBlockNumber,
