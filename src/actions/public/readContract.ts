@@ -10,6 +10,7 @@ import type {
   ContractFunctionParameters,
   ContractFunctionReturnType,
 } from '../../types/contract.js'
+import type { UnionEvaluate } from '../../types/utils.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
@@ -26,7 +27,9 @@ export type ReadContractParameters<
     'pure' | 'view',
     functionName
   > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
-> = Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'> &
+> = UnionEvaluate<
+  Pick<CallParameters, 'account' | 'blockNumber' | 'blockTag'>
+> &
   ContractFunctionParameters<abi, 'pure' | 'view', functionName, args>
 
 export type ReadContractReturnType<
