@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import * as public_ from './public.js'
+import * as public_ from './index.js'
 
 test('exports public actions', () => {
   expect(Object.keys(public_)).toMatchInlineSnapshot(`

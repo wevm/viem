@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/contract/index.d.ts",
+  "module": "../_esm/contract/index.js",
+  "main": "../_cjs/contract/index.js"
+}

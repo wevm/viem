@@ -63,6 +63,7 @@ test('exports chains', () => {
       "harmonyOne",
       "haqqMainnet",
       "haqqTestedge2",
+      "holesky",
       "klaytn",
       "linea",
       "lineaTestnet",

@@ -23,9 +23,9 @@
       "default": "./_cjs/index.js"
     },
     "./abi": {
-      "types": "./_types/abi.d.ts",
-      "import": "./_esm/abi.js",
-      "default": "./_cjs/abi.js"
+      "types": "./_types/abi/index.d.ts",
+      "import": "./_esm/abi/index.js",
+      "default": "./_cjs/abi/index.js"
     },
     "./accounts": {
       "types": "./_types/accounts/index.d.ts",
@@ -43,29 +43,29 @@
       "default": "./_cjs/chains/index.js"
     },
     "./chains/utils": {
-      "types": "./_types/chains/utils.d.ts",
-      "import": "./_esm/chains/utils.js",
-      "default": "./_cjs/chains/utils.js"
+      "types": "./_types/chains/utils/index.d.ts",
+      "import": "./_esm/chains/utils/index.js",
+      "default": "./_cjs/chains/utils/index.js"
     },
     "./contract": {
-      "types": "./_types/contract.d.ts",
-      "import": "./_esm/contract.js",
-      "default": "./_cjs/contract.js"
+      "types": "./_types/contract/index.d.ts",
+      "import": "./_esm/contract/index.js",
+      "default": "./_cjs/contract/index.js"
     },
     "./ens": {
-      "types": "./_types/ens.d.ts",
-      "import": "./_esm/ens.js",
-      "default": "./_cjs/ens.js"
+      "types": "./_types/ens/index.d.ts",
+      "import": "./_esm/ens/index.js",
+      "default": "./_cjs/ens/index.js"
     },
     "./public": {
-      "types": "./_types/public.d.ts",
-      "import": "./_esm/public.js",
-      "default": "./_cjs/public.js"
+      "types": "./_types/public/index.d.ts",
+      "import": "./_esm/public/index.js",
+      "default": "./_cjs/public/index.js"
     },
     "./test": {
-      "types": "./_types/test.d.ts",
-      "import": "./_esm/test.js",
-      "default": "./_cjs/test.js"
+      "types": "./_types/test/index.d.ts",
+      "import": "./_esm/test/index.js",
+      "default": "./_cjs/test/index.js"
     },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
@@ -73,30 +73,31 @@
       "default": "./_cjs/utils/index.js"
     },
     "./wallet": {
-      "types": "./_types/wallet.d.ts",
-      "import": "./_esm/wallet.js",
-      "default": "./_cjs/wallet.js"
+      "types": "./_types/wallet/index.d.ts",
+      "import": "./_esm/wallet/index.js",
+      "default": "./_cjs/wallet/index.js"
     },
     "./window": {
-      "types": "./_types/window.d.ts",
-      "import": "./_esm/window.js",
-      "default": "./_cjs/window.js"
+      "types": "./_types/window/index.d.ts",
+      "import": "./_esm/window/index.js",
+      "default": "./_cjs/window/index.js"
     },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
-      "abi": ["./_types/abi.d.ts"],
+      "abi": ["./_types/abi/index.d.ts"],
       "accounts": ["./_types/accounts/index.d.ts"],
       "actions": ["./_types/actions/index.d.ts"],
-      "chains": ["./_types/chains.d.ts"],
-      "contract": ["./_types/contract.d.ts"],
-      "ens": ["./_types/ens.d.ts"],
-      "public": ["./_types/public.d.ts"],
-      "test": ["./_types/test.d.ts"],
+      "chains": ["./_types/chains/index.d.ts"],
+      "chains/utils": ["./_types/chains/utils/index.d.ts"],
+      "contract": ["./_types/contract/index.d.ts"],
+      "ens": ["./_types/ens/index.d.ts"],
+      "public": ["./_types/public/index.d.ts"],
+      "test": ["./_types/test/index.d.ts"],
       "utils": ["./_types/utils/index.d.ts"],
-      "wallet": ["./_types/wallet.d.ts"],
-      "window": ["./_types/window.d.ts"]
+      "wallet": ["./_types/wallet/index.d.ts"],
+      "window": ["./_types/window/index.d.ts"]
     }
   },
   "peerDependencies": {
@@ -115,7 +116,7 @@
     "@scure/bip39": "1.2.1",
     "@types/ws": "^8.5.5",
     "abitype": "0.9.8",
-    "unws": "0.2.4",
+    "isomorphic-ws": "5.0.0",
     "ws": "8.13.0"
   },
   "license": "MIT",

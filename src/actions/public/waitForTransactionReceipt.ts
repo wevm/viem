@@ -146,7 +146,11 @@ export async function waitForTransactionReceipt<
               // If we already have a valid receipt, let's check if we have enough
               // confirmations. If we do, then we can resolve.
               if (receipt) {
-                if (blockNumber - receipt.blockNumber + 1n < confirmations)
+                if (
+                  confirmations > 1 &&
+                  (!receipt.blockNumber ||
+                    blockNumber - receipt.blockNumber + 1n < confirmations)
+                )
                   return
 
                 done(() => emit.resolve(receipt))
@@ -178,8 +182,9 @@ export async function waitForTransactionReceipt<
 
               // Check if we have enough confirmations. If not, continue polling.
               if (
-                confirmations > 0 &&
-                blockNumber - receipt.blockNumber + 1n < confirmations
+                confirmations > 1 &&
+                (!receipt.blockNumber ||
+                  blockNumber - receipt.blockNumber + 1n < confirmations)
               )
                 return
 
@@ -218,7 +223,11 @@ export async function waitForTransactionReceipt<
                   })
 
                   // Check if we have enough confirmations. If not, continue polling.
-                  if (blockNumber - receipt.blockNumber + 1n < confirmations)
+                  if (
+                    confirmations > 1 &&
+                    (!receipt.blockNumber ||
+                      blockNumber - receipt.blockNumber + 1n < confirmations)
+                  )
                     return
 
                   let reason: ReplacementReason = 'replaced'

@@ -12,7 +12,7 @@ import type { Hash } from '../../types/misc.js'
 import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
-import { sendTransaction } from '../../wallet.js'
+import { sendTransaction } from '../../wallet/index.js'
 import { celo } from '../index.js'
 import { formattersCelo } from './formatters.js'
 import type {

@@ -30,7 +30,7 @@
   },
   {
     "name": "viem/actions",
-    "path": "./src/_esm/ens.js",
+    "path": "./src/_esm/ens/index.js",
     "limit": "45 kB",
     "import": "*"
   },
@@ -54,25 +54,25 @@
   },
   {
     "name": "viem/chains/utils",
-    "path": "./src/_esm/chains/utils.js",
+    "path": "./src/_esm/chains/utils/index.js",
     "limit": "8 kB",
     "import": "*"
   },
   {
     "name": "viem/chains/utils (tree-shaking)",
-    "path": "./src/_esm/chains/utils.js",
+    "path": "./src/_esm/chains/utils/index.js",
     "limit": "5 kB",
     "import": "{ parseTransactionCelo }"
   },
   {
     "name": "viem/ens",
-    "path": "./src/_esm/ens.js",
+    "path": "./src/_esm/ens/index.js",
     "limit": "45 kB",
     "import": "*"
   },
   {
     "name": "viem/ens (tree-shaking)",
-    "path": "./src/_esm/ens.js",
+    "path": "./src/_esm/ens/index.js",
     "limit": "19 kB",
     "import": "{ getEnsAvatar }"
   }

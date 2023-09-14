@@ -59,21 +59,44 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
   const client = createPublicClient({
     transport: http(localHttpUrl),
   })
-  const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(
-    client,
-    {
-      chain: {
-        ...anvilChain,
-        fees: {
-          baseFeeMultiplier: 1.5,
-        },
+  const feesPerGas_1 = await estimateFeesPerGas(client, {
+    chain: {
+      ...anvilChain,
+      fees: {
+        baseFeeMultiplier: 1.5,
       },
     },
+  })
+  expect(feesPerGas_1.maxFeePerGas).toBe(
+    (block.baseFeePerGas! * 150n) / 100n + feesPerGas_1.maxPriorityFeePerGas,
   )
-  expect(maxFeePerGas).toBe(
-    (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
+  expect(feesPerGas_1.maxPriorityFeePerGas).toBeDefined()
+
+  const feesPerGas_2 = await estimateFeesPerGas(client, {
+    chain: {
+      ...anvilChain,
+      fees: {
+        baseFeeMultiplier: 2,
+      },
+    },
+  })
+  expect(feesPerGas_2.maxFeePerGas).toBe(
+    block.baseFeePerGas! * 2n + feesPerGas_2.maxPriorityFeePerGas,
   )
-  expect(maxPriorityFeePerGas).toBeDefined()
+  expect(feesPerGas_2.maxPriorityFeePerGas).toBeDefined()
+
+  const feesPerGas_3 = await estimateFeesPerGas(client, {
+    chain: {
+      ...anvilChain,
+      fees: {
+        baseFeeMultiplier: 2.01,
+      },
+    },
+  })
+  expect(feesPerGas_3.maxFeePerGas).toBe(
+    (block.baseFeePerGas! * 201n) / 100n + feesPerGas_3.maxPriorityFeePerGas,
+  )
+  expect(feesPerGas_3.maxPriorityFeePerGas).toBeDefined()
 })
 
 test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
