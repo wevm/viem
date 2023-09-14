@@ -35,11 +35,14 @@ export type WriteContractParameters<
   chain extends Chain | undefined = Chain,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
+  ///
+  allFunctionNames = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
 > = ContractFunctionParameters<
   abi,
   'nonpayable' | 'payable',
   functionName,
-  args
+  args,
+  allFunctionNames
 > &
   UnionOmit<
     FormattedTransactionRequest<

@@ -10,21 +10,22 @@ export type TypedDataDefinition<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   ///
+  primaryTypes = typedData extends TypedData ? keyof typedData : string,
 > = primaryType extends 'EIP712Domain'
   ? EIP712DomainDefinition<typedData, primaryType>
-  : MessageDefinition<typedData, primaryType>
+  : MessageDefinition<typedData, primaryType, primaryTypes>
 
 type MessageDefinition<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData = keyof typedData,
   ///
+  primaryTypes = typedData extends TypedData ? keyof typedData : string,
   schema extends Record<string, unknown> = typedData extends TypedData
     ? TypedDataToPrimitiveTypes<typedData>
     : Record<string, unknown>,
   message = schema[primaryType extends keyof schema
     ? primaryType
     : keyof schema],
-  primaryTypes = typedData extends TypedData ? keyof typedData : string,
 > = {
   types: typedData
 } & {

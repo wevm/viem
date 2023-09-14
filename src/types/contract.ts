@@ -195,8 +195,8 @@ export type ContractFunctionParameters<
     functionName
   > = ContractFunctionArgs<abi, mutability, functionName>,
   ///
-  allArgs = ContractFunctionArgs<abi, mutability, functionName>,
   allFunctionNames = ContractFunctionName<abi, mutability>,
+  allArgs = ContractFunctionArgs<abi, mutability, functionName>,
   // when `args` is inferred to `readonly []` ("inputs": []) or `never` (`abi` declared as `Abi` or not inferrable), allow `args` to be optional.
   // important that both branches return same structural type
 > = {

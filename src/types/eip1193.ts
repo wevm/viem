@@ -21,9 +21,11 @@ import type { Prettify } from './utils.js'
 
 export type EIP1474Methods = [...PublicRpcSchema, ...WalletRpcSchema]
 
-export type EIP1193Provider = EIP1193Events & {
-  request: EIP1193RequestFn<EIP1474Methods>
-}
+export type EIP1193Provider = Prettify<
+  EIP1193Events & {
+    request: EIP1193RequestFn<EIP1474Methods>
+  }
+>
 
 //////////////////////////////////////////////////
 // Errors

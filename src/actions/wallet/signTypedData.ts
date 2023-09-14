@@ -20,8 +20,10 @@ export type SignTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   account extends Account | undefined = undefined,
-> = TypedDataDefinition<typedData, primaryType> &
-  ([account] extends [never] ? unknown : GetAccountParameter<account>)
+  ///
+  primaryTypes = typedData extends TypedData ? keyof typedData : string,
+> = TypedDataDefinition<typedData, primaryType, primaryTypes> &
+  GetAccountParameter<account>
 
 export type SignTypedDataReturnType = Hex
 
