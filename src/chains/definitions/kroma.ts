@@ -15,7 +15,7 @@ export const kroma = /*#__PURE__*/ defineChain({
     },
     blockExplorers: {
       default: {
-        name: 'Kroma Sepolia Explorer',
+        name: 'Kroma Explorer',
         url: 'https://blockscout.kroma.network',
       },
     },
