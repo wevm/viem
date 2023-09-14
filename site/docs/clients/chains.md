@@ -36,7 +36,7 @@ const client = createPublicClient({
 
 ## Custom Chains
 
-You can also extend wagmi to support other EVM-compatible chains by building your own chain object that inherits the `Chain` type.
+You can also extend viem to support other EVM-compatible chains by building your own chain object that inherits the `Chain` type.
 
 ```ts
 import { defineChain } from 'viem'
