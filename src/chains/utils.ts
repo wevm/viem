@@ -1,9 +1,9 @@
-export { formattersCelo } from '../celo/formatters.js'
+export { formattersCelo } from './celo/formatters.js'
 export {
   serializeTransactionCelo,
   serializersCelo,
-} from '../celo/serializers.js'
-export { parseTransactionCelo } from '../celo/parsers.js'
+} from './celo/serializers.js'
+export { parseTransactionCelo } from './celo/parsers.js'
 export type {
   CeloBlock,
   CeloBlockOverrides,
@@ -26,9 +26,9 @@ export type {
   TransactionRequestCIP42,
   TransactionSerializableCIP42,
   TransactionSerializedCIP42,
-} from '../celo/types.js'
+} from './celo/types.js'
 
-export { formattersOptimism } from '../optimism/formatters.js'
+export { formattersOptimism } from './optimism/formatters.js'
 export type {
   OptimismBlock,
   OptimismBlockOverrides,
@@ -42,4 +42,4 @@ export type {
   OptimismTransaction,
   OptimismTransactionReceipt,
   OptimismTransactionReceiptOverrides,
-} from '../optimism/types.js'
+} from './optimism/types.js'

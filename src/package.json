@@ -43,9 +43,9 @@
       "default": "./_cjs/chains/index.js"
     },
     "./chains/utils": {
-      "types": "./_types/chains/utils/index.d.ts",
-      "import": "./_esm/chains/utils/index.js",
-      "default": "./_cjs/chains/utils/index.js"
+      "types": "./_types/chains/utils.d.ts",
+      "import": "./_esm/chains/utils.js",
+      "default": "./_cjs/chains/utils.js"
     },
     "./contract": {
       "types": "./_types/contract/index.d.ts",
@@ -90,7 +90,7 @@
       "accounts": ["./_types/accounts/index.d.ts"],
       "actions": ["./_types/actions/index.d.ts"],
       "chains": ["./_types/chains/index.d.ts"],
-      "chains/utils": ["./_types/chains/utils/index.d.ts"],
+      "chains/utils": ["./_types/chains/utils.d.ts"],
       "contract": ["./_types/contract/index.d.ts"],
       "ens": ["./_types/ens/index.d.ts"],
       "public": ["./_types/public/index.d.ts"],
