@@ -86,42 +86,18 @@
   },
   "typesVersions": {
     "*": {
-      "abi": [
-        "./_types/abi/index.d.ts"
-      ],
-      "accounts": [
-        "./_types/accounts/index.d.ts"
-      ],
-      "actions": [
-        "./_types/actions/index.d.ts"
-      ],
-      "chains": [
-        "./_types/chains/index.d.ts"
-      ],
-      "chains/utils": [
-        "./_types/chains/utils/index.d.ts"
-      ],
-      "contract": [
-        "./_types/contract/index.d.ts"
-      ],
-      "ens": [
-        "./_types/ens/index.d.ts"
-      ],
-      "public": [
-        "./_types/public/index.d.ts"
-      ],
-      "test": [
-        "./_types/test/index.d.ts"
-      ],
-      "utils": [
-        "./_types/utils/index.d.ts"
-      ],
-      "wallet": [
-        "./_types/wallet/index.d.ts"
-      ],
-      "window": [
-        "./_types/window/index.d.ts"
-      ]
+      "abi": ["./_types/abi/index.d.ts"],
+      "accounts": ["./_types/accounts/index.d.ts"],
+      "actions": ["./_types/actions/index.d.ts"],
+      "chains": ["./_types/chains/index.d.ts"],
+      "chains/utils": ["./_types/chains/utils/index.d.ts"],
+      "contract": ["./_types/contract/index.d.ts"],
+      "ens": ["./_types/ens/index.d.ts"],
+      "public": ["./_types/public/index.d.ts"],
+      "test": ["./_types/test/index.d.ts"],
+      "utils": ["./_types/utils/index.d.ts"],
+      "wallet": ["./_types/wallet/index.d.ts"],
+      "window": ["./_types/window/index.d.ts"]
     }
   },
   "peerDependencies": {
@@ -140,26 +116,17 @@
     "@scure/bip39": "1.2.1",
     "@types/ws": "^8.5.5",
     "abitype": "0.9.8",
-    "unws": "0.2.4",
+    "isomorphic-ws": "5.0.0",
     "ws": "8.13.0"
   },
   "license": "MIT",
   "repository": "wagmi-dev/viem",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wagmi-dev"
     }
   ],
-  "keywords": [
-    "eth",
-    "ethereum",
-    "dapps",
-    "wallet",
-    "web3"
-  ]
+  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3"]
 }

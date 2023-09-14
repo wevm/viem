@@ -1,4 +1,4 @@
-import { WebSocket } from 'unws'
+import { WebSocket } from 'isomorphic-ws'
 import { describe, expect, test, vi } from 'vitest'
 
 import type { IncomingHttpHeaders } from 'http'

@@ -13,7 +13,6 @@ export const holesky = /*#__PURE__*/ defineChain({
       http: ['https://rpc.holesky.ethpandaops.io'],
     },
   },
-  blockExplorers: {},
   contracts: {},
   testnet: true,
 })
