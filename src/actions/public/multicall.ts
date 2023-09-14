@@ -28,7 +28,7 @@ export type MulticallParameters<
     properties?: Record<string, any>
   } = {},
 > = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
-  allowFailure?: allowFailure | undefined
+  allowFailure?: allowFailure | boolean | undefined
   batchSize?: number | undefined
   contracts: MulticallContracts<
     Narrow<contracts>,
