@@ -65,6 +65,8 @@ test('exports chains', () => {
       "haqqTestedge2",
       "holesky",
       "klaytn",
+      "kroma",
+      "kromaSepolia",
       "linea",
       "lineaTestnet",
       "localhost",
