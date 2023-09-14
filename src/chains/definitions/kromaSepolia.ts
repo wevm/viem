@@ -19,6 +19,5 @@ export const kromaSepolia = /*#__PURE__*/ defineChain({
       url: 'https://blockscout.sepolia.kroma.network',
     },
   },
-  contracts: {},
   testnet: true,
 })
