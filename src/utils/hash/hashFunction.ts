@@ -1,4 +1,4 @@
-import type { AbiEvent, AbiFunction } from 'abitype'
+import type { AbiError, AbiEvent, AbiFunction } from 'abitype'
 import { formatAbiItem } from '../abi/formatAbiItem.js'
 import {
   extractFunctionName,
@@ -16,6 +16,6 @@ export function hashFunction(def: string) {
   return hash(`${name}(${params.map(({ type }) => type).join(',')})`)
 }
 
-export function hashAbiItem(abiItem: AbiFunction | AbiEvent) {
+export function hashAbiItem(abiItem: AbiFunction | AbiEvent | AbiError) {
   return hash(formatAbiItem(abiItem))
 }

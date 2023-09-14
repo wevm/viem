@@ -3,6 +3,7 @@ import type { Abi, AbiParameter, Address } from 'abitype'
 import type { GetFunctionArgs, InferItemName } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { isHex } from '../../utils/data/isHex.js'
+import { getErrorSelector } from '../../utils/hash/getErrorSelector.js'
 import { getEventSelector } from '../../utils/hash/getEventSelector.js'
 import { getFunctionSelector } from '../../utils/hash/getFunctionSelector.js'
 import { isAddress } from '../address/isAddress.js'
@@ -43,6 +44,7 @@ export function getAbiItem<
       if (abiItem.type === 'function')
         return getFunctionSelector(abiItem) === name
       if (abiItem.type === 'event') return getEventSelector(abiItem) === name
+      if (abiItem.type === 'error') return getErrorSelector(abiItem) === name
       return false
     }
     return 'name' in abiItem && abiItem.name === name
