@@ -12,7 +12,7 @@ import type {
   GetValue,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import {
@@ -37,35 +37,41 @@ export type WriteContractParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
   allFunctionNames = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-> = ContractFunctionParameters<
-  abi,
-  'nonpayable' | 'payable',
-  functionName,
-  args,
-  allFunctionNames
-> &
-  UnionOmit<
-    FormattedTransactionRequest<
-      chainOverride extends Chain ? chainOverride : chain
-    >,
-    'data' | 'from' | 'to' | 'value'
+> = UnionEvaluate<
+  UnionEvaluate<
+    UnionOmit<
+      FormattedTransactionRequest<
+        chainOverride extends Chain ? chainOverride : chain
+      >,
+      'data' | 'from' | 'to' | 'value'
+    >
   > &
-  GetAccountParameter<account> &
-  GetChain<chain, chainOverride> &
-  GetValue<
-    abi,
-    functionName,
-    SendTransactionParameters<
-      chain,
-      account,
-      chainOverride
-    > extends SendTransactionParameters
-      ? SendTransactionParameters<chain, account, chainOverride>['value']
-      : SendTransactionParameters['value']
-  > & {
-    /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
-    dataSuffix?: Hex
-  }
+    ContractFunctionParameters<
+      abi,
+      'nonpayable' | 'payable',
+      functionName,
+      args,
+      allFunctionNames
+    > &
+    Prettify<
+      GetAccountParameter<account> &
+        GetChain<chain, chainOverride> &
+        GetValue<
+          abi,
+          functionName,
+          SendTransactionParameters<
+            chain,
+            account,
+            chainOverride
+          > extends SendTransactionParameters
+            ? SendTransactionParameters<chain, account, chainOverride>['value']
+            : SendTransactionParameters['value']
+        > & {
+          /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
+          dataSuffix?: Hex
+        }
+    >
+>
 
 export type WriteContractReturnType = SendTransactionReturnType
 

@@ -1,8 +1,13 @@
 import { seaportAbi } from 'abitype/test'
 import { assertType, expectTypeOf, test } from 'vitest'
 
+import { type Address, parseAbi } from 'abitype'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
 import { walletClientWithAccount } from '~test/src/utils.js'
+import { mainnet } from '../../chains/definitions/mainnet.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 test('WriteContractParameters', async () => {
@@ -72,10 +77,35 @@ const args = {
 } as const
 
 test('infers args', () => {
-  writeContract(walletClientWithAccount, {
-    ...wagmiContractConfig,
-    functionName: 'transferFrom',
-    args: ['0x', '0x', 123n],
+  const client = createWalletClient({
+    account: accounts[0].address,
+    chain: mainnet,
+    transport: custom(window.ethereum!),
+  })
+  const abi = parseAbi([
+    'function foo(address) payable returns (int8)',
+    'function bar(address, uint256) returns (int8)',
+  ])
+
+  type Result1 = WriteContractParameters<typeof abi, 'foo'>
+  type Result2 = Parameters<
+    typeof writeContract<
+      typeof client['chain'],
+      typeof client['account'],
+      typeof abi,
+      'foo',
+      readonly [Address],
+      typeof client['chain']
+    >
+  >[1]
+  expectTypeOf<Result1['functionName']>().toEqualTypeOf<'foo' | 'bar'>()
+  expectTypeOf<Result2['functionName']>().toEqualTypeOf<'foo' | 'bar'>()
+
+  writeContract(client, {
+    address: '0x',
+    abi,
+    functionName: 'foo',
+    args: ['0x'],
   })
 })
 

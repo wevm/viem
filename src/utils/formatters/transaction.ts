@@ -6,7 +6,7 @@ import type {
 } from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { defineFormatter } from './formatter.js'
 
@@ -27,7 +27,7 @@ export type FormattedTransaction<
   >,
   _ExcludedPendingDependencies extends string = TransactionPendingDependencies &
     ExtractChainFormatterExclude<TChain, 'transaction'>,
-> = UnionOmit<_FormatterReturnType, TransactionPendingDependencies> & {
+> = UnionLooseOmit<_FormatterReturnType, TransactionPendingDependencies> & {
   [K in _ExcludedPendingDependencies]: never
 } & Pick<
     Transaction<bigint, number, TBlockTag extends 'pending' ? true : false>,

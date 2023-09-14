@@ -682,6 +682,6 @@ export function walletActions<
     signTypedData: (args) => signTypedData(client, args),
     switchChain: (args) => switchChain(client, args),
     watchAsset: (args) => watchAsset(client, args),
-    writeContract: (args) => writeContract(client, args),
+    writeContract: (args) => writeContract(client, args as any),
   }
 }

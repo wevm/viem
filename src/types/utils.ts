@@ -125,15 +125,10 @@ export type NeverBy<T, K extends keyof T> = {
  */
 export type NoUndefined<T> = T extends undefined ? never : T
 
-/**
- * @description Construct a type with the properties of union type T except for those in type K.
- * @example
- * type Result = UnionOmit<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
- * => { b: number } | { b: undefined, c: number }
- */
-export type UnionOmit<T, K extends keyof any> = T extends any
-  ? Omit<T, K>
-  : never
+export type Omit<type, keys extends keyof type> = Pick<
+  type,
+  Exclude<keyof type, keys>
+>
 
 /**
  * @description Combines members of an intersection into a readable type.
@@ -146,8 +141,6 @@ export type UnionOmit<T, K extends keyof any> = T extends any
 export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
-
-export type UnionEvaluate<type> = type extends object ? Prettify<type> : type
 
 /**
  * @description Creates a type that extracts the values of T.
@@ -199,3 +192,31 @@ export type OneOf<
   ? Prettify<Item & { [K in Exclude<keys, keyof Item>]?: undefined }>
   : never
 type KeyofUnion<type> = type extends type ? keyof type : never
+
+///////////////////////////////////////////////////////////////////////////
+// Loose types
+
+/** Loose version of {@link Omit} */
+export type LooseOmit<type, keys extends string> = Pick<
+  type,
+  Exclude<keyof type, keys>
+>
+
+///////////////////////////////////////////////////////////////////////////
+// Union types
+
+export type UnionEvaluate<type> = type extends object ? Prettify<type> : type
+
+export type UnionLooseOmit<type, keys extends string> = type extends any
+  ? LooseOmit<type, keys>
+  : never
+
+/**
+ * @description Construct a type with the properties of union type T except for those in type K.
+ * @example
+ * type Result = UnionOmit<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>
+ * => { b: number } | { b: undefined, c: number }
+ */
+export type UnionOmit<type, keys extends keyof type> = type extends any
+  ? Omit<type, keys>
+  : never
