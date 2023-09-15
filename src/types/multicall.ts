@@ -49,22 +49,9 @@ export type MulticallContracts<
   ? contracts
   : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
   // use this to infer the param types in the case of Array.map() argument
-  contracts extends readonly ContractFunctionParameters<
-      infer abi,
-      infer _,
-      infer functionName,
-      infer args
-    >[]
+  contracts extends readonly (infer contract extends ContractFunctionParameters)[]
   ? readonly MaybePartial<
-      Prettify<
-        ContractFunctionParameters<
-          abi,
-          options['mutability'],
-          functionName,
-          args
-        > &
-          options['properties']
-      >,
+      Prettify<contract & options['properties']>,
       options['optional']
     >[]
   : // Fallback
@@ -83,7 +70,7 @@ export type MulticallResults<
   ///
   result extends any[] = [],
 > = contracts extends readonly [] // no contracts, return empty
-  ? []
+  ? readonly []
   : contracts extends readonly [infer contract] // one contract left before returning `result`
   ? [
       ...result,
@@ -108,7 +95,7 @@ export type MulticallResults<
       ]
     >
   : readonly unknown[] extends contracts
-  ? unknown[]
+  ? MulticallResponse<unknown, options['error'], allowFailure>[]
   : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
   // use this to infer the param types in the case of Array.map() argument
   contracts extends readonly (infer contract extends ContractFunctionParameters)[]
@@ -118,7 +105,7 @@ export type MulticallResults<
       allowFailure
     >[]
   : // Fallback
-    unknown[]
+    MulticallResponse<unknown, options['error'], allowFailure>[]
 
 export type MulticallResponse<
   result = unknown,
