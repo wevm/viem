@@ -1,7 +1,7 @@
 export type { Chain } from '../types/chain.js'
 
 // required for type inference since in explicit return type
-export type { Assign } from '../types/utils.js'
+export type { Assign, Omit } from '../types/utils.js'
 
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
