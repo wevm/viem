@@ -117,6 +117,9 @@ export function hexToBytes(hex_: Hex, opts: HexToBytesOpts = {}): ByteArray {
   let hexString = hex.slice(2) as string
   if (hexString.length % 2) hexString = `0${hexString}`
 
+  if ('Buffer' in globalThis)
+    return Uint8Array.from(Buffer.from(hexString, 'hex'))
+
   const bytes = new Uint8Array(hexString.length / 2)
   for (let index = 0; index < bytes.length; index++) {
     const start = index * 2

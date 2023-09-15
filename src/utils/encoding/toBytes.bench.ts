@@ -3,12 +3,19 @@ import { bench, describe } from 'vitest'
 
 import { hexToBytes } from './toBytes.js'
 
-describe.skip('Hex to Bytes', () => {
+const generateBytes = (length: number) => {
+  const bytes = new Uint8Array(length)
+  for (let i = 0; i < length; i++) bytes[i] = i
+  return bytes
+}
+
+describe('Hex to Bytes', () => {
+  const bytes = generateBytes(1024)
   bench('viem: `hexToBytes`', () => {
-    hexToBytes('0x48656c6c6f20576f726c6421')
+    hexToBytes(bytes)
   })
 
-  bench('ethers: `toBeArray`', () => {
-    toBeArray('0x48656c6c6f20576f726c6421')
-  })
+  // bench('ethers: `toBeArray`', () => {
+  //   toBeArray(bytes)
+  // })
 })

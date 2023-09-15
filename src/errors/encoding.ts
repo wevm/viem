@@ -17,7 +17,7 @@ export class DataLengthTooShortError extends BaseError {
   override name = 'DataLengthTooShortError'
   constructor({ length, dataLength }: { length: number; dataLength: number }) {
     super(
-      `Data length (${dataLength - 1}) is shorter than prefix length (${
+      `Data length (${dataLength - 1}) is shorter than consumed bytes length (${
         length - 1
       }).`,
     )

@@ -1,54 +1,108 @@
 import { encodeRlp } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import { toRlp } from './toRlp.js'
+import { bytesToRlp } from './toRlp.js'
 
-describe('RLP Encoding (128 bytes)', () => {
+const generateBytes = (length: number) => {
+  const bytes = new Uint8Array(length)
+  for (let i = 0; i < length; i++) bytes[i] = i
+  return bytes
+}
+
+const generateList = (length: number) => {
+  const bytes = []
+  for (let i = 0; i < length; i++) bytes[i] = generateBytes(i)
+  return bytes
+}
+
+describe('rlp: prefix === 0xb8', () => {
+  const bytes = generateBytes(255)
+
   bench('viem: `toRlp`', () => {
-    toRlp(
-      '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-    )
+    bytesToRlp(bytes)
   })
 
   bench('ethers: `encodeRlp`', () => {
-    encodeRlp(
-      '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-    )
+    encodeRlp(bytes as any)
   })
 })
 
-describe.skip('RLP Encoding (nested array)', () => {
+describe('rlp: prefix === 0xb9', () => {
+  const bytes = generateBytes(65_535)
+
   bench('viem: `toRlp`', () => {
-    toRlp([['0x11'], [['0x11']], [['0x11'], [['0x11']]]])
+    bytesToRlp(bytes)
   })
 
   bench('ethers: `encodeRlp`', () => {
-    encodeRlp([['0x11'], [['0x11']], [['0x11'], [['0x11']]]])
+    encodeRlp(bytes as any)
   })
 })
 
-describe('RLP Encoding (nested array of 128 bytes)', () => {
+describe('rlp: prefix === 0xba', () => {
+  const bytes = generateBytes(16_777_215)
+
   bench('viem: `toRlp`', () => {
-    toRlp([
-      '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-      [
-        '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-        [
-          '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-        ],
-      ],
-    ])
+    bytesToRlp(bytes)
+  })
+
+  bench.skip('ethers: `encodeRlp`', () => {
+    encodeRlp(bytes as any)
+  })
+})
+
+describe('rlp list: prefix === 0xf8', () => {
+  const list = generateList(60)
+
+  bench('viem: `toRlp`', () => {
+    bytesToRlp(list)
   })
 
   bench('ethers: `encodeRlp`', () => {
-    encodeRlp([
-      '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
+    encodeRlp(list as any)
+  })
+})
+
+describe('rlp list: prefix === 0xf8 (recursive)', () => {
+  const list = [
+    generateList(4),
+    [generateList(8), [generateList(3), generateBytes(1)]],
+    [
+      generateList(10),
       [
-        '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-        [
-          '0x1000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000010000100001000000000000000000000000000000000',
-        ],
+        generateList(5),
+        generateBytes(2),
+        [generateList(10), [generateList(20)]],
       ],
-    ])
+    ],
+  ]
+
+  bench('viem: `toRlp`', () => {
+    bytesToRlp(list)
+  })
+
+  bench('ethers: `encodeRlp`', () => {
+    encodeRlp(list as any)
+  })
+})
+
+describe('rlp: tx (2048kB)', () => {
+  const list = [
+    generateBytes(1),
+    generateBytes(4),
+    generateBytes(8),
+    generateBytes(8),
+    generateBytes(4),
+    generateBytes(20),
+    generateBytes(8),
+    generateBytes(2_048_000),
+  ]
+
+  bench('viem: `toRlp`', () => {
+    bytesToRlp(list)
+  })
+
+  bench('ethers: `encodeRlp`', () => {
+    encodeRlp(list as any)
   })
 })

@@ -114,10 +114,20 @@ export type BytesToHexOpts = {
  * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
  */
 export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
-  let hexString = ''
-  for (let i = 0; i < value.length; i++) {
-    hexString += hexes[value[i]]
-  }
+  const hexString = (() => {
+    if ('Buffer' in globalThis)
+      return Buffer.from(
+        value.buffer,
+        value.byteOffset,
+        value.byteLength,
+      ).toString('hex')
+
+    let string = ''
+    for (let i = 0; i < value.length; i++) {
+      string += hexes[value[i]]
+    }
+    return string
+  })()
 
   const hex: Hex = `0x${hexString}`
   if (typeof opts.size === 'number') {
