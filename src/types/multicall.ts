@@ -80,13 +80,45 @@ export type MulticallResults<
     error?: Error
     mutability: AbiStateMutability
   } = { error: Error; mutability: AbiStateMutability },
-> = {
-  [index in keyof contracts]: MulticallResponse<
-    GetMulticallContractReturnType<contracts[index], options['mutability']>,
-    options['error'],
-    allowFailure
-  >
-}
+  ///
+  result extends any[] = [],
+> = contracts extends readonly [] // no contracts, return empty
+  ? []
+  : contracts extends readonly [infer contract] // one contract left before returning `result`
+  ? [
+      ...result,
+      MulticallResponse<
+        GetMulticallContractReturnType<contract, options['mutability']>,
+        options['error'],
+        allowFailure
+      >,
+    ]
+  : contracts extends readonly [infer contract, ...infer rest] // grab first contract and recurse through `rest`
+  ? MulticallResults<
+      [...rest],
+      allowFailure,
+      options,
+      [
+        ...result,
+        MulticallResponse<
+          GetMulticallContractReturnType<contract, options['mutability']>,
+          options['error'],
+          allowFailure
+        >,
+      ]
+    >
+  : readonly unknown[] extends contracts
+  ? unknown[]
+  : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
+  // use this to infer the param types in the case of Array.map() argument
+  contracts extends readonly (infer contract extends ContractFunctionParameters)[]
+  ? MulticallResponse<
+      GetMulticallContractReturnType<contract, options['mutability']>,
+      options['error'],
+      allowFailure
+    >[]
+  : // Fallback
+    unknown[]
 
 export type MulticallResponse<
   result = unknown,

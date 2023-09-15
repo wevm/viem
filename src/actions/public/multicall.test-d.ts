@@ -39,7 +39,7 @@ test('const asserted', async () => {
     },
   ] as const
   const res = await multicall(publicClient, { allowFailure: false, contracts })
-  expectTypeOf(res).toEqualTypeOf<readonly [bigint, bigint, string]>()
+  expectTypeOf(res).toEqualTypeOf<[bigint, bigint, string]>()
 })
 
 test('all known', async () => {

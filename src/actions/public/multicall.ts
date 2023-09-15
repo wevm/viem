@@ -254,5 +254,5 @@ export async function multicall<
 
   if (results.length !== contracts.length)
     throw new BaseError('multicall results mismatch')
-  return results as MulticallResults<contracts, allowFailure>
+  return results as MulticallReturnType<contracts, allowFailure>
 }
