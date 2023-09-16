@@ -173,7 +173,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'prepareTransactionRequest',
-              link: '/docs/actions/public/prepareTransactionRequest',
+              link: '/docs/actions/wallet/prepareTransactionRequest',
             },
             {
               text: 'getTransaction',
