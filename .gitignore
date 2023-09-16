@@ -5,6 +5,7 @@ _types
 .DS_Store
 .eslintcache
 .next
+.direnv
 bench
 cache
 coverage
@@ -17,7 +18,6 @@ tsconfig*.tsbuildinfo
 .env.development.local
 .env.test.local
 .env.production.local
-.envrc
 
 # @wagmi/cli
 generated.ts
