@@ -22,7 +22,6 @@ export default defineConfig({
         '**/test/**',
       ],
     },
-    exclude: ['node_modules', '**/*.vectors.test.ts'],
     environment: 'node',
     setupFiles: [join(__dirname, './setup.ts')],
     globalSetup: [join(__dirname, './globalSetup.ts')],
