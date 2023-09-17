@@ -25,6 +25,7 @@
           buildInputs = [
             foundry-bin
             bun
+            nodejs_20
           ];
         };
       });
