@@ -2,6 +2,7 @@ import type { ByteArray, Hex } from '../types/misc.js'
 
 import { BaseError } from './base.js'
 
+/** @deprecated */
 export class DataLengthTooLongError extends BaseError {
   override name = 'DataLengthTooLongError'
   constructor({ consumed, length }: { consumed: number; length: number }) {
@@ -13,6 +14,7 @@ export class DataLengthTooLongError extends BaseError {
   }
 }
 
+/** @deprecated */
 export class DataLengthTooShortError extends BaseError {
   override name = 'DataLengthTooShortError'
   constructor({ length, dataLength }: { length: number; dataLength: number }) {
@@ -74,6 +76,7 @@ export class InvalidHexValueError extends BaseError {
   }
 }
 
+/** @deprecated */
 export class OffsetOutOfBoundsError extends BaseError {
   override name = 'OffsetOutOfBoundsError'
   constructor({ nextOffset, offset }: { nextOffset: number; offset: number }) {
