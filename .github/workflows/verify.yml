@@ -123,4 +123,4 @@ jobs:
 
       - name: Run test vectors
         shell: bash
-        run: bun test:vectors
+        run: bun run vectors
