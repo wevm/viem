@@ -27,6 +27,8 @@
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck -c ./test/vitest.config.ts",
     "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
+    "vectors": "bun test vectors/**/*.test.ts",
+    "vectors:generate": "bun vectors/generate.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

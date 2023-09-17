@@ -19,5 +19,6 @@ tsconfig*.tsbuildinfo
 .env.production.local
 .envrc
 
-# @wagmi/cli
+# tests
 generated.ts
+vectors/**/*.json
