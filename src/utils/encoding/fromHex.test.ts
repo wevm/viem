@@ -348,7 +348,7 @@ describe('converts hex to bytes', () => {
     expect(() =>
       fromHex('0x420fggf11a', 'bytes'),
     ).toThrowErrorMatchingInlineSnapshot(`
-      "Invalid byte sequence (\\"gg\\" in \\"420fggf11a\\").
+      "420fggf11a is not a valid hex value.
 
       Version: viem@1.0.2"
     `)

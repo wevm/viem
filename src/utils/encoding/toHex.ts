@@ -115,7 +115,7 @@ export type BytesToHexOpts = {
  */
 export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
   const hexString = (() => {
-    if ('Buffer' in globalThis)
+    if ('Buffer' in globalThis && typeof Buffer.from === 'function')
       return Buffer.from(
         value.buffer,
         value.byteOffset,

@@ -2,6 +2,7 @@ import { toBeArray } from 'ethers'
 import { bench, describe } from 'vitest'
 
 import { hexToBytes } from './toBytes.js'
+import { bytesToHex } from './toHex.js'
 
 const generateBytes = (length: number) => {
   const bytes = new Uint8Array(length)
@@ -10,12 +11,13 @@ const generateBytes = (length: number) => {
 }
 
 describe('Hex to Bytes', () => {
-  const bytes = generateBytes(1024)
+  const bytes = bytesToHex(generateBytes(1024))
+
   bench('viem: `hexToBytes`', () => {
     hexToBytes(bytes)
   })
 
-  // bench('ethers: `toBeArray`', () => {
-  //   toBeArray(bytes)
-  // })
+  bench('ethers: `toBeArray`', () => {
+    toBeArray(bytes)
+  })
 })
