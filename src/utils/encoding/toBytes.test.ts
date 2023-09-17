@@ -985,224 +985,6 @@ describe('converts hex to bytes (buffer)', () => {
   })
 })
 
-describe('converts hex to bytes', () => {
-  test('default', () => {
-    vi.spyOn(global, 'Buffer').mockImplementation(() => undefined as any)
-
-    expect(toBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
-    expect(toBytes('0x61')).toMatchInlineSnapshot(`
-      Uint8Array [
-        97,
-      ]
-    `)
-    expect(toBytes('0x616263')).toMatchInlineSnapshot(`
-      Uint8Array [
-        97,
-        98,
-        99,
-      ]
-    `)
-    expect(toBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
-      `
-      Uint8Array [
-        72,
-        101,
-        108,
-        108,
-        111,
-        32,
-        87,
-        111,
-        114,
-        108,
-        100,
-        33,
-      ]
-    `,
-    )
-
-    expect(hexToBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
-    expect(hexToBytes('0x61')).toMatchInlineSnapshot(`
-        Uint8Array [
-          97,
-        ]
-      `)
-    expect(hexToBytes('0x616263')).toMatchInlineSnapshot(
-      `
-        Uint8Array [
-          97,
-          98,
-          99,
-        ]
-      `,
-    )
-    expect(hexToBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(`
-        Uint8Array [
-          72,
-          101,
-          108,
-          108,
-          111,
-          32,
-          87,
-          111,
-          114,
-          108,
-          100,
-          33,
-        ]
-      `)
-  })
-
-  test('args: size', () => {
-    vi.spyOn(globalThis, 'Buffer').mockImplementation(() => undefined as any)
-
-    expect(
-      toBytes('0x48656c6c6f20576f726c6421', { size: 16 }),
-    ).toMatchInlineSnapshot(`
-      Uint8Array [
-        72,
-        101,
-        108,
-        108,
-        111,
-        32,
-        87,
-        111,
-        114,
-        108,
-        100,
-        33,
-        0,
-        0,
-        0,
-        0,
-      ]
-    `)
-    expect(
-      hexToBytes('0x48656c6c6f20576f726c6421', { size: 16 }),
-    ).toMatchInlineSnapshot(`
-      Uint8Array [
-        72,
-        101,
-        108,
-        108,
-        111,
-        32,
-        87,
-        111,
-        114,
-        108,
-        100,
-        33,
-        0,
-        0,
-        0,
-        0,
-      ]
-    `)
-    expect(
-      toBytes('0x48656c6c6f20576f726c6421', { size: 32 }),
-    ).toMatchInlineSnapshot(
-      `
-      Uint8Array [
-        72,
-        101,
-        108,
-        108,
-        111,
-        32,
-        87,
-        111,
-        114,
-        108,
-        100,
-        33,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-      ]
-    `,
-    )
-    expect(
-      hexToBytes('0x48656c6c6f20576f726c6421', { size: 32 }),
-    ).toMatchInlineSnapshot(
-      `
-      Uint8Array [
-        72,
-        101,
-        108,
-        108,
-        111,
-        32,
-        87,
-        111,
-        114,
-        108,
-        100,
-        33,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-      ]
-    `,
-    )
-  })
-
-  test('error: size overflow', () => {
-    vi.spyOn(globalThis, 'Buffer').mockImplementation(() => undefined as any)
-
-    expect(() =>
-      hexToBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 8 bytes. Given size: 12 bytes.
-
-      Version: viem@1.0.2"
-    `)
-    expect(() =>
-      hexToBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      "Size cannot exceed 8 bytes. Given size: 12 bytes.
-
-      Version: viem@1.0.2"
-    `)
-  })
-})
-
 describe('converts string to bytes', () => {
   test('default', () => {
     expect(toBytes('')).toMatchInlineSnapshot('Uint8Array []')
@@ -1408,5 +1190,75 @@ describe('converts string to bytes', () => {
 
       Version: viem@1.0.2"
     `)
+  })
+})
+
+describe('converts hex to bytes', () => {
+  test('default', () => {
+    vi.spyOn(global, 'Buffer').mockImplementation(() => undefined as any)
+
+    expect(toBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
+    expect(toBytes('0x61')).toMatchInlineSnapshot(`
+      Uint8Array [
+        97,
+      ]
+    `)
+    expect(toBytes('0x616263')).toMatchInlineSnapshot(`
+      Uint8Array [
+        97,
+        98,
+        99,
+      ]
+    `)
+    expect(toBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33,
+      ]
+    `,
+    )
+
+    expect(hexToBytes('0x')).toMatchInlineSnapshot('Uint8Array []')
+    expect(hexToBytes('0x61')).toMatchInlineSnapshot(`
+        Uint8Array [
+          97,
+        ]
+      `)
+    expect(hexToBytes('0x616263')).toMatchInlineSnapshot(
+      `
+        Uint8Array [
+          97,
+          98,
+          99,
+        ]
+      `,
+    )
+    expect(hexToBytes('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(`
+        Uint8Array [
+          72,
+          101,
+          108,
+          108,
+          111,
+          32,
+          87,
+          111,
+          114,
+          108,
+          100,
+          33,
+        ]
+      `)
   })
 })
