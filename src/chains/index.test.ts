@@ -90,6 +90,7 @@ test('exports chains', () => {
       "okc",
       "optimism",
       "optimismGoerli",
+      "optimismSepolia",
       "opBNB",
       "opBNBTestnet",
       "plinga",
