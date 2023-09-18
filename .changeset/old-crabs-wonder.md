@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Added `getFunctionSignature`
+Added `getFunctionSignature` and `getEventSignature`.

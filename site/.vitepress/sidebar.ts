@@ -697,6 +697,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getEventSelector',
             },
             {
+              text: 'getEventSignature',
+              link: '/docs/utilities/getEventSignature',
+            },
+            {
               text: 'getFunctionSelector',
               link: '/docs/utilities/getFunctionSelector',
             },

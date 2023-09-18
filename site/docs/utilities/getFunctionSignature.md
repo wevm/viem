@@ -54,7 +54,6 @@ The signature as a string value.
 
 ### function
 
-- **Type:** `string |`[`AbiFunction`](https://abitype.dev/api/types.html#abifunction)
+- **Type:** `string | AbiFunction`
 
 The function to generate a signature for.
-
