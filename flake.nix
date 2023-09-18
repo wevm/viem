@@ -19,7 +19,7 @@
           buildInputs = with pkgs; [
             bun
             foundry-bin
-            nodejs_20
+            nodejs
           ];
         };
       };
