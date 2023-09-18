@@ -188,6 +188,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/actions/public/getTransactionReceipt',
             },
             {
+              text: 'sendRawTransaction',
+              link: '/docs/actions/wallet/sendRawTransaction',
+            },
+            {
               text: 'waitForTransactionReceipt',
               link: '/docs/actions/public/waitForTransactionReceipt',
             },
