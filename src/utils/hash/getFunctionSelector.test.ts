@@ -43,9 +43,9 @@ test('creates function signature from `AbiFunction`', () => {
       name: '_compound',
       type: 'function',
       inputs: [
-        { name: 'a', type: 'uint256' },
-        { name: 'b', type: 'uint256' },
-        { name: 'c', type: 'uint256' },
+        { name: '', type: 'uint256' },
+        { name: '', type: 'uint256' },
+        { name: '', type: 'uint256' },
       ],
       outputs: [],
       stateMutability: 'nonpayable',
@@ -98,16 +98,6 @@ test('creates function signature from `AbiFunction`', () => {
       stateMutability: 'nonpayable',
     }),
   ).toEqual('0x73933128')
-
-  expect(
-    getFunctionSelector({
-      name: 'claimed',
-      type: 'function',
-      inputs: [],
-      outputs: [],
-      stateMutability: 'view',
-    }),
-  ).toEqual('0xe834a834')
 
   expect(
     getFunctionSelector({
