@@ -46,16 +46,12 @@ test('creates event signature', () => {
     getEventSignature(
       'Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)',
     ),
-  ).toMatchInlineSnapshot(
-    '"Approval(address,address,uint256)"',
-  )
+  ).toMatchInlineSnapshot('"Approval(address,address,uint256)"')
   expect(
     getEventSignature(
       'ApprovalForAll(address indexed owner, address indexed operator, bool approved)',
     ),
-  ).toMatchInlineSnapshot(
-    '"ApprovalForAll(address,address,bool)"',
-  )
+  ).toMatchInlineSnapshot('"ApprovalForAll(address,address,bool)"')
 })
 
 test('creates event signature for `AbiEvent`', () => {
