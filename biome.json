@@ -2,6 +2,7 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
     "ignore": [
+      ".direnv",
       "_cjs",
       "_esm",
       "_types",
