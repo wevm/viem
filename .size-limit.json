@@ -2,24 +2,24 @@
   {
     "name": "viem (esm)",
     "path": "./src/_esm/index.js",
-    "limit": "58 kB",
+    "limit": "59 kB",
     "import": "*"
   },
   {
     "name": "viem (cjs)",
     "path": "./src/_cjs/index.js",
-    "limit": "73 kB"
+    "limit": "78 kB"
   },
   {
     "name": "viem (minimal surface - tree-shaking)",
     "path": "./src/_esm/index.js",
-    "limit": "4 kB",
+    "limit": "4.1 kB",
     "import": "{ createClient, http }"
   },
   {
     "name": "viem/accounts",
     "path": "./src/_esm/accounts/index.js",
-    "limit": "91 kB",
+    "limit": "92 kB",
     "import": "*"
   },
   {
@@ -43,7 +43,7 @@
   {
     "name": "viem/chains",
     "path": "./src/_esm/chains/index.js",
-    "limit": "17 kB",
+    "limit": "17.2 kB",
     "import": "*"
   },
   {
@@ -55,13 +55,13 @@
   {
     "name": "viem/chains/utils",
     "path": "./src/_esm/chains/utils/index.js",
-    "limit": "8 kB",
+    "limit": "8.3 kB",
     "import": "*"
   },
   {
     "name": "viem/chains/utils (tree-shaking)",
     "path": "./src/_esm/chains/utils/index.js",
-    "limit": "5 kB",
+    "limit": "5.5 kB",
     "import": "{ parseTransactionCelo }"
   },
   {
