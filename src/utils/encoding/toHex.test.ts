@@ -1,8 +1,9 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import {
   boolToHex,
   bytesToHex,
+  bytesToHex_native,
   numberToHex,
   stringToHex,
   toHex,
@@ -335,7 +336,7 @@ describe('converts string to hex', () => {
   })
 })
 
-describe('converts bytes to hex (buffer)', () => {
+describe('converts bytes to hex', () => {
   test('default', () => {
     expect(toHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
     expect(toHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
@@ -431,30 +432,17 @@ describe('converts bytes to hex (buffer)', () => {
   })
 })
 
-describe('converts bytes to hex', () => {
+describe('converts bytes to hex (native)', () => {
   test('default', () => {
-    vi.spyOn(global, 'Buffer').mockImplementation(() => undefined as any)
-
-    expect(toHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
-    expect(toHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
-    expect(toHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
-      '"0x616263"',
+    expect(bytesToHex_native(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
+    expect(bytesToHex_native(new Uint8Array([97]))).toMatchInlineSnapshot(
+      '"0x61"',
     )
     expect(
-      toHex(
-        new Uint8Array([
-          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
-        ]),
-      ),
-    ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')
-
-    expect(bytesToHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
-    expect(bytesToHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')
-    expect(bytesToHex(new Uint8Array([97, 98, 99]))).toMatchInlineSnapshot(
-      '"0x616263"',
-    )
+      bytesToHex_native(new Uint8Array([97, 98, 99])),
+    ).toMatchInlineSnapshot('"0x616263"')
     expect(
-      bytesToHex(
+      bytesToHex_native(
         new Uint8Array([
           72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
         ]),

@@ -8,6 +8,8 @@ import { type NumberToHexOpts, numberToHex } from './toHex.js'
 
 const encoder = /*#__PURE__*/ new TextEncoder()
 
+const hasBuffer = 'Buffer' in globalThis && typeof Buffer.from === 'function'
+
 export type ToBytesParameters = {
   /** Size of the output bytes. */
   size?: number
@@ -114,14 +116,25 @@ export function hexToBytes(hex_: Hex, opts: HexToBytesOpts = {}): ByteArray {
     hex = pad(hex, { dir: 'right', size: opts.size })
   }
 
+  return hasBuffer ? hexToBytes_buffer(hex) : hexToBytes_native(hex)
+}
+
+/** @internal */
+export function hexToBytes_buffer(hex: Hex): ByteArray {
+  if (!hasBuffer) throw new Error('`Buffer` not implemented.')
+
   let hexString = hex.slice(2) as string
   if (hexString.length % 2) hexString = `0${hexString}`
 
-  if ('Buffer' in globalThis && typeof Buffer.from === 'function') {
-    if (!isHex(hex_))
-      throw new BaseError(`${hexString} is not a valid hex value.`)
-    return Uint8Array.from(Buffer.from(hexString, 'hex'))
-  }
+  if (hexString === '') return Uint8Array.from([])
+  if (!isHex(hex)) throw new BaseError(`${hex} is not a valid hex value.`)
+  return Uint8Array.from(Buffer.from(hexString, 'hex'))
+}
+
+/** @internal */
+export function hexToBytes_native(hex: Hex): ByteArray {
+  let hexString = hex.slice(2) as string
+  if (hexString.length % 2) hexString = `0${hexString}`
 
   const bytes = new Uint8Array(hexString.length / 2)
   for (let index = 0; index < bytes.length; index++) {

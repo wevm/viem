@@ -4,6 +4,8 @@ import { pad } from '../data/pad.js'
 
 import { assertSize } from './fromHex.js'
 
+const hasBuffer = 'Buffer' in globalThis && typeof Buffer.from === 'function'
+
 const hexes = /*#__PURE__*/ Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
 )
@@ -114,27 +116,33 @@ export type BytesToHexOpts = {
  * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
  */
 export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
-  const hexString = (() => {
-    if ('Buffer' in globalThis && typeof Buffer.from === 'function')
-      return Buffer.from(
-        value.buffer,
-        value.byteOffset,
-        value.byteLength,
-      ).toString('hex')
+  const hex = hasBuffer ? bytesToHex_buffer(value) : bytesToHex_native(value)
 
-    let string = ''
-    for (let i = 0; i < value.length; i++) {
-      string += hexes[value[i]]
-    }
-    return string
-  })()
-
-  const hex: Hex = `0x${hexString}`
   if (typeof opts.size === 'number') {
     assertSize(hex, { size: opts.size })
     return pad(hex, { dir: 'right', size: opts.size })
   }
   return hex
+}
+
+/** @internal */
+export function bytesToHex_buffer(value: ByteArray): Hex {
+  if (!hasBuffer) throw new Error('`Buffer` not implemented.')
+  if (value.length === 0) return '0x'
+  return `0x${Buffer.from(
+    value.buffer,
+    value.byteOffset,
+    value.byteLength,
+  ).toString('hex')}`
+}
+
+/** @internal */
+export function bytesToHex_native(value: ByteArray): Hex {
+  let string = ''
+  for (let i = 0; i < value.length; i++) {
+    string += hexes[value[i]]
+  }
+  return `0x${string}`
 }
 
 export type NumberToHexOpts =
