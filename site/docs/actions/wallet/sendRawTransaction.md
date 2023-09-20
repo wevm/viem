@@ -14,7 +14,7 @@ head:
 
 # sendRawTransaction
 
-Sends a **signed** transaction to the network.
+Sends a **signed** transaction to the network. Can be used with both [Public Clients](/docs/clients/public) and [Wallet Clients](/docs/clients/wallet)
 
 ## Usage
 

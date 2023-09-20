@@ -91,6 +91,18 @@ const block = await publicClient.getBlock({
 })
 ```
 
+### includeTransactions (optional)
+
+- **Type:** `boolean`
+
+Whether or not to include transactions (as a structured array of `Transaction` objects).
+
+```ts
+const block = await publicClient.getBlock({
+  includeTransactions: true // [!code focus]
+})
+```
+
 ## Example
 
 Check out the usage of `getBlock` in the live [Fetching Blocks Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/blocks/fetching-blocks) below.

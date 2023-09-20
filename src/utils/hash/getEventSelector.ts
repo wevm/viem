@@ -1,9 +1,10 @@
 import type { AbiEvent } from 'abitype'
-import type { EventDefinition } from '../../types/contract.js'
 
-import { hashAbiItem, hashFunction } from './hashFunction.js'
+import { toBytes } from '../encoding/toBytes.js'
+import { getEventSignature } from './getEventSignature.js'
+import { keccak256 } from './keccak256.js'
 
-export const getEventSelector = (event: EventDefinition | AbiEvent) => {
-  if (typeof event === 'string') return hashFunction(event)
-  return hashAbiItem(event)
-}
+const hash = (value: string) => keccak256(toBytes(value))
+
+export const getEventSelector = (fn: string | AbiEvent) =>
+  hash(getEventSignature(fn))

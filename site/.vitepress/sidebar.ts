@@ -173,7 +173,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             { text: 'call', link: '/docs/actions/public/call' },
             {
               text: 'prepareTransactionRequest',
-              link: '/docs/actions/public/prepareTransactionRequest',
+              link: '/docs/actions/wallet/prepareTransactionRequest',
             },
             {
               text: 'getTransaction',
@@ -189,7 +189,7 @@ export const sidebar: DefaultTheme.Sidebar = {
             },
             {
               text: 'sendRawTransaction',
-              link: '/docs/actions/public/sendRawTransaction',
+              link: '/docs/actions/wallet/sendRawTransaction',
             },
             {
               text: 'waitForTransactionReceipt',
@@ -701,8 +701,16 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/getEventSelector',
             },
             {
+              text: 'getEventSignature',
+              link: '/docs/utilities/getEventSignature',
+            },
+            {
               text: 'getFunctionSelector',
               link: '/docs/utilities/getFunctionSelector',
+            },
+            {
+              text: 'getFunctionSignature',
+              link: '/docs/utilities/getFunctionSignature',
             },
             {
               text: 'keccak256',

@@ -113,7 +113,7 @@ const unwatch = publicClient.watchBlocks(
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether or not to emit missed blocks to the callback. 
+Whether or not to emit missed blocks to the callback.
 
 Missed blocks may occur in instances where internet connection is lost, or the block time is lesser than the [polling interval](/docs/clients/public.html#pollinginterval-optional) of the client.
 
@@ -137,6 +137,21 @@ Whether or not to emit the block to the callback when the subscription opens.
 const unwatch = publicClient.watchBlocks(
   { 
     emitOnBegin: true, // [!code focus]
+    onBlock: block => console.log(block),
+  }
+)
+```
+
+### includeTransactions (optional)
+
+- **Type:** `boolean`
+
+Whether or not to include transactions (as a structured array of `Transaction` objects).
+
+```ts
+const unwatch = publicClient.watchBlocks(
+  { 
+    includeTransactions: true,  // [!code focus]
     onBlock: block => console.log(block),
   }
 )
@@ -192,4 +207,4 @@ Check out the usage of `watchBlocks` in the live [Watch Blocks Example](https://
 ## JSON-RPC Methods
 
 - When `poll: true`, calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getBlockByNumber) on a polling interval.
-- When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event. 
+- When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event.
