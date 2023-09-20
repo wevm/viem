@@ -54,7 +54,7 @@ export const wagmiAbi = [
 ] as const;
 ```
 
-```ts [client.ts]
+```ts [config.ts]
 import { createPublicClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
