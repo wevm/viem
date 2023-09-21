@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js';
+import { defineChain } from '../../utils/chain.js'
 
 export const moonbeamDev = /*#__PURE__*/ defineChain({
   id: 1281,
@@ -19,4 +19,4 @@ export const moonbeamDev = /*#__PURE__*/ defineChain({
       webSocket: ['wss://127.0.0.1:9944'],
     },
   },
-});
+})
