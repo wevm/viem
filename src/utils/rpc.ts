@@ -168,13 +168,18 @@ export async function getSocket(url: string) {
       const subscriptions = new Map<Id, CallbackFn>()
 
       const onMessage: (event: MessageEvent) => void = ({ data }) => {
-        const message: RpcResponse = JSON.parse(data as string)
-        const isSubscription = message.method === 'eth_subscription'
-        const id = isSubscription ? message.params.subscription : message.id
-        const cache = isSubscription ? subscriptions : requests
-        const callback = cache.get(id)
-        if (callback) callback({ data })
-        if (!isSubscription) cache.delete(id)
+        try {
+          const message: RpcResponse = JSON.parse(data as string)
+          const isSubscription = message.method === 'eth_subscription'
+          const id = isSubscription ? message.params.subscription : message.id
+          const cache = isSubscription ? subscriptions : requests
+          const callback = cache.get(id)
+          if (callback) callback({ data })
+          if (!isSubscription) cache.delete(id)
+        } catch {
+          // sometimes message received is not json format
+          // what do you me to do here?
+        }
       }
       const onClose = () => {
         socketsCache.delete(url)
