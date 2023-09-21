@@ -459,6 +459,10 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/contract/getBytecode',
             },
             {
+              text: 'getContractEvents',
+              link: '/docs/contract/getContractEvents',
+            },
+            {
               text: 'getStorageAt',
               link: '/docs/contract/getStorageAt',
             },

@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent, Address, ExtractAbiEvent } from 'abitype'
+import type { Abi, Address, ExtractAbiEvent } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -8,10 +8,6 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 
-import {
-  type GetAbiItemParameters,
-  getAbiItem,
-} from '../../utils/abi/getAbiItem.js'
 import { observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
@@ -33,8 +29,11 @@ import {
   createContractEventFilter,
 } from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
+import {
+  type GetContractEventsParameters,
+  getContractEvents,
+} from './getContractEvents.js'
 import { getFilterChanges } from './getFilterChanges.js'
-import { getLogs } from './getLogs.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
 type PollOptions = {
@@ -213,16 +212,14 @@ export function watchContractEvent<
               // If the block number doesn't exist, we are yet to reach the first poll interval,
               // so do not emit any logs.
               if (previousBlockNumber && previousBlockNumber !== blockNumber) {
-                logs = await getLogs(client, {
+                logs = await getContractEvents(client, {
+                  abi,
                   address,
                   args,
                   fromBlock: previousBlockNumber + 1n,
                   toBlock: blockNumber,
-                  event: getAbiItem({
-                    abi,
-                    name: eventName,
-                  } as unknown as GetAbiItemParameters) as AbiEvent,
-                })
+                  strict,
+                } as {} as GetContractEventsParameters)
               } else {
                 logs = []
               }
