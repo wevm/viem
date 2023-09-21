@@ -24,9 +24,10 @@ import { getContract } from 'viem'
 
 ## Usage
 
-You can create a Contract Instance with the `getContract` function by passing in a [ABI](/docs/glossary/types.html#abi), address, and [Public](/docs/clients/public.html) and/or [Wallet Client](/docs/clients/wallet.html). Once created, you can call contract methods, listen to events, etc.
+You can create a Contract Instance with the `getContract` function by passing in a [ABI](/docs/glossary/types.html#abi), address, and [Public](/docs/clients/public.html) and/or [Wallet Client](/docs/clients/wallet.html). Once created, you can call contract methods, fetch for events, listen to events, etc.
 
 ::: code-group
+
 ```ts [example.ts]
 import { getContract } from 'viem'
 import { wagmiAbi } from './abi'
@@ -39,13 +40,15 @@ const contract = getContract({
   publicClient,
 })
 
-// 2. Call contract methods, listen to events, etc.
+// 2. Call contract methods, fetch events, listen to events, etc.
 const result = await contract.read.totalSupply()
+const logs = await contract.getEvents.Transfer()
 const unwatch = contract.watchEvent.Transfer(
   { from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' },
   { onLogs(logs) { console.log(logs) } }
 )
 ```
+
 ```ts [client.ts]
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -55,6 +58,7 @@ export const publicClient = createPublicClient({
   transport: http(),
 })
 ```
+
 ```ts [abi.ts]
 export const wagmiAbi = [
   ...
@@ -85,11 +89,13 @@ export const wagmiAbi = [
   ...
 ] as const;
 ```
+
 :::
 
 Using Contract Instances can make it easier to work with contracts if you don't want to pass the `abi` and `address` properties every time you perform contract actions, e.g. [`readContract`](/docs/contract/readContract.html), [`writeContract`](/docs/contract/writeContract.html), [`estimateContractGas`](/docs/contract/estimateContractGas.html), etc. Switch between the tabs below to see the difference between standalone Contract Actions and Contract Instance Actions:
 
 ::: code-group
+
 ```ts [contract-actions.ts]
 import { wagmiAbi } from './abi'
 import { publicClient, walletClient } from './client'
@@ -117,6 +123,7 @@ const unwatch = publicClient.watchContractEvent({
   onLogs: logs => console.log(logs)
 })
 ```
+
 ```ts [contract-instance.ts]
 import { getContract } from 'viem'
 import { wagmiAbi } from './abi'
@@ -133,6 +140,7 @@ const balance = await contract.read.balanceOf([
   '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
 ])
 const hash = await contract.write.mint([69420])
+const logs = await contract.getEvents.Transfer()
 const unwatch = contract.watchEvent.Transfer(
   {
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
@@ -141,6 +149,7 @@ const unwatch = contract.watchEvent.Transfer(
   { onLogs: logs => console.log(logs) }
 )
 ```
+
 :::
 
 ::: tip
@@ -159,6 +168,7 @@ If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the
 
 - [`createEventFilter`](/docs/contract/createContractEventFilter.html)
 - [`estimateGas`](/docs/contract/estimateContractGas.html)
+- [`getEvents`](/docs/contract/getContractEvents.html)
 - [`read`](/docs/contract/readContract.html)
 - [`simulate`](/docs/contract/simulateContract.html)
 - [`watchEvent`](/docs/contract/watchContractEvent.html)
@@ -181,7 +191,7 @@ In general, contract instance methods follow the following format:
 contract.(estimateGas|read|simulate|write).(functionName)(args, options)
 
 // event
-contract.(createEventFilter|watchEvent).(eventName)(args, options)
+contract.(createEventFilter|getEvents|watchEvent).(eventName)(args, options)
 ```
 
 If the contract function/event you are using does not accept arguments (e.g. function has no inputs, event has no indexed inputs), then you can omit the `args` parameter so `options` is the first and only parameter.

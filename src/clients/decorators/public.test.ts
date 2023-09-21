@@ -42,6 +42,7 @@ test('default', async () => {
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
+      "getContractEvents": [Function],
       "getEnsAddress": [Function],
       "getEnsAvatar": [Function],
       "getEnsName": [Function],
@@ -156,6 +157,12 @@ describe('smoke test', () => {
 
   test('getChainId', async () => {
     expect(await publicClient.getChainId()).toBeDefined()
+  })
+
+  test('getContractEvents', async () => {
+    expect(
+      await publicClient.getContractEvents({ abi: wagmiContractConfig.abi }),
+    ).toBeDefined()
   })
 
   test(

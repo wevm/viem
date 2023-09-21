@@ -98,6 +98,11 @@ import {
   getChainId,
 } from '../../actions/public/getChainId.js'
 import {
+  type GetContractEventsParameters,
+  type GetContractEventsReturnType,
+  getContractEvents,
+} from '../../actions/public/getContractEvents.js'
+import {
   type GetFeeHistoryParameters,
   type GetFeeHistoryReturnType,
   getFeeHistory,
@@ -611,6 +616,48 @@ export type PublicActions<
    * // 1
    */
   getChainId: () => Promise<GetChainIdReturnType>
+  /**
+   * Returns a list of event logs emitted by a contract.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getContractEvents.html
+   * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetContractEventsParameters}
+   * @returns A list of event logs. {@link GetContractEventsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { wagmiAbi } from './abi'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const logs = await client.getContractEvents(client, {
+   *  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *  abi: wagmiAbi,
+   *  eventName: 'Transfer'
+   * })
+   */
+  getContractEvents: <
+    const TAbi extends Abi | readonly unknown[],
+    TEventName extends string | undefined = undefined,
+    TStrict extends boolean | undefined = undefined,
+    TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
+    TToBlock extends BlockNumber | BlockTag | undefined = undefined,
+  >(
+    args: GetContractEventsParameters<
+      TAbi,
+      TEventName,
+      TStrict,
+      TFromBlock,
+      TToBlock
+    >,
+  ) => Promise<
+    GetContractEventsReturnType<TAbi, TEventName, TStrict, TFromBlock, TToBlock>
+  >
   /**
    * Gets address for ENS name.
    *
@@ -1625,6 +1672,7 @@ export function publicActions<
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
     getBytecode: (args) => getBytecode(client, args),
     getChainId: () => getChainId(client),
+    getContractEvents: (args) => getContractEvents(client, args),
     getEnsAddress: (args) => getEnsAddress(client, args),
     getEnsAvatar: (args) => getEnsAvatar(client, args),
     getEnsName: (args) => getEnsName(client, args),
