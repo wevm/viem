@@ -35,7 +35,7 @@ export type CreateContractEventFilterParameters<
    * Whether or not the logs must match the indexed/non-indexed arguments in the event ABI item.
    * @default false
    */
-  strict?: strict
+  strict?: strict | boolean | undefined
   toBlock?: toBlock | BlockNumber | BlockTag
 } & (undefined extends eventName
   ? {

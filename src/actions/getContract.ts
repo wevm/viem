@@ -42,6 +42,11 @@ import {
   estimateContractGas,
 } from './public/estimateContractGas.js'
 import {
+  type GetContractEventsParameters,
+  type GetContractEventsReturnType,
+  getContractEvents,
+} from './public/getContractEvents.js'
+import {
   type ReadContractParameters,
   type ReadContractReturnType,
   readContract,
@@ -84,6 +89,7 @@ export type GetContractParameters<
    *
    * - [`createEventFilter`](https://viem.sh/docs/contract/createContractEventFilter.html)
    * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
+   * - [`getEvents`](https://viem.sh/docs/contract/getContractEvents.html)
    * - [`read`](https://viem.sh/docs/contract/readContract.html)
    * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
    * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
@@ -271,6 +277,33 @@ export type GetContractReturnType<
                   >
                 }
                 /**
+                 * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).
+                 *
+                 * @example
+                 * import { createPublicClient, getContract, http, parseAbi } from 'viem'
+                 * import { mainnet } from 'viem/chains'
+                 *
+                 * const publicClient = createPublicClient({
+                 *   chain: mainnet,
+                 *   transport: http(),
+                 * })
+                 * const contract = getContract({
+                 *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+                 *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
+                 *   publicClient,
+                 * })
+                 * const filter = await contract.createEventFilter.Transfer()
+                 */
+                getEvents: {
+                  [EventName in _EventNames]: GetEventsFunction<
+                    _Narrowable,
+                    TAbi,
+                    EventName extends ContractEventName<TAbi>
+                      ? EventName
+                      : never
+                  >
+                }
+                /**
                  * Watches and returns emitted contract event logs.
                  *
                  * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent.html#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent.html#onLogs).
@@ -450,6 +483,7 @@ export function getContract<
       | 'address'
       | 'createEventFilter'
       | 'estimateGas'
+      | 'getEvents'
       | 'read'
       | 'simulate'
       | 'watchEvent'
@@ -552,6 +586,37 @@ export function getContract<
                 args,
                 ...options,
               } as CreateContractEventFilterParameters)
+            }
+          },
+        },
+      )
+      contract.getEvents = new Proxy(
+        {},
+        {
+          get(_, eventName: string) {
+            return (
+              ...parameters: [
+                args?: readonly unknown[] | object,
+                options?: Omit<
+                  GetContractEventsParameters,
+                  'abi' | 'address' | 'eventName'
+                >,
+              ]
+            ) => {
+              const abiEvent = (abi as readonly AbiEvent[]).find(
+                (x: AbiEvent) => x.type === 'event' && x.name === eventName,
+              )
+              const { args, options } = getEventParameters(
+                parameters,
+                abiEvent!,
+              )
+              return getContractEvents(publicClient, {
+                abi,
+                address,
+                eventName,
+                args,
+                ...options,
+              } as unknown as GetContractEventsParameters)
             }
           },
         },
@@ -951,6 +1016,36 @@ type GetEventFilter<
             options?: Options & { strict?: TStrict },
           ]
     ) => Promise<CreateContractEventFilterReturnType>
+
+type GetEventsFunction<
+  Narrowable extends boolean,
+  TAbi extends Abi | readonly unknown[],
+  TEventName extends ContractEventName<TAbi>,
+  TAbiEvent extends AbiEvent = TAbi extends Abi
+    ? ExtractAbiEvent<TAbi, TEventName>
+    : AbiEvent,
+  Args = AbiEventParametersToPrimitiveTypes<TAbiEvent['inputs']>,
+  Options = Prettify<
+    Omit<
+      GetContractEventsParameters<TAbi, TEventName>,
+      'abi' | 'address' | 'args' | 'eventName'
+    >
+  >,
+  IndexedInputs = Extract<TAbiEvent['inputs'][number], { indexed: true }>,
+> = Narrowable extends true
+  ? (
+      ...parameters: IsNever<IndexedInputs> extends true
+        ? [options?: Options]
+        : [args?: Args, options?: Options]
+    ) => Promise<GetContractEventsReturnType<TAbi, TEventName>>
+  : (
+      ...parameters:
+        | [options?: Options]
+        | [
+            args?: readonly unknown[] | WatchContractEventOptions,
+            options?: Options,
+          ]
+    ) => Promise<GetContractEventsReturnType<TAbi, TEventName>>
 
 type GetWatchEvent<
   Narrowable extends boolean,

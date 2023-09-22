@@ -31,9 +31,9 @@ export type DecodeEventLogParameters<
   strict extends boolean = true,
 > = {
   abi: abi
-  data?: data
+  data?: data | undefined
   eventName?: eventName | ContractEventName<abi>
-  strict?: strict
+  strict?: strict | boolean | undefined
   topics: [signature: Hex, ...args: topics] | []
 }
 

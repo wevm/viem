@@ -82,6 +82,7 @@ test('exports chains', () => {
       "modeTestnet",
       "moonbaseAlpha",
       "moonbeam",
+      "moonbeamDev",
       "moonriver",
       "neonDevnet",
       "nexi",

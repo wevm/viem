@@ -2,10 +2,11 @@ import type { AbiEvent } from 'abitype'
 
 import { describe, expect, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, forkBlockNumber } from '~test/src/constants.js'
+import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import { accounts, address, forkBlockNumber } from '~test/src/constants.js'
 import {
   publicClient,
+  testClient,
   walletClient,
   walletClientWithAccount,
 } from '~test/src/utils.js'
@@ -15,6 +16,13 @@ import {
   getEventParameters,
   getFunctionParameters,
 } from './getContract.js'
+import {
+  impersonateAccount,
+  mine,
+  setBalance,
+  stopImpersonatingAccount,
+  writeContract,
+} from './index.js'
 
 const contract = getContract({
   ...wagmiContractConfig,
@@ -155,6 +163,42 @@ test('simulate', async () => {
       "result": undefined,
     }
   `)
+})
+
+test('getEvents', async () => {
+  await impersonateAccount(testClient, {
+    address: address.usdcHolder,
+  })
+  await setBalance(testClient, {
+    address: address.usdcHolder,
+    value: 10000000000000000000000n,
+  })
+
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'transfer',
+    args: [accounts[0].address, 1n],
+    account: address.usdcHolder,
+  })
+  await writeContract(walletClient, {
+    ...usdcContractConfig,
+    functionName: 'approve',
+    args: [accounts[1].address, 1n],
+    account: address.usdcHolder,
+  })
+  await mine(testClient, { blocks: 1 })
+
+  const contract = getContract({
+    ...usdcContractConfig,
+    publicClient,
+  })
+  const logs = await contract.getEvents.Transfer()
+
+  expect(logs.length).toBe(1)
+
+  await stopImpersonatingAccount(testClient, {
+    address: address.usdcHolder,
+  })
 })
 
 test('watchEvent', async () => {
