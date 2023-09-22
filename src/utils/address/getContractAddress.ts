@@ -16,11 +16,17 @@ export type GetCreateAddressOptions = {
   nonce: bigint
 }
 
-export type GetCreate2AddressOptions = {
-  bytecode: ByteArray | Hex
-  from: Address
-  salt: ByteArray | Hex
-}
+export type GetCreate2AddressOptions =
+  | {
+      bytecode: ByteArray | Hex
+      from: Address
+      salt: ByteArray | Hex
+    }
+  | {
+      bytecodeHash: ByteArray | Hex
+      from: Address
+      salt: ByteArray | Hex
+    }
 
 export type GetContractAddressOptions =
   | ({
@@ -46,16 +52,19 @@ export function getCreateAddress(opts: GetCreateAddressOptions) {
 
 export function getCreate2Address(opts: GetCreate2AddressOptions) {
   const from = toBytes(getAddress(opts.from))
-  const salt = pad(isBytes(opts.salt) ? opts.salt : toBytes(opts.salt as Hex), {
+  const salt = pad(isBytes(opts.salt) ? opts.salt : toBytes(opts.salt), {
     size: 32,
-  }) as ByteArray
-  const bytecodeHash = toBytes(
-    keccak256(
-      (isBytes(opts.bytecode)
-        ? opts.bytecode
-        : toBytes(opts.bytecode as Hex)) as ByteArray,
-    ),
-  )
+  })
+  const bytecodeHash =
+    'bytecodeHash' in opts
+      ? isBytes(opts.bytecodeHash)
+        ? opts.bytecodeHash
+        : toBytes(opts.bytecodeHash)
+      : toBytes(
+          keccak256(
+            isBytes(opts.bytecode) ? opts.bytecode : toBytes(opts.bytecode),
+          ),
+        )
   return getAddress(
     slice(keccak256(concat([toBytes('0xff'), from, salt, bytecodeHash])), 12),
   )

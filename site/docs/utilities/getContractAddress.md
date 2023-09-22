@@ -49,7 +49,7 @@ The contract address.
 The address the contract was deployed from.
 
 ```ts
-getContractAddress({ 
+getContractAddress({
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b', // [!code focus:1]
   nonce: 69420n
 })
@@ -62,7 +62,7 @@ getContractAddress({
 The nonce of the transaction which deployed the contract.
 
 ```ts
-getContractAddress({ 
+getContractAddress({
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   nonce: 69420n // [!code focus:1]
 })
@@ -78,7 +78,7 @@ The opcode to invoke the contract deployment. Defaults to `"CREATE"`.
 [Learn more about `CREATE2`](https://eips.ethereum.org/EIPS/eip-1014).
 
 ```ts
-getContractAddress({ 
+getContractAddress({
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   opcode: 'CREATE2', // [!code focus:1]
@@ -94,8 +94,24 @@ getContractAddress({
 The to-be-deployed contract’s bytecode
 
 ```ts
-getContractAddress({ 
+getContractAddress({
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...', // [!code focus:1]
+  from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
+  opcode: 'CREATE2',
+  salt: toBytes('wagmi'),
+})
+```
+
+### bytecodeHash (optional)
+
+- **Type:** `ByteArray` | [`Hex`](/docs/glossary/types#hex)
+- **Only applicable for `opcode: 'CREATE2'` deployments**
+
+A hash of the to-be-deployed contract’s bytecode
+
+```ts
+getContractAddress({
+  bytecodeHash: '0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54', // [!code focus:1]
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   opcode: 'CREATE2',
   salt: toBytes('wagmi'),
@@ -110,7 +126,7 @@ getContractAddress({
 An arbitrary value provided by the sender.
 
 ```ts
-getContractAddress({ 
+getContractAddress({
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
   from: '0xc961145a54C96E3aE9bAA048c4F4D6b04C13916b',
   opcode: 'CREATE2',
