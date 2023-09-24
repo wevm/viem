@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import {
   boolToHex,
   bytesToHex,
+  bytesToHex_native,
   numberToHex,
   stringToHex,
   toHex,
@@ -428,5 +429,24 @@ describe('converts bytes to hex', () => {
 
       Version: viem@1.0.2"
     `)
+  })
+})
+
+describe('converts bytes to hex (native)', () => {
+  test('default', () => {
+    expect(bytesToHex_native(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
+    expect(bytesToHex_native(new Uint8Array([97]))).toMatchInlineSnapshot(
+      '"0x61"',
+    )
+    expect(
+      bytesToHex_native(new Uint8Array([97, 98, 99])),
+    ).toMatchInlineSnapshot('"0x616263"')
+    expect(
+      bytesToHex_native(
+        new Uint8Array([
+          72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33,
+        ]),
+      ),
+    ).toMatchInlineSnapshot('"0x48656c6c6f20576f726c6421"')
   })
 })

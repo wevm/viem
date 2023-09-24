@@ -1,119 +1,89 @@
-import {
-  DataLengthTooLongError,
-  DataLengthTooShortError,
-  InvalidHexValueError,
-  OffsetOutOfBoundsError,
-} from '../../errors/encoding.js'
+import { BaseError } from '../../errors/base.js'
+import { InvalidHexValueError } from '../../errors/encoding.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-
-import { bytesToNumber } from './fromBytes.js'
+import { type Cursor, createCursor } from '../cursor.js'
 import { hexToBytes } from './toBytes.js'
 import { bytesToHex } from './toHex.js'
+
 import type { RecursiveArray } from './toRlp.js'
 
-type FromRlpReturnType<TTo> = TTo extends 'bytes'
-  ? ByteArray
-  : TTo extends 'hex'
-  ? Hex
-  : never
+type To = 'hex' | 'bytes'
 
-export function fromRlp<TTo extends 'bytes' | 'hex'>(
+export type FromRlpReturnType<to extends To> =
+  | (to extends 'bytes' ? RecursiveArray<ByteArray> : never)
+  | (to extends 'hex' ? RecursiveArray<Hex> : never)
+
+export function fromRlp<to extends To = 'hex'>(
   value: ByteArray | Hex,
-  to: TTo,
-): RecursiveArray<FromRlpReturnType<TTo>> {
-  const bytes = parse(value)
-  const [data, consumed] = rlpToBytes(bytes)
-  if (consumed < bytes.length)
-    throw new DataLengthTooLongError({
-      consumed,
-      length: bytes.length,
-    })
-  return format(data, to)
+  to: to | To | undefined = 'hex',
+): FromRlpReturnType<to> {
+  const bytes = (() => {
+    if (typeof value === 'string') {
+      if (value.length > 3 && value.length % 2 !== 0)
+        throw new InvalidHexValueError(value)
+      return hexToBytes(value)
+    }
+    return value
+  })()
+
+  const cursor = createCursor(bytes)
+  const result = fromRlpCursor(cursor, to)
+
+  return result as FromRlpReturnType<to>
 }
 
-function parse(value: ByteArray | Hex) {
-  if (typeof value === 'string') {
-    if (value.length > 3 && value.length % 2 !== 0)
-      throw new InvalidHexValueError(value)
-    return hexToBytes(value)
-  }
-  return value
-}
-
-function format<TTo extends 'bytes' | 'hex'>(
-  bytes: RecursiveArray<ByteArray>,
-  to: TTo,
-): RecursiveArray<FromRlpReturnType<TTo>> {
-  if (Array.isArray(bytes)) return bytes.map((b) => format(b, to))
-  return (to === 'hex' ? bytesToHex(bytes) : bytes) as FromRlpReturnType<TTo>
-}
-
-function rlpToBytes(
+export function rlpToBytes<to extends To = 'bytes'>(
   bytes: ByteArray,
-  offset = 0,
-): [result: RecursiveArray<ByteArray>, consumed: number] {
-  if (bytes.length === 0) return [new Uint8Array([]), 0]
+  to: to | To | undefined = 'bytes',
+): FromRlpReturnType<to> {
+  return fromRlp(bytes, to)
+}
 
-  const prefix = bytes[offset]
+export function rlpToHex<to extends To = 'hex'>(
+  hex: Hex,
+  to: to | To | undefined = 'hex',
+): FromRlpReturnType<to> {
+  return fromRlp(hex, to)
+}
 
-  if (prefix <= 0x7f) return [new Uint8Array([bytes[offset]]), 1]
+function fromRlpCursor<to extends To = 'hex'>(
+  cursor: Cursor,
+  to: to | To | undefined = 'hex',
+): FromRlpReturnType<to> {
+  if (cursor.bytes.length === 0)
+    return (
+      to === 'hex' ? bytesToHex(cursor.bytes) : cursor.bytes
+    ) as FromRlpReturnType<to>
 
-  if (prefix <= 0xb7) {
-    const length = prefix - 0x80
-    const offset_ = offset + 1
+  const prefix = cursor.readByte()
+  if (prefix < 0x80) cursor.decrementPosition(1)
 
-    if (offset_ + length > bytes.length)
-      throw new DataLengthTooShortError({
-        length: offset_ + length,
-        dataLength: bytes.length,
-      })
-
-    return [bytes.slice(offset_, offset_ + length), 1 + length]
+  // bytes
+  if (prefix < 0xc0) {
+    const length = readLength(cursor, prefix, 0x80)
+    const bytes = cursor.readBytes(length)
+    return (to === 'hex' ? bytesToHex(bytes) : bytes) as FromRlpReturnType<to>
   }
 
-  if (prefix <= 0xbf) {
-    const lengthOfLength = prefix - 0xb7
-    const offset_ = offset + 1
-    const length = bytesToNumber(bytes.slice(offset_, offset_ + lengthOfLength))
+  // list
+  const length = readLength(cursor, prefix, 0xc0)
+  return readList(cursor, length, to) as {} as FromRlpReturnType<to>
+}
 
-    if (offset_ + lengthOfLength + length > bytes.length)
-      throw new DataLengthTooShortError({
-        length: lengthOfLength + length,
-        dataLength: bytes.length - lengthOfLength,
-      })
+function readLength(cursor: Cursor, prefix: number, offset: number) {
+  if (offset === 0x80 && prefix < 0x80) return 1
+  if (prefix <= offset + 55) return prefix - offset
+  if (prefix === offset + 55 + 1) return cursor.readUint8()
+  if (prefix === offset + 55 + 2) return cursor.readUint16()
+  if (prefix === offset + 55 + 3) return cursor.readUint24()
+  if (prefix === offset + 55 + 4) return cursor.readUint32()
+  throw new BaseError('Invalid RLP prefix')
+}
 
-    return [
-      bytes.slice(offset_ + lengthOfLength, offset_ + lengthOfLength + length),
-      1 + lengthOfLength + length,
-    ]
-  }
-
-  let lengthOfLength = 0
-  let length = prefix - 0xc0
-  if (prefix > 0xf7) {
-    lengthOfLength = prefix - 0xf7
-    length = bytesToNumber(bytes.slice(offset + 1, offset + 1 + lengthOfLength))
-  }
-
-  let nextOffset = offset + 1 + lengthOfLength
-  if (nextOffset > bytes.length)
-    throw new DataLengthTooShortError({
-      length: nextOffset,
-      dataLength: bytes.length,
-    })
-
-  const consumed = 1 + lengthOfLength + length
-  const result = []
-  while (nextOffset < offset + consumed) {
-    const decoded = rlpToBytes(bytes, nextOffset)
-    result.push(decoded[0])
-    nextOffset += decoded[1]
-    if (nextOffset > offset + consumed)
-      throw new OffsetOutOfBoundsError({
-        nextOffset: nextOffset,
-        offset: offset + consumed,
-      })
-  }
-
-  return [result, consumed]
+function readList<to extends To>(cursor: Cursor, length: number, to: to | To) {
+  const position = cursor.position
+  const value: FromRlpReturnType<to>[] = []
+  while (cursor.position - position < length)
+    value.push(fromRlpCursor(cursor, to))
+  return value
 }
