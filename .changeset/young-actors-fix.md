@@ -1,5 +1,5 @@
 ---
-"viem": patch
+"viem": minor
 ---
 
-Refactored RLP coding to be (a lot) more performant.
+Refactored RLP coding to be up to ~300x more performant.
