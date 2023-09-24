@@ -89,14 +89,14 @@ export type HexToBytesOpts = {
 }
 
 // We use very optimized technique to convert hex string to byte array
-enum HexC {
-  ZERO = 48, // 0
-  NINE = 57, // 9
-  A_UP = 65, // A
-  F_UP = 70, // F
-  A_LO = 97, // a
-  F_LO = 102, // f
-}
+const HexC = {
+  ZERO: 48, // 0
+  NINE: 57, // 9
+  A_UP: 65, // A
+  F_UP: 70, // F
+  A_LO: 97, // a
+  F_LO: 102, // f
+} as const
 
 function charCodeToBase16(char: number) {
   if (char >= HexC.ZERO && char <= HexC.NINE) return char - HexC.ZERO
