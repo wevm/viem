@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import {
   boolToBytes,
   hexToBytes,
+  hexToBytes_native,
   numberToBytes,
   stringToBytes,
   toBytes,
@@ -971,6 +972,68 @@ describe('converts hex to bytes', () => {
       hexToBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
     ).toThrowErrorMatchingInlineSnapshot(`
       "Size cannot exceed 8 bytes. Given size: 12 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('error: invalid hex', () => {
+    expect(() => hexToBytes('0xabcdefgh')).toThrowErrorMatchingInlineSnapshot(`
+      "0xabcdefgh is not a valid hex value.
+
+      Version: viem@1.0.2"
+    `)
+  })
+})
+
+describe('converts hex to bytes (native)', () => {
+  test('default', () => {
+    expect(hexToBytes_native('0x')).toMatchInlineSnapshot('Uint8Array []')
+    expect(hexToBytes_native('0x61')).toMatchInlineSnapshot(`
+      Uint8Array [
+        97,
+      ]
+    `)
+    expect(hexToBytes_native('0x613')).toMatchInlineSnapshot(`
+      Uint8Array [
+        6,
+        19,
+      ]
+    `)
+    expect(hexToBytes_native('0x616263')).toMatchInlineSnapshot(`
+      Uint8Array [
+        97,
+        98,
+        99,
+      ]
+    `)
+    expect(
+      hexToBytes_native('0x48656c6c6f20576f726c6421'),
+    ).toMatchInlineSnapshot(
+      `
+      Uint8Array [
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33,
+      ]
+    `,
+    )
+  })
+
+  test('error: invalid hex', () => {
+    expect(() =>
+      hexToBytes_native('0xabcdefgh'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      "Invalid byte sequence (\\"gh\\" in \\"abcdefgh\\").
 
       Version: viem@1.0.2"
     `)

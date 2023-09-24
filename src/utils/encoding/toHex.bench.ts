@@ -3,6 +3,12 @@ import { bench, describe } from 'vitest'
 
 import { bytesToHex, numberToHex, stringToHex } from './toHex.js'
 
+const generateBytes = (length: number) => {
+  const bytes = new Uint8Array(length)
+  for (let i = 0; i < length; i++) bytes[i] = i
+  return bytes
+}
+
 describe.skip('Number to Hex', () => {
   bench('viem: `numberToHex`', () => {
     numberToHex(52)
@@ -24,15 +30,13 @@ describe('String to Hex', () => {
 })
 
 describe('Bytes to Hex', () => {
-  bench('viem: `bytesToHex`', () => {
-    bytesToHex(
-      new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
-    )
+  const bytes = generateBytes(1024)
+
+  bench('viem: `bytesToHex` (buffer)', () => {
+    bytesToHex(new Uint8Array(bytes))
   })
 
   bench('ethers: `bytesToHex`', () => {
-    hexlify(
-      new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]),
-    )
+    hexlify(new Uint8Array(bytes))
   })
 })

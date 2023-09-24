@@ -12,7 +12,8 @@
       "coverage",
       "tsconfig.json",
       "tsconfig.*.json",
-      "generated.ts"
+      "generated.ts",
+      "vectors/*.json"
     ]
   },
   "formatter": {
