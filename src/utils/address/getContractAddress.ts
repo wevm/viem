@@ -55,16 +55,15 @@ export function getCreate2Address(opts: GetCreate2AddressOptions) {
   const salt = pad(isBytes(opts.salt) ? opts.salt : toBytes(opts.salt), {
     size: 32,
   })
-  const bytecodeHash =
-    'bytecodeHash' in opts
-      ? isBytes(opts.bytecodeHash)
-        ? opts.bytecodeHash
-        : toBytes(opts.bytecodeHash)
-      : toBytes(
-          keccak256(
-            isBytes(opts.bytecode) ? opts.bytecode : toBytes(opts.bytecode),
-          ),
-        )
+
+  const bytecodeHash = (() => {
+    if ('bytecodeHash' in opts) {
+      if (isBytes(opts.bytecodeHash)) return opts.bytecodeHash
+      return toBytes(opts.bytecodeHash)
+    }
+    return keccak256(opts.bytecode, 'bytes')
+  })()
+
   return getAddress(
     slice(keccak256(concat([toBytes('0xff'), from, salt, bytecodeHash])), 12),
   )
