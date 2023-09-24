@@ -1,3 +1,4 @@
+import { RLP } from '@ethereumjs/rlp'
 import { encodeRlp } from 'ethers'
 import { bench, describe } from 'vitest'
 
@@ -25,6 +26,10 @@ describe('rlp: prefix === 0xb8', () => {
   bench('ethers: `encodeRlp`', () => {
     encodeRlp(bytes as any)
   })
+
+  bench('@ethereumjs/rlp: `RLP.encode`', () => {
+    RLP.encode(bytes as any)
+  })
 })
 
 describe('rlp: prefix === 0xb9', () => {
@@ -36,6 +41,10 @@ describe('rlp: prefix === 0xb9', () => {
 
   bench('ethers: `encodeRlp`', () => {
     encodeRlp(bytes as any)
+  })
+
+  bench('@ethereumjs/rlp: `RLP.encode`', () => {
+    RLP.encode(bytes as any)
   })
 })
 
@@ -49,6 +58,10 @@ describe('rlp: prefix === 0xba', () => {
   bench.skip('ethers: `encodeRlp`', () => {
     encodeRlp(bytes as any)
   })
+
+  bench('@ethereumjs/rlp: `RLP.encode`', () => {
+    RLP.encode(bytes as any)
+  })
 })
 
 describe('rlp list: prefix === 0xf8', () => {
@@ -60,6 +73,10 @@ describe('rlp list: prefix === 0xf8', () => {
 
   bench('ethers: `encodeRlp`', () => {
     encodeRlp(list as any)
+  })
+
+  bench('@ethereumjs/rlp: `RLP.encode`', () => {
+    RLP.encode(list as any)
   })
 })
 
@@ -84,9 +101,13 @@ describe('rlp list: prefix === 0xf8 (recursive)', () => {
   bench('ethers: `encodeRlp`', () => {
     encodeRlp(list as any)
   })
+
+  bench('@ethereumjs/rlp: `RLP.encode`', () => {
+    RLP.encode(list as any)
+  })
 })
 
-describe('rlp: tx (2048kB)', () => {
+describe.only('rlp: tx (2048kB - prefix: 0xfa)', () => {
   const list = [
     generateBytes(1),
     generateBytes(4),
@@ -104,5 +125,9 @@ describe('rlp: tx (2048kB)', () => {
 
   bench('ethers: `encodeRlp`', () => {
     encodeRlp(list as any)
+  })
+
+  bench('@ethereumjs/rlp: `RLP.encode`', () => {
+    RLP.encode(list as any)
   })
 })
