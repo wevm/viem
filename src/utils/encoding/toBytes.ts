@@ -131,21 +131,44 @@ export function hexToBytes_buffer(hex: Hex): ByteArray {
   return Uint8Array.from(Buffer.from(hexString, 'hex'))
 }
 
+// We use very optimized technique to convert hex string to byte array
+const charCodeMap = {
+  zero: 48,
+  nine: 57,
+  A: 65,
+  F: 70,
+  a: 97,
+  f: 102,
+} as const
+
+function charCodeToBase16(char: number) {
+  if (char >= charCodeMap.zero && char <= charCodeMap.nine)
+    return char - charCodeMap.zero
+  else if (char >= charCodeMap.A && char <= charCodeMap.F)
+    return char - (charCodeMap.A - 10)
+  else if (char >= charCodeMap.a && char <= charCodeMap.f)
+    return char - (charCodeMap.a - 10)
+  return undefined
+}
+
 /** @internal */
 export function hexToBytes_native(hex: Hex): ByteArray {
   let hexString = hex.slice(2) as string
   if (hexString.length % 2) hexString = `0${hexString}`
 
-  const bytes = new Uint8Array(hexString.length / 2)
-  for (let index = 0; index < bytes.length; index++) {
-    const start = index * 2
-    const hexByte = hexString.slice(start, start + 2)
-    const byte = Number.parseInt(hexByte, 16)
-    if (Number.isNaN(byte) || byte < 0)
+  const length = hexString.length / 2
+  const bytes = new Uint8Array(length)
+  for (let index = 0, j = 0; index < length; index++) {
+    const nibbleLeft = charCodeToBase16(hexString.charCodeAt(j++))
+    const nibbleRight = charCodeToBase16(hexString.charCodeAt(j++))
+    if (nibbleLeft === undefined || nibbleRight === undefined) {
       throw new BaseError(
-        `Invalid byte sequence ("${hexByte}" in "${hexString}").`,
+        `Invalid byte sequence ("${hexString[j - 2]}${
+          hexString[j - 1]
+        }" in "${hexString}").`,
       )
-    bytes[index] = byte
+    }
+    bytes[index] = nibbleLeft * 16 + nibbleRight
   }
   return bytes
 }
