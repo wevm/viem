@@ -29,6 +29,7 @@ test('exports chains', () => {
       "celoCannoli",
       "classic",
       "confluxESpace",
+      "coreDao",
       "cronos",
       "cronosTestnet",
       "crossbell",
