@@ -830,6 +830,30 @@ describe('converts hex to bytes', () => {
           33,
         ]
       `)
+    expect(
+      hexToBytes('0x48656c6c620576f726c6421ABCDEFabcdef'),
+    ).toMatchInlineSnapshot(`
+      Uint8Array [
+        4,
+        134,
+        86,
+        198,
+        198,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33,
+        171,
+        205,
+        239,
+        171,
+        205,
+        239,
+      ]
+    `)
   })
 
   test('args: size', () => {
@@ -971,6 +995,14 @@ describe('converts hex to bytes', () => {
       hexToBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
     ).toThrowErrorMatchingInlineSnapshot(`
       "Size cannot exceed 8 bytes. Given size: 12 bytes.
+
+      Version: viem@1.0.2"
+    `)
+  })
+
+  test('error: invalid hex', () => {
+    expect(() => hexToBytes('0xabcdefgh')).toThrowErrorMatchingInlineSnapshot(`
+      "Invalid byte sequence (\\"gh\\" in \\"abcdefgh\\").
 
       Version: viem@1.0.2"
     `)

@@ -114,12 +114,12 @@ export type BytesToHexOpts = {
  * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
  */
 export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
-  let hexString = ''
+  let string = ''
   for (let i = 0; i < value.length; i++) {
-    hexString += hexes[value[i]]
+    string += hexes[value[i]]
   }
+  const hex = `0x${string}` as const
 
-  const hex: Hex = `0x${hexString}`
   if (typeof opts.size === 'number') {
     assertSize(hex, { size: opts.size })
     return pad(hex, { dir: 'right', size: opts.size })
