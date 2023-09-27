@@ -812,6 +812,16 @@ export const sidebar: DefaultTheme.Sidebar = {
       ],
     },
     {
+      text: 'Third Party',
+      collapsed: true,
+      items: [
+        {
+          text: 'Account Abstraction',
+          link: '/docs/third-party/account-abstraction',
+        },
+      ],
+    },
+    {
       text: 'Glossary',
       collapsed: true,
       items: [
