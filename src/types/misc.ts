@@ -16,3 +16,8 @@ export type Signature = {
   // TODO(v2): `v` to `recovery`
   v: bigint
 }
+
+export type CompactSignature = {
+  r: Hex
+  yParityAndS: Hex
+}
