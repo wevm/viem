@@ -282,6 +282,8 @@ test('exports', () => {
       "signatureToHex",
       "bytesToRlp",
       "hexToRlp",
+      "compactSignature",
+      "compactSignatureToHex",
       "toRlp",
       "verifyMessage",
       "verifyTypedData",
