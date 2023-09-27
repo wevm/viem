@@ -1,5 +1,17 @@
 # viem
 
+## 1.13.0
+
+### Minor Changes
+
+- [#1249](https://github.com/wagmi-dev/viem/pull/1249) [`42279c90`](https://github.com/wagmi-dev/viem/commit/42279c90543616248632be45279d12f4167ae8d8) Thanks [@paulmillr](https://github.com/paulmillr)! - Refactored `hexToBytes` to be up to 6x more performant.
+
+- [#1215](https://github.com/wagmi-dev/viem/pull/1215) [`6a65c5a3`](https://github.com/wagmi-dev/viem/commit/6a65c5a3c285ea8c7c110659aac4be24cb09c483) Thanks [@jxom](https://github.com/jxom)! - Refactored RLP coding to be up to ~300x more performant.
+
+### Patch Changes
+
+- [#1255](https://github.com/wagmi-dev/viem/pull/1255) [`3d3337e3`](https://github.com/wagmi-dev/viem/commit/3d3337e303e407e6983fb99f0a28bc7521dc4a87) Thanks [@CJskii](https://github.com/CJskii)! - Added Core Dao chain
+
 ## 1.12.2
 
 ### Patch Changes
@@ -312,7 +324,7 @@
     type OptimismBlock,
     type OptimismTransaction,
     serializeTransactionCelo,
-  } from 'viem/chains/utils'
+  } from "viem/chains/utils";
   ```
 
 ### Patch Changes
@@ -379,7 +391,7 @@
   // Before
   const block = publicClient.getBlock({
     blockTag: "pending",
-    includeTransactions: true
+    includeTransactions: true,
   });
   block.number;
   //    ^? number | null
@@ -389,7 +401,7 @@
   // After
   const block = publicClient.getBlock({
     blockTag: "pending",
-    includeTransactions: true
+    includeTransactions: true,
   });
   block.number;
   //    ^? null
@@ -432,8 +444,8 @@
   const logs = publicClient.getLogs({
     events: parseAbi([
       "event Approval(address indexed owner, address indexed sender, uint256 value)",
-      "event Transfer(address indexed from, address indexed to, uint256 value)"
-    ])
+      "event Transfer(address indexed from, address indexed to, uint256 value)",
+    ]),
   });
   ```
 
@@ -781,7 +793,7 @@
 
   ```ts
   await walletClient.signMessage({
-    message: { raw: "0x68656c6c6f20776f726c64" }
+    message: { raw: "0x68656c6c6f20776f726c64" },
   });
   ```
 
@@ -1658,6 +1670,7 @@
 ### Patch Changes
 
 - [`057e01e`](https://github.com/wagmi-dev/viem/commit/057e01e9fff7346304e787d93053d84a09278335) Thanks [@jxom](https://github.com/jxom)! - - `testClient.getTxPoolContent` → `testClient.getTxpoolContent`
+
   - `testClient.getTxPoolStatus` → `testClient.getTxpoolStatus`
 
 - [#85](https://github.com/wagmi-dev/viem/pull/85) [`2350d1a`](https://github.com/wagmi-dev/viem/commit/2350d1af1ff67d725ff3563538b9886a405ab8bd) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `encodeAbi` & `decodeAbi` to `encodeAbiParameters` & `decodeAbiParameters`, and modified API from named arguments to inplace arguments:
