@@ -727,6 +727,14 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Signature',
           items: [
             {
+              text: 'compactSignature',
+              link: '/docs/utilities/compactSignature',
+            },
+            {
+              text: 'compactSignatureToHex',
+              link: '/docs/utilities/compactSignatureToHex',
+            },
+            {
               text: 'hashMessage',
               link: '/docs/utilities/hashMessage',
             },
