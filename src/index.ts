@@ -886,6 +886,7 @@ export type {
   Hex,
   LogTopic,
   Signature,
+  CompactSignature,
   SignableMessage,
 } from './types/misc.js'
 export type { GetChain } from './types/chain.js'
@@ -1105,6 +1106,8 @@ export {
   type RecoverTypedDataAddressReturnType,
   recoverTypedDataAddress,
 } from './utils/signature/recoverTypedDataAddress.js'
+export { compactSignature } from './utils/signature/compactSignature.js'
+export { compactSignatureToHex } from './utils/signature/compactSignatureToHex.js'
 export {
   type SignatureToHexErrorType,
   signatureToHex,
