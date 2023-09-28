@@ -38,8 +38,13 @@ export async function setBlockTimestampInterval<
   client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { interval }: SetBlockTimestampIntervalParameters,
 ) {
+  const interval_ = (() => {
+    if (client.mode === 'hardhat') return interval * 1000
+    return interval
+  })()
+
   await client.request({
     method: `${client.mode}_setBlockTimestampInterval`,
-    params: [interval],
+    params: [interval_],
   })
 }

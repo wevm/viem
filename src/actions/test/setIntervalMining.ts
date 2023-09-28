@@ -38,8 +38,13 @@ export async function setIntervalMining<
   client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { interval }: SetIntervalMiningParameters,
 ) {
+  const interval_ = (() => {
+    if (client.mode === 'hardhat') return interval * 1000
+    return interval
+  })()
+
   await client.request({
     method: 'evm_setIntervalMining',
-    params: [interval],
+    params: [interval_],
   })
 }
