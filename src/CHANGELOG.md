@@ -1,5 +1,11 @@
 # viem
 
+## 1.13.1
+
+### Patch Changes
+
+- [`61ef4d22`](https://github.com/wagmi-dev/viem/commit/61ef4d224c860e99f3ac82adb8e4c767a77b6dc0) Thanks [@jxom](https://github.com/jxom)! - Fixed `interval` parameter for Hardhat.
+
 ## 1.13.0
 
 ### Minor Changes
