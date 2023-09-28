@@ -160,7 +160,7 @@ export type Socket = WebSocket & {
   subscriptions: CallbackMap
 }
 
-export type GetSocketError = CreateBatchSchedulerErrorType | ErrorType
+export type GetSocketErrorType = CreateBatchSchedulerErrorType | ErrorType
 
 export const socketsCache = /*#__PURE__*/ new Map<string, Socket>()
 

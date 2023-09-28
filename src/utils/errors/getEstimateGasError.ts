@@ -1,14 +1,27 @@
 import type { Account } from '../../accounts/types.js'
 import type { EstimateGasParameters } from '../../actions/public/estimateGas.js'
 import type { BaseError } from '../../errors/base.js'
-import { EstimateGasExecutionError } from '../../errors/estimateGas.js'
+import {
+  EstimateGasExecutionError,
+  type EstimateGasExecutionErrorType,
+} from '../../errors/estimateGas.js'
 import { UnknownNodeError } from '../../errors/node.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 
-import { type GetNodeErrorParameters, getNodeError } from './getNodeError.js'
+import {
+  type GetNodeErrorParameters,
+  type GetNodeErrorReturnType,
+  getNodeError,
+} from './getNodeError.js'
 
-export function getEstimateGasError(
-  err: BaseError,
+export type GetEstimateGasErrorReturnType<cause = ErrorType> = Omit<
+  EstimateGasExecutionErrorType,
+  'cause'
+> & { cause: cause | GetNodeErrorReturnType }
+
+export function getEstimateGasError<err extends ErrorType<string>>(
+  err: err,
   {
     docsPath,
     ...args
@@ -17,11 +30,13 @@ export function getEstimateGasError(
     chain?: Chain
     docsPath?: string
   },
-) {
-  let cause = getNodeError(err, args as GetNodeErrorParameters)
-  if (cause instanceof UnknownNodeError) cause = err
+): GetEstimateGasErrorReturnType<err> {
+  const cause = (() => {
+    if (err instanceof UnknownNodeError) return err
+    return getNodeError(err as {} as BaseError, args as GetNodeErrorParameters)
+  })()
   return new EstimateGasExecutionError(cause, {
     docsPath,
     ...args,
-  })
+  }) as GetEstimateGasErrorReturnType<err>
 }

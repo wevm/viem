@@ -1,5 +1,6 @@
 import {
   InvalidHexBooleanError,
+  type InvalidHexBooleanErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from '../../errors/encoding.js'
@@ -148,7 +149,7 @@ export type HexToBoolOpts = {
 
 export type HexToBoolErrorType =
   | AssertSizeErrorType
-  | InvalidHexBooleanError
+  | InvalidHexBooleanErrorType
   | TrimErrorType
   | ErrorType
 

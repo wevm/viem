@@ -6,8 +6,11 @@ import type {
 
 import {
   AbiDecodingDataSizeTooSmallError,
+  type AbiDecodingDataSizeTooSmallErrorType,
   AbiDecodingZeroDataError,
+  type AbiDecodingZeroDataErrorType,
   InvalidAbiDecodingTypeError,
+  type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
 import type { Hex } from '../../types/misc.js'
 import {
@@ -43,8 +46,8 @@ export type DecodeAbiParametersReturnType<
 >
 
 export type DecodeAbiParametersErrorType =
-  | AbiDecodingDataSizeTooSmallError
-  | AbiDecodingZeroDataError
+  | AbiDecodingDataSizeTooSmallErrorType
+  | AbiDecodingZeroDataErrorType
   | DecodeParamsErrorType
   | SizeErrorType
   | ErrorType
@@ -105,7 +108,7 @@ type DecodeParamErrorType =
   | DecodeNumberErrorType
   | DecodeAddressErrorType
   | DecodeBoolErrorType
-  | InvalidAbiDecodingTypeError
+  | InvalidAbiDecodingTypeErrorType
   | ErrorType
 
 function decodeParam({

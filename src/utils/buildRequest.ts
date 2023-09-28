@@ -1,5 +1,11 @@
 import { BaseError } from '../errors/base.js'
-import { HttpRequestError } from '../errors/request.js'
+import {
+  HttpRequestError,
+  type HttpRequestErrorType,
+  type RpcRequestErrorType,
+  type TimeoutErrorType,
+  type WebSocketRequestErrorType,
+} from '../errors/request.js'
 import {
   ChainDisconnectedError,
   type ChainDisconnectedErrorType,
@@ -45,9 +51,9 @@ import {
   type UserRejectedRequestErrorType,
 } from '../errors/rpc.js'
 import type { ErrorType } from '../errors/utils.js'
-
+import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
-import { safe } from './safe.js'
+import type { GetSocketErrorType } from './rpc.js'
 
 export type IsDeterministicErrorType = ErrorType
 
@@ -74,12 +80,15 @@ export const isDeterministicError = (error: Error) => {
   return false
 }
 
-export type BuildRequestErrorType =
+export type RequestErrorType =
   | ChainDisconnectedErrorType
+  | CreateBatchSchedulerErrorType
+  | HttpRequestErrorType
   | InternalRpcErrorType
   | InvalidInputRpcErrorType
   | InvalidParamsRpcErrorType
   | InvalidRequestRpcErrorType
+  | GetSocketErrorType
   | JsonRpcVersionUnsupportedErrorType
   | LimitExceededRpcErrorType
   | MethodNotFoundRpcErrorType
@@ -89,12 +98,15 @@ export type BuildRequestErrorType =
   | ResourceNotFoundRpcErrorType
   | ResourceUnavailableRpcErrorType
   | RpcErrorType
+  | RpcRequestErrorType
   | SwitchChainErrorType
+  | TimeoutErrorType
   | TransactionRejectedRpcErrorType
   | UnauthorizedProviderErrorType
   | UnknownRpcErrorType
   | UnsupportedProviderMethodErrorType
   | UserRejectedRequestErrorType
+  | WebSocketRequestErrorType
   | WithRetryErrorType
   | ErrorType
 
@@ -199,12 +211,4 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         shouldRetry: ({ error }) => !isDeterministicError(error),
       },
     )) as TRequest
-}
-
-buildRequest.safe = <TRequest extends (args: any) => Promise<any>>(
-  ...args: Parameters<typeof buildRequest<TRequest>>
-) => {
-  return safe<BuildRequestErrorType, ReturnType<typeof buildRequest<TRequest>>>(
-    () => buildRequest(...args),
-  )
 }
