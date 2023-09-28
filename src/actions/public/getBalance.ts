@@ -2,9 +2,14 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 
 export type GetBalanceParameters = {
   /** The address of the account. */
@@ -23,6 +28,11 @@ export type GetBalanceParameters = {
 )
 
 export type GetBalanceReturnType = bigint
+
+export type GetBalanceErrorType =
+  | NumberToHexErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Returns the balance of an address in wei.

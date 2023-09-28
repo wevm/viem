@@ -56,7 +56,6 @@ import {
   type CreateBatchSchedulerErrorType,
   createBatchScheduler,
 } from '../../utils/promise/createBatchScheduler.js'
-import { safe } from '../../utils/safe.js'
 import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
@@ -208,14 +207,6 @@ export async function call<TChain extends Chain | undefined>(
       chain: client.chain,
     })
   }
-}
-
-call.safe = <TChain extends Chain | undefined>(
-  ...args: Parameters<typeof call<TChain>>
-) => {
-  return safe<CallErrorType, ReturnType<typeof call<TChain>>>(() =>
-    call(...args),
-  )
 }
 
 // We only want to perform a scheduled multicall if:

@@ -1,20 +1,38 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { Eip1559FeesNotSupportedError } from '../../errors/fee.js'
+import {
+  Eip1559FeesNotSupportedError,
+  type Eip1559FeesNotSupportedErrorType,
+} from '../../errors/fee.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { Chain, ChainFeesFnParameters } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
-import { hexToBigInt } from '../../utils/encoding/fromHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type HexToBigIntErrorType,
+  hexToBigInt,
+} from '../../utils/encoding/fromHex.js'
 import type { PrepareTransactionRequestParameters } from '../wallet/prepareTransactionRequest.js'
-import { getBlock } from './getBlock.js'
-import { getGasPrice } from './getGasPrice.js'
+import { type GetBlockErrorType, getBlock } from './getBlock.js'
+import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
 
 export type EstimateMaxPriorityFeePerGasParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
 > = GetChain<chain, chainOverride>
+
 export type EstimateMaxPriorityFeePerGasReturnType = bigint
+
+export type EstimateMaxPriorityFeePerGasErrorType =
+  | GetBlockErrorType
+  | HexToBigIntErrorType
+  | RequestErrorType
+  | GetBlockErrorType
+  | GetGasPriceErrorType
+  | Eip1559FeesNotSupportedErrorType
+  | ErrorType
 
 /**
  * Returns an estimate for the max priority fee per gas (in wei) for a

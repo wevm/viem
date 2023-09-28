@@ -3,13 +3,17 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type SetBlockTimestampIntervalParameters = {
   /** The interval (in seconds). */
   interval: number
 }
+
+export type SetBlockTimestampIntervalErrorType = RequestErrorType | ErrorType
 
 /**
  * Similar to [`increaseTime`](https://viem.sh/docs/actions/test/increaseTime.html), but sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp` + `interval`.

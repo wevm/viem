@@ -2,6 +2,7 @@ import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -12,10 +13,15 @@ import type { Filter } from '../../types/filter.js'
 import type { Hex, LogTopic } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import {
+  type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateEventFilterParameters<
@@ -101,6 +107,12 @@ export type CreateEventFilterReturnType<
 > = Prettify<
   Filter<'event', TAbiEvents, _EventName, _Args, TStrict, TFromBlock, TToBlock>
 >
+
+export type CreateEventFilterErrorType =
+  | EncodeEventTopicsErrorType
+  | RequestErrorType
+  | NumberToHexErrorType
+  | ErrorType
 
 /**
  * Creates a [`Filter`](https://viem.sh/docs/glossary/types.html#filter) to listen for new events that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).

@@ -1,10 +1,16 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreatePendingTransactionFilterReturnType = Filter<'transaction'>
+
+export type CreatePendingTransactionFilterErrorType =
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Creates a Filter to listen for new pending transaction hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html).

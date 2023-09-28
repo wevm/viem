@@ -5,11 +5,18 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { universalSignatureValidatorAbi } from '../../constants/abis.js'
 import { universalSignatureValidatorByteCode } from '../../constants/contracts.js'
 import { CallExecutionError } from '../../errors/contract.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { isBytesEqual } from '../../utils/data/isBytesEqual.js'
+import type { EncodeDeployDataErrorType } from '../../utils/abi/encodeDeployData.js'
+import {
+  type IsBytesEqualErrorType,
+  isBytesEqual,
+} from '../../utils/data/isBytesEqual.js'
+import type { IsHexErrorType } from '../../utils/data/isHex.js'
+import type { ToHexErrorType } from '../../utils/encoding/toHex.js'
 import { encodeDeployData, isHex, toHex } from '../../utils/index.js'
-import { type CallParameters, call } from './call.js'
+import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type VerifyHashParameters = Pick<
   CallParameters,
@@ -24,6 +31,14 @@ export type VerifyHashParameters = Pick<
 }
 
 export type VerifyHashReturnType = boolean
+
+export type VerifyHashErrorType =
+  | CallErrorType
+  | IsHexErrorType
+  | ToHexErrorType
+  | IsBytesEqualErrorType
+  | EncodeDeployDataErrorType
+  | ErrorType
 
 /**
  * Verifies a message hash on chain using ERC-6492.

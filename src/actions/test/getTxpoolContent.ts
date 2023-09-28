@@ -5,9 +5,11 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { RpcTransaction } from '../../types/rpc.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type GetTxpoolContentReturnType = {
   /** Pending transactions in the pool */
@@ -15,6 +17,8 @@ export type GetTxpoolContentReturnType = {
   /** Queued transactions in the pool */
   queued: Record<Address, Record<string, RpcTransaction>>
 }
+
+export type GetTxpoolContentErrorType = RequestErrorType | ErrorType
 
 /**
  * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.

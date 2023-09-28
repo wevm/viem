@@ -3,8 +3,10 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type ResetParameters = {
   /** The block number to reset from. */
@@ -12,6 +14,8 @@ export type ResetParameters = {
   /** The JSON RPC URL. */
   jsonRpcUrl?: string
 }
+
+export type ResetErrorType = RequestErrorType | ErrorType
 
 /**
  * Resets fork back to its original state.

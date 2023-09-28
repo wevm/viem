@@ -3,8 +3,12 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+
+export type SetAutomineErrorType = RequestErrorType | ErrorType
 
 /**
  * Enables or disables the automatic mining of new blocks with each new transaction submitted to the network.

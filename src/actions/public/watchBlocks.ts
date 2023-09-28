@@ -1,12 +1,13 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { formatBlock } from '../../utils/formatters/block.js'
 import { observe } from '../../utils/observe.js'
-import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
+import { type PollErrorType, poll } from '../../utils/poll.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import { type GetBlockReturnType, getBlock } from './getBlock.js'
 
@@ -68,6 +69,11 @@ export type WatchBlocksParameters<
   : PollOptions<TIncludeTransactions, TBlockTag> & { poll?: true })
 
 export type WatchBlocksReturnType = () => void
+
+export type WatchBlocksErrorType =
+  | StringifyErrorType
+  | PollErrorType
+  | ErrorType
 
 /**
  * Watches and returns information for incoming blocks.

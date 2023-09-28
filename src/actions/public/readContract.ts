@@ -9,16 +9,21 @@ import type {
   ContractFunctionResult,
 } from '../../types/contract.js'
 import {
+  type DecodeFunctionResultErrorType,
   type DecodeFunctionResultParameters,
   decodeFunctionResult,
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
+  type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { getContractError } from '../../utils/errors/getContractError.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
 
-import { type CallParameters, call } from './call.js'
+import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -30,6 +35,10 @@ export type ReadContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
   TFunctionName extends string = string,
 > = ContractFunctionResult<TAbi, TFunctionName>
+
+export type ReadContractErrorType = GetContractErrorReturnType<
+  CallErrorType | EncodeFunctionDataErrorType | DecodeFunctionResultErrorType
+>
 
 /**
  * Calls a read-only function on a contract, and returns the response.

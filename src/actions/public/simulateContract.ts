@@ -1,6 +1,9 @@
 import type { Abi } from 'abitype'
 
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
@@ -13,17 +16,23 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
+  type DecodeFunctionResultErrorType,
   type DecodeFunctionResultParameters,
   decodeFunctionResult,
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
+  type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { getContractError } from '../../utils/errors/getContractError.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 
-import { type CallParameters, call } from './call.js'
+import type { ErrorType } from '../../errors/utils.js'
+import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type SimulateContractParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -68,6 +77,12 @@ export type SimulateContractReturnType<
     functionName: TFunctionName
   } & ContractFunctionConfig<TAbi, TFunctionName, 'payable' | 'nonpayable'>
 }
+
+export type SimulateContractErrorType =
+  | ParseAccountErrorType
+  | EncodeFunctionDataErrorType
+  | GetContractErrorReturnType<CallErrorType | DecodeFunctionResultErrorType>
+  | ErrorType
 
 /**
  * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.

@@ -19,6 +19,11 @@ import {
   resolveAvatarUri,
 } from './utils.js'
 
+export type ParseAvatarRecordErrorType =
+  | ParseNftAvatarUriErrorType
+  | ParseAvatarUriErrorType
+  | ErrorType
+
 export async function parseAvatarRecord<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   {

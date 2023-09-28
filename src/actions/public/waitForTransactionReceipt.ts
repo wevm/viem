@@ -5,23 +5,29 @@ import {
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
-import { observe } from '../../utils/observe.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { withRetry } from '../../utils/promise/withRetry.js'
 import { stringify } from '../../utils/stringify.js'
 
-import { getBlock } from './getBlock.js'
+import { type GetBlockErrorType, getBlock } from './getBlock.js'
 import {
+  type GetTransactionErrorType,
   type GetTransactionReturnType,
   getTransaction,
 } from './getTransaction.js'
 import {
+  type GetTransactionReceiptErrorType,
   type GetTransactionReceiptReturnType,
   getTransactionReceipt,
 } from './getTransactionReceipt.js'
-import { watchBlockNumber } from './watchBlockNumber.js'
+import {
+  type WatchBlockNumberErrorType,
+  watchBlockNumber,
+} from './watchBlockNumber.js'
 
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementReturnType<
@@ -57,6 +63,14 @@ export type WaitForTransactionReceiptParameters<
   /** Optional timeout (in milliseconds) to wait before stopping polling. */
   timeout?: number
 }
+
+export type WaitForTransactionReceiptErrorType =
+  | ObserveErrorType
+  | GetBlockErrorType
+  | GetTransactionErrorType
+  | GetTransactionReceiptErrorType
+  | WatchBlockNumberErrorType
+  | ErrorType
 
 /**
  * Waits for the [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) to be included on a [Block](https://viem.sh/docs/glossary/terms.html#block) (one confirmation), and then returns the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt). If the Transaction reverts, then the action will throw an error.

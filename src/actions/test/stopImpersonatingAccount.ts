@@ -5,13 +5,17 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type StopImpersonatingAccountParameters = {
   /** The account to impersonate. */
   address: Address
 }
+
+export type StopImpersonatingAccountErrorType = RequestErrorType | ErrorType
 
 /**
  * Stop impersonating an account after having previously used [`impersonateAccount`](https://viem.sh/docs/actions/test/impersonateAccount.html).

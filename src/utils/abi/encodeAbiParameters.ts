@@ -35,7 +35,6 @@ import {
   numberToHex,
   stringToHex,
 } from '../encoding/toHex.js'
-import { safe } from '../safe.js'
 
 export type EncodeAbiParametersReturnType = Hex
 
@@ -69,17 +68,6 @@ export function encodeAbiParameters<
   const data = encodeParams(preparedParams)
   if (data.length === 0) return '0x'
   return data
-}
-
-encodeAbiParameters.safe = <
-  const TParams extends readonly AbiParameter[] | readonly unknown[],
->(
-  ...args: Parameters<typeof encodeAbiParameters<TParams>>
-) => {
-  return safe<
-    EncodeAbiParametersErrorType,
-    ReturnType<typeof encodeAbiParameters<TParams>>
-  >(() => encodeAbiParameters(...args))
 }
 
 /////////////////////////////////////////////////////////////////
