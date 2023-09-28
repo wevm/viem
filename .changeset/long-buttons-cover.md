@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add multicall3 for holesky
+Added multicall3 for holesky
