@@ -13,7 +13,11 @@ import {
   type GetAbiItemParameters,
   getAbiItem,
 } from '../../utils/abi/getAbiItem.js'
-import { type GetLogsErrorType, GetLogsParameters, getLogs } from './getLogs.js'
+import {
+  type GetLogsErrorType,
+  type GetLogsParameters,
+  getLogs,
+} from './getLogs.js'
 
 export type GetContractEventsParameters<
   TAbi extends Abi | readonly unknown[] = readonly unknown[],

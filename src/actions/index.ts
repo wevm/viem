@@ -105,7 +105,7 @@ export {
   getBlockTransactionCount,
 } from './public/getBlockTransactionCount.js'
 export {
-  type GetBytecodeErrorType,,
+  type GetBytecodeErrorType,
   type GetBytecodeParameters,
   type GetBytecodeReturnType,
   getBytecode,

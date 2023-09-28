@@ -469,7 +469,7 @@ export class InvalidDefinitionTypeError extends BaseError {
   }
 }
 
-export type UnsupportedPackedAbiTypeType = UnsupportedPackedAbiType & {
+export type UnsupportedPackedAbiTypeErrorType = UnsupportedPackedAbiType & {
   name: 'UnsupportedPackedAbiType'
 }
 export class UnsupportedPackedAbiType extends BaseError {

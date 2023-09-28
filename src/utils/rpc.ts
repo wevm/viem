@@ -288,8 +288,8 @@ export type WebSocketAsyncOptions = {
 export type WebSocketAsyncReturnType = RpcResponse
 
 export type WebSocketAsyncErrorType =
-  | WebSocketError
-  | TimeoutError
+  | WebSocketErrorType
+  | TimeoutErrorType
   | WithTimeoutErrorType
   | ErrorType
 
