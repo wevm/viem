@@ -32,8 +32,12 @@ export function getCallError<err extends ErrorType<string>>(
   },
 ): GetCallErrorReturnType<err> {
   const cause = (() => {
-    if (err instanceof UnknownNodeError) return err
-    return getNodeError(err as {} as BaseError, args as GetNodeErrorParameters)
+    const cause = getNodeError(
+      err as {} as BaseError,
+      args as GetNodeErrorParameters,
+    )
+    if (cause instanceof UnknownNodeError) return err as {} as BaseError
+    return cause
   })()
   return new CallExecutionError(cause, {
     docsPath,

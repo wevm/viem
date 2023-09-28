@@ -89,6 +89,7 @@ test('exports utils', () => {
       "isAddress": [Function],
       "isAddressEqual": [Function],
       "isBytes": [Function],
+      "isDeterministicError": [Function],
       "isHash": [Function],
       "isHex": [Function],
       "keccak256": [Function],
