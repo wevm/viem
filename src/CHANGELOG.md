@@ -1,5 +1,11 @@
 # viem
 
+## 1.13.2
+
+### Patch Changes
+
+- [#1265](https://github.com/wagmi-dev/viem/pull/1265) [`3fd1e788`](https://github.com/wagmi-dev/viem/commit/3fd1e788f2f3a82c943e58fc77a3dc5da1f798cf) Thanks [@mcdee](https://github.com/mcdee)! - Added multicall3 for holesky
+
 ## 1.13.1
 
 ### Patch Changes
