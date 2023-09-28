@@ -235,7 +235,7 @@ export type WebSocketOptions = {
 
 export type WebSocketReturnType = Socket
 
-export type WebSocketError = WebSocketRequestError | ErrorType
+export type WebSocketErrorType = WebSocketRequestError | ErrorType
 
 function webSocket(
   socket: Socket,
@@ -287,7 +287,7 @@ export type WebSocketAsyncOptions = {
 
 export type WebSocketAsyncReturnType = RpcResponse
 
-export type WebSocketAsyncError =
+export type WebSocketAsyncErrorType =
   | WebSocketError
   | TimeoutError
   | WithTimeoutErrorType

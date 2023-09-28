@@ -30,7 +30,7 @@ export type GetEnsResolverParameters = Prettify<
 
 export type GetEnsResolverReturnType = Address
 
-export type GetEnsNameErrorType =
+export type GetEnsResolverErrorType =
   | GetChainContractAddressErrorType
   | ToHexErrorType
   | PacketToBytesErrorType

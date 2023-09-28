@@ -10,7 +10,7 @@ export type UninstallFilterParameters = {
 }
 export type UninstallFilterReturnType = boolean
 
-export type SimulateContractErrorType = RequestErrorType | ErrorType
+export type UninstallFilterErrorType = RequestErrorType | ErrorType
 
 /**
  * Destroys a [`Filter`](https://viem.sh/docs/glossary/types.html#filter).

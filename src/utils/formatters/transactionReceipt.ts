@@ -64,7 +64,9 @@ export function formatTransactionReceipt(
   } as TransactionReceipt
 }
 
-export type DefineBlockErrorType = DefineFormatterErrorType | ErrorType
+export type DefineTransactionReceiptErrorType =
+  | DefineFormatterErrorType
+  | ErrorType
 
 export const defineTransactionReceipt = /*#__PURE__*/ defineFormatter(
   'transactionReceipt',
