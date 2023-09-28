@@ -6,6 +6,9 @@ import { stringify } from '../utils/stringify.js'
 import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
 
+export type OffchainLookupErrorType = OffchainLookupError & {
+  name: 'OffchainLookupError'
+}
 export class OffchainLookupError extends BaseError {
   override name = 'OffchainLookupError'
   constructor({
@@ -46,6 +49,10 @@ export class OffchainLookupError extends BaseError {
   }
 }
 
+export type OffchainLookupResponseMalformedErrorType =
+  OffchainLookupResponseMalformedError & {
+    name: 'OffchainLookupResponseMalformedError'
+  }
 export class OffchainLookupResponseMalformedError extends BaseError {
   override name = 'OffchainLookupResponseMalformedError'
   constructor({ result, url }: { result: any; url: string }) {
@@ -61,6 +68,10 @@ export class OffchainLookupResponseMalformedError extends BaseError {
   }
 }
 
+export type OffchainLookupSenderMismatchErrorType =
+  OffchainLookupSenderMismatchError & {
+    name: 'OffchainLookupSenderMismatchError'
+  }
 export class OffchainLookupSenderMismatchError extends BaseError {
   override name = 'OffchainLookupSenderMismatchError'
   constructor({ sender, to }: { sender: Address; to: Address }) {

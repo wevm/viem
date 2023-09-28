@@ -1,3 +1,7 @@
+import type { ErrorType } from '../errors/utils.js'
+
+export type StringifyErrorType = ErrorType
+
 export const stringify: typeof JSON.stringify = (value, replacer, space) =>
   JSON.stringify(
     value,

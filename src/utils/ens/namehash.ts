@@ -1,8 +1,26 @@
-import { concat } from '../data/concat.js'
-import { stringToBytes, toBytes } from '../encoding/toBytes.js'
-import { bytesToHex } from '../encoding/toHex.js'
-import { keccak256 } from '../hash/keccak256.js'
-import { encodedLabelToLabelhash } from './encodedLabelToLabelhash.js'
+import type { ErrorType } from '../../errors/utils.js'
+import { type ConcatErrorType, concat } from '../data/concat.js'
+import {
+  type StringToBytesErrorType,
+  type ToBytesErrorType,
+  stringToBytes,
+  toBytes,
+} from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
+import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
+import {
+  type EncodedLabelToLabelhashErrorType,
+  encodedLabelToLabelhash,
+} from './encodedLabelToLabelhash.js'
+
+export type NamehashErrorType =
+  | BytesToHexErrorType
+  | EncodedLabelToLabelhashErrorType
+  | ToBytesErrorType
+  | Keccak256ErrorType
+  | StringToBytesErrorType
+  | ConcatErrorType
+  | ErrorType
 
 /**
  * @description Hashes ENS name

@@ -1,7 +1,13 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 
 export type ConcatReturnType<TValue extends Hex | ByteArray> =
   TValue extends Hex ? Hex : ByteArray
+
+export type ConcatErrorType =
+  | ConcatBytesErrorType
+  | ConcatHexErrorType
+  | ErrorType
 
 export function concat<TValue extends Hex | ByteArray>(
   values: TValue[],
@@ -10,6 +16,8 @@ export function concat<TValue extends Hex | ByteArray>(
     return concatHex(values as Hex[]) as ConcatReturnType<TValue>
   return concatBytes(values as ByteArray[]) as ConcatReturnType<TValue>
 }
+
+export type ConcatBytesErrorType = ErrorType
 
 export function concatBytes(values: ByteArray[]): ByteArray {
   let length = 0
@@ -24,6 +32,8 @@ export function concatBytes(values: ByteArray[]): ByteArray {
   }
   return result
 }
+
+export type ConcatHexErrorType = ErrorType
 
 export function concatHex(values: Hex[]): Hex {
   return `0x${(values as Hex[]).reduce(

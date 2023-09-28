@@ -7,6 +7,9 @@ import { formatGwei } from '../utils/unit/formatGwei.js'
 import { BaseError } from './base.js'
 import { prettyPrint } from './transaction.js'
 
+export type EstimateGasExecutionErrorType = EstimateGasExecutionError & {
+  name: 'EstimateGasExecutionError'
+}
 export class EstimateGasExecutionError extends BaseError {
   override cause: BaseError
 

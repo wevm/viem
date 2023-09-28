@@ -14,6 +14,7 @@ import type { GetErrorArgs } from '../types/contract.js'
 import type { Hex } from '../types/misc.js'
 
 import type { Client } from '../clients/createClient.js'
+import type { ErrorType } from '../errors/utils.js'
 import { decodeErrorResult } from './abi/decodeErrorResult.js'
 import { encodeAbiParameters } from './abi/encodeAbiParameters.js'
 import { isAddressEqual } from './address/isAddressEqual.js'
@@ -48,6 +49,8 @@ export const offchainLookupAbiItem = {
     },
   ],
 } as const satisfies Abi[number]
+
+export type OffchainLookupErrorType = ErrorType
 
 export async function offchainLookup<TChain extends Chain | undefined,>(
   client: Client<Transport, TChain>,
@@ -101,6 +104,8 @@ export async function offchainLookup<TChain extends Chain | undefined,>(
     })
   }
 }
+
+export type CcipFetchErrorType = ErrorType
 
 export async function ccipFetch({
   data,

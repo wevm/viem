@@ -6,21 +6,44 @@ import type {
 
 import {
   AbiEncodingArrayLengthMismatchError,
+  type AbiEncodingArrayLengthMismatchErrorType,
   AbiEncodingBytesSizeMismatchError,
+  type AbiEncodingBytesSizeMismatchErrorType,
   AbiEncodingLengthMismatchError,
+  type AbiEncodingLengthMismatchErrorType,
   InvalidAbiEncodingTypeError,
+  type InvalidAbiEncodingTypeErrorType,
   InvalidArrayError,
+  type InvalidArrayErrorType,
 } from '../../errors/abi.js'
-import { InvalidAddressError } from '../../errors/address.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import { isAddress } from '../address/isAddress.js'
-import { concat } from '../data/concat.js'
-import { padHex } from '../data/pad.js'
-import { size } from '../data/size.js'
-import { slice } from '../data/slice.js'
-import { boolToHex, numberToHex, stringToHex } from '../encoding/toHex.js'
+import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { type ConcatErrorType, concat } from '../data/concat.js'
+import { type PadHexErrorType, padHex } from '../data/pad.js'
+import { type SizeErrorType, size } from '../data/size.js'
+import { type SliceErrorType, slice } from '../data/slice.js'
+import {
+  type BoolToHexErrorType,
+  type NumberToHexErrorType,
+  type StringToHexErrorType,
+  boolToHex,
+  numberToHex,
+  stringToHex,
+} from '../encoding/toHex.js'
+import { safe } from '../safe.js'
 
 export type EncodeAbiParametersReturnType = Hex
+
+export type EncodeAbiParametersErrorType =
+  | AbiEncodingLengthMismatchErrorType
+  | PrepareParamsErrorType
+  | EncodeParamsErrorType
+  | ErrorType
 
 /**
  * @description Encodes a list of primitive values into an ABI-encoded hex value.
@@ -48,12 +71,25 @@ export function encodeAbiParameters<
   return data
 }
 
+encodeAbiParameters.safe = <
+  const TParams extends readonly AbiParameter[] | readonly unknown[],
+>(
+  ...args: Parameters<typeof encodeAbiParameters<TParams>>
+) => {
+  return safe<
+    EncodeAbiParametersErrorType,
+    ReturnType<typeof encodeAbiParameters<TParams>>
+  >(() => encodeAbiParameters(...args))
+}
+
 /////////////////////////////////////////////////////////////////
 
 type PreparedParam = { dynamic: boolean; encoded: Hex }
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
+
+export type PrepareParamsErrorType = ErrorType
 
 function prepareParams<const TParams extends readonly AbiParameter[]>({
   params,
@@ -68,6 +104,11 @@ function prepareParams<const TParams extends readonly AbiParameter[]>({
   }
   return preparedParams
 }
+
+export type PrepareParamErrorType =
+  | GetArrayComponentsErrorType
+  | InvalidAbiEncodingTypeErrorType
+  | ErrorType
 
 function prepareParam<const TParam extends AbiParameter>({
   param,
@@ -109,6 +150,11 @@ function prepareParam<const TParam extends AbiParameter>({
 
 /////////////////////////////////////////////////////////////////
 
+export type EncodeParamsErrorType =
+  | NumberToHexErrorType
+  | SizeErrorType
+  | ErrorType
+
 function encodeParams(preparedParams: PreparedParam[]): Hex {
   // 1. Compute the size of the static part of the parameters.
   let staticSize = 0
@@ -139,10 +185,24 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
 
 /////////////////////////////////////////////////////////////////
 
+export type EncodeAddressErrorType =
+  | InvalidAddressErrorType
+  | IsAddressErrorType
+  | ErrorType
+
 function encodeAddress(value: Hex): PreparedParam {
   if (!isAddress(value)) throw new InvalidAddressError({ address: value })
   return { dynamic: false, encoded: padHex(value.toLowerCase() as Hex) }
 }
+
+export type EncodeArrayErrorType =
+  | AbiEncodingArrayLengthMismatchErrorType
+  | ConcatErrorType
+  | EncodeParamsErrorType
+  | InvalidArrayErrorType
+  | NumberToHexErrorType
+  | PrepareParamErrorType
+  | ErrorType
 
 function encodeArray<const TParam extends AbiParameter>(
   value: AbiParameterToPrimitiveType<TParam>,
@@ -189,6 +249,14 @@ function encodeArray<const TParam extends AbiParameter>(
   }
 }
 
+export type EncodeBytesErrorType =
+  | AbiEncodingBytesSizeMismatchErrorType
+  | ConcatErrorType
+  | PadHexErrorType
+  | NumberToHexErrorType
+  | SizeErrorType
+  | ErrorType
+
 function encodeBytes<const TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
@@ -217,9 +285,16 @@ function encodeBytes<const TParam extends AbiParameter>(
   return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }
 }
 
+export type EncodeBoolErrorType =
+  | PadHexErrorType
+  | BoolToHexErrorType
+  | ErrorType
+
 function encodeBool(value: boolean): PreparedParam {
   return { dynamic: false, encoded: padHex(boolToHex(value)) }
 }
+
+export type EncodeNumberErrorType = NumberToHexErrorType | ErrorType
 
 function encodeNumber(
   value: number,
@@ -233,6 +308,15 @@ function encodeNumber(
     }),
   }
 }
+
+export type EncodeStringErrorType =
+  | ConcatErrorType
+  | NumberToHexErrorType
+  | PadHexErrorType
+  | SizeErrorType
+  | SliceErrorType
+  | StringToHexErrorType
+  | ErrorType
 
 function encodeString(value: string): PreparedParam {
   const hexValue = stringToHex(value)
@@ -253,6 +337,12 @@ function encodeString(value: string): PreparedParam {
     ]),
   }
 }
+
+export type EncodeTupleErrorType =
+  | ConcatErrorType
+  | EncodeParamsErrorType
+  | PrepareParamErrorType
+  | ErrorType
 
 function encodeTuple<
   const TParam extends AbiParameter & { components: readonly AbiParameter[] },
@@ -279,6 +369,8 @@ function encodeTuple<
       : concat(preparedParams.map(({ encoded }) => encoded)),
   }
 }
+
+export type GetArrayComponentsErrorType = ErrorType
 
 export function getArrayComponents(
   type: string,

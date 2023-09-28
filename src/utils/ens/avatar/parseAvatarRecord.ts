@@ -1,9 +1,16 @@
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
 
 import {
+  type GetJsonImageErrorType,
+  type GetMetadataAvatarUriErrorType,
+  type GetNftTokenUriErrorType,
+  type ParseAvatarUriErrorType,
+  type ParseNftUriErrorType,
+  type ResolveAvatarUriErrorType,
   getJsonImage,
   getMetadataAvatarUri,
   getNftTokenUri,
@@ -26,6 +33,15 @@ export async function parseAvatarRecord<TChain extends Chain | undefined>(
     return parseNftAvatarUri(client, { gatewayUrls, record })
   return parseAvatarUri({ uri: record, gatewayUrls })
 }
+
+export type ParseNftAvatarUriErrorType =
+  | ParseNftUriErrorType
+  | GetNftTokenUriErrorType
+  | ResolveAvatarUriErrorType
+  | ParseAvatarUriErrorType
+  | GetJsonImageErrorType
+  | GetMetadataAvatarUriErrorType
+  | ErrorType
 
 async function parseNftAvatarUri<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,

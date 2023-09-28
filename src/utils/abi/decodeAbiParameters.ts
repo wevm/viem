@@ -10,18 +10,29 @@ import {
   InvalidAbiDecodingTypeError,
 } from '../../errors/abi.js'
 import type { Hex } from '../../types/misc.js'
-import { checksumAddress } from '../address/getAddress.js'
-import { size } from '../data/size.js'
-import { slice } from '../data/slice.js'
-import { trim } from '../data/trim.js'
 import {
+  type ChecksumAddressErrorType,
+  checksumAddress,
+} from '../address/getAddress.js'
+import { type SizeErrorType, size } from '../data/size.js'
+import { type SliceErrorType, slice } from '../data/slice.js'
+import { type TrimErrorType, trim } from '../data/trim.js'
+import {
+  type HexToBigIntErrorType,
+  type HexToBoolErrorType,
+  type HexToNumberErrorType,
+  type HexToStringErrorType,
   hexToBigInt,
   hexToBool,
   hexToNumber,
   hexToString,
 } from '../encoding/fromHex.js'
 
-import { getArrayComponents } from './encodeAbiParameters.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type GetArrayComponentsErrorType,
+  getArrayComponents,
+} from './encodeAbiParameters.js'
 
 export type DecodeAbiParametersReturnType<
   TParams extends
@@ -30,6 +41,13 @@ export type DecodeAbiParametersReturnType<
 > = AbiParametersToPrimitiveTypes<
   TParams extends readonly AbiParameter[] ? TParams : AbiParameter[]
 >
+
+export type DecodeAbiParametersErrorType =
+  | AbiDecodingDataSizeTooSmallError
+  | AbiDecodingZeroDataError
+  | DecodeParamsErrorType
+  | SizeErrorType
+  | ErrorType
 
 export function decodeAbiParameters<
   const TParams extends readonly AbiParameter[] | readonly unknown[],
@@ -51,6 +69,8 @@ export function decodeAbiParameters<
 ////////////////////////////////////////////////////////////////////
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
+
+type DecodeParamsErrorType = DecodeParamErrorType | SizeErrorType | ErrorType
 
 function decodeParams<const TParams extends readonly AbiParameter[]>({
   data,
@@ -76,6 +96,17 @@ function decodeParams<const TParams extends readonly AbiParameter[]>({
 
   return decodedValues as unknown as AbiParametersToPrimitiveTypes<TParams>
 }
+
+type DecodeParamErrorType =
+  | DecodeArrayErrorType
+  | DecodeTupleErrorType
+  | DecodeStringErrorType
+  | DecodeBytesErrorType
+  | DecodeNumberErrorType
+  | DecodeAddressErrorType
+  | DecodeBoolErrorType
+  | InvalidAbiDecodingTypeError
+  | ErrorType
 
 function decodeParam({
   data,
@@ -121,9 +152,16 @@ function decodeParam({
 
 ////////////////////////////////////////////////////////////////////
 
+type DecodeAddressErrorType =
+  | ChecksumAddressErrorType
+  | SliceErrorType
+  | ErrorType
+
 function decodeAddress(value: Hex) {
   return { consumed: 32, value: checksumAddress(slice(value, -20)) }
 }
+
+type DecodeArrayErrorType = HexToNumberErrorType | SliceErrorType | ErrorType
 
 function decodeArray<const TParam extends AbiParameter>(
   data: Hex,
@@ -206,9 +244,13 @@ function decodeArray<const TParam extends AbiParameter>(
   return { value, consumed }
 }
 
+type DecodeBoolErrorType = HexToBoolErrorType | ErrorType
+
 function decodeBool(value: Hex) {
   return { consumed: 32, value: hexToBool(value) }
 }
+
+type DecodeBytesErrorType = HexToNumberErrorType | SliceErrorType | ErrorType
 
 function decodeBytes<const TParam extends AbiParameter>(
   data: Hex,
@@ -238,6 +280,11 @@ function decodeBytes<const TParam extends AbiParameter>(
   return { consumed: 32, value }
 }
 
+type DecodeNumberErrorType =
+  | HexToBigIntErrorType
+  | HexToNumberErrorType
+  | ErrorType
+
 function decodeNumber<const TParam extends AbiParameter>(
   value: Hex,
   { param }: { param: TParam },
@@ -253,6 +300,13 @@ function decodeNumber<const TParam extends AbiParameter>(
   }
 }
 
+type DecodeStringErrorType =
+  | HexToNumberErrorType
+  | HexToStringErrorType
+  | SliceErrorType
+  | TrimErrorType
+  | ErrorType
+
 function decodeString(data: Hex, { position }: { position: number }) {
   const offset = hexToNumber(
     slice(data, position, position + 32, { strict: true }),
@@ -265,6 +319,12 @@ function decodeString(data: Hex, { position }: { position: number }) {
   )
   return { consumed: 32, value }
 }
+
+type DecodeTupleErrorType =
+  | HasDynamicChildErrorType
+  | HexToNumberErrorType
+  | SliceErrorType
+  | ErrorType
 
 function decodeTuple<
   const TParam extends AbiParameter & { components: readonly AbiParameter[] },
@@ -315,6 +375,8 @@ function decodeTuple<
   }
   return { consumed, value }
 }
+
+type HasDynamicChildErrorType = GetArrayComponentsErrorType | ErrorType
 
 function hasDynamicChild(param: AbiParameter) {
   const { type } = param

@@ -1,12 +1,22 @@
-import { SliceOffsetOutOfBoundsError } from '../../errors/data.js'
+import {
+  SliceOffsetOutOfBoundsError,
+  type SliceOffsetOutOfBoundsErrorType,
+} from '../../errors/data.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 
-import { isHex } from './isHex.js'
-import { size } from './size.js'
+import { type IsHexErrorType, isHex } from './isHex.js'
+import { type SizeErrorType, size } from './size.js'
 
 export type SliceReturnType<TValue extends ByteArray | Hex> = TValue extends Hex
   ? Hex
   : ByteArray
+
+export type SliceErrorType =
+  | IsHexErrorType
+  | SliceBytesErrorType
+  | SliceHexErrorType
+  | ErrorType
 
 /**
  * @description Returns a section of the hex or byte array given a start/end bytes offset.
@@ -30,6 +40,11 @@ export function slice<TValue extends ByteArray | Hex>(
   }) as SliceReturnType<TValue>
 }
 
+export type AssertStartOffsetErrorType =
+  | SliceOffsetOutOfBoundsErrorType
+  | SizeErrorType
+  | ErrorType
+
 function assertStartOffset(value: Hex | ByteArray, start?: number) {
   if (typeof start === 'number' && start > 0 && start > size(value) - 1)
     throw new SliceOffsetOutOfBoundsError({
@@ -38,6 +53,11 @@ function assertStartOffset(value: Hex | ByteArray, start?: number) {
       size: size(value),
     })
 }
+
+export type AssertEndOffsetErrorType =
+  | SliceOffsetOutOfBoundsErrorType
+  | SizeErrorType
+  | ErrorType
 
 function assertEndOffset(value: Hex | ByteArray, start?: number, end?: number) {
   if (
@@ -52,6 +72,11 @@ function assertEndOffset(value: Hex | ByteArray, start?: number, end?: number) {
     })
   }
 }
+
+export type SliceBytesErrorType =
+  | AssertStartOffsetErrorType
+  | AssertEndOffsetErrorType
+  | ErrorType
 
 /**
  * @description Returns a section of the byte array given a start/end bytes offset.
@@ -71,6 +96,11 @@ export function sliceBytes(
   if (strict) assertEndOffset(value, start, end)
   return value
 }
+
+export type SliceHexErrorType =
+  | AssertStartOffsetErrorType
+  | AssertEndOffsetErrorType
+  | ErrorType
 
 /**
  * @description Returns a section of the hex value given a start/end bytes offset.

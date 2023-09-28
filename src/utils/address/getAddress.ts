@@ -1,10 +1,18 @@
 import type { Address } from 'abitype'
 
 import { InvalidAddressError } from '../../errors/address.js'
-import { stringToBytes } from '../encoding/toBytes.js'
-import { keccak256 } from '../hash/keccak256.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type StringToBytesErrorType,
+  stringToBytes,
+} from '../encoding/toBytes.js'
+import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
+import { type IsAddressErrorType, isAddress } from './isAddress.js'
 
-import { isAddress } from './isAddress.js'
+export type ChecksumAddressErrorType =
+  | Keccak256ErrorType
+  | StringToBytesErrorType
+  | ErrorType
 
 export function checksumAddress(address_: Address, chainId?: number): Address {
   const hexAddress = chainId
@@ -26,6 +34,11 @@ export function checksumAddress(address_: Address, chainId?: number): Address {
 
   return `0x${address.join('')}`
 }
+
+export type GetAddressErrorType =
+  | ChecksumAddressErrorType
+  | IsAddressErrorType
+  | ErrorType
 
 export function getAddress(address: string, chainId?: number): Address {
   if (!isAddress(address)) throw new InvalidAddressError({ address })

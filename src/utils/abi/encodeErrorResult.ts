@@ -10,12 +10,23 @@ import type {
   InferErrorName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { concatHex } from '../data/concat.js'
-import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import {
+  type GetFunctionSelectorErrorType,
+  getFunctionSelector,
+} from '../hash/getFunctionSelector.js'
 
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
-import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type EncodeAbiParametersErrorType,
+  encodeAbiParameters,
+} from './encodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
+import {
+  type GetAbiItemErrorType,
+  type GetAbiItemParameters,
+  getAbiItem,
+} from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 
@@ -30,6 +41,14 @@ export type EncodeErrorResultParameters<
   : _ErrorName extends string
   ? { abi: [TAbi[number]] } & GetErrorArgs<TAbi, _ErrorName>
   : never)
+
+export type EncodeErrorResultErrorType =
+  | GetAbiItemErrorType
+  | FormatAbiItemErrorType
+  | GetFunctionSelectorErrorType
+  | EncodeAbiParametersErrorType
+  | ConcatHexErrorType
+  | ErrorType
 
 export function encodeErrorResult<
   const TAbi extends Abi | readonly unknown[],

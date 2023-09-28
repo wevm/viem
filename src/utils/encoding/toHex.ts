@@ -1,8 +1,12 @@
-import { IntegerOutOfRangeError } from '../../errors/encoding.js'
+import {
+  IntegerOutOfRangeError,
+  type IntegerOutOfRangeErrorType,
+} from '../../errors/encoding.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { pad } from '../data/pad.js'
+import { type PadErrorType, pad } from '../data/pad.js'
 
-import { assertSize } from './fromHex.js'
+import { type AssertSizeErrorType, assertSize } from './fromHex.js'
 
 const hexes = /*#__PURE__*/ Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
@@ -12,6 +16,13 @@ export type ToHexParameters = {
   /** The size (in bytes) of the output hex value. */
   size?: number
 }
+
+export type ToHexErrorType =
+  | BoolToHexErrorType
+  | BytesToHexErrorType
+  | NumberToHexErrorType
+  | StringToHexErrorType
+  | ErrorType
 
 /**
  * Encodes a string, number, bigint, or ByteArray into a hex string
@@ -56,6 +67,8 @@ export type BoolToHexOpts = {
   size?: number
 }
 
+export type BoolToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
+
 /**
  * Encodes a boolean into a hex string
  *
@@ -93,6 +106,8 @@ export type BytesToHexOpts = {
   /** The size (in bytes) of the output hex value. */
   size?: number
 }
+
+export type BytesToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
 
 /**
  * Encodes a bytes array into a hex string
@@ -139,6 +154,11 @@ export type NumberToHexOpts =
       /** The size (in bytes) of the output hex value. */
       size?: number
     }
+
+export type NumberToHexErrorType =
+  | IntegerOutOfRangeErrorType
+  | PadErrorType
+  | ErrorType
 
 /**
  * Encodes a number or bigint into a hex string
@@ -200,6 +220,8 @@ export type StringToHexOpts = {
   /** The size (in bytes) of the output hex value. */
   size?: number
 }
+
+export type StringToHexErrorType = BytesToHexErrorType | ErrorType
 
 const encoder = /*#__PURE__*/ new TextEncoder()
 

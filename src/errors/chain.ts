@@ -2,6 +2,10 @@ import type { Chain } from '../types/chain.js'
 
 import { BaseError } from './base.js'
 
+export type ChainDoesNotSupportContractErrorType =
+  ChainDoesNotSupportContract & {
+    name: 'ChainDoesNotSupportContract'
+  }
 export class ChainDoesNotSupportContract extends BaseError {
   override name = 'ChainDoesNotSupportContract'
   constructor({
@@ -33,6 +37,9 @@ export class ChainDoesNotSupportContract extends BaseError {
   }
 }
 
+export type ChainMismatchErrorType = ChainMismatchError & {
+  name: 'ChainMismatchError'
+}
 export class ChainMismatchError extends BaseError {
   override name = 'ChainMismatchError'
 
@@ -55,6 +62,9 @@ export class ChainMismatchError extends BaseError {
   }
 }
 
+export type ChainNotFoundErrorType = ChainNotFoundError & {
+  name: 'ChainNotFoundError'
+}
 export class ChainNotFoundError extends BaseError {
   override name = 'ChainNotFoundError'
 
@@ -68,6 +78,10 @@ export class ChainNotFoundError extends BaseError {
   }
 }
 
+export type ClientChainNotConfiguredErrorType =
+  ClientChainNotConfiguredError & {
+    name: 'ClientChainNotConfiguredError'
+  }
 export class ClientChainNotConfiguredError extends BaseError {
   override name = 'ClientChainNotConfiguredError'
 
@@ -76,6 +90,9 @@ export class ClientChainNotConfiguredError extends BaseError {
   }
 }
 
+export type InvalidChainIdErrorType = InvalidChainIdError & {
+  name: 'InvalidChainIdError'
+}
 export class InvalidChainIdError extends BaseError {
   override name = 'InvalidChainIdError'
 

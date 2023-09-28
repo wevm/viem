@@ -2,30 +2,54 @@ import { BaseError } from '../errors/base.js'
 import { HttpRequestError } from '../errors/request.js'
 import {
   ChainDisconnectedError,
+  type ChainDisconnectedErrorType,
   InternalRpcError,
+  type InternalRpcErrorType,
   InvalidInputRpcError,
+  type InvalidInputRpcErrorType,
   InvalidParamsRpcError,
+  type InvalidParamsRpcErrorType,
   InvalidRequestRpcError,
+  type InvalidRequestRpcErrorType,
   JsonRpcVersionUnsupportedError,
+  type JsonRpcVersionUnsupportedErrorType,
   LimitExceededRpcError,
+  type LimitExceededRpcErrorType,
   MethodNotFoundRpcError,
+  type MethodNotFoundRpcErrorType,
   MethodNotSupportedRpcError,
+  type MethodNotSupportedRpcErrorType,
   ParseRpcError,
+  type ParseRpcErrorType,
   ProviderDisconnectedError,
+  type ProviderDisconnectedErrorType,
   type ProviderRpcErrorCode,
   ResourceNotFoundRpcError,
+  type ResourceNotFoundRpcErrorType,
   ResourceUnavailableRpcError,
+  type ResourceUnavailableRpcErrorType,
   type RpcError,
   type RpcErrorCode,
+  type RpcErrorType,
   SwitchChainError,
+  type SwitchChainErrorType,
   TransactionRejectedRpcError,
+  type TransactionRejectedRpcErrorType,
   UnauthorizedProviderError,
+  type UnauthorizedProviderErrorType,
   UnknownRpcError,
+  type UnknownRpcErrorType,
   UnsupportedProviderMethodError,
+  type UnsupportedProviderMethodErrorType,
   UserRejectedRequestError,
+  type UserRejectedRequestErrorType,
 } from '../errors/rpc.js'
+import type { ErrorType } from '../errors/utils.js'
 
-import { withRetry } from './promise/withRetry.js'
+import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
+import { safe } from './safe.js'
+
+export type IsDeterministicErrorType = ErrorType
 
 export const isDeterministicError = (error: Error) => {
   if ('code' in error)
@@ -49,6 +73,30 @@ export const isDeterministicError = (error: Error) => {
     )
   return false
 }
+
+export type BuildRequestErrorType =
+  | ChainDisconnectedErrorType
+  | InternalRpcErrorType
+  | InvalidInputRpcErrorType
+  | InvalidParamsRpcErrorType
+  | InvalidRequestRpcErrorType
+  | JsonRpcVersionUnsupportedErrorType
+  | LimitExceededRpcErrorType
+  | MethodNotFoundRpcErrorType
+  | MethodNotSupportedRpcErrorType
+  | ParseRpcErrorType
+  | ProviderDisconnectedErrorType
+  | ResourceNotFoundRpcErrorType
+  | ResourceUnavailableRpcErrorType
+  | RpcErrorType
+  | SwitchChainErrorType
+  | TransactionRejectedRpcErrorType
+  | UnauthorizedProviderErrorType
+  | UnknownRpcErrorType
+  | UnsupportedProviderMethodErrorType
+  | UserRejectedRequestErrorType
+  | WithRetryErrorType
+  | ErrorType
 
 export function buildRequest<TRequest extends (args: any) => Promise<any>>(
   request: TRequest,
@@ -151,4 +199,12 @@ export function buildRequest<TRequest extends (args: any) => Promise<any>>(
         shouldRetry: ({ error }) => !isDeterministicError(error),
       },
     )) as TRequest
+}
+
+buildRequest.safe = <TRequest extends (args: any) => Promise<any>>(
+  ...args: Parameters<typeof buildRequest<TRequest>>
+) => {
+  return safe<BuildRequestErrorType, ReturnType<typeof buildRequest<TRequest>>>(
+    () => buildRequest(...args),
+  )
 }
