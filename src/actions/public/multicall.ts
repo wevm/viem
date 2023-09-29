@@ -13,16 +13,27 @@ import type {
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import {
+  type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { getChainContractAddress } from '../../utils/chain.js'
-import { getContractError } from '../../utils/errors/getContractError.js'
+import {
+  type GetChainContractAddressErrorType,
+  getChainContractAddress,
+} from '../../utils/chain.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
 
+import type { ErrorType } from '../../errors/utils.js'
 import type { CallParameters } from './call.js'
-import { readContract } from './readContract.js'
+import { type ReadContractErrorType, readContract } from './readContract.js'
 
 export type MulticallParameters<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
@@ -39,6 +50,14 @@ export type MulticallReturnType<
   TContracts extends ContractFunctionConfig[] = ContractFunctionConfig[],
   TAllowFailure extends boolean = true,
 > = MulticallResults<TContracts, TAllowFailure>
+
+export type MulticallErrorType =
+  | GetChainContractAddressErrorType
+  | ReadContractErrorType
+  | GetContractErrorReturnType<
+      EncodeFunctionDataErrorType | DecodeFunctionResultErrorType
+    >
+  | ErrorType
 
 /**
  * Similar to [`readContract`](https://viem.sh/docs/contract/readContract.html), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).

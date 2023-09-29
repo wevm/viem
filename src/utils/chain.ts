@@ -1,8 +1,12 @@
 import {
   ChainDoesNotSupportContract,
+  type ChainDoesNotSupportContractErrorType,
   ChainMismatchError,
+  type ChainMismatchErrorType,
   ChainNotFoundError,
+  type ChainNotFoundErrorType,
 } from '../errors/chain.js'
+import type { ErrorType } from '../errors/utils.js'
 import type {
   Chain,
   ChainConfig,
@@ -15,6 +19,11 @@ export type AssertCurrentChainParameters = {
   chain?: Chain
   currentChainId: number
 }
+
+export type AssertCurrentChainErrorType =
+  | ChainNotFoundErrorType
+  | ChainMismatchErrorType
+  | ErrorType
 
 export function assertCurrentChain({
   chain,
@@ -44,6 +53,9 @@ export function defineChain<
     serializers,
   } as unknown as Assign<chain, ChainConfig<formatters>>
 }
+
+export type GetChainContractAddressErrorType =
+  ChainDoesNotSupportContractErrorType
 
 export function getChainContractAddress({
   blockNumber,

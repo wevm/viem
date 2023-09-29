@@ -6,6 +6,7 @@ import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -15,13 +16,24 @@ import type {
 import type { Log } from '../../types/log.js'
 import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
-import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import {
+  type DecodeEventLogErrorType,
+  decodeEventLog,
+} from '../../utils/abi/decodeEventLog.js'
+import {
+  type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
-import { formatLog } from '../../utils/formatters/log.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
+import {
+  type FormatLogErrorType,
+  formatLog,
+} from '../../utils/formatters/log.js'
 
 export type GetLogsParameters<
   TAbiEvent extends AbiEvent | undefined = undefined,
@@ -94,6 +106,14 @@ export type GetLogsReturnType<
     | (TFromBlock extends 'pending' ? true : false)
     | (TToBlock extends 'pending' ? true : false),
 > = Log<bigint, number, _Pending, TAbiEvent, TStrict, TAbiEvents, _EventName>[]
+
+export type GetLogsErrorType =
+  | DecodeEventLogErrorType
+  | EncodeEventTopicsErrorType
+  | FormatLogErrorType
+  | NumberToHexErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Returns a list of event logs matching the provided parameters.

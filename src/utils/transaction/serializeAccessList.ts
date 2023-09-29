@@ -1,9 +1,22 @@
-import { InvalidAddressError } from '../../errors/address.js'
-import { InvalidStorageKeySizeError } from '../../errors/transaction.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
+import {
+  InvalidStorageKeySizeError,
+  type InvalidStorageKeySizeErrorType,
+} from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type { AccessList } from '../../types/transaction.js'
-import { isAddress } from '../address/isAddress.js'
+import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { type RecursiveArray } from '../encoding/toRlp.js'
+
+export type SerializeAccessListErrorType =
+  | InvalidStorageKeySizeErrorType
+  | InvalidAddressErrorType
+  | IsAddressErrorType
+  | ErrorType
 
 /*
  * Serialize an  EIP-2930 access list

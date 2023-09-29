@@ -6,13 +6,21 @@ import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
-import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
-import { formatLog } from '../../utils/formatters/log.js'
+import {
+  type DecodeEventLogErrorType,
+  decodeEventLog,
+} from '../../utils/abi/decodeEventLog.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type FormatLogErrorType,
+  formatLog,
+} from '../../utils/formatters/log.js'
 
 export type GetFilterChangesParameters<
   TFilterType extends FilterType = FilterType,
@@ -51,6 +59,12 @@ export type GetFilterChangesReturnType<
 > = TFilterType extends 'event'
   ? Log<bigint, number, _Pending, _AbiEvent, TStrict, TAbi, TEventName>[]
   : Hash[]
+
+export type GetFilterChangesErrorType =
+  | RequestErrorType
+  | DecodeEventLogErrorType
+  | FormatLogErrorType
+  | ErrorType
 
 /**
  * Returns a list of logs or hashes based on a [Filter](/docs/glossary/terms#filter) since the last time it was called.

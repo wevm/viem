@@ -8,15 +8,16 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 
-import { observe } from '../../utils/observe.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { LogTopic } from '../../types/misc.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import {
@@ -106,6 +107,11 @@ export type WatchContractEventParameters<
     })
 
 export type WatchContractEventReturnType = () => void
+
+export type WatchContractEventErrorType =
+  | StringifyErrorType
+  | ObserveErrorType
+  | ErrorType
 
 /**
  * Watches and returns emitted contract event logs.

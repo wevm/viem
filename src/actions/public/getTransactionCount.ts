@@ -3,10 +3,18 @@ import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type HexToNumberErrorType,
+  hexToNumber,
+} from '../../utils/encoding/fromHex.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 
 export type GetTransactionCountParameters = {
   /** The account address. */
@@ -24,6 +32,12 @@ export type GetTransactionCountParameters = {
     }
 )
 export type GetTransactionCountReturnType = number
+
+export type GetTransactionCountErrorType =
+  | RequestErrorType
+  | NumberToHexErrorType
+  | HexToNumberErrorType
+  | ErrorType
 
 /**
  * Returns the number of [Transactions](https://viem.sh/docs/glossary/terms.html#transaction) an Account has broadcast / sent.

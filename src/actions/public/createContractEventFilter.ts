@@ -2,6 +2,7 @@ import type { Abi, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -11,10 +12,15 @@ import type {
 import type { Filter } from '../../types/filter.js'
 import type { Hex } from '../../types/misc.js'
 import {
+  type EncodeEventTopicsErrorType,
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
 
 export type CreateContractEventFilterParameters<
@@ -62,6 +68,12 @@ export type CreateContractEventFilterReturnType<
   TFromBlock extends BlockNumber | BlockTag | undefined = undefined,
   TToBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = Filter<'event', TAbi, TEventName, TArgs, TStrict, TFromBlock, TToBlock>
+
+export type CreateContractEventFilterErrorType =
+  | EncodeEventTopicsErrorType
+  | RequestErrorType
+  | NumberToHexErrorType
+  | ErrorType
 
 /**
  * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges.html) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs.html).

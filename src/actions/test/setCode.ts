@@ -5,9 +5,11 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type SetCodeParameters = {
   /** The account address. */
@@ -15,6 +17,8 @@ export type SetCodeParameters = {
   /** The bytecode to set */
   bytecode: Hex
 }
+
+export type SetCodeErrorType = RequestErrorType | ErrorType
 
 /**
  * Modifies the bytecode stored at an account's address.

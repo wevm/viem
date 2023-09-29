@@ -1,7 +1,21 @@
-import { stringToBytes } from '../encoding/toBytes.js'
-import { bytesToHex } from '../encoding/toHex.js'
-import { keccak256 } from '../hash/keccak256.js'
-import { encodedLabelToLabelhash } from './encodedLabelToLabelhash.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type StringToBytesErrorType,
+  stringToBytes,
+} from '../encoding/toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
+import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
+import {
+  type EncodedLabelToLabelhashErrorType,
+  encodedLabelToLabelhash,
+} from './encodedLabelToLabelhash.js'
+
+export type LabelhashErrorType =
+  | BytesToHexErrorType
+  | EncodedLabelToLabelhashErrorType
+  | Keccak256ErrorType
+  | StringToBytesErrorType
+  | ErrorType
 
 /**
  * @description Hashes ENS label

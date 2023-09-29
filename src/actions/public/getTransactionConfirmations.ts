@@ -1,11 +1,18 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { FormattedTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 
-import { getBlockNumber } from './getBlockNumber.js'
-import { getTransaction } from './getTransaction.js'
+import {
+  type GetBlockNumberErrorType,
+  getBlockNumber,
+} from './getBlockNumber.js'
+import {
+  type GetTransactionErrorType,
+  getTransaction,
+} from './getTransaction.js'
 
 export type GetTransactionConfirmationsParameters<
   TChain extends Chain | undefined = Chain,
@@ -22,6 +29,11 @@ export type GetTransactionConfirmationsParameters<
     }
 
 export type GetTransactionConfirmationsReturnType = bigint
+
+export type GetTransactionConfirmationsErrorType =
+  | GetBlockNumberErrorType
+  | GetTransactionErrorType
+  | ErrorType
 
 /**
  * Returns the number of blocks passed (confirmations) since the transaction was processed on a block.

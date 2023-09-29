@@ -1,4 +1,8 @@
-import { InvalidLegacyVError } from '../../errors/transaction.js'
+import {
+  InvalidLegacyVError,
+  type InvalidLegacyVErrorType,
+} from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Signature } from '../../types/misc.js'
 import type {
   TransactionSerializable,
@@ -11,21 +15,28 @@ import type {
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
-import { concatHex } from '../data/concat.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
-import { toHex } from '../encoding/toHex.js'
-import { toRlp } from '../encoding/toRlp.js'
+import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
+import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 
 import {
+  type AssertTransactionEIP1559ErrorType,
+  type AssertTransactionEIP2930ErrorType,
+  type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
   type GetTransactionType,
+  type GetTransationTypeErrorType,
   getTransactionType,
 } from './getTransactionType.js'
-import { serializeAccessList } from './serializeAccessList.js'
+import {
+  type SerializeAccessListErrorType,
+  serializeAccessList,
+} from './serializeAccessList.js'
 
 export type SerializedTransactionReturnType<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
@@ -35,6 +46,13 @@ export type SerializedTransactionReturnType<
 export type SerializeTransactionFn<
   TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
 > = typeof serializeTransaction<TTransactionSerializable>
+
+export type SerializeTransactionErrorType =
+  | GetTransationTypeErrorType
+  | SerializeTransactionEIP1559ErrorType
+  | SerializeTransactionEIP2930ErrorType
+  | SerializeTransactionLegacyErrorType
+  | ErrorType
 
 export function serializeTransaction<
   TTransactionSerializable extends TransactionSerializable,
@@ -61,6 +79,15 @@ export function serializeTransaction<
     signature,
   ) as SerializedTransactionReturnType<TTransactionSerializable>
 }
+
+type SerializeTransactionEIP1559ErrorType =
+  | AssertTransactionEIP1559ErrorType
+  | ConcatHexErrorType
+  | InvalidLegacyVErrorType
+  | ToHexErrorType
+  | ToRlpErrorType
+  | SerializeAccessListErrorType
+  | ErrorType
 
 function serializeTransactionEIP1559(
   transaction: TransactionSerializableEIP1559,
@@ -107,6 +134,15 @@ function serializeTransactionEIP1559(
   ]) as TransactionSerializedEIP1559
 }
 
+type SerializeTransactionEIP2930ErrorType =
+  | AssertTransactionEIP2930ErrorType
+  | ConcatHexErrorType
+  | InvalidLegacyVErrorType
+  | ToHexErrorType
+  | ToRlpErrorType
+  | SerializeAccessListErrorType
+  | ErrorType
+
 function serializeTransactionEIP2930(
   transaction: TransactionSerializableEIP2930,
   signature?: Signature,
@@ -141,6 +177,13 @@ function serializeTransactionEIP2930(
     toRlp(serializedTransaction),
   ]) as TransactionSerializedEIP2930
 }
+
+type SerializeTransactionLegacyErrorType =
+  | AssertTransactionLegacyErrorType
+  | InvalidLegacyVErrorType
+  | ToHexErrorType
+  | ToRlpErrorType
+  | ErrorType
 
 function serializeTransactionLegacy(
   transaction: TransactionSerializableLegacy,

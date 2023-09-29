@@ -5,13 +5,17 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type SetCoinbaseParameters = {
   /** The coinbase address. */
   address: Address
 }
+
+export type SetCoinbaseErrorType = RequestErrorType | ErrorType
 
 /**
  * Sets the coinbase address to be used in new blocks.

@@ -2,10 +2,15 @@ import type { Abi, AbiParameter, ExtractAbiEventNames } from 'abitype'
 
 import {
   AbiDecodingDataSizeTooSmallError,
+  type AbiDecodingDataSizeTooSmallErrorType,
   AbiEventSignatureEmptyTopicsError,
+  type AbiEventSignatureEmptyTopicsErrorType,
   AbiEventSignatureNotFoundError,
+  type AbiEventSignatureNotFoundErrorType,
   DecodeLogDataMismatch,
+  type DecodeLogDataMismatchErrorType,
   DecodeLogTopicsMismatch,
+  type DecodeLogTopicsMismatchErrorType,
 } from '../../errors/abi.js'
 import type {
   EventDefinition,
@@ -14,10 +19,17 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
-import { getEventSelector } from '../hash/getEventSelector.js'
+import {
+  type GetEventSelectorErrorType,
+  getEventSelector,
+} from '../hash/getEventSelector.js'
 
-import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type DecodeAbiParametersErrorType,
+  decodeAbiParameters,
+} from './decodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeEventLogParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -57,6 +69,17 @@ export type DecodeEventLogReturnType<
         } & GetEventArgsFromTopics<TAbi, TName, TTopics, TData, TStrict>
       >
     }[_EventNames]
+
+export type DecodeEventLogErrorType =
+  | AbiDecodingDataSizeTooSmallErrorType
+  | AbiEventSignatureEmptyTopicsErrorType
+  | AbiEventSignatureNotFoundErrorType
+  | DecodeAbiParametersErrorType
+  | DecodeLogTopicsMismatchErrorType
+  | DecodeLogDataMismatchErrorType
+  | FormatAbiItemErrorType
+  | GetEventSelectorErrorType
+  | ErrorType
 
 const docsPath = '/docs/contract/decodeEventLog'
 

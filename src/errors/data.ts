@@ -1,5 +1,8 @@
 import { BaseError } from './base.js'
 
+export type SliceOffsetOutOfBoundsErrorType = SliceOffsetOutOfBoundsError & {
+  name: 'SliceOffsetOutOfBoundsError'
+}
 export class SliceOffsetOutOfBoundsError extends BaseError {
   override name = 'SliceOffsetOutOfBoundsError'
   constructor({
@@ -15,6 +18,9 @@ export class SliceOffsetOutOfBoundsError extends BaseError {
   }
 }
 
+export type SizeExceedsPaddingSizeErrorType = SizeExceedsPaddingSizeError & {
+  name: 'SizeExceedsPaddingSizeError'
+}
 export class SizeExceedsPaddingSizeError extends BaseError {
   override name = 'SizeExceedsPaddingSizeError'
   constructor({

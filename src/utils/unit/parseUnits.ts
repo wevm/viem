@@ -1,3 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
+
+export type ParseUnitsErrorType = ErrorType
+
 export function parseUnits(value: string, decimals: number) {
   let [integer, fraction = '0'] = value.split('.')
 

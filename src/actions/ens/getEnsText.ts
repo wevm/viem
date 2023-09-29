@@ -8,14 +8,27 @@ import {
 } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { getChainContractAddress } from '../../utils/chain.js'
-import { toHex } from '../../utils/encoding/toHex.js'
-import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { namehash } from '../../utils/ens/namehash.js'
-import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
+  type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import {
+  type GetChainContractAddressErrorType,
+  getChainContractAddress,
+} from '../../utils/chain.js'
+import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
+import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
+import {
+  type PacketToBytesErrorType,
+  packetToBytes,
+} from '../../utils/ens/packetToBytes.js'
+import {
+  type ReadContractErrorType,
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
@@ -32,6 +45,15 @@ export type GetEnsTextParameters = Prettify<
 >
 
 export type GetEnsTextReturnType = string | null
+
+export type GetEnsTextErrorType =
+  | GetChainContractAddressErrorType
+  | ReadContractErrorType
+  | ToHexErrorType
+  | PacketToBytesErrorType
+  | EncodeFunctionDataErrorType
+  | NamehashErrorType
+  | DecodeFunctionResultErrorType
 
 /**
  * Gets a text record for specified ENS name.

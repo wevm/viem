@@ -1,6 +1,8 @@
 import type { Address } from 'abitype'
 
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
+import type { ParseAccountErrorType } from '../accounts/utils/parseAccount.js'
+import type { ErrorType } from '../errors/utils.js'
 import type { Chain } from '../types/chain.js'
 import type {
   EIP1193RequestFn,
@@ -119,6 +121,8 @@ export type MulticallBatchOptions = {
   /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
   wait?: number | undefined
 }
+
+export type CreateClientErrorType = ParseAccountErrorType | ErrorType
 
 /**
  * Creates a base client with the given transport.

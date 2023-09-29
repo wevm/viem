@@ -3,15 +3,24 @@ import type { Abi, ExtractAbiError, ExtractAbiErrorNames } from 'abitype'
 import { solidityError, solidityPanic } from '../../constants/solidity.js'
 import {
   AbiDecodingZeroDataError,
+  type AbiDecodingZeroDataErrorType,
   AbiErrorSignatureNotFoundError,
+  type AbiErrorSignatureNotFoundErrorType,
 } from '../../errors/abi.js'
 import type { AbiItem, GetErrorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import { slice } from '../data/slice.js'
-import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+import {
+  type GetFunctionSelectorErrorType,
+  getFunctionSelector,
+} from '../hash/getFunctionSelector.js'
 
-import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type DecodeAbiParametersErrorType,
+  decodeAbiParameters,
+} from './decodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeErrorResultParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -31,6 +40,14 @@ export type DecodeErrorResultReturnType<
     errorName: TName
   }
 }[_ErrorNames]
+
+export type DecodeErrorResultErrorType =
+  | AbiDecodingZeroDataErrorType
+  | AbiErrorSignatureNotFoundErrorType
+  | DecodeAbiParametersErrorType
+  | FormatAbiItemErrorType
+  | GetFunctionSelectorErrorType
+  | ErrorType
 
 export function decodeErrorResult<const TAbi extends Abi | readonly unknown[]>({
   abi,

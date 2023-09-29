@@ -12,14 +12,20 @@ export {
 } from 'abitype'
 export {
   type DecodeAbiParametersReturnType,
+  type DecodeAbiParametersErrorType,
   decodeAbiParameters,
 } from '../utils/abi/decodeAbiParameters.js'
 export {
   type EncodeAbiParametersReturnType,
+  type EncodeAbiParametersErrorType,
   encodeAbiParameters,
 } from '../utils/abi/encodeAbiParameters.js'
 export {
   type GetAbiItemParameters,
+  type GetAbiItemErrorType,
   getAbiItem,
 } from '../utils/abi/getAbiItem.js'
-export { encodePacked } from '../utils/abi/encodePacked.js'
+export {
+  type EncodePackedErrorType,
+  encodePacked,
+} from '../utils/abi/encodePacked.js'

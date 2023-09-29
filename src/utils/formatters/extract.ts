@@ -1,4 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ChainFormatter } from '../../types/chain.js'
+
+export type ExtractErrorType = ErrorType
 
 /**
  * @description Picks out the keys from `value` that exist in the formatter.

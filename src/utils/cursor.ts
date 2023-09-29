@@ -2,6 +2,7 @@ import {
   NegativeOffsetError,
   PositionOutOfBoundsError,
 } from '../errors/cursor.js'
+import type { ErrorType } from '../errors/utils.js'
 import type { ByteArray } from '../types/misc.js'
 
 export type Cursor = {
@@ -31,6 +32,20 @@ export type Cursor = {
   readUint32(): number
   setPosition(position: number): void
 }
+
+export type CreateCursorErrorType = ErrorType
+
+export type CursorErrorType =
+  | CursorAssertPositionErrorType
+  | CursorDecrementPositionErrorType
+  | CursorIncrementPositionErrorType
+  | ErrorType
+
+export type CursorAssertPositionErrorType = PositionOutOfBoundsError | ErrorType
+
+export type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
+
+export type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
 
 const staticCursor: Cursor = {
   bytes: new Uint8Array(),

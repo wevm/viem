@@ -2,11 +2,18 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
-import { getChainContractAddress } from '../../utils/chain.js'
-import { toHex } from '../../utils/encoding/toHex.js'
-import { packetToBytes } from '../../utils/ens/packetToBytes.js'
+import {
+  type GetChainContractAddressErrorType,
+  getChainContractAddress,
+} from '../../utils/chain.js'
+import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
+import {
+  type PacketToBytesErrorType,
+  packetToBytes,
+} from '../../utils/ens/packetToBytes.js'
 import {
   type ReadContractParameters,
   readContract,
@@ -22,6 +29,12 @@ export type GetEnsResolverParameters = Prettify<
 >
 
 export type GetEnsResolverReturnType = Address
+
+export type GetEnsResolverErrorType =
+  | GetChainContractAddressErrorType
+  | ToHexErrorType
+  | PacketToBytesErrorType
+  | ErrorType
 
 /**
  * Gets resolver for ENS name.

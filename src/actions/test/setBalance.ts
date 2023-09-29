@@ -5,8 +5,10 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type SetBalanceParameters = {
@@ -15,6 +17,8 @@ export type SetBalanceParameters = {
   /** Amount (in wei) to set */
   value: bigint
 }
+
+export type SetBalanceErrorType = RequestErrorType | ErrorType
 
 /**
  * Modifies the balance of an account.

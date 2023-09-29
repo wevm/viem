@@ -3,14 +3,18 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type SetNextBlockBaseFeePerGasParameters = {
   /** Base fee per gas (in wei). */
   baseFeePerGas: bigint
 }
+
+export type SetNextBlockBaseFeePerGasErrorType = RequestErrorType | ErrorType
 
 /**
  * Sets the next block's base fee per gas.

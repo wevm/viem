@@ -1,3 +1,4 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -8,7 +9,7 @@ import type { RpcTransaction } from '../../types/rpc.js'
 import type { Transaction } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
-import { defineFormatter } from './formatter.js'
+import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
 type TransactionPendingDependencies =
   | 'blockHash'
@@ -39,6 +40,8 @@ export const transactionType = {
   '0x1': 'eip2930',
   '0x2': 'eip1559',
 } as const
+
+export type FormatTransactionErrorType = ErrorType
 
 export function formatTransaction(transaction: Partial<RpcTransaction>) {
   const transaction_ = {
@@ -78,6 +81,8 @@ export function formatTransaction(transaction: Partial<RpcTransaction>) {
   }
   return transaction_ as Transaction
 }
+
+export type DefineTransactionErrorType = DefineFormatterErrorType | ErrorType
 
 export const defineTransaction = /*#__PURE__*/ defineFormatter(
   'transaction',

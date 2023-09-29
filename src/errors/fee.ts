@@ -1,6 +1,9 @@
 import { formatGwei } from '../utils/unit/formatGwei.js'
 import { BaseError } from './base.js'
 
+export type BaseFeeScalarErrorType = BaseFeeScalarError & {
+  name: 'BaseFeeScalarError'
+}
 export class BaseFeeScalarError extends BaseError {
   override name = 'BaseFeeScalarError'
   constructor() {
@@ -8,6 +11,9 @@ export class BaseFeeScalarError extends BaseError {
   }
 }
 
+export type Eip1559FeesNotSupportedErrorType = Eip1559FeesNotSupportedError & {
+  name: 'Eip1559FeesNotSupportedError'
+}
 export class Eip1559FeesNotSupportedError extends BaseError {
   override name = 'Eip1559FeesNotSupportedError'
   constructor() {
@@ -15,6 +21,9 @@ export class Eip1559FeesNotSupportedError extends BaseError {
   }
 }
 
+export type MaxFeePerGasTooLowErrorType = MaxFeePerGasTooLowError & {
+  name: 'MaxFeePerGasTooLowError'
+}
 export class MaxFeePerGasTooLowError extends BaseError {
   override name = 'MaxFeePerGasTooLowError'
   constructor({ maxPriorityFeePerGas }: { maxPriorityFeePerGas: bigint }) {

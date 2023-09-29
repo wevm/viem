@@ -3,6 +3,7 @@ import type { Abi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
@@ -10,11 +11,13 @@ import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
+  type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import {
+  type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
@@ -51,6 +54,11 @@ export type WriteContractParameters<
   }
 
 export type WriteContractReturnType = SendTransactionReturnType
+
+export type WriteContractErrorType =
+  | EncodeFunctionDataErrorType
+  | SendTransactionErrorType
+  | ErrorType
 
 /**
  * Executes a write function on a contract.

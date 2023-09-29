@@ -1,13 +1,23 @@
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 
 export type AddChainParameters = {
   /** The chain to add to the wallet. */
   chain: Chain
 }
+
+export type AddChainErrorType =
+  | RequestErrorType
+  | NumberToHexErrorType
+  | ErrorType
 
 /**
  * Adds an EVM chain to the wallet.
