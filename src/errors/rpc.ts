@@ -98,6 +98,7 @@ export class ProviderRpcError<
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type ParseRpcErrorType = ParseRpcError & {
+  code: -32700
   name: 'ParseRpcError'
 }
 export class ParseRpcError extends RpcError {
@@ -119,6 +120,7 @@ export class ParseRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type InvalidRequestRpcErrorType = InvalidRequestRpcError & {
+  code: -32600
   name: 'InvalidRequestRpcError'
 }
 export class InvalidRequestRpcError extends RpcError {
@@ -139,6 +141,7 @@ export class InvalidRequestRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type MethodNotFoundRpcErrorType = MethodNotFoundRpcError & {
+  code: -32601
   name: 'MethodNotFoundRpcError'
 }
 export class MethodNotFoundRpcError extends RpcError {
@@ -159,6 +162,7 @@ export class MethodNotFoundRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type InvalidParamsRpcErrorType = InvalidParamsRpcError & {
+  code: -32602
   name: 'InvalidParamsRpcError'
 }
 export class InvalidParamsRpcError extends RpcError {
@@ -182,6 +186,7 @@ export class InvalidParamsRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type InternalRpcErrorType = InternalRpcError & {
+  code: -32603
   name: 'InternalRpcError'
 }
 export class InternalRpcError extends RpcError {
@@ -202,6 +207,7 @@ export class InternalRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type InvalidInputRpcErrorType = InvalidInputRpcError & {
+  code: -32000
   name: 'InvalidInputRpcError'
 }
 export class InvalidInputRpcError extends RpcError {
@@ -225,6 +231,7 @@ export class InvalidInputRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type ResourceNotFoundRpcErrorType = ResourceNotFoundRpcError & {
+  code: -32001
   name: 'ResourceNotFoundRpcError'
 }
 export class ResourceNotFoundRpcError extends RpcError {
@@ -245,6 +252,7 @@ export class ResourceNotFoundRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type ResourceUnavailableRpcErrorType = ResourceUnavailableRpcError & {
+  code: -32002
   name: 'ResourceUnavailableRpcError'
 }
 export class ResourceUnavailableRpcError extends RpcError {
@@ -265,6 +273,7 @@ export class ResourceUnavailableRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type TransactionRejectedRpcErrorType = TransactionRejectedRpcError & {
+  code: -32003
   name: 'TransactionRejectedRpcError'
 }
 export class TransactionRejectedRpcError extends RpcError {
@@ -285,6 +294,7 @@ export class TransactionRejectedRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type MethodNotSupportedRpcErrorType = MethodNotSupportedRpcError & {
+  code: -32004
   name: 'MethodNotSupportedRpcError'
 }
 export class MethodNotSupportedRpcError extends RpcError {
@@ -305,6 +315,7 @@ export class MethodNotSupportedRpcError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1474#error-codes
  */
 export type LimitExceededRpcErrorType = LimitExceededRpcError & {
+  code: -32005
   name: 'LimitExceededRpcError'
 }
 export class LimitExceededRpcError extends RpcError {
@@ -326,6 +337,7 @@ export class LimitExceededRpcError extends RpcError {
  */
 export type JsonRpcVersionUnsupportedErrorType =
   JsonRpcVersionUnsupportedError & {
+    code: -32006
     name: 'JsonRpcVersionUnsupportedError'
   }
 export class JsonRpcVersionUnsupportedError extends RpcError {
@@ -346,6 +358,7 @@ export class JsonRpcVersionUnsupportedError extends RpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1193#provider-errors
  */
 export type UserRejectedRequestErrorType = UserRejectedRequestError & {
+  code: 4001
   name: 'UserRejectedRequestError'
 }
 export class UserRejectedRequestError extends ProviderRpcError {
@@ -366,6 +379,7 @@ export class UserRejectedRequestError extends ProviderRpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1193#provider-errors
  */
 export type UnauthorizedProviderErrorType = UnauthorizedProviderError & {
+  code: 4100
   name: 'UnauthorizedProviderError'
 }
 export class UnauthorizedProviderError extends ProviderRpcError {
@@ -388,6 +402,7 @@ export class UnauthorizedProviderError extends ProviderRpcError {
  */
 export type UnsupportedProviderMethodErrorType =
   UnsupportedProviderMethodError & {
+    code: 4200
     name: 'UnsupportedProviderMethodError'
   }
 export class UnsupportedProviderMethodError extends ProviderRpcError {
@@ -408,6 +423,7 @@ export class UnsupportedProviderMethodError extends ProviderRpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1193#provider-errors
  */
 export type ProviderDisconnectedErrorType = ProviderDisconnectedError & {
+  code: 4900
   name: 'ProviderDisconnectedError'
 }
 export class ProviderDisconnectedError extends ProviderRpcError {
@@ -428,6 +444,7 @@ export class ProviderDisconnectedError extends ProviderRpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1193#provider-errors
  */
 export type ChainDisconnectedErrorType = ChainDisconnectedError & {
+  code: 4901
   name: 'ChainDisconnectedError'
 }
 export class ChainDisconnectedError extends ProviderRpcError {
@@ -448,6 +465,7 @@ export class ChainDisconnectedError extends ProviderRpcError {
  * EIP https://eips.ethereum.org/EIPS/eip-1193#provider-errors
  */
 export type SwitchChainErrorType = SwitchChainError & {
+  code: 4902
   name: 'SwitchChainError'
 }
 export class SwitchChainError extends ProviderRpcError {

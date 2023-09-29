@@ -12,6 +12,7 @@ import { BaseError } from './base.js'
  * anvil:   https://github.com/foundry-rs/foundry/blob/master/anvil/src/eth/error.rs#L108
  */
 export type ExecutionRevertedErrorType = ExecutionRevertedError & {
+  code: 3
   name: 'ExecutionRevertedError'
 }
 export class ExecutionRevertedError extends BaseError {
