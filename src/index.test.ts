@@ -278,6 +278,7 @@ test('exports', () => {
       "numberToHex",
       "stringToHex",
       "toHex",
+      "bytesToBigInt",
       "bytesToBigint",
       "bytesToBool",
       "bytesToNumber",

@@ -63,7 +63,7 @@ export function fromBytes<
   if (to === 'number')
     return bytesToNumber(bytes, opts) as FromBytesReturnType<TTo>
   if (to === 'bigint')
-    return bytesToBigint(bytes, opts) as FromBytesReturnType<TTo>
+    return bytesToBigInt(bytes, opts) as FromBytesReturnType<TTo>
   if (to === 'boolean')
     return bytesToBool(bytes, opts) as FromBytesReturnType<TTo>
   if (to === 'string')
@@ -88,11 +88,11 @@ export type BytesToBigIntOpts = {
  * @returns BigInt value.
  *
  * @example
- * import { bytesToBigint } from 'viem'
- * const data = bytesToBigint(new Uint8Array([1, 164]))
+ * import { bytesToBigInt } from 'viem'
+ * const data = bytesToBigInt(new Uint8Array([1, 164]))
  * // 420n
  */
-export function bytesToBigint(
+export function bytesToBigInt(
   bytes: ByteArray,
   opts: BytesToBigIntOpts = {},
 ): bigint {

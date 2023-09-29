@@ -827,7 +827,9 @@ export {
   toHex,
 } from './utils/encoding/toHex.js'
 export {
-  bytesToBigint,
+  bytesToBigInt,
+  /** @deprecated - use `bytesToBigInt` */
+  bytesToBigInt as bytesToBigint,
   bytesToBool,
   bytesToNumber,
   bytesToString,
