@@ -103,9 +103,11 @@ export type CeloTransactionReceipt = TransactionReceipt &
 export type CeloTransactionRequest =
   | TransactionRequest
   | TransactionRequestCIP42
+  | TransactionRequestCIP64
 
 export type CeloTransactionSerializable =
   | TransactionSerializableCIP42
+  | TransactionSerializableCIP64
   | TransactionSerializable
 
 export type CeloTransactionSerialized<
@@ -182,6 +184,13 @@ export type TransactionRequestCIP42 = TransactionRequestBase &
     type?: 'cip42'
   }
 
+export type TransactionRequestCIP64 = TransactionRequestBase &
+  Partial<FeeValuesEIP1559> & {
+    accessList?: AccessList
+    feeCurrency?: Address
+    type?: 'cip64'
+  }
+
 export type TransactionSerializableCIP42<
   TQuantity = bigint,
   TIndex = number,
@@ -196,4 +205,17 @@ export type TransactionSerializableCIP42<
     type?: 'cip42'
   }
 
+export type TransactionSerializableCIP64<
+  TQuantity = bigint,
+  TIndex = number,
+> = TransactionSerializableBase<TQuantity, TIndex> &
+  FeeValuesEIP1559<TQuantity> & {
+    accessList?: AccessList
+    gasPrice?: never
+    feeCurrency?: Address
+    chainId: number
+    type?: 'cip64'
+  }
+
 export type TransactionSerializedCIP42 = `0x7c${string}`
+export type TransactionSerializedCIP64 = `0x7b${string}`

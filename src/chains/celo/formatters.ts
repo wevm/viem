@@ -78,6 +78,7 @@ export const formattersCelo = {
         gatewayFeeRecipient: args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
       if (args.type === 'cip42') request.type = '0x7c'
+      if (args.type === 'cip64') request.type = '0x7b'
       return request
     },
   }),

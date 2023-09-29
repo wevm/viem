@@ -11,12 +11,17 @@ import {
   parseTransaction,
   toTransactionArray,
 } from '../../utils/transaction/parseTransaction.js'
-import { assertTransactionCIP42 } from './serializers.js'
+import {
+  assertTransactionCIP42,
+  assertTransactionCIP64,
+} from './serializers.js'
 import type {
   CeloTransactionSerialized,
   CeloTransactionType,
   TransactionSerializableCIP42,
+  TransactionSerializableCIP64,
   TransactionSerializedCIP42,
+  TransactionSerializedCIP64,
 } from './types.js'
 
 export type ParseTransactionCeloReturnType<
@@ -36,6 +41,11 @@ export function parseTransactionCelo<
   if (serializedType === '0x7c')
     return parseTransactionCIP42(
       serializedTransaction as TransactionSerializedCIP42,
+    ) as ParseTransactionCeloReturnType<TSerialized>
+
+  if (serializedType === '0x7b')
+    return parseTransactionCIP64(
+      serializedTransaction as TransactionSerializedCIP64,
     ) as ParseTransactionCeloReturnType<TSerialized>
 
   return parseTransaction(
@@ -120,4 +130,75 @@ function parseTransactionCIP42(
   assertTransactionCIP42(transaction as TransactionSerializableCIP42)
 
   return transaction as TransactionSerializableCIP42
+}
+
+function parseTransactionCIP64(
+  serializedTransaction: TransactionSerializedCIP64,
+): TransactionSerializableCIP64 {
+  const transactionArray = toTransactionArray(serializedTransaction)
+
+  const [
+    chainId,
+    nonce,
+    maxPriorityFeePerGas,
+    maxFeePerGas,
+    gas,
+    feeCurrency,
+    to,
+    value,
+    data,
+    accessList,
+    v,
+    r,
+    s,
+  ] = transactionArray
+
+  if (transactionArray.length !== 13 && transactionArray.length !== 11) {
+    throw new InvalidSerializedTransactionError({
+      attributes: {
+        chainId,
+        nonce,
+        maxPriorityFeePerGas,
+        maxFeePerGas,
+        gas,
+        feeCurrency,
+        to,
+        value,
+        data,
+        accessList,
+        ...(transactionArray.length > 11
+          ? {
+              v,
+              r,
+              s,
+            }
+          : {}),
+      },
+      serializedTransaction,
+      type: 'cip64',
+    })
+  }
+
+  const transaction: Partial<TransactionSerializableCIP64> = {
+    chainId: hexToNumber(chainId as Hex),
+    type: 'cip64',
+  }
+
+  if (isHex(to) && to !== '0x') transaction.to = to
+  if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
+  if (isHex(data) && data !== '0x') transaction.data = data
+  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
+  if (isHex(feeCurrency) && feeCurrency !== '0x')
+    transaction.feeCurrency = feeCurrency
+  if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
+    transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
+  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
+    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
+  if (accessList.length !== 0 && accessList !== '0x')
+    transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
+
+  assertTransactionCIP64(transaction as TransactionSerializableCIP64)
+
+  return transaction as TransactionSerializableCIP64
 }
