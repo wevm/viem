@@ -1,5 +1,15 @@
 # viem
 
+## 1.14.0
+
+### Minor Changes
+
+- [#1263](https://github.com/wagmi-dev/viem/pull/1263) [`399a43db`](https://github.com/wagmi-dev/viem/commit/399a43db5e559cd84dafb5c66bfe0a7ad24c2d67) Thanks [@jxom](https://github.com/jxom)! - Added error types for exported modules (e.g. `<Module>ErrorType`). [Read more.](https://viem.sh/docs/error-handling.html)
+
+### Patch Changes
+
+- [`52c4c001`](https://github.com/wagmi-dev/viem/commit/52c4c0016a702bdacfb7de69c3f01d62de9af4db) Thanks [@jxom](https://github.com/jxom)! - Fixed typo in `hexToBigInt` export.
+
 ## 1.13.2
 
 ### Patch Changes
