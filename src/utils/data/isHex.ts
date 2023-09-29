@@ -1,4 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
+
+export type IsHexErrorType = ErrorType
 
 export function isHex(
   value: unknown,

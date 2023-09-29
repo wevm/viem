@@ -2,18 +2,20 @@ import type { Abi, Address, ExtractAbiEvent } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
+import type { Filter } from '../../types/filter.js'
+import type { Log } from '../../types/log.js'
+
 import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
-import type { Chain } from '../../types/chain.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   ContractEventArgs,
   ContractEventName,
 } from '../../types/contract.js'
-import type { Filter } from '../../types/filter.js'
-import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
@@ -22,9 +24,9 @@ import {
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import { observe } from '../../utils/observe.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import {
@@ -88,6 +90,11 @@ export type WatchContractEventParameters<
 } & GetPollOptions<transport>
 
 export type WatchContractEventReturnType = () => void
+
+export type WatchContractEventErrorType =
+  | StringifyErrorType
+  | ObserveErrorType
+  | ErrorType
 
 /**
  * Watches and returns emitted contract event logs.

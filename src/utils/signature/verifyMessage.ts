@@ -1,10 +1,17 @@
 import type { Address } from 'abitype'
 
 import type { ByteArray, Hex, SignableMessage } from '../../types/misc.js'
-import { getAddress } from '../address/getAddress.js'
-import { isAddressEqual } from '../address/isAddressEqual.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
+import {
+  type IsAddressEqualErrorType,
+  isAddressEqual,
+} from '../address/isAddressEqual.js'
 
-import { recoverMessageAddress } from './recoverMessageAddress.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type RecoverMessageAddressErrorType,
+  recoverMessageAddress,
+} from './recoverMessageAddress.js'
 
 export type VerifyMessageParameters = {
   /** The address that signed the original message. */
@@ -16,6 +23,12 @@ export type VerifyMessageParameters = {
 }
 
 export type VerifyMessageReturnType = boolean
+
+export type VerifyMessageErrorType =
+  | IsAddressEqualErrorType
+  | GetAddressErrorType
+  | RecoverMessageAddressErrorType
+  | ErrorType
 
 /**
  * Verify that a message was signed by the provided address.

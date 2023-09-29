@@ -1,9 +1,14 @@
 import { RpcRequestError } from '../../errors/request.js'
-import { UrlRequiredError } from '../../errors/transport.js'
+import {
+  UrlRequiredError,
+  type UrlRequiredErrorType,
+} from '../../errors/transport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import { type HttpOptions, type RpcRequest, rpc } from '../../utils/rpc.js'
 
 import {
+  type CreateTransportErrorType,
   type Transport,
   type TransportConfig,
   createTransport,
@@ -45,6 +50,11 @@ export type HttpTransport = Transport<
     url?: string
   }
 >
+
+export type HttpTransportErrorType =
+  | CreateTransportErrorType
+  | UrlRequiredErrorType
+  | ErrorType
 
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.

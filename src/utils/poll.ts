@@ -1,3 +1,4 @@
+import type { ErrorType } from '../errors/utils.js'
 import { wait } from './wait.js'
 
 type PollOptions<TData> = {
@@ -8,6 +9,8 @@ type PollOptions<TData> = {
   // The interval (in ms).
   interval: number
 }
+
+export type PollErrorType = ErrorType
 
 /**
  * @description Polls a function at a specified interval.

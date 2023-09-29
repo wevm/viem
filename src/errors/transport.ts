@@ -1,5 +1,8 @@
 import { BaseError } from './base.js'
 
+export type UrlRequiredErrorType = UrlRequiredError & {
+  name: 'UrlRequiredError'
+}
 export class UrlRequiredError extends BaseError {
   constructor() {
     super(

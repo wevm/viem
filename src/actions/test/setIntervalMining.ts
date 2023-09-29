@@ -3,13 +3,17 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type SetIntervalMiningParameters = {
   /** The mining interval. */
   interval: number
 }
+
+export type SetIntervalMiningErrorType = RequestErrorType | ErrorType
 
 /**
  * Sets the automatic mining interval (in seconds) of blocks. Setting the interval to 0 will disable automatic mining.
@@ -38,8 +42,13 @@ export async function setIntervalMining<
   client: TestClient<TestClientMode, Transport, TChain, TAccount, false>,
   { interval }: SetIntervalMiningParameters,
 ) {
+  const interval_ = (() => {
+    if (client.mode === 'hardhat') return interval * 1000
+    return interval
+  })()
+
   await client.request({
     method: 'evm_setIntervalMining',
-    params: [interval],
+    params: [interval_],
   })
 }

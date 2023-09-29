@@ -1,10 +1,15 @@
 import { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { isHex } from '../data/isHex.js'
-import { pad } from '../data/pad.js'
+import { type IsHexErrorType, isHex } from '../data/isHex.js'
+import { type PadErrorType, pad } from '../data/pad.js'
 
-import { assertSize } from './fromHex.js'
-import { type NumberToHexOpts, numberToHex } from './toHex.js'
+import { type AssertSizeErrorType, assertSize } from './fromHex.js'
+import {
+  type NumberToHexErrorType,
+  type NumberToHexOpts,
+  numberToHex,
+} from './toHex.js'
 
 const encoder = /*#__PURE__*/ new TextEncoder()
 
@@ -12,6 +17,14 @@ export type ToBytesParameters = {
   /** Size of the output bytes. */
   size?: number
 }
+
+export type ToBytesErrorType =
+  | NumberToBytesErrorType
+  | BoolToBytesErrorType
+  | HexToBytesErrorType
+  | StringToBytesErrorType
+  | IsHexErrorType
+  | ErrorType
 
 /**
  * Encodes a UTF-8 string, hex value, bigint, number or boolean to a byte array.
@@ -49,10 +62,15 @@ export function toBytes(
   return stringToBytes(value, opts)
 }
 
-export type BoolToHexOpts = {
+export type BoolToBytesOpts = {
   /** Size of the output bytes. */
   size?: number
 }
+
+export type BoolToBytesErrorType =
+  | AssertSizeErrorType
+  | PadErrorType
+  | ErrorType
 
 /**
  * Encodes a boolean into a byte array.
@@ -73,7 +91,7 @@ export type BoolToHexOpts = {
  * const data = boolToBytes(true, { size: 32 })
  * // Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
  */
-export function boolToBytes(value: boolean, opts: BoolToHexOpts = {}) {
+export function boolToBytes(value: boolean, opts: BoolToBytesOpts = {}) {
   const bytes = new Uint8Array(1)
   bytes[0] = Number(value)
   if (typeof opts.size === 'number') {
@@ -107,6 +125,8 @@ export type HexToBytesOpts = {
   /** Size of the output bytes. */
   size?: number
 }
+
+export type HexToBytesErrorType = AssertSizeErrorType | PadErrorType | ErrorType
 
 /**
  * Encodes a hex string into a byte array.
@@ -154,6 +174,11 @@ export function hexToBytes(hex_: Hex, opts: HexToBytesOpts = {}): ByteArray {
   return bytes
 }
 
+export type NumberToBytesErrorType =
+  | NumberToHexErrorType
+  | HexToBytesErrorType
+  | ErrorType
+
 /**
  * Encodes a number into a byte array.
  *
@@ -182,6 +207,11 @@ export type StringToBytesOpts = {
   /** Size of the output bytes. */
   size?: number
 }
+
+export type StringToBytesErrorType =
+  | AssertSizeErrorType
+  | PadErrorType
+  | ErrorType
 
 /**
  * Encodes a UTF-8 string into a byte array.

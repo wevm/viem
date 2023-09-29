@@ -1,5 +1,9 @@
 import { BaseError } from './base.js'
 
+export type EnsAvatarInvalidMetadataErrorType =
+  EnsAvatarInvalidMetadataError & {
+    name: 'EnsAvatarInvalidMetadataError'
+  }
 export class EnsAvatarInvalidMetadataError extends BaseError {
   override name = 'EnsAvatarInvalidMetadataError'
   constructor({ data }: { data: any }) {
@@ -16,6 +20,9 @@ export class EnsAvatarInvalidMetadataError extends BaseError {
   }
 }
 
+export type EnsAvatarInvalidNftUriErrorType = EnsAvatarInvalidNftUriError & {
+  name: 'EnsAvatarInvalidNftUriError'
+}
 export class EnsAvatarInvalidNftUriError extends BaseError {
   override name = 'EnsAvatarInvalidNftUriError'
   constructor({ reason }: { reason: string }) {
@@ -23,6 +30,9 @@ export class EnsAvatarInvalidNftUriError extends BaseError {
   }
 }
 
+export type EnsAvatarUriResolutionErrorType = EnsAvatarUriResolutionError & {
+  name: 'EnsAvatarUriResolutionError'
+}
 export class EnsAvatarUriResolutionError extends BaseError {
   override name = 'EnsAvatarUriResolutionError'
   constructor({ uri }: { uri: string }) {
@@ -32,6 +42,10 @@ export class EnsAvatarUriResolutionError extends BaseError {
   }
 }
 
+export type EnsAvatarUnsupportedNamespaceErrorType =
+  EnsAvatarUnsupportedNamespaceError & {
+    name: 'EnsAvatarUnsupportedNamespaceError'
+  }
 export class EnsAvatarUnsupportedNamespaceError extends BaseError {
   override name = 'EnsAvatarUnsupportedNamespaceError'
   constructor({ namespace }: { namespace: string }) {

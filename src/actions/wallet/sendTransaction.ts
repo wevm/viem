@@ -1,9 +1,14 @@
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
+import type { SignTransactionErrorType } from '../../accounts/utils/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
@@ -13,20 +18,34 @@ import type {
   TransactionSerializable,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { assertCurrentChain } from '../../utils/chain.js'
-import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type AssertCurrentChainErrorType,
+  assertCurrentChain,
+} from '../../utils/chain.js'
+import {
+  type GetTransactionErrorReturnType,
+  getTransactionError,
+} from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import {
+  type AssertRequestErrorType,
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import { getChainId } from '../public/getChainId.js'
-import { prepareTransactionRequest } from './prepareTransactionRequest.js'
-import { sendRawTransaction } from './sendRawTransaction.js'
+import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
+import {
+  type PrepareTransactionRequestErrorType,
+  prepareTransactionRequest,
+} from './prepareTransactionRequest.js'
+import {
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from './sendRawTransaction.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -42,6 +61,19 @@ export type SendTransactionParameters<
   GetChain<TChain, TChainOverride>
 
 export type SendTransactionReturnType = Hash
+
+export type SendTransactionErrorType =
+  | ParseAccountErrorType
+  | GetTransactionErrorReturnType<
+      | AssertCurrentChainErrorType
+      | AssertRequestErrorType
+      | GetChainIdErrorType
+      | PrepareTransactionRequestErrorType
+      | SendRawTransactionReturnType
+      | SignTransactionErrorType
+      | RequestErrorType
+    >
+  | ErrorType
 
 /**
  * Creates, signs, and sends a new transaction to the network.

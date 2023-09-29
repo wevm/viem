@@ -1,9 +1,13 @@
 import type { Abi } from 'abitype'
 
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
@@ -15,12 +19,21 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { getContractError } from '../../utils/errors/getContractError.js'
+import {
+  type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 
-import { type CallParameters, call } from './call.js'
+import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type SimulateContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -110,6 +123,12 @@ export type SimulateContractReturnType<
       }
   >
 }
+
+export type SimulateContractErrorType =
+  | ParseAccountErrorType
+  | EncodeFunctionDataErrorType
+  | GetContractErrorReturnType<CallErrorType | DecodeFunctionResultErrorType>
+  | ErrorType
 
 /**
  * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.

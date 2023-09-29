@@ -2,6 +2,7 @@ import type { Abi, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -11,11 +12,15 @@ import type {
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
 import {
+  type GetAbiItemErrorType,
   type GetAbiItemParameters,
   getAbiItem,
 } from '../../utils/abi/getAbiItem.js'
-import { getLogs } from './getLogs.js'
-import type { GetLogsParameters } from './getLogs.js'
+import {
+  type GetLogsErrorType,
+  type GetLogsParameters,
+  getLogs,
+} from './getLogs.js'
 
 export type GetContractEventsParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -74,6 +79,11 @@ export type GetContractEventsReturnType<
     | (fromBlock extends 'pending' ? true : false)
     | (toBlock extends 'pending' ? true : false),
 > = Log<bigint, number, isPending, undefined, strict, abi, eventName>[]
+
+export type GetContractEventsErrorType =
+  | GetAbiItemErrorType
+  | GetLogsErrorType
+  | ErrorType
 
 /**
  * Returns a list of event logs emitted by a contract.

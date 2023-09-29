@@ -5,11 +5,22 @@ import { InvalidAddressError } from '../errors/address.js'
 import type { Hex } from '../types/misc.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
 
-import { isAddress } from './address/isAddress.js'
-import { size } from './data/size.js'
-import { numberToHex } from './encoding/toHex.js'
+import type { ErrorType } from '../errors/utils.js'
+import { type IsAddressErrorType, isAddress } from './address/isAddress.js'
+import { type SizeErrorType, size } from './data/size.js'
+import { type NumberToHexErrorType, numberToHex } from './encoding/toHex.js'
 import { bytesRegex, integerRegex } from './regex.js'
-import { hashDomain } from './signature/hashTypedData.js'
+import {
+  type HashDomainErrorType,
+  hashDomain,
+} from './signature/hashTypedData.js'
+
+export type ValidateTypedDataErrorType =
+  | HashDomainErrorType
+  | IsAddressErrorType
+  | NumberToHexErrorType
+  | SizeErrorType
+  | ErrorType
 
 export function validateTypedData<
   const typedData extends TypedData | Record<string, unknown>,
@@ -68,6 +79,8 @@ export function validateTypedData<
   }
 }
 
+export type GetTypesForEIP712DomainErrorType = ErrorType
+
 export function getTypesForEIP712Domain({
   domain,
 }: { domain?: TypedDataDomain }): TypedDataParameter[] {
@@ -85,6 +98,11 @@ export function getTypesForEIP712Domain({
     domain?.salt && { name: 'salt', type: 'bytes32' },
   ].filter(Boolean) as TypedDataParameter[]
 }
+
+export type DomainSeparatorErrorType =
+  | GetTypesForEIP712DomainErrorType
+  | HashDomainErrorType
+  | ErrorType
 
 export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
   return hashDomain({

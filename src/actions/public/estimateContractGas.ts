@@ -1,7 +1,10 @@
 import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
@@ -13,9 +16,19 @@ import type {
   GetValue,
 } from '../../types/contract.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { getContractError } from '../../utils/errors/getContractError.js'
-import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
+import {
+  type EstimateGasErrorType,
+  type EstimateGasParameters,
+  estimateGas,
+} from './estimateGas.js'
 
 export type EstimateContractGasParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -46,6 +59,10 @@ export type EstimateContractGasParameters<
   >
 
 export type EstimateContractGasReturnType = bigint
+
+export type EstimateContractGasErrorType = GetContractErrorReturnType<
+  EncodeFunctionDataErrorType | EstimateGasErrorType | ParseAccountErrorType
+>
 
 /**
  * Estimates the gas required to successfully execute a contract write function call.

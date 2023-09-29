@@ -1,4 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray } from '../../types/misc.js'
+
+export type IsBytesErrorType = ErrorType
 
 export function isBytes(value: unknown): value is ByteArray {
   if (!value) return false

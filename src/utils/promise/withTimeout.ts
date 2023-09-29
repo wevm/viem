@@ -1,3 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
+
+export type WithTimeoutErrorType = ErrorType
+
 export function withTimeout<TData>(
   fn: ({ signal }: { signal?: AbortController['signal'] }) => Promise<TData>,
   {

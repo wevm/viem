@@ -2,8 +2,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   BaseFeeScalarError,
+  type BaseFeeScalarErrorType,
   Eip1559FeesNotSupportedError,
+  type Eip1559FeesNotSupportedErrorType,
 } from '../../errors/fee.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Block } from '../../types/block.js'
 import type {
   Chain,
@@ -17,9 +20,12 @@ import type {
   FeeValuesType,
 } from '../../types/fee.js'
 import type { PrepareTransactionRequestParameters } from '../wallet/prepareTransactionRequest.js'
-import { internal_estimateMaxPriorityFeePerGas } from './estimateMaxPriorityFeePerGas.js'
+import {
+  type EstimateMaxPriorityFeePerGasErrorType,
+  internal_estimateMaxPriorityFeePerGas,
+} from './estimateMaxPriorityFeePerGas.js'
 import { getBlock } from './getBlock.js'
-import { getGasPrice } from './getGasPrice.js'
+import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
 
 export type EstimateFeesPerGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -42,6 +48,13 @@ export type EstimateFeesPerGasReturnType<
 > =
   | (type extends 'legacy' ? FeeValuesLegacy : never)
   | (type extends 'eip1559' ? FeeValuesEIP1559 : never)
+
+export type EstimateFeesPerGasErrorType =
+  | BaseFeeScalarErrorType
+  | EstimateMaxPriorityFeePerGasErrorType
+  | GetGasPriceErrorType
+  | Eip1559FeesNotSupportedErrorType
+  | ErrorType
 
 /**
  * Returns an estimate for the fees per gas (in wei) for a

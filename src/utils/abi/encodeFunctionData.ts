@@ -1,18 +1,28 @@
 import type { Abi, AbiStateMutability, ExtractAbiFunctions } from 'abitype'
 
-import { AbiFunctionNotFoundError } from '../../errors/abi.js'
+import {
+  AbiFunctionNotFoundError,
+  type AbiFunctionNotFoundErrorType,
+} from '../../errors/abi.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../../types/contract.js'
-import { concatHex } from '../data/concat.js'
-import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import {
+  type GetFunctionSelectorErrorType,
+  getFunctionSelector,
+} from '../hash/getFunctionSelector.js'
 
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
-import { getAbiItem } from './getAbiItem.js'
+import {
+  type EncodeAbiParametersErrorType,
+  encodeAbiParameters,
+} from './encodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeFunctionData'
 
@@ -54,6 +64,15 @@ export type EncodeFunctionDataParameters<
   (hasFunctions extends true ? unknown : never)
 
 export type EncodeFunctionDataReturnType = Hex
+
+export type EncodeFunctionDataErrorType =
+  | AbiFunctionNotFoundErrorType
+  | ConcatHexErrorType
+  | EncodeAbiParametersErrorType
+  | FormatAbiItemErrorType
+  | GetAbiItemErrorType
+  | GetFunctionSelectorErrorType
+  | ErrorType
 
 export function encodeFunctionData<
   const abi extends Abi | readonly unknown[],

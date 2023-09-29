@@ -1,5 +1,9 @@
+import type { ErrorType } from '../../errors/utils.js'
+
 export const promiseCache = /*#__PURE__*/ new Map()
 export const responseCache = /*#__PURE__*/ new Map()
+
+export type GetCacheErrorType = ErrorType
 
 export function getCache<TData>(cacheKey: string) {
   const buildCache = <TData>(cacheKey: string, cache: Map<string, TData>) => ({

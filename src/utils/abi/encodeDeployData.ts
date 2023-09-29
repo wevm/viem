@@ -2,14 +2,18 @@ import type { Abi } from 'abitype'
 
 import {
   AbiConstructorNotFoundError,
+  type AbiConstructorNotFoundErrorType,
   AbiConstructorParamsNotFoundError,
 } from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { ContractConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { concatHex } from '../data/concat.js'
-
 import type { UnionEvaluate } from '../../types/utils.js'
-import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import {
+  type EncodeAbiParametersErrorType,
+  encodeAbiParameters,
+} from './encodeAbiParameters.js'
 
 const docsPath = '/docs/contract/encodeDeployData'
 
@@ -35,6 +39,12 @@ export type EncodeDeployDataParameters<
   (hasConstructor extends true ? unknown : never)
 
 export type EncodeDeployDataReturnType = Hex
+
+export type EncodeDeployDataErrorType =
+  | AbiConstructorNotFoundErrorType
+  | ConcatHexErrorType
+  | EncodeAbiParametersErrorType
+  | ErrorType
 
 export function encodeDeployData<const abi extends Abi | readonly unknown[]>(
   parameters: EncodeDeployDataParameters<abi>,

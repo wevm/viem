@@ -1,8 +1,15 @@
 import type { Address } from 'abitype'
 
-import { InvalidAddressError } from '../errors/address.js'
-import { isAddress } from '../utils/address/isAddress.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../errors/address.js'
+import {
+  type IsAddressErrorType,
+  isAddress,
+} from '../utils/address/isAddress.js'
 
+import type { ErrorType } from '../errors/utils.js'
 import type {
   AccountSource,
   CustomSource,
@@ -13,6 +20,11 @@ import type {
 type GetAccountReturnType<TAccountSource extends AccountSource> =
   | (TAccountSource extends Address ? JsonRpcAccount : never)
   | (TAccountSource extends CustomSource ? LocalAccount : never)
+
+export type ToAccountErrorType =
+  | InvalidAddressErrorType
+  | IsAddressErrorType
+  | ErrorType
 
 /**
  * @description Creates an Account from a custom signing implementation.

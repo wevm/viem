@@ -1,11 +1,14 @@
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { WatchAssetParams } from '../../types/eip1193.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type WatchAssetParameters = WatchAssetParams
 export type WatchAssetReturnType = boolean
+export type WatchAssetErrorType = RequestErrorType | ErrorType
 
 /**
  * Adds an EVM chain to the wallet.

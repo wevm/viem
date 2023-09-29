@@ -1,5 +1,17 @@
 # viem
 
+## 1.13.2
+
+### Patch Changes
+
+- [#1265](https://github.com/wagmi-dev/viem/pull/1265) [`3fd1e788`](https://github.com/wagmi-dev/viem/commit/3fd1e788f2f3a82c943e58fc77a3dc5da1f798cf) Thanks [@mcdee](https://github.com/mcdee)! - Added multicall3 for holesky
+
+## 1.13.1
+
+### Patch Changes
+
+- [`61ef4d22`](https://github.com/wagmi-dev/viem/commit/61ef4d224c860e99f3ac82adb8e4c767a77b6dc0) Thanks [@jxom](https://github.com/jxom)! - Fixed `interval` parameter for Hardhat.
+
 ## 1.13.0
 
 ### Minor Changes

@@ -2,7 +2,9 @@ import type { Abi, AbiStateMutability, ExtractAbiFunctions } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
+  type AbiFunctionNotFoundErrorType,
   AbiFunctionOutputsNotFoundError,
+  type AbiFunctionOutputsNotFoundErrorType,
 } from '../../errors/abi.js'
 import type {
   ContractFunctionArgs,
@@ -12,9 +14,13 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 
+import type { ErrorType } from '../../errors/utils.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { getAbiItem } from './getAbiItem.js'
+import {
+  type DecodeAbiParametersErrorType,
+  decodeAbiParameters,
+} from './decodeAbiParameters.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 
@@ -110,6 +116,13 @@ export type DecodeFunctionResultReturnType<
     : ContractFunctionName<abi>,
   args
 >
+
+export type DecodeFunctionResultErrorType =
+  | AbiFunctionNotFoundErrorType
+  | AbiFunctionOutputsNotFoundErrorType
+  | DecodeAbiParametersErrorType
+  | GetAbiItemErrorType
+  | ErrorType
 
 export function decodeFunctionResult<
   const abi extends Abi | readonly unknown[],

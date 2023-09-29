@@ -1,9 +1,14 @@
+import type { ErrorType } from '../../errors/utils.js'
 import { BaseError } from '../../index.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { type Cursor, createCursor } from '../cursor.js'
+import {
+  type CreateCursorErrorType,
+  type Cursor,
+  createCursor,
+} from '../cursor.js'
 
-import { hexToBytes } from './toBytes.js'
-import { bytesToHex } from './toHex.js'
+import { type HexToBytesErrorType, hexToBytes } from './toBytes.js'
+import { type BytesToHexErrorType, bytesToHex } from './toHex.js'
 
 export type RecursiveArray<T> = T | RecursiveArray<T>[]
 
@@ -18,6 +23,12 @@ export type ToRlpReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
 
+export type ToRlpErrorType =
+  | CreateCursorErrorType
+  | BytesToHexErrorType
+  | HexToBytesErrorType
+  | ErrorType
+
 export function toRlp<to extends To = 'hex'>(
   bytes: RecursiveArray<ByteArray> | RecursiveArray<Hex>,
   to: to | To | undefined = 'hex',
@@ -30,12 +41,16 @@ export function toRlp<to extends To = 'hex'>(
   return cursor.bytes as ToRlpReturnType<to>
 }
 
+export type BytesToRlpErrorType = ToRlpErrorType | ErrorType
+
 export function bytesToRlp<to extends To = 'bytes'>(
   bytes: RecursiveArray<ByteArray>,
   to: to | To | undefined = 'bytes',
 ): ToRlpReturnType<to> {
   return toRlp(bytes, to)
 }
+
+export type HexToRlpErrorType = ToRlpErrorType | ErrorType
 
 export function hexToRlp<to extends To = 'hex'>(
   hex: RecursiveArray<Hex>,

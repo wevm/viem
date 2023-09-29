@@ -3,14 +3,18 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type IncreaseTimeParameters = {
   /** The amount of seconds to jump forward in time. */
   seconds: number
 }
+
+export type IncreaseTimeErrorType = RequestErrorType | ErrorType
 
 /**
  * Jump forward in time by the given amount of time, in seconds.

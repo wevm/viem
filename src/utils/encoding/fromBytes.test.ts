@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  bytesToBigint,
+  bytesToBigInt,
   bytesToBool,
   bytesToNumber,
   bytesToString,
@@ -74,14 +74,14 @@ describe('converts bytes to bigint', () => {
       ),
     ).toMatchInlineSnapshot('4206942069420694206942069420694206942069n')
 
-    expect(bytesToBigint(new Uint8Array([0]))).toMatchInlineSnapshot('0n')
-    expect(bytesToBigint(new Uint8Array([7]))).toMatchInlineSnapshot('7n')
-    expect(bytesToBigint(new Uint8Array([69]))).toMatchInlineSnapshot('69n')
-    expect(bytesToBigint(new Uint8Array([1, 164]))).toMatchInlineSnapshot(
+    expect(bytesToBigInt(new Uint8Array([0]))).toMatchInlineSnapshot('0n')
+    expect(bytesToBigInt(new Uint8Array([7]))).toMatchInlineSnapshot('7n')
+    expect(bytesToBigInt(new Uint8Array([69]))).toMatchInlineSnapshot('69n')
+    expect(bytesToBigInt(new Uint8Array([1, 164]))).toMatchInlineSnapshot(
       '420n',
     )
     expect(
-      bytesToBigint(
+      bytesToBigInt(
         new Uint8Array([
           12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252,
           11, 117,
@@ -95,7 +95,7 @@ describe('converts bytes to bigint', () => {
       fromBytes(numberToBytes(420n, { size: 32 }), { size: 32, to: 'bigint' }),
     ).toEqual(420n)
     expect(
-      bytesToBigint(numberToBytes(420n, { size: 32 }), {
+      bytesToBigInt(numberToBytes(420n, { size: 32 }), {
         size: 32,
       }),
     ).toEqual(420n)
@@ -103,7 +103,7 @@ describe('converts bytes to bigint', () => {
 
   test('error: size overflow', () => {
     expect(() =>
-      bytesToBigint(numberToBytes(69420, { size: 64 }), { size: 32 }),
+      bytesToBigInt(numberToBytes(69420, { size: 64 }), { size: 32 }),
     ).toThrowErrorMatchingInlineSnapshot(`
       "Size cannot exceed 32 bytes. Given size: 64 bytes.
 

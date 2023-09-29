@@ -31,6 +31,7 @@ import type {
   UnionOmit,
 } from '../types/utils.js'
 
+import type { ErrorType } from '../errors/utils.js'
 import {
   type CreateContractEventFilterParameters,
   type CreateContractEventFilterReturnType,
@@ -422,6 +423,8 @@ export type GetContractReturnType<
         : unknown)
   > & { address: TAddress; abi: TAbi }
 >
+
+export type GetContractErrorType = ErrorType
 
 /**
  * Gets type-safe interface for performing contract-related actions with a specific `abi` and `address`.

@@ -1,3 +1,5 @@
+import type { ErrorType } from '../../errors/utils.js'
+
 type Resolved<TReturnType extends readonly unknown[] = any> = [
   result: TReturnType[number],
   results: TReturnType,
@@ -19,6 +21,7 @@ export type CreateBatchSchedulerArguments<
   shouldSplitBatch?: (args: TParameters[]) => boolean
   wait?: number
 }
+
 export type CreateBatchSchedulerReturnType<
   TParameters = unknown,
   TReturnType extends readonly unknown[] = readonly unknown[],
@@ -28,6 +31,8 @@ export type CreateBatchSchedulerReturnType<
     ? (args?: TParameters) => Promise<Resolved<TReturnType>>
     : (args: TParameters) => Promise<Resolved<TReturnType>>
 }
+
+export type CreateBatchSchedulerErrorType = ErrorType
 
 const schedulerCache = /*#__PURE__*/ new Map<number | string, SchedulerItem[]>()
 

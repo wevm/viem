@@ -30,6 +30,9 @@ export type EIP1193Provider = Prettify<
 //////////////////////////////////////////////////
 // Errors
 
+export type ProviderRpcErrorType = ProviderRpcError & {
+  name: 'ProviderRpcError'
+}
 export class ProviderRpcError extends Error {
   code: number
   details: string

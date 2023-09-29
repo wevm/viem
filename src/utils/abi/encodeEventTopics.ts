@@ -5,22 +5,34 @@ import type {
   ExtractAbiEvents,
 } from 'abitype'
 
-import { AbiEventNotFoundError } from '../../errors/abi.js'
-import { FilterTypeNotSupportedError } from '../../errors/log.js'
+import {
+  AbiEventNotFoundError,
+  type AbiEventNotFoundErrorType,
+} from '../../errors/abi.js'
+import {
+  FilterTypeNotSupportedError,
+  type FilterTypeNotSupportedErrorType,
+} from '../../errors/log.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   ContractEventArgs,
   ContractEventName,
   EventDefinition,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { toBytes } from '../encoding/toBytes.js'
-import { getEventSelector } from '../hash/getEventSelector.js'
-import { keccak256 } from '../hash/keccak256.js'
-
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
-import { getAbiItem } from './getAbiItem.js'
+import { type ToBytesErrorType, toBytes } from '../encoding/toBytes.js'
+import {
+  type GetEventSelectorErrorType,
+  getEventSelector,
+} from '../hash/getEventSelector.js'
+import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
+import {
+  type EncodeAbiParametersErrorType,
+  encodeAbiParameters,
+} from './encodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeEventTopics'
 
@@ -53,6 +65,14 @@ export type EncodeEventTopicsParameters<
     : { eventName?: eventName | allErrorNames }
 > &
   (hasEvents extends true ? unknown : never)
+
+export type EncodeEventTopicsErrorType =
+  | AbiEventNotFoundErrorType
+  | EncodeArgErrorType
+  | FormatAbiItemErrorType
+  | GetAbiItemErrorType
+  | GetEventSelectorErrorType
+  | ErrorType
 
 export function encodeEventTopics<
   const abi extends Abi | readonly unknown[],
@@ -99,6 +119,13 @@ export function encodeEventTopics<
   }
   return [signature, ...topics]
 }
+
+export type EncodeArgErrorType =
+  | Keccak256ErrorType
+  | ToBytesErrorType
+  | EncodeAbiParametersErrorType
+  | FilterTypeNotSupportedErrorType
+  | ErrorType
 
 function encodeArg({
   param,

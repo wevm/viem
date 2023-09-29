@@ -9,13 +9,20 @@ import type {
   ContractErrorName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { concatHex } from '../data/concat.js'
-import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import {
+  type GetFunctionSelectorErrorType,
+  getFunctionSelector,
+} from '../hash/getFunctionSelector.js'
 
+import type { ErrorType } from '../../errors/utils.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
-import { getAbiItem } from './getAbiItem.js'
+import {
+  type EncodeAbiParametersErrorType,
+  encodeAbiParameters,
+} from './encodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
+import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeErrorResult'
 
@@ -50,6 +57,14 @@ export type EncodeErrorResultParameters<
   (hasErrors extends true ? unknown : never)
 
 export type EncodeErrorResultReturnType = Hex
+
+export type EncodeErrorResultErrorType =
+  | GetAbiItemErrorType
+  | FormatAbiItemErrorType
+  | GetFunctionSelectorErrorType
+  | EncodeAbiParametersErrorType
+  | ConcatHexErrorType
+  | ErrorType
 
 export function encodeErrorResult<
   const abi extends Abi | readonly unknown[],

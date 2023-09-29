@@ -1,4 +1,8 @@
-import { InvalidSerializableTransactionError } from '../../errors/transaction.js'
+import {
+  InvalidSerializableTransactionError,
+  type InvalidSerializableTransactionErrorType,
+} from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -22,6 +26,10 @@ export type GetTransactionType<
   | (TTransactionSerializable extends TransactionSerializableGeneric
       ? TTransactionSerializable['type']
       : never)
+
+export type GetTransationTypeErrorType =
+  | InvalidSerializableTransactionErrorType
+  | ErrorType
 
 export function getTransactionType<
   TTransactionSerializable extends TransactionSerializable,

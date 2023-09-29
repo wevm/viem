@@ -10,6 +10,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'Migration Guide', link: '/docs/migration-guide' },
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
         { text: 'TypeScript', link: '/docs/typescript' },
+        { text: 'Error Handling', link: '/docs/error-handling' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
         { text: 'FAQ', link: '/docs/faq' },
       ],

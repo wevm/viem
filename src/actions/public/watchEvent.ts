@@ -12,15 +12,16 @@ import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
-import { observe } from '../../utils/observe.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
+import type { ErrorType } from '../../errors/utils.js'
 import {
   decodeEventLog,
   encodeEventTopics,
@@ -103,6 +104,11 @@ export type WatchEventParameters<
   )
 
 export type WatchEventReturnType = () => void
+
+export type WatchEventErrorType =
+  | StringifyErrorType
+  | ObserveErrorType
+  | ErrorType
 
 /**
  * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).

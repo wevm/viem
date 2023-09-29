@@ -11,7 +11,10 @@ import { BaseError } from './base.js'
  *
  * anvil:   https://github.com/foundry-rs/foundry/blob/master/anvil/src/eth/error.rs#L108
  */
-
+export type ExecutionRevertedErrorType = ExecutionRevertedError & {
+  code: 3
+  name: 'ExecutionRevertedError'
+}
 export class ExecutionRevertedError extends BaseError {
   static code = 3
   static nodeMessage = /execution reverted/
@@ -36,6 +39,9 @@ export class ExecutionRevertedError extends BaseError {
   }
 }
 
+export type FeeCapTooHighErrorType = FeeCapTooHighError & {
+  name: 'FeeCapTooHighError'
+}
 export class FeeCapTooHighError extends BaseError {
   static nodeMessage =
     /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
@@ -55,6 +61,9 @@ export class FeeCapTooHighError extends BaseError {
   }
 }
 
+export type FeeCapTooLowErrorType = FeeCapTooLowError & {
+  name: 'FeeCapTooLowError'
+}
 export class FeeCapTooLowError extends BaseError {
   static nodeMessage =
     /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
@@ -74,6 +83,9 @@ export class FeeCapTooLowError extends BaseError {
   }
 }
 
+export type NonceTooHighErrorType = NonceTooHighError & {
+  name: 'NonceTooHighError'
+}
 export class NonceTooHighError extends BaseError {
   static nodeMessage = /nonce too high/
   override name = 'NonceTooHighError'
@@ -87,6 +99,9 @@ export class NonceTooHighError extends BaseError {
   }
 }
 
+export type NonceTooLowErrorType = NonceTooLowError & {
+  name: 'NonceTooLowError'
+}
 export class NonceTooLowError extends BaseError {
   static nodeMessage =
     /nonce too low|transaction already imported|already known/
@@ -104,6 +119,9 @@ export class NonceTooLowError extends BaseError {
   }
 }
 
+export type NonceMaxValueErrorType = NonceMaxValueError & {
+  name: 'NonceMaxValueError'
+}
 export class NonceMaxValueError extends BaseError {
   static nodeMessage = /nonce has max value/
   override name = 'NonceMaxValueError'
@@ -117,6 +135,9 @@ export class NonceMaxValueError extends BaseError {
   }
 }
 
+export type InsufficientFundsErrorType = InsufficientFundsError & {
+  name: 'InsufficientFundsError'
+}
 export class InsufficientFundsError extends BaseError {
   static nodeMessage = /insufficient funds/
   override name = 'InsufficientFundsError'
@@ -142,6 +163,9 @@ export class InsufficientFundsError extends BaseError {
   }
 }
 
+export type IntrinsicGasTooHighErrorType = IntrinsicGasTooHighError & {
+  name: 'IntrinsicGasTooHighError'
+}
 export class IntrinsicGasTooHighError extends BaseError {
   static nodeMessage = /intrinsic gas too high|gas limit reached/
   override name = 'IntrinsicGasTooHighError'
@@ -157,6 +181,9 @@ export class IntrinsicGasTooHighError extends BaseError {
   }
 }
 
+export type IntrinsicGasTooLowErrorType = IntrinsicGasTooLowError & {
+  name: 'IntrinsicGasTooLowError'
+}
 export class IntrinsicGasTooLowError extends BaseError {
   static nodeMessage = /intrinsic gas too low/
   override name = 'IntrinsicGasTooLowError'
@@ -172,6 +199,10 @@ export class IntrinsicGasTooLowError extends BaseError {
   }
 }
 
+export type TransactionTypeNotSupportedErrorType =
+  TransactionTypeNotSupportedError & {
+    name: 'TransactionTypeNotSupportedError'
+  }
 export class TransactionTypeNotSupportedError extends BaseError {
   static nodeMessage = /transaction type not valid/
   override name = 'TransactionTypeNotSupportedError'
@@ -182,6 +213,9 @@ export class TransactionTypeNotSupportedError extends BaseError {
   }
 }
 
+export type TipAboveFeeCapErrorType = TipAboveFeeCapError & {
+  name: 'TipAboveFeeCapError'
+}
 export class TipAboveFeeCapError extends BaseError {
   static nodeMessage =
     /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
@@ -212,6 +246,9 @@ export class TipAboveFeeCapError extends BaseError {
   }
 }
 
+export type UnknownNodeErrorType = UnknownNodeError & {
+  name: 'UnknownNodeError'
+}
 export class UnknownNodeError extends BaseError {
   override name = 'UnknownNodeError'
 

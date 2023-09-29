@@ -1,8 +1,13 @@
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
+import type { SignTransactionErrorType as SignTransactionErrorType_account } from '../../accounts/utils/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, GetChain } from '../../types/chain.js'
 import { type RpcTransactionRequest } from '../../types/rpc.js'
@@ -12,14 +17,22 @@ import type {
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { assertCurrentChain } from '../../utils/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type AssertCurrentChainErrorType,
+  assertCurrentChain,
+} from '../../utils/chain.js'
+import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { numberToHex } from '../../utils/index.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
-import { getChainId } from '../public/getChainId.js'
+import {
+  type AssertRequestErrorType,
+  assertRequest,
+} from '../../utils/transaction/assertRequest.js'
+import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 
 export type SignTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -35,6 +48,16 @@ export type SignTransactionParameters<
   GetChain<TChain, TChainOverride>
 
 export type SignTransactionReturnType = TransactionSerialized
+
+export type SignTransactionErrorType =
+  | ParseAccountErrorType
+  | AssertRequestErrorType
+  | GetChainIdErrorType
+  | AssertCurrentChainErrorType
+  | SignTransactionErrorType_account
+  | NumberToHexErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Signs a transaction.

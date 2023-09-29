@@ -2,6 +2,9 @@ import type { Hash } from '../types/misc.js'
 
 import { BaseError } from './base.js'
 
+export type BlockNotFoundErrorType = BlockNotFoundError & {
+  name: 'BlockNotFoundError'
+}
 export class BlockNotFoundError extends BaseError {
   override name = 'BlockNotFoundError'
   constructor({

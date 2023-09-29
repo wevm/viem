@@ -1,12 +1,13 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Hash } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
-import { observe } from '../../utils/observe.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
 import { getFilterChanges } from './getFilterChanges.js'
@@ -25,6 +26,11 @@ export type WatchPendingTransactionsParameters<
 } & GetPollOptions<TTransport>
 
 export type WatchPendingTransactionsReturnType = () => void
+
+export type WatchPendingTransactionsErrorType =
+  | StringifyErrorType
+  | ObserveErrorType
+  | ErrorType
 
 /**
  * Watches and returns pending transaction hashes.

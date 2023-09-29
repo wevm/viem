@@ -5,13 +5,17 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type ImpersonateAccountParameters = {
   /** The account to impersonate. */
   address: Address
 }
+
+export type ImpersonateAccountErrorType = RequestErrorType | ErrorType
 
 /**
  * Impersonate an account or contract address. This lets you send transactions from that account even if you don't have access to its private key.

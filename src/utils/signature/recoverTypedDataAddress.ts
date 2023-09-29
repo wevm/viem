@@ -3,8 +3,12 @@ import type { Address, TypedData } from 'abitype'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 
-import { hashTypedData } from './hashTypedData.js'
-import { recoverAddress } from './recoverAddress.js'
+import type { ErrorType } from '../../errors/utils.js'
+import { type HashTypedDataErrorType, hashTypedData } from './hashTypedData.js'
+import {
+  type RecoverAddressErrorType,
+  recoverAddress,
+} from './recoverAddress.js'
 
 export type RecoverTypedDataAddressParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
@@ -12,7 +16,13 @@ export type RecoverTypedDataAddressParameters<
 > = TypedDataDefinition<typedData, primaryType> & {
   signature: Hex | ByteArray
 }
+
 export type RecoverTypedDataAddressReturnType = Address
+
+export type RecoverTypedDataAddressErrorType =
+  | RecoverAddressErrorType
+  | HashTypedDataErrorType
+  | ErrorType
 
 export async function recoverTypedDataAddress<
   const typedData extends TypedData | Record<string, unknown>,

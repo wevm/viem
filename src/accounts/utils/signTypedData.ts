@@ -2,10 +2,17 @@ import type { TypedData } from 'abitype'
 
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import { hashTypedData } from '../../utils/signature/hashTypedData.js'
-import { signatureToHex } from '../../utils/signature/signatureToHex.js'
+import {
+  type HashTypedDataErrorType,
+  hashTypedData,
+} from '../../utils/signature/hashTypedData.js'
+import {
+  type SignatureToHexErrorType,
+  signatureToHex,
+} from '../../utils/signature/signatureToHex.js'
 
-import { sign } from './sign.js'
+import type { ErrorType } from '../../errors/utils.js'
+import { type SignErrorType, sign } from './sign.js'
 
 export type SignTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
@@ -16,6 +23,12 @@ export type SignTypedDataParameters<
 }
 
 export type SignTypedDataReturnType = Hex
+
+export type SignTypedDataErrorType =
+  | HashTypedDataErrorType
+  | SignErrorType
+  | SignatureToHexErrorType
+  | ErrorType
 
 /**
  * @description Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191):

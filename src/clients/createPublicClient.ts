@@ -1,7 +1,13 @@
+import type { ErrorType } from '../errors/utils.js'
 import type { Chain } from '../types/chain.js'
 import type { PublicRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
-import { type Client, type ClientConfig, createClient } from './createClient.js'
+import {
+  type Client,
+  type ClientConfig,
+  type CreateClientErrorType,
+  createClient,
+} from './createClient.js'
 import { type PublicActions, publicActions } from './decorators/public.js'
 import type { Transport } from './transports/createTransport.js'
 
@@ -33,6 +39,8 @@ export type PublicClient<
     PublicActions<transport, chain>
   >
 >
+
+export type CreatePublicClientErrorType = CreateClientErrorType | ErrorType
 
 /**
  * Creates a Public Client with a given [Transport](https://viem.sh/docs/clients/intro.html) configured for a [Chain](https://viem.sh/docs/clients/chains.html).

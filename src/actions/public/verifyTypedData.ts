@@ -2,11 +2,19 @@ import type { Address, TypedData } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
-import { hashTypedData } from '../../utils/signature/hashTypedData.js'
-import { type VerifyHashParameters, verifyHash } from './verifyHash.js'
+import {
+  type HashTypedDataErrorType,
+  hashTypedData,
+} from '../../utils/signature/hashTypedData.js'
+import {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  verifyHash,
+} from './verifyHash.js'
 
 export type VerifyTypedDataParameters<
   TTypedData extends TypedData | { [key: string]: unknown } = TypedData,
@@ -20,6 +28,11 @@ export type VerifyTypedDataParameters<
   }
 
 export type VerifyTypedDataReturnType = boolean
+
+export type VerifyTypedDataErrorType =
+  | HashTypedDataErrorType
+  | VerifyHashErrorType
+  | ErrorType
 
 /**
  * Verify that typed data was signed by the provided address.

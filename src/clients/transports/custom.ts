@@ -1,4 +1,6 @@
+import type { ErrorType } from '../../errors/utils.js'
 import {
+  type CreateTransportErrorType,
   type Transport,
   type TransportConfig,
   createTransport,
@@ -22,6 +24,8 @@ export type CustomTransport = Transport<
   {},
   EthereumProvider['request']
 >
+
+export type CustomTransportErrorType = CreateTransportErrorType | ErrorType
 
 /**
  * @description Creates a custom transport given an EIP-1193 compliant `request` attribute.

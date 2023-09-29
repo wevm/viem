@@ -1,10 +1,11 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { observe } from '../../utils/observe.js'
-import { poll } from '../../utils/poll.js'
+import { type PollErrorType, poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
 
 import {
@@ -47,6 +48,8 @@ export type WatchBlockNumberParameters<
 )
 
 export type WatchBlockNumberReturnType = () => void
+
+export type WatchBlockNumberErrorType = PollErrorType | ErrorType
 
 /**
  * Watches and returns incoming block numbers.
