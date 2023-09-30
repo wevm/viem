@@ -1106,7 +1106,7 @@ export {
   type RecoverTypedDataAddressReturnType,
   recoverTypedDataAddress,
 } from './utils/signature/recoverTypedDataAddress.js'
-export { compactSignature } from './utils/signature/compactSignature.js'
+export { signatureToCompactSignature } from './utils/signature/signatureToCompactSignature.js'
 export { compactSignatureToHex } from './utils/signature/compactSignatureToHex.js'
 export {
   type SignatureToHexErrorType,
