@@ -1,9 +1,12 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
+import type { ErrorType } from '../../errors/utils.js'
 import type { CompactSignature, Hex } from '../../types/misc.js'
-import { hexToBigInt } from '../encoding/fromHex.js'
+import { type HexToBigIntErrorType, hexToBigInt } from '../encoding/fromHex.js'
+
+export type CompactSignatureToHexErrorType = HexToBigIntErrorType | ErrorType
 
 /**
- * @description Converts a EIP2098 compact signature into hex format.
+ * @description Converts an [EIP-2098 compact signature](https://eips.ethereum.org/EIPS/eip-2098) into hex format.
  *
  * @param signature The compact signature to convert.
  * @returns The compact signature in hex format.

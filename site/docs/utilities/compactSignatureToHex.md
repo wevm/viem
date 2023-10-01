@@ -5,16 +5,16 @@ head:
       content: compactSignatureToHex
   - - meta
     - name: description
-      content: Parses a compact signature into hex formatted.
+      content: Parses a compact signature into hex format.
   - - meta
     - property: og:description
-      content: Parses a compact signature into hex formatted.
+      content: Parses a compact signature into hex format.
 
 ---
 
 # compactSignatureToHex
 
-Parses a [EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signature into hex formatted.
+Parses a [EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signature into hex format.
 
 ## Import
 

@@ -2,4 +2,8 @@
 "viem": patch
 ---
 
-Added EIP-2098 compact signature
+Added utilities for EIP-2098 Compact Signatures: 
+- `compactSignatureToHex`,
+- `compactSignatureToSignature`,
+- `hexToCompactSignature`,
+- `signatureToCompactSignature`

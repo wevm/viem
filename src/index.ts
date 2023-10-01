@@ -1079,6 +1079,14 @@ export {
   hashTypedData,
 } from './utils/signature/hashTypedData.js'
 export {
+  type CompactSignatureToSignatureErrorType,
+  compactSignatureToSignature,
+} from './utils/signature/compactSignatureToSignature.js'
+export {
+  type HexToCompactSignatureErrorType,
+  hexToCompactSignature,
+} from './utils/signature/hexToCompactSignature.js'
+export {
   type HexToSignatureErrorType,
   hexToSignature,
 } from './utils/signature/hexToSignature.js'
@@ -1106,8 +1114,14 @@ export {
   type RecoverTypedDataAddressReturnType,
   recoverTypedDataAddress,
 } from './utils/signature/recoverTypedDataAddress.js'
-export { signatureToCompactSignature } from './utils/signature/signatureToCompactSignature.js'
-export { compactSignatureToHex } from './utils/signature/compactSignatureToHex.js'
+export {
+  type SignatureToCompactSignatureErrorType,
+  signatureToCompactSignature,
+} from './utils/signature/signatureToCompactSignature.js'
+export {
+  type CompactSignatureToHexErrorType,
+  compactSignatureToHex,
+} from './utils/signature/compactSignatureToHex.js'
 export {
   type SignatureToHexErrorType,
   signatureToHex,
