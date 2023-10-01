@@ -21,5 +21,8 @@ export type HexToCompactSignatureErrorType = NumberToHexErrorType | ErrorType
  */
 export function hexToCompactSignature(signatureHex: Hex): CompactSignature {
   const { r, s } = secp256k1.Signature.fromCompact(signatureHex.slice(2, 130))
-  return { r: numberToHex(r, { size: 32 }), yParityAndS: numberToHex(s) }
+  return {
+    r: numberToHex(r, { size: 32 }),
+    yParityAndS: numberToHex(s, { size: 32 }),
+  }
 }
