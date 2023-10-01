@@ -1,5 +1,5 @@
 ---
-"viem": patch
+"viem": minor
 ---
 
 Added utilities for EIP-2098 Compact Signatures: 
