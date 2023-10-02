@@ -2,6 +2,7 @@ export type { Chain } from '../types/chain.js'
 
 export { arbitrum } from './definitions/arbitrum.js'
 export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
+export { arbitrumSepolia } from './definitions/arbitrumSepolia.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
 export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
