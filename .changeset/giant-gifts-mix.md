@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updates Fuse chain config: RPC URL & Configure the multicall3 contract address
+Updated Fuse RPC URL & added multicall3 contract address.
