@@ -75,6 +75,7 @@ export type CeloRpcBlock<
 export type CeloRpcTransaction<TPending extends boolean = boolean> =
   | RpcTransaction<TPending>
   | RpcTransactionCIP42<TPending>
+  | RpcTransactionCIP64<TPending>
 
 export type CeloRpcTransactionReceiptOverrides = {
   feeCurrency: Address | null
@@ -87,10 +88,12 @@ export type CeloRpcTransactionReceipt = RpcTransactionReceipt &
 export type CeloRpcTransactionRequest =
   | RpcTransactionRequest
   | RpcTransactionRequestCIP42
+  | RpcTransactionRequestCIP64
 
 export type CeloTransaction<TPending extends boolean = boolean> =
   | Transaction<TPending>
   | TransactionCIP42<TPending>
+  | TransactionCIP64<TPending>
 
 export type CeloTransactionReceiptOverrides = {
   feeCurrency: Address | null
@@ -112,9 +115,12 @@ export type CeloTransactionSerializable =
 
 export type CeloTransactionSerialized<
   TType extends CeloTransactionType = 'legacy',
-> = TransactionSerialized<TType> | TransactionSerializedCIP42
+> =
+  | TransactionSerialized<TType>
+  | TransactionSerializedCIP42
+  | TransactionSerializedCIP64
 
-export type CeloTransactionType = TransactionType | 'cip42'
+export type CeloTransactionType = TransactionType | 'cip42' | 'cip64'
 
 type RpcTransaction<TPending extends boolean = boolean> =
   RpcTransaction_<TPending> & {
@@ -138,6 +144,13 @@ export type RpcTransactionCIP42<TPending extends boolean = boolean> =
       type: '0x7c'
     }
 
+export type RpcTransactionCIP64<TPending extends boolean = boolean> =
+  TransactionBase<Quantity, Index, TPending> &
+    FeeValuesEIP1559<Quantity> & {
+      feeCurrency: Address | null
+      type: '0x7b'
+    }
+
 export type RpcTransactionRequestCIP42 = TransactionRequestBase<
   Quantity,
   Index
@@ -148,6 +161,16 @@ export type RpcTransactionRequestCIP42 = TransactionRequestBase<
     gatewayFee?: Hex
     gatewayFeeRecipient?: Address
     type?: '0x7c'
+  }
+
+export type RpcTransactionRequestCIP64 = TransactionRequestBase<
+  Quantity,
+  Index
+> &
+  Partial<FeeValuesEIP1559<Quantity>> & {
+    accessList?: AccessList
+    feeCurrency?: Address
+    type?: '0x7b'
   }
 
 type Transaction<TPending extends boolean = boolean> = Transaction_<
@@ -167,6 +190,13 @@ export type TransactionCIP42<TPending extends boolean = boolean> =
       gatewayFee: bigint | null
       gatewayFeeRecipient: Address | null
       type: 'cip42'
+    }
+
+export type TransactionCIP64<TPending extends boolean = boolean> =
+  TransactionBase<bigint, number, TPending> &
+    FeeValuesEIP1559 & {
+      feeCurrency: Address | null
+      type: 'cip64'
     }
 
 type TransactionRequest = TransactionRequest_ & {
