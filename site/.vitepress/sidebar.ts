@@ -727,12 +727,24 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Signature',
           items: [
             {
+              text: 'compactSignatureToHex',
+              link: '/docs/utilities/compactSignatureToHex',
+            },
+            {
+              text: 'compactSignatureToSignature',
+              link: '/docs/utilities/compactSignatureToSignature',
+            },
+            {
               text: 'hashMessage',
               link: '/docs/utilities/hashMessage',
             },
             {
               text: 'hashTypedData',
               link: '/docs/utilities/hashTypedData',
+            },
+            {
+              text: 'hexToCompactSignature',
+              link: '/docs/utilities/hexToCompactSignature',
             },
             {
               text: 'hexToSignature',
@@ -753,6 +765,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'recoverTypedDataAddress',
               link: '/docs/utilities/recoverTypedDataAddress',
+            },
+            {
+              text: 'signatureToCompactSignature',
+              link: '/docs/utilities/signatureToCompactSignature',
             },
             {
               text: 'signatureToHex',
