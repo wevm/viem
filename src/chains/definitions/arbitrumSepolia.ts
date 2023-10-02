@@ -20,7 +20,7 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://sepolia-explorer.arbitrum.io/',
+      url: 'https://sepolia-explorer.arbitrum.io',
     },
   },
   contracts: {

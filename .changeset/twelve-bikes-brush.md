@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added arbitrum-sepolia chain.
+Added Arbitrum Sepolia chain.
