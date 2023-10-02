@@ -35,10 +35,14 @@ export const formattersCelo = {
         return {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
-          gatewayFee: transaction.gatewayFee
-            ? hexToBigInt(transaction.gatewayFee)
-            : null,
-          gatewayFeeRecipient: transaction.gatewayFeeRecipient,
+          ...(transaction.type === '0x7b'
+            ? {}
+            : {
+                gatewayFee: transaction.gatewayFee
+                  ? hexToBigInt(transaction.gatewayFee)
+                  : null,
+                gatewayFeeRecipient: transaction.gatewayFeeRecipient,
+              }),
         }
       }) as Hash[] | CeloTransaction[]
       return {
@@ -51,8 +55,12 @@ export const formattersCelo = {
     format(args: CeloRpcTransaction): CeloTransaction {
       return {
         feeCurrency: args.feeCurrency,
-        gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
-        gatewayFeeRecipient: args.gatewayFeeRecipient,
+        ...(args.type === '0x7b'
+          ? {}
+          : {
+              gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
+              gatewayFeeRecipient: args.gatewayFeeRecipient,
+            }),
       } as CeloTransaction
     },
   }),
@@ -67,18 +75,29 @@ export const formattersCelo = {
       }
     },
   }),
+
+  // TODO: Figure out how to deal with the error here. gateway fields aren't on all
+  // types in the union type. Also the type indicator can be blank, so.... this is super ambiguous
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
       const request = {
         feeCurrency: args.feeCurrency,
-        gatewayFee:
-          typeof args.gatewayFee !== 'undefined'
-            ? numberToHex(args.gatewayFee)
-            : undefined,
-        gatewayFeeRecipient: args.gatewayFeeRecipient,
+        // gatewayFee:
+        //   typeof args.gatewayFee !== 'undefined'
+        //     ? numberToHex(args.gatewayFee)
+        //     : undefined,
+        // gatewayFeeRecipient: args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
-      if (args.type === 'cip42') request.type = '0x7c'
+
       if (args.type === 'cip64') request.type = '0x7b'
+      if (args.type === 'cip42') request.type = '0x7c'
+
+      if (typeof args.gatewayFee !== 'undefined') {
+        request.gatewayFee = numberToHex(args.gatewayFee)
+      }
+      if (args.gatewayFeeRecipient) {
+        request.gatewayFeeRecipient = args.gatewayFeeRecipient
+      }
       return request
     },
   }),
