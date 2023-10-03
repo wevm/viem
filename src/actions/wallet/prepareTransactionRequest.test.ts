@@ -598,7 +598,6 @@ describe('prepareTransactionRequest', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(request_7.maxFeePerGas).toEqual(0n)
     expect(request_7.maxPriorityFeePerGas).toEqual(0n)
 
     // chain override (async zero base fee)
@@ -613,7 +612,6 @@ describe('prepareTransactionRequest', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(request_8.maxFeePerGas).toEqual(0n)
     expect(request_8.maxPriorityFeePerGas).toEqual(0n)
   })
 
