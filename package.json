@@ -21,6 +21,7 @@
     "postinstall": "bun run contracts:build",
     "preinstall": "bun ./scripts/preinstall.ts",
     "prepare": "bun x simple-git-hooks",
+    "prepublishOnly": "jq 'del(.type)' src/package.json > src/package.tmp.json && mv src/package.tmp.json src/package.json",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts dev",
     "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
