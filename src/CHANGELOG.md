@@ -1,5 +1,11 @@
 # viem
 
+## 1.15.1
+
+### Patch Changes
+
+- [`a9f07e80`](https://github.com/wagmi-dev/viem/commit/a9f07e80cacb76433c8ece683f8177a138ef1810) Thanks [@jxom](https://github.com/jxom)! - Removed `type` from `package.json`.
+
 ## 1.15.0
 
 ### Minor Changes
