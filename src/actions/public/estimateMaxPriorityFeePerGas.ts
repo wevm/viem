@@ -88,7 +88,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
       client,
       request,
     } as ChainFeesFnParameters)
-  } else if (chain?.fees?.defaultPriorityFee)
+  } else if (typeof chain?.fees?.defaultPriorityFee !== 'undefined')
     return chain?.fees?.defaultPriorityFee
 
   try {

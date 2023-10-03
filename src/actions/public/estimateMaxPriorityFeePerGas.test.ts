@@ -154,7 +154,7 @@ test('client: chain `defaultPriorityFee` override', async () => {
     transport: http(),
   })
   expect(await estimateMaxPriorityFeePerGas(client_4)).toBe(0n)
-  
+
   // async zero base fee
   const client_5 = createPublicClient({
     chain: {
