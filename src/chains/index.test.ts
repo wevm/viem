@@ -7,8 +7,8 @@ test('exports chains', () => {
     [
       "arbitrum",
       "arbitrumGoerli",
-      "arbitrumSepolia",
       "arbitrumNova",
+      "arbitrumSepolia",
       "aurora",
       "auroraTestnet",
       "avalanche",
