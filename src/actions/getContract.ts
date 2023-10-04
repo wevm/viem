@@ -167,7 +167,7 @@ export type GetContractReturnType<
                *   abi: parseAbi([
                *     'function balanceOf(address owner) view returns (uint256)',
                *   ]),
-               *   publicClient,
+               *   client: publicClient,
                * })
                * const result = await contract.read.balanceOf(['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'])
                * // 424122n
@@ -202,7 +202,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['function mint() public']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const gas = await contract.estimateGas.mint({
                  *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -240,7 +240,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['function mint() public']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const result = await contract.simulate.mint({
                  *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -277,7 +277,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const filter = await contract.createEventFilter.Transfer()
                  */
@@ -304,7 +304,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const filter = await contract.createEventFilter.Transfer()
                  */
@@ -335,7 +335,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const filter = await contract.createEventFilter.Transfer()
                  * const unwatch = contract.watchEvent.Transfer(
@@ -372,7 +372,7 @@ export type GetContractReturnType<
                * const contract = getContract({
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                *   abi: parseAbi(['function mint() public']),
-               *   walletClient,
+               *   client: walletClient,
                * })
                * const gas = await contract.estimateGas.mint({
                *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -412,7 +412,7 @@ export type GetContractReturnType<
                * const contract = getContract({
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
-               *   walletClient,
+               *   client: walletClient,
                * })
                * const hash = await contract.write.min([69420], {
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -461,7 +461,7 @@ export type GetContractErrorType = ErrorType
  *     'function ownerOf(uint256 tokenId) view returns (address)',
  *     'function totalSupply() view returns (uint256)',
  *   ]),
- *   publicClient,
+ *   client: publicClient,
  * })
  */
 export function getContract<

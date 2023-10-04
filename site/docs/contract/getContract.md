@@ -37,7 +37,7 @@ import { publicClient } from './client'
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient,
+  client: publicClient,
 })
 
 // 2. Call contract methods, fetch events, listen to events, etc.
@@ -132,8 +132,10 @@ import { publicClient, walletClient } from './client'
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient,
-  walletClient,
+  client: {
+    publicClient,
+    walletClient,
+  }
 })
 
 const balance = await contract.read.balanceOf([
@@ -208,8 +210,10 @@ The contract address.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
-  publicClient,
-  walletClient,
+  client: {
+    publicClient,
+    walletClient,
+  }
 })
 ```
 
@@ -223,8 +227,10 @@ The contract's ABI.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
-  publicClient,
-  walletClient,
+  client: {
+    publicClient,
+    walletClient,
+  }
 })
 ```
 
@@ -238,8 +244,10 @@ Public Client used for performing [public contract actions](/docs/contract/getCo
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient, // [!code focus]
-  walletClient,
+  client: {
+    publicClient, // [!code focus]
+    walletClient,
+  }
 })
 ```
 
@@ -253,7 +261,9 @@ Wallet Client used for performing [wallet contract actions](/docs/contract/getCo
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient,
-  walletClient, // [!code focus]
+  client: {
+    publicClient,
+    walletClient, // [!code focus]
+  }
 })
 ```

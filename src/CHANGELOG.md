@@ -1,5 +1,29 @@
 # viem
 
+## 1.15.1
+
+### Patch Changes
+
+- [`a9f07e80`](https://github.com/wagmi-dev/viem/commit/a9f07e80cacb76433c8ece683f8177a138ef1810) Thanks [@jxom](https://github.com/jxom)! - Removed `type` from `package.json`.
+
+## 1.15.0
+
+### Minor Changes
+
+- [#1260](https://github.com/wagmi-dev/viem/pull/1260) [`408ebf49`](https://github.com/wagmi-dev/viem/commit/408ebf49f852ae87438946ae24425cd631c722c5) Thanks [@izayl](https://github.com/izayl)! - Added utilities for EIP-2098 Compact Signatures:
+  - `compactSignatureToHex`,
+  - `compactSignatureToSignature`,
+  - `hexToCompactSignature`,
+  - `signatureToCompactSignature`
+
+### Patch Changes
+
+- [#1273](https://github.com/wagmi-dev/viem/pull/1273) [`822bc222`](https://github.com/wagmi-dev/viem/commit/822bc2223d95db51e94b226bca0be468ed5150c7) Thanks [@LiorAgnin](https://github.com/LiorAgnin)! - Updated Fuse RPC URL & added multicall3 contract address.
+
+- [#1277](https://github.com/wagmi-dev/viem/pull/1277) [`ba7a7465`](https://github.com/wagmi-dev/viem/commit/ba7a7465621585412875d5f28699db2d4b6a59c8) Thanks [@witem](https://github.com/witem)! - Removed `type` field from `package.json`
+
+- [#1278](https://github.com/wagmi-dev/viem/pull/1278) [`220d211f`](https://github.com/wagmi-dev/viem/commit/220d211fa92ca667d0b8e432071ead27df682d96) Thanks [@jaybuidl](https://github.com/jaybuidl)! - Added Arbitrum Sepolia chain.
+
 ## 1.14.0
 
 ### Minor Changes
