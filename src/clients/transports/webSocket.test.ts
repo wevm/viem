@@ -3,11 +3,11 @@ import { WebSocket } from 'isomorphic-ws'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { localWsUrl } from '~test/src/constants.js'
+import { testClient } from '~test/src/utils.js'
+import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 
-import { testClient } from '~test/src/utils.js'
-import { mine } from '../../test/index.js'
 import { type WebSocketTransport, webSocket } from './webSocket.js'
 
 test('default', () => {

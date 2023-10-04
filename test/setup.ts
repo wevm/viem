@@ -2,7 +2,7 @@ import { fetchLogs } from '@viem/anvil'
 
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 
-import { setIntervalMining } from '~viem/test/index.js'
+import { setIntervalMining } from '~viem/actions/test/setIntervalMining.js'
 import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
 import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
 import { socketsCache } from '~viem/utils/rpc.js'
