@@ -108,7 +108,7 @@ export type GetContractParameters<
    * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
    * - [`write`](https://viem.sh/docs/contract/writeContract.html)
    */
-  client?: TClient
+  client: TClient
 }
 
 export type GetContractReturnType<
