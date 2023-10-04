@@ -62,9 +62,12 @@ export function getNodeError(
 ): GetNodeErrorReturnType {
   const message = (err.details || '').toLowerCase()
 
-  const executionRevertedError = err.walk(
-    (e) => (e as { code: number }).code === ExecutionRevertedError.code,
-  )
+  const executionRevertedError =
+    err instanceof BaseError
+      ? err.walk(
+          (e) => (e as { code: number }).code === ExecutionRevertedError.code,
+        )
+      : err
   if (executionRevertedError instanceof BaseError) {
     return new ExecutionRevertedError({
       cause: err,
