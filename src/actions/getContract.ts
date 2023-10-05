@@ -11,8 +11,7 @@ import type {
 } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
-import type { PublicClient } from '../clients/createPublicClient.js'
-import type { WalletClient } from '../clients/createWalletClient.js'
+import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
@@ -67,15 +66,12 @@ import {
 
 export type GetContractParameters<
   TTransport extends Transport = Transport,
-  TPublicChain extends Chain | undefined = Chain | undefined,
-  TWalletChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends
-    | PublicClient<TTransport, TPublicChain>
-    | unknown = unknown,
+  TPublicClient extends Client<TTransport, TChain> | unknown = unknown,
   TWalletClient extends
-    | WalletClient<TTransport, TWalletChain, TAccount>
+    | Client<TTransport, TChain, TAccount>
     | unknown = unknown,
   TAddress extends Address = Address,
 > = {
@@ -95,9 +91,7 @@ export type GetContractParameters<
    * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
    * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
    */
-  publicClient?: IsValidChain<TPublicChain, TWalletChain> extends true
-    ? TPublicClient | PublicClient<TTransport, TPublicChain>
-    : never
+  publicClient?: TPublicClient
   /**
    * Wallet client
    *
@@ -106,15 +100,13 @@ export type GetContractParameters<
    * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
    * - [`write`](https://viem.sh/docs/contract/writeContract.html)
    */
-  walletClient?: IsValidChain<TWalletChain, TPublicChain> extends true
-    ? TWalletClient | WalletClient<TTransport, TWalletChain, TAccount>
-    : never
+  walletClient?: TWalletClient
 }
 
 export type GetContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends PublicClient | unknown = unknown,
-  TWalletClient extends WalletClient | unknown = unknown,
+  TPublicClient extends Client | unknown = unknown,
+  TWalletClient extends Client | unknown = unknown,
   TAddress extends Address = Address,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
@@ -133,7 +125,7 @@ export type GetContractReturnType<
     : string,
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
 > = Prettify<
-  (TPublicClient extends { chain?: Chain }
+  (TPublicClient extends Client
     ? (IsNever<_ReadFunctionNames> extends true
         ? unknown
         : {
@@ -323,7 +315,7 @@ export type GetContractReturnType<
               }
             })
     : unknown) &
-    (TWalletClient extends { account?: Account; chain?: Chain }
+    (TWalletClient extends Client
       ? IsNever<_WriteFunctionNames> extends true
         ? unknown
         : {
@@ -426,15 +418,14 @@ export function getContract<
   TTransport extends Transport,
   TAddress extends Address,
   const TAbi extends Abi | readonly unknown[],
-  TPublicChain extends Chain | undefined = Chain | undefined,
-  TWalletChain extends Chain | undefined = Chain | undefined,
+  TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TPublicClient extends PublicClient<TTransport, TPublicChain> | undefined =
-    | PublicClient<TTransport, TPublicChain>
+  TPublicClient extends Client<TTransport, TChain> | undefined =
+    | Client<TTransport, TChain>
     | undefined,
-  TWalletClient extends
-    | WalletClient<TTransport, TWalletChain, TAccount>
-    | undefined = WalletClient<TTransport, TWalletChain, TAccount> | undefined,
+  TWalletClient extends Client<TTransport, TChain, TAccount> | undefined =
+    | Client<TTransport, TChain, TAccount>
+    | undefined,
 >({
   abi,
   address,
@@ -442,8 +433,7 @@ export function getContract<
   walletClient,
 }: GetContractParameters<
   TTransport,
-  TPublicChain,
-  TWalletChain,
+  TChain,
   TAccount,
   TAbi,
   TPublicClient,
@@ -656,7 +646,7 @@ export function getContract<
               } as unknown as WriteContractParameters<
                 TAbi,
                 typeof functionName,
-                TWalletChain,
+                TChain,
                 TAccount
               >)
             }
@@ -682,19 +672,16 @@ export function getContract<
             ) => {
               const { args, options } = getFunctionParameters(parameters)
               const client = (publicClient ?? walletClient)!
-              return estimateContractGas(
-                client as PublicClient,
-                {
-                  abi,
-                  address,
-                  functionName,
-                  args,
-                  ...options,
-                  account:
-                    (options as EstimateContractGasParameters).account ??
-                    (walletClient as unknown as WalletClient).account,
-                } as any,
-              )
+              return estimateContractGas(client, {
+                abi,
+                address,
+                functionName,
+                args,
+                ...options,
+                account:
+                  (options as EstimateContractGasParameters).account ??
+                  (walletClient as unknown as Client).account,
+              } as any)
             }
           },
         },
@@ -1036,10 +1023,3 @@ type RemoveProperties<T extends object> = Prettify<
     [_ in keyof T]?: never
   }
 >
-
-type IsValidChain<
-  TSourceChain extends Chain | undefined,
-  TTargetChain extends Chain | undefined,
-> =
-  | (TSourceChain extends TTargetChain | undefined ? true : never)
-  | (TTargetChain extends undefined ? true : never)
