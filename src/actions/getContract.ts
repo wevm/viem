@@ -11,7 +11,6 @@ import type {
 } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
-import type { WalletClient } from '../clients/createWalletClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
@@ -739,7 +738,7 @@ export function getContract<
                 ...options,
                 account:
                   (options as EstimateContractGasParameters).account ??
-                  (walletClient as unknown as WalletClient).account,
+                  (walletClient as unknown as Client).account,
               } as any)
             }
           },
