@@ -13,12 +13,12 @@ import { wagmiContractConfig } from '~test/src/abis.js'
 import { localHttpUrl } from '~test/src/constants.js'
 import { anvilChain, publicClient } from '~test/src/utils.js'
 import type { Account } from '../accounts/types.js'
+import { celo } from '../chains/index.js'
+import { createPublicClient } from '../clients/createPublicClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Chain } from '../types/chain.js'
 
-import { celo } from '../chains/index.js'
-import { createPublicClient } from '../index.js'
 import { getContract } from './getContract.js'
 
 const walletClient = createWalletClient({

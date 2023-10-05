@@ -12,6 +12,7 @@
     "*",
     "!**/*.tsbuildinfo",
     "!**/*.test.ts",
+    "!**/*.test.ts.snap",
     "!**/*.test-d.ts",
     "!**/*.bench.ts",
     "!tsconfig.build.json"

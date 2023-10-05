@@ -74,6 +74,36 @@ test('args: chain `defaultPriorityFee` override', async () => {
       },
     }),
   ).toBe(69420n)
+
+  // zero base fee
+  const client_4 = createPublicClient({
+    transport: http(localHttpUrl),
+  })
+  expect(
+    await estimateMaxPriorityFeePerGas(client_4, {
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: 0n,
+        },
+      },
+    }),
+  ).toBe(0n)
+
+  // async zero base fee
+  const client_5 = createPublicClient({
+    transport: http(localHttpUrl),
+  })
+  expect(
+    await estimateMaxPriorityFeePerGas(client_5, {
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: async () => 0n,
+        },
+      },
+    }),
+  ).toBe(0n)
 })
 
 test('client: chain `defaultPriorityFee` override', async () => {
@@ -112,6 +142,30 @@ test('client: chain `defaultPriorityFee` override', async () => {
     transport: http(),
   })
   expect(await estimateMaxPriorityFeePerGas(client_3)).toBe(69420n)
+
+  // zero base fee
+  const client_4 = createPublicClient({
+    chain: {
+      ...anvilChain,
+      fees: {
+        defaultPriorityFee: 0n,
+      },
+    },
+    transport: http(),
+  })
+  expect(await estimateMaxPriorityFeePerGas(client_4)).toBe(0n)
+
+  // async zero base fee
+  const client_5 = createPublicClient({
+    chain: {
+      ...anvilChain,
+      fees: {
+        defaultPriorityFee: async () => 0n,
+      },
+    },
+    transport: http(),
+  })
+  expect(await estimateMaxPriorityFeePerGas(client_5)).toBe(0n)
 })
 
 test('chain does not support eip1559', async () => {

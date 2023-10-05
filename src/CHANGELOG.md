@@ -1,5 +1,17 @@
 # viem
 
+## 1.15.3
+
+### Patch Changes
+
+- [`1b159096`](https://github.com/wagmi-dev/viem/commit/1b159096e9727d626410feb58fa6f95a29ba1e9f) Thanks [@jxom](https://github.com/jxom)! - Added ignore glob for snapshots.
+
+## 1.15.2
+
+### Patch Changes
+
+- [`fddaf719`](https://github.com/wagmi-dev/viem/commit/fddaf719ac320b8e025693ee9a06815639f95034) Thanks [@jxom](https://github.com/jxom)! - Fixed `getContract` types.
+
 ## 1.15.1
 
 ### Patch Changes

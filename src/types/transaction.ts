@@ -133,7 +133,7 @@ export type TransactionRequestBase<TQuantity = bigint, TIndex = number> = {
   /** Unique number identifying this transaction */
   nonce?: TIndex
   /** Transaction recipient */
-  to?: Address
+  to?: Address | null
   /** Value in wei sent with this transaction */
   value?: TQuantity
 }
