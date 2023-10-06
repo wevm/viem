@@ -68,6 +68,18 @@ describe('wagmi', () => {
     ).toEqual(undefined)
   })
 
+  test('client account', async () => {
+    const { request, result } = await simulateContract(
+      walletClientWithAccount,
+      {
+        ...wagmiContractConfig,
+        functionName: 'mint',
+      },
+    )
+    expect(result).toEqual(undefined)
+    expect(request.account).toEqual(walletClientWithAccount.account)
+  })
+
   test('no account', async () => {
     await expect(() =>
       simulateContract(publicClient, {

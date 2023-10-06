@@ -249,6 +249,9 @@ export type GetContractReturnType<
                   [functionName in _WriteFunctionNames]: GetSimulateFunction<
                     _Narrowable,
                     _PublicClient['chain'],
+                    _WalletClient extends Client
+                      ? _WalletClient['account']
+                      : _PublicClient['account'],
                     TAbi,
                     functionName extends ContractFunctionName<
                       TAbi,
@@ -875,6 +878,7 @@ type GetEstimateFunction<
 type GetSimulateFunction<
   Narrowable extends boolean,
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
   TArgs extends ContractFunctionArgs<
@@ -889,49 +893,79 @@ type GetSimulateFunction<
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,
-      Options extends Prettify<
-        UnionOmit<
-          SimulateContractParameters<
-            TAbi,
-            TFunctionName,
-            TArgs,
-            TChain,
-            TChainOverride
-          >,
-          'abi' | 'address' | 'args' | 'functionName'
-        >
-      >,
+      TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters: Args extends readonly []
-        ? [options?: Options]
-        : [args: Args, options?: Options]
+        ? [
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
+        : [
+            args: Args,
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
     ) => Promise<
       SimulateContractReturnType<
         TAbi,
         TFunctionName,
         TArgs,
         TChain,
-        TChainOverride
+        TAccount,
+        TChainOverride,
+        TAccountOverride
       >
     >
   : <
       TChainOverride extends Chain | undefined,
-      Options extends Prettify<
-        UnionOmit<
-          SimulateContractParameters<
-            TAbi,
-            TFunctionName,
-            TArgs,
-            TChain,
-            TChainOverride
-          >,
-          'abi' | 'address' | 'args' | 'functionName'
-        >
-      >,
+      TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters:
-        | [options?: Options]
-        | [args: readonly unknown[], options?: Options]
+        | [
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
+        | [
+            args: readonly unknown[],
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
     ) => Promise<SimulateContractReturnType>
 
 type GetWriteFunction<

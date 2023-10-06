@@ -66,6 +66,31 @@ import { // [!code ++]
 } from 'viem' // [!code ++]
 ```
 
+### Type Change: `SimulateContractParameters` & `SimulateContractReturnType`
+
+Note the following breaking generic slot changes:
+
+```ts
+type SimulateContractParameters<
+  TAbi,
+  TFunctionName,
+  TArgs, // Args added to Slot 2 // [!code ++]
+  TChain,
+  TChainOverride,
+  TAccountOverride,
+>
+
+type SimulateContractReturnType<
+  TAbi,
+  TFunctionName,
+  TArgs, // Args added to Slot 2 // [!code ++]
+  TChain,
+  TAccount, // Account added to Slot 4 // [!code ++]
+  TChainOverride,
+  TAccountOverride,
+>
+```
+
 ## 1.x.x Breaking changes
 
 The 1.x.x release only includes very minor changes to the behavior in event log decoding, and removes the redundant ethers.js Wallet Adapter. If you do not directly use these APIs, you do not need to update any of your code for this version.

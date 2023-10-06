@@ -159,7 +159,10 @@ test('simulate', async () => {
             "type": "function",
           },
         ],
-        "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "account": {
+          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "type": "json-rpc",
+        },
         "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
         "args": [],
         "dataSuffix": undefined,

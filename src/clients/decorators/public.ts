@@ -1,4 +1,4 @@
-import type { Abi, AbiEvent } from 'abitype'
+import type { Abi, AbiEvent, Address } from 'abitype'
 
 import {
   type GetEnsAddressParameters,
@@ -1413,17 +1413,27 @@ export type PublicActions<
       'nonpayable' | 'payable',
       functionName
     >,
-    TChainOverride extends Chain | undefined,
+    chainOverride extends Chain | undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     args: SimulateContractParameters<
       abi,
       functionName,
       args,
       TChain,
-      TChainOverride
+      chainOverride,
+      accountOverride
     >,
   ) => Promise<
-    SimulateContractReturnType<abi, functionName, args, TChain, TChainOverride>
+    SimulateContractReturnType<
+      abi,
+      functionName,
+      args,
+      TChain,
+      TAccount,
+      chainOverride,
+      accountOverride
+    >
   >
   verifyMessage: (
     args: VerifyMessageParameters,
