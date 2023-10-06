@@ -12,6 +12,10 @@ export const base = /*#__PURE__*/ defineChain(
         http: ['https://base-mainnet.g.alchemy.com/v2'],
         webSocket: ['wss://base-mainnet.g.alchemy.com/v2'],
       },
+      infura: {
+        http: ['https://base-mainnet.infura.io/v3'],
+        webSocket: ['wss://base-mainnet.infura.io/ws/v3'],
+      },
       default: {
         http: ['https://mainnet.base.org'],
       },
