@@ -1,5 +1,13 @@
 # viem
 
+## 1.15.4
+
+### Patch Changes
+
+- [#1297](https://github.com/wagmi-dev/viem/pull/1297) [`aaaff980`](https://github.com/wagmi-dev/viem/commit/aaaff980569f5e8681a41737531d02fb97c3b788) Thanks [@jxom](https://github.com/jxom)! - Added `null` as a valid value on `TransactionRequestBase['to']` type.
+
+- [#1295](https://github.com/wagmi-dev/viem/pull/1295) [`a46a52a7`](https://github.com/wagmi-dev/viem/commit/a46a52a71fbd0e904ce74b0f46683801489bc208) Thanks [@akshatmittal](https://github.com/akshatmittal)! - Added Infura Endpoints for Base
+
 ## 1.15.3
 
 ### Patch Changes
