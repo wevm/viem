@@ -3,7 +3,7 @@ import { getSocket, rpc } from '../../utils/rpc.js'
 import type { Chain } from '../index.js'
 import * as chains from '../index.js'
 
-const TIMEOUT = 15_000
+const TIMEOUT = 50_000
 
 class RpcMismatchedError extends BaseError {
   override name = 'RpcMismatchedError'
