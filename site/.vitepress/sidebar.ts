@@ -845,6 +845,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Account Abstraction',
           link: '/docs/third-party/account-abstraction',
         },
+        {
+          text: 'Miscellaneous',
+          link: '/docs/third-party/misc',
+        },
       ],
     },
     {
