@@ -1,5 +1,11 @@
 # viem
 
+## 1.15.5
+
+### Patch Changes
+
+- [#1312](https://github.com/wagmi-dev/viem/pull/1312) [`d7cff6a3`](https://github.com/wagmi-dev/viem/commit/d7cff6a368e3934874c5be406354226e9f786d38) Thanks [@jxom](https://github.com/jxom)! - Migrated to [isows](https://github.com/wagmi-dev/isows).
+
 ## 1.15.4
 
 ### Patch Changes
