@@ -1,5 +1,12 @@
 {
-  "workspaces": ["examples/*", "playgrounds/*", "site", "src", "test"],
+  "workspaces": [
+    "examples/*",
+    "playgrounds/*",
+    "site",
+    "src",
+    "test",
+    "test/environments/*"
+  ],
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,6 +33,11 @@
     "test": "vitest -c ./test/vitest.config.ts dev",
     "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
+    "test:env": "bun run test:env:bun && bun run test:env:next && bun run test:env:node && bun run test:env:vite",
+    "test:env:bun": "cd test/environments/bun && bun run test",
+    "test:env:next": "cd test/environments/next && bun run test",
+    "test:env:node": "cd test/environments/node && bun run test",
+    "test:env:vite": "cd test/environments/vite && bun run test",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck -c ./test/vitest.config.ts",
     "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
     "vectors": "bun test vectors/**/*.test.ts",
