@@ -1,4 +1,5 @@
-import type { Address, Hash } from '../_types/index.js'
+import type { Address } from 'abitype'
+import type { Hash } from './misc.js'
 
 export type AccountProof = Hash
 
