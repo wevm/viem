@@ -1,9 +1,10 @@
-import { BaseError } from '~viem/index.js'
+import { BaseError, TimeoutError } from '~viem/index.js'
+import { withTimeout } from '~viem/utils/promise/withTimeout.js'
 import { getSocket, rpc } from '../../utils/rpc.js'
 import type { Chain } from '../index.js'
 import * as chains from '../index.js'
 
-const TIMEOUT = 50_000
+const TIMEOUT = 10_000
 
 class RpcMismatchedError extends BaseError {
   override name = 'RpcMismatchedError'
@@ -59,7 +60,14 @@ async function checkWsRpcUrls(chain: Chain): Promise<void> {
 
   for (const url of wsUrls) {
     if (isLocalNetwork(url)) continue
-    const socket = await getSocket(url)
+
+    const socket = await withTimeout(() => getSocket(url), {
+      errorInstance: new TimeoutError({
+        body: {},
+        url,
+      }),
+      timeout: TIMEOUT,
+    })
     const chainId = await rpc
       .webSocketAsync(socket, {
         body: { method: 'eth_chainId' },
