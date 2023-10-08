@@ -474,6 +474,7 @@ describe('extends', () => {
         "getFilterLogs": [Function],
         "getGasPrice": [Function],
         "getLogs": [Function],
+        "getProof": [Function],
         "getStorageAt": [Function],
         "getTransaction": [Function],
         "getTransactionConfirmations": [Function],
