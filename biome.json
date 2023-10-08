@@ -5,6 +5,7 @@
       "_cjs",
       "_esm",
       "_types",
+      ".next",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
@@ -29,6 +30,9 @@
       "recommended": true,
       "a11y": {
         "useButtonType": "off"
+      },
+      "complexity": {
+        "noBannedTypes": "off"
       },
       "correctness": {
         "noUnusedVariables": "error"

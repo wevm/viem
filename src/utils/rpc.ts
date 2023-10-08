@@ -1,6 +1,5 @@
-// @ts-ignore - TODO: TypeScript throws an error during CJS compilation here. Need to look into just rolling our own isomorphic-ws.
-import WebSocket from 'isomorphic-ws'
-import type { MessageEvent } from 'isomorphic-ws'
+import { WebSocket } from 'isows'
+import type { MessageEvent } from 'isows'
 
 import {
   HttpRequestError,
@@ -173,9 +172,7 @@ export async function getSocket(url: string) {
   const { schedule } = createBatchScheduler<undefined, [Socket]>({
     id: url,
     fn: async () => {
-      let WebSocket_ = WebSocket
-      if (!WebSocket.constructor) WebSocket_ = WebSocket.WebSocket
-      const webSocket = new WebSocket_(url)
+      const webSocket = new WebSocket(url)
 
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
