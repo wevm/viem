@@ -71,9 +71,9 @@ const transaction = await publicClient.getTransactionReceipt({
 
 ## Example
 
-Check out the usage of `getTransactionReceipt` in the live [Fetching Transactions Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions) below.
+Check out the usage of `getTransactionReceipt` in the live [Fetching Transactions Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions_fetching-transactions) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions/fetching-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/transactions_fetching-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Method
 
