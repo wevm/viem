@@ -1,4 +1,4 @@
-import type { WebSocket } from 'isomorphic-ws'
+import type { WebSocket } from 'isows'
 
 import { RpcRequestError } from '../../errors/request.js'
 import {

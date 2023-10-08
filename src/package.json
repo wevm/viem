@@ -141,7 +141,7 @@
     "@scure/bip39": "1.2.1",
     "@types/ws": "^8.5.5",
     "abitype": "0.9.8",
-    "isomorphic-ws": "5.0.0",
+    "isows": "1.0.2",
     "ws": "8.13.0"
   },
   "license": "MIT",
