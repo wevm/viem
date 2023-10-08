@@ -948,6 +948,7 @@ export type {
   RpcTransactionRequest,
   RpcUncle,
 } from './types/rpc.js'
+export type { Withdrawal } from './types/withdrawal.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {
