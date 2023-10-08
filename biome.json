@@ -31,6 +31,9 @@
       "a11y": {
         "useButtonType": "off"
       },
+      "complexity": {
+        "noBannedTypes": "off"
+      },
       "correctness": {
         "noUnusedVariables": "error"
       },

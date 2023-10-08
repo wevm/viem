@@ -8,7 +8,7 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "viem": "workspace:*"
+    "viem": "file:../../src/"
   },
   "devDependencies": {
     "@playwright/test": "^1.38.1",

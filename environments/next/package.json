@@ -13,7 +13,7 @@
     "react": "^18",
     "react-dom": "^18",
     "next": "13.5.4",
-    "viem": "workspace:*"
+    "viem": "file:../../src/"
   },
   "devDependencies": {
     "@playwright/test": "^1.38.1",
