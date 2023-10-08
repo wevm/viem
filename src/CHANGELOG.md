@@ -1,5 +1,13 @@
 # viem
 
+## 1.16.0
+
+### Minor Changes
+
+- [#1316](https://github.com/wagmi-dev/viem/pull/1316) [`ae5c03ad`](https://github.com/wagmi-dev/viem/commit/ae5c03ada92968a6835705fd8017e0a687947152) Thanks [@jxom](https://github.com/jxom)! - Added `getProof`.
+
+- [`d27e9943`](https://github.com/wagmi-dev/viem/commit/d27e994361180579fc8e6328ade3dbaf26963803) Thanks [@jxom](https://github.com/jxom)! - Added `withdrawals` & `withdrawalsRoot` to `Block` type.
+
 ## 1.15.5
 
 ### Patch Changes
