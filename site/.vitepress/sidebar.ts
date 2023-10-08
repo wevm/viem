@@ -156,6 +156,15 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Proof',
+          items: [
+            {
+              text: 'getProof',
+              link: '/docs/actions/public/getProof',
+            },
+          ],
+        },
+        {
           text: 'Signature',
           items: [
             {
