@@ -8,7 +8,8 @@
     "baseUrl": ".",
     "paths": {
       "~viem/*": ["./src/*"],
-      "~test/*": ["./test/*"],
+      "~test/*": ["./test/*"]
     },
+    "types": ["bun-types"]
   }
 }

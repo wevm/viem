@@ -1,23 +1,11 @@
-import { BaseError, TimeoutError } from '~viem/index.js'
+import { TimeoutError } from '~viem/index.js'
 import { withTimeout } from '~viem/utils/promise/withTimeout.js'
 import { getSocket, rpc } from '../../utils/rpc.js'
 import type { Chain } from '../index.js'
 import * as chains from '../index.js'
+import { describe, expect, test } from 'bun:test'
 
 const TIMEOUT = 10_000
-
-class RpcMismatchedError extends BaseError {
-  override name = 'RpcMismatchedError'
-  constructor({
-    chain,
-    url,
-    chainId,
-  }: { chain: Chain; url: string; chainId: unknown }) {
-    super(
-      `Chain id mismatch for ${chain.name} at ${url}. Expected ${chain.id}, got ${chainId}`,
-    )
-  }
-}
 
 function isLocalNetwork(url: string): boolean {
   const u = new URL(url)
@@ -40,79 +28,73 @@ async function fetchChainIdFromHttpRpcUrl(
   return chainId ? BigInt(chainId) : undefined
 }
 
-async function checkHTTPRpcUrls(chain: Chain): Promise<void> {
+async function testHTTPRpcUrls(chain: Chain): Promise<void> {
   const rpcUrls = [...chain.rpcUrls.default.http, ...chain.rpcUrls.public.http]
-
-  for (const url of rpcUrls) {
-    if (isLocalNetwork(url)) continue
-    const chainId = await fetchChainIdFromHttpRpcUrl(url)
-    if (!chainId || BigInt(chainId) !== BigInt(chain.id)) {
-      throw new RpcMismatchedError({ chain, url, chainId })
+  try {
+    for (const url of rpcUrls) {
+      if (isLocalNetwork(url)) continue
+      const chainId = await fetchChainIdFromHttpRpcUrl(url)
+      expect(chainId).toBe(BigInt(chain.id))
     }
+  } catch (error) {
+    expect(error).toBeUndefined()
   }
 }
 
-async function checkWsRpcUrls(chain: Chain): Promise<void> {
+async function testWsRpcUrls(chain: Chain): Promise<void> {
   const wsUrls = [
     ...(chain.rpcUrls.default.webSocket ?? []),
     ...(chain.rpcUrls.public.webSocket ?? []),
   ]
+  try {
+    for (const url of wsUrls) {
+      if (isLocalNetwork(url)) continue
 
-  for (const url of wsUrls) {
-    if (isLocalNetwork(url)) continue
-
-    const socket = await withTimeout(() => getSocket(url), {
-      errorInstance: new TimeoutError({
-        body: {},
-        url,
-      }),
-      timeout: TIMEOUT,
-    })
-    const chainId = await rpc
-      .webSocketAsync(socket, {
-        body: { method: 'eth_chainId' },
+      const socket = await withTimeout(() => getSocket(url), {
+        errorInstance: new TimeoutError({
+          body: {},
+          url,
+        }),
         timeout: TIMEOUT,
       })
-      .then((r) => r.result)
-    socket.close()
-    if (!chainId || BigInt(chainId) !== BigInt(chain.id)) {
-      throw new RpcMismatchedError({ chain, url, chainId })
+      const chainId = await rpc
+        .webSocketAsync(socket, {
+          body: { method: 'eth_chainId' },
+          timeout: TIMEOUT,
+        })
+        .then((r) => r.result)
+      socket.close()
+      expect(chainId).toBe(BigInt(chain.id))
     }
+  } catch (error) {
+    expect(error).toBeUndefined()
   }
 }
 
-async function checkExplorerUrl(chain: Chain): Promise<void> {
+async function testExplorerUrl(chain: Chain): Promise<void> {
   const explorerUrl = chain.blockExplorers?.default.url
 
   if (!explorerUrl) return
 
-  await fetch(explorerUrl, { method: 'HEAD' })
-}
-
-const allChains = Object.values(chains)
-
-const passedChains: Chain[] = []
-const failedChains: Chain[] = []
-
-for (const [index, chain] of allChains.entries()) {
-  console.log(`🔎 checking ${chain.name} (${index + 1}/${allChains.length})`)
   try {
-    await checkHTTPRpcUrls(chain)
-    await checkWsRpcUrls(chain)
-    await checkExplorerUrl(chain)
-
-    passedChains.push(chain)
+    await fetch(explorerUrl, { method: 'HEAD' })
+    expect(true).toBe(true)
   } catch (error) {
-    failedChains.push(chain)
-
-    if (error instanceof Error) {
-      console.error(error.message)
-    } else {
-      throw error
-    }
+    expect(error).toBeUndefined()
   }
 }
 
-console.log(`🔧 check ${allChains.length} chains url availability: `)
-console.log(`✅ ${passedChains.length} chains passed`)
-console.log(`❌ ${failedChains.length} chains failed`)
+describe.each(Object.values(chains))('chainUrlsCheck', (chain) => {
+  test(chain.name, async () => {
+    try {
+      await Promise.all([
+        testHTTPRpcUrls(chain),
+        testWsRpcUrls(chain),
+        testExplorerUrl(chain),
+      ])
+      expect(true).toBe(true)
+    } catch (error) {
+      expect(error).toBeUndefined()
+    }
+  })
+})

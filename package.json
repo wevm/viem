@@ -9,7 +9,7 @@
     "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json",
     "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
-    "chaincheck": "bun run src/chains/utils/chainUrlsCheck.test.ts",
+    "chaincheck": "bun test src/chains/utils/chainUrlsCheck.test.ts",
     "changeset": "changeset",
     "changeset:release": "bun run build && bun run prepublishOnly && changeset publish",
     "changeset:version": "changeset version && bun scripts/updateVersion.ts && bun install --lockfile-only",
