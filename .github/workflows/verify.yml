@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'vite']
+        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'sveltekit', 'vite']
         include:
           - type: bun
             runtime: bun
@@ -131,6 +131,8 @@ jobs:
             runtime: node
           - type: next
             runtime: next
+          - type: sveltekit
+            runtime: sveltekit
           - type: vite
             runtime: vite
 
@@ -149,7 +151,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Playwright Browsers
-        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
+        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
         run: npx playwright install --with-deps
 
       - name: Install dependencies

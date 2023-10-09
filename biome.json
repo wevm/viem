@@ -6,6 +6,7 @@
       "_esm",
       "_types",
       ".next",
+      ".svelte-kit",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
