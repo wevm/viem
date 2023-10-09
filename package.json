@@ -31,6 +31,7 @@
     "test:env:next": "cd environments/next && bun run test",
     "test:env:node": "cd environments/node && bun run test",
     "test:env:sveltekit": "cd environments/sveltekit && bun run test",
+    "test:env:tsc": "cd environments/tsc && bun run test",
     "test:env:vite": "cd environments/vite && bun run test",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest typecheck -c ./test/vitest.config.ts",
     "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
