@@ -1,5 +1,11 @@
 # viem
 
+## 1.16.1
+
+### Patch Changes
+
+- [`fda328d2`](https://github.com/wagmi-dev/viem/commit/fda328d26b86f5e2a2d56c898db12eea4e0e1e94) Thanks [@jxom](https://github.com/jxom)! - Updated `isows`.
+
 ## 1.16.0
 
 ### Minor Changes
