@@ -435,6 +435,7 @@ export {
 } from './clients/transports/fallback.js'
 export {
   type HttpTransport,
+  type HttpTransportConfig,
   type HttpTransportErrorType,
   http,
 } from './clients/transports/http.js'
