@@ -1,5 +1,13 @@
 # viem
 
+## 1.16.2
+
+### Patch Changes
+
+- [#1325](https://github.com/wagmi-dev/viem/pull/1325) [`e9a54192`](https://github.com/wagmi-dev/viem/commit/e9a54192c5a52db1c0452b08192171bc9304bec7) Thanks [@avasisht23](https://github.com/avasisht23)! - Exported `HttpTransportConfig`.
+
+- [`c445acee`](https://github.com/wagmi-dev/viem/commit/c445acee5a3e3a4121521b7e289a9afd882b7400) Thanks [@jxom](https://github.com/jxom)! - Added `fetchOptions` to `http` transport return value.
+
 ## 1.16.1
 
 ### Patch Changes
