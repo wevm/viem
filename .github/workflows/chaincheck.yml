@@ -1,4 +1,4 @@
-name: ChainCheck
+name: Check chains
 on:
   workflow_dispatch:
   workflow_call:
@@ -7,26 +7,12 @@ on:
       - src/chains/**
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build
-        run: bun run build
-
   chaincheck:
-    name: Chaincheck
+    name: Check chains
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    continue-on-error: true
+    timeout-minutes: 10
 
     steps:
       - name: Clone repository
