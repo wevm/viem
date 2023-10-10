@@ -1,32 +1,43 @@
-
 import { expect, test } from 'bun:test'
 
+import * as chains from '~viem/chains/index.js'
+import type { Chain } from '~viem/types/chain.js'
 import { withTimeout } from '~viem/utils/promise/withTimeout.js'
 import { getSocket, rpc } from '~viem/utils/rpc.js'
-import type { Chain } from '~viem/types/chain.js'
-import * as chains from '~viem/chains/index.js'
 
 const defaultTimeout = 10_000
 
 const chains_ = Object.values(chains) as readonly Chain[]
-chains_.forEach(chain => {
+chains_.forEach((chain) => {
   const httpRpcUrls = chain.rpcUrls.default.http
-  if (httpRpcUrls) 
-    test(`${chain.name}: check http urls`, async () => {
-      await assertHttpRpcUrls(chain.id, httpRpcUrls)
-    }, { timeout: defaultTimeout })
+  if (httpRpcUrls)
+    test(
+      `${chain.name}: check http urls`,
+      async () => {
+        await assertHttpRpcUrls(chain.id, httpRpcUrls)
+      },
+      { timeout: defaultTimeout },
+    )
 
   const webSocketRpcUrls = chain.rpcUrls.default.webSocket
-  if (webSocketRpcUrls) 
-    test(`${chain.name}: check web socket urls`, async () => {
-      await assertWebSocketRpcUrls(chain.id, webSocketRpcUrls)
-    }, { timeout: defaultTimeout })
+  if (webSocketRpcUrls)
+    test(
+      `${chain.name}: check web socket urls`,
+      async () => {
+        await assertWebSocketRpcUrls(chain.id, webSocketRpcUrls)
+      },
+      { timeout: defaultTimeout },
+    )
 
   const explorerUrl = chain.blockExplorers?.default.url
-  if (explorerUrl) 
-    test(`${chain.name}: check block explorer`, async () => {
-      await assertExplorerUrl(explorerUrl)
-    }, { timeout: defaultTimeout })
+  if (explorerUrl)
+    test(
+      `${chain.name}: check block explorer`,
+      async () => {
+        await assertExplorerUrl(explorerUrl)
+      },
+      { timeout: defaultTimeout },
+    )
 })
 
 function isLocalNetwork(url: string): boolean {
@@ -37,7 +48,10 @@ function isLocalNetwork(url: string): boolean {
   return localNetworkRegex.test(u.hostname) || u.hostname === 'localhost'
 }
 
-async function assertHttpRpcUrls(chainId: number, rpcUrls: readonly string[]): Promise<void> {
+async function assertHttpRpcUrls(
+  chainId: number,
+  rpcUrls: readonly string[],
+): Promise<void> {
   for (const url of rpcUrls) {
     if (isLocalNetwork(url)) continue
     const response = await rpc
@@ -51,7 +65,10 @@ async function assertHttpRpcUrls(chainId: number, rpcUrls: readonly string[]): P
   }
 }
 
-async function assertWebSocketRpcUrls(chainId: number, rpcUrls: readonly string[]): Promise<void> {
+async function assertWebSocketRpcUrls(
+  chainId: number,
+  rpcUrls: readonly string[],
+): Promise<void> {
   for (const url of rpcUrls) {
     if (isLocalNetwork(url)) continue
 
