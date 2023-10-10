@@ -179,6 +179,7 @@ describe('transports', () => {
         "snapshot": [Function],
         "stopImpersonatingAccount": [Function],
         "transport": {
+          "fetchOptions": undefined,
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
@@ -408,6 +409,7 @@ test('extend', () => {
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
       "transport": {
+        "fetchOptions": undefined,
         "key": "http",
         "name": "HTTP JSON-RPC",
         "request": [Function],
