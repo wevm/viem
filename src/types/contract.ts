@@ -13,7 +13,7 @@ import {
   type ExtractAbiEventNames,
   type ExtractAbiFunction,
   type ExtractAbiFunctionNames,
-  type ResolvedConfig,
+  type ResolvedRegister,
 } from 'abitype'
 
 import type { Hex, LogTopic } from './misc.js'
@@ -132,14 +132,14 @@ export type ContractEventArgsFromTopics<
 export type Widen<type> =
   | ([unknown] extends [type] ? unknown : never)
   | (type extends Function ? type : never)
-  | (type extends ResolvedConfig['BigIntType'] ? bigint : never)
+  | (type extends ResolvedRegister['BigIntType'] ? bigint : never)
   | (type extends boolean ? boolean : never)
-  | (type extends ResolvedConfig['IntType'] ? number : never)
+  | (type extends ResolvedRegister['IntType'] ? number : never)
   | (type extends string
-      ? type extends ResolvedConfig['AddressType']
-        ? ResolvedConfig['AddressType']
-        : type extends ResolvedConfig['BytesType']['inputs']
-        ? ResolvedConfig['BytesType']
+      ? type extends ResolvedRegister['AddressType']
+        ? ResolvedRegister['AddressType']
+        : type extends ResolvedRegister['BytesType']['inputs']
+        ? ResolvedRegister['BytesType']
         : string
       : never)
   | (type extends readonly [] ? readonly [] : never)

@@ -1,5 +1,5 @@
 import { type Abi, type Address, parseAbi } from 'abitype'
-import { erc20Abi, seaportAbi, wagmiMintExampleAbi } from 'abitype/test'
+import { erc20Abi, seaportAbi, wagmiMintExampleAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
 
 import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'

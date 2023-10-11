@@ -3,7 +3,7 @@ import {
   type Address,
   type ExtractAbiEventNames,
   type ExtractAbiFunctionNames,
-  type ResolvedConfig,
+  type ResolvedRegister,
   parseAbi,
 } from 'abitype'
 
@@ -291,15 +291,15 @@ test('overloaded function', () => {
     .parameter(0)
     .toEqualTypeOf<
       | readonly [
-          ResolvedConfig['AddressType'],
-          ResolvedConfig['AddressType'],
-          ResolvedConfig['BigIntType'],
+          ResolvedRegister['AddressType'],
+          ResolvedRegister['AddressType'],
+          ResolvedRegister['BigIntType'],
         ]
       | readonly [
-          ResolvedConfig['AddressType'],
-          ResolvedConfig['AddressType'],
-          ResolvedConfig['BigIntType'],
-          ResolvedConfig['AddressType'],
+          ResolvedRegister['AddressType'],
+          ResolvedRegister['AddressType'],
+          ResolvedRegister['BigIntType'],
+          ResolvedRegister['AddressType'],
         ]
     >()
   expectTypeOf(contract.write.safeTransferFrom).toBeCallableWith([

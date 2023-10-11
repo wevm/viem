@@ -1,4 +1,4 @@
-import { seaportAbi } from 'abitype/test'
+import { seaportAbi } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 
 import { type Address, parseAbi } from 'abitype'

@@ -1,5 +1,10 @@
-import { type Abi, type Address, type ResolvedConfig, parseAbi } from 'abitype'
-import { seaportAbi } from 'abitype/test'
+import {
+  type Abi,
+  type Address,
+  type ResolvedRegister,
+  parseAbi,
+} from 'abitype'
+import { seaportAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
 
 import type {
@@ -96,7 +101,7 @@ test('Widen', () => {
   expectTypeOf<Widen<'foo'>>().toEqualTypeOf<string>()
   expectTypeOf<Widen<'0x123'>>().toEqualTypeOf<Address>()
   expectTypeOf<Widen<'0xbytes'>>().toEqualTypeOf<
-    ResolvedConfig['BytesType']['inputs']
+    ResolvedRegister['BytesType']['inputs']
   >()
 
   expectTypeOf<Widen<[]>>().toEqualTypeOf<readonly []>()

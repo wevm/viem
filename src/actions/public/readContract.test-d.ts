@@ -1,9 +1,14 @@
-import { type Abi, type Address, type ResolvedConfig, parseAbi } from 'abitype'
+import {
+  type Abi,
+  type Address,
+  type ResolvedRegister,
+  parseAbi,
+} from 'abitype'
 import {
   wagmiMintExampleAbi,
   wagmiMintExampleHumanReadableAbi,
   writingEditionsFactoryAbi,
-} from 'abitype/test'
+} from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 
 import { publicClient } from '~test/src/utils.js'
@@ -53,7 +58,7 @@ test('args', () => {
       functionName: 'predictDeterministicAddress',
       args: ['0x', '0xfoo'],
     })
-    assertType<ResolvedConfig['AddressType']>(result)
+    assertType<ResolvedRegister['AddressType']>(result)
   })
 })
 
@@ -74,7 +79,7 @@ test('return types', () => {
       functionName: 'ownerOf',
       args: [123n],
     })
-    assertType<ResolvedConfig['AddressType']>(result)
+    assertType<ResolvedRegister['AddressType']>(result)
   })
 
   test('number', async () => {
@@ -84,7 +89,7 @@ test('return types', () => {
       functionName: 'balanceOf',
       args: ['0x'],
     })
-    assertType<ResolvedConfig['BigIntType']>(result)
+    assertType<ResolvedRegister['BigIntType']>(result)
   })
 })
 

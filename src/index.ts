@@ -11,7 +11,7 @@ export {
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
-  type ResolvedConfig,
+  type ResolvedRegister,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
