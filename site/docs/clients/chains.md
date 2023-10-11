@@ -44,7 +44,6 @@ import { defineChain } from 'viem'
 export const zora = defineChain({
   id: 7777777,
   name: 'Zora',
-  network: 'zora',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -52,10 +51,6 @@ export const zora = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.zora.energy'],
-      webSocket: ['wss://rpc.zora.energy'],
-    },
-    public: {
       http: ['https://rpc.zora.energy'],
       webSocket: ['wss://rpc.zora.energy'],
     },
