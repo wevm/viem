@@ -1,5 +1,11 @@
 # viem
 
+## 1.16.4
+
+### Patch Changes
+
+- [#1334](https://github.com/wagmi-dev/viem/pull/1334) [`4862acc5`](https://github.com/wagmi-dev/viem/commit/4862acc51ee86ceddfa55b21bb55667cf10e86a8) Thanks [@izayl](https://github.com/izayl)! - Added Scroll chain
+
 ## 1.16.3
 
 ### Patch Changes
