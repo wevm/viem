@@ -6,7 +6,7 @@ export const holesky = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Holesky Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.holesky.ethpandaops.io'],
+      http: ['https://ethereum-holesky.publicnode.com'],
     },
   },
   contracts: {

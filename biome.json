@@ -6,6 +6,8 @@
       "_esm",
       "_types",
       ".next",
+      ".svelte-kit",
+      ".vercel",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",

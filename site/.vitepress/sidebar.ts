@@ -156,6 +156,15 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Proof',
+          items: [
+            {
+              text: 'getProof',
+              link: '/docs/actions/public/getProof',
+            },
+          ],
+        },
+        {
           text: 'Signature',
           items: [
             {
@@ -835,6 +844,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'Account Abstraction',
           link: '/docs/third-party/account-abstraction',
+        },
+        {
+          text: 'Miscellaneous',
+          link: '/docs/third-party/misc',
         },
       ],
     },

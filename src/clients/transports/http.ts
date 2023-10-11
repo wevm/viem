@@ -47,6 +47,7 @@ export type HttpTransportConfig = {
 export type HttpTransport = Transport<
   'http',
   {
+    fetchOptions?: HttpTransportConfig['fetchOptions']
     url?: string
   }
 >
@@ -119,6 +120,7 @@ export function http(
         type: 'http',
       },
       {
+        fetchOptions,
         url,
       },
     )

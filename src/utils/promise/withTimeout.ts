@@ -5,12 +5,12 @@ export type WithTimeoutErrorType = ErrorType
 export function withTimeout<TData>(
   fn: ({ signal }: { signal?: AbortController['signal'] }) => Promise<TData>,
   {
-    errorInstance,
+    errorInstance = new Error('timed out'),
     timeout,
     signal,
   }: {
     // The error instance to throw when the timeout is reached.
-    errorInstance: Error
+    errorInstance?: Error
     // The timeout (in ms).
     timeout: number
     // Whether or not the timeout should use an abort signal.

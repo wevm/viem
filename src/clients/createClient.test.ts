@@ -89,6 +89,7 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
+          "fetchOptions": undefined,
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
@@ -459,6 +460,7 @@ describe('extends', () => {
         "getFilterLogs": [Function],
         "getGasPrice": [Function],
         "getLogs": [Function],
+        "getProof": [Function],
         "getStorageAt": [Function],
         "getTransaction": [Function],
         "getTransactionConfirmations": [Function],
@@ -474,6 +476,7 @@ describe('extends', () => {
         "sendRawTransaction": [Function],
         "simulateContract": [Function],
         "transport": {
+          "fetchOptions": undefined,
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],

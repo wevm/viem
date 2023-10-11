@@ -109,6 +109,7 @@ test('exports chains', () => {
       "rolluxTestnet",
       "ronin",
       "saigon",
+      "scroll",
       "scrollSepolia",
       "scrollTestnet",
       "sepolia",

@@ -15,6 +15,10 @@ head:
 
 While Account Abstraction is not built into the core `viem` library, you can use a third-party library like [permissionless.js](https://docs.pimlico.io/permissionless/reference) to integrate with ERC-4337.
 
+**Libraries:**
+
+- [permissionless.js](#permissionless-js)
+
 ## permissionless.js
 
 [permissionless.js](https://docs.pimlico.io/permissionless/reference) is a TypeScript library built on viem for interacting with ERC-4337 bundlers, paymasters, and User Operations.
