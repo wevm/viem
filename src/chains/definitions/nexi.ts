@@ -3,21 +3,13 @@ import { defineChain } from '../../utils/chain.js'
 export const nexi = /*#__PURE__*/ defineChain({
   id: 4242,
   name: 'Nexi',
-  network: 'nexi',
   nativeCurrency: { name: 'Nexi', symbol: 'NEXI', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://rpc.chain.nexi.technology'],
     },
-    public: {
-      http: ['https://rpc.chain.nexi.technology'],
-    },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'NexiScan',
-      url: 'https://www.nexiscan.com',
-    },
     default: {
       name: 'NexiScan',
       url: 'https://www.nexiscan.com',

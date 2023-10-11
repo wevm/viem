@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const bsc = /*#__PURE__*/ defineChain({
   id: 56,
   name: 'BNB Smart Chain',
-  network: 'bsc',
   nativeCurrency: {
     decimals: 18,
     name: 'BNB',
@@ -11,10 +10,8 @@ export const bsc = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.ankr.com/bsc'] },
-    public: { http: ['https://rpc.ankr.com/bsc'] },
   },
   blockExplorers: {
-    etherscan: { name: 'BscScan', url: 'https://bscscan.com' },
     default: { name: 'BscScan', url: 'https://bscscan.com' },
   },
   contracts: {

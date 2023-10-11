@@ -112,7 +112,6 @@ test('request', async () => {
       chain: {
         ...localhost,
         rpcUrls: {
-          public: { http: [localWsUrl], webSocket: [localWsUrl] },
           default: { http: [localWsUrl], webSocket: [localWsUrl] },
         },
       },

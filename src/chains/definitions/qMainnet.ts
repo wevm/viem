@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const qMainnet = /*#__PURE__*/ defineChain({
   id: 35441,
   name: 'Q Mainnet',
-  network: 'q-mainnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Q',
@@ -11,7 +10,6 @@ export const qMainnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.q.org'] },
-    public: { http: ['https://rpc.q.org'] },
   },
   blockExplorers: {
     default: {

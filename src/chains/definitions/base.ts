@@ -4,31 +4,15 @@ import { formattersOptimism } from '../optimism/formatters.js'
 export const base = /*#__PURE__*/ defineChain(
   {
     id: 8453,
-    network: 'base',
     name: 'Base',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
-      alchemy: {
-        http: ['https://base-mainnet.g.alchemy.com/v2'],
-        webSocket: ['wss://base-mainnet.g.alchemy.com/v2'],
-      },
       default: {
-        http: ['https://mainnet.base.org'],
-      },
-      public: {
         http: ['https://mainnet.base.org'],
       },
     },
     blockExplorers: {
-      blockscout: {
-        name: 'Basescout',
-        url: 'https://base.blockscout.com',
-      },
       default: {
-        name: 'Basescan',
-        url: 'https://basescan.org',
-      },
-      etherscan: {
         name: 'Basescan',
         url: 'https://basescan.org',
       },

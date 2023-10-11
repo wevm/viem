@@ -51,10 +51,6 @@ export const anvilChain = {
       http: [localHttpUrl],
       webSocket: [localWsUrl],
     },
-    public: {
-      http: [localHttpUrl],
-      webSocket: [localWsUrl],
-    },
   },
 } as const satisfies Chain
 

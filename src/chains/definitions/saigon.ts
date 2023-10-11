@@ -3,13 +3,9 @@ import { defineChain } from '../../utils/chain.js'
 export const saigon = /*#__PURE__*/ defineChain({
   id: 2021,
   name: 'Saigon Testnet',
-  network: 'saigon',
   nativeCurrency: { name: 'RON', symbol: 'RON', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://saigon-testnet.roninchain.com/rpc'],
-    },
-    public: {
       http: ['https://saigon-testnet.roninchain.com/rpc'],
     },
   },

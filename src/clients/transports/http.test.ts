@@ -117,9 +117,6 @@ describe('request', () => {
           default: {
             http: [localHttpUrl],
           },
-          public: {
-            http: [localHttpUrl],
-          },
         },
       },
     })

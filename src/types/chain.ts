@@ -30,8 +30,8 @@ type ChainConstants = {
   /** Collection of block explorers */
   blockExplorers?:
     | {
+        [key: string]: ChainBlockExplorer
         default: ChainBlockExplorer
-        etherscan?: ChainBlockExplorer | undefined
       }
     | undefined
   /** Collection of contracts */
@@ -53,26 +53,17 @@ type ChainConstants = {
   id: number
   /** Human-readable name */
   name: string
-  /**
-   * Internal network name
-   * @deprecated will be removed in v2 - use `id` instead.
-   */
-  network: string
   /** Currency used by chain */
   nativeCurrency: ChainNativeCurrency
   /** Collection of RPC endpoints */
   rpcUrls: {
     [key: string]: ChainRpcUrls
     default: ChainRpcUrls
-    public: ChainRpcUrls
   }
   /** Source Chain ID (ie. the L1 chain) */
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
-
-  // TODO(v2): remove `rpcUrls` in favor of `publicRpcUrls`.
-  // publicRpcUrls: ChainRpcUrls,
 }
 
 export type ChainContract = {

@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const moonbaseAlpha = /*#__PURE__*/ defineChain({
   id: 1287,
   name: 'Moonbase Alpha',
-  network: 'moonbase-alpha',
   nativeCurrency: {
     decimals: 18,
     name: 'DEV',
@@ -14,17 +13,9 @@ export const moonbaseAlpha = /*#__PURE__*/ defineChain({
       http: ['https://rpc.api.moonbase.moonbeam.network'],
       webSocket: ['wss://wss.api.moonbase.moonbeam.network'],
     },
-    public: {
-      http: ['https://rpc.api.moonbase.moonbeam.network'],
-      webSocket: ['wss://wss.api.moonbase.moonbeam.network'],
-    },
   },
   blockExplorers: {
     default: {
-      name: 'Moonscan',
-      url: 'https://moonbase.moonscan.io',
-    },
-    etherscan: {
       name: 'Moonscan',
       url: 'https://moonbase.moonscan.io',
     },

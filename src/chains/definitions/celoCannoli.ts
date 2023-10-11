@@ -6,7 +6,6 @@ export const celoCannoli = /*#__PURE__*/ defineChain(
   {
     id: 17_323,
     name: 'Cannoli',
-    network: 'celo-cannoli',
     nativeCurrency: {
       decimals: 18,
       name: 'CELO',
@@ -14,9 +13,6 @@ export const celoCannoli = /*#__PURE__*/ defineChain(
     },
     rpcUrls: {
       default: {
-        http: ['https://forno.cannoli.celo-testnet.org'],
-      },
-      public: {
         http: ['https://forno.cannoli.celo-testnet.org'],
       },
     },

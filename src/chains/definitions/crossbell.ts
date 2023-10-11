@@ -2,7 +2,6 @@ import { defineChain } from '../../utils/chain.js'
 
 export const crossbell = /*#__PURE__*/ defineChain({
   id: 3_737,
-  network: 'crossbell',
   name: 'Crossbell',
   nativeCurrency: {
     decimals: 18,
@@ -11,9 +10,6 @@ export const crossbell = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.crossbell.io'],
-    },
-    public: {
       http: ['https://rpc.crossbell.io'],
     },
   },

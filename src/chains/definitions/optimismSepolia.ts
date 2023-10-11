@@ -5,21 +5,13 @@ export const optimismSepolia = /*#__PURE__*/ defineChain(
   {
     id: 11155420,
     name: 'Optimism Sepolia',
-    network: 'optimism-sepolia',
     nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
       default: {
         http: ['https://sepolia.optimism.io'],
       },
-      public: {
-        http: ['https://sepolia.optimism.io'],
-      },
     },
     blockExplorers: {
-      blockscout: {
-        name: 'Blockscout',
-        url: 'https://optimism-sepolia.blockscout.com',
-      },
       default: {
         name: 'Blockscout',
         url: 'https://optimism-sepolia.blockscout.com',

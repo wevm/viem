@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const zkSync = /*#__PURE__*/ defineChain({
   id: 324,
   name: 'zkSync Era',
-  network: 'zksync-era',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -11,10 +10,6 @@ export const zkSync = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://mainnet.era.zksync.io'],
-      webSocket: ['wss://mainnet.era.zksync.io/ws'],
-    },
-    public: {
       http: ['https://mainnet.era.zksync.io'],
       webSocket: ['wss://mainnet.era.zksync.io/ws'],
     },

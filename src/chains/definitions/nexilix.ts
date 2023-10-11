@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const nexilix = /*#__PURE__*/ defineChain({
   id: 240,
   name: 'Nexilix Smart Chain',
-  network: 'nexilix',
   nativeCurrency: {
     decimals: 18,
     name: 'Nexilix',
@@ -11,10 +10,8 @@ export const nexilix = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpcurl.pos.nexilix.com'] },
-    public: { http: ['https://rpcurl.pos.nexilix.com'] },
   },
   blockExplorers: {
-    etherscan: { name: 'NexilixScan', url: 'https://scan.nexilix.com' },
     default: { name: 'NexilixScan', url: 'https://scan.nexilix.com' },
   },
   contracts: {

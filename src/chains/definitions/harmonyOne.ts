@@ -3,14 +3,12 @@ import { defineChain } from '../../utils/chain.js'
 export const harmonyOne = /*#__PURE__*/ defineChain({
   id: 1_666_600_000,
   name: 'Harmony One',
-  network: 'harmony',
   nativeCurrency: {
     name: 'Harmony',
     symbol: 'ONE',
     decimals: 18,
   },
   rpcUrls: {
-    public: { http: ['https://rpc.ankr.com/harmony'] },
     default: { http: ['https://rpc.ankr.com/harmony'] },
   },
   blockExplorers: {

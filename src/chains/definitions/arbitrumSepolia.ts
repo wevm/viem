@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   id: 421_614,
   name: 'Arbitrum Sepolia',
-  network: 'arbitrum-sepolia',
   nativeCurrency: {
     name: 'Arbitrum Sepolia Ether',
     symbol: 'ETH',
@@ -11,9 +10,6 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
-    },
-    public: {
       http: ['https://sepolia-rollup.arbitrum.io/rpc'],
     },
   },

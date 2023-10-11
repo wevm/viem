@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const avalanche = /*#__PURE__*/ defineChain({
   id: 43_114,
   name: 'Avalanche',
-  network: 'avalanche',
   nativeCurrency: {
     decimals: 18,
     name: 'Avalanche',
@@ -11,10 +10,8 @@ export const avalanche = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://api.avax.network/ext/bc/C/rpc'] },
-    public: { http: ['https://api.avax.network/ext/bc/C/rpc'] },
   },
   blockExplorers: {
-    etherscan: { name: 'SnowTrace', url: 'https://snowtrace.io' },
     default: { name: 'SnowTrace', url: 'https://snowtrace.io' },
   },
   contracts: {

@@ -3,17 +3,12 @@ import { defineChain } from '../../utils/chain.js'
 export const moonriver = /*#__PURE__*/ defineChain({
   id: 1285,
   name: 'Moonriver',
-  network: 'moonriver',
   nativeCurrency: {
     decimals: 18,
     name: 'MOVR',
     symbol: 'MOVR',
   },
   rpcUrls: {
-    public: {
-      http: ['https://moonriver.public.blastapi.io'],
-      webSocket: ['wss://moonriver.public.blastapi.io'],
-    },
     default: {
       http: ['https://moonriver.public.blastapi.io'],
       webSocket: ['wss://moonriver.public.blastapi.io'],
@@ -21,10 +16,6 @@ export const moonriver = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Moonscan',
-      url: 'https://moonriver.moonscan.io',
-    },
-    etherscan: {
       name: 'Moonscan',
       url: 'https://moonriver.moonscan.io',
     },

@@ -3,7 +3,6 @@ import { defineChain } from '../../../utils/chain.js'
 export const skaleEuropaTestnet = /*#__PURE__*/ defineChain({
   id: 476_158_412,
   name: 'SKALE | Europa Liquidity Hub Testnet',
-  network: 'skale-europa-testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
@@ -12,18 +11,8 @@ export const skaleEuropaTestnet = /*#__PURE__*/ defineChain({
         'wss://staging-v3.skalenodes.com/v1/ws/staging-legal-crazy-castor',
       ],
     },
-    public: {
-      http: ['https://staging-v3.skalenodes.com/v1/staging-legal-crazy-castor'],
-      webSocket: [
-        'wss://staging-v3.skalenodes.com/v1/ws/staging-legal-crazy-castor',
-      ],
-    },
   },
   blockExplorers: {
-    blockscout: {
-      name: 'SKALE Explorer',
-      url: 'https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com',
-    },
     default: {
       name: 'SKALE Explorer',
       url: 'https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com',

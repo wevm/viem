@@ -3,13 +3,9 @@ import { defineChain } from '../../utils/chain.js'
 export const ronin = /*#__PURE__*/ defineChain({
   id: 2020,
   name: 'Ronin',
-  network: 'ronin',
   nativeCurrency: { name: 'RON', symbol: 'RON', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://api.roninchain.com/rpc'],
-    },
-    public: {
       http: ['https://api.roninchain.com/rpc'],
     },
   },

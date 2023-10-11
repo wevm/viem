@@ -2,30 +2,14 @@ import { defineChain } from '../../utils/chain.js'
 
 export const goerli = /*#__PURE__*/ defineChain({
   id: 5,
-  network: 'goerli',
   name: 'Goerli',
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    alchemy: {
-      http: ['https://eth-goerli.g.alchemy.com/v2'],
-      webSocket: ['wss://eth-goerli.g.alchemy.com/v2'],
-    },
-    infura: {
-      http: ['https://goerli.infura.io/v3'],
-      webSocket: ['wss://goerli.infura.io/ws/v3'],
-    },
     default: {
-      http: ['https://rpc.ankr.com/eth_goerli'],
-    },
-    public: {
       http: ['https://rpc.ankr.com/eth_goerli'],
     },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Etherscan',
-      url: 'https://goerli.etherscan.io',
-    },
     default: {
       name: 'Etherscan',
       url: 'https://goerli.etherscan.io',

@@ -2,16 +2,11 @@ import { defineChain } from '../../utils/chain.js'
 
 export const pulsechain = /*#__PURE__*/ defineChain({
   id: 369,
-  network: 'pulsechain',
   name: 'PulseChain',
   nativeCurrency: { name: 'Pulse', symbol: 'PLS', decimals: 18 },
   testnet: false,
   rpcUrls: {
     default: {
-      http: ['https://rpc.pulsechain.com'],
-      webSocket: ['wss://ws.pulsechain.com'],
-    },
-    public: {
       http: ['https://rpc.pulsechain.com'],
       webSocket: ['wss://ws.pulsechain.com'],
     },

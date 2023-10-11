@@ -5,7 +5,6 @@ export const zoraTestnet = /*#__PURE__*/ defineChain(
   {
     id: 999,
     name: 'Zora Goerli Testnet',
-    network: 'zora-testnet',
     nativeCurrency: {
       decimals: 18,
       name: 'Zora Goerli',
@@ -13,10 +12,6 @@ export const zoraTestnet = /*#__PURE__*/ defineChain(
     },
     rpcUrls: {
       default: {
-        http: ['https://testnet.rpc.zora.energy'],
-        webSocket: ['wss://testnet.rpc.zora.energy'],
-      },
-      public: {
         http: ['https://testnet.rpc.zora.energy'],
         webSocket: ['wss://testnet.rpc.zora.energy'],
       },

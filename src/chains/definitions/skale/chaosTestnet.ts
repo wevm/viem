@@ -3,7 +3,6 @@ import { defineChain } from '../../../utils/chain.js'
 export const skaleChaosTestnet = /*#__PURE__*/ defineChain({
   id: 1_351_057_110,
   name: 'SKALE | Chaos Testnet',
-  network: 'skale-chaos-testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
@@ -14,20 +13,8 @@ export const skaleChaosTestnet = /*#__PURE__*/ defineChain({
         'wss://staging-v3.skalenodes.com/v1/ws/staging-fast-active-bellatrix',
       ],
     },
-    public: {
-      http: [
-        'https://staging-v3.skalenodes.com/v1/staging-fast-active-bellatrix',
-      ],
-      webSocket: [
-        'wss://staging-v3.skalenodes.com/v1/ws/staging-fast-active-bellatrix',
-      ],
-    },
   },
   blockExplorers: {
-    blockscout: {
-      name: 'SKALE Explorer',
-      url: 'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com',
-    },
     default: {
       name: 'SKALE Explorer',
       url: 'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com',

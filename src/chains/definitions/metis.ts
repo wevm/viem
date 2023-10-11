@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain.js'
 export const metis = /*#__PURE__*/ defineChain({
   id: 1_088,
   name: 'Metis',
-  network: 'andromeda',
   nativeCurrency: {
     decimals: 18,
     name: 'Metis',
@@ -11,7 +10,6 @@ export const metis = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: { http: ['https://andromeda.metis.io/?owner=1088'] },
-    public: { http: ['https://andromeda.metis.io/?owner=1088'] },
   },
   blockExplorers: {
     default: {
