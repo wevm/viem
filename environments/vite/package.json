@@ -1,0 +1,19 @@
+{
+  "name": "test-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "viem": "file:../../src/"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.38.1",
+    "@types/node": "^20.8.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  }
+}

@@ -1,4 +1,4 @@
-import { WebSocket } from 'isomorphic-ws'
+import { WebSocket } from 'isows'
 import { describe, expect, test, vi } from 'vitest'
 
 import type { IncomingHttpHeaders } from 'http'
@@ -10,7 +10,7 @@ import {
 } from '~test/src/constants.js'
 import { createHttpServer, testClient } from '~test/src/utils.js'
 
-import { mine } from '../test/index.js'
+import { mine } from '../actions/test/mine.js'
 import { numberToHex } from './encoding/toHex.js'
 import * as withTimeout from './promise/withTimeout.js'
 import { type RpcResponse, getSocket, rpc } from './rpc.js'

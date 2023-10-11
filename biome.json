@@ -5,6 +5,7 @@
       "_cjs",
       "_esm",
       "_types",
+      ".next",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",

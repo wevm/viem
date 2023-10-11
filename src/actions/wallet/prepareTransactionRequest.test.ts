@@ -585,6 +585,34 @@ describe('prepareTransactionRequest', () => {
     expect(request_6.maxFeePerGas).toEqual(
       (block.baseFeePerGas! * 120n) / 100n + parseGwei('69'),
     )
+
+    // chain override (bigint zero base fee)
+    const request_7 = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: 0n,
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_7.maxPriorityFeePerGas).toEqual(0n)
+
+    // chain override (async zero base fee)
+    const request_8 = await prepareTransactionRequest(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: {
+        ...anvilChain,
+        fees: {
+          defaultPriorityFee: async () => 0n,
+        },
+      },
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(request_8.maxPriorityFeePerGas).toEqual(0n)
   })
 
   test('no account', async () => {

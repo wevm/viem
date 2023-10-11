@@ -11,8 +11,7 @@ import type {
 } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
-import type { PublicClient } from '../clients/createPublicClient.js'
-import type { WalletClient } from '../clients/createWalletClient.js'
+import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type {
@@ -68,14 +67,23 @@ import {
   writeContract,
 } from './wallet/writeContract.js'
 
+type KeyedClient<
+  TTransport extends Transport = Transport,
+  TChain extends Chain | undefined = Chain | undefined,
+  TAccount extends Account | undefined = Account | undefined,
+> = {
+  publicClient: Client<TTransport, TChain>
+  walletClient: Client<TTransport, TChain, TAccount>
+}
+
 export type GetContractParameters<
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends PublicClient<TTransport, TChain> | unknown = unknown,
-  TWalletClient extends
-    | WalletClient<TTransport, TChain, TAccount>
+  TClient extends
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>
     | unknown = unknown,
   TAddress extends Address = Address,
 > = {
@@ -83,8 +91,7 @@ export type GetContractParameters<
   abi: TAbi
   /** Contract address */
   address: TAddress
-  /**
-   * Public client
+  /** The Client.
    *
    * If you pass in a [`publicClient`](https://viem.sh/docs/clients/public.html), the following methods are available:
    *
@@ -94,23 +101,18 @@ export type GetContractParameters<
    * - [`read`](https://viem.sh/docs/contract/readContract.html)
    * - [`simulate`](https://viem.sh/docs/contract/simulateContract.html)
    * - [`watchEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
-   */
-  publicClient?: TPublicClient
-  /**
-   * Wallet client
    *
    * If you pass in a [`walletClient`](https://viem.sh/docs/clients/wallet.html), the following methods are available:
    *
    * - [`estimateGas`](https://viem.sh/docs/contract/estimateContractGas.html)
    * - [`write`](https://viem.sh/docs/contract/writeContract.html)
    */
-  walletClient?: TWalletClient
+  client: TClient
 }
 
 export type GetContractReturnType<
   TAbi extends Abi | readonly unknown[] = Abi,
-  TPublicClient extends PublicClient | unknown = unknown,
-  TWalletClient extends WalletClient | unknown = unknown,
+  TClient extends Client | KeyedClient | unknown = unknown,
   TAddress extends Address = Address,
   _EventNames extends string = TAbi extends Abi
     ? Abi extends TAbi
@@ -128,9 +130,19 @@ export type GetContractReturnType<
       : ExtractAbiFunctionNames<TAbi, 'nonpayable' | 'payable'>
     : string,
   _Narrowable extends boolean = IsNarrowable<TAbi, Abi>,
+  _PublicClient extends Client | unknown = TClient extends {
+    publicClient: Client
+  }
+    ? TClient['publicClient']
+    : TClient,
+  _WalletClient extends Client | unknown = TClient extends {
+    walletClient: Client
+  }
+    ? TClient['walletClient']
+    : TClient,
 > = Prettify<
   Prettify<
-    (TPublicClient extends PublicClient
+    (_PublicClient extends Client
       ? (IsNever<_ReadFunctionNames> extends true
           ? unknown
           : {
@@ -154,7 +166,7 @@ export type GetContractReturnType<
                *   abi: parseAbi([
                *     'function balanceOf(address owner) view returns (uint256)',
                *   ]),
-               *   publicClient,
+               *   client: publicClient,
                * })
                * const result = await contract.read.balanceOf(['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'])
                * // 424122n
@@ -189,7 +201,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['function mint() public']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const gas = await contract.estimateGas.mint({
                  *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -198,7 +210,7 @@ export type GetContractReturnType<
                 estimateGas: {
                   [functionName in _WriteFunctionNames]: GetEstimateFunction<
                     _Narrowable,
-                    TPublicClient['chain'],
+                    _PublicClient['chain'],
                     undefined,
                     TAbi,
                     functionName extends ContractFunctionName<
@@ -227,7 +239,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['function mint() public']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const result = await contract.simulate.mint({
                  *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -236,7 +248,10 @@ export type GetContractReturnType<
                 simulate: {
                   [functionName in _WriteFunctionNames]: GetSimulateFunction<
                     _Narrowable,
-                    TPublicClient['chain'],
+                    _PublicClient['chain'],
+                    _WalletClient extends Client
+                      ? _WalletClient['account']
+                      : _PublicClient['account'],
                     TAbi,
                     functionName extends ContractFunctionName<
                       TAbi,
@@ -264,7 +279,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const filter = await contract.createEventFilter.Transfer()
                  */
@@ -291,7 +306,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const filter = await contract.createEventFilter.Transfer()
                  */
@@ -322,7 +337,7 @@ export type GetContractReturnType<
                  * const contract = getContract({
                  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                  *   abi: parseAbi(['event Transfer(address indexed, address indexed, uint256)']),
-                 *   publicClient,
+                 *   client: publicClient,
                  * })
                  * const filter = await contract.createEventFilter.Transfer()
                  * const unwatch = contract.watchEvent.Transfer(
@@ -341,7 +356,7 @@ export type GetContractReturnType<
                 }
               })
       : unknown) &
-      (TWalletClient extends WalletClient
+      (_WalletClient extends Client
         ? IsNever<_WriteFunctionNames> extends true
           ? unknown
           : {
@@ -359,7 +374,7 @@ export type GetContractReturnType<
                * const contract = getContract({
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                *   abi: parseAbi(['function mint() public']),
-               *   walletClient,
+               *   client: walletClient,
                * })
                * const gas = await contract.estimateGas.mint({
                *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
@@ -368,8 +383,8 @@ export type GetContractReturnType<
               estimateGas: {
                 [functionName in _WriteFunctionNames]: GetEstimateFunction<
                   _Narrowable,
-                  TWalletClient['chain'],
-                  TWalletClient['account'],
+                  _WalletClient['chain'],
+                  _WalletClient['account'],
                   TAbi,
                   functionName extends ContractFunctionName<
                     TAbi,
@@ -399,7 +414,7 @@ export type GetContractReturnType<
                * const contract = getContract({
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
                *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
-               *   walletClient,
+               *   client: walletClient,
                * })
                * const hash = await contract.write.min([69420], {
                *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -408,8 +423,8 @@ export type GetContractReturnType<
               write: {
                 [functionName in _WriteFunctionNames]: GetWriteFunction<
                   _Narrowable,
-                  TWalletClient['chain'],
-                  TWalletClient['account'],
+                  _WalletClient['chain'],
+                  _WalletClient['account'],
                   TAbi,
                   functionName extends ContractFunctionName<
                     TAbi,
@@ -448,7 +463,7 @@ export type GetContractErrorType = ErrorType
  *     'function ownerOf(uint256 tokenId) view returns (address)',
  *     'function totalSupply() view returns (uint256)',
  *   ]),
- *   publicClient,
+ *   client: publicClient,
  * })
  */
 export function getContract<
@@ -457,26 +472,40 @@ export function getContract<
   const TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends Account | undefined = Account | undefined,
-  TPublicClient extends PublicClient<TTransport, TChain> | undefined =
-    | PublicClient<TTransport, TChain>
-    | undefined,
-  TWalletClient extends WalletClient<TTransport, TChain, TAccount> | undefined =
-    | WalletClient<TTransport, TChain, TAccount>
-    | undefined,
+  const TClient extends
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>
+    | unknown =
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>
+    | unknown,
 >({
   abi,
   address,
-  publicClient,
-  walletClient,
+  client: client_,
 }: GetContractParameters<
   TTransport,
   TChain,
   TAccount,
   TAbi,
-  TPublicClient,
-  TWalletClient,
+  TClient,
   TAddress
->): GetContractReturnType<TAbi, TPublicClient, TWalletClient, TAddress> {
+>): GetContractReturnType<TAbi, TClient, TAddress> {
+  const client = client_ as
+    | Client<TTransport, TChain, TAccount>
+    | KeyedClient<TTransport, TChain, TAccount>
+
+  const [publicClient, walletClient] = (() => {
+    if (!client) return [undefined, undefined]
+    if ('publicClient' in client && 'walletClient' in client)
+      return [client.publicClient as Client, client.walletClient as Client]
+    if ('publicClient' in client)
+      return [client.publicClient as Client, undefined]
+    if ('walletClient' in client)
+      return [undefined, client.walletClient as Client]
+    return [client, client]
+  })()
+
   const hasPublicClient = publicClient !== undefined && publicClient !== null
   const hasWalletClient = walletClient !== undefined && walletClient !== null
 
@@ -712,7 +741,7 @@ export function getContract<
                 ...options,
                 account:
                   (options as EstimateContractGasParameters).account ??
-                  (walletClient as unknown as WalletClient).account,
+                  (walletClient as unknown as Client).account,
               } as any)
             }
           },
@@ -721,12 +750,7 @@ export function getContract<
   contract.address = address
   contract.abi = abi
 
-  return contract as unknown as GetContractReturnType<
-    TAbi,
-    TPublicClient,
-    TWalletClient,
-    TAddress
-  >
+  return contract as unknown as GetContractReturnType<TAbi, TClient, TAddress>
 }
 
 /**
@@ -854,6 +878,7 @@ type GetEstimateFunction<
 type GetSimulateFunction<
   Narrowable extends boolean,
   TChain extends Chain | undefined,
+  TAccount extends Account | undefined,
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
   TArgs extends ContractFunctionArgs<
@@ -868,49 +893,79 @@ type GetSimulateFunction<
 > = Narrowable extends true
   ? <
       TChainOverride extends Chain | undefined,
-      Options extends Prettify<
-        UnionOmit<
-          SimulateContractParameters<
-            TAbi,
-            TFunctionName,
-            TArgs,
-            TChain,
-            TChainOverride
-          >,
-          'abi' | 'address' | 'args' | 'functionName'
-        >
-      >,
+      TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters: Args extends readonly []
-        ? [options?: Options]
-        : [args: Args, options?: Options]
+        ? [
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
+        : [
+            args: Args,
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
     ) => Promise<
       SimulateContractReturnType<
         TAbi,
         TFunctionName,
         TArgs,
         TChain,
-        TChainOverride
+        TAccount,
+        TChainOverride,
+        TAccountOverride
       >
     >
   : <
       TChainOverride extends Chain | undefined,
-      Options extends Prettify<
-        UnionOmit<
-          SimulateContractParameters<
-            TAbi,
-            TFunctionName,
-            TArgs,
-            TChain,
-            TChainOverride
-          >,
-          'abi' | 'address' | 'args' | 'functionName'
-        >
-      >,
+      TAccountOverride extends Account | Address | undefined = undefined,
     >(
       ...parameters:
-        | [options?: Options]
-        | [args: readonly unknown[], options?: Options]
+        | [
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
+        | [
+            args: readonly unknown[],
+            options?: UnionOmit<
+              SimulateContractParameters<
+                TAbi,
+                TFunctionName,
+                TArgs,
+                TChain,
+                TChainOverride,
+                TAccountOverride
+              >,
+              'abi' | 'address' | 'args' | 'functionName'
+            >,
+          ]
     ) => Promise<SimulateContractReturnType>
 
 type GetWriteFunction<

@@ -1,4 +1,4 @@
-import type { Abi } from 'abitype'
+import type { Abi, Address } from 'abitype'
 
 import {
   type ParseAccountErrorType,
@@ -8,6 +8,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { Account, ParseAccount } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
@@ -48,7 +49,9 @@ export type SimulateContractParameters<
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined = undefined,
 > = {
+  account?: accountOverride
   chain?: chainOverride
   /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
   dataSuffix?: Hex
@@ -60,7 +63,7 @@ export type SimulateContractParameters<
 > &
   UnionOmit<
     CallParameters<chainOverride extends Chain ? chainOverride : chain>,
-    'batch' | 'to' | 'data' | 'value'
+    'account' | 'batch' | 'to' | 'data' | 'value'
   > &
   GetValue<
     abi,
@@ -82,7 +85,12 @@ export type SimulateContractReturnType<
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
+  accountOverride extends Account | Address | undefined =
+    | Account
+    | Address
+    | undefined,
   ///
   minimizedAbi extends Abi = readonly [
     ExtractAbiFunctionForArgs<
@@ -92,6 +100,11 @@ export type SimulateContractReturnType<
       args
     >,
   ],
+  resolvedAccount extends Account | undefined = accountOverride extends
+    | Account
+    | Address
+    ? ParseAccount<accountOverride>
+    : account,
 > = {
   result: ContractFunctionReturnType<
     minimizedAbi,
@@ -110,7 +123,7 @@ export type SimulateContractReturnType<
           undefined,
           chainOverride
         >,
-        'abi' | 'args' | 'chain' | 'functionName'
+        'account' | 'abi' | 'args' | 'chain' | 'functionName'
       >
     > &
       ContractFunctionParameters<
@@ -120,7 +133,9 @@ export type SimulateContractReturnType<
         args
       > & {
         chain: chainOverride
-      }
+      } & (resolvedAccount extends Account
+        ? { account: resolvedAccount }
+        : { account?: undefined })
   >
 }
 
@@ -163,6 +178,7 @@ export type SimulateContractErrorType =
  */
 export async function simulateContract<
   chain extends Chain | undefined,
+  account extends Account | undefined,
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
   args extends ContractFunctionArgs<
@@ -171,24 +187,34 @@ export async function simulateContract<
     functionName
   >,
   chainOverride extends Chain | undefined,
+  accountOverride extends Account | Address | undefined = undefined,
 >(
-  client: Client<Transport, chain>,
+  client: Client<Transport, chain, account>,
   parameters: SimulateContractParameters<
     abi,
     functionName,
     args,
     chain,
-    chainOverride
+    chainOverride,
+    accountOverride
   >,
 ): Promise<
-  SimulateContractReturnType<abi, functionName, args, chain, chainOverride>
+  SimulateContractReturnType<
+    abi,
+    functionName,
+    args,
+    chain,
+    account,
+    chainOverride,
+    accountOverride
+  >
 > {
   const { abi, address, args, dataSuffix, functionName, ...callRequest } =
     parameters as SimulateContractParameters
 
   const account = callRequest.account
     ? parseAccount(callRequest.account)
-    : undefined
+    : client.account
   const calldata = encodeFunctionData({ abi, args, functionName })
   try {
     const { data } = await call(client, {
@@ -196,6 +222,7 @@ export async function simulateContract<
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
+      account,
     })
     const result = decodeFunctionResult({
       abi,
@@ -216,13 +243,16 @@ export async function simulateContract<
         dataSuffix,
         functionName,
         ...callRequest,
+        account,
       },
     } as unknown as SimulateContractReturnType<
       abi,
       functionName,
       args,
       chain,
-      chainOverride
+      account,
+      chainOverride,
+      accountOverride
     >
   } catch (error) {
     throw getContractError(error as BaseError, {

@@ -15,6 +15,82 @@ head:
 
 If you are coming from an earlier version of `viem`, you will need to make sure to update the following APIs listed below.
 
+## 2.x.x Breaking changes
+
+### Modified `getContract` Client API
+
+The `publicClient` and `walletClient` parameters of the `getContract` API has been removed in favour of `client` to support Client's that [extend](/docs/clients/wallet.html#optional-extend-with-public-actions) (ie. [a Wallet Client extended with Public Actions](/docs/clients/wallet.html#optional-extend-with-public-actions)).
+
+[Read more.](/docs/contract/getContract)
+
+```tsx
+import { getContract } from 'viem'
+import { publicClient, walletClient } from './client'
+
+const contract = getContract({
+  abi,
+  address,
+  publicClient, // [!code --]
+  walletClient, // [!code --]
+  client: { // [!code ++]
+    publicClient, // [!code ++]
+    walletClient, // [!code ++]
+  } // [!code ++]
+})
+```
+
+### Removed entrypoints
+
+The following entrypoints have been removed:
+
+- `viem/abi`
+- `viem/contract`
+- `viem/public`
+- `viem/test`
+- `viem/wallet`
+
+You can import the entrypoints directly from `viem`:
+
+```ts
+import { encodeAbiParameters } from 'viem/abi' // [!code --]
+import { getContract } from 'viem/contract' // [!code --]
+import { getBlock } from 'viem/public' // [!code --]
+import { mine } from 'viem/test' // [!code --]
+import { sendTransaction } from 'viem/wallet' // [!code --]
+import { // [!code ++]
+  encodeAbiParameters, // [!code ++] 
+  getContract, // [!code ++]
+  getBlock, // [!code ++]
+  mine, // [!code ++]
+  sendTransaction, // [!code ++]
+} from 'viem' // [!code ++]
+```
+
+### Type Change: `SimulateContractParameters` & `SimulateContractReturnType`
+
+Note the following breaking generic slot changes:
+
+```ts
+type SimulateContractParameters<
+  TAbi,
+  TFunctionName,
+  TArgs, // Args added to Slot 2 // [!code ++]
+  TChain,
+  TChainOverride,
+  TAccountOverride,
+>
+
+type SimulateContractReturnType<
+  TAbi,
+  TFunctionName,
+  TArgs, // Args added to Slot 2 // [!code ++]
+  TChain,
+  TAccount, // Account added to Slot 4 // [!code ++]
+  TChainOverride,
+  TAccountOverride,
+>
+```
+
 ## 1.x.x Breaking changes
 
 The 1.x.x release only includes very minor changes to the behavior in event log decoding, and removes the redundant ethers.js Wallet Adapter. If you do not directly use these APIs, you do not need to update any of your code for this version.

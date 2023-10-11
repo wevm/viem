@@ -2,18 +2,65 @@ import { parseAbi } from 'abitype'
 import { assertType, expectTypeOf, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'
-import { publicClient } from '~test/src/utils.js'
+import { publicClient, walletClientWithAccount } from '~test/src/utils.js'
 
 import { simulateContract } from './simulateContract.js'
 
 const args = {
   ...wagmiContractConfig,
-  account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   functionName: 'mint',
   args: [69420n],
 } as const
 
-test('legacy', () => {
+test('args: account - no client account, no account arg', async () => {
+  const result = await simulateContract(publicClient, {
+    ...args,
+  })
+
+  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+    account?: undefined
+  }>()
+})
+
+test('args: account - with client account, no account arg', async () => {
+  const result = await simulateContract(walletClientWithAccount, {
+    ...args,
+  })
+
+  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+    account: typeof walletClientWithAccount['account']
+  }>()
+})
+
+test('args: account - no client account, with account arg', async () => {
+  const result = await simulateContract(publicClient, {
+    ...args,
+    account: '0x',
+  })
+
+  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+    account: {
+      address: '0x'
+      type: 'json-rpc'
+    }
+  }>()
+})
+
+test('args: account - with client account, with account arg', async () => {
+  const result = await simulateContract(walletClientWithAccount, {
+    ...args,
+    account: '0x',
+  })
+
+  expectTypeOf<Pick<typeof result['request'], 'account'>>().toEqualTypeOf<{
+    account: {
+      address: '0x'
+      type: 'json-rpc'
+    }
+  }>()
+})
+
+test('args: legacy txn', () => {
   simulateContract(publicClient, {
     ...args,
     gasPrice: 0n,
@@ -44,7 +91,7 @@ test('legacy', () => {
   })
 })
 
-test('eip1559', () => {
+test('args: eip1559 txn', () => {
   simulateContract(publicClient, {
     ...args,
     maxFeePerGas: 0n,
@@ -75,7 +122,7 @@ test('eip1559', () => {
   })
 })
 
-test('eip2930', () => {
+test('args: eip2930 txn', () => {
   simulateContract(publicClient, {
     ...args,
     accessList: [],

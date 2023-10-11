@@ -31,13 +31,16 @@ You can create a Contract Instance with the `getContract` function by passing in
 ```ts [example.ts]
 import { getContract } from 'viem'
 import { wagmiAbi } from './abi'
-import { publicClient } from './client'
+import { publicClient, walletClient } from './client'
 
 // 1. Create contract instance
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient,
+  // 1a. Insert a single client
+  client: publicClient,
+  // 1b. Or multiple clients
+  client: { publicClient, walletClient }
 })
 
 // 2. Call contract methods, fetch events, listen to events, etc.
@@ -50,12 +53,17 @@ const unwatch = contract.watchEvent.Transfer(
 ```
 
 ```ts [client.ts]
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http, injected } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(),
+})
+
+export const walletClient = createPublicClient({
+  chain: mainnet,
+  transport: injected(window.ethereum),
 })
 ```
 
@@ -96,6 +104,34 @@ Using Contract Instances can make it easier to work with contracts if you don't 
 
 ::: code-group
 
+```ts [contract-instance.ts]
+import { getContract } from 'viem'
+import { wagmiAbi } from './abi'
+import { publicClient, walletClient } from './client'
+
+const contract = getContract({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  client: {
+    publicClient,
+    walletClient,
+  }
+})
+
+const balance = await contract.read.balanceOf([
+  '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+])
+const hash = await contract.write.mint([69420])
+const logs = await contract.getEvents.Transfer()
+const unwatch = contract.watchEvent.Transfer(
+  {
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+  },
+  { onLogs: logs => console.log(logs) }
+)
+```
+
 ```ts [contract-actions.ts]
 import { wagmiAbi } from './abi'
 import { publicClient, walletClient } from './client'
@@ -122,32 +158,6 @@ const unwatch = publicClient.watchContractEvent({
   },
   onLogs: logs => console.log(logs)
 })
-```
-
-```ts [contract-instance.ts]
-import { getContract } from 'viem'
-import { wagmiAbi } from './abi'
-import { publicClient, walletClient } from './client'
-
-const contract = getContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  publicClient,
-  walletClient,
-})
-
-const balance = await contract.read.balanceOf([
-  '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-])
-const hash = await contract.write.mint([69420])
-const logs = await contract.getEvents.Transfer()
-const unwatch = contract.watchEvent.Transfer(
-  {
-    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-  },
-  { onLogs: logs => console.log(logs) }
-)
 ```
 
 :::
@@ -208,8 +218,10 @@ The contract address.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   abi: wagmiAbi,
-  publicClient,
-  walletClient,
+  client: {
+    publicClient,
+    walletClient,
+  }
 })
 ```
 
@@ -223,37 +235,36 @@ The contract's ABI.
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi, // [!code focus]
-  publicClient,
-  walletClient,
+  client: {
+    publicClient,
+    walletClient,
+  }
 })
 ```
 
-### publicClient (optional)
+### client
 
-- **Type:** [`PublicClient`](/docs/clients/public.html)
+- **Type:** [`Client | { publicClient: Client; walletClient: Client }`](/docs/clients/public.html)
 
-Public Client used for performing [public contract actions](/docs/contract/getContract.html#with-public-client).
+The Client used for performing [contract actions](/docs/contract/getContract.html#return-value).
 
 ```ts
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient, // [!code focus]
-  walletClient,
+  client: publicClient, // [!code focus]
 })
 ```
 
-### walletClient (optional)
-
-- **Type:** [`WalletClient`](/docs/clients/wallet.html)
-
-Wallet Client used for performing [wallet contract actions](/docs/contract/getContract.html#with-wallet-client).
+You can also pass in multiple clients (ie. a Wallet Client and a Public Client):
 
 ```ts
 const contract = getContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
-  publicClient,
-  walletClient, // [!code focus]
+  client: { // [!code focus]
+    publicClient, // [!code focus]
+    walletClient // [!code focus]
+  }, // [!code focus]
 })
 ```
