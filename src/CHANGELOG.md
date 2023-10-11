@@ -1,5 +1,13 @@
 # viem
 
+## 1.16.3
+
+### Patch Changes
+
+- [`1e13ae83`](https://github.com/wagmi-dev/viem/commit/1e13ae83194da4ca6d829dfd63dd84b11719f497) Thanks [@jxom](https://github.com/jxom)! - Updated holesky RPC URLs.
+
+- [#1330](https://github.com/wagmi-dev/viem/pull/1330) [`05a3784a`](https://github.com/wagmi-dev/viem/commit/05a3784a1587cc811fb15cb5b177bf90e123a5a1) Thanks [@holic](https://github.com/holic)! - Fixed `TransactionReceipt['logs']` type.
+
 ## 1.16.2
 
 ### Patch Changes
