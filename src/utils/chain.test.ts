@@ -87,11 +87,6 @@ describe('defineChain', () => {
               "https://rpc.ankr.com/celo",
             ],
           },
-          "public": {
-            "http": [
-              "https://rpc.ankr.com/celo",
-            ],
-          },
         },
         "serializers": undefined,
       }
