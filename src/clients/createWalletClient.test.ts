@@ -305,7 +305,6 @@ describe('args: transport', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
               "http": [
@@ -381,7 +380,6 @@ test('extend', () => {
           "name": "Ether",
           "symbol": "ETH",
         },
-        "network": "localhost",
         "rpcUrls": {
           "default": {
             "http": [

@@ -73,7 +73,6 @@ describe('transports', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
               "http": [
@@ -126,7 +125,6 @@ describe('transports', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
               "http": [
@@ -424,7 +422,6 @@ describe('extends', () => {
             "name": "Ether",
             "symbol": "ETH",
           },
-          "network": "localhost",
           "rpcUrls": {
             "default": {
               "http": [

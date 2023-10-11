@@ -80,7 +80,6 @@ describe('defineChain', () => {
           "name": "Celo",
           "symbol": "CELO",
         },
-        "network": "celo",
         "rpcUrls": {
           "default": {
             "http": [
