@@ -36,6 +36,10 @@ export const polygonMumbai = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 25770160,
     },
+    lightAccountFactory: {
+      address: '0x000000893A26168158fbeaDD9335Be5bC96592E2',
+      blockCreated: 40811264,
+    },
   },
   testnet: true,
 })

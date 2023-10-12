@@ -39,6 +39,7 @@ export type ChainConstants = {
     ensRegistry?: ChainContract
     ensUniversalResolver?: ChainContract
     multicall3?: ChainContract
+    lightAccountFactory?: ChainContract
   }
   /** ID in number form */
   id: number

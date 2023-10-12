@@ -41,6 +41,10 @@ export const sepolia = /*#__PURE__*/ defineChain({
       address: '0x21B000Fd62a880b2125A61e36a284BB757b76025',
       blockCreated: 3914906,
     },
+    lightAccountFactory: {
+      address: '0x000000893A26168158fbeaDD9335Be5bC96592E2',
+      blockCreated: 4419384,
+    },
   },
   testnet: true,
 })
