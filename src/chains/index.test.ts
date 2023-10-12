@@ -15,6 +15,7 @@ test('exports chains', () => {
       "avalancheFuji",
       "base",
       "baseGoerli",
+      "baseSepolia",
       "bearNetworkChainMainnet",
       "bearNetworkChainTestnet",
       "boba",
