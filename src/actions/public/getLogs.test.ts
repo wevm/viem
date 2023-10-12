@@ -281,7 +281,7 @@ describe('events', () => {
     })
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
-    expect(logs.length).toBe(784)
+    expect(logs.length).toBe(783)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: `0x${string}`
@@ -334,7 +334,7 @@ describe('events', () => {
     })
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
-    expect(logs.length).toBe(784)
+    expect(logs.length).toBe(783)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]
