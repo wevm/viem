@@ -29,7 +29,7 @@ const request = await walletClient.prepareTransactionRequest({
   value: 1000000000000000000n
 })
 
-const signature = await walletClient.signTranasction(request)
+const signature = await walletClient.signTransaction(request)
 
 const hash = await walletClient.sendRawTransaction(signature) // [!code focus]
 ```
