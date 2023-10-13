@@ -250,6 +250,26 @@ const results = await publicClient.multicall({
 })
 ```
 
+### blockNumber (optional)
+
+- **Type:** `number`
+
+The block number to perform the read against.
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  blockNumber: 15121123n, // [!code focus]
+})
+```
+
 ### multicallAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)
