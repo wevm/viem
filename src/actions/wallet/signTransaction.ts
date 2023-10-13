@@ -141,8 +141,8 @@ export async function signTransaction<
   if (account.type === 'local')
     return account.signTransaction(
       {
-        chainId,
         ...transaction,
+        chainId,
       } as unknown as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
