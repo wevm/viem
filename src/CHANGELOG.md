@@ -1,5 +1,15 @@
 # viem
 
+## 1.16.5
+
+### Patch Changes
+
+- [#1347](https://github.com/wagmi-dev/viem/pull/1347) [`541bd152`](https://github.com/wagmi-dev/viem/commit/541bd1528d3fb43edfd713e3dd89f30803a37f97) Thanks [@lukasrosario](https://github.com/lukasrosario)! - Added Base Sepolia
+
+- [#1339](https://github.com/wagmi-dev/viem/pull/1339) [`b7ddaf61`](https://github.com/wagmi-dev/viem/commit/b7ddaf61d6a392a8fa6f4550afa505f75c31eca4) Thanks [@jxom](https://github.com/jxom)! - Fixed topics mismatch in `decodeEventLogs` strict mode.
+
+- [`b6aace90`](https://github.com/wagmi-dev/viem/commit/b6aace909c8f27c49a393813e2569b98a72083ca) Thanks [@jxom](https://github.com/jxom)! - Fixed `chainId` assignment in `signTransaction` action.
+
 ## 1.16.4
 
 ### Patch Changes
