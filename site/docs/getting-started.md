@@ -1,4 +1,4 @@
----
+automatic connect 
 head:
   - - meta
     - property: og:title
