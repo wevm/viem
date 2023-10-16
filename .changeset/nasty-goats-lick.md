@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Remove trailing slash from arbiscan goerli blockexplorer url
+Removed trailing slash from arbiscan goerli blockexplorer url
