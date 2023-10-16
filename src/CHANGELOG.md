@@ -1,5 +1,13 @@
 # viem
 
+## 1.16.6
+
+### Patch Changes
+
+- [#1356](https://github.com/wagmi-dev/viem/pull/1356) [`0da9f886`](https://github.com/wagmi-dev/viem/commit/0da9f886124cea8f8e2f557de68bd94b96e53ac8) Thanks [@AmaxJ](https://github.com/AmaxJ)! - Removed trailing slash from arbiscan goerli blockexplorer url
+
+- [`36ec87da`](https://github.com/wagmi-dev/viem/commit/36ec87da7f614f5c6ca9e632eb27f8d8d1bbfcdf) Thanks [@jxom](https://github.com/jxom)! - Modified `getAddresses` to be compatible with Local Accounts.
+
 ## 1.16.5
 
 ### Patch Changes
