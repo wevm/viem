@@ -26,8 +26,8 @@ export const arbitrumGoerli = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    etherscan: { name: 'Arbiscan', url: 'https://goerli.arbiscan.io/' },
-    default: { name: 'Arbiscan', url: 'https://goerli.arbiscan.io/' },
+    etherscan: { name: 'Arbiscan', url: 'https://goerli.arbiscan.io' },
+    default: { name: 'Arbiscan', url: 'https://goerli.arbiscan.io' },
   },
   contracts: {
     multicall3: {
