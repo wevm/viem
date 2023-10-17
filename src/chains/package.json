@@ -1,6 +1,4 @@
 {
-  "type": "module",
-  "types": "../_types/chains/index.d.ts",
-  "module": "../_esm/chains/index.js",
-  "main": "../_cjs/chains/index.js"
+  "name": "viem_zksync_chains1",
+  "type": "module"
 }
