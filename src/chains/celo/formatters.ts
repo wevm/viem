@@ -1,6 +1,6 @@
 import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import type { RpcTransaction } from '../../types/rpc.js'
+import type { RpcTransaction, RpcTransactionRequest } from '../../types/rpc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { defineBlock } from '../../utils/formatters/block.js'
@@ -18,6 +18,8 @@ import type {
   CeloTransaction,
   CeloTransactionReceiptOverrides,
   CeloTransactionRequest,
+  RpcTransactionRequestCIP42,
+  RpcTransactionRequestCIP64,
 } from './types.js'
 
 export const formattersCelo = {
@@ -35,14 +37,15 @@ export const formattersCelo = {
         return {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
-          ...(transaction.type === '0x7b'
-            ? {}
-            : {
+
+          ...(transaction.type === '0x7c'
+            ? {
                 gatewayFee: transaction.gatewayFee
                   ? hexToBigInt(transaction.gatewayFee)
                   : null,
-                gatewayFeeRecipient: transaction.gatewayFeeRecipient,
-              }),
+                gatewayFeeRecipient: transaction.gatewayFeeRecipient || null,
+              }
+            : {}),
         }
       }) as Hash[] | CeloTransaction[]
       return {
@@ -55,12 +58,12 @@ export const formattersCelo = {
     format(args: CeloRpcTransaction): CeloTransaction {
       return {
         feeCurrency: args.feeCurrency,
-        ...(args.type === '0x7b'
-          ? {}
-          : {
+        ...(args.type === '0x7c'
+          ? {
               gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
               gatewayFeeRecipient: args.gatewayFeeRecipient,
-            }),
+            }
+          : {}),
       } as CeloTransaction
     },
   }),
@@ -76,29 +79,38 @@ export const formattersCelo = {
     },
   }),
 
-  // TODO: Figure out how to deal with the error here. gateway fields aren't on all
-  // types in the union type. Also the type indicator can be blank, so.... this is super ambiguous
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
+      if (
+        args.type === 'cip64' ||
+        ('feeCurrency' in args &&
+          !('gatewayFee' in args || 'gatewayFeeRecipient' in args))
+      ) {
+        return {
+          type: '0x7b',
+          feeCurrency: args.feeCurrency,
+        } as RpcTransactionRequestCIP64
+      }
+
       const request = {
         feeCurrency: args.feeCurrency,
-        // gatewayFee:
-        //   typeof args.gatewayFee !== 'undefined'
-        //     ? numberToHex(args.gatewayFee)
-        //     : undefined,
-        // gatewayFeeRecipient: args.gatewayFeeRecipient,
-      } as CeloRpcTransactionRequest
+      } as Exclude<CeloRpcTransactionRequest, RpcTransactionRequestCIP64>
 
-      if (args.type === 'cip64') request.type = '0x7b'
-      if (args.type === 'cip42') request.type = '0x7c'
-
-      if (typeof args.gatewayFee !== 'undefined') {
-        request.gatewayFee = numberToHex(args.gatewayFee)
+      if (
+        args.type === 'cip42' ||
+        'gatewayFee' in args ||
+        'gatewayFeeRecipient' in args
+      ) {
+        request.type = '0x7c'
+        request.gatewayFee =
+          'gatewayFee' in args && typeof args.gatewayFee !== 'undefined'
+            ? numberToHex(args.gatewayFee)
+            : undefined
+        request.gatewayFeeRecipient =
+          'gatewayFeeRecipient' in args ? args.gatewayFeeRecipient : undefined
+        return request as RpcTransactionRequestCIP42
       }
-      if (args.gatewayFeeRecipient) {
-        request.gatewayFeeRecipient = args.gatewayFeeRecipient
-      }
-      return request
+      return request as RpcTransactionRequest
     },
   }),
 } as const satisfies ChainFormatters

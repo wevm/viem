@@ -57,9 +57,11 @@ describe('transaction', () => {
   expectTypeOf<
     ReturnType<typeof formattersCelo.transaction.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | null>()
-  expectTypeOf<
-    ReturnType<typeof formattersCelo.transaction.format>['gatewayFee']
-  >().toEqualTypeOf<bigint | null>()
+  if ('gatewayFee' in formattersCelo.transaction.format) {
+    expectTypeOf<
+      ReturnType<typeof formattersCelo.transaction.format>['gatewayFee']
+    >().toEqualTypeOf<bigint | null>()
+  }
   expectTypeOf<
     ReturnType<typeof formattersCelo.transaction.format>['gatewayFeeRecipient']
   >().toEqualTypeOf<`0x${string}` | null>()

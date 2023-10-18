@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import {
@@ -10,7 +10,10 @@ import {
 } from '../../index.js'
 import { parseTransactionCelo } from './parsers.js'
 import { serializeTransactionCelo } from './serializers.js'
-import type { TransactionSerializableCIP42 } from './types.js'
+import type {
+  TransactionSerializableCIP42,
+  TransactionSerializableCIP64,
+} from './types.js'
 
 test('should be able to parse a cip42 transaction', () => {
   const signedTransaction =
@@ -39,7 +42,7 @@ const transaction = {
   value: parseEther('1'),
 }
 
-test('should return same result as standard parser when not CIP42', () => {
+test('should return same result as standard parser when not CIP42 or CIP64', () => {
   const serialized = serializeTransaction(transaction)
 
   expect(parseTransactionCelo(serialized)).toEqual(
@@ -47,7 +50,7 @@ test('should return same result as standard parser when not CIP42', () => {
   )
 })
 
-test('should parse a CIP42 transaction with gatewayFee', () => {
+describe('should parse a CIP42 transaction', () => {
   const transactionWithGatewayFee = {
     ...transaction,
     chainId: 42270,
@@ -55,168 +58,340 @@ test('should parse a CIP42 transaction with gatewayFee', () => {
     gatewayFeeRecipient: accounts[1].address,
   }
 
-  const serialized = serializeTransactionCelo(transactionWithGatewayFee)
+  test('with gatewayFee', () => {
+    const serialized = serializeTransactionCelo(transactionWithGatewayFee)
 
-  expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
-      {
-        "chainId": 42270,
-        "gas": 21001n,
-        "gatewayFee": 100000000000000000n,
-        "gatewayFeeRecipient": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "maxFeePerGas": 2000000000n,
-        "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 785,
-        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
-        "type": "cip42",
-        "value": 1000000000000000000n,
-      }
-    `)
-})
-
-test('should parse a CIP42 transaction with access list', () => {
-  const transactionWithAccessList: TransactionSerializableCIP42 = {
-    feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
-    ...transaction,
-    chainId: 42270,
-    accessList: [
-      {
-        address: '0x0000000000000000000000000000000000000000',
-        storageKeys: [
-          '0x0000000000000000000000000000000000000000000000000000000000000001',
-          '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
-        ],
-      },
-    ],
-  }
-
-  const serialized = serializeTransactionCelo(transactionWithAccessList)
-
-  expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
-      {
-        "accessList": [
-          {
-            "address": "0x0000000000000000000000000000000000000000",
-            "storageKeys": [
-              "0x0000000000000000000000000000000000000000000000000000000000000001",
-              "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
-            ],
-          },
-        ],
-        "chainId": 42270,
-        "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
-        "gas": 21001n,
-        "maxFeePerGas": 2000000000n,
-        "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 785,
-        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
-        "type": "cip42",
-        "value": 1000000000000000000n,
-      }
-    `)
-})
-
-test('should parse a CIP42 transaction with data as 0x', () => {
-  const transactionWithData: TransactionSerializableCIP42 = {
-    feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
-    ...transaction,
-    chainId: 42270,
-    data: '0x',
-  }
-
-  const serialized = serializeTransactionCelo(transactionWithData)
-
-  expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
-      {
-        "chainId": 42270,
-        "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
-        "gas": 21001n,
-        "maxFeePerGas": 2000000000n,
-        "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 785,
-        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
-        "type": "cip42",
-        "value": 1000000000000000000n,
-      }
-    `)
-})
-
-test('should parse a CIP42 transaction with data', () => {
-  const transactionWithData: TransactionSerializableCIP42 = {
-    ...transaction,
-    feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
-    chainId: 42270,
-    data: '0x1234',
-  }
-
-  const serialized = serializeTransactionCelo(transactionWithData)
-
-  expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
-      {
-        "chainId": 42270,
-        "data": "0x1234",
-        "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
-        "gas": 21001n,
-        "maxFeePerGas": 2000000000n,
-        "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 785,
-        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
-        "type": "cip42",
-        "value": 1000000000000000000n,
-      }
-    `)
-})
-
-test('invalid transaction (all missing)', () => {
-  expect(() =>
-    parseTransactionCelo(`0x7c${toRlp([]).slice(2)}`),
-  ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"cip42\\" was provided.
-
-        Serialized Transaction: \\"0x7cc0\\"
-        Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
-
-        Version: viem@1.0.2"
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 42270,
+          "gas": 21001n,
+          "gatewayFee": 100000000000000000n,
+          "gatewayFeeRecipient": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip42",
+          "value": 1000000000000000000n,
+        }
       `)
+  })
+  test('with access list', () => {
+    const transactionWithAccessList: TransactionSerializableCIP42 = {
+      ...transactionWithGatewayFee,
+      accessList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          storageKeys: [
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+            '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          ],
+        },
+      ],
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithAccessList)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "accessList": [
+            {
+              "address": "0x0000000000000000000000000000000000000000",
+              "storageKeys": [
+                "0x0000000000000000000000000000000000000000000000000000000000000001",
+                "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+              ],
+            },
+          ],
+          "chainId": 42270,
+          "gas": 21001n,
+          "gatewayFee": 100000000000000000n,
+          "gatewayFeeRecipient": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip42",
+          "value": 1000000000000000000n,
+        }
+      `)
+  })
+  test('with data as 0x', () => {
+    const transactionWithData: TransactionSerializableCIP42 = {
+      ...transactionWithGatewayFee,
+      data: '0x',
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithData)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 42270,
+          "gas": 21001n,
+          "gatewayFee": 100000000000000000n,
+          "gatewayFeeRecipient": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip42",
+          "value": 1000000000000000000n,
+        }
+      `)
+  })
+  test('with data', () => {
+    const transactionWithData: TransactionSerializableCIP42 = {
+      ...transactionWithGatewayFee,
+      data: '0x1234',
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithData)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 42270,
+          "data": "0x1234",
+          "gas": 21001n,
+          "gatewayFee": 100000000000000000n,
+          "gatewayFeeRecipient": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip42",
+          "value": 1000000000000000000n,
+        }
+      `)
+  })
 })
 
-test('invalid transaction (some missing)', () => {
-  expect(() =>
-    parseTransactionCelo(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`),
-  ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"cip42\\" was provided.
+describe('should throw an error for invalid cip42 transactions', () => {
+  test('when all fields are missing', () => {
+    expect(() =>
+      parseTransactionCelo(`0x7c${toRlp([]).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+          "Invalid serialized transaction of type \\"cip42\\" was provided.
 
-        Serialized Transaction: \\"0x7cc20001\\"
-        Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
+          Serialized Transaction: \\"0x7cc0\\"
+          Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
 
-        Version: viem@1.0.2"
-      `)
+          Version: viem@1.0.2"
+        `)
+  })
+
+  test('when some fields are missing', () => {
+    expect(() =>
+      parseTransactionCelo(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+          "Invalid serialized transaction of type \\"cip42\\" was provided.
+
+          Serialized Transaction: \\"0x7cc20001\\"
+          Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, gatewayFeeRecipient, gatewayFee, value, data, accessList
+
+          Version: viem@1.0.2"
+        `)
+  })
+
+  test('when the signature is missing', () => {
+    expect(() =>
+      parseTransactionCelo(
+        `0x7c${toRlp([
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+        ]).slice(2)}`,
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+          "Invalid serialized transaction of type \\"cip42\\" was provided.
+
+          Serialized Transaction: \\"0x7ccd80808080808080808080808080\\"
+          Missing Attributes: r, s
+
+          Version: viem@1.0.2"
+        `)
+  })
 })
 
-test('invalid transaction (missing signature)', () => {
-  expect(() =>
-    parseTransactionCelo(
-      `0x7c${toRlp([
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-        '0x',
-      ]).slice(2)}`,
-    ),
-  ).toThrowErrorMatchingInlineSnapshot(`
-        "Invalid serialized transaction of type \\"cip42\\" was provided.
+describe('should parse a CIP64 transaction', () => {
+  const transactionCip64 = {
+    ...transaction,
+    feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
+    chainId: 42270,
+    type: 'cip64',
+  } as TransactionSerializableCIP64
 
-        Serialized Transaction: \\"0x7ccd80808080808080808080808080\\"
-        Missing Attributes: r, s
+  test('when type is not specified, but the fields match CIP64', () => {
+    const transactionWithoutType = {
+      ...transaction,
+      feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
+      type: 'cip64',
+      chainId: 42270,
+    } as TransactionSerializableCIP64
 
-        Version: viem@1.0.2"
+    const serialized = serializeTransactionCelo(transactionWithoutType)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 42270,
+          "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
+          "gas": 21001n,
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip64",
+          "value": 1000000000000000000n,
+        }
+    `)
+  })
+
+  test('with access list', () => {
+    const transactionWithAccessList: TransactionSerializableCIP64 = {
+      ...transactionCip64,
+      accessList: [
+        {
+          address: '0x0000000000000000000000000000000000000000',
+          storageKeys: [
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+            '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          ],
+        },
+      ],
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithAccessList)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "accessList": [
+            {
+              "address": "0x0000000000000000000000000000000000000000",
+              "storageKeys": [
+                "0x0000000000000000000000000000000000000000000000000000000000000001",
+                "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+              ],
+            },
+          ],
+          "chainId": 42270,
+          "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
+          "gas": 21001n,
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip64",
+          "value": 1000000000000000000n,
+        }
       `)
+  })
+  test('with data as 0x', () => {
+    const transactionWithData: TransactionSerializableCIP64 = {
+      ...transactionCip64,
+      data: '0x',
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithData)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 42270,
+          "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
+          "gas": 21001n,
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip64",
+          "value": 1000000000000000000n,
+        }
+      `)
+  })
+  test('with data', () => {
+    const transactionWithData: TransactionSerializableCIP64 = {
+      ...transactionCip64,
+      data: '0x1234',
+    }
+
+    const serialized = serializeTransactionCelo(transactionWithData)
+
+    expect(parseTransactionCelo(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 42270,
+          "data": "0x1234",
+          "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
+          "gas": 21001n,
+          "maxFeePerGas": 2000000000n,
+          "maxPriorityFeePerGas": 2000000000n,
+          "nonce": 785,
+          "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+          "type": "cip64",
+          "value": 1000000000000000000n,
+        }
+      `)
+  })
+})
+
+describe('should throw an error for invalid cip64 transactions', () => {
+  test('when all fields are missing', () => {
+    expect(() =>
+      parseTransactionCelo(`0x7b${toRlp([]).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+          "Invalid serialized transaction of type \\"cip64\\" was provided.
+
+          Serialized Transaction: \\"0x7bc0\\"
+          Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, value, data, accessList
+
+          Version: viem@1.0.2"
+        `)
+  })
+
+  test('when some fields are missing', () => {
+    expect(() =>
+      parseTransactionCelo(`0x7b${toRlp(['0x0', '0x1']).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+          "Invalid serialized transaction of type \\"cip64\\" was provided.
+
+          Serialized Transaction: \\"0x7bc20001\\"
+          Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, value, data, accessList
+
+          Version: viem@1.0.2"
+        `)
+  })
+
+  test('when the signature is missing', () => {
+    expect(() =>
+      parseTransactionCelo(
+        `0x7b${toRlp([
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+          '0x',
+        ]).slice(2)}`,
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+          "Invalid serialized transaction of type \\"cip64\\" was provided.
+
+          Serialized Transaction: \\"0x7bcb8080808080808080808080\\"
+          Missing Attributes: r, s
+
+          Version: viem@1.0.2"
+        `)
+  })
 })

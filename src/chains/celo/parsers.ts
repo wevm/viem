@@ -153,7 +153,7 @@ function parseTransactionCIP64(
     s,
   ] = transactionArray
 
-  if (transactionArray.length !== 13 && transactionArray.length !== 11) {
+  if (transactionArray.length !== 13 && transactionArray.length !== 10) {
     throw new InvalidSerializedTransactionError({
       attributes: {
         chainId,
@@ -166,7 +166,7 @@ function parseTransactionCIP64(
         value,
         data,
         accessList,
-        ...(transactionArray.length > 11
+        ...(transactionArray.length > 10
           ? {
               v,
               r,

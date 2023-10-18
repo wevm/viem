@@ -148,6 +148,8 @@ export type RpcTransactionCIP64<TPending extends boolean = boolean> =
   TransactionBase<Quantity, Index, TPending> &
     FeeValuesEIP1559<Quantity> & {
       feeCurrency: Address | null
+      gatewayFee: never
+      gatewayFeeRecipient: never
       type: '0x7b'
     }
 
@@ -170,6 +172,8 @@ export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   Partial<FeeValuesEIP1559<Quantity>> & {
     accessList?: AccessList
     feeCurrency?: Address
+    gatewayFee?: never
+    gatewayFeeRecipient?: never
     type?: '0x7b'
   }
 
@@ -196,6 +200,8 @@ export type TransactionCIP64<TPending extends boolean = boolean> =
   TransactionBase<bigint, number, TPending> &
     FeeValuesEIP1559 & {
       feeCurrency: Address | null
+      gatewayFee: never
+      gatewayFeeRecipient: never
       type: 'cip64'
     }
 
@@ -218,6 +224,8 @@ export type TransactionRequestCIP64 = TransactionRequestBase &
   Partial<FeeValuesEIP1559> & {
     accessList?: AccessList
     feeCurrency?: Address
+    gatewayFee?: never
+    gatewayFeeRecipient?: never
     type?: 'cip64'
   }
 
@@ -243,6 +251,8 @@ export type TransactionSerializableCIP64<
     accessList?: AccessList
     gasPrice?: never
     feeCurrency?: Address
+    gatewayFeeRecipient?: never
+    gatewayFee?: never
     chainId: number
     type?: 'cip64'
   }
