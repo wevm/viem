@@ -133,11 +133,11 @@ function serializeTransactionCIP64(
     maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
     maxFeePerGas ? toHex(maxFeePerGas) : '0x',
     gas ? toHex(gas) : '0x',
-    feeCurrency ?? '0x',
     to ?? '0x',
     value ? toHex(value) : '0x',
     data ?? '0x',
     serializeAccessList(accessList),
+    feeCurrency ?? '0x',
   ]
 
   if (signature) {

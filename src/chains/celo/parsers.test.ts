@@ -349,7 +349,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
           "Invalid serialized transaction of type \\"cip64\\" was provided.
 
           Serialized Transaction: \\"0x7bc0\\"
-          Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, value, data, accessList
+          Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, feeCurrency
 
           Version: viem@1.0.2"
         `)
@@ -362,7 +362,7 @@ describe('should throw an error for invalid cip64 transactions', () => {
           "Invalid serialized transaction of type \\"cip64\\" was provided.
 
           Serialized Transaction: \\"0x7bc20001\\"
-          Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, feeCurrency, to, value, data, accessList
+          Missing Attributes: maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, feeCurrency
 
           Version: viem@1.0.2"
         `)
