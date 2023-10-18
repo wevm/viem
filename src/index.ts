@@ -632,7 +632,8 @@ export {
   InvalidDefinitionTypeError,
   type InvalidDefinitionTypeErrorType,
   UnsupportedPackedAbiType,
-  type UnsupportedPackedAbiTypeErrorType,
+  type AbiNotFoundOnBytecodeErrorType,
+  AbiNotFoundOnBytecodeError,
 } from './errors/abi.js'
 export { BaseError, type BaseErrorType } from './errors/base.js'
 export {
@@ -1024,6 +1025,10 @@ export {
   type EncodeFunctionResultParameters,
   encodeFunctionResult,
 } from './utils/abi/encodeFunctionResult.js'
+export {
+  type VerifyAbiParameters,
+  verifyAbi,
+} from './utils/abi/verifyAbi.js'
 export {
   type FormattedTransaction,
   defineTransaction,

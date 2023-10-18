@@ -478,3 +478,20 @@ export class UnsupportedPackedAbiType extends BaseError {
     super(`Type "${type}" is not supported for packed encoding.`)
   }
 }
+
+export type AbiNotFoundOnBytecodeErrorType = AbiNotFoundOnBytecodeError & {
+  name: 'AbiNotFoundOnBytecodeError'
+}
+export class AbiNotFoundOnBytecodeError extends BaseError {
+  override name = 'AbiNotFoundOnBytecodeError'
+
+  constructor(signatures: string[]) {
+    super(
+      [
+        'Following ABI signature not found on the bytecode:',
+        '',
+        ...signatures,
+      ].join('\n'),
+    )
+  }
+}

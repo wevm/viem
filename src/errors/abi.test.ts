@@ -6,6 +6,7 @@ import {
   AbiEncodingArrayLengthMismatchError,
   AbiEncodingLengthMismatchError,
   AbiEventSignatureEmptyTopicsError,
+  AbiNotFoundOnBytecodeError,
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
   InvalidAbiDecodingTypeError,
@@ -217,5 +218,16 @@ test('InvalidArrayError', () => {
     [InvalidArrayError: Value "lol" is not a valid array.
 
     Version: viem@1.0.2]
+  `)
+})
+
+test('AbiNotFoundOnBytecodeError', () => {
+  expect(
+    new AbiNotFoundOnBytecodeError(['type EventName()']),
+  ).toMatchInlineSnapshot(`
+    [AbiNotFoundOnBytecodeError: Following ABI signature not found on the bytecode:
+    - type EventName()
+
+    Version: viem@1.16.5]
   `)
 })

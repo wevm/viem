@@ -42,6 +42,7 @@ All errors in viem extend the [`BaseError`](https://github.com/wagmi-dev/viem/bl
 ### `InvalidArrayError`
 ### `InvalidDefinitionTypeError`
 ### `UnsupportedPackedAbiType`
+### `AbiNotFoundOnBytecodeError`
 
 ## Account
 

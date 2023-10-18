@@ -618,6 +618,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'parseAbiParameters',
           link: '/docs/abi/parseAbiParameters',
         },
+        {
+          text: 'verifyAbi',
+          link: '/docs/abi/verifyAbi',
+        },
       ],
     },
     {
