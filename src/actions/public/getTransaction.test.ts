@@ -59,7 +59,7 @@ test('gets transaction (legacy)', async () => {
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
-      "chainId": undefined,
+      "chainId": 1,
       "from": "0x47a6b2f389cf4bb6e4b69411c87ae82371daf87e",
       "gas": 200000n,
       "gasPrice": 57000000000n,
@@ -221,7 +221,7 @@ describe('args: blockHash', () => {
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
-        "chainId": undefined,
+        "chainId": 1,
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
         "gasPrice": 21000000000n,
@@ -265,7 +265,7 @@ describe('args: blockNumber', () => {
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
-        "chainId": undefined,
+        "chainId": 1,
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
         "gasPrice": 21000000000n,
