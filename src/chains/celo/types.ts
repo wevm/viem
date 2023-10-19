@@ -165,6 +165,8 @@ export type RpcTransactionRequestCIP42 = TransactionRequestBase<
     type?: '0x7c'
   }
 
+// when `never` declarations are OMITTED from this type, there are errors in
+// formatters.test-d.ts on lines 103 - 109
 export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   Quantity,
   Index
@@ -172,8 +174,8 @@ export type RpcTransactionRequestCIP64 = TransactionRequestBase<
   Partial<FeeValuesEIP1559<Quantity>> & {
     accessList?: AccessList
     feeCurrency?: Address
-    gatewayFee?: never
-    gatewayFeeRecipient?: never
+    // gatewayFee?: never
+    // gatewayFeeRecipient?: never
     type?: '0x7b'
   }
 
@@ -220,6 +222,8 @@ export type TransactionRequestCIP42 = TransactionRequestBase &
     type?: 'cip42'
   }
 
+// In this type, defining `gatewayFee` and `gatewayFeeRecipient` to `never` causes
+// errors in formatters.test-d.ts, lines 214 - 382
 export type TransactionRequestCIP64 = TransactionRequestBase &
   Partial<FeeValuesEIP1559> & {
     accessList?: AccessList

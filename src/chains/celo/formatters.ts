@@ -91,11 +91,9 @@ export const formattersCelo = {
           feeCurrency: args.feeCurrency,
         } as RpcTransactionRequestCIP64
       }
-
       const request = {
         feeCurrency: args.feeCurrency,
       } as Exclude<CeloRpcTransactionRequest, RpcTransactionRequestCIP64>
-
       if (
         args.type === 'cip42' ||
         'gatewayFee' in args ||

@@ -233,6 +233,13 @@ describe('smoke', () => {
     // @ts-expect-error `gasPrice` is not defined
     prepareTransactionRequest(client, {
       feeCurrency: '0x',
+      gasPrice: 0n,
+      type: 'cip64',
+    })
+
+    // @ts-expect-error `gasPrice` is not defined
+    prepareTransactionRequest(client, {
+      feeCurrency: '0x',
       gatewayFee: 0n,
       gatewayFeeRecipient: '0x',
       gasPrice: 0n,

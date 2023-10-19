@@ -21,11 +21,16 @@ export type {
   CeloTransactionSerialized,
   CeloTransactionType,
   RpcTransactionCIP42,
+  RpcTransactionCIP64,
   RpcTransactionRequestCIP42,
+  RpcTransactionRequestCIP64,
   TransactionCIP42,
+  TransactionCIP64,
   TransactionRequestCIP42,
+  TransactionRequestCIP64,
   TransactionSerializableCIP42,
-  TransactionSerializedCIP42,
+  TransactionSerializableCIP64,
+  TransactionSerializedCIP64,
 } from '../celo/types.js'
 
 export { formattersOptimism } from '../optimism/formatters.js'
