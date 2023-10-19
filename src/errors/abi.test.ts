@@ -226,8 +226,9 @@ test('AbiNotFoundOnBytecodeError', () => {
     new AbiNotFoundOnBytecodeError(['type EventName()']),
   ).toMatchInlineSnapshot(`
     [AbiNotFoundOnBytecodeError: Following ABI signature not found on the bytecode:
-    - type EventName()
 
-    Version: viem@1.16.5]
+    type EventName()
+
+    Version: viem@1.0.2]
   `)
 })

@@ -42,6 +42,6 @@ test('default', () => {
     type EventName(address)
     function admin()
 
-    Version: viem@1.16.5"
+    Version: viem@1.0.2"
   `)
 })
