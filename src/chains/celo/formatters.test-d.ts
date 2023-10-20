@@ -57,14 +57,12 @@ describe('transaction', () => {
   expectTypeOf<
     ReturnType<typeof formattersCelo.transaction.format>['feeCurrency']
   >().toEqualTypeOf<`0x${string}` | null>()
-  if ('gatewayFee' in formattersCelo.transaction.format) {
-    expectTypeOf<
-      ReturnType<typeof formattersCelo.transaction.format>['gatewayFee']
-    >().toEqualTypeOf<bigint | null>()
-  }
+  expectTypeOf<
+    ReturnType<typeof formattersCelo.transaction.format>['gatewayFee']
+  >().toEqualTypeOf<bigint | null | undefined>()
   expectTypeOf<
     ReturnType<typeof formattersCelo.transaction.format>['gatewayFeeRecipient']
-  >().toEqualTypeOf<`0x${string}` | null>()
+  >().toEqualTypeOf<`0x${string}` | null | undefined>()
 })
 
 describe('transactionReceipt', () => {
@@ -139,10 +137,10 @@ describe('smoke', () => {
     ).toEqualTypeOf<`0x${string}` | null>()
     expectTypeOf(
       block_includeTransactions.transactions[0].gatewayFee,
-    ).toEqualTypeOf<bigint | null>()
+    ).toEqualTypeOf<bigint | null | undefined>()
     expectTypeOf(
       block_includeTransactions.transactions[0].gatewayFeeRecipient,
-    ).toEqualTypeOf<`0x${string}` | null>()
+    ).toEqualTypeOf<`0x${string}` | null | undefined>()
 
     const block_pending = await getBlock(client, {
       blockTag: 'pending',
@@ -172,9 +170,11 @@ describe('smoke', () => {
     })
 
     expectTypeOf(transaction.feeCurrency).toEqualTypeOf<`0x${string}` | null>()
-    expectTypeOf(transaction.gatewayFee).toEqualTypeOf<bigint | null>()
+    expectTypeOf(transaction.gatewayFee).toEqualTypeOf<
+      bigint | null | undefined
+    >()
     expectTypeOf(transaction.gatewayFeeRecipient).toEqualTypeOf<
-      `0x${string}` | null
+      `0x${string}` | null | undefined
     >()
     expectTypeOf(transaction.type).toEqualTypeOf<
       'legacy' | 'eip2930' | 'eip1559' | 'cip42' | 'cip64'
