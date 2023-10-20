@@ -26,25 +26,19 @@ import type {
 export const serializeTransactionCelo: SerializeTransactionFn<
   CeloTransactionSerializable
 > = (tx, signature) => {
-  if ('maxFeePerGas' in tx && 'maxPriorityFeePerGas' in tx) {
-    // process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
-    if (
-      'gatewayFee' in tx ||
-      'gatewayFeeRecipient' in tx ||
-      ('feeCurrency' in tx && tx.type && tx.type === 'cip42')
-    ) {
-      return serializeTransactionCIP42(
-        tx as TransactionSerializableCIP42,
-        signature,
-      )
-    } else if ('feeCurrency' in tx) {
-      return serializeTransactionCIP64(
-        tx as TransactionSerializableCIP64,
-        signature,
-      )
-    }
+  if (isCIP64(tx)) {
+    return serializeTransactionCIP64(
+      tx as TransactionSerializableCIP64,
+      signature,
+    )
+  } else if (isCIP42(tx)) {
+    return serializeTransactionCIP42(
+      tx as TransactionSerializableCIP42,
+      signature,
+    )
+  } else {
+    return serializeTransaction(tx as TransactionSerializable, signature)
   }
-  return serializeTransaction(tx as TransactionSerializable, signature)
 }
 
 export const serializersCelo = {
@@ -156,6 +150,37 @@ function serializeTransactionCIP64(
 
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
+
+// process as CIP42 if any of these fields are present. realistically gatewayfee is not used but is part of spec
+function isCIP42(transaction: CeloTransactionSerializable): boolean {
+  if (transaction.type === 'cip42') return true
+  // if the type is defined as anything else, assume it is *not* cip42
+  if (transaction.type) return false
+
+  // if the type is undefined, check if the fields match the expectations for cip42
+  return (
+    'maxFeePerGas' in transaction &&
+    'maxPriorityFeePerGas' in transaction &&
+    ('feeCurrency' in transaction ||
+      'gatewayFee' in transaction ||
+      'gatewayFeeRecipient' in transaction)
+  )
+}
+
+function isCIP64(transaction: CeloTransactionSerializable): boolean {
+  if (transaction.type === 'cip64') return true
+  // if the type is defined as anything else, assume it is *not* cip64
+  if (transaction.type) return false
+
+  // if the type is undefined, check if the fields match the expectations for cip64
+  return (
+    'maxFeePerGas' in transaction &&
+    'maxPriorityFeePerGas' in transaction &&
+    'feeCurrency' in transaction &&
+    !('gatewayFee' in transaction) &&
+    !('gatewayFeeRecipient' in transaction)
+  )
+}
 
 // maxFeePerGas must be less than 2^256 - 1: however writing like that caused exceptions to be raised
 const MAX_MAX_FEE_PER_GAS =
