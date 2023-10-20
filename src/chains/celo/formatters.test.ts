@@ -177,7 +177,7 @@ describe('block', () => {
             "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
             "gas": 431136n,
             "gasPrice": undefined,
-            "gatewayFee": 0n,
+            "gatewayFee": "0x0",
             "gatewayFeeRecipient": null,
             "hash": "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
             "input": "0x389ec778",
