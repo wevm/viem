@@ -218,8 +218,6 @@ export type TransactionRequestCIP42 = TransactionRequestBase &
     type?: 'cip42'
   }
 
-// In this type, defining `gatewayFee` and `gatewayFeeRecipient` to `never` causes
-// errors in formatters.test-d.ts, lines 214 - 382
 export type TransactionRequestCIP64 = TransactionRequestBase &
   Partial<FeeValuesEIP1559> & {
     accessList?: AccessList
