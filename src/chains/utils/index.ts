@@ -30,6 +30,7 @@ export type {
   TransactionRequestCIP64,
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,
+  TransactionSerializedCIP42,
   TransactionSerializedCIP64,
 } from '../celo/types.js'
 
