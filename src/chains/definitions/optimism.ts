@@ -4,7 +4,7 @@ import { formattersOptimism } from '../optimism/formatters.js'
 export const optimism = /*#__PURE__*/ defineChain(
   {
     id: 10,
-    name: 'OP Mainnet',
+    name: 'Optimism',
     network: 'optimism',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
