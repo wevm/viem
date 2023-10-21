@@ -33,8 +33,8 @@ jobs:
         uses: changesets/action@v1
         with:
           version: bun run changeset:version
-          commit: "chore: version package"
-          title: "chore: version package"
+          commit: 'chore: version package'
+          title: 'chore: version package'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
