@@ -5,6 +5,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Hash } from '../../types/misc.js'
 import type { GetTransportConfig } from '../../types/transport.js'
+import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
@@ -125,7 +126,10 @@ export function watchPendingTransactions<
           try {
             if (!filter) {
               try {
-                filter = await createPendingTransactionFilter(client)
+                filter = await getAction(
+                  client,
+                  createPendingTransactionFilter,
+                )({})
                 return
               } catch (err) {
                 unwatch()
@@ -133,7 +137,7 @@ export function watchPendingTransactions<
               }
             }
 
-            const hashes = await getFilterChanges(client, { filter })
+            const hashes = await getAction(client, getFilterChanges)({ filter })
             if (hashes.length === 0) return
             if (batch) emit.onTransactions(hashes)
             else hashes.forEach((hash) => emit.onTransactions([hash]))
@@ -148,7 +152,7 @@ export function watchPendingTransactions<
       )
 
       return async () => {
-        if (filter) await uninstallFilter(client, { filter })
+        if (filter) await getAction(client, uninstallFilter)({ filter })
         unwatch()
       }
     })

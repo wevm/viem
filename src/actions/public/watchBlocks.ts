@@ -5,6 +5,7 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { formatBlock } from '../../utils/formatters/block.js'
+import { getAction } from '../../utils/getAction.js'
 import { observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
@@ -140,7 +141,10 @@ export function watchBlocks<
       poll(
         async () => {
           try {
-            const block = await getBlock(client, {
+            const block = await getAction(
+              client,
+              getBlock,
+            )({
               blockTag,
               includeTransactions,
             })
@@ -153,10 +157,13 @@ export function watchBlocks<
               // `emitMissed` flag is truthy, let's emit those blocks.
               if (block.number - prevBlock.number > 1 && emitMissed) {
                 for (let i = prevBlock?.number + 1n; i < block.number; i++) {
-                  const block = await getBlock(client, {
+                  const block = (await getAction(
+                    client,
+                    getBlock,
+                  )({
                     blockNumber: i,
                     includeTransactions,
-                  })
+                  })) as GetBlockReturnType<TChain>
                   emit.onBlock(block as any, prevBlock as any)
                   prevBlock = block
                 }

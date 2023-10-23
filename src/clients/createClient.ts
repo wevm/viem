@@ -1,8 +1,9 @@
 import type { Address } from 'abitype'
 
-import type { Account, JsonRpcAccount } from '../accounts/types.js'
+import type { JsonRpcAccount } from '../accounts/types.js'
 import type { ParseAccountErrorType } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
+import type { Account } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type {
   EIP1193RequestFn,
@@ -12,6 +13,8 @@ import type {
 import type { Prettify } from '../types/utils.js'
 import { parseAccount } from '../utils/accounts.js'
 import { uid } from '../utils/uid.js'
+import type { PublicActions } from './decorators/public.js'
+import type { WalletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
 
 export type ClientConfig<
@@ -53,6 +56,34 @@ export type ClientConfig<
   type?: string | undefined
 }
 
+type ProtectedActions = Pick<
+  PublicActions,
+  | 'call'
+  | 'createContractEventFilter'
+  | 'createEventFilter'
+  | 'estimateContractGas'
+  | 'estimateGas'
+  | 'getBlock'
+  | 'getBlockNumber'
+  | 'getChainId'
+  | 'getContractEvents'
+  | 'getEnsText'
+  | 'getFilterChanges'
+  | 'getGasPrice'
+  | 'getLogs'
+  | 'getTransaction'
+  | 'getTransactionCount'
+  | 'getTransactionReceipt'
+  | 'prepareTransactionRequest'
+  | 'readContract'
+  | 'sendRawTransaction'
+  | 'simulateContract'
+  | 'uninstallFilter'
+  | 'watchBlockNumber'
+  | 'watchContractEvent'
+> &
+  Pick<WalletActions, 'sendTransaction' | 'writeContract'>
+
 // TODO: Move `transport` to slot index 2 since `chain` and `account` used more frequently.
 // Otherwise, we end up with a lot of `Client<Transport, chain, account>` in actions.
 export type Client<
@@ -63,7 +94,7 @@ export type Client<
   extended extends Extended | undefined = Extended | undefined,
 > = Client_Base<transport, chain, account, rpcSchema> &
   (extended extends Extended ? extended : unknown) & {
-    extend: <const client extends Extended>(
+    extend: <const client extends Extended & Partial<ProtectedActions>>(
       fn: (
         client: Client<transport, chain, account, rpcSchema, extended>,
       ) => client,
