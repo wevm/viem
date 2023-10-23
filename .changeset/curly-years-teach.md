@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-added multicall3 to mode-testnet
+Added `multicall3` contract to `modeTestnet` chain.
