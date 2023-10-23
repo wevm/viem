@@ -28,6 +28,7 @@ import type {
 } from '../types/utils.js'
 
 import type { ErrorType } from '../errors/utils.js'
+import { getAction } from '../utils/getAction.js'
 import {
   type CreateContractEventFilterParameters,
   type CreateContractEventFilterReturnType,
@@ -485,7 +486,10 @@ export function getContract<
               ]
             ) => {
               const { args, options } = getFunctionParameters(parameters)
-              return readContract(publicClient, {
+              return getAction(
+                publicClient,
+                readContract,
+              )({
                 abi,
                 address,
                 functionName,
@@ -512,7 +516,10 @@ export function getContract<
               ]
             ) => {
               const { args, options } = getFunctionParameters(parameters)
-              return simulateContract(publicClient, {
+              return getAction(
+                publicClient,
+                simulateContract,
+              )({
                 abi,
                 address,
                 functionName,
@@ -545,7 +552,10 @@ export function getContract<
                 parameters,
                 abiEvent!,
               )
-              return createContractEventFilter(publicClient, {
+              return getAction(
+                publicClient,
+                createContractEventFilter,
+              )({
                 abi,
                 address,
                 eventName,
@@ -576,7 +586,10 @@ export function getContract<
                 parameters,
                 abiEvent!,
               )
-              return getContractEvents(publicClient, {
+              return getAction(
+                publicClient,
+                getContractEvents,
+              )({
                 abi,
                 address,
                 eventName,
@@ -607,7 +620,10 @@ export function getContract<
                 parameters,
                 abiEvent!,
               )
-              return watchContractEvent(publicClient, {
+              return getAction(
+                publicClient,
+                watchContractEvent,
+              )({
                 abi,
                 address,
                 eventName,
@@ -637,7 +653,10 @@ export function getContract<
               ]
             ) => {
               const { args, options } = getFunctionParameters(parameters)
-              return writeContract(walletClient, {
+              return getAction(
+                walletClient,
+                writeContract,
+              )({
                 abi,
                 address,
                 functionName,
@@ -672,7 +691,10 @@ export function getContract<
             ) => {
               const { args, options } = getFunctionParameters(parameters)
               const client = (publicClient ?? walletClient)!
-              return estimateContractGas(client, {
+              return getAction(
+                client,
+                estimateContractGas,
+              )({
                 abi,
                 address,
                 functionName,
