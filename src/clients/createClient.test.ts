@@ -389,15 +389,15 @@ describe('config', () => {
 })
 
 describe('extends', () => {
-  test('default', () => {
+  test('default', async () => {
     const client = createClient({
       chain: localhost,
       transport: http(),
     }).extend((config) => ({
-      getChainId: () => config.chain.id,
+      getChainId: async () => config.chain.id,
     }))
 
-    expect(client.getChainId()).toEqual(client.chain.id)
+    expect(await client.getChainId()).toEqual(client.chain.id)
   })
 
   test('public actions', () => {

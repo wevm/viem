@@ -16,9 +16,11 @@ import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataErrorType,
+  type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type SendTransactionErrorType,
   type SendTransactionParameters,
@@ -153,11 +155,18 @@ export async function writeContract<
 ): Promise<WriteContractReturnType> {
   const { abi, address, args, dataSuffix, functionName, ...request } =
     parameters as WriteContractParameters
-  const data = encodeFunctionData({ abi, args, functionName })
-  const hash = await sendTransaction(client, {
+  const data = encodeFunctionData({
+    abi,
+    args,
+    functionName,
+  } as EncodeFunctionDataParameters)
+  const hash = await getAction(
+    client,
+    sendTransaction,
+  )({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,
-  })
+  } as SendTransactionParameters)
   return hash
 }

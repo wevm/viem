@@ -17,12 +17,14 @@ import {
 } from '../../utils/abi/decodeFunctionResult.js'
 import {
   type EncodeFunctionDataErrorType,
+  type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import {
   type GetContractErrorReturnType,
   getContractError,
 } from '../../utils/errors/getContractError.js'
+import { getAction } from '../../utils/getAction.js'
 
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
@@ -101,9 +103,16 @@ export async function readContract<
 ): Promise<ReadContractReturnType<abi, functionName, args>> {
   const { abi, address, args, functionName, ...rest } =
     parameters as ReadContractParameters
-  const calldata = encodeFunctionData({ abi, args, functionName })
+  const calldata = encodeFunctionData({
+    abi,
+    args,
+    functionName,
+  } as EncodeFunctionDataParameters)
   try {
-    const { data } = await call(client, {
+    const { data } = await getAction(
+      client,
+      call,
+    )({
       ...(rest as CallParameters),
       data: calldata,
       to: address,

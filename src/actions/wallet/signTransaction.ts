@@ -27,6 +27,7 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import { numberToHex } from '../../utils/index.js'
 import {
   type AssertRequestErrorType,
@@ -127,7 +128,7 @@ export async function signTransaction<
     ...args,
   })
 
-  const chainId = await getChainId(client)
+  const chainId = await getAction(client, getChainId)({})
   if (chain !== null)
     assertCurrentChain({
       currentChainId: chainId,
@@ -141,8 +142,8 @@ export async function signTransaction<
   if (account.type === 'local')
     return account.signTransaction(
       {
-        chainId,
         ...transaction,
+        chainId,
       } as unknown as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>

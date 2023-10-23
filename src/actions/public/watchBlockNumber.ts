@@ -4,6 +4,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
+import { getAction } from '../../utils/getAction.js'
 import { observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
 import { stringify } from '../../utils/stringify.js'
@@ -108,7 +109,10 @@ export function watchBlockNumber<
       poll(
         async () => {
           try {
-            const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+            const blockNumber = await getAction(
+              client,
+              getBlockNumber,
+            )({ cacheTime: 0 })
 
             if (prevBlockNumber) {
               // If the current block number is the same as the previous,

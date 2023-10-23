@@ -18,12 +18,14 @@ import type {
 import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataErrorType,
+  type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import {
   type GetContractErrorReturnType,
   getContractError,
 } from '../../utils/errors/getContractError.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type EstimateGasErrorType,
   type EstimateGasParameters,
@@ -109,9 +111,20 @@ export async function estimateContractGas<
 ): Promise<EstimateContractGasReturnType> {
   const { abi, address, args, functionName, ...request } =
     parameters as EstimateContractGasParameters
-  const data = encodeFunctionData({ abi, args, functionName })
+  const data = encodeFunctionData({
+    abi,
+    args,
+    functionName,
+  } as EncodeFunctionDataParameters)
   try {
-    const gas = await estimateGas(client, { data, to: address, ...request })
+    const gas = await getAction(
+      client,
+      estimateGas,
+    )({
+      data,
+      to: address,
+      ...request,
+    } as unknown as EstimateGasParameters)
     return gas
   } catch (error) {
     const account = request.account ? parseAccount(request.account) : undefined

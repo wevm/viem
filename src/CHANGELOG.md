@@ -1,5 +1,23 @@
 # viem
 
+## 1.16.6
+
+### Patch Changes
+
+- [#1356](https://github.com/wagmi-dev/viem/pull/1356) [`0da9f886`](https://github.com/wagmi-dev/viem/commit/0da9f886124cea8f8e2f557de68bd94b96e53ac8) Thanks [@AmaxJ](https://github.com/AmaxJ)! - Removed trailing slash from arbiscan goerli blockexplorer url
+
+- [`36ec87da`](https://github.com/wagmi-dev/viem/commit/36ec87da7f614f5c6ca9e632eb27f8d8d1bbfcdf) Thanks [@jxom](https://github.com/jxom)! - Modified `getAddresses` to be compatible with Local Accounts.
+
+## 1.16.5
+
+### Patch Changes
+
+- [#1347](https://github.com/wagmi-dev/viem/pull/1347) [`541bd152`](https://github.com/wagmi-dev/viem/commit/541bd1528d3fb43edfd713e3dd89f30803a37f97) Thanks [@lukasrosario](https://github.com/lukasrosario)! - Added Base Sepolia
+
+- [#1339](https://github.com/wagmi-dev/viem/pull/1339) [`b7ddaf61`](https://github.com/wagmi-dev/viem/commit/b7ddaf61d6a392a8fa6f4550afa505f75c31eca4) Thanks [@jxom](https://github.com/jxom)! - Fixed topics mismatch in `decodeEventLogs` strict mode.
+
+- [`b6aace90`](https://github.com/wagmi-dev/viem/commit/b6aace909c8f27c49a393813e2569b98a72083ca) Thanks [@jxom](https://github.com/jxom)! - Fixed `chainId` assignment in `signTransaction` action.
+
 ## 1.16.4
 
 ### Patch Changes

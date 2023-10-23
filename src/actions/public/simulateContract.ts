@@ -34,6 +34,7 @@ import {
 } from '../../utils/errors/getContractError.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 
+import { getAction } from '../../utils/getAction.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type SimulateContractParameters<
@@ -217,7 +218,10 @@ export async function simulateContract<
     : client.account
   const calldata = encodeFunctionData({ abi, args, functionName })
   try {
-    const { data } = await call(client, {
+    const { data } = await getAction(
+      client,
+      call,
+    )({
       batch: false,
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
