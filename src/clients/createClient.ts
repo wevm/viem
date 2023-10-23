@@ -56,7 +56,11 @@ export type ClientConfig<
   type?: string | undefined
 }
 
-type ProtectedActions = Pick<
+// Actions that are used internally by other Actions (ie. `call` is used by `readContract`).
+// They are allowed to be extended, but must conform to their parameter & return type interfaces.
+// Example: an extended `call` action must accept `CallParameters` as parameters,
+// and conform to the `CallReturnType` return type.
+type ExtendableProtectedActions = Pick<
   PublicActions,
   | 'call'
   | 'createContractEventFilter'
@@ -94,7 +98,9 @@ export type Client<
   extended extends Extended | undefined = Extended | undefined,
 > = Client_Base<transport, chain, account, rpcSchema> &
   (extended extends Extended ? extended : unknown) & {
-    extend: <const client extends Extended & Partial<ProtectedActions>>(
+    extend: <
+      const client extends Extended & Partial<ExtendableProtectedActions>,
+    >(
       fn: (
         client: Client<transport, chain, account, rpcSchema, extended>,
       ) => client,
