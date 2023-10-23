@@ -19,5 +19,11 @@ export const modeTestnet = /*#__PURE__*/ defineChain({
       url: 'https://sepolia.explorer.mode.network',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xBAba8373113Fb7a68f195deF18732e01aF8eDfCF',
+      blockCreated: 3019007,
+    },
+  },
   testnet: true,
 })
