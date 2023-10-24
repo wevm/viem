@@ -18,9 +18,6 @@ import type {
   TransactionReceipt,
   TransactionRequest,
   TransactionRequestBase,
-  TransactionSerializable,
-  TransactionSerializableBase,
-  TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 
@@ -266,34 +263,3 @@ export type ZkSyncTransactionReceiptOverrides = {
 }
 export type ZkSyncTransactionReceipt = Omit<TransactionReceipt, 'logs'> &
   ZkSyncTransactionReceiptOverrides
-
-//
-// Serializers
-//
-
-export type ZkSyncTransactionSerializable =
-  | TransactionSerializable
-  | TransactionSerializableEIP712
-
-export type ZkSyncTransactionSerialized<
-  TType extends ZkSyncTransactionType = 'eip1559',
-> = TransactionSerialized<TType> | TransactionSerializedEIP712
-
-export type TransactionSerializableEIP712<
-  TQuantity = bigint,
-  TIndex = number,
-> = TransactionSerializableBase<TQuantity, TIndex> &
-  FeeValuesEIP1559<TQuantity> & {
-    from: Hex
-    maxFeePerGas?: TQuantity
-    maxPriorityFeePerGas?: TQuantity
-    gasPerPubdata?: bigint
-    paymaster?: Address
-    factoryDeps?: Hex[]
-    paymasterInput?: Hex
-    customSignature: Hex
-    chainId: number
-    type?: 'eip712'
-  }
-
-export type TransactionSerializedEIP712 = `0x71${string}`
