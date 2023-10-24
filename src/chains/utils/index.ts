@@ -46,6 +46,7 @@ export type {
 
 export { formattersZkSync } from '../zksync/formatters.js'
 export type {
+  TransactionEIP712,
   ZkSyncBlock,
   ZkSyncBlockOverrides,
   ZkSyncRpcTransaction,
@@ -56,5 +57,4 @@ export type {
   ZkSyncTransactionReceipt,
   ZkSyncTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
-  TransactionRequestEIP712,
 } from '../zksync/types.js'

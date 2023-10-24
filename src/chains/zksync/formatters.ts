@@ -1,6 +1,8 @@
 import { type ChainFormatters } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
+import { hexToBytes } from '../../utils/encoding/toBytes.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 import { defineBlock } from '../../utils/formatters/block.js'
 import { formatLog } from '../../utils/formatters/log.js'
 import { defineTransaction } from '../../utils/formatters/transaction.js'
@@ -12,10 +14,12 @@ import type {
   ZkSyncBlockOverrides,
   ZkSyncRpcBlockOverrides,
   ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionReceipt,
+  //ZkSyncRpcTransactionReceipt,
+  ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,
   ZkSyncTransactionReceipt,
+  ZkSyncTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
 } from './types.js'
 
@@ -41,7 +45,9 @@ export const formattersZkSync = {
         return formatted
       }) as Hash[] | ZkSyncTransaction[]
       return {
-        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
+        l1BatchNumber: args.l1BatchNumber
+          ? hexToBigInt(args.l1BatchNumber)
+          : null,
         l1BatchTimestamp: args.l1BatchTimestamp
           ? hexToBigInt(args.l1BatchTimestamp)
           : null,
@@ -69,7 +75,9 @@ export const formattersZkSync = {
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
-    format(args: ZkSyncRpcTransactionReceipt): ZkSyncTransactionReceipt {
+    format(
+      args: ZkSyncRpcTransactionReceiptOverrides,
+    ): ZkSyncTransactionReceiptOverrides {
       return {
         l1BatchNumber: args.l1BatchNumber
           ? hexToBigInt(args.l1BatchNumber)
@@ -82,6 +90,7 @@ export const formattersZkSync = {
             ...formatLog(log),
             l1BatchNumber: hexToBigInt(log.l1BatchNumber),
             transactionLogIndex: hexToNumber(log.transactionLogIndex),
+            logType: log.logType,
           }
         }) as Log[],
         l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
@@ -103,10 +112,38 @@ export const formattersZkSync = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
+    exclude: [
+      'paymaster',
+      'paymasterInput',
+      'customSignature',
+      'gasPerPubdata',
+      'factoryDeps',
+    ],
     format(args: ZkSyncTransactionRequest): ZkSyncRpcTransactionRequest {
-      const request = {} as ZkSyncRpcTransactionRequest
-      if (args.type === 'eip712') request.type = '0x71'
-      return request
+      // eip712Meta is optional, to still support other transactions
+      if (args.paymaster && args.paymasterInput && args.gasPerPubdata) {
+        const request = {
+          eip712Meta: {
+            ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+            ...(args.paymaster && args.paymasterInput
+              ? {
+                  paymasterParams: {
+                    paymaster: args.paymaster,
+                    paymasterInput: hexToBytes(args.paymasterInput),
+                  },
+                }
+              : {}),
+            ...(args.gasPerPubdata
+              ? { gasPerPubdata: toHex(args.gasPerPubdata) }
+              : {}),
+          },
+          type: '0x71',
+        } as ZkSyncRpcTransactionRequest
+
+        return request
+      }
+
+      return {} as ZkSyncRpcTransactionRequest
     },
   }),
 } as const satisfies ChainFormatters

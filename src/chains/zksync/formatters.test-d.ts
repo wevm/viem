@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
-
+import { accounts } from '~test/src/constants.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getBlock } from '../../actions/public/getBlock.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
@@ -8,21 +9,30 @@ import { signTransaction } from '../../actions/wallet/signTransaction.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
-import type { RpcBlock } from '../../types/rpc.js'
+import type {
+  RpcBlock,
+  RpcLog,
+  RpcTransactionReceipt,
+} from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
 import { sendTransaction } from '../../wallet/index.js'
-import { zkSync } from '../index.js'
+import { zkSync, zkSyncTestnet } from '../index.js'
 import { formattersZkSync } from './formatters.js'
-import type { ZkSyncRpcTransaction, ZkSyncTransactionRequest } from './types.js'
-
+import type {
+  L2ToL1Log,
+  Log as ZkSyncLog,
+  ZkSyncRpcTransaction,
+  ZkSyncTransactionRequest,
+} from './types.js'
 describe('block', () => {
   expectTypeOf(formattersZkSync.block.format).parameter(0).toEqualTypeOf<
     Assign<
       Partial<RpcBlock>,
       {
-        l1BatchNumber: `0x${string}`
+        l1BatchNumber: `0x${string}` | null
         l1BatchTimestamp: `0x${string}` | null
       } & {
         transactions: `0x${string}`[] | ZkSyncRpcTransaction[]
@@ -38,40 +48,36 @@ describe('block', () => {
 })
 
 describe('transactionReceipt', () => {
-  // Cannot make this match
-  /*expectTypeOf(formattersZkSync.transactionReceipt.format)
+  expectTypeOf(formattersZkSync.transactionReceipt.format)
     .parameter(0)
-    .toEqualTypeOf<Omit<RpcTransactionReceipt, 'logs'> & {
-      l1BatchNumber: Hex | null
-      l1BatchTxIndex: Hex | null
-      logs: {
-        address: Address
-        blockHash: Hash
-        blockNumber: Hex
-        data: Hex
-        logIndex:Hex
-        transactionHash: Hash
-        transactionIndex: Hex
-        removed: boolean
-        l1BatchNumber: Hex
-        transactionLogIndex: Hex
-        logType: Hex | null
-      }[]
-      l2ToL1Logs: {
-        blockNumber: Hex
-        blockHash: Hex
-        l1BatchNumber: Hex
-        transactionIndex: Hex
-        shardId: Hex
-        isService: boolean
-        sender: Hex
-        key: Hex
-        value: Hex
-        transactionHash: Hex
-        logIndex: Hex
-      }[]
-      root: Hex
-    }>()*/
+    .toEqualTypeOf<
+      Assign<
+        Partial<RpcTransactionReceipt>,
+        {
+          l1BatchNumber: `0x${string}` | null
+          l1BatchTxIndex: `0x${string}` | null
+          logs: (RpcLog & {
+            l1BatchNumber: `0x${string}`
+            transactionLogIndex: `0x${string}`
+            logType: `0x${string}` | null
+          })[]
+          l2ToL1Logs: {
+            blockNumber: `0x${string}`
+            blockHash: `0x${string}`
+            l1BatchNumber: `0x${string}`
+            transactionIndex: `0x${string}`
+            shardId: `0x${string}`
+            isService: boolean
+            sender: `0x${string}`
+            key: `0x${string}`
+            value: `0x${string}`
+            transactionHash: `0x${string}`
+            logIndex: `0x${string}`
+          }[]
+          root: `0x${string}`
+        }
+      >
+    >()
 
   expectTypeOf<
     ReturnType<
@@ -83,6 +89,57 @@ describe('transactionReceipt', () => {
       typeof formattersZkSync.transactionReceipt.format
     >['l1BatchTxIndex']
   >().toEqualTypeOf<bigint | null>()
+  expectTypeOf<
+    ReturnType<typeof formattersZkSync.transactionReceipt.format>['l2ToL1Logs']
+  >().toEqualTypeOf<
+    {
+      blockNumber: bigint
+      blockHash: string
+      l1BatchNumber: bigint
+      transactionIndex: bigint
+      shardId: bigint
+      isService: boolean
+      sender: string
+      key: string
+      value: string
+      transactionHash: string
+      logIndex: bigint
+    }[]
+  >()
+
+  expectTypeOf<
+    ReturnType<typeof formattersZkSync.transactionReceipt.format>['logs']
+  >().toEqualTypeOf<
+    (Log<
+      bigint,
+      number,
+      boolean,
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    > & {
+      l1BatchNumber: bigint
+      transactionLogIndex: number
+      logType: `0x${string}` | null
+    })[]
+  >()
+
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionReceipt.format
+    >['logs'][0]['l1BatchNumber']
+  >().toEqualTypeOf<bigint>()
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionReceipt.format
+    >['logs'][0]['transactionLogIndex']
+  >().toEqualTypeOf<number>()
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionReceipt.format
+    >['logs'][0]['logType']
+  >().toEqualTypeOf<`0x${string}` | null>()
 })
 
 describe('transactionRequest', () => {
@@ -91,6 +148,32 @@ describe('transactionRequest', () => {
     .toEqualTypeOf<
       Assign<Partial<TransactionRequest>, ZkSyncTransactionRequest>
     >()
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionRequest.format
+    >['eip712Meta']['gasPerPubdata']
+  >().toEqualTypeOf<`0x${string}` | undefined>()
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionRequest.format
+    >['eip712Meta']['customSignature']
+  >().toEqualTypeOf<`0x${string}` | undefined>()
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionRequest.format
+    >['eip712Meta']['factoryDeps']
+  >().toEqualTypeOf<`0x${string}`[] | undefined>()
+  expectTypeOf<
+    ReturnType<
+      typeof formattersZkSync.transactionRequest.format
+    >['eip712Meta']['paymasterParams']
+  >().toEqualTypeOf<
+    | {
+        paymaster: `0x${string}`
+        paymasterInput: number[]
+      }
+    | undefined
+  >()
 })
 
 describe('smoke', () => {
@@ -134,85 +217,61 @@ describe('smoke', () => {
 
     expectTypeOf(transaction.l1BatchTxIndex).toEqualTypeOf<bigint | null>()
     expectTypeOf(transaction.l1BatchNumber).toEqualTypeOf<bigint | null>()
-    expectTypeOf(transaction.logs[0].l1BatchNumber).toEqualTypeOf<bigint>()
-    expectTypeOf(transaction.l2ToL1Logs).toEqualTypeOf<
-      {
-        blockNumber: bigint
-        blockHash: string
-        l1BatchNumber: bigint
-        transactionIndex: bigint
-        shardId: bigint
-        isService: boolean
-        sender: string
-        key: string
-        value: string
-        transactionHash: string
-        logIndex: bigint
-      }[]
-    >()
+    expectTypeOf(transaction.l2ToL1Logs).toEqualTypeOf<L2ToL1Log[]>()
+    expectTypeOf(transaction.logs).toEqualTypeOf<ZkSyncLog[]>()
   })
 
   test('transactionRequest (prepareTransactionRequest)', async () => {
     const client = createWalletClient({
-      account: '0x',
-      chain: zkSync,
+      account: privateKeyToAccount(accounts[0].privateKey),
+      chain: zkSyncTestnet,
       transport: http(),
     })
 
     prepareTransactionRequest(client, {
+      to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
+      data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869204461766964340000000000000000000000000000000000000000000000',
       gasPerPubdata: 50000n,
-      paymaster: '0x094499df5ee555ffc33af07862e43c90e6fee501',
+      paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
       paymasterInput:
         '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
-      customSignature: '0x',
-    })
-
-    // @ts-expect-error `customSignature` not provided
-    prepareTransactionRequest(client, {
-      paymaster: '0x094499df5ee555ffc33af07862e43c90e6fee501',
-      paymasterInput:
-        '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
-      type: 'eip712',
     })
   })
 
   test('transactionRequest (sendTransaction)', async () => {
     const client = createWalletClient({
-      account: '0x094499df5ee555ffc33af07862e43c90e6fee501',
-      chain: zkSync,
+      account: privateKeyToAccount(accounts[0].privateKey),
+      chain: zkSyncTestnet,
       transport: http(),
     })
 
     sendTransaction(client, {
+      to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
+      maxFeePerGas: 0n,
       gasPerPubdata: 50000n,
-      paymaster: '0x094499df5ee555ffc33af07862e43c90e6fee501',
+      paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
       paymasterInput:
         '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
-      customSignature: '0x',
-    })
-
-    // @ts-expect-error `customSignature` not provided
-    sendTransaction(client, {
-      paymaster: '0x094499df5ee555ffc33af07862e43c90e6fee501',
-      paymasterInput:
-        '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
-      type: 'eip712',
     })
   })
 
   test('transactionRequest (signTransaction)', async () => {
     const client = createWalletClient({
-      account: '0x094499df5ee555ffc33af07862e43c90e6fee501',
+      account: privateKeyToAccount(accounts[0].privateKey),
       chain: zkSync,
       transport: http(),
     })
 
     signTransaction(client, {
       gasPerPubdata: 50000n,
-      paymaster: '0x094499df5ee555ffc33af07862e43c90e6fee501',
+      maxFeePerGas: 250000000n,
+      maxPriorityFeePerGas: 0n,
+      to: '0x111C3E89Ce80e62EE88318C2804920D4c96f92bb',
+      data: '0xa4136862000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869204461766964340000000000000000000000000000000000000000000000',
+      paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
       paymasterInput:
         '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
-      customSignature: '0x',
+      customSignature: '0x1',
     })
   })
 })
