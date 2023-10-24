@@ -25,6 +25,7 @@ import {
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
 import { formatLog } from '../../utils/formatters/log.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type CreateContractEventFilterParameters,
   createContractEventFilter,
@@ -187,7 +188,10 @@ export function watchContractEvent<
         async () => {
           if (!initialized) {
             try {
-              filter = (await createContractEventFilter(client, {
+              filter = (await getAction(
+                client,
+                createContractEventFilter,
+              )({
                 abi,
                 address,
                 args,
@@ -206,19 +210,22 @@ export function watchContractEvent<
           try {
             let logs: Log[]
             if (filter) {
-              logs = await getFilterChanges(client, { filter })
+              logs = await getAction(client, getFilterChanges)({ filter })
             } else {
               // If the filter doesn't exist, we will fall back to use `getLogs`.
               // The fall back exists because some RPC Providers do not support filters.
 
               // Fetch the block number to use for `getLogs`.
-              const blockNumber = await getBlockNumber(client)
+              const blockNumber = await getAction(client, getBlockNumber)({})
 
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,
               // so do not emit any logs.
               if (previousBlockNumber && previousBlockNumber !== blockNumber) {
-                logs = await getContractEvents(client, {
+                logs = await getAction(
+                  client,
+                  getContractEvents,
+                )({
                   abi,
                   address,
                   args,
@@ -250,7 +257,7 @@ export function watchContractEvent<
       )
 
       return async () => {
-        if (filter) await uninstallFilter(client, { filter })
+        if (filter) await getAction(client, uninstallFilter)({ filter })
         unwatch()
       }
     })

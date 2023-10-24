@@ -94,6 +94,7 @@ describe('transports', () => {
         "pollingInterval": 4000,
         "request": [Function],
         "transport": {
+          "fetchOptions": undefined,
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],
@@ -400,15 +401,15 @@ describe('config', () => {
 })
 
 describe('extends', () => {
-  test('default', () => {
+  test('default', async () => {
     const client = createClient({
       chain: localhost,
       transport: http(),
     }).extend((config) => ({
-      getChainId: () => config.chain.id,
+      getChainId: async () => config.chain.id,
     }))
 
-    expect(client.getChainId()).toEqual(client.chain.id)
+    expect(await client.getChainId()).toEqual(client.chain.id)
   })
 
   test('public actions', () => {
@@ -474,6 +475,7 @@ describe('extends', () => {
         "getFilterLogs": [Function],
         "getGasPrice": [Function],
         "getLogs": [Function],
+        "getProof": [Function],
         "getStorageAt": [Function],
         "getTransaction": [Function],
         "getTransactionConfirmations": [Function],
@@ -489,6 +491,7 @@ describe('extends', () => {
         "sendRawTransaction": [Function],
         "simulateContract": [Function],
         "transport": {
+          "fetchOptions": undefined,
           "key": "http",
           "name": "HTTP JSON-RPC",
           "request": [Function],

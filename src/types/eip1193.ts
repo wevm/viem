@@ -9,6 +9,7 @@ import type {
   RpcBlockNumber as BlockNumber,
   RpcFeeHistory as FeeHistory,
   RpcLog as Log,
+  RpcProof as Proof,
   RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
@@ -446,6 +447,26 @@ export type PublicRpcSchema = [
       ),
     ]
     ReturnType: Log[]
+  },
+  /**
+   * @description Returns the account and storage values of the specified account including the Merkle-proof.
+   * @link https://eips.ethereum.org/EIPS/eip-1186
+   * @example
+   * provider.request({ method: 'eth_getProof', params: ['0x...', ['0x...'], 'latest'] })
+   * // => {
+   * //   ...
+   * // }
+   */
+  {
+    Method: 'eth_getProof'
+    Parameters: [
+      /** Address of the account. */
+      address: Address,
+      /** An array of storage-keys that should be proofed and included. */
+      storageKeys: Hash[],
+      block: BlockNumber | BlockTag,
+    ]
+    ReturnType: Proof
   },
   /**
    * @description Returns the value from a storage position at an address

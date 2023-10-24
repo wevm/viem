@@ -250,6 +250,26 @@ const results = await publicClient.multicall({
 })
 ```
 
+### blockNumber (optional)
+
+- **Type:** `number`
+
+The block number to perform the read against.
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  blockNumber: 15121123n, // [!code focus]
+})
+```
+
 ### multicallAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)
@@ -273,6 +293,6 @@ const results = await publicClient.multicall({
 
 ## Live Example
 
-Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/multicall) below.
+Check out the usage of `multicall` in the live [Multicall Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_multicall) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/multicall?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_multicall?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

@@ -1,5 +1,65 @@
 # viem
 
+## 1.16.6
+
+### Patch Changes
+
+- [#1356](https://github.com/wagmi-dev/viem/pull/1356) [`0da9f886`](https://github.com/wagmi-dev/viem/commit/0da9f886124cea8f8e2f557de68bd94b96e53ac8) Thanks [@AmaxJ](https://github.com/AmaxJ)! - Removed trailing slash from arbiscan goerli blockexplorer url
+
+- [`36ec87da`](https://github.com/wagmi-dev/viem/commit/36ec87da7f614f5c6ca9e632eb27f8d8d1bbfcdf) Thanks [@jxom](https://github.com/jxom)! - Modified `getAddresses` to be compatible with Local Accounts.
+
+## 1.16.5
+
+### Patch Changes
+
+- [#1347](https://github.com/wagmi-dev/viem/pull/1347) [`541bd152`](https://github.com/wagmi-dev/viem/commit/541bd1528d3fb43edfd713e3dd89f30803a37f97) Thanks [@lukasrosario](https://github.com/lukasrosario)! - Added Base Sepolia
+
+- [#1339](https://github.com/wagmi-dev/viem/pull/1339) [`b7ddaf61`](https://github.com/wagmi-dev/viem/commit/b7ddaf61d6a392a8fa6f4550afa505f75c31eca4) Thanks [@jxom](https://github.com/jxom)! - Fixed topics mismatch in `decodeEventLogs` strict mode.
+
+- [`b6aace90`](https://github.com/wagmi-dev/viem/commit/b6aace909c8f27c49a393813e2569b98a72083ca) Thanks [@jxom](https://github.com/jxom)! - Fixed `chainId` assignment in `signTransaction` action.
+
+## 1.16.4
+
+### Patch Changes
+
+- [#1334](https://github.com/wagmi-dev/viem/pull/1334) [`4862acc5`](https://github.com/wagmi-dev/viem/commit/4862acc51ee86ceddfa55b21bb55667cf10e86a8) Thanks [@izayl](https://github.com/izayl)! - Added Scroll chain
+
+## 1.16.3
+
+### Patch Changes
+
+- [`1e13ae83`](https://github.com/wagmi-dev/viem/commit/1e13ae83194da4ca6d829dfd63dd84b11719f497) Thanks [@jxom](https://github.com/jxom)! - Updated holesky RPC URLs.
+
+- [#1330](https://github.com/wagmi-dev/viem/pull/1330) [`05a3784a`](https://github.com/wagmi-dev/viem/commit/05a3784a1587cc811fb15cb5b177bf90e123a5a1) Thanks [@holic](https://github.com/holic)! - Fixed `TransactionReceipt['logs']` type.
+
+## 1.16.2
+
+### Patch Changes
+
+- [#1325](https://github.com/wagmi-dev/viem/pull/1325) [`e9a54192`](https://github.com/wagmi-dev/viem/commit/e9a54192c5a52db1c0452b08192171bc9304bec7) Thanks [@avasisht23](https://github.com/avasisht23)! - Exported `HttpTransportConfig`.
+
+- [`c445acee`](https://github.com/wagmi-dev/viem/commit/c445acee5a3e3a4121521b7e289a9afd882b7400) Thanks [@jxom](https://github.com/jxom)! - Added `fetchOptions` to `http` transport return value.
+
+## 1.16.1
+
+### Patch Changes
+
+- [`fda328d2`](https://github.com/wagmi-dev/viem/commit/fda328d26b86f5e2a2d56c898db12eea4e0e1e94) Thanks [@jxom](https://github.com/jxom)! - Updated `isows`.
+
+## 1.16.0
+
+### Minor Changes
+
+- [#1316](https://github.com/wagmi-dev/viem/pull/1316) [`ae5c03ad`](https://github.com/wagmi-dev/viem/commit/ae5c03ada92968a6835705fd8017e0a687947152) Thanks [@jxom](https://github.com/jxom)! - Added `getProof`.
+
+- [`d27e9943`](https://github.com/wagmi-dev/viem/commit/d27e994361180579fc8e6328ade3dbaf26963803) Thanks [@jxom](https://github.com/jxom)! - Added `withdrawals` & `withdrawalsRoot` to `Block` type.
+
+## 1.15.5
+
+### Patch Changes
+
+- [#1312](https://github.com/wagmi-dev/viem/pull/1312) [`d7cff6a3`](https://github.com/wagmi-dev/viem/commit/d7cff6a368e3934874c5be406354226e9f786d38) Thanks [@jxom](https://github.com/jxom)! - Migrated to [isows](https://github.com/wagmi-dev/isows).
+
 ## 1.15.4
 
 ### Patch Changes

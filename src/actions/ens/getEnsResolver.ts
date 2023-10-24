@@ -14,6 +14,7 @@ import {
   type PacketToBytesErrorType,
   packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type ReadContractParameters,
   readContract,
@@ -87,7 +88,10 @@ export async function getEnsResolver<TChain extends Chain | undefined>(
     })
   }
 
-  const [resolverAddress] = await readContract(client, {
+  const [resolverAddress] = await getAction(
+    client,
+    readContract,
+  )({
     address: universalResolverAddress,
     abi: [
       {

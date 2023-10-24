@@ -341,9 +341,9 @@ const signature = await walletClient.signTypedData({
 
 ## Live Example
 
-Check out the usage of `signTypedData` in the live [Sign Typed Data Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/signing/typed-data) below.
+Check out the usage of `signTypedData` in the live [Sign Typed Data Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/signing_typed-data) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/signing/typed-data?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/signing_typed-data?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Methods
 

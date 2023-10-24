@@ -435,6 +435,7 @@ export {
 } from './clients/transports/fallback.js'
 export {
   type HttpTransport,
+  type HttpTransportConfig,
   type HttpTransportErrorType,
   http,
 } from './clients/transports/http.js'
@@ -948,6 +949,7 @@ export type {
   RpcTransactionRequest,
   RpcUncle,
 } from './types/rpc.js'
+export type { Withdrawal } from './types/withdrawal.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {

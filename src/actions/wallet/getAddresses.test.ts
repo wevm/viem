@@ -1,7 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { walletClient } from '~test/src/utils.js'
+import { anvilChain, walletClient } from '~test/src/utils.js'
 
+import { accounts } from '../../../test/src/constants.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { createClient } from '../../clients/createClient.js'
+import { http } from '../../clients/transports/http.js'
 import { getAddresses } from './getAddresses.js'
 
 test('default', async () => {
@@ -19,6 +23,19 @@ test('default', async () => {
       "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
       "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
       "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+    ]
+  `)
+})
+
+test('local account', async () => {
+  const client = createClient({
+    account: privateKeyToAccount(accounts[0].privateKey),
+    chain: anvilChain,
+    transport: http(),
+  })
+  expect(await getAddresses(client)).toMatchInlineSnapshot(`
+    [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ]
   `)
 })
