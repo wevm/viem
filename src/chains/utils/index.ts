@@ -43,3 +43,9 @@ export type {
   OptimismTransactionReceipt,
   OptimismTransactionReceiptOverrides,
 } from '../optimism/types.js'
+
+export type {
+  ZkSyncTransactionSerializable,
+  ZkSyncTransactionSerializableEIP712,
+  ZkSyncTransactionSerialized,
+} from '../zksync/types.js'
