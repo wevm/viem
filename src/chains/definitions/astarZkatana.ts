@@ -26,7 +26,7 @@ export const astarZkatana = /*#__PURE__*/ defineChain({
     },
     default: {
       name: 'zKatana Explorer',
-      url: 'https://zkatana.explorer.startale.com/',
+      url: 'https://zkatana.explorer.startale.com',
     },
   },
   testnet: true,
