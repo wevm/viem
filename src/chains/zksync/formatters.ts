@@ -14,7 +14,6 @@ import type {
   ZkSyncBlockOverrides,
   ZkSyncRpcBlockOverrides,
   ZkSyncRpcTransaction,
-  //ZkSyncRpcTransactionReceipt,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,
@@ -45,12 +44,8 @@ export const formattersZkSync = {
         return formatted
       }) as Hash[] | ZkSyncTransaction[]
       return {
-        l1BatchNumber: args.l1BatchNumber
-          ? hexToBigInt(args.l1BatchNumber)
-          : null,
-        l1BatchTimestamp: args.l1BatchTimestamp
-          ? hexToBigInt(args.l1BatchTimestamp)
-          : null,
+        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
+        l1BatchTimestamp: hexToBigInt(args.l1BatchTimestamp),
         transactions,
       }
     },
@@ -65,12 +60,8 @@ export const formattersZkSync = {
       }
       return {
         ...transaction,
-        l1BatchNumber: args.l1BatchNumber
-          ? hexToBigInt(args.l1BatchNumber)
-          : null,
-        l1BatchTxIndex: args.l1BatchTxIndex
-          ? hexToBigInt(args.l1BatchTxIndex)
-          : null,
+        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
+        l1BatchTxIndex: hexToBigInt(args.l1BatchTxIndex),
       } as ZkSyncTransaction
     },
   }),
@@ -79,12 +70,8 @@ export const formattersZkSync = {
       args: ZkSyncRpcTransactionReceiptOverrides,
     ): ZkSyncTransactionReceiptOverrides {
       return {
-        l1BatchNumber: args.l1BatchNumber
-          ? hexToBigInt(args.l1BatchNumber)
-          : null,
-        l1BatchTxIndex: args.l1BatchTxIndex
-          ? hexToBigInt(args.l1BatchTxIndex)
-          : null,
+        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
+        l1BatchTxIndex: hexToBigInt(args.l1BatchTxIndex),
         logs: args.logs.map((log) => {
           return {
             ...formatLog(log),
@@ -120,24 +107,32 @@ export const formattersZkSync = {
       'factoryDeps',
     ],
     format(args: ZkSyncTransactionRequest): ZkSyncRpcTransactionRequest {
-      // eip712Meta is optional, to still support other transactions
-      if (args.paymaster && args.paymasterInput && args.gasPerPubdata) {
+      if (
+        (args.type === 'eip712' || args.type === 'priority') &&
+        (args.gasPerPubdata ||
+          (args.paymaster && args.paymasterInput) ||
+          args.factoryDeps ||
+          args.customSignature)
+      ) {
         const request = {
           eip712Meta: {
-            ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+            ...(args.gasPerPubdata
+              ? { gasPerPubdata: toHex(args.gasPerPubdata) }
+              : {}),
             ...(args.paymaster && args.paymasterInput
               ? {
                   paymasterParams: {
                     paymaster: args.paymaster,
-                    paymasterInput: hexToBytes(args.paymasterInput),
+                    paymasterInput: Array.from(hexToBytes(args.paymasterInput)),
                   },
                 }
               : {}),
-            ...(args.gasPerPubdata
-              ? { gasPerPubdata: toHex(args.gasPerPubdata) }
+            ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
+            ...(args.customSignature
+              ? { customSignature: args.customSignature }
               : {}),
           },
-          type: '0x71',
+          type: args.type === 'eip712' ? '0x71' : '0xff',
         } as ZkSyncRpcTransactionRequest
 
         return request

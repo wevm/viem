@@ -50,7 +50,6 @@ export type {
   ZkSyncBlock,
   ZkSyncBlockOverrides,
   ZkSyncRpcTransaction,
-  ZkSyncRpcTransactionReceipt,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,

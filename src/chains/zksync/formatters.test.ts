@@ -13,65 +13,65 @@ describe('block', () => {
 
     expect(
       block.format({
-        baseFeePerGas: '0x0',
-        difficulty: '0x0',
-        extraData: '0x',
-        gasLimit: '0xffffffff',
-        gasUsed: '0xa55c0',
-        hash: '0xe04cda3bc5633f0e1bff94fc84310da2a0c608192aae0fa0e412c2350c135f75',
-        l1BatchNumber: '0x1',
-        l1BatchTimestamp: null,
-        logsBloom:
-          '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-        miner: '0x0000000000000000000000000000000000000000',
-        mixHash:
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
-        nonce: '0x0000000000000000',
-        number: '0x1',
+        hash: '0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4',
         parentHash:
+          '0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1',
+        sha3Uncles:
+          '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+        miner: '0x0000000000000000000000000000000000000000',
+        stateRoot:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        transactionsRoot:
           '0x0000000000000000000000000000000000000000000000000000000000000000',
         receiptsRoot:
           '0x0000000000000000000000000000000000000000000000000000000000000000',
-        sealFields: [],
-        sha3Uncles:
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
-        size: '0x0',
-        stateRoot:
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
-        timestamp: '0x3e9',
+        number: '0x232223',
+        l1BatchNumber: '0x5076',
+        gasUsed: '0x20d70b',
+        gasLimit: '0xffffffff',
+        baseFeePerGas: '0xee6b280',
+        extraData: '0x',
+        logsBloom:
+          '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+        timestamp: '0x64495efe',
+        l1BatchTimestamp: '0x64495ec1',
+        difficulty: '0x0',
         totalDifficulty: '0x0',
-        transactions: [
-          '0xf24f67fb9f8fb300164045fe6ba409acb03904e680ec7df41ed2d331dc38f545',
-        ],
-        transactionsRoot:
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        sealFields: [],
         uncles: [],
+        transactions: [
+          '0xae443579604b132e8e8a9a03a09f4ba1c8387190d4feac2f60283a6df564b66c',
+        ],
+        size: '0x0',
+        mixHash:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        nonce: '0x0000000000000000',
       }),
     ).toMatchInlineSnapshot(`
     {
-      "baseFeePerGas": 0n,
+      "baseFeePerGas": 250000000n,
       "difficulty": 0n,
       "extraData": "0x",
       "gasLimit": 4294967295n,
-      "gasUsed": 677312n,
-      "hash": "0xe04cda3bc5633f0e1bff94fc84310da2a0c608192aae0fa0e412c2350c135f75",
-      "l1BatchNumber": 1n,
-      "l1BatchTimestamp": null,
+      "gasUsed": 2152203n,
+      "hash": "0x288c26fa1cc1814b638f3010f20d17fc5d1a2667fb5aa1dd6354ad889fa335b4",
+      "l1BatchNumber": 20598n,
+      "l1BatchTimestamp": 1682529985n,
       "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "miner": "0x0000000000000000000000000000000000000000",
       "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "nonce": "0x0000000000000000",
-      "number": 1n,
-      "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "number": 2302499n,
+      "parentHash": "0xb1f996bdcc7c1f1893b016bd47150a846ac1e11f443d23df4cbc7c36fa1d4ae1",
       "receiptsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "sealFields": [],
-      "sha3Uncles": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
       "size": 0n,
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "timestamp": 1001n,
+      "timestamp": 1682530046n,
       "totalDifficulty": 0n,
       "transactions": [
-        "0xf24f67fb9f8fb300164045fe6ba409acb03904e680ec7df41ed2d331dc38f545",
+        "0xae443579604b132e8e8a9a03a09f4ba1c8387190d4feac2f60283a6df564b66c",
       ],
       "transactionsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "uncles": [],
@@ -1144,5 +1144,330 @@ describe('transaction receipt', () => {
         "type": "0xff",
       }
       `)
+  })
+})
+
+describe('transactionRequest', () => {
+  test('formatter', () => {
+    const { transactionRequest } = zkSync.formatters!
+
+    const baseRequest = {
+      from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9' as `0x${string}`,
+      gas: 13000n,
+      nonce: 4,
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+      value: 0n,
+    }
+
+    // Provide all EIP712Meta fields, except customSignature
+    expect(
+      transactionRequest.format({
+        ...baseRequest,
+        paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
+        paymasterInput:
+          '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+        gasPerPubdata: 50000n,
+        factoryDeps: ['0x1234', '0xabcd'],
+        type: 'eip712',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "eip712Meta": {
+          "factoryDeps": [
+            "0x1234",
+            "0xabcd",
+          ],
+          "gasPerPubdata": "0xc350",
+          "paymasterParams": {
+            "paymaster": "0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021",
+            "paymasterInput": [
+              140,
+              90,
+              52,
+              69,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              32,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+            ],
+          },
+        },
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": "0x71",
+        "value": "0x0",
+      }
+    `)
+
+    // Only factoryDeps defined
+    expect(
+      transactionRequest.format({
+        ...baseRequest,
+        factoryDeps: ['0x1234', '0xabcd'],
+        type: 'eip712',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "eip712Meta": {
+          "factoryDeps": [
+            "0x1234",
+            "0xabcd",
+          ],
+        },
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": "0x71",
+        "value": "0x0",
+      }
+    `)
+
+    // Only customSignature defined
+    expect(
+      transactionRequest.format({
+        ...baseRequest,
+        customSignature: '0x1234',
+        type: 'eip712',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "eip712Meta": {
+          "customSignature": "0x1234",
+        },
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": "0x71",
+        "value": "0x0",
+      }
+    `)
+
+    // Only paymaster and paymasterInput defined
+    expect(
+      transactionRequest.format({
+        ...baseRequest,
+        paymaster: '0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021',
+        paymasterInput:
+          '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+        type: 'eip712',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "eip712Meta": {
+          "paymasterParams": {
+            "paymaster": "0x4B5DF730c2e6b28E17013A1485E5d9BC41Efe021",
+            "paymasterInput": [
+              140,
+              90,
+              52,
+              69,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              32,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+            ],
+          },
+        },
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": "0x71",
+        "value": "0x0",
+      }
+    `)
+
+    // Only gasPerPubdata defined
+    expect(
+      transactionRequest.format({
+        ...baseRequest,
+        gasPerPubdata: 50000n,
+        type: 'eip712',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "eip712Meta": {
+          "gasPerPubdata": "0xc350",
+        },
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": "0x71",
+        "value": "0x0",
+      }
+    `)
+
+    // Only gasPerPubdata defined with type priority
+    expect(
+      transactionRequest.format({
+        ...baseRequest,
+        gasPerPubdata: 50000n,
+        type: 'priority',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "eip712Meta": {
+          "gasPerPubdata": "0xc350",
+        },
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": "0xff",
+        "value": "0x0",
+      }
+    `)
+
+    // No EIP712 field defined
+    expect(transactionRequest.format(baseRequest)).toMatchInlineSnapshot(`
+      {
+        "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
+        "gas": "0x32c8",
+        "gasPrice": undefined,
+        "maxFeePerGas": "0x2",
+        "maxPriorityFeePerGas": "0x1",
+        "nonce": "0x4",
+        "type": undefined,
+        "value": "0x0",
+      }
+    `)
   })
 })

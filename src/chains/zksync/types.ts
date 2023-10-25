@@ -8,13 +8,14 @@ import type {
   Quantity,
   RpcBlock,
   RpcLog as RpcLog_,
-  RpcTransaction as RpcTransaction_,
-  RpcTransactionReceipt,
+  RpcTransactionRequest,
   TransactionType,
 } from '../../types/rpc.js'
 import type {
   Transaction as Transaction_,
   TransactionBase,
+  TransactionEIP2930,
+  TransactionLegacy,
   TransactionReceipt,
   TransactionRequest,
   TransactionRequestBase,
@@ -51,7 +52,6 @@ export type RpcLog = RpcLog_ & {
   logType: Hex | null
 }
 
-// User to get gas estimate
 type PaymasterParams = {
   paymaster: Address
   paymasterInput: number[]
@@ -98,6 +98,9 @@ export type ZkSyncFeeValues<TQuantity = bigint> = {
   maxPriorityFeePerGas: TQuantity
 }
 
+type EIP712Type = '0x71'
+type PriorityType = '0xff'
+
 // Block
 // https://era.zksync.io/docs/api/js/types.html#block
 
@@ -105,20 +108,6 @@ export type ZkSyncBlockOverrides = {
   l1BatchNumber: bigint | null
   l1BatchTimestamp: bigint | null
 }
-
-export type ZkSyncRpcBlockOverrides = {
-  l1BatchNumber: Hex | null
-  l1BatchTimestamp: Hex | null
-}
-export type ZkSyncRpcBlock<
-  TBlockTag extends BlockTag = BlockTag,
-  TIncludeTransactions extends boolean = boolean,
-> = RpcBlock<
-  TBlockTag,
-  TIncludeTransactions,
-  ZkSyncRpcTransaction<TBlockTag extends 'pending' ? true : false>
-> &
-  ZkSyncRpcBlockOverrides
 
 export type ZkSyncBlock<
   TIncludeTransactions extends boolean = boolean,
@@ -131,11 +120,28 @@ export type ZkSyncBlock<
 > &
   ZkSyncBlockOverrides
 
+// Block (RPC)
+
+export type ZkSyncRpcBlockOverrides = {
+  l1BatchNumber: Hex
+  l1BatchTimestamp: Hex
+}
+export type ZkSyncRpcBlock<
+  TBlockTag extends BlockTag = BlockTag,
+  TIncludeTransactions extends boolean = boolean,
+> = RpcBlock<
+  TBlockTag,
+  TIncludeTransactions,
+  ZkSyncRpcTransaction<TBlockTag extends 'pending' ? true : false>
+> &
+  ZkSyncRpcBlockOverrides
+
 // Transaction
+// https://era.zksync.io/docs/api/js/types.html#transactionresponse
 
 type TransactionOverrides = {
-  l1BatchNumber: bigint | null
-  l1BatchTxIndex: bigint | null
+  l1BatchNumber: bigint
+  l1BatchTxIndex: bigint
 }
 
 type TransactionPriority<TPending extends boolean = boolean> = TransactionBase<
@@ -152,7 +158,7 @@ export type TransactionEIP712<TPending extends boolean = boolean> =
   TransactionBase<bigint, number, TPending> &
     TransactionOverrides &
     FeeValuesEIP1559 & {
-      type: 'eip712'
+      type: 'eip712' | 'priority'
     }
 
 type Transaction<TPending extends boolean = boolean> = Transaction_<
@@ -167,25 +173,20 @@ export type ZkSyncTransaction<TPending extends boolean = boolean> =
   | TransactionPriority<TPending>
   | TransactionEIP712<TPending>
 
-// RPC
+// Transaction (RPC)
 
 type RpcTransactionOverrides = {
-  l1BatchNumber: Hex | null
-  l1BatchTxIndex: Hex | null
+  l1BatchNumber: Hex
+  l1BatchTxIndex: Hex
 }
 
-export type RpcTransaction<TPending extends boolean = boolean> =
-  RpcTransaction_<TPending> &
-    Partial<ZkSyncFeeValues<Quantity>> &
-    RpcTransactionOverrides
-
 export type RpcTransactionLegacy<TPending extends boolean = boolean> =
-  TransactionBase<Quantity, Index, TPending> &
-    ZkSyncFeeValues<Quantity> &
-    RpcTransactionOverrides & {
-      type: '0x0'
-    }
+  TransactionLegacy<Quantity, Index, TPending, '0x0'> & RpcTransactionOverrides
 
+export type RpcTransactionEIP2930<TPending extends boolean = boolean> =
+  TransactionEIP2930<Quantity, Index, TPending, '0x1'> & RpcTransactionOverrides
+
+// Cannot use default EIP1559 transaction because the fee `gasPrice` parameter is set to `never`
 export type RpcTransactionEIP1559<TPending extends boolean = boolean> =
   TransactionBase<Quantity, Index, TPending> &
     ZkSyncFeeValues<Quantity> &
@@ -197,46 +198,59 @@ export type RpcTransactionPriority<TPending extends boolean = boolean> =
   TransactionBase<Quantity, Index, TPending> &
     ZkSyncFeeValues<Quantity> &
     RpcTransactionOverrides & {
-      type: '0xff'
+      type: PriorityType
     }
 
 export type RpcTransactionEIP712<TPending extends boolean = boolean> =
   TransactionBase<Quantity, Index, TPending> &
     ZkSyncFeeValues<Quantity> &
     RpcTransactionOverrides & {
-      type: '0x71'
+      type: EIP712Type
     }
 
 export type ZkSyncRpcTransaction<TPending extends boolean = boolean> =
   UnionOmit<
-    | RpcTransaction<TPending>
     | RpcTransactionLegacy<TPending>
+    | RpcTransactionEIP2930<TPending>
     | RpcTransactionEIP1559<TPending>
     | RpcTransactionPriority<TPending>
     | RpcTransactionEIP712<TPending>,
     'typeHex'
-  > & { chainId: Hex }
+  >
 
 // Transaction Request
 // https://era.zksync.io/docs/reference/concepts/transactions.html
 
-export type ZkSyncTransactionRequest = TransactionRequest &
+type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
   Partial<FeeValuesEIP1559> & {
-    gasPerPubdata: bigint
+    gasPerPubdata?: bigint
     customSignature?: Hex
     paymaster?: Address
     paymasterInput?: Hex
     factoryDeps?: Hex[]
-    type?: 'eip712'
+    type: 'eip712' | 'priority'
   }
+
+export type ZkSyncTransactionRequest =
+  // Not sure why I need to add the fields with never, but exclude complains if not added.
+  | /*(TransactionRequest & {
+      paymaster: never
+      paymasterInput: never
+      gasPerPubdata: never
+      customSignature: never
+      factoryDeps: never
+    })*/ TransactionRequest
+  | ZkSyncTransactionRequestEIP712
 
 type RpcTransactionRequestEIP712 = TransactionRequestBase<Quantity, Index> &
   Partial<FeeValuesEIP1559<Quantity>> & {
     eip712Meta: Eip712Meta
-    type?: '0x71'
+    type: EIP712Type | PriorityType
   }
 
-export type ZkSyncRpcTransactionRequest = RpcTransactionRequestEIP712
+export type ZkSyncRpcTransactionRequest =
+  // Not sure why I need to add the fields with never.
+  (RpcTransactionRequest & { eip712Meta: never }) | RpcTransactionRequestEIP712
 
 export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
 
@@ -244,20 +258,17 @@ export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
 // https://era.zksync.io/docs/api/js/types.html#transactionreceipt
 
 export type ZkSyncRpcTransactionReceiptOverrides = {
-  l1BatchNumber: Hex | null
-  l1BatchTxIndex: Hex | null
+  l1BatchNumber: Hex
+  l1BatchTxIndex: Hex
   logs: RpcLog[]
   l2ToL1Logs: RpcL2ToL1Log[]
   // Why root isn't added into RpcTransactionReceipt?
   root: Hex
 }
 
-export type ZkSyncRpcTransactionReceipt = Omit<RpcTransactionReceipt, 'logs'> &
-  ZkSyncRpcTransactionReceiptOverrides
-
 export type ZkSyncTransactionReceiptOverrides = {
-  l1BatchNumber: bigint | null
-  l1BatchTxIndex: bigint | null
+  l1BatchNumber: bigint
+  l1BatchTxIndex: bigint
   logs: Log[]
   l2ToL1Logs: L2ToL1Log[]
 }
