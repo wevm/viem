@@ -1,5 +1,17 @@
 # viem
 
+## 1.17.0
+
+### Minor Changes
+
+- [#1382](https://github.com/wagmi-dev/viem/pull/1382) [`5ac4a631`](https://github.com/wagmi-dev/viem/commit/5ac4a6316edb4076287fcb3c571066c39a917995) Thanks [@jxom](https://github.com/jxom)! - Added ability for Actions (i.e. `readContract`) to infer their internal/dependant Actions (i.e. `call`) from the optionally extended Client.
+
+  For instance, if an extended Client has overridden the `call` Action, then the `readContract` Action will use that instead of Viem's internal `call` Action.
+
+### Patch Changes
+
+- [#1377](https://github.com/wagmi-dev/viem/pull/1377) [`592f03eb`](https://github.com/wagmi-dev/viem/commit/592f03eb3c4d9a3e23716682e0acf8cfa4e65106) Thanks [@okalenyk](https://github.com/okalenyk)! - Added `multicall3` contract to `modeTestnet` chain.
+
 ## 1.16.6
 
 ### Patch Changes
