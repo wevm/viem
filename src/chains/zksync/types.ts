@@ -8,7 +8,7 @@ import type {
   Quantity,
   RpcBlock,
   RpcLog as RpcLog_,
-  RpcTransactionRequest,
+  RpcTransactionRequest as RpcTransactionRequest_,
   TransactionType,
 } from '../../types/rpc.js'
 import type {
@@ -17,7 +17,7 @@ import type {
   TransactionEIP2930,
   TransactionLegacy,
   TransactionReceipt,
-  TransactionRequest,
+  TransactionRequest as TransactionRequest_,
   TransactionRequestBase,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -221,7 +221,18 @@ export type ZkSyncRpcTransaction<TPending extends boolean = boolean> =
 // Transaction Request
 // https://era.zksync.io/docs/reference/concepts/transactions.html
 
-export type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
+type TransactionRequest = TransactionRequest_ & {
+  gasPerPubdata?: undefined
+  customSignature?: undefined
+  paymaster?: undefined
+  paymasterInput?: undefined
+  factoryDeps?: undefined
+}
+
+export type ZkSyncTransactionRequestEIP712 = Omit<
+  TransactionRequestBase,
+  'type'
+> &
   Partial<FeeValuesEIP1559> & {
     gasPerPubdata?: bigint
     customSignature?: Hex
@@ -232,8 +243,10 @@ export type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
   }
 
 export type ZkSyncTransactionRequest =
-  | (TransactionRequest & { eip712Meta?: never })
+  | TransactionRequest
   | ZkSyncTransactionRequestEIP712
+
+type RpcTransactionRequest = RpcTransactionRequest_ & { eip712Meta?: undefined }
 
 export type RpcTransactionRequestEIP712 = TransactionRequestBase<
   Quantity,
@@ -245,7 +258,7 @@ export type RpcTransactionRequestEIP712 = TransactionRequestBase<
   }
 
 export type ZkSyncRpcTransactionRequest =
-  | (RpcTransactionRequest & { eip712Meta?: never })
+  | RpcTransactionRequest
   | RpcTransactionRequestEIP712
 
 export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
