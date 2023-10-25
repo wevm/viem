@@ -22,11 +22,13 @@ import { sendTransaction } from '../../wallet/index.js'
 import { zkSync, zkSyncTestnet } from '../index.js'
 import { formattersZkSync } from './formatters.js'
 import type {
+  Eip712Meta,
   L2ToL1Log,
   Log as ZkSyncLog,
   ZkSyncRpcTransaction,
   ZkSyncTransactionRequest,
 } from './types.js'
+
 describe('block', () => {
   expectTypeOf(formattersZkSync.block.format).parameter(0).toEqualTypeOf<
     Assign<
@@ -149,31 +151,8 @@ describe('transactionRequest', () => {
       Assign<Partial<TransactionRequest>, ZkSyncTransactionRequest>
     >()
   expectTypeOf<
-    ReturnType<
-      typeof formattersZkSync.transactionRequest.format
-    >['eip712Meta']['gasPerPubdata']
-  >().toEqualTypeOf<`0x${string}` | undefined>()
-  expectTypeOf<
-    ReturnType<
-      typeof formattersZkSync.transactionRequest.format
-    >['eip712Meta']['customSignature']
-  >().toEqualTypeOf<`0x${string}` | undefined>()
-  expectTypeOf<
-    ReturnType<
-      typeof formattersZkSync.transactionRequest.format
-    >['eip712Meta']['factoryDeps']
-  >().toEqualTypeOf<`0x${string}`[] | undefined>()
-  expectTypeOf<
-    ReturnType<
-      typeof formattersZkSync.transactionRequest.format
-    >['eip712Meta']['paymasterParams']
-  >().toEqualTypeOf<
-    | {
-        paymaster: `0x${string}`
-        paymasterInput: number[]
-      }
-    | undefined
-  >()
+    ReturnType<typeof formattersZkSync.transactionRequest.format>['eip712Meta']
+  >().toEqualTypeOf<Eip712Meta | undefined>()
 })
 
 describe('smoke', () => {

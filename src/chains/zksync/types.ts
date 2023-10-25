@@ -232,8 +232,8 @@ export type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
   }
 
 export type ZkSyncTransactionRequest =
-  // Not sure why I need to add the fields with never, but exclude complains if not added.
-  TransactionRequest | ZkSyncTransactionRequestEIP712
+  | (TransactionRequest & { eip712Meta?: never })
+  | ZkSyncTransactionRequestEIP712
 
 export type RpcTransactionRequestEIP712 = TransactionRequestBase<
   Quantity,
@@ -245,7 +245,7 @@ export type RpcTransactionRequestEIP712 = TransactionRequestBase<
   }
 
 export type ZkSyncRpcTransactionRequest =
-  | RpcTransactionRequest
+  | (RpcTransactionRequest & { eip712Meta?: never })
   | RpcTransactionRequestEIP712
 
 export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
@@ -258,7 +258,6 @@ export type ZkSyncRpcTransactionReceiptOverrides = {
   l1BatchTxIndex: Hex
   logs: RpcLog[]
   l2ToL1Logs: RpcL2ToL1Log[]
-  // Why root isn't added into RpcTransactionReceipt?
   root: Hex
 }
 

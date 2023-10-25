@@ -36,11 +36,8 @@ export const formattersZkSync = {
         const formatted = formattersZkSync.transaction.format(
           transaction as ZkSyncRpcTransaction,
         ) as ZkSyncTransaction
-        if (formatted.typeHex === '0x71') {
-          formatted.type = 'eip712'
-        } else if (formatted.typeHex === '0xff') {
-          formatted.type = 'priority'
-        }
+        if (formatted.typeHex === '0x71') formatted.type = 'eip712'
+        else if (formatted.typeHex === '0xff') formatted.type = 'priority'
         return formatted
       }) as Hash[] | ZkSyncTransaction[]
       return {
@@ -53,11 +50,8 @@ export const formattersZkSync = {
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: ZkSyncRpcTransaction): ZkSyncTransaction {
       const transaction = {} as ZkSyncTransaction
-      if (args.type === '0x71') {
-        transaction.type = 'eip712'
-      } else if (args.type === '0xff') {
-        transaction.type = 'priority'
-      }
+      if (args.type === '0x71') transaction.type = 'eip712'
+      else if (args.type === '0xff') transaction.type = 'priority'
       return {
         ...transaction,
         l1BatchNumber: hexToBigInt(args.l1BatchNumber),
@@ -99,13 +93,6 @@ export const formattersZkSync = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    exclude: [
-      'paymaster',
-      'paymasterInput',
-      'customSignature',
-      'gasPerPubdata',
-      'factoryDeps',
-    ],
     format(args: ZkSyncTransactionRequest): ZkSyncRpcTransactionRequest {
       if (
         (args.type === 'eip712' || args.type === 'priority') &&
@@ -113,8 +100,8 @@ export const formattersZkSync = {
           (args.paymaster && args.paymasterInput) ||
           args.factoryDeps ||
           args.customSignature)
-      ) {
-        const request = {
+      )
+        return {
           eip712Meta: {
             ...(args.gasPerPubdata
               ? { gasPerPubdata: toHex(args.gasPerPubdata) }
@@ -134,10 +121,6 @@ export const formattersZkSync = {
           },
           type: args.type === 'eip712' ? '0x71' : '0xff',
         } as ZkSyncRpcTransactionRequest
-
-        return request
-      }
-
       return {} as ZkSyncRpcTransactionRequest
     },
   }),
