@@ -17,7 +17,11 @@ export function extract(
     const keys = Object.keys(formatted)
     for (const key of keys) {
       if (key in value_) value[key] = value_[key]
-      if (formatted[key] && typeof formatted[key] === 'object')
+      if (
+        formatted[key] &&
+        typeof formatted[key] === 'object' &&
+        !Array.isArray(formatted[key])
+      )
         extract_(formatted[key])
     }
   }
