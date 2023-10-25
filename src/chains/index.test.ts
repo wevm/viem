@@ -152,6 +152,7 @@ test('exports chains', () => {
       "zetachainAthensTestnet",
       "zora",
       "zoraTestnet",
+      "zoraSepolia",
     ]
   `)
 })
