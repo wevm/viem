@@ -10,7 +10,7 @@ test('exports', () => {
       "serializersCelo",
       "parseTransactionCelo",
       "formattersOptimism",
-      "formattersZkSync"
+      "formattersZkSync",
     ]
   `)
 })
