@@ -236,11 +236,12 @@ export type ZkSyncTransactionRequestEIP712 = Omit<
   Partial<FeeValuesEIP1559> & {
     gasPerPubdata?: bigint
     customSignature?: Hex
-    paymaster?: Address
-    paymasterInput?: Hex
     factoryDeps?: Hex[]
     type: 'eip712' | 'priority'
-  }
+  } & (
+    | { paymaster: Address; paymasterInput: Hex }
+    | { paymaster?: undefined; paymasterInput?: undefined }
+  )
 
 export type ZkSyncTransactionRequest =
   | TransactionRequest

@@ -124,7 +124,7 @@ export type SendTransactionErrorType =
 export async function sendTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,

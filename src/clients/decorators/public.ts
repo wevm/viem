@@ -859,7 +859,7 @@ export type PublicActions<
    * // { maxFeePerGas: ..., maxPriorityFeePerGas: ... }
    */
   estimateFeesPerGas: <
-    TChainOverride extends Chain | undefined,
+    TChainOverride extends Chain | undefined = undefined,
     TType extends FeeValuesType = 'eip1559',
   >(
     args?: EstimateFeesPerGasParameters<TChain, TChainOverride, TType>,
@@ -1115,7 +1115,9 @@ export type PublicActions<
    * const maxPriorityFeePerGas = await client.estimateMaxPriorityFeePerGas()
    * // 10000000n
    */
-  estimateMaxPriorityFeePerGas: <TChainOverride extends Chain | undefined,>(
+  estimateMaxPriorityFeePerGas: <
+    TChainOverride extends Chain | undefined = undefined,
+  >(
     args?: EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
@@ -1324,7 +1326,9 @@ export type PublicActions<
    *   value: 1n,
    * })
    */
-  prepareTransactionRequest: <TChainOverride extends Chain | undefined,>(
+  prepareTransactionRequest: <
+    TChainOverride extends Chain | undefined = undefined,
+  >(
     args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<PrepareTransactionRequestReturnType>
   /**
@@ -1424,7 +1428,7 @@ export type PublicActions<
   simulateContract: <
     const TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
-    TChainOverride extends Chain | undefined,
+    TChainOverride extends Chain | undefined = undefined,
   >(
     args: SimulateContractParameters<
       TAbi,

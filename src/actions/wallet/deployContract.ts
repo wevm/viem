@@ -67,7 +67,7 @@ export function deployContract<
   const TAbi extends Abi | readonly unknown[],
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   walletClient: Client<Transport, TChain, TAccount>,
   {

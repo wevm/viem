@@ -116,7 +116,7 @@ export async function writeContract<
   TAccount extends Account | undefined,
   const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   {

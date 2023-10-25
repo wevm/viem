@@ -119,7 +119,7 @@ export type PrepareTransactionRequestErrorType =
 export async function prepareTransactionRequest<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
