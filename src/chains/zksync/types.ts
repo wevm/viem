@@ -221,7 +221,7 @@ export type ZkSyncRpcTransaction<TPending extends boolean = boolean> =
 // Transaction Request
 // https://era.zksync.io/docs/reference/concepts/transactions.html
 
-type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
+export type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
   Partial<FeeValuesEIP1559> & {
     gasPerPubdata?: bigint
     customSignature?: Hex
@@ -233,24 +233,20 @@ type ZkSyncTransactionRequestEIP712 = Omit<TransactionRequest, 'type'> &
 
 export type ZkSyncTransactionRequest =
   // Not sure why I need to add the fields with never, but exclude complains if not added.
-  | /*(TransactionRequest & {
-      paymaster: never
-      paymasterInput: never
-      gasPerPubdata: never
-      customSignature: never
-      factoryDeps: never
-    })*/ TransactionRequest
-  | ZkSyncTransactionRequestEIP712
+  TransactionRequest | ZkSyncTransactionRequestEIP712
 
-type RpcTransactionRequestEIP712 = TransactionRequestBase<Quantity, Index> &
+export type RpcTransactionRequestEIP712 = TransactionRequestBase<
+  Quantity,
+  Index
+> &
   Partial<FeeValuesEIP1559<Quantity>> & {
     eip712Meta: Eip712Meta
     type: EIP712Type | PriorityType
   }
 
 export type ZkSyncRpcTransactionRequest =
-  // Not sure why I need to add the fields with never.
-  (RpcTransactionRequest & { eip712Meta: never }) | RpcTransactionRequestEIP712
+  | RpcTransactionRequest
+  | RpcTransactionRequestEIP712
 
 export type ZkSyncTransactionType = TransactionType | 'eip712' | 'priority'
 

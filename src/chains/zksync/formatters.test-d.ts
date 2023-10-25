@@ -32,8 +32,8 @@ describe('block', () => {
     Assign<
       Partial<RpcBlock>,
       {
-        l1BatchNumber: `0x${string}` | null
-        l1BatchTimestamp: `0x${string}` | null
+        l1BatchNumber: `0x${string}`
+        l1BatchTimestamp: `0x${string}`
       } & {
         transactions: `0x${string}`[] | ZkSyncRpcTransaction[]
       }
@@ -54,8 +54,8 @@ describe('transactionReceipt', () => {
       Assign<
         Partial<RpcTransactionReceipt>,
         {
-          l1BatchNumber: `0x${string}` | null
-          l1BatchTxIndex: `0x${string}` | null
+          l1BatchNumber: `0x${string}`
+          l1BatchTxIndex: `0x${string}`
           logs: (RpcLog & {
             l1BatchNumber: `0x${string}`
             transactionLogIndex: `0x${string}`
@@ -83,12 +83,12 @@ describe('transactionReceipt', () => {
     ReturnType<
       typeof formattersZkSync.transactionReceipt.format
     >['l1BatchNumber']
-  >().toEqualTypeOf<bigint | null>()
+  >().toEqualTypeOf<bigint>()
   expectTypeOf<
     ReturnType<
       typeof formattersZkSync.transactionReceipt.format
     >['l1BatchTxIndex']
-  >().toEqualTypeOf<bigint | null>()
+  >().toEqualTypeOf<bigint>()
   expectTypeOf<
     ReturnType<typeof formattersZkSync.transactionReceipt.format>['l2ToL1Logs']
   >().toEqualTypeOf<
@@ -215,8 +215,8 @@ describe('smoke', () => {
       hash: '0xe56c11904d690e1bd41a7e901df609c2dc011d1033415379193ebc4197f32fc6',
     })
 
-    expectTypeOf(transaction.l1BatchTxIndex).toEqualTypeOf<bigint | null>()
-    expectTypeOf(transaction.l1BatchNumber).toEqualTypeOf<bigint | null>()
+    expectTypeOf(transaction.l1BatchTxIndex).toEqualTypeOf<bigint>()
+    expectTypeOf(transaction.l1BatchNumber).toEqualTypeOf<bigint>()
     expectTypeOf(transaction.l2ToL1Logs).toEqualTypeOf<L2ToL1Log[]>()
     expectTypeOf(transaction.logs).toEqualTypeOf<ZkSyncLog[]>()
   })
