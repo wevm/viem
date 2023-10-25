@@ -1,11 +1,11 @@
 import { defineChain } from '../../utils/chain.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
-export const zoraSepoliaTestnet = /*#__PURE__*/ defineChain(
+export const zoraSepolia = /*#__PURE__*/ defineChain(
   {
     id: 999999999,
-    name: 'Zora Sepolia Testnet',
-    network: 'zora-sepolia-testnet',
+    name: 'Zora Sepolia',
+    network: 'zora-sepolia',
     nativeCurrency: {
       decimals: 18,
       name: 'Zora Sepolia',
