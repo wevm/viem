@@ -1,5 +1,13 @@
 # viem
 
+## 1.17.1
+
+### Patch Changes
+
+- [#1391](https://github.com/wagmi-dev/viem/pull/1391) [`437c0e5a`](https://github.com/wagmi-dev/viem/commit/437c0e5a023bc551c35e5a65da6f2a6a2e409bd7) Thanks [@IsabellaSmallcombe](https://github.com/IsabellaSmallcombe)! - Add Zora Sepolia Testnet
+
+- [#1386](https://github.com/wagmi-dev/viem/pull/1386) [`fad9dc12`](https://github.com/wagmi-dev/viem/commit/fad9dc12eef2c7042db75a9ffa8f6e98e9e8f884) Thanks [@POKENA7](https://github.com/POKENA7)! - Added Astar zkEVM testnet zKatana chain.
+
 ## 1.17.0
 
 ### Minor Changes
