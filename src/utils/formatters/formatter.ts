@@ -10,7 +10,7 @@ export function defineFormatter<TType extends string, TParameters, TReturnType>(
   return <
     TOverrideParameters,
     TOverrideReturnType,
-    TExclude extends (keyof TParameters)[] = [],
+    TExclude extends (keyof TParameters | keyof TOverrideParameters)[] = [],
   >({
     exclude,
     format: overrides,

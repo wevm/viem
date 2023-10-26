@@ -36,7 +36,7 @@ export function assertCurrentChain({
 
 export function defineChain<
   const chain extends Chain,
-  formatters extends ChainFormatters,
+  formatters extends ChainFormatters | undefined = undefined,
 >(
   chain: chain,
   config: ChainConfig<formatters> = {},
