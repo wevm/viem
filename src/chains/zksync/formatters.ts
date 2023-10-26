@@ -103,6 +103,13 @@ export const formattersZkSync = {
     },
   }),
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
+    exclude: [
+      'customSignature',
+      'factoryDeps',
+      'gasPerPubdata',
+      'paymaster',
+      'paymasterInput',
+    ],
     format(args: ZkSyncTransactionRequest): ZkSyncRpcTransactionRequest {
       if (
         (args.type === 'eip712' || args.type === 'priority') &&

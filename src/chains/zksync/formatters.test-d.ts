@@ -11,11 +11,7 @@ import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
-import type {
-  RpcBlock,
-  RpcLog,
-  RpcTransactionReceipt,
-} from '../../types/rpc.js'
+import type { RpcBlock, RpcTransactionReceipt } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Assign } from '../../types/utils.js'
 import { sendTransaction } from '../../wallet/index.js'
@@ -26,6 +22,7 @@ import type {
   L2ToL1Log,
   Log as ZkSyncLog,
   ZkSyncRpcTransaction,
+  ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
 } from './types.js'
 
@@ -55,29 +52,7 @@ describe('transactionReceipt', () => {
     .toEqualTypeOf<
       Assign<
         Partial<RpcTransactionReceipt>,
-        {
-          l1BatchNumber: `0x${string}`
-          l1BatchTxIndex: `0x${string}`
-          logs: (RpcLog & {
-            l1BatchNumber: `0x${string}`
-            transactionLogIndex: `0x${string}`
-            logType: `0x${string}` | null
-          })[]
-          l2ToL1Logs: {
-            blockNumber: `0x${string}`
-            blockHash: `0x${string}`
-            l1BatchNumber: `0x${string}`
-            transactionIndex: `0x${string}`
-            shardId: `0x${string}`
-            isService: boolean
-            sender: `0x${string}`
-            key: `0x${string}`
-            value: `0x${string}`
-            transactionHash: `0x${string}`
-            logIndex: `0x${string}`
-          }[]
-          root: `0x${string}`
-        }
+        ZkSyncRpcTransactionReceiptOverrides
       >
     >()
 
@@ -85,12 +60,12 @@ describe('transactionReceipt', () => {
     ReturnType<
       typeof formattersZkSync.transactionReceipt.format
     >['l1BatchNumber']
-  >().toEqualTypeOf<bigint>()
+  >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
     ReturnType<
       typeof formattersZkSync.transactionReceipt.format
     >['l1BatchTxIndex']
-  >().toEqualTypeOf<bigint>()
+  >().toEqualTypeOf<bigint | null>()
   expectTypeOf<
     ReturnType<typeof formattersZkSync.transactionReceipt.format>['l2ToL1Logs']
   >().toEqualTypeOf<
@@ -194,8 +169,8 @@ describe('smoke', () => {
       hash: '0xe56c11904d690e1bd41a7e901df609c2dc011d1033415379193ebc4197f32fc6',
     })
 
-    expectTypeOf(transaction.l1BatchTxIndex).toEqualTypeOf<bigint>()
-    expectTypeOf(transaction.l1BatchNumber).toEqualTypeOf<bigint>()
+    expectTypeOf(transaction.l1BatchTxIndex).toEqualTypeOf<bigint | null>()
+    expectTypeOf(transaction.l1BatchNumber).toEqualTypeOf<bigint | null>()
     expectTypeOf(transaction.l2ToL1Logs).toEqualTypeOf<L2ToL1Log[]>()
     expectTypeOf(transaction.logs).toEqualTypeOf<ZkSyncLog[]>()
   })
