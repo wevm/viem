@@ -18,7 +18,6 @@ import type {
   ZkSyncRpcTransactionRequest,
   ZkSyncTransaction,
   ZkSyncTransactionReceipt,
-  ZkSyncTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
 } from './types.js'
 
@@ -66,7 +65,7 @@ export const formattersZkSync = {
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
     format(
       args: ZkSyncRpcTransactionReceiptOverrides,
-    ): ZkSyncTransactionReceiptOverrides {
+    ): ZkSyncTransactionReceipt {
       return {
         l1BatchNumber: args.l1BatchNumber
           ? hexToBigInt(args.l1BatchNumber)
