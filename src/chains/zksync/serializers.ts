@@ -12,21 +12,18 @@ import {
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
 import type {
-  TransactionSerializedEIP712,
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
+  ZkSyncTransactionSerializedEIP712,
 } from './types.js'
 
 export const serializeTransactionZkSync: SerializeTransactionFn<
   ZkSyncTransactionSerializable
 > = (tx, signature) => {
-  // Handle EIP-712 transactions
   if (isEIP712(tx))
     return serializeTransactionZkSyncEIP712(
       tx as ZkSyncTransactionSerializableEIP712,
     )
-
-  // Handle other transaction types
   return serializeTransaction(tx as TransactionSerializable, signature)
 }
 
@@ -37,12 +34,12 @@ export const serializersZkSync = {
 //////////////////////////////////////////////////////////////////////////////
 // Serializers
 
-export type SerializeTransactionEIP712ReturnType = TransactionSerializedEIP712
+export type SerializeTransactionEIP712ReturnType =
+  ZkSyncTransactionSerializedEIP712
 
 function serializeTransactionZkSyncEIP712(
   transaction: ZkSyncTransactionSerializableEIP712,
 ): SerializeTransactionEIP712ReturnType {
-  assertTransactionEIP712(transaction)
   const {
     chainId,
     gas,
@@ -59,6 +56,8 @@ function serializeTransactionZkSyncEIP712(
     gasPerPubdata,
     data,
   } = transaction
+
+  assertTransactionEIP712(transaction)
 
   // https://github.com/foundry-rs/foundry/issues/4648
   const serializedTransaction = [

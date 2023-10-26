@@ -124,7 +124,7 @@ export type SendTransactionErrorType =
 export async function sendTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
@@ -200,11 +200,12 @@ export async function sendTransaction<
       })
     }
 
-    const format =
-      chain?.formatters?.transactionRequest?.format || formatTransactionRequest
+    const chainFormat = client.chain?.formatters?.transactionRequest?.format
+    const format = chainFormat || formatTransactionRequest
+
     const request = format({
       // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format }),
+      ...extract(rest, { format: chainFormat }),
       accessList,
       data,
       from: account.address,

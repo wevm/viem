@@ -120,7 +120,7 @@ export async function simulateContract<
   TChain extends Chain | undefined,
   const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain>,
   {

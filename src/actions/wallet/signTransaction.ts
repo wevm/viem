@@ -106,7 +106,7 @@ export type SignTransactionErrorType =
 export async function signTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: SignTransactionParameters<TChain, TAccount, TChainOverride>,

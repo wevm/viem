@@ -1,4 +1,5 @@
 import { defineChain } from '../../utils/chain.js'
+import { formattersZkSync } from '../zksync/formatters.js'
 import { serializersZkSync } from '../zksync/serializers.js'
 
 export const zkSync = /*#__PURE__*/ defineChain(
@@ -35,5 +36,6 @@ export const zkSync = /*#__PURE__*/ defineChain(
   },
   {
     serializers: serializersZkSync,
+    formatters: formattersZkSync,
   },
 )
