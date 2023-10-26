@@ -18,9 +18,9 @@ import { sendTransaction } from '../../wallet/index.js'
 import { zkSync, zkSyncTestnet } from '../index.js'
 import { formattersZkSync } from './formatters.js'
 import type {
-  Eip712Meta,
-  L2ToL1Log,
-  Log as ZkSyncLog,
+  ZkSyncEip712Meta,
+  ZkSyncL2ToL1Log,
+  ZkSyncLog,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionReceiptOverrides,
   ZkSyncTransactionRequest,
@@ -127,7 +127,7 @@ describe('transactionRequest', () => {
     >()
   expectTypeOf<
     ReturnType<typeof formattersZkSync.transactionRequest.format>['eip712Meta']
-  >().toEqualTypeOf<Eip712Meta | undefined>()
+  >().toEqualTypeOf<ZkSyncEip712Meta | undefined>()
 })
 
 describe('smoke', () => {
@@ -171,7 +171,7 @@ describe('smoke', () => {
 
     expectTypeOf(transaction.l1BatchTxIndex).toEqualTypeOf<bigint | null>()
     expectTypeOf(transaction.l1BatchNumber).toEqualTypeOf<bigint | null>()
-    expectTypeOf(transaction.l2ToL1Logs).toEqualTypeOf<L2ToL1Log[]>()
+    expectTypeOf(transaction.l2ToL1Logs).toEqualTypeOf<ZkSyncL2ToL1Log[]>()
     expectTypeOf(transaction.logs).toEqualTypeOf<ZkSyncLog[]>()
   })
 

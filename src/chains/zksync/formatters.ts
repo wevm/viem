@@ -9,9 +9,9 @@ import { defineTransaction } from '../../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import type {
-  L2ToL1Log,
-  Log,
   ZkSyncBlockOverrides,
+  ZkSyncL2ToL1Log,
+  ZkSyncLog,
   ZkSyncRpcBlockOverrides,
   ZkSyncRpcTransaction,
   ZkSyncRpcTransactionReceiptOverrides,
@@ -83,7 +83,7 @@ export const formattersZkSync = {
             transactionLogIndex: hexToNumber(log.transactionLogIndex),
             logType: log.logType,
           }
-        }) as Log[],
+        }) as ZkSyncLog[],
         l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
           return {
             blockNumber: hexToBigInt(l2ToL1Log.blockHash),
@@ -98,7 +98,7 @@ export const formattersZkSync = {
             transactionHash: l2ToL1Log.transactionHash,
             logIndex: hexToBigInt(l2ToL1Log.logIndex),
           }
-        }) as L2ToL1Log[],
+        }) as ZkSyncL2ToL1Log[],
       } as ZkSyncTransactionReceipt
     },
   }),
@@ -112,11 +112,10 @@ export const formattersZkSync = {
     ],
     format(args: ZkSyncTransactionRequest): ZkSyncRpcTransactionRequest {
       if (
-        (args.type === 'eip712' || args.type === 'priority') &&
-        (args.gasPerPubdata ||
-          (args.paymaster && args.paymasterInput) ||
-          args.factoryDeps ||
-          args.customSignature)
+        args.gasPerPubdata ||
+        (args.paymaster && args.paymasterInput) ||
+        args.factoryDeps ||
+        args.customSignature
       )
         return {
           eip712Meta: {
