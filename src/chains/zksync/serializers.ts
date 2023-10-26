@@ -77,7 +77,7 @@ function serializeTransactionZkSyncEIP712(
     gasPerPubdata ? toHex(gasPerPubdata) : '0x',
     factoryDeps ?? [],
     customSignature ?? '0x', // EIP712 signature
-    [paymaster ?? '0x', paymasterInput ?? '0x'],
+    paymaster && paymasterInput ? [paymaster, paymasterInput] : [],
   ]
 
   return concatHex([
