@@ -18,11 +18,6 @@ import type {
   CeloTransaction,
   CeloTransactionReceiptOverrides,
   CeloTransactionRequest,
-  RpcTransactionRequestCIP64,
-  TransactionCIP42,
-  TransactionCIP64,
-  TransactionRequestCIP42,
-  TransactionRequestCIP64,
 } from './types.js'
 
 function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
@@ -30,9 +25,7 @@ function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
   if (args.type) return false
   return (
     'feeCurrency' in args &&
-    // @ts-expect-error `gatewayFee` is not defined
     args.gatewayFee === undefined &&
-    // @ts-expect-error `gatewayFeeRecipient` is not defined
     args.gatewayFeeRecipient === undefined
   )
 }
@@ -40,10 +33,7 @@ function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
 function isTransactionRequestCIP42(args: CeloTransactionRequest): boolean {
   if (args.type === 'cip42') return true
   if (args.type) return false
-  return (
-    (args as TransactionRequestCIP42).gatewayFee !== undefined ||
-    (args as TransactionRequestCIP42).gatewayFeeRecipient !== undefined
-  )
+  return args.gatewayFee !== undefined || args.gatewayFeeRecipient !== undefined
 }
 
 export const formattersCelo = {
@@ -80,24 +70,15 @@ export const formattersCelo = {
   }),
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: CeloRpcTransaction): CeloTransaction {
-      switch (args.type) {
-        case '0x7c':
-          return {
-            feeCurrency: args.feeCurrency,
-            gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
-            gatewayFeeRecipient: args.gatewayFeeRecipient,
-          } as TransactionCIP42
-        case '0x7b':
-          return {
-            feeCurrency: args.feeCurrency,
-          } as TransactionCIP64
-        default:
-          return {
-            feeCurrency: args.feeCurrency,
-            gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
-            gatewayFeeRecipient: args.gatewayFeeRecipient,
-          } as CeloTransaction
-      }
+      if (args.type === '0x7b')
+        return {
+          feeCurrency: args.feeCurrency,
+        } as CeloTransaction
+      return {
+        feeCurrency: args.feeCurrency,
+        gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
+        gatewayFeeRecipient: args.gatewayFeeRecipient,
+      } as CeloTransaction
     },
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
@@ -113,33 +94,25 @@ export const formattersCelo = {
   }),
 
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
-    format(args: CeloTransactionRequest) {
-      if (isTransactionRequestCIP64(args)) {
+    format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
+      if (isTransactionRequestCIP64(args))
         return {
           type: '0x7b',
           feeCurrency: args.feeCurrency,
-        } as RpcTransactionRequestCIP64
-      }
-
-      const _args = args as Exclude<
-        CeloTransactionRequest,
-        TransactionRequestCIP64
-      >
+        } as CeloRpcTransactionRequest
 
       const request = {
-        feeCurrency: _args.feeCurrency,
+        feeCurrency: args.feeCurrency,
         gatewayFee:
-          typeof _args.gatewayFee !== 'undefined'
-            ? numberToHex(_args.gatewayFee)
+          typeof args.gatewayFee !== 'undefined'
+            ? numberToHex(args.gatewayFee)
             : undefined,
-        gatewayFeeRecipient: _args.gatewayFeeRecipient,
+        gatewayFeeRecipient: args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
 
-      if (isTransactionRequestCIP42(args)) {
-        request.type = '0x7c'
-      }
+      if (isTransactionRequestCIP42(args)) request.type = '0x7c'
 
-      return request as CeloRpcTransactionRequest
+      return request
     },
   }),
 } as const satisfies ChainFormatters

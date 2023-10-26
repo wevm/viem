@@ -222,6 +222,8 @@ export type TransactionRequestCIP64 = TransactionRequestBase &
   Partial<FeeValuesEIP1559> & {
     accessList?: AccessList
     feeCurrency?: Address
+    gatewayFee?: undefined
+    gatewayFeeRecipient?: undefined
     type?: 'cip64'
   }
 
