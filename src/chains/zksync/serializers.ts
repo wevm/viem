@@ -12,9 +12,9 @@ import {
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
 import type {
-  TransactionSerializableEIP712,
   TransactionSerializedEIP712,
   ZkSyncTransactionSerializable,
+  ZkSyncTransactionSerializableEIP712,
 } from './types.js'
 
 export const serializeTransactionZkSync: SerializeTransactionFn<
@@ -22,7 +22,7 @@ export const serializeTransactionZkSync: SerializeTransactionFn<
 > = (tx, signature) => {
   // Handle EIP-712 transactions
   if (isEIP712(tx))
-    return serializeTransactionEIP712(tx as TransactionSerializableEIP712)
+    return serializeTransactionEIP712(tx as ZkSyncTransactionSerializableEIP712)
 
   // Handle other transaction types
   return serializeTransaction(tx as TransactionSerializable, signature)
@@ -39,7 +39,7 @@ export type SerializeTransactionEIP712ReturnType = TransactionSerializedEIP712
 
 // TODO: This is ZkSync specific
 function serializeTransactionEIP712(
-  transaction: TransactionSerializableEIP712,
+  transaction: ZkSyncTransactionSerializableEIP712,
 ): SerializeTransactionEIP712ReturnType {
   assertTransactionEIP712(transaction)
   const {
@@ -63,7 +63,7 @@ function serializeTransactionEIP712(
   const serializedTransaction = [
     nonce ? toHex(nonce) : '0x',
     maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
-    toHex(maxFeePerGas),
+    maxFeePerGas ? toHex(maxFeePerGas) : '0x',
     gas ? toHex(gas) : '0x',
     to ?? '0x',
     value ? toHex(value) : '0x',
@@ -90,19 +90,18 @@ function serializeTransactionEIP712(
 
 function isEIP712(transaction: ZkSyncTransactionSerializable) {
   if (
-    'maxFeePerGas' in transaction &&
-    'maxPriorityFeePerGas' in transaction &&
-    'customSignature' in transaction &&
-    (('paymaster' in transaction && 'paymasterInput' in transaction) ||
-      'gasPerPubdata' in transaction ||
-      'factoryDeps' in transaction)
+    'customSignature' in transaction ||
+    'paymaster' in transaction ||
+    'paymasterInput' in transaction ||
+    'gasPerPubdata' in transaction ||
+    'factoryDeps' in transaction
   )
     return true
   return false
 }
 
 export function assertTransactionEIP712(
-  transaction: TransactionSerializableEIP712,
+  transaction: ZkSyncTransactionSerializableEIP712,
 ) {
   const { chainId, to, from, paymaster, paymasterInput } = transaction
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
