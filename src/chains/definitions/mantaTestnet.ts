@@ -14,8 +14,14 @@ export const mantaTestnet = /*#__PURE__*/ defineChain({
     public: { http: ['https://manta-testnet.calderachain.xyz/http'] },
   },
   blockExplorers: {
-    etherscan: { name: 'Manta Testnet Explorer', url: 'https://pacific-explorer.testnet.manta.network' },
-    default: { name: 'Manta Testnet Explorer', url: 'https://pacific-explorer.testnet.manta.network' },
+    etherscan: {
+      name: 'Manta Testnet Explorer',
+      url: 'https://pacific-explorer.testnet.manta.network',
+    },
+    default: {
+      name: 'Manta Testnet Explorer',
+      url: 'https://pacific-explorer.testnet.manta.network',
+    },
   },
   contracts: {
     multicall3: {
