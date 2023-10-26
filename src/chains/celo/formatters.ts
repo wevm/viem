@@ -25,10 +25,8 @@ import type {
   TransactionRequestCIP64,
 } from './types.js'
 
-function isTransactionOrRequestCIP64(
-  args: CeloTransactionRequest | CeloRpcTransaction,
-): boolean {
-  if (args.type === 'cip64' || args.type === '0x7b') return true
+function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
+  if (args.type === 'cip64') return true
   if (args.type) return false
   return (
     'feeCurrency' in args &&
@@ -39,10 +37,8 @@ function isTransactionOrRequestCIP64(
   )
 }
 
-function isTransactionOrRequestCIP42(
-  args: CeloTransactionRequest | CeloRpcTransaction,
-): boolean {
-  if (args.type === 'cip42' || args.type === '0x7c') return true
+function isTransactionRequestCIP42(args: CeloTransactionRequest): boolean {
+  if (args.type === 'cip42') return true
   if (args.type) return false
   return (
     (args as TransactionRequestCIP42).gatewayFee !== undefined ||
@@ -118,7 +114,7 @@ export const formattersCelo = {
 
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest) {
-      if (isTransactionOrRequestCIP64(args)) {
+      if (isTransactionRequestCIP64(args)) {
         return {
           type: '0x7b',
           feeCurrency: args.feeCurrency,
@@ -139,7 +135,7 @@ export const formattersCelo = {
         gatewayFeeRecipient: _args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
 
-      if (isTransactionOrRequestCIP42(args)) {
+      if (isTransactionRequestCIP42(args)) {
         request.type = '0x7c'
       }
 
