@@ -127,7 +127,6 @@ describe('block', () => {
             type: '0x71',
             maxFeePerGas: '0xee6b280',
             maxPriorityFeePerGas: '0xee6b280',
-            chainId: '0x144',
             l1BatchNumber: '0x239',
             l1BatchTxIndex: '0x154',
           },
