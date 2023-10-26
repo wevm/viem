@@ -305,8 +305,6 @@ export type ZkSyncTransactionSerializableEIP712<
   TQuantity = bigint,
   TIndex = number,
 > = Omit<TransactionSerializableEIP1559<TQuantity, TIndex>, 'type'> & {
-  // I know this property is omited in the other types, but we need
-  // this for the serializer.
   from: Hex
   gasPerPubdata?: bigint
   paymaster?: Address

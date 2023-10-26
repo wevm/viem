@@ -59,7 +59,6 @@ function serializeTransactionZkSyncEIP712(
 
   assertTransactionEIP712(transaction)
 
-  // https://github.com/foundry-rs/foundry/issues/4648
   const serializedTransaction = [
     nonce ? toHex(nonce) : '0x',
     maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
