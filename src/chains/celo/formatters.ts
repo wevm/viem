@@ -25,8 +25,10 @@ import type {
   TransactionRequestCIP64,
 } from './types.js'
 
-function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
-  if (args.type === 'cip64') return true
+function isTransactionOrRequestCIP64(
+  args: CeloTransactionRequest | CeloRpcTransaction,
+): boolean {
+  if (args.type === 'cip64' || args.type === '0x7b') return true
   if (args.type) return false
   return (
     'feeCurrency' in args &&
@@ -37,8 +39,10 @@ function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
   )
 }
 
-function isTransactionRequestCIP42(args: CeloTransactionRequest): boolean {
-  if (args.type === 'cip42') return true
+function isTransactionOrRequestCIP42(
+  args: CeloTransactionRequest | CeloRpcTransaction,
+): boolean {
+  if (args.type === 'cip42' || args.type === '0x7c') return true
   if (args.type) return false
   return (
     (args as TransactionRequestCIP42).gatewayFee !== undefined ||
@@ -62,7 +66,7 @@ export const formattersCelo = {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
 
-          ...(transaction.type === '0x7c'
+          ...(transaction.type !== '0x7b'
             ? {
                 gatewayFee: transaction.gatewayFee
                   ? hexToBigInt(transaction.gatewayFee)
@@ -114,16 +118,18 @@ export const formattersCelo = {
 
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest) {
-      if (isTransactionRequestCIP64(args)) {
+      if (isTransactionOrRequestCIP64(args)) {
         return {
           type: '0x7b',
           feeCurrency: args.feeCurrency,
         } as RpcTransactionRequestCIP64
       }
+
       const _args = args as Exclude<
         CeloTransactionRequest,
         TransactionRequestCIP64
       >
+
       const request = {
         feeCurrency: _args.feeCurrency,
         gatewayFee:
@@ -132,8 +138,12 @@ export const formattersCelo = {
             : undefined,
         gatewayFeeRecipient: _args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
-      if (isTransactionRequestCIP42(_args)) request.type = '0x7c'
-      return request
+
+      if (isTransactionOrRequestCIP42(args)) {
+        request.type = '0x7c'
+      }
+
+      return request as CeloRpcTransactionRequest
     },
   }),
 } as const satisfies ChainFormatters

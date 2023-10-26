@@ -177,7 +177,7 @@ describe('block', () => {
             "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
             "gas": 431136n,
             "gasPrice": undefined,
-            "gatewayFee": "0x0",
+            "gatewayFee": 0n,
             "gatewayFeeRecipient": null,
             "hash": "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
             "input": "0x389ec778",
@@ -237,30 +237,30 @@ describe('block', () => {
 
     const { extraData: _extraData, transactions, ...rest } = block
     expect(transactions[0]).toMatchInlineSnapshot(`
-      {
-        "blockHash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
-        "blockNumber": 16645775n,
-        "chainId": undefined,
-        "ethCompatible": false,
-        "feeCurrency": null,
-        "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
-        "gas": 1527520n,
-        "gasPrice": 562129081n,
-        "gatewayFee": "0x0",
-        "gatewayFeeRecipient": null,
-        "hash": "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
-        "input": "0x389ec778",
-        "nonce": 714820,
-        "r": "0x1c0c8776e2e9d97b9a95435d2c2439d5f634e1afc35a5a0f0bd02093dd4724e0",
-        "s": "0xde418ff749f2430a85e60a4b3f81af9f8e2117cffbe32c719b9b784c01be774",
-        "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
-        "transactionIndex": 0,
-        "type": "legacy",
-        "typeHex": "0x0",
-        "v": 84476n,
-        "value": 0n,
-      }
-    `)
+        {
+          "blockHash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
+          "blockNumber": 16645775n,
+          "chainId": undefined,
+          "ethCompatible": false,
+          "feeCurrency": null,
+          "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
+          "gas": 1527520n,
+          "gasPrice": 562129081n,
+          "gatewayFee": 0n,
+          "gatewayFeeRecipient": null,
+          "hash": "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
+          "input": "0x389ec778",
+          "nonce": 714820,
+          "r": "0x1c0c8776e2e9d97b9a95435d2c2439d5f634e1afc35a5a0f0bd02093dd4724e0",
+          "s": "0xde418ff749f2430a85e60a4b3f81af9f8e2117cffbe32c719b9b784c01be774",
+          "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
+          "transactionIndex": 0,
+          "type": "legacy",
+          "typeHex": "0x0",
+          "v": 84476n,
+          "value": 0n,
+        }
+      `)
     expect(rest).toMatchInlineSnapshot(`
         {
           "baseFeePerGas": null,
