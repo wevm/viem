@@ -22,7 +22,9 @@ export const serializeTransactionZkSync: SerializeTransactionFn<
 > = (tx, signature) => {
   // Handle EIP-712 transactions
   if (isEIP712(tx))
-    return serializeTransactionEIP712(tx as ZkSyncTransactionSerializableEIP712)
+    return serializeTransactionZkSyncEIP712(
+      tx as ZkSyncTransactionSerializableEIP712,
+    )
 
   // Handle other transaction types
   return serializeTransaction(tx as TransactionSerializable, signature)
@@ -37,8 +39,7 @@ export const serializersZkSync = {
 
 export type SerializeTransactionEIP712ReturnType = TransactionSerializedEIP712
 
-// TODO: This is ZkSync specific
-function serializeTransactionEIP712(
+function serializeTransactionZkSyncEIP712(
   transaction: ZkSyncTransactionSerializableEIP712,
 ): SerializeTransactionEIP712ReturnType {
   assertTransactionEIP712(transaction)
