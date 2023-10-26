@@ -1,5 +1,13 @@
 # viem
 
+## 1.17.2
+
+### Patch Changes
+
+- [#1399](https://github.com/wagmi-dev/viem/pull/1399) [`210e2b94`](https://github.com/wagmi-dev/viem/commit/210e2b943d6d04ab130151dfdb5a94e590e42fd4) Thanks [@codespool](https://github.com/codespool)! - Added multicall3 contract to astarZkatana
+
+- [#1395](https://github.com/wagmi-dev/viem/pull/1395) [`1e206f46`](https://github.com/wagmi-dev/viem/commit/1e206f460ad21e2525bfc28ef89fd524b1dfaf2e) Thanks [@linchengzzz](https://github.com/linchengzzz)! - Added Manta Pacific Mainnet & Testnet
+
 ## 1.17.1
 
 ### Patch Changes
