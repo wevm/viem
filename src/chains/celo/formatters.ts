@@ -20,6 +20,22 @@ import type {
   CeloTransactionRequest,
 } from './types.js'
 
+function isTransactionRequestCIP64(args: CeloTransactionRequest): boolean {
+  if (args.type === 'cip64') return true
+  if (args.type) return false
+  return (
+    'feeCurrency' in args &&
+    args.gatewayFee === undefined &&
+    args.gatewayFeeRecipient === undefined
+  )
+}
+
+function isTransactionRequestCIP42(args: CeloTransactionRequest): boolean {
+  if (args.type === 'cip42') return true
+  if (args.type) return false
+  return args.gatewayFee !== undefined || args.gatewayFeeRecipient !== undefined
+}
+
 export const formattersCelo = {
   block: /*#__PURE__*/ defineBlock({
     exclude: ['difficulty', 'gasLimit', 'mixHash', 'nonce', 'uncles'],
@@ -35,10 +51,15 @@ export const formattersCelo = {
         return {
           ...formatTransaction(transaction as RpcTransaction),
           feeCurrency: transaction.feeCurrency,
-          gatewayFee: transaction.gatewayFee
-            ? hexToBigInt(transaction.gatewayFee)
-            : null,
-          gatewayFeeRecipient: transaction.gatewayFeeRecipient,
+
+          ...(transaction.type !== '0x7b'
+            ? {
+                gatewayFee: transaction.gatewayFee
+                  ? hexToBigInt(transaction.gatewayFee)
+                  : null,
+                gatewayFeeRecipient: transaction.gatewayFeeRecipient || null,
+              }
+            : {}),
         }
       }) as Hash[] | CeloTransaction[]
       return {
@@ -49,6 +70,10 @@ export const formattersCelo = {
   }),
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: CeloRpcTransaction): CeloTransaction {
+      if (args.type === '0x7b')
+        return {
+          feeCurrency: args.feeCurrency,
+        } as CeloTransaction
       return {
         feeCurrency: args.feeCurrency,
         gatewayFee: args.gatewayFee ? hexToBigInt(args.gatewayFee) : null,
@@ -67,8 +92,15 @@ export const formattersCelo = {
       }
     },
   }),
+
   transactionRequest: /*#__PURE__*/ defineTransactionRequest({
     format(args: CeloTransactionRequest): CeloRpcTransactionRequest {
+      if (isTransactionRequestCIP64(args))
+        return {
+          type: '0x7b',
+          feeCurrency: args.feeCurrency,
+        } as CeloRpcTransactionRequest
+
       const request = {
         feeCurrency: args.feeCurrency,
         gatewayFee:
@@ -77,7 +109,9 @@ export const formattersCelo = {
             : undefined,
         gatewayFeeRecipient: args.gatewayFeeRecipient,
       } as CeloRpcTransactionRequest
-      if (args.type === 'cip42') request.type = '0x7c'
+
+      if (isTransactionRequestCIP42(args)) request.type = '0x7c'
+
       return request
     },
   }),
