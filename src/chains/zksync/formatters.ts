@@ -54,8 +54,12 @@ export const formattersZkSync = {
       else if (args.type === '0xff') transaction.type = 'priority'
       return {
         ...transaction,
-        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
-        l1BatchTxIndex: hexToBigInt(args.l1BatchTxIndex),
+        l1BatchNumber: args.l1BatchNumber
+          ? hexToBigInt(args.l1BatchNumber)
+          : null,
+        l1BatchTxIndex: args.l1BatchTxIndex
+          ? hexToBigInt(args.l1BatchTxIndex)
+          : null,
       } as ZkSyncTransaction
     },
   }),
@@ -64,12 +68,18 @@ export const formattersZkSync = {
       args: ZkSyncRpcTransactionReceiptOverrides,
     ): ZkSyncTransactionReceiptOverrides {
       return {
-        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
-        l1BatchTxIndex: hexToBigInt(args.l1BatchTxIndex),
+        l1BatchNumber: args.l1BatchNumber
+          ? hexToBigInt(args.l1BatchNumber)
+          : null,
+        l1BatchTxIndex: args.l1BatchTxIndex
+          ? hexToBigInt(args.l1BatchTxIndex)
+          : null,
         logs: args.logs.map((log) => {
           return {
             ...formatLog(log),
-            l1BatchNumber: hexToBigInt(log.l1BatchNumber),
+            l1BatchNumber: log.l1BatchNumber
+              ? hexToBigInt(log.l1BatchNumber)
+              : null,
             transactionLogIndex: hexToNumber(log.transactionLogIndex),
             logType: log.logType,
           }

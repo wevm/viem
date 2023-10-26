@@ -46,7 +46,7 @@ export type Log<
 }
 
 export type RpcLog = RpcLog_ & {
-  l1BatchNumber: Hex
+  l1BatchNumber: Hex | null
   // These are returned but doesn't apear in Log structure neither is mentioned in https://era.zksync.io/docs/api/js/types.html
   transactionLogIndex: Hex
   logType: Hex | null
@@ -140,8 +140,8 @@ export type ZkSyncRpcBlock<
 // https://era.zksync.io/docs/api/js/types.html#transactionresponse
 
 type TransactionOverrides = {
-  l1BatchNumber: bigint
-  l1BatchTxIndex: bigint
+  l1BatchNumber: bigint | null
+  l1BatchTxIndex: bigint | null
 }
 
 type TransactionPriority<TPending extends boolean = boolean> = TransactionBase<
@@ -276,8 +276,8 @@ export type ZkSyncRpcTransactionReceiptOverrides = {
 }
 
 export type ZkSyncTransactionReceiptOverrides = {
-  l1BatchNumber: bigint
-  l1BatchTxIndex: bigint
+  l1BatchNumber: bigint | null
+  l1BatchTxIndex: bigint | null
   logs: Log[]
   l2ToL1Logs: L2ToL1Log[]
 }
