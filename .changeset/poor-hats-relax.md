@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Manta Pacific Mainnet && Testnet
+Added Manta Pacific Mainnet & Testnet
