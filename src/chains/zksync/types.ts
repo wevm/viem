@@ -1,4 +1,10 @@
-import type { Abi, AbiEvent, Address } from 'abitype'
+import type { Abi, AbiEvent, Address, TypedDataDomain } from 'abitype'
+import type { ChainFormatters } from '~viem/index.js'
+import type {
+  ChainConfig,
+  ChainConstants,
+  ChainFormatter,
+} from '~viem/types/chain.js'
 import type { Block, BlockTag } from '../../types/block.js'
 import type { FeeValuesEIP1559 } from '../../types/fee.js'
 import type { Log as Log_ } from '../../types/log.js'
@@ -21,10 +27,12 @@ import type {
   TransactionRequestBase,
   TransactionSerializable,
   TransactionSerializableEIP1559,
+  TransactionSerializableGeneric,
   TransactionSerialized,
   TransactionType,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import { isEIP712 } from './serializers.js'
 
 type EIP712Type = '0x71'
 type PriorityType = '0xff'
@@ -314,4 +322,96 @@ export type ZkSyncTransactionSerializableEIP712<
   paymasterInput?: Hex
   customSignature?: Hex
   type?: 'eip712'
+}
+
+// EIP712 Signer
+
+export type ZkSyncEIP712TransactionToSign = {
+  txType: bigint
+  from: bigint
+  to: bigint
+  gasLimit: bigint
+  gasPerPubdataByteLimit: bigint
+  maxFeePerGas: bigint
+  maxPriorityFeePerGas: bigint
+  paymaster: bigint
+  nonce: bigint
+  value: bigint
+  data: Hex
+  factoryDeps: Hex[]
+  paymasterInput: Hex
+}
+
+type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'
+type EIP712Field = { name: string; type: EIP712FieldType }
+
+// Maybe it is the same as SignTypedDataParameters?
+export type EIP712Domain<TransactionToSign> = {
+  domain: TypedDataDomain
+  types: Record<string, EIP712Field[]>
+  primaryType: string
+  message: TransactionToSign
+}
+
+// Used to define the EIP712signer field in the chain.
+export type EIP712DomainFn<
+  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
+  TransactionToSign = {},
+> = (transaction: TTransactionSerializable) => EIP712Domain<TransactionToSign>
+
+export type TransactionRequestEIP712<
+  TQuantity = bigint,
+  TIndex = number,
+  TTransactionType = 'eip712',
+> = TransactionRequestBase<TQuantity, TIndex> &
+  Partial<FeeValuesEIP1559<TQuantity>> & {
+    accessList?: never
+    gasPerPubdata?: bigint
+    factoryDeps?: Hex[]
+    paymaster?: Address
+    paymasterInput?: Hex
+    customSignature?: Hex
+    type?: TTransactionType
+  }
+
+export type ChainEIP712<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = ChainConstants & ChainConfigEIP712<formatters>
+
+export type ChainConfigEIP712<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+> = ChainConfig & {
+  /** Return EIP712 Domain for EIP712 transaction */
+  eip712domain?: ChainEIP712Domain<formatters> | undefined
+}
+
+export type ChainEIP712Domain<
+  formatters extends ChainFormatters | undefined = undefined,
+  TransactionToSign = {},
+> = {
+  /** Retrieve EIP712 Domain to generate custom signature. */
+  eip712domain?: EIP712DomainFn<
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable,
+    TransactionToSign
+  >
+  /** Check if it is a EIP712 transaction */
+  isEip712Domain?: (
+    transaction: formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable,
+  ) => boolean
+}
+
+export function isEip712Transaction(
+  transaction: TransactionSerializable,
+): boolean {
+  return isEIP712(transaction)
 }

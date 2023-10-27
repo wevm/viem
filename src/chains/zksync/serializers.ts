@@ -64,7 +64,7 @@ function serializeTransactionEIP712(
     gas ? toHex(gas) : '0x',
     to ?? '0x',
     value ? toHex(value) : '0x',
-    data ?? '0x',
+    data ?? '0x01', //data must be even number of digits
     toHex(chainId),
     toHex(''),
     toHex(''),
@@ -85,13 +85,13 @@ function serializeTransactionEIP712(
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
 
-function isEIP712(transaction: ZkSyncTransactionSerializable) {
+export function isEIP712(transaction: ZkSyncTransactionSerializable) {
   if (
-    'customSignature' in transaction ||
-    'paymaster' in transaction ||
-    'paymasterInput' in transaction ||
-    'gasPerPubdata' in transaction ||
-    'factoryDeps' in transaction
+    ('customSignature' in transaction && transaction.customSignature) ||
+    ('paymaster' in transaction && transaction.paymaster) ||
+    ('paymasterInput' in transaction && transaction.paymasterInput) ||
+    ('gasPerPubdata' in transaction && transaction.gasPerPubdata) ||
+    ('factoryDeps' in transaction && transaction.factoryDeps)
   )
     return true
   return false

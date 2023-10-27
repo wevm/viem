@@ -76,6 +76,17 @@ export default defineConfig({
     nav: [
       { text: 'Docs', link: '/docs/getting-started', activeMatch: '/docs' },
       {
+        activeMatch: '/zksync',
+        text: 'Extensions',
+        items: [
+          {
+            activeMatch: '/zksync',
+            text: 'zkSync',
+            link: '/zksync',
+          },
+        ],
+      },
+      {
         activeMatch: '/op-stack',
         text: 'Extensions',
         items: [
