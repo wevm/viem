@@ -318,6 +318,7 @@ test('exports', () => {
       "concatHex",
       "assertCurrentChain",
       "defineChain",
+      "extractChain",
       "getChainContractAddress",
       "encodePacked",
       "formatEther",

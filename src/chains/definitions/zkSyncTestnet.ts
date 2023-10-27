@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 import { formattersZkSync } from '../zksync/formatters.js'
 import { serializersZkSync } from '../zksync/serializers.js'
 

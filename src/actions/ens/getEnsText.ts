@@ -19,7 +19,7 @@ import {
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from '../../utils/chain.js'
+} from '../../utils/chain/getChainContractAddress.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'

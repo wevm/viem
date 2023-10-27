@@ -25,7 +25,7 @@ import {
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from '../../utils/chain.js'
+} from '../../utils/chain/getChainContractAddress.js'
 import {
   type GetContractErrorReturnType,
   getContractError,

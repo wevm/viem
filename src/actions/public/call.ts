@@ -37,7 +37,7 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from '../../utils/chain.js'
+} from '../../utils/chain/getChainContractAddress.js'
 import {
   type NumberToHexErrorType,
   numberToHex,
