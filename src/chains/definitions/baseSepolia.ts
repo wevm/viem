@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
 export const baseSepolia = /*#__PURE__*/ defineChain(

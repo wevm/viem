@@ -646,6 +646,15 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Chain',
+          items: [
+            {
+              text: 'extractChain',
+              link: '/docs/utilities/extractChain',
+            },
+          ],
+        },
+        {
           text: 'Data',
           items: [
             {

@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const evmos = /*#__PURE__*/ defineChain({
   id: 9_001,

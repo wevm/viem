@@ -22,7 +22,7 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
-} from '../../utils/chain.js'
+} from '../../utils/chain/assertCurrentChain.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
