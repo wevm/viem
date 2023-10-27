@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 
 import type { Hash, Hex } from './misc.js'
 import type { Transaction } from './transaction.js'
+import type { Withdrawal } from './withdrawal.js'
 
 export type Block<
   TQuantity = bigint,
@@ -56,6 +57,10 @@ export type Block<
   transactionsRoot: Hash
   /** List of uncle hashes */
   uncles: Hash[]
+  /** List of withdrawal objects */
+  withdrawals?: Withdrawal[]
+  /** Root of the this block’s withdrawals trie */
+  withdrawalsRoot?: Hex
 }
 
 export type BlockIdentifier<TQuantity = bigint> = {

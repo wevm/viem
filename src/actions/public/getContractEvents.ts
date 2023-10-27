@@ -13,6 +13,7 @@ import {
   type GetAbiItemParameters,
   getAbiItem,
 } from '../../utils/abi/getAbiItem.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type GetLogsErrorType,
   type GetLogsParameters,
@@ -130,7 +131,10 @@ export async function getContractEvents<
   const events = !event
     ? (abi as Abi).filter((x) => x.type === 'event')
     : undefined
-  return getLogs(client, {
+  return getAction(
+    client,
+    getLogs,
+  )({
     address,
     args,
     blockHash,

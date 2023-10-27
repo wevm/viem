@@ -26,6 +26,7 @@ export default async function () {
   // handled in `setup.ts` but may require additional resetting (e.g. via `afterAll`), in case of
   // any custom per-test adjustments that persist beyond `anvil_reset`.
   return await startProxy({
+    port: Number(process.env.VITE_ANVIL_PORT || '8545'),
     options: {
       forkUrl,
       forkBlockNumber,

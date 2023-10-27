@@ -1,4 +1,4 @@
-import { WebSocket } from 'isomorphic-ws'
+import { WebSocket } from 'isows'
 
 import { assertType, describe, expect, test } from 'vitest'
 

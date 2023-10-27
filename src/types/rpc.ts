@@ -7,6 +7,7 @@ import type {
 } from './block.js'
 import type { FeeHistory, FeeValues } from './fee.js'
 import type { Log } from './log.js'
+import type { Proof } from './proof.js'
 import type {
   TransactionEIP1559,
   TransactionEIP2930,
@@ -34,6 +35,7 @@ export type RpcUncle = Uncle<Quantity>
 export type RpcFeeHistory = FeeHistory<Quantity>
 export type RpcFeeValues = FeeValues<Quantity>
 export type RpcLog = Log<Quantity, Index>
+export type RpcProof = Proof<Quantity, Index>
 export type RpcTransactionReceipt = TransactionReceipt<
   Quantity,
   Index,

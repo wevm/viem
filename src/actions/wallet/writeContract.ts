@@ -16,6 +16,7 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type SendTransactionErrorType,
   type SendTransactionParameters,
@@ -115,7 +116,7 @@ export async function writeContract<
   TAccount extends Account | undefined,
   const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   {
@@ -138,7 +139,10 @@ export async function writeContract<
     args,
     functionName,
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
-  const hash = await sendTransaction(client, {
+  const hash = await getAction(
+    client,
+    sendTransaction,
+  )({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,

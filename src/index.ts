@@ -435,6 +435,7 @@ export {
 } from './clients/transports/fallback.js'
 export {
   type HttpTransport,
+  type HttpTransportConfig,
   type HttpTransportErrorType,
   http,
 } from './clients/transports/http.js'
@@ -886,6 +887,7 @@ export type {
   Hex,
   LogTopic,
   Signature,
+  CompactSignature,
   SignableMessage,
 } from './types/misc.js'
 export type { GetChain } from './types/chain.js'
@@ -947,6 +949,7 @@ export type {
   RpcTransactionRequest,
   RpcUncle,
 } from './types/rpc.js'
+export type { Withdrawal } from './types/withdrawal.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {
@@ -1078,6 +1081,14 @@ export {
   hashTypedData,
 } from './utils/signature/hashTypedData.js'
 export {
+  type CompactSignatureToSignatureErrorType,
+  compactSignatureToSignature,
+} from './utils/signature/compactSignatureToSignature.js'
+export {
+  type HexToCompactSignatureErrorType,
+  hexToCompactSignature,
+} from './utils/signature/hexToCompactSignature.js'
+export {
   type HexToSignatureErrorType,
   hexToSignature,
 } from './utils/signature/hexToSignature.js'
@@ -1105,6 +1116,14 @@ export {
   type RecoverTypedDataAddressReturnType,
   recoverTypedDataAddress,
 } from './utils/signature/recoverTypedDataAddress.js'
+export {
+  type SignatureToCompactSignatureErrorType,
+  signatureToCompactSignature,
+} from './utils/signature/signatureToCompactSignature.js'
+export {
+  type CompactSignatureToHexErrorType,
+  compactSignatureToHex,
+} from './utils/signature/compactSignatureToHex.js'
 export {
   type SignatureToHexErrorType,
   signatureToHex,
@@ -1214,11 +1233,19 @@ export {
 export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
-  type GetChainContractAddressErrorType,
   assertCurrentChain,
-  defineChain,
+} from './utils/chain/assertCurrentChain.js'
+export { defineChain } from './utils/chain/defineChain.js'
+export {
+  type ExtractChainErrorType,
+  type ExtractChainParameters,
+  type ExtractChainReturnType,
+  extractChain,
+} from './utils/chain/extractChain.js'
+export {
+  type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from './utils/chain.js'
+} from './utils/chain/getChainContractAddress.js'
 export {
   type EncodePackedErrorType,
   encodePacked,

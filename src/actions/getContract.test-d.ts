@@ -13,6 +13,8 @@ import { wagmiContractConfig } from '~test/src/abis.js'
 import { localHttpUrl } from '~test/src/constants.js'
 import { anvilChain, publicClient } from '~test/src/utils.js'
 import type { Account } from '../accounts/types.js'
+import { celo } from '../chains/index.js'
+import { createPublicClient } from '../clients/createPublicClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Chain } from '../types/chain.js'
@@ -830,4 +832,54 @@ test('estimateGas', () => {
   // `account` inherited from `walletClient`
   contract4.estimateGas.mint()
   contract4.estimateGas.approve(['0x', 123n])
+})
+
+test('chain w/ formatter', () => {
+  const publicClient = createPublicClient({
+    chain: celo,
+    transport: http(),
+  })
+  const walletClient = createWalletClient({
+    chain: celo,
+    transport: http(),
+  })
+
+  const contract = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+    walletClient,
+  })
+  const contract_public = getContract({
+    ...wagmiContractConfig,
+    publicClient,
+  })
+  const contract_wallet = getContract({
+    ...wagmiContractConfig,
+    walletClient,
+  })
+
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<
+    | 'createEventFilter'
+    | 'estimateGas'
+    | 'read'
+    | 'simulate'
+    | 'getEvents'
+    | 'watchEvent'
+    | 'write'
+    | 'address'
+    | 'abi'
+  >()
+  expectTypeOf<keyof typeof contract_public>().toEqualTypeOf<
+    | 'createEventFilter'
+    | 'estimateGas'
+    | 'read'
+    | 'simulate'
+    | 'getEvents'
+    | 'watchEvent'
+    | 'address'
+    | 'abi'
+  >()
+  expectTypeOf<keyof typeof contract_wallet>().toEqualTypeOf<
+    'estimateGas' | 'write' | 'address' | 'abi'
+  >()
 })

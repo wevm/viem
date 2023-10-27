@@ -25,7 +25,6 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 
-import * as call from './call.js'
 import { simulateContract } from './simulateContract.js'
 
 describe('wagmi', () => {
@@ -158,14 +157,14 @@ describe('wagmi', () => {
 })
 
 test('args: dataSuffix', async () => {
-  const spy = vi.spyOn(call, 'call')
+  const spy = vi.spyOn(publicClient, 'call')
   const { request } = await simulateContract(publicClient, {
     ...wagmiContractConfig,
     account: accounts[0].address,
     functionName: 'mint',
     dataSuffix: '0x12345678',
   })
-  expect(spy).toHaveBeenCalledWith(publicClient, {
+  expect(spy).toHaveBeenCalledWith({
     account: accounts[0].address,
     batch: false,
     data: '0x1249c58b12345678',

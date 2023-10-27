@@ -15,13 +15,22 @@ export {
 } from './ccip.js'
 
 export {
-  type AssertCurrentChainParameters,
   type AssertCurrentChainErrorType,
-  type GetChainContractAddressErrorType,
+  type AssertCurrentChainParameters,
   assertCurrentChain,
-  defineChain,
+} from './chain/assertCurrentChain.js'
+export { defineChain } from './chain/defineChain.js'
+export {
+  type ExtractChainErrorType,
+  type ExtractChainParameters,
+  type ExtractChainReturnType,
+  extractChain,
+} from './chain/extractChain.js'
+export {
+  type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from './chain.js'
+} from './chain/getChainContractAddress.js'
+
 export { arrayRegex, bytesRegex, integerRegex } from './regex.js'
 
 export {

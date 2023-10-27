@@ -536,6 +536,6 @@ const { result } = await publicClient.simulateContract({
 
 ## Live Example
 
-Check out the usage of `simulateContract` in the live [Writing to Contracts Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts) below.
+Check out the usage of `simulateContract` in the live [Writing to Contracts Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_writing-to-contracts) below.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts/writing-to-contracts?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/contracts_writing-to-contracts?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

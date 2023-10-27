@@ -9,13 +9,14 @@ import type { Prettify } from '../../types/utils.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from '../../utils/chain.js'
+} from '../../utils/chain/getChainContractAddress.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import {
   type PacketToBytesErrorType,
   packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type ReadContractErrorType,
   type ReadContractParameters,
@@ -91,7 +92,10 @@ export async function getEnsName<TChain extends Chain | undefined>(
 
   const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
   try {
-    const res = await readContract(client, {
+    const res = await getAction(
+      client,
+      readContract,
+    )({
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
       functionName: 'reverse',

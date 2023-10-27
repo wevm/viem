@@ -1,5 +1,137 @@
 # viem
 
+## 1.17.2
+
+### Patch Changes
+
+- [#1399](https://github.com/wagmi-dev/viem/pull/1399) [`210e2b94`](https://github.com/wagmi-dev/viem/commit/210e2b943d6d04ab130151dfdb5a94e590e42fd4) Thanks [@codespool](https://github.com/codespool)! - Added multicall3 contract to astarZkatana
+
+- [#1395](https://github.com/wagmi-dev/viem/pull/1395) [`1e206f46`](https://github.com/wagmi-dev/viem/commit/1e206f460ad21e2525bfc28ef89fd524b1dfaf2e) Thanks [@linchengzzz](https://github.com/linchengzzz)! - Added Manta Pacific Mainnet & Testnet
+
+## 1.17.1
+
+### Patch Changes
+
+- [#1391](https://github.com/wagmi-dev/viem/pull/1391) [`437c0e5a`](https://github.com/wagmi-dev/viem/commit/437c0e5a023bc551c35e5a65da6f2a6a2e409bd7) Thanks [@IsabellaSmallcombe](https://github.com/IsabellaSmallcombe)! - Add Zora Sepolia Testnet
+
+- [#1386](https://github.com/wagmi-dev/viem/pull/1386) [`fad9dc12`](https://github.com/wagmi-dev/viem/commit/fad9dc12eef2c7042db75a9ffa8f6e98e9e8f884) Thanks [@POKENA7](https://github.com/POKENA7)! - Added Astar zkEVM testnet zKatana chain.
+
+## 1.17.0
+
+### Minor Changes
+
+- [#1382](https://github.com/wagmi-dev/viem/pull/1382) [`5ac4a631`](https://github.com/wagmi-dev/viem/commit/5ac4a6316edb4076287fcb3c571066c39a917995) Thanks [@jxom](https://github.com/jxom)! - Added ability for Actions (i.e. `readContract`) to infer their internal/dependant Actions (i.e. `call`) from the optionally extended Client.
+
+  For instance, if an extended Client has overridden the `call` Action, then the `readContract` Action will use that instead of Viem's internal `call` Action.
+
+### Patch Changes
+
+- [#1377](https://github.com/wagmi-dev/viem/pull/1377) [`592f03eb`](https://github.com/wagmi-dev/viem/commit/592f03eb3c4d9a3e23716682e0acf8cfa4e65106) Thanks [@okalenyk](https://github.com/okalenyk)! - Added `multicall3` contract to `modeTestnet` chain.
+
+## 1.16.6
+
+### Patch Changes
+
+- [#1356](https://github.com/wagmi-dev/viem/pull/1356) [`0da9f886`](https://github.com/wagmi-dev/viem/commit/0da9f886124cea8f8e2f557de68bd94b96e53ac8) Thanks [@AmaxJ](https://github.com/AmaxJ)! - Removed trailing slash from arbiscan goerli blockexplorer url
+
+- [`36ec87da`](https://github.com/wagmi-dev/viem/commit/36ec87da7f614f5c6ca9e632eb27f8d8d1bbfcdf) Thanks [@jxom](https://github.com/jxom)! - Modified `getAddresses` to be compatible with Local Accounts.
+
+## 1.16.5
+
+### Patch Changes
+
+- [#1347](https://github.com/wagmi-dev/viem/pull/1347) [`541bd152`](https://github.com/wagmi-dev/viem/commit/541bd1528d3fb43edfd713e3dd89f30803a37f97) Thanks [@lukasrosario](https://github.com/lukasrosario)! - Added Base Sepolia
+
+- [#1339](https://github.com/wagmi-dev/viem/pull/1339) [`b7ddaf61`](https://github.com/wagmi-dev/viem/commit/b7ddaf61d6a392a8fa6f4550afa505f75c31eca4) Thanks [@jxom](https://github.com/jxom)! - Fixed topics mismatch in `decodeEventLogs` strict mode.
+
+- [`b6aace90`](https://github.com/wagmi-dev/viem/commit/b6aace909c8f27c49a393813e2569b98a72083ca) Thanks [@jxom](https://github.com/jxom)! - Fixed `chainId` assignment in `signTransaction` action.
+
+## 1.16.4
+
+### Patch Changes
+
+- [#1334](https://github.com/wagmi-dev/viem/pull/1334) [`4862acc5`](https://github.com/wagmi-dev/viem/commit/4862acc51ee86ceddfa55b21bb55667cf10e86a8) Thanks [@izayl](https://github.com/izayl)! - Added Scroll chain
+
+## 1.16.3
+
+### Patch Changes
+
+- [`1e13ae83`](https://github.com/wagmi-dev/viem/commit/1e13ae83194da4ca6d829dfd63dd84b11719f497) Thanks [@jxom](https://github.com/jxom)! - Updated holesky RPC URLs.
+
+- [#1330](https://github.com/wagmi-dev/viem/pull/1330) [`05a3784a`](https://github.com/wagmi-dev/viem/commit/05a3784a1587cc811fb15cb5b177bf90e123a5a1) Thanks [@holic](https://github.com/holic)! - Fixed `TransactionReceipt['logs']` type.
+
+## 1.16.2
+
+### Patch Changes
+
+- [#1325](https://github.com/wagmi-dev/viem/pull/1325) [`e9a54192`](https://github.com/wagmi-dev/viem/commit/e9a54192c5a52db1c0452b08192171bc9304bec7) Thanks [@avasisht23](https://github.com/avasisht23)! - Exported `HttpTransportConfig`.
+
+- [`c445acee`](https://github.com/wagmi-dev/viem/commit/c445acee5a3e3a4121521b7e289a9afd882b7400) Thanks [@jxom](https://github.com/jxom)! - Added `fetchOptions` to `http` transport return value.
+
+## 1.16.1
+
+### Patch Changes
+
+- [`fda328d2`](https://github.com/wagmi-dev/viem/commit/fda328d26b86f5e2a2d56c898db12eea4e0e1e94) Thanks [@jxom](https://github.com/jxom)! - Updated `isows`.
+
+## 1.16.0
+
+### Minor Changes
+
+- [#1316](https://github.com/wagmi-dev/viem/pull/1316) [`ae5c03ad`](https://github.com/wagmi-dev/viem/commit/ae5c03ada92968a6835705fd8017e0a687947152) Thanks [@jxom](https://github.com/jxom)! - Added `getProof`.
+
+- [`d27e9943`](https://github.com/wagmi-dev/viem/commit/d27e994361180579fc8e6328ade3dbaf26963803) Thanks [@jxom](https://github.com/jxom)! - Added `withdrawals` & `withdrawalsRoot` to `Block` type.
+
+## 1.15.5
+
+### Patch Changes
+
+- [#1312](https://github.com/wagmi-dev/viem/pull/1312) [`d7cff6a3`](https://github.com/wagmi-dev/viem/commit/d7cff6a368e3934874c5be406354226e9f786d38) Thanks [@jxom](https://github.com/jxom)! - Migrated to [isows](https://github.com/wagmi-dev/isows).
+
+## 1.15.4
+
+### Patch Changes
+
+- [#1297](https://github.com/wagmi-dev/viem/pull/1297) [`aaaff980`](https://github.com/wagmi-dev/viem/commit/aaaff980569f5e8681a41737531d02fb97c3b788) Thanks [@jxom](https://github.com/jxom)! - Added `null` as a valid value on `TransactionRequestBase['to']` type.
+
+- [#1295](https://github.com/wagmi-dev/viem/pull/1295) [`a46a52a7`](https://github.com/wagmi-dev/viem/commit/a46a52a71fbd0e904ce74b0f46683801489bc208) Thanks [@akshatmittal](https://github.com/akshatmittal)! - Added Infura Endpoints for Base
+
+## 1.15.3
+
+### Patch Changes
+
+- [`1b159096`](https://github.com/wagmi-dev/viem/commit/1b159096e9727d626410feb58fa6f95a29ba1e9f) Thanks [@jxom](https://github.com/jxom)! - Added ignore glob for snapshots.
+
+## 1.15.2
+
+### Patch Changes
+
+- [`fddaf719`](https://github.com/wagmi-dev/viem/commit/fddaf719ac320b8e025693ee9a06815639f95034) Thanks [@jxom](https://github.com/jxom)! - Fixed `getContract` types.
+
+## 1.15.1
+
+### Patch Changes
+
+- [`a9f07e80`](https://github.com/wagmi-dev/viem/commit/a9f07e80cacb76433c8ece683f8177a138ef1810) Thanks [@jxom](https://github.com/jxom)! - Removed `type` from `package.json`.
+
+## 1.15.0
+
+### Minor Changes
+
+- [#1260](https://github.com/wagmi-dev/viem/pull/1260) [`408ebf49`](https://github.com/wagmi-dev/viem/commit/408ebf49f852ae87438946ae24425cd631c722c5) Thanks [@izayl](https://github.com/izayl)! - Added utilities for EIP-2098 Compact Signatures:
+  - `compactSignatureToHex`,
+  - `compactSignatureToSignature`,
+  - `hexToCompactSignature`,
+  - `signatureToCompactSignature`
+
+### Patch Changes
+
+- [#1273](https://github.com/wagmi-dev/viem/pull/1273) [`822bc222`](https://github.com/wagmi-dev/viem/commit/822bc2223d95db51e94b226bca0be468ed5150c7) Thanks [@LiorAgnin](https://github.com/LiorAgnin)! - Updated Fuse RPC URL & added multicall3 contract address.
+
+- [#1277](https://github.com/wagmi-dev/viem/pull/1277) [`ba7a7465`](https://github.com/wagmi-dev/viem/commit/ba7a7465621585412875d5f28699db2d4b6a59c8) Thanks [@witem](https://github.com/witem)! - Removed `type` field from `package.json`
+
+- [#1278](https://github.com/wagmi-dev/viem/pull/1278) [`220d211f`](https://github.com/wagmi-dev/viem/commit/220d211fa92ca667d0b8e432071ead27df682d96) Thanks [@jaybuidl](https://github.com/jaybuidl)! - Added Arbitrum Sepolia chain.
+
 ## 1.14.0
 
 ### Minor Changes

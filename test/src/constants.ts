@@ -85,9 +85,17 @@ if (process.env.VITE_ANVIL_BLOCK_TIME) {
   warn(`\`VITE_ANVIL_BLOCK_TIME\` not found. Falling back to \`${blockTime}\`.`)
 }
 
+export let anvilPort: number
+if (process.env.VITE_ANVIL_PORT) {
+  anvilPort = Number(process.env.VITE_ANVIL_PORT)
+} else {
+  anvilPort = 8545
+  warn(`\`VITE_ANVIL_PORT\` not found. Falling back to \`${anvilPort}\`.`)
+}
+
 export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
-export const localHttpUrl = `http://127.0.0.1:8545/${poolId}`
-export const localWsUrl = `ws://127.0.0.1:8545/${poolId}`
+export const localHttpUrl = `http://127.0.0.1:${anvilPort}/${poolId}`
+export const localWsUrl = `ws://127.0.0.1:${anvilPort}/${poolId}`
 
 export const typedData = {
   basic: {

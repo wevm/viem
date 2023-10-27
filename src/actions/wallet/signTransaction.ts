@@ -21,12 +21,13 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
-} from '../../utils/chain.js'
+} from '../../utils/chain/assertCurrentChain.js'
 import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import { numberToHex } from '../../utils/index.js'
 import {
   type AssertRequestErrorType,
@@ -105,7 +106,7 @@ export type SignTransactionErrorType =
 export async function signTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
@@ -127,7 +128,7 @@ export async function signTransaction<
     ...args,
   })
 
-  const chainId = await getChainId(client)
+  const chainId = await getAction(client, getChainId)({})
   if (chain !== null)
     assertCurrentChain({
       currentChainId: chainId,
@@ -141,8 +142,8 @@ export async function signTransaction<
   if (account.type === 'local')
     return account.signTransaction(
       {
-        chainId,
         ...transaction,
+        chainId,
       } as unknown as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>

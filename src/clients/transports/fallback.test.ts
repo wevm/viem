@@ -51,6 +51,7 @@ test('default', () => {
             },
             "request": [Function],
             "value": {
+              "fetchOptions": undefined,
               "url": "https://alchemy.com/rpc",
             },
           },
@@ -66,6 +67,7 @@ test('default', () => {
             },
             "request": [Function],
             "value": {
+              "fetchOptions": undefined,
               "url": "https://infura.com/rpc",
             },
           },
@@ -444,6 +446,7 @@ describe('client', () => {
               },
               "request": [Function],
               "value": {
+                "fetchOptions": undefined,
                 "url": "https://alchemy.com/rpc",
               },
             },
@@ -459,6 +462,7 @@ describe('client', () => {
               },
               "request": [Function],
               "value": {
+                "fetchOptions": undefined,
                 "url": "https://infura.com/rpc",
               },
             },

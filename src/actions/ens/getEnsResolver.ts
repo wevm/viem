@@ -8,12 +8,13 @@ import type { Prettify } from '../../types/utils.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from '../../utils/chain.js'
+} from '../../utils/chain/getChainContractAddress.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import {
   type PacketToBytesErrorType,
   packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type ReadContractParameters,
   readContract,
@@ -87,7 +88,10 @@ export async function getEnsResolver<TChain extends Chain | undefined>(
     })
   }
 
-  const [resolverAddress] = await readContract(client, {
+  const [resolverAddress] = await getAction(
+    client,
+    readContract,
+  )({
     address: universalResolverAddress,
     abi: [
       {
