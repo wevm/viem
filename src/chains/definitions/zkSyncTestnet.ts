@@ -1,4 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+import { signZkSync } from '../zksync/eip712signers.js'
 import { formattersZkSync } from '../zksync/formatters.js'
 import { serializersZkSync } from '../zksync/serializers.js'
 
@@ -34,5 +35,6 @@ export const zkSyncTestnet = /*#__PURE__*/ defineChain(
   {
     serializers: serializersZkSync,
     formatters: formattersZkSync,
+    eip712signers: signZkSync,
   },
 )

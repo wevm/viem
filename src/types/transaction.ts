@@ -232,3 +232,11 @@ export type TransactionSerializable<TQuantity = bigint, TIndex = number> =
   | TransactionSerializableEIP2930<TQuantity, TIndex>
   | TransactionSerializableEIP1559<TQuantity, TIndex>
   | TransactionSerializableGeneric<TQuantity, TIndex>
+
+//export TransactionEIP712
+// Similar to TransactionSerializableBase but we don't want the signature, at least in "json-rpc" account type.
+// On local mode we need to be able to sign with a private key.
+export type TransactionSignerBase<TQuantity = bigint, TIndex = number> = Omit<
+  TransactionRequestBase<TQuantity, TIndex>,
+  'from'
+>

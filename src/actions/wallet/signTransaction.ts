@@ -34,6 +34,7 @@ import {
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
+import { signTypedData } from './signTypedData.js'
 
 export type SignTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -138,6 +139,33 @@ export async function signTransaction<
   const formatters = chain?.formatters || client.chain?.formatters
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
+
+  // ---
+  // We need a way to fill the custom signature before signing the transaction.
+  // This need to be sloted between sendTransaction and signTransaction.
+
+  // We need a better way to check this, probably improve how EIP712 type are detected.
+  // One of the ways is to instead of have all fields in the "root" of the transaction,
+  // we can have the eip712Meta field, and every transaction with this is marked as
+  // type: 'eip712' and need to be signed with typed data previous to sign the
+  // transaction.
+  if (
+    transaction.customSignature !== undefined &&
+    client.chain?.eip712signers?.transaction
+  ) {
+    const eip712Domain = client.chain?.eip712signers?.transaction(transaction)
+    console.log('eip712domain')
+    console.log(eip712Domain)
+
+    // TODO: Check if is local, if is we can sign it here directly
+    // using the private key.
+
+    const customSignature = await signTypedData(client, eip712Domain)
+    console.log(`CustomSignature: ${customSignature}`)
+
+    transaction.customSignature = customSignature
+  }
+  // ---
 
   if (account.type === 'local')
     return account.signTransaction(

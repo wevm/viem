@@ -9,6 +9,7 @@ import type { FeeValuesType } from '../types/fee.js'
 import type {
   TransactionSerializable,
   TransactionSerializableGeneric,
+  TransactionSignerBase,
 } from '../types/transaction.js'
 import type { IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
@@ -98,6 +99,8 @@ export type ChainConfig<
   serializers?: ChainSerializers<formatters> | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters> | undefined
+  /** Modifies how EIP712 transactions are signed */
+  eip712signers?: ChainEIP712Signers<formatters> | undefined
 }
 
 export type ChainFees<
@@ -155,6 +158,20 @@ export type ChainSerializers<
     formatters extends ChainFormatters
       ? formatters['transactionRequest'] extends ChainFormatter
         ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable
+  >
+}
+
+export type ChainEIP712Signers<
+  formatters extends ChainFormatters | undefined = undefined,
+> = {
+  /** Modifies how Transactions are serialized. */
+  transaction?: SerializeTransactionFn<
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSignerBase &
             Parameters<formatters['transactionRequest']['format']>[0]
         : TransactionSerializable
       : TransactionSerializable

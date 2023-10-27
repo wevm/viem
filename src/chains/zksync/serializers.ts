@@ -87,7 +87,7 @@ function serializeTransactionZkSyncEIP712(
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
 
-function isEIP712(transaction: ZkSyncTransactionSerializable) {
+export function isEIP712(transaction: ZkSyncTransactionSerializable) {
   if (
     'customSignature' in transaction ||
     'paymaster' in transaction ||
