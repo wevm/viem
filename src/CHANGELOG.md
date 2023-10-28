@@ -1,5 +1,17 @@
 # viem
 
+## 1.18.0
+
+### Minor Changes
+
+- [#1402](https://github.com/wagmi-dev/viem/pull/1402) [`09778291`](https://github.com/wagmi-dev/viem/commit/0977829160effbe7dac5a69f43d263605544fa19) Thanks [@jxom](https://github.com/jxom)! - Added `extractChain` utility.
+
+- [#1388](https://github.com/wagmi-dev/viem/pull/1388) [`d872061d`](https://github.com/wagmi-dev/viem/commit/d872061d1c6a791142027e59e39cfa44d9780631) Thanks [@speeddragon](https://github.com/speeddragon)! - Added ZkSync serializers
+
+- [#1379](https://github.com/wagmi-dev/viem/pull/1379) [`fb395900`](https://github.com/wagmi-dev/viem/commit/fb3959009ad79a258316389e29d917869d23ff5e) Thanks [@yerdua](https://github.com/yerdua)! - Added support for Celo CIP-64 transactions
+
+- [#1361](https://github.com/wagmi-dev/viem/pull/1361) [`70593019`](https://github.com/wagmi-dev/viem/commit/70593019d364a230a7cec87c2832e2135d8fedb8) Thanks [@speeddragon](https://github.com/speeddragon)! - Added ZkSync formatters.
+
 ## 1.17.2
 
 ### Patch Changes
