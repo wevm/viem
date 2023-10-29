@@ -207,7 +207,7 @@ If you're interested in contributing, please read the [contributing docs](/.gith
 
 ## Authors
 
-- [@jxom](https://github.com/jxom) (jxom.eth, [Twitter](https://twitter.com/jakemoxey))
+- [@jxom](https://github.com/jxom) (jxom.eth, [Twitter](https://twitter.com/_jxom))
 - [@tmm](https://github.com/tmm) (awkweb.eth, [Twitter](https://twitter.com/awkweb))
 
 ## License
