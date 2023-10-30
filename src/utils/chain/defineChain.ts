@@ -1,5 +1,5 @@
-import type { Assign, Prettify } from '~viem/types/utils.js'
 import type { Chain, ChainFormatters } from '../../types/chain.js'
+import type { Assign, Prettify } from '../../types/utils.js'
 
 export function defineChain<
   formatters extends ChainFormatters,

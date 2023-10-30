@@ -69,7 +69,7 @@ export const zora = defineChain({
 
 ## Chain Configuration
 
-You can optionally pass a second parameter to `defineChain` to set configuration such as: fees, formatters, and transaction serializers.
+You can optionally pass options to `defineChain` to set configuration such as: fees, formatters, and transaction serializers.
 
 ### Fees
 
@@ -91,19 +91,17 @@ The fee multiplier to use to account for fee fluctuations. Used in the [`estimat
 ```ts
 import { defineChain } from 'viem'
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:10]
-    fees: {
-      baseFeeMultiplier: 1.2,
-      // or
-      async baseFeeMultiplier({ block, request }) {
-        // some async work
-        return // ...
-      }
-    }
-  }
-)
+const example = defineChain({ 
+  /* ... */
+  fees: { // [!code focus:8]
+    baseFeeMultiplier: 1.2,
+    // or
+    async baseFeeMultiplier({ block, request }) {
+      // some async work
+      return // ...
+    },
+  },
+})
 ```
 
 #### `fees.defaultPriorityFee`
@@ -123,19 +121,17 @@ Also overrides the return value in the [`estimateMaxPriorityFeePerGas` Action](/
 ```ts
 import { defineChain } from 'viem'
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:9]
-    fees: {
-      defaultPriorityFee: parseGwei('0.01'),
-      // or
-      async defaultPriorityFee({ block, request }) {
-        // some async work
-        return // ...
-      }
-    }
-  }
-)
+const example = defineChain({
+  /* ... */
+  fees: { // [!code focus:8]
+    defaultPriorityFee: parseGwei('0.01'),
+    // or
+    async defaultPriorityFee({ block, request }) {
+      // some async work
+      return // ...
+    },
+  },
+})
 ```
 
 #### `fees.estimateFeesPerGas`
@@ -157,24 +153,22 @@ Also overrides the return value in [`estimateFeesPerGas`](/docs/actions/public/e
 ```ts
 import { defineChain } from 'viem'
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:14]
-    fees: {
-      async estimateFeesPerGas({ client, multiply, type }) {
-        const gasPrice = // ...
-        const baseFeePerGas = // ...
-        const maxPriorityFeePerGas = // ...
+const example = defineChain({
+  /* ... */
+  fees: { // [!code focus:13]
+    async estimateFeesPerGas({ client, multiply, type }) {
+      const gasPrice = // ...
+      const baseFeePerGas = // ...
+      const maxPriorityFeePerGas = // ...
 
-        if (type === 'legacy') return { gasPrice: multiply(gasPrice) }
-        return {
-          maxFeePerGas: multiply(baseFeePerGas) + maxPriorityFeePerGas,
-          maxPriorityFeePerGas
-        }
-      }
-    }
-  }
-)
+      if (type === 'legacy') return { gasPrice: multiply(gasPrice) }
+      return {
+        maxFeePerGas: multiply(baseFeePerGas) + maxPriorityFeePerGas,
+        maxPriorityFeePerGas
+      },
+    },
+  },
+})
 ```
 
 ### Formatters
@@ -199,21 +193,19 @@ type BlockOverrides = {
   secondaryFee: bigint
 }
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:12]
-    formatters: {
-      block: defineBlock({
-        exclude: ['difficulty'],
-        format(args: RpcBlockOverrides): BlockOverrides {
-          return {
-            secondaryFee: hexToBigInt(args.secondaryFee)
-          }
+const example = defineChain({
+  /* ... */
+  formatters: { // [!code focus:10]
+    block: defineBlock({
+      exclude: ['difficulty'],
+      format(args: RpcBlockOverrides): BlockOverrides {
+        return {
+          secondaryFee: hexToBigInt(args.secondaryFee)
         }
-      })
-    }
-  }
-)
+      },
+    }),
+  },
+})
 
 const block = await client.getBlock() // [!code focus:2]
 //    ^? { ..., difficulty: never, secondaryFee: bigint, ... }
@@ -235,21 +227,19 @@ type TransactionOverrides = {
   mint: bigint
 }
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:12]
-    formatters: {
-      transaction: defineTransaction({
-        exclude: ['gasPrice'],
-        format(args: RpcTransactionOverrides): TransactionOverrides {
-          return {
-            mint: hexToBigInt(args.mint)
-          }
+const example = defineChain({
+  /* ... */
+  formatters: { // [!code focus:10]
+    transaction: defineTransaction({
+      exclude: ['gasPrice'],
+      format(args: RpcTransactionOverrides): TransactionOverrides {
+        return {
+          mint: hexToBigInt(args.mint)
         }
-      })
-    }
-  }
-)
+      },
+    }),
+  },
+})
 
 const transaction = await client.getTransaction({ hash: '0x...' }) // [!code focus:2]
 //    ^? { ..., gasPrice: never, mint: bigint, ... }
@@ -271,22 +261,20 @@ type TransactionReceiptOverrides = {
   l1Fee: bigint
 }
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:12]
-    formatters: {
-      transactionReceipt: defineTransactionReceipt({
-        exclude: ['effectiveGasPrice'],
-        format(args: RpcTransactionReceiptOverrides): 
-          TransactionReceiptOverrides {
-          return {
-            l1Fee: hexToBigInt(args.l1Fee)
-          }
+const example = defineChain({
+  /* ... */
+  formatters: { // [!code focus:11]
+    transactionReceipt: defineTransactionReceipt({
+      exclude: ['effectiveGasPrice'],
+      format(args: RpcTransactionReceiptOverrides): 
+        TransactionReceiptOverrides {
+        return {
+          l1Fee: hexToBigInt(args.l1Fee)
         }
-      })
-    }
-  }
-)
+      },
+    }),
+  },
+})
 
 const receipt = await client.getTransactionReceipt({ hash: '0x...' }) // [!code focus:2]
 //    ^? { ..., effectiveGasPrice: never, l1Fee: bigint, ... }
@@ -308,22 +296,20 @@ type TransactionRequestOverrides = {
   secondaryFee: bigint
 }
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:12]
-    formatters: {
-      transactionRequest: defineTransactionRequest({
-        exclude: ['effectiveGasPrice'],
-        format(args: TransactionRequestOverrides): 
-          RpcTransactionRequestOverrides {
-          return {
-            secondaryFee: numberToHex(args.secondaryFee)
-          }
+const example = defineChain({
+  /* ... */
+  formatters: { // [!code focus:11]
+    transactionRequest: defineTransactionRequest({
+      exclude: ['effectiveGasPrice'],
+      format(args: TransactionRequestOverrides): 
+        RpcTransactionRequestOverrides {
+        return {
+          secondaryFee: numberToHex(args.secondaryFee)
         }
-      })
-    }
-  }
-)
+      },
+    }),
+  },
+})
 
 const receipt = await client.getTransactionReceipt({ hash: '0x...' }) // [!code focus:2]
 //    ^? { ..., effectiveGasPrice: never, l1Fee: bigint, ... }
@@ -345,16 +331,14 @@ You can modify how Transactions are serialized by using the `serializers.transac
 ```ts
 import { defineChain, serializeTransaction } from 'viem'
 
-const example = defineChain(
-  { /* ... */ },
-  { // [!code focus:7]
-    serializers: {
-      transaction(transaction, signature) {
-        return serializeTransaction(transaction, signature)
-      }
-    }
-  }
-)
+const example = defineChain({
+  /* ... */
+  serializers: { // [!code focus:5]
+    transaction(transaction, signature) {
+      return serializeTransaction(transaction, signature)
+    },
+  },
+})
 ```
 
 ## Utilities

@@ -85,6 +85,7 @@ test('sends transaction (w/ formatter)', async () => {
     formatters: {
       transactionRequest: celo.formatters!.transactionRequest,
     },
+    serializers: undefined,
   })
 
   expect(
