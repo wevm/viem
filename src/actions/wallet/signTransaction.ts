@@ -21,7 +21,7 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
-} from '../../utils/chain.js'
+} from '../../utils/chain/assertCurrentChain.js'
 import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
 import {
   type FormattedTransactionRequest,
@@ -106,7 +106,7 @@ export type SignTransactionErrorType =
 export async function signTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: SignTransactionParameters<TChain, TAccount, TChainOverride>,

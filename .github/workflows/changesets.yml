@@ -42,7 +42,10 @@ jobs:
     name: Release
     needs: verify
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       - name: Clone repository

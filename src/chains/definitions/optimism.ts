@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 import { formattersOptimism } from '../optimism/formatters.js'
 
 export const optimism = /*#__PURE__*/ defineChain(

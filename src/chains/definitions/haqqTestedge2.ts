@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const haqqTestedge2 = /*#__PURE__*/ defineChain({
   id: 54211,

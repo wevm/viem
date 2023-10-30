@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 import { formattersCelo } from '../celo/formatters.js'
 import { serializersCelo } from '../celo/serializers.js'
 

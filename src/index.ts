@@ -1247,11 +1247,19 @@ export {
 export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
-  type GetChainContractAddressErrorType,
   assertCurrentChain,
-  defineChain,
+} from './utils/chain/assertCurrentChain.js'
+export { defineChain } from './utils/chain/defineChain.js'
+export {
+  type ExtractChainErrorType,
+  type ExtractChainParameters,
+  type ExtractChainReturnType,
+  extractChain,
+} from './utils/chain/extractChain.js'
+export {
+  type GetChainContractAddressErrorType,
   getChainContractAddress,
-} from './utils/chain.js'
+} from './utils/chain/getChainContractAddress.js'
 export {
   type EncodePackedErrorType,
   encodePacked,

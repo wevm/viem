@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const thunderTestnet = /*#__PURE__*/ defineChain({
   id: 997,

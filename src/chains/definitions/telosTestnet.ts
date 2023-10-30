@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const telosTestnet = /*#__PURE__*/ defineChain({
   id: 41,

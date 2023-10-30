@@ -1,5 +1,45 @@
 # viem
 
+## 1.18.0
+
+### Minor Changes
+
+- [#1402](https://github.com/wagmi-dev/viem/pull/1402) [`09778291`](https://github.com/wagmi-dev/viem/commit/0977829160effbe7dac5a69f43d263605544fa19) Thanks [@jxom](https://github.com/jxom)! - Added `extractChain` utility.
+
+- [#1388](https://github.com/wagmi-dev/viem/pull/1388) [`d872061d`](https://github.com/wagmi-dev/viem/commit/d872061d1c6a791142027e59e39cfa44d9780631) Thanks [@speeddragon](https://github.com/speeddragon)! - Added ZkSync serializers
+
+- [#1379](https://github.com/wagmi-dev/viem/pull/1379) [`fb395900`](https://github.com/wagmi-dev/viem/commit/fb3959009ad79a258316389e29d917869d23ff5e) Thanks [@yerdua](https://github.com/yerdua)! - Added support for Celo CIP-64 transactions
+
+- [#1361](https://github.com/wagmi-dev/viem/pull/1361) [`70593019`](https://github.com/wagmi-dev/viem/commit/70593019d364a230a7cec87c2832e2135d8fedb8) Thanks [@speeddragon](https://github.com/speeddragon)! - Added ZkSync formatters.
+
+## 1.17.2
+
+### Patch Changes
+
+- [#1399](https://github.com/wagmi-dev/viem/pull/1399) [`210e2b94`](https://github.com/wagmi-dev/viem/commit/210e2b943d6d04ab130151dfdb5a94e590e42fd4) Thanks [@codespool](https://github.com/codespool)! - Added multicall3 contract to astarZkatana
+
+- [#1395](https://github.com/wagmi-dev/viem/pull/1395) [`1e206f46`](https://github.com/wagmi-dev/viem/commit/1e206f460ad21e2525bfc28ef89fd524b1dfaf2e) Thanks [@linchengzzz](https://github.com/linchengzzz)! - Added Manta Pacific Mainnet & Testnet
+
+## 1.17.1
+
+### Patch Changes
+
+- [#1391](https://github.com/wagmi-dev/viem/pull/1391) [`437c0e5a`](https://github.com/wagmi-dev/viem/commit/437c0e5a023bc551c35e5a65da6f2a6a2e409bd7) Thanks [@IsabellaSmallcombe](https://github.com/IsabellaSmallcombe)! - Add Zora Sepolia Testnet
+
+- [#1386](https://github.com/wagmi-dev/viem/pull/1386) [`fad9dc12`](https://github.com/wagmi-dev/viem/commit/fad9dc12eef2c7042db75a9ffa8f6e98e9e8f884) Thanks [@POKENA7](https://github.com/POKENA7)! - Added Astar zkEVM testnet zKatana chain.
+
+## 1.17.0
+
+### Minor Changes
+
+- [#1382](https://github.com/wagmi-dev/viem/pull/1382) [`5ac4a631`](https://github.com/wagmi-dev/viem/commit/5ac4a6316edb4076287fcb3c571066c39a917995) Thanks [@jxom](https://github.com/jxom)! - Added ability for Actions (i.e. `readContract`) to infer their internal/dependant Actions (i.e. `call`) from the optionally extended Client.
+
+  For instance, if an extended Client has overridden the `call` Action, then the `readContract` Action will use that instead of Viem's internal `call` Action.
+
+### Patch Changes
+
+- [#1377](https://github.com/wagmi-dev/viem/pull/1377) [`592f03eb`](https://github.com/wagmi-dev/viem/commit/592f03eb3c4d9a3e23716682e0acf8cfa4e65106) Thanks [@okalenyk](https://github.com/okalenyk)! - Added `multicall3` contract to `modeTestnet` chain.
+
 ## 1.16.6
 
 ### Patch Changes
