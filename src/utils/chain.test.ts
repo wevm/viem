@@ -2,11 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { mainnet, optimism, polygon } from '../chains/index.js'
 
-import {
-  assertCurrentChain,
-  defineChain,
-  getChainContractAddress,
-} from './chain.js'
+import { assertCurrentChain, getChainContractAddress } from './chain.js'
 
 describe('assertCurrentChain', () => {
   test('matching chains', () => {
@@ -54,42 +50,6 @@ describe('assertCurrentChain', () => {
 
     Version: viem@1.0.2"
   `)
-  })
-})
-
-describe('defineChain', () => {
-  test('default', () => {
-    expect(
-      defineChain({
-        id: 42220,
-        name: 'Celo',
-
-        nativeCurrency: { name: 'Celo', symbol: 'CELO', decimals: 18 },
-        rpcUrls: {
-          default: { http: ['https://rpc.ankr.com/celo'] },
-        },
-      }),
-    ).toMatchInlineSnapshot(`
-      {
-        "fees": undefined,
-        "formatters": undefined,
-        "id": 42220,
-        "name": "Celo",
-        "nativeCurrency": {
-          "decimals": 18,
-          "name": "Celo",
-          "symbol": "CELO",
-        },
-        "rpcUrls": {
-          "default": {
-            "http": [
-              "https://rpc.ankr.com/celo",
-            ],
-          },
-        },
-        "serializers": undefined,
-      }
-    `)
   })
 })
 

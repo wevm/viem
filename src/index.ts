@@ -398,7 +398,6 @@ export type {
 } from './actions/wallet/writeContract.js'
 export type {
   Chain,
-  ChainConfig,
   ChainContract,
   ChainFees,
   ChainFeesFnParameters,

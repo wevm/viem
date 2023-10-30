@@ -7,13 +7,7 @@ import {
   type ChainNotFoundErrorType,
 } from '../errors/chain.js'
 import type { ErrorType } from '../errors/utils.js'
-import type {
-  Chain,
-  ChainConfig,
-  ChainContract,
-  ChainFormatters,
-} from '../types/chain.js'
-import type { Assign, Prettify } from '../types/utils.js'
+import type { Chain, ChainContract } from '../types/chain.js'
 
 export type AssertCurrentChainParameters = {
   chain?: Chain
@@ -32,26 +26,6 @@ export function assertCurrentChain({
   if (!chain) throw new ChainNotFoundError()
   if (currentChainId !== chain.id)
     throw new ChainMismatchError({ chain, currentChainId })
-}
-
-export function defineChain<
-  const chain extends Chain,
-  formatters extends ChainFormatters,
->(
-  chain: chain,
-  config: ChainConfig<formatters> = {},
-): Prettify<Assign<chain, ChainConfig<formatters>>> {
-  const {
-    fees = chain.fees,
-    formatters = chain.formatters,
-    serializers = chain.serializers,
-  } = config
-  return {
-    ...chain,
-    fees,
-    formatters,
-    serializers,
-  } as unknown as Assign<chain, ChainConfig<formatters>>
 }
 
 export type GetChainContractAddressErrorType =

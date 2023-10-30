@@ -58,7 +58,8 @@ test('sends unsigned transaction', async () => {
 })
 
 test('sends unsigned transaction (w/ formatter)', async () => {
-  const chain = defineChain(testClient.chain, {
+  const chain = defineChain({
+    ...testClient.chain,
     formatters: {
       transactionRequest: celo.formatters!.transactionRequest,
     },

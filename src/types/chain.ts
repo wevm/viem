@@ -16,17 +16,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = Prettify<ChainConstants & ChainConfig<formatters>>
-
-/////////////////////////////////////////////////////////////////////
-// Constants
-
-type ChainBlockExplorer = {
-  name: string
-  url: string
-}
-
-type ChainConstants = {
+> = {
   /** Collection of block explorers */
   blockExplorers?:
     | {
@@ -64,6 +54,24 @@ type ChainConstants = {
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
+
+  /**
+   * Modifies how chain data structures (ie. Blocks, Transactions, etc)
+   * are formatted & typed.
+   */
+  formatters?: formatters | undefined
+  /** Modifies how data (ie. Transactions) is serialized. */
+  serializers?: ChainSerializers<formatters> | undefined
+  /** Modifies how fees are derived. */
+  fees?: ChainFees<formatters> | undefined
+}
+
+/////////////////////////////////////////////////////////////////////
+// Constants
+
+type ChainBlockExplorer = {
+  name: string
+  url: string
 }
 
 export type ChainContract = {
@@ -85,20 +93,6 @@ type ChainRpcUrls = {
 
 /////////////////////////////////////////////////////////////////////
 // Config
-
-export type ChainConfig<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-> = {
-  /**
-   * Modifies how chain data structures (ie. Blocks, Transactions, etc)
-   * are formatted & typed.
-   */
-  formatters?: formatters | undefined
-  /** Modifies how data (ie. Transactions) is serialized. */
-  serializers?: ChainSerializers<formatters> | undefined
-  /** Modifies how fees are derived. */
-  fees?: ChainFees<formatters> | undefined
-}
 
 export type ChainFees<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
