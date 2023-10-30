@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { address } from '~test/src/constants.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
-import { polygon } from '../chains/index.js'
+import { polygonMainnet } from '../chains/index.js'
 
 import { BaseError } from './base.js'
 import { EstimateGasExecutionError } from './estimateGas.js'
@@ -103,7 +103,7 @@ describe('EstimateGasExecutionError', () => {
   test('w/ chain', async () => {
     expect(
       new EstimateGasExecutionError(new BaseError('error'), {
-        chain: polygon,
+        chain: polygonMainnet,
         account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
@@ -131,7 +131,7 @@ describe('EstimateGasExecutionError', () => {
       new EstimateGasExecutionError(
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
-          chain: polygon,
+          chain: polygonMainnet,
           account: parseAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',

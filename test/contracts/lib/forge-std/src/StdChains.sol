@@ -204,7 +204,7 @@ abstract contract StdChains {
             "arbitrum_one_goerli", ChainData("Arbitrum One Goerli", 421613, "https://goerli-rollup.arbitrum.io/rpc")
         );
         setChainWithDefaultRpcUrl("arbitrum_nova", ChainData("Arbitrum Nova", 42170, "https://nova.arbitrum.io/rpc"));
-        setChainWithDefaultRpcUrl("polygon", ChainData("Polygon", 137, "https://polygon-rpc.com"));
+        setChainWithDefaultRpcUrl("polygon", ChainData("Polygon Mainnet", 137, "https://polygon-rpc.com"));
         setChainWithDefaultRpcUrl(
             "polygon_mumbai", ChainData("Polygon Mumbai", 80001, "https://rpc-mumbai.maticvigil.com")
         );

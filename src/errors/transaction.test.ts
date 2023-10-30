@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { address } from '~test/src/constants.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
-import { polygon } from '../chains/index.js'
+import { polygonMainnet } from '../chains/index.js'
 
 import { BaseError } from './base.js'
 import {
@@ -188,7 +188,7 @@ describe('TransactionExecutionError', () => {
   test('w/ chain', async () => {
     expect(
       new TransactionExecutionError(new BaseError('error'), {
-        chain: polygon,
+        chain: polygonMainnet,
         account: parseAccount(address.vitalik),
         to: address.usdcHolder,
         data: '0x123',
@@ -200,7 +200,7 @@ describe('TransactionExecutionError', () => {
       [TransactionExecutionError: error
 
       Request Arguments:
-        chain:  Polygon (id: 137)
+        chain:  Polygon Mainnet (id: 137)
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
         value:  0.00000000000000042 MATIC
@@ -217,7 +217,7 @@ describe('TransactionExecutionError', () => {
       new TransactionExecutionError(
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
-          chain: polygon,
+          chain: polygonMainnet,
           account: parseAccount(address.vitalik),
           to: address.usdcHolder,
           data: '0x123',
@@ -232,7 +232,7 @@ describe('TransactionExecutionError', () => {
       omggg!
        
       Request Arguments:
-        chain:  Polygon (id: 137)
+        chain:  Polygon Mainnet (id: 137)
         from:   0xd8da6bf26964af9d7eed9e03e53415d37aa96045
         to:     0x5414d89a8bf7e99d732bc52f3e6a3ef461c0c078
         value:  0.00000000000000042 MATIC

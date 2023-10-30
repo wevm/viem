@@ -101,7 +101,7 @@ test('exports chains', () => {
       "opBNB",
       "opBNBTestnet",
       "plinga",
-      "polygon",
+      "polygonMainnet",
       "polygonMumbai",
       "polygonZkEvmTestnet",
       "polygonZkEvm",

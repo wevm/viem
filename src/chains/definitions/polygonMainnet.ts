@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const polygon = /*#__PURE__*/ defineChain({
+export const polygonMainnet = /*#__PURE__*/ defineChain({
   id: 137,
-  name: 'Polygon',
+  name: 'Polygon Mainnet',
   network: 'matic',
   nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   rpcUrls: {

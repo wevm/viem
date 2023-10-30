@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { mainnet, optimism, polygon } from '../../chains/index.js'
+import { mainnet, optimism, polygonMainnet } from '../../chains/index.js'
 
 import { getChainContractAddress } from './getChainContractAddress.js'
 
@@ -13,7 +13,7 @@ test('default', () => {
   ).toMatchInlineSnapshot('"0xca11bde05977b3631167028862be2a173976ca11"')
   expect(
     getChainContractAddress({
-      chain: polygon,
+      chain: polygonMainnet,
       contract: 'multicall3',
     }),
   ).toMatchInlineSnapshot('"0xca11bde05977b3631167028862be2a173976ca11"')

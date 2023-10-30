@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { ErrorsExample } from '~test/contracts/generated.js'
 import { baycContractConfig } from '~test/src/abis.js'
 import { address } from '~test/src/constants.js'
-import { polygon } from '../chains/index.js'
+import { polygonMainnet } from '../chains/index.js'
 
 import { BaseError } from './base.js'
 import {
@@ -108,7 +108,7 @@ describe('CallExecutionError', () => {
   test('w/ chain', async () => {
     expect(
       new CallExecutionError(new BaseError('error'), {
-        chain: polygon,
+        chain: polygonMainnet,
         account: address.vitalik,
         to: address.usdcHolder,
         data: '0x123',
@@ -136,7 +136,7 @@ describe('CallExecutionError', () => {
       new CallExecutionError(
         new BaseError('error', { metaMessages: ['omggg!'] }),
         {
-          chain: polygon,
+          chain: polygonMainnet,
           account: address.vitalik,
           to: address.usdcHolder,
           data: '0x123',
