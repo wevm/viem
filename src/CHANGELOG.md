@@ -1,5 +1,11 @@
 # viem
 
+## 1.18.1
+
+### Patch Changes
+
+- [#1409](https://github.com/wagmi-dev/viem/pull/1409) [`229e2d56`](https://github.com/wagmi-dev/viem/commit/229e2d565d9d07b9208753f46668378dccf3d399) Thanks [@qbzzt](https://github.com/qbzzt)! - Fixed Holesky public RPC URL.
+
 ## 1.18.0
 
 ### Minor Changes
