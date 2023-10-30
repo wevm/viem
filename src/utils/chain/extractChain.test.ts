@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import * as chains from '../../chains/index.js'
 import { extractChain } from './extractChain.js'
 
@@ -11,10 +12,6 @@ test('default', async () => {
     {
       "blockExplorers": {
         "default": {
-          "name": "Etherscan",
-          "url": "https://etherscan.io",
-        },
-        "etherscan": {
           "name": "Etherscan",
           "url": "https://etherscan.io",
         },
@@ -41,30 +38,8 @@ test('default', async () => {
         "name": "Ether",
         "symbol": "ETH",
       },
-      "network": "homestead",
       "rpcUrls": {
-        "alchemy": {
-          "http": [
-            "https://eth-mainnet.g.alchemy.com/v2",
-          ],
-          "webSocket": [
-            "wss://eth-mainnet.g.alchemy.com/v2",
-          ],
-        },
         "default": {
-          "http": [
-            "https://cloudflare-eth.com",
-          ],
-        },
-        "infura": {
-          "http": [
-            "https://mainnet.infura.io/v3",
-          ],
-          "webSocket": [
-            "wss://mainnet.infura.io/ws/v3",
-          ],
-        },
-        "public": {
           "http": [
             "https://cloudflare-eth.com",
           ],
@@ -84,10 +59,6 @@ test('default', async () => {
         "default": {
           "name": "Optimism Explorer",
           "url": "https://explorer.optimism.io",
-        },
-        "etherscan": {
-          "name": "Etherscan",
-          "url": "https://optimistic.etherscan.io",
         },
       },
       "contracts": {
@@ -121,30 +92,8 @@ test('default', async () => {
         "name": "Ether",
         "symbol": "ETH",
       },
-      "network": "optimism",
       "rpcUrls": {
-        "alchemy": {
-          "http": [
-            "https://opt-mainnet.g.alchemy.com/v2",
-          ],
-          "webSocket": [
-            "wss://opt-mainnet.g.alchemy.com/v2",
-          ],
-        },
         "default": {
-          "http": [
-            "https://mainnet.optimism.io",
-          ],
-        },
-        "infura": {
-          "http": [
-            "https://optimism-mainnet.infura.io/v3",
-          ],
-          "webSocket": [
-            "wss://optimism-mainnet.infura.io/ws/v3",
-          ],
-        },
-        "public": {
           "http": [
             "https://mainnet.optimism.io",
           ],

@@ -27,12 +27,14 @@ beforeEach(async () => {
   cleanupCache.clear()
   socketsCache.clear()
 
+  if (process.env.SKIP_GLOBAL_SETUP) return
   await setIntervalMining(testClient, { interval: 0 })
 })
 
 afterAll(async () => {
   vi.restoreAllMocks()
 
+  if (process.env.SKIP_GLOBAL_SETUP) return
   // Reset the anvil instance to the same state it was in before the tests started.
   await setBlockNumber(forkBlockNumber)
 })
