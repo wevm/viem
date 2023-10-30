@@ -232,9 +232,7 @@ export type WalletActions<
    *   value: 1n,
    * })
    */
-  prepareTransactionRequest: <
-    TChainOverride extends Chain | undefined = undefined,
-  >(
+  prepareTransactionRequest: <TChainOverride extends Chain | undefined>(
     args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<PrepareTransactionRequestReturnType>
   /**
@@ -353,7 +351,7 @@ export type WalletActions<
    *   value: 1000000000000000000n,
    * })
    */
-  sendTransaction: <TChainOverride extends Chain | undefined = undefined>(
+  sendTransaction: <TChainOverride extends Chain | undefined>(
     args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<SendTransactionReturnType>
   /**
@@ -445,7 +443,7 @@ export type WalletActions<
    * })
    * const signature = await client.signTransaction(request)
    */
-  signTransaction: <TChainOverride extends Chain | undefined = undefined>(
+  signTransaction: <TChainOverride extends Chain | undefined>(
     args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<SignTransactionReturnType>
   /**

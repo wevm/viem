@@ -21,11 +21,11 @@ export const mainnet = /*#__PURE__*/ defineChain({
     },
     ensUniversalResolver: {
       address: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
-      blockCreated: 16966585,
+      blockCreated: 16_966_585,
     },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 14353601,
+      blockCreated: 14_353_601,
     },
   },
 })

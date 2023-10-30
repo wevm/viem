@@ -244,7 +244,7 @@ export type ScheduleMulticallErrorType =
   | RawContractErrorType
   | ErrorType
 
-async function scheduleMulticall<TChain extends Chain | undefined,>(
+async function scheduleMulticall<TChain extends Chain | undefined>(
   client: Client<Transport>,
   args: ScheduleMulticallParameters<TChain>,
 ) {

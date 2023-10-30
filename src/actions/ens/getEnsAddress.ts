@@ -86,7 +86,7 @@ export type GetEnsAddressErrorType =
  * })
  * // '0xd2135CfB216b74109775236E36d4b433F1DF507B'
  */
-export async function getEnsAddress<TChain extends Chain | undefined,>(
+export async function getEnsAddress<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,
   {
     blockNumber,
