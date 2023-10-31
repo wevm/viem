@@ -166,11 +166,23 @@ export async function sendTransaction<
     // We need a way to find the transaction type here if isn't defined.
     // This can be done with prepareTransactionRequest.
     // If we create the `eip712meta` abstraction, we just need to check for that field.
-    if (args.type === 'eip712') {
+    console.log(chainId)
+    console.log(chain)
+    console.log(chain?.eip712domain?.isEip712Domain)
+    console.log(chain?.eip712domain?.eip712domain)
+    console.log(
+      chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId }),
+    )
+    if (
+      chainId &&
+      chain?.eip712domain?.isEip712Domain &&
+      chain?.eip712domain?.eip712domain &&
+      chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId })
+    ) {
       console.log('Detected EIP712 transaction')
       // DAVID: This can be probably merged with the code bellow (account.type === local)
 
-      const eip712signer = chain?.eip712signers?.transaction
+      const eip712signer = chain?.eip712domain?.eip712domain
 
       if (eip712signer === undefined)
         throw new BaseError('Chain doesnt define EIP712 signer.')
@@ -215,6 +227,8 @@ export async function sendTransaction<
         serializedTransaction,
       })
     }
+
+    console.log('NOT EIP712!')
 
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)

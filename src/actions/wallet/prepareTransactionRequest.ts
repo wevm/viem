@@ -130,9 +130,7 @@ export async function prepareTransactionRequest<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
-  console.log('getBlock')
   const block = await getAction(client, getBlock)({ blockTag: 'latest' })
-  console.log(block)
   const request = { ...args, from: account.address }
 
   if (typeof nonce === 'undefined') {

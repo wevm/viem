@@ -155,13 +155,14 @@ export async function signTransaction<
   // defined in the chain ts file.
   // Eg. isEip712Transaction: (transaction) => zkSyncSerializers.isEIP712(transaction)
   if (
-    (transaction.customSignature !== undefined ||
-      transaction.paymaster !== undefined) &&
-    client.chain?.eip712signers?.transaction &&
-    client.chain?.serializers?.transaction
+    chainId &&
+    client.chain?.eip712domain?.isEip712Domain &&
+    client.chain?.eip712domain?.eip712domain &&
+    client.chain?.serializers?.transaction &&
+    client.chain?.eip712domain?.isEip712Domain({ ...args, chainId: chainId })
   ) {
     console.log('Special EIP712 case')
-    const eip712Domain = client.chain?.eip712signers?.transaction(transaction)
+    const eip712Domain = client.chain?.eip712domain?.eip712domain(transaction)
     console.log('eip712domain')
     console.log(eip712Domain)
 
@@ -199,7 +200,7 @@ export async function signTransaction<
   }
   // ---
 
-  console.log("OPS, it shouldn't reach here!")
+  console.log("OPS, it shouldn't reach here if it is a EIP712 transaction!")
   console.log(transaction)
 
   if (account.type === 'local') {

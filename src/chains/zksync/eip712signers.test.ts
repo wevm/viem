@@ -4,7 +4,7 @@ import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../../accounts/utils/signTransaction.js'
 import { type TransactionSerializableEIP1559, parseEther } from '../../index.js'
 import { zkSyncTestnet } from '../index.js'
-import { signTransactionZkSync } from './eip712signers.js'
+import { getZkSyncEIP712Domain } from './eip712signers.js'
 import { serializeTransactionZkSync } from './serializers.js'
 import type { ZkSyncTransactionSerializableEIP712 } from './types.js'
 
@@ -36,7 +36,7 @@ describe('ZkSync - EIP712 Signer', () => {
       gas: 158774n,
     }
 
-    expect(signTransactionZkSync(transaction)).toMatchInlineSnapshot('')
+    expect(getZkSyncEIP712Domain(transaction)).toMatchInlineSnapshot('')
   })
 })
 

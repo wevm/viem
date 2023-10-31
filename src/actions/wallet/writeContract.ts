@@ -144,6 +144,8 @@ export async function writeContract<
   // We can change how it behaves here on inside the sendTransaction, since
   // if the account type is 'local' it will use `sendRawTransaction`.
 
+  console.log('writeContract')
+
   const hash = await getAction(
     client,
     sendTransaction,

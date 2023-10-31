@@ -1,118 +1,39 @@
-import type { ChainSerializers } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
+import type { ChainEIP712Domain } from '~viem/types/chain.js'
+import type { EIP712Domain, EIP712DomainFn } from '~viem/types/eip712signer.js'
 import { isEIP712 as isZkSyncEIP712 } from './serializers.js'
 import type {
+  ZkSyncEIP712TransactionToSign,
   ZkSyncTransactionSerializable,
   ZkSyncTransactionSerializableEIP712,
-  ZkSyncTransactionSerializedEIP712,
 } from './types.js'
 
-import type { TypedDataDomain } from 'abitype'
-
-// Generic Type, to move to an outside file
-type SignTransactionFn<
-  TTransactionSerializable extends TransactionSerializable = TransactionSerializable,
-> = typeof signTransaction<TTransactionSerializable>
-
-export function signTransaction<
-  TTransactionSerializable extends TransactionSerializable,
->(transaction: TTransactionSerializable): Hex {
-  return signTransactionZkSync(transaction)
-}
-
-// ZkSync specific
-
-export const signTransactionZkSync: SignTransactionFn<
-  ZkSyncTransactionSerializable
+export const getZkSyncEIP712Domain: EIP712DomainFn<
+  ZkSyncTransactionSerializable,
+  ZkSyncEIP712TransactionToSign
 > = (tx) => {
   if (isZkSyncEIP712(tx))
-    return signTransactionEIP712ZkSync(
-      tx as ZkSyncTransactionSerializableEIP712,
-    )
+    return createEIP712Domain(tx as ZkSyncTransactionSerializableEIP712)
   throw new Error('Cannot sign ZkSync EIP712 transaction, missing fields!')
 }
 
-export const signZkSync = {
-  transaction: signTransactionZkSync,
-} as const satisfies ChainSerializers
+export const eip712domainZkSync = {
+  eip712domain: getZkSyncEIP712Domain,
+  isEip712Domain: isZkSyncEIP712,
+} as const satisfies ChainEIP712Domain
 
 //////////////////////////////////////////////////////////////////////////////
 // EIP712 Signers
 
-export type SerializeTransactionEIP712ReturnType =
-  ZkSyncTransactionSerializedEIP712
-
-// There is already a function getTypesForEIP712Domain, but not sure how to set up in here.
-type EIP712FieldType = 'uint256' | 'bytes' | 'bytes32[]'
-type EIP712Field = { name: string; type: EIP712FieldType }
-
-// Maybe it is the same as SignTypedDataParameters?
-type EIP712Domain<TransactionToSign> = {
-  domain: TypedDataDomain
-  types: Record<string, EIP712Field[]>
-  primaryType: string
-  message: TransactionToSign
-}
-
-type ZkSyncEIP712TransactionToSign = {
-  txType: bigint
-  from: bigint
-  to: bigint
-  gasLimit: bigint
-  gasPerPubdataByteLimit: bigint
-  maxFeePerGas: bigint
-  maxPriorityFeePerGas: bigint
-  paymaster: bigint
-  nonce: bigint
-  value: bigint
-  data: Hex
-  factoryDeps: Hex[]
-  paymasterInput: Hex
-}
-
-function signTransactionEIP712ZkSync(
+function createEIP712Domain(
   transaction: ZkSyncTransactionSerializableEIP712,
 ): EIP712Domain<ZkSyncEIP712TransactionToSign> {
-  const {
-    chainId,
-    gas,
-    nonce,
-    to,
-    from,
-    value,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    factoryDeps,
-    paymaster,
-    paymasterInput,
-    gasPerPubdata,
-    data,
-  } = transaction
+  const message = transactionToMessage(transaction)
 
-  // Convert from ZkSyncTransactionSerializableEIP712 to ZkSyncEIP712TransactionToSign
-  const transactionToSign = {
-    txType: 113n,
-    from: BigInt(from),
-    to: to ? BigInt(to) : 0n,
-    gasLimit: gas ?? 0n,
-    gasPerPubdataByteLimit: gasPerPubdata ?? 0n,
-    maxFeePerGas: maxFeePerGas,
-    maxPriorityFeePerGas: maxPriorityFeePerGas ?? 0n,
-    paymaster: paymaster ? BigInt(paymaster) : 0n,
-    nonce: nonce ? BigInt(nonce) : 0n,
-    value: value ?? 0n,
-    data: data ? data : '0x0',
-    factoryDeps: factoryDeps ?? [],
-    paymasterInput: paymasterInput ? paymasterInput : '0x0',
-  }
-
-  // Return structure to sign, ready to be send to MetaMask
   return {
     domain: {
       name: 'zkSync',
       version: '2',
-      chainId: chainId,
+      chainId: transaction.chainId,
     },
     types: {
       Transaction: [
@@ -132,9 +53,44 @@ function signTransactionEIP712ZkSync(
       ],
     },
     primaryType: 'Transaction',
-    message: transactionToSign,
+    message: message,
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
+
+function transactionToMessage(
+  transaction: ZkSyncTransactionSerializableEIP712,
+): ZkSyncEIP712TransactionToSign {
+  const {
+    gas,
+    nonce,
+    to,
+    from,
+    value,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    factoryDeps,
+    paymaster,
+    paymasterInput,
+    gasPerPubdata,
+    data,
+  } = transaction
+
+  return {
+    txType: 113n,
+    from: BigInt(from),
+    to: to ? BigInt(to) : 0n,
+    gasLimit: gas ?? 0n,
+    gasPerPubdataByteLimit: gasPerPubdata ?? 0n,
+    maxFeePerGas: maxFeePerGas ?? 0n,
+    maxPriorityFeePerGas: maxPriorityFeePerGas ?? 0n,
+    paymaster: paymaster ? BigInt(paymaster) : 0n,
+    nonce: nonce ? BigInt(nonce) : 0n,
+    value: value ?? 0n,
+    data: data ? data : '0x0',
+    factoryDeps: factoryDeps ?? [],
+    paymasterInput: paymasterInput ? paymasterInput : '0x0',
+  }
+}

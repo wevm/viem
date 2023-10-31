@@ -366,6 +366,30 @@ describe('custom (cip42)', () => {
   })
 })
 
+describe('custom (eip712)', () => {
+  const walletClient = createWalletClient({
+    chain: zkSync,
+    transport: http(localHttpUrl),
+  })
+
+  test('default', async () => {
+    expect(
+      await signTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: null,
+        ...base,
+        feeCurrency: '0x765de816845861e75a25fca122bb6898b8b1282a',
+        maxFeePerGas: parseGwei('20'),
+        maxPriorityFeePerGas: parseGwei('2'),
+        paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
+        paymasterInput:
+          '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+        type: 'eip712',
+      }),
+    ).toMatchInlineSnapshot('"0x71..."')
+  })
+})
+
 describe('errors', () => {
   test('no account', async () => {
     await expect(() =>

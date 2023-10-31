@@ -315,3 +315,21 @@ export type ZkSyncTransactionSerializableEIP712<
   customSignature?: Hex
   type?: 'eip712'
 }
+
+// EIP712 Signer
+
+export type ZkSyncEIP712TransactionToSign = {
+  txType: bigint
+  from: bigint
+  to: bigint
+  gasLimit: bigint
+  gasPerPubdataByteLimit: bigint
+  maxFeePerGas: bigint
+  maxPriorityFeePerGas: bigint
+  paymaster: bigint
+  nonce: bigint
+  value: bigint
+  data: Hex
+  factoryDeps: Hex[]
+  paymasterInput: Hex
+}
