@@ -40,8 +40,12 @@ export const formattersZkSync = {
         return formatted
       }) as Hash[] | ZkSyncTransaction[]
       return {
-        l1BatchNumber: hexToBigInt(args.l1BatchNumber),
-        l1BatchTimestamp: hexToBigInt(args.l1BatchTimestamp),
+        l1BatchNumber: args.l1BatchNumber
+          ? hexToBigInt(args.l1BatchNumber)
+          : null,
+        l1BatchTimestamp: args.l1BatchTimestamp
+          ? hexToBigInt(args.l1BatchTimestamp)
+          : null,
         transactions,
       }
     },
@@ -131,12 +135,16 @@ export const formattersZkSync = {
               : {}),
             ...(args.factoryDeps ? { factoryDeps: args.factoryDeps } : {}),
             ...(args.customSignature
-              ? { customSignature: args.customSignature }
+              ? {
+                  customSignature: Array.from(hexToBytes(args.customSignature)),
+                }
               : {}),
           },
-          type: args.type === 'eip712' ? '0x71' : '0xff',
+          type: '0x71',
         } as ZkSyncRpcTransactionRequest
       return {} as ZkSyncRpcTransactionRequest
     },
   }),
 } as const satisfies ChainFormatters
+
+// eth_call needs customSignature to use 'Array.from(hexToBytes()'

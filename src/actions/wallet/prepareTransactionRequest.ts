@@ -130,11 +130,13 @@ export async function prepareTransactionRequest<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_)
 
+  console.log('getBlock')
   const block = await getAction(client, getBlock)({ blockTag: 'latest' })
-
+  console.log(block)
   const request = { ...args, from: account.address }
 
-  if (typeof nonce === 'undefined')
+  if (typeof nonce === 'undefined') {
+    console.log('getTransactionCount')
     request.nonce = await getAction(
       client,
       getTransactionCount,
@@ -142,7 +144,9 @@ export async function prepareTransactionRequest<
       address: account.address,
       blockTag: 'pending',
     })
+  }
 
+  console.log(`nonce: ${request.nonce}`)
   if (typeof type === 'undefined') {
     try {
       request.type = getTransactionType(
@@ -155,14 +159,18 @@ export async function prepareTransactionRequest<
     }
   }
 
+  console.log(request.type)
+  console.log(request)
   if (request.type === 'eip1559') {
     // EIP-1559 fees
+    console.log('internal_estimateFeesPerGas')
     const { maxFeePerGas, maxPriorityFeePerGas } =
       await internal_estimateFeesPerGas(client, {
         block,
         chain,
         request: request as PrepareTransactionRequestParameters,
       })
+    console.log(maxFeePerGas)
 
     if (
       typeof args.maxPriorityFeePerGas === 'undefined' &&
@@ -175,6 +183,8 @@ export async function prepareTransactionRequest<
 
     request.maxPriorityFeePerGas = maxPriorityFeePerGas
     request.maxFeePerGas = maxFeePerGas
+  } else if (request.type === 'eip712') {
+    // Do nothing? EIP1559 estimate doesn't seem to work.
   } else {
     // Legacy fees
     if (
@@ -192,7 +202,8 @@ export async function prepareTransactionRequest<
     request.gasPrice = gasPrice_
   }
 
-  if (typeof gas === 'undefined')
+  if (typeof gas === 'undefined') {
+    console.log('estimateGas')
     request.gas = await getAction(
       client,
       estimateGas,
@@ -200,6 +211,7 @@ export async function prepareTransactionRequest<
       ...request,
       account: { address: account.address, type: 'json-rpc' },
     } as EstimateGasParameters)
+  }
 
   assertRequest(request as AssertRequestParameters)
 

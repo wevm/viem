@@ -7,7 +7,7 @@ import type { SignTransactionErrorType } from '../../accounts/utils/signTransact
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
@@ -47,6 +47,7 @@ import {
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
+import { signTransaction } from './signTransaction.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -159,6 +160,59 @@ export async function sendTransaction<
       assertCurrentChain({
         currentChainId: chainId,
         chain,
+      })
+    }
+
+    // We need a way to find the transaction type here if isn't defined.
+    // This can be done with prepareTransactionRequest.
+    // If we create the `eip712meta` abstraction, we just need to check for that field.
+    if (args.type === 'eip712') {
+      console.log('Detected EIP712 transaction')
+      // DAVID: This can be probably merged with the code bellow (account.type === local)
+
+      const eip712signer = chain?.eip712signers?.transaction
+
+      if (eip712signer === undefined)
+        throw new BaseError('Chain doesnt define EIP712 signer.')
+
+      console.log('prepareTransactionRequest')
+      // Prepare the request for signing (assign appropriate fees, etc.)
+      const request = await getAction(
+        client,
+        prepareTransactionRequest,
+      )({
+        account,
+        accessList,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+        ...rest,
+      } as any)
+
+      console.log('getChainId')
+      if (!chainId) chainId = await getAction(client, getChainId)({})
+
+      // EIP712 sign will be done inside the sign transaction
+
+      console.log('Signing EIP712 transaction ...')
+      const serializedTransaction = (await signTransaction(client, {
+        ...request,
+        chainId,
+      } as TransactionSerializable)) as Hash
+
+      console.log('EIP712 - Send RAW Transaction')
+      console.log(serializedTransaction)
+
+      return await getAction(
+        client,
+        sendRawTransaction,
+      )({
+        serializedTransaction,
       })
     }
 

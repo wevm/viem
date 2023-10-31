@@ -112,6 +112,7 @@ export async function signTransaction<
   client: Client<Transport, TChain, TAccount>,
   args: SignTransactionParameters<TChain, TAccount, TChainOverride>,
 ): Promise<SignTransactionReturnType> {
+  console.log('signTransaction')
   const {
     account: account_ = client.account,
     chain = client.chain,
@@ -149,10 +150,17 @@ export async function signTransaction<
   // we can have the eip712Meta field, and every transaction with this is marked as
   // type: 'eip712' and need to be signed with typed data previous to sign the
   // transaction.
+
+  // Without eip712, we need a external function to indicate if it is EIP712 transaction or not,
+  // defined in the chain ts file.
+  // Eg. isEip712Transaction: (transaction) => zkSyncSerializers.isEIP712(transaction)
   if (
-    transaction.customSignature !== undefined &&
-    client.chain?.eip712signers?.transaction
+    (transaction.customSignature !== undefined ||
+      transaction.paymaster !== undefined) &&
+    client.chain?.eip712signers?.transaction &&
+    client.chain?.serializers?.transaction
   ) {
+    console.log('Special EIP712 case')
     const eip712Domain = client.chain?.eip712signers?.transaction(transaction)
     console.log('eip712domain')
     console.log(eip712Domain)
@@ -160,14 +168,41 @@ export async function signTransaction<
     // TODO: Check if is local, if is we can sign it here directly
     // using the private key.
 
-    const customSignature = await signTypedData(client, eip712Domain)
+    // if (account.type === 'local') {
+    //   const customSignature = await account.signTypedData(eip712Domain)
+    //   // You need to serializer next.
+    /*return account.signTransaction(
+      {
+        ...transaction,
+        chainId,
+      } as unknown as TransactionSerializable,
+      { serializer: client.chain?.serializers?.transaction },
+    ) as Promise<SignTransactionReturnType>*/
+
+    // If not local (json-rpc) it run the code bellow.
+    const customSignature = await signTypedData(client, {
+      ...eip712Domain,
+      account: account,
+    })
     console.log(`CustomSignature: ${customSignature}`)
 
     transaction.customSignature = customSignature
+
+    // If we have the customSignature we can sign the transaction, doesn't matter if account type
+    // is `local` or `json-rpc`.
+    return client.chain?.serializers?.transaction(
+      { chainId, ...transaction } as unknown as TransactionSerializable,
+      // Use this blank private key, probably we should change the code to be optional,
+      // or option if it is EIP712.
+      { r: '0x0', s: '0x0', v: 0n },
+    )
   }
   // ---
 
-  if (account.type === 'local')
+  console.log("OPS, it shouldn't reach here!")
+  console.log(transaction)
+
+  if (account.type === 'local') {
     return account.signTransaction(
       {
         ...transaction,
@@ -175,7 +210,9 @@ export async function signTransaction<
       } as unknown as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType>
+  }
 
+  // For EIP712 we don't need to ask MetaMask to sign it,
   return await client.request({
     method: 'eth_signTransaction',
     params: [

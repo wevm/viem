@@ -139,6 +139,11 @@ export async function writeContract<
     args,
     functionName,
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
+
+  // Cannot send sendTransaction if it is a transaction type 0x71 (EIP712).
+  // We can change how it behaves here on inside the sendTransaction, since
+  // if the account type is 'local' it will use `sendRawTransaction`.
+
   const hash = await getAction(
     client,
     sendTransaction,
