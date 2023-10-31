@@ -98,6 +98,7 @@ export function http(
                 fetchOptions,
                 timeout,
               }),
+            sort: (a, b) => a.id - b.id,
           })
 
           const fn = async (body: RpcRequest) =>
