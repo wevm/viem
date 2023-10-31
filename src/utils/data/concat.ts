@@ -10,16 +10,16 @@ export type ConcatErrorType =
   | ErrorType
 
 export function concat<TValue extends Hex | ByteArray>(
-  values: TValue[],
+  values: readonly TValue[],
 ): ConcatReturnType<TValue> {
   if (typeof values[0] === 'string')
-    return concatHex(values as Hex[]) as ConcatReturnType<TValue>
-  return concatBytes(values as ByteArray[]) as ConcatReturnType<TValue>
+    return concatHex(values as readonly Hex[]) as ConcatReturnType<TValue>
+  return concatBytes(values as readonly ByteArray[]) as ConcatReturnType<TValue>
 }
 
 export type ConcatBytesErrorType = ErrorType
 
-export function concatBytes(values: ByteArray[]): ByteArray {
+export function concatBytes(values: readonly ByteArray[]): ByteArray {
   let length = 0
   for (const arr of values) {
     length += arr.length
@@ -35,7 +35,7 @@ export function concatBytes(values: ByteArray[]): ByteArray {
 
 export type ConcatHexErrorType = ErrorType
 
-export function concatHex(values: Hex[]): Hex {
+export function concatHex(values: readonly Hex[]): Hex {
   return `0x${(values as Hex[]).reduce(
     (acc, x) => acc + x.replace('0x', ''),
     '',
