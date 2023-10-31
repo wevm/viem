@@ -1,5 +1,13 @@
 # viem
 
+## 1.18.2
+
+### Patch Changes
+
+- [#1417](https://github.com/wagmi-dev/viem/pull/1417) [`ba17c65e`](https://github.com/wagmi-dev/viem/commit/ba17c65ee5d7ab4804472784acb545805507cdfe) Thanks [@holic](https://github.com/holic)! - Fixed `concat` parameter type.
+
+- [#1415](https://github.com/wagmi-dev/viem/pull/1415) [`5db156aa`](https://github.com/wagmi-dev/viem/commit/5db156aa8b95bc421c82e93b092b2a8bf9b62666) Thanks [@0xKheops](https://github.com/0xKheops)! - Added sorting mechanism to batch scheduler.
+
 ## 1.18.1
 
 ### Patch Changes
