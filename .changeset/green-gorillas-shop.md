@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Added a WebSocket RPC for Gnosis Chain
+Added WebSocket RPCs for Gnosis Chain and Chiado
