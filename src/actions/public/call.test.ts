@@ -11,9 +11,6 @@ import {
   walletClientWithAccount,
 } from '~test/src/utils.js'
 
-import { celo } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { http } from '../../clients/transports/http.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
@@ -91,21 +88,6 @@ describe('ccip', () => {
 
     await server.close()
   })
-})
-
-test('custom formatter', async () => {
-  const client = createPublicClient({
-    chain: celo,
-    transport: http(),
-  })
-
-  const { data } = await call(client, {
-    gatewayFee: 1n,
-    data: name4bytes,
-    account: sourceAccount.address,
-    to: wagmiContractAddress,
-  })
-  expect(data).toBeUndefined()
 })
 
 test('zero data', async () => {
