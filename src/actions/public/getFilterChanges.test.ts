@@ -356,7 +356,7 @@ describe('contract events', () => {
         'Transfer'
       >[]
     >(logs)
-    expect(logs.length).toBe(784)
+    expect(logs.length).toBe(783)
   })
 
   test('args: singular `from`', async () => {
@@ -858,7 +858,7 @@ describe('events', () => {
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
 
-    expect(logs.length).toBe(784)
+    expect(logs.length).toBe(783)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: Address
@@ -920,7 +920,7 @@ describe('events', () => {
     let logs = await getFilterChanges(publicClient, { filter })
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
 
-    expect(logs.length).toBe(784)
+    expect(logs.length).toBe(783)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]

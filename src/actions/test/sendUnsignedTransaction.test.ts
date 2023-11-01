@@ -4,7 +4,7 @@ import { accounts, address } from '~test/src/constants.js'
 import { publicClient, testClient } from '~test/src/utils.js'
 import { celo } from '../../chains/index.js'
 import { createTestClient } from '../../clients/createTestClient.js'
-import { defineChain } from '../../utils/chain.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 

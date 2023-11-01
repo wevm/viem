@@ -1,6 +1,8 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getCache, withCache } from '../../utils/promise/withCache.js'
 
 export type GetBlockNumberParameters = {
@@ -11,6 +13,8 @@ export type GetBlockNumberParameters = {
 }
 
 export type GetBlockNumberReturnType = bigint
+
+export type GetBlockNumberErrorType = RequestErrorType | ErrorType
 
 const cacheKey = (id: string) => `blockNumber.${id}`
 

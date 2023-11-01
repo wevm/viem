@@ -5,6 +5,9 @@
       "_cjs",
       "_esm",
       "_types",
+      ".next",
+      ".svelte-kit",
+      ".vercel",
       "**/node_modules",
       "CHANGELOG.md",
       "cache",
@@ -29,6 +32,9 @@
       "recommended": true,
       "a11y": {
         "useButtonType": "off"
+      },
+      "complexity": {
+        "noBannedTypes": "off"
       },
       "correctness": {
         "noUnusedVariables": "error"

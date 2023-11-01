@@ -3,6 +3,7 @@ import type { Abi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
@@ -10,11 +11,14 @@ import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
+  type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
+  type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
@@ -51,6 +55,11 @@ export type WriteContractParameters<
   }
 
 export type WriteContractReturnType = SendTransactionReturnType
+
+export type WriteContractErrorType =
+  | EncodeFunctionDataErrorType
+  | SendTransactionErrorType
+  | ErrorType
 
 /**
  * Executes a write function on a contract.
@@ -107,7 +116,7 @@ export async function writeContract<
   TAccount extends Account | undefined,
   const TAbi extends Abi | readonly unknown[],
   TFunctionName extends string,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   {
@@ -130,7 +139,10 @@ export async function writeContract<
     args,
     functionName,
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
-  const hash = await sendTransaction(client, {
+  const hash = await getAction(
+    client,
+    sendTransaction,
+  )({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,

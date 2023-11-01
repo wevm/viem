@@ -1,12 +1,20 @@
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { BlockNotFoundError } from '../../errors/block.js'
+import {
+  BlockNotFoundError,
+  type BlockNotFoundErrorType,
+} from '../../errors/block.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 import {
   type FormattedBlock,
   formatBlock,
@@ -47,6 +55,12 @@ export type GetBlockReturnType<
   TIncludeTransactions extends boolean = false,
   TBlockTag extends BlockTag = 'latest',
 > = FormattedBlock<TChain, TIncludeTransactions, TBlockTag>
+
+export type GetBlockErrorType =
+  | BlockNotFoundErrorType
+  | NumberToHexErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Returns information about a block at a block number, hash, or tag.

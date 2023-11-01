@@ -3,13 +3,22 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { universalResolverReverseAbi } from '../../constants/abis.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
-import { getChainContractAddress } from '../../utils/chain.js'
-import { toHex } from '../../utils/encoding/toHex.js'
-import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { packetToBytes } from '../../utils/ens/packetToBytes.js'
 import {
+  type GetChainContractAddressErrorType,
+  getChainContractAddress,
+} from '../../utils/chain/getChainContractAddress.js'
+import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
+import {
+  type PacketToBytesErrorType,
+  packetToBytes,
+} from '../../utils/ens/packetToBytes.js'
+import { getAction } from '../../utils/getAction.js'
+import {
+  type ReadContractErrorType,
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
@@ -24,6 +33,13 @@ export type GetEnsNameParameters = Prettify<
 >
 
 export type GetEnsNameReturnType = string | null
+
+export type GetEnsNameErrorType =
+  | GetChainContractAddressErrorType
+  | ReadContractErrorType
+  | ToHexErrorType
+  | PacketToBytesErrorType
+  | ErrorType
 
 /**
  * Gets primary name for specified address.
@@ -76,7 +92,10 @@ export async function getEnsName<TChain extends Chain | undefined>(
 
   const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
   try {
-    const res = await readContract(client, {
+    const res = await getAction(
+      client,
+      readContract,
+    )({
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
       functionName: 'reverse',

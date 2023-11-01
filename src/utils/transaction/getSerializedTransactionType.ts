@@ -1,11 +1,15 @@
-import { InvalidSerializedTransactionTypeError } from '../../errors/transaction.js'
+import {
+  InvalidSerializedTransactionTypeError,
+  type InvalidSerializedTransactionTypeErrorType,
+} from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
 } from '../../types/transaction.js'
-import { sliceHex } from '../data/slice.js'
-import { hexToNumber } from '../encoding/fromHex.js'
+import { type SliceHexErrorType, sliceHex } from '../data/slice.js'
+import { type HexToNumberErrorType, hexToNumber } from '../encoding/fromHex.js'
 
 export type GetSerializedTransactionType<
   TTransactionSerialized extends TransactionSerialized = TransactionSerialized,
@@ -14,6 +18,12 @@ export type GetSerializedTransactionType<
   : TTransactionSerialized extends TransactionSerializedEIP2930
   ? 'eip2930'
   : 'legacy'
+
+export type GetSerializedTransactionTypeErrorType =
+  | HexToNumberErrorType
+  | InvalidSerializedTransactionTypeErrorType
+  | SliceHexErrorType
+  | ErrorType
 
 export function getSerializedTransactionType<
   TSerialized extends TransactionSerialized,

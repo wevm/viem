@@ -3,14 +3,18 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type DropTransactionParameters = {
   /** The hash of the transaction to drop. */
   hash: Hash
 }
+
+export type DropTransactionErrorType = RequestErrorType | ErrorType
 
 /**
  * Removes a transaction from the mempool.

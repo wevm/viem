@@ -1,5 +1,8 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
+
+export type FormatLogErrorType = ErrorType
 
 export function formatLog(
   log: Partial<RpcLog>,

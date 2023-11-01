@@ -20,6 +20,9 @@ import { BaseError } from './base.js'
 import { prettyPrint } from './transaction.js'
 import { getContractAddress } from './utils.js'
 
+export type CallExecutionErrorType = CallExecutionError & {
+  name: 'CallExecutionError'
+}
 export class CallExecutionError extends BaseError {
   override cause: BaseError
 
@@ -74,6 +77,10 @@ export class CallExecutionError extends BaseError {
   }
 }
 
+export type ContractFunctionExecutionErrorType =
+  ContractFunctionExecutionError & {
+    name: 'ContractFunctionExecutionError'
+  }
 export class ContractFunctionExecutionError extends BaseError {
   abi: Abi
   args?: unknown[]
@@ -150,6 +157,10 @@ export class ContractFunctionExecutionError extends BaseError {
   }
 }
 
+export type ContractFunctionRevertedErrorType =
+  ContractFunctionRevertedError & {
+    name: 'ContractFunctionRevertedError'
+  }
 export class ContractFunctionRevertedError extends BaseError {
   override name = 'ContractFunctionRevertedError'
 
@@ -235,6 +246,10 @@ export class ContractFunctionRevertedError extends BaseError {
   }
 }
 
+export type ContractFunctionZeroDataErrorType =
+  ContractFunctionZeroDataError & {
+    name: 'ContractFunctionZeroDataError'
+  }
 export class ContractFunctionZeroDataError extends BaseError {
   override name = 'ContractFunctionZeroDataError'
   constructor({ functionName }: { functionName: string }) {
@@ -249,6 +264,9 @@ export class ContractFunctionZeroDataError extends BaseError {
   }
 }
 
+export type RawContractErrorType = RawContractError & {
+  name: 'RawContractError'
+}
 export class RawContractError extends BaseError {
   code = 3
   override name = 'RawContractError'

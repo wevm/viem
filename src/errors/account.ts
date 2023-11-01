@@ -1,5 +1,8 @@
 import { BaseError } from './base.js'
 
+export type AccountNotFoundErrorType = AccountNotFoundError & {
+  name: 'AccountNotFoundError'
+}
 export class AccountNotFoundError extends BaseError {
   override name = 'AccountNotFoundError'
   constructor({ docsPath }: { docsPath?: string } = {}) {

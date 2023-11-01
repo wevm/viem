@@ -3,11 +3,18 @@ import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 import { AbiFunctionSignatureNotFoundError } from '../../errors/abi.js'
 import type { GetFunctionArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { slice } from '../data/slice.js'
-import { getFunctionSelector } from '../hash/getFunctionSelector.js'
+import { type SliceErrorType, slice } from '../data/slice.js'
+import {
+  type GetFunctionSelectorErrorType,
+  getFunctionSelector,
+} from '../hash/getFunctionSelector.js'
 
-import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type DecodeAbiParametersErrorType,
+  decodeAbiParameters,
+} from './decodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeFunctionDataParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -29,6 +36,14 @@ export type DecodeFunctionDataReturnType<
     functionName: TName
   }
 }[_FunctionNames]
+
+export type DecodeFunctionDataErrorType =
+  | AbiFunctionSignatureNotFoundError
+  | DecodeAbiParametersErrorType
+  | FormatAbiItemErrorType
+  | GetFunctionSelectorErrorType
+  | SliceErrorType
+  | ErrorType
 
 export function decodeFunctionData<TAbi extends Abi | readonly unknown[]>({
   abi,

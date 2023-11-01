@@ -1,10 +1,13 @@
-import type { WebSocket } from 'isomorphic-ws'
-
 import { RpcRequestError } from '../../errors/request.js'
-import { UrlRequiredError } from '../../errors/transport.js'
+import {
+  UrlRequiredError,
+  type UrlRequiredErrorType,
+} from '../../errors/transport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hash } from '../../types/misc.js'
 import { type RpcResponse, getSocket, rpc } from '../../utils/rpc.js'
 import {
+  type CreateTransportErrorType,
   type Transport,
   type TransportConfig,
   createTransport,
@@ -52,6 +55,11 @@ export type WebSocketTransport = Transport<
     subscribe: WebSocketTransportSubscribe['subscribe']
   }
 >
+
+export type WebSocketTransportErrorType =
+  | CreateTransportErrorType
+  | UrlRequiredErrorType
+  | ErrorType
 
 /**
  * @description Creates a WebSocket transport that connects to a JSON-RPC API.

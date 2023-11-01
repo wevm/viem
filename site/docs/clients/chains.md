@@ -361,3 +361,7 @@ const example = defineChain(
   }
 )
 ```
+
+## Utilities
+
+- [`extractChain`](/docs/utilities/extractChain): Extracts a type-safe chain by ID.

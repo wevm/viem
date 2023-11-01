@@ -2,8 +2,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   BaseFeeScalarError,
+  type BaseFeeScalarErrorType,
   Eip1559FeesNotSupportedError,
+  type Eip1559FeesNotSupportedErrorType,
 } from '../../errors/fee.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Block } from '../../types/block.js'
 import type {
   Chain,
@@ -16,10 +19,14 @@ import type {
   FeeValuesLegacy,
   FeeValuesType,
 } from '../../types/fee.js'
+import { getAction } from '../../utils/getAction.js'
 import type { PrepareTransactionRequestParameters } from '../wallet/prepareTransactionRequest.js'
-import { internal_estimateMaxPriorityFeePerGas } from './estimateMaxPriorityFeePerGas.js'
+import {
+  type EstimateMaxPriorityFeePerGasErrorType,
+  internal_estimateMaxPriorityFeePerGas,
+} from './estimateMaxPriorityFeePerGas.js'
 import { getBlock } from './getBlock.js'
-import { getGasPrice } from './getGasPrice.js'
+import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
 
 export type EstimateFeesPerGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -42,6 +49,13 @@ export type EstimateFeesPerGasReturnType<
 > =
   | (type extends 'legacy' ? FeeValuesLegacy : never)
   | (type extends 'eip1559' ? FeeValuesEIP1559 : never)
+
+export type EstimateFeesPerGasErrorType =
+  | BaseFeeScalarErrorType
+  | EstimateMaxPriorityFeePerGasErrorType
+  | GetGasPriceErrorType
+  | Eip1559FeesNotSupportedErrorType
+  | ErrorType
 
 /**
  * Returns an estimate for the fees per gas (in wei) for a
@@ -112,7 +126,7 @@ export async function internal_estimateFeesPerGas<
     (base * BigInt(Math.ceil(baseFeeMultiplier * denominator))) /
     BigInt(denominator)
 
-  const block = block_ ? block_ : await getBlock(client)
+  const block = block_ ? block_ : await getAction(client, getBlock)({})
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function')
     return chain.fees.estimateFeesPerGas({
@@ -148,7 +162,8 @@ export async function internal_estimateFeesPerGas<
     } as EstimateFeesPerGasReturnType<type>
   }
 
-  const gasPrice = request?.gasPrice ?? multiply(await getGasPrice(client))
+  const gasPrice =
+    request?.gasPrice ?? multiply(await getAction(client, getGasPrice)({}))
   return {
     gasPrice,
   } as EstimateFeesPerGasReturnType<type>

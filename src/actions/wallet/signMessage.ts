@@ -1,12 +1,22 @@
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
+import type { SignMessageErrorType as SignMessageErrorType_account } from '../../accounts/utils/signMessage.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex, SignableMessage } from '../../types/misc.js'
-import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type ToHexErrorType,
+  stringToHex,
+  toHex,
+} from '../../utils/encoding/toHex.js'
 
 export type SignMessageParameters<
   TAccount extends Account | undefined = Account | undefined,
@@ -15,6 +25,13 @@ export type SignMessageParameters<
 }
 
 export type SignMessageReturnType = Hex
+
+export type SignMessageErrorType =
+  | ParseAccountErrorType
+  | RequestErrorType
+  | SignMessageErrorType_account
+  | ToHexErrorType
+  | ErrorType
 
 /**
  * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.

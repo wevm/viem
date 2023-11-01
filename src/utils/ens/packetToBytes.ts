@@ -1,8 +1,21 @@
 // Adapted from https://github.com/mafintosh/dns-packet
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray } from '../../types/misc.js'
-import { stringToBytes } from '../encoding/toBytes.js'
-import { encodeLabelhash } from './encodeLabelhash.js'
-import { labelhash } from './labelhash.js'
+import {
+  type StringToBytesErrorType,
+  stringToBytes,
+} from '../encoding/toBytes.js'
+import {
+  type EncodeLabelhashErrorType,
+  encodeLabelhash,
+} from './encodeLabelhash.js'
+import { type LabelhashErrorType, labelhash } from './labelhash.js'
+
+export type PacketToBytesErrorType =
+  | EncodeLabelhashErrorType
+  | LabelhashErrorType
+  | StringToBytesErrorType
+  | ErrorType
 
 /*
  * @description Encodes a DNS packet into a ByteArray containing a UDP payload.

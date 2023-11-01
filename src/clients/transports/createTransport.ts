@@ -1,3 +1,4 @@
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { buildRequest } from '../../utils/buildRequest.js'
@@ -39,6 +40,8 @@ export type Transport<
   request: TEIP1193RequestFn
   value?: TRpcAttributes
 }
+
+export type CreateTransportErrorType = ErrorType
 
 /**
  * @description Creates an transport intended to be used with a client.

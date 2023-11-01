@@ -198,6 +198,11 @@ export type ChainEstimateFeesPerGasFnParameters<
 /////////////////////////////////////////////////////////////////////
 // Utils
 
+export type ExtractChain<
+  chains extends readonly Chain[],
+  chainId extends Chain['id'],
+> = Extract<chains[number], { id: chainId }>
+
 export type ExtractChainFormatterExclude<
   chain extends { formatters?: Chain['formatters'] } | undefined,
   type extends keyof ChainFormatters,

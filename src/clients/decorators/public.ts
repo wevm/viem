@@ -127,6 +127,11 @@ import {
   getLogs,
 } from '../../actions/public/getLogs.js'
 import {
+  type GetProofParameters,
+  type GetProofReturnType,
+  getProof,
+} from '../../actions/public/getProof.js'
+import {
   type GetStorageAtParameters,
   type GetStorageAtReturnType,
   getStorageAt,
@@ -854,7 +859,7 @@ export type PublicActions<
    * // { maxFeePerGas: ..., maxPriorityFeePerGas: ... }
    */
   estimateFeesPerGas: <
-    TChainOverride extends Chain | undefined,
+    TChainOverride extends Chain | undefined = undefined,
     TType extends FeeValuesType = 'eip1559',
   >(
     args?: EstimateFeesPerGasParameters<TChain, TChainOverride, TType>,
@@ -1066,6 +1071,31 @@ export type PublicActions<
     GetLogsReturnType<TAbiEvent, TAbiEvents, TStrict, TFromBlock, TToBlock>
   >
   /**
+   * Returns the account and storage values of the specified account including the Merkle-proof.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getProof.html
+   * - JSON-RPC Methods:
+   *   - Calls [`eth_getProof`](https://eips.ethereum.org/EIPS/eip-1186)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link GetProofParameters}
+   * @returns Proof data. {@link GetProofReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const block = await client.getProof({
+   *  address: '0x...',
+   *  storageKeys: ['0x...'],
+   * })
+   */
+  getProof: (args: GetProofParameters) => Promise<GetProofReturnType>
+  /**
    * Returns an estimate for the max priority fee per gas (in wei) for a transaction
    * to be included in the next block.
    *
@@ -1085,7 +1115,9 @@ export type PublicActions<
    * const maxPriorityFeePerGas = await client.estimateMaxPriorityFeePerGas()
    * // 10000000n
    */
-  estimateMaxPriorityFeePerGas: <TChainOverride extends Chain | undefined,>(
+  estimateMaxPriorityFeePerGas: <
+    TChainOverride extends Chain | undefined = undefined,
+  >(
     args?: EstimateMaxPriorityFeePerGasParameters<TChain, TChainOverride>,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
@@ -1294,7 +1326,9 @@ export type PublicActions<
    *   value: 1n,
    * })
    */
-  prepareTransactionRequest: <TChainOverride extends Chain | undefined,>(
+  prepareTransactionRequest: <
+    TChainOverride extends Chain | undefined = undefined,
+  >(
     args: PrepareTransactionRequestParameters<TChain, TAccount, TChainOverride>,
   ) => Promise<PrepareTransactionRequestReturnType>
   /**
@@ -1394,7 +1428,7 @@ export type PublicActions<
   simulateContract: <
     const TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
-    TChainOverride extends Chain | undefined,
+    TChainOverride extends Chain | undefined = undefined,
   >(
     args: SimulateContractParameters<
       TAbi,
@@ -1684,6 +1718,7 @@ export function publicActions<
     getFilterLogs: (args) => getFilterLogs(client, args),
     getGasPrice: () => getGasPrice(client),
     getLogs: (args) => getLogs(client, args as any),
+    getProof: (args) => getProof(client, args),
     estimateMaxPriorityFeePerGas: (args) =>
       estimateMaxPriorityFeePerGas(client, args),
     getStorageAt: (args) => getStorageAt(client, args),

@@ -10,6 +10,7 @@ export const sidebar: DefaultTheme.Sidebar = {
         { text: 'Migration Guide', link: '/docs/migration-guide' },
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
         { text: 'TypeScript', link: '/docs/typescript' },
+        { text: 'Error Handling', link: '/docs/error-handling' },
         { text: 'Platform Compatibility', link: '/docs/compatibility' },
         { text: 'FAQ', link: '/docs/faq' },
       ],
@@ -151,6 +152,15 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'uninstallFilter',
               link: '/docs/actions/public/uninstallFilter',
+            },
+          ],
+        },
+        {
+          text: 'Proof',
+          items: [
+            {
+              text: 'getProof',
+              link: '/docs/actions/public/getProof',
             },
           ],
         },
@@ -636,6 +646,15 @@ export const sidebar: DefaultTheme.Sidebar = {
           ],
         },
         {
+          text: 'Chain',
+          items: [
+            {
+              text: 'extractChain',
+              link: '/docs/utilities/extractChain',
+            },
+          ],
+        },
+        {
           text: 'Data',
           items: [
             {
@@ -726,12 +745,24 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'Signature',
           items: [
             {
+              text: 'compactSignatureToHex',
+              link: '/docs/utilities/compactSignatureToHex',
+            },
+            {
+              text: 'compactSignatureToSignature',
+              link: '/docs/utilities/compactSignatureToSignature',
+            },
+            {
               text: 'hashMessage',
               link: '/docs/utilities/hashMessage',
             },
             {
               text: 'hashTypedData',
               link: '/docs/utilities/hashTypedData',
+            },
+            {
+              text: 'hexToCompactSignature',
+              link: '/docs/utilities/hexToCompactSignature',
             },
             {
               text: 'hexToSignature',
@@ -752,6 +783,10 @@ export const sidebar: DefaultTheme.Sidebar = {
             {
               text: 'recoverTypedDataAddress',
               link: '/docs/utilities/recoverTypedDataAddress',
+            },
+            {
+              text: 'signatureToCompactSignature',
+              link: '/docs/utilities/signatureToCompactSignature',
             },
             {
               text: 'signatureToHex',
@@ -808,6 +843,20 @@ export const sidebar: DefaultTheme.Sidebar = {
               link: '/docs/utilities/parseUnits',
             },
           ],
+        },
+      ],
+    },
+    {
+      text: 'Third Party',
+      collapsed: true,
+      items: [
+        {
+          text: 'Account Abstraction',
+          link: '/docs/third-party/account-abstraction',
+        },
+        {
+          text: 'Miscellaneous',
+          link: '/docs/third-party/misc',
         },
       ],
     },

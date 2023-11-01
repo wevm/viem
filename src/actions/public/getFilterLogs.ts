@@ -6,12 +6,20 @@ import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
-import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
-import { formatLog } from '../../utils/formatters/log.js'
+import {
+  type DecodeEventLogErrorType,
+  decodeEventLog,
+} from '../../utils/abi/decodeEventLog.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type FormatLogErrorType,
+  formatLog,
+} from '../../utils/formatters/log.js'
 
 export type GetFilterLogsParameters<
   TAbi extends Abi | readonly unknown[] | undefined = undefined,
@@ -37,6 +45,12 @@ export type GetFilterLogsReturnType<
     | (TFromBlock extends 'pending' ? true : false)
     | (TToBlock extends 'pending' ? true : false),
 > = Log<bigint, number, _Pending, _AbiEvent, TStrict, TAbi, TEventName>[]
+
+export type GetFilterLogsErrorType =
+  | RequestErrorType
+  | DecodeEventLogErrorType
+  | FormatLogErrorType
+  | ErrorType
 
 /**
  * Returns a list of event logs since the filter was created.

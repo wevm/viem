@@ -6,16 +6,30 @@ import {
   addressResolverAbi,
   universalResolverResolveAbi,
 } from '../../constants/abis.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { getChainContractAddress } from '../../utils/chain.js'
-import { trim } from '../../utils/data/trim.js'
-import { toHex } from '../../utils/encoding/toHex.js'
+import {
+  type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import {
+  type GetChainContractAddressErrorType,
+  getChainContractAddress,
+} from '../../utils/chain/getChainContractAddress.js'
+import { type TrimErrorType, trim } from '../../utils/data/trim.js'
+import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { namehash } from '../../utils/ens/namehash.js'
-import { packetToBytes } from '../../utils/ens/packetToBytes.js'
+import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
+import {
+  type PacketToBytesErrorType,
+  packetToBytes,
+} from '../../utils/ens/packetToBytes.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type ReadContractParameters,
   readContract,
@@ -33,6 +47,16 @@ export type GetEnsAddressParameters = Prettify<
 >
 
 export type GetEnsAddressReturnType = Address | null
+
+export type GetEnsAddressErrorType =
+  | GetChainContractAddressErrorType
+  | EncodeFunctionDataErrorType
+  | NamehashErrorType
+  | ToHexErrorType
+  | PacketToBytesErrorType
+  | DecodeFunctionResultErrorType
+  | TrimErrorType
+  | ErrorType
 
 /**
  * Gets address for ENS name.
@@ -95,7 +119,10 @@ export async function getEnsAddress<TChain extends Chain | undefined,>(
         : { args: [namehash(name)] }),
     })
 
-    const res = await readContract(client, {
+    const res = await getAction(
+      client,
+      readContract,
+    )({
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',

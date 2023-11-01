@@ -1,7 +1,13 @@
 import type { Abi, AbiParameter, AbiParameterToPrimitiveType } from 'abitype'
 
-import { AbiEventNotFoundError } from '../../errors/abi.js'
-import { FilterTypeNotSupportedError } from '../../errors/log.js'
+import {
+  AbiEventNotFoundError,
+  type AbiEventNotFoundErrorType,
+} from '../../errors/abi.js'
+import {
+  FilterTypeNotSupportedError,
+  type FilterTypeNotSupportedErrorType,
+} from '../../errors/log.js'
 import type {
   AbiItem,
   EventDefinition,
@@ -9,12 +15,19 @@ import type {
   InferEventName,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { toBytes } from '../encoding/toBytes.js'
-import { getEventSelector } from '../hash/getEventSelector.js'
-import { keccak256 } from '../hash/keccak256.js'
+import { type ToBytesErrorType, toBytes } from '../encoding/toBytes.js'
+import {
+  type GetEventSelectorErrorType,
+  getEventSelector,
+} from '../hash/getEventSelector.js'
+import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { formatAbiItem } from './formatAbiItem.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type EncodeAbiParametersErrorType,
+  encodeAbiParameters,
+} from './encodeAbiParameters.js'
+import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
 
 export type EncodeEventTopicsParameters<
@@ -28,6 +41,13 @@ export type EncodeEventTopicsParameters<
   : _EventName extends string
   ? { abi: [TAbi[number]]; args?: GetEventArgs<TAbi, _EventName> }
   : never)
+
+export type EncodeEventTopicsErrorType =
+  | AbiEventNotFoundErrorType
+  | EncodeArgErrorType
+  | FormatAbiItemErrorType
+  | GetEventSelectorErrorType
+  | ErrorType
 
 export function encodeEventTopics<
   const TAbi extends Abi | readonly unknown[],
@@ -80,6 +100,13 @@ export function encodeEventTopics<
   }
   return [signature, ...topics]
 }
+
+export type EncodeArgErrorType =
+  | Keccak256ErrorType
+  | ToBytesErrorType
+  | EncodeAbiParametersErrorType
+  | FilterTypeNotSupportedErrorType
+  | ErrorType
 
 function encodeArg({
   param,

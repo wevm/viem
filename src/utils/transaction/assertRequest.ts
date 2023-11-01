@@ -1,12 +1,35 @@
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { SendTransactionParameters } from '../../actions/wallet/sendTransaction.js'
-import { InvalidAddressError } from '../../errors/address.js'
-import { FeeCapTooHighError, TipAboveFeeCapError } from '../../errors/node.js'
-import { FeeConflictError } from '../../errors/transaction.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
+import {
+  FeeCapTooHighError,
+  type FeeCapTooHighErrorType,
+  TipAboveFeeCapError,
+  type TipAboveFeeCapErrorType,
+} from '../../errors/node.js'
+import {
+  FeeConflictError,
+  type FeeConflictErrorType,
+} from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import { isAddress } from '../address/isAddress.js'
 
 export type AssertRequestParameters = Partial<SendTransactionParameters<Chain>>
+
+export type AssertRequestErrorType =
+  | InvalidAddressErrorType
+  | FeeConflictErrorType
+  | FeeCapTooHighErrorType
+  | ParseAccountErrorType
+  | TipAboveFeeCapErrorType
+  | ErrorType
 
 export function assertRequest(args: AssertRequestParameters) {
   const {

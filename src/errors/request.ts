@@ -3,6 +3,9 @@ import { stringify } from '../utils/stringify.js'
 import { BaseError } from './base.js'
 import { getUrl } from './utils.js'
 
+export type HttpRequestErrorType = HttpRequestError & {
+  name: 'HttpRequestError'
+}
 export class HttpRequestError extends BaseError {
   override name = 'HttpRequestError'
 
@@ -39,6 +42,9 @@ export class HttpRequestError extends BaseError {
   }
 }
 
+export type WebSocketRequestErrorType = WebSocketRequestError & {
+  name: 'WebSocketRequestError'
+}
 export class WebSocketRequestError extends BaseError {
   override name = 'WebSocketRequestError'
 
@@ -58,6 +64,9 @@ export class WebSocketRequestError extends BaseError {
   }
 }
 
+export type RpcRequestErrorType = RpcRequestError & {
+  name: 'RpcRequestError'
+}
 export class RpcRequestError extends BaseError {
   override name = 'RpcRequestError'
 
@@ -81,6 +90,9 @@ export class RpcRequestError extends BaseError {
   }
 }
 
+export type TimeoutErrorType = TimeoutError & {
+  name: 'TimeoutError'
+}
 export class TimeoutError extends BaseError {
   override name = 'TimeoutError'
 

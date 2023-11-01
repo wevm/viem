@@ -1,4 +1,4 @@
-import { defineChain } from '../../../utils/chain.js'
+import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleCryptoBlades = /*#__PURE__*/ defineChain({
   id: 1_026_062_157,

@@ -3,8 +3,15 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { FeeHistory } from '../../types/fee.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
-import { formatFeeHistory } from '../../utils/formatters/feeHistory.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
+import {
+  type FormatFeeHistoryErrorType,
+  formatFeeHistory,
+} from '../../utils/formatters/feeHistory.js'
 
 export type GetFeeHistoryParameters = {
   /**
@@ -31,6 +38,11 @@ export type GetFeeHistoryParameters = {
     }
 )
 export type GetFeeHistoryReturnType = FeeHistory
+
+export type GetFeeHistoryErrorType =
+  | NumberToHexErrorType
+  | RequestErrorType
+  | FormatFeeHistoryErrorType
 
 /**
  * Returns a collection of historical gas information.

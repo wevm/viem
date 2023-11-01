@@ -12,15 +12,17 @@ import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetTransportConfig } from '../../types/transport.js'
 import type { EncodeEventTopicsParameters } from '../../utils/index.js'
-import { observe } from '../../utils/observe.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
-import { stringify } from '../../utils/stringify.js'
+import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
+import type { ErrorType } from '../../errors/utils.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   decodeEventLog,
   encodeEventTopics,
@@ -136,6 +138,11 @@ export type WatchEventParameters<
 
 export type WatchEventReturnType = () => void
 
+export type WatchEventErrorType =
+  | StringifyErrorType
+  | ObserveErrorType
+  | ErrorType
+
 /**
  * Watches and returns emitted [Event Logs](https://viem.sh/docs/glossary/terms.html#event-log).
  *
@@ -216,7 +223,10 @@ export function watchEvent<
         async () => {
           if (!initialized) {
             try {
-              filter = (await createEventFilter(client, {
+              filter = (await getAction(
+                client,
+                createEventFilter as any,
+              )({
                 address,
                 args,
                 event: event!,
@@ -235,19 +245,22 @@ export function watchEvent<
           try {
             let logs: Log[]
             if (filter) {
-              logs = await getFilterChanges(client, { filter })
+              logs = await getAction(client, getFilterChanges)({ filter })
             } else {
               // If the filter doesn't exist, we will fall back to use `getLogs`.
               // The fall back exists because some RPC Providers do not support filters.
 
               // Fetch the block number to use for `getLogs`.
-              const blockNumber = await getBlockNumber(client)
+              const blockNumber = await getAction(client, getBlockNumber)({})
 
               // If the block number has changed, we will need to fetch the logs.
               // If the block number doesn't exist, we are yet to reach the first poll interval,
               // so do not emit any logs.
               if (previousBlockNumber && previousBlockNumber !== blockNumber) {
-                logs = await getLogs(client, {
+                logs = await getAction(
+                  client,
+                  getLogs,
+                )({
                   address,
                   args,
                   event: event!,
@@ -279,7 +292,7 @@ export function watchEvent<
       )
 
       return async () => {
-        if (filter) await uninstallFilter(client, { filter })
+        if (filter) await getAction(client, uninstallFilter)({ filter })
         unwatch()
       }
     })

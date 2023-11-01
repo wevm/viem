@@ -1,10 +1,20 @@
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import { hexToNumber } from '../../utils/encoding/fromHex.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type HexToNumberErrorType,
+  hexToNumber,
+} from '../../utils/encoding/fromHex.js'
 
 export type GetChainIdReturnType = number
+
+export type GetChainIdErrorType =
+  | HexToNumberErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Returns the chain ID associated with the current network.

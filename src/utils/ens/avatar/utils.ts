@@ -1,14 +1,22 @@
 import type { Address } from 'abitype'
 
-import { readContract } from '../../../actions/public/readContract.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import {
   EnsAvatarInvalidMetadataError,
+  type EnsAvatarInvalidMetadataErrorType,
   EnsAvatarInvalidNftUriError,
+  type EnsAvatarInvalidNftUriErrorType,
   EnsAvatarUnsupportedNamespaceError,
+  type EnsAvatarUnsupportedNamespaceErrorType,
   EnsAvatarUriResolutionError,
+  type EnsAvatarUriResolutionErrorType,
 } from '../../../errors/ens.js'
+import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
 
@@ -24,6 +32,8 @@ const ipfsHashRegex =
   /^(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})(\/(?<target>[\w\-.]+))?(?<subtarget>\/.*)?$/
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
+
+export type IsImageUriErrorType = ErrorType
 
 export async function isImageUri(uri: string) {
   try {
@@ -56,11 +66,18 @@ export async function isImageUri(uri: string) {
   }
 }
 
+export type GetGatewayErrorType = ErrorType
+
 export function getGateway(custom: string | undefined, defaultGateway: string) {
   if (!custom) return defaultGateway
   if (custom.endsWith('/')) return custom.slice(0, -1)
   return custom
 }
+
+export type ResolveAvatarUriErrorType =
+  | GetGatewayErrorType
+  | EnsAvatarUriResolutionErrorType
+  | ErrorType
 
 export function resolveAvatarUri({
   uri,
@@ -125,6 +142,10 @@ export function resolveAvatarUri({
   throw new EnsAvatarUriResolutionError({ uri })
 }
 
+export type GetJsonImageErrorType =
+  | EnsAvatarInvalidMetadataErrorType
+  | ErrorType
+
 export function getJsonImage(data: any) {
   // validation check for json data, must include one of theses properties
   if (
@@ -136,6 +157,12 @@ export function getJsonImage(data: any) {
 
   return data.image || data.image_url || data.image_data
 }
+
+export type GetMetadataAvatarUriErrorType =
+  | EnsAvatarUriResolutionErrorType
+  | ParseAvatarUriErrorType
+  | GetJsonImageErrorType
+  | ErrorType
 
 export async function getMetadataAvatarUri({
   gatewayUrls,
@@ -155,6 +182,12 @@ export async function getMetadataAvatarUri({
     throw new EnsAvatarUriResolutionError({ uri })
   }
 }
+
+export type ParseAvatarUriErrorType =
+  | ResolveAvatarUriErrorType
+  | IsImageUriErrorType
+  | EnsAvatarUriResolutionErrorType
+  | ErrorType
 
 export async function parseAvatarUri({
   gatewayUrls,
@@ -179,6 +212,8 @@ type ParsedNft = {
   contractAddress: Address
   tokenID: string
 }
+
+export type ParseNftUriErrorType = EnsAvatarInvalidNftUriErrorType | ErrorType
 
 export function parseNftUri(uri_: string): ParsedNft {
   let uri = uri_
@@ -213,6 +248,11 @@ export function parseNftUri(uri_: string): ParsedNft {
     tokenID,
   }
 }
+
+export type GetNftTokenUriErrorType =
+  | ReadContractErrorType
+  | EnsAvatarUnsupportedNamespaceErrorType
+  | ErrorType
 
 export async function getNftTokenUri<TChain extends Chain | undefined>(
   client: Client<Transport, TChain>,

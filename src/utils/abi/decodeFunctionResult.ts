@@ -2,7 +2,9 @@ import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 
 import {
   AbiFunctionNotFoundError,
+  type AbiFunctionNotFoundErrorType,
   AbiFunctionOutputsNotFoundError,
+  type AbiFunctionOutputsNotFoundErrorType,
 } from '../../errors/abi.js'
 import type {
   AbiItem,
@@ -12,8 +14,16 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 
-import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { type GetAbiItemParameters, getAbiItem } from './getAbiItem.js'
+import type { ErrorType } from '../../errors/utils.js'
+import {
+  type DecodeAbiParametersErrorType,
+  decodeAbiParameters,
+} from './decodeAbiParameters.js'
+import {
+  type GetAbiItemErrorType,
+  type GetAbiItemParameters,
+  getAbiItem,
+} from './getAbiItem.js'
 
 const docsPath = '/docs/contract/decodeFunctionResult'
 
@@ -41,6 +51,13 @@ export type DecodeFunctionResultReturnType<
 > = TFunctionName extends string
   ? ContractFunctionResult<TAbi, TFunctionName>
   : ContractFunctionResult<TAbi, _FunctionName>
+
+export type DecodeFunctionResultErrorType =
+  | AbiFunctionNotFoundErrorType
+  | AbiFunctionOutputsNotFoundErrorType
+  | DecodeAbiParametersErrorType
+  | GetAbiItemErrorType
+  | ErrorType
 
 export function decodeFunctionResult<
   const TAbi extends Abi | readonly unknown[],

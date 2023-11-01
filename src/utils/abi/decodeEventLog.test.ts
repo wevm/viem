@@ -773,6 +773,52 @@ describe('GitHub repros', () => {
       `)
     })
   })
+
+  describe('https://github.com/wagmi-dev/viem/issues/1336', () => {
+    test('topics + event params mismatch', () => {
+      expect(() =>
+        decodeEventLog({
+          abi: [
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: 'uint256',
+                  name: 'nounId',
+                  type: 'uint256',
+                },
+                {
+                  indexed: false,
+                  internalType: 'uint256',
+                  name: 'startTime',
+                  type: 'uint256',
+                },
+                {
+                  indexed: false,
+                  internalType: 'uint256',
+                  name: 'endTime',
+                  type: 'uint256',
+                },
+              ],
+              name: 'AuctionCreated',
+              type: 'event',
+            },
+          ],
+          data: '0x00000000000000000000000000000000000000000000000000000000000000680000000000000000000000000000000000000000000000004563918244f400000000000000000000000000000000000000000000000000000000000062845fba',
+          topics: [
+            '0xd6eddd1118d71820909c1197aa966dbc15ed6f508554252169cc3d5ccac756ca',
+          ],
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        "Expected a topic for indexed event parameter \\"nounId\\" on event \\"AuctionCreated(uint256 nounId, uint256 startTime, uint256 endTime)\\".
+
+        Version: viem@1.0.2"
+      `,
+      )
+    })
+  })
 })
 
 test("errors: event doesn't exist", () => {

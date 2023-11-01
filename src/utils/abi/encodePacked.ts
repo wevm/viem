@@ -12,15 +12,28 @@ import type {
 
 import {
   AbiEncodingLengthMismatchError,
+  type AbiEncodingLengthMismatchErrorType,
   BytesSizeMismatchError,
+  type BytesSizeMismatchErrorType,
   UnsupportedPackedAbiType,
 } from '../../errors/abi.js'
-import { InvalidAddressError } from '../../errors/address.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import { isAddress } from '../address/isAddress.js'
-import { concatHex } from '../data/concat.js'
-import { pad } from '../data/pad.js'
-import { boolToHex, numberToHex, stringToHex } from '../encoding/toHex.js'
+import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import { type PadErrorType, pad } from '../data/pad.js'
+import {
+  type BoolToHexErrorType,
+  type NumberToHexErrorType,
+  type StringToHexErrorType,
+  boolToHex,
+  numberToHex,
+  stringToHex,
+} from '../encoding/toHex.js'
 import { arrayRegex, bytesRegex, integerRegex } from '../regex.js'
 
 type PackedAbiType =
@@ -39,6 +52,12 @@ type EncodePackedValues<
     : unknown
 }
 
+export type EncodePackedErrorType =
+  | AbiEncodingLengthMismatchErrorType
+  | ConcatHexErrorType
+  | EncodeErrorType
+  | ErrorType
+
 export function encodePacked<
   const TPackedAbiTypes extends readonly PackedAbiType[] | readonly unknown[],
 >(types: TPackedAbiTypes, values: EncodePackedValues<TPackedAbiTypes>): Hex {
@@ -56,6 +75,17 @@ export function encodePacked<
   }
   return concatHex(data)
 }
+
+type EncodeErrorType =
+  | BoolToHexErrorType
+  | BytesSizeMismatchErrorType
+  | InvalidAddressErrorType
+  | IsAddressErrorType
+  | NumberToHexErrorType
+  | PadErrorType
+  | StringToHexErrorType
+  | UnsupportedPackedAbiType
+  | ErrorType
 
 function encode<const TPackedAbiType extends PackedAbiType | unknown>(
   type: TPackedAbiType,

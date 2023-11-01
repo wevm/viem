@@ -1,7 +1,10 @@
+import type { ErrorType } from '../errors/utils.js'
 import type { MaybePromise } from '../types/utils.js'
 
 type Callback = ((...args: any[]) => any) | undefined
 type Callbacks = Record<string, Callback>
+
+export type ObserveErrorType = ErrorType
 
 export const listenersCache = /*#__PURE__*/ new Map<
   string,

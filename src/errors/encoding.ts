@@ -2,6 +2,9 @@ import type { ByteArray, Hex } from '../types/misc.js'
 
 import { BaseError } from './base.js'
 
+export type DataLengthTooLongErrorType = DataLengthTooLongError & {
+  name: 'DataLengthTooLongError'
+}
 /** @deprecated */
 export class DataLengthTooLongError extends BaseError {
   override name = 'DataLengthTooLongError'
@@ -14,6 +17,9 @@ export class DataLengthTooLongError extends BaseError {
   }
 }
 
+export type DataLengthTooShortErrorType = DataLengthTooShortError & {
+  name: 'DataLengthTooShortError'
+}
 /** @deprecated */
 export class DataLengthTooShortError extends BaseError {
   override name = 'DataLengthTooShortError'
@@ -26,6 +32,9 @@ export class DataLengthTooShortError extends BaseError {
   }
 }
 
+export type IntegerOutOfRangeErrorType = IntegerOutOfRangeError & {
+  name: 'IntegerOutOfRangeError'
+}
 export class IntegerOutOfRangeError extends BaseError {
   override name = 'IntegerOutOfRangeError'
   constructor({
@@ -49,6 +58,9 @@ export class IntegerOutOfRangeError extends BaseError {
   }
 }
 
+export type InvalidBytesBooleanErrorType = InvalidBytesBooleanError & {
+  name: 'InvalidBytesBooleanError'
+}
 export class InvalidBytesBooleanError extends BaseError {
   override name = 'InvalidBytesBooleanError'
   constructor(bytes: ByteArray) {
@@ -58,6 +70,9 @@ export class InvalidBytesBooleanError extends BaseError {
   }
 }
 
+export type InvalidHexBooleanErrorType = InvalidHexBooleanError & {
+  name: 'InvalidHexBooleanError'
+}
 export class InvalidHexBooleanError extends BaseError {
   override name = 'InvalidHexBooleanError'
   constructor(hex: Hex) {
@@ -67,6 +82,9 @@ export class InvalidHexBooleanError extends BaseError {
   }
 }
 
+export type InvalidHexValueErrorType = InvalidHexValueError & {
+  name: 'InvalidHexValueError'
+}
 export class InvalidHexValueError extends BaseError {
   override name = 'InvalidHexValueError'
   constructor(value: Hex) {
@@ -76,9 +94,12 @@ export class InvalidHexValueError extends BaseError {
   }
 }
 
+export type OffsetOutOfBoundsErrorType = OffsetOutOfBoundsError & {
+  name: 'OffsetOutOfBoundsError'
+}
 /** @deprecated */
 export class OffsetOutOfBoundsError extends BaseError {
-  override name = 'OffsetOutOfBoundsError'
+  override name = 'OffsetOutOfBoundsError' as const
   constructor({ nextOffset, offset }: { nextOffset: number; offset: number }) {
     super(
       `Next offset (${nextOffset}) is greater than previous offset + consumed bytes (${offset})`,
@@ -86,8 +107,11 @@ export class OffsetOutOfBoundsError extends BaseError {
   }
 }
 
+export type SizeOverflowErrorType = SizeOverflowError & {
+  name: 'SizeOverflowError'
+}
 export class SizeOverflowError extends BaseError {
-  override name = 'SizeOverflowError'
+  override name = 'SizeOverflowError' as const
   constructor({ givenSize, maxSize }: { givenSize: number; maxSize: number }) {
     super(
       `Size cannot exceed ${maxSize} bytes. Given size: ${givenSize} bytes.`,

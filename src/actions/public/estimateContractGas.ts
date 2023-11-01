@@ -1,7 +1,10 @@
 import type { Abi } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
@@ -9,11 +12,20 @@ import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionConfig, GetValue } from '../../types/contract.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
+  type EncodeFunctionDataErrorType,
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { getContractError } from '../../utils/errors/getContractError.js'
-import { type EstimateGasParameters, estimateGas } from './estimateGas.js'
+import {
+  type GetContractErrorReturnType,
+  getContractError,
+} from '../../utils/errors/getContractError.js'
+import { getAction } from '../../utils/getAction.js'
+import {
+  type EstimateGasErrorType,
+  type EstimateGasParameters,
+  estimateGas,
+} from './estimateGas.js'
 
 export type EstimateContractGasParameters<
   TAbi extends Abi | readonly unknown[] = Abi,
@@ -31,6 +43,10 @@ export type EstimateContractGasParameters<
   >
 
 export type EstimateContractGasReturnType = bigint
+
+export type EstimateContractGasErrorType = GetContractErrorReturnType<
+  EncodeFunctionDataErrorType | EstimateGasErrorType | ParseAccountErrorType
+>
 
 /**
  * Estimates the gas required to successfully execute a contract write function call.
@@ -80,7 +96,10 @@ export async function estimateContractGas<
     functionName,
   } as unknown as EncodeFunctionDataParameters<TAbi, TFunctionName>)
   try {
-    const gas = await estimateGas(client, {
+    const gas = await getAction(
+      client,
+      estimateGas,
+    )({
       data,
       to: address,
       ...request,

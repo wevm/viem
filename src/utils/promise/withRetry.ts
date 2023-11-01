@@ -1,4 +1,7 @@
+import type { ErrorType } from '../../errors/utils.js'
 import { wait } from '../wait.js'
+
+export type WithRetryErrorType = ErrorType
 
 export function withRetry<TData>(
   fn: () => Promise<TData>,

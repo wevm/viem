@@ -34,10 +34,10 @@ Let's clear up on some terms before we dive in.
 In the context of viem, a Wallet Client is an interface that can hold an Account. The Account may or may not hold a Private Key.
 
 In viem, there are two types of Accounts:
-- Local Account: can **synchronously & directly** sign messages and transactions using its Private Key. A signature is guarenteed.
-- JSON-RPC Account: **asynchronously requests** signing of messages and transactions from the target Wallet over JSON-RPC (e.g. Browser Extension or WalletConnect). The target Wallet holds the Account & Private Key. A signature is not guarenteed (the target Wallet may not have permitted the Account, or the Wallet may have rejected the request).
+- Local Account: can **synchronously & directly** sign messages and transactions using its Private Key. A signature is guaranteed.
+- JSON-RPC Account: **asynchronously requests** signing of messages and transactions from the target Wallet over JSON-RPC (e.g. Browser Extension or WalletConnect). The target Wallet holds the Account & Private Key. A signature is not guaranteed (the target Wallet may not have permitted the Account, or the Wallet may have rejected the request).
 
-We do not use the term "Signer" because there are noticible behavioral differences between signing locally and signing over JSON-RPC.
+We do not use the term "Signer" because there are noticeable behavioral differences between signing locally and signing over JSON-RPC.
 
 ## Why are contract function `args` with fully-named inputs represented as unnamed tuple types instead of object types?
 

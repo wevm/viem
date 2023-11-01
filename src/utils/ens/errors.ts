@@ -1,6 +1,9 @@
 import { panicReasons } from '../../constants/solidity.js'
 import { BaseError } from '../../errors/base.js'
 import { ContractFunctionRevertedError } from '../../errors/contract.js'
+import type { ErrorType } from '../../errors/utils.js'
+
+export type IsNullUniversalResolverErrorErrorType = ErrorType
 
 /*
  * @description Checks if error is a valid null result UniversalResolver error

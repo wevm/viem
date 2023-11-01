@@ -1,9 +1,14 @@
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
+import type { SignTransactionErrorType } from '../../accounts/utils/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetChain } from '../../types/chain.js'
@@ -13,20 +18,35 @@ import type {
   TransactionSerializable,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { assertCurrentChain } from '../../utils/chain.js'
-import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import {
+  type AssertCurrentChainErrorType,
+  assertCurrentChain,
+} from '../../utils/chain/assertCurrentChain.js'
+import {
+  type GetTransactionErrorReturnType,
+  getTransactionError,
+} from '../../utils/errors/getTransactionError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
+import { getAction } from '../../utils/getAction.js'
 import {
+  type AssertRequestErrorType,
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import { getChainId } from '../public/getChainId.js'
-import { prepareTransactionRequest } from './prepareTransactionRequest.js'
-import { sendRawTransaction } from './sendRawTransaction.js'
+import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
+import {
+  type PrepareTransactionRequestErrorType,
+  prepareTransactionRequest,
+} from './prepareTransactionRequest.js'
+import {
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from './sendRawTransaction.js'
 
 export type SendTransactionParameters<
   TChain extends Chain | undefined = Chain | undefined,
@@ -42,6 +62,19 @@ export type SendTransactionParameters<
   GetChain<TChain, TChainOverride>
 
 export type SendTransactionReturnType = Hash
+
+export type SendTransactionErrorType =
+  | ParseAccountErrorType
+  | GetTransactionErrorReturnType<
+      | AssertCurrentChainErrorType
+      | AssertRequestErrorType
+      | GetChainIdErrorType
+      | PrepareTransactionRequestErrorType
+      | SendRawTransactionReturnType
+      | SignTransactionErrorType
+      | RequestErrorType
+    >
+  | ErrorType
 
 /**
  * Creates, signs, and sends a new transaction to the network.
@@ -91,7 +124,7 @@ export type SendTransactionReturnType = Hash
 export async function sendTransaction<
   TChain extends Chain | undefined,
   TAccount extends Account | undefined,
-  TChainOverride extends Chain | undefined,
+  TChainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, TChain, TAccount>,
   args: SendTransactionParameters<TChain, TAccount, TChainOverride>,
@@ -122,7 +155,7 @@ export async function sendTransaction<
 
     let chainId
     if (chain !== null) {
-      chainId = await getChainId(client)
+      chainId = await getAction(client, getChainId)({})
       assertCurrentChain({
         currentChainId: chainId,
         chain,
@@ -131,7 +164,10 @@ export async function sendTransaction<
 
     if (account.type === 'local') {
       // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await prepareTransactionRequest(client, {
+      const request = await getAction(
+        client,
+        prepareTransactionRequest,
+      )({
         account,
         accessList,
         chain,
@@ -146,7 +182,7 @@ export async function sendTransaction<
         ...rest,
       } as any)
 
-      if (!chainId) chainId = await getChainId(client)
+      if (!chainId) chainId = await getAction(client, getChainId)({})
 
       const serializer = chain?.serializers?.transaction
       const serializedTransaction = (await account.signTransaction(
@@ -156,16 +192,20 @@ export async function sendTransaction<
         } as TransactionSerializable,
         { serializer },
       )) as Hash
-      return await sendRawTransaction(client, {
+      return await getAction(
+        client,
+        sendRawTransaction,
+      )({
         serializedTransaction,
       })
     }
 
-    const format =
-      chain?.formatters?.transactionRequest?.format || formatTransactionRequest
+    const chainFormat = client.chain?.formatters?.transactionRequest?.format
+    const format = chainFormat || formatTransactionRequest
+
     const request = format({
       // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format }),
+      ...extract(rest, { format: chainFormat }),
       accessList,
       data,
       from: account.address,

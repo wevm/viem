@@ -21,7 +21,7 @@ Shortcut Functions:
 - [bytesToHex](#bytestohex)
 - [bytesToString](#bytestostring)
 - [bytesToNumber](#bytestonumber)
-- [bytesToBigint](#bytestobigint)
+- [bytesToBigInt](#bytestobigint)
 - [bytesToBool](#bytestobool)
 
 ## Import
@@ -156,21 +156,21 @@ bytesToNumber( // [!code focus:5]
 // 420
 ```
 
-### bytesToBigint
+### bytesToBigInt
 
 - **Type:** `number`
 
 Decodes a byte array to a number.
 
 ```ts
-import { bytesToBigint } from 'viem'
+import { bytesToBigInt } from 'viem'
 
-bytesToBigint( // [!code focus:4]
+bytesToBigInt( // [!code focus:4]
   new Uint8Array([12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11, 117])
 )
 // 4206942069420694206942069420694206942069n
 
-bytesToBigint( // [!code focus:5]
+bytesToBigInt( // [!code focus:5]
   new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 92, 243, 146, 17, 135, 111, 181, 229, 136, 67, 39, 250, 86, 252, 11, 117]),
   { size: 32 }
 )

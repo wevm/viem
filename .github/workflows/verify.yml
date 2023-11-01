@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -84,7 +84,7 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -111,12 +111,68 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  test-envs:
+    name: Test Environments
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'sveltekit', 'tsc', 'vite']
+        include:
+          - type: bun
+            runtime: bun
+          - type: node-18
+            node-version: 18
+            runtime: node
+          - type: node-20
+            node-version: 20
+            runtime: node
+          - type: node-latest
+            node-version: latest
+            runtime: node
+          - type: next
+            runtime: next
+          - type: sveltekit
+            node-version: 18
+            runtime: sveltekit
+          - type: tsc
+            node-version: 20
+            runtime: tsc
+          - type: vite
+            runtime: vite
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        if: ${{ matrix.runtime == 'bun' }}
+        uses: oven-sh/setup-bun@v1
+
+      - name: Set up Node
+        if: ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Playwright Browsers
+        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'sveltekit' || matrix.runtime == 'vite' }}
+        run: npx playwright@1.38.1 install --with-deps
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build
+        run: bun run build
+
+      - name: Run tests
+        run: bun run test:env:${{ matrix.runtime }}
+
   vectors:
     name: Vectors
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

@@ -15,6 +15,7 @@ type BaseErrorParameters = {
     }
 )
 
+export type BaseErrorType = BaseError & { name: 'ViemError' }
 export class BaseError extends Error {
   details: string
   docsPath?: string

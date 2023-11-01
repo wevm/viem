@@ -1,7 +1,10 @@
 import type { AbiParameter } from 'abitype'
 
+import type { ErrorType } from '../../errors/utils.js'
 import type { AbiItem } from '../../types/contract.js'
 import { stringify } from '../stringify.js'
+
+export type FormatAbiItemWithArgsErrorType = ErrorType
 
 export function formatAbiItemWithArgs({
   abiItem,
