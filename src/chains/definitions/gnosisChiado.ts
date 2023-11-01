@@ -10,8 +10,14 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
     symbol: 'xDAI',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.chiadochain.net'] },
-    public: { http: ['https://rpc.chiadochain.net'] },
+    default: {
+      http: ['https://rpc.chiadochain.net'],
+      webSocket: ['wss://rpc.chiadochain.net/wss'],
+    },
+    public: {
+      http: ['https://rpc.chiadochain.net'],
+      webSocket: ['wss://rpc.chiadochain.net/wss'],
+    },
   },
   blockExplorers: {
     default: {
