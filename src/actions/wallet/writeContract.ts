@@ -16,14 +16,12 @@ import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
   type EncodeFunctionDataErrorType,
-  type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import {
   type SendTransactionErrorType,
-  type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
@@ -39,7 +37,7 @@ export type WriteContractParameters<
     'nonpayable' | 'payable',
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
-  chain extends Chain | undefined = Chain,
+  chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
@@ -51,19 +49,15 @@ export type WriteContractParameters<
   args,
   allFunctionNames
 > &
+  GetChain<chain, chainOverride> &
   Prettify<
     GetAccountParameter<account> &
-      GetChain<chain, chainOverride> &
       GetValue<
         abi,
         functionName,
-        SendTransactionParameters<
-          chain,
-          account,
-          chainOverride
-        > extends SendTransactionParameters
-          ? SendTransactionParameters<chain, account, chainOverride>['value']
-          : SendTransactionParameters['value']
+        FormattedTransactionRequest<
+          chainOverride extends Chain ? chainOverride : chain
+        >['value']
       > & {
         /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
         dataSuffix?: Hex
@@ -155,18 +149,11 @@ export async function writeContract<
 ): Promise<WriteContractReturnType> {
   const { abi, address, args, dataSuffix, functionName, ...request } =
     parameters as WriteContractParameters
-  const data = encodeFunctionData({
-    abi,
-    args,
-    functionName,
-  } as EncodeFunctionDataParameters)
-  const hash = await getAction(
-    client,
-    sendTransaction,
-  )({
+  const data = encodeFunctionData({ abi, args, functionName })
+  const action = getAction(client, sendTransaction)
+  return action({
     data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
     to: address,
     ...request,
-  } as SendTransactionParameters)
-  return hash
+  })
 }

@@ -239,4 +239,4 @@ export type GetChain<
   chainOverride extends Chain | undefined = undefined,
 > = IsUndefined<chain> extends true
   ? { chain: chainOverride | null }
-  : { chain?: chainOverride | null }
+  : { chain?: chainOverride | null | undefined }

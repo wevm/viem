@@ -33,6 +33,7 @@ test('WriteContractParameters', async () => {
     address,
     functionName: 'cancel',
     // ^?
+    chain: null,
     args: [
       [
         {
@@ -106,6 +107,19 @@ test('infers args', () => {
     abi,
     functionName: 'foo',
     args: ['0x'],
+  })
+})
+
+test('with and without chain', () => {
+  const client = createWalletClient({
+    account: accounts[0].address,
+    transport: custom(window.ethereum!),
+  })
+  // @ts-expect-error `chain` is required
+  writeContract(client, { ...args })
+  writeContract(walletClientWithAccount, {
+    ...args,
+    chain: undefined,
   })
 })
 
