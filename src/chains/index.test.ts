@@ -91,6 +91,7 @@ test('exports chains', () => {
       "moonbeamDev",
       "moonriver",
       "neonDevnet",
+      "neonMainnet",
       "nexi",
       "nexilix",
       "oasys",
