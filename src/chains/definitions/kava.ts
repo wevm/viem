@@ -14,7 +14,7 @@ export const kava = /*#__PURE__*/ defineChain({
       default: { http: ["https://kava-evm.publicnode.com"] },
     },
     blockExplorers: {
-      default: { name: "Kava EVM Explorer", url: "https://kavascan.com/" },
+      default: { name: "Kava EVM Explorer", url: "https://kavascan.com" },
     },
     contracts: {
       multicall3: {
