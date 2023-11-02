@@ -615,3 +615,135 @@ test('cannot infer type from transaction object', () => {
     Version: viem@1.0.2"
   `)
 })
+
+describe('github', () => {
+  test('https://github.com/wagmi-dev/viem/issues/1433', () => {
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 84475n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 84475n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8667584b2d05e0082c9ab9455d398326f99059ff775485246999027b31979558080830149fba073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 84476n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 84476n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8667584b2d05e0082c9ab9455d398326f99059ff775485246999027b31979558080830149fca073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 35n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 35n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8637584b2d05e0082c9ab9455d398326f99059ff775485246999027b319795580801ba073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+
+    expect(
+      serializeTransaction(
+        {
+          blockHash: null,
+          blockNumber: null,
+          from: '0xc702b9950e44f7d321fa16ee88bf8e1a561249ba',
+          gas: 51627n,
+          gasPrice: 3000000000n,
+          hash: '0x3eaa88a766e82cbe53c95218ab4c3cf316325802b5f75d086b5121007b918e92',
+          input:
+            '0xa9059cbb00000000000000000000000082fc882199816bcec06baf848eaec51c2f96c85b000000000000000000000000000000000000000000000000eccae3078bacd15d',
+          nonce: 117,
+          to: '0x55d398326f99059ff775485246999027b3197955',
+          transactionIndex: null,
+          value: 0n,
+          type: 'legacy',
+          v: 36n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+          chainId: undefined,
+          typeHex: '0x0',
+        },
+        {
+          v: 36n,
+          r: '0x73b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bf',
+          s: '0x354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23',
+        },
+      ),
+    ).toMatchInlineSnapshot(
+      '"0xf8637584b2d05e0082c9ab9455d398326f99059ff775485246999027b319795580801ca073b39769ff4a36515c8fca546550a3fdafebbf37fa9e22be2d92b44653ade7bfa0354c756a1aa3346e9b3ea5423ac99acfc005e9cce2cd698e14d792f43fa15a23"',
+    )
+  })
+})
