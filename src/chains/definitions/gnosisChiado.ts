@@ -25,5 +25,11 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
       url: 'https://blockscout.chiadochain.net',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 4967313,
+    },
+  },
   testnet: true,
 })
